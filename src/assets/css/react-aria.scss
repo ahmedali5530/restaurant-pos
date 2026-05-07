@@ -22,24 +22,51 @@
   }
 }
 
-
-@keyframes modal-blur {
-  from {
-    transform: scale(0.7);
-  }
-
-  to {
-    transform: scale(1);
-  }
-}
-
 .react-aria-Modal {
+  transform-origin: bottom center;
+  will-change: transform, clip-path, opacity;
+
   &[data-entering] {
-    animation: modal-blur 100ms;
+    animation: genieIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
 
   &[data-exiting] {
-    animation: modal-blur 50ms reverse ease-in;
+    animation: genieOut 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+}
+
+@keyframes genieIn {
+  0% {
+    transform: translateY(120%) scaleY(0.01) scaleX(0.1);
+    opacity: 0;
+  }
+  20% {
+    transform: translateY(80%) scaleY(0.15) scaleX(0.4);
+    opacity: 0.6;
+  }
+  40% {
+    transform: translateY(50%) scaleY(0.4) scaleX(0.6);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes genieOut {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  30% {
+    transform: translateY(-8%) scaleY(1.1) scaleX(1.05);
+  }
+  60% {
+    transform: translateY(50%) scaleY(0.4) scaleX(0.6);
+  }
+  100% {
+    transform: translateY(120%) scaleY(0.05) scaleX(0.3);
+    opacity: 0;
   }
 }
 

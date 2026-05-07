@@ -11,10 +11,13 @@ export interface DayClosing extends ID {
   created_at: DateTime
   date_from: DateTime|null
   date_to: DateTime|null
-  denominations: KeyValue
+  denominations: KeyValue[]
   expenses: number
   expenses_data: object[]
+  notes?: string
   opened_by?: User
   opening_balance: number
-  payments_data?: KeyValue
+  payments_data?: KeyValue[]
+  status?: string
+  terminal_cash?: KeyValue[]
 }

@@ -19,8 +19,8 @@ const safeNumber = (value: unknown) => {
 
 const parseFilters = () => {
   const params = new URLSearchParams(window.location.search);
-  const startDate = params.get("start_date") || params.get("start");
-  const endDate = params.get("end_date") || params.get("end");
+  const startDate = params.get("start") || params.get("start");
+  const endDate = params.get("end") || params.get("end");
   const shiftId = params.get("shift");
   return { startDate, endDate, shiftId };
 };

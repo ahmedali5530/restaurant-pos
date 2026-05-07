@@ -2,7 +2,7 @@ import {useEffect, useMemo, useRef, useState} from "react";
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {Order, ORDER_FETCHES} from "@/api/model/order.ts";
+import {Order, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
 import {withCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {ResponsiveLine} from "@nivo/line";
@@ -14,13 +14,19 @@ import {
   Table as TableIcon,
   UserCheck,
   Truck,
-  Clock
+  Clock,
+  DollarSign,
+  TrendingUp,
+  ArrowLeftRight,
+  Trash2,
+  Hash,
+  ShoppingCart
 } from "lucide-react";
 import {TabList, Tabs} from "react-aria-components";
 import {Tab, TabPanel} from "@/components/common/react-aria/tabs.tsx";
 import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
 import {DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
-import {getOrderPaymentTotals} from "@/lib/order.ts";
+import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
 
 
 // ==================== Types ====================
@@ -66,6 +72,17 @@ type PaymentTypeSales = {
   amount: number;
 };
 
+type BreakdownDatum = {
+  name: string;
+  count: number;
+  amount: number;
+};
+
+type PeriodSalesItem = {
+  label: string;
+  amount: number;
+};
+
 // ==================== Constants ====================
 const COLORS = [
   '#0046FE', // primary.500
@@ -85,14 +102,47 @@ const safeNumber = (value: unknown): number => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-const calculateOrderNetSales = (order: Order): number => {
-  const grossTotal = order.items?.reduce((sum, item) => sum + calculateOrderItemPrice(item), 0) ?? 0;
-  const lineDiscounts = order.items?.reduce((sum, item) => sum + safeNumber(item?.discount), 0) ?? 0;
+const getOrderFigures = (order: Order) => {
+  const filteredItems = getOrderFilteredItems(order) ?? [];
+  const exclusiveSales = filteredItems.reduce((sum, item) => sum + safeNumber(calculateOrderItemPrice(item)), 0);
+  const extras = (order.extras ?? []).reduce((sum, extra) => sum + safeNumber(extra.value), 0);
+  const grossSales = safeNumber(exclusiveSales + extras);
+
+  const lineDiscounts = safeNumber(order.items?.reduce((sum, item) => sum + safeNumber(item?.discount), 0) ?? 0);
   const orderDiscount = safeNumber(order.discount_amount);
+  const subtotalDiscount = Math.max(0, orderDiscount - lineDiscounts);
   const couponDiscount = safeNumber(order.coupon?.discount);
-  const extraDiscount = Math.max(0, orderDiscount - lineDiscounts);
-  const net = grossTotal - lineDiscounts - extraDiscount - couponDiscount;
-  return net > 0 ? net : 0;
+  const discounts = safeNumber(lineDiscounts + subtotalDiscount + couponDiscount);
+  const netSales = safeNumber(grossSales - discounts);
+
+  const serviceCharge = safeNumber(order.service_charge_amount);
+  const tax = safeNumber(order.tax_amount);
+  const tips = safeNumber(order.tip_amount);
+  const totalRevenue = safeNumber(netSales + serviceCharge + tax);
+  const grandTotal = safeNumber(totalRevenue + tips);
+
+  const allItems = order.items ?? [];
+  const voidedItems = allItems.filter(item => !filteredItems.some(filtered => filtered.id === item.id));
+  const voidAmount = voidedItems.reduce((sum, item) => sum + safeNumber(calculateOrderItemPrice(item)), 0);
+
+  const hasRefundPayment = (order.payments ?? []).some(payment => safeNumber(payment.amount) < 0);
+  const isRefundedOrder = order.status === OrderStatus.Refunded || order.status === OrderStatus.Cancelled || hasRefundPayment;
+
+  return {
+    filteredItems,
+    exclusiveSales,
+    grossSales,
+    discounts,
+    netSales,
+    serviceCharge,
+    tax,
+    tips,
+    totalRevenue,
+    grandTotal,
+    couponDiscount,
+    voidAmount,
+    isRefundedOrder,
+  };
 };
 
 // ==================== Widget Components ====================
@@ -100,6 +150,8 @@ const calculateOrderNetSales = (order: Order): number => {
 const KPIMetricWidget = ({
   title,
   value,
+  subtitle,
+  icon: Icon,
   gradientFrom,
   gradientTo,
   borderColor,
@@ -108,6 +160,8 @@ const KPIMetricWidget = ({
 }: {
   title: string;
   value: string;
+  subtitle?: string;
+  icon: any;
   gradientFrom: string;
   gradientTo: string;
   borderColor: string;
@@ -116,8 +170,12 @@ const KPIMetricWidget = ({
 }) => {
   return (
     <div className={`bg-gradient-to-br ${gradientFrom} to-${gradientTo} p-4 rounded-lg border ${borderColor}`}>
-      <p className={`text-sm font-medium ${labelColor} mb-1`}>{title}</p>
+      <div className="mb-2 flex items-center justify-between">
+        <p className={`text-sm font-medium ${labelColor}`}>{title}</p>
+        <Icon className={`h-4 w-4 ${labelColor}`} />
+      </div>
       <p className={`text-2xl font-bold ${textColor}`}>{value}</p>
+      {subtitle ? <p className={`text-xs mt-1 ${labelColor}`}>{subtitle}</p> : null}
     </div>
   );
 };
@@ -183,8 +241,8 @@ const SalesLineChart = ({
             gridYValues={6}
             colors={['#0046FE']}
             lineWidth={3}
-            pointSize={8}
-            pointColor="#ffffff"
+            pointSize={12}
+            pointColor="#0046FE"
             pointBorderWidth={2}
             pointBorderColor={{from: 'serieColor'}}
             pointLabelYOffset={-12}
@@ -292,8 +350,8 @@ const OrdersPerHourChart = ({
             gridYValues={6}
             colors={['#3DE567']}
             lineWidth={3}
-            pointSize={8}
-            pointColor="#ffffff"
+            pointSize={12}
+            pointColor="#3DE567"
             pointBorderWidth={2}
             pointBorderColor={{from: 'serieColor'}}
             pointLabelYOffset={-12}
@@ -316,7 +374,7 @@ const OrdersPerHourChart = ({
               axis: {
                 ticks: {
                   text: {fill: '#737373', fontSize: 11},
-                },
+                }
               },
               grid: {
                 line: {stroke: '#e5e5e5', strokeWidth: 1},
@@ -329,7 +387,7 @@ const OrdersPerHourChart = ({
                   background: '#ffffff',
                   borderRadius: '8px',
                 },
-              },
+              }
             }}
           />
         ) : (
@@ -438,39 +496,6 @@ const DayPartsWidget = ({dayParts}: {dayParts: {label: string; orders: number; r
   );
 };
 
-const TopSellingItemsWidget = ({items}: {items: TopItem[]}) => {
-  return (
-    <div className="bg-white p-5 rounded-lg shadow-xl border">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="p-3 rounded-full bg-primary-100">
-          <Package className="w-5 h-5 text-primary-600" />
-        </div>
-        <div>
-          <h2 className="text-xl font-bold text-neutral-700">Top Selling Items</h2>
-          <p className="text-xs text-neutral-500">By revenue</p>
-        </div>
-      </div>
-      <div className="space-y-3">
-        {items.length > 0 ? items.slice(0, 5).map((item, idx) => (
-          <div key={item.name} className="flex items-center justify-between py-2 border-b border-neutral-100 last:border-0">
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded-full bg-primary-100 text-primary-500 flex items-center justify-center text-xs font-bold">
-                {idx + 1}
-              </div>
-              <div>
-                <p className="text-sm font-medium text-neutral-900">{item.name}</p>
-                <p className="text-xs text-neutral-500">{formatNumber(item.quantity)} sold</p>
-              </div>
-            </div>
-            <p className="text-sm font-semibold text-neutral-900">{withCurrency(item.revenue)}</p>
-          </div>
-        )) : (
-          <p className="text-sm text-neutral-500 text-center py-4">No items sold yet</p>
-        )}
-      </div>
-    </div>
-  );
-};
 
 const CategoryPieWidget = ({categories}: {categories: CategorySales[]}) => {
   return (
@@ -539,143 +564,148 @@ const CategoryPieWidget = ({categories}: {categories: CategorySales[]}) => {
   );
 };
 
-const TopUsersWidget = ({users}: {users: UserSales[]}) => {
+const BreakdownTabsWidget = ({
+  title,
+  subtitle,
+  rows,
+  icon: Icon,
+  colorClass,
+  countLabel,
+}: {
+  title: string;
+  subtitle: string;
+  rows: BreakdownDatum[];
+  icon: any;
+  colorClass: {bg: string; text: string};
+  countLabel: string;
+}) => {
+  const [selectedTab, setSelectedTab] = useState<'chart' | 'table'>('chart');
+  const chartRows = rows.slice(0, 8).map((row, idx) => ({
+    id: row.name,
+    label: row.name,
+    value: row.amount,
+    color: COLORS[idx % COLORS.length],
+  }));
+
+  return (
+    <div className="bg-white p-5 rounded-lg shadow-xl border">
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className={`p-3 rounded-full ${colorClass.bg}`}>
+            <Icon className={`w-5 h-5 ${colorClass.text}`} />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-neutral-700">{title}</h2>
+            <p className="text-xs text-neutral-500">{subtitle}</p>
+          </div>
+        </div>
+      </div>
+      <Tabs selectedKey={selectedTab} onSelectionChange={(key) => setSelectedTab(key as 'chart' | 'table')}>
+        <TabList aria-label={`${title} tabs`} className="flex flex-row gap-3 mb-4">
+          <Tab activeClass="bg-neutral-900 text-warning-500" id="chart" key="chart">Chart</Tab>
+          <Tab activeClass="bg-neutral-900 text-warning-500" id="table" key="table">Table</Tab>
+        </TabList>
+        <TabPanel id="chart" key="chart">
+          <div className="h-[260px]">
+            {chartRows.length > 0 ? (
+              <ResponsivePie
+                data={chartRows}
+                margin={{top: 20, right: 20, bottom: 60, left: 20}}
+                innerRadius={0.62}
+                padAngle={2}
+                cornerRadius={4}
+                colors={{datum: 'data.color'}}
+                borderWidth={2}
+                borderColor={{from: 'color', modifiers: [['darker', 1.2]]}}
+                enableArcLabels={false}
+                enableArcLinkLabels={false}
+                tooltip={({datum}) => (
+                  <div className="bg-white border border-neutral-200 rounded-lg shadow-lg p-3">
+                    <p className="text-sm font-medium text-neutral-900">{datum.label}</p>
+                    <p className="text-xs text-neutral-500">
+                      {countLabel}: {formatNumber(rows.find(row => row.name === datum.label)?.count || 0)}
+                    </p>
+                    <p className="text-sm text-neutral-700">{withCurrency(datum.value)}</p>
+                  </div>
+                )}
+                legends={[
+                  {
+                    anchor: 'bottom',
+                    direction: 'row',
+                    justify: false,
+                    translateX: 0,
+                    translateY: 40,
+                    itemsSpacing: 10,
+                    itemWidth: 90,
+                    itemHeight: 14,
+                    itemTextColor: '#525252',
+                    itemDirection: 'left-to-right',
+                    itemOpacity: 1,
+                    symbolSize: 10,
+                    symbolShape: 'circle',
+                  },
+                ]}
+              />
+            ) : (
+              <div className="h-full flex items-center justify-center text-neutral-500">No data available</div>
+            )}
+          </div>
+        </TabPanel>
+        <TabPanel id="table" key="table">
+          <div className="max-h-[260px] overflow-auto rounded border border-neutral-200">
+            <table className="min-w-full divide-y divide-neutral-200">
+              <thead className="bg-neutral-50">
+                <tr>
+                  <th className="py-2 px-3 text-left text-xs font-semibold uppercase text-neutral-600">Name</th>
+                  <th className="py-2 px-3 text-right text-xs font-semibold uppercase text-neutral-600">{countLabel}</th>
+                  <th className="py-2 px-3 text-right text-xs font-semibold uppercase text-neutral-600">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-100">
+                {rows.length > 0 ? rows.map(row => (
+                  <tr key={row.name}>
+                    <td className="py-2 px-3 text-sm text-neutral-700">{row.name}</td>
+                    <td className="py-2 px-3 text-sm text-right text-neutral-600">{formatNumber(row.count)}</td>
+                    <td className="py-2 px-3 text-sm text-right font-semibold text-neutral-900">{withCurrency(row.amount)}</td>
+                  </tr>
+                )) : (
+                  <tr>
+                    <td colSpan={3} className="py-6 text-center text-sm text-neutral-500">No data available</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </TabPanel>
+      </Tabs>
+    </div>
+  );
+};
+
+const PeriodComparisonSection = ({periodSales}: {periodSales: PeriodSalesItem[]}) => {
   return (
     <div className="bg-white p-5 rounded-lg shadow-xl border">
       <div className="flex items-center gap-2 mb-4">
         <div className="p-3 rounded-full bg-info-100">
-          <UserCheck className="w-5 h-5 text-info-600" />
+          <TrendingUp className="w-5 h-5 text-info-600" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-neutral-700">Top Cashiers</h2>
-          <p className="text-xs text-neutral-500">By performance</p>
+          <h2 className="text-xl font-bold text-neutral-700">Period Comparison</h2>
+          <p className="text-xs text-neutral-500">Database-calculated sales snapshots</p>
         </div>
       </div>
-      <div className="space-y-3">
-        {users.length > 0 ? users.slice(0, 5).map((user, idx) => (
-          <div key={user.name} className="flex items-center justify-between py-2 border-b border-neutral-100 last:border-0">
-            <div className="flex items-center gap-3">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold ${
-                idx === 0 ? 'bg-primary-500' : idx === 1 ? 'bg-success-500' : idx === 2 ? 'bg-warning-500' : 'bg-neutral-400'
-              }`}>
-                {user.name.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <p className="text-sm font-medium text-neutral-900">{user.name}</p>
-                <p className="text-xs text-neutral-500">{formatNumber(user.orders)} orders</p>
-              </div>
-            </div>
-            <p className="text-sm font-semibold text-neutral-900">{withCurrency(user.revenue)}</p>
+      <div className="rounded border border-neutral-200 overflow-hidden">
+        {periodSales.map((item, idx) => (
+          <div
+            key={item.label}
+            className={`flex items-center justify-between px-4 py-3 ${
+              idx % 2 === 0 ? 'bg-white' : 'bg-neutral-50'
+            }`}
+          >
+            <p className="text-sm text-neutral-600">{item.label}</p>
+            <p className="text-sm font-semibold text-neutral-900">{withCurrency(item.amount)}</p>
           </div>
-        )) : (
-          <p className="text-sm text-neutral-500 text-center py-4">No user data</p>
-        )}
-      </div>
-    </div>
-  );
-};
-
-const TopTablesWidget = ({tables}: {tables: TableSales[]}) => {
-  return (
-    <div className="bg-white p-5 rounded-lg shadow-xl border">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="p-3 rounded-full bg-warning-100">
-          <TableIcon className="w-5 h-5 text-warning-600" />
-        </div>
-        <div>
-          <h2 className="text-xl font-bold text-neutral-700">Top Tables</h2>
-          <p className="text-xs text-neutral-500">By revenue</p>
-        </div>
-      </div>
-      <div className="space-y-3">
-        {tables.length > 0 ? tables.slice(0, 5).map((table, idx) => (
-          <div key={table.table} className="flex items-center justify-between py-2 border-b border-neutral-100 last:border-0">
-            <div className="flex items-center gap-3">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                idx === 0 ? 'bg-warning-100 text-warning-600' : 'bg-neutral-100 text-neutral-600'
-              }`}>
-                <TableIcon className="w-4 h-4" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-neutral-900">{table.table}</p>
-                <p className="text-xs text-neutral-500">{formatNumber(table.orders)} orders</p>
-              </div>
-            </div>
-            <p className="text-sm font-semibold text-neutral-900">{withCurrency(table.revenue)}</p>
-          </div>
-        )) : (
-          <p className="text-sm text-neutral-500 text-center py-4">No table data</p>
-        )}
-      </div>
-    </div>
-  );
-};
-
-const OrderTypeWidget = ({orderTypes}: {orderTypes: OrderTypeSales[]}) => {
-  return (
-    <div className="bg-white p-5 rounded-lg shadow-xl border">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="p-3 rounded-full bg-primary-100">
-          <Package className="w-5 h-5 text-primary-600" />
-        </div>
-        <div>
-          <h2 className="text-xl font-bold text-neutral-700">Order Types</h2>
-          <p className="text-xs text-neutral-500">Distribution</p>
-        </div>
-      </div>
-      <div className="space-y-3">
-        {orderTypes.length > 0 ? orderTypes.map((type, idx) => (
-          <div key={type.name} className="flex items-center justify-between py-2 border-b border-neutral-100 last:border-0">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-neutral-100 text-neutral-600 flex items-center justify-center text-xs font-bold">
-                {idx + 1}
-              </div>
-              <div>
-                <p className="text-sm font-medium text-neutral-900">{type.name}</p>
-                <p className="text-xs text-neutral-500">{formatNumber(type.orders)} orders</p>
-              </div>
-            </div>
-            <p className="text-sm font-semibold text-neutral-900">{withCurrency(type.revenue)}</p>
-          </div>
-        )) : (
-          <p className="text-sm text-neutral-500 text-center py-4">No order type data</p>
-        )}
-      </div>
-    </div>
-  );
-};
-
-const PaymentTypeWidget = ({paymentTypes}: {paymentTypes: PaymentTypeSales[]}) => {
-  return (
-    <div className="bg-white p-5 rounded-lg shadow-xl border">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="p-3 rounded-full bg-success-100">
-          <Tag className="w-5 h-5 text-success-600" />
-        </div>
-        <div>
-          <h2 className="text-xl font-bold text-neutral-700">Payment Methods</h2>
-          <p className="text-xs text-neutral-500">By volume</p>
-        </div>
-      </div>
-      <div className="space-y-3">
-        {paymentTypes.length > 0 ? paymentTypes.map((payment, idx) => (
-          <div key={payment.name} className="flex items-center justify-between py-2 border-b border-neutral-100 last:border-0">
-            <div className="flex items-center gap-3">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                idx === 0 ? 'bg-success-100 text-success-600' : 'bg-neutral-100 text-neutral-600'
-              }`}>
-                <Tag className="w-4 h-4" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-neutral-900">{payment.name}</p>
-                <p className="text-xs text-neutral-500">{formatNumber(payment.count)} transactions</p>
-              </div>
-            </div>
-            <p className="text-sm font-semibold text-neutral-900">{withCurrency(payment.amount)}</p>
-          </div>
-        )) : (
-          <p className="text-sm text-neutral-500 text-center py-4">No payment data</p>
-        )}
+        ))}
       </div>
     </div>
   );
@@ -776,7 +806,7 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
                         </p>
                       )}
                       <p className="text-xs text-gray-600">
-                        Total: <span className="font-bold text-primary-500">{withCurrency(calculateOrderNetSales(order))}</span>
+                        Total: <span className="font-bold text-primary-500">{withCurrency(getOrderPaymentTotals(order).amountCollected)}</span>
                       </p>
                     </div>
                   </Popup>
@@ -827,7 +857,7 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
                     {toLuxonDateTime(order.created_at).toFormat('HH:mm')}
                   </td>
                   <td className="py-3 pr-4 text-right text-sm font-semibold text-neutral-900">
-                    {withCurrency(calculateOrderNetSales(order))}
+                    {withCurrency(getOrderPaymentTotals(order).amountCollected)}
                   </td>
                 </tr>
               )) : (
@@ -886,6 +916,7 @@ const UserSessionsWidget = () => {
   const [sessions, setSessions] = useState<{
     user: string;
     role: string;
+    shift: string;
     clockIn: string;
     clockOut: string | null;
     duration: string;
@@ -900,7 +931,7 @@ const UserSessionsWidget = () => {
         // Get all users first
         const usersQuery = `
           SELECT * FROM user
-          FETCH user_role
+          FETCH user_role, user_shift
         `;
         const usersResult: any = await db.query(usersQuery);
         const users = usersResult?.[0] || [];
@@ -941,10 +972,12 @@ const UserSessionsWidget = () => {
             const firstName = user?.first_name || 'Unknown';
             const lastName = user?.last_name || '';
             const roleName = user?.user_role?.name || 'N/A';
+            const shiftName = user?.user_shift?.name || 'No shift';
 
             return {
               user: `${firstName} ${lastName}`.trim(),
               role: roleName,
+              shift: shiftName,
               clockIn: DateTime.fromJSDate(clockIn).toFormat('MMM dd, HH:mm'),
               clockOut: clockOut ? DateTime.fromJSDate(clockOut).toFormat('MMM dd, HH:mm') : null,
               duration,
@@ -985,6 +1018,7 @@ const UserSessionsWidget = () => {
             <tr>
               <th className="py-3 pl-4 pr-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">User</th>
               <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Role</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Shift</th>
               <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Clock In</th>
               <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Clock Out</th>
               <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Duration</th>
@@ -994,7 +1028,7 @@ const UserSessionsWidget = () => {
           <tbody className="divide-y divide-neutral-100 bg-white">
             {loading ? (
               <tr>
-                <td colSpan={6} className="py-8 text-center">
+                <td colSpan={7} className="py-8 text-center">
                   <div className="flex items-center justify-center">
                     <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500 mr-2"></div>
                     <span className="text-sm text-neutral-500">Loading sessions...</span>
@@ -1014,6 +1048,11 @@ const UserSessionsWidget = () => {
                 <td className="py-3 px-3 text-sm text-neutral-600">
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-neutral-200 text-neutral-700">
                     {session.role}
+                  </span>
+                </td>
+                <td className="py-3 px-3 text-sm text-neutral-600">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-700">
+                    {session.shift}
                   </span>
                 </td>
                 <td className="py-3 px-3 text-sm text-neutral-700 font-medium">
@@ -1042,7 +1081,7 @@ const UserSessionsWidget = () => {
               </tr>
             )) : (
               <tr>
-                <td colSpan={6} className="py-8 text-center text-sm text-neutral-500">
+                <td colSpan={7} className="py-8 text-center text-sm text-neutral-500">
                   No user sessions found
                 </td>
               </tr>
@@ -1117,12 +1156,12 @@ const LatestOrdersTable = ({orders}: {orders: Order[]}) => {
                   {toLuxonDateTime(order.created_at).toFormat(import.meta.env.VITE_TIME_FORMAT)}
                 </td>
                 <td className="py-3 pr-4 text-right text-sm font-semibold text-neutral-900">
-                  {withCurrency(calculateOrderNetSales(order))}
+                  {withCurrency(getOrderPaymentTotals(order).amountCollected)}
                 </td>
               </tr>
             )) : (
               <tr>
-                <td colSpan={7} className="py-8 text-center text-sm text-neutral-500">
+                <td colSpan={8} className="py-8 text-center text-sm text-neutral-500">
                   No orders yet
                 </td>
               </tr>
@@ -1139,14 +1178,15 @@ export const SalesDashboardReport = () => {
   const db = useDB();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [periodSales, setPeriodSales] = useState<PeriodSalesItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Parse date range from query strings - same pattern as sales.summary.report.tsx
   const filters = useMemo(() => {
     const params = new URLSearchParams(window.location.search);
-    const startDate = params.get('start_date') || params.get('start') || null;
-    const endDate = params.get('end_date') || params.get('end') || null;
+    const startDate = params.get('start') || params.get('start') || null;
+    const endDate = params.get('end') || params.get('end') || null;
     return {startDate, endDate};
   }, []);
 
@@ -1183,6 +1223,91 @@ export const SalesDashboardReport = () => {
 
         const ordersResult: any = await queryRef.current(ordersQuery, params);
         setOrders((ordersResult?.[0] ?? []) as Order[]);
+
+        const parseFilterDate = (value: string | null, fallback: DateTime) => {
+          if (!value) return fallback.startOf('day');
+          const iso = DateTime.fromISO(value);
+          if (iso.isValid) return iso.startOf('day');
+          const custom = DateTime.fromFormat(value, import.meta.env.VITE_DB_DATABASE_FORMAT);
+          return custom.isValid ? custom.startOf('day') : fallback.startOf('day');
+        };
+
+        const filterStart = parseFilterDate(filters.startDate, DateTime.local().startOf('day'));
+        const filterEnd = parseFilterDate(filters.endDate, DateTime.local().endOf('day')).endOf('day');
+        const previousDay = filterStart.minus({days: 1});
+
+        const queryTotalForRange = async (start: DateTime | null, end: DateTime | null) => {
+          const conditions: string[] = [`status = '${OrderStatus.Paid}'`];
+          const rangeParams: Record<string, string> = {};
+          if (start) {
+            conditions.push(`created_at >= <datetime>$startDate`);
+            rangeParams.startDate = start.toISO() ?? '';
+          }
+          if (end) {
+            conditions.push(`created_at <= <datetime>$endDate`);
+            rangeParams.endDate = end.toISO() ?? '';
+          }
+          const rangeQuery = `
+            SELECT payments
+            FROM ${Tables.orders}
+            WHERE ${conditions.join(' AND ')}
+            FETCH payments
+          `;
+          const result: any = await queryRef.current(rangeQuery, rangeParams);
+          const periodOrders = (result?.[0] ?? []) as Pick<Order, 'payments'>[];
+          return periodOrders.reduce((sum, order) => {
+            const orderTotals = getOrderPaymentTotals(order);
+            return sum + safeNumber(orderTotals.cashAmount + orderTotals.nonCashAmount);
+          }, 0);
+        };
+
+        const currentPeriodDays = Math.max(1, Math.round(filterEnd.diff(filterStart, 'days').days) + 1);
+        const currentWeekStart = filterEnd.startOf('week');
+        const currentWeekEnd = filterEnd.endOf('week');
+        const lastWeekStart = currentWeekStart.minus({weeks: 1});
+        const lastWeekEnd = currentWeekEnd.minus({weeks: 1});
+        const currentMonthStart = filterEnd.startOf('month');
+        const currentMonthEnd = filterEnd.endOf('month');
+        const lastMonthStart = currentMonthStart.minus({months: 1});
+        const lastMonthEnd = currentMonthEnd.minus({months: 1});
+        const currentYearStart = filterEnd.startOf('year');
+        const currentYearEnd = filterEnd.endOf('year');
+        const lastYearStart = currentYearStart.minus({years: 1});
+        const lastYearEnd = currentYearEnd.minus({years: 1});
+
+        const [
+          thisPeriodLastYear,
+          yesterdaySale,
+          thisWeekSale,
+          lastWeekSale,
+          thisMonthSale,
+          lastMonthSale,
+          thisYearSale,
+          lastYearSale,
+          allTimeSale,
+        ] = await Promise.all([
+          queryTotalForRange(filterStart.minus({years: 1}), filterStart.minus({years: 1}).plus({days: currentPeriodDays - 1}).endOf('day')),
+          queryTotalForRange(previousDay.startOf('day'), previousDay.endOf('day')),
+          queryTotalForRange(currentWeekStart, currentWeekEnd),
+          queryTotalForRange(lastWeekStart, lastWeekEnd),
+          queryTotalForRange(currentMonthStart, currentMonthEnd),
+          queryTotalForRange(lastMonthStart, lastMonthEnd),
+          queryTotalForRange(currentYearStart, currentYearEnd),
+          queryTotalForRange(lastYearStart, lastYearEnd),
+          queryTotalForRange(null, null),
+        ]);
+
+        setPeriodSales([
+          {label: 'This period last year', amount: thisPeriodLastYear},
+          {label: 'Yesterday sale', amount: yesterdaySale},
+          {label: 'This week sale', amount: thisWeekSale},
+          {label: 'Last week sale', amount: lastWeekSale},
+          {label: 'This month sale', amount: thisMonthSale},
+          {label: 'Last month sale', amount: lastMonthSale},
+          {label: 'This year sale', amount: thisYearSale},
+          {label: 'Last year sale', amount: lastYearSale},
+          {label: 'All time sale', amount: allTimeSale},
+        ]);
       } catch (err) {
         console.error("Failed to load sales dashboard", err);
         setError(err instanceof Error ? err.message : "Unable to load report");
@@ -1195,65 +1320,79 @@ export const SalesDashboardReport = () => {
   }, [filters]);
 
   // ==================== Data Processing ====================
+  const paidOrders = useMemo(() => orders.filter(order => order.status === OrderStatus.Paid), [orders]);
+
   const kpis = useMemo(() => {
-    const paidOrders = orders.filter(o => o.status === 'Paid');
-    const totalRevenue = paidOrders.reduce((sum, order) => sum + calculateOrderNetSales(order), 0);
-    const totalOrders = paidOrders.length;
-    const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-    const totalItems = orders.reduce((sum, order) => {
-      return sum + (order.items?.reduce((itemSum, item) => itemSum + safeNumber(item.quantity), 0) || 0);
-    }, 0);
-    const totalDiscounts = orders.reduce((sum, order) => sum + safeNumber(order.discount_amount), 0);
-    const totalTaxes = orders.reduce((sum, order) => sum + safeNumber(order.tax_amount), 0);
-    const totalServiceCharges = orders.reduce((sum, order) => sum + safeNumber(order.service_charge_amount), 0);
-    const totalTips = orders.reduce((sum, order) => sum + safeNumber(order.tip_amount), 0);
-    const totalCoupons = orders.reduce((sum, order) => sum + safeNumber(order.coupon?.discount), 0);
-    
-    // Calculate voids
-    const totalVoids = orders.reduce((sum, order) => {
-      const allItems = order.items || [];
-      const voidedItems = allItems.filter(item => item.is_refunded);
-      return sum + safeNumber(
-        voidedItems.reduce((itemSum, item) => {
-          const price = calculateOrderItemPrice(item);
-          return itemSum + safeNumber(price);
-        }, 0)
-      );
-    }, 0);
+    const aggregates = paidOrders.reduce((acc, order) => {
+      const figures = getOrderFigures(order);
+      const coverCount = safeNumber(order.covers);
+      const isLateOrder = order.completed_at
+        ? toJsDate(order.completed_at).getTime() - toJsDate(order.created_at).getTime() > 30 * 60 * 1000
+        : false;
+
+      return {
+        grossSale: acc.grossSale + figures.grossSales,
+        netSale: acc.netSale + figures.netSales,
+        totalRevenue: acc.totalRevenue + figures.totalRevenue,
+        grandTotal: acc.grandTotal + figures.grandTotal,
+        tax: acc.tax + figures.tax,
+        discount: acc.discount + figures.discounts,
+        void: acc.void + figures.voidAmount,
+        serviceCharge: acc.serviceCharge + figures.serviceCharge,
+        totalCover: acc.totalCover + coverCount,
+        tips: acc.tips + figures.tips,
+        coupon: acc.coupon + figures.couponDiscount,
+        refundOrder: acc.refundOrder + (figures.isRefundedOrder ? 1 : 0),
+        lateOrders: acc.lateOrders + (isLateOrder ? 1 : 0),
+      };
+    }, {
+      grossSale: 0,
+      netSale: 0,
+      totalRevenue: 0,
+      grandTotal: 0,
+      tax: 0,
+      discount: 0,
+      void: 0,
+      serviceCharge: 0,
+      totalCover: 0,
+      tips: 0,
+      coupon: 0,
+      refundOrder: 0,
+      lateOrders: 0,
+    });
+
+    const totalOrder = paidOrders.length;
+    const avgOrder = totalOrder > 0 ? aggregates.totalRevenue / totalOrder : 0;
+    const avgCover = aggregates.totalCover > 0 ? aggregates.totalRevenue / aggregates.totalCover : 0;
 
     return {
-      totalRevenue,
-      totalOrders,
-      avgOrderValue,
-      totalItems,
-      totalDiscounts,
-      totalTaxes,
-      totalServiceCharges,
-      totalTips,
-      totalCoupons,
-      totalVoids,
+      ...aggregates,
+      totalOrder,
+      avgOrder,
+      avgCover,
     };
-  }, [orders]);
+  }, [paidOrders]);
 
   const salesTrendData = useMemo((): SalesDataPoint[] => {
     const grouped = new Map<string, number>();
 
-    orders.filter(o => o.status === 'Paid').forEach(order => {
+    paidOrders.forEach(order => {
+      const figures = getOrderFigures(order);
       const date = toLuxonDateTime(order.created_at);
       const key = date.toFormat('yyyy-MM-dd HH:00');
 
-      grouped.set(key, (grouped.get(key) || 0) + calculateOrderNetSales(order));
+      grouped.set(key, (grouped.get(key) || 0) + figures.totalRevenue);
     });
 
     return Array.from(grouped.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([x, y]) => ({x, y}));
-  }, [orders]);
+  }, [paidOrders]);
 
   const ordersPerHourData = useMemo((): SalesDataPoint[] => {
     const grouped = new Map<string, number>();
 
-    orders.forEach(order => {
+    paidOrders.forEach(order => {
       const date = toLuxonDateTime(order.created_at);
       const key = date.toFormat('HH:00');
 
@@ -1263,16 +1402,17 @@ export const SalesDashboardReport = () => {
     return Array.from(grouped.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([x, y]) => ({x, y}));
-  }, [orders]);
+  }, [paidOrders]);
 
   const dayParts = useMemo(() => {
     const map = new Map<DayPartLabel, {orders: number; revenue: number}>();
 
-    orders.filter(o => o.status === 'Paid').forEach(order => {
+    paidOrders.forEach(order => {
+      const figures = getOrderFigures(order);
       const dayPart = getDayPartLabel(toJsDate(order.created_at));
       const current = map.get(dayPart) || {orders: 0, revenue: 0};
       current.orders += 1;
-      current.revenue += calculateOrderNetSales(order);
+      current.revenue += figures.totalRevenue;
       map.set(dayPart, current);
     });
 
@@ -1283,13 +1423,13 @@ export const SalesDashboardReport = () => {
         revenue: map.get(part.label)?.revenue ?? 0,
       }))
       .filter(part => part.orders > 0);
-  }, [orders]);
+  }, [paidOrders]);
 
   const topItems = useMemo((): TopItem[] => {
     const map = new Map<string, {quantity: number; revenue: number}>();
 
-    orders.forEach(order => {
-      order.items?.forEach(item => {
+    paidOrders.forEach(order => {
+      getOrderFilteredItems(order).forEach(item => {
         const name = item.item?.name || 'Unknown';
         const current = map.get(name) || {quantity: 0, revenue: 0};
         current.quantity += safeNumber(item.quantity ?? 1);
@@ -1301,13 +1441,13 @@ export const SalesDashboardReport = () => {
     return Array.from(map.entries())
       .map(([name, data]) => ({name, ...data}))
       .sort((a, b) => b.revenue - a.revenue);
-  }, [orders]);
+  }, [paidOrders]);
 
   const categorySales = useMemo((): CategorySales[] => {
     const map = new Map<string, number>();
 
-    orders.forEach(order => {
-      order.items?.forEach(item => {
+    paidOrders.forEach(order => {
+      getOrderFilteredItems(order).forEach(item => {
         const category = item.item?.categories?.[0]?.name || item.category || 'Other';
         map.set(category, (map.get(category) || 0) + safeNumber(item.quantity));
       });
@@ -1321,60 +1461,63 @@ export const SalesDashboardReport = () => {
         color: COLORS[idx % COLORS.length],
       }))
       .sort((a, b) => b.value - a.value);
-  }, [orders]);
+  }, [paidOrders]);
 
   const topUsers = useMemo((): UserSales[] => {
     const map = new Map<string, {orders: number; revenue: number}>();
 
-    orders.filter(o => o.status === 'Paid').forEach(order => {
+    paidOrders.forEach(order => {
+      const figures = getOrderFigures(order);
       const name = `${order.cashier?.first_name || 'U'} ${order.cashier?.last_name || ''}`.trim() || 'Unknown';
       const current = map.get(name) || {orders: 0, revenue: 0};
       current.orders += 1;
-      current.revenue += calculateOrderNetSales(order);
+      current.revenue += figures.totalRevenue;
       map.set(name, current);
     });
 
     return Array.from(map.entries())
       .map(([name, data]) => ({name, ...data}))
       .sort((a, b) => b.revenue - a.revenue);
-  }, [orders]);
+  }, [paidOrders]);
 
   const topTables = useMemo((): TableSales[] => {
     const map = new Map<string, {orders: number; revenue: number}>();
 
-    orders.filter(o => o.status === 'Paid').forEach(order => {
+    paidOrders.forEach(order => {
+      const figures = getOrderFigures(order);
       const table = order?.table ? `${order.table?.name}${order.table?.number}` : 'Delivery';
       const current = map.get(table) || {orders: 0, revenue: 0};
       current.orders += 1;
-      current.revenue += calculateOrderNetSales(order);
+      current.revenue += figures.totalRevenue;
       map.set(table, current);
     });
 
     return Array.from(map.entries())
       .map(([table, data]) => ({table, ...data}))
       .sort((a, b) => b.revenue - a.revenue);
-  }, [orders]);
+  }, [paidOrders]);
 
   const orderTypes = useMemo((): OrderTypeSales[] => {
     const map = new Map<string, {orders: number; revenue: number}>();
 
-    orders.filter(o => o.status === 'Paid').forEach(order => {
+    paidOrders.forEach(order => {
+      const figures = getOrderFigures(order);
       const type = order.order_type?.name || 'Dine-in';
       const current = map.get(type) || {orders: 0, revenue: 0};
       current.orders += 1;
-      current.revenue += calculateOrderNetSales(order);
+      current.revenue += figures.totalRevenue;
       map.set(type, current);
     });
 
     return Array.from(map.entries())
       .map(([name, data]) => ({name, ...data}))
       .sort((a, b) => b.revenue - a.revenue);
-  }, [orders]);
+  }, [paidOrders]);
 
   const paymentTypes = useMemo((): PaymentTypeSales[] => {
     const map = new Map<string, {count: number; amount: number}>();
 
-    orders.filter(o => o.status === 'Paid').forEach(order => {
+    paidOrders.forEach(order => {
       const paymentTotals = getOrderPaymentTotals(order);
       Object.entries(paymentTotals.nonCashBreakdown).forEach(([typeName, amount]) => {
         const current = map.get(typeName) || {count: 0, amount: 0};
@@ -1391,7 +1534,27 @@ export const SalesDashboardReport = () => {
     return Array.from(map.entries())
       .map(([name, data]) => ({name, ...data}))
       .sort((a, b) => b.amount - a.amount);
-  }, [orders]);
+  }, [paidOrders]);
+
+  const topItemsBreakdown = useMemo<BreakdownDatum[]>(() => (
+    topItems.map(item => ({name: item.name, count: item.quantity, amount: item.revenue}))
+  ), [topItems]);
+
+  const topUsersBreakdown = useMemo<BreakdownDatum[]>(() => (
+    topUsers.map(user => ({name: user.name, count: user.orders, amount: user.revenue}))
+  ), [topUsers]);
+
+  const topTablesBreakdown = useMemo<BreakdownDatum[]>(() => (
+    topTables.map(table => ({name: table.table, count: table.orders, amount: table.revenue}))
+  ), [topTables]);
+
+  const orderTypesBreakdown = useMemo<BreakdownDatum[]>(() => (
+    orderTypes.map(type => ({name: type.name, count: type.orders, amount: type.revenue}))
+  ), [orderTypes]);
+
+  const paymentTypesBreakdown = useMemo<BreakdownDatum[]>(() => (
+    paymentTypes.map(type => ({name: type.name, count: type.count, amount: type.amount}))
+  ), [paymentTypes]);
 
   const deliveryOrders = useMemo(() => {
     return orders.filter(o =>
@@ -1402,7 +1565,7 @@ export const SalesDashboardReport = () => {
   }, [orders]);
 
   const latestOrders = useMemo(() => {
-    return orders.sort((a, b) =>
+    return [...orders].sort((a, b) =>
       toJsDate(b.created_at).getTime() - toJsDate(a.created_at).getTime()
     );
   }, [orders]);
@@ -1431,11 +1594,11 @@ export const SalesDashboardReport = () => {
       <div className="space-y-5">
         {/* KPI Metrics Grid - Matching clock.tsx style */}
         <div className="rounded-lg shadow-xl border">
-          {/*<h2 className="bg-gradient-to-br from-info-100 to-primary-100 text-2xl font-bold mb-4 text-neutral-700 border-b p-5">Key Metrics</h2>*/}
-          <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-5 gap-4 p-5">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 p-5">
             <KPIMetricWidget
-              title="Total Revenue"
-              value={withCurrency(kpis.totalRevenue)}
+              title="Gross Sale"
+              value={withCurrency(kpis.grossSale)}
+              icon={DollarSign}
               gradientFrom="from-success-100"
               gradientTo="success-200"
               borderColor="border-success-300"
@@ -1443,8 +1606,9 @@ export const SalesDashboardReport = () => {
               labelColor="text-success-700"
             />
             <KPIMetricWidget
-              title="Total Orders"
-              value={formatNumber(kpis.totalOrders)}
+              title="Net Sale"
+              value={withCurrency(kpis.netSale)}
+              icon={TrendingUp}
               gradientFrom="from-primary-100"
               gradientTo="primary-200"
               borderColor="border-primary-300"
@@ -1452,8 +1616,9 @@ export const SalesDashboardReport = () => {
               labelColor="text-primary-700"
             />
             <KPIMetricWidget
-              title="Avg Order Value"
-              value={withCurrency(kpis.avgOrderValue)}
+              title="Total Revenue"
+              value={withCurrency(kpis.totalRevenue)}
+              icon={ArrowLeftRight}
               gradientFrom="from-info-100"
               gradientTo="info-200"
               borderColor="border-info-300"
@@ -1461,8 +1626,29 @@ export const SalesDashboardReport = () => {
               labelColor="text-info-700"
             />
             <KPIMetricWidget
-              title="Items Sold"
-              value={formatNumber(kpis.totalItems)}
+              title="Grand Total"
+              value={withCurrency(kpis.grandTotal)}
+              icon={ShoppingCart}
+              gradientFrom="from-primary-100"
+              gradientTo="primary-200"
+              borderColor="border-primary-300"
+              textColor="text-primary-900"
+              labelColor="text-primary-700"
+            />
+            <KPIMetricWidget
+              title="Tax"
+              value={withCurrency(kpis.tax)}
+              icon={Hash}
+              gradientFrom="from-info-100"
+              gradientTo="info-200"
+              borderColor="border-info-300"
+              textColor="text-info-900"
+              labelColor="text-info-700"
+            />
+            <KPIMetricWidget
+              title="Discount"
+              value={withCurrency(kpis.discount)}
+              icon={Tag}
               gradientFrom="from-warning-100"
               gradientTo="warning-200"
               borderColor="border-warning-300"
@@ -1470,8 +1656,9 @@ export const SalesDashboardReport = () => {
               labelColor="text-warning-700"
             />
             <KPIMetricWidget
-              title="Total Discounts"
-              value={withCurrency(kpis.totalDiscounts)}
+              title="Void"
+              value={withCurrency(kpis.void)}
+              icon={Trash2}
               gradientFrom="from-danger-100"
               gradientTo="danger-200"
               borderColor="border-danger-300"
@@ -1479,8 +1666,9 @@ export const SalesDashboardReport = () => {
               labelColor="text-danger-700"
             />
             <KPIMetricWidget
-              title="Taxes Collected"
-              value={withCurrency(kpis.totalTaxes)}
+              title="Service Charge"
+              value={withCurrency(kpis.serviceCharge)}
+              icon={ArrowLeftRight}
               gradientFrom="from-primary-100"
               gradientTo="primary-200"
               borderColor="border-primary-300"
@@ -1488,8 +1676,9 @@ export const SalesDashboardReport = () => {
               labelColor="text-primary-700"
             />
             <KPIMetricWidget
-              title="Service Charges"
-              value={withCurrency(kpis.totalServiceCharges)}
+              title="Total Order"
+              value={formatNumber(kpis.totalOrder)}
+              icon={Package}
               gradientFrom="from-info-100"
               gradientTo="info-200"
               borderColor="border-info-300"
@@ -1497,8 +1686,9 @@ export const SalesDashboardReport = () => {
               labelColor="text-info-700"
             />
             <KPIMetricWidget
-              title="Tips"
-              value={withCurrency(kpis.totalTips)}
+              title="Total Cover"
+              value={formatNumber(kpis.totalCover)}
+              icon={UserCheck}
               gradientFrom="from-success-100"
               gradientTo="success-200"
               borderColor="border-success-300"
@@ -1506,8 +1696,9 @@ export const SalesDashboardReport = () => {
               labelColor="text-success-700"
             />
             <KPIMetricWidget
-              title="Coupons"
-              value={withCurrency(kpis.totalCoupons)}
+              title="Avg Order"
+              value={withCurrency(kpis.avgOrder)}
+              icon={TrendingUp}
               gradientFrom="from-warning-100"
               gradientTo="warning-200"
               borderColor="border-warning-300"
@@ -1515,8 +1706,49 @@ export const SalesDashboardReport = () => {
               labelColor="text-warning-700"
             />
             <KPIMetricWidget
-              title="Voids"
-              value={withCurrency(kpis.totalVoids)}
+              title="Avg Cover"
+              value={withCurrency(kpis.avgCover)}
+              icon={DollarSign}
+              gradientFrom="from-success-100"
+              gradientTo="success-200"
+              borderColor="border-success-300"
+              textColor="text-success-900"
+              labelColor="text-success-700"
+            />
+            <KPIMetricWidget
+              title="Refund Order"
+              value={formatNumber(kpis.refundOrder)}
+              icon={ArrowLeftRight}
+              gradientFrom="from-info-100"
+              gradientTo="info-200"
+              borderColor="border-info-300"
+              textColor="text-info-900"
+              labelColor="text-info-700"
+            />
+            <KPIMetricWidget
+              title="Late Orders"
+              value={formatNumber(kpis.lateOrders)}
+              icon={Clock}
+              gradientFrom="from-warning-100"
+              gradientTo="warning-200"
+              borderColor="border-warning-300"
+              textColor="text-warning-900"
+              labelColor="text-warning-700"
+            />
+            <KPIMetricWidget
+              title="Tips"
+              value={withCurrency(kpis.tips)}
+              icon={DollarSign}
+              gradientFrom="from-primary-100"
+              gradientTo="primary-200"
+              borderColor="border-primary-300"
+              textColor="text-primary-900"
+              labelColor="text-primary-700"
+            />
+            <KPIMetricWidget
+              title="Coupon"
+              value={withCurrency(kpis.coupon)}
+              icon={Tag}
               gradientFrom="from-danger-100"
               gradientTo="danger-200"
               borderColor="border-danger-300"
@@ -1525,6 +1757,8 @@ export const SalesDashboardReport = () => {
             />
           </div>
         </div>
+
+        <DeliverySection orders={deliveryOrders} />
 
         {/* Sales Chart and Delivery Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -1535,7 +1769,7 @@ export const SalesDashboardReport = () => {
             />
           </div>
           <div className="lg:col-span-1">
-            <DeliverySection orders={deliveryOrders} />
+            <PeriodComparisonSection periodSales={periodSales} />
           </div>
         </div>
 
@@ -1552,20 +1786,55 @@ export const SalesDashboardReport = () => {
 
         {/* Top Items and Day Parts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <TopSellingItemsWidget items={topItems} />
+          <BreakdownTabsWidget
+            title="Top Selling Items"
+            subtitle="Exclude deleted/refunded/suspended items"
+            rows={topItemsBreakdown}
+            icon={Package}
+            colorClass={{bg: 'bg-primary-100', text: 'text-primary-600'}}
+            countLabel="Quantity"
+          />
           <DayPartsWidget dayParts={dayParts} />
         </div>
 
         {/* Users and Tables */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <TopUsersWidget users={topUsers} />
-          <TopTablesWidget tables={topTables} />
+          <BreakdownTabsWidget
+            title="Top Cashiers"
+            subtitle="By total revenue"
+            rows={topUsersBreakdown}
+            icon={UserCheck}
+            colorClass={{bg: 'bg-info-100', text: 'text-info-600'}}
+            countLabel="Orders"
+          />
+          <BreakdownTabsWidget
+            title="Top Tables"
+            subtitle="By total revenue"
+            rows={topTablesBreakdown}
+            icon={TableIcon}
+            colorClass={{bg: 'bg-warning-100', text: 'text-warning-600'}}
+            countLabel="Orders"
+          />
         </div>
 
         {/* Order Types and Payment Methods */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <OrderTypeWidget orderTypes={orderTypes} />
-          <PaymentTypeWidget paymentTypes={paymentTypes} />
+          <BreakdownTabsWidget
+            title="Top Order Types"
+            subtitle="By total revenue"
+            rows={orderTypesBreakdown}
+            icon={Package}
+            colorClass={{bg: 'bg-primary-100', text: 'text-primary-600'}}
+            countLabel="Orders"
+          />
+          <BreakdownTabsWidget
+            title="Payment Methods"
+            subtitle="Using getOrderPaymentTotals"
+            rows={paymentTypesBreakdown}
+            icon={Tag}
+            colorClass={{bg: 'bg-success-100', text: 'text-success-600'}}
+            countLabel="Transactions"
+          />
         </div>
 
         {/* User Sessions */}

@@ -18,6 +18,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export const DENOMINATION_NOTES = [10, 20, 50, 100, 500, 1000, 5000];
+export const DENOMINATION_COINS = [1, 2, 5];
 
 export const withCurrency = (amount: string | number | undefined) => {
   if (amount === undefined) {

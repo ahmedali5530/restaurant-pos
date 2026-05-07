@@ -5,6 +5,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {Order} from "@/api/model/order.ts";
 import {withCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
+import {getOrderFilteredItems} from "@/lib/order.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -31,8 +32,8 @@ const parseFilters = (): ReportFilters => {
   };
 
   return {
-    startDate: params.get('start') || params.get('start_date') || undefined,
-    endDate: params.get('end') || params.get('end_date') || undefined,
+    startDate: params.get('start') || params.get('start') || undefined,
+    endDate: params.get('end') || params.get('end') || undefined,
     orderTakerIds: parseMulti('order_takers'),
     orderTypeIds: parseMulti('order_types'),
     categoryIds: parseMulti('categories'),
@@ -218,7 +219,7 @@ export const ProductMixSummaryReport = () => {
 
   // Get filtered order items
   const getFilteredOrderItems = (order: Order) => {
-    return order.items?.filter(item => {
+    return getOrderFilteredItems(order)?.filter(item => {
       // Filter by category
       if (filters.categoryIds.length > 0) {
         const itemCategories = item.item?.categories || [];
@@ -432,6 +433,7 @@ export const ProductMixSummaryReport = () => {
 
   return (
     <ReportsLayout title="Product Mix Summary" subtitle={subtitle}>
+      <div className="alert alert-warning">This report doesn't include taxes, discounts, service charges, extras and tips</div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">
           <thead className="bg-neutral-50">

@@ -8,7 +8,6 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowLeft, faArrowRight, faPrint, faSpinner} from "@fortawesome/free-solid-svg-icons";
 import {Calendar} from "@/components/common/antd/calendar.tsx";
 import {Button} from "@/components/common/input/button.tsx";
-import {Summary as SummaryComponent} from '@/components/summary/summary.tsx';
 import {DailySalesSummaryReport} from '@/components/summary/daily.sales.summary.report.tsx';
 import {useDB} from "@/api/db/db.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
@@ -304,7 +303,7 @@ export const Summary = () => {
       <div className="flex gap-5 p-3 flex-col">
         <div className="bg-white rounded-xl flex gap-10 justify-center ">
           <div className="flex justify-center items-center flex-col flex-1">
-            <div>
+            <div className="w-[450px]">
               <Calendar
                 onChange={setDate}
                 value={date}
@@ -382,7 +381,6 @@ export const Summary = () => {
             ) : (
               <>
                 <DailySalesSummaryReport orders={orders} date={date.toString()} />
-                <SummaryComponent orders={orders} date={date.toString()} />
               </>
             )}
           </ScrollContainer>

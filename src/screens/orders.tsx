@@ -25,6 +25,9 @@ import {LiveSubscription, RecordId, StringRecordId} from "surrealdb";
 import {toast} from "sonner";
 import {useQueryBuilder} from "@/api/db/query-builder.ts";
 import {LabelValue} from "@/api/model/common.ts";
+import {assertOrderPunchAllowed} from "@/lib/closing.guard.ts";
+import {OrderMerge, OrderMergeCreatePayload} from "@/api/model/order_merge.ts";
+import {toRecordId} from "@/lib/utils.ts";
 
 export const Orders = () => {
   const db = useDB();
@@ -188,20 +191,26 @@ export const Orders = () => {
       return;
     }
 
-    setIsSaving(true);
-
     try {
-      let items = [];
+      await assertOrderPunchAllowed(db);
+      setIsSaving(true);
+      let items: string[] = [];
+      const oldItems: OrderMerge['old_items'] = {};
+
       for (const order of mergingOrders) {
-        // Create order items for this split
+        const orderItems = order.items.map(item => toRecordId(item.id.toString()));
+        oldItems[order.id.toString()] = orderItems;
+
+        // Collect item ids from all selected orders
         items = [
           ...items,
-          ...order.items.map(item => item.id)
+          ...orderItems
         ];
 
         // Mark orders as merged
         await db.merge(order.id, {
           status: OrderStatus['Merged'],
+          items: [], // remove items from main order
           tags: [...(order.tags || []), OrderStatus['Merged']]
         });
       }
@@ -213,7 +222,7 @@ export const Orders = () => {
         covers: mergingOrders.reduce((prev, item) => prev + item.covers, 0) || 1, // Distribute covers
         // tax: order.tax ? new StringRecordId(order.tax.id.toString()) : null,
         // tax_amount: 0, // Will be calculated per split
-        tags: ['Merge order'],
+        tags: [OrderStatus['Merged']],
         // discount: order.discount ? new StringRecordId(order.discount.id.toString()) : null,
         // discount_amount: 0, // Will be calculated per split
         // customer: order.customer ? new StringRecordId(order.customer.id.toString()) : null,
@@ -227,6 +236,10 @@ export const Orders = () => {
       };
 
       const mergedOrder = await db.create(Tables.orders, orderData);
+      const mergedOrderId = mergedOrder[0].id.toString();
+      const newItems: OrderMerge['new_items'] = {
+        [mergedOrderId]: [...items]
+      };
 
       for (const item of items) {
         await db.merge(item, {
@@ -235,12 +248,16 @@ export const Orders = () => {
       }
 
       // create merge entry
-      await db.create(Tables.order_merge, {
+      const mergePayload = {
         created_at: new Date(),
-        created_by: app.user.id,
+        created_by: toRecordId(app.user.id),
         new_order: mergedOrder[0].id,
         old_orders: mergingOrders.map(item => item.id),
-      })
+        old_items: oldItems,
+        new_items: newItems,
+      };
+
+      await db.create(Tables.order_merge, mergePayload)
 
       toast.success(`Successfully merged into ${mergedOrder[0].invoice_number}`);
 
@@ -368,7 +385,7 @@ export const Orders = () => {
                 label={<><FontAwesomeIcon icon={faChair} className="mr-3"/> Choose a
                   table {selectedTable ? `(${selectedTable.name}${selectedTable.number})` : ''}</>}
                 btnSize="lg"
-                className="flex-1"
+                className="flex-1 h-[300px] overflow-auto"
                 onAction={(key) => {
                   setMergingTable(key.toString());
                 }}

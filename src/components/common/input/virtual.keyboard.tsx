@@ -93,7 +93,7 @@ export function VirtualKeyboard(props: VirtualKeyboardProps) {
     <Modal
       open={open}
       onClose={onClose}
-      size="lg"
+      size={isNumeric ? 'sm' : 'lg'}
       shouldCloseOnEsc
       shouldCloseOnOverlayClick
       title={placeholder}

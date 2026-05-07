@@ -14,6 +14,7 @@ import {MenuItemType} from "@/api/model/cart_item.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {DiscountType} from "@/api/model/discount.ts";
 import {DateTime} from "luxon";
+import {assertOrderPunchAllowed} from "@/lib/closing.guard.ts";
 
 export const Payment = () => {
   const db = useDB();
@@ -39,6 +40,7 @@ export const Payment = () => {
   }
 
   const createOrder = async () => {
+    await assertOrderPunchAllowed(db);
 
     setLoading(true);
     const date = DateTime.now().toJSDate();
@@ -218,8 +220,15 @@ export const Payment = () => {
   }
 
   const createOrderAndBack = async () => {
-    await createOrder();
-    await reset();
+    try {
+      await createOrder();
+      await reset();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to create order.";
+      setLoading(false);
+      console.error(error);
+      toast.error(message);
+    }
   }
 
   const reset = async () => {
@@ -249,20 +258,25 @@ export const Payment = () => {
   const [payment, setPayment] = useState(false);
   const [order, setOrder] = useState<Order>();
   const openPayment = async () => {
-    const result = await createOrder();
+    try {
+      const result = await createOrder();
+      if (result) {
+        let orderId = result?.id;
+        if (result[0]?.id) {
+          orderId = result[0].id;
+        }
 
-    if (result) {
-      let orderId = result?.id;
-      if (result[0]?.id) {
-        orderId = result[0].id;
+        const freshOrder = await db.query(
+          `SELECT *
+           FROM ${orderId} FETCH ${ORDER_FETCHES.join(", ")}`
+        );
+        setOrder(freshOrder[0][0]);
+        setPayment(true);
       }
-
-      const freshOrder = await db.query(
-        `SELECT *
-         FROM ${orderId} FETCH ${ORDER_FETCHES.join(", ")}`
-      );
-      setOrder(freshOrder[0][0]);
-      setPayment(true);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to open payment.";
+      console.error(error);
+      toast.error(message);
     }
   }
 

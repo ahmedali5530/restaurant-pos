@@ -35,8 +35,8 @@ type ItemBalance = {
 
 const parseFilters = () => {
   const params = new URLSearchParams(window.location.search);
-  const startDate = params.get("start_date") || params.get("start");
-  const endDate = params.get("end_date") || params.get("end");
+  const startDate = params.get("start") || params.get("start");
+  const endDate = params.get("end") || params.get("end");
   const items = params.getAll("items[]").filter(item => item && item.trim() !== "");
   const types = params.getAll("types[]").filter(type => type && type.trim() !== "");
   return {startDate, endDate, itemIds: items, types};

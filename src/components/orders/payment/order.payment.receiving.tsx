@@ -1,6 +1,6 @@
 import ScrollContainer from "react-indiana-drag-scroll";
 import {Button} from "@/components/common/input/button.tsx";
-import {cn, withCurrency} from "@/lib/utils.ts";
+import {cn, DENOMINATION_COINS, DENOMINATION_NOTES, withCurrency} from "@/lib/utils.ts";
 import {faClose, faPrint} from "@fortawesome/free-solid-svg-icons";
 import React, {useEffect, useMemo, useState} from "react";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
@@ -123,7 +123,7 @@ export const OrderPaymentReceiving = ({
   // const [paymentType, setPaymentType] = useState<string>();
   const [mode, setMode] = useState<'quick' | 'button'>('quick');
 
-  const quickAmounts = [5, 10, 20, 50, 100, 500, 1000, 5000];
+  const quickAmounts = [...DENOMINATION_COINS, ...DENOMINATION_NOTES];
   const keyboardKeys = [1, 2, 3, 4, 5, 6, 7, 8, 9, '.', 0];
 
   const [closing, setClosing] = useState(false);

@@ -24,6 +24,32 @@ function itemLineTotal(it) {
   return safeNumber(calculateOrderItemPricePrint(it));
 }
 
+function getModifierRows(modifiers) {
+  const rows = [];
+  const source = Array.isArray(modifiers) ? modifiers : [];
+
+  const walkGroups = (groups, depth = 1, parentPath = '') => {
+    (Array.isArray(groups) ? groups : []).forEach((group) => {
+      (group?.selectedModifiers || []).forEach((selected) => {
+        const modifierName = String(selected?.dish?.name || selected?.name || '').trim();
+        if (!modifierName) return;
+
+        const currentPath = parentPath ? `${parentPath}>${modifierName}` : modifierName;
+        rows.push({
+          name: modifierName,
+          depth,
+          path: currentPath,
+          quantity: 0,
+        });
+        walkGroups(selected?.selectedGroups || [], depth + 1, currentPath);
+      });
+    });
+  };
+
+  walkGroups(source);
+  return rows;
+}
+
 /**
  * Voided items (deleted, refunded, or suspended).
  */
@@ -186,6 +212,79 @@ function computeSummary(props) {
     });
   });
 
+  const categoryMixMap = {};
+  orders.forEach((order) => {
+    getFilteredItems(order).forEach((item) => {
+      const c = item.category;
+      const categoryName =
+        String(typeof c === 'string' ? c : (c?.name ?? item.item?.categories?.[0]?.name ?? '')).trim() ||
+        'Uncategorized';
+      const dishName = String(item.item?.name || item.dish?.name || '').trim() || 'Unknown item';
+      const itemTotal = safeNumber(itemLineTotal(item));
+      const itemQuantity = safeNumber(item.quantity ?? 1);
+      const modifiers = getModifierRows(item?.modifiers || []);
+
+      if (!categoryMixMap[categoryName]) {
+        categoryMixMap[categoryName] = {
+          total: 0,
+          quantity: 0,
+          dishes: {},
+        };
+      }
+      const category = categoryMixMap[categoryName];
+
+      if (!category.dishes[dishName]) {
+        category.dishes[dishName] = {
+          name: dishName,
+          total: 0,
+          quantity: 0,
+          modifiers: {},
+        };
+      }
+      const dish = category.dishes[dishName];
+
+      category.total += itemTotal;
+      category.quantity += itemQuantity;
+      dish.total += itemTotal;
+      dish.quantity += itemQuantity;
+
+      modifiers.forEach((modifier) => {
+        if (!dish.modifiers[modifier.path]) {
+          dish.modifiers[modifier.path] = {
+            ...modifier,
+            quantity: 0,
+          };
+        }
+        dish.modifiers[modifier.path].quantity += itemQuantity;
+      });
+    });
+  });
+
+  const categoryMix = Object.entries(categoryMixMap)
+    .map(([name, category]) => {
+      const categoryData = category;
+      const groupedDishes = Object.entries(categoryData.dishes)
+        .map(([key, dish]) => {
+          const dishData = dish;
+          return {
+            key,
+            name: dishData.name,
+            total: dishData.total,
+            quantity: dishData.quantity,
+            modifiers: Object.values(dishData.modifiers).sort((a, b) => a.path.localeCompare(b.path)),
+          };
+        })
+        .sort((a, b) => b.total - a.total);
+
+      return {
+        name,
+        total: categoryData.total,
+        quantity: categoryData.quantity,
+        dishes: groupedDishes,
+      };
+    })
+    .sort((a, b) => b.total - a.total);
+
   return {
     date,
     exclusive,
@@ -212,6 +311,7 @@ function computeSummary(props) {
     extras,
     categories,
     dishes,
+    categoryMix,
   };
 }
 
@@ -220,4 +320,11 @@ function formatNum(n) {
   return Number.isFinite(x) ? String(Math.round(x)) : '0';
 }
 
-module.exports = { computeSummary, formatNum, getFilteredItems, getVoidedItems, itemLineTotal };
+module.exports = {
+  computeSummary,
+  formatNum,
+  getFilteredItems,
+  getVoidedItems,
+  itemLineTotal,
+  getModifierRows,
+};

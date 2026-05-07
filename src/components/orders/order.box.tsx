@@ -155,7 +155,7 @@ export const OrderBox = ({
           )}
         </div>
         <div className="flex gap-5">
-          {merging && order.status === OrderStatus['In Progress'] ? (
+          {merging && (order.status === OrderStatus['In Progress']) ? (
             <>
               <Checkbox onChange={() => {
                 if(mergingOrderIds.includes(order.id.toString())){

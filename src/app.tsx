@@ -37,11 +37,19 @@ import {
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
   REPORTS_DISCOUNTS,
+  REPORTS_TAX,
+  REPORTS_COUPON,
+  REPORTS_MERGE_ORDERS,
+  REPORTS_SPLIT_ORDERS,
+  REPORTS_ORDER_LIFECYCLE,
+  REPORTS_EXPENSE,
+  REPORTS_ACTIVITY,
   REPORTS_PRODUCT_HOURLY,
   REPORTS_PRODUCT_LIST,
   REPORTS_PRODUCT_MIX_SUMMARY,
   REPORTS_PRODUCT_MIX_WEEKLY,
   REPORTS_PRODUCT_SUMMARY,
+  REPORTS_DELIVERY_DENSITY,
   REPORTS_SALES_ADVANCED,
   REPORTS_SALES_HOURLY_LABOUR,
   REPORTS_SALES_HOURLY_LABOUR_WEEKLY,
@@ -98,7 +106,15 @@ import { TipDistributionScreen } from "@/screens/tip.distribution.tsx";
 import { TipsReport } from "@/screens/reports/tips.report.tsx";
 import {SalesDashboardReport} from "@/screens/reports/sales.dashboard.report.tsx";
 import {InventoryDashboardReport} from "@/screens/reports/inventory.dashboard.report.tsx";
+import {DeliveryDensityReport} from "@/screens/reports/delivery.density.report.tsx";
 import {TableLockProvider} from "@/providers/table.lock.provider.tsx";
+import {TaxReport} from "@/screens/reports/tax.report.tsx";
+import {CouponReport} from "@/screens/reports/coupon.report.tsx";
+import {MergeOrdersReport} from "@/screens/reports/merge.orders.report.tsx";
+import {SplitOrdersReport} from "@/screens/reports/split.orders.report.tsx";
+import {OrderLifecycleReport} from "@/screens/reports/order.lifecycle.report.tsx";
+import {ExpenseReport} from "@/screens/reports/expense.report.tsx";
+import {ActivityReport} from "@/screens/reports/activity.report.tsx";
 
 
 // react query client wrapper
@@ -160,12 +176,20 @@ function App() {
                     <Route path={REPORTS_AUDIT} element={<AuditReport/>}/>
                     <Route path={REPORTS_CASH_CLOSING} element={<CashClosingReport/>}/>
                     <Route path={REPORTS_DISCOUNTS} element={<DiscountsReport/>}/>
+                    <Route path={REPORTS_TAX} element={<TaxReport/>}/>
+                    <Route path={REPORTS_COUPON} element={<CouponReport/>}/>
+                    <Route path={REPORTS_MERGE_ORDERS} element={<MergeOrdersReport/>}/>
+                    <Route path={REPORTS_SPLIT_ORDERS} element={<SplitOrdersReport/>}/>
+                    <Route path={REPORTS_ORDER_LIFECYCLE} element={<OrderLifecycleReport/>}/>
+                    <Route path={REPORTS_EXPENSE} element={<ExpenseReport/>}/>
+                    <Route path={REPORTS_ACTIVITY} element={<ActivityReport/>}/>
                     <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
                     <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
                     <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>
                     <Route path={REPORTS_PRODUCT_MIX_WEEKLY} element={<ProductMixWeeklyReport/>}/>
                     <Route path={REPORTS_PRODUCT_SUMMARY} element={<ProductSummaryReport/>}/>
                     <Route path={REPORTS_SALES_ADVANCED} element={<SalesAdvancedReport/>}/>
+                    <Route path={REPORTS_DELIVERY_DENSITY} element={<DeliveryDensityReport/>}/>
                     <Route path={REPORTS_SALES_HOURLY_LABOUR} element={<SalesHourlyLabourReport/>}/>
                     <Route path={REPORTS_SALES_HOURLY_LABOUR_WEEKLY} element={<SalesHourlyLabourWeeklyReport/>}/>
                     <Route path={REPORTS_SALES_SERVER} element={<SalesServerReport/>}/>

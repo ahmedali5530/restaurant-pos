@@ -65,8 +65,8 @@ const calculateOrderAmountDue = (order: Order): number => {
 
 const parseFilters = () => {
   const params = new URLSearchParams(window.location.search);
-  const startDate = params.get("start_date") || params.get("start");
-  const endDate = params.get("end_date") || params.get("end");
+  const startDate = params.get("start") || params.get("start");
+  const endDate = params.get("end") || params.get("end");
   return {startDate, endDate};
 };
 
@@ -194,15 +194,16 @@ export const SalesSummaryReport = () => {
     const base = DAY_PARTS.reduce(
       (acc, part) => ({
         ...acc,
-        [part.label]: {checks: 0, guests: 0},
+        [part.label]: {checks: 0, guests: 0, sales: 0},
       }),
-      {} as Record<DayPartLabel, {checks: number; guests: number}>,
+      {} as Record<DayPartLabel, {checks: number; guests: number; sales: number}>,
     );
 
     orders.forEach(order => {
       const label = getDayPartLabel(toJsDate(order.created_at));
       base[label].checks += 1;
       base[label].guests += safeNumber(order.covers);
+      base[label].sales += calculateOrderNetSales(order);
     });
 
     return base;
@@ -259,9 +260,9 @@ export const SalesSummaryReport = () => {
       value: formatNumber(dayPartTotals[part.label].checks),
     }));
 
-    const guestBreakdown = DAY_PARTS.map(part => ({
+    const saleBreakdown = DAY_PARTS.map(part => ({
       label: `${part.label} (${getDayPartTimeRangeLabel(part.label)})`,
-      value: formatNumber(dayPartTotals[part.label].guests),
+      value: withCurrency(dayPartTotals[part.label].sales),
     }));
 
     const orderTypeItems: BreakdownItem[] = orderTypeBreakdown.map(item => ({
@@ -280,7 +281,7 @@ export const SalesSummaryReport = () => {
       {label: "Cash payments (net)", value: withCurrency(paymentSummary.cashPayments)},
       {label: "Rounding benefit", value: withCurrency(roundingBenefit)},
       {label: "Check count by day part", breakdown: checkBreakdown},
-      {label: "Guest count by day part", breakdown: guestBreakdown},
+      {label: "Sale by day part", breakdown: saleBreakdown},
       {label: "Net sales by order type", breakdown: orderTypeItems},
       {label: "Service charges", value: withCurrency(serviceCharges)},
       {label: "Taxes", value: withCurrency(taxes)},

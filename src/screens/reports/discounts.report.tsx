@@ -1,13 +1,7 @@
-import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
+import {OrderFinanceReport} from "@/screens/reports/order.finance.shared.tsx";
 
 export const DiscountsReport = () => {
   return (
-    <ReportsLayout
-      title="Discounts report"
-    >
-      <table className="table table-hover">
-
-      </table>
-    </ReportsLayout>
+    <OrderFinanceReport title="Discount report" metric="discount_amount" metricHeader="Discount" />
   );
-}
+};

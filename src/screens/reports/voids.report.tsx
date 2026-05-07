@@ -24,6 +24,38 @@ const getVoidLineAmount = (voidItem: OrderVoid, item: any) => {
   );
 };
 
+interface VoidModifierDetail {
+  name: string;
+  quantity: number;
+  price: number;
+  depth: number;
+}
+
+const getVoidItemModifiers = (voidItem: OrderVoid, item: any): VoidModifierDetail[] => {
+  const parentQuantity = safeNumber(voidItem.quantity ?? 1);
+  const rows: VoidModifierDetail[] = [];
+
+  const walkGroups = (groups: any[] = [], depth = 1) => {
+    groups.forEach(group => {
+      (group?.selectedModifiers ?? []).forEach((selected: any) => {
+        const name = selected?.dish?.name || selected?.name || 'Modifier';
+        const quantity = safeNumber(selected?.quantity || 1) * parentQuantity;
+        const price = safeNumber(selected?.price);
+        rows.push({
+          name,
+          quantity,
+          price,
+          depth,
+        });
+        walkGroups(selected?.selectedGroups ?? [], depth + 1);
+      });
+    });
+  };
+
+  walkGroups(item?.modifiers ?? [], 1);
+  return rows;
+};
+
 const recordToString = (value: any): string => {
   if (!value) {
     return '';
@@ -57,8 +89,8 @@ const parseFilters = (): ReportFilters => {
   };
 
   return {
-    startDate: params.get('start') || params.get('start_date'),
-    endDate: params.get('end') || params.get('end_date'),
+    startDate: params.get('start') || params.get('start'),
+    endDate: params.get('end') || params.get('end'),
     reasonIds: parseMulti('reasons'),
     managerIds: parseMulti('managers'),
     cashierIds: parseMulti('cashiers'),
@@ -391,9 +423,7 @@ export const VoidsReport = () => {
                     const cashierName = voidItem.order?.cashier
                       ? `${voidItem.order.cashier.first_name ?? ''} ${voidItem.order.cashier.last_name ?? ''}`.trim() || voidItem.order.cashier.login || 'Unknown'
                       : 'N/A';
-                    const menuItemName = getVoidItems(voidItem)
-                      .map(item => item?.item?.name || 'Unknown')
-                      .join(', ') || 'Unknown';
+                    const voidItems = getVoidItems(voidItem);
                     const lineTotal = getVoidItems(voidItem).reduce((sum, item) => sum + getVoidLineAmount(voidItem, item), 0);
                     const orderNumber = voidItem.order?.invoice_number || 'N/A';
 
@@ -402,7 +432,44 @@ export const VoidsReport = () => {
                         <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{dateStr}</td>
                         <td className="py-3 px-3 text-sm text-neutral-700">{timeStr}</td>
                         <td className="py-3 px-3 text-sm text-neutral-700">{voidItem.reason}</td>
-                        <td className="py-3 px-3 text-sm text-neutral-700">{menuItemName}</td>
+                        <td className="py-3 px-3 text-sm text-neutral-700">
+                          <div className="space-y-2">
+                            {voidItems.length === 0 ? (
+                              <div>Unknown</div>
+                            ) : (
+                              voidItems.map((item, itemIndex) => {
+                                const modifiers = getVoidItemModifiers(voidItem, item);
+                                return (
+                                  <div
+                                    key={`${recordToString(voidItem.id)}-item-${itemIndex}`}
+                                    className="rounded-md border border-neutral-200 bg-neutral-50/60 px-2.5 py-2"
+                                  >
+                                    <div className="font-semibold text-neutral-900">{item?.item?.name || 'Unknown'}</div>
+                                    {modifiers.length > 0 ? (
+                                      <div className="mt-1.5 space-y-1">
+                                        {modifiers.map((modifier, modifierIndex) => (
+                                          <div
+                                            key={`${recordToString(voidItem.id)}-item-${itemIndex}-modifier-${modifierIndex}`}
+                                            className="flex items-center justify-between gap-2 rounded bg-white px-2 py-1 text-xs text-neutral-700 border border-neutral-200"
+                                            style={{marginLeft: `${Math.max(0, modifier.depth - 1) * 14}px`}}
+                                          >
+                                            <span className="font-medium text-neutral-800">{modifier.name}</span>
+                                            <span className="inline-flex items-center gap-2 text-neutral-600">
+                                              <span className="rounded bg-neutral-100 px-1.5 py-0.5">Qty {formatNumber(modifier.quantity)}</span>
+                                              <span className="rounded bg-neutral-100 px-1.5 py-0.5">{withCurrency(modifier.price)}</span>
+                                            </span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <div className="mt-1 text-xs text-neutral-500">No modifiers</div>
+                                    )}
+                                  </div>
+                                );
+                              })
+                            )}
+                          </div>
+                        </td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(voidItem.quantity)}</td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(lineTotal)}</td>
                         <td className="py-3 px-3 text-sm text-neutral-700">{managerName}</td>

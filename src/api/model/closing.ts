@@ -8,6 +8,11 @@ export interface TerminalCash {
   cash_amount: number;
 }
 
+export type TerminalDenomination = {
+  notes: Record<string, number>;
+  coins: Record<string, number>;
+};
+
 export interface PaymentSummary {
   payment_type: PaymentType;
   amount: number;
@@ -27,7 +32,7 @@ export interface Closing extends ID {
   cash_added: number;
   cash_withdrawn: number;
   closing_balance: number;
-  denominations?: object
+  denominations?: Record<string, TerminalDenomination>
   terminal_cash?: TerminalCash[];
   payments_data: PaymentSummary[];
   expenses: number;
@@ -38,5 +43,7 @@ export interface Closing extends ID {
   notes?: string;
   created_by?: string;
   created_at: DateTime;
+  closed_at?: DateTime;
+  closed_by?: unknown;
   status: 'draft' | 'completed';
 }

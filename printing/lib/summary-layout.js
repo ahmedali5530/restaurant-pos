@@ -52,34 +52,38 @@ function printSummaryLayout(printer, data, config) {
   line('Orders/Checks', formatNum(s.ordersCount));
   line('Average order/check', formatMoney(s.averageOrder, sym));
 
-  sect('Categories');
-  Object.keys(s.categories || {}).forEach((k) => {
-    const c = s.categories[k];
-    const p = formatNum(pct(c.total, s.exclusive)) + '%';
-    const label = String(k).slice(0, 20) + ' x' + formatNum(c.quantity);
+  sect('Product mix');
+  (s.categoryMix || []).forEach((category) => {
+    const categoryPct = formatNum(pct(category.total, s.exclusive)) + '%';
+    const categoryLabel = `${String(category.name).slice(0, 20)} x${formatNum(category.quantity)}`;
     printer.tableCustom(
       [
-        { text: label, align: 'LEFT', width: 0.4 },
-        { text: formatMoney(c.total, sym), align: 'RIGHT', width: 0.3 },
-        { text: p, align: 'RIGHT', width: 0.3 },
+        { text: categoryLabel, align: 'LEFT', width: 0.4 },
+        { text: formatMoney(category.total, sym), align: 'RIGHT', width: 0.3 },
+        { text: categoryPct, align: 'RIGHT', width: 0.3 },
       ],
       { size: [1, 1] }
     );
-  });
 
-  sect('Dishes');
-  Object.keys(s.dishes || {}).forEach((k) => {
-    const d = s.dishes[k];
-    const p = formatNum(pct(d.total, s.exclusive)) + '%';
-    const label = String(k).slice(0, 20) + ' x' + formatNum(d.quantity);
-    printer.tableCustom(
-      [
-        { text: label, align: 'LEFT', width: 0.4 },
-        { text: formatMoney(d.total, sym), align: 'RIGHT', width: 0.3 },
-        { text: p, align: 'RIGHT', width: 0.3 },
-      ],
-      { size: [1, 1] }
-    );
+    (category.dishes || []).forEach((dish) => {
+      const dishPct = formatNum(pct(dish.total, s.exclusive)) + '%';
+      const dishLabel = `  ${String(dish.name).slice(0, 18)} x${formatNum(dish.quantity)}`;
+      printer.tableCustom(
+        [
+          { text: dishLabel, align: 'LEFT', width: 0.4 },
+          { text: formatMoney(dish.total, sym), align: 'RIGHT', width: 0.3 },
+          { text: dishPct, align: 'RIGHT', width: 0.3 },
+        ],
+        { size: [1, 1] }
+      );
+
+      (dish.modifiers || []).forEach((modifier) => {
+        const depth = Number.isFinite(Number(modifier.depth)) ? Number(modifier.depth) : 1;
+        const indent = ' '.repeat(Math.max(2, depth * 2));
+        const modifierLabel = `${indent}- ${String(modifier.name).slice(0, 16)} x${formatNum(modifier.quantity)}`;
+        line(modifierLabel, '');
+      });
+    });
   });
 
   sect('Payment types');

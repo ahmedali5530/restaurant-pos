@@ -12,10 +12,12 @@ import { Order, OrderStatus } from "@/api/model/order.ts";
 import { Setting } from "@/api/model/setting.ts";
 import { Button } from "@/components/common/input/button.tsx";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
-import { Input } from "@/components/common/input/input.tsx";
+import { DatePicker } from "@/components/common/antd/datepicker.tsx";
 import { withCurrency } from "@/lib/utils.ts";
 import { appPage } from "@/store/jotai.ts";
 import { isOvernightShift } from "@/lib/shift.utils.ts";
+import { DateValue } from "react-aria-components";
+import { getLocalTimeZone, today } from "@internationalized/date";
 
 interface DistributionRow {
   user: User
@@ -42,7 +44,7 @@ export const TipDistributionScreen = () => {
   const [page] = useAtom(appPage);
 
   const [selectedShiftId, setSelectedShiftId] = useState<string>("");
-  const [shiftDate, setShiftDate] = useState<string>("");
+  const [shiftDate, setShiftDate] = useState<DateValue | null>(today(getLocalTimeZone()));
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [totalTips, setTotalTips] = useState<number>(0);
@@ -59,7 +61,8 @@ export const TipDistributionScreen = () => {
       return null;
     }
 
-    const [year, month, day] = shiftDate.split("-").map(Number);
+    const shiftDateString = shiftDate.toString();
+    const [year, month, day] = shiftDateString.split("-").map(Number);
     const [startHour, startMinute] = String(selectedShift.start_time || "00:00").split(":").map(Number);
     const [endHour, endMinute] = String(selectedShift.end_time || "00:00").split(":").map(Number);
 
@@ -206,11 +209,12 @@ export const TipDistributionScreen = () => {
           />
         </div>
         <div>
-          <Input
+          <DatePicker
             label="Date"
-            type="date"
+            maxValue={today(getLocalTimeZone())}
             value={shiftDate}
-            onChange={(e) => setShiftDate(e.target.value)}
+            onChange={setShiftDate}
+            isClearable
           />
         </div>
         <div className="flex gap-2">

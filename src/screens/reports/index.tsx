@@ -32,6 +32,14 @@ import { TipsFilter } from "@/components/reports/filters/tips.filter.tsx";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {SalesDashboardFilter} from "@/components/reports/filters/sales.dashboard.filter.tsx";
 import {InventoryDashboardFilter} from "@/components/reports/filters/inventory.dashboard.filter.tsx";
+import {DeliveryDensityFilter} from "@/components/reports/filters/delivery.density.filter.tsx";
+import {MergeOrdersFilter} from "@/components/reports/filters/merge.orders.filter.tsx";
+import {SplitOrdersFilter} from "@/components/reports/filters/split.orders.filter.tsx";
+import {TaxFilter} from "@/components/reports/filters/tax.filter.tsx";
+import {CouponFilter} from "@/components/reports/filters/coupon.filter.tsx";
+import {OrderLifecycleFilter} from "@/components/reports/filters/order.lifecycle.filter.tsx";
+import {ExpenseFilter} from "@/components/reports/filters/expense.filter.tsx";
+import {ActivityFilter} from "@/components/reports/filters/activity.filter.tsx";
 
 export const Reports = () => {
   const reportCategories = useMemo(() => {
@@ -55,9 +63,21 @@ export const Reports = () => {
         "Sales Weekly": <SalesWeeklyFilter />,
         "Tips": <TipsFilter />,
         "Advanced Sales": <SalesAdvancedFilter />,
-        // "Discounts": <DiscountsFilter />,
+        "Delivery Density": <DeliveryDensityFilter />,
+        "Discount": <DiscountsFilter />,
+        "Tax": <TaxFilter />,
+        "Coupon": <CouponFilter />,
         "Voids": <VoidsFilter />,
         // "Tables": <TableSummaryFilter />
+      },
+      "Orders": {
+        "Merge Orders": <MergeOrdersFilter />,
+        "Split Orders": <SplitOrdersFilter />,
+        "Order Life Cycle": <OrderLifecycleFilter />,
+      },
+      "Operations": {
+        "Expense": <ExpenseFilter />,
+        "Activity": <ActivityFilter />,
       },
       "Products": {
         "Product Mix Weekly": <ProductMixWeeklyReportFilter/>,

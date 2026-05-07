@@ -7,4 +7,5 @@ export interface TimeEntry {
   clock_out?: DateTime
   duration_seconds?: number
   user: User
+  platform?: string
 }

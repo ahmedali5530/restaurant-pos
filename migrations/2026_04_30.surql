@@ -1,0 +1,1 @@
+DEFINE FIELD OVERWRITE platform ON TABLE time_entry TYPE option<string|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;

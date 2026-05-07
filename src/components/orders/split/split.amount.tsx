@@ -14,6 +14,10 @@ import {RecordId, StringRecordId} from "surrealdb";
 import {nanoid} from "nanoid";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import { nowSurrealDateTime } from "@/lib/datetime.ts";
+import {assertOrderPunchAllowed} from "@/lib/closing.guard.ts";
+import {useAtom} from "jotai";
+import {appPage} from "@/store/jotai.ts";
+import {toRecordId} from "@/lib/utils.ts";
 
 interface Props {
   order: OrderModel
@@ -31,6 +35,7 @@ export const SplitAmount = ({
   order, onClose
 }: Props) => {
   const db = useDB();
+  const [page] = useAtom(appPage);
 
   // Calculate total order amount (same as order.box.tsx)
   const itemsTotal = useMemo(() => calculateOrderTotal(order), [order]);
@@ -174,8 +179,14 @@ export const SplitAmount = ({
 
     setIsSaving(true);
     try {
+      await assertOrderPunchAllowed(db);
       const baseInvoiceNumber = order.invoice_number;
       const createdOrders = [];
+      const oldOrderId = order.id.toString();
+      const oldItems: Record<string, string[]> = {
+        [oldOrderId]: allItems.map(item => item.id.toString())
+      };
+      const newItems: Record<string, string[]> = {};
 
       for (let i = 0; i < splits.length; i++) {
         const split = splits[i];
@@ -241,7 +252,7 @@ export const SplitAmount = ({
         const orderData = {
           floor: new RecordId('floor', order.floor.id),
           covers: Math.ceil(order.covers / splits.length) || 1,
-          tags: ['Split Order'],
+          tags: [OrderStatus['Spilt']],
           order_type: order.order_type.id,
           status: OrderStatus["In Progress"],
           invoice_number: baseInvoiceNumber,
@@ -263,12 +274,23 @@ export const SplitAmount = ({
 
         const splitOrder = await db.create(Tables.orders, orderData);
         createdOrders.push(splitOrder[0]);
+        newItems[splitOrder[0].id.toString()] = newItemIds.map(item => item.toString());
       }
 
       // Mark original order as split
       await db.merge(order.id, {
         status: OrderStatus['Spilt'],
-        tags: [...(order.tags || []), 'Split']
+        items: [], // items moved to new orders
+        tags: [...(order.tags || []), OrderStatus['Spilt']]
+      });
+
+      await db.create(Tables.order_split, {
+        created_at: new Date(),
+        created_by: toRecordId(page.user.id),
+        old_order: order.id,
+        new_orders: createdOrders.map(item => item.id),
+        old_items: oldItems,
+        new_items: newItems,
       });
 
       toast.success(`Successfully created ${createdOrders.length} split orders`);

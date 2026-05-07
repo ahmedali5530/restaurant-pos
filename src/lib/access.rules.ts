@@ -17,11 +17,11 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
   },
   "Reports": {
     label: "Reports",
-    children: ["Cash closing", "Sales dashboard", "Inventory dashboard", "Sales Hourly Labour", "Sales Hourly Labour Weekly", "Server Sales", "Sales Summary", 'Sales Summary 2', 'Sales Weekly', 'Tips', 'Advanced Sales', 'Voids', 'Product Mix Weekly', 'Product Mix Summary', 'Products Hourly', 'Products Summary', 'Current Inventory', 'Detailed Inventory', 'Purchase', 'Purchase Return', 'Issue', 'Issue Return', 'Waste', 'Consumption', 'Sale vs Inventory'] as string[]
+    children: ["Delivery Density", "Cash closing", "Sales dashboard", "Inventory dashboard", "Sales Hourly Labour", "Sales Hourly Labour Weekly", "Server Sales", "Sales Summary", 'Sales Summary 2', 'Sales Weekly', 'Tips', 'Advanced Sales', 'Discount', 'Tax', 'Coupon', 'Voids', 'Merge Orders', 'Split Orders', 'Order Life Cycle', 'Expense', 'Activity', 'Product Mix Weekly', 'Product Mix Summary', 'Products Hourly', 'Products Summary', 'Current Inventory', 'Detailed Inventory', 'Purchase', 'Purchase Return', 'Issue', 'Issue Return', 'Waste', 'Consumption', 'Sale vs Inventory'] as string[]
   },
   "Closing": {
     label: "Closing",
-    children: [] as string[]
+    children: ["Closing", "Edit Closing"] as string[]
   },
   "Kitchen": {
     label: "Kitchen",

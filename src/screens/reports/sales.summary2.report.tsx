@@ -2,7 +2,8 @@ import {useEffect, useMemo, useRef, useState} from "react";
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {Order, OrderStatus} from "@/api/model/order.ts";
+import {Order, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
+import {DiscountType} from "@/api/model/discount.ts";
 import {OrderVoid} from "@/api/model/order_void.ts";
 import {withCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
@@ -29,9 +30,73 @@ const calculateVoidEntryAmount = (entry: OrderVoid): number => {
 
 const parseFilters = () => {
   const params = new URLSearchParams(window.location.search);
-  const startDate = params.get("start_date") || params.get("start");
-  const endDate = params.get("end_date") || params.get("end");
+  const startDate = params.get("start") || params.get("start");
+  const endDate = params.get("end") || params.get("end");
   return {startDate, endDate};
+};
+
+interface ModifierRow {
+  name: string;
+  depth: number;
+  path: string;
+  quantity: number;
+  price: number;
+}
+
+interface DishMixAggregate {
+  name: string;
+  modifiers: Record<string, ModifierRow>;
+  total: number;
+  quantity: number;
+}
+
+interface CategoryMixAggregate {
+  total: number;
+  quantity: number;
+  dishes: Record<string, DishMixAggregate>;
+}
+
+interface DishMixRow {
+  key: string;
+  name: string;
+  modifiers: ModifierRow[];
+  total: number;
+  quantity: number;
+}
+
+interface CategoryMixRow {
+  name: string;
+  total: number;
+  quantity: number;
+  dishes: DishMixRow[];
+}
+
+const getModifierRows = (modifiers: any[] = []): ModifierRow[] => {
+  const rows: ModifierRow[] = [];
+
+  const walkGroups = (groups: any[] = [], depth = 1, parentPath = "") => {
+    groups.forEach(group => {
+      (group?.selectedModifiers ?? []).forEach((selected: any) => {
+        const modifierName = String(selected?.dish?.name || selected?.name || "").trim();
+        if (!modifierName) {
+          return;
+        }
+
+        const currentPath = parentPath ? `${parentPath}>${modifierName}` : modifierName;
+        rows.push({
+          name: modifierName,
+          depth,
+          path: currentPath,
+          quantity: 0,
+          price: selected.price,
+        });
+        walkGroups(selected?.selectedGroups ?? [], depth + 1, currentPath);
+      });
+    });
+  };
+
+  walkGroups(modifiers);
+  return rows;
 };
 
 interface OrderTypeMetrics {
@@ -40,6 +105,7 @@ interface OrderTypeMetrics {
   taxes: number;
   amountDue: number;
   serviceCharges: number;
+  tips: number;
   discounts: number;
   coupons: number;
   net: number;
@@ -90,7 +156,7 @@ export const SalesSummary2Report = () => {
         const ordersQuery = `
           SELECT * FROM ${Tables.orders}
           ${orderConditions.length ? `WHERE ${orderConditions.join(" AND ")}` : ""}
-          FETCH payments, payments.payment_type, discount, order_type, items, items.item, items.item.categories, extras, user, coupon, coupon.coupon
+          FETCH ${ORDER_FETCHES.join(', ')}
         `;
 
         const ordersResult: any = await queryRef.current(ordersQuery, params);
@@ -320,6 +386,7 @@ export const SalesSummary2Report = () => {
           taxes: 0,
           amountDue: 0,
           serviceCharges: 0,
+          tips: 0,
           discounts: 0,
           coupons: 0,
           net: 0,
@@ -339,6 +406,7 @@ export const SalesSummary2Report = () => {
       metrics.taxes = safeNumber(metrics.taxes + safeNumber(orderMetrics.taxes));
       metrics.amountDue = safeNumber(metrics.amountDue + safeNumber(orderMetrics.amountDue));
       metrics.serviceCharges = safeNumber(metrics.serviceCharges + safeNumber(orderMetrics.serviceCharges));
+      metrics.tips = safeNumber(metrics.tips + safeNumber(orderMetrics.tips));
       metrics.discounts = safeNumber(metrics.discounts + safeNumber(orderMetrics.discounts));
       metrics.coupons = safeNumber(metrics.coupons + safeNumber(orderMetrics.coupons));
       metrics.net = safeNumber(metrics.net + safeNumber(orderMetrics.net));
@@ -376,6 +444,7 @@ export const SalesSummary2Report = () => {
         taxes: 0,
         amountDue: 0,
         serviceCharges: 0,
+        tips: 0,
         discounts: 0,
         coupons: 0,
         net: 0,
@@ -397,6 +466,7 @@ export const SalesSummary2Report = () => {
       metrics.taxes = safeNumber(metrics.taxes + safeNumber(orderMetrics.taxes));
       metrics.amountDue = safeNumber(metrics.amountDue + safeNumber(orderMetrics.amountDue));
       metrics.serviceCharges = safeNumber(metrics.serviceCharges + safeNumber(orderMetrics.serviceCharges));
+      metrics.tips = safeNumber(metrics.tips + safeNumber(orderMetrics.tips));
       metrics.discounts = safeNumber(metrics.discounts + safeNumber(orderMetrics.discounts));
       metrics.coupons = safeNumber(metrics.coupons + safeNumber(orderMetrics.coupons));
       metrics.net = safeNumber(metrics.net + safeNumber(orderMetrics.net));
@@ -567,14 +637,32 @@ export const SalesSummary2Report = () => {
       return acc;
     }, {} as Record<string, number>);
 
-    const tipsBreakdown = orders.reduce((acc, order) => {
+    const tipsByType = new Map<string, {quantity: number; total: number; rates: Set<number>}>();
+    orders.forEach(order => {
       const amount = safeNumber(order.tip_amount);
-      if (amount > 0) {
-        const type = order.tip_type || "Standard";
-        acc[type] = (acc[type] || 0) + amount;
+      if (amount <= 0) {
+        return;
       }
-      return acc;
-    }, {} as Record<string, number>);
+      const key = order.tip_type ?? "Standard";
+      const existing = tipsByType.get(key) || {quantity: 0, total: 0, rates: new Set<number>()};
+      existing.quantity += 1;
+      existing.total += amount;
+      if (order.tip_type === DiscountType.Percent) {
+        const rate = safeNumber(order.tip);
+        if (rate > 0) {
+          existing.rates.add(rate);
+        }
+      }
+      tipsByType.set(key, existing);
+    });
+    const tipsBreakdown = Array.from(tipsByType.entries())
+      .map(([name, data]) => ({
+        name,
+        quantity: data.quantity,
+        total: data.total,
+        rates: Array.from(data.rates).sort((a, b) => a - b),
+      }))
+      .sort((a, b) => b.total - a.total);
 
     const extrasBreakdown = orders.reduce((acc, order) => {
       order.extras?.forEach(extra => {
@@ -608,41 +696,67 @@ export const SalesSummary2Report = () => {
 
   // Fourth section: Breakdowns
   const breakdownMetrics = useMemo(() => {
-    // 1st subsection: Categories with quantity + total
-    const categoriesMap = new Map<string, {quantity: number; total: number}>();
+    const categoryMixMap: Record<string, CategoryMixAggregate> = {};
     orders.forEach(order => {
-      order.items?.forEach(item => {
-        const categories = item.item?.categories || [];
-        const itemPrice = safeNumber(calculateOrderItemPrice(item));
-        if (Array.isArray(categories) && categories.length > 0) {
-          categories.forEach((category: any) => {
-            const categoryName = category?.name || "Uncategorized";
-            const existing = categoriesMap.get(categoryName) || {quantity: 0, total: 0};
-            existing.quantity = safeNumber(existing.quantity + safeNumber(item.quantity));
-            existing.total = safeNumber(existing.total + itemPrice);
-            categoriesMap.set(categoryName, existing);
-          });
-        } else if (item.category) {
-          const existing = categoriesMap.get(item.category) || {quantity: 0, total: 0};
-          existing.quantity = safeNumber(existing.quantity + safeNumber(item.quantity));
-          existing.total = safeNumber(existing.total + itemPrice);
-          categoriesMap.set(item.category, existing);
+      getOrderFilteredItems(order).forEach(item => {
+        const categoryName = String(item?.category || "Uncategorized");
+        const dishName = String(item?.item?.name || "Unknown item");
+        const itemTotal = safeNumber(calculateOrderItemPrice(item));
+        const itemQuantity = safeNumber(item?.quantity);
+        const modifiers = getModifierRows(item?.modifiers ?? []);
+        const dishKey = dishName;
+
+        if (!categoryMixMap[categoryName]) {
+          categoryMixMap[categoryName] = {
+            total: 0,
+            quantity: 0,
+            dishes: {},
+          };
         }
+        const category = categoryMixMap[categoryName];
+
+        if (!category.dishes[dishKey]) {
+          category.dishes[dishKey] = {
+            name: dishName,
+            modifiers: {},
+            total: 0,
+            quantity: 0,
+          };
+        }
+
+        category.total += itemTotal;
+        category.quantity += itemQuantity;
+        category.dishes[dishKey].total += itemTotal;
+        category.dishes[dishKey].quantity += itemQuantity;
+        modifiers.forEach(modifier => {
+          if (!category.dishes[dishKey].modifiers[modifier.path]) {
+            category.dishes[dishKey].modifiers[modifier.path] = {
+              ...modifier,
+              quantity: 0,
+            };
+          }
+          category.dishes[dishKey].modifiers[modifier.path].quantity += itemQuantity;
+        });
       });
     });
 
-    // 2nd subsection: Dishes with quantity + total
-    const dishesMap = new Map<string, {quantity: number; total: number}>();
-    orders.forEach(order => {
-      order.items?.forEach(item => {
-        const dishName = item.item?.name || "Unknown";
-        const existing = dishesMap.get(dishName) || {quantity: 0, total: 0};
-        const itemPrice = safeNumber(calculateOrderItemPrice(item));
-        existing.quantity = safeNumber(existing.quantity + safeNumber(item.quantity));
-        existing.total = safeNumber(existing.total + itemPrice);
-        dishesMap.set(dishName, existing);
-      });
-    });
+    const categoryMix: CategoryMixRow[] = Object.entries(categoryMixMap)
+      .map(([name, category]) => {
+        const dishes = Object.entries(category.dishes)
+          .map(([key, dish]) => ({
+            key,
+            ...dish,
+            modifiers: Object.values(dish.modifiers).sort((a, b) => a.path.localeCompare(b.path)),
+          }))
+          .sort((a, b) => b.total - a.total);
+        return {
+          name,
+          total: category.total,
+          quantity: category.quantity,
+          dishes,
+        };
+      })
+      .sort((a, b) => b.total - a.total);
 
     // 3rd subsection: Discounts made by users
     const userDiscountsMap = new Map<string, {quantity: number; total: number; rates: Set<number>}>();
@@ -681,12 +795,7 @@ export const SalesSummary2Report = () => {
     });
 
     return {
-      categories: Array.from(categoriesMap.entries())
-        .map(([name, data]) => ({name, ...data}))
-        .sort((a, b) => b.total - a.total),
-      dishes: Array.from(dishesMap.entries())
-        .map(([name, data]) => ({name, ...data}))
-        .sort((a, b) => b.total - a.total),
+      categoryMix,
       userDiscounts: Array.from(userDiscountsMap.entries())
         .map(([name, data]) => ({
           name,
@@ -1014,15 +1123,23 @@ export const SalesSummary2Report = () => {
                     </table>
                   </div>
                 )}
-                {Object.keys(discountTypesBreakdown.tipsBreakdown).length > 0 && (
+                {discountTypesBreakdown.tipsBreakdown.length > 0 && (
                   <div>
                     <h5 className="mb-2  font-semibold text-neutral-600">Tips</h5>
                     <table className="min-w-full ">
                       <tbody className="divide-y divide-neutral-100">
-                        {Object.entries(discountTypesBreakdown.tipsBreakdown).map(([type, amount]) => (
-                          <tr key={type}>
-                            <td className="py-1 text-neutral-700">{type}</td>
-                            <td className="py-1 text-right font-semibold text-neutral-900">{withCurrency(amount)}</td>
+                        {discountTypesBreakdown.tipsBreakdown.map(tipRow => (
+                          <tr key={tipRow.name}>
+                            <td className="py-1 text-neutral-700">{tipRow.name}</td>
+                            <td className="py-1 text-right text-neutral-700">
+                              {tipRow.rates.length > 0
+                                ? tipRow.rates.map(rate => `${formatNumber(rate)}%`).join(", ")
+                                : "-"}
+                            </td>
+                            <td className="py-1 text-right text-neutral-700">{formatNumber(tipRow.quantity)}</td>
+                            <td className="py-1 text-right font-semibold text-neutral-900">
+                              {withCurrency(tipRow.total)}
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -1061,6 +1178,7 @@ export const SalesSummary2Report = () => {
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Taxes</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Amount Due</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Service Charges</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Tips</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Discounts</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Coupons</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Net</th>
@@ -1084,6 +1202,7 @@ export const SalesSummary2Report = () => {
                     <td className="py-3 px-3 text-right text-neutral-700">
                       {withCurrency(metrics.serviceCharges)}
                     </td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.tips)}</td>
                     <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.discounts)}</td>
                     <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.coupons)}</td>
                     <td className="py-3 px-3 text-right font-semibold text-neutral-900">
@@ -1103,7 +1222,7 @@ export const SalesSummary2Report = () => {
                 ))}
                 {orderTypeMetrics.length === 0 && (
                   <tr>
-                    <td colSpan={14} className="py-6 text-center text-neutral-500">
+                    <td colSpan={15} className="py-6 text-center text-neutral-500">
                       No order type data available
                     </td>
                   </tr>
@@ -1125,6 +1244,7 @@ export const SalesSummary2Report = () => {
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Taxes</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Amount Due</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Service Charges</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Tips</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Discounts</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Coupons</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Net</th>
@@ -1153,6 +1273,7 @@ export const SalesSummary2Report = () => {
                     <td className="py-3 px-3 text-right text-neutral-700">
                       {withCurrency(metrics.serviceCharges)}
                     </td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.tips)}</td>
                     <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.discounts)}</td>
                     <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.coupons)}</td>
                     <td className="py-3 px-3 text-right font-semibold text-neutral-900">
@@ -1175,69 +1296,83 @@ export const SalesSummary2Report = () => {
           </div>
         </div>
 
-        {/* Fourth section: Breakdowns with 4 sub-columns */}
+        {/* Fourth section: Breakdowns with 3 sub-columns */}
         <div className="overflow-hidden rounded-lg border border-neutral-200">
           <h3 className="bg-neutral-100 px-6 py-3 font-semibold text-neutral-700">Breakdowns</h3>
-          <div className="grid grid-cols-4 divide-x divide-neutral-200">
-            {/* 1st subsection: Categories */}
+          <div className="grid grid-cols-3 divide-x divide-neutral-200">
+            {/* 1st subsection: Categories with dishes and modifiers */}
             <div className="p-4">
               <h4 className="mb-3  font-semibold text-neutral-600">Categories</h4>
-              {breakdownMetrics.categories.length > 0 ? (
-                <table className="min-w-full ">
-                  <thead>
-                    <tr>
-                      <th className="py-1.5 text-left  font-semibold text-neutral-600">Category</th>
-                      <th className="py-1.5 text-right  font-semibold text-neutral-600">Qty</th>
-                      <th className="py-1.5 text-right  font-semibold text-neutral-600">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-100">
-                    {breakdownMetrics.categories.map(category => (
-                      <tr key={category.name}>
-                        <td className="py-1.5 text-neutral-700">{category.name}</td>
-                        <td className="py-1.5 text-right text-neutral-700">{formatNumber(category.quantity)}</td>
-                        <td className="py-1.5 text-right font-semibold text-neutral-900">
-                          {withCurrency(category.total)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              {breakdownMetrics.categoryMix.length > 0 ? (
+                <div>
+                  <div className="border-b border-neutral-300 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-600">
+                    <div className="flex">
+                      <span className="w-1/2">Item</span>
+                      <span className="w-1/6 text-right">Qty</span>
+                      <span className="w-1/6 text-right">Total</span>
+                      <span className="w-1/6 text-right">Share</span>
+                    </div>
+                  </div>
+                  {breakdownMetrics.categoryMix.map(category => (
+                    <div key={category.name}>
+                      <div className="border-b border-neutral-200 bg-neutral-50 py-2 text-sm font-semibold">
+                        <div className="flex">
+                          <span className="w-1/2">{category.name}</span>
+                          <span className="w-1/6 text-right tabular-nums">{formatNumber(category.quantity)}</span>
+                          <span className="w-1/6 text-right tabular-nums">{withCurrency(category.total)}</span>
+                          <span className="w-1/6 text-right tabular-nums">
+                            {formatNumber(
+                              financialMetrics.salePriceWithoutTax > 0
+                                ? (category.total / financialMetrics.salePriceWithoutTax) * 100
+                                : 0,
+                            )}
+                            %
+                          </span>
+                        </div>
+                      </div>
+                      {category.dishes.map(dish => (
+                        <div key={`${category.name}-${dish.key}`} className="border-b border-neutral-200 py-2 text-sm">
+                          <div className="flex">
+                            <div className="w-1/2 pr-2">
+                              <div className="pl-4">{dish.name}</div>
+                              {dish.modifiers.map(modifier => (
+                                <div
+                                  key={`${category.name}-${dish.key}-${modifier.path}`}
+                                  className="flex text-xs text-neutral-500"
+                                >
+                                  <div
+                                    className="w-4/6"
+                                    style={{paddingLeft: `${modifier.depth + 1}rem`}}
+                                  >
+                                    - {modifier.name}
+                                  </div>
+                                  <div className="w-1/6">{formatNumber(modifier.quantity)}</div>
+                                  <div className="w-1/6">{formatNumber(modifier.price)}</div>
+                                </div>
+                              ))}
+                            </div>
+                            <span className="w-1/6 text-right tabular-nums">{formatNumber(dish.quantity)}</span>
+                            <span className="w-1/6 text-right tabular-nums">{withCurrency(dish.total)}</span>
+                            <span className="w-1/6 text-right tabular-nums">
+                              {formatNumber(
+                                financialMetrics.salePriceWithoutTax > 0
+                                  ? (dish.total / financialMetrics.salePriceWithoutTax) * 100
+                                  : 0,
+                              )}
+                              %
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
               ) : (
                 <div className=" text-neutral-500">No categories data</div>
               )}
             </div>
 
-            {/* 2nd subsection: Dishes */}
-            <div className="p-4">
-              <h4 className="mb-3  font-semibold text-neutral-600">Dishes</h4>
-              {breakdownMetrics.dishes.length > 0 ? (
-                <table className="min-w-full ">
-                  <thead>
-                    <tr>
-                      <th className="py-1.5 text-left  font-semibold text-neutral-600">Dish</th>
-                      <th className="py-1.5 text-right  font-semibold text-neutral-600">Qty</th>
-                      <th className="py-1.5 text-right  font-semibold text-neutral-600">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-100">
-                    {breakdownMetrics.dishes.map(dish => (
-                      <tr key={dish.name}>
-                        <td className="py-1.5 text-neutral-700">{dish.name}</td>
-                        <td className="py-1.5 text-right text-neutral-700">{formatNumber(dish.quantity)}</td>
-                        <td className="py-1.5 text-right font-semibold text-neutral-900">
-                          {withCurrency(dish.total)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div className=" text-neutral-500">No dishes data</div>
-              )}
-            </div>
-
-            {/* 3rd subsection: Discounts by users */}
+            {/* 2nd subsection: Discounts by users */}
             <div className="p-4">
               <h4 className="mb-3  font-semibold text-neutral-600">Discounts by Users</h4>
               {breakdownMetrics.userDiscounts.length > 0 ? (
@@ -1274,7 +1409,7 @@ export const SalesSummary2Report = () => {
               )}
             </div>
 
-            {/* 4th subsection: Payment types */}
+            {/* 3rd subsection: Payment types */}
             <div className="p-4">
               <h4 className="mb-3  font-semibold text-neutral-600">Payment Types</h4>
               {breakdownMetrics.paymentTypes.length > 0 ? (

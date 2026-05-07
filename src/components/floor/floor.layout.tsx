@@ -13,6 +13,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faChair} from "@fortawesome/free-solid-svg-icons";
 import {ne, LiveSubscription} from "surrealdb";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
+import {getOrderPunchDisabledMessage, isCurrentCycleClosed} from "@/lib/closing.guard.ts";
 
 
 export const FloorLayout = () => {
@@ -24,6 +25,7 @@ export const FloorLayout = () => {
   const [page] = useAtom(appPage);
   const [, setAlert] = useAtom(appAlert);
   const [settings] = useAtom(appSettings);
+  const [isClosingLocked, setIsClosingLocked] = useState(false);
 
   const floors = useMemo(() => {
     return settings.floors;
@@ -115,6 +117,27 @@ export const FloorLayout = () => {
   }, []);
 
   useEffect(() => {
+    const checkLock = async () => {
+      try {
+        const locked = await isCurrentCycleClosed(db);
+        setIsClosingLocked(locked);
+        if (locked) {
+          setAlert(prev => ({
+            ...prev,
+            message: getOrderPunchDisabledMessage(),
+            type: "warning",
+            opened: true
+          }));
+        }
+      } catch (error) {
+        console.error("Failed to check closing lock:", error);
+      }
+    };
+
+    checkLock().then();
+  }, []);
+
+  useEffect(() => {
     if (!state.floor && floors?.length > 0) {
       setState(prev => ({
         ...prev,
@@ -134,6 +157,16 @@ export const FloorLayout = () => {
   }
 
   const onClick = async (item: Table) => {
+    if (isClosingLocked) {
+      setAlert(prev => ({
+        ...prev,
+        message: getOrderPunchDisabledMessage(),
+        type: "warning",
+        opened: true
+      }));
+      return;
+    }
+
     if (item.is_locked) {
       setAlert(prev => ({
         ...prev,
@@ -214,6 +247,11 @@ export const FloorLayout = () => {
         <div className="h-[80px] bg-white p-3 flex items-center">
           {state.switchTable && <div className="text-xl"><FontAwesomeIcon icon={faChair}/> Switch from
               Table {state?.table?.name}{state?.table?.number} to another</div>}
+          {isClosingLocked && (
+            <div className="alert alert-warning w-full">
+              {getOrderPunchDisabledMessage()}
+            </div>
+          )}
         </div>
         <div className="layout relative h-[calc(100vh_-_80px_-_80px)] p-3 overflow-hidden">
           {state.floor && (

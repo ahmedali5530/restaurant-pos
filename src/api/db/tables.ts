@@ -24,6 +24,7 @@ export enum Tables {
   order_coupons = 'order_coupon',
   order_payment = 'order_payment',
   order_merge = 'order_merge',
+  order_split = 'order_split',
   order_voids = 'order_void',
   order_refunds = 'order_refund',
 
@@ -63,5 +64,6 @@ export enum Tables {
 
   settings = 'setting',
 
-  auth_permission = 'auth_permission'
+  auth_permission = 'auth_permission',
+  tracking = 'tracking'
 }

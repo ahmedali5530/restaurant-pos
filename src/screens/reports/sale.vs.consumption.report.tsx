@@ -42,8 +42,8 @@ interface ReportFilters {
 const parseFilters = (): ReportFilters => {
   const params = new URLSearchParams(window.location.search);
   return {
-    startDate: params.get('start') || params.get('start_date'),
-    endDate: params.get('end') || params.get('end_date'),
+    startDate: params.get('start') || params.get('start'),
+    endDate: params.get('end') || params.get('end'),
   };
 };
 

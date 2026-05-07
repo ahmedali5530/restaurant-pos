@@ -7,6 +7,7 @@ import {OrderItem} from "@/api/model/order_item.ts";
 import {withCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import { toJsDate } from "@/lib/datetime.ts";
+import {getOrderFilteredItems} from "@/lib/order.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -31,8 +32,8 @@ const parseFilters = (): ReportFilters => {
   };
 
   return {
-    startDate: params.get('start_date') || undefined,
-    endDate: params.get('end_date') || undefined,
+    startDate: params.get('start') || undefined,
+    endDate: params.get('end') || undefined,
     menuItemIds: parseMulti('menu_items'),
     hours: parseMulti('hours'),
   };
@@ -125,7 +126,7 @@ export const ProductHourlyReport = () => {
       }
 
       // Process each item in the order
-      order.items?.forEach((item: OrderItem) => {
+      getOrderFilteredItems(order)?.forEach((item: OrderItem) => {
         // Filter by menu item if filter is applied
         const itemId = item.item?.id?.toString();
         if (filters.menuItemIds.length > 0 && (!itemId || !filters.menuItemIds.includes(itemId))) {
@@ -238,6 +239,7 @@ export const ProductHourlyReport = () => {
 
   return (
     <ReportsLayout title="Product hourly" subtitle={subtitle}>
+      <div className="alert alert-warning">This report doesn't include taxes, discounts, service charges, extras and tips</div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">
           <thead className="bg-neutral-50">

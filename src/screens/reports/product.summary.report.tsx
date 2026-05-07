@@ -8,7 +8,7 @@ import {withCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faMinus} from "@fortawesome/free-solid-svg-icons";
-import {Helmet} from "react-helmet";
+import {getOrderFilteredItems} from "@/lib/order.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -35,8 +35,8 @@ const parseFilters = (): ReportFilters => {
   };
 
   return {
-    startDate: params.get('start') || params.get('start_date') || undefined,
-    endDate: params.get('end') || params.get('end_date') || undefined,
+    startDate: params.get('start') || params.get('start') || undefined,
+    endDate: params.get('end') || params.get('end') || undefined,
     orderTakerIds: parseMulti('order_takers'),
     orderTypeIds: parseMulti('order_types'),
     categoryIds: parseMulti('categories'),
@@ -197,8 +197,9 @@ export const ProductSummaryReport = () => {
   }, [orders, filters.categoryIds, filters.dishIds]);
 
   // Get filtered order items
-  const getFilteredOrderItems = (order: Order) => {
-    return order.items?.filter(item => {
+  const getFilteredItems = (order: Order) => {
+
+    return getOrderFilteredItems(order).filter(item => {
       // Filter by category
       if (filters.categoryIds.length > 0) {
         const itemCategories = item.item?.categories || [];
@@ -230,7 +231,7 @@ export const ProductSummaryReport = () => {
     const dishMap = new Map<string, DishMetrics>();
 
     filteredOrders.forEach(order => {
-      const filteredItems = getFilteredOrderItems(order);
+      const filteredItems = getFilteredItems(order);
 
       filteredItems.forEach(item => {
         if (!item.item) return;
@@ -420,9 +421,7 @@ export const ProductSummaryReport = () => {
     <ReportsLayout
       onRefresh={fetchData}
       title="Product Summary" subtitle={subtitle}>
-      <Helmet>
-        <title>Products summary report</title>
-      </Helmet>
+      <div className="alert alert-warning">This report doesn't include taxes, discounts, service charges, extras and tips</div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">
           <thead className="bg-neutral-50">
@@ -463,7 +462,8 @@ export const ProductSummaryReport = () => {
                 </tr>
                 {expandedDishes.has(dish.dishId) && dish.modifiers.length > 0 && (
                   <tr>
-                    <td colSpan={9} className="py-0 px-0">
+                    <td></td>
+                    <td colSpan={8} className="py-0 px-0">
                       <div className="px-6 py-3 bg-neutral-50">
                         <div className="text-xs font-semibold text-neutral-700 mb-2">Modifiers:</div>
                         <table className="w-full border border-neutral-200 rounded">

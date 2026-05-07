@@ -2,14 +2,14 @@ import {useEffect, useMemo, useRef, useState} from "react";
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {Order, OrderStatus} from "@/api/model/order.ts";
+import {Order, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
 import {OrderVoid} from "@/api/model/order_void.ts";
 import {withCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {DateTime} from "luxon";
 import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
 import {DAY_PART_LABELS, DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
-import {getOrderPaymentTotals} from "@/lib/order.ts";
+import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -50,13 +50,10 @@ const parseWeekParams = () => {
 };
 
 const calculateOrderNetSales = (order: Order): number => {
-  const grossTotal = order.items?.reduce((sum, item) => sum + calculateOrderItemPrice(item), 0) ?? 0;
-  const lineDiscounts = order.items?.reduce((sum, item) => sum + safeNumber(item?.discount), 0) ?? 0;
-  const orderDiscount = safeNumber(order.discount_amount);
-  const couponDiscount = safeNumber(order.coupon?.discount);
-  const extraDiscount = Math.max(0, orderDiscount - lineDiscounts);
-  const net = grossTotal - lineDiscounts - extraDiscount - couponDiscount;
-  return net > 0 ? net : 0;
+  const paymentTotals = getOrderPaymentTotals(order);
+  const serviceChargeAmount = safeNumber(order.service_charge_amount);
+  const taxAmount = safeNumber(order.tax_amount);
+  return safeNumber(paymentTotals.amountCollected - serviceChargeAmount - taxAmount);
 };
 
 interface DayMetrics {
@@ -64,6 +61,7 @@ interface DayMetrics {
   cashPayments: number;
   nonCashPayments: number;
   amountCollected: number;
+  tips: number;
   coupons: number;
   salesByDayPart: Record<DayPartLabel, number>;
   voids: number;
@@ -100,7 +98,8 @@ export const SalesWeeklyReport = () => {
           SELECT * FROM ${Tables.orders}
           WHERE time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $start
             AND time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $end
-          FETCH payments, payments.payment_type, discount, order_type, items, items.item, items.item.categories, extras, user, coupon, coupon.coupon
+            AND status = '${OrderStatus.Paid}'
+          FETCH ${ORDER_FETCHES.join(', ')}
         `;
 
         const ordersResult: any = await queryRef.current(ordersQuery, params);
@@ -139,6 +138,7 @@ export const SalesWeeklyReport = () => {
         cashPayments: 0,
         nonCashPayments: 0,
         amountCollected: 0,
+        tips: 0,
         coupons: 0,
         salesByDayPart: DAY_PART_LABELS.reduce((acc, label) => {
           acc[label] = 0;
@@ -172,6 +172,7 @@ export const SalesWeeklyReport = () => {
       dayMetric.amountCollected += paymentTotals.amountCollected;
       dayMetric.cashPayments += paymentTotals.cashAmount;
       dayMetric.nonCashPayments += paymentTotals.nonCashAmount;
+      dayMetric.tips += safeNumber(order.tip_amount);
 
       // Sales by day part
       const dayPart = getDayPartLabel(toJsDate(order.created_at));
@@ -192,11 +193,12 @@ export const SalesWeeklyReport = () => {
       dayMetric.salesByOrderMode[orderTypeName] = (dayMetric.salesByOrderMode[orderTypeName] || 0) + netSales;
 
       // Comps (100% discounts or complimentary items)
+      const filteredItems = getOrderFilteredItems(order);
       const totalDiscount = safeNumber(order.discount_amount);
       const itemDiscounts = safeNumber(
-        order.items?.reduce((sum, item) => sum + safeNumber(item?.discount), 0) ?? 0
+        filteredItems.reduce((sum, item) => sum + safeNumber(item?.discount), 0)
       );
-      const grossTotal = order.items?.reduce((sum, item) => sum + calculateOrderItemPrice(item), 0) ?? 0;
+      const grossTotal = safeNumber(filteredItems.reduce((sum, item) => sum + calculateOrderItemPrice(item), 0));
       if (grossTotal > 0 && (totalDiscount >= grossTotal || itemDiscounts >= grossTotal)) {
         dayMetric.comps += grossTotal;
       }
@@ -271,6 +273,14 @@ export const SalesWeeklyReport = () => {
       formatter: withCurrency,
     });
 
+    const tipsValues = dayHeaders.map(h => dayMetrics[h.dateKey]?.tips || 0);
+    rowData.push({
+      label: "Tips",
+      values: tipsValues,
+      total: tipsValues.reduce((sum, val) => sum + val, 0),
+      formatter: withCurrency,
+    });
+
     const couponValues = dayHeaders.map(h => dayMetrics[h.dateKey]?.coupons || 0);
     rowData.push({
       label: "Coupons",
@@ -286,6 +296,25 @@ export const SalesWeeklyReport = () => {
         label: `Sales by Day Part - ${part.label} (${getDayPartTimeRangeLabel(part.label)})`,
         values: dayPartValues,
         total: dayPartValues.reduce((sum, val) => sum + val, 0),
+        formatter: withCurrency,
+      });
+    });
+
+    // Sales by Order Mode - collect all order types
+    const orderTypesSet = new Set<string>();
+    dayHeaders.forEach(h => {
+      const dayMetric = dayMetrics[h.dateKey];
+      if (dayMetric) {
+        Object.keys(dayMetric.salesByOrderMode).forEach(type => orderTypesSet.add(type));
+      }
+    });
+
+    orderTypesSet.forEach(orderType => {
+      const orderTypeValues = dayHeaders.map(h => dayMetrics[h.dateKey]?.salesByOrderMode[orderType] || 0);
+      rowData.push({
+        label: `Sales by Order Mode - ${orderType}`,
+        values: orderTypeValues,
+        total: orderTypeValues.reduce((sum, val) => sum + val, 0),
         formatter: withCurrency,
       });
     });
@@ -324,25 +353,6 @@ export const SalesWeeklyReport = () => {
       values: serviceChargesNotCollectedValues,
       total: serviceChargesNotCollectedValues.reduce((sum, val) => sum + val, 0),
       formatter: withCurrency,
-    });
-
-    // Sales by Order Mode - collect all order types
-    const orderTypesSet = new Set<string>();
-    dayHeaders.forEach(h => {
-      const dayMetric = dayMetrics[h.dateKey];
-      if (dayMetric) {
-        Object.keys(dayMetric.salesByOrderMode).forEach(type => orderTypesSet.add(type));
-      }
-    });
-
-    orderTypesSet.forEach(orderType => {
-      const orderTypeValues = dayHeaders.map(h => dayMetrics[h.dateKey]?.salesByOrderMode[orderType] || 0);
-      rowData.push({
-        label: `Sales by Order Mode - ${orderType}`,
-        values: orderTypeValues,
-        total: orderTypeValues.reduce((sum, val) => sum + val, 0),
-        formatter: withCurrency,
-      });
     });
 
     return rowData;

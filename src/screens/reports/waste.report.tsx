@@ -42,8 +42,8 @@ const parseFilters = (): ReportFilters => {
   };
 
   return {
-    startDate: params.get('start') || params.get('start_date'),
-    endDate: params.get('end') || params.get('end_date'),
+    startDate: params.get('start') || params.get('start'),
+    endDate: params.get('end') || params.get('end'),
     itemIds: parseMulti('items'),
     userIds: parseMulti('users'),
   };

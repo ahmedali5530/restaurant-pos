@@ -15,6 +15,10 @@ import {RecordId, StringRecordId} from "surrealdb";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {nanoid} from "nanoid";
 import {getInvoiceNumber, getOrderFilteredItems} from "@/lib/order.ts";
+import {assertOrderPunchAllowed} from "@/lib/closing.guard.ts";
+import {useAtom} from "jotai";
+import {appPage} from "@/store/jotai.ts";
+import {toRecordId} from "@/lib/utils.ts";
 
 interface Props {
   order: OrderModel
@@ -32,6 +36,7 @@ export const SplitItems = ({
   order, onClose
 }: Props) => {
   const db = useDB();
+  const [page] = useAtom(appPage);
   // Initialize with one split containing all items
   const [splits, setSplits] = useState<Split[]>([
     {id: 'split-1', name: 'Split 1', items: [...getOrderFilteredItems(order)], number: 1}
@@ -183,8 +188,14 @@ export const SplitItems = ({
 
     setIsSaving(true);
     try {
+      await assertOrderPunchAllowed(db);
       const baseInvoiceNumber = order.invoice_number;
       const createdOrders = [];
+      const oldOrderId = order.id.toString();
+      const oldItems: Record<string, string[]> = {
+        [oldOrderId]: getOrderFilteredItems(order).map(item => item.id.toString())
+      };
+      const newItems: Record<string, string[]> = {};
 
       for (let i = 0; i < actualSplits.length; i++) {
         const split = actualSplits[i];
@@ -199,7 +210,7 @@ export const SplitItems = ({
           covers: Math.ceil(order.covers / actualSplits.length) || 1, // Distribute covers
           // tax: order.tax ? new StringRecordId(order.tax.id.toString()) : null,
           // tax_amount: 0, // Will be calculated per split
-          tags: ['Split Order'],
+          tags: [OrderStatus['Spilt']],
           // discount: order.discount ? new StringRecordId(order.discount.id.toString()) : null,
           // discount_amount: 0, // Will be calculated per split
           // customer: order.customer ? new StringRecordId(order.customer.id.toString()) : null,
@@ -215,6 +226,7 @@ export const SplitItems = ({
 
         const splitOrder = await db.create(Tables.orders, orderData);
         createdOrders.push(splitOrder[0]);
+        newItems[splitOrder[0].id.toString()] = items.map(item => item.toString());
 
         for ( const item of items ) {
           await db.merge(item, {
@@ -226,7 +238,17 @@ export const SplitItems = ({
       // // Mark original order as cancelled or completed
       await db.merge(order.id, {
         status: OrderStatus['Spilt'],
-        tags: [...(order.tags || []), 'Split']
+        items: [], // items moved to new orders
+        tags: [...(order.tags || []), OrderStatus['Spilt']]
+      });
+
+      await db.create(Tables.order_split, {
+        created_at: new Date(),
+        created_by: toRecordId(page.user.id),
+        old_order: order.id,
+        new_orders: createdOrders.map(item => item.id),
+        old_items: oldItems,
+        new_items: newItems,
       });
 
       toast.success(`Successfully created ${createdOrders.length} split orders`);

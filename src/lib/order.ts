@@ -30,9 +30,11 @@ export interface OrderPaymentTotals {
   cashAmount: number
   nonCashAmount: number
   nonCashBreakdown: Record<string, number>
+  change: number
+  totalReceivedWithChange: number
 }
 
-export const getOrderPaymentTotals = (order: OrderModel): OrderPaymentTotals => {
+export const getOrderPaymentTotals = (order: Pick<OrderModel, 'payments'>): OrderPaymentTotals => {
   const payments = order.payments ?? [];
 
   const baseAmount = getPaymentAmount(payments[0]);
@@ -47,10 +49,14 @@ export const getOrderPaymentTotals = (order: OrderModel): OrderPaymentTotals => 
   const nonCashAmount = Object.values(nonCashBreakdown).reduce((sum, amount) => sum + amount, 0);
   const cashAmount = baseAmount - nonCashAmount;
 
+  const totalReceived = payments.reduce((sum, amount) => sum + amount.amount, 0);
+
   return {
     amountCollected: baseAmount,
     cashAmount,
     nonCashAmount,
     nonCashBreakdown,
+    change: totalReceived - cashAmount - nonCashAmount,
+    totalReceivedWithChange: totalReceived
   };
 };

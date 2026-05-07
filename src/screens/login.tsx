@@ -85,8 +85,9 @@ export const Login = () => {
         }
 
         // Check for active time entry
-        const timeEntryCheck: any = await db.query(`SELECT * from ${Tables.time_entries} where user = $userId and clock_out = NONE`, {
+        const timeEntryCheck: any = await db.query(`SELECT * from ${Tables.time_entries} where user = $userId and clock_out = NONE and platform = $platform`, {
           userId: record[0][0].id,
+          platform: 'web'
         });
 
         if(timeEntryCheck[0].length === 0){
@@ -130,6 +131,7 @@ export const Login = () => {
       await db.create(Tables.time_entries, {
         clock_in: now,
         user: (pendingUser.id),
+        platform: 'web'
       });
 
       toast.success('Clocked in successfully');

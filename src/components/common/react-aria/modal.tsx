@@ -14,7 +14,7 @@ interface ModalProps extends PropsWithChildren {
   hideCloseButton?: boolean;
   transparentContainer?: boolean;
   header?: ReactNode;
-  size?: "full" | "sm" | "md" | "lg" | "xl";
+  size?: "full" | "sm" | "md" | "lg" | "xl" | 'auto';
   backdrop?: boolean;
   shouldCenter?: boolean;
   backgroundColor?: string
@@ -22,7 +22,9 @@ interface ModalProps extends PropsWithChildren {
 }
 
 export const Modal: FunctionComponent<ModalProps> = ({
-  hideCloseButton = false, ...props
+  hideCloseButton = false,
+  size = 'md',
+  ...props
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -60,17 +62,18 @@ export const Modal: FunctionComponent<ModalProps> = ({
             // isKeyboardDismissDisabled={props.shouldCloseOnEsc === undefined ? true : props.shouldCloseOnEsc}
             // onOpenChange={close}
             className={cn(
+              'react-aria-Modal',
               props.bottomSheet ? 'mb-12' : ''
             )}
           >
             <Dialog
               className={cn(
                 'react-aria-Dialog',
-                props.size === "full" && "modal-full",
-                props.size === "sm" && "modal-sm",
-                props.size === 'lg' && 'modal-lg',
-                props.size === 'xl' && 'modal-xl',
-                (!props.size || props.size === "md") && 'modal-md',
+                size === "full" && "modal-full",
+                size === "sm" && "modal-sm",
+                size === 'lg' && 'modal-lg',
+                size === 'xl' && 'modal-xl',
+                size === "md" && 'modal-md',
                 !props.backdrop && 'no-backdrop'
               )}
             >

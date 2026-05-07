@@ -5,6 +5,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {Order} from "@/api/model/order.ts";
 import {withCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
+import {getOrderFilteredItems} from "@/lib/order.ts";
 import {DateTime} from "luxon";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 
@@ -143,9 +144,11 @@ export const ProductMixWeeklyReport = () => {
   // Filter orders by category and menu item
   const filteredOrders = useMemo(() => {
     return orders.filter(order => {
+      const validItems = getOrderFilteredItems(order);
+
       // Check if order has items matching category filter
       if (filters.categoryIds.length > 0) {
-        const hasMatchingCategory = order.items?.some(item => {
+        const hasMatchingCategory = validItems.some(item => {
           const itemCategories = item.item?.categories || [];
           if (Array.isArray(itemCategories)) {
             return itemCategories.some((cat: any) => {
@@ -162,7 +165,7 @@ export const ProductMixWeeklyReport = () => {
 
       // Check if order has items matching menu item filter
       if (filters.menuItemIds.length > 0) {
-        const hasMatchingMenuItem = order.items?.some(item => {
+        const hasMatchingMenuItem = validItems.some(item => {
           const itemId = item.item?.id?.toString();
           return itemId && filters.menuItemIds.includes(itemId);
         });
@@ -177,7 +180,8 @@ export const ProductMixWeeklyReport = () => {
 
   // Filter items within orders by category and menu item
   const getFilteredOrderItems = (order: Order) => {
-    return order.items?.filter(item => {
+    const validItems = getOrderFilteredItems(order);
+    return validItems.filter(item => {
       // Filter by category
       if (filters.categoryIds.length > 0) {
         const itemCategories = item.item?.categories || [];
@@ -201,7 +205,7 @@ export const ProductMixWeeklyReport = () => {
       }
 
       return true;
-    }) || [];
+    });
   };
 
   // Calculate metrics grouped by order taker and day

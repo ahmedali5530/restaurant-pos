@@ -72,8 +72,8 @@ const parseFilters = (): ReportFilters => {
   };
 
   return {
-    startDate: params.get('start') || params.get('start_date'),
-    endDate: params.get('end') || params.get('end_date'),
+    startDate: params.get('start') || params.get('start'),
+    endDate: params.get('end') || params.get('end'),
     orderTakerIds: parseMulti('order_takers'),
     cashierIds: parseMulti('cashiers'),
     tableIds: parseMulti('tables'),
@@ -330,7 +330,7 @@ export const SalesAdvancedReport = () => {
   }, [orders, filters]);
 
   const baseColumns = 9;
-  const detailsColumns = filters.showDetails ? 10 : 1;
+  const detailsColumns = filters.showDetails ? 12 : 1;
   const tableColSpan = baseColumns + detailsColumns + (filters.showMenuItems ? 1 : 0);
   const ordersWithItems = useMemo(
     () => filteredOrders.filter(order => Boolean(filters.showMenuItems && order.items && order.items.length > 0)),
@@ -382,6 +382,10 @@ export const SalesAdvancedReport = () => {
 
   const calculateOrderTotals = (order: Order) => {
     const filteredItems = getOrderFilteredItems(order);
+    const itemsCount = safeNumber(
+      filteredItems.reduce((sum, item) => sum + safeNumber(item?.quantity), 0)
+    );
+    const covers = safeNumber(order.covers);
     const salePriceWithoutTax = safeNumber(
       filteredItems.reduce((sum, item) => {
         const price = calculateOrderItemPrice(item);
@@ -404,6 +408,8 @@ export const SalesAdvancedReport = () => {
     const rounding = safeNumber(amountCollected - amountDue);
 
     return {
+      itemsCount,
+      covers,
       salePriceWithoutTax,
       taxes,
       tips,
@@ -567,6 +573,8 @@ export const SalesAdvancedReport = () => {
                 <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Status</th>
                 {filters.showDetails && (
                   <>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Items</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Covers</th>
                     <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Sale w/o Tax</th>
                     <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Taxes</th>
                     <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Tip</th>
@@ -647,6 +655,10 @@ export const SalesAdvancedReport = () => {
                       </td>
                       {filters.showDetails && (
                         <>
+                          <td
+                            className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(orderTotals.itemsCount)}</td>
+                          <td
+                            className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(orderTotals.covers)}</td>
                           <td
                             className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(orderTotals.salePriceWithoutTax)}</td>
                           <td
