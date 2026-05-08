@@ -187,7 +187,7 @@ export const AdminDishes = () => {
         customSearchHandler={(value) => {
           loadHook.resetFilters();
 
-          loadHook.addFilter('string::lowercase(name) contains $name or categories.any(|$var|string::lowercase($var.name) contains $name)', 'and');
+          loadHook.addFilter('string::lowercase(name) contains $name or array::any(categories, |$var|string::lowercase($var.name) contains $name)', 'and');
           loadHook.handleParameterChange({
             name: value
           })

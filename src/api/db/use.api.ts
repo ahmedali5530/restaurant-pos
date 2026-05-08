@@ -83,7 +83,7 @@ function useApi<T>(
     
     try {
       const [totalQuery] = await db.query<[{ count?: number }[]]>(
-        `Select count() from ${table}${initialFilters.length > 0 ? ` WHERE ${initialFilters.join(' ')}` : ''} group all`
+        `Select count() from ${table}${filters.length > 0 ? ` WHERE ${filters.join(' and ')}` : ''} group all`
       );
       const [listQuery] = await db.query<[T[]]>(mainQuery, queryBuilder.parameters);
 

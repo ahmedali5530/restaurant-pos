@@ -64,7 +64,7 @@ const validationSchema = yup.object({
     }).required('This is required'),
     quantity: yup.number().required('This is required').min(0.01, 'Quantity must be greater than 0'),
     cost: yup.number().required('This is required').min(0, 'Cost must be greater than or equal to 0'),
-    is_price_locked: yup.boolean(),
+    is_price_locked: yup.boolean().optional(),
     id: yup.string().nullable().optional()
   })).test('unique-items', 'Each item can only be added once', function (recipes) {
     if (!recipes || recipes.length === 0) return true;
@@ -83,16 +83,7 @@ export const DishForm = ({
 
   const closeModal = () => {
     onClose();
-    reset({
-      name: '',
-      number: '',
-      priority: 0,
-      price: 0,
-      cost: 0,
-      categories: [],
-      modifier_groups: [],
-      recipes: []
-    });
+
     setPhotoFile(null);
     setPhotoPreview(null);
     setPhotoData(null);
@@ -106,15 +97,7 @@ export const DishForm = ({
           label: item.name,
           value: item.id
         })),
-        recipes: data?.items?.map(item => ({
-          item: {
-            label: item.item.name,
-            value: item.item.id
-          },
-          quantity: item.quantity,
-          cost: item.cost,
-          is_price_locked: item.is_price_locked
-        })),
+        recipes: [],
         modifier_groups: []
       });
 
@@ -191,20 +174,19 @@ export const DishForm = ({
     try {
       const record: any = await db.query(`SELECT *
                                           FROM ${Tables.dishes_recipes}
-                                          WHERE dish = $dish FETCH item`, {dish: id});
+                                          WHERE menu_item = $item FETCH item`, {item: id});
       if (record[0] && record[0].length > 0) {
-        for (const rec of record[0]) {
-          appendRecipe({
-            item: {
-              label: rec.item.name,
-              value: rec.item.id
-            },
-            quantity: rec.quantity,
-            cost: rec.cost,
-            is_price_locked: rec.is_price_locked || false,
-            id: rec.id // Store the recipe ID for updates
-          });
-        }
+
+        replaceRecipes(record[0].map(rec => ({
+          item: {
+            label: rec.item.name,
+            value: rec.item.id
+          },
+          quantity: rec.quantity,
+          cost: rec.cost,
+          is_price_locked: rec.is_price_locked || false,
+          id: rec.id // Store the recipe ID for updates
+        })));
       }
     } catch (e) {
       // If recipes don't exist yet, that's fine
@@ -232,7 +214,8 @@ export const DishForm = ({
   const {
     fields: recipeFields,
     append: appendRecipe,
-    remove: removeRecipe
+    remove: removeRecipe,
+    replace: replaceRecipes
   } = useFieldArray({
     name: 'recipes',
     control: control
@@ -669,7 +652,7 @@ export const DishForm = ({
                   })
                   ?.map(invItem => ({
                     label: invItem.name,
-                    value: invItem.id
+                    value: invItem.id.toString()
                   })) || [];
 
                 return (
