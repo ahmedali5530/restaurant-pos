@@ -9,7 +9,8 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "print-server": "cd printing && npm start",
-    "payment-server": "cd payments && npm start"
+    "payment-server": "cd payments && npm start",
+    "tracking-server": "cd tracking-api && npm start"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.1.2",

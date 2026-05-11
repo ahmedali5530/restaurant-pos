@@ -3,8 +3,8 @@ import {Dish} from "@/api/model/dish.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {DishForm} from "@/components/settings/dishes/dish.form.tsx";
-import {faPencil, faPhotoFilm, faPlus, faUpload} from "@fortawesome/free-solid-svg-icons";
-import {createColumnHelper} from "@tanstack/react-table";
+import {faPencil, faPhotoFilm, faPlus, faUpload, faEye} from "@fortawesome/free-solid-svg-icons";
+import {createColumnHelper, RowSelectionState} from "@tanstack/react-table";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
@@ -12,6 +12,10 @@ import {CsvUploadModal} from "@/components/common/table/csv.uploader.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import {DishView} from "@/components/settings/dishes/dish.view.tsx";
+import {DishBulkForm} from "@/components/settings/dishes/dish.bulk.form.tsx";
+import {Checkbox} from "@/components/common/input/checkbox.tsx";
+import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminDishes = () => {
   const db = useDB();
@@ -26,7 +30,13 @@ export const AdminDishes = () => {
 
   const [data, setData] = useState<Dish>();
   const [formModal, setFormModal] = useState(false);
+  const [viewModal, setViewModal] = useState(false);
   const [dishImportModal, setImportModal] = useState(false);
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [bulkEdit, setBulkEdit] = useState({
+    state: false,
+    data: [] as Dish[]
+  });
 
   const columnHelper = createColumnHelper<Dish & {
     modifiers: [{ out: { name: string } }],
@@ -34,6 +44,23 @@ export const AdminDishes = () => {
   }>();
 
   const columns: any = [
+    {
+      id: 'select-col',
+      header: ({ table }) => (
+        <Checkbox
+          checked={table.getIsAllRowsSelected()}
+          indeterminate={table.getIsSomeRowsSelected()}
+          onChange={table.getToggleAllRowsSelectedHandler()} //or getToggleAllPageRowsSelectedHandler
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          disabled={!row.getCanSelect()}
+          onChange={row.getToggleSelectedHandler()}
+        />
+      ),
+    },
     columnHelper.accessor("dish_photo", {
       header: 'Photo',
       cell: info => {
@@ -102,6 +129,14 @@ export const AdminDishes = () => {
         return (
           <div className="flex gap-3 items-center">
             <Button
+              variant="secondary"
+              onClick={() => {
+                setData(info.row.original);
+                setViewModal(true);
+              }}
+            ><FontAwesomeIcon icon={faEye}/></Button>
+            <div className="separator"></div>
+            <Button
               variant="primary"
               onClick={() => {
                 setData(info.row.original);
@@ -120,53 +155,39 @@ export const AdminDishes = () => {
   ];
 
   const deleteItem = async (id: string) => {
-    const dishId = toRecordId(id);
-
-    const [orderItems] = await db.query<[{ count?: number }[]]>(
-      `SELECT count() AS count
-       FROM ${Tables.order_items}
-       WHERE item = $dish
-       GROUP ALL`,
-      {dish: dishId}
-    );
-    const [menuItems] = await db.query<[{ count?: number }[]]>(
-      `SELECT count() AS count
-       FROM ${Tables.menu_menu_items}
-       WHERE menu_item = $dish
-       GROUP ALL`,
-      {dish: dishId}
-    );
-    const [modifierGroups] = await db.query<[{ count?: number }[]]>(
-      `SELECT count() AS count
-       FROM ${Tables.modifier_groups}
-       WHERE array:: any (modifiers.modifier.id ?? [], $dish)
-       GROUP ALL`,
-      {dish: dishId}
-    );
-    const [kitchens] = await db.query<[{ count?: number }[]]>(
-      `SELECT count() AS count
-       FROM ${Tables.kitchens}
-       WHERE items ?= $dish
-       GROUP ALL`,
-      {dish: dishId}
-    );
-
-    const isInUse = (orderItems?.[0]?.count ?? 0) > 0
-      || (menuItems?.[0]?.count ?? 0) > 0
-      || (modifierGroups?.[0]?.count ?? 0) > 0
-      || (kitchens?.[0]?.count ?? 0) > 0;
-
-    if (isInUse) {
-      await db.merge(id, {deleted_at: new Date()});
-      loadHook.fetchData();
-      return;
-    }
-
-    await db.query(`DELETE ${Tables.dishes_recipes} WHERE menu_item = $dish`, {dish: dishId});
-    await db.query(`DELETE ${Tables.dish_modifier_groups} WHERE in = $dish`, {dish: dishId});
-    await db.query(`DELETE ${Tables.menu_menu_items} WHERE menu_item = $dish`, {dish: dishId});
-    await db.delete(id);
-    loadHook.fetchData();
+    await executeSettingsDelete({
+      db,
+      id,
+      entityLabel: 'Dish',
+      usageChecks: [
+        {
+          query: `SELECT count() AS count FROM ${Tables.order_items} WHERE item = $idRecord GROUP ALL`
+        },
+        {
+          query: `SELECT count() AS count FROM ${Tables.menu_menu_items} WHERE menu_item = $idRecord GROUP ALL`
+        },
+        {
+          query: `SELECT count() AS count FROM ${Tables.modifier_groups} WHERE array::any(modifiers.modifier.id ?? [], $idRecord) GROUP ALL`
+        },
+        {
+          query: `SELECT count() AS count FROM ${Tables.kitchens} WHERE items ?= $idRecord GROUP ALL`
+        }
+      ],
+      cleanupQueries: [
+        {
+          query: `DELETE ${Tables.dishes_recipes} WHERE menu_item = $idRecord`
+        },
+        {
+          query: `DELETE ${Tables.dish_modifier_groups} WHERE in = $idRecord`
+        },
+        {
+          query: `DELETE ${Tables.menu_menu_items} WHERE menu_item = $idRecord`
+        }
+      ],
+      onAfter: async () => {
+        loadHook.fetchData();
+      }
+    });
   }
 
   return (
@@ -192,7 +213,39 @@ export const AdminDishes = () => {
             name: value
           })
         }}
+        enableSelection
+        rowSelection={rowSelection}
+        onRowSelectionChange={(selectionState, selectedRows) => {
+          setRowSelection(selectionState);
+          setBulkEdit((prev) => ({
+            ...prev,
+            data: selectedRows as Dish[],
+          }));
+        }}
+        selectionButtons={[
+          <Button variant="primary" onClick={() => {
+            setBulkEdit((prev) => ({
+              ...prev,
+              state: true,
+            }));
+          }} icon={faPencil}> Bulk Edit</Button>
+        ]}
       />
+
+      {bulkEdit.state && (
+        <DishBulkForm
+          open={bulkEdit.state}
+          data={bulkEdit.data}
+          onClose={() => {
+            loadHook.fetchData();
+            setRowSelection({});
+            setBulkEdit({
+              state: false,
+              data: [],
+            });
+          }}
+        />
+      )}
 
       {dishImportModal && (
         <CsvUploadModal
@@ -221,7 +274,7 @@ export const AdminDishes = () => {
             try {
               const [categories] = await db.query(`SELECT id
                                                    from ${Tables.categories}
-                                                   where name IN $names`, {
+                                                   where name IN $names and deleted_at = none`, {
                 names: rowData.categories.split('|')
               });
 
@@ -258,6 +311,14 @@ export const AdminDishes = () => {
             setData(undefined);
             loadHook.fetchData();
           }}
+        />
+      )}
+
+      {viewModal && data && (
+        <DishView
+          open={true}
+          onClose={() => setViewModal(false)}
+          data={data}
         />
       )}
 

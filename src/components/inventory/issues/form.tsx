@@ -134,7 +134,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     data: users,
     fetchData: fetchUsers,
     isFetching: loadingUsers,
-  } = useApi<SettingsData<User>>(Tables.users, [], [], 0, 9999, [], {
+  } = useApi<SettingsData<User>>(Tables.users, ['deleted_at = none'], [], 0, 9999, [], {
     enabled: false
   });
 
@@ -142,7 +142,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     data: kitchens,
     fetchData: fetchKitchens,
     isFetching: loadingKitchens,
-  } = useApi<SettingsData<Kitchen>>(Tables.kitchens, [], [], 0, 9999, [], {
+  } = useApi<SettingsData<Kitchen>>(Tables.kitchens, ['deleted_at = none'], [], 0, 9999, [], {
     enabled: false
   });
 

@@ -15,6 +15,9 @@ import {dispatchPrint} from "@/lib/print.service.ts";
 import {DiscountType} from "@/api/model/discount.ts";
 import {DateTime} from "luxon";
 import {assertOrderPunchAllowed} from "@/lib/closing.guard.ts";
+import {toast} from "sonner";
+import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
+import {postOrderTracking} from "@/lib/tracking.service.ts";
 
 export const Payment = () => {
   const db = useDB();
@@ -33,12 +36,6 @@ export const Payment = () => {
     }, 0);
   }, [state.cart]);
 
-  const nextInvoiceNumber = async () => {
-    return await db.query(`SELECT math::max(invoice_number) as invoice_number
-                           from ${Tables.orders}
-                           group all`);
-  }
-
   const createOrder = async () => {
     await assertOrderPunchAllowed(db);
 
@@ -50,10 +47,7 @@ export const Payment = () => {
     let invoiceNumber = 1;
 
     if (isNewOrder) {
-      const invoiceNumberResult: any = await nextInvoiceNumber();
-      if (invoiceNumberResult[0].length > 0) {
-        invoiceNumber = invoiceNumberResult[0][0].invoice_number + 1;
-      }
+      invoiceNumber = await generateNextInvoiceNumber(db);
     } else {
       invoiceNumber = state?.order?.order?.invoice_number;
     }
@@ -98,7 +92,8 @@ export const Payment = () => {
         // add in kitchens
         const [kitchen]: any = await db.query(`SELECT *
                                                from ${Tables.kitchens}
-                                               where items ?= ${item.dish.id.toString()}`);
+                                               where items ?= ${item.dish.id.toString()}
+                                                 and deleted_at = none`);
         if (kitchen.length > 0) {
 
           for (const k of kitchen) {
@@ -141,7 +136,7 @@ export const Payment = () => {
       service_charge_type: DiscountType.Percent,
     };
 
-    if (isNewOrder) {
+    if (isNewOrder && state?.orderType?.allow_service_charges) {
       const [serviceChargeSettingResult] = await db.query(
         `SELECT *
          FROM ${Tables.settings}
@@ -158,6 +153,10 @@ export const Payment = () => {
       data.service_charge = normalizedValue;
       data.service_charge_type = normalizedType;
       data.service_charge_amount = normalizedType === DiscountType.Fixed ? normalizedValue : (total * normalizedValue / 100);
+    }
+
+    if (isNewOrder) {
+      data.auto_id = await getNextAutoId(db);
     }
 
     let orderObj: any;
@@ -187,8 +186,21 @@ export const Payment = () => {
       }
 
       const normalizedOrder = isNewOrder ? orderObj[0] : orderObj;
+      postOrderTracking({
+        module: isNewOrder ? "Create order" : "Append order",
+        page: page?.page,
+        orderId: normalizedOrder?.id,
+        payload: {
+          table: state?.table?.id?.toString(),
+          items_count: items.length,
+          is_new_order: isNewOrder,
+        },
+        user: page?.user,
+      });
+
       const [kitchens]: any = await db.query(`SELECT *
-                                              from ${Tables.kitchens} FETCH printers`);
+                                              from ${Tables.kitchens}
+                                              where deleted_at = none FETCH printers`);
       if (kitchens.length > 0) {
         for (const k of kitchens) {
           if (kitchenItems[k.id.toString()]) {

@@ -28,6 +28,8 @@ import {LabelValue} from "@/api/model/common.ts";
 import {assertOrderPunchAllowed} from "@/lib/closing.guard.ts";
 import {OrderMerge, OrderMergeCreatePayload} from "@/api/model/order_merge.ts";
 import {toRecordId} from "@/lib/utils.ts";
+import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
+import {postOrderTracking} from "@/lib/tracking.service.ts";
 
 export const Orders = () => {
   const db = useDB();
@@ -130,19 +132,19 @@ export const Orders = () => {
 
   const {
     data: floors,
-  } = useApi<SettingsData<Floor>>(Tables.floors, [], ['priority asc'], 0, 99999);
+  } = useApi<SettingsData<Floor>>(Tables.floors, ['deleted_at = none'], ['priority asc'], 0, 99999);
 
   const {
     data: tables,
-  } = useApi<SettingsData<Table>>(Tables.tables, [], ['floor.name asc'], 0, 99999);
+  } = useApi<SettingsData<Table>>(Tables.tables, ['deleted_at = none'], ['floor.name asc'], 0, 99999);
 
   const {
     data: users,
-  } = useApi<SettingsData<User>>(Tables.users, [], [], 0, 99999);
+  } = useApi<SettingsData<User>>(Tables.users, ['deleted_at = none'], [], 0, 99999);
 
   const {
     data: orderTypes,
-  } = useApi<SettingsData<OrderType>>(Tables.order_types, [], [], 0, 99999);
+  } = useApi<SettingsData<OrderType>>(Tables.order_types, ['deleted_at = none'], [], 0, 99999);
 
   const runLiveQuery = async () => {
     const result = await db.live(Tables.orders, function (action,) {
@@ -168,14 +170,6 @@ export const Orders = () => {
   const selectedTable = useMemo(() => {
     return tables?.data.find(item => item.id.toString() === mergingTable);
   }, [mergingTable, tables?.data]);
-
-  const nextInvoiceNumber = async () => {
-    return await db.query(
-      `SELECT math::max(invoice_number) as invoice_number
-       from ${Tables.orders}
-       group all`
-    );
-  }
 
   const [isSaving, setIsSaving] = useState(false);
   const confirmMerge = async () => {
@@ -215,7 +209,8 @@ export const Orders = () => {
         });
       }
 
-      const baseInvoiceNumber = await nextInvoiceNumber();
+      const nextInvoiceNumber = await generateNextInvoiceNumber(db);
+      const nextAutoId = await getNextAutoId(db);
 
       const orderData = {
         floor: new RecordId('floor', selectedTable.floor.id),
@@ -228,11 +223,12 @@ export const Orders = () => {
         // customer: order.customer ? new StringRecordId(order.customer.id.toString()) : null,
         order_type: mergingOrders[0].order_type.id,
         status: OrderStatus["In Progress"],
-        invoice_number: baseInvoiceNumber[0][0].invoice_number,
+        auto_id: nextAutoId,
+        invoice_number: nextInvoiceNumber,
         items: items,
         table: new StringRecordId(mergingTable),
         user: mergingOrders[0].user.id,
-        created_at: mergingOrders[0].created_at,
+        created_at: new Date(),
       };
 
       const mergedOrder = await db.create(Tables.orders, orderData);
@@ -258,6 +254,17 @@ export const Orders = () => {
       };
 
       await db.create(Tables.order_merge, mergePayload)
+
+      postOrderTracking({
+        module: "Merge orders",
+        page: app?.page,
+        orderId: mergedOrder[0].id,
+        payload: {
+          source_orders: mergingOrders.map((item) => item.id.toString()),
+          table: mergingTable,
+        },
+        user: app?.user,
+      });
 
       toast.success(`Successfully merged into ${mergedOrder[0].invoice_number}`);
 

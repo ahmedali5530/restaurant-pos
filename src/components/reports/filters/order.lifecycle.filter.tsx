@@ -10,7 +10,6 @@ export const OrderLifecycleFilter = () => {
           id="order-id"
           name="order_id"
           className="form-control"
-          placeholder="order:xxxx or record id suffix"
           required
         />
       </div>

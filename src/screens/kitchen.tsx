@@ -27,7 +27,7 @@ export const KitchenScreen = () => {
   const [kitchen, setKitchen] = useState<Kitchen>();
   const {
     data: kitchens
-  } = useApi<SettingsData<Kitchen>>(Tables.kitchens, [], ['priority asc'], 0, 10, ['items', 'printers']);
+  } = useApi<SettingsData<Kitchen>>(Tables.kitchens, ['deleted_at = none'], ['priority asc'], 0, 10, ['items', 'printers']);
   const [allOrders, setOrders] = useState<KitchenOrderModel[]>([]);
   const orders = useMemo(() => {
     return allOrders.filter(item => {

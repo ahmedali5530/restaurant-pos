@@ -91,7 +91,7 @@ export const DeliverySettings = () => {
   const [loading, setLoading] = useState(true);
   const {
     data: menus
-  } = useApi<SettingsData<Menu>>(Tables.menus, ['active = true']);
+  } = useApi<SettingsData<Menu>>(Tables.menus, ['active = true and deleted_at = none']);
 
   const {control, handleSubmit, reset, formState: {errors, isSubmitting}} = useForm({
     resolver: yupResolver(validationSchema),
@@ -403,7 +403,7 @@ export const DeliverySettings = () => {
                     <h3 className="text-lg font-semibold">Delivery Timing</h3>
                     <Button
                       type="button"
-                      variant="secondary"
+                      variant="primary"
                       onClick={addCustomDate}
                       className="flex items-center gap-2"
                     >
@@ -498,7 +498,7 @@ export const DeliverySettings = () => {
                               <div className="flex items-center pb-2">
                                 <Button
                                   type="button"
-                                  variant="secondary"
+                                  variant="danger"
                                   onClick={() => remove(index)}
                                   className="text-red-600 hover:text-red-700"
                                 >

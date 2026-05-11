@@ -71,7 +71,7 @@ export const OrderBox = ({
 
   const {
     data: taxes
-  } = useApi<SettingsData<Tax>>(Tables.taxes);
+  } = useApi<SettingsData<Tax>>(Tables.taxes, ['deleted_at = none']);
 
   const printTempBill = () => {
     void dispatchPrint(db, PRINT_TYPE.presale_bill, { order, taxes: taxes?.data }, { userId: page?.user?.id });
@@ -179,7 +179,10 @@ export const OrderBox = ({
                       printTempBill();
                     }, {
                       module: 'Print temp bill',
-                      description: 'Print temp bill'
+                      description: 'Print temp bill',
+                      payload: {
+                        order: order.id.toString()
+                      }
                     });
                   }
 
@@ -188,7 +191,10 @@ export const OrderBox = ({
                       void dispatchPrint(db, PRINT_TYPE.final_bill, { order, duplicate: true }, { userId: page?.user?.id });
                     }, {
                       module: 'Print final copy',
-                      description: 'Print final copy'
+                      description: 'Print final copy',
+                      payload: {
+                        order: order.id.toString()
+                      }
                     });
                   }
 
@@ -198,7 +204,9 @@ export const OrderBox = ({
                     }, {
                       module: 'Split by seats',
                       description: 'Split by seats',
-
+                      payload: {
+                        order: order.id.toString()
+                      }
                     });
                   }
 
@@ -207,7 +215,10 @@ export const OrderBox = ({
                       setSplitByManually(true);
                     }, {
                       module: 'Split by items',
-                      description: 'Split by items'
+                      description: 'Split by items',
+                      payload: {
+                        order: order.id.toString()
+                      }
                     });
                   }
 
@@ -216,7 +227,10 @@ export const OrderBox = ({
                       setSplitByAmount(true);
                     }, {
                       module: 'Split by amount',
-                      description: 'Split by amount'
+                      description: 'Split by amount',
+                      payload: {
+                        order: order.id.toString()
+                      }
                     });
                   }
 
@@ -225,7 +239,10 @@ export const OrderBox = ({
                       setCancelOrderOpen(true);
                     }, {
                       module: 'Cancel order',
-                      description: 'Cancel order'
+                      description: 'Cancel order',
+                      payload: {
+                        order: order.id.toString()
+                      }
                     });
 
                     return;
@@ -236,7 +253,10 @@ export const OrderBox = ({
                       onMergeSelect(order, true);
                     }, {
                       module: 'Merge orders',
-                      description: 'Merge orders'
+                      description: 'Merge orders',
+                      payload: {
+                        order: order.id.toString()
+                      }
                     });
                   }
 
@@ -245,7 +265,10 @@ export const OrderBox = ({
                       setRefundOrderOpen(true);
                     }, {
                       module: 'Refund order',
-                      description: 'Refund order'
+                      description: 'Refund order',
+                      payload: {
+                        order: order.id.toString()
+                      }
                     });
 
                     return;
@@ -288,7 +311,17 @@ export const OrderBox = ({
               </Dropdown>
               {order.status === OrderStatus["In Progress"] && (
                 <>
-                  <Button onClick={printTempBill} variant="primary" flat size="lg" className="flex-1" icon={faPrint}>Temp bill</Button>
+                  <Button onClick={() => {
+                    protectAction(() => {
+                      printTempBill();
+                    }, {
+                      module: 'Print temp bill',
+                      description: 'Print temp bill',
+                      payload: {
+                        order: order.id.toString()
+                      }
+                    });
+                  }} variant="primary" flat size="lg" className="flex-1" icon={faPrint}>Temp bill</Button>
                   <Button variant="warning" filled size="lg" className="flex-1" onClick={() => setPayment(true)}
                           icon={faCreditCard}>
                     Pay Now

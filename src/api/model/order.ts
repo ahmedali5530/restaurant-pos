@@ -18,6 +18,7 @@ export interface Order extends ID{
   customer?: Customer
   floor: Floor
   table: Table
+  auto_id: number
   invoice_number: number
   split?: number
   items: OrderItem[]

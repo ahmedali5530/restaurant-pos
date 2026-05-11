@@ -18,6 +18,8 @@ import {assertOrderPunchAllowed} from "@/lib/closing.guard.ts";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
 import {toRecordId} from "@/lib/utils.ts";
+import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
+import {postOrderTracking} from "@/lib/tracking.service.ts";
 
 interface Props {
   order: OrderModel
@@ -180,7 +182,9 @@ export const SplitAmount = ({
     setIsSaving(true);
     try {
       await assertOrderPunchAllowed(db);
-      const baseInvoiceNumber = order.invoice_number;
+      let nextInvoiceNumber = await generateNextInvoiceNumber(db);
+      let nextAutoId = await getNextAutoId(db);
+      const createdAt = new Date();
       const createdOrders = [];
       const oldOrderId = order.id.toString();
       const oldItems: Record<string, string[]> = {
@@ -255,11 +259,12 @@ export const SplitAmount = ({
           tags: [OrderStatus['Spilt']],
           order_type: order.order_type.id,
           status: OrderStatus["In Progress"],
-          invoice_number: baseInvoiceNumber,
+          auto_id: nextAutoId,
+          invoice_number: nextInvoiceNumber,
           items: newItemIds,
           table: order.table.id,
           user: order.user.id,
-          created_at: order.created_at,
+          created_at: createdAt,
           split: split.number,
           tax_amount: splitTaxAmount,
           discount_amount: splitDiscountAmount,
@@ -275,6 +280,8 @@ export const SplitAmount = ({
         const splitOrder = await db.create(Tables.orders, orderData);
         createdOrders.push(splitOrder[0]);
         newItems[splitOrder[0].id.toString()] = newItemIds.map(item => item.toString());
+        nextAutoId += 1;
+        nextInvoiceNumber += 1;
       }
 
       // Mark original order as split
@@ -291,6 +298,17 @@ export const SplitAmount = ({
         new_orders: createdOrders.map(item => item.id),
         old_items: oldItems,
         new_items: newItems,
+      });
+
+      postOrderTracking({
+        module: "Split order by amount",
+        page: page?.page,
+        orderId: order.id,
+        payload: {
+          split_count: createdOrders.length,
+          new_orders: createdOrders.map((item) => item.id.toString()),
+        },
+        user: page?.user,
       });
 
       toast.success(`Successfully created ${createdOrders.length} split orders`);

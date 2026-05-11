@@ -8,9 +8,13 @@ import { faPencil, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { TableComponent } from "@/components/common/table/table.tsx";
 import { Tax } from "@/api/model/tax.ts";
 import { TaxForm } from "@/components/settings/taxes/tax.form.tsx";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import {useDB} from "@/api/db/db.ts";
+import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminTaxes = () => {
-  const loadHook = useApi<SettingsData<Tax>>(Tables.taxes);
+  const loadHook = useApi<SettingsData<Tax>>(Tables.taxes, ['deleted_at = none']);
+  const db = useDB();
 
   const [data, setData] = useState<Tax>();
   const [formModal, setFormModal] = useState(false);
@@ -34,7 +38,7 @@ export const AdminTaxes = () => {
       enableColumnFilter: false,
       cell: (info) => {
         return (
-          <>
+          <div className="flex gap-3 items-center">
             <Button
               variant="primary"
               onClick={() => {
@@ -42,11 +46,38 @@ export const AdminTaxes = () => {
                 setFormModal(true);
               }}
             ><FontAwesomeIcon icon={faPencil}/></Button>
-          </>
+            <div className="separator"></div>
+            <DeleteConfirm
+              message={`Delete tax ${info.row.original.name}`}
+              onConfirm={() => deleteItem(info.row.original.id)}
+            />
+          </div>
         );
       },
     }),
   ];
+
+  const deleteItem = async (id: string) => {
+    await executeSettingsDelete({
+      db,
+      id,
+      entityLabel: 'Tax',
+      usageChecks: [
+        {
+          query: `SELECT count() AS count FROM ${Tables.payment_types} WHERE tax = $idRecord GROUP ALL`
+        },
+        {
+          query: `SELECT count() AS count FROM ${Tables.menu_menu_items} WHERE tax = $idRecord GROUP ALL`
+        },
+        {
+          query: `SELECT count() AS count FROM ${Tables.orders} WHERE tax = $idRecord GROUP ALL`
+        }
+      ],
+      onAfter: async () => {
+        loadHook.fetchData();
+      }
+    });
+  };
 
   return (
     <>

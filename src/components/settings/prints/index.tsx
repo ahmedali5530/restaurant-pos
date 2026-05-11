@@ -11,8 +11,7 @@ import {PrintForm} from "@/components/settings/prints/print.form.tsx";
 
 export const AdminPrints = () => {
   const loadHook = useApi<SettingsData<Setting>>(Tables.settings, [
-    'key = "Temp Print"', 'or key = "Final Print"', 'or key = "Kitchen Print"', 'or key = "Summary Print"',
-    'or key = "Delivery Print"'
+    '(key = "Temp Print" or key = "Final Print" or key = "Kitchen Print" or key = "Summary Print" or key = "Delivery Print")'
   ], ['priority asc']);
 
   const [data, setData] = useState<Setting>();

@@ -8,9 +8,13 @@ import { faPencil, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { PaymentType } from "@/api/model/payment_type.ts";
 import { TableComponent } from "@/components/common/table/table.tsx";
 import { PaymentTypeForm } from "@/components/settings/payment_types/payment_type.form.tsx";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import {useDB} from "@/api/db/db.ts";
+import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminPaymentTypes = () => {
-  const loadHook = useApi<SettingsData<PaymentType>>(Tables.payment_types, [], ['priority asc'], 0, 10, ['tax', 'discounts', 'gateway_config']);
+  const loadHook = useApi<SettingsData<PaymentType>>(Tables.payment_types, ['deleted_at = none'], ['priority asc'], 0, 10, ['tax', 'discounts', 'gateway_config']);
+  const db = useDB();
 
   const [data, setData] = useState<PaymentType>();
   const [formModal, setFormModal] = useState(false);
@@ -54,7 +58,7 @@ export const AdminPaymentTypes = () => {
       enableColumnFilter: false,
       cell: (info) => {
         return (
-          <>
+          <div className="flex gap-3 items-center">
             <Button
               variant="primary"
               onClick={() => {
@@ -62,11 +66,35 @@ export const AdminPaymentTypes = () => {
                 setFormModal(true);
               }}
             ><FontAwesomeIcon icon={faPencil}/></Button>
-          </>
+            <div className="separator"></div>
+            <DeleteConfirm
+              message={`Delete payment type ${info.row.original.name}`}
+              onConfirm={() => deleteItem(info.row.original.id)}
+            />
+          </div>
         );
       },
     }),
   ];
+
+  const deleteItem = async (id: string) => {
+    await executeSettingsDelete({
+      db,
+      id,
+      entityLabel: 'Payment type',
+      usageChecks: [
+        {
+          query: `SELECT count() AS count FROM ${Tables.tables} WHERE payment_types ?= $idRecord GROUP ALL`
+        },
+        {
+          query: `SELECT count() AS count FROM ${Tables.order_payment} WHERE payment_type = $idRecord GROUP ALL`
+        }
+      ],
+      onAfter: async () => {
+        loadHook.fetchData();
+      }
+    });
+  };
 
   return (
     <>

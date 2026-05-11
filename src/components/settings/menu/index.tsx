@@ -10,9 +10,13 @@ import { TableComponent } from "@/components/common/table/table.tsx";
 import { MenuForm } from "@/components/settings/menu/menu.form.tsx";
 import { MenuItems } from "@/components/settings/menu/menu.items.tsx";
 import { toJsDate } from "@/lib/datetime.ts";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import {useDB} from "@/api/db/db.ts";
+import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminMenus = () => {
-  const loadHook = useApi<SettingsData<Menu>>(Tables.menus, [], [], 0, 10, ['items', 'items.menu_item', 'items.tax']);
+  const loadHook = useApi<SettingsData<Menu>>(Tables.menus, ['deleted_at = none'], [], 0, 10, ['items', 'items.menu_item', 'items.tax']);
+  const db = useDB();
 
   const [data, setData] = useState<Menu>();
   const [formModal, setFormModal] = useState(false);
@@ -87,11 +91,37 @@ export const AdminMenus = () => {
                 setItemsModal(true);
               }}
             ><FontAwesomeIcon icon={faList}/></Button>
+            <div className="separator"></div>
+            <DeleteConfirm
+              message={`Delete menu ${info.row.original.name}`}
+              onConfirm={() => deleteItem(info.row.original.id)}
+            />
           </div>
         );
       },
     }),
   ];
+
+  const deleteItem = async (id: string) => {
+    await executeSettingsDelete({
+      db,
+      id,
+      entityLabel: 'Menu',
+      usageChecks: [
+        {
+          query: `SELECT count() AS count FROM ${Tables.settings} WHERE key = 'delivery_menu' AND value = $idRecord GROUP ALL`
+        }
+      ],
+      cleanupQueries: [
+        {
+          query: `DELETE (SELECT VALUE items FROM ONLY $idRecord)`
+        }
+      ],
+      onAfter: async () => {
+        loadHook.fetchData();
+      }
+    });
+  };
 
   return (
     <>

@@ -244,20 +244,19 @@ h1, h2, h3, h4, h5, h6, .title, .card-title, th{
   //}
   &.btn-danger {
     @apply border-danger-500 text-danger-500 focus:outline-none focus:border-danger-500
-    active:bg-danger-500 active:text-white hover:bg-danger-100 focus:bg-danger-100;
+     hover:bg-danger-100 focus:bg-danger-100;
     &:disabled {
       @apply bg-danger-100;
     }
-    &.active {
-      @apply bg-danger-500 text-white shadow-none;
+    &.active, &:active {
+      @apply bg-danger-500 text-danger-100 shadow-none;
     }
     &.btn-filled{
-      @apply bg-danger-500 text-white;
+      @apply bg-danger-500 text-danger-100;
     }
   }
   &.btn-primary {
-    @apply border-neutral-900 text-neutral-900 focus:outline-none focus:border-neutral-900
-    hover:bg-neutral-200;
+    @apply border-neutral-900 text-neutral-900 focus:outline-none focus:border-neutral-900 hover:bg-neutral-200;
     &:disabled {
       @apply bg-neutral-200;
     }
@@ -269,42 +268,42 @@ h1, h2, h3, h4, h5, h6, .title, .card-title, th{
     }
   }
   &.btn-secondary {
-    @apply border-neutral-900 text-neutral-900 focus:outline-none focus:border-white
-    hover:bg-neutral-200;
+    @apply border-slate-900 bg-slate-100 text-slate-500 focus:outline-none focus:border-slate-500
+    hover:bg-slate-100 focus:bg-slate-100;
     &:disabled {
-      @apply bg-neutral-200;
+      @apply bg-slate-100;
     }
     &.active, &:active {
-      @apply bg-neutral-900 text-neutral-100 shadow-none;
+      @apply bg-slate-500 text-slate-900 shadow-none;
     }
     &.btn-filled{
-      @apply bg-neutral-900 text-neutral-100;
+      @apply bg-slate-500 text-slate-100;
     }
   }
   &.btn-warning {
     @apply disabled:bg-warning-200 border-warning-500 text-warning-500 focus:outline-none
-    focus:border-warning-500 active:bg-warning-500 active:text-white hover:bg-warning-100 focus:bg-warning-100;
+    focus:border-warning-500 hover:bg-warning-100 focus:bg-warning-100;
     &:disabled {
       @apply bg-warning-100;
     }
-    &.active {
-      @apply bg-warning-500 text-white shadow-none;
+    &.active, &:active {
+      @apply bg-warning-500 text-warning-100 shadow-none;
     }
     &.btn-filled{
-      @apply bg-warning-500 text-white;
+      @apply bg-warning-500 text-warning-100;
     }
   }
   &.btn-success {
     @apply border-success-500 text-success-500 focus:outline-none
-    focus:border-success-500 active:bg-success-500 active:text-white hover:bg-success-100 focus:bg-success-100;
+    focus:border-success-500 hover:bg-success-100 focus:bg-success-100;
     &:disabled {
       @apply bg-success-100;
     }
-    &.active {
-      @apply bg-success-500 text-white shadow-none;
+    &.active, &:active {
+      @apply bg-success-500 text-success-100 shadow-none;
     }
     &.btn-filled{
-      @apply bg-success-500 text-white;
+      @apply bg-success-500 text-success-100;
     }
   }
 

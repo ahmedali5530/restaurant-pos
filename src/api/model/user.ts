@@ -1,4 +1,5 @@
 import { ID } from "@/api/model/common.ts";
+import {DateTime} from "surrealdb";
 
 export interface User extends ID {
   clock_in_at?: string
@@ -12,6 +13,8 @@ export interface User extends ID {
   user_shift?: UserShift
   roles?: string[]
   role?: UserRole
+
+  deleted_at?: DateTime
 }
 
 export interface UserRole {

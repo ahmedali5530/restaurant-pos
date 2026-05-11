@@ -75,7 +75,7 @@ export const Closing = () => {
 
   const {data: paymentTypesData} = useApi<SettingsData<PaymentType>>(
     Tables.payment_types,
-    [],
+    ['deleted_at = none'],
     ["priority asc"]
   );
   const paymentTypes = paymentTypesData?.data || [];

@@ -7,8 +7,9 @@ import { Tables } from "@/api/db/tables.ts";
 import { toast } from 'sonner';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { OrderType } from "@/api/model/order_type.ts";
+import {Switch} from "@/components/common/input/switch.tsx";
 
 interface Props {
   open: boolean
@@ -19,6 +20,7 @@ interface Props {
 const validationSchema = yup.object({
   name: yup.string().required("This is required"),
   priority: yup.string().required("This is required"),
+  allow_service_charges: yup.boolean(),
 });
 
 export const OrderTypeForm = ({
@@ -28,7 +30,8 @@ export const OrderTypeForm = ({
     onClose();
     reset({
       name: null,
-      priority: null
+      priority: null,
+      allow_service_charges: false
     });
   }
 
@@ -36,8 +39,7 @@ export const OrderTypeForm = ({
     if( data ) {
       reset({
         ...data,
-        name: data.name,
-        priority: data.priority.toString()
+        priority: data.priority.toString(),
       });
     }
   }, [data]);
@@ -99,6 +101,20 @@ export const OrderTypeForm = ({
                 control={control}
               />
 
+            </div>
+          </div>
+
+          <div className="mb-3 flex-1">
+            <div className="flex-1">
+              <Controller
+                name={`allow_service_charges`}
+                control={control}
+                render={({ field }) => (
+                  <Switch checked={!!field.value} onChange={field.onChange}>
+                    Allow service charges
+                  </Switch>
+                )}
+              />
             </div>
           </div>
 

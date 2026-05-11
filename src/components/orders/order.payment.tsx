@@ -31,6 +31,7 @@ import {OrderPaymentCoupon} from "@/components/orders/payment/order.payment.coup
 import {toast} from "sonner";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {nowSurrealDateTime, toJsDate} from "@/lib/datetime.ts";
+import {postOrderTracking} from "@/lib/tracking.service.ts";
 
 interface Props {
   order: Order
@@ -276,6 +277,7 @@ export const OrderPayment = ({
          FROM ${Tables.coupons}
          WHERE code = $code
            AND is_active = true
+           AND deleted_at = none
          ORDER BY priority ASC LIMIT 1`,
         {code}
       );
@@ -536,6 +538,20 @@ export const OrderPayment = ({
       notes: notes,
       coupon: orderCouponId,
     });
+
+    postOrderTracking({
+      module: "Update order payment details",
+      page: page?.page,
+      orderId: order.id,
+      payload: {
+        payment_count: paymentTypes.length,
+        extras_count: extraOptions.length,
+        tax: tax?.id?.toString(),
+        discount: discount?.id?.toString(),
+        coupon: coupon?.id?.toString(),
+      },
+      user: page?.user,
+    });
   }, [
     order,
     db,
@@ -556,7 +572,9 @@ export const OrderPayment = ({
     notes,
     coupon,
     couponAmount,
-    isInitialized
+    isInitialized,
+    page?.page,
+    page?.user
   ])
 
   useEffect(() => {
@@ -602,7 +620,10 @@ export const OrderPayment = ({
             } onClick={() => {
               protectAction(() => setMode(PaymentOptions.Tax), {
                 module: 'Apply tax',
-                description: 'Apply tax'
+                description: 'Apply tax',
+                payload: {
+                  order: order.id.toString()
+                }
               });
             }}>
               <div>
@@ -619,7 +640,10 @@ export const OrderPayment = ({
             } onClick={() => {
               protectAction(() => setMode(PaymentOptions.Discount), {
                 module: 'Apply discount',
-                description: 'Apply discount'
+                description: 'Apply discount',
+                payload: {
+                  order: order.id.toString()
+                }
               });
             }}>
               <div>
@@ -640,7 +664,10 @@ export const OrderPayment = ({
             } onClick={() => {
               protectAction(() => setMode(PaymentOptions.Coupon), {
                 module: 'Apply coupon',
-                description: 'Apply coupon'
+                description: 'Apply coupon',
+                payload: {
+                  order: order.id.toString()
+                }
               });
             }}>
               <div>Coupon <FontAwesomeIcon icon={faPencil}/></div>
@@ -655,7 +682,10 @@ export const OrderPayment = ({
             } onClick={() => {
               protectAction(() => setMode(PaymentOptions['Service Charges']), {
                 module: 'Apply service charges',
-                description: 'Apply service charges'
+                description: 'Apply service charges',
+                payload: {
+                  order: order.id.toString()
+                }
               });
             }}>
               <div>Service charges
@@ -672,7 +702,10 @@ export const OrderPayment = ({
             } onClick={() => {
               protectAction(() => setMode(PaymentOptions.Tip), {
                 module: 'Apply tips',
-                description: 'Apply tips'
+                description: 'Apply tips',
+                payload: {
+                  order: order.id.toString()
+                }
               });
             }}>
               <div>Tip ({tip}{tipType === DiscountType.Percent && '%'}) <FontAwesomeIcon icon={faPencil}/></div>
@@ -694,7 +727,10 @@ export const OrderPayment = ({
                     [extra]: !(prev[extra] ?? true)
                   })), {
                     module: 'Change extras',
-                    description: 'Change extras'
+                    description: 'Change extras',
+                    payload: {
+                      order: order.id.toString()
+                    }
                   });
                 }}
               >
@@ -746,6 +782,7 @@ export const OrderPayment = ({
               setServiceCharge={setServiceCharge}
               setServiceChargeType={setServiceChargeType}
               serviceChargeType={serviceChargeType}
+              order={order}
             />
           )}
           {mode === PaymentOptions.Tip && (

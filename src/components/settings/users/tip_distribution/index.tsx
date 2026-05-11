@@ -36,11 +36,11 @@ export const AdminTipDistribution = () => {
 
   const {
     data: roleData,
-  } = useApi<SettingsData<UserRole>>(Tables.user_roles, [], ["name asc"], 0, 99999);
+  } = useApi<SettingsData<UserRole>>(Tables.user_roles, ["deleted_at = none"], ["name asc"], 0, 99999);
 
   const {
     data: userData,
-  } = useApi<SettingsData<User>>(Tables.users, [], ["first_name asc"], 0, 99999);
+  } = useApi<SettingsData<User>>(Tables.users, ["deleted_at = none"], ["first_name asc"], 0, 99999);
 
   const normalizeId = (value: any): string => {
     if (!value) return "";

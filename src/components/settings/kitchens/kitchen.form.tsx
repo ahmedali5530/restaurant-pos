@@ -5,7 +5,7 @@ import { Input } from "@/components/common/input/input.tsx";
 import { Controller, useForm } from "react-hook-form";
 import { transformValue } from "@/lib/utils.ts";
 import { Button } from "@/components/common/input/button.tsx";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDB } from "@/api/db/db.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Tables } from "@/api/db/tables.ts";
@@ -15,6 +15,7 @@ import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { Dish } from "@/api/model/dish.ts";
 import { StringRecordId } from "surrealdb";
+import { Checkbox } from "@/components/common/input/checkbox.tsx";
 
 interface Props {
   open: boolean
@@ -38,8 +39,11 @@ const validationSchema = z.object({
 export const KitchenForm = ({
   open, onClose, data
 }: Props) => {
+  const [dishSearch, setDishSearch] = useState("");
+
   const closeModal = () => {
     onClose();
+    setDishSearch("");
     reset({
       name: null,
       printers: [],
@@ -78,7 +82,7 @@ export const KitchenForm = ({
   const {
     data: dishes,
     fetchData: fetchDishes
-  } = useApi<SettingsData<Dish>>(Tables.dishes, [], ['priority asc'], 0, 99999, [], {
+  } = useApi<SettingsData<Dish>>(Tables.dishes, [], ['priority asc'], 0, 99999, ['categories'], {
     enabled: false
   });
 
@@ -139,17 +143,148 @@ export const KitchenForm = ({
 
             <div className="flex-1">
               <label htmlFor="">Dishes</label>
+              <div className="mt-2">
+                <Input
+                  placeholder="Search dishes..."
+                  value={dishSearch}
+                  onChange={(e) => setDishSearch(e.target.value)}
+                />
+              </div>
               <Controller
                 render={({ field }) => (
-                  <ReactSelect
-                    value={field.value}
-                    onChange={field.onChange}
-                    options={dishes?.data?.map(item => ({
-                      label: item.name,
-                      value: item.id.toString()
-                    }))}
-                    isMulti
-                  />
+                  <div className="mt-2 rounded border border-neutral-300 p-3 max-h-96 overflow-auto">
+                    {(() => {
+                      const searchTerm = dishSearch.trim().toLowerCase();
+                      const selectedItems = Array.isArray(field.value) ? field.value : [];
+                      const selectedMap = new Map(
+                        selectedItems.map(item => [item.value, item])
+                      );
+                      const filteredDishes = (dishes?.data ?? []).filter((dish) => {
+                        if (!searchTerm) return true;
+                        return dish.name.toLowerCase().includes(searchTerm);
+                      });
+
+                      const groupedDishes = filteredDishes.reduce((acc, dish) => {
+                        const categories = dish.categories?.length
+                          ? dish.categories
+                          : [{ id: "__uncategorized__", name: "Uncategorized" }];
+
+                        categories.forEach((category) => {
+                          const key = category.id?.toString?.() ?? "__uncategorized__";
+                          if (!acc[key]) {
+                            acc[key] = {
+                              id: key,
+                              name: category.name ?? "Uncategorized",
+                              dishes: []
+                            };
+                          }
+
+                          const alreadyExists = acc[key].dishes.some(item => item.id === dish.id);
+                          if (!alreadyExists) {
+                            acc[key].dishes.push(dish);
+                          }
+                        });
+
+                        return acc;
+                      }, {} as Record<string, { id: string; name: string; dishes: Dish[] }>);
+
+                      const categories = Object.values(groupedDishes)
+                        .sort((a, b) => a.name.localeCompare(b.name));
+
+                      const toggleDish = (dish: Dish) => {
+                        const dishId = dish.id.toString();
+                        if (selectedMap.has(dishId)) {
+                          field.onChange(selectedItems.filter(item => item.value !== dishId));
+                          return;
+                        }
+
+                        field.onChange([
+                          ...selectedItems,
+                          {
+                            label: dish.name,
+                            value: dishId
+                          }
+                        ]);
+                      };
+
+                      const toggleCategory = (categoryDishes: Dish[]) => {
+                        const categoryDishIds = categoryDishes.map(item => item.id.toString());
+                        const isAllSelected = categoryDishIds.every(id => selectedMap.has(id));
+
+                        if (isAllSelected) {
+                          field.onChange(
+                            selectedItems.filter(item => !categoryDishIds.includes(item.value))
+                          );
+                          return;
+                        }
+
+                        const nextItems = [...selectedItems];
+                        categoryDishes.forEach((dish) => {
+                          const dishId = dish.id.toString();
+                          if (!selectedMap.has(dishId)) {
+                            nextItems.push({
+                              label: dish.name,
+                              value: dishId
+                            });
+                          }
+                        });
+                        field.onChange(nextItems);
+                      };
+
+                      if (!categories.length) {
+                        return (
+                          <p className="text-neutral-500">
+                            {searchTerm ? "No dishes match your search." : "No dishes found."}
+                          </p>
+                        );
+                      }
+
+                      return (
+                        <div className="space-y-2">
+                          {categories.map((category) => {
+                            const categoryDishIds = category.dishes.map(item => item.id.toString());
+                            const selectedCount = categoryDishIds.filter(id => selectedMap.has(id)).length;
+                            const isAllSelected = categoryDishIds.length > 0 && selectedCount === categoryDishIds.length;
+
+                            return (
+                              <div key={category.id} className="rounded border border-neutral-200">
+                                <button
+                                  type="button"
+                                  onClick={() => toggleCategory(category.dishes)}
+                                  className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-neutral-100"
+                                >
+                                  <Checkbox
+                                    checked={isAllSelected}
+                                    indeterminate={selectedCount > 0 && !isAllSelected}
+                                    readOnly
+                                    className="pointer-events-none"
+                                  />
+                                  <span className="font-medium">{category.name}</span>
+                                </button>
+                                <div className="pl-8 pr-3 pb-2 space-y-1">
+                                  {category.dishes.map((dish) => {
+                                    const dishId = dish.id.toString();
+                                    return (
+                                      <label
+                                        key={`${category.id}-${dishId}`}
+                                        className="flex items-center gap-2 py-1 cursor-pointer"
+                                      >
+                                        <Checkbox
+                                          checked={selectedMap.has(dishId)}
+                                          onChange={() => toggleDish(dish)}
+                                        />
+                                        <span>{dish.name}</span>
+                                      </label>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+                  </div>
                 )}
                 name="items"
                 control={control}

@@ -5,10 +5,13 @@ import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { Button as AriaButton, ButtonProps as BaseProps } from 'react-aria-components';
 
+type Variant =
+  |'primary' | 'danger' | 'warning' | 'success' | 'custom' | 'gradient' | 'secondary' | string;
+
 interface ButtonProps extends BaseProps {
   size?: "lg" | "xl" | "sm"
   active?: boolean;
-  variant?: 'primary' | 'danger' | 'warning' | 'success' | 'custom' | 'gradient' | string;
+  variant?: Variant
   iconButton?: boolean;
   flat?: boolean;
   icon?: IconProp;

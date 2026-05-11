@@ -1,6 +1,7 @@
 import { ID, Name, Priority } from "@/api/model/common.ts";
 import { Discount } from "@/api/model/discount.ts";
 import { Tax } from "@/api/model/tax.ts";
+import {DateTime} from "surrealdb";
 
 export type PaymentGatewayProvider = "stripe" | "paypal" | "razorpay" | "jazzcash";
 export type PaymentGatewayMode = "sandbox" | "live";
@@ -25,6 +26,8 @@ export interface PaymentType extends ID, Name, Priority{
   gateway?: PaymentGatewayProvider
   gateway_mode?: PaymentGatewayMode
   gateway_config?: PaymentTypeGatewayConfig | string
+
+  deleted_at?: DateTime
 }
 
 export const PAYMENT_TYPE_FETCHES = [

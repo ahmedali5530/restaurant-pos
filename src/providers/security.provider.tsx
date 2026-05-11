@@ -1,13 +1,15 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import {User} from "@/api/model/user.ts";
 
 export type AuthType = 'pin' | 'password' | 'qrcode';
+export type SecurityManager = Partial<User> | null;
 
 export interface SecurityAction {
   id: string;
   description: string;
   authType?: AuthType;
   module?: string;
-  onConfirm: () => void;
+  onConfirm: (manager?: SecurityManager) => void;
   onCancel?: () => void;
   onError?: () => void;
   payload?: any
@@ -17,7 +19,7 @@ interface SecurityContextType {
   isModalOpen: boolean;
   currentAction: SecurityAction | null;
   requestSecurity: (action: SecurityAction) => void;
-  confirmAction: () => void;
+  confirmAction: (manager?: SecurityManager) => void;
   cancelAction: () => void;
   isAuthenticated: boolean;
   setAuthenticated: (authenticated: boolean) => void;
@@ -61,9 +63,9 @@ export const SecurityProvider: React.FC<SecurityProviderProps> = ({
     setIsAuthenticated(false);
   }, []);
 
-  const confirmAction = useCallback(() => {
+  const confirmAction = useCallback((manager?: SecurityManager) => {
     if (currentAction) {
-      currentAction.onConfirm();
+      currentAction.onConfirm(manager);
     }
     closeModal();
   }, [closeModal, currentAction]);

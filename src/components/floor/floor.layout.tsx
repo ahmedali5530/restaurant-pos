@@ -14,6 +14,7 @@ import {faChair} from "@fortawesome/free-solid-svg-icons";
 import {ne, LiveSubscription} from "surrealdb";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {getOrderPunchDisabledMessage, isCurrentCycleClosed} from "@/lib/closing.guard.ts";
+import {postOrderTracking} from "@/lib/tracking.service.ts";
 
 
 export const FloorLayout = () => {
@@ -63,6 +64,7 @@ export const FloorLayout = () => {
     const [t] = await db.query<Table[]>(
       `SELECT id, locked_at, locked_by, is_locked, priority
        FROM ${Tables.tables}
+       WHERE deleted_at = none
        ORDER BY priority ASC`
     );
 
@@ -182,9 +184,21 @@ export const FloorLayout = () => {
 
       if (state.switchTable) {
         if (state.order.id !== 'new') {
+          const fromTableId = state?.table?.id?.toString();
           // update new table in order
           await db.merge(toRecordId(state.order.id), {
             table: toRecordId(item.id),
+          });
+
+          postOrderTracking({
+            module: "Move order table",
+            page: page?.page,
+            orderId: state.order.id,
+            payload: {
+              from_table: fromTableId,
+              to_table: item.id.toString(),
+            },
+            user: page?.user,
           });
         }
         cart = [];

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {SecurityAction} from '@/providers/security.provider';
+import {SecurityAction, SecurityManager} from '@/providers/security.provider';
 import QRCode from "react-qr-code";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -11,7 +11,7 @@ import {nanoid} from "nanoid";
 import {LiveSubscription} from "surrealdb";
 
 interface QrCodeAuthProps {
-  onSuccess: () => void;
+  onSuccess: (manager?: SecurityManager) => void;
   onCancel: () => void;
   currentAction?: SecurityAction | null;
 }
@@ -52,7 +52,7 @@ export const QrCodeAuth: React.FC<QrCodeAuthProps> = ({
       // delete or adding new orders will result in new data
       if (action === 'UPDATE') {
         if(result.state === AuthState.approved){
-          onSuccess();
+          onSuccess(result.approved_by || undefined);
         }else if(result.state === AuthState.rejected){
           setError(`Permission to ${currentAction.description} has been rejected`);
         }

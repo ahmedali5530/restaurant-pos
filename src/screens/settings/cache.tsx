@@ -53,30 +53,38 @@ export const CacheSettings = () => {
       ] = await Promise.all([
         db.query(`SELECT *
                   FROM ${Tables.order_types}
+                  WHERE deleted_at = none
                   ORDER BY priority ASC`),
         db.query(`SELECT *
                   FROM ${Tables.categories}
+                  WHERE deleted_at = none
                   ORDER BY priority ASC`),
         db.query(`SELECT *
                   FROM ${Tables.dishes}
+                  WHERE deleted_at = none
                   ORDER BY priority ASC FETCH ${DISH_FETCHES.join(', ')}`),
         db.query(`SELECT *
                   FROM ${Tables.modifier_groups}
+                  WHERE deleted_at = none
                   ORDER BY priority ASC FETCH modifiers`),
         db.query(`SELECT *
                   FROM ${Tables.dish_modifier_groups}
                   ORDER BY priority ASC FETCH in, out, out.modifiers, out.modifiers.modifier`),
         db.query(`SELECT *
                   FROM ${Tables.floors}
+                  WHERE deleted_at = none
                   ORDER BY priority ASC`),
         db.query(`SELECT *
                   FROM ${Tables.tables}
+                  WHERE deleted_at = none
                   ORDER BY priority ASC FETCH ${TABLE_FETCHES.join(', ')}`),
         db.query(`SELECT *
                   FROM ${Tables.kitchens}
+                  WHERE deleted_at = none
                   ORDER BY priority ASC FETCH ${KITCHEN_FETCHES.join(', ')}`),
         db.query(`SELECT *
                   FROM ${Tables.payment_types}
+                  WHERE deleted_at = none
                   ORDER BY priority ASC FETCH ${PAYMENT_TYPE_FETCHES.join(', ')}`),
       ]);
 

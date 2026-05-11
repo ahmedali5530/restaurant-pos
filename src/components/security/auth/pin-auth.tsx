@@ -1,12 +1,12 @@
 import { Button } from '@/components/common/input/button';
 import React, { useState, useEffect } from 'react';
-import { SecurityAction } from '@/providers/security.provider';
+import { SecurityAction, SecurityManager } from '@/providers/security.provider';
 import {cn} from "@/lib/utils.ts";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 
 interface PinAuthProps {
-  onSuccess: () => void;
+  onSuccess: (manager?: SecurityManager) => void;
   onCancel: () => void;
   currentAction?: SecurityAction | null;
 }
@@ -45,13 +45,13 @@ export const PinAuth: React.FC<PinAuthProps> = ({
   };
 
   const validatePIN = async () => {
-    const [userWithModules] = await db.query(`SELECT * FROM ${Tables.users} where $module IN user_role.roles and login_method = 'pin' and login = $pin and crypto::bcrypt::compare(password, $pin) = true `, {
+    const [userWithModules] = await db.query(`SELECT * FROM ${Tables.users} where deleted_at = none and $module IN user_role.roles and login_method = 'pin' and login = $pin and crypto::bcrypt::compare(password, $pin) = true FETCH user_role, user_shift`, {
       module: currentAction.module,
       pin
     });
 
     if(userWithModules.length > 0){
-      onSuccess();
+      onSuccess(userWithModules[0] as SecurityManager);
     }else{
       setError(`Invalid PIN, or user not found with ${currentAction.module} permission`);
     }

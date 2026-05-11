@@ -329,7 +329,7 @@ export const SalesAdvancedReport = () => {
     });
   }, [orders, filters]);
 
-  const baseColumns = 9;
+  const baseColumns = 10;
   const detailsColumns = filters.showDetails ? 12 : 1;
   const tableColSpan = baseColumns + detailsColumns + (filters.showMenuItems ? 1 : 0);
   const ordersWithItems = useMemo(
@@ -564,6 +564,7 @@ export const SalesAdvancedReport = () => {
                   <th className="py-3 pl-6 pr-2 text-left text-xs font-semibold text-neutral-700 print:hidden">Items</th>
                 )}
                 <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Date</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Order #</th>
                 <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Invoice #</th>
                 <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Order Taker</th>
                 <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Cashier</th>
@@ -635,6 +636,7 @@ export const SalesAdvancedReport = () => {
                         <div>{dateStr}</div>
                         <div className="text-neutral-500">{timeStr}</div>
                       </td>
+                      <td className="py-3 px-3 text-sm text-neutral-700">{order.auto_id}</td>
                       <td className="py-3 px-3 text-sm text-neutral-700">{order.invoice_number}</td>
                       <td className="py-3 px-3 text-sm text-neutral-700">{orderTakerName}</td>
                       <td className="py-3 px-3 text-sm text-neutral-700">{cashierName}</td>

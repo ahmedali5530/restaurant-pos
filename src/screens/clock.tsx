@@ -96,7 +96,7 @@ export const Clock = () => {
       }
 
       try {
-        const result = await db.query(`SELECT * FROM ${Tables.shifts} WHERE id = $shiftId LIMIT 1`, {
+        const result = await db.query(`SELECT * FROM ${Tables.shifts} WHERE id = $shiftId AND deleted_at = none LIMIT 1`, {
           shiftId: toRecordId(shiftId),
         });
         const rows = result[0] as UserShift[] | undefined;

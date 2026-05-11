@@ -18,6 +18,7 @@ import {getOrderFilteredItems} from "@/lib/order.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import { nowSurrealDateTime } from "@/lib/datetime.ts";
+import {postOrderTracking} from "@/lib/tracking.service.ts";
 
 interface OrderRefundModalProps {
   order: OrderModel
@@ -141,6 +142,18 @@ export const OrderRefundModal = ({
         tags: Array.from(new Set([...(order.tags || []), OrderStatus.Refunded])),
       });
 
+      postOrderTracking({
+        module: "Refund order",
+        page: page?.page,
+        orderId: order.id,
+        payload: {
+          refunded_items: selectedItemsList.map((item) => item.id.toString()),
+          reason: reason || undefined,
+          refunded_total: refundTotal,
+        },
+        user: page?.user,
+      });
+
       // Create refund order object for printing
       const refundOrder: OrderModel = {
         ...order,
@@ -192,7 +205,7 @@ export const OrderRefundModal = ({
                   key={item.id}
                   className={`flex items-start gap-3 p-3 rounded-lg mb-2 cursor-pointer transition ${
                     selectedItems.has(item.id)
-                      ? 'bg-primary-50 border-2 border-primary-500'
+                      ? 'bg-primary-50 border-2 border-neutral-900'
                       : 'bg-white border-2 border-transparent hover:bg-neutral-100'
                   }`}
                   onClick={() => toggleItem(item.id)}
@@ -244,7 +257,7 @@ export const OrderRefundModal = ({
                     <span>{withCurrency(refundCharges.tipAmount)}</span>
                   </div>
                 ) : null}
-                <div className="border-t border-primary-200 pt-2 mt-2">
+                <div className="border-t border-neutral-200 pt-2 mt-2">
                   <div className="flex justify-between items-center">
                     <span className="font-semibold">Refund Total:</span>
                     <span className="font-bold text-lg">{withCurrency(refundTotal)}</span>
@@ -276,7 +289,13 @@ export const OrderRefundModal = ({
 
         {/* Action buttons */}
         <div className="flex justify-end gap-3 pt-4 border-t border-neutral-200">
-          <Button flat variant="primary" onClick={handleClose} disabled={isSubmitting}>
+          <Button
+            flat
+            variant="primary"
+            onClick={handleClose}
+            disabled={isSubmitting}
+            size="xl"
+          >
             Close
           </Button>
           <Button
@@ -284,6 +303,7 @@ export const OrderRefundModal = ({
             onClick={handleRefund}
             isLoading={isSubmitting}
             disabled={isSubmitting || selectedItems.size === 0}
+            size="xl"
           >
             Refund {selectedItems.size > 0 ? `${selectedItems.size} item(s)` : ''}
           </Button>

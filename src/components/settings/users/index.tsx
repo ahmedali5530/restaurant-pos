@@ -15,9 +15,13 @@ import { AdminShifts } from "@/components/settings/users/shifts";
 import { shiftDisplayTime } from "@/lib/shift.utils.ts";
 import { AdminTipDistribution } from "@/components/settings/users/tip_distribution";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import {useDB} from "@/api/db/db.ts";
+import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 const AdminUsersList = () => {
-  const loadHook = useApi<SettingsData<User>>(Tables.users, [], [], 0, 10, ["user_role", "user_shift"]);
+  const loadHook = useApi<SettingsData<User>>(Tables.users, ['deleted_at = none'], [], 0, 10, ["user_role", "user_shift"]);
+  const db = useDB();
 
   const [data, setData] = useState<User>();
   const [formModal, setFormModal] = useState(false);
@@ -57,7 +61,7 @@ const AdminUsersList = () => {
       enableColumnFilter: false,
       cell: (info) => {
         return (
-          <>
+          <div className="flex gap-3 items-center">
             <Button
               variant="primary"
               onClick={() => {
@@ -65,11 +69,35 @@ const AdminUsersList = () => {
                 setFormModal(true);
               }}
             ><FontAwesomeIcon icon={faPencil}/></Button>
-          </>
+            <div className="separator"></div>
+            <DeleteConfirm
+              message={`Delete user ${info.row.original.first_name} ${info.row.original.last_name}`}
+              onConfirm={() => deleteItem(info.row.original.id)}
+            />
+          </div>
         );
       },
     }),
   ];
+
+  const deleteItem = async (id: string) => {
+    await executeSettingsDelete({
+      db,
+      id,
+      entityLabel: 'User',
+      usageChecks: [
+        {
+          query: `SELECT count() AS count FROM ${Tables.orders} WHERE user = $idRecord OR cashier = $idRecord GROUP ALL`
+        },
+        {
+          query: `SELECT count() AS count FROM ${Tables.time_entries} WHERE user = $idRecord GROUP ALL`
+        }
+      ],
+      onAfter: async () => {
+        loadHook.fetchData();
+      }
+    });
+  };
 
   return (
     <>
@@ -108,7 +136,7 @@ export const AdminUsers = () => {
       onSelectionChange={(k: string) => {
         protectAction(() => setS(k), {
           module: k,
-          description: `Access ${k}`
+          description: `Access ${k}`,
         });
       }}
     >

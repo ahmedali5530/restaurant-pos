@@ -32,7 +32,8 @@ export const TableLockProvider: React.FC<TableLockProviderProps> = ({children}) 
           `SELECT id, locked_at
            FROM ${Tables.tables}
            WHERE is_locked = true
-             AND locked_at != NONE`
+             AND locked_at != NONE
+             AND deleted_at = none`
         );
 
         if (!Array.isArray(lockedTables) || lockedTables.length === 0) {

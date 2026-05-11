@@ -58,9 +58,6 @@ export const Sidebar = () => {
     await protectAction(() => navigation(to), {
       description: description || `Authenticate to access ${module}`,
       module,
-      payload: {
-        page: ''
-      }
     });
   }
 
@@ -132,7 +129,7 @@ export const Sidebar = () => {
           <button
             onClick={() => protectedNavigate(SETTINGS, 'Settings')}
             className={cn(
-              'btn btn-secondary lg flex-1',
+              'btn btn-primary lg flex-1',
               pathInfo === SETTINGS ? 'active' : ''
             )}
             key={'settings'}
@@ -145,7 +142,7 @@ export const Sidebar = () => {
           <NavLink
             to={CLOCK}
             className={cn(
-              'btn btn-secondary lg flex-1',
+              'btn btn-primary lg flex-1',
               pathInfo === CLOCK ? 'active' : ''
             )}
             style={{

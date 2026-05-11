@@ -1,15 +1,12 @@
 import { Button } from '@/components/common/input/button';
 import React, { useState } from 'react';
-import { SecurityAction } from '@/providers/security.provider';
+import { SecurityAction, SecurityManager } from '@/providers/security.provider';
 import {Input} from "@/components/common/input/input.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {toRecordId} from "@/lib/utils.ts";
-import {useAtom} from "jotai";
-import {appPage, appState} from "@/store/jotai.ts";
 
 interface PasswordAuthProps {
-  onSuccess: () => void;
+  onSuccess: (manager?: SecurityManager) => void;
   onCancel: () => void;
   currentAction?: SecurityAction | null;
 }
@@ -23,19 +20,18 @@ export const PasswordAuth: React.FC<PasswordAuthProps> = ({
 
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [{user}] = useAtom(appPage);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    const [userWithModules] = await db.query(`SELECT * FROM ${Tables.users} where $module IN user_role.roles and login_method = 'form' and crypto::bcrypt::compare(password, $password) = true `, {
+    const [userWithModules] = await db.query(`SELECT * FROM ${Tables.users} FETCH user_role, user_shift where deleted_at = none and $module IN user_role.roles and login_method = 'form' and crypto::bcrypt::compare(password, $password) = true `, {
       module: currentAction.module,
       password
     });
 
     if(userWithModules.length > 0){
-      onSuccess();
+      onSuccess(userWithModules[0] as SecurityManager);
     }else{
       setError(`Invalid password, or user not found with ${currentAction.module} permission`);
     }

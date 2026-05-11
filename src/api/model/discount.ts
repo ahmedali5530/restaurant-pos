@@ -1,4 +1,5 @@
 import { ID, Name, Priority } from "@/api/model/common.ts";
+import {DateTime} from "surrealdb";
 
 export enum DiscountType {
   Fixed = 'Fixed',
@@ -10,4 +11,6 @@ export interface Discount extends ID, Name, Priority {
   max_cap?: number
 
   type: string
+
+  deleted_at?: DateTime
 }

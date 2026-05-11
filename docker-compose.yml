@@ -13,6 +13,8 @@ services:
       VITE_PRINT_SERVER_URL: "http://localhost:3132"
       # Payment service base URL (host -> payment container)
       VITE_PAYMENT_SERVER_URL: "${VITE_PAYMENT_SERVER_URL:-http://localhost:3134}"
+      # Tracking service base URL (host -> tracking container)
+      VITE_TRACKING_SERVER_URL: "${VITE_TRACKING_SERVER_URL:-http://localhost:3138}"
     # Dev mode with Bun + Vite, binding to all interfaces.
     # Assumes you've already run `bun install` on the host.
     command: sh -c "bun run dev -- --host 0.0.0.0 --port 5173"
@@ -23,6 +25,7 @@ services:
       - printer
       - payment
       - sync
+      - tracking
 
   surrealdb:
     image: surrealdb/surrealdb:v3.0.5
@@ -100,6 +103,26 @@ services:
       - surrealdb
     restart: unless-stopped
 
+  tracking:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./tracking-api:/app
+      - tracking-api-node_modules:/app/node_modules
+    environment:
+      - TRACKING_PORT=3138
+      - TRACKING_HOST=0.0.0.0
+      - TRACKING_DB_URL=ws://surrealdb:8001/rpc
+      - TRACKING_DB_NS=posr
+      - TRACKING_DB_NAME=posr
+      - TRACKING_DB_USER=root
+      - TRACKING_DB_PASS=root
+    command: sh -c "npm install && npm start"
+    ports:
+      - "3138:3138"
+    depends_on:
+      - surrealdb
+
   backup:
     image: docker:27-cli
     working_dir: /backup
@@ -151,4 +174,5 @@ volumes:
   printer-node_modules:
   payment-node_modules:
   sync-node_modules:
+  tracking-api-node_modules:
 

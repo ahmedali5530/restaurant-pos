@@ -130,7 +130,7 @@ export async function getPrintersForType(db: PrintDB, template: string, userId?:
   if (ids.length === 0) return [];
 
   const [printerRes] = await db.query(
-    `SELECT * FROM ${Tables.printers} WHERE id IN $ids`,
+    `SELECT * FROM ${Tables.printers} WHERE id IN $ids AND deleted_at = none`,
     { ids }
   );
   const printerRows = (Array.isArray(printerRes) ? printerRes : []) as Printer[];

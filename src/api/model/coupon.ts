@@ -45,6 +45,7 @@ export interface Coupon {
 
   created_at: DateTime;
   updated_at: DateTime;
+  deleted_at?: DateTime
 }
 
 export interface CouponRedemption {

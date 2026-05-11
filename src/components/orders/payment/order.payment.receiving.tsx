@@ -25,6 +25,7 @@ import {createPaymentIntent, GatewayType, verifyPayment} from "@/lib/payment.ser
 import {calculateChangeDue, calculateOrderGrandTotal} from "@/lib/cart.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
+import {postOrderTracking} from "@/lib/tracking.service.ts";
 
 interface Props {
   order: Order
@@ -106,11 +107,11 @@ export const OrderPaymentReceiving = ({
 
   const {
     data: allPaymentTypes
-  } = useApi<SettingsData<PaymentType>>(Tables.payment_types, [], ['priority asc'], 0, 99999, ['tax', 'discounts']);
+  } = useApi<SettingsData<PaymentType>>(Tables.payment_types, ['deleted_at = none'], ['priority asc'], 0, 99999, ['tax', 'discounts']);
 
   const {
     data: table
-  } = useApi<SettingsData<Table>>(order?.table?.id as unknown as string, [], [], 0, 1, ['payment_types', 'payment_types.tax', 'payment_types.discounts']);
+  } = useApi<SettingsData<Table>>(order?.table?.id as unknown as string, ['deleted_at = none'], [], 0, 1, ['payment_types', 'payment_types.tax', 'payment_types.discounts']);
 
   const paymentTypes: PaymentType[] = useMemo(() => {
     if (table?.data?.[0]?.payment_types && table?.data?.[0]?.payment_types?.length > 0) {
@@ -201,6 +202,18 @@ export const OrderPaymentReceiving = ({
           redeemed_at: nowSurrealDateTime(),
         });
       }
+
+      postOrderTracking({
+        module: "Complete order payment",
+        page: page?.page,
+        orderId: order.id,
+        payload: {
+          payment_count: payments.length,
+          coupon: coupon?.id?.toString(),
+          total,
+        },
+        user: page?.user,
+      });
 
       onComplete();
     } catch (e) {
@@ -324,6 +337,18 @@ export const OrderPaymentReceiving = ({
           expiresAt: intent.expiresAt,
         }
       ]);
+      postOrderTracking({
+        module: "Create remote payment intent",
+        page: page?.page,
+        orderId: order.id,
+        payload: {
+          gateway,
+          amount: numericAmount,
+          payment_type: paymentType.id.toString(),
+          intent_id: intent.intentId,
+        },
+        user: page?.user,
+      });
       setSelectedAmount('');
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to generate remote payment link/token';
@@ -422,6 +447,20 @@ export const OrderPaymentReceiving = ({
           id: nanoid()
         }
       ]);
+      postOrderTracking({
+        module: "Verify remote payment",
+        page: page?.page,
+        orderId: order.id,
+        payload: {
+          gateway: pendingIntent.gateway,
+          amount: pendingIntent.amount,
+          payment_type: pendingIntent.paymentType.id.toString(),
+          intent_id: pendingIntent.intentId,
+          status: result.status,
+          reference: result.reference,
+        },
+        user: page?.user,
+      });
       setPendingRemoteIntents(prev => prev.filter(item => item.id !== pendingIntent.id));
       toast.success('Remote payment verified and added.');
     } catch (e) {
@@ -538,7 +577,7 @@ export const OrderPaymentReceiving = ({
 
   const {
     data: allTaxes
-  } = useApi<SettingsData<Tax>>(Tables.taxes)
+  } = useApi<SettingsData<Tax>>(Tables.taxes, ['deleted_at = none'])
 
   return (
     <div className="grid grid-cols-2 gap-5 h-[calc(100vh_-_150px)]">
@@ -694,7 +733,10 @@ export const OrderPaymentReceiving = ({
                     }, {userId: page?.user?.id});
                   }, {
                     module: 'Print temp bill',
-                    description: 'Print temp bill'
+                    description: 'Print temp bill',
+                    payload: {
+                      order: order.id.toString()
+                    }
                   });
 
                 }}
@@ -707,7 +749,10 @@ export const OrderPaymentReceiving = ({
                 onClick={async () => {
                   await protectAction(async () => await closeOrder(), {
                     module: 'Complete order',
-                    description: 'Complete order'
+                    description: 'Complete order',
+                    payload: {
+                      order: order.id.toString()
+                    }
                   });
                 }}
                 disabled={changeDue < 0 || closing || remoteProcessing}

@@ -8,9 +8,13 @@ import { UserRole } from "@/api/model/user_role.ts";
 import { Button } from "@/components/common/input/button.tsx";
 import { TableComponent } from "@/components/common/table/table.tsx";
 import { UserRoleForm } from "@/components/settings/users/roles/role.form.tsx";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import {useDB} from "@/api/db/db.ts";
+import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminUserRoles = () => {
-  const loadHook = useApi<SettingsData<UserRole>>(Tables.user_roles, [], ["name asc"]);
+  const loadHook = useApi<SettingsData<UserRole>>(Tables.user_roles, ["deleted_at = none"], ["name asc"]);
+  const db = useDB();
   const [data, setData] = useState<UserRole>();
   const [formModal, setFormModal] = useState(false);
 
@@ -37,18 +41,41 @@ export const AdminUserRoles = () => {
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => (
-        <Button
-          variant="primary"
-          onClick={() => {
-            setData(info.row.original);
-            setFormModal(true);
-          }}
-        >
-          <FontAwesomeIcon icon={faPencil} />
-        </Button>
+        <div className="flex gap-3 items-center">
+          <Button
+            variant="primary"
+            onClick={() => {
+              setData(info.row.original);
+              setFormModal(true);
+            }}
+          >
+            <FontAwesomeIcon icon={faPencil} />
+          </Button>
+          <div className="separator"></div>
+          <DeleteConfirm
+            message={`Delete role ${info.row.original.name}`}
+            onConfirm={() => deleteItem(info.row.original.id)}
+          />
+        </div>
       ),
     }),
   ];
+
+  const deleteItem = async (id: string) => {
+    await executeSettingsDelete({
+      db,
+      id,
+      entityLabel: 'Role',
+      usageChecks: [
+        {
+          query: `SELECT count() AS count FROM ${Tables.users} WHERE user_role = $idRecord GROUP ALL`
+        }
+      ],
+      onAfter: async () => {
+        loadHook.fetchData();
+      }
+    });
+  };
 
   return (
     <>

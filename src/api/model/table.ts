@@ -32,6 +32,8 @@ export interface Table extends ID, Name, Priority {
   is_locked?: boolean
   locked_at?: DateTime
   locked_by?: string
+
+  deleted_at?: DateTime
 }
 
 export const TABLE_FETCHES = ['floor', 'categories', 'payment_types', 'order_types'];

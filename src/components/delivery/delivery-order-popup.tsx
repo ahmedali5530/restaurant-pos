@@ -75,7 +75,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
         try {
           setLoadingRiders(true);
           const [result] = await db.query<any>(
-            `SELECT * FROM ${Tables.users} WHERE array::find(user_role.roles, 'Riders') != None ORDER BY first_name ASC, last_name ASC`
+            `SELECT * FROM ${Tables.users} WHERE deleted_at = none AND array::find(user_role.roles, 'Riders') != None ORDER BY first_name ASC, last_name ASC`
           );
 
           setRiders(result as User[]);

@@ -1,10 +1,11 @@
 import {Button} from "@/components/common/input/button.tsx";
-import React, {useMemo, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {DiscountType} from "@/api/model/discount.ts";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Setting} from "@/api/model/setting.ts";
 import {withCurrency} from "@/lib/utils.ts";
+import {Order} from "@/api/model/order.ts";
 
 interface Props {
   serviceCharge: number
@@ -12,11 +13,17 @@ interface Props {
 
   setServiceChargeType: (type: DiscountType) => void
   serviceChargeType: DiscountType
+
+  order: Order
 }
 
 export const OrderPaymentServiceCharges = ({
-  serviceCharge, setServiceCharge, serviceChargeType, setServiceChargeType
+  serviceCharge, setServiceCharge, serviceChargeType, setServiceChargeType, order
 }: Props) => {
+  const [draftServiceCharge, setDraftServiceCharge] = useState<number>(serviceCharge);
+  const [draftServiceChargeType, setDraftServiceChargeType] = useState<DiscountType>(serviceChargeType);
+  const defaultAppliedRef = useRef(false);
+
   const [quickPercentOptions, setQuickPercentOptions] = useState([
     3, 5, 12
   ]);
@@ -25,39 +32,66 @@ export const OrderPaymentServiceCharges = ({
 
   const {
     data: serviceChargeSettings,
-  } = useApi<SettingsData<Setting>>(Tables.settings, ["key = 'service_charges'", "and is_global = true"], [], 0, 1, ["values"]);
+  } = useApi<SettingsData<Setting>>(Tables.settings, ["(key = 'service_charges' and is_global = true)"], [], 0, 1, ["values"]);
 
-  const settingsLabel = useMemo(() => {
+  const defaultFromSettings = useMemo(() => {
     const values = serviceChargeSettings?.data?.[0]?.values;
     const typeRaw = values?.type?.value ?? values?.type;
     const valueRaw = values?.value?.value ?? values?.value;
-    const type = String(typeRaw || DiscountType.Percent);
+    const type = String(typeRaw || DiscountType.Percent) === DiscountType.Fixed ? DiscountType.Fixed : DiscountType.Percent;
     const value = Number(valueRaw || 0);
+
+    return {
+      value,
+      type,
+      label: type === DiscountType.Fixed ? `${withCurrency(value)}` : `${value}%`
+    };
+  }, [serviceChargeSettings]);
+
+  useEffect(() => {
+    setDraftServiceCharge(serviceCharge);
+    setDraftServiceChargeType(serviceChargeType);
+    defaultAppliedRef.current = false;
+  }, [serviceCharge, serviceChargeType]);
+
+  useEffect(() => {
+    if (defaultFromSettings.value <= 0) {
+      return;
+    }
 
     setQuickPercentOptions(prev => {
       const optionsSet = new Set(prev);
-      optionsSet.add(value);
-
+      optionsSet.add(defaultFromSettings.value);
       return Array.from(optionsSet);
     });
+  }, [defaultFromSettings.value]);
 
-    setServiceCharge(value);
-    setServiceChargeType(type === DiscountType.Fixed ? DiscountType.Fixed : DiscountType.Percent);
+  useEffect(() => {
+    if (
+      defaultAppliedRef.current ||
+      serviceCharge !== 0 ||
+      !order.order_type.allow_service_charges ||
+      defaultFromSettings.value <= 0
+    ) {
+      return;
+    }
 
-    return type === DiscountType.Fixed ? `${withCurrency(value)}` : `${value}%`;
-  }, [serviceChargeSettings]);
+    setDraftServiceCharge(defaultFromSettings.value);
+    setDraftServiceChargeType(defaultFromSettings.type);
+    defaultAppliedRef.current = true;
+  }, [defaultFromSettings, order.order_type.allow_service_charges, serviceCharge]);
 
   return (
     <div className="flex flex-col justify-between h-full">
       <div className="mb-5 flex justify-between flex-col gap-5">
         <div className="text-xl bg-warning-500 px-3 py-5 text-white">
-          Default from settings: <span className="font-semibold ">{settingsLabel}</span>
+          Default from settings: <span className="font-semibold ">{defaultFromSettings.label}</span>
         </div>
         <Button
           className="min-w-[150px]"
           variant="danger"
-          active={serviceCharge === 0}
-          onClick={() => setServiceCharge(0)}
+          active={draftServiceCharge === 0}
+          onClick={() => setDraftServiceCharge(0)}
           size="lg"
         >
           No Service charge
@@ -65,15 +99,15 @@ export const OrderPaymentServiceCharges = ({
 
         <div className="input-group">
           <Button
-            size="lg" variant="primary" active={serviceChargeType === DiscountType.Percent}
-            onClick={() => setServiceChargeType(DiscountType.Percent)}
+            size="lg" variant="primary" active={draftServiceChargeType === DiscountType.Percent}
+            onClick={() => setDraftServiceChargeType(DiscountType.Percent)}
             className="min-w-[150px] flex-1"
           >
             {DiscountType.Percent}
           </Button>
           <Button
-            size="lg" variant="primary" active={serviceChargeType === DiscountType.Fixed}
-            onClick={() => setServiceChargeType(DiscountType.Fixed)}
+            size="lg" variant="primary" active={draftServiceChargeType === DiscountType.Fixed}
+            onClick={() => setDraftServiceChargeType(DiscountType.Fixed)}
             className="min-w-[150px] flex-1"
           >
             {DiscountType.Fixed}
@@ -84,14 +118,14 @@ export const OrderPaymentServiceCharges = ({
       <div className="flex flex-wrap gap-3 mb-3 justify-center">
         {quickPercentOptions.map(quickOption => (
           <Button
-            size="lg" variant="primary" flat active={serviceCharge === quickOption}
+            size="lg" variant="primary" flat active={draftServiceCharge === quickOption}
             onClick={() => {
-              setServiceCharge(quickOption);
+              setDraftServiceCharge(quickOption);
             }}
             className="min-w-[100px]"
             key={quickOption}
           >
-            {quickOption}{serviceChargeType === DiscountType.Percent && '%'}
+            {quickOption}{draftServiceChargeType === DiscountType.Percent && '%'}
           </Button>
         ))}
       </div>
@@ -99,7 +133,7 @@ export const OrderPaymentServiceCharges = ({
       <div className="grid grid-cols-3 gap-3 mb-3">
         {keyboardKeys.map(item => (
           <Button key={item} size="xl" flat variant="primary" onClick={() => {
-            setServiceCharge(prev => {
+            setDraftServiceCharge(prev => {
               return Number(prev.toString() + item)
             });
           }}>
@@ -107,11 +141,23 @@ export const OrderPaymentServiceCharges = ({
           </Button>
         ))}
         <Button size="xl" flat variant="primary" onClick={() => {
-          setServiceCharge(0)
+          setDraftServiceCharge(0)
         }}>
           C
         </Button>
       </div>
+      <Button
+        variant="success"
+        size="lg"
+        onClick={() => {
+          setServiceCharge(draftServiceCharge);
+          setServiceChargeType(draftServiceChargeType);
+        }}
+        className="w-full"
+        filled
+      >
+        OK
+      </Button>
     </div>
   )
 }

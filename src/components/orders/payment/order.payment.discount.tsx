@@ -1,6 +1,6 @@
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { Tables } from "@/api/db/tables.ts";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/common/input/button.tsx";
 import { Discount, DiscountType } from "@/api/model/discount.ts";
 import { withCurrency } from "@/lib/utils.ts";
@@ -21,86 +21,102 @@ export const OrderPaymentDiscount = ({
 
   const {
     data: discounts
-  } = useApi<SettingsData<Discount>>(Tables.discounts, [], ['priority asc'], 0, 99999);
+  } = useApi<SettingsData<Discount>>(Tables.discounts, ['deleted_at = none'], ['priority asc'], 0, 99999);
 
   const keyboardKeys = [1, 2, 3, 4, 5, 6, 7, 8, 9, '', 0];
 
   const [keyboard, setKeyboard] = useState(false);
+  const [draftDiscount, setDraftDiscount] = useState<Discount | undefined>(discount);
+  const [draftDiscountAmount, setDraftDiscountAmount] = useState<number>(discountAmount);
+  const [draftDiscountRate, setDraftDiscountRate] = useState<number>(discountRate);
   const [percentInput, setPercentInput] = useState<number | undefined>(undefined);
 
   const addDiscount = (discount: Discount) => {
     setKeyboard(false);
-    setDiscount(discount);
-    setDiscountAmount(discount.min_rate);
-    setDiscountRate(discount.min_rate);
+    setDraftDiscount(discount);
+    setDraftDiscountAmount(discount.min_rate);
+    setDraftDiscountRate(discount.min_rate);
 
     if(discount.type === DiscountType.Fixed){
       if(discount.min_rate === discount.max_rate){
-        setDiscountAmount(discount.min_rate);
-
-        setDiscountRate(discount.min_rate);
+        setDraftDiscountAmount(discount.min_rate);
+        setDraftDiscountRate(discount.min_rate);
+        setPercentInput(undefined);
       }else{
         setKeyboard(true);
         setPercentInput(undefined);
       }
     }else if(discount.type === DiscountType.Percent){
       if(discount.min_rate === discount.max_rate){
-        setDiscountAmount(discount.min_rate * itemsTotal / 100);
+        setDraftDiscountAmount(discount.min_rate * itemsTotal / 100);
         setPercentInput(undefined);
-
-        setDiscountRate(discount.min_rate);
+        setDraftDiscountRate(discount.min_rate);
       }else{
         setKeyboard(true);
         setPercentInput(discount.min_rate);
+        setDraftDiscountRate(discount.min_rate);
       }
     }
   }
 
   const manualDiscount = (key: number|string) => {
-    if (discount?.type === DiscountType.Percent && discount.min_rate !== discount.max_rate) {
+    if (draftDiscount?.type === DiscountType.Percent && draftDiscount.min_rate !== draftDiscount.max_rate) {
       setPercentInput((prev: number | undefined) => {
         const base = prev === undefined || prev === null ? '' : prev.toString();
         return Number(base + key);
       });
-
-      setDiscountRate(Math.min(Number(discountRate.toString() + key), discount.max_rate));
     } else {
-      setDiscountAmount((prev: number) => {
+      setDraftDiscountAmount((prev: number) => {
         return Number(prev.toString() + key);
       });
     }
   }
 
   useEffect(() => {
-    console.log(discountRate, discount, percentInput, itemsTotal)
-    if(discount){
-      const hasVariableRates = discount.min_rate !== discount.max_rate;
-      let dValue: number;
-
-      if(discount.type === DiscountType.Percent){
-        const rate = discountRate ? discountRate : (
-          hasVariableRates ? (percentInput ?? 0) : discount.min_rate
-        );
-
-        dValue = rate * itemsTotal / 100;
-      }else{
-        dValue = discountAmount;
-      }
-
-      let finalDiscount = dValue;
-      if (hasVariableRates && (discount.max_cap ?? undefined) !== undefined) {
-        finalDiscount = Math.min(finalDiscount, discount.max_cap as number);
-      }
-
-      if(discount.type === DiscountType.Fixed) {
-        finalDiscount = Math.min(finalDiscount, itemsTotal, discount.max_rate);
-      }else{
-        finalDiscount = Math.min(finalDiscount, itemsTotal);
-      }
-
-      setDiscountAmount(finalDiscount);
+    setDraftDiscount(discount);
+    setDraftDiscountAmount(discountAmount);
+    setDraftDiscountRate(discountRate);
+    setKeyboard(false);
+    if (discount && discount.type === DiscountType.Percent && discount.min_rate !== discount.max_rate) {
+      setPercentInput(discountRate || discount.min_rate);
+    } else {
+      setPercentInput(undefined);
     }
-  }, [discountAmount, discount, itemsTotal, percentInput, discountRate]);
+  }, [discount, discountAmount, discountRate]);
+
+  const { resolvedDiscountAmount, resolvedDiscountRate } = useMemo(() => {
+    if (!draftDiscount) {
+      return {
+        resolvedDiscountAmount: 0,
+        resolvedDiscountRate: 0
+      };
+    }
+
+    const hasVariableRates = draftDiscount.min_rate !== draftDiscount.max_rate;
+    let finalAmount = 0;
+    let finalRate = draftDiscountRate || draftDiscount.min_rate;
+
+    if (draftDiscount.type === DiscountType.Percent) {
+      const inputRate = hasVariableRates ? (percentInput ?? draftDiscount.min_rate) : draftDiscount.min_rate;
+      finalRate = Math.min(Math.max(inputRate, draftDiscount.min_rate), draftDiscount.max_rate);
+      finalAmount = finalRate * itemsTotal / 100;
+    } else {
+      finalAmount = hasVariableRates ? draftDiscountAmount : draftDiscount.min_rate;
+      finalAmount = Math.min(Math.max(finalAmount, 0), draftDiscount.max_rate);
+      finalRate = finalAmount;
+    }
+
+    if (hasVariableRates && draftDiscount.max_cap !== undefined && draftDiscount.max_cap !== null) {
+      finalAmount = Math.min(finalAmount, draftDiscount.max_cap);
+    }
+
+    finalAmount = Math.min(finalAmount, itemsTotal);
+
+    return {
+      resolvedDiscountAmount: finalAmount,
+      resolvedDiscountRate: finalRate
+    };
+  }, [draftDiscount, draftDiscountAmount, draftDiscountRate, itemsTotal, percentInput]);
 
   return (
     <div className="flex flex-col justify-between h-full">
@@ -108,11 +124,13 @@ export const OrderPaymentDiscount = ({
         <Button
           className="min-w-[150px]"
           variant="danger"
-          active={discount === undefined}
+          active={draftDiscount === undefined}
           onClick={() => {
-            setDiscount(undefined);
-            setDiscountAmount(0);
+            setDraftDiscount(undefined);
+            setDraftDiscountAmount(0);
+            setDraftDiscountRate(0);
             setKeyboard(false);
+            setPercentInput(undefined);
           }}
           size="lg"
         >
@@ -123,7 +141,7 @@ export const OrderPaymentDiscount = ({
             <Button
               className="min-w-[150px]"
               variant="primary"
-              active={item.id.toString() === discount?.id.toString()}
+              active={item.id.toString() === draftDiscount?.id.toString()}
               key={item.id}
               onClick={() => {
                 addDiscount(item);
@@ -139,18 +157,18 @@ export const OrderPaymentDiscount = ({
       </div>
 
       <div className="text-2xl text-center">
-        {withCurrency(discountAmount)}{' '}
-        {discount && discount.type === DiscountType.Percent && (
-          <>({discountRate}%)</>
+        {withCurrency(resolvedDiscountAmount)}{' '}
+        {draftDiscount && draftDiscount.type === DiscountType.Percent && (
+          <>({resolvedDiscountRate}%)</>
         )}
       </div>
 
       <div className="text-2xl text-center">
-        {discount && (
+        {draftDiscount && (
           <>
-            Discount {discount.min_rate === discount.max_rate ? (discount.type === DiscountType.Fixed ? withCurrency(discount.min_rate) : discount.min_rate) : `${discount.min_rate} - ${discount.max_rate}`}
-            {discount.type === DiscountType.Percent && '%'}{' '}
-            {!!discount.max_cap && `with max cap of ${withCurrency(discount.max_cap)}`}
+            Discount {draftDiscount.min_rate === draftDiscount.max_rate ? (draftDiscount.type === DiscountType.Fixed ? withCurrency(draftDiscount.min_rate) : draftDiscount.min_rate) : `${draftDiscount.min_rate} - ${draftDiscount.max_rate}`}
+            {draftDiscount.type === DiscountType.Percent && '%'}{' '}
+            {!!draftDiscount.max_cap && `with max cap of ${withCurrency(draftDiscount.max_cap)}`}
           </>
         )}
       </div>
@@ -163,14 +181,34 @@ export const OrderPaymentDiscount = ({
               </Button>
             ))}
             <Button size="xl" flat variant="primary" onClick={() => {
-              setDiscountAmount(0);
+              setDraftDiscountAmount(0);
               setPercentInput(undefined);
-              setDiscountRate(0);
+              setDraftDiscountRate(0);
             }}>
               C
             </Button>
           </div>
         )}
+        <Button
+          variant="success"
+          size="lg"
+          className="w-full"
+          filled
+          onClick={() => {
+            if (!draftDiscount) {
+              setDiscount(undefined);
+              setDiscountAmount(0);
+              setDiscountRate(0);
+              return;
+            }
+
+            setDiscount(draftDiscount);
+            setDiscountAmount(resolvedDiscountAmount);
+            setDiscountRate(resolvedDiscountRate);
+          }}
+        >
+          OK
+        </Button>
       </div>
     </div>
   );

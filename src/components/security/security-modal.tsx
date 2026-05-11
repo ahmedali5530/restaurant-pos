@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {AuthType, useSecurityContext} from '@/providers/security.provider';
+import {AuthType, SecurityManager, useSecurityContext} from '@/providers/security.provider';
 import {PinAuth} from './auth/pin-auth';
 import {PasswordAuth} from './auth/password-auth';
 import {QrCodeAuth} from './auth/qrcode-auth.tsx';
@@ -21,8 +21,8 @@ export const SecurityModal = () => {
     return null;
   }
 
-  const handleAuthSuccess = () => {
-    confirmAction();
+  const handleAuthSuccess = (manager?: SecurityManager) => {
+    confirmAction(manager);
   };
 
   const handleAuthCancel = () => {

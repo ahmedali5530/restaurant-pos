@@ -43,6 +43,30 @@ export const nowSurrealDateTime = (): SurrealDateTime => {
   return SurrealDateTime.now();
 };
 
+export const getAppTimezone = (): string => {
+  const timezone = (import.meta.env.VITE_APP_TIMEZONE as string | undefined)?.trim();
+  if (!timezone) {
+    return "UTC";
+  }
+
+  const zoneProbe = LuxonDateTime.now().setZone(timezone);
+  return zoneProbe.isValid ? timezone : "UTC";
+};
+
+export const getBusinessDayUnixRange = (value?: DateInput) => {
+  const timezone = getAppTimezone();
+  const dateTime = toLuxonDateTime(value).setZone(timezone);
+  const dayStart = dateTime.startOf("day");
+  const dayEnd = dayStart.plus({days: 1});
+
+  return {
+    timezone,
+    day: dayStart.toFormat("yyyy-MM-dd"),
+    startUnix: Math.floor(dayStart.toSeconds()),
+    endUnix: Math.floor(dayEnd.toSeconds())
+  };
+};
+
 export const toLuxonDateTime = (value?: DateInput): LuxonDateTime => {
   if (value === undefined || value === null) {
     return LuxonDateTime.now();

@@ -9,9 +9,13 @@ import { Button } from "@/components/common/input/button.tsx";
 import { TableComponent } from "@/components/common/table/table.tsx";
 import { ShiftForm } from "@/components/settings/users/shifts/shift.form.tsx";
 import { shiftDisplayTime } from "@/lib/shift.utils.ts";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import {useDB} from "@/api/db/db.ts";
+import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminShifts = () => {
-  const loadHook = useApi<SettingsData<Shift>>(Tables.shifts, [], ["name asc"]);
+  const loadHook = useApi<SettingsData<Shift>>(Tables.shifts, ["deleted_at = none"], ["name asc"]);
+  const db = useDB();
   const [data, setData] = useState<Shift>();
   const [formModal, setFormModal] = useState(false);
 
@@ -32,18 +36,41 @@ export const AdminShifts = () => {
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => (
-        <Button
-          variant="primary"
-          onClick={() => {
-            setData(info.row.original);
-            setFormModal(true);
-          }}
-        >
-          <FontAwesomeIcon icon={faPencil} />
-        </Button>
+        <div className="flex gap-3 items-center">
+          <Button
+            variant="primary"
+            onClick={() => {
+              setData(info.row.original);
+              setFormModal(true);
+            }}
+          >
+            <FontAwesomeIcon icon={faPencil} />
+          </Button>
+          <div className="separator"></div>
+          <DeleteConfirm
+            message={`Delete shift ${info.row.original.name}`}
+            onConfirm={() => deleteItem(info.row.original.id)}
+          />
+        </div>
       ),
     }),
   ];
+
+  const deleteItem = async (id: string) => {
+    await executeSettingsDelete({
+      db,
+      id,
+      entityLabel: 'Shift',
+      usageChecks: [
+        {
+          query: `SELECT count() AS count FROM ${Tables.users} WHERE user_shift = $idRecord GROUP ALL`
+        }
+      ],
+      onAfter: async () => {
+        loadHook.fetchData();
+      }
+    });
+  };
 
   return (
     <>

@@ -7,7 +7,7 @@ import {cn} from "@/lib/utils.ts";
 
 
 interface Props {
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   message?: string
 }
 
@@ -15,18 +15,31 @@ export const DeleteConfirm = ({
   onConfirm, message
 }: Props) => {
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const close = () => {
     setOpen(false);
   }
 
   const cancel = () => {
+    if (loading) {
+      return;
+    }
     close();
   }
 
-  const confirm = () => {
-    onConfirm();
-    close();
+  const confirm = async () => {
+    if (loading) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await onConfirm();
+    } finally {
+      setLoading(false);
+      close();
+    }
   }
 
   return (
@@ -35,8 +48,8 @@ export const DeleteConfirm = ({
       {open && (
         <>
           <ModalOverlay
-            isDismissable={true}
-            isKeyboardDismissDisabled={true}
+            isDismissable={!loading}
+            isKeyboardDismissDisabled={loading}
             isOpen={true}
             className={
               cn(
@@ -73,6 +86,7 @@ export const DeleteConfirm = ({
                     className="bg-neutral-200 text-neutral-800 hover:border-neutral-300 pressed:bg-neutral-300"
                     onClick={cancel}
                     size="lg"
+                    disabled={loading}
                   >
                     Cancel
                   </Button>
@@ -81,6 +95,8 @@ export const DeleteConfirm = ({
                     onClick={confirm}
                     variant="danger"
                     size="lg"
+                    isLoading={loading}
+                    disabled={loading}
                   >
                     Confirm
                   </Button>

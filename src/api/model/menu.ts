@@ -10,6 +10,8 @@ export interface Menu {
   items: MenuMenuItem[]
   start_from?: DateTime
   active?: boolean
+
+  deleted_at?: DateTime
 }
 
 export interface MenuMenuItem {

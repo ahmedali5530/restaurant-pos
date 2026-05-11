@@ -13,9 +13,11 @@ import { useDB } from "@/api/db/db.ts";
 import {toRecordId, truthy} from "@/lib/utils.ts";
 import {CsvUploadModal} from "@/components/common/table/csv.uploader.tsx";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminTables = () => {
-  const loadHook = useApi<SettingsData<Table>>(Tables.tables, [], [], 0, 10, ['floor', 'categories', 'payment_types', 'order_types']);
+  const loadHook = useApi<SettingsData<Table>>(Tables.tables, ['deleted_at = none'], [], 0, 10, ['floor', 'categories', 'payment_types', 'order_types']);
   const db = useDB();
 
   const [data, setData] = useState<Table>();
@@ -97,7 +99,7 @@ export const AdminTables = () => {
       enableColumnFilter: false,
       cell: (info) => {
         return (
-          <>
+          <div className="flex gap-3 items-center">
             <Button
               variant="primary"
               onClick={() => {
@@ -105,7 +107,12 @@ export const AdminTables = () => {
                 setFormModal(true);
               }}
             ><FontAwesomeIcon icon={faPencil}/></Button>
-          </>
+            <div className="separator"></div>
+            <DeleteConfirm
+              message={`Delete table ${info.row.original.name}${info.row.original.number}`}
+              onConfirm={() => deleteItem(info.row.original.id)}
+            />
+          </div>
         );
       },
     }),
@@ -117,6 +124,22 @@ export const AdminTables = () => {
     });
 
     loadHook.fetchData();
+  }
+
+  const deleteItem = async (id: string) => {
+    await executeSettingsDelete({
+      db,
+      id,
+      entityLabel: 'Table',
+      usageChecks: [
+        {
+          query: `SELECT count() AS count FROM ${Tables.orders} WHERE table = $idRecord GROUP ALL`
+        }
+      ],
+      onAfter: async () => {
+        loadHook.fetchData();
+      }
+    });
   }
 
   return (
@@ -189,14 +212,14 @@ export const AdminTables = () => {
           }]}
           onCreateRow={async (rowData) => {
             try{
-              const [floor] = await db.query(`SELECT id from ${Tables.floors} where name = $name`, {
+              const [floor] = await db.query(`SELECT id from ${Tables.floors} where name = $name and deleted_at = none`, {
                 name: rowData.floor
               });
               if(floor.length === 0){
                 throw new Error('Floor not found');
               }
 
-              const [categories] = await db.query(`SELECT id from ${Tables.categories} where name IN $names`, {
+              const [categories] = await db.query(`SELECT id from ${Tables.categories} where name IN $names and deleted_at = none`, {
                 names: rowData.categories.split('|')
               });
 
@@ -204,7 +227,7 @@ export const AdminTables = () => {
                 throw new Error('Categories are invalid');
               }
 
-              const [order_types] = await db.query(`SELECT id from ${Tables.order_types} where name IN $names`, {
+              const [order_types] = await db.query(`SELECT id from ${Tables.order_types} where name IN $names and deleted_at = none`, {
                 names: rowData.order_types.split('|')
               });
 
@@ -212,7 +235,7 @@ export const AdminTables = () => {
                 throw new Error('Order types are invalid');
               }
 
-              const [payment_types] = await db.query(`SELECT id from ${Tables.payment_types} where name IN $names`, {
+              const [payment_types] = await db.query(`SELECT id from ${Tables.payment_types} where name IN $names and deleted_at = none`, {
                 names: rowData.payment_types.split('|')
               });
 

@@ -3,6 +3,7 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
+import {Tracking} from "@/api/model/tracking.ts";
 import {withCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {ResponsiveLine} from "@nivo/line";
@@ -27,6 +28,7 @@ import {Tab, TabPanel} from "@/components/common/react-aria/tabs.tsx";
 import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
 import {DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
 import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
+import {detectBrowser, detectOS, displayValue} from "@/screens/reports/activity.report.tsx";
 
 
 // ==================== Types ====================
@@ -711,6 +713,66 @@ const PeriodComparisonSection = ({periodSales}: {periodSales: PeriodSalesItem[]}
   );
 };
 
+const ActivitySection = () => {
+  const [trackingRows, setTrackingRows] = useState<Tracking[]>([]);
+  const [trackingLoading, setTrackingLoading] = useState(true);
+  const db = useDB();
+
+  useEffect(() => {
+    const loadLatestActivity = async () => {
+      try {
+        setTrackingLoading(true);
+        const [result] = await db.query(`
+          SELECT * FROM ${Tables.tracking}
+          ORDER BY created_at DESC
+          LIMIT 100
+        `);
+        setTrackingRows((result || []) as Tracking[]);
+      } catch (error) {
+        console.error("Failed to load latest tracking activity:", error);
+        setTrackingRows([]);
+      } finally {
+        setTrackingLoading(false);
+      }
+    };
+
+    void loadLatestActivity();
+  }, []);
+
+  return (
+    <div className="bg-white p-5 shadow-xl xl:col-span-1 rounded-lg border border-neutral-200">
+      <h3 className="text-lg font-semibold text-neutral-700">Latest Activity</h3>
+      <p className="text-xs text-neutral-500 mb-3">Top 100 records from tracking</p>
+      <div className="max-h-[420px] overflow-y-auto rounded-md border border-neutral-200 bg-white">
+        {trackingLoading ? (
+          <div className="p-4 text-sm text-neutral-500">Loading latest activity...</div>
+        ) : trackingRows.length === 0 ? (
+          <div className="p-4 text-sm text-neutral-500">No activity found</div>
+        ) : (
+          
+          <table className="table table-xs">
+            {trackingRows.map((row) => (
+              <tr key={String(row.id)}>
+                <td className="text-sm text-neutral-900">{toLuxonDateTime(row.created_at as any).toFormat("yyyy-LL-dd HH:mm:ss")}</td>
+                <td className="text-sm text-neutral-700">{String(row.user || "-")}</td>
+                <td className="text-sm text-neutral-700">{String(row.user_role || "-")}</td>
+                <td className="text-sm text-neutral-700">{row.module || "-"}</td>
+                <td className="text-sm text-neutral-700">{row.auth_method || "-"}</td>
+                <td className="text-sm text-neutral-700">{displayValue(row.manager)}</td>
+                <td className="text-sm text-neutral-700">{displayValue(row.manager_role)}</td>
+                <td className="text-sm text-neutral-700">
+                  <div>{detectBrowser(row.user_agent)} / {detectOS(row.user_agent)}</div>
+                  <div className="sm text-neutral-500">{row.resolution || "-"}</div>
+                </td>
+              </tr>
+            ))}
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
+
 const DeliverySection = ({orders}: {orders: Order[]}) => {
   const db = useDB();
   const [selectedTab, setSelectedTab] = useState<'map' | 'table'>('map');
@@ -875,7 +937,7 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
   };
 
   return (
-    <div className="bg-white p-5 rounded-lg shadow-xl border">
+    <div className="bg-white p-5 rounded-lg shadow-xl border col-span-2">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className="p-3 rounded-full bg-primary-100">
@@ -1758,7 +1820,10 @@ export const SalesDashboardReport = () => {
           </div>
         </div>
 
-        <DeliverySection orders={deliveryOrders} />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <DeliverySection orders={deliveryOrders} />
+          <ActivitySection />
+        </div>
 
         {/* Sales Chart and Delivery Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">

@@ -8,9 +8,13 @@ import { faPencil, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { TableComponent } from "@/components/common/table/table.tsx";
 import { Coupon } from "@/api/model/coupon.ts";
 import { CouponForm } from "@/components/settings/coupons/coupon.form.tsx";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import {useDB} from "@/api/db/db.ts";
+import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminCoupons = () => {
-  const loadHook = useApi<SettingsData<Coupon>>(Tables.coupons);
+  const loadHook = useApi<SettingsData<Coupon>>(Tables.coupons, ['deleted_at = none']);
+  const db = useDB();
 
   const [data, setData] = useState<Coupon>();
   const [formModal, setFormModal] = useState(false);
@@ -70,19 +74,45 @@ export const AdminCoupons = () => {
       enableColumnFilter: false,
       cell: (info) => {
         return (
-          <Button
-            variant="primary"
-            onClick={() => {
-              setData(info.row.original);
-              setFormModal(true);
-            }}
-          >
-            <FontAwesomeIcon icon={faPencil} />
-          </Button>
+          <div className="flex gap-3 items-center">
+            <Button
+              variant="primary"
+              onClick={() => {
+                setData(info.row.original);
+                setFormModal(true);
+              }}
+            >
+              <FontAwesomeIcon icon={faPencil} />
+            </Button>
+            <div className="separator"></div>
+            <DeleteConfirm
+              message={`Delete coupon ${info.row.original.code}`}
+              onConfirm={() => deleteItem(info.row.original.id)}
+            />
+          </div>
         );
       },
     }),
   ];
+
+  const deleteItem = async (id: string) => {
+    await executeSettingsDelete({
+      db,
+      id,
+      entityLabel: 'Coupon',
+      usageChecks: [
+        {
+          query: `SELECT count() AS count FROM ${Tables.order_coupons} WHERE coupon = $idRecord GROUP ALL`
+        },
+        {
+          query: `SELECT count() AS count FROM ${Tables.coupon_redemptions} WHERE coupon = $idRecord GROUP ALL`
+        }
+      ],
+      onAfter: async () => {
+        loadHook.fetchData();
+      }
+    });
+  };
 
   return (
     <>

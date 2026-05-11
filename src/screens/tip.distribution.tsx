@@ -50,9 +50,9 @@ export const TipDistributionScreen = () => {
   const [totalTips, setTotalTips] = useState<number>(0);
   const [rows, setRows] = useState<DistributionRow[]>([]);
 
-  const { data: shiftsData } = useApi<SettingsData<Shift>>(Tables.shifts, [], ["name asc"], 0, 99999);
-  const { data: usersData } = useApi<SettingsData<User>>(Tables.users, [], ["first_name asc"], 0, 99999, ["user_role", "user_shift"]);
-  const { data: settingsData } = useApi<SettingsData<Setting>>(Tables.settings, ["key = 'tip_distribution'", "and is_global = true"], [], 0, 1, ["values"]);
+  const { data: shiftsData } = useApi<SettingsData<Shift>>(Tables.shifts, ["deleted_at = none"], ["name asc"], 0, 99999);
+  const { data: usersData } = useApi<SettingsData<User>>(Tables.users, ["deleted_at = none"], ["first_name asc"], 0, 99999, ["user_role", "user_shift"]);
+  const { data: settingsData } = useApi<SettingsData<Setting>>(Tables.settings, ["key = 'tip_distribution' and is_global = true"], [], 0, 1, ["values"]);
 
   const selectedShift = useMemo(() => (shiftsData?.data || []).find(item => normalizeId(item.id) === selectedShiftId), [shiftsData, selectedShiftId]);
 

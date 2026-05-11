@@ -10,9 +10,13 @@ import { Floor } from "@/api/model/floor.ts";
 import { FloorForm } from "@/components/settings/floors/floor.form.tsx";
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { AdminFloorLayout } from "@/components/settings/floors/layout/layout.tsx";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import {useDB} from "@/api/db/db.ts";
+import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminFloors = () => {
-  const loadHook = useApi<SettingsData<Floor>>(Tables.floors, [], [], 0, 10, ['tables']);
+  const loadHook = useApi<SettingsData<Floor>>(Tables.floors, ['deleted_at = none'], [], 0, 10, ['tables']);
+  const db = useDB();
 
   const [data, setData] = useState<Floor>();
   const [formModal, setFormModal] = useState(false);
@@ -52,11 +56,35 @@ export const AdminFloors = () => {
             >
               Layout
             </Button>
+            <div className="separator"></div>
+            <DeleteConfirm
+              message={`Delete floor ${info.row.original.name}`}
+              onConfirm={() => deleteItem(info.row.original.id)}
+            />
           </div>
         );
       },
     }),
   ];
+
+  const deleteItem = async (id: string) => {
+    await executeSettingsDelete({
+      db,
+      id,
+      entityLabel: 'Floor',
+      usageChecks: [
+        {
+          query: `SELECT count() AS count FROM ${Tables.tables} WHERE floor = $idRecord GROUP ALL`
+        },
+        {
+          query: `SELECT count() AS count FROM ${Tables.orders} WHERE floor = $idRecord GROUP ALL`
+        }
+      ],
+      onAfter: async () => {
+        loadHook.fetchData();
+      }
+    });
+  };
 
   return (
     <>

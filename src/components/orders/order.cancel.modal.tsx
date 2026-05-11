@@ -15,6 +15,7 @@ import {dispatchPrint} from "@/lib/print.service.ts";
 import {Kitchen} from "@/api/model/kitchen.ts";
 import ScrollContainer from "react-indiana-drag-scroll";
 import { nowSurrealDateTime } from "@/lib/datetime.ts";
+import {postOrderTracking} from "@/lib/tracking.service.ts";
 
 interface OrderCancelModalProps {
   order: OrderModel
@@ -169,7 +170,8 @@ export const OrderCancelModal = ({
       // Dispatch deletion prints grouped by kitchen
       try {
         const [kitchens]: any = await db.query(`SELECT *
-                                                FROM ${Tables.kitchens} FETCH printers, items`);
+                                                FROM ${Tables.kitchens}
+                                                WHERE deleted_at = none FETCH printers, items`);
         const kitchenItemsMap: Record<string, { kitchen: Kitchen; items: any[] }> = {};
 
         for (const item of filteredItems) {
@@ -208,6 +210,19 @@ export const OrderCancelModal = ({
       } catch (e) {
         console.error('Failed to dispatch deletion prints', e);
       }
+
+      postOrderTracking({
+        module: allSelected ? "Cancel order" : "Cancel order items",
+        page: page?.page,
+        orderId: order.id,
+        payload: {
+          all_selected: allSelected,
+          items_count: Object.keys(selectedItems).length,
+          reason: selectedReason,
+          comments: comments || undefined,
+        },
+        user: page?.user,
+      });
 
       toast.success(allSelected ? 'Order cancelled successfully' : 'Selected items cancelled');
       onClose();
