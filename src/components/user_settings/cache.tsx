@@ -14,6 +14,9 @@ import {Category} from "@/api/model/category.ts";
 import {ModifierGroup} from "@/api/model/modifier_group.ts";
 import {DishModifierGroup} from "@/api/model/dish_modifier_group.ts";
 import {Floor} from "@/api/model/floor.ts";
+import {Menu} from "@/api/model/menu.ts";
+import {toRecordId} from "@/lib/utils.ts";
+import {RecordId} from "surrealdb";
 
 const toRows = <T, >(result: unknown): T[] => {
   return Array.isArray(result) ? result as T[] : [];
@@ -50,6 +53,7 @@ export const CacheSettings = () => {
         tablesResult,
         kitchensResult,
         paymentTypesResult,
+        menuSettingsResult,
       ] = await Promise.all([
         db.query(`SELECT *
                   FROM ${Tables.order_types}
@@ -85,8 +89,31 @@ export const CacheSettings = () => {
         db.query(`SELECT *
                   FROM ${Tables.payment_types}
                   WHERE deleted_at = none
-                  ORDER BY priority ASC FETCH ${PAYMENT_TYPE_FETCHES.join(', ')}`),
+                  ORDER BY priority ASC FETCH ${PAYMENT_TYPE_FETCHES.join(', ')}`)
+        ,
+        db.query(`SELECT values
+                  FROM ${Tables.settings}
+                  WHERE key = 'menus' AND is_global = true
+                  FETCH values`)
       ]);
+
+      const selectedMenuIds = Array.isArray(menuSettingsResult?.[0]?.[0]?.values)
+        ? (menuSettingsResult[0][0].values as Array<{ id?: string } | string>).map((value) => {
+          if (typeof value === "string") {
+            return toRecordId(value) as RecordId;
+          }
+
+          return toRecordId(value?.id) as RecordId;
+        }).filter(Boolean)
+        : [];
+
+      const menusResult = selectedMenuIds.length > 0
+        ? await db.query(`SELECT * FROM ${Tables.menus}
+                          WHERE id INSIDE $ids
+                          FETCH items, items.menu_item, items.menu_item.categories, items.tax`, {
+          ids: selectedMenuIds
+        })
+        : [[]];
 
       setSettings(prev => ({
         ...prev,
@@ -99,6 +126,7 @@ export const CacheSettings = () => {
         tables: toRows<Table>(tablesResult?.[0]),
         kitchens: toRows<Kitchen>(kitchensResult?.[0]),
         payment_types: toRows<PaymentType>(paymentTypesResult?.[0]),
+        menus: toRows<Menu>(menusResult?.[0]),
       }));
 
       toast.success("Cache reloaded from database");

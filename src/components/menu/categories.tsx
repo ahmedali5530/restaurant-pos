@@ -2,23 +2,42 @@ import { cn } from "@/lib/utils.ts";
 import { useAtom } from "jotai";
 import { appSettings, appState } from "@/store/jotai.ts";
 import ScrollContainer from 'react-indiana-drag-scroll'
-import {CSSProperties, useEffect} from "react";
+import {CSSProperties, useEffect, useMemo} from "react";
+import {resolveMenuAwareData} from "@/lib/menu.resolver.ts";
 
 
 export const MenuCategories = () => {
   const [settings] = useAtom(appSettings);
   const [state, setState] = useAtom(appState);
 
-  const categories = settings.categories;
+  const {categories} = useMemo(() => (
+    resolveMenuAwareData({
+      categories: settings.categories,
+      dishes: settings.dishes,
+      menus: settings.menus
+    })
+  ), [settings.categories, settings.dishes, settings.menus]);
 
   useEffect(() => {
-    if(categories.length > 0 && state.category === undefined){
+    const currentCategoryExists = categories.some(
+      category => category.id?.toString() === state.category?.id?.toString()
+    );
+
+    if (categories.length > 0 && (!state.category || !currentCategoryExists)) {
       setState(prev => ({
         ...prev,
         category: categories[0]
-      }))
+      }));
+      return;
     }
-  }, [settings.categories, state.category]);
+
+    if (categories.length === 0 && state.category) {
+      setState(prev => ({
+        ...prev,
+        category: undefined
+      }));
+    }
+  }, [categories, state.category]);
 
   const categoryClasses = 'flex-auto whitespace-nowrap !h-[56px] pressable rounded-full px-5';
   const categoryStyles = {

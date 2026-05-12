@@ -7,6 +7,7 @@ import {useEffect, useMemo} from "react";
 import {useMediaQuery} from "react-responsive";
 import {MenuDish} from "@/components/menu/dish.tsx";
 import {CartModifierGroup, MenuItem} from "@/api/model/cart_item.ts";
+import {resolveMenuAwareData} from "@/lib/menu.resolver.ts";
 
 export const MenuDishes = () => {
   const isTablet = useMediaQuery({maxWidth: 1024});
@@ -16,11 +17,20 @@ export const MenuDishes = () => {
   }, [isTablet]);
 
   const [state, setState] = useAtom(appState);
-  const [{dishes: allDishes}] = useAtom(appSettings);
+  const [settings] = useAtom(appSettings);
+  const {dishes: allDishes} = useMemo(() => (
+    resolveMenuAwareData({
+      categories: settings.categories,
+      dishes: settings.dishes,
+      menus: settings.menus
+    })
+  ), [settings.categories, settings.dishes, settings.menus]);
 
   const dishes = useMemo(() => {
     if (state.category) {
-      return allDishes?.filter(item => item.categories.filter(cat => cat.id.toString() === state?.category?.id.toString()).length > 0);
+      return allDishes?.filter(item =>
+        item.categories.filter(cat => cat.id.toString() === state?.category?.id.toString()).length > 0
+      );
     }
 
     return allDishes || [];

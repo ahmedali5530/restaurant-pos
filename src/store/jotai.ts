@@ -15,6 +15,7 @@ import {Kitchen} from "@/api/model/kitchen.ts";
 import {createStore, del, get, set} from 'idb-keyval'
 import {PaymentType} from "@/api/model/payment_type.ts";
 import {DishModifierGroup} from "@/api/model/dish_modifier_group.ts";
+import {Menu} from "@/api/model/menu.ts";
 
 
 export interface AppStateInterface {
@@ -118,6 +119,7 @@ export interface AppSettingsInterface {
   tables: Table[]
   kitchens: Kitchen[]
   payment_types: PaymentType[]
+  menus: Menu[]
 }
 
 const defaultAppSettings: AppSettingsInterface = {
@@ -129,7 +131,8 @@ const defaultAppSettings: AppSettingsInterface = {
   tables: [],
   kitchens: [],
   dishes: [],
-  payment_types: []
+  payment_types: [],
+  menus: []
 }
 
 const normalizeAppSettings = (settings?: Partial<AppSettingsInterface>): AppSettingsInterface => ({
