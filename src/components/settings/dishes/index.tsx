@@ -24,7 +24,7 @@ export const AdminDishes = () => {
     Tables.dishes, [`deleted_at = none`], [], 0, 10, ['categories', 'items', 'items.item'], {}, [
       '*',
       '(SELECT out.name from menu_item_modifier_group where in = $parent.id) as modifiers',
-      '(SELECT name from modifier_group where array::any(modifiers.modifier.id ?? [], $parent.id)) as modifier_items'
+      '(SELECT name, modifiers[where modifier.id = $parent.id][0].price from modifier_group where array::any(modifiers.modifier.id ?? [], $parent.id)) as modifier_items'
     ]
   );
 
@@ -39,8 +39,8 @@ export const AdminDishes = () => {
   });
 
   const columnHelper = createColumnHelper<Dish & {
-    modifiers: [{ out: { name: string } }],
-    modifier_items: [{ name: string }]
+    modifiers: [{ out: { name: string} }],
+    modifier_items: [{ name: string, modifiers: {price: number} }]
   }>();
 
   const columns: any = [
@@ -113,7 +113,7 @@ export const AdminDishes = () => {
       cell: info => (
         <div className="flex gap-2 flex-wrap">
           {info.row.original.modifier_items.map((item, index) => (
-            <span className="tag" key={index}>{item.name}</span>
+            <span className="tag" key={index}>{item.name} — {item.modifiers.price}</span>
           ))}
         </div>
       ),

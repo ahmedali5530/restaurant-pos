@@ -29,7 +29,7 @@ export const AdminModifierGroups = () => {
       header: 'Modifiers',
       cell: info => <div className="flex gap-2 flex-wrap">
         {info.getValue()?.map((item, index) => (
-          <span className="tag" key={`${item.id}-${index}`}>{item.modifier.name}</span>
+          <span className="tag" key={`${item.id}-${index}`}>{item.modifier.name} — {item.price}</span>
         ))}
       </div>,
       enableSorting: false
