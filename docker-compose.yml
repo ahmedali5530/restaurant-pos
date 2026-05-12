@@ -90,7 +90,7 @@ services:
       - SYNC_SOURCE_DB=${SYNC_SOURCE_DB:-posr}
       - SYNC_SOURCE_USER=${SYNC_SOURCE_USER:-root}
       - SYNC_SOURCE_PASS=${SYNC_SOURCE_PASS:-root}
-      - SYNC_MASTER_URL=${SYNC_MASTER_URL:-wss://posr.ahmedali5530.xyz:8443/rpc}
+      - SYNC_MASTER_URL=${SYNC_MASTER_URL:-}
       - SYNC_MASTER_NS=${SYNC_MASTER_NS:-posr}
       - SYNC_MASTER_DB=${SYNC_MASTER_DB:-posr}
       - SYNC_MASTER_USER=${SYNC_MASTER_USER:-root}
