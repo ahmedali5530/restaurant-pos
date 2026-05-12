@@ -179,7 +179,9 @@ export const FloorLayout = () => {
     }
 
     if (!item.is_block && !item.is_locked) {
-      const order = tableOrder(item.id);
+      let ordersData = orders?.data ?? [];
+      let ordersForTable = ordersData.filter(orderItem => orderItem?.table?.id?.toString() === item.id.toString());
+      let order = ordersForTable[0];
       let cart = state.cart;
 
       if (state.switchTable) {
@@ -189,6 +191,30 @@ export const FloorLayout = () => {
           await db.merge(toRecordId(state.order.id), {
             table: toRecordId(item.id),
           });
+
+          // await fetchOrders();
+          const [freshTableOrders] = await db.query<Order[]>(
+            `SELECT *
+             FROM ${Tables.orders}
+             WHERE status = $status AND table = $table
+             ORDER BY created_at ASC
+             FETCH customer, items, items.item, order_type, table, user`,
+            {
+              status: OrderStatus["In Progress"],
+              table: toRecordId(item.id),
+            }
+          );
+
+          ordersForTable = Array.isArray(freshTableOrders) ? freshTableOrders : [];
+          order = ordersForTable.find(orderItem => orderItem?.id?.toString() === state.order.id?.toString()) ?? ordersForTable[0];
+
+          if (!order && state.order.order) {
+            order = {
+              ...state.order.order,
+              table: item
+            };
+            ordersForTable = [order];
+          }
 
           postOrderTracking({
             module: "Move order table",
@@ -223,9 +249,9 @@ export const FloorLayout = () => {
         ...prev,
         table: item,
         showFloor: false,
-        showPersons: tableOrder(item.id) ? false : item.ask_for_covers,
-        persons: tableOrder(item.id) ? tableOrder(item.id)?.covers?.toString() : '1',
-        orders: tableOrders(item.id),
+        showPersons: order ? false : item.ask_for_covers,
+        persons: order ? order?.covers?.toString() : '1',
+        orders: ordersForTable,
         cart: cart,
         seats: seatsArray,
         seat: noSeat ? undefined : (seatsArray.length > 0 ? seatsArray[0] : undefined),
