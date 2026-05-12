@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useRef, useState} from "react";
+import {Fragment, useEffect, useMemo, useRef, useState} from "react";
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -22,6 +22,7 @@ interface ReportFilters {
   orderTypeIds: string[];
   categoryIds: string[];
   dishIds: string[];
+  modifierIds: string[];
 }
 
 const parseFilters = (): ReportFilters => {
@@ -35,14 +36,17 @@ const parseFilters = (): ReportFilters => {
   };
 
   return {
-    startDate: params.get('start') || params.get('start') || undefined,
-    endDate: params.get('end') || params.get('end') || undefined,
+    startDate: params.get('start') || undefined,
+    endDate: params.get('end') || undefined,
     orderTakerIds: parseMulti('order_takers'),
     orderTypeIds: parseMulti('order_types'),
     categoryIds: parseMulti('categories'),
     dishIds: parseMulti('dishes'),
+    modifierIds: parseMulti('modifiers'),
   };
 };
+
+const toPriceKey = (value: number) => safeNumber(value).toFixed(4);
 
 const recordToString = (value: any): string => {
   if (!value) {
@@ -58,8 +62,10 @@ const recordToString = (value: any): string => {
 };
 
 interface DishMetrics {
+  rowKey: string;
   dishId: string;
   dishName: string;
+  baseUnitPrice: number;
   quantity: number;
   unitPrice: number;
   discount: number;
@@ -73,6 +79,7 @@ interface DishMetrics {
 }
 
 interface ModifierMetrics {
+  modifierKey: string;
   modifierId: string;
   modifierName: string;
   quantity: number;
@@ -83,6 +90,15 @@ interface ModifierMetrics {
   total: number;
   ratio: number; // ratio of modifier to dish
   mealPrice: number; // meal price (dish price + modifier price)
+}
+
+interface ModifierSummaryMetrics {
+  rowKey: string;
+  modifierId: string;
+  modifierName: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
 }
 
 export const ProductSummaryReport = () => {
@@ -226,7 +242,7 @@ export const ProductSummaryReport = () => {
     }) || [];
   };
 
-  // Calculate metrics grouped by dish
+  // Calculate metrics grouped by dish and sold base unit price
   const dishMetrics = useMemo(() => {
     const dishMap = new Map<string, DishMetrics>();
 
@@ -238,9 +254,11 @@ export const ProductSummaryReport = () => {
 
         const dishId = recordToString(item.item.id);
         const dishName = item.item.name || 'Unknown';
+        const baseUnitPrice = safeNumber(item.price || 0);
+        const rowKey = `${dishId}|${toPriceKey(baseUnitPrice)}`;
         const quantity = safeNumber(item.quantity);
         // Base dish price without modifiers
-        const baseDishPrice = safeNumber(item.price || 0) * quantity;
+        const baseDishPrice = baseUnitPrice * quantity;
         // Total item price including modifiers
         const itemPrice = safeNumber(calculateOrderItemPrice(item));
         const unitPrice = quantity > 0 && !isNaN(itemPrice) ? itemPrice / quantity : 0;
@@ -273,8 +291,10 @@ export const ProductSummaryReport = () => {
 
                   modifierTotal += modPrice;
 
+                  const modifierId = recordToString(selectedModifier.dish.id);
                   modifierMetricsList.push({
-                    modifierId: recordToString(selectedModifier.dish.id),
+                    modifierKey: `${modifierId}|${toPriceKey(modUnitPrice)}`,
+                    modifierId,
                     modifierName: selectedModifier.dish.name || 'Unknown',
                     quantity: modQuantity,
                     unitPrice: modUnitPrice,
@@ -293,9 +313,11 @@ export const ProductSummaryReport = () => {
 
         const totalCollected = total + modifierTotal;
 
-        const existing = dishMap.get(dishId) || {
+        const existing = dishMap.get(rowKey) || {
+          rowKey,
           dishId,
           dishName,
+          baseUnitPrice,
           quantity: 0,
           unitPrice: 0,
           discount: 0,
@@ -321,7 +343,7 @@ export const ProductSummaryReport = () => {
         
         // Aggregate modifier metrics
         modifierMetricsList.forEach(modMetric => {
-          const existingMod = existing.modifiers.find(m => m.modifierId === modMetric.modifierId);
+          const existingMod = existing.modifiers.find(m => m.modifierKey === modMetric.modifierKey);
           if (existingMod) {
             existingMod.quantity += modMetric.quantity;
             existingMod.total += modMetric.total;
@@ -330,7 +352,7 @@ export const ProductSummaryReport = () => {
           }
         });
 
-        dishMap.set(dishId, existing);
+        dishMap.set(rowKey, existing);
       });
     });
 
@@ -355,7 +377,7 @@ export const ProductSummaryReport = () => {
       // Recalculate modifier ratios and meal prices based on aggregated values
       metrics.modifiers.forEach(mod => {
         mod.quantity = safeNumber(mod.quantity);
-        mod.unitPrice = safeNumber(mod.unitPrice);
+        mod.unitPrice = mod.quantity > 0 ? safeNumber(mod.total / mod.quantity) : 0;
         mod.discount = safeNumber(mod.discount);
         mod.tax = safeNumber(mod.tax);
         mod.serviceCharges = safeNumber(mod.serviceCharges);
@@ -365,20 +387,97 @@ export const ProductSummaryReport = () => {
       });
     });
 
-    return Array.from(dishMap.values()).sort((a, b) => a.dishName.localeCompare(b.dishName));
+    return Array.from(dishMap.values()).sort((a, b) => {
+      const nameCompare = a.dishName.localeCompare(b.dishName);
+      if (nameCompare !== 0) {
+        return nameCompare;
+      }
+      return a.baseUnitPrice - b.baseUnitPrice;
+    });
   }, [filteredOrders, filters.categoryIds, filters.dishIds]);
 
-  const toggleExpand = (dishId: string) => {
+  const toggleExpand = (dishRowKey: string) => {
     setExpandedDishes(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(dishId)) {
-        newSet.delete(dishId);
+      if (newSet.has(dishRowKey)) {
+        newSet.delete(dishRowKey);
       } else {
-        newSet.add(dishId);
+        newSet.add(dishRowKey);
       }
       return newSet;
     });
   };
+
+  const modifiersSummaryMetrics = useMemo(() => {
+    const summaryMap = new Map<string, ModifierSummaryMetrics>();
+    const selectedModifierIds = new Set(filters.modifierIds);
+
+    filteredOrders.forEach(order => {
+      const filteredItems = getFilteredItems(order);
+
+      filteredItems.forEach((item: OrderItem) => {
+        if (!item.item) return;
+
+        if (!item.modifiers || !Array.isArray(item.modifiers)) {
+          return;
+        }
+
+        item.modifiers.forEach((modifierGroup: OrderItemModifier) => {
+          if (!modifierGroup.selectedModifiers || !Array.isArray(modifierGroup.selectedModifiers)) {
+            return;
+          }
+
+          modifierGroup.selectedModifiers.forEach((selectedModifier: OrderItemModifierItem) => {
+            if (!selectedModifier.dish) {
+              return;
+            }
+
+            const modifierId = recordToString(selectedModifier.dish.id);
+            if (selectedModifierIds.size > 0 && !selectedModifierIds.has(modifierId)) {
+              return;
+            }
+
+            const modQuantity = safeNumber(selectedModifier.quantity || 1);
+            const modTotal = safeNumber(selectedModifier.price || 0);
+            const modUnitPrice = modQuantity > 0 ? safeNumber(modTotal / modQuantity) : 0;
+            const rowKey = `${modifierId}|${toPriceKey(modUnitPrice)}`;
+
+            const existing = summaryMap.get(rowKey) || {
+              rowKey,
+              modifierId,
+              modifierName: selectedModifier.dish.name || 'Unknown',
+              quantity: 0,
+              unitPrice: modUnitPrice,
+              total: 0,
+            };
+
+            existing.quantity += modQuantity;
+            existing.total += modTotal;
+            existing.unitPrice = existing.quantity > 0 ? safeNumber(existing.total / existing.quantity) : 0;
+            summaryMap.set(rowKey, existing);
+          });
+        });
+      });
+    });
+
+    return Array.from(summaryMap.values()).sort((a, b) => {
+      const modifierNameCompare = a.modifierName.localeCompare(b.modifierName);
+      if (modifierNameCompare !== 0) {
+        return modifierNameCompare;
+      }
+      return a.unitPrice - b.unitPrice;
+    });
+  }, [filteredOrders, filters.categoryIds, filters.dishIds, filters.modifierIds]);
+
+  const modifierSummaryTotals = useMemo(() => {
+    return modifiersSummaryMetrics.reduce((totals, item) => ({
+      quantity: totals.quantity + item.quantity,
+      total: totals.total + item.total,
+    }), {
+      quantity: 0,
+      total: 0,
+    });
+  }, [modifiersSummaryMetrics]);
 
   // Calculate grand totals
   const grandTotals = useMemo(() => {
@@ -428,6 +527,7 @@ export const ProductSummaryReport = () => {
             <tr>
               <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700"></th>
               <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Dish</th>
+              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Dish Unit Price</th>
               <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Quantity</th>
               <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Unit Price</th>
               <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Discount</th>
@@ -439,19 +539,20 @@ export const ProductSummaryReport = () => {
           </thead>
           <tbody className="divide-y divide-neutral-100 bg-white">
             {dishMetrics.map((dish) => (
-              <>
-                <tr key={dish.dishId} className="hover:bg-neutral-50">
+              <Fragment key={dish.rowKey}>
+                <tr className="hover:bg-neutral-50">
                   <td className="py-3 pl-6 pr-3 text-center">
                     {dish.hasModifiers && (
                       <button
-                        onClick={() => toggleExpand(dish.dishId)}
+                        onClick={() => toggleExpand(dish.rowKey)}
                         className="text-neutral-600 hover:text-neutral-900"
                       >
-                        <FontAwesomeIcon icon={expandedDishes.has(dish.dishId) ? faMinus : faPlus} />
+                        <FontAwesomeIcon icon={expandedDishes.has(dish.rowKey) ? faMinus : faPlus} />
                       </button>
                     )}
                   </td>
                   <td className="py-3 px-3 text-sm font-medium text-neutral-900">{dish.dishName}</td>
+                  <td className="py-3 px-3 text-sm text-right text-neutral-700">{withCurrency(dish.baseUnitPrice)}</td>
                   <td className="py-3 px-3 text-sm text-right text-neutral-700">{formatNumber(dish.quantity)}</td>
                   <td className="py-3 px-3 text-sm text-right text-neutral-700">{isNaN(dish.unitPrice) ? withCurrency(0) : withCurrency(dish.unitPrice)}</td>
                   <td className="py-3 px-3 text-sm text-right text-neutral-700">{isNaN(dish.discount) ? withCurrency(0) : withCurrency(dish.discount)}</td>
@@ -460,10 +561,10 @@ export const ProductSummaryReport = () => {
                   <td className="py-3 px-3 text-sm text-right text-neutral-700">{isNaN(dish.total) ? withCurrency(0) : withCurrency(dish.total)}</td>
                   <td className="py-3 pr-6 text-sm text-right font-semibold text-neutral-900">{isNaN(dish.totalCollected) ? withCurrency(0) : withCurrency(dish.totalCollected)}</td>
                 </tr>
-                {expandedDishes.has(dish.dishId) && dish.modifiers.length > 0 && (
+                {expandedDishes.has(dish.rowKey) && dish.modifiers.length > 0 && (
                   <tr>
                     <td></td>
-                    <td colSpan={8} className="py-0 px-0">
+                    <td colSpan={9} className="py-0 px-0">
                       <div className="px-6 py-3 bg-neutral-50">
                         <div className="text-xs font-semibold text-neutral-700 mb-2">Modifiers:</div>
                         <table className="w-full border border-neutral-200 rounded">
@@ -482,7 +583,7 @@ export const ProductSummaryReport = () => {
                           </thead>
                           <tbody className="bg-white divide-y divide-neutral-200">
                             {dish.modifiers.map((modifier) => (
-                              <tr key={`${dish.dishId}-${modifier.modifierId}`} className="hover:bg-neutral-50">
+                              <tr key={`${dish.rowKey}-${modifier.modifierKey}`} className="hover:bg-neutral-50">
                                 <td className="py-2 px-3 text-sm text-neutral-600">{modifier.modifierName}</td>
                                 <td className="py-2 px-3 text-sm text-right text-neutral-600">{formatNumber(modifier.quantity)}</td>
                                 <td className="py-2 px-3 text-sm text-right text-neutral-600">{isNaN(modifier.unitPrice) ? withCurrency(0) : withCurrency(modifier.unitPrice)}</td>
@@ -500,11 +601,11 @@ export const ProductSummaryReport = () => {
                     </td>
                   </tr>
                 )}
-              </>
+              </Fragment>
             ))}
             {dishMetrics.length === 0 && (
               <tr>
-                <td colSpan={9} className="py-6 text-center text-sm text-neutral-500">
+                <td colSpan={10} className="py-6 text-center text-sm text-neutral-500">
                   No data available for the selected filters
                 </td>
               </tr>
@@ -514,6 +615,7 @@ export const ProductSummaryReport = () => {
             <tr>
               <td className="py-3 pl-6 pr-3"></td>
               <td className="py-3 px-3 text-sm text-neutral-900">Totals</td>
+              <td className="py-3 px-3 text-sm text-right text-neutral-900">-</td>
               <td className="py-3 px-3 text-sm text-right text-neutral-900">{formatNumber(grandTotals.quantity)}</td>
               <td className="py-3 px-3 text-sm text-right text-neutral-900">
                 {grandTotals.quantity > 0 ? withCurrency(grandTotals.total / grandTotals.quantity) : withCurrency(0)}
@@ -523,6 +625,45 @@ export const ProductSummaryReport = () => {
               <td className="py-3 px-3 text-sm text-right text-neutral-900">{withCurrency(grandTotals.serviceCharges)}</td>
               <td className="py-3 px-3 text-sm text-right text-neutral-900">{withCurrency(grandTotals.total)}</td>
               <td className="py-3 pr-6 text-sm text-right text-neutral-900">{withCurrency(grandTotals.totalCollected)}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div className="mt-8 overflow-x-auto">
+        <h3 className="mb-3 text-sm font-semibold text-neutral-800">Modifiers</h3>
+        <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">
+          <thead className="bg-neutral-50">
+            <tr>
+              <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Modifier</th>
+              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Quantity</th>
+              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Price</th>
+              <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">Total</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-neutral-100 bg-white">
+            {modifiersSummaryMetrics.map((modifier) => (
+              <tr key={modifier.rowKey} className="hover:bg-neutral-50">
+                <td className="py-3 pl-6 pr-3 text-sm text-neutral-700">{modifier.modifierName}</td>
+                <td className="py-3 px-3 text-sm text-right text-neutral-700">{formatNumber(modifier.quantity)}</td>
+                <td className="py-3 px-3 text-sm text-right text-neutral-700">{withCurrency(modifier.unitPrice)}</td>
+                <td className="py-3 pr-6 text-sm text-right font-semibold text-neutral-900">{withCurrency(modifier.total)}</td>
+              </tr>
+            ))}
+            {modifiersSummaryMetrics.length === 0 && (
+              <tr>
+                <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">
+                  No modifiers available for the selected filters
+                </td>
+              </tr>
+            )}
+          </tbody>
+          <tfoot className="bg-neutral-50 font-semibold">
+            <tr>
+              <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">Totals</td>
+              <td className="py-3 px-3 text-sm text-right text-neutral-900">{formatNumber(modifierSummaryTotals.quantity)}</td>
+              <td className="py-3 px-3 text-sm text-right text-neutral-900">-</td>
+              <td className="py-3 pr-6 text-sm text-right text-neutral-900">{withCurrency(modifierSummaryTotals.total)}</td>
             </tr>
           </tfoot>
         </table>

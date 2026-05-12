@@ -8,6 +8,7 @@ import {User} from "@/api/model/user.ts";
 import {OrderType} from "@/api/model/order_type.ts";
 import {Category} from "@/api/model/category.ts";
 import {Dish} from "@/api/model/dish.ts";
+import {Modifier} from "@/api/model/modifier.ts";
 
 const toOption = <T extends { id?: any }>(
   item: T | undefined,
@@ -34,6 +35,22 @@ export const ProductSummaryFilter = () => {
   const {data: orderTypesData, isLoading: loadingOrderTypes} = useApi<SettingsData<OrderType>>(Tables.order_types, [], ['name asc'], 0, 9999);
   const {data: categoriesData, isLoading: loadingCategories} = useApi<SettingsData<Category>>(Tables.categories, [], ['name asc'], 0, 9999);
   const {data: dishesData, isLoading: loadingDishes} = useApi<SettingsData<Dish>>(Tables.dishes, [], ['name asc'], 0, 9999, ['categories']);
+  const {data: modifiersData, isLoading: loadingModifiers} = useApi<SettingsData<Modifier>>(Tables.modifiers, [], ['id asc'], 0, 99999, ['modifier']);
+
+  const modifierOptions = Array.from(
+    (modifiersData?.data || []).reduce((map, modifier) => {
+      const dish = modifier.modifier;
+      if (!dish?.id) {
+        return map;
+      }
+      const dishId = typeof dish.id === "string" ? dish.id : dish.id.toString?.() ?? String(dish.id);
+      if (!map.has(dishId)) {
+        map.set(dishId, toOption(dish, dish.name || "Unknown"));
+      }
+      return map;
+    }, new Map<string, {label: string; value: string} | null>())
+      .values()
+  ).filter(notNull);
 
   return (
     <form
@@ -99,6 +116,18 @@ export const ProductSummaryFilter = () => {
             options={(dishesData?.data || [])
               .map(dish => toOption(dish, dish.name))
               .filter(notNull)}
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label htmlFor="product-summary-modifiers">Modifiers</label>
+          <ReactSelect
+            id="product-summary-modifiers"
+            name="modifiers[]"
+            isMulti
+            isLoading={loadingModifiers}
+            className="w-full"
+            options={modifierOptions}
           />
         </div>
       </div>
