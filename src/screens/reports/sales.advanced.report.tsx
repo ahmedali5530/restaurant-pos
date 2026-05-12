@@ -6,7 +6,7 @@ import {Order, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
 import {OrderVoid} from "@/api/model/order_void.ts";
 import {formatNumber, safeNumber, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
-import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
+import {getOrderFilteredItems, getOrderPaymentTotals, type OrderPaymentTotals} from "@/lib/order.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {OrderItemName} from "@/components/common/order/order.item.tsx";
 
@@ -330,7 +330,7 @@ export const SalesAdvancedReport = () => {
   }, [orders, filters]);
 
   const baseColumns = 10;
-  const detailsColumns = filters.showDetails ? 12 : 1;
+  const detailsColumns = filters.showDetails ? 14 : 1;
   const tableColSpan = baseColumns + detailsColumns + (filters.showMenuItems ? 1 : 0);
   const ordersWithItems = useMemo(
     () => filteredOrders.filter(order => Boolean(filters.showMenuItems && order.items && order.items.length > 0)),
@@ -368,8 +368,7 @@ export const SalesAdvancedReport = () => {
     });
   };
 
-  const getOrderPaymentBreakdown = (order: Order): string => {
-    const paymentTotals = getOrderPaymentTotals(order);
+  const getOrderPaymentBreakdown = (paymentTotals: OrderPaymentTotals): string => {
     const paymentMap = new Map<string, number>(Object.entries(paymentTotals.nonCashBreakdown));
     paymentMap.set('Cash', (paymentMap.get('Cash') ?? 0) + paymentTotals.cashAmount);
 
@@ -401,9 +400,13 @@ export const SalesAdvancedReport = () => {
     const totalDiscounts = safeNumber(lineDiscounts + subtotalDiscount);
     const taxes = safeNumber(order.tax_amount);
     const tips = safeNumber(order?.tip_amount);
+    const extras = safeNumber(order?.extras?.reduce((sum, item) => sum + item.value, 0));
     const serviceCharges = safeNumber(order.service_charge_amount);
-    const amountDue = safeNumber(salePriceWithoutTax + taxes + serviceCharges - totalDiscounts - couponDiscount + tips);
-    const amountCollected = getOrderPaymentTotals(order).amountCollected;
+    const amountDue = safeNumber(salePriceWithoutTax + taxes + serviceCharges - totalDiscounts - couponDiscount + tips + extras);
+    const paymentTotals = getOrderPaymentTotals(order);
+    const amountCollected = paymentTotals.amountCollected;
+    const changeDue = paymentTotals.change;
+    const paymentBreakdown = getOrderPaymentBreakdown(paymentTotals);
     const net = safeNumber(amountCollected - serviceCharges - taxes);
     const rounding = safeNumber(amountCollected - amountDue);
 
@@ -420,6 +423,9 @@ export const SalesAdvancedReport = () => {
       net,
       rounding,
       amountCollected,
+      amountCollectedForDetail: paymentTotals.totalReceivedWithChange,
+      changeDue,
+      paymentBreakdown,
     };
   };
 
@@ -584,8 +590,10 @@ export const SalesAdvancedReport = () => {
                     <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Coupons</th>
                     <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Amount Due</th>
                     <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Amount Collected</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Change Due</th>
                     <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Payment Breakdown</th>
                     <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Net</th>
+                    <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Notes</th>
                   </>
                 )}
                 {!filters.showDetails && (
@@ -613,7 +621,7 @@ export const SalesAdvancedReport = () => {
                 const floorName = order.floor?.name || 'Unknown';
                 const orderTypeName = order.order_type?.name || 'Unknown';
                 const hasItems = filters.showMenuItems && order.items && order.items.length > 0;
-                const paymentBreakdown = getOrderPaymentBreakdown(order);
+                const notesText = (order.notes ?? '').trim();
 
                 return (
                   <Fragment key={orderId}>
@@ -676,11 +684,16 @@ export const SalesAdvancedReport = () => {
                           <td
                             className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(orderTotals.amountDue)}</td>
                           <td
-                            className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(orderTotals.amountCollected)}</td>
+                            className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(orderTotals.amountCollectedForDetail)}</td>
                           <td
-                            className="py-3 px-3 text-sm text-neutral-700 whitespace-nowrap">{paymentBreakdown}</td>
+                            className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(orderTotals.changeDue)}</td>
+                          <td
+                            className="py-3 px-3 text-sm text-neutral-700 whitespace-nowrap">{orderTotals.paymentBreakdown}</td>
                           <td
                             className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">{withCurrency(orderTotals.net)}</td>
+                          <td className="py-3 px-3 text-sm text-neutral-700 max-w-xs whitespace-pre-wrap break-words">
+                            {notesText || '—'}
+                          </td>
                         </>
                       )}
                       {!filters.showDetails && (
