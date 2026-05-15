@@ -86,8 +86,11 @@ export const CartActions = () => {
     setState(prev => ({
       ...prev,
       cart: prev.cart.map(cartItem => {
-        cartItem.isSelected = !selected;
-        return cartItem;
+        if(cartItem.newOrOld === MenuItemType.new) {
+          cartItem.isSelected = !selected;
+        }
+
+        return cartItem
       })
     }))
 

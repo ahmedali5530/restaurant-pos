@@ -476,7 +476,7 @@ export const OrderPayment = ({
         amount: payment.amount,
         payment_type: payment.payment_type.id,
         comments: '',
-        payable: total
+        payable: payment.payable ?? total,
       });
 
       orderPayments.push(orderPayment.id);
@@ -521,13 +521,15 @@ export const OrderPayment = ({
       await db.delete(order.coupon.id);
     }
 
-    await db.merge(order.id, {
+    const resolvedDiscountAmount = discountAmount ?? order.discount_amount ?? 0;
+    const resolvedDiscountId = discount?.id ?? order.discount?.id;
+
+    const progressMerge: Record<string, unknown> = {
       payments: orderPayments,
       extras: extraOptions,
       tax: tax ? toRecordId(tax?.id) : null,
       tax_amount: taxAmount,
-      discount: discount?.id,
-      discount_amount: discountAmount,
+      discount_amount: resolvedDiscountAmount,
       discount_rate: discountRate,
       tip: tip,
       tip_amount: tipAmount,
@@ -537,7 +539,13 @@ export const OrderPayment = ({
       service_charge_type: serviceChargeType,
       notes: notes,
       coupon: orderCouponId,
-    });
+    };
+
+    if (resolvedDiscountId) {
+      progressMerge.discount = toRecordId(resolvedDiscountId);
+    }
+
+    await db.merge(order.id, progressMerge);
 
     postOrderTracking({
       module: "Update order payment details",

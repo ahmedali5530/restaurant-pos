@@ -6,10 +6,10 @@ import {appSettings, appState} from "@/store/jotai.ts";
 import {MenuDishModifiers} from "@/components/menu/modifiers.tsx";
 import {CartModifierGroup, MenuItem, MenuItemType} from "@/api/model/cart_item.ts";
 import {nanoid} from "nanoid";
-import {DishModifierGroup} from "@/api/model/dish_modifier_group.ts";
 import {detectMimeType} from "@/utils/files.ts";
 import defaultImage from '@/assets/images/default-image.png';
 import {useDB} from "@/api/db/db.ts";
+import {resolveAllowedNextGroupIds} from "@/lib/modifier-groups.ts";
 
 const dishImageCache = new Map<string, string>();
 
@@ -19,9 +19,10 @@ interface Props {
   level: number
   isModifier?: boolean
   price: number
+  allowedNextGroupIds?: string[]
 }
 
-export const MenuDish = ({onClick, item, level, isModifier, price}: Props) => {
+export const MenuDish = ({onClick, item, level, isModifier, price, allowedNextGroupIds}: Props) => {
   const [state] = useAtom(appState);
   const [{groups_dishes}] = useAtom(appSettings);
   const db = useDB();
@@ -29,14 +30,15 @@ export const MenuDish = ({onClick, item, level, isModifier, price}: Props) => {
   const [modifiersModal, setModifiersModal] = useState(false);
   const [imageSrc, setImageSrc] = useState(defaultImage);
 
-  const [modifierGroups, setModifierGroups] = useState<DishModifierGroup[]>([]);
-  const loadModifierGroups = async () => {
-    setModifierGroups(groups_dishes.filter(a => a.in.id.toString() === item.id.toString()) ?? [])
-  }
+  const modifierGroups = useMemo(() => {
+    const allGroups = groups_dishes.filter((a) => a.in.id.toString() === item.id.toString());
 
-  useEffect(() => {
-    loadModifierGroups();
-  }, [item.id, groups_dishes]);
+    if (allowedNextGroupIds === undefined) {
+      return allGroups;
+    }
+
+    return allGroups.filter((g) => allowedNextGroupIds.includes(g.out.id.toString()));
+  }, [item.id, groups_dishes, allowedNextGroupIds]);
 
   const hasAutoOpen = useMemo(() => {
     return modifierGroups.filter(m => m.has_required_modifiers || m.should_auto_open).length > 0;
@@ -163,7 +165,8 @@ export const MenuDish = ({onClick, item, level, isModifier, price}: Props) => {
               quantity: 1,
               level: level,
               newOrOld: MenuItemType.new,
-              category: state.category ? state.category?.name : (grp?.in?.categories?.length === 1 ? grp.in.categories[0].name : '')
+              category: state.category ? state.category?.name : (grp?.in?.categories?.length === 1 ? grp.in.categories[0].name : ''),
+              allowedNextGroupIds: resolveAllowedNextGroupIds(m.allowed_next_groups),
             }))]
           }))]}
           onClose={(payload) => {

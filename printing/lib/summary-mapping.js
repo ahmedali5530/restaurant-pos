@@ -7,9 +7,6 @@ const safeNumber = (v) => {
   return Number.isFinite(n) ? n : 0;
 };
 
-/**
- * Filtered items (exclude deleted, refunded, suspended). Mirrors getOrderFilteredItems.
- */
 function getFilteredItems(order) {
   if (!order || !Array.isArray(order.items)) return [];
   return order.items.filter(
@@ -17,11 +14,73 @@ function getFilteredItems(order) {
   );
 }
 
-/**
- * Item line total including modifiers (mirrors calculateOrderItemPrice).
- */
 function itemLineTotal(it) {
   return safeNumber(calculateOrderItemPricePrint(it));
+}
+
+function getTenderedAmount(payment) {
+  return safeNumber(payment?.amount);
+}
+
+function getAppliedAmount(payment) {
+  const amount = safeNumber(payment?.amount);
+  const payable = safeNumber(payment?.payable);
+  if (payable > 0 && amount > payable) {
+    return payable;
+  }
+  return amount;
+}
+
+function isCashPayment(payment) {
+  const t = String(payment?.payment_type?.type || '')
+    .toLowerCase()
+    .trim();
+  const n = String(payment?.payment_type?.name || payment?.payment_type?.title || '')
+    .toLowerCase()
+    .trim();
+  return t === 'cash' || n === 'cash';
+}
+
+function getOrderPaymentTotals(order) {
+  const payments = order?.payments || [];
+  const nonCashBreakdown = payments.reduce((acc, payment) => {
+    if (isCashPayment(payment)) return acc;
+    const label = payment?.payment_type?.name || payment?.payment_type?.title || 'Other';
+    const applied = getAppliedAmount(payment);
+    acc[label] = (acc[label] || 0) + applied;
+    return acc;
+  }, {});
+  const cashAmount = payments.reduce((sum, payment) => {
+    if (!isCashPayment(payment)) return sum;
+    return sum + getAppliedAmount(payment);
+  }, 0);
+  const nonCashAmount = Object.values(nonCashBreakdown).reduce((sum, x) => sum + x, 0);
+  const totalReceivedWithChange = payments.reduce((sum, p) => sum + getTenderedAmount(p), 0);
+  const amountCollected = safeNumber(cashAmount + nonCashAmount);
+  return {
+    amountCollected,
+    cashAmount,
+    nonCashAmount,
+    nonCashBreakdown,
+    change: safeNumber(totalReceivedWithChange - amountCollected),
+    totalReceivedWithChange,
+  };
+}
+
+function sumFilteredItemDiscounts(order) {
+  return getFilteredItems(order).reduce(
+    (sum, item) => sum + safeNumber(item?.discount),
+    0
+  );
+}
+
+function getOrderSubtotalDiscount(order) {
+  const lineDiscounts = safeNumber(sumFilteredItemDiscounts(order));
+  const orderDiscount = safeNumber(order.discount_amount);
+  if (order?.discount) {
+    return orderDiscount;
+  }
+  return Math.max(0, orderDiscount - lineDiscounts);
 }
 
 function getModifierRows(modifiers) {
@@ -40,6 +99,7 @@ function getModifierRows(modifiers) {
           depth,
           path: currentPath,
           quantity: 0,
+          price: safeNumber(selected?.price),
         });
         walkGroups(selected?.selectedGroups || [], depth + 1, currentPath);
       });
@@ -50,9 +110,6 @@ function getModifierRows(modifiers) {
   return rows;
 }
 
-/**
- * Voided items (deleted, refunded, or suspended).
- */
 function getVoidedItems(order) {
   if (!order || !Array.isArray(order.items)) return [];
   return order.items.filter(
@@ -60,169 +117,175 @@ function getVoidedItems(order) {
   );
 }
 
-/**
- * Compute summary from { orders: Order[], date } to match Summary (summary.tsx) props and logic.
- * @param {{ orders?: unknown[], date?: string }} props - same as Summary props
- * @returns {Object} flat summary for printing
- */
+function normalizeOrdersList(props) {
+  const raw = props && props.orders;
+  if (Array.isArray(raw)) return raw;
+  if (raw && Array.isArray(raw.data)) return raw.data;
+  return [];
+}
+
 function computeSummary(props) {
-  const orders = Array.isArray(props?.orders) ? props.orders : [];
+  const list = normalizeOrdersList(props);
   const date = props?.date || new Date().toLocaleDateString();
 
-  // Sale price without tax (items total, using price*quantity)
-  const salePriceWithoutTax = orders.reduce((sum, order) => {
+  const paymentTotals = list.map((order) => getOrderPaymentTotals(order));
+
+  const exclusiveSales = list.reduce((sum, order) => {
+    const items = (getFilteredItems(order) || []).reduce(
+      (s, item) => s + safeNumber(itemLineTotal(item)),
+      0
+    );
+    return sum + items;
+  }, 0);
+
+  const totalExtras = list.reduce((sum, order) => {
+    const extras = (order.extras || []).reduce((s, extra) => s + safeNumber(extra.value), 0);
+    return sum + extras;
+  }, 0);
+
+  const grossSales = safeNumber(exclusiveSales + totalExtras);
+
+  const itemDiscounts = list.reduce(
+    (sum, order) => sum + safeNumber(sumFilteredItemDiscounts(order)),
+    0
+  );
+
+  const subtotalDiscounts = list.reduce(
+    (sum, order) => sum + getOrderSubtotalDiscount(order),
+    0
+  );
+
+  const couponDiscounts = list.reduce((sum, order) => sum + safeNumber(order.coupon?.discount), 0);
+
+  const discounts = safeNumber(itemDiscounts + subtotalDiscounts + couponDiscounts);
+
+  const netSales = safeNumber(grossSales - discounts);
+
+  const serviceCharges = list.reduce((sum, order) => sum + safeNumber(order.service_charge_amount), 0);
+  const taxCollected = list.reduce((sum, order) => sum + safeNumber(order.tax_amount), 0);
+
+  const amountDue = safeNumber(netSales + serviceCharges + taxCollected);
+  const totalRevenue = safeNumber(netSales + serviceCharges + taxCollected);
+
+  const tips = list.reduce((sum, order) => sum + safeNumber(order.tip_amount), 0);
+
+  const grandTotalDue = safeNumber(totalRevenue + tips);
+
+  const amountCollected = paymentTotals.reduce(
+    (sum, totals) => sum + safeNumber(totals.amountCollected),
+    0
+  );
+  const amountCollectedRaw = amountCollected;
+
+  const changeGiven = paymentTotals.reduce((sum, totals) => sum + safeNumber(totals.change), 0);
+  const rounding = safeNumber(amountCollected - grandTotalDue);
+
+  const refunds = list.reduce((sum, order) => {
+    if (order.status === 'Cancelled') {
+      return (
+        sum +
+        safeNumber(
+          order.payments?.reduce((paySum, payment) => {
+            const amount = safeNumber(payment?.amount);
+            return paySum + Math.abs(Math.min(0, amount));
+          }, 0) ?? 0
+        )
+      );
+    }
     return (
       sum +
-      getFilteredItems(order).reduce((itemSum, item) => itemSum + safeNumber(itemLineTotal(item)), 0)
-    );
-  }, 0);
-  const exclusive = salePriceWithoutTax;
-
-  const taxCollected = orders.reduce((s, o) => s + safeNumber(o.tax_amount), 0);
-  const serviceCharges = orders.reduce((s, o) => s + safeNumber(o.service_charge_amount), 0);
-
-  const itemDiscounts = orders.reduce((s, order) => {
-    return (
-      s +
       safeNumber(
-        (order.items || []).reduce((itemSum, item) => itemSum + safeNumber(item?.discount), 0)
+        order.payments?.reduce((paySum, payment) => {
+          const amount = safeNumber(payment?.amount);
+          return paySum + (amount < 0 ? Math.abs(amount) : 0);
+        }, 0) ?? 0
       )
     );
   }, 0);
 
-  const subtotalDiscounts = orders.reduce((s, order) => {
-    const lineDiscounts = (order.items || []).reduce(
-      (itemSum, item) => itemSum + safeNumber(item?.discount),
-      0
-    );
-    const orderDiscount = safeNumber(order.discount_amount);
-    const extraDiscount = Math.max(0, orderDiscount - lineDiscounts);
-    return s + extraDiscount;
-  }, 0);
-  const discounts = itemDiscounts + subtotalDiscounts;
-
-  const totalExtras = orders.reduce((s, order) => {
+  const voids = list.reduce((sum, order) => {
+    const allItems = order.items || [];
+    const filtered = getFilteredItems(order);
+    const voidedItems = allItems.filter((item) => !filtered.some((f) => f.id === item.id));
     return (
-      s + (order?.extras || []).reduce((es, e) => es + safeNumber(e.value), 0)
+      sum +
+      voidedItems.reduce((itemSum, item) => itemSum + safeNumber(itemLineTotal(item)), 0)
     );
   }, 0);
 
-  const amountDue = salePriceWithoutTax + taxCollected + serviceCharges + totalExtras - itemDiscounts - subtotalDiscounts;
-  const amountCollected = orders.reduce((s, order) => {
-    return (
-      s +
-      (order.payments || []).reduce((ps, p) => ps + safeNumber(p?.amount), 0)
-    );
-  }, 0);
-  const rounding = amountCollected - amountDue;
-  const net = amountCollected - serviceCharges - taxCollected;
-
-  const refunds = orders.reduce((s, order) => {
-    if (order.status === 'Cancelled') {
-      return (
-        s +
-        (order.payments || []).reduce((ps, p) => {
-          const a = safeNumber(p?.amount);
-          return ps + Math.abs(Math.min(0, a));
-        }, 0)
-      );
-    }
-    return (
-      s +
-      (order.payments || []).reduce((ps, p) => {
-        const a = safeNumber(p?.amount);
-        return ps + (a < 0 ? Math.abs(a) : 0);
-      }, 0)
-    );
-  }, 0);
-
-  const gross = amountCollected + refunds + discounts;
-  const gSales = salePriceWithoutTax;
-
-  const tips = orders.reduce((s, o) => s + safeNumber(o.tip_amount), 0);
-
-  const discountsList = {};
-  orders.forEach((order) => {
-    if (order?.discount) {
-      const k = order.discount?.name || 'Discount';
-      if (!discountsList[k]) discountsList[k] = 0;
-      discountsList[k] += safeNumber(order.discount_amount);
-    }
-  });
-
-  const taxesList = {};
-  orders.forEach((order) => {
-    if (order?.tax) {
-      const k = `${order.tax?.name || 'Tax'} ${order.tax?.rate ?? ''}`.trim();
-      if (!taxesList[k]) taxesList[k] = 0;
-      taxesList[k] += safeNumber(order.tax_amount);
-    }
-  });
-
-  const paymentTypes = {};
-  orders.forEach((order) => {
-    (order.payments || []).forEach((p) => {
-      const name = p.payment_type?.name || p.payment_type?.title || 'Unknown';
-      if (!paymentTypes[name]) paymentTypes[name] = 0;
-      paymentTypes[name] += safeNumber(p.payable ?? p.amount ?? 0);
-    });
-  });
-
-  const extras = {};
-  orders.forEach((order) => {
-    (order.extras || []).forEach((e) => {
-      const n = e.name || 'Extra';
-      if (!extras[n]) extras[n] = 0;
-      extras[n] += safeNumber(e.value);
-    });
-  });
-
-  const voids = orders.reduce((s, order) => {
-    return (
-      s +
-      getVoidedItems(order).reduce((itemSum, item) => itemSum + safeNumber(itemLineTotal(item)), 0)
-    );
-  }, 0);
-
-  const covers = orders.reduce((s, o) => s + safeNumber(o.covers), 0);
-  const ordersCount = orders.length;
+  const covers = list.reduce((sum, order) => sum + safeNumber(order.covers), 0);
+  const ordersCount = list.length;
   const averageCover = covers > 0 ? amountDue / covers : 0;
-  const averageOrder = ordersCount > 0 ? amountDue / ordersCount : 0;
+  const averageOrderCheck = ordersCount > 0 ? amountDue / ordersCount : 0;
 
-  const categories = {};
-  orders.forEach((order) => {
-    getFilteredItems(order).forEach((item) => {
-      const c = item.category;
-      const cat = typeof c === 'string' ? c : (c?.name ?? item.item?.categories?.[0]?.name ?? '');
-      if (!cat) return;
-      if (!categories[cat]) categories[cat] = { quantity: 0, total: 0 };
-      categories[cat].quantity += item.quantity ?? 1;
-      categories[cat].total += itemLineTotal(item);
+  const paymentTypeMap = {};
+  paymentTotals.forEach((totals) => {
+    Object.entries(totals.nonCashBreakdown).forEach(([typeName, amount]) => {
+      if (!paymentTypeMap[typeName]) paymentTypeMap[typeName] = 0;
+      paymentTypeMap[typeName] += safeNumber(amount);
     });
+    if (!paymentTypeMap.Cash) paymentTypeMap.Cash = 0;
+    paymentTypeMap.Cash += safeNumber(totals.cashAmount);
   });
 
-  const dishes = {};
-  orders.forEach((order) => {
-    getFilteredItems(order).forEach((item) => {
-      const name = item.item?.name || item.dish?.name || '';
-      if (!name) return;
-      if (!dishes[name]) dishes[name] = { quantity: 0, total: 0 };
-      dishes[name].quantity += item.quantity ?? 1;
-      dishes[name].total += itemLineTotal(item);
+  const paymentTypes = Object.entries(paymentTypeMap)
+    .map(([name, total]) => ({ name, total }))
+    .sort((a, b) => b.total - a.total);
+
+  const taxesMap = {};
+  list.forEach((order) => {
+    if (!order?.tax) return;
+    const key = `${order.tax?.name} ${order.tax?.rate}`;
+    if (!taxesMap[key]) taxesMap[key] = 0;
+    taxesMap[key] += safeNumber(order.tax_amount);
+  });
+  const taxesList = Object.entries(taxesMap)
+    .map(([name, total]) => ({ name, total }))
+    .sort((a, b) => b.total - a.total);
+
+  const discountsMap = {};
+  list.forEach((order) => {
+    const discountAmount = safeNumber(order.discount_amount);
+    if (discountAmount <= 0) return;
+    const name = order?.discount?.name || 'Order discount';
+    if (!discountsMap[name]) discountsMap[name] = 0;
+    discountsMap[name] += discountAmount;
+  });
+  const discountsList = Object.entries(discountsMap)
+    .map(([name, total]) => ({ name, total }))
+    .sort((a, b) => b.total - a.total);
+
+  const extrasMap = {};
+  list.forEach((order) => {
+    (order?.extras || []).forEach((extra) => {
+      if (!extrasMap[extra.name]) extrasMap[extra.name] = 0;
+      extrasMap[extra.name] += safeNumber(extra.value);
     });
   });
+  const extrasList = Object.entries(extrasMap)
+    .map(([name, total]) => ({ name, total }))
+    .sort((a, b) => b.total - a.total);
+
+  const couponsMap = {};
+  list.forEach((order) => {
+    if (!order?.coupon) return;
+    const code = order.coupon?.coupon?.code || 'Unknown';
+    if (!couponsMap[code]) couponsMap[code] = 0;
+    couponsMap[code] += safeNumber(order.coupon.discount);
+  });
+  const couponsList = Object.entries(couponsMap)
+    .map(([name, total]) => ({ name, total }))
+    .sort((a, b) => b.total - a.total);
 
   const categoryMixMap = {};
-  orders.forEach((order) => {
+  list.forEach((order) => {
     getFilteredItems(order).forEach((item) => {
-      const c = item.category;
-      const categoryName =
-        String(typeof c === 'string' ? c : (c?.name ?? item.item?.categories?.[0]?.name ?? '')).trim() ||
-        'Uncategorized';
-      const dishName = String(item.item?.name || item.dish?.name || '').trim() || 'Unknown item';
+      const categoryName = String(item?.category || 'Uncategorized');
+      const dishName = String(item?.item?.name || item?.dish?.name || 'Unknown item');
       const itemTotal = safeNumber(itemLineTotal(item));
-      const itemQuantity = safeNumber(item.quantity ?? 1);
+      const itemQuantity = safeNumber(item.quantity != null ? item.quantity : 1);
       const modifiers = getModifierRows(item?.modifiers || []);
+      const dishKey = dishName;
 
       if (!categoryMixMap[categoryName]) {
         categoryMixMap[categoryName] = {
@@ -233,84 +296,80 @@ function computeSummary(props) {
       }
       const category = categoryMixMap[categoryName];
 
-      if (!category.dishes[dishName]) {
-        category.dishes[dishName] = {
+      if (!category.dishes[dishKey]) {
+        category.dishes[dishKey] = {
           name: dishName,
+          modifiers: {},
           total: 0,
           quantity: 0,
-          modifiers: {},
         };
       }
-      const dish = category.dishes[dishName];
 
       category.total += itemTotal;
       category.quantity += itemQuantity;
-      dish.total += itemTotal;
-      dish.quantity += itemQuantity;
-
+      category.dishes[dishKey].total += itemTotal;
+      category.dishes[dishKey].quantity += itemQuantity;
       modifiers.forEach((modifier) => {
-        if (!dish.modifiers[modifier.path]) {
-          dish.modifiers[modifier.path] = {
+        if (!category.dishes[dishKey].modifiers[modifier.path]) {
+          category.dishes[dishKey].modifiers[modifier.path] = {
             ...modifier,
             quantity: 0,
           };
         }
-        dish.modifiers[modifier.path].quantity += itemQuantity;
+        category.dishes[dishKey].modifiers[modifier.path].quantity += itemQuantity;
       });
     });
   });
 
   const categoryMix = Object.entries(categoryMixMap)
     .map(([name, category]) => {
-      const categoryData = category;
-      const groupedDishes = Object.entries(categoryData.dishes)
-        .map(([key, dish]) => {
-          const dishData = dish;
-          return {
-            key,
-            name: dishData.name,
-            total: dishData.total,
-            quantity: dishData.quantity,
-            modifiers: Object.values(dishData.modifiers).sort((a, b) => a.path.localeCompare(b.path)),
-          };
-        })
+      const dishes = Object.entries(category.dishes)
+        .map(([key, dish]) => ({
+          key,
+          ...dish,
+          modifiers: Object.values(dish.modifiers).sort((a, b) => a.path.localeCompare(b.path)),
+        }))
         .sort((a, b) => b.total - a.total);
-
       return {
         name,
-        total: categoryData.total,
-        quantity: categoryData.quantity,
-        dishes: groupedDishes,
+        total: category.total,
+        quantity: category.quantity,
+        dishes,
       };
     })
     .sort((a, b) => b.total - a.total);
 
   return {
     date,
-    exclusive,
-    gSales,
-    gross,
-    refunds,
-    serviceCharges,
-    discounts,
-    taxes: taxCollected,
-    net,
-    amountDue,
-    amountCollected,
+    exclusiveSales,
     totalExtras,
-    rounding,
-    voids,
+    grossSales,
+    itemDiscounts,
+    subtotalDiscounts,
+    couponDiscounts,
+    discounts,
+    netSales,
+    serviceCharges,
+    taxCollected,
+    amountDue,
+    totalRevenue,
     tips,
+    grandTotalDue,
+    amountCollected,
+    amountCollectedRaw,
+    changeGiven,
+    rounding,
+    refunds,
+    voids,
     covers,
     ordersCount,
     averageCover,
-    averageOrder,
-    discountsList,
-    taxesList,
+    averageOrderCheck,
     paymentTypes,
-    extras,
-    categories,
-    dishes,
+    taxesList,
+    discountsList,
+    extrasList,
+    couponsList,
     categoryMix,
   };
 }
@@ -327,4 +386,5 @@ module.exports = {
   getVoidedItems,
   itemLineTotal,
   getModifierRows,
+  getOrderPaymentTotals,
 };

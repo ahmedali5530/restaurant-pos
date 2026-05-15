@@ -242,6 +242,7 @@ export const MenuDishModifiers = (props: Props) => {
                         level={props.level + 1}
                         isModifier
                         price={modifier.price}
+                        allowedNextGroupIds={modifier.allowedNextGroupIds}
                       />
                     ))}
                   </SwiperSlide>

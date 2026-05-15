@@ -113,6 +113,20 @@ function Section({
   );
 }
 
+const sumFilteredItemDiscounts = (order: Order) =>
+  safeNumber(
+    getOrderFilteredItems(order).reduce((sum, item) => sum + safeNumber(item?.discount), 0),
+  );
+
+const getOrderSubtotalDiscount = (order: Order) => {
+  const lineDiscounts = sumFilteredItemDiscounts(order);
+  const orderDiscount = safeNumber(order.discount_amount);
+  if (order.discount) {
+    return orderDiscount;
+  }
+  return Math.max(0, orderDiscount - lineDiscounts);
+};
+
 /** Active lines + extras only (no tax, service, tips); voided / refunded / suspended lines excluded. */
 function useDailySalesFigures(orders: Order[] | undefined) {
   return useMemo(() => {
@@ -134,22 +148,15 @@ function useDailySalesFigures(orders: Order[] | undefined) {
 
     const grossSales = safeNumber(exclusiveSales + totalExtras);
 
-    const itemDiscounts = list.reduce((sum, order) => {
-      return (
-        sum +
-        safeNumber(
-          order.items?.reduce((itemSum, item) => itemSum + safeNumber(item?.discount), 0) ?? 0,
-        )
-      );
-    }, 0);
+    const itemDiscounts = list.reduce(
+      (sum, order) => sum + sumFilteredItemDiscounts(order),
+      0,
+    );
 
-    const subtotalDiscounts = list.reduce((sum, order) => {
-      const lineDiscounts = safeNumber(
-        order.items?.reduce((itemSum, item) => itemSum + safeNumber(item?.discount), 0) ?? 0,
-      );
-      const orderDiscount = safeNumber(order.discount_amount);
-      return sum + Math.max(0, orderDiscount - lineDiscounts);
-    }, 0);
+    const subtotalDiscounts = list.reduce(
+      (sum, order) => sum + getOrderSubtotalDiscount(order),
+      0,
+    );
 
     const couponDiscounts = list.reduce((sum, order) => sum + safeNumber(order.coupon?.discount), 0);
 
@@ -168,16 +175,13 @@ function useDailySalesFigures(orders: Order[] | undefined) {
     const grandTotalDue = safeNumber(totalRevenue + tips);
 
     const amountCollected = paymentTotals.reduce(
-      (sum, totals) => sum + safeNumber(totals.totalReceivedWithChange),
-      0,
-    );
-    const amountCollectedRaw = paymentTotals.reduce(
       (sum, totals) => sum + safeNumber(totals.amountCollected),
       0,
     );
+    const amountCollectedRaw = amountCollected;
 
     const changeGiven = paymentTotals.reduce((sum, totals) => sum + safeNumber(totals.change), 0);
-    const rounding = safeNumber(amountCollectedRaw - grandTotalDue);
+    const rounding = safeNumber(amountCollected - grandTotalDue);
 
     const refunds = list.reduce((sum, order) => {
       if (order.status === OrderStatus.Cancelled) {
@@ -252,13 +256,15 @@ function useDailySalesFigures(orders: Order[] | undefined) {
 
     const discountsMap: Record<string, number> = {};
     list.forEach(order => {
-      if (!order?.discount?.name) {
+      const discountAmount = safeNumber(order.discount_amount);
+      if (discountAmount <= 0) {
         return;
       }
-      if (!discountsMap[order.discount.name]) {
-        discountsMap[order.discount.name] = 0;
+      const name = order.discount?.name ?? 'Order discount';
+      if (!discountsMap[name]) {
+        discountsMap[name] = 0;
       }
-      discountsMap[order.discount.name] += safeNumber(order.discount_amount);
+      discountsMap[name] += discountAmount;
     });
     const discountsList: BreakdownEntry[] = Object.entries(discountsMap)
       .map(([name, total]) => ({name, total}))
@@ -487,17 +493,17 @@ export function DailySalesSummaryReport({orders, date}: Props) {
         <Row
           label="Amount collected"
           value={withCurrency(f.amountCollected)}
-          hint="Sum of payment amounts (cash, card, digital, etc.)."
+          hint="Applied payment totals by method (excludes change returned)."
         />
         <Row
           label="Rounding"
           value={withCurrency(f.rounding)}
-          hint="Amount collected − grand total (due)."
+          hint="Amount collected − grand total (due); over/short vs calculated due."
         />
         <Row
           label="Change / variance"
           value={withCurrency(f.changeGiven)}
-          hint="Amount collected − grand total."
+          hint="Cash tendered in excess of applied payment amounts."
         />
       </Section>
 

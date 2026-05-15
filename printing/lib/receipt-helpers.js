@@ -281,7 +281,7 @@ function formatItemLine(item, config) {
 
 /**
  * Build left/right strings for one item line (for printLineLeftRight so total stays on one line).
- * @param {Object} item - { name, qty, price, total?, modifierNames? }
+ * @param {Object} item - { name, qty, price, total?, modifierLines? }
  * @param {Object} config - normalized config
  * @returns {{ left: string, right: string }}
  */
@@ -356,21 +356,31 @@ function buildItemHeaderString(config) {
 }
 
 /**
- * Print one bill item line (left/right so total doesn't wrap) and modifier names indented with 2 spaces.
+ * Print modifier sub-lines under an item (depth 0 = two spaces, +2 spaces per nesting level).
  * @param {Object} printer - escpos Printer
- * @param {Object} item - { name, qty, price, total?, modifierNames? }
+ * @param {Array<{ depth?: number, name: string }>} modifierLines
+ */
+function printModifierLines(printer, modifierLines) {
+  if (!Array.isArray(modifierLines) || modifierLines.length === 0) return;
+  printer.align('lt');
+  modifierLines.forEach((line) => {
+    if (!line || line.name == null) return;
+    const depth = typeof line.depth === 'number' ? line.depth : 0;
+    const indent = '  '.repeat(1 + Math.max(0, depth));
+    printer.text(indent + String(line.name).trim());
+  });
+}
+
+/**
+ * Print one bill item line (left/right so total doesn't wrap) and modifier lines with nested indent.
+ * @param {Object} printer - escpos Printer
+ * @param {Object} item - { name, qty, price, total?, modifierLines? }
  * @param {Object} config - normalized config
  */
 function printBillItemLine(printer, item, config) {
   const { left, right } = getItemLineLeftRight(item, config);
   printLineLeftRight(printer, left, right);
-  const names = item.modifierNames;
-  if (Array.isArray(names) && names.length > 0) {
-    printer.align('lt');
-    names.forEach((modName) => {
-      printer.text('  ' + (modName || '').trim());
-    });
-  }
+  printModifierLines(printer, item.modifierLines);
 }
 
 module.exports = {
@@ -388,6 +398,7 @@ module.exports = {
   formatItemLine,
   getItemLineLeftRight,
   printBillItemLine,
+  printModifierLines,
   buildItemRowString,
   buildItemHeaderString,
   formatMoney,

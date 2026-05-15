@@ -1,6 +1,6 @@
 import ScrollContainer from "react-indiana-drag-scroll";
 import {Button} from "@/components/common/input/button.tsx";
-import {cn, DENOMINATION_COINS, DENOMINATION_NOTES, withCurrency} from "@/lib/utils.ts";
+import {cn, DENOMINATION_COINS, DENOMINATION_NOTES, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {faClose, faPrint} from "@fortawesome/free-solid-svg-icons";
 import React, {useEffect, useMemo, useState} from "react";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
@@ -157,7 +157,7 @@ export const OrderPaymentReceiving = ({
           amount: payment.amount,
           payment_type: payment.payment_type.id,
           comments: payment.comments || '',
-          payable: total
+          payable: payment.payable ?? total,
         });
 
         orderPayments.push(orderPayment[0].id);
@@ -174,14 +174,38 @@ export const OrderPaymentReceiving = ({
         extraOptions.push(record[0].id);
       }
 
-      await db.merge(order.id, {
+      const resolvedDiscountAmount = discountAmount ?? order.discount_amount ?? 0;
+      const resolvedDiscountId = discount?.id ?? order.discount?.id;
+
+      let orderCouponId: string | null = order?.coupon?.id
+        ? String(order.coupon.id)
+        : null;
+      const hasCoupon = coupon && couponAmount && couponAmount > 0;
+
+      if (hasCoupon) {
+        if (order?.coupon?.id) {
+          await db.merge(order.coupon.id, {
+            coupon: coupon.id,
+            discount: couponAmount,
+          });
+          orderCouponId = String(order.coupon.id);
+        } else {
+          const [created] = await db.create(Tables.order_coupons, {
+            coupon: coupon.id,
+            discount: couponAmount,
+            created_at: nowSurrealDateTime(),
+          });
+          orderCouponId = (created as { id?: string })?.id?.toString?.() ?? String((created as { id: string }).id);
+        }
+      }
+
+      const mergePayload: Record<string, unknown> = {
         status: OrderStatus.Paid,
         payments: orderPayments,
         extras: extraOptions,
-        tax: tax?.id,
+        tax: tax?.id ? toRecordId(tax.id) : null,
         tax_amount: taxAmount,
-        discount: discount?.id,
-        discount_amount: discountAmount,
+        discount_amount: resolvedDiscountAmount,
         tip: tip,
         tip_amount: tipAmount,
         tip_type: tipType,
@@ -190,10 +214,20 @@ export const OrderPaymentReceiving = ({
         service_charge_type: serviceChargeType,
         cashier: new StringRecordId(page?.user?.id.toString()),
         notes: notes,
-        completed_at: nowSurrealDateTime()
-      });
+        completed_at: nowSurrealDateTime(),
+      };
 
-      if (coupon && couponAmount && couponAmount > 0) {
+      if (resolvedDiscountId) {
+        mergePayload.discount = toRecordId(resolvedDiscountId);
+      }
+
+      if (orderCouponId) {
+        mergePayload.coupon = orderCouponId;
+      }
+
+      await db.merge(order.id, mergePayload);
+
+      if (hasCoupon) {
         await db.create(Tables.coupon_redemptions, {
           coupon: coupon.id,
           user: page?.user?.id ? new StringRecordId(page.user.id.toString()) : null,

@@ -6,8 +6,9 @@ const {
   feedBottomMargin,
   buildItemRowString,
   buildItemHeaderString,
+  printModifierLines,
 } = require('../lib/receipt-helpers');
-const { getOrderId, getOrderCreatedAt, getOrderItemModifierNames } = require('../lib/order-mapping');
+const { getOrderId, getOrderCreatedAt, getOrderItemModifierLines } = require('../lib/order-mapping');
 
 /**
  * Deletion print builder.
@@ -42,7 +43,7 @@ function build(printer, data = {}, config = {}) {
       price: Number(it.price || 0),
       total: Number(it.price || 0) * (it.quantity != null ? it.quantity : 1),
       notes: it.comments || '',
-      modifierNames: getOrderItemModifierNames(it),
+      modifierLines: getOrderItemModifierLines(it),
     };
   });
 
@@ -68,11 +69,7 @@ function build(printer, data = {}, config = {}) {
       if (it.notes) {
         printer.text(` >> ${it.notes.slice(0, 26)}`);
       }
-      if (Array.isArray(it.modifierNames) && it.modifierNames.length > 0) {
-        it.modifierNames.forEach((mod) => {
-          printer.text('  ' + (mod || '').trim());
-        });
-      }
+      printModifierLines(printer, it.modifierLines);
     });
 
     feedBottomMargin(printer, cfg);

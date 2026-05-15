@@ -33,12 +33,13 @@ export const MenusSettings = () => {
 
   const { control, handleSubmit, reset, formState: { isSubmitting } } = useForm();
 
+  const [settingId, setSettingId] = useState<RecordId>();
+
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
 
-        // todo: load menu settings into form
         const [settings] = await db.query(`SELECT * FROM ${Tables.settings} where key = $key and is_global = true fetch values`, {
           key: 'menus'
         })
@@ -50,6 +51,8 @@ export const MenusSettings = () => {
               value: item.id
             }))
           });
+
+          setSettingId(settings[0].id);
         }
       } catch (e) {
         console.error("Error loading menu settings:", e);
@@ -81,11 +84,24 @@ export const MenusSettings = () => {
       const selectedMenus = Array.isArray(values?.menus)
         ? values.menus.map((item: { value: string }) => toRecordId(item.value))
         : [];
-      await db.upsert(Tables.settings, {
-        key: 'menus',
-        is_global: true,
-        values: selectedMenus
-      });
+
+      console.log(settingId)
+
+      if(settingId){
+        await db.merge(settingId, {
+          key: 'menus',
+          is_global: true,
+          values: selectedMenus
+        });
+      }else{
+        const [setting] = await db.insert(Tables.settings, {
+          key: 'menus',
+          is_global: true,
+          values: selectedMenus
+        });
+
+        setSettingId(setting.id);
+      }
 
       let resolvedMenus: Menu[] = [];
       if(selectedMenus.length > 0){

@@ -1,7 +1,7 @@
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input } from "@/components/common/input/input.tsx";
 import { Button } from "@/components/common/input/button.tsx";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
 import { toast } from 'sonner';
@@ -15,8 +15,10 @@ import { Dish } from "@/api/model/dish.ts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { DishForm } from "@/components/settings/dishes/dish.form.tsx";
-import { StringRecordId } from "surrealdb";
 import {toRecordId} from "@/lib/utils.ts";
+import { Switch } from "@/components/common/input/switch.tsx";
+import { DishModifierGroup } from "@/api/model/dish_modifier_group.ts";
+import {fetchAttachableGroupsForDish} from "@/lib/modifier-groups.ts";
 
 interface Props {
   open: boolean
@@ -32,9 +34,100 @@ const validationSchema = yup.object({
       label: yup.string(),
       value: yup.string()
     }).default(undefined).required('This is required'),
-    price: yup.number().required('This is required')
+    price: yup.number().required('This is required'),
+    allowed_next_groups: yup.array(yup.string()).default([])
   })).min(1, 'This is required')
 });
+
+const ModifierNextGroups = ({
+  index,
+  control,
+  setValue,
+  db,
+}: {
+  index: number
+  control: ReturnType<typeof useForm>['control']
+  setValue: ReturnType<typeof useForm>['setValue']
+  db: ReturnType<typeof useDB>
+}) => {
+  const modifier = useWatch({ control, name: `modifiers.${index}.modifier` });
+  const allowedNextGroups: string[] = useWatch({ control, name: `modifiers.${index}.allowed_next_groups` }) ?? [];
+  const [attachableGroups, setAttachableGroups] = useState<DishModifierGroup[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!modifier?.value) {
+      setAttachableGroups([]);
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+
+    fetchAttachableGroupsForDish(db, modifier.value)
+      .then((rows) => {
+        if (!cancelled) {
+          setAttachableGroups(rows);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [modifier?.value]);
+
+  if (!modifier?.value) {
+    return null;
+  }
+
+  if (loading) {
+    return (
+      <p className="text-sm text-neutral-500 col-span-full">
+        Loading modifier groups…
+      </p>
+    );
+  }
+
+  if (attachableGroups.length === 0) {
+    return (
+      <p className="text-sm text-neutral-500 col-span-full">
+        Attach modifier groups on the dish settings first.
+      </p>
+    );
+  }
+
+  return (
+    <div className="">
+      <p className="text-sm font-medium mb-2">Next modifier groups</p>
+      <div className="flex flex-wrap gap-3">
+        {attachableGroups.map((row) => {
+          const groupId = row.out.id.toString();
+          const checked = allowedNextGroups.includes(groupId);
+
+          return (
+            <Switch
+              key={groupId}
+              checked={checked}
+              onChange={(e) => {
+                const next = e.target.checked
+                  ? [...allowedNextGroups, groupId]
+                  : allowedNextGroups.filter((id) => id !== groupId);
+                setValue(`modifiers.${index}.allowed_next_groups`, next, { shouldDirty: true });
+              }}
+            >
+              {row.out.name}
+            </Switch>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 export const ModifierGroupForm = ({
   open, onClose, data
@@ -43,34 +136,72 @@ export const ModifierGroupForm = ({
     onClose();
   }
 
-  useEffect(() => {
-    if( data ) {
-      reset({
-        name: data.name,
-        priority: data.priority.toString(),
-        modifiers: data.modifiers.map(item => ({
-          modifier: {
-            label: `${item.modifier.number}-${item.modifier.name}`,
-            value: toRecordId(item.modifier.id).toString()
-          },
-          id: item.id.toString(),
-          price: item.price
-        }))
-      });
+  const db = useDB();
+
+  const { register, control, handleSubmit, formState: { errors }, reset, setValue } = useForm({
+    resolver: yupResolver(validationSchema),
+    defaultValues: {
+      modifiers: []
     }
-  }, [data]);
+  });
 
   useEffect(() => {
-    if(open){
+    if (!open) {
+      return;
+    }
+
+    if (!data) {
+      reset({
+        name: '',
+        priority: '0',
+        modifiers: []
+      });
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadForm = async () => {
+      const modifiers = await Promise.all(
+        data.modifiers.map(async (item) => {
+          const dishId = toRecordId(item.modifier.id).toString();
+          const attachable = await fetchAttachableGroupsForDish(db, dishId);
+          const attachableIds = attachable.map((g) => g.out.id.toString());
+          const savedIds = item.allowed_next_groups?.map((g) => toRecordId(g.id).toString());
+
+          return {
+            modifier: {
+              label: `${item.modifier.number}-${item.modifier.name}`,
+              value: dishId
+            },
+            id: item.id.toString(),
+            price: item.price,
+            allowed_next_groups: savedIds ?? attachableIds,
+          };
+        })
+      );
+
+      if (!cancelled) {
+        reset({
+          name: data.name,
+          priority: data.priority.toString(),
+          modifiers,
+        });
+      }
+    };
+
+    loadForm();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [data, open, reset]);
+
+  useEffect(() => {
+    if (open) {
       fetchDishes();
     }
   }, [open]);
-
-  const db = useDB();
-
-  const { register, control, handleSubmit, formState: { errors }, reset } = useForm({
-    resolver: yupResolver(validationSchema)
-  });
 
   const {
     fields, append, remove
@@ -92,19 +223,23 @@ export const ModifierGroupForm = ({
 
     vals.priority = Number(vals.priority);
     const modifiers = [];
-    if(vals.modifiers){
-      for(const m of vals.modifiers){
-        if(m?.id){
+    if (vals.modifiers) {
+      for (const m of vals.modifiers) {
+        const allowedNextGroups = (m.allowed_next_groups ?? []).map((id: string) => toRecordId(id));
+
+        if (m?.id) {
           await db.merge(toRecordId(m.id), {
             modifier: toRecordId(m.modifier.value),
-            price: Number(m.price)
+            price: Number(m.price),
+            allowed_next_groups: allowedNextGroups,
           });
 
           modifiers.push(toRecordId(m.id));
-        }else{
+        } else {
           const [record] = await db.create(Tables.modifiers, {
             modifier: toRecordId(m.modifier.value),
-            price: m.price
+            price: m.price,
+            allowed_next_groups: allowedNextGroups,
           });
 
           modifiers.push(record.id);
@@ -115,7 +250,7 @@ export const ModifierGroupForm = ({
     }
 
     try {
-      if( data?.id ) {
+      if (data?.id) {
         await db.merge(toRecordId(data.id), {
           ...vals
         })
@@ -127,7 +262,7 @@ export const ModifierGroupForm = ({
 
       closeModal();
       toast.success(`Modifier group ${values.name} saved`);
-    } catch ( e ) {
+    } catch (e) {
       toast.error(e);
       console.log(e)
     }
@@ -173,7 +308,8 @@ export const ModifierGroupForm = ({
                 <Button onClick={() => {
                   append({
                     modifier: null,
-                    price: 0
+                    price: 0,
+                    allowed_next_groups: []
                   })
                 }} variant="primary" type="button" icon={faPlus}>modifier</Button>
 
@@ -183,8 +319,8 @@ export const ModifierGroupForm = ({
               </div>
 
               {fields.map((item, index) => (
-                <div className="flex gap-3 mb-3" key={item.id}>
-                  <div className="flex-1">
+                <div className="flex flex-wrap gap-3 mb-3 pb-3 border-b border-neutral-100 last:border-0" key={item.id}>
+                  <div className="shrink grow-0 min-w-[250px]">
                     <label htmlFor="modifier">Modifier</label>
                     <Controller
                       control={control}
@@ -192,17 +328,29 @@ export const ModifierGroupForm = ({
                       render={({ field }) => (
                         <ReactSelect
                           value={field.value}
-                          onChange={field.onChange}
-                          options={dishes?.data?.map(item => ({
-                            label: `${item.number}-${item.name}`,
-                            value: item.id.toString()
+                          onChange={async (val) => {
+                            field.onChange(val);
+                            if (val?.value) {
+                              const attachable = await fetchAttachableGroupsForDish(db, val.value);
+                              setValue(
+                                `modifiers.${index}.allowed_next_groups`,
+                                attachable.map((g) => g.out.id.toString()),
+                                { shouldDirty: true }
+                              );
+                            } else {
+                              setValue(`modifiers.${index}.allowed_next_groups`, [], { shouldDirty: true });
+                            }
+                          }}
+                          options={dishes?.data?.map((dish) => ({
+                            label: `${dish.number}-${dish.name}`,
+                            value: dish.id.toString()
                           }))}
                           isLoading={loadingDishes}
                         />
                       )}
                     />
                   </div>
-                  <div className="flex-1">
+                  <div className="grow-0 shrink min-w-[120px]">
                     <Controller
                       control={control}
                       name={`modifiers.${index}.price`}
@@ -216,11 +364,17 @@ export const ModifierGroupForm = ({
                       )}
                     />
                   </div>
-                  <div className="flex-1 self-end">
-                    <Button iconButton variant="danger" onClick={() => remove(index)}>
+                  <div className="self-end">
+                    <Button iconButton variant="danger" type="button" onClick={() => remove(index)}>
                       <FontAwesomeIcon icon={faTrash} />
                     </Button>
                   </div>
+                  <ModifierNextGroups
+                    index={index}
+                    control={control}
+                    setValue={setValue}
+                    db={db}
+                  />
                 </div>
               ))}
             </fieldset>

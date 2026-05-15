@@ -8,6 +8,7 @@ const {
   printBottomDescription,
   buildItemRowString,
   buildItemHeaderString,
+  printModifierLines,
 } = require('./receipt-helpers');
 
 /**
@@ -55,12 +56,7 @@ function printBillLayout(printer, bill, config, opts) {
   printer.style('b').text(buildItemHeaderString(cfg)).style('normal');
   (bill.items || []).forEach((it) => {
     printer.text(buildItemRowString(it, cfg));
-    const names = it.modifierNames;
-    if (Array.isArray(names) && names.length > 0) {
-      names.forEach((modName) => {
-        printer.text('  ' + (modName || '').trim());
-      });
-    }
+    printModifierLines(printer, it.modifierLines);
   });
   printer.drawLine();
 

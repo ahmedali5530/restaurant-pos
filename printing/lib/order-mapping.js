@@ -59,25 +59,44 @@ function calculateOrderItemPricePrint(item) {
   return price;
 }
 
+const MODIFIER_WALK_MAX_DEPTH = 32;
+
 /**
- * Get modifier display names from an order item (OrderItem).
- * modifiers[].selectedModifiers[].dish.name – names only, no price.
- * @param {Object} orderItem - raw order item with modifiers
- * @returns {string[]}
+ * Depth-first modifier lines (matches OrderItemModifiers: selectedGroups nest per selected modifier).
+ * @param {Object} group - OrderItemModifier-shaped { selectedModifiers? }
+ * @param {Array<{ depth: number, name: string }>} out
+ * @param {number} depth
  */
-function getOrderItemModifierNames(orderItem) {
-  if (!orderItem || !Array.isArray(orderItem.modifiers)) return [];
-  const names = [];
-  orderItem.modifiers.forEach((group) => {
-    if (!group || !Array.isArray(group.selectedModifiers)) return;
-    group.selectedModifiers.forEach((sel) => {
-      if (!sel) return;
-      const dish = sel.dish || sel.item;
-      const n = (dish && (dish.name || dish.title)) || '';
-      if (n) names.push(String(n).trim());
+function walkModifierGroup(group, out, depth) {
+  if (!group || depth > MODIFIER_WALK_MAX_DEPTH) return;
+  if (!Array.isArray(group.selectedModifiers)) return;
+  group.selectedModifiers.forEach((sel) => {
+    if (!sel) return;
+    const dish = sel.dish || sel.item;
+    const n = (dish && (dish.name || dish.title)) || '';
+    const name = String(n).trim();
+    if (name) out.push({ depth, name });
+    if (depth >= MODIFIER_WALK_MAX_DEPTH) return;
+    const nested = sel.selectedGroups;
+    if (!Array.isArray(nested)) return;
+    nested.forEach((nestedGroup) => {
+      walkModifierGroup(nestedGroup, out, depth + 1);
     });
   });
-  return names;
+}
+
+/**
+ * Modifier display lines from an order item (OrderItem). Names only, no price; any nesting depth.
+ * @param {Object} orderItem - raw order item with modifiers
+ * @returns {Array<{ depth: number, name: string }>}
+ */
+function getOrderItemModifierLines(orderItem) {
+  if (!orderItem || !Array.isArray(orderItem.modifiers)) return [];
+  const lines = [];
+  orderItem.modifiers.forEach((group) => {
+    walkModifierGroup(group, lines, 0);
+  });
+  return lines;
 }
 
 function getOrderId(order) {
@@ -90,7 +109,7 @@ function getOrderId(order) {
 /**
  * Filter order items: exclude deleted, refunded, suspended.
  * @param {Object} order
- * @returns {Array<{ name, qty, price, total, notes, modifierNames }>}
+ * @returns {Array<{ name, qty, price, total, notes, modifierLines }>}
  */
 function getOrderItems(order) {
   if (!order || !Array.isArray(order.items)) return [];
@@ -104,8 +123,8 @@ function getOrderItems(order) {
       const price = qty > 0 ? lineTotal / qty : 0;
       const total = lineTotal;
       const notes = it.comments || '';
-      const modifierNames = getOrderItemModifierNames(it);
-      return { name, qty, price, total, notes, modifierNames };
+      const modifierLines = getOrderItemModifierLines(it);
+      return { name, qty, price, total, notes, modifierLines };
     });
 }
 
@@ -465,7 +484,7 @@ module.exports = {
   getOrderDate,
   getOrderCreatedAt,
   getOrderPriority,
-  getOrderItemModifierNames,
+  getOrderItemModifierLines,
   calculateOrderItemPricePrint,
   getOrderCustomerName,
   getOrderDeliveryTime,

@@ -32,6 +32,9 @@ export interface MenuItem {
 
   newOrOld: MenuItemType
 
+  /** When set from a modifier line, limits which dish-attached groups open in POS. */
+  allowedNextGroupIds?: string[]
+
   created_at?: DateTime
   updated_at?: DateTime
   deleted_at?: DateTime

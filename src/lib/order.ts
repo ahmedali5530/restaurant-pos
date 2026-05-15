@@ -13,16 +13,22 @@ export const getOrderFilteredItems = (order: OrderModel) => {
     .filter(item => item?.is_suspended !== true);
 }
 
-const getPaymentAmount = (payment?: OrderPayment) => {
-  if (!payment) return 0;
-  const amount = safeNumber(payment.payable);
-  if (amount !== 0 || payment.payable === 0) return amount;
-  return safeNumber(payment.amount);
+const getTenderedAmount = (payment?: OrderPayment) => safeNumber(payment?.amount);
+
+/** Amount applied to the check (handles over-tender via payable). */
+const getAppliedAmount = (payment?: OrderPayment) => {
+  const amount = safeNumber(payment?.amount);
+  const payable = safeNumber(payment?.payable);
+  if (payable > 0 && amount > payable) {
+    return payable;
+  }
+  return amount;
 };
 
 const isCashPayment = (payment?: OrderPayment) => {
   const normalizedType = payment?.payment_type?.type?.toLowerCase()?.trim() ?? '';
-  return normalizedType === 'cash';
+  const normalizedName = payment?.payment_type?.name?.toLowerCase()?.trim() ?? '';
+  return normalizedType === 'cash' || normalizedName === 'cash';
 };
 
 export interface OrderPaymentTotals {
@@ -37,26 +43,33 @@ export interface OrderPaymentTotals {
 export const getOrderPaymentTotals = (order: Pick<OrderModel, 'payments'>): OrderPaymentTotals => {
   const payments = order.payments ?? [];
 
-  const baseAmount = getPaymentAmount(payments[0]);
   const nonCashBreakdown = payments.reduce((acc, payment) => {
-    if (isCashPayment(payment)) return acc;
+    if (isCashPayment(payment)) {
+      return acc;
+    }
     const label = payment?.payment_type?.name || 'Other';
-    const amount = getPaymentAmount(payment);
-    acc[label] = (acc[label] ?? 0) + amount;
+    const applied = getAppliedAmount(payment);
+    acc[label] = (acc[label] ?? 0) + applied;
     return acc;
   }, {} as Record<string, number>);
 
-  const nonCashAmount = Object.values(nonCashBreakdown).reduce((sum, amount) => sum + amount, 0);
-  const cashAmount = baseAmount - nonCashAmount;
+  const cashAmount = payments.reduce((sum, payment) => {
+    if (!isCashPayment(payment)) {
+      return sum;
+    }
+    return sum + getAppliedAmount(payment);
+  }, 0);
 
-  const totalReceived = payments.reduce((sum, amount) => sum + amount.amount, 0);
+  const nonCashAmount = Object.values(nonCashBreakdown).reduce((sum, amount) => sum + amount, 0);
+  const totalReceivedWithChange = payments.reduce((sum, payment) => sum + getTenderedAmount(payment), 0);
+  const amountCollected = safeNumber(cashAmount + nonCashAmount);
 
   return {
-    amountCollected: baseAmount,
+    amountCollected,
     cashAmount,
     nonCashAmount,
     nonCashBreakdown,
-    change: totalReceived - cashAmount - nonCashAmount,
-    totalReceivedWithChange: totalReceived
+    change: safeNumber(totalReceivedWithChange - amountCollected),
+    totalReceivedWithChange,
   };
 };

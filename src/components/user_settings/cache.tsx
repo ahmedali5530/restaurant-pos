@@ -70,10 +70,10 @@ export const CacheSettings = () => {
         db.query(`SELECT *
                   FROM ${Tables.modifier_groups}
                   WHERE deleted_at = none
-                  ORDER BY priority ASC FETCH modifiers`),
+                  ORDER BY priority ASC FETCH modifiers, modifiers.modifier, modifiers.allowed_next_groups`),
         db.query(`SELECT *
                   FROM ${Tables.dish_modifier_groups}
-                  ORDER BY priority ASC FETCH in, out, out.modifiers, out.modifiers.modifier`),
+                  ORDER BY priority ASC FETCH in, out, out.modifiers, out.modifiers.modifier, out.modifiers.allowed_next_groups`),
         db.query(`SELECT *
                   FROM ${Tables.floors}
                   WHERE deleted_at = none

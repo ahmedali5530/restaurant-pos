@@ -13,7 +13,7 @@ import {useDB} from "@/api/db/db.ts";
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminModifierGroups = () => {
-  const loadHook = useApi<SettingsData<ModifierGroup>>(Tables.modifier_groups, ['deleted_at = none'], ['priority asc'], 0, 10, ['modifiers', 'modifiers.modifier']);
+  const loadHook = useApi<SettingsData<ModifierGroup>>(Tables.modifier_groups, ['deleted_at = none'], ['priority asc'], 0, 10, ['modifiers', 'modifiers.modifier', 'modifiers.allowed_next_groups']);
   const db = useDB();
 
   const [data, setData] = useState<ModifierGroup>();
@@ -29,7 +29,12 @@ export const AdminModifierGroups = () => {
       header: 'Modifiers',
       cell: info => <div className="flex gap-2 flex-wrap">
         {info.getValue()?.map((item, index) => (
-          <span className="tag" key={`${item.id}-${index}`}>{item.modifier.name} — {item.price}</span>
+          <span className="tag" key={`${item.id}-${index}`}>
+            {item.modifier.name} — {item.price}
+            {item.allowed_next_groups != null && item.allowed_next_groups.length > 0 && (
+              <span className="text-neutral-500"> ({item.allowed_next_groups.length} next)</span>
+            )}
+          </span>
         ))}
       </div>,
       enableSorting: false

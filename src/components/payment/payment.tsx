@@ -1,5 +1,5 @@
 import {Button} from "@/components/common/input/button.tsx";
-import {faCancel, faCheck, faCreditCard} from "@fortawesome/free-solid-svg-icons";
+import {faCancel, faCheck, faCreditCard, faTimes} from "@fortawesome/free-solid-svg-icons";
 import React, {useMemo, useState} from "react";
 import {useAtom} from "jotai";
 import {appPage, appState} from "@/store/jotai.ts";

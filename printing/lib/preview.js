@@ -147,16 +147,16 @@ function pct(x, of) {
 }
 
 /**
- * Render summary as HTML. Matches Summary (summary.tsx).
- * data: { orders: { data: Order[] }, date: string } – same props as Summary.
+ * Render summary as HTML. Mirrors DailySalesSummaryReport (daily.sales.summary.report.tsx).
+ * data: { orders: Order[] | { data: Order[] }, date?: string }
  */
 function renderSummaryToHtml(data, config) {
   const cfg = normalizeConfig(config || {});
   const sym = cfg.currencySymbol || '$';
   const s = computeSummary(data || {});
   const row = (a, b) => `<div class="row"><span>${escapeHtml(a)}</span><span>${escapeHtml(b)}</span></div>`;
-  const sub = (t) => `<div class="sub">${escapeHtml(t)}</div>`;
   const sect = (t) => `<div class="sect">${escapeHtml(t)}</div>`;
+  const ex = s.exclusiveSales;
 
   const parts = [];
   if (cfg.showLogo && cfg.logo && String(cfg.logo).trim()) {
@@ -172,69 +172,117 @@ function renderSummaryToHtml(data, config) {
   if (cfg.showTopDescription && cfg.topDescription) {
     parts.push(`<div class="center">${escapeHtml(String(cfg.topDescription).slice(0, 48))}</div>`);
   }
-  parts.push(`<div class="title">Summary of ${escapeHtml(s.date)}</div>`);
+  parts.push(`<div class="title">Daily sales summary — ${escapeHtml(s.date)}</div>`);
   parts.push('<hr/>');
-  parts.push(row('Exclusive amount', formatMoney(s.exclusive, sym)));
-  parts.push(row('G sales', formatMoney(s.gSales, sym)));
-  parts.push(sub('Items total (before tax)'));
-  parts.push(row('Gross', formatMoney(s.gross, sym)));
-  parts.push(sub('Amount collected + Refunds + Discounts'));
-  parts.push(row('Refunds', formatMoney(s.refunds, sym)));
-  parts.push(row('Service charges', formatMoney(s.serviceCharges, sym)));
-  parts.push(row('Discounts', formatMoney(s.discounts, sym)));
-  parts.push(row('Taxes', formatMoney(s.taxes, sym)));
-  parts.push(row('Net', formatMoney(s.net, sym)));
-  parts.push(sub('Amount collected - Service charges - Taxes'));
-  parts.push(row('Amount due', formatMoney(s.amountDue, sym)));
-  parts.push(sub('Items total + Taxes + Service + Extras - Discounts'));
-  parts.push(row('Amount collected', formatMoney(s.amountCollected, sym)));
+  parts.push(sect('1. Sales revenue'));
+  parts.push(row('Exclusive sales', formatMoney(s.exclusiveSales, sym)));
   parts.push(row('Extras', formatMoney(s.totalExtras, sym)));
+  parts.push(row('Gross sales', formatMoney(s.grossSales, sym)));
+  parts.push(row('Item discounts', formatMoney(s.itemDiscounts, sym)));
+  parts.push(row('Subtotal discounts', formatMoney(s.subtotalDiscounts, sym)));
+  parts.push(row('Coupon discounts', formatMoney(s.couponDiscounts, sym)));
+  parts.push(row('(−) Discounts', formatMoney(s.discounts, sym)));
+  parts.push(row('Net sales', formatMoney(s.netSales, sym)));
+  parts.push('<hr/>');
+  parts.push(sect('2. Surcharges and taxes'));
+  parts.push(row('Service charges', formatMoney(s.serviceCharges, sym)));
+  parts.push(row('Taxes', formatMoney(s.taxCollected, sym)));
+  parts.push(`<div class="row bold"><span>Total revenue</span><span>${escapeHtml(formatMoney(s.totalRevenue, sym))}</span></div>`);
+  parts.push('<hr/>');
+  parts.push(sect('3. Settlement and cashier'));
+  parts.push(row('Amount due (before tips)', formatMoney(s.amountDue, sym)));
+  parts.push(row('Tips', formatMoney(s.tips, sym)));
+  parts.push(`<div class="row bold"><span>Grand total (due)</span><span>${escapeHtml(formatMoney(s.grandTotalDue, sym))}</span></div>`);
+  parts.push(row('Amount collected', formatMoney(s.amountCollected, sym)));
   parts.push(row('Rounding', formatMoney(s.rounding, sym)));
-  parts.push(sub('Amount collected - Amount due'));
+  parts.push(row('Change / variance', formatMoney(s.changeGiven, sym)));
+  parts.push('<hr/>');
+  parts.push(sect('4. Operational controls'));
   parts.push(row('Voids', formatMoney(s.voids, sym)));
-  parts.push('<hr/>');
-  parts.push(sect('Tips'));
-  parts.push(row('Total Tips', formatMoney(s.tips, sym)));
-  parts.push('<hr/>');
+  parts.push(row('Refunds', formatMoney(s.refunds, sym)));
   parts.push(row('Covers', formatNum(s.covers)));
   parts.push(row('Average cover', formatMoney(s.averageCover, sym)));
-  parts.push(row('Orders/Checks', formatNum(s.ordersCount)));
-  parts.push(row('Average order/check', formatMoney(s.averageOrder, sym)));
+  parts.push(row('Orders / checks', formatNum(s.ordersCount)));
+  parts.push(row('Average order / check', formatMoney(s.averageOrderCheck, sym)));
   parts.push('<hr/>');
-  parts.push(sect('Categories'));
-  Object.keys(s.categories || {}).forEach((k) => {
-    const c = s.categories[k];
-    parts.push(`<div class="row4"><span>${escapeHtml(k)}</span><span>${formatNum(c.quantity)}</span><span>${formatMoney(c.total, sym)}</span><span>${formatNum(pct(c.total, s.exclusive))}%</span></div>`);
-  });
+  parts.push(sect('5. Product mix'));
+  parts.push(
+    `<div class="row4"><span>Item</span><span>Qty</span><span>Total</span><span>Share</span></div>`
+  );
+  if (!s.categoryMix || s.categoryMix.length === 0) {
+    parts.push('<p class="muted">No category data for this date.</p>');
+  } else {
+    s.categoryMix.forEach((category) => {
+      const catShare = formatNum(pct(category.total, ex)) + '%';
+      parts.push(
+        `<div class="row4 boldish"><span>${escapeHtml(String(category.name))}</span><span>${formatNum(category.quantity)}</span><span>${escapeHtml(formatMoney(category.total, sym))}</span><span>${escapeHtml(catShare)}</span></div>`
+      );
+      (category.dishes || []).forEach((dish) => {
+        const dishShare = formatNum(pct(dish.total, ex)) + '%';
+        parts.push(
+          `<div class="row4"><span class="pl">${escapeHtml(String(dish.name))}</span><span>${formatNum(dish.quantity)}</span><span>${escapeHtml(formatMoney(dish.total, sym))}</span><span>${escapeHtml(dishShare)}</span></div>`
+        );
+        (dish.modifiers || []).forEach((modifier) => {
+          const depth = Number.isFinite(Number(modifier.depth)) ? Number(modifier.depth) : 1;
+          const pl = Math.min(48, 8 + depth * 12);
+          parts.push(
+            `<div class="row4 mod"><span style="padding-left:${pl}px">- ${escapeHtml(String(modifier.name))}</span><span>${formatNum(modifier.quantity)}</span><span>${formatNum(modifier.price)}</span><span></span></div>`
+          );
+        });
+      });
+    });
+  }
   parts.push('<hr/>');
-  parts.push(sect('Dishes'));
-  Object.keys(s.dishes || {}).forEach((k) => {
-    const d = s.dishes[k];
-    parts.push(`<div class="row4"><span>${escapeHtml(k)}</span><span>${formatNum(d.quantity)}</span><span>${formatMoney(d.total, sym)}</span><span>${formatNum(pct(d.total, s.exclusive))}%</span></div>`);
-  });
+  parts.push(sect('6. Payment types'));
+  if (!s.paymentTypes || s.paymentTypes.length === 0) {
+    parts.push('<p class="muted">No payment data for this date.</p>');
+  } else {
+    s.paymentTypes.forEach((payment) => {
+      const p = formatNum(pct(payment.total, s.amountDue)) + '%';
+      parts.push(
+        row(payment.name, `${formatMoney(payment.total, sym)}  ${p}`)
+      );
+    });
+  }
   parts.push('<hr/>');
-  parts.push(sect('Payment types'));
-  Object.keys(s.paymentTypes || {}).forEach((k) => {
-    const a = s.paymentTypes[k];
-    parts.push(row(k, formatMoney(a, sym) + '  ' + formatNum(pct(a, s.amountDue)) + '%'));
-  });
+  parts.push(sect('7. Taxes breakdown'));
+  if (!s.taxesList || s.taxesList.length === 0) {
+    parts.push('<p class="muted">No tax rows for this date.</p>');
+  } else {
+    s.taxesList.forEach((tax) => {
+      const p = formatNum(pct(tax.total, s.taxCollected)) + '%';
+      parts.push(row(`${tax.name}%`, `${formatMoney(tax.total, sym)}  ${p}`));
+    });
+  }
   parts.push('<hr/>');
-  parts.push(sect('Taxes'));
-  Object.keys(s.taxesList || {}).forEach((k) => {
-    const a = s.taxesList[k];
-    parts.push(row(k + '%', formatMoney(a, sym) + '  ' + formatNum(pct(a, s.taxes)) + '%'));
-  });
+  parts.push(sect('8. Discounts breakdown'));
+  if (!s.discountsList || s.discountsList.length === 0) {
+    parts.push('<p class="muted">No discount rows for this date.</p>');
+  } else {
+    s.discountsList.forEach((discount) => {
+      const p = formatNum(pct(discount.total, s.discounts)) + '%';
+      parts.push(row(discount.name, `${formatMoney(discount.total, sym)}  ${p}`));
+    });
+  }
   parts.push('<hr/>');
-  parts.push(sect('Discounts'));
-  Object.keys(s.discountsList || {}).forEach((k) => {
-    const a = s.discountsList[k];
-    parts.push(row(k, formatMoney(a, sym) + '  ' + formatNum(pct(a, s.discounts)) + '%'));
-  });
+  parts.push(sect('9. Extras breakdown'));
+  if (!s.extrasList || s.extrasList.length === 0) {
+    parts.push('<p class="muted">No extras found for this date.</p>');
+  } else {
+    s.extrasList.forEach((extra) => {
+      const p = formatNum(pct(extra.total, s.totalExtras)) + '%';
+      parts.push(row(extra.name, `${formatMoney(extra.total, sym)}  ${p}`));
+    });
+  }
   parts.push('<hr/>');
-  parts.push(sect('Extras'));
-  Object.keys(s.extras || {}).forEach((k) => {
-    parts.push(row(k, formatMoney(s.extras[k], sym)));
-  });
+  parts.push(sect('10. Coupons breakdown'));
+  if (!s.couponsList || s.couponsList.length === 0) {
+    parts.push('<p class="muted">No coupon usage for this date.</p>');
+  } else {
+    s.couponsList.forEach((coupon) => {
+      parts.push(row(coupon.name, formatMoney(coupon.total, sym)));
+    });
+  }
   if (cfg.showVatNumber && cfg.vatNumber) {
     parts.push('<hr/>');
     parts.push(`<div class="row">${escapeHtml(cfg.vatName + ': ' + cfg.vatNumber)}</div>`);
@@ -256,6 +304,11 @@ function renderSummaryToHtml(data, config) {
     .row4 span:nth-child(2) { width: 48px; text-align: right; }
     .row4 span:nth-child(3) { width: 72px; text-align: right; }
     .row4 span:nth-child(4) { width: 44px; text-align: right; }
+    .bold { font-weight: bold; }
+    .boldish { font-weight: 600; }
+    .pl { padding-left: 12px; }
+    .mod { font-size: 0.85rem; color: #4b5563; }
+    .muted { font-size: 0.85rem; color: #6b7280; padding: 8px 0; margin: 0; }
     .sub { font-size: 0.75rem; color: #6b7280; margin: -2px 0 4px 0; }
     .sect { font-weight: bold; text-align: center; margin: 8px 0 4px 0; }
     hr { border: none; border-top: 1px solid #e5e7eb; margin: 6px 0; }

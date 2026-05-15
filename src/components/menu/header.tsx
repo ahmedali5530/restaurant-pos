@@ -1,7 +1,7 @@
 import {useAtom} from "jotai";
 import {appSettings, appState} from "@/store/jotai.ts";
 import {Button} from "@/components/common/input/button.tsx";
-import {faArrowLeft, faPlus, faTable, faUser, faUsers} from "@fortawesome/free-solid-svg-icons";
+import {faArrowLeft, faPlus, faTable, faTimes, faUser, faUsers} from "@fortawesome/free-solid-svg-icons";
 import {cn, toRecordId} from "@/lib/utils.ts";
 import React, {useEffect, useState} from "react";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
@@ -150,6 +150,15 @@ export const MenuHeader = () => {
 
   const newCartItems = state?.cart?.filter(item => item.newOrOld === MenuItemType.new).length;
 
+  const clear = async () => {
+    setState(prev => ({
+      ...prev,
+      seats: [],
+      cart: prev.cart.filter(item => item.newOrOld === MenuItemType.old),
+      seat: undefined
+    }));
+  }
+
   return (
     <>
       <div className="flex justify-between items-center w-full">
@@ -203,6 +212,10 @@ export const MenuHeader = () => {
               {state?.customer ? state.customer?.name : 'Customer'}
             </Button>
           </div>
+          {state.cart.filter(item => item.newOrOld === MenuItemType.new).length > 0 && (
+            <Button variant="danger" className="flex-1" size="lg" icon={faTimes} onClick={clear}
+            >Clear</Button>
+          )}
         </div>
 
         <div className="flex input-group rounded-full">
