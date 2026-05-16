@@ -95,7 +95,7 @@ export const Modal: FunctionComponent<ModalProps> = ({
                   {props.header && props.header}
                 </div>
                 <div
-                  className="pb-5 modal-container px-5 py-3 bg-neutral-100"
+                  className="pb-5 modal-container px-5 py-3 bg-neutral-100 overflow-auto"
                 >
                   {props.children}
                 </div>
