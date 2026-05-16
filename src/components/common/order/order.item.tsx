@@ -4,12 +4,13 @@ import { OrderItem, OrderItemModifier } from "@/api/model/order_item.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 
 export const OrderItemName = ({
-  item, showGroups, showQuantity, showPrice
+  item, showGroups, showQuantity, showPrice, showModifierPrice
 }: {
   item: OrderItem,
   showGroups?: boolean
   showQuantity?: boolean
   showPrice?: boolean
+  showModifierPrice?: boolean
 }) => {
   return (
     <div className="hover:bg-neutral-200">
@@ -18,7 +19,7 @@ export const OrderItemName = ({
       } as any}>
         <span className="flex-1">{item.item.name}</span>
         {showQuantity && <span className="flex-0 w-[50px] text-right">{formatNumber(item.quantity)}</span>}
-        {showPrice && <span className="flex-0 w-[70px] text-right">{formatNumber(calculateOrderItemPrice(item))}</span>}
+        {showPrice && <span className="flex-0 w-[70px] text-right">{formatNumber(showModifierPrice ? item.price : calculateOrderItemPrice(item))}</span>}
       </div>
       {item.comments && (
         <span className="flex-1 text-sm italic text-danger-500">({item.comments})</span>
@@ -26,7 +27,12 @@ export const OrderItemName = ({
       {item?.modifiers?.length > 0 && (
         <div className="pl-3 flex flex-col">
           {item?.modifiers?.map(modifier => (
-            <OrderItemModifiers modifier={modifier} key={modifier.id} showGroups={showGroups}/>
+            <OrderItemModifiers
+              modifier={modifier}
+              key={modifier.id}
+              showGroups={showGroups}
+              showPrice={showModifierPrice}
+            />
           ))}
         </div>
       )}
@@ -35,16 +41,24 @@ export const OrderItemName = ({
 }
 
 export const OrderItemModifiers = ({
-  modifier, showGroups
-}: { modifier: OrderItemModifier, showGroups?: boolean }) => {
+  modifier, showGroups, showPrice
+}: { modifier: OrderItemModifier, showGroups?: boolean, showPrice?: boolean }) => {
   return (
     <div key={modifier.id} className="flex flex-col kitchen-order-modifier-group">
       {showGroups && <strong>{modifier.out.name}</strong>}
       {modifier.selectedModifiers.map(selectedModifier => (
-        <div key={selectedModifier.id} className="pl-3">
-          {selectedModifier.dish.name}
+        <div key={selectedModifier.id} className="pl-3 text-sm">
+          <div className="flex">
+            <span className="flex-1">{selectedModifier.dish.name}</span>
+            {showPrice && <span className="flex-0 w-[70px] text-right">{formatNumber(selectedModifier.price)}</span>}
+          </div>
+
           {selectedModifier?.selectedGroups?.map(selectedGroup => (
-            <OrderItemModifiers modifier={selectedGroup} key={selectedGroup.id}/>
+            <OrderItemModifiers
+              showPrice={showPrice}
+              modifier={selectedGroup}
+              key={selectedGroup.id}
+            />
           ))}
         </div>
       ))}

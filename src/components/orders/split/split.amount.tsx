@@ -407,6 +407,7 @@ export const SplitAmount = ({
                           }}
                           placeholder="0.00"
                           inputSize="lg"
+                          enableKeyboard
                         />
                         {split.amount > 0 && (
                           <div className="mt-2 text-sm text-gray-600">

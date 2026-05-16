@@ -88,7 +88,13 @@ export const OrderBox = ({
         <ScrollContainer>
           <div className="overflow-auto max-h-[400px]">
             {getOrderFilteredItems(order).map((item, index) => (
-              <OrderItemName item={item} showPrice showQuantity key={index}/>
+              <OrderItemName
+                item={item}
+                showPrice
+                showModifierPrice
+                showQuantity
+                key={index}
+              />
             ))}
           </div>
         </ScrollContainer>
