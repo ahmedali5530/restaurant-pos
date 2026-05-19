@@ -17,6 +17,7 @@ interface Props {
   open: boolean
   groupId: string
   groupName: string
+  title: string
   template: ModifierGroup | null
   items: ModifierNextGroupOverrideItem[]
   onClose: () => void
@@ -27,6 +28,7 @@ export const NestedGroupOverrideEditor = ({
   open,
   groupId,
   groupName,
+  title,
   template,
   items,
   onClose,
@@ -86,7 +88,7 @@ export const NestedGroupOverrideEditor = ({
   return (
     <Modal
       open={open}
-      title={`Customize: ${groupName}`}
+      title={`Customize: ${title}`}
       onClose={onClose}
       size="lg"
     >

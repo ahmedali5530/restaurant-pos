@@ -7,7 +7,7 @@ import { Tables } from "@/api/db/tables.ts";
 import { toast } from 'sonner';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect, useState } from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import { ModifierGroup } from "@/api/model/modifier_group.ts";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
@@ -109,6 +109,16 @@ const ModifierNextGroups = ({
     };
   }, [modifier?.value]);
 
+  const isGroupModified = useCallback((groupId) => {
+    return nextGroupOverrides.filter(item => {
+      if(item.group_id === groupId){
+        return item.items.filter(a => a.hidden).length > 0
+      }
+
+      return false;
+    }).length > 0;
+  }, [nextGroupOverrides]);
+
   if (!modifier?.value) {
     return null;
   }
@@ -146,7 +156,7 @@ const ModifierNextGroups = ({
   return (
     <>
       <div className="col-span-full">
-        <p className="text-sm font-medium mb-2">Next modifier groups</p>
+        <label className="text-sm font-medium">Next modifier groups</label>
         <div className="flex flex-col gap-2">
           {attachableGroups.map((row) => {
             const groupId = row.out.id.toString();
@@ -179,14 +189,13 @@ const ModifierNextGroups = ({
                 {checked && (
                   <Button
                     type="button"
-                    variant="secondary"
-                    size="sm"
+                    variant={isGroupModified(groupId) ? 'warning' : 'secondary'}
                     filled
                     flat
                     onClick={() => openCustomize(groupId, row.out.name)}
                     icon={faPencil}
+                    iconButton
                   >
-                    Customize
                   </Button>
                 )}
               </div>
@@ -200,6 +209,7 @@ const ModifierNextGroups = ({
           open={Boolean(editingGroup)}
           groupId={editingGroup.groupId}
           groupName={editingGroup.groupName}
+          title={`${modifier.label} — ${editingGroup.groupName}`}
           template={editingGroup.template}
           items={editingGroup.items}
           onClose={() => setEditingGroup(null)}
@@ -463,7 +473,8 @@ export const ModifierGroupForm = ({
                       )}
                     />
                   </div>
-                  <div className="self-end">
+                  <div className="self-start flex flex-col">
+                    <label htmlFor="">&nbsp;</label>
                     <Button iconButton variant="danger" type="button" onClick={() => remove(index)}>
                       <FontAwesomeIcon icon={faTrash} />
                     </Button>
