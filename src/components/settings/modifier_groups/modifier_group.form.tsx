@@ -13,12 +13,22 @@ import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import { Dish } from "@/api/model/dish.ts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faPencil, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { DishForm } from "@/components/settings/dishes/dish.form.tsx";
 import {toRecordId} from "@/lib/utils.ts";
 import { Switch } from "@/components/common/input/switch.tsx";
 import { DishModifierGroup } from "@/api/model/dish_modifier_group.ts";
-import {fetchAttachableGroupsForDish} from "@/lib/modifier-groups.ts";
+import {
+  fetchAttachableGroupsForDish,
+  fetchModifierGroupTemplate,
+  mergeNextGroupOverrides,
+  normalizeNextGroupOverrides,
+} from "@/lib/modifier-groups.ts";
+import { NestedGroupOverrideEditor } from "@/components/settings/modifier_groups/nested-group-override-editor.tsx";
+import {
+  ModifierNextGroupOverride,
+  ModifierNextGroupOverrideItem,
+} from "@/api/model/modifier.ts";
 
 interface Props {
   open: boolean
@@ -35,7 +45,15 @@ const validationSchema = yup.object({
       value: yup.string()
     }).default(undefined).required('This is required'),
     price: yup.number().required('This is required'),
-    allowed_next_groups: yup.array(yup.string()).default([])
+    allowed_next_groups: yup.array(yup.string()).default([]),
+    next_group_overrides: yup.array(yup.object({
+      group_id: yup.string().required(),
+      items: yup.array(yup.object({
+        nested_modifier_id: yup.string().required(),
+        price: yup.number().required(),
+        hidden: yup.boolean().default(false),
+      })).default([])
+    })).default([])
   })).min(1, 'This is required')
 });
 
@@ -52,8 +70,18 @@ const ModifierNextGroups = ({
 }) => {
   const modifier = useWatch({ control, name: `modifiers.${index}.modifier` });
   const allowedNextGroups: string[] = useWatch({ control, name: `modifiers.${index}.allowed_next_groups` }) ?? [];
+  const nextGroupOverrides: ModifierNextGroupOverride[] = useWatch({
+    control,
+    name: `modifiers.${index}.next_group_overrides`,
+  }) ?? [];
   const [attachableGroups, setAttachableGroups] = useState<DishModifierGroup[]>([]);
   const [loading, setLoading] = useState(false);
+  const [editingGroup, setEditingGroup] = useState<{
+    groupId: string
+    groupName: string
+    template: ModifierGroup | null
+    items: ModifierNextGroupOverrideItem[]
+  } | null>(null);
 
   useEffect(() => {
     if (!modifier?.value) {
@@ -101,31 +129,94 @@ const ModifierNextGroups = ({
     );
   }
 
-  return (
-    <div className="">
-      <p className="text-sm font-medium mb-2">Next modifier groups</p>
-      <div className="flex flex-wrap gap-3">
-        {attachableGroups.map((row) => {
-          const groupId = row.out.id.toString();
-          const checked = allowedNextGroups.includes(groupId);
+  const openCustomize = async (groupId: string, groupName: string) => {
+    const template = await fetchModifierGroupTemplate(db, groupId);
+    const existing = normalizeNextGroupOverrides(nextGroupOverrides).find(
+      (row) => row.group_id === groupId
+    );
 
-          return (
-            <Switch
-              key={groupId}
-              checked={checked}
-              onChange={(e) => {
-                const next = e.target.checked
-                  ? [...allowedNextGroups, groupId]
-                  : allowedNextGroups.filter((id) => id !== groupId);
-                setValue(`modifiers.${index}.allowed_next_groups`, next, { shouldDirty: true });
-              }}
-            >
-              {row.out.name}
-            </Switch>
-          );
-        })}
+    setEditingGroup({
+      groupId,
+      groupName,
+      template,
+      items: existing?.items ?? [],
+    });
+  };
+
+  return (
+    <>
+      <div className="col-span-full">
+        <p className="text-sm font-medium mb-2">Next modifier groups</p>
+        <div className="flex flex-col gap-2">
+          {attachableGroups.map((row) => {
+            const groupId = row.out.id.toString();
+            const checked = allowedNextGroups.includes(groupId);
+
+            return (
+              <div key={groupId} className="flex flex-wrap items-center gap-3">
+                <Switch
+                  checked={checked}
+                  onChange={(e) => {
+                    const next = e.target.checked
+                      ? [...allowedNextGroups, groupId]
+                      : allowedNextGroups.filter((id) => id !== groupId);
+                    setValue(`modifiers.${index}.allowed_next_groups`, next, {
+                      shouldDirty: true,
+                    });
+
+                    if (!e.target.checked) {
+                      const filtered = normalizeNextGroupOverrides(
+                        nextGroupOverrides
+                      ).filter((entry) => entry.group_id !== groupId);
+                      setValue(`modifiers.${index}.next_group_overrides`, filtered, {
+                        shouldDirty: true,
+                      });
+                    }
+                  }}
+                >
+                  {row.out.name}
+                </Switch>
+                {checked && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    filled
+                    flat
+                    onClick={() => openCustomize(groupId, row.out.name)}
+                    icon={faPencil}
+                  >
+                    Customize
+                  </Button>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
-    </div>
+
+      {editingGroup && (
+        <NestedGroupOverrideEditor
+          open={Boolean(editingGroup)}
+          groupId={editingGroup.groupId}
+          groupName={editingGroup.groupName}
+          template={editingGroup.template}
+          items={editingGroup.items}
+          onClose={() => setEditingGroup(null)}
+          onSave={(items) => {
+            const merged = mergeNextGroupOverrides(
+              nextGroupOverrides,
+              editingGroup.groupId,
+              items
+            );
+            setValue(`modifiers.${index}.next_group_overrides`, merged, {
+              shouldDirty: true,
+            });
+            setEditingGroup(null);
+          }}
+        />
+      )}
+    </>
   );
 };
 
@@ -177,6 +268,7 @@ export const ModifierGroupForm = ({
             id: item.id.toString(),
             price: item.price,
             allowed_next_groups: savedIds ?? attachableIds,
+            next_group_overrides: normalizeNextGroupOverrides(item.next_group_overrides),
           };
         })
       );
@@ -232,6 +324,7 @@ export const ModifierGroupForm = ({
             modifier: toRecordId(m.modifier.value),
             price: Number(m.price),
             allowed_next_groups: allowedNextGroups,
+            next_group_overrides: normalizeNextGroupOverrides(m.next_group_overrides),
           });
 
           modifiers.push(toRecordId(m.id));
@@ -240,6 +333,7 @@ export const ModifierGroupForm = ({
             modifier: toRecordId(m.modifier.value),
             price: m.price,
             allowed_next_groups: allowedNextGroups,
+            next_group_overrides: normalizeNextGroupOverrides(m.next_group_overrides),
           });
 
           modifiers.push(record.id);
@@ -309,7 +403,8 @@ export const ModifierGroupForm = ({
                   append({
                     modifier: null,
                     price: 0,
-                    allowed_next_groups: []
+                    allowed_next_groups: [],
+                    next_group_overrides: [],
                   })
                 }} variant="primary" type="button" icon={faPlus}>modifier</Button>
 
@@ -337,8 +432,12 @@ export const ModifierGroupForm = ({
                                 attachable.map((g) => g.out.id.toString()),
                                 { shouldDirty: true }
                               );
+                              setValue(`modifiers.${index}.next_group_overrides`, [], {
+                                shouldDirty: true,
+                              });
                             } else {
                               setValue(`modifiers.${index}.allowed_next_groups`, [], { shouldDirty: true });
+                              setValue(`modifiers.${index}.next_group_overrides`, [], { shouldDirty: true });
                             }
                           }}
                           options={dishes?.data?.map((dish) => ({

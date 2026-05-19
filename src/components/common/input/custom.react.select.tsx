@@ -1,6 +1,6 @@
 import React from "react";
-import Select, { GroupBase, Props } from "react-select";
-import { Theme } from "react-select/dist/declarations/src/";
+import Select, {components as selectComponents, GroupBase, Props} from "react-select";
+import {Theme} from "react-select/dist/declarations/src/";
 import Spinner from "@/assets/images/spinner.svg";
 
 const primaryColor = "23 23 23";
@@ -37,23 +37,67 @@ export const styleConfig = {
 export const classNamePrefix = "rs-";
 
 const LoadingIndicator = () => {
-  return <img alt="loading..." src={Spinner} className="w-[18px] mr-2" />;
+  return <img alt="loading..." src={Spinner} className="w-[18px] mr-2"/>;
 };
+
+const menuPortalZIndex = 1100;
+
+const defaultMenuPortalTarget =
+  typeof document !== "undefined" ? document.body : undefined;
 
 export function ReactSelect<
   Option,
   IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>
 >(props: Props<Option, IsMulti, Group>) {
+  const {
+    styles: stylesProp,
+    components: componentsProp,
+    menuPortalTarget: menuPortalTargetProp,
+    isMulti,
+    ...restProps
+  } = props;
+
+  const menuPortalTarget =
+    menuPortalTargetProp !== undefined
+      ? menuPortalTargetProp
+      : defaultMenuPortalTarget;
+
   return (
     <Select
-      closeMenuOnSelect={!props.isMulti}
-      {...props}
+      closeMenuOnSelect={!isMulti}
+      {...restProps}
+      isMulti={isMulti}
       theme={themeConfig}
-      styles={styleConfig}
+      styles={{
+        ...styleConfig,
+        ...stylesProp,
+        menuPortal: (base, state) => ({
+          ...(stylesProp?.menuPortal?.(base, state) ?? base),
+          zIndex: menuPortalZIndex,
+        }),
+      }}
+      menuShouldScrollIntoView={false}
+      menuPosition="fixed"
+      menuPlacement="auto"
+      menuPortalTarget={menuPortalTarget}
       classNamePrefix={classNamePrefix}
       components={{
-        LoadingIndicator: LoadingIndicator,
+        ...componentsProp,
+        MenuPortal: (menuPortalProps) => {
+          const Portal =
+            componentsProp?.MenuPortal ?? selectComponents.MenuPortal;
+          return (
+            <Portal
+              {...menuPortalProps}
+              innerProps={{
+                ...menuPortalProps.innerProps,
+                "data-react-aria-top-layer": "true",
+              } as typeof menuPortalProps.innerProps}
+            />
+          );
+        },
+        LoadingIndicator: componentsProp?.LoadingIndicator ?? LoadingIndicator,
       }}
     />
   );

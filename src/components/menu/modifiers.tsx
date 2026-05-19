@@ -13,6 +13,15 @@ import ScrollContainer from "react-indiana-drag-scroll";
 import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPencil, faTimes} from "@fortawesome/free-solid-svg-icons";
+import {NestedModifierEditor} from "@/components/menu/nested-modifier-editor.tsx";
+import {
+  cloneCartModifierGroups,
+  getGroupInstanceKey,
+  getGroupSidebarLabel,
+  getVisibleCatalogModifiers,
+  isSameGroupInstance,
+  updateModifierNestedGroups,
+} from "@/lib/modifier-groups.ts";
 
 interface Props {
   dish?: Dish
@@ -27,20 +36,36 @@ export const MenuDishModifiers = (props: Props) => {
   const [state] = useAtom(appState);
   const [, setAlert] = useAtom(appAlert);
 
-  const [groups, setGroups] = useState(props.groups);
+  const [groups, setGroups] = useState(() => cloneCartModifierGroups(props.groups));
   const [group, setGroup] = useState<CartModifierGroup>();
+  const [editingNestedFor, setEditingNestedFor] = useState<string | null>(null);
   const ITEMS_PER_SLIDE = 18;
+
+  useEffect(() => {
+    setGroups(cloneCartModifierGroups(props.groups));
+  }, [props.groups]);
+
+  const visibleModifiers = useMemo(() => {
+    if (!group) {
+      return [];
+    }
+
+    return getVisibleCatalogModifiers(group);
+  }, [group]);
 
   const slides = useMemo(() => {
     if (!group) {
       return 1;
     }
 
-    return Math.ceil(group.modifiers.length / ITEMS_PER_SLIDE);
-  }, [group]);
+    return Math.ceil(visibleModifiers.length / ITEMS_PER_SLIDE);
+  }, [group, visibleModifiers.length]);
 
   const selected = useMemo(() => {
-    return groups.reduce((prev, item) => prev + item.selectedModifiers.length, 0);
+    return groups.reduce(
+      (prev, item) => prev + (item.selectedModifiers?.length ?? 0),
+      0
+    );
   }, [groups]);
 
   const required = useMemo(() => {
@@ -56,14 +81,11 @@ export const MenuDishModifiers = (props: Props) => {
       return true;
     }
 
-    // Block dismiss only when at least one required group is incomplete.
     return !groups.some(
-      grp => grp.has_required_modifiers && grp.selectedModifiers.length < grp.required_modifiers
+      grp => grp.has_required_modifiers && (grp.selectedModifiers?.length ?? 0) < grp.required_modifiers
     );
   }, [groups]);
 
-  // Keep the close icon behavior aligned with dismiss rules:
-  // show it only when dismiss actions are currently allowed.
   const hideCloseButton = !isDismissible;
 
   useEffect(() => {
@@ -73,27 +95,81 @@ export const MenuDishModifiers = (props: Props) => {
       return;
     }
 
-    // auto select modifiers if they are same as required
     if (
       group &&
-      group.modifiers.length === group.required_modifiers &&
+      visibleModifiers.length === group.required_modifiers &&
       props.editing !== true &&
       group.should_auto_select
     ) {
-      for (const dish of group.modifiers) {
-        onModifierClick(buildModifiersObj(dish.dish, dish.selectedGroups, dish.price));
+      for (const catalog of visibleModifiers) {
+        onModifierClick(
+          {
+            quantity: 1,
+            dish: catalog.dish,
+            seat: state.seat,
+            id: nanoid(),
+            level: props.level,
+            price: catalog.price,
+            newOrOld: MenuItemType.new,
+            category: state.category
+              ? state.category.name
+              : (catalog.dish.categories.length === 1
+                ? catalog.dish.categories[0].name
+                : ''),
+          },
+          catalog.selectedGroups,
+          catalog.price,
+          catalog
+        );
       }
     }
-  }, [props.dish, group, state.seat, props.level, props.editing]);
+  }, [props.dish, group, state.seat, props.level, props.editing, visibleModifiers]);
 
-  const onModifierClick = (d: MenuItem, selectedGroups?: CartModifierGroup[], price?: number) => {
+  const buildModifiersObj = (
+    dish: Dish,
+    nestedGroups?: CartModifierGroup[],
+    price?: number,
+    catalog?: MenuItem
+  ): MenuItem => {
+    const sourceModifier = catalog?.sourceModifier;
+
+    return {
+      quantity: 1,
+      dish: dish,
+      seat: state.seat,
+      id: nanoid(),
+      level: props.level,
+      selectedGroups: nestedGroups,
+      newOrOld: MenuItemType.new,
+      category: state.category ? state.category?.name : (dish.categories.length === 1 ? dish.categories[0].name : ''),
+      isModifier: true,
+      price: price,
+      sourceModifier,
+      catalogModifierId: catalog
+        ? (catalog.catalogModifierId ?? catalog.id.toString())
+        : undefined,
+    }
+  }
+
+  const onModifierClick = (
+    d: MenuItem,
+    selectedGroups?: CartModifierGroup[],
+    price?: number,
+    catalog?: MenuItem
+  ) => {
     setGroups(
       newGroups => newGroups.map(grp => {
-        if (grp.out.id.toString() === group.out.id.toString()) {
-          if(props.editing && grp.has_required_modifiers && grp.selectedModifiers.length === grp.required_modifiers){
-            // remove last modifier and choose this one
+        if (isSameGroupInstance(grp, group)) {
+          const clonedNested = selectedGroups
+            ? cloneCartModifierGroups(selectedGroups)
+            : undefined;
+
+          if(props.editing && grp.has_required_modifiers && (grp.selectedModifiers?.length ?? 0) === grp.required_modifiers){
+            grp.selectedModifiers = [...(grp.selectedModifiers ?? [])];
             grp.selectedModifiers.pop();
-            grp.selectedModifiers.push(buildModifiersObj(d.dish, selectedGroups, price ?? d.price));
+            grp.selectedModifiers.push(
+              buildModifiersObj(d.dish, clonedNested, price ?? d.price, catalog)
+            );
 
             setAlert(prev => ({
               ...prev,
@@ -105,10 +181,13 @@ export const MenuDishModifiers = (props: Props) => {
             return grp;
           }
           if (
-            (grp.has_required_modifiers && grp.selectedModifiers.length !== grp.required_modifiers) ||
+            (grp.has_required_modifiers && (grp.selectedModifiers?.length ?? 0) !== grp.required_modifiers) ||
             (!grp.has_required_modifiers)
           ) {
-            grp.selectedModifiers.push(buildModifiersObj(d.dish, selectedGroups, price ?? d.price));
+            grp.selectedModifiers = [...(grp.selectedModifiers ?? [])];
+            grp.selectedModifiers.push(
+              buildModifiersObj(d.dish, clonedNested, price ?? d.price, catalog)
+            );
           }
         }
 
@@ -117,26 +196,11 @@ export const MenuDishModifiers = (props: Props) => {
     );
   }
 
-  const buildModifiersObj = (dish: Dish, groups?: CartModifierGroup[], price?: number): MenuItem => {
-    return {
-      quantity: 1,
-      dish: dish,
-      seat: state.seat,
-      id: nanoid(),
-      level: props.level,
-      selectedGroups: groups,
-      newOrOld: MenuItemType.new,
-      category: state.category ? state.category?.name : (dish.categories.length === 1 ? dish.categories[0].name : ''),
-      isModifier: true,
-      price: price
-    }
-  }
-
   const requireClass = (grp: CartModifierGroup) => {
-    if (grp.has_required_modifiers && grp.selectedModifiers.length < grp.required_modifiers) {
+    if (grp.has_required_modifiers && (grp.selectedModifiers?.length ?? 0) < grp.required_modifiers) {
       return 'bg-danger-200';
-    } else if (grp.has_required_modifiers && grp.selectedModifiers.length === grp.required_modifiers) {
-      return 'bg-white'; //'bg-success-200';
+    } else if (grp.has_required_modifiers && (grp.selectedModifiers?.length ?? 0) === grp.required_modifiers) {
+      return 'bg-white';
     }
 
     return 'bg-white';
@@ -145,12 +209,13 @@ export const MenuDishModifiers = (props: Props) => {
   useEffect(() => {
     if (group) {
       if (
-        (group.has_required_modifiers && group.selectedModifiers.length === group.required_modifiers)
+        (group.has_required_modifiers && (group.selectedModifiers?.length ?? 0) === group.required_modifiers)
         || group.should_auto_open
       ) {
-
-        // move to next group if exists
-        const nextGroup = groups.find(item => (item.has_required_modifiers && item.selectedModifiers.length !== item.required_modifiers) || (item.should_auto_open && !item.has_required_modifiers));
+        const nextGroup = groups.find(item =>
+          (item.has_required_modifiers && (item.selectedModifiers?.length ?? 0) !== item.required_modifiers)
+          || (item.should_auto_open && !item.has_required_modifiers)
+        );
 
         if (nextGroup) {
           setGroup(nextGroup);
@@ -159,25 +224,38 @@ export const MenuDishModifiers = (props: Props) => {
     }
   }, [groups, group]);
 
-  // close modifiers box automatically when all required groups are selected and optional modifiers are 0
   useEffect(() => {
     if (selected === required && optional === 0 && props.editing !== true) {
       props.onClose(selected > 0 ? groups : []);
     }
   }, [selected, required, groups, optional, props]);
 
-  const removeItem = (group: CartModifierGroup, itemIndex: number) => {
-    const newGroups = [...groups];
-    newGroups.map(grp => {
-      if (grp.out.id.toString() === group.out.id.toString()) {
-        grp.selectedModifiers.splice(itemIndex, 1);
+  const removeItem = (targetGroup: CartModifierGroup, itemIndex: number) => {
+    setGroups(prev => prev.map(grp => {
+      if (isSameGroupInstance(grp, targetGroup)) {
+        const selectedModifiers = [...(grp.selectedModifiers ?? [])];
+        selectedModifiers.splice(itemIndex, 1);
+        return {...grp, selectedModifiers};
       }
-    });
 
-    setGroups(newGroups);
+      return grp;
+    }));
   }
 
-  const [editModifiers, setEditModifiers] = useState(false);
+  const editingNestedModifier = useMemo(() => {
+    if (!editingNestedFor) {
+      return undefined;
+    }
+
+    for (const grp of groups) {
+      const found = (grp.selectedModifiers ?? []).find((m) => m.id === editingNestedFor);
+      if (found) {
+        return found;
+      }
+    }
+
+    return undefined;
+  }, [editingNestedFor, groups]);
 
   return (
     <Modal
@@ -187,7 +265,6 @@ export const MenuDishModifiers = (props: Props) => {
       shouldCloseOnEsc={isDismissible}
       hideCloseButton={hideCloseButton}
       onClose={() => {
-        // pass groups when required selected modifiers are greater than 0 or optional groups are greater than 0
         props.onClose(selected > 0 || optional > 0 ? groups : []);
       }}
       size="full"
@@ -203,18 +280,18 @@ export const MenuDishModifiers = (props: Props) => {
                       'flex flex-col items-center justify-center p-1 cursor-pointer min-h-[56px] shadow',
                       index === 0 && 'rounded-t-3xl',
                       index + 1 === groups.length && 'rounded-b-3xl',
-                      group?.out?.id === item.out.id ? 'bg-gradient' : requireClass(item)
+                      group && isSameGroupInstance(group, item) ? 'bg-gradient' : requireClass(item)
                     )
                   }
                   style={{
                     '--padding': '0'
                   } as any}
-                  key={item.out.id}
+                  key={getGroupInstanceKey(item)}
                   onClick={() => setGroup(item)}
                 >
-                  <span>{item.out.name}</span>
+                  <span>{getGroupSidebarLabel(item, groups)}</span>
                   <>{item.has_required_modifiers && (
-                    <span className="text-sm">{item.selectedModifiers.length} / {item.required_modifiers}</span>
+                    <span className="text-sm">{(item.selectedModifiers?.length ?? 0)} / {item.required_modifiers}</span>
                   )}</>
                 </span>
               ))}
@@ -234,15 +311,18 @@ export const MenuDishModifiers = (props: Props) => {
                       '!grid grid-cols-3 grid-rows-7'
                     )}
                   >
-                    {group.modifiers.slice(rowId * ITEMS_PER_SLIDE, ((rowId * ITEMS_PER_SLIDE) + ITEMS_PER_SLIDE)).map((modifier, mIndex) => (
+                    {visibleModifiers.slice(rowId * ITEMS_PER_SLIDE, ((rowId * ITEMS_PER_SLIDE) + ITEMS_PER_SLIDE)).map((catalog) => (
                       <MenuDish
-                        onClick={onModifierClick}
-                        item={modifier.dish}
-                        key={mIndex}
+                        onClick={(item, groups, itemPrice) =>
+                          onModifierClick(item, groups, itemPrice, catalog)
+                        }
+                        item={catalog.dish}
+                        key={catalog.catalogModifierId ?? catalog.id}
                         level={props.level + 1}
                         isModifier
-                        price={modifier.price}
-                        allowedNextGroupIds={modifier.allowedNextGroupIds}
+                        price={catalog.price ?? 0}
+                        allowedNextGroupIds={catalog.allowedNextGroupIds}
+                        parentModifier={catalog.sourceModifier}
                       />
                     ))}
                   </SwiperSlide>
@@ -259,10 +339,10 @@ export const MenuDishModifiers = (props: Props) => {
               className="mb-3 w-full lg"
             >Cancel</Button>
             <ScrollContainer className="modifiers-swiper">
-              {groups.map((g, index) => (
-                <div key={index}>
-                  <span className="font-bold">{g.out.name}</span>
-                  {g.selectedModifiers.map((m, mIndex) => (
+              {groups.map((g) => (
+                <div key={getGroupInstanceKey(g)}>
+                  <span className="font-bold">{getGroupSidebarLabel(g, groups)}</span>
+                  {(g.selectedModifiers ?? []).map((m, mIndex) => (
                     <div key={mIndex} className="flex items-center gap-3">
                       <Button
                         className="grow shrink-0"
@@ -273,34 +353,20 @@ export const MenuDishModifiers = (props: Props) => {
                       </Button>
                       {' '}
                       {m?.selectedGroups?.length > 0 ? (
-                        <>
-                          <Button
-                            icon={faPencil}
-                            onClick={() => setEditModifiers(true)}
-                            className="flex !justify-between w-full"
-                            flat
-                            variant="custom"
-                          >
-                            <span>
-                              {m.dish.name}
-                            </span>
-                            <span>
-                             {m.price}
-                            </span>
-                          </Button>
-                          {editModifiers && (
-                            <MenuDishModifiers
-                              isOpen={editModifiers}
-                              dish={m.dish}
-                              groups={m.selectedGroups}
-                              level={m.level + 1}
-                              editing={true}
-                              onClose={() => {
-                                setEditModifiers(false);
-                              }}
-                            />
-                          )}
-                        </>
+                        <Button
+                          icon={faPencil}
+                          onClick={() => setEditingNestedFor(m.id)}
+                          className="flex !justify-between w-full"
+                          flat
+                          variant="custom"
+                        >
+                          <span>
+                            {m.dish.name}
+                          </span>
+                          <span>
+                           {m.price}
+                          </span>
+                        </Button>
                       ) : (
                         <div className="flex justify-between w-full">
                           <span>
@@ -318,6 +384,20 @@ export const MenuDishModifiers = (props: Props) => {
             </ScrollContainer>
           </div>
         </div>
+      )}
+
+      {editingNestedModifier && (
+        <NestedModifierEditor
+          isOpen={editingNestedFor !== null}
+          dish={editingNestedModifier.dish}
+          modifier={editingNestedModifier}
+          onClose={() => setEditingNestedFor(null)}
+          onSave={(nestedGroups) => {
+            setGroups((prev) =>
+              updateModifierNestedGroups(prev, editingNestedFor!, nestedGroups)
+            );
+          }}
+        />
       )}
     </Modal>
   )

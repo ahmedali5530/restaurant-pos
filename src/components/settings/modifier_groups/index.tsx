@@ -13,7 +13,7 @@ import {useDB} from "@/api/db/db.ts";
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminModifierGroups = () => {
-  const loadHook = useApi<SettingsData<ModifierGroup>>(Tables.modifier_groups, ['deleted_at = none'], ['priority asc'], 0, 10, ['modifiers', 'modifiers.modifier', 'modifiers.allowed_next_groups']);
+  const loadHook = useApi<SettingsData<ModifierGroup>>(Tables.modifier_groups, ['deleted_at = none'], ['priority asc'], 0, 10, ['modifiers', 'modifiers.modifier', 'modifiers.allowed_next_groups', 'modifiers.next_group_overrides']);
   const db = useDB();
 
   const [data, setData] = useState<ModifierGroup>();

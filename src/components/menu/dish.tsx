@@ -9,7 +9,13 @@ import {nanoid} from "nanoid";
 import {detectMimeType} from "@/utils/files.ts";
 import defaultImage from '@/assets/images/default-image.png';
 import {useDB} from "@/api/db/db.ts";
-import {resolveAllowedNextGroupIds} from "@/lib/modifier-groups.ts";
+import {
+  buildCartModifierGroups,
+  buildNestedGroupsForModifier,
+  cloneCartModifierGroups,
+} from "@/lib/modifier-groups.ts";
+import {Modifier} from "@/api/model/modifier.ts";
+import {DishModifierGroup} from "@/api/model/dish_modifier_group.ts";
 
 const dishImageCache = new Map<string, string>();
 
@@ -20,15 +26,30 @@ interface Props {
   isModifier?: boolean
   price: number
   allowedNextGroupIds?: string[]
+  parentModifier?: Modifier
 }
 
-export const MenuDish = ({onClick, item, level, isModifier, price, allowedNextGroupIds}: Props) => {
+export const MenuDish = ({
+  onClick,
+  item,
+  level,
+  isModifier,
+  price,
+  allowedNextGroupIds,
+  parentModifier,
+}: Props) => {
   const [state] = useAtom(appState);
   const [{groups_dishes}] = useAtom(appSettings);
   const db = useDB();
 
   const [modifiersModal, setModifiersModal] = useState(false);
   const [imageSrc, setImageSrc] = useState(defaultImage);
+
+  const categoryForGroup = useCallback((grp: DishModifierGroup) => {
+    return state.category
+      ? state.category.name
+      : (grp.in?.categories?.length === 1 ? grp.in.categories[0].name : '');
+  }, [state.category]);
 
   const modifierGroups = useMemo(() => {
     const allGroups = groups_dishes.filter((a) => a.in.id.toString() === item.id.toString());
@@ -39,6 +60,29 @@ export const MenuDish = ({onClick, item, level, isModifier, price, allowedNextGr
 
     return allGroups.filter((g) => allowedNextGroupIds.includes(g.out.id.toString()));
   }, [item.id, groups_dishes, allowedNextGroupIds]);
+
+  const cartModifierGroups = useMemo(() => {
+    if (allowedNextGroupIds !== undefined) {
+      return buildNestedGroupsForModifier(
+        item.id.toString(),
+        allowedNextGroupIds,
+        groups_dishes,
+        level,
+        categoryForGroup,
+        parentModifier
+      );
+    }
+
+    return buildCartModifierGroups(modifierGroups, level, categoryForGroup, parentModifier);
+  }, [
+    allowedNextGroupIds,
+    item.id,
+    groups_dishes,
+    level,
+    categoryForGroup,
+    parentModifier,
+    modifierGroups,
+  ]);
 
   const hasAutoOpen = useMemo(() => {
     return modifierGroups.filter(m => m.has_required_modifiers || m.should_auto_open).length > 0;
@@ -155,34 +199,22 @@ export const MenuDish = ({onClick, item, level, isModifier, price, allowedNextGr
         <MenuDishModifiers
           dish={item}
           isOpen={modifiersModal}
-          groups={[...modifierGroups.map(grp => ({
-            ...grp,
-            selectedModifiers: [],
-            modifiers: [...grp.out.modifiers.map(m => ({
-              dish: m.modifier,
-              price: m.price,
-              id: m.id,
-              quantity: 1,
-              level: level,
-              newOrOld: MenuItemType.new,
-              category: state.category ? state.category?.name : (grp?.in?.categories?.length === 1 ? grp.in.categories[0].name : ''),
-              allowedNextGroupIds: resolveAllowedNextGroupIds(m.allowed_next_groups),
-            }))]
-          }))]}
+          groups={cartModifierGroups}
           onClose={(payload) => {
             if (payload.length > 0) {
+              const clonedGroups = cloneCartModifierGroups(payload);
               onClick({
                 dish: item,
                 seat: state.seat,
                 quantity: 1,
-                selectedGroups: payload,
+                selectedGroups: clonedGroups,
                 id: nanoid(),
                 isModifier,
                 level: level,
                 newOrOld: MenuItemType.new,
                 category: state.category ? state.category?.name : (item.categories.length === 1 ? item.categories[0].name : ''),
                 price: price
-              }, payload, price);
+              }, clonedGroups, price);
             }
             setModifiersModal(false);
           }}
