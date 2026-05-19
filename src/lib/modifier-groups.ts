@@ -358,6 +358,54 @@ export function resetCartModifierGroupCatalog(
   });
 }
 
+export function resolveGroupInList(
+  groups: CartModifierGroup[],
+  group: CartModifierGroup
+): CartModifierGroup {
+  return groups.find((g) => isSameGroupInstance(g, group)) ?? group;
+}
+
+export function isGroupRequirementMet(grp: CartModifierGroup): boolean {
+  if (!grp.has_required_modifiers) {
+    return true;
+  }
+
+  return (grp.selectedModifiers?.length ?? 0) >= (grp.required_modifiers ?? 0);
+}
+
+export function shouldAdvanceFromGroup(grp: CartModifierGroup): boolean {
+  return (
+    isGroupRequirementMet(grp) ||
+    (Boolean(grp.should_auto_open) && !grp.has_required_modifiers)
+  );
+}
+
+export function findNextActiveGroup(
+  groups: CartModifierGroup[],
+  current: CartModifierGroup
+): CartModifierGroup | undefined {
+  const isNotCurrent = (item: CartModifierGroup) =>
+    !isSameGroupInstance(item, current);
+
+  const incompleteRequired = groups.find(
+    (item) =>
+      isNotCurrent(item) &&
+      item.has_required_modifiers &&
+      (item.selectedModifiers?.length ?? 0) < (item.required_modifiers ?? 0)
+  );
+
+  if (incompleteRequired) {
+    return incompleteRequired;
+  }
+
+  return groups.find(
+    (item) =>
+      isNotCurrent(item) &&
+      Boolean(item.should_auto_open) &&
+      !item.has_required_modifiers
+  );
+}
+
 export function validateNestedGroupsVisibility(
   groups: CartModifierGroup[]
 ): string | null {

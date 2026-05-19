@@ -116,7 +116,7 @@ export const DishView = ({
     return () => {
       cancelled = true;
     };
-  }, [open, data?.id, db]);
+  }, [open, data?.id]);
 
   useEffect(() => {
     if (!open) {
@@ -171,7 +171,7 @@ export const DishView = ({
         URL.revokeObjectURL(objectUrl);
       }
     };
-  }, [open, data, db]);
+  }, [open, data]);
 
   const closeModal = () => {
     onClose();

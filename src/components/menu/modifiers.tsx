@@ -1,7 +1,7 @@
 import {Dish} from "@/api/model/dish.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import React, {useEffect, useMemo, useState} from "react";
-import {cn} from "@/lib/utils.ts";
+import {cn, formatNumber} from "@/lib/utils.ts";
 import {MenuDish} from "@/components/menu/dish.tsx";
 import {Swiper, SwiperSlide} from "swiper/react";
 import _ from "lodash";
@@ -13,13 +13,15 @@ import ScrollContainer from "react-indiana-drag-scroll";
 import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPencil, faTimes} from "@fortawesome/free-solid-svg-icons";
-import {NestedModifierEditor} from "@/components/menu/nested-modifier-editor.tsx";
 import {
   cloneCartModifierGroups,
+  findNextActiveGroup,
   getGroupInstanceKey,
   getGroupSidebarLabel,
   getVisibleCatalogModifiers,
   isSameGroupInstance,
+  resolveGroupInList,
+  shouldAdvanceFromGroup,
   updateModifierNestedGroups,
 } from "@/lib/modifier-groups.ts";
 
@@ -32,6 +34,30 @@ interface Props {
   editing?: boolean
 }
 
+const NestedModifiersSummary = ({groups}: { groups: CartModifierGroup[] }) => (
+  <>
+    {groups.map((grp) => (
+      <div
+        key={getGroupInstanceKey(grp)}
+        className="mt-1"
+      >
+        <div className="text-sm font-semibold">{getGroupSidebarLabel(grp, groups)}</div>
+        {(grp.selectedModifiers ?? []).map((modifier) => (
+          <div key={modifier.id} className="text-sm pl-1 border-l-2 border-warning-500">
+            <div className="flex justify-between gap-2">
+              <span className="min-w-0 truncate">{modifier.dish.name}</span>
+              <span className="shrink-0">{formatNumber(modifier.price ?? 0)}</span>
+            </div>
+            {(modifier.selectedGroups?.length ?? 0) > 0 && (
+              <NestedModifiersSummary groups={modifier.selectedGroups!}/>
+            )}
+          </div>
+        ))}
+      </div>
+    ))}
+  </>
+);
+
 export const MenuDishModifiers = (props: Props) => {
   const [state] = useAtom(appState);
   const [, setAlert] = useAtom(appAlert);
@@ -42,7 +68,17 @@ export const MenuDishModifiers = (props: Props) => {
   const ITEMS_PER_SLIDE = 18;
 
   useEffect(() => {
-    setGroups(cloneCartModifierGroups(props.groups));
+    const cloned = cloneCartModifierGroups(props.groups);
+    setGroups(cloned);
+    setGroup((prev) => {
+      if (!prev) {
+        return prev;
+      }
+
+      const resolved = cloned.find((g) => isSameGroupInstance(g, prev));
+
+      return resolved ?? (cloned.length > 0 ? cloned[0] : undefined);
+    });
   }, [props.groups]);
 
   const visibleModifiers = useMemo(() => {
@@ -207,20 +243,20 @@ export const MenuDishModifiers = (props: Props) => {
   }
 
   useEffect(() => {
-    if (group) {
-      if (
-        (group.has_required_modifiers && (group.selectedModifiers?.length ?? 0) === group.required_modifiers)
-        || group.should_auto_open
-      ) {
-        const nextGroup = groups.find(item =>
-          (item.has_required_modifiers && (item.selectedModifiers?.length ?? 0) !== item.required_modifiers)
-          || (item.should_auto_open && !item.has_required_modifiers)
-        );
+    if (!group) {
+      return;
+    }
 
-        if (nextGroup) {
-          setGroup(nextGroup);
-        }
-      }
+    const current = resolveGroupInList(groups, group);
+
+    if (!shouldAdvanceFromGroup(current)) {
+      return;
+    }
+
+    const next = findNextActiveGroup(groups, current);
+
+    if (next && !isSameGroupInstance(next, current)) {
+      setGroup(next);
     }
   }, [groups, group]);
 
@@ -343,40 +379,39 @@ export const MenuDishModifiers = (props: Props) => {
                 <div key={getGroupInstanceKey(g)}>
                   <span className="font-bold">{getGroupSidebarLabel(g, groups)}</span>
                   {(g.selectedModifiers ?? []).map((m, mIndex) => (
-                    <div key={mIndex} className="flex items-center gap-3">
+                    <div key={mIndex} className="mb-2 flex items-start gap-3">
                       <Button
-                        className="grow shrink-0"
+                        className="shrink-0"
                         size="lg"
                         variant="danger"
-                        flat iconButton onClick={() => removeItem(g, mIndex)}>
+                        flat
+                        iconButton
+                        onClick={() => removeItem(g, mIndex)}
+                      >
                         <FontAwesomeIcon icon={faTimes}/>
                       </Button>
-                      {' '}
-                      {m?.selectedGroups?.length > 0 ? (
-                        <Button
-                          icon={faPencil}
-                          onClick={() => setEditingNestedFor(m.id)}
-                          className="flex !justify-between w-full"
-                          flat
-                          variant="custom"
-                        >
-                          <span>
-                            {m.dish.name}
-                          </span>
-                          <span>
-                           {m.price}
-                          </span>
-                        </Button>
+                      <div className="min-w-0 flex-1">
+                        {m?.selectedGroups?.length > 0 ? (
+                          <>
+                            <Button
+                              icon={faPencil}
+                              onClick={() => setEditingNestedFor(m.id)}
+                              className="flex w-full !justify-between"
+                              flat
+                              variant="custom"
+                            >
+                              <span className="min-w-0 truncate">{m.dish.name}</span>
+                              <span className="shrink-0">{formatNumber(m.price ?? 0)}</span>
+                            </Button>
+                            <NestedModifiersSummary groups={m.selectedGroups}/>
+                          </>
                       ) : (
-                        <div className="flex justify-between w-full">
-                          <span>
-                            {m.dish.name}
-                          </span>
-                          <span>
-                           {m.price}
-                          </span>
-                        </div>
-                      )}
+                          <div className="flex justify-between gap-2 py-2">
+                            <span className="min-w-0 truncate">{m.dish.name}</span>
+                            <span className="shrink-0">{formatNumber(m.price ?? 0)}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -386,16 +421,22 @@ export const MenuDishModifiers = (props: Props) => {
         </div>
       )}
 
-      {editingNestedModifier && (
-        <NestedModifierEditor
+      {editingNestedModifier && editingNestedFor && (
+        <MenuDishModifiers
+          key={editingNestedFor}
           isOpen={editingNestedFor !== null}
           dish={editingNestedModifier.dish}
-          modifier={editingNestedModifier}
-          onClose={() => setEditingNestedFor(null)}
-          onSave={(nestedGroups) => {
-            setGroups((prev) =>
-              updateModifierNestedGroups(prev, editingNestedFor!, nestedGroups)
-            );
+          groups={cloneCartModifierGroups(editingNestedModifier.selectedGroups ?? [])}
+          level={editingNestedModifier.level + 1}
+          editing={true}
+          onClose={(payload) => {
+            const modifierId = editingNestedFor;
+            setEditingNestedFor(null);
+            if (payload.length > 0 && modifierId) {
+              setGroups((prev) =>
+                updateModifierNestedGroups(prev, modifierId, payload)
+              );
+            }
           }}
         />
       )}
