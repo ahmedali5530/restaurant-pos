@@ -188,7 +188,7 @@ export const KitchenScreen = () => {
   }, [kitchen]);
 
   const calculateAverageTime = useCallback(async (kitchenId: string) => {
-    const completedOrders  = await db.query(`select math::sum(time::unix(completed_at) - time::unix(created_at)) AS diff, count() from ${Tables.order_items_kitchen} where kitchen = $kitchen and completed_at != None and time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") = $date group all`, {
+    const completedOrders  = await db.query(`select math::sum(time::unix(completed_at) - time::unix(created_at)) AS diff, count() from ${Tables.order_items_kitchen} where kitchen = $kitchen and completed_at != None and time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_DATE_FORMAT}") = $date group all`, {
       kitchen: kitchenId,
       date: DateTime.now().toFormat(import.meta.env.VITE_DATE_FORMAT)
     });
