@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Input } from "@/components/common/input/input.tsx";
 import { Button } from "@/components/common/input/button.tsx";
-import { useAtom } from "jotai/index";
+import { useAtom } from "jotai";
 import { appState } from "@/store/jotai.ts";
 
 export interface Props {

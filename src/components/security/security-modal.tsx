@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {AuthType, SecurityManager, useSecurityContext} from '@/providers/security.provider';
 import {PinAuth} from './auth/pin-auth';
 import {PasswordAuth} from './auth/password-auth';
@@ -17,12 +17,18 @@ export const SecurityModal = () => {
 
   const [selectedAuthType, setSelectedAuthType] = useState<AuthType>('pin');
 
+  useEffect(() => {
+    if (isModalOpen && currentAction) {
+      setSelectedAuthType(currentAction.authType ?? 'pin');
+    }
+  }, [isModalOpen, currentAction?.id, currentAction?.authType]);
+
   if (!isModalOpen || !currentAction) {
     return null;
   }
 
   const handleAuthSuccess = (manager?: SecurityManager) => {
-    confirmAction(manager);
+    confirmAction(manager, selectedAuthType);
   };
 
   const handleAuthCancel = () => {

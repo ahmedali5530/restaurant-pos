@@ -9,7 +9,7 @@ export interface SecurityAction {
   description: string;
   authType?: AuthType;
   module?: string;
-  onConfirm: (manager?: SecurityManager) => void;
+  onConfirm: (manager?: SecurityManager, usedAuthType?: AuthType) => void;
   onCancel?: () => void;
   onError?: () => void;
   payload?: any
@@ -19,7 +19,7 @@ interface SecurityContextType {
   isModalOpen: boolean;
   currentAction: SecurityAction | null;
   requestSecurity: (action: SecurityAction) => void;
-  confirmAction: (manager?: SecurityManager) => void;
+  confirmAction: (manager?: SecurityManager, usedAuthType?: AuthType) => void;
   cancelAction: () => void;
   isAuthenticated: boolean;
   setAuthenticated: (authenticated: boolean) => void;
@@ -63,9 +63,9 @@ export const SecurityProvider: React.FC<SecurityProviderProps> = ({
     setIsAuthenticated(false);
   }, []);
 
-  const confirmAction = useCallback((manager?: SecurityManager) => {
+  const confirmAction = useCallback((manager?: SecurityManager, usedAuthType?: AuthType) => {
     if (currentAction) {
-      currentAction.onConfirm(manager);
+      currentAction.onConfirm(manager, usedAuthType ?? currentAction.authType);
     }
     closeModal();
   }, [closeModal, currentAction]);

@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {SecurityAction, SecurityManager} from '@/providers/security.provider';
-import QRCode from "react-qr-code";
+import { QRCode } from "react-qr-code";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {useAtom} from "jotai";
@@ -17,8 +17,7 @@ interface QrCodeAuthProps {
 }
 
 export const QrCodeAuth: React.FC<QrCodeAuthProps> = ({
-  onSuccess, 
-  onCancel,
+  onSuccess,
   currentAction
 }) => {
   const [error, setError] = useState('');
@@ -26,49 +25,111 @@ export const QrCodeAuth: React.FC<QrCodeAuthProps> = ({
   const [{user}] = useAtom(appPage);
 
   const db = useDB();
+  const liveQueryRef = useRef<LiveSubscription | null>(null);
+  const onSuccessRef = useRef(onSuccess);
+  const currentActionRef = useRef(currentAction);
+
+  onSuccessRef.current = onSuccess;
+  currentActionRef.current = currentAction;
+
+  const resolveApprover = async (
+    approvedBy: AuthPermission['approved_by']
+  ): Promise<SecurityManager | undefined> => {
+    if (!approvedBy) {
+      return undefined;
+    }
+
+    if (
+      typeof approvedBy === 'object' &&
+      approvedBy.first_name &&
+      approvedBy.last_name
+    ) {
+      return approvedBy as SecurityManager;
+    }
+
+    const approverId =
+      typeof approvedBy === 'string' ? approvedBy : toRecordId(approvedBy).toString();
+
+    if (!approverId) {
+      return undefined;
+    }
+
+    const [approver] = await db.query(
+      `SELECT * FROM ONLY ${toRecordId(approverId)} WHERE deleted_at = none FETCH user_role, user_shift`
+    );
+
+    return approver as SecurityManager | undefined;
+  };
 
   useEffect(() => {
-    (async () => {
-      const code = nanoid(128);
-      setToken(code);
+    if (!currentAction) {
+      return;
+    }
 
+    let cancelled = false;
+    const action = currentAction;
+    const code = nanoid(64);
+
+    setError('');
+    setToken(code);
+
+    const setup = async () => {
       await db.insert(Tables.auth_permission, {
         token: code,
         created_by: toRecordId(user.id),
-        title: currentAction.description,
+        title: action.description,
         state: AuthState.pending,
         payload: {
-          module: currentAction.module,
-          description: currentAction.description,
-          ...currentAction.payload
+          module: action.module,
+          description: action.description,
+          ...action.payload
         }
       });
-    })()
-  }, []);
 
-  const [liveQuery, setLiveQuery] = useState<LiveSubscription | null>(null);
-  const runLiveQuery = async () => {
-    const result = await db.live<AuthPermission>(Tables.auth_permission, function (action, result) {
-      // delete or adding new orders will result in new data
-      if (action === 'UPDATE') {
-        if(result.state === AuthState.approved){
-          onSuccess(result.approved_by || undefined);
-        }else if(result.state === AuthState.rejected){
-          setError(`Permission to ${currentAction.description} has been rejected`);
-        }
+      if (cancelled) {
+        return;
       }
-    });
 
-    setLiveQuery(result);
-  }
+      await liveQueryRef.current?.kill().catch(() => undefined);
+      liveQueryRef.current = null;
 
-  useEffect(() => {
-    runLiveQuery().then();
+      const subscription = await db.live<AuthPermission>(
+        Tables.auth_permission,
+        (liveAction, result) => {
+          if (result.token !== code) {
+            return;
+          }
+
+          if (liveAction === 'UPDATE') {
+            if (result.state === AuthState.approved) {
+              void resolveApprover(result.approved_by).then((manager) => {
+                onSuccessRef.current(manager);
+              });
+            } else if (result.state === AuthState.rejected) {
+              setError(
+                `Permission to ${currentActionRef.current?.description ?? action.description} has been rejected`
+              );
+            }
+          }
+        }
+      );
+
+      if (cancelled) {
+        await subscription.kill().catch(() => undefined);
+        return;
+      }
+
+      liveQueryRef.current = subscription;
+    };
+
+    setup().catch(() => undefined);
 
     return () => {
-      liveQuery?.kill().then(() => console.log('live query killed')).catch(() => undefined);
-    }
-  },[onCancel, onSuccess]);
+      cancelled = true;
+      liveQueryRef.current?.kill().catch(() => undefined);
+      liveQueryRef.current = null;
+    };
+  }, [currentAction?.id, user.id]);
 
   return (
     <div className="space-y-4">

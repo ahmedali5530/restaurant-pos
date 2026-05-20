@@ -66,10 +66,10 @@ export const useSecurity = () => {
       description,
       authType,
       module,
-      onConfirm: (manager?: SecurityManager) => {
+      onConfirm: (manager?: SecurityManager, usedAuthType?: AuthType) => {
         action();
         onSuccess?.(manager);
-        trackProtectActionSuccess(options, authType, manager);
+        trackProtectActionSuccess(options, usedAuthType ?? authType, manager);
       },
       onCancel,
       onError,
