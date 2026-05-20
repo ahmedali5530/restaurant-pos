@@ -1,8 +1,13 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { Input } from "@/components/common/input/input.tsx";
 import { Button } from "@/components/common/input/button.tsx";
 import { useAtom } from "jotai";
 import { appState } from "@/store/jotai.ts";
+import {Customer} from "@/api/model/customer.ts";
+import {useDB} from "@/api/db/db.ts";
+import {Tables} from "@/api/db/tables.ts";
+import {Checkbox} from "@/components/common/input/checkbox.tsx";
+import {faCheck} from "@fortawesome/free-solid-svg-icons";
 
 export interface Props {
   onAttach?: () => void;
@@ -11,8 +16,26 @@ export const Customers = ({
   onAttach
 }: Props) => {
   const [state, setState] = useAtom(appState);
+  const db = useDB();
 
   const [search, setSearch] = useState("");
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const loadCustomers = async (search: string) => {
+    if(search.trim().length === 0){
+      setCustomers([]);
+      return;
+    }
+
+    const [list] = await db.query(`SELECT * FROM ${Tables.customers} where name contains $name or phone contains $name or email contains $name order by name limit 10`, {
+      name: search
+    });
+
+    setCustomers(list);
+  }
+
+  useEffect(() => {
+    loadCustomers(search)
+  }, [search]);
 
   return (
     <>
@@ -71,6 +94,7 @@ export const Customers = ({
         <table className="table">
           <thead>
             <tr>
+              <th>Select</th>
               <th>Name</th>
               <th>Email</th>
               <th>Phone</th>
@@ -79,6 +103,33 @@ export const Customers = ({
               <th>Points</th>
             </tr>
           </thead>
+          <tbody>
+          {customers.map(item => (
+            <tr>
+              <td>
+                <Button
+                  icon={faCheck}
+                  iconButton
+                  onClick={() => {
+                    setState(prev => ({
+                      ...prev,
+                      customer: item
+                    }));
+
+                    onAttach();
+                  }}
+                  variant="secondary"
+                />
+              </td>
+              <td>{item.name}</td>
+              <td>{item.email}</td>
+              <td>{item.phone}</td>
+              <td>{item.address}</td>
+              <td>{item.secondary_address}</td>
+              <td>{item.points}</td>
+            </tr>
+          ))}
+          </tbody>
         </table>
       </div>
     </>

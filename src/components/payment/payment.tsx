@@ -116,6 +116,20 @@ export const Payment = () => {
       }
     }
 
+    let customer = null;
+    if(state?.customer && state.customer.id){
+      customer = toRecordId(state.customer.id);
+    }
+
+    if(state?.customer && state.customer.id === undefined){
+      // create customer and get id
+      const [cus] = await db.insert(Tables.customers, {
+        ...state.customer
+      });
+
+      customer = cus.id
+    }
+
     const data: any = {
       floor: toRecordId(state?.floor?.id),
       covers: parseInt(state?.persons),
@@ -124,7 +138,7 @@ export const Payment = () => {
       tags: ['Normal'],
       discount: null,
       discount_amount: 0,
-      customer: null,
+      customer: customer,
       order_type: toRecordId(state?.orderType?.id),
       status: OrderStatus["In Progress"],
       invoice_number: invoiceNumber,
