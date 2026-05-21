@@ -39,12 +39,12 @@ const NestedModifiersSummary = ({groups}: { groups: CartModifierGroup[] }) => (
     {groups.map((grp) => (
       <div
         key={getGroupInstanceKey(grp)}
-        className="mt-1"
+        className="mt-1 flex flex-col"
       >
-        <div className="text-sm font-semibold">{getGroupSidebarLabel(grp, groups)}</div>
+        <div className="text-sm font-bold bg-slate-600 text-white self-start rounded px-[3px]">{getGroupSidebarLabel(grp, groups)}</div>
         {(grp.selectedModifiers ?? []).map((modifier) => (
-          <div key={modifier.id} className="text-sm pl-1 border-l-2 border-warning-500">
-            <div className="flex justify-between gap-2">
+          <div key={modifier.id} className="text-sm border-l-2 border-warning-500">
+            <div className="flex justify-between gap-2 pl-1">
               <span className="min-w-0 truncate">{modifier.dish.name}</span>
               <span className="shrink-0">{formatNumber(modifier.price ?? 0)}</span>
             </div>
