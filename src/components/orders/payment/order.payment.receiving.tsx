@@ -2,7 +2,8 @@ import ScrollContainer from "react-indiana-drag-scroll";
 import {Button} from "@/components/common/input/button.tsx";
 import {cn, DENOMINATION_COINS, DENOMINATION_NOTES, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {faClose, faPrint} from "@fortawesome/free-solid-svg-icons";
-import React, {useEffect, useMemo, useState} from "react";
+import * as React from "react";
+import {useEffect, useMemo, useState} from "react";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {PaymentType} from "@/api/model/payment_type.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -15,14 +16,18 @@ import {Coupon} from "@/api/model/coupon.ts";
 import {OrderPayment} from "@/api/model/order_payment.ts";
 import {nanoid} from "nanoid";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {toast} from "sonner";
 import {useAtom} from "jotai";
 import {appAlert, appPage} from "@/store/jotai.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {StringRecordId} from "surrealdb";
-import {createPaymentIntent, GatewayType, verifyPayment} from "@/lib/payment.service.ts";
 import {calculateChangeDue, calculateOrderGrandTotal} from "@/lib/cart.ts";
+import {
+  isRemotePaymentType,
+  RemotePaymentPendingSlot,
+  RemotePaymentProvider,
+  useRemotePayment,
+} from "@/components/orders/payment/remote";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
@@ -62,20 +67,33 @@ interface Props {
   couponAmount?: number
 }
 
-type PendingRemoteIntent = {
-  id: string
-  amount: number
-  payable: number
-  paymentType: PaymentType
-  gateway: GatewayType
-  intentId: string
-  paymentUrl: string | null
-  clientToken: string | null
-  status: string
-  expiresAt: string
-}
+type ContentProps = Props & {
+  selectedAmount: string
+  setSelectedAmount: React.Dispatch<React.SetStateAction<string>>
+};
 
-export const OrderPaymentReceiving = ({
+export const OrderPaymentReceiving = (props: Props) => {
+  const [page] = useAtom(appPage);
+  const [selectedAmount, setSelectedAmount] = useState("");
+
+  return (
+    <RemotePaymentProvider
+      order={props.order}
+      setPayments={props.setPayments}
+      page={page?.page}
+      user={page?.user}
+      onRemotePaymentStarted={() => setSelectedAmount("")}
+    >
+      <OrderPaymentReceivingContent
+        {...props}
+        selectedAmount={selectedAmount}
+        setSelectedAmount={setSelectedAmount}
+      />
+    </RemotePaymentProvider>
+  );
+};
+
+const OrderPaymentReceivingContent = ({
   total,
   order,
   onComplete,
@@ -98,8 +116,11 @@ export const OrderPaymentReceiving = ({
   serviceChargeType,
   notes,
   coupon,
-  couponAmount
-}: Props) => {
+  couponAmount,
+  selectedAmount,
+  setSelectedAmount,
+}: ContentProps) => {
+  const remote = useRemotePayment();
   const db = useDB();
   const {protectAction} = useSecurity();
 
@@ -128,10 +149,7 @@ export const OrderPaymentReceiving = ({
   const keyboardKeys = [1, 2, 3, 4, 5, 6, 7, 8, 9, '.', 0];
 
   const [closing, setClosing] = useState(false);
-  const [remoteProcessing, setRemoteProcessing] = useState(false);
-  const [verifyingIntentId, setVerifyingIntentId] = useState<string | null>(null);
-  const [pendingRemoteIntents, setPendingRemoteIntents] = useState<PendingRemoteIntent[]>([]);
-  const [page,] = useAtom(appPage);
+  const [page] = useAtom(appPage);
 
   const isTaxObject = (value: unknown): value is Tax => {
     return (
@@ -195,7 +213,7 @@ export const OrderPaymentReceiving = ({
             discount: couponAmount,
             created_at: nowSurrealDateTime(),
           });
-          orderCouponId = (created as { id?: string })?.id?.toString?.() ?? String((created as { id: string }).id);
+          orderCouponId = (created as unknown as { id?: string })?.id?.toString?.() ?? String((created as unknown as { id: string }).id);
         }
       }
 
@@ -257,8 +275,6 @@ export const OrderPaymentReceiving = ({
     }
   }
 
-  const [selectedAmount, setSelectedAmount] = useState('');
-
   // Track auto-applied discount originating from a payment type
   const [autoDiscountMeta, setAutoDiscountMeta] = useState<{
     paymentTypeId?: string
@@ -310,95 +326,13 @@ export const OrderPaymentReceiving = ({
     return calculateChangeDue(tendered, total);
   }, [total, tendered]);
 
-  const isRemotePaymentType = (paymentType: PaymentType): boolean => {
-    return String(paymentType.type || '').toLowerCase() === 'remote';
-  }
-
-  const addRemotePayment = async (amount: string | number, paymentType: PaymentType, payable: number) => {
-    const numericAmount = Number(amount);
-    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
-      return;
-    }
-
-    const gateway = paymentType.gateway as GatewayType | undefined;
-    if (!gateway) {
-      toast.error('Remote payment type is missing a gateway provider.');
-      return;
-    }
-
-    setRemoteProcessing(true);
-    try {
-      const intent = await createPaymentIntent({
-        gateway,
-        amount: numericAmount,
-        currency: import.meta.env.VITE_CURRENCY || 'USD',
-        orderId: order.id.toString(),
-        customer: {
-          name: order?.customer?.name || undefined,
-          email: order?.customer?.email || undefined,
-          phone: order?.customer?.phone !== undefined ? String(order.customer.phone) : undefined,
-        },
-        metadata: {
-          orderId: order.id.toString(),
-          invoiceNumber: order.invoice_number,
-          paymentTypeId: paymentType.id.toString(),
-        },
-      }, {
-        idempotencyKey: `${order.id}-${paymentType.id}-${numericAmount}-${Date.now()}`,
-      });
-
-      if (intent.paymentUrl) {
-        window.open(intent.paymentUrl, '_blank', 'noopener,noreferrer');
-        toast.success('Remote payment link generated.');
-      } else if (intent.clientToken) {
-        toast.success(`Remote token generated: ${intent.clientToken}`);
-      } else {
-        toast.success('Remote payment intent generated.');
-      }
-
-      setPendingRemoteIntents(prev => [
-        ...prev,
-        {
-          id: nanoid(),
-          amount: numericAmount,
-          payable,
-          paymentType,
-          gateway,
-          intentId: intent.intentId,
-          paymentUrl: intent.paymentUrl,
-          clientToken: intent.clientToken,
-          status: intent.status,
-          expiresAt: intent.expiresAt,
-        }
-      ]);
-      postOrderTracking({
-        module: "Create remote payment intent",
-        page: page?.page,
-        orderId: order.id,
-        payload: {
-          gateway,
-          amount: numericAmount,
-          payment_type: paymentType.id.toString(),
-          intent_id: intent.intentId,
-        },
-        user: page?.user,
-      });
-      setSelectedAmount('');
-    } catch (e) {
-      const message = e instanceof Error ? e.message : 'Failed to generate remote payment link/token';
-      toast.error(message);
-    } finally {
-      setRemoteProcessing(false);
-    }
-  }
-
   const addPayment = async (amount: string | number, paymentType: PaymentType, payable: number) => {
     if (amount.toString().length === 0) {
       return;
     }
 
     if (isRemotePaymentType(paymentType)) {
-      await addRemotePayment(amount, paymentType, payable);
+      await remote.startRemotePayment(amount, paymentType, payable);
       return;
     }
 
@@ -437,72 +371,6 @@ export const OrderPaymentReceiving = ({
       }
     ])
     setSelectedAmount('');
-  }
-
-  const verifyRemoteIntent = async (pendingIntent: PendingRemoteIntent) => {
-    setVerifyingIntentId(pendingIntent.id);
-    try {
-      const result = await verifyPayment({
-        gateway: pendingIntent.gateway,
-        intentId: pendingIntent.intentId,
-        orderId: order.id.toString(),
-        metadata: {
-          orderId: order.id.toString(),
-          invoiceNumber: order.invoice_number,
-          paymentTypeId: pendingIntent.paymentType.id.toString(),
-        },
-      });
-
-      if (result.status !== 'paid' && result.status !== 'authorized') {
-        toast.warning(`Payment is ${result.status}. It must be paid/authorized before adding.`);
-        setPendingRemoteIntents(prev => prev.map(item => (
-          item.id === pendingIntent.id ? {...item, status: result.status} : item
-        )));
-        return;
-      }
-
-      const comments = JSON.stringify({
-        provider: pendingIntent.gateway,
-        intentId: pendingIntent.intentId,
-        reference: result.reference,
-        verifiedAt: result.verifiedAt,
-        status: result.status,
-        paymentUrl: pendingIntent.paymentUrl,
-        clientToken: pendingIntent.clientToken,
-      });
-
-      setPayments(prev => [
-        ...prev,
-        {
-          payment_type: pendingIntent.paymentType,
-          amount: pendingIntent.amount,
-          payable: pendingIntent.payable,
-          comments,
-          id: nanoid()
-        }
-      ]);
-      postOrderTracking({
-        module: "Verify remote payment",
-        page: page?.page,
-        orderId: order.id,
-        payload: {
-          gateway: pendingIntent.gateway,
-          amount: pendingIntent.amount,
-          payment_type: pendingIntent.paymentType.id.toString(),
-          intent_id: pendingIntent.intentId,
-          status: result.status,
-          reference: result.reference,
-        },
-        user: page?.user,
-      });
-      setPendingRemoteIntents(prev => prev.filter(item => item.id !== pendingIntent.id));
-      toast.success('Remote payment verified and added.');
-    } catch (e) {
-      const message = e instanceof Error ? e.message : 'Failed to verify remote payment';
-      toast.error(message);
-    } finally {
-      setVerifyingIntentId(null);
-    }
   }
 
   const calculateTotal = (taxRate: number, overrideDiscountAmount?: number) => {
@@ -561,7 +429,7 @@ export const OrderPaymentReceiving = ({
     return discounts[0];
   }
 
-  const computeDiscountAmountFor = (d?: Discount): number|undefined => {
+  const computeDiscountAmountFor = (d?: Discount): number | undefined => {
     if (!d) {
       return undefined;
     }
@@ -590,7 +458,7 @@ export const OrderPaymentReceiving = ({
     }
   }
 
-  const applyPaymentTypeDiscountIfAny = (paymentType: PaymentType): number|undefined => {
+  const applyPaymentTypeDiscountIfAny = (paymentType: PaymentType): number | undefined => {
     clearAutoDiscountIfNeeded(paymentType.id.toString());
     const d = selectBestDiscount(paymentType.discounts);
     const amount = computeDiscountAmountFor(d);
@@ -615,21 +483,21 @@ export const OrderPaymentReceiving = ({
 
   return (
     <div className="grid grid-cols-2 gap-5 h-[calc(100vh_-_150px)]">
-      <div className="bg-white rounded-xl h-full">
-        <div className="mb-3 text-5xl p-5 text-center ">
-          {withCurrency(tendered)}
-        </div>
-        <div className={
-          cn(
-            "mb-3 text-3xl p-5 text-center",
-            changeDue < 0 && 'text-danger-700',
-            changeDue > 0 && 'text-success-700'
-          )
-        }>
-          {changeDue < 0 ? 'Remaining' : 'Change'}: <span className="">{withCurrency(changeDue)}</span>
-        </div>
-        <div className="relative">
-          <ScrollContainer className="gap-3 flex overflow-x-auto mb-5">
+            <div className="bg-white rounded-xl h-full">
+              <div className="mb-3 text-5xl p-5 text-center ">
+                {withCurrency(tendered)}
+              </div>
+              <div className={
+                cn(
+                  "mb-3 text-3xl p-5 text-center",
+                  changeDue < 0 && 'text-danger-700',
+                  changeDue > 0 && 'text-success-700'
+                )
+              }>
+                {changeDue < 0 ? 'Remaining' : 'Change'}: <span className="">{withCurrency(changeDue)}</span>
+              </div>
+              <div className="relative">
+                <ScrollContainer className="gap-3 flex overflow-x-auto mb-5">
           <span
             className="btn btn-primary w-[100px] lg"
             onClick={() => {
@@ -650,206 +518,169 @@ export const OrderPaymentReceiving = ({
               setMode('quick');
             }}
           >{withCurrency(total)}</span>
-            {quickAmounts.reverse().map(item => (
-              <span
-                key={item}
-                className="btn btn-primary w-[100px] lg"
-                onClick={() => {
-                  if (!paymentTypes || paymentTypes.length === 0) {
-                    return;
-                  }
-                  const pt = paymentTypes[0];
-                  const paymentTypeTax = getPaymentTypeTax(pt);
-                  const hasTax = !!paymentTypeTax;
-                  const highestTax = hasTax ? getHighestTaxObject(paymentTypeTax) : getHighestTaxObject(undefined);
-                  if (hasTax) {
-                    setTax && setTax(highestTax);
-                  }
-                  const highestRate = hasTax ? (highestTax ? highestTax.rate : 0) : (tax ? tax.rate : getHighestTaxRate());
-                  const autoDiscountAmount = applyPaymentTypeDiscountIfAny(pt);
-                  const payable = calculateTotal(highestRate, autoDiscountAmount);
-                  void addPayment(item, pt, payable);
-                  setMode('quick');
-                }}
-              >{withCurrency(item)}</span>
-            ))}
-          </ScrollContainer>
-          {/*{!isCash && <div className="payment-disabled absolute w-full z-10 top-0 bg-neutral-100/50 h-[48px]"></div>}*/}
-        </div>
+                  {quickAmounts.reverse().map(item => (
+                    <span
+                      key={item}
+                      className="btn btn-primary w-[100px] lg"
+                      onClick={() => {
+                        if (!paymentTypes || paymentTypes.length === 0) {
+                          return;
+                        }
+                        const pt = paymentTypes[0];
+                        const paymentTypeTax = getPaymentTypeTax(pt);
+                        const hasTax = !!paymentTypeTax;
+                        const highestTax = hasTax ? getHighestTaxObject(paymentTypeTax) : getHighestTaxObject(undefined);
+                        if (hasTax) {
+                          setTax && setTax(highestTax);
+                        }
+                        const highestRate = hasTax ? (highestTax ? highestTax.rate : 0) : (tax ? tax.rate : getHighestTaxRate());
+                        const autoDiscountAmount = applyPaymentTypeDiscountIfAny(pt);
+                        const payable = calculateTotal(highestRate, autoDiscountAmount);
+                        void addPayment(item, pt, payable);
+                        setMode('quick');
+                      }}
+                    >{withCurrency(item)}</span>
+                  ))}
+                </ScrollContainer>
+                {/*{!isCash && <div className="payment-disabled absolute w-full z-10 top-0 bg-neutral-100/50 h-[48px]"></div>}*/}
+              </div>
 
-        <ScrollContainer className="gap-5 flex overflow-x-auto mb-5">
-          {paymentTypes?.map(item => (
-            <Button
-              className="min-w-[150px]"
-              variant="primary"
-              key={item.id}
-              onClick={() => {
-                // Determine the effective highest tax after choosing this payment type
-                const candidateTax = getPaymentTypeTax(item);
-                const hasTax = !!candidateTax;
-                const highestTax = hasTax ? getHighestTaxObject(candidateTax) : getHighestTaxObject(undefined);
-                // Only update global tax when this payment type has a tax attached
-                if (hasTax) {
-                  setTax && setTax(highestTax);
-                }
-                // For non-tax payment types, use current order-level tax (or highest among existing payments)
-                const highestRate = hasTax
-                  ? (highestTax ? highestTax.rate : 0)
-                  : (tax ? tax.rate : getHighestTaxRate());
+              <ScrollContainer className="gap-5 flex overflow-x-auto mb-5">
+                {paymentTypes?.map(item => (
+                  <Button
+                    className="min-w-[150px]"
+                    variant="primary"
+                    key={item.id}
+                    onClick={() => {
+                      // Determine the effective highest tax after choosing this payment type
+                      const candidateTax = getPaymentTypeTax(item);
+                      const hasTax = !!candidateTax;
+                      const highestTax = hasTax ? getHighestTaxObject(candidateTax) : getHighestTaxObject(undefined);
+                      // Only update global tax when this payment type has a tax attached
+                      if (hasTax) {
+                        setTax && setTax(highestTax);
+                      }
+                      // For non-tax payment types, use current order-level tax (or highest among existing payments)
+                      const highestRate = hasTax
+                        ? (highestTax ? highestTax.rate : 0)
+                        : (tax ? tax.rate : getHighestTaxRate());
 
-                // Apply discount(s) attached to the payment type (auto)
-                const autoDiscountAmount = applyPaymentTypeDiscountIfAny(item);
+                      // Apply discount(s) attached to the payment type (auto)
+                      const autoDiscountAmount = applyPaymentTypeDiscountIfAny(item);
 
-                const payable = calculateTotal(highestRate, autoDiscountAmount);
+                      const payable = calculateTotal(highestRate, autoDiscountAmount);
 
-                console.log(highestRate, autoDiscountAmount)
+                      if (selectedAmount.trim().length > 0) {
+                        // Respect typed amount; add with proper payable (includes highest tax)
+                        void addPayment(selectedAmount, item, payable)
+                      } else if (changeDue < 0) {
+                        // No typed amount: auto-fill remaining for convenience
+                        const remaining = payable - tendered;
+                        const amt = remaining.toString();
+                        setSelectedAmount(amt);
+                        void addPayment(amt, item, payable)
+                      } else {
+                        // Nothing typed and no remaining due – do nothing (card will be blocked inside addPayment)
+                      }
+                    }}
+                    size="lg"
+                  >
+                    {item.name}
+                  </Button>
+                ))}
+              </ScrollContainer>
 
-                if (selectedAmount.trim().length > 0) {
-                  // Respect typed amount; add with proper payable (includes highest tax)
-                  void addPayment(selectedAmount, item, payable)
-                } else if (changeDue < 0) {
-                  // No typed amount: auto-fill remaining for convenience
-                  const remaining = payable - tendered;
-                  const amt = remaining.toString();
-                  setSelectedAmount(amt);
-                  void addPayment(amt, item, payable)
-                } else {
-                  // Nothing typed and no remaining due – do nothing (card will be blocked inside addPayment)
-                }
-              }}
-              size="lg"
-            >
-              {item.name}
-            </Button>
-          ))}
-        </ScrollContainer>
+              <div className="flex justify-center items-center mb-3 text-xl h-[28px]">
+                {selectedAmount.trim().length > 0 && selectedAmount}
+              </div>
 
-        <div className="flex justify-center items-center mb-3 text-xl h-[28px]">
-          {selectedAmount.trim().length > 0 && selectedAmount}
-        </div>
+              <div className="flex">
+                <div className="flex-1">
+                  <div className="grid grid-cols-3 gap-3 mb-3">
+                    {keyboardKeys.map(item => (
+                      <Button key={item} size="xl" flat variant="primary" onClick={() => {
+                        if (mode === 'button') {
+                          setSelectedAmount((prev: string) => {
+                            return prev + item.toString()
+                          });
+                        } else {
+                          setSelectedAmount(item.toString());
+                        }
 
-        <div className="flex">
-          <div className="flex-1">
-            <div className="grid grid-cols-3 gap-3 mb-3">
-              {keyboardKeys.map(item => (
-                <Button key={item} size="xl" flat variant="primary" onClick={() => {
-                  if (mode === 'button') {
-                    setSelectedAmount(prev => {
-                      return prev + item
-                    });
-                  } else {
-                    setSelectedAmount(item.toString());
-                  }
+                        setMode('button');
+                      }}>
+                        {item}
+                      </Button>
+                    ))}
+                    <Button size="xl" flat variant="primary" onClick={() => {
+                      setSelectedAmount('')
+                    }}>
+                      C
+                    </Button>
+                  </div>
+                  <div className="flex gap-5">
+                    <Button
+                      variant="primary"
+                      className="flex-1"
+                      flat
+                      icon={faPrint}
+                      size="lg"
+                      onClick={() => {
+                        protectAction(() => {
+                          void dispatchPrint(db, PRINT_TYPE.presale_bill, {
+                            order,
+                            taxes: allTaxes?.data
+                          }, {userId: page?.user?.id});
+                        }, {
+                          module: 'Print temp bill',
+                          description: 'Print temp bill',
+                          payload: {
+                            order: order.id.toString()
+                          }
+                        });
 
-                  setMode('button');
-                }}>
-                  {item}
-                </Button>
-              ))}
-              <Button size="xl" flat variant="primary" onClick={() => {
-                setSelectedAmount('')
-              }}>
-                C
-              </Button>
+                      }}
+                    >Temp bill</Button>
+                    <Button
+                      variant="success"
+                      className="flex-1"
+                      filled
+                      size="lg"
+                      onClick={async () => {
+                        await protectAction(async () => await closeOrder(), {
+                          module: 'Complete order',
+                          description: 'Complete order',
+                          payload: {
+                            order: order.id.toString()
+                          }
+                        });
+                      }}
+                      disabled={changeDue < 0 || closing || remote.isProcessing}
+                      flat
+                    >Complete</Button>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="flex gap-5">
-              <Button
-                variant="primary"
-                className="flex-1"
-                flat
-                icon={faPrint}
-                size="lg"
-                onClick={() => {
-                  protectAction(() => {
-                    void dispatchPrint(db, PRINT_TYPE.presale_bill, {
-                      order,
-                      taxes: allTaxes?.data
-                    }, {userId: page?.user?.id});
-                  }, {
-                    module: 'Print temp bill',
-                    description: 'Print temp bill',
-                    payload: {
-                      order: order.id.toString()
-                    }
-                  });
-
-                }}
-              >Temp bill</Button>
-              <Button
-                variant="success"
-                className="flex-1"
-                filled
-                size="lg"
-                onClick={async () => {
-                  await protectAction(async () => await closeOrder(), {
-                    module: 'Complete order',
-                    description: 'Complete order',
-                    payload: {
-                      order: order.id.toString()
-                    }
-                  });
-                }}
-                disabled={changeDue < 0 || closing || remoteProcessing}
-                flat
-              >Complete</Button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="flex flex-col gap-2 p-3 bg-white rounded-xl h-full">
-        {pendingRemoteIntents.map(intent => (
-          <div key={intent.id} className="border border-warning-400 rounded p-2">
-            <div className="flex justify-between text-sm mb-2">
-              <strong>{intent.paymentType.name} (Remote)</strong>
-              <span>{withCurrency(intent.amount)}</span>
-            </div>
-            <div className="text-xs text-neutral-600 mb-2">Status: {intent.status}</div>
-            <div className="flex gap-2">
-              {intent.paymentUrl && (
-                <Button
-                  size="sm"
-                  variant="primary"
-                  onClick={() => window.open(intent.paymentUrl as string, '_blank', 'noopener,noreferrer')}
+            <div className="flex flex-col gap-2 p-3 bg-white rounded-xl h-full">
+              <RemotePaymentPendingSlot />
+              {payments.map(payment => (
+                <div
+                  className="flex justify-between text-lg cursor-pointer"
+                  key={payment.id}
+                  onClick={() => {
+                    setPayments(prev => prev.filter(item => item.id !== payment.id))
+                  }}
                 >
-                  Open link
-                </Button>
-              )}
-              <Button
-                size="sm"
-                variant="success"
-                onClick={() => {
-                  void verifyRemoteIntent(intent);
-                }}
-                disabled={verifyingIntentId === intent.id}
-              >
-                Verify
-              </Button>
-              <Button
-                size="sm"
-                variant="danger"
-                onClick={() => setPendingRemoteIntents(prev => prev.filter(item => item.id !== intent.id))}
-              >
-                Remove
-              </Button>
+                  <strong className="flex gap-3 justify-center items-center">
+                    <FontAwesomeIcon icon={faClose}
+                                     className="text-danger-500 p-2 px-3 rounded border border-danger-500"/>
+                    {payment.payment_type.name}
+                  </strong>
+                  <span>{withCurrency(payment.amount)}</span>
+                </div>
+              ))}
             </div>
-          </div>
-        ))}
-        {payments.map(payment => (
-          <div
-            className="flex justify-between text-lg cursor-pointer"
-            key={payment.id}
-            onClick={() => {
-              setPayments(prev => prev.filter(item => item.id !== payment.id))
-            }}
-          >
-            <strong className="flex gap-3 justify-center items-center">
-              <FontAwesomeIcon icon={faClose} className="text-danger-500 p-2 px-3 rounded border border-danger-500"/>
-              {payment.payment_type.name}
-            </strong>
-            <span>{withCurrency(payment.amount)}</span>
-          </div>
-        ))}
-      </div>
     </div>
   )
 }

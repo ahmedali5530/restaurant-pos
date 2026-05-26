@@ -1,7 +1,7 @@
 export const PAYMENT_SERVER_URL =
   (import.meta.env.VITE_PAYMENT_SERVER_URL as string) || "http://localhost:3133";
 
-export type GatewayType = "stripe" | "paypal" | "razorpay" | "jazzcash";
+export type GatewayType = "stripe" | "paypal" | "razorpay" | "jazzcash" | "mpesa";
 export type PaymentStatus = "pending" | "authorized" | "paid" | "failed" | "canceled";
 
 export type CreatePaymentIntentRequest = {
@@ -82,7 +82,21 @@ async function requestJson<T>(
   if (!res.ok || !parsed || parsed.success === false) {
     const message =
       (parsed && "error" in parsed && parsed.error) || text || "Payment request failed";
-    throw new Error(message);
+    const details = parsed && "details" in parsed ? parsed.details : undefined;
+
+    console.error("[payment-service]", path, {
+      httpStatus: res.status,
+      message,
+      details,
+      request: payload,
+      rawBody: !parsed ? text?.slice(0, 500) : undefined,
+    });
+
+    const detailsSuffix =
+      details !== undefined
+        ? ` (${typeof details === "string" ? details : JSON.stringify(details)})`
+        : "";
+    throw new Error(`${message}${detailsSuffix}`);
   }
 
   return parsed.data;

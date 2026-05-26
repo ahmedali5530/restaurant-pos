@@ -37,6 +37,14 @@ function validateCreateIntentRequest(body) {
     throw new Error('amount must be a positive number');
   }
 
+  const metadata = body.metadata || {};
+  if (gateway === PaymentGateway.MPESA) {
+    const paymentTypeId = metadata.paymentTypeId;
+    if (!paymentTypeId) {
+      throw new Error('metadata.paymentTypeId is required for mpesa gateway');
+    }
+  }
+
   return {
     gateway,
     amount,
@@ -45,7 +53,7 @@ function validateCreateIntentRequest(body) {
     customer: body.customer || {},
     returnUrl: body.returnUrl || null,
     cancelUrl: body.cancelUrl || null,
-    metadata: body.metadata || {},
+    metadata,
   };
 }
 
@@ -53,12 +61,21 @@ function validateVerifyRequest(body) {
   assertObject(body);
   requireField(body, 'gateway');
   const gateway = normalizeGateway(body.gateway);
+  const metadata = body.metadata || {};
+  if (gateway === PaymentGateway.MPESA) {
+    if (!metadata.paymentTypeId) {
+      throw new Error('metadata.paymentTypeId is required for mpesa gateway');
+    }
+    if (!body.intentId) {
+      throw new Error('intentId is required for mpesa gateway verify');
+    }
+  }
   return {
     gateway,
     paymentId: body.paymentId || null,
     intentId: body.intentId || null,
     orderId: body.orderId || null,
-    metadata: body.metadata || {},
+    metadata,
     payload: body.payload || {},
   };
 }

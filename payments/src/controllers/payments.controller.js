@@ -2,6 +2,7 @@
 
 const { getGatewayDriver } = require('../gateways/gateway.factory');
 const { sendSuccess } = require('../lib/response');
+const logger = require('../lib/logger');
 const {
   validateCreateIntentRequest,
   validateVerifyRequest,
@@ -16,8 +17,18 @@ async function createIntent(req, res, next) {
       ...payload,
       idempotencyKey,
     });
+    logger.info('controller', 'createIntent success', {
+      gateway: payload.gateway,
+      intentId: data.intentId,
+      status: data.status,
+    });
     sendSuccess(res, data);
   } catch (err) {
+    logger.error('controller', 'createIntent failed', {
+      gateway: req.body?.gateway,
+      message: err.message,
+      details: err.details,
+    });
     next(err);
   }
 }
@@ -27,8 +38,19 @@ async function verifyPayment(req, res, next) {
     const payload = validateVerifyRequest(req.body);
     const driver = getGatewayDriver(payload.gateway);
     const data = await driver.verify(payload);
+    logger.info('controller', 'verifyPayment success', {
+      gateway: payload.gateway,
+      status: data.status,
+      reference: data.reference,
+    });
     sendSuccess(res, data);
   } catch (err) {
+    logger.error('controller', 'verifyPayment failed', {
+      gateway: req.body?.gateway,
+      intentId: req.body?.intentId,
+      message: err.message,
+      details: err.details,
+    });
     next(err);
   }
 }

@@ -69,9 +69,19 @@ services:
       - PAYMENT_PORT=3134
       - PAYMENT_HOST=0.0.0.0
       - PAYMENT_BASE_URL=${VITE_PAYMENT_SERVER_URL:-http://localhost:3134}
+      # Public URL for M-Pesa/webhook callbacks (ngrok, LAN IP, prod domain). Falls back to PAYMENT_BASE_URL if unset.
+      - PAYMENT_CALLBACK_BASE_URL=${PAYMENT_CALLBACK_BASE_URL:-}
+      - SURREAL_URL=ws://surrealdb:8001/rpc
+      - SURREAL_NS=posr
+      - SURREAL_DB=posr
+      - SURREAL_USER=root
+      - SURREAL_PASS=root
+      - PAYMENT_LOG_LEVEL=debug
     command: sh -c "npm install && node server.js"
     ports:
       - "3134:3134"
+    depends_on:
+      - surrealdb
 
   sync:
     image: node:20-alpine

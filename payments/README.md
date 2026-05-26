@@ -29,6 +29,14 @@ Copy `.env.example` to `.env` inside `payments`.
 
 All gateway keys remain server-side. Do not add these secrets to frontend env files.
 
+| Variable | Purpose |
+|----------|---------|
+| `PAYMENT_HOST` / `PAYMENT_PORT` | Bind address |
+| `PAYMENT_BASE_URL` | Base URL for checkout links and default API URL |
+| `PAYMENT_CALLBACK_BASE_URL` | Public base URL for gateway webhooks (M-Pesa STK `CallBackURL`). Optional; defaults to `PAYMENT_BASE_URL` |
+| `PAYMENT_LOG_LEVEL` | `debug`, `info`, `warn`, `error` |
+| `SURREAL_*` | SurrealDB connection for per–payment-type gateway config |
+
 ## API
 
 ### `GET /health`
@@ -102,5 +110,86 @@ Webhook receiver endpoint. Signature verification is scaffolded and should be im
 - `paypal`
 - `razorpay`
 - `jazzcash`
+- `mpesa` (Safaricom Daraja Lipa na M-Pesa STK Push)
 
 Each gateway has its own driver under `src/gateways/drivers`.
+
+## M-Pesa (Daraja STK Push)
+
+M-Pesa uses **real Safaricom Daraja API** calls. Credentials are loaded from SurrealDB per payment type (not from frontend env).
+
+### Admin setup
+
+1. Create a **Remote** payment type with gateway `mpesa` and mode `sandbox` or `live`.
+2. Fill gateway keys on the payment type:
+   - **Client ID** → Consumer Key
+   - **Client Secret** → Consumer Secret
+   - **Integrity Salt** → Lipa na M-Pesa Passkey
+   - **Merchant ID** → Business ShortCode (Paybill/Till)
+   - **Public Key** (optional) → STK `TransactionType` (`CustomerPayBillOnline` default, or `CustomerBuyGoodsOnline`)
+
+### SurrealDB env (`payments/.env`)
+
+```
+SURREAL_URL=ws://localhost:8001/rpc
+SURREAL_NS=posr
+SURREAL_DB=posr
+SURREAL_USER=root
+SURREAL_PASS=root
+```
+
+### Create intent (M-Pesa)
+
+- `gateway`: `mpesa`
+- `currency`: `KES` (whole shillings only)
+- `customer.phone`: required (`2547XXXXXXXX` or `07XXXXXXXX`)
+- `metadata.paymentTypeId`: Surreal `payment_type` record id
+
+```json
+{
+  "gateway": "mpesa",
+  "amount": 100,
+  "currency": "KES",
+  "orderId": "order-123",
+  "customer": { "phone": "254708374149" },
+  "metadata": {
+    "paymentTypeId": "payment_type:abc123",
+    "orderId": "order-123"
+  }
+}
+```
+
+Response: `intentId` is Daraja `CheckoutRequestID`; `paymentUrl` is null; STK prompt is sent to the phone.
+
+### Verify
+
+Poll with `intentId` (CheckoutRequestID) and the same `metadata.paymentTypeId`:
+
+```json
+{
+  "gateway": "mpesa",
+  "intentId": "ws_CO_...",
+  "metadata": { "paymentTypeId": "payment_type:abc123" }
+}
+```
+
+- `ResultCode` `0` → `paid`
+- `1032` → `canceled`
+- `1037` → `pending` (timeout; keep polling)
+
+### STK callback
+
+Daraja posts async results to `POST /webhooks/mpesa` (URL set as `CallBackURL` on STK push). The POS app uses poll verify; webhooks are logged/acknowledged.
+
+**Callback URL vs API URL:** `PAYMENT_BASE_URL` is used for checkout links and local API access. When the payment server runs on `localhost` but Safaricom must reach your webhooks, set a separate public base URL:
+
+```env
+PAYMENT_BASE_URL=http://localhost:3134
+PAYMENT_CALLBACK_BASE_URL=https://payments.example.com
+```
+
+STK `CallBackURL` becomes `{PAYMENT_CALLBACK_BASE_URL}/webhooks/mpesa`. If `PAYMENT_CALLBACK_BASE_URL` is empty, `PAYMENT_BASE_URL` is used.
+
+### Sandbox
+
+Register at [Safaricom Daraja](https://developer.safaricom.co.ke/) and use sandbox credentials. Test MSISDN: `254708374149`.

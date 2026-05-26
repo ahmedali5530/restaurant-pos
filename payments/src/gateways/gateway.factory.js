@@ -5,6 +5,7 @@ const { StripeGateway } = require('./drivers/stripe.gateway');
 const { PaypalGateway } = require('./drivers/paypal.gateway');
 const { RazorpayGateway } = require('./drivers/razorpay.gateway');
 const { JazzcashGateway } = require('./drivers/jazzcash.gateway');
+const { MpesaGateway } = require('./drivers/mpesa.gateway');
 
 function getGatewayDriver(gateway) {
   switch ((gateway || '').toLowerCase()) {
@@ -16,6 +17,8 @@ function getGatewayDriver(gateway) {
       return new RazorpayGateway();
     case PaymentGateway.JAZZCASH:
       return new JazzcashGateway();
+    case PaymentGateway.MPESA:
+      return new MpesaGateway();
     default:
       throw new Error(`Unsupported payment gateway: ${gateway}`);
   }
