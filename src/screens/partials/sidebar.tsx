@@ -110,7 +110,7 @@ export const Sidebar = () => {
                 }}
                 className={cn(
                   'flex flex-col text-center cursor-pointer p-[0.4rem] gap-1 rounded-xl pressable no-underline w-full',
-                  pathInfo === item.link ? 'shadow-xl bg-gradient' : 'text-neutral-900 border-[3px] border-transparent'
+                  pathInfo === item.link ? 'shadow-xl bg-gradient active:shadow-none' : 'text-neutral-900 border-[3px] border-transparent'
                 )}
                 key={item.title}
                 style={{

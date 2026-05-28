@@ -15,6 +15,7 @@ import {ne, LiveSubscription} from "surrealdb";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {getOrderPunchDisabledMessage, isCurrentCycleClosed} from "@/lib/closing.guard.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
+import {Link} from "react-router";
 
 
 export const FloorLayout = () => {
@@ -294,6 +295,11 @@ export const FloorLayout = () => {
           )}
         </div>
         <div className="layout relative h-[calc(100vh_-_80px_-_80px)] p-3 overflow-hidden">
+          {floors?.length === 0 && (
+            <div className="flex items-center justify-center text-2xl">
+              Press reload cache button from {" "}<span className="ml-2 btn btn-secondary"><Link to="/settings">settings</Link></span>
+            </div>
+          )}
           {state.floor && (
             <>
               {tables?.map(item => (
