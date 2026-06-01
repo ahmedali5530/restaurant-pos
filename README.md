@@ -27,6 +27,7 @@ This system solves that by combining everything into one platform:
 
 - ⚡ Real-time restaurant operations
 - 🍽️ Full kitchen + order lifecycle
+- 🍔 Advanced dish & modifiers management
 - 🚚 Built-in delivery workflow
 - 👨‍💼 Staff + manager + admin roles
 - 🔐 Secure protected modules
@@ -48,6 +49,17 @@ This system solves that by combining everything into one platform:
 - Split / merge / cancel / transfer orders
 - Real-time cart updates
 - Instant billing flow
+
+---
+
+### 🍔 Dish Creation & Advanced Modifiers
+- **Flexible Dish Management:** Create and organize dishes with custom pricing, tax rules, and multi-category assignments.
+- **Excellent Modifiers Support:**
+    - **Modifier Groups:** Group related options (e.g., "Sides", "Toppings", "Meat Temperature").
+    - **Nested Modifiers:** Support for complex ordering flows where choosing a modifier opens another set of choices (e.g., Select "Combo" → Select "Side" → Select "Drink").
+    - **Price Overrides:** Set specific prices for modifiers when they are part of a particular group or combination.
+    - **Rules & Constraints:** Define minimum and maximum selections per group.
+- **Visual Menu Builder:** Intuitive interface for designing the customer-facing menu.
 
 ---
 
