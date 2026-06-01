@@ -177,3 +177,15 @@ export const appAlert = atom<AppAlertInterface>({
   message: '',
   type: 'info'
 })
+
+export const defaultClosingEnforcementState = {
+  orderTakingBlocked: false,
+  orderMutationsBlocked: false,
+  cycleEndedAt: null as Date | null,
+  dayClosingCompleted: false,
+  message: null as string | null,
+};
+
+export type ClosingEnforcementAtomState = typeof defaultClosingEnforcementState;
+
+export const closingEnforcementAtom = atom<ClosingEnforcementAtomState>(defaultClosingEnforcementState);

@@ -145,7 +145,7 @@ export const CacheSettings = () => {
           <h2 className="text-xl font-semibold mb-1">Cache</h2>
           <p className="text-sm text-neutral-500">Current cache size by dataset.</p>
         </div>
-        <Button variant="success" size="lg" onClick={reloadCache} isLoading={isReloading}>
+        <Button variant="primary" size="lg" onClick={reloadCache} isLoading={isReloading}>
           Reload cache
         </Button>
       </div>

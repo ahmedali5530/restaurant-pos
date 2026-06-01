@@ -25,7 +25,7 @@ import {LiveSubscription, RecordId, StringRecordId} from "surrealdb";
 import {toast} from "sonner";
 import {useQueryBuilder} from "@/api/db/query-builder.ts";
 import {LabelValue} from "@/api/model/common.ts";
-import {assertOrderPunchAllowed} from "@/lib/closing.guard.ts";
+import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
 import {OrderMerge, OrderMergeCreatePayload} from "@/api/model/order_merge.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
@@ -186,7 +186,7 @@ export const Orders = () => {
     }
 
     try {
-      await assertOrderPunchAllowed(db);
+      await assertOrderMutationsAllowed(db);
       setIsSaving(true);
       let items: string[] = [];
       const oldItems: OrderMerge['old_items'] = {};

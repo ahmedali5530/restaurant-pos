@@ -42,8 +42,8 @@ export const KitchenOrder = ({
       <div className={
         cn(
           "flex justify-between p-3 rounded-xl shadow-2xl",
-          diff >= 30 && diff <= 59 && 'bg-warning-200 text-warning-700',
-          diff >= 60 && 'bg-danger-200 text-danger-700',
+          diff >= 30 && diff <= 59 && 'bg-warning-200 text-warning-700 kitchen-late-order',
+          diff >= 60 && 'bg-danger-200 text-danger-700 kitchen-delayed-order',
         )
       }>
         <div className="flex gap-3">

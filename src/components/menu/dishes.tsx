@@ -2,12 +2,13 @@ import {Swiper, SwiperSlide} from "swiper/react";
 import _ from "lodash";
 import {cn} from "@/lib/utils.ts";
 import {useAtom} from "jotai";
-import {appSettings, appState} from "@/store/jotai.ts";
+import {appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {useEffect, useMemo} from "react";
 import {useMediaQuery} from "react-responsive";
 import {MenuDish} from "@/components/menu/dish.tsx";
 import {CartModifierGroup, MenuItem} from "@/api/model/cart_item.ts";
 import {resolveMenuAwareData} from "@/lib/menu.resolver.ts";
+import {toast} from "sonner";
 
 export const MenuDishes = () => {
   const isTablet = useMediaQuery({maxWidth: 1024});
@@ -18,6 +19,8 @@ export const MenuDishes = () => {
 
   const [state, setState] = useAtom(appState);
   const [settings] = useAtom(appSettings);
+  const [enforcement] = useAtom(closingEnforcementAtom);
+  const orderTakingBlocked = enforcement.orderTakingBlocked;
   const {dishes: allDishes} = useMemo(() => (
     resolveMenuAwareData({
       categories: settings.categories,
@@ -39,6 +42,11 @@ export const MenuDishes = () => {
   const slides = Math.ceil(dishes?.length / (ITEMS_PER_SLIDE));
 
   const onClick = (item: MenuItem, selectedGroups?: CartModifierGroup[]) => {
+    if (orderTakingBlocked) {
+      toast.warning(enforcement.message ?? "Order taking is currently disabled.");
+      return;
+    }
+
     setState(prev => ({
       ...prev,
       cart: [
@@ -64,7 +72,7 @@ export const MenuDishes = () => {
     <>
       <Swiper
         slidesPerView={1}
-        className="dishes-swiper"
+        className={cn("dishes-swiper", orderTakingBlocked && "opacity-50 pointer-events-none")}
         direction="vertical"
       >
         {_.range(0, slides).map(rowId => (

@@ -1,5 +1,5 @@
 import {useAtom} from "jotai";
-import {appAlert, appPage, appSettings, appState} from "@/store/jotai.ts";
+import {appAlert, appPage, appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {CSSProperties, useEffect, useMemo, useState} from "react";
 import {Button} from "@/components/common/input/button.tsx";
 import {cn, toRecordId} from "@/lib/utils.ts";
@@ -13,8 +13,8 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faChair} from "@fortawesome/free-solid-svg-icons";
 import {ne, LiveSubscription} from "surrealdb";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
-import {getOrderPunchDisabledMessage, isCurrentCycleClosed} from "@/lib/closing.guard.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
+import {getClosingEnforcementState} from "@/lib/closing.guard.ts";
 import {Link} from "react-router";
 
 
@@ -27,7 +27,9 @@ export const FloorLayout = () => {
   const [page] = useAtom(appPage);
   const [, setAlert] = useAtom(appAlert);
   const [settings] = useAtom(appSettings);
-  const [isClosingLocked, setIsClosingLocked] = useState(false);
+  const [enforcement] = useAtom(closingEnforcementAtom);
+  const isClosingLocked = enforcement.orderTakingBlocked;
+  const closingLockMessage = enforcement.message;
 
   const floors = useMemo(() => {
     return settings.floors;
@@ -120,25 +122,15 @@ export const FloorLayout = () => {
   }, []);
 
   useEffect(() => {
-    const checkLock = async () => {
-      try {
-        const locked = await isCurrentCycleClosed(db);
-        setIsClosingLocked(locked);
-        if (locked) {
-          setAlert(prev => ({
-            ...prev,
-            message: getOrderPunchDisabledMessage(),
-            type: "warning",
-            opened: true
-          }));
-        }
-      } catch (error) {
-        console.error("Failed to check closing lock:", error);
-      }
-    };
-
-    checkLock().then();
-  }, []);
+    if (isClosingLocked && closingLockMessage) {
+      setAlert(prev => ({
+        ...prev,
+        message: closingLockMessage,
+        type: "warning",
+        opened: true
+      }));
+    }
+  }, [isClosingLocked, closingLockMessage, setAlert]);
 
   useEffect(() => {
     if (!state.floor && floors?.length > 0) {
@@ -160,11 +152,23 @@ export const FloorLayout = () => {
   }
 
   const onClick = async (item: Table) => {
-    if (isClosingLocked) {
+    try {
+      const enforcementState = await getClosingEnforcementState(db);
+      if (enforcementState.orderTakingBlocked) {
+        setAlert(prev => ({
+          ...prev,
+          message: enforcementState.message ?? "Order taking is currently disabled.",
+          type: "warning",
+          opened: true
+        }));
+        return;
+      }
+    } catch (error) {
+      console.error("Failed to check closing enforcement:", error);
       setAlert(prev => ({
         ...prev,
-        message: getOrderPunchDisabledMessage(),
-        type: "warning",
+        message: "Unable to verify closing cycle status. Please try again.",
+        type: "error",
         opened: true
       }));
       return;
@@ -288,9 +292,9 @@ export const FloorLayout = () => {
         <div className="h-[80px] bg-white p-3 flex items-center">
           {state.switchTable && <div className="text-xl"><FontAwesomeIcon icon={faChair}/> Switch from
               Table {state?.table?.name}{state?.table?.number} to another</div>}
-          {isClosingLocked && (
+          {isClosingLocked && closingLockMessage && (
             <div className="alert alert-warning w-full">
-              {getOrderPunchDisabledMessage()}
+              {closingLockMessage}
             </div>
           )}
         </div>

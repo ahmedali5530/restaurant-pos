@@ -927,7 +927,13 @@ table th {
   --space: 5px;
   --size: 15px;
 
-  background: repeating-linear-gradient(90deg ,#fff 0 var(--space), theme('colors.gray.300') 0 var(--size));
+  background: repeating-linear-gradient(90deg ,#fff 0 var(--space), theme('colors.neutral.300') 0 var(--size));
+}
+.v-separator{
+  --space: 5px;
+  --size: 10px;
+
+  background: repeating-linear-gradient(0deg ,#fff 0 var(--space), theme('colors.neutral.300') 0 var(--size));
 }
 .pressable {
   --scale: 0.9;
@@ -974,4 +980,35 @@ table th {
 .pillow-btn:active {
   box-shadow: inset 4px 4px 8px color-mix(in srgb, var(--btn-color) 60%, black),
   inset -4px -4px 8px color-mix(in srgb, var(--btn-color) 80%, white);
+}
+.kitchen-late-order{
+  animation-name: blink;
+  animation-timing-function: linear;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+}
+.kitchen-delayed-order{
+  animation-name: blink;
+  animation-timing-function: linear;
+  animation-duration: 350ms;
+  animation-iteration-count: infinite;
+}
+
+@keyframes blink {
+  0% {
+    transform-origin: top;
+    transform: scale(1);
+  }
+  50%{
+    transform-origin: top;
+    transform: scale(1.03);
+  }
+  80%{
+    transform-origin: top;
+    transform: scale(0.95);
+  }
+  100%{
+    transform-origin: top;
+    transform: scale(1);
+  }
 }

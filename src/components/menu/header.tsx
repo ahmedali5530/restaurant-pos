@@ -1,5 +1,5 @@
 import {useAtom} from "jotai";
-import {appSettings, appState} from "@/store/jotai.ts";
+import {appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {faArrowLeft, faPlus, faTable, faTimes, faUser, faUsers} from "@fortawesome/free-solid-svg-icons";
 import {cn, toRecordId} from "@/lib/utils.ts";
@@ -12,12 +12,15 @@ import {Customers} from "@/components/customer/customer.tsx";
 import {getInvoiceNumber} from "@/lib/order.ts";
 import ScrollContainer from "react-indiana-drag-scroll";
 import { nowSurrealDateTime } from "@/lib/datetime.ts";
+import {toast} from "sonner";
 
 export const MenuHeader = () => {
   const db = useDB();
 
   const [state, setState] = useAtom(appState);
   const [setting] = useAtom(appSettings);
+  const [enforcement] = useAtom(closingEnforcementAtom);
+  const orderTakingBlocked = enforcement.orderTakingBlocked;
   const [customerModal, setCustomerModal] = useState(false);
   const [confirmCartAction, setConfirmCartAction] = useState(false);
 
@@ -79,6 +82,11 @@ export const MenuHeader = () => {
 
   const onOrderClick = (key: string) => {
     if (key === 'new') {
+      if (orderTakingBlocked) {
+        toast.warning(enforcement.message ?? "Order taking is currently disabled.");
+        return;
+      }
+
       setState(prev => ({
         ...prev,
         order: {
@@ -187,6 +195,7 @@ export const MenuHeader = () => {
                 variant="primary"
                 flat
                 size="lg"
+                disabled={orderTakingBlocked}
                 onClick={() => onOrderClick('new')}
                 icon={faPlus}
               >New Order</Button>

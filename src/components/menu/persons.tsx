@@ -1,14 +1,42 @@
 import { useAtom } from "jotai";
-import { appState } from "@/store/jotai.ts";
+import { appAlert, appState, closingEnforcementAtom } from "@/store/jotai.ts";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils.ts";
 import { useDB } from "@/api/db/db.ts";
+import {getClosingEnforcementState} from "@/lib/closing.guard.ts";
 
 export const MenuPersons = () => {
   const [state, setState] = useAtom(appState);
+  const [enforcement] = useAtom(closingEnforcementAtom);
+  const [, setAlert] = useAtom(appAlert);
   const [error, setError] = useState(false);
   const [first, setFirst] = useState(true);
   const db = useDB();
+
+  useEffect(() => {
+    if (!enforcement.orderTakingBlocked || state.showFloor) {
+      return;
+    }
+
+    setState(prev => ({
+      ...prev,
+      showFloor: true,
+      showPersons: false,
+      table: undefined,
+      order: undefined,
+      orders: [],
+      cart: [],
+    }));
+
+    if (enforcement.message) {
+      setAlert(prev => ({
+        ...prev,
+        message: enforcement.message!,
+        type: "warning",
+        opened: true,
+      }));
+    }
+  }, [enforcement.message, enforcement.orderTakingBlocked, setAlert, setState, state.showFloor]);
 
   const onKey = (key: string) => {
     setState(prev => ({
@@ -22,6 +50,31 @@ export const MenuPersons = () => {
   const onOk = async () => {
     if( !state.persons || state.persons.trim() === '' || state.persons.trim() === '0' ) {
       setError(true);
+      return;
+    }
+
+    try {
+      const enforcementState = await getClosingEnforcementState(db);
+      if (enforcementState.orderTakingBlocked) {
+        setAlert(prev => ({
+          ...prev,
+          message: enforcementState.message ?? "Order taking is currently disabled.",
+          type: "warning",
+          opened: true,
+        }));
+        setState(prev => ({
+          ...prev,
+          showFloor: true,
+          showPersons: false,
+          table: undefined,
+          order: undefined,
+          orders: [],
+          cart: [],
+        }));
+        return;
+      }
+    } catch (error) {
+      console.error("Failed to check closing enforcement:", error);
       return;
     }
 

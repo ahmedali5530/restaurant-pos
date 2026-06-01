@@ -18,11 +18,17 @@ import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {LiveSubscription} from "surrealdb";
 import { nowSurrealDateTime, toLuxonDateTime, toSurrealDateTime } from "@/lib/datetime.ts";
 import { getInvoiceNumber } from "@/lib/order.ts";
+import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
+import {toast} from "sonner";
+import {useAtom} from "jotai";
+import {closingEnforcementAtom} from "@/store/jotai.ts";
 
 
 
 export const KitchenScreen = () => {
   const db = useDB();
+  const [enforcement] = useAtom(closingEnforcementAtom);
+  const mutationsBlocked = enforcement.orderMutationsBlocked;
 
   const [kitchen, setKitchen] = useState<Kitchen>();
   const {
@@ -137,6 +143,8 @@ export const KitchenScreen = () => {
     setRecallingOrderKey(orderKey);
 
     try {
+      await assertOrderMutationsAllowed(db);
+
       await Promise.all(recallableItems.map((item) => {
         return db.query(`update $item set completed_at = None`, {
           item: toRecordId(item.id)
@@ -145,6 +153,9 @@ export const KitchenScreen = () => {
 
       await loadOrders(kitchen.id);
       await loadCompletedOrders(kitchen.id);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to recall order";
+      toast.error(message);
     } finally {
       setRecallingOrderKey(null);
     }
@@ -203,10 +214,15 @@ export const KitchenScreen = () => {
   }, []);
 
   const completeAllOrders = async () => {
-    await db.query(`update ${Tables.order_items_kitchen} set completed_at = $time where kitchen = $kitchen and completed_at = None`, {
-      kitchen: kitchen.id,
-      time: nowSurrealDateTime()
-    });
+    if(confirm('Complete all open orders in this kitchen?')) {
+      await db.query(`update ${Tables.order_items_kitchen}
+                      set completed_at = $time
+                      where kitchen = $kitchen
+                        and completed_at = None`, {
+        kitchen: kitchen.id,
+        time: nowSurrealDateTime()
+      });
+    }
   }
 
   const allDishes = useMemo(() => {
@@ -242,9 +258,9 @@ export const KitchenScreen = () => {
             ))}
           </div>
           <div className="flex gap-3">
-            <Button variant="warning" size="lg" filled onClick={completeAllOrders}>Complete all open orders</Button>
-            <Button variant="success" size="lg" onClick={openCompletedOrdersModal}>Completed Orders</Button>
-            <Button variant="warning" size="lg" filled onClick={() => setDishesModal(!dishesModal)}>View all dishes</Button>
+            <Button variant="success" size="lg" onClick={completeAllOrders}>Complete all open orders</Button>
+            <Button variant="secondary" size="lg" onClick={openCompletedOrdersModal}>Completed Orders</Button>
+            <Button variant="secondary" size="lg" onClick={() => setDishesModal(!dishesModal)}>View all dishes</Button>
           </div>
           <div className="input-group flex-1 justify-end flex gap-3 items-center h-full">
             <span className="bg-neutral-900 text-warning-500 text-2xl h-full flex items-center px-3">Avg time: {avgTime}</span>
@@ -289,7 +305,7 @@ export const KitchenScreen = () => {
           setCompletedOrders([]);
         }}
         title={`${kitchen?.name ?? ''} Completed Orders (Today)`}
-        size="lg"
+        size="md"
       >
         <div className="space-y-3 max-h-[70vh] overflow-auto">
           {!loadingCompletedOrders && completedOrders.length === 0 && (
@@ -318,6 +334,7 @@ export const KitchenScreen = () => {
                 <Button
                   variant="warning"
                   filled
+                  isDisabled={mutationsBlocked}
                   isLoading={recallingOrderKey === orderKey}
                   onClick={() => recallCompletedOrder(item, index)}
                 >

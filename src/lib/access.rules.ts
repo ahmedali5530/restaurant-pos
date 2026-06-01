@@ -49,7 +49,7 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
   },
   'Settings': {
     label: 'Settings',
-    children: ['Printers', 'Service charges']
+    children: ['Printers', 'Service charges', 'Auto check close', 'Closing cycle']
   }
 };
 

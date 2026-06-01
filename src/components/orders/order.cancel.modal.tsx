@@ -16,6 +16,7 @@ import {Kitchen} from "@/api/model/kitchen.ts";
 import ScrollContainer from "react-indiana-drag-scroll";
 import { nowSurrealDateTime } from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
+import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
 
 interface OrderCancelModalProps {
   order: OrderModel
@@ -130,6 +131,8 @@ export const OrderCancelModal = ({
 
     setIsSubmitting(true);
     try {
+      await assertOrderMutationsAllowed(db);
+
       const userId = new StringRecordId(page.user.id.toString());
       const orderId = new StringRecordId(order.id.toString());
       const now = nowSurrealDateTime();

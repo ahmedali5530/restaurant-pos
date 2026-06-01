@@ -2,7 +2,7 @@ import {Button} from "@/components/common/input/button.tsx";
 import {faCancel, faCheck, faCreditCard, faTimes} from "@fortawesome/free-solid-svg-icons";
 import React, {useMemo, useState} from "react";
 import {useAtom} from "jotai";
-import {appPage, appState} from "@/store/jotai.ts";
+import {appPage, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {calculateCartItemPrice} from "@/lib/cart.ts";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -14,7 +14,7 @@ import {MenuItemType} from "@/api/model/cart_item.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {DiscountType} from "@/api/model/discount.ts";
 import {DateTime} from "luxon";
-import {assertOrderPunchAllowed} from "@/lib/closing.guard.ts";
+import {assertOrderTakingAllowed} from "@/lib/closing.guard.ts";
 import {toast} from "sonner";
 import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
@@ -23,6 +23,8 @@ export const Payment = () => {
   const db = useDB();
   const [state, setState] = useAtom(appState);
   const [page] = useAtom(appPage);
+  const [enforcement] = useAtom(closingEnforcementAtom);
+  const orderTakingBlocked = enforcement.orderTakingBlocked;
 
   const [isLoading, setLoading] = useState(false);
 
@@ -37,7 +39,7 @@ export const Payment = () => {
   }, [state.cart]);
 
   const createOrder = async () => {
-    await assertOrderPunchAllowed(db);
+    await assertOrderTakingAllowed(db);
 
     setLoading(true);
     const date = DateTime.now().toJSDate();
@@ -334,9 +336,9 @@ export const Payment = () => {
           </div>
           <div className="flex gap-3 mt-3">
             <Button variant="success" className="flex-1" size="lg" icon={faCheck} onClick={createOrderAndBack}
-                    disabled={isLoading || state.cart.length === 0} isLoading={isLoading}>To kitchen</Button>
+                    disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}>To kitchen</Button>
             <Button variant="warning" filled className="flex-1" size="lg" icon={faCreditCard} onClick={openPayment}
-                    disabled={isLoading || state.cart.length === 0} isLoading={isLoading}>Pay Now</Button>
+                    disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}>Pay Now</Button>
             <Button variant="danger" className="flex-1" size="lg" icon={faCancel} onClick={cancel}
                     disabled={isLoading}>Cancel</Button>
           </div>

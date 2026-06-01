@@ -24,7 +24,7 @@ import {OrderPayment} from "@/components/orders/order.payment.tsx";
 import {User} from "@/api/model/user.ts";
 import {Tables} from "@/api/db/tables.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
-import {assertOrderPunchAllowed} from "@/lib/closing.guard.ts";
+import {assertOrderTakingAllowed} from "@/lib/closing.guard.ts";
 
 interface DeliveryOrderPopupProps {
   order: Order;
@@ -135,7 +135,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
 
   const handleAccept = async () => {
     try {
-      await assertOrderPunchAllowed(db);
+      await assertOrderTakingAllowed(db);
       await db.merge(order.id, {
         status: OrderStatus["In Progress"],
         delivery: {

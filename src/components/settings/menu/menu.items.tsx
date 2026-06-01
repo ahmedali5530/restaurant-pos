@@ -9,7 +9,6 @@ import {toast} from 'sonner';
 import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
 import React, {useEffect, useMemo, useState} from "react";
-import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Dish} from "@/api/model/dish.ts";
 import {Tax} from "@/api/model/tax.ts";
@@ -17,6 +16,8 @@ import {Category} from "@/api/model/category.ts";
 import {StringRecordId} from "surrealdb";
 import _ from "lodash";
 import {Switch} from "@/components/common/input/switch.tsx";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   open: boolean
@@ -29,9 +30,29 @@ interface MenuItemFormValue {
   item_name: string;
   dish_id: string;
   price?: number;
+  org_price: number
   tax?: { label: string; value: string } | null;
   active?: boolean;
   menu_menu_item_id?: string; // ID of the menu_item_item record if it exists
+}
+
+type PriceAdjustmentMode = 'percent' | 'fixed';
+
+type CategoryAdjustment = {
+  factor: string;
+  mode: PriceAdjustmentMode;
+};
+
+const DEFAULT_CATEGORY_ADJUSTMENT: CategoryAdjustment = {
+  factor: '',
+  mode: 'percent',
+};
+
+function adjustPrice(current: number, factor: number, mode: PriceAdjustmentMode): number {
+  const raw = mode === 'percent'
+    ? current * (1 + factor / 100)
+    : current + factor;
+  return Math.max(0, Math.round(raw * 100) / 100);
 }
 
 const validationSchema = yup.object({
@@ -52,6 +73,7 @@ export const MenuItems = ({
 }: Props) => {
   const db = useDB();
   const [loading, setLoading] = useState(false);
+  const [categoryAdjustments, setCategoryAdjustments] = useState<Record<string, CategoryAdjustment>>({});
 
   const {
     data: dishes,
@@ -122,6 +144,7 @@ export const MenuItems = ({
           dish_id: dish.id,
           menu_menu_item_id: existingItem?.id || undefined,
           price: existingItem?.price !== undefined && existingItem?.price !== null ? existingItem.price : dish.price || 0,
+          org_price: dish.price,
           tax: existingItem?.tax ? {
             label: `${existingItem.tax.name} (${existingItem.tax.rate}%)`,
             value: existingItem.tax.id
@@ -139,7 +162,25 @@ export const MenuItems = ({
   const closeModal = () => {
     onClose();
     reset({items: []});
+    setCategoryAdjustments({});
   }
+
+  const getCategoryAdjustment = (categoryId: string): CategoryAdjustment => {
+    return categoryAdjustments[categoryId] ?? DEFAULT_CATEGORY_ADJUSTMENT;
+  };
+
+  const updateCategoryAdjustment = (
+    categoryId: string,
+    partial: Partial<CategoryAdjustment>
+  ) => {
+    setCategoryAdjustments((prev) => ({
+      ...prev,
+      [categoryId]: {
+        ...(prev[categoryId] ?? DEFAULT_CATEGORY_ADJUSTMENT),
+        ...partial,
+      },
+    }));
+  };
 
   const onSubmit = async (values: any) => {
     if (!menu?.id) {
@@ -223,12 +264,12 @@ export const MenuItems = ({
     items.forEach((item: MenuItemFormValue) => {
       // Find the dish to get its categories
       const dish = dishes.data.find(d => d.id === item.dish_id);
-      
+
       if (dish?.categories && dish.categories.length > 0) {
         // Use the first category (or you could handle multiple categories differently)
         const category = dish.categories[0];
         const categoryId = category.id.toString();
-        
+
         if (!categoryGroups.has(categoryId)) {
           categoryGroups.set(categoryId, {
             category: category,
@@ -248,7 +289,7 @@ export const MenuItems = ({
     // Add uncategorized items at the end if any
     if (uncategorizedItems.length > 0) {
       groups.push({
-        category: { id: 'uncategorized', name: 'Uncategorized', priority: 9999 } as Category,
+        category: {id: 'uncategorized', name: 'Uncategorized', priority: 9999} as Category,
         items: uncategorizedItems
       });
     }
@@ -265,16 +306,39 @@ export const MenuItems = ({
     return map;
   }, [items]);
 
+  const applyCategoryPriceAdjustment = (categoryId: string) => {
+    const {factor, mode} = getCategoryAdjustment(categoryId);
+    const parsed = parseFloat(factor);
+    if (!Number.isFinite(parsed)) {
+      toast.error('Enter a valid factor');
+      return;
+    }
+
+    const group = groupedItems.find(g => String(g.category.id) === String(categoryId));
+    if (!group) return;
+
+    group.items.forEach((item: MenuItemFormValue) => {
+      const index = itemIndexMap.get(item.dish_id);
+      if (index === undefined) return;
+      const current = Number(formItems[index]?.price ?? 0);
+      setValue(`items.${index}.price`, adjustPrice(current, parsed, mode), {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    });
+    toast.success(`Updated ${group.items.length} item(s)`);
+  };
+
   // Handle master switch toggle for a category
   const handleCategoryToggle = (categoryId: string, checked: boolean) => {
-    const group = groupedItems.find(g => g.category.id === categoryId);
+    const group = groupedItems.find(g => String(g.category.id) === String(categoryId));
     if (!group) return;
 
     // Update each item in the category using setValue
     group.items.forEach((item: MenuItemFormValue) => {
       const index = itemIndexMap.get(item.dish_id);
       if (index !== undefined) {
-        setValue(`items.${index}.active`, checked, { shouldDirty: true, shouldValidate: true });
+        setValue(`items.${index}.active`, checked, {shouldDirty: true, shouldValidate: true});
       }
     });
   };
@@ -326,50 +390,104 @@ export const MenuItems = ({
             <div className="flex flex-col gap-4 mb-3 max-h-[calc(100vh_-_175px)] overflow-y-auto">
               {groupedItems.map((group) => {
                 const allActive = isCategoryAllActive(group);
-                const anyActive = isCategoryAnyActive(group);
+                const categoryId = String(group.category.id);
+                const adjustment = getCategoryAdjustment(categoryId);
                 return (
-                  <div key={group.category.id} className="flex flex-col gap-2">
-                    <div className="sticky top-0 bg-white z-10 py-2 border-b-2 border-neutral-900 flex items-center justify-between">
+                  <div key={categoryId} className="flex flex-col gap-2">
+                    <div
+                      className="sticky top-0 bg-white z-10 py-2 border-b-2 border-neutral-900 flex items-center justify-between gap-2 flex-wrap">
                       <h3 className="text-lg font-semibold text-neutral-900">{group.category.name}</h3>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-neutral-600">Toggle All:</span>
+                      <div className="flex items-center gap-5 flex-row">
+                        <div className="flex justify-center items-center flex-row gap-3">
+                          <span className="text-neutral-600 whitespace-nowrap">Adjust prices:</span>
+                          <Input
+                            type="number"
+                            className="w-24"
+                            placeholder="Factor"
+                            value={adjustment.factor}
+                            onChange={(e) => updateCategoryAdjustment(categoryId, {factor: e.target.value})}
+                          />
+                          <select
+                            className="form-control w-28"
+                            value={adjustment.mode}
+                            onChange={(e) => updateCategoryAdjustment(categoryId, {
+                              mode: e.target.value as PriceAdjustmentMode,
+                            })}
+                          >
+                            <option value="percent">Percent</option>
+                            <option value="fixed">Fixed</option>
+                          </select>
+                          <Button
+                            type="button"
+                            variant="primary"
+                            onClick={() => applyCategoryPriceAdjustment(categoryId)}
+                          >
+                            Apply
+                          </Button>
+                        </div>
+                        <div className="v-separator w-[3px] h-[42px]"></div>
                         <Switch
                           checked={allActive}
-                          onChange={(event) => handleCategoryToggle(group.category.id, event.currentTarget.checked)}
-                        />
+                          onChange={(event) => handleCategoryToggle(categoryId, event.currentTarget.checked)}
+                        >
+                          Toggle All
+                        </Switch>
                       </div>
                     </div>
-                  <div className="flex flex-col gap-3">
-                    {group.items.map((item: MenuItemFormValue) => {
-                      const index = itemIndexMap.get(item.dish_id) ?? 0;
-                      return (
-                        <div className="flex flex-col gap-3 rounded-lg hover:bg-neutral-200"
-                             key={item.dish_id}>
-                          <div className="flex gap-3 items-end">
-                            <div className="flex-1">
-                              <Input
-                                label="Item Name"
-                                value={item.item_name || ''}
-                                readOnly
-                                disabled
-                              />
-                            </div>
-                            <div className="flex-1">
-                              <Controller
-                                name={`items.${index}.price`}
-                                control={control}
-                                render={({field}) => (
-                                  <Input
-                                    label="Price"
-                                    type="number"
-                                    value={field.value as number | string | undefined}
-                                    onChange={field.onChange}
-                                    error={_.get(errors, ["items", index, "price", "message"])}
-                                  />
+                    <div className="flex flex-col gap-3">
+                      {group.items.map((item: MenuItemFormValue) => {
+                        const index = itemIndexMap.get(item.dish_id) ?? 0;
+                        return (
+                          <div className="flex flex-col gap-3 rounded-lg hover:bg-neutral-200"
+                               key={item.dish_id}>
+                            <div className="flex gap-3 items-end">
+                              <div className="flex-1">
+                                <Input
+                                  label="Item Name"
+                                  value={item.item_name || ''}
+                                  readOnly
+                                  disabled
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <Controller
+                                  name={`items.${index}.price`}
+                                  control={control}
+                                  render={({field}) => (
+                                    <Input
+                                      label="Price"
+                                      type="number"
+                                      value={field.value as number | string | undefined}
+                                      onChange={field.onChange}
+                                      error={_.get(errors, ["items", index, "price", "message"])}
+                                    />
+                                  )}
+                                />
+                              </div>
+                              <div className="flex-1">
+                                {item.org_price !== item.price && (
+                                  <div>
+                                    <label htmlFor="">Org. price</label>
+                                    <div className="input-group">
+                                      <button
+                                        className="btn btn-secondary"
+                                        onClick={() => {
+                                          setValue(`items.${index}.price`, item.org_price)
+                                        }}
+                                      >
+                                        <FontAwesomeIcon icon={faArrowLeft}/>
+                                      </button>
+                                      <input
+                                        value={item.org_price}
+                                        disabled
+                                        className="form-control"
+                                      />
+                                    </div>
+                                  </div>
                                 )}
-                              />
-                            </div>
-                            <div className="flex-1">
+
+                              </div>
+                              {/*<div className="flex-1">
                               <label>Tax</label>
                               <Controller
                                 name={`items.${index}.tax`}
@@ -385,29 +503,29 @@ export const MenuItems = ({
                                 )}
                               />
                               <InputError error={_.get(errors, ["items", index, "tax", "message"])}/>
-                            </div>
-                            <div className="flex-1">
-                              <Controller
-                                name={`items.${index}.active`}
-                                control={control}
-                                render={({field}) => (
-                                  <div className="pt-6">
-                                    <Switch 
-                                      checked={field.value !== undefined ? Boolean(field.value) : true} 
-                                      onChange={(checked) => field.onChange(checked)}
-                                    >
-                                      Active
-                                    </Switch>
-                                  </div>
-                                )}
-                              />
+                            </div>*/}
+                              <div className="flex-1">
+                                <Controller
+                                  name={`items.${index}.active`}
+                                  control={control}
+                                  render={({field}) => (
+                                    <div className="pt-6">
+                                      <Switch
+                                        checked={field.value !== undefined ? Boolean(field.value) : true}
+                                        onChange={(checked) => field.onChange(checked)}
+                                      >
+                                        Active
+                                      </Switch>
+                                    </div>
+                                  )}
+                                />
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
                 );
               })}
             </div>

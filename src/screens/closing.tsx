@@ -20,19 +20,24 @@ import {toast} from "sonner";
 import {Input} from "@/components/common/input/input.tsx";
 import {Textarea} from "@/components/common/input/textarea.tsx";
 import ScrollContainer from "react-indiana-drag-scroll";
-import {nowSurrealDateTime} from "@/lib/datetime.ts";
+import {nowSurrealDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
 import {DateTime as LuxonDateTime} from "luxon";
 import {appPage} from "@/store/jotai.ts";
 import {useAtom} from "jotai";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
-import {getActiveClosingWindow} from "@/lib/closing-cycle.ts";
-import {hasOpenOrdersInCurrentCycle} from "@/lib/closing.guard.ts";
+import {ClosingCycleWindow, resolveClosingWindow} from "@/lib/closing-cycle.ts";
+import {getCurrentCycleClosing, hasOpenOrdersInCurrentCycle} from "@/lib/closing.guard.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 
 const DEFAULT_TERMINALS: TerminalCash[] = [
   {terminal_id: "terminal_1", terminal_name: "Terminal 1", cash_amount: 0},
 ];
+
+const DEFAULT_CLOSING_WINDOW: ClosingCycleWindow = {
+  date_from: new Date(),
+  date_to: new Date(),
+};
 
 const createEmptyDenomination = (): TerminalDenomination => ({
   notes: DENOMINATION_NOTES.reduce((acc, value) => {
@@ -79,7 +84,8 @@ export const Closing = () => {
     ["priority asc"]
   );
   const paymentTypes = paymentTypesData?.data || [];
-  const closingWindow = useMemo(() => getActiveClosingWindow(new Date()), []);
+  const [closingWindow, setClosingWindow] = useState<ClosingCycleWindow>(DEFAULT_CLOSING_WINDOW);
+  const [cycleEnabled, setCycleEnabled] = useState(true);
 
   const [previousDayBalance, setPreviousDayBalance] = useState<number>(0);
   const [pettyCash, setPettyCash] = useState<number>(0);
@@ -93,8 +99,9 @@ export const Closing = () => {
   const closingWindowLabel = useMemo(() => {
     const start = LuxonDateTime.fromJSDate(closingWindow.date_from).toFormat("dd LLL yyyy, hh:mm a");
     const end = LuxonDateTime.fromJSDate(closingWindow.date_to).toFormat("dd LLL yyyy, hh:mm a");
-    return `${start} - ${end}`;
-  }, [closingWindow.date_from, closingWindow.date_to]);
+    const prefix = cycleEnabled ? "Cycle" : "Period";
+    return `${prefix}: ${start} - ${end}`;
+  }, [closingWindow.date_from, closingWindow.date_to, cycleEnabled]);
 
   const getTerminalAmount = useCallback((terminalId: string) => {
     const terminal = terminalDenominations[terminalId];
@@ -127,8 +134,8 @@ export const Closing = () => {
               FETCH payments
               , payments.payment_type
       `, {
-        start: closingWindow.date_from,
-        end: closingWindow.date_to,
+        start: toSurrealDateTime(closingWindow.date_from),
+        end: toSurrealDateTime(closingWindow.date_to),
       });
 
       const orders = result as any[];
@@ -149,21 +156,7 @@ export const Closing = () => {
       console.error("Error fetching closing-window payments:", error);
       return new Map<string, number>();
     }
-  }, [closingWindow.date_from, closingWindow.date_to, db]);
-
-  const getCurrentCycleClosing = useCallback(async () => {
-    const [result] = await db.query<ClosingModel[][]>(
-      `
-          SELECT *
-          FROM ${Tables.closings}
-          WHERE date_from <= $now
-            AND date_to >= $now
-          ORDER BY created_at DESC LIMIT 1
-      `,
-      {now: new Date()}
-    );
-    return result?.[0] || null;
-  }, [db]);
+  }, [closingWindow.date_from, closingWindow.date_to]);
 
   const hydrateTerminals = useCallback((source: ClosingModel | null) => {
     const sourceTerminals = source?.terminal_cash && source.terminal_cash.length > 0
@@ -209,7 +202,7 @@ export const Closing = () => {
 
     setLoading(true);
     try {
-      const cycleClosing = await getCurrentCycleClosing();
+      const cycleClosing = await getCurrentCycleClosing(db);
       setExistingClosing(cycleClosing);
       setIsClosingCompleted(cycleClosing?.status === "completed");
 
@@ -225,11 +218,22 @@ export const Closing = () => {
     } finally {
       setLoading(false);
     }
-  }, [getCurrentCycleClosing, hydratePayments, hydrateTerminals, paymentTypes.length]);
+  }, [hydratePayments, hydrateTerminals, paymentTypes.length]);
+
+  const refreshClosingWindow = useCallback(async () => {
+    const resolved = await resolveClosingWindow(db, new Date());
+    setClosingWindow(resolved.window);
+    setCycleEnabled(resolved.cycleEnabled);
+    return resolved;
+  }, []);
 
   useEffect(() => {
-    loadClosingData().then();
-  }, [paymentTypes.length]);
+    void refreshClosingWindow();
+  }, [refreshClosingWindow]);
+
+  useEffect(() => {
+    void loadClosingData();
+  }, [paymentTypes.length, closingWindow.date_from.getTime(), closingWindow.date_to.getTime()]);
 
   const totalCash = useMemo(() => {
     return computedTerminalCash.reduce((sum, terminal) => sum + terminal.cash_amount, 0);
@@ -346,7 +350,7 @@ export const Closing = () => {
   const buildClosingPrintRows = () => {
     return [
       [{text: `CLOSING SUMMARY (${today})`, align: "CENTER", width: 1, style: "B"}],
-      [{text: `Cycle: ${closingWindowLabel}`, align: "LEFT", width: 1}],
+      [{text: closingWindowLabel, align: "LEFT", width: 1}],
       [{text: " ", align: "LEFT", width: 1}],
       [{text: "Terminal Cash", align: "LEFT", width: 0.6, style: "B"}, {
         text: "Amount",
@@ -412,9 +416,12 @@ export const Closing = () => {
         }
       }
 
+      const resolved = await resolveClosingWindow(db, new Date());
+      const windowForSave = resolved.window;
+
       const closingData: Omit<ClosingModel, "id"> = {
-        date_from: closingWindow.date_from,
-        date_to: closingWindow.date_to,
+        date_from: windowForSave.date_from,
+        date_to: windowForSave.date_to,
         cash_added: pettyCash,
         cash_withdrawn: 0,
         closing_balance: netAmount,
@@ -440,6 +447,7 @@ export const Closing = () => {
       }
 
       toast.success(complete ? "Closing completed successfully!" : "Closing saved as draft successfully!");
+      await refreshClosingWindow();
       await loadClosingData();
     } catch (error) {
       console.error("Error saving closing:", error);
@@ -494,11 +502,23 @@ export const Closing = () => {
       <ScrollContainer className="overflow-y-auto h-[calc(100vh_-_30px)] select-none">
         <div className="p-6">
           <h1 className="text-3xl font-bold mb-3 text-center">Daily Closing as of {today}</h1>
-          <div className="text-center mb-6 text-sm text-neutral-600">Cycle: {closingWindowLabel}</div>
+          <div className="text-center mb-6 text-sm text-neutral-600">{closingWindowLabel}</div>
 
-          {isClosingCompleted && (
+          {!cycleEnabled && (
+            <div className="alert alert-warning mb-6 bg-white">
+              Closing cycle is disabled. The last completed closing time is used as the start of this period, and the current time is used as the end.
+            </div>
+          )}
+
+          {cycleEnabled && isClosingCompleted && (
             <div className="alert alert-success mb-6 bg-white">
               Closing is completed for this cycle. Order taking is now blocked until the next cycle.
+            </div>
+          )}
+
+          {!cycleEnabled && isClosingCompleted && (
+            <div className="alert alert-success mb-6 bg-white">
+              Closing is completed for this period.
             </div>
           )}
 

@@ -14,7 +14,7 @@ import {RecordId, StringRecordId} from "surrealdb";
 import {nanoid} from "nanoid";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import { nowSurrealDateTime } from "@/lib/datetime.ts";
-import {assertOrderPunchAllowed} from "@/lib/closing.guard.ts";
+import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
 import {toRecordId} from "@/lib/utils.ts";
@@ -181,7 +181,7 @@ export const SplitAmount = ({
 
     setIsSaving(true);
     try {
-      await assertOrderPunchAllowed(db);
+      await assertOrderMutationsAllowed(db);
       let nextInvoiceNumber = await generateNextInvoiceNumber(db);
       let nextAutoId = await getNextAutoId(db);
       const createdAt = new Date();

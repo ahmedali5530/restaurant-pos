@@ -2,7 +2,7 @@ import {Order as OrderModel, OrderStatus} from "@/api/model/order.ts";
 import React, {CSSProperties, useMemo, useState} from "react";
 import {useAtom} from "jotai";
 import {useDB} from "@/api/db/db.ts";
-import {appPage} from "@/store/jotai.ts";
+import {appPage, closingEnforcementAtom} from "@/store/jotai.ts";
 import {calculateOrderTotal} from "@/lib/cart.ts";
 import {withCurrency} from "@/lib/utils.ts";
 import {Button} from "@/components/common/input/button.tsx";
@@ -42,6 +42,8 @@ export const OrderBox = ({
 }: Props) => {
   const db = useDB();
   const [page] = useAtom(appPage);
+  const [enforcement] = useAtom(closingEnforcementAtom);
+  const mutationsBlocked = enforcement.orderMutationsBlocked;
   const itemsTotal = calculateOrderTotal(order);
   const [payment, setPayment] = useState(false);
 
@@ -283,21 +285,21 @@ export const OrderBox = ({
               >
                 {order.status === OrderStatus["In Progress"] && (
                   <>
-                    <DropdownItem id="cancel" key="cancel" className="min-w-[50px] bg-danger-100 text-danger-500">
+                    <DropdownItem isDisabled={mutationsBlocked} id="cancel" key="cancel" className="min-w-[50px] bg-danger-100 text-danger-500">
                       <FontAwesomeIcon icon={faMoneyBillTransfer} /> Cancel order
                     </DropdownItem>
                     <DropdownSeparator />
-                    <DropdownItem isDisabled={hasSeats !== true} id="split_by_seats" key="split_by_seats" className="min-w-[50px]">
+                    <DropdownItem isDisabled={mutationsBlocked || hasSeats !== true} id="split_by_seats" key="split_by_seats" className="min-w-[50px]">
                       <FontAwesomeIcon icon={faChair} /> Split by seats
                     </DropdownItem>
-                    <DropdownItem id="split_by_items" key="split_by_items" className="min-w-[50px]">
+                    <DropdownItem isDisabled={mutationsBlocked} id="split_by_items" key="split_by_items" className="min-w-[50px]">
                       <FontAwesomeIcon icon={faCodeBranch} /> Split by items
                     </DropdownItem>
-                    <DropdownItem id="split_by_amount" key="split_by_amount" className="min-w-[50px]">
+                    <DropdownItem isDisabled={mutationsBlocked} id="split_by_amount" key="split_by_amount" className="min-w-[50px]">
                       <FontAwesomeIcon icon={faCodeBranch} /> Split by amount
                     </DropdownItem>
                     <DropdownSeparator />
-                    <DropdownItem id="merge" key="merge" className="min-w-[50px]">
+                    <DropdownItem isDisabled={mutationsBlocked} id="merge" key="merge" className="min-w-[50px]">
                       <FontAwesomeIcon icon={faObjectGroup} /> Merge orders
                     </DropdownItem>
                   </>
