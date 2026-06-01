@@ -33,6 +33,8 @@ This system solves that by combining everything into one platform:
 - 🔐 Secure protected modules
 - 📊 Full reporting & analytics layer
 - 🏪 Multi-branch scalable system
+- 🪑 Seat-based ordering & splitting
+- 📑 Multi-order table management
 - ☁️ Realtime Sync to cloud
 - 💾 Automatic backups
 - 💰 Automatic check closing + closing cycles
@@ -46,8 +48,19 @@ This system solves that by combining everything into one platform:
 
 ### 🍽️ POS & Order Management
 - Table-based ordering system
+- **Seat-Based Ordering & Splits:**
+    - **Seat Assignments:** Assign specific dishes to individual seats for organized service.
+    - **Split by Seat:** Easily split a large table's bill into separate orders based on seat assignments.
+- **Multi-Order Table Management:**
+    - **Concurrent Orders:** Support for multiple independent orders on the same table simultaneously.
+    - **Visual Indicators:** Clear tracking of the number of active orders per table on the floor layout.
 - Fast item selection & modifiers
-- Split / merge / cancel / transfer orders
+- Split / merge / cancel / transfer orders / refunds
+- **Split & Half-n-Half Payments:** Flexible payment options allowing customers to split bills or pay for half-n-half dish combinations.
+- **Extras & Service Charges:** 
+    - **Automated Service Charges:** Apply percentage-based or fixed service charges to orders.
+    - **Custom Extras:** Add additional charges for special requests, packaging, or premium services.
+    - **Rule-based Application:** Automatically trigger extras based on order type, payment method, or specific tables.
 - Real-time cart updates
 - Instant billing flow
 
@@ -72,6 +85,7 @@ This system solves that by combining everything into one platform:
     - Ready
     - Served
 - Reduced communication delays between staff & kitchen
+- Recall orders
 
 ---
 
@@ -83,7 +97,11 @@ This system solves that by combining everything into one platform:
 - Order dispatch flow
 - Delivery completion updates
 - Separate delivery workflow from dine-in
-- Coupons support
+- **Smart Coupons & Discounts:**
+    - **Flexible Discount Types:** Support for fixed amount, percentage-based, and free shipping coupons.
+    - **Usage Constraints:** Set minimum order amounts, maximum discount caps, and usage limits per user.
+    - **Time-Based Validity:** Schedule coupons for specific dates, times, or days of the week.
+    - **Targeted Rules:** First-order only coupons and stackability controls.
 - Uses Google maps to display orders and updates
 
 ---
@@ -187,10 +205,15 @@ This system solves that by combining everything into one platform:
 ---
 
 ### 📦 Inventory Integration
-- Stock-aware menu system
-- Auto stock deduction on orders
-- Low stock alerts
-- Category-based product structure
+- **Stock-Aware Menu System:** Real-time visibility of ingredient availability.
+- **Recipe-Based Deduction:** Automatically deduct stock based on dish recipes when orders are placed.
+- **Comprehensive Stock Management:**
+    - **Purchase Orders & Returns:** Manage supplier orders and incoming inventory.
+    - **Internal Issues & Returns:** Track stock movement between stores or kitchen departments.
+    - **Waste Tracking:** Log and analyze food waste to optimize costs.
+- **Multi-Store Support:** Manage inventory across different storage locations or branches.
+- **Low Stock Alerts:** Automated notifications when items fall below safety levels.
+- **Supplier Management:** Maintain a database of suppliers and their performance.
 
 ---
 
