@@ -10,7 +10,7 @@ Designed to handle everything from **ordering → kitchen → delivery → staff
 ## 🚀 Live Demo
 
 👉 **Try it here:** [Demo](https://ahmedali5530.xyz/posr.html)  
-🔑 Login: `1234, 0000`
+🔑 Login: `1234, 0000, 5555`
 
 ---
 
@@ -34,6 +34,9 @@ This system solves that by combining everything into one platform:
 - 🏪 Multi-branch scalable system
 - ☁️ Realtime Sync to cloud
 - 💾 Automatic backups
+- 💰 Automatic check closing + closing cycles
+- 📋 Multiple menus support
+- 💳 Third-party payment gateways support (Stripe, PayPal, M-Pesa, etc.)
 
 ---
 
@@ -60,12 +63,15 @@ This system solves that by combining everything into one platform:
 ---
 
 ### 🚚 Delivery Management App
+- Custom built delivery apps with multiple menu support
 - Realtime updates to customer
 - Delivery order assignment
 - Driver status tracking
 - Order dispatch flow
 - Delivery completion updates
 - Separate delivery workflow from dine-in
+- Coupons support
+- Uses Google maps to display orders and updates
 
 ---
 
@@ -87,6 +93,33 @@ This system solves that by combining everything into one platform:
 
 ---
 
+### 💰 Automatic Checks & Closing Cycles
+- **Automatic Check Closing:** Configure system to automatically close open checks after a specific idle time or at end-of-day.
+- **Closing Cycle Enforcement:** Prevent new orders when a closing cycle is required.
+- **Shift & Day Closing:** Streamlined workflow for ending staff shifts and daily business cycles.
+- **Real-time enforcement:** Instant notifications when cycles need to be closed.
+
+---
+
+### 📋 Multiple Menus Support
+- **Custom Menu Creation:** Create different menus for different times (e.g., Breakfast, Lunch, Dinner).
+[//]: # (- **Branch-specific Menus:** Assign specific menus to different restaurant branches.)
+- **Dynamic Pricing:** Set different prices for items across different menus.
+- **Delivery App Integration:** Link specific menus to delivery app.
+
+---
+
+### 💳 Third-Party Payment Gateways
+- **Integrated Payments:** Support for popular payment gateways.
+- **Multi-Provider Support:**
+    - 💳 **Stripe** (Credit/Debit Cards)
+    - 🅿️ **PayPal**
+    - 📱 **JazzCash / M-Pesa** (Mobile Payments)
+- **Secure Processing:** PCI-compliant flows with sandbox/live mode support.
+- **Instant Settlement:** Real-time payment verification and order status updates.
+
+---
+
 ### 🧑‍💼 Staff Management & Shifts
 - Shift creation & scheduling
 - Clock-in / clock-out tracking
@@ -103,7 +136,7 @@ This system solves that by combining everything into one platform:
     - Kitchen Staff
     - Delivery Staff
     - ... and Custom roles
-- Protected routes & permissions per module
+- Protected routes & permissions per module accross web and mobile platforms
 - Secure operational separation
 
 ---
@@ -186,12 +219,15 @@ docker compose up -d
 ## 🧭 Roadmap
 - Offline mode support
 - Advanced analytics dashboard
-- AI-based demand forecasting
+- AI-based reporting and demand forecasting
 - Multi-branch synchronization improvements
 - Payroll system integration
 - Account module integration
 - Self ordering
 - Tap-to-pay payments on mobile apps
+- Targeted sales system for performance
+- Multi-currency support
+- Advanced inventory analytics
 
 ---
 
