@@ -38,6 +38,7 @@ This system solves that by combining everything into one platform:
 - 💰 Automatic check closing + closing cycles
 - 📋 Multiple menus support
 - 💳 Third-party payment gateways support (Stripe, PayPal, M-Pesa, etc.)
+- 🖨️ ESC/POS Printing Support (USB, Network, Serial, Bluetooth)
 
 ---
 
@@ -129,6 +130,22 @@ This system solves that by combining everything into one platform:
     - 📱 **JazzCash / M-Pesa** (Mobile Payments)
 - **Secure Processing:** PCI-compliant flows with sandbox/live mode support.
 - **Instant Settlement:** Real-time payment verification and order status updates.
+
+---
+
+### 🖨️ ESC/POS Printing Support
+- **Multi-Interface Support:** Print to thermal printers via **USB**, **Serial**, **Network (TCP/IP)**, or **Bluetooth**.
+- **Specialized Print Builders:**
+    - 🍳 **Kitchen Tickets:** Clear, priority-coded slips for kitchen staff.
+    - 🧾 **Customer Receipts:** Professional final bills with payment details and change.
+    - 🚚 **Delivery Slips:** Includes customer address, phone, and delivery notes.
+    - 📑 **Pre-sale Bills:** Temporary slips for table service before final payment.
+    - 📊 **Sales Summaries:** Comprehensive end-of-day/shift, P-Mix, Server Sales reports directly from the printer.
+- **Branding & Customization:**
+    - Support for **custom logos** (Base64) and company branding.
+    - Configurable **VAT/Tax details** and headers/footers.
+    - Adjustable margins and item display preferences.
+- **Reliable Architecture:** Independent Node.js print server ensures printing doesn't block the main POS application.
 
 ---
 
@@ -235,11 +252,12 @@ docker compose up -d
 - Multi-branch synchronization improvements
 - Payroll system integration
 - Account module integration
-- Self ordering
+- OR Code and Self ordering system
 - Tap-to-pay payments on mobile apps
 - Targeted sales system for performance
 - Multi-currency support
 - Advanced inventory analytics
+- Loyalty module
 
 ---
 
