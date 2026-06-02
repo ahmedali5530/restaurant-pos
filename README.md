@@ -1,5 +1,5 @@
-# 🍽️ Restaurant POS System
-### ⚡ Fast • Multi-Branch • Full Restaurant Operations Platform
+# 🍽️ Open Source Restaurant POS System (React + SurrealDB)
+### ⚡ Fast • Multi-Branch • Touch Optimized • Full Restaurant Operations Platform
 
 A complete **restaurant management ecosystem** built for real-world cafés, restaurants, and food chains.
 
