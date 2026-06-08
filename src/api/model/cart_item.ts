@@ -19,6 +19,7 @@ export interface MenuItem {
 
   dish: Dish
   category?: string
+  menu_name?: string
 
   id: string
 

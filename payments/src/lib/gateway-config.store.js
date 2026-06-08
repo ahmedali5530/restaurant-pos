@@ -1,6 +1,6 @@
 'use strict';
 
-const { PaymentGateway } = require('../gateways/gateway.types');
+const { getGatewayDriver } = require('../gateways/registry');
 const { getClient } = require('./surreal-client');
 const logger = require('./logger');
 
@@ -15,35 +15,15 @@ function normalizeRecordId(id) {
   return `payment_type:${text}`;
 }
 
-function mapMpesaCredentials(config, mode) {
-  const consumerKey = config?.client_id;
-  const consumerSecret = config?.client_secret;
-  const passkey = config?.integrity_salt;
-  const shortcode = config?.merchant_id;
-
-  if (!consumerKey || !consumerSecret) {
-    throw new Error(
-      'M-Pesa gateway config is incomplete. Set Consumer Key, Consumer Secret, Passkey, and Shortcode on the payment type.'
-    );
-  }
-
-  const transactionType = (config?.public_key || '').trim() || 'CustomerPayBillOnline';
-
-  return {
-    consumerKey: String(consumerKey).trim(),
-    consumerSecret: String(consumerSecret).trim(),
-    passkey: String(passkey).trim(),
-    shortcode: String(shortcode).trim(),
-    transactionType,
-    mode: mode === 'live' ? 'live' : 'sandbox',
-  };
-}
-
-async function loadPaymentTypeGatewayConfig(paymentTypeId) {
+async function loadPaymentTypeGatewayConfig(paymentTypeId, gatewayId) {
   const client = await getClient();
   const recordId = normalizeRecordId(paymentTypeId);
+  const expectedGateway = String(gatewayId || '').toLowerCase();
 
-  logger.info('gateway-config', 'Loading payment type config', { paymentTypeId: recordId });
+  logger.info('gateway-config', 'Loading payment type config', {
+    paymentTypeId: recordId,
+    gateway: expectedGateway,
+  });
 
   let result;
   try {
@@ -65,26 +45,23 @@ async function loadPaymentTypeGatewayConfig(paymentTypeId) {
   const paymentType = Array.isArray(rows) ? rows[0] : rows;
 
   if (!paymentType) {
-    logger.warn('gateway-config', 'Payment type not found', { paymentTypeId: recordId, rawResult: result });
+    logger.warn('gateway-config', 'Payment type not found', {
+      paymentTypeId: recordId,
+      rawResult: result,
+    });
     throw new Error(`Payment type not found: ${recordId}`);
   }
 
-  logger.info('gateway-config', 'Payment type loaded', {
-    paymentTypeId: recordId,
-    gateway: paymentType.gateway,
-    gateway_mode: paymentType.gateway_mode,
-    type: paymentType.type,
-    has_gateway_config: !!paymentType.gateway_config,
-  });
-
   const gateway = String(paymentType.gateway || '').toLowerCase();
-  if (gateway !== PaymentGateway.MPESA) {
-    throw new Error(`Payment type ${recordId} is not configured for M-Pesa (gateway: ${gateway || 'none'})`);
+  if (gateway !== expectedGateway) {
+    throw new Error(
+      `Payment type ${recordId} is not configured for ${expectedGateway} (gateway: ${gateway || 'none'})`
+    );
   }
 
   const typeName = String(paymentType.type || '').toLowerCase();
   if (typeName !== 'remote') {
-    throw new Error(`Payment type ${recordId} must be Remote for M-Pesa`);
+    throw new Error(`Payment type ${recordId} must be Remote for ${expectedGateway}`);
   }
 
   const gatewayConfig = paymentType.gateway_config;
@@ -93,20 +70,37 @@ async function loadPaymentTypeGatewayConfig(paymentTypeId) {
   }
 
   const mode = paymentType.gateway_mode === 'live' ? 'live' : 'sandbox';
-  const mpesa = mapMpesaCredentials(gatewayConfig, mode);
+  const driver = getGatewayDriver(expectedGateway);
 
-  logger.info('gateway-config', 'M-Pesa credentials mapped', logger.sanitizeMpesaCredentials(mpesa));
+  if (!driver.requiresServerConfig) {
+    return {
+      paymentTypeId: recordId,
+      mode,
+      gateway,
+      credentials: null,
+    };
+  }
+
+  const credentials = driver.mapCredentials(gatewayConfig, mode);
+  if (!credentials) {
+    throw new Error(`Gateway ${expectedGateway} requires server config but none was mapped`);
+  }
+
+  logger.info('gateway-config', 'Gateway credentials mapped', {
+    paymentTypeId: recordId,
+    gateway,
+    mode,
+  });
 
   return {
     paymentTypeId: recordId,
     mode,
     gateway,
-    mpesa,
+    credentials,
   };
 }
 
 module.exports = {
   loadPaymentTypeGatewayConfig,
-  mapMpesaCredentials,
   normalizeRecordId,
 };

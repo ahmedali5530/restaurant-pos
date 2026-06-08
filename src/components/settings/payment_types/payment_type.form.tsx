@@ -15,6 +15,7 @@ import { Tax } from "@/api/model/tax.ts";
 import { StringRecordId } from "surrealdb";
 import {Discount} from "@/api/model/discount.ts";
 import {toRecordId} from "@/lib/utils.ts";
+import {GATEWAY_CATALOG, getGatewayDescriptor} from "@/lib/payment/gateway-catalog.ts";
 
 interface Props {
   open: boolean
@@ -163,11 +164,11 @@ export const PaymentTypeForm = ({
   const types = [
     'Cash', 'Card', 'Points', 'Remote'
   ];
-  const gatewayProviders = ['stripe', 'paypal', 'razorpay', 'jazzcash', 'mpesa'];
   const gatewayModes = ['sandbox', 'live'];
   const selectedType = watch('type');
   const selectedGateway = watch('gateway');
   const isRemoteType = selectedType?.value === 'Remote';
+  const selectedGatewayDescriptor = getGatewayDescriptor(selectedGateway?.value);
 
   const onSubmit = async (values: any) => {
     const vals = {...values};
@@ -298,9 +299,9 @@ export const PaymentTypeForm = ({
                     <ReactSelect
                       value={field.value}
                       onChange={field.onChange}
-                      options={gatewayProviders.map(item => ({
-                        label: item,
-                        value: item
+                      options={GATEWAY_CATALOG.map(item => ({
+                        label: item.label,
+                        value: item.id
                       }))}
                       isClearable
                       placeholder="Select provider (optional)"
@@ -333,51 +334,24 @@ export const PaymentTypeForm = ({
             </div>
           )}
 
-          {isRemoteType && selectedGateway && (
+          {isRemoteType && selectedGatewayDescriptor && (
             <div className="mb-3 border rounded p-3">
               <h4 className="font-medium mb-3">Gateway Keys</h4>
-              {selectedGateway?.value === 'mpesa' ? (
-                <>
-                  <div className="grid grid-cols-2 gap-3 mb-3">
-                    <Input label="Consumer Key" {...register('gateway_config.client_id')} />
-                    <Input label="Consumer Secret" type="password" {...register('gateway_config.client_secret')} />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 mb-3">
-                    <Input label="Lipa na M-Pesa Passkey" type="password" {...register('gateway_config.integrity_salt')} />
-                    <Input label="Business ShortCode" {...register('gateway_config.merchant_id')} />
-                  </div>
-                  <div className="grid grid-cols-1 gap-3">
-                    <Input
-                      label="Transaction Type (optional)"
-                      placeholder="CustomerPayBillOnline"
-                      {...register('gateway_config.public_key')}
-                    />
-                  </div>
-                  <span className="text-sm text-neutral-500">
-                    Used by the payment server for Daraja STK Push. Set gateway mode to sandbox or live.
-                  </span>
-                </>
-              ) : (
-                <>
-                  <div className="grid grid-cols-2 gap-3 mb-3">
-                    <Input label="Public Key" {...register('gateway_config.public_key')} />
-                    <Input label="Secret Key" type="password" {...register('gateway_config.secret_key')} />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 mb-3">
-                    <Input label="Webhook Secret" type="password" {...register('gateway_config.webhook_secret')} />
-                    <Input label="Client ID" {...register('gateway_config.client_id')} />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 mb-3">
-                    <Input label="Client Secret" type="password" {...register('gateway_config.client_secret')} />
-                    <Input label="Merchant ID" {...register('gateway_config.merchant_id')} />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Input label="Integrity Salt" type="password" {...register('gateway_config.integrity_salt')} />
-                  </div>
-                  <span className="text-sm text-neutral-500">
-                    Keys are saved with payment type for server-side gateway mapping later.
-                  </span>
-                </>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                {selectedGatewayDescriptor.fields.map((field) => (
+                  <Input
+                    key={field.configKey}
+                    label={field.label}
+                    type={field.type === "password" ? "password" : "text"}
+                    placeholder={field.placeholder}
+                    {...register(`gateway_config.${field.configKey}`)}
+                  />
+                ))}
+              </div>
+              {selectedGatewayDescriptor.helpText && (
+                <span className="text-sm text-neutral-500">
+                  {selectedGatewayDescriptor.helpText}
+                </span>
               )}
             </div>
           )}

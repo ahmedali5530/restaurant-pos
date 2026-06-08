@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   MpesaPhonePromptRequest,
   registerMpesaPhonePrompt,
-} from "@/components/orders/payment/remote/gateways/mpesa.gateway.tsx";
-import { normalizeMpesaPhone } from "@/components/orders/payment/remote/gateways/mpesa.utils.ts";
+} from "@/components/orders/payment/remote/gateways/mpesa/mpesa.gateway.tsx";
+import { normalizeMpesaPhone } from "@/components/orders/payment/remote/gateways/mpesa/mpesa.utils.ts";
 import { toast } from "sonner";
 
 export function useMpesaPhonePrompt() {

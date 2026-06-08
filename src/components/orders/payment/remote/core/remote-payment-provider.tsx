@@ -1,12 +1,14 @@
 import { Order } from "@/api/model/order.ts";
 import { OrderPayment } from "@/api/model/order_payment.ts";
-import { MpesaPhoneModal } from "@/components/orders/payment/remote/mpesa-phone-modal.tsx";
 import {
   RemotePaymentContext,
   RemotePaymentContextValue,
-} from "@/components/orders/payment/remote/remote-payment-context.ts";
-import { useMpesaPhonePrompt } from "@/components/orders/payment/remote/use-mpesa-phone-prompt.ts";
-import { useRemotePayments } from "@/components/orders/payment/remote/use-remote-payments.ts";
+} from "@/components/orders/payment/remote/core/remote-payment-context.ts";
+import { useRemotePayments } from "@/components/orders/payment/remote/core/use-remote-payments.ts";
+import {
+  MpesaPhoneModal,
+  useMpesaPhonePrompt,
+} from "@/components/orders/payment/remote/gateways/mpesa/index.ts";
 import { postOrderTracking } from "@/lib/tracking.service.ts";
 import { Dispatch, ReactNode, SetStateAction, useMemo } from "react";
 

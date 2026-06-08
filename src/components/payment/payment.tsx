@@ -73,7 +73,8 @@ export const Payment = () => {
         is_suspended: item.isHold,
         level: item.level,
         category: item.category,
-        is_addition: false
+        is_addition: false,
+        menu: item.menu_name,
       };
 
       if (!isNewOrder && typeof item.id === 'string') {
@@ -87,6 +88,7 @@ export const Payment = () => {
         items.push(new StringRecordId(item.id.toString()));
       } else {
         itemData.created_at = date;
+        itemData.created_by = toRecordId(page?.user?.id);
 
         const record = await db.create(Tables.order_items, itemData);
         items.push(record[0].id);

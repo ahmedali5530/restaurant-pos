@@ -3,7 +3,9 @@ import { Discount } from "@/api/model/discount.ts";
 import { Tax } from "@/api/model/tax.ts";
 import {DateTime} from "surrealdb";
 
-export type PaymentGatewayProvider = "stripe" | "paypal" | "razorpay" | "jazzcash" | "mpesa";
+import type { GatewayId } from "@/lib/payment/gateway-catalog.ts";
+
+export type PaymentGatewayProvider = GatewayId;
 export type PaymentGatewayMode = "sandbox" | "live";
 
 export interface PaymentGatewayConfig {

@@ -84,8 +84,8 @@ const getMenuItemDishId = (menuItem: MenuMenuItem): string | undefined => {
   return menuItem?.menu_item?.id?.toString();
 };
 
-const resolveMenuItemMap = (menus: Menu[]): Map<string, MenuMenuItem> => {
-  const resolved = new Map<string, MenuMenuItem>();
+const resolveMenuItemMap = (menus: Menu[]): Map<string, {menuItem: MenuMenuItem, menuName: string}> => {
+  const resolved = new Map<string, {menuItem: MenuMenuItem, menuName: string}>();
 
   menus.forEach((menu) => {
     (menu.items || []).forEach((menuItem) => {
@@ -94,14 +94,14 @@ const resolveMenuItemMap = (menus: Menu[]): Map<string, MenuMenuItem> => {
         return;
       }
 
-      resolved.set(dishId, menuItem);
+      resolved.set(dishId, {menuItem, menuName: menu.name});
     });
   });
 
   return resolved;
 };
 
-const resolveMenuDish = (baseDish: Dish | undefined, menuItem: MenuMenuItem): Dish | null => {
+const resolveMenuDish = (baseDish: Dish | undefined, menuItem: MenuMenuItem, menuName: string): Dish | null => {
   const sourceDish = baseDish ?? menuItem.menu_item;
   if (!sourceDish) {
     return null;
@@ -111,7 +111,8 @@ const resolveMenuDish = (baseDish: Dish | undefined, menuItem: MenuMenuItem): Di
 
   return {
     ...sourceDish,
-    price: resolvedPrice
+    price: resolvedPrice,
+    menu_name: menuName
   };
 };
 
@@ -155,8 +156,8 @@ export const resolveMenuAwareData = ({
 
   const menuItemMap = resolveMenuItemMap(activeMenus);
   const resolvedDishes: Dish[] = [];
-  menuItemMap.forEach((menuItem, dishId) => {
-    const dish = resolveMenuDish(baseDishMap.get(dishId), menuItem);
+  menuItemMap.forEach((data, dishId) => {
+    const dish = resolveMenuDish(baseDishMap.get(dishId), data.menuItem, data.menuName);
     if (!dish) {
       return;
     }

@@ -130,9 +130,11 @@ const OrderPaymentReceivingContent = ({
     data: allPaymentTypes
   } = useApi<SettingsData<PaymentType>>(Tables.payment_types, ['deleted_at = none'], ['priority asc'], 0, 99999, ['tax', 'discounts']);
 
+  const tableId = order?.table?.id?.toString();
+
   const {
     data: table
-  } = useApi<SettingsData<Table>>(order?.table?.id as unknown as string, ['deleted_at = none'], [], 0, 1, ['payment_types', 'payment_types.tax', 'payment_types.discounts']);
+  } = useApi<SettingsData<Table>>(tableId, ['deleted_at = none'], [], 0, 1, ['payment_types', 'payment_types.tax', 'payment_types.discounts'], {enabled: !!tableId});
 
   const paymentTypes: PaymentType[] = useMemo(() => {
     if (table?.data?.[0]?.payment_types && table?.data?.[0]?.payment_types?.length > 0) {
@@ -213,7 +215,9 @@ const OrderPaymentReceivingContent = ({
             discount: couponAmount,
             created_at: nowSurrealDateTime(),
           });
-          orderCouponId = (created as unknown as { id?: string })?.id?.toString?.() ?? String((created as unknown as { id: string }).id);
+          orderCouponId = (created as unknown as { id?: string })?.id?.toString?.() ?? String((created as unknown as {
+            id: string
+          }).id);
         }
       }
 
@@ -483,21 +487,21 @@ const OrderPaymentReceivingContent = ({
 
   return (
     <div className="grid grid-cols-2 gap-5 h-[calc(100vh_-_150px)]">
-            <div className="bg-white rounded-xl h-full">
-              <div className="mb-3 text-5xl p-5 text-center ">
-                {withCurrency(tendered)}
-              </div>
-              <div className={
-                cn(
-                  "mb-3 text-3xl p-5 text-center",
-                  changeDue < 0 && 'text-danger-700',
-                  changeDue > 0 && 'text-success-700'
-                )
-              }>
-                {changeDue < 0 ? 'Remaining' : 'Change'}: <span className="">{withCurrency(changeDue)}</span>
-              </div>
-              <div className="relative">
-                <ScrollContainer className="gap-3 flex overflow-x-auto mb-5">
+      <div className="bg-white rounded-xl h-full">
+        <div className="mb-3 text-5xl p-5 text-center ">
+          {withCurrency(tendered)}
+        </div>
+        <div className={
+          cn(
+            "mb-3 text-3xl p-5 text-center",
+            changeDue < 0 && 'text-danger-700',
+            changeDue > 0 && 'text-success-700'
+          )
+        }>
+          {changeDue < 0 ? 'Remaining' : 'Change'}: <span className="">{withCurrency(changeDue)}</span>
+        </div>
+        <div className="relative">
+          <ScrollContainer className="gap-3 flex overflow-x-auto mb-5">
           <span
             className="btn btn-primary w-[100px] lg"
             onClick={() => {
@@ -518,169 +522,169 @@ const OrderPaymentReceivingContent = ({
               setMode('quick');
             }}
           >{withCurrency(total)}</span>
-                  {quickAmounts.reverse().map(item => (
-                    <span
-                      key={item}
-                      className="btn btn-primary w-[100px] lg"
-                      onClick={() => {
-                        if (!paymentTypes || paymentTypes.length === 0) {
-                          return;
-                        }
-                        const pt = paymentTypes[0];
-                        const paymentTypeTax = getPaymentTypeTax(pt);
-                        const hasTax = !!paymentTypeTax;
-                        const highestTax = hasTax ? getHighestTaxObject(paymentTypeTax) : getHighestTaxObject(undefined);
-                        if (hasTax) {
-                          setTax && setTax(highestTax);
-                        }
-                        const highestRate = hasTax ? (highestTax ? highestTax.rate : 0) : (tax ? tax.rate : getHighestTaxRate());
-                        const autoDiscountAmount = applyPaymentTypeDiscountIfAny(pt);
-                        const payable = calculateTotal(highestRate, autoDiscountAmount);
-                        void addPayment(item, pt, payable);
-                        setMode('quick');
-                      }}
-                    >{withCurrency(item)}</span>
-                  ))}
-                </ScrollContainer>
-                {/*{!isCash && <div className="payment-disabled absolute w-full z-10 top-0 bg-neutral-100/50 h-[48px]"></div>}*/}
-              </div>
+            {quickAmounts.reverse().map(item => (
+              <span
+                key={item}
+                className="btn btn-primary w-[100px] lg"
+                onClick={() => {
+                  if (!paymentTypes || paymentTypes.length === 0) {
+                    return;
+                  }
+                  const pt = paymentTypes[0];
+                  const paymentTypeTax = getPaymentTypeTax(pt);
+                  const hasTax = !!paymentTypeTax;
+                  const highestTax = hasTax ? getHighestTaxObject(paymentTypeTax) : getHighestTaxObject(undefined);
+                  if (hasTax) {
+                    setTax && setTax(highestTax);
+                  }
+                  const highestRate = hasTax ? (highestTax ? highestTax.rate : 0) : (tax ? tax.rate : getHighestTaxRate());
+                  const autoDiscountAmount = applyPaymentTypeDiscountIfAny(pt);
+                  const payable = calculateTotal(highestRate, autoDiscountAmount);
+                  void addPayment(item, pt, payable);
+                  setMode('quick');
+                }}
+              >{withCurrency(item)}</span>
+            ))}
+          </ScrollContainer>
+          {/*{!isCash && <div className="payment-disabled absolute w-full z-10 top-0 bg-neutral-100/50 h-[48px]"></div>}*/}
+        </div>
 
-              <ScrollContainer className="gap-5 flex overflow-x-auto mb-5">
-                {paymentTypes?.map(item => (
-                  <Button
-                    className="min-w-[150px]"
-                    variant="primary"
-                    key={item.id}
-                    onClick={() => {
-                      // Determine the effective highest tax after choosing this payment type
-                      const candidateTax = getPaymentTypeTax(item);
-                      const hasTax = !!candidateTax;
-                      const highestTax = hasTax ? getHighestTaxObject(candidateTax) : getHighestTaxObject(undefined);
-                      // Only update global tax when this payment type has a tax attached
-                      if (hasTax) {
-                        setTax && setTax(highestTax);
-                      }
-                      // For non-tax payment types, use current order-level tax (or highest among existing payments)
-                      const highestRate = hasTax
-                        ? (highestTax ? highestTax.rate : 0)
-                        : (tax ? tax.rate : getHighestTaxRate());
+        <ScrollContainer className="gap-5 flex overflow-x-auto mb-5">
+          {paymentTypes?.map(item => (
+            <Button
+              className="min-w-[150px]"
+              variant="primary"
+              key={item.id}
+              onClick={() => {
+                // Determine the effective highest tax after choosing this payment type
+                const candidateTax = getPaymentTypeTax(item);
+                const hasTax = !!candidateTax;
+                const highestTax = hasTax ? getHighestTaxObject(candidateTax) : getHighestTaxObject(undefined);
+                // Only update global tax when this payment type has a tax attached
+                if (hasTax) {
+                  setTax && setTax(highestTax);
+                }
+                // For non-tax payment types, use current order-level tax (or highest among existing payments)
+                const highestRate = hasTax
+                  ? (highestTax ? highestTax.rate : 0)
+                  : (tax ? tax.rate : getHighestTaxRate());
 
-                      // Apply discount(s) attached to the payment type (auto)
-                      const autoDiscountAmount = applyPaymentTypeDiscountIfAny(item);
+                // Apply discount(s) attached to the payment type (auto)
+                const autoDiscountAmount = applyPaymentTypeDiscountIfAny(item);
 
-                      const payable = calculateTotal(highestRate, autoDiscountAmount);
+                const payable = calculateTotal(highestRate, autoDiscountAmount);
 
-                      if (selectedAmount.trim().length > 0) {
-                        // Respect typed amount; add with proper payable (includes highest tax)
-                        void addPayment(selectedAmount, item, payable)
-                      } else if (changeDue < 0) {
-                        // No typed amount: auto-fill remaining for convenience
-                        const remaining = payable - tendered;
-                        const amt = remaining.toString();
-                        setSelectedAmount(amt);
-                        void addPayment(amt, item, payable)
-                      } else {
-                        // Nothing typed and no remaining due – do nothing (card will be blocked inside addPayment)
-                      }
-                    }}
-                    size="lg"
-                  >
-                    {item.name}
-                  </Button>
-                ))}
-              </ScrollContainer>
+                if (selectedAmount.trim().length > 0) {
+                  // Respect typed amount; add with proper payable (includes highest tax)
+                  void addPayment(selectedAmount, item, payable)
+                } else if (changeDue < 0) {
+                  // No typed amount: auto-fill remaining for convenience
+                  const remaining = payable - tendered;
+                  const amt = remaining.toString();
+                  setSelectedAmount(amt);
+                  void addPayment(amt, item, payable)
+                } else {
+                  // Nothing typed and no remaining due – do nothing (card will be blocked inside addPayment)
+                }
+              }}
+              size="lg"
+            >
+              {item.name}
+            </Button>
+          ))}
+        </ScrollContainer>
 
-              <div className="flex justify-center items-center mb-3 text-xl h-[28px]">
-                {selectedAmount.trim().length > 0 && selectedAmount}
-              </div>
+        <div className="flex justify-center items-center mb-3 text-xl h-[28px]">
+          {selectedAmount.trim().length > 0 && selectedAmount}
+        </div>
 
-              <div className="flex">
-                <div className="flex-1">
-                  <div className="grid grid-cols-3 gap-3 mb-3">
-                    {keyboardKeys.map(item => (
-                      <Button key={item} size="xl" flat variant="primary" onClick={() => {
-                        if (mode === 'button') {
-                          setSelectedAmount((prev: string) => {
-                            return prev + item.toString()
-                          });
-                        } else {
-                          setSelectedAmount(item.toString());
-                        }
+        <div className="flex">
+          <div className="flex-1">
+            <div className="grid grid-cols-3 gap-3 mb-3">
+              {keyboardKeys.map(item => (
+                <Button key={item} size="xl" flat variant="primary" onClick={() => {
+                  if (mode === 'button') {
+                    setSelectedAmount((prev: string) => {
+                      return prev + item.toString()
+                    });
+                  } else {
+                    setSelectedAmount(item.toString());
+                  }
 
-                        setMode('button');
-                      }}>
-                        {item}
-                      </Button>
-                    ))}
-                    <Button size="xl" flat variant="primary" onClick={() => {
-                      setSelectedAmount('')
-                    }}>
-                      C
-                    </Button>
-                  </div>
-                  <div className="flex gap-5">
-                    <Button
-                      variant="primary"
-                      className="flex-1"
-                      flat
-                      icon={faPrint}
-                      size="lg"
-                      onClick={() => {
-                        protectAction(() => {
-                          void dispatchPrint(db, PRINT_TYPE.presale_bill, {
-                            order,
-                            taxes: allTaxes?.data
-                          }, {userId: page?.user?.id});
-                        }, {
-                          module: 'Print temp bill',
-                          description: 'Print temp bill',
-                          payload: {
-                            order: order.id.toString()
-                          }
-                        });
-
-                      }}
-                    >Temp bill</Button>
-                    <Button
-                      variant="success"
-                      className="flex-1"
-                      filled
-                      size="lg"
-                      onClick={async () => {
-                        await protectAction(async () => await closeOrder(), {
-                          module: 'Complete order',
-                          description: 'Complete order',
-                          payload: {
-                            order: order.id.toString()
-                          }
-                        });
-                      }}
-                      disabled={changeDue < 0 || closing || remote.isProcessing}
-                      flat
-                    >Complete</Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-col gap-2 p-3 bg-white rounded-xl h-full">
-              <RemotePaymentPendingSlot />
-              {payments.map(payment => (
-                <div
-                  className="flex justify-between text-lg cursor-pointer"
-                  key={payment.id}
-                  onClick={() => {
-                    setPayments(prev => prev.filter(item => item.id !== payment.id))
-                  }}
-                >
-                  <strong className="flex gap-3 justify-center items-center">
-                    <FontAwesomeIcon icon={faClose}
-                                     className="text-danger-500 p-2 px-3 rounded border border-danger-500"/>
-                    {payment.payment_type.name}
-                  </strong>
-                  <span>{withCurrency(payment.amount)}</span>
-                </div>
+                  setMode('button');
+                }}>
+                  {item}
+                </Button>
               ))}
+              <Button size="xl" flat variant="primary" onClick={() => {
+                setSelectedAmount('')
+              }}>
+                C
+              </Button>
             </div>
+            <div className="flex gap-5">
+              <Button
+                variant="primary"
+                className="flex-1"
+                flat
+                icon={faPrint}
+                size="lg"
+                onClick={() => {
+                  protectAction(() => {
+                    void dispatchPrint(db, PRINT_TYPE.presale_bill, {
+                      order,
+                      taxes: allTaxes?.data
+                    }, {userId: page?.user?.id});
+                  }, {
+                    module: 'Print temp bill',
+                    description: 'Print temp bill',
+                    payload: {
+                      order: order.id.toString()
+                    }
+                  });
+
+                }}
+              >Temp bill</Button>
+              <Button
+                variant="success"
+                className="flex-1"
+                filled
+                size="lg"
+                onClick={async () => {
+                  await protectAction(async () => await closeOrder(), {
+                    module: 'Complete order',
+                    description: 'Complete order',
+                    payload: {
+                      order: order.id.toString()
+                    }
+                  });
+                }}
+                disabled={changeDue < 0 || closing || remote.isProcessing}
+                flat
+              >Complete</Button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col gap-2 p-3 bg-white rounded-xl h-full">
+        <RemotePaymentPendingSlot/>
+        {payments.map(payment => (
+          <div
+            className="flex justify-between text-lg cursor-pointer"
+            key={payment.id}
+            onClick={() => {
+              setPayments(prev => prev.filter(item => item.id !== payment.id))
+            }}
+          >
+            <strong className="flex gap-3 justify-center items-center">
+              <FontAwesomeIcon icon={faClose}
+                               className="text-danger-500 p-2 px-3 rounded border border-danger-500"/>
+              {payment.payment_type.name}
+            </strong>
+            <span>{withCurrency(payment.amount)}</span>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

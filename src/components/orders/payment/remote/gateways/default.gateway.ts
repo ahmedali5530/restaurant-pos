@@ -1,12 +1,14 @@
 import { RemoteGatewayAdapter } from "@/components/orders/payment/remote/gateways/types.ts";
-import { AfterIntentCreatedInput } from "@/components/orders/payment/remote/types.ts";
+import { AfterIntentCreatedInput } from "@/components/orders/payment/remote/core/types.ts";
 import { GatewayType } from "@/lib/payment.service.ts";
+import { getGatewayDescriptor } from "@/lib/payment/gateway-catalog.ts";
 import { toast } from "sonner";
 
 export function createDefaultGatewayAdapter(gateway: GatewayType): RemoteGatewayAdapter {
   return {
     gateway,
-    resolveCurrency: () => import.meta.env.VITE_CURRENCY || "USD",
+    resolveCurrency: () =>
+      getGatewayDescriptor(gateway)?.currency || import.meta.env.VITE_CURRENCY || "USD",
     preparePayment: async () => ({ proceed: true }),
     onIntentCreated({ intent }: AfterIntentCreatedInput) {
       if (intent.paymentUrl) {

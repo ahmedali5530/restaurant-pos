@@ -1,7 +1,9 @@
 export const PAYMENT_SERVER_URL =
   (import.meta.env.VITE_PAYMENT_SERVER_URL as string) || "http://localhost:3133";
 
-export type GatewayType = "stripe" | "paypal" | "razorpay" | "jazzcash" | "mpesa";
+import type { GatewayId } from "@/lib/payment/gateway-catalog.ts";
+
+export type GatewayType = GatewayId;
 export type PaymentStatus = "pending" | "authorized" | "paid" | "failed" | "canceled";
 
 export type CreatePaymentIntentRequest = {

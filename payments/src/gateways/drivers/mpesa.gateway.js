@@ -3,7 +3,6 @@
 const logger = require('../../lib/logger');
 const { BaseGateway } = require('../base.gateway');
 const { PaymentGateway, PaymentStatus, WebhookStatus } = require('../gateway.types');
-const { loadPaymentTypeGatewayConfig } = require('../../lib/gateway-config.store');
 const { buildMpesaWebhookCallbackUrl } = require('../../lib/intent.utils');
 const {
   stkPush,
@@ -21,6 +20,30 @@ function getPaymentTypeId(payload) {
   return String(id);
 }
 
+function mapMpesaCredentials(config, mode) {
+  const consumerKey = config?.client_id;
+  const consumerSecret = config?.client_secret;
+  const passkey = config?.integrity_salt;
+  const shortcode = config?.merchant_id;
+
+  if (!consumerKey || !consumerSecret) {
+    throw new Error(
+      'M-Pesa gateway config is incomplete. Set Consumer Key, Consumer Secret, Passkey, and Shortcode on the payment type.'
+    );
+  }
+
+  const transactionType = (config?.public_key || '').trim() || 'CustomerPayBillOnline';
+
+  return {
+    consumerKey: String(consumerKey).trim(),
+    consumerSecret: String(consumerSecret).trim(),
+    passkey: String(passkey).trim(),
+    shortcode: String(shortcode).trim(),
+    transactionType,
+    mode: mode === 'live' ? 'live' : 'sandbox',
+  };
+}
+
 function resolveKesAmount(amount, currency) {
   const cur = String(currency || '').toUpperCase();
   if (cur && cur !== 'KES') {
@@ -36,6 +59,13 @@ function resolveKesAmount(amount, currency) {
 class MpesaGateway extends BaseGateway {
   constructor() {
     super(PaymentGateway.MPESA);
+    this.requiresPaymentTypeId = true;
+    this.requiresIntentIdOnVerify = true;
+    this.requiresServerConfig = true;
+  }
+
+  mapCredentials(config, mode) {
+    return mapMpesaCredentials(config, mode);
   }
 
   async createIntent(payload) {
@@ -48,7 +78,8 @@ class MpesaGateway extends BaseGateway {
       phone: payload.customer?.phone ? logger.maskSecret(String(payload.customer.phone), 6) : null,
     });
 
-    const { mpesa } = await loadPaymentTypeGatewayConfig(paymentTypeId);
+    const { loadPaymentTypeGatewayConfig } = require('../../lib/gateway-config.store');
+    const { credentials: mpesa } = await loadPaymentTypeGatewayConfig(paymentTypeId, this.name);
 
     const phone = payload.customer?.phone;
     if (!phone) {
@@ -99,7 +130,8 @@ class MpesaGateway extends BaseGateway {
       throw new Error('intentId (CheckoutRequestID) is required for M-Pesa verify');
     }
 
-    const { mpesa } = await loadPaymentTypeGatewayConfig(paymentTypeId);
+    const { loadPaymentTypeGatewayConfig } = require('../../lib/gateway-config.store');
+    const { credentials: mpesa } = await loadPaymentTypeGatewayConfig(paymentTypeId, this.name);
     const query = await stkPushQuery({
       credentials: mpesa,
       checkoutRequestId,
@@ -153,4 +185,4 @@ class MpesaGateway extends BaseGateway {
   }
 }
 
-module.exports = { MpesaGateway };
+module.exports = { MpesaGateway, mapMpesaCredentials };

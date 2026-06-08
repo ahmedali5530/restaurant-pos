@@ -301,7 +301,7 @@ export const Summary = () => {
   return (
     <Layout overflowHidden>
       <div className="flex gap-5 p-3 flex-col">
-        <div className="bg-white rounded-xl flex gap-10 justify-center ">
+        <div className="bg-white rounded-xl flex gap-10 justify-center px-5">
           <div className="flex justify-center items-center flex-col flex-1">
             <div className="w-[450px]">
               <Calendar

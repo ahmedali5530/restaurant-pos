@@ -3,6 +3,9 @@
 class BaseGateway {
   constructor(name) {
     this.name = name;
+    this.requiresPaymentTypeId = false;
+    this.requiresIntentIdOnVerify = false;
+    this.requiresServerConfig = false;
   }
 
   async createIntent(_payload) {
@@ -15,6 +18,10 @@ class BaseGateway {
 
   async handleWebhook(_payload) {
     throw new Error(`handleWebhook is not implemented for ${this.name}`);
+  }
+
+  mapCredentials(_config, _mode) {
+    return null;
   }
 }
 

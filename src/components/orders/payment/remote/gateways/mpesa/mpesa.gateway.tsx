@@ -4,13 +4,13 @@ import {
   MPESA_POLL_INTERVAL_MS,
   MPESA_POLL_MAX_ATTEMPTS,
   normalizeMpesaPhone,
-} from "@/components/orders/payment/remote/gateways/mpesa.utils.ts";
+} from "@/components/orders/payment/remote/gateways/mpesa/mpesa.utils.ts";
 import {
   AfterIntentCreatedInput,
   PendingRemoteIntent,
   RemotePaymentContext,
-} from "@/components/orders/payment/remote/types.ts";
-import { getOrderCustomerPhone } from "@/components/orders/payment/remote/utils.ts";
+} from "@/components/orders/payment/remote/core/types.ts";
+import { getOrderCustomerPhone } from "@/components/orders/payment/remote/core/utils.ts";
 import { verifyPayment } from "@/lib/payment.service.ts";
 import { toast } from "sonner";
 

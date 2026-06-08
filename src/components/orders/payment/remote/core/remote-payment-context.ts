@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { PendingRemoteIntent } from "@/components/orders/payment/remote/types.ts";
+import { PendingRemoteIntent } from "@/components/orders/payment/remote/core/types.ts";
 import { PaymentType } from "@/api/model/payment_type.ts";
 
 export type RemotePaymentContextValue = {

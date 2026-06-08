@@ -1,0 +1,2 @@
+DEFINE FIELD OVERWRITE created_at ON TABLE order_extras TYPE datetime DEFAULT time::now() PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD OVERWRITE menu ON TABLE order_item TYPE option<string|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;

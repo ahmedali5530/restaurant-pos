@@ -142,7 +142,7 @@ export const MenuDish = ({
     return () => {
       cancelled = true;
     };
-  }, [db, item?.dish_photo]);
+  }, [item?.dish_photo]);
 
   return (
     <>
@@ -163,7 +163,8 @@ export const MenuDish = ({
               selectedGroups: [],
               newOrOld: MenuItemType.new,
               category: state.category ? state.category?.name : (item.categories.length === 1 ? item.categories[0].name : ''),
-              price: price
+              price: price,
+              menu_name: item.menu_name
             }, undefined, price)
           }
         }}
@@ -213,7 +214,8 @@ export const MenuDish = ({
                 level: level,
                 newOrOld: MenuItemType.new,
                 category: state.category ? state.category?.name : (item.categories.length === 1 ? item.categories[0].name : ''),
-                price: price
+                price: price,
+                menu_name: item.menu_name
               }, clonedGroups, price);
             }
             setModifiersModal(false);

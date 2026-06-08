@@ -7,8 +7,8 @@ import {
   PendingRemoteIntent,
   RemotePaymentCallbacks,
   RemotePaymentContext,
-} from "@/components/orders/payment/remote/types.ts";
-import { getOrderCustomerPhone } from "@/components/orders/payment/remote/utils.ts";
+} from "@/components/orders/payment/remote/core/types.ts";
+import { getOrderCustomerPhone } from "@/components/orders/payment/remote/core/utils.ts";
 import {
   createPaymentIntent,
   GatewayType,

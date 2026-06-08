@@ -63,6 +63,7 @@ function useApi<T>(
   const queryClient = useQueryClient();
   const { isConnected } = useDatabase();
   const db = useDB();
+  const { enabled: enabledOverride = true, ...restApiOptions } = useApiOptions ?? {};
   const queryBuilder = useQueryBuilder(table, initialSelects, initialFilters, initialLimit, initialOffset, initialSort, initialFetches);
 
   const mainQuery = useMemo(() => {
@@ -111,11 +112,11 @@ function useApi<T>(
   }: UseQueryResult<T> = useQuery({
     queryKey: queryKeys,
     queryFn: fetchFilteredData,
-    enabled: isConnected && !!db, // Only run query when database is connected
+    enabled: isConnected && !!db && !!table && enabledOverride,
     refetchOnWindowFocus: false,
     retry: false,
     gcTime: 0,
-    ...useApiOptions,
+    ...restApiOptions,
   });
 
   const resetFilters = () => {
@@ -196,7 +197,7 @@ function useApi<T>(
       queryKey: queryKeys,
       queryFn: fetchFilteredData,
       refetchOnWindowFocus: false,
-      ...useApiOptions,
+      ...restApiOptions,
     });
   }
 

@@ -1,8 +1,8 @@
 'use strict';
 
-const { PaymentGateway } = require('../gateways/gateway.types');
+const { getGatewayDriver, listGateways } = require('../gateways/gateway.factory');
 
-const SupportedGateways = new Set(Object.values(PaymentGateway));
+const SupportedGateways = new Set(listGateways());
 
 function assertObject(body) {
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
@@ -24,6 +24,18 @@ function normalizeGateway(input) {
   return gateway;
 }
 
+function validateGatewayRequirements(gateway, body, metadata, phase) {
+  const driver = getGatewayDriver(gateway);
+
+  if (driver.requiresPaymentTypeId && !metadata.paymentTypeId) {
+    throw new Error(`metadata.paymentTypeId is required for ${gateway} gateway`);
+  }
+
+  if (phase === 'verify' && driver.requiresIntentIdOnVerify && !body.intentId) {
+    throw new Error(`intentId is required for ${gateway} gateway verify`);
+  }
+}
+
 function validateCreateIntentRequest(body) {
   assertObject(body);
   requireField(body, 'gateway');
@@ -38,12 +50,7 @@ function validateCreateIntentRequest(body) {
   }
 
   const metadata = body.metadata || {};
-  if (gateway === PaymentGateway.MPESA) {
-    const paymentTypeId = metadata.paymentTypeId;
-    if (!paymentTypeId) {
-      throw new Error('metadata.paymentTypeId is required for mpesa gateway');
-    }
-  }
+  validateGatewayRequirements(gateway, body, metadata, 'create');
 
   return {
     gateway,
@@ -62,14 +69,8 @@ function validateVerifyRequest(body) {
   requireField(body, 'gateway');
   const gateway = normalizeGateway(body.gateway);
   const metadata = body.metadata || {};
-  if (gateway === PaymentGateway.MPESA) {
-    if (!metadata.paymentTypeId) {
-      throw new Error('metadata.paymentTypeId is required for mpesa gateway');
-    }
-    if (!body.intentId) {
-      throw new Error('intentId is required for mpesa gateway verify');
-    }
-  }
+  validateGatewayRequirements(gateway, body, metadata, 'verify');
+
   return {
     gateway,
     paymentId: body.paymentId || null,

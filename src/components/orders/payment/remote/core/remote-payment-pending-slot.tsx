@@ -1,5 +1,5 @@
-import { RemotePaymentPendingList } from "@/components/orders/payment/remote/remote-payment-pending-list.tsx";
-import { useRemotePayment } from "@/components/orders/payment/remote/remote-payment-context.ts";
+import { RemotePaymentPendingList } from "@/components/orders/payment/remote/core/remote-payment-pending-list.tsx";
+import { useRemotePayment } from "@/components/orders/payment/remote/core/remote-payment-context.ts";
 
 export function RemotePaymentPendingSlot() {
   const remote = useRemotePayment();

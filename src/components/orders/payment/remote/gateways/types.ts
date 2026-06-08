@@ -4,7 +4,7 @@ import {
   AfterIntentCreatedInput,
   PendingRemoteIntent,
   RemotePaymentContext,
-} from "@/components/orders/payment/remote/types.ts";
+} from "@/components/orders/payment/remote/core/types.ts";
 
 export type PrepareRemotePaymentResult =
   | { proceed: true; customerPhone?: string }
@@ -24,5 +24,6 @@ export interface RemoteGatewayAdapter {
     },
   ): () => void;
   renderPendingDetail?(intent: PendingRemoteIntent): ReactNode;
+  renderPendingExtra?(intent: PendingRemoteIntent): ReactNode;
   getVerifiedSuccessMessage?(): string;
 }

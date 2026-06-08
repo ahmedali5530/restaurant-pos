@@ -35,6 +35,10 @@ function buildMpesaWebhookCallbackUrl() {
   return `${getPaymentCallbackBaseUrl()}/webhooks/mpesa`;
 }
 
+function buildTelebirrWebhookCallbackUrl() {
+  return `${getPaymentCallbackBaseUrl()}/webhooks/telebirr`;
+}
+
 function buildCheckoutUrl(gateway, token) {
   return `${getPaymentBaseUrl()}/payments/checkout/${gateway}/${token}`;
 }
@@ -44,5 +48,6 @@ module.exports = {
   getPaymentBaseUrl,
   getPaymentCallbackBaseUrl,
   buildMpesaWebhookCallbackUrl,
+  buildTelebirrWebhookCallbackUrl,
   buildCheckoutUrl,
 };

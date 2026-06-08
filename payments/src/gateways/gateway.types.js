@@ -6,6 +6,7 @@ const PaymentGateway = Object.freeze({
   RAZORPAY: 'razorpay',
   JAZZCASH: 'jazzcash',
   MPESA: 'mpesa',
+  TELEBIRR: 'telebirr',
 });
 
 const PaymentStatus = Object.freeze({

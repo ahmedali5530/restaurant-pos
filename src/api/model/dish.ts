@@ -20,6 +20,7 @@ export interface Dish extends ID, Name, Priority {
   allow_service_charges?: boolean
   discount?: number
   tax?: Tax
+  menu_name?: string
 
   deleted_at?: DateTime
   created_at?: DateTime

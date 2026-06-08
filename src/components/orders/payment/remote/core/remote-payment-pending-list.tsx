@@ -1,6 +1,6 @@
 import { Button } from "@/components/common/input/button.tsx";
 import { getRemoteGatewayAdapter } from "@/components/orders/payment/remote/gateways/registry.ts";
-import { PendingRemoteIntent } from "@/components/orders/payment/remote/types.ts";
+import { PendingRemoteIntent } from "@/components/orders/payment/remote/core/types.ts";
 import { withCurrency } from "@/lib/utils.ts";
 
 type Props = {
@@ -32,6 +32,7 @@ export function RemotePaymentPendingList({
               Status: {intent.status}
               {adapter.renderPendingDetail?.(intent)}
             </div>
+            {adapter.renderPendingExtra?.(intent)}
             <div className="flex gap-2">
               {intent.paymentUrl && (
                 <Button
