@@ -21,6 +21,7 @@ export const MenuHeader = () => {
   const [setting] = useAtom(appSettings);
   const [enforcement] = useAtom(closingEnforcementAtom);
   const orderTakingBlocked = enforcement.orderTakingBlocked;
+  const hideTableSelection = state.hideTableSelection === true;
   const [customerModal, setCustomerModal] = useState(false);
   const [confirmCartAction, setConfirmCartAction] = useState(false);
 
@@ -41,7 +42,10 @@ export const MenuHeader = () => {
   }, [state.orders, state?.order?.id]);
 
   useEffect(() => {
-    // heartbeat of table
+    if (!state.table?.id) {
+      return;
+    }
+
     const heartBeat = async () => {
       await db.merge(toRecordId(state.table.id), {
         locked_at: nowSurrealDateTime()
@@ -51,7 +55,7 @@ export const MenuHeader = () => {
     const timer = setInterval(heartBeat, 10000);
 
     return () => clearInterval(timer);
-  }, [])
+  }, [state.table?.id])
 
   const reset = async () => {
     // check if cart has any new items
@@ -61,11 +65,13 @@ export const MenuHeader = () => {
       return false;
     }
 
-    await db.merge(state.table.id, {
-      is_locked: false,
-      locked_at: null,
-      locked_by: null
-    });
+    if (state.table?.id) {
+      await db.merge(state.table.id, {
+        is_locked: false,
+        locked_at: null,
+        locked_by: null
+      });
+    }
 
     setState(prev => ({
       ...prev,
@@ -171,7 +177,9 @@ export const MenuHeader = () => {
     <>
       <div className="flex justify-between items-center w-full">
         <div className="flex items-center gap-2">
-          <Button variant="primary" icon={faArrowLeft} onClick={reset} size="lg">{state?.floor?.name}</Button>
+          {!hideTableSelection && (
+            <Button variant="primary" icon={faArrowLeft} onClick={reset} size="lg">{state?.floor?.name}</Button>
+          )}
           {state?.orders?.length > 0 ? (
             <>
               <ScrollContainer className="max-w-[380px] flex flex-nowrap gap-3">
@@ -202,12 +210,14 @@ export const MenuHeader = () => {
             </>
           ) : null}
 
-          <Button
-            type="button"
-            className="btn btn-primary lg btn-flat min-w-[50px]"
-            onClick={switchTable}
-            icon={faTable}
-          >{state?.table?.name}{state?.table?.number}</Button>
+          {!hideTableSelection && (
+            <Button
+              type="button"
+              className="btn btn-primary lg btn-flat min-w-[50px]"
+              onClick={switchTable}
+              icon={faTable}
+            >{state?.table?.name}{state?.table?.number}</Button>
+          )}
           <Button type="button"
                   className="btn btn-primary lg btn-flat"
                   onClick={openPersons}

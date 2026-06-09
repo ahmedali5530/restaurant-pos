@@ -262,12 +262,13 @@ export const Payment = () => {
   }
 
   const reset = async () => {
-    // release table
-    await db.merge(state?.table?.id, {
-      is_locked: false,
-      locked_by: null,
-      locked_at: null
-    });
+    if (state?.table?.id) {
+      await db.merge(state.table.id, {
+        is_locked: false,
+        locked_by: null,
+        locked_at: null
+      });
+    }
 
     // clear cart and go back to floor screen
     setState(prev => ({

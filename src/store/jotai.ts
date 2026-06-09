@@ -38,6 +38,7 @@ export interface AppStateInterface {
   seats: string[]
   seat?: string
   switchTable?: boolean
+  hideTableSelection?: boolean
   ordersFilters: {
     users: LabelValue[]
     floors: LabelValue[]

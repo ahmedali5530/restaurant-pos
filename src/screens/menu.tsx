@@ -3,22 +3,120 @@ import {MenuCategories} from "@/components/menu/categories.tsx";
 import {MenuDishes} from "@/components/menu/dishes.tsx";
 import {MenuActions} from "@/components/menu/actions.tsx";
 import {MenuCart} from "@/components/cart/cart.tsx";
-import {useEffect, useMemo} from "react";
+import {useEffect, useMemo, useRef} from "react";
 import {FloorLayout} from "@/components/floor/floor.layout.tsx";
 import {MenuHeader} from "@/components/menu/header.tsx";
 import {useAtom} from "jotai";
-import {appAlert, appState, closingEnforcementAtom} from "@/store/jotai.ts";
+import {appAlert, appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {MenuPersons} from "@/components/menu/persons.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {toRecordId} from "@/lib/utils.ts";
-
+import {Tables} from "@/api/db/tables.ts";
+import {Order, OrderStatus} from "@/api/model/order.ts";
 import 'swiper/css';
 
 export const Menu = () => {
   const [state, setState] = useAtom(appState);
+  const [settings, setSettings] = useAtom(appSettings);
   const [enforcement] = useAtom(closingEnforcementAtom);
   const [, setAlert] = useAtom(appAlert);
   const db = useDB();
+  const hideTableSelection = state.hideTableSelection === true;
+
+  useEffect(() => {
+    if (!hideTableSelection || state.showFloor !== true || enforcement.orderTakingBlocked) {
+      return;
+    }
+
+    setState(prev => ({
+      ...prev,
+      showFloor: false,
+      showPersons: false,
+      table: undefined,
+      order: {id: 'new', order: undefined},
+      cart: [],
+      floor: prev.floor ?? settings.floors[0],
+      orderType: prev.orderType ?? settings.order_types[0],
+    }));
+
+    setSettings(prev => ({
+      ...prev,
+      categories: prev.categories.filter(item => item.show_in_menu),
+    }));
+  }, [
+    enforcement.orderTakingBlocked,
+    hideTableSelection,
+    setSettings,
+    setState,
+    settings.floors,
+    settings.order_types,
+    state.showFloor,
+  ]);
+
+  const tablelessOrdersLiveRef = useRef<{kill: () => Promise<void>} | null>(null);
+
+  useEffect(() => {
+    if (!hideTableSelection) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchTablelessOrders = async () => {
+      const [rows] = await db.query<Order[]>(
+        `SELECT * FROM ${Tables.orders}
+         WHERE status = $status AND table = none
+         ORDER BY created_at ASC
+         FETCH customer, items, items.item, order_type, table, user`,
+        {status: OrderStatus["In Progress"]}
+      );
+
+      if (cancelled) {
+        return;
+      }
+
+      const orders = Array.isArray(rows) ? rows : [];
+
+      setState(prev => {
+        const prevIds = prev.orders.map(order => order.id?.toString()).join(',');
+        const nextIds = orders.map(order => order.id?.toString()).join(',');
+        if (prevIds === nextIds) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          orders,
+        };
+      });
+    };
+
+    const setup = async () => {
+      await fetchTablelessOrders();
+      if (cancelled) {
+        return;
+      }
+
+      const subscription = await db.live(Tables.orders, () => {
+        void fetchTablelessOrders();
+      });
+
+      if (cancelled) {
+        await subscription.kill().catch(() => undefined);
+        return;
+      }
+
+      tablelessOrdersLiveRef.current = subscription;
+    };
+
+    void setup();
+
+    return () => {
+      cancelled = true;
+      tablelessOrdersLiveRef.current?.kill().catch(() => undefined);
+      tablelessOrdersLiveRef.current = null;
+    };
+  }, [db, hideTableSelection, setState]);
 
   useEffect(() => {
     if (!enforcement.orderTakingBlocked || state.showFloor) {
@@ -45,7 +143,7 @@ export const Menu = () => {
         orderType: undefined,
         cart: [],
         order: undefined,
-        orders: [],
+        orders: hideTableSelection ? prev.orders : [],
         customer: undefined,
         table: undefined,
         switchTable: false,
@@ -66,6 +164,7 @@ export const Menu = () => {
     db,
     enforcement.message,
     enforcement.orderTakingBlocked,
+    hideTableSelection,
     setAlert,
     setState,
     state.showFloor,
@@ -73,7 +172,7 @@ export const Menu = () => {
   ]);
 
   const screen = useMemo(() => {
-    if (state.showFloor) {
+    if (state.showFloor && !hideTableSelection) {
       return <FloorLayout/>;
     }
 
@@ -103,10 +202,10 @@ export const Menu = () => {
       </div>
     )
 
-  }, [state.showFloor, state.showPersons]);
+  }, [hideTableSelection, state.showFloor, state.showPersons]);
 
   return (
-    <Layout showSidebar={state.showFloor === true || state.showPersons === true}>
+    <Layout showSidebar={state.showFloor === true || state.showPersons === true || hideTableSelection}>
       {screen}
     </Layout>
   );

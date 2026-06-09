@@ -3,6 +3,7 @@ import {Printersettings} from "@/components/user_settings/printers.tsx";
 import {ServiceChargesSettings} from "@/components/user_settings/service_charges.tsx";
 import {CacheSettings} from "@/components/user_settings/cache.tsx";
 import {TouchSettings} from "@/components/user_settings/touch.tsx";
+import {TableSelectionSettings} from "@/components/user_settings/table_selection.tsx";
 import {MenusSettings} from "@/components/user_settings/menus.tsx";
 import {AutoCheckCloseSettingsCard} from "@/components/user_settings/auto_check_close.tsx";
 import {ClosingCycleSettingsCard} from "@/components/user_settings/closing_cycle.tsx";
@@ -18,6 +19,7 @@ export const Settings = () => {
       <ClosingCycleSettingsCard />
       <AutoCheckCloseSettingsCard />
       <TouchSettings />
+      <TableSelectionSettings />
     </Layout>
   );
 }
