@@ -9,15 +9,15 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
   },
   "Orders": {
     label: "Orders", 
-    children: ['Cancel order', 'Split by seats', 'Split by items', 'Split by amount', 'Merge orders', 'Refund order', 'Print final copy', 'Print temp bill', 'Apply tax', 'Apply discount', 'Apply coupon', 'Apply service charges', 'Apply tips', 'Change extras', 'Complete order'] as string[]
+    children: ['Orders', 'Cancel order', 'Split by seats', 'Split by items', 'Split by amount', 'Merge orders', 'Refund order', 'Print final copy', 'Print temp bill', 'Apply tax', 'Apply discount', 'Apply coupon', 'Apply service charges', 'Apply tips', 'Change extras', 'Complete order'] as string[]
   },
   "Summary": {
     label: "Summary",
-    children: ['Print summary', 'Product mix report', 'Server sales'] as string[]
+    children: ['Summary', 'Print summary', 'Product mix report', 'Server sales'] as string[]
   },
   "Reports": {
     label: "Reports",
-    children: ["Delivery Density", "Cash closing", "Sales dashboard", "Inventory dashboard", "Sales Hourly Labour", "Sales Hourly Labour Weekly", "Server Sales", "Sales Summary", 'Sales Summary 2', 'Sales Weekly', 'Tips', 'Advanced Sales', 'Discount', 'Tax', 'Coupon', 'Voids', 'Merge Orders', 'Split Orders', 'Order Life Cycle', 'Expense', 'Activity', 'Product Mix Weekly', 'Product Mix Summary', 'Products Hourly', 'Products Summary', 'Current Inventory', 'Detailed Inventory', 'Purchase', 'Purchase Return', 'Issue', 'Issue Return', 'Waste', 'Consumption', 'Sale vs Inventory'] as string[]
+    children: ['Reports', "Delivery Density", "Cash closing", "Sales dashboard", "Inventory dashboard", "Sales Hourly Labour", "Sales Hourly Labour Weekly", "Server Sales", "Sales Summary", 'Sales Summary 2', 'Sales Weekly', 'Tips', 'Advanced Sales', 'Discount', 'Tax', 'Coupon', 'Voids', 'Merge Orders', 'Split Orders', 'Order Life Cycle', 'Expense', 'Activity', 'Product Mix Weekly', 'Product Mix Summary', 'Products Hourly', 'Products Summary', 'Current Inventory', 'Detailed Inventory', 'Purchase', 'Purchase Return', 'Issue', 'Issue Return', 'Waste', 'Consumption', 'Sale vs Inventory'] as string[]
   },
   "Closing": {
     label: "Closing",
@@ -25,15 +25,15 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
   },
   "Kitchen": {
     label: "Kitchen",
-    children: [] as string[]
+    children: ['Kitchen'] as string[]
   },
   "Delivery": {
     label: "Delivery",
-    children: ["Delivery orders", "Delivery areas", "Delivery settings"] as string[]
+    children: ['Delivery', "Delivery orders", "Delivery areas", "Delivery settings"] as string[]
   },
   "Admin": {
     label: "Administration",
-    children: ["Dishes", "Menus", "Categories", 'Modifier Groups', 'Tables', 'Floors', 'Discounts', 'Coupons', 'Kitchens', 'Printers', 'Print settings', 'Order Types', 'Payment Types', 'Extras', 'Taxes', 'Users', 'Roles', 'Shifts', 'Tips definition'] as string[]
+    children: ['Admin', "Dishes", "Menus", "Categories", 'Modifier Groups', 'Tables', 'Floors', 'Discounts', 'Coupons', 'Kitchens', 'Printers', 'Print settings', 'Order Types', 'Payment Types', 'Extras', 'Taxes', 'Users', 'Roles', 'Shifts', 'Tips definition'] as string[]
   },
   "Riders": {
     label: "Riders",
@@ -41,15 +41,15 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
   },
   "Tips": {
     label: "Tip Distribution",
-    children: ["Tip Calculation", "Payout Management"] as string[]
+    children: ['Tips', "Tip Calculation", "Payout Management"] as string[]
   },
   'Inventory': {
     label: 'Inventory',
-    children: ['Current Inventory', 'Items', 'Suppliers', 'Item Categories', 'Stores', 'Item Groups', 'Purchase Orders', 'Purchases', 'Purchase Returns', 'Issues', 'Issue Returns', 'Wastes'] as string[]
+    children: ['Inventory', 'Current Inventory', 'Items', 'Suppliers', 'Item Categories', 'Stores', 'Item Groups', 'Purchase Orders', 'Purchases', 'Purchase Returns', 'Issues', 'Issue Returns', 'Wastes'] as string[]
   },
   'Settings': {
     label: 'Settings',
-    children: ['Printers', 'Service charges', 'Auto check close', 'Closing cycle']
+    children: ['Settings', 'Printers', 'Service charges', 'Auto check close', 'Closing cycle']
   }
 };
 
