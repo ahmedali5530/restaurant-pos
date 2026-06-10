@@ -5,17 +5,9 @@ services:
     volumes:
       # Mount the project from the host, including node_modules installed with Bun
       - .:/app
-    environment:
-      # These are exposed to Vite as import.meta.env.VITE_*
-      # SurrealDB WebSocket endpoint including /rpc path
-      VITE_DB_WEBDOCKET: "ws://localhost:8000/rpc"
-      # Printer service base URL (host -> printer container)
-      VITE_PRINT_SERVER_URL: "http://localhost:3132"
-      # Payment service base URL (host -> payment container)
-      VITE_PAYMENT_SERVER_URL: "${VITE_PAYMENT_SERVER_URL:-http://localhost:3134}"
-      VITE_PAYMENT_CALLBACK_SERVER_URL: "${VITE_PAYMENT_CALLBACK_SERVER_URL:-}"
-      # Tracking service base URL (host -> tracking container)
-      VITE_TRACKING_SERVER_URL: "${VITE_TRACKING_SERVER_URL:-http://localhost:3138}"
+    # VITE_* vars are read by Vite from the mounted .env / .env.local files.
+    # Do not set them here: compose only substitutes from .env (not .env.local),
+    # and container env vars override Vite's file-based loading.
     # Dev mode with Bun + Vite, binding to all interfaces.
     # Assumes you've already run `bun install` on the host.
     command: sh -c "bun run dev -- --host 0.0.0.0 --port 5173"
@@ -36,7 +28,7 @@ services:
     command: >
       start --user root --pass root surrealkv://database --bind 0.0.0.0:8000
     ports:
-      - "8001:8000"
+      - "8000:8000"
     volumes:
       # Host /database -> container /database (surrealkv://database resolves to ./database = /database)
       - ./database:/database
@@ -169,7 +161,7 @@ services:
           "db_container=\$${SURREAL_CONTAINER_NAME:-}" \
           "if [ -z \"\$$db_container\" ]; then db_container=\$$(docker ps --filter \"label=com.docker.compose.project=\$$project\" --filter \"label=com.docker.compose.service=surrealdb\" --format \"{{.Names}}\" | awk \"NR==1{print; exit}\"); fi" \
           "if [ -z \"\$$db_container\" ]; then echo \"No surrealdb container found\" >&2; exit 1; fi" \
-          "if docker exec \"\$$db_container\" /surreal --log none export --endpoint \"\$${SURREAL_ENDPOINT:-http://127.0.0.1:8001}\" --username \"\$${SURREAL_USER:-root}\" --password \"\$${SURREAL_PASS:-root}\" --namespace \"\$${SURREAL_NAMESPACE:-posr}\" --database \"\$${SURREAL_DATABASE:-posr}\" - > \"\$$file\"; then echo \"Created backup: \$$file\"; else rm -f \"\$$file\"; echo \"Backup export failed\" >&2; exit 1; fi" \
+          "if docker exec \"\$$db_container\" /surreal --log none export --endpoint \"\$${SURREAL_ENDPOINT:-http://127.0.0.1:8000}\" --username \"\$${SURREAL_USER:-root}\" --password \"\$${SURREAL_PASS:-root}\" --namespace \"\$${SURREAL_NAMESPACE:-posr}\" --database \"\$${SURREAL_DATABASE:-posr}\" - > \"\$$file\"; then echo \"Created backup: \$$file\"; else rm -f \"\$$file\"; echo \"Backup export failed\" >&2; exit 1; fi" \
           "ls -1t /backups/surrealdb-*.surql 2>/dev/null | sed -n \"\$$((retention+1)),\\\$$p\" | xargs -r rm -f" \
           > /usr/local/bin/run-backup.sh;
         chmod +x /usr/local/bin/run-backup.sh;
