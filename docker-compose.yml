@@ -8,7 +8,7 @@ services:
     environment:
       # These are exposed to Vite as import.meta.env.VITE_*
       # SurrealDB WebSocket endpoint including /rpc path
-      VITE_DB_WEBDOCKET: "ws://localhost:8001/rpc"
+      VITE_DB_WEBDOCKET: "ws://localhost:8000/rpc"
       # Printer service base URL (host -> printer container)
       VITE_PRINT_SERVER_URL: "http://localhost:3132"
       # Payment service base URL (host -> payment container)
@@ -34,9 +34,9 @@ services:
     working_dir: /
     user: "0:0"
     command: >
-      start --user root --pass root surrealkv://database --bind 0.0.0.0:8001
+      start --user root --pass root surrealkv://database --bind 0.0.0.0:8000
     ports:
-      - "8001:8001"
+      - "8001:8000"
     volumes:
       # Host /database -> container /database (surrealkv://database resolves to ./database = /database)
       - ./database:/database
@@ -72,7 +72,7 @@ services:
       - PAYMENT_PORT=3134
       - PAYMENT_HOST=0.0.0.0
       - PAYMENT_BASE_URL=${VITE_PAYMENT_SERVER_URL:-http://localhost:3134}
-      - SURREAL_URL=ws://surrealdb:8001/rpc
+      - SURREAL_URL=ws://surrealdb:8000/rpc
       - SURREAL_NS=posr
       - SURREAL_DB=posr
       - SURREAL_USER=root
@@ -96,7 +96,7 @@ services:
       - SYNC_RECONNECT_MS=5000
       - SYNC_LOG_LEVEL=info
       - SYNC_CLIENT_ID=${SYNC_CLIENT_ID:-client-001}
-      - SYNC_SOURCE_URL=${SYNC_SOURCE_URL:-ws://surrealdb:8001/rpc}
+      - SYNC_SOURCE_URL=${SYNC_SOURCE_URL:-ws://surrealdb:8000/rpc}
       - SYNC_SOURCE_NS=${SYNC_SOURCE_NS:-posr}
       - SYNC_SOURCE_DB=${SYNC_SOURCE_DB:-posr}
       - SYNC_SOURCE_USER=${SYNC_SOURCE_USER:-root}
@@ -123,7 +123,7 @@ services:
     environment:
       - TRACKING_PORT=3138
       - TRACKING_HOST=0.0.0.0
-      - TRACKING_DB_URL=ws://surrealdb:8001/rpc
+      - TRACKING_DB_URL=ws://surrealdb:8000/rpc
       - TRACKING_DB_NS=posr
       - TRACKING_DB_NAME=posr
       - TRACKING_DB_USER=root
@@ -149,7 +149,7 @@ services:
       - SURREAL_NAMESPACE=posr
       - SURREAL_DATABASE=posr
       # Endpoint used from inside the surrealdb container
-      - SURREAL_ENDPOINT=http://127.0.0.1:8001
+      - SURREAL_ENDPOINT=http://127.0.0.1:8000
       # Keep only the latest N backup files
       - BACKUP_RETENTION_COUNT=7
     depends_on:
