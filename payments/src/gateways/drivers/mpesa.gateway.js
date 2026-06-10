@@ -87,7 +87,7 @@ class MpesaGateway extends BaseGateway {
     }
 
     const amount = resolveKesAmount(payload.amount, payload.currency);
-    const callbackUrl = buildMpesaWebhookCallbackUrl();
+    const callbackUrl = buildMpesaWebhookCallbackUrl(payload.orderId);
     logger.info('mpesa', 'STK push starting', { amount, callbackUrl, mode: mpesa.mode });
 
     const stk = await stkPush({

@@ -32,6 +32,7 @@ export enum Tables {
   extras = 'extra',
   payment_types = 'payment_type',
   payment_type_gateway_configs = 'payment_type_gateway_config',
+  payment_webhooks = 'payment_webhook',
   printers = 'printer',
   taxes = 'tax',
   users = 'user',

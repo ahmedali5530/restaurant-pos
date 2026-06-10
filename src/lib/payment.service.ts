@@ -1,6 +1,9 @@
 export const PAYMENT_SERVER_URL =
   (import.meta.env.VITE_PAYMENT_SERVER_URL as string) || "http://localhost:3133";
 
+export const PAYMENT_CALLBACK_SERVER_URL =
+  (import.meta.env.VITE_PAYMENT_CALLBACK_SERVER_URL as string) || PAYMENT_SERVER_URL;
+
 import type { GatewayId } from "@/lib/payment/gateway-catalog.ts";
 
 export type GatewayType = GatewayId;
@@ -115,4 +118,39 @@ export async function verifyPayment(
   payload: VerifyPaymentRequest
 ): Promise<VerifyPaymentResponse> {
   return requestJson<VerifyPaymentResponse>("/payments/verify", payload);
+}
+
+function normalizeOrderKeyForUrl(orderId: string): string {
+  const text = String(orderId || "").trim();
+  const key = text.includes(":") ? text : `order:${text}`;
+  return encodeURIComponent(key);
+}
+
+export async function fetchWebhookPaymentResult(
+  gateway: GatewayType,
+  orderId: string,
+): Promise<VerifyPaymentResponse | null> {
+  const base = PAYMENT_CALLBACK_SERVER_URL.replace(/\/$/, "");
+  const orderKey = normalizeOrderKeyForUrl(orderId);
+  const res = await fetch(`${base}/webhooks/${gateway}/${orderKey}`);
+
+  if (res.status === 404) {
+    return null;
+  }
+
+  const text = await res.text();
+  let parsed: ApiSuccess<VerifyPaymentResponse> | ApiError | null = null;
+  try {
+    parsed = JSON.parse(text) as ApiSuccess<VerifyPaymentResponse> | ApiError;
+  } catch {
+    parsed = null;
+  }
+
+  if (!res.ok || !parsed || parsed.success === false) {
+    const message =
+      (parsed && "error" in parsed && parsed.error) || text || "Webhook fetch failed";
+    throw new Error(message);
+  }
+
+  return parsed.data;
 }

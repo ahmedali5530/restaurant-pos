@@ -94,7 +94,7 @@ class TelebirrGateway extends BaseGateway {
 
     const amount = resolveEtbAmount(payload.amount, payload.currency);
     const merchOrderId = generateMerchOrderId(payload.orderId);
-    const notifyUrl = buildTelebirrWebhookCallbackUrl();
+    const notifyUrl = buildTelebirrWebhookCallbackUrl(payload.orderId);
     const redirectUrl = payload.returnUrl || `${getPaymentBaseUrl()}/payments/checkout/telebirr/complete`;
 
     const order = await createPreOrder({

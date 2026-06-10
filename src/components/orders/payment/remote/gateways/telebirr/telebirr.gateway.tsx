@@ -8,7 +8,7 @@ import {
   AfterIntentCreatedInput,
   PendingRemoteIntent,
 } from "@/components/orders/payment/remote/core/types.ts";
-import { verifyPayment } from "@/lib/payment.service.ts";
+import { fetchWebhookPaymentResult, verifyPayment } from "@/lib/payment.service.ts";
 import { toast } from "sonner";
 
 export const telebirrGatewayAdapter: RemoteGatewayAdapter = {
@@ -37,16 +37,20 @@ export const telebirrGatewayAdapter: RemoteGatewayAdapter = {
           return;
         }
         try {
-          const result = await verifyPayment({
-            gateway: "telebirr",
-            intentId: pendingIntent.intentId,
-            orderId: context.order.id.toString(),
-            metadata: {
-              orderId: context.order.id.toString(),
-              invoiceNumber: context.order.invoice_number,
-              paymentTypeId: pendingIntent.paymentType.id.toString(),
-            },
-          });
+          const orderId = context.order.id.toString();
+          const webhookResult = await fetchWebhookPaymentResult("telebirr", orderId);
+          const result =
+            webhookResult ??
+            (await verifyPayment({
+              gateway: "telebirr",
+              intentId: pendingIntent.intentId,
+              orderId,
+              metadata: {
+                orderId,
+                invoiceNumber: context.order.invoice_number,
+                paymentTypeId: pendingIntent.paymentType.id.toString(),
+              },
+            }));
           if (result.status === "paid" || result.status === "authorized") {
             stopped = true;
             clearInterval(timer);

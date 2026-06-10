@@ -13,6 +13,7 @@ services:
       VITE_PRINT_SERVER_URL: "http://localhost:3132"
       # Payment service base URL (host -> payment container)
       VITE_PAYMENT_SERVER_URL: "${VITE_PAYMENT_SERVER_URL:-http://localhost:3134}"
+      VITE_PAYMENT_CALLBACK_SERVER_URL: "${VITE_PAYMENT_CALLBACK_SERVER_URL:-}"
       # Tracking service base URL (host -> tracking container)
       VITE_TRACKING_SERVER_URL: "${VITE_TRACKING_SERVER_URL:-http://localhost:3138}"
     # Dev mode with Bun + Vite, binding to all interfaces.
@@ -65,12 +66,12 @@ services:
     volumes:
       - ./payments:/app
       - payment-node_modules:/app/node_modules
+    env_file:
+      - ./payments/.env
     environment:
       - PAYMENT_PORT=3134
       - PAYMENT_HOST=0.0.0.0
       - PAYMENT_BASE_URL=${VITE_PAYMENT_SERVER_URL:-http://localhost:3134}
-      # Public URL for M-Pesa/webhook callbacks (ngrok, LAN IP, prod domain). Falls back to PAYMENT_BASE_URL if unset.
-      - PAYMENT_CALLBACK_BASE_URL=${PAYMENT_CALLBACK_BASE_URL:-}
       - SURREAL_URL=ws://surrealdb:8001/rpc
       - SURREAL_NS=posr
       - SURREAL_DB=posr

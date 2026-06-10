@@ -11,6 +11,7 @@ import {
 import { getOrderCustomerPhone } from "@/components/orders/payment/remote/core/utils.ts";
 import {
   createPaymentIntent,
+  fetchWebhookPaymentResult,
   GatewayType,
   VerifyPaymentResponse,
   verifyPayment,
@@ -238,16 +239,20 @@ export function useRemotePayments({
     async (pendingIntent: PendingRemoteIntent) => {
       setVerifyingIntentId(pendingIntent.id);
       try {
-        const result = await verifyPayment({
-          gateway: pendingIntent.gateway,
-          intentId: pendingIntent.intentId,
-          orderId: order.id.toString(),
-          metadata: {
-            orderId: order.id.toString(),
-            invoiceNumber: order.invoice_number,
-            paymentTypeId: pendingIntent.paymentType.id.toString(),
-          },
-        });
+        const orderId = order.id.toString();
+        const webhookResult = await fetchWebhookPaymentResult(pendingIntent.gateway, orderId);
+        const result =
+          webhookResult ??
+          (await verifyPayment({
+            gateway: pendingIntent.gateway,
+            intentId: pendingIntent.intentId,
+            orderId,
+            metadata: {
+              orderId,
+              invoiceNumber: order.invoice_number,
+              paymentTypeId: pendingIntent.paymentType.id.toString(),
+            },
+          }));
 
         if (result.status !== "paid" && result.status !== "authorized") {
           toast.warning(

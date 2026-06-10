@@ -107,8 +107,6 @@ async function getAccessToken(credentials) {
     `${credentials.consumerKey}:${credentials.consumerSecret}`
   ).toString('base64');
 
-  console.log(auth)
-
   const url = `${getBaseUrl(credentials.mode)}/oauth/v1/generate?grant_type=client_credentials`;
   const { res, body } = await darajaFetch(
     'oauth',
@@ -171,6 +169,8 @@ async function stkPush({
     AccountReference: String(accountReference).slice(0, 12),
     TransactionDesc: String(description || 'POS Payment').slice(0, 13),
   };
+
+  console.log(payload)
 
   const url = `${getBaseUrl(credentials.mode)}/mpesa/stkpush/v1/processrequest`;
   const { res, body } = await darajaFetch(

@@ -42,10 +42,11 @@ function start() {
     console.log(`Payment server listening on http://${HOST}:${PORT}`);
     console.log(`Payment base URL: ${getPaymentBaseUrl()}`);
     console.log(`Webhook callback base URL: ${getPaymentCallbackBaseUrl()}`);
-    console.log(`M-Pesa STK callback: ${buildMpesaWebhookCallbackUrl()}`);
+    console.log(`M-Pesa STK callback pattern: ${buildMpesaWebhookCallbackUrl('order:example')}`);
     console.log('POST /payments/create-intent');
     console.log('POST /payments/verify');
-    console.log('POST /webhooks/:gateway');
+    console.log('POST /webhooks/:gateway/:orderKey');
+    console.log('GET /webhooks/:gateway/:orderKey');
   });
 
   // Do not block HTTP bind on SurrealDB — wrong/unreachable URL can hang connect indefinitely.

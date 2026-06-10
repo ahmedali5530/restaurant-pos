@@ -11,7 +11,7 @@ import {
   RemotePaymentContext,
 } from "@/components/orders/payment/remote/core/types.ts";
 import { getOrderCustomerPhone } from "@/components/orders/payment/remote/core/utils.ts";
-import { verifyPayment } from "@/lib/payment.service.ts";
+import { fetchWebhookPaymentResult, verifyPayment } from "@/lib/payment.service.ts";
 import { toast } from "sonner";
 
 export type MpesaPhonePromptRequest = {
@@ -76,16 +76,20 @@ export const mpesaGatewayAdapter: RemoteGatewayAdapter = {
           return;
         }
         try {
-          const result = await verifyPayment({
-            gateway: "mpesa",
-            intentId: pendingIntent.intentId,
-            orderId: context.order.id.toString(),
-            metadata: {
-              orderId: context.order.id.toString(),
-              invoiceNumber: context.order.invoice_number,
-              paymentTypeId: pendingIntent.paymentType.id.toString(),
-            },
-          });
+          const orderId = context.order.id.toString();
+          const webhookResult = await fetchWebhookPaymentResult("mpesa", orderId);
+          const result =
+            webhookResult ??
+            (await verifyPayment({
+              gateway: "mpesa",
+              intentId: pendingIntent.intentId,
+              orderId,
+              metadata: {
+                orderId,
+                invoiceNumber: context.order.invoice_number,
+                paymentTypeId: pendingIntent.paymentType.id.toString(),
+              },
+            }));
           if (result.status === "paid" || result.status === "authorized") {
             stopped = true;
             clearInterval(timer);
