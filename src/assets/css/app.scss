@@ -959,14 +959,15 @@ table th {
   }
 }
 :root {
-  --btn-color: #14dcff; /* change this to any light color */
+  --btn-color: oklch(1 0.3074 153.83 / 50.74%);
+  --btn-color-2: oklch(1 0.3074 153.83 / 36.28%);
 }
 
-.pillow-btn {
+.btn-pillow {
   background: linear-gradient(
                   180deg,
                   color-mix(in srgb, var(--btn-color) 85%, white),
-                  color-mix(in srgb, var(--btn-color) 85%, black)
+                  color-mix(in srgb, var(--btn-color-2) 85%, black)
   );
   color: color-mix(in srgb, var(--btn-color) 10%, black);
   font-size: 16px;
@@ -977,10 +978,11 @@ table th {
   transition: all 0.1s linear;
 }
 
-.pillow-btn:active {
+.btn-pillow:active {
   box-shadow: inset 4px 4px 8px color-mix(in srgb, var(--btn-color) 60%, black),
   inset -4px -4px 8px color-mix(in srgb, var(--btn-color) 80%, white);
 }
+
 .kitchen-late-order{
   animation-name: blink;
   animation-timing-function: linear;

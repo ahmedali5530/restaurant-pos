@@ -17,7 +17,7 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
   },
   "Reports": {
     label: "Reports",
-    children: ['Reports', "Delivery Density", "Cash closing", "Sales dashboard", "Inventory dashboard", "Sales Hourly Labour", "Sales Hourly Labour Weekly", "Server Sales", "Sales Summary", 'Sales Summary 2', 'Sales Weekly', 'Tips', 'Advanced Sales', 'Discount', 'Tax', 'Coupon', 'Voids', 'Merge Orders', 'Split Orders', 'Order Life Cycle', 'Expense', 'Activity', 'Product Mix Weekly', 'Product Mix Summary', 'Products Hourly', 'Products Summary', 'Current Inventory', 'Detailed Inventory', 'Purchase', 'Purchase Return', 'Issue', 'Issue Return', 'Waste', 'Consumption', 'Sale vs Inventory'] as string[]
+    children: ['Reports', "Delivery Density", "Cash closing", "Sales dashboard", "Inventory dashboard", "Sales Hourly Labour", "Sales Hourly Labour Weekly", "Server Sales", "Sales Summary", 'Sales Summary 2', 'Sales Weekly', 'Tips', 'Advanced Sales', 'Discount', 'Tax', 'Coupon', 'Voids', 'Merge Orders', 'Split Orders', 'Order Life Cycle', 'Expense', 'Activity', 'Product Mix Weekly', 'Product Mix Summary', 'Products Hourly', 'Current Inventory', 'Detailed Inventory', 'Purchase', 'Purchase Return', 'Issue', 'Issue Return', 'Waste', 'Consumption', 'Sale vs Inventory', 'AI Report'] as string[]
   },
   "Closing": {
     label: "Closing",

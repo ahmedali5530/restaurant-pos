@@ -14,7 +14,6 @@ import {SalesSummaryFilter} from "@/components/reports/filters/sales.summary.fil
 import {ProductMixSummaryFilter} from "@/components/reports/filters/product.mix.summary.filter.tsx";
 import {ProductHourlyFilter} from "@/components/reports/filters/product.hourly.filter.tsx";
 import {ProductListFilter} from "@/components/reports/filters/product.list.filter.tsx";
-import {ProductSummaryFilter} from "@/components/reports/filters/product.summary.filter.tsx";
 import {VoidsFilter} from "@/components/reports/filters/voids.filter.tsx";
 import {TableSummaryFilter} from "@/components/reports/filters/table.summary.filter.tsx";
 import {SalesAdvancedFilter} from "@/components/reports/filters/sales.advanced.filter.tsx";
@@ -40,6 +39,7 @@ import {CouponFilter} from "@/components/reports/filters/coupon.filter.tsx";
 import {OrderLifecycleFilter} from "@/components/reports/filters/order.lifecycle.filter.tsx";
 import {ExpenseFilter} from "@/components/reports/filters/expense.filter.tsx";
 import {ActivityFilter} from "@/components/reports/filters/activity.filter.tsx";
+import {AiReportFilter} from "@/components/reports/filters/ai.report.filter.tsx";
 
 export const Reports = () => {
   const reportCategories = useMemo(() => {
@@ -47,8 +47,8 @@ export const Reports = () => {
       // "Audit": {
       //   "Audit": <AuditFilter />
       // },
-      "Cash closing": {
-        "Cash closing": <CashClosingFilter />
+      "AI": {
+        "AI Report": <AiReportFilter />,
       },
       "Dashboard": {
         "Sales dashboard": <SalesDashboardFilter />,
@@ -75,6 +75,9 @@ export const Reports = () => {
         "Split Orders": <SplitOrdersFilter />,
         "Order Life Cycle": <OrderLifecycleFilter />,
       },
+      "Cash closing": {
+        "Cash closing": <CashClosingFilter />
+      },
       "Operations": {
         "Expense": <ExpenseFilter />,
         "Activity": <ActivityFilter />,
@@ -84,7 +87,6 @@ export const Reports = () => {
         "Product Mix Summary": <ProductMixSummaryFilter />,
         "Products Hourly": <ProductHourlyFilter />,
         // "Products list": <ProductListFilter />,
-        "Products Summary": <ProductSummaryFilter />
       },
       "Inventory": {
         "Current Inventory": <CurrentInventoryFilter />,

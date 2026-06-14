@@ -1,14 +1,10 @@
-import {useEffect, useMemo, useRef, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
-import {Tables} from "@/api/db/tables.ts";
-import {Order} from "@/api/model/order.ts";
-import {OrderVoid} from "@/api/model/order_void.ts";
+import {parseDateRangeFromParams} from "@/api/reports/shared/filters.ts";
+import {aggregateSalesSummary, fetchOrderVoids, fetchPaidOrders, SALES_SUMMARY_FETCHES} from "@/api/reports/sales";
 import {withCurrency, formatNumber} from "@/lib/utils.ts";
-import {calculateOrderItemPrice} from "@/lib/cart.ts";
-import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
-import { toJsDate } from "@/lib/datetime.ts";
-import {DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
+import {DAY_PARTS, getDayPartTimeRangeLabel} from "@/utils/dayParts";
 
 type BreakdownItem = {
   label: string;
@@ -21,60 +17,11 @@ type SummaryRow = {
   breakdown?: BreakdownItem[];
 };
 
-const safeNumber = (value: unknown) => {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : 0;
-};
-
-const calculateVoidEntryAmount = (entry: OrderVoid): number => {
-  const quantity = safeNumber(entry?.quantity || 1);
-  const voidItems = (entry?.items ?? []).filter(Boolean);
-  return voidItems.reduce((sum, item) => {
-    const lineAmount = calculateOrderItemPrice({
-      ...(item ?? {}),
-      quantity,
-    } as any);
-    return sum + safeNumber(lineAmount);
-  }, 0);
-};
-
-const calculateOrderNetSales = (order: Order): number => {
-  const filteredItems = getOrderFilteredItems(order);
-  const grossTotal = filteredItems.reduce((sum, item) => sum + calculateOrderItemPrice(item), 0);
-  const lineDiscounts = filteredItems.reduce((sum, item) => sum + safeNumber(item?.discount), 0);
-  const orderDiscount = safeNumber(order.discount_amount);
-  const couponDiscount = safeNumber(order.coupon?.discount);
-  const extraDiscount = Math.max(0, orderDiscount - lineDiscounts);
-  const net = grossTotal - lineDiscounts - extraDiscount - couponDiscount;
-  return net > 0 ? net : 0;
-};
-
-const calculateOrderAmountDue = (order: Order): number => {
-  const filteredItems = getOrderFilteredItems(order);
-  const salePriceWithoutTax = filteredItems.reduce((sum, item) => sum + safeNumber(calculateOrderItemPrice(item)), 0);
-  const lineDiscounts = filteredItems.reduce((sum, item) => sum + safeNumber(item?.discount), 0);
-  const orderDiscount = safeNumber(order.discount_amount);
-  const couponDiscount = safeNumber(order.coupon?.discount);
-  const extraDiscount = Math.max(0, orderDiscount - lineDiscounts);
-  const totalDiscounts = lineDiscounts + extraDiscount;
-  const taxes = safeNumber(order.tax_amount);
-  const serviceCharges = safeNumber(order.service_charge_amount);
-  const tips = safeNumber(order.tip_amount);
-  return safeNumber(salePriceWithoutTax + taxes + serviceCharges + tips - totalDiscounts - couponDiscount);
-};
-
-const parseFilters = () => {
-  const params = new URLSearchParams(window.location.search);
-  const startDate = params.get("start") || params.get("start");
-  const endDate = params.get("end") || params.get("end");
-  return {startDate, endDate};
-};
+const parseFilters = () => parseDateRangeFromParams(new URLSearchParams(window.location.search));
 
 export const SalesSummaryReport = () => {
   const db = useDB();
-  const queryRef = useRef(db.query);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [orderVoids, setOrderVoids] = useState<OrderVoid[]>([]);
+  const [summary, setSummary] = useState<ReturnType<typeof aggregateSalesSummary> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -82,58 +29,17 @@ export const SalesSummaryReport = () => {
   const subtitle = filters.startDate && filters.endDate ? `${filters.startDate} to ${filters.endDate}` : undefined;
 
   useEffect(() => {
-    queryRef.current = db.query;
-  }, [db]);
-
-  useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const orderConditions = [`status = 'Paid'`];
-        const params: Record<string, string> = {};
+        const [orders, orderVoids] = await Promise.all([
+          fetchPaidOrders(db, {...filters, fetches: SALES_SUMMARY_FETCHES}),
+          fetchOrderVoids(db, filters),
+        ]);
 
-        if (filters.startDate) {
-          orderConditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          params.startDate = filters.startDate;
-        }
-
-        if (filters.endDate) {
-          orderConditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-          params.endDate = filters.endDate;
-        }
-
-        const ordersQuery = `
-          SELECT * FROM ${Tables.orders}
-          WHERE ${orderConditions.join(" AND ")}
-          FETCH payments, payments.payment_type, discount, order_type, items, items.item, coupon, coupon.coupon
-        `;
-
-        const ordersResult: any = await queryRef.current(ordersQuery, params);
-        setOrders((ordersResult?.[0] ?? []) as Order[]);
-
-        const voidConditions: string[] = [];
-        const voidParams: Record<string, string> = {};
-
-        if (filters.startDate) {
-          voidConditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          voidParams.startDate = filters.startDate;
-        }
-
-        if (filters.endDate) {
-          voidConditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-          voidParams.endDate = filters.endDate;
-        }
-
-        const voidsQuery = `
-          SELECT * FROM ${Tables.order_voids}
-          ${voidConditions.length ? `WHERE ${voidConditions.join(" AND ")}` : ""}
-          FETCH items
-        `;
-
-        const voidsResult: any = await queryRef.current(voidsQuery, voidParams);
-        setOrderVoids((voidsResult?.[0] ?? []) as OrderVoid[]);
+        setSummary(aggregateSalesSummary(orders, orderVoids));
       } catch (err) {
         console.error("Failed to load sales summary report", err);
         setError(err instanceof Error ? err.message : "Unable to load report");
@@ -142,117 +48,43 @@ export const SalesSummaryReport = () => {
       }
     };
 
-    fetchData();
+    void fetchData();
   }, [filters.startDate, filters.endDate]);
 
-  const totalNetSales = useMemo(() => {
-    return orders.reduce((sum, order) => sum + calculateOrderNetSales(order), 0);
-  }, [orders]);
-
-  const paymentSummary = useMemo(() => {
-    return orders.reduce(
-      (acc, order) => {
-        acc.amountDue += calculateOrderAmountDue(order);
-        const paymentTotals = getOrderPaymentTotals(order);
-        acc.amountCollected += paymentTotals.amountCollected;
-        acc.cashPayments += paymentTotals.cashAmount;
-        acc.nonCashPayments += paymentTotals.nonCashAmount;
-        Object.entries(paymentTotals.nonCashBreakdown).forEach(([typeName, amount]) => {
-          acc.nonCashBreakdown[typeName] = (acc.nonCashBreakdown[typeName] ?? 0) + amount;
-        });
-        return acc;
-      },
-      {
-        amountDue: 0,
-        amountCollected: 0,
-        cashPayments: 0,
-        nonCashPayments: 0,
-        nonCashBreakdown: {} as Record<string, number>,
-      },
-    );
-  }, [orders]);
-
-  const roundingBenefit = paymentSummary.amountDue - paymentSummary.amountCollected;
-
-  const serviceCharges = useMemo(
-    () => orders.reduce((sum, order) => sum + safeNumber(order.service_charge_amount), 0),
-    [orders],
-  );
-
-  const taxes = useMemo(() => orders.reduce((sum, order) => sum + safeNumber(order.tax_amount), 0), [orders]);
-
-  const totalDiscounts = useMemo(
-    () => orders.reduce((sum, order) => sum + safeNumber(order.discount_amount), 0),
-    [orders],
-  );
-  const totalCoupons = useMemo(
-    () => orders.reduce((sum, order) => sum + safeNumber(order.coupon?.discount), 0),
-    [orders],
-  );
-
-  const dayPartTotals = useMemo(() => {
-    const base = DAY_PARTS.reduce(
-      (acc, part) => ({
-        ...acc,
-        [part.label]: {checks: 0, guests: 0, sales: 0},
-      }),
-      {} as Record<DayPartLabel, {checks: number; guests: number; sales: number}>,
-    );
-
-    orders.forEach(order => {
-      const label = getDayPartLabel(toJsDate(order.created_at));
-      base[label].checks += 1;
-      base[label].guests += safeNumber(order.covers);
-      base[label].sales += calculateOrderNetSales(order);
-    });
-
-    return base;
-  }, [orders]);
-
-  const orderTypeBreakdown = useMemo(() => {
-    const map = new Map<string, number>();
-    orders.forEach(order => {
-      const key = order.order_type?.name || (typeof order.order_type === "string" ? order.order_type : "Unknown");
-      map.set(key, (map.get(key) ?? 0) + calculateOrderNetSales(order));
-    });
-    return Array.from(map.entries())
-      .map(([label, value]) => ({label, value}))
-      .sort((a, b) => b.value - a.value);
-  }, [orders]);
-
-  const totalVoids = useMemo(() => {
-    return orderVoids.reduce((sum, entry) => {
-      return sum + calculateVoidEntryAmount(entry);
-    }, 0);
-  }, [orderVoids]);
-
-  const discountRows = useMemo(() => {
-    const map = new Map<string, {quantity: number; amount: number}>();
-    orders.forEach(order => {
-      const discountName =
-        order.discount?.name ||
-        (typeof order.discount === "string" ? order.discount : null) ||
-        (safeNumber(order.discount_amount) > 0 ? "Custom discount" : null);
-
-      if (!discountName) {
-        return;
-      }
-
-      const amount = safeNumber(order.discount_amount);
-      const current = map.get(discountName) ?? {quantity: 0, amount: 0};
-      current.quantity += 1;
-      current.amount += amount;
-      map.set(discountName, current);
-    });
-
-    return Array.from(map.entries())
-      .map(([type, stats]) => ({
-        type,
-        quantity: stats.quantity,
-        amount: stats.amount,
-      }))
-      .sort((a, b) => b.amount - a.amount);
-  }, [orders]);
+  const {
+    totalNetSales,
+    paymentSummary,
+    roundingBenefit,
+    serviceCharges,
+    taxes,
+    totalDiscounts,
+    totalCoupons,
+    dayPartTotals,
+    orderTypeBreakdown,
+    totalVoids,
+    discountRows,
+  } = summary ?? {
+    totalNetSales: 0,
+    paymentSummary: {
+      amountDue: 0,
+      amountCollected: 0,
+      cashPayments: 0,
+      nonCashPayments: 0,
+      nonCashBreakdown: {},
+    },
+    roundingBenefit: 0,
+    serviceCharges: 0,
+    taxes: 0,
+    totalDiscounts: 0,
+    totalCoupons: 0,
+    dayPartTotals: DAY_PARTS.reduce(
+      (acc, part) => ({...acc, [part.label]: {checks: 0, guests: 0, sales: 0}}),
+      {} as ReturnType<typeof aggregateSalesSummary>["dayPartTotals"],
+    ),
+    orderTypeBreakdown: [],
+    totalVoids: 0,
+    discountRows: [],
+  };
 
   const summaryRows: SummaryRow[] = useMemo(() => {
     const checkBreakdown = DAY_PARTS.map(part => ({

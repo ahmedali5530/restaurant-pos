@@ -2,7 +2,9 @@ import {useEffect, useMemo, useRef, useState} from "react";
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {Order, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
+import {Order, OrderStatus} from "@/api/model/order.ts";
+import {parseDateRangeFromParams} from "@/api/reports/shared/filters.ts";
+import {aggregateTopSellingDishes, fetchDashboardOrders, getOrderFigures} from "@/api/reports/sales";
 import {Tracking} from "@/api/model/tracking.ts";
 import {withCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
@@ -102,49 +104,6 @@ const COLORS = [
 const safeNumber = (value: unknown): number => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
-};
-
-const getOrderFigures = (order: Order) => {
-  const filteredItems = getOrderFilteredItems(order) ?? [];
-  const exclusiveSales = filteredItems.reduce((sum, item) => sum + safeNumber(calculateOrderItemPrice(item)), 0);
-  const extras = (order.extras ?? []).reduce((sum, extra) => sum + safeNumber(extra.value), 0);
-  const grossSales = safeNumber(exclusiveSales + extras);
-
-  const lineDiscounts = safeNumber(order.items?.reduce((sum, item) => sum + safeNumber(item?.discount), 0) ?? 0);
-  const orderDiscount = safeNumber(order.discount_amount);
-  const subtotalDiscount = Math.max(0, orderDiscount - lineDiscounts);
-  const couponDiscount = safeNumber(order.coupon?.discount);
-  const discounts = safeNumber(lineDiscounts + subtotalDiscount + couponDiscount);
-  const netSales = safeNumber(grossSales - discounts);
-
-  const serviceCharge = safeNumber(order.service_charge_amount);
-  const tax = safeNumber(order.tax_amount);
-  const tips = safeNumber(order.tip_amount);
-  const totalRevenue = safeNumber(netSales + serviceCharge + tax);
-  const grandTotal = safeNumber(totalRevenue + tips);
-
-  const allItems = order.items ?? [];
-  const voidedItems = allItems.filter(item => !filteredItems.some(filtered => filtered.id === item.id));
-  const voidAmount = voidedItems.reduce((sum, item) => sum + safeNumber(calculateOrderItemPrice(item)), 0);
-
-  const hasRefundPayment = (order.payments ?? []).some(payment => safeNumber(payment.amount) < 0);
-  const isRefundedOrder = order.status === OrderStatus.Refunded || order.status === OrderStatus.Cancelled || hasRefundPayment;
-
-  return {
-    filteredItems,
-    exclusiveSales,
-    grossSales,
-    discounts,
-    netSales,
-    serviceCharge,
-    tax,
-    tips,
-    totalRevenue,
-    grandTotal,
-    couponDiscount,
-    voidAmount,
-    isRefundedOrder,
-  };
 };
 
 // ==================== Widget Components ====================
@@ -753,16 +712,18 @@ const ActivitySection = () => {
           <table className="table table-xs">
             {trackingRows.map((row) => (
               <tr key={String(row.id)}>
-                <td className="text-sm text-neutral-900">{toLuxonDateTime(row.created_at as any).toFormat("yyyy-LL-dd HH:mm:ss")}</td>
-                <td className="text-sm text-neutral-700">{String(row.user || "-")}</td>
-                <td className="text-sm text-neutral-700">{String(row.user_role || "-")}</td>
-                <td className="text-sm text-neutral-700">{row.module || "-"}</td>
-                <td className="text-sm text-neutral-700">{row.auth_method || "-"}</td>
-                <td className="text-sm text-neutral-700">{displayValue(row.manager)}</td>
-                <td className="text-sm text-neutral-700">{displayValue(row.manager_role)}</td>
+                <td className="text-sm text-neutral-900">{toLuxonDateTime(row.created_at as any).toFormat(import.meta.env.VITE_DATE_FORMAT)}</td>
                 <td className="text-sm text-neutral-700">
-                  <div>{detectBrowser(row.user_agent)} / {detectOS(row.user_agent)}</div>
-                  <div className="sm text-neutral-500">{row.resolution || "-"}</div>
+                  <span className="tag">{String(row.user || "-")}</span>
+                </td>
+                {/*<td className="text-sm text-neutral-700">{String(row.user_role || "-")}</td>*/}
+                <td className="text-sm text-neutral-700">{row.module || "-"}</td>
+                {/*<td className="text-sm text-neutral-700">{row.auth_method || "-"}</td>*/}
+                <td className="text-sm text-neutral-700">{displayValue(row.manager)}</td>
+                {/*<td className="text-sm text-neutral-700">{displayValue(row.manager_role)}</td>*/}
+                <td className="text-sm text-neutral-700">
+                  <div>{detectBrowser(row.user_agent)}</div>
+                  {/*<div className="sm text-neutral-500">{row.resolution || "-"}</div>*/}
                 </td>
               </tr>
             ))}
@@ -1244,12 +1205,9 @@ export const SalesDashboardReport = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Parse date range from query strings - same pattern as sales.summary.report.tsx
   const filters = useMemo(() => {
-    const params = new URLSearchParams(window.location.search);
-    const startDate = params.get('start') || params.get('start') || null;
-    const endDate = params.get('end') || params.get('end') || null;
-    return {startDate, endDate};
+    const {startDate, endDate} = parseDateRangeFromParams(new URLSearchParams(window.location.search));
+    return {startDate: startDate ?? null, endDate: endDate ?? null};
   }, []);
 
   useEffect(() => {
@@ -1262,29 +1220,11 @@ export const SalesDashboardReport = () => {
         setLoading(true);
         setError(null);
 
-        const conditions: string[] = [];
-        const params: Record<string, string> = {};
-
-        if (filters.startDate) {
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          params.startDate = filters.startDate;
-        }
-
-        if (filters.endDate) {
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-          params.endDate = filters.endDate;
-        }
-
-        const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-
-        const ordersQuery = `
-          SELECT * FROM ${Tables.orders}
-          ${whereClause}
-          FETCH ${ORDER_FETCHES.join(', ')}
-        `;
-
-        const ordersResult: any = await queryRef.current(ordersQuery, params);
-        setOrders((ordersResult?.[0] ?? []) as Order[]);
+        const fetchedOrders = await fetchDashboardOrders(db, {
+          startDate: filters.startDate ?? undefined,
+          endDate: filters.endDate ?? undefined,
+        });
+        setOrders(fetchedOrders);
 
         const parseFilterDate = (value: string | null, fallback: DateTime) => {
           if (!value) return fallback.startOf('day');
@@ -1487,23 +1427,13 @@ export const SalesDashboardReport = () => {
       .filter(part => part.orders > 0);
   }, [paidOrders]);
 
-  const topItems = useMemo((): TopItem[] => {
-    const map = new Map<string, {quantity: number; revenue: number}>();
-
-    paidOrders.forEach(order => {
-      getOrderFilteredItems(order).forEach(item => {
-        const name = item.item?.name || 'Unknown';
-        const current = map.get(name) || {quantity: 0, revenue: 0};
-        current.quantity += safeNumber(item.quantity ?? 1);
-        current.revenue += calculateOrderItemPrice(item);
-        map.set(name, current);
-      });
-    });
-
-    return Array.from(map.entries())
-      .map(([name, data]) => ({name, ...data}))
-      .sort((a, b) => b.revenue - a.revenue);
-  }, [paidOrders]);
+  const topItems = useMemo((): TopItem[] => (
+    aggregateTopSellingDishes(paidOrders).map(item => ({
+      name: item.name,
+      quantity: item.quantity,
+      revenue: item.revenue,
+    }))
+  ), [paidOrders]);
 
   const categorySales = useMemo((): CategorySales[] => {
     const map = new Map<string, number>();

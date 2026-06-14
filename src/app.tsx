@@ -35,6 +35,7 @@ import {
   ORDERS,
   REPORTS,
   REPORTS_ACTIVITY,
+  REPORTS_AI,
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
   REPORTS_CONSUMPTION,
@@ -53,7 +54,6 @@ import {
   REPORTS_PRODUCT_LIST,
   REPORTS_PRODUCT_MIX_SUMMARY,
   REPORTS_PRODUCT_MIX_WEEKLY,
-  REPORTS_PRODUCT_SUMMARY,
   REPORTS_PURCHASE,
   REPORTS_PURCHASE_RETURN,
   REPORTS_SALE_VS_CONSUMPTION,
@@ -85,7 +85,6 @@ import {DiscountsReport} from "@/screens/reports/discounts.report.tsx";
 import {ProductHourlyReport} from "@/screens/reports/product.hourly.report.tsx";
 import {ProductListReport} from "@/screens/reports/product.list.report.tsx";
 import {ProductMixSummaryReport} from "@/screens/reports/product.mix.summary.report.tsx";
-import {ProductSummaryReport} from "@/screens/reports/product.summary.report.tsx";
 import {SalesAdvancedReport} from "@/screens/reports/sales.advanced.report.tsx";
 import {SalesHourlyLabourReport} from "@/screens/reports/sales.hourly.labour.report.tsx";
 import {SalesHourlyLabourWeeklyReport} from "@/screens/reports/sales.hourly.labour.weekly.report.tsx";
@@ -119,6 +118,7 @@ import {SplitOrdersReport} from "@/screens/reports/split.orders.report.tsx";
 import {OrderLifecycleReport} from "@/screens/reports/order.lifecycle.report.tsx";
 import {ExpenseReport} from "@/screens/reports/expense.report.tsx";
 import {ActivityReport} from "@/screens/reports/activity.report.tsx";
+import {AiReport} from "@/screens/reports/ai.report.tsx";
 
 
 // react query client wrapper
@@ -189,11 +189,11 @@ function App() {
                           <Route path={REPORTS_ORDER_LIFECYCLE} element={<OrderLifecycleReport/>}/>
                           <Route path={REPORTS_EXPENSE} element={<ExpenseReport/>}/>
                           <Route path={REPORTS_ACTIVITY} element={<ActivityReport/>}/>
+                          <Route path={REPORTS_AI} element={<AiReport/>}/>
                           <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
                           <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
                           <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>
                           <Route path={REPORTS_PRODUCT_MIX_WEEKLY} element={<ProductMixWeeklyReport/>}/>
-                          <Route path={REPORTS_PRODUCT_SUMMARY} element={<ProductSummaryReport/>}/>
                           <Route path={REPORTS_SALES_ADVANCED} element={<SalesAdvancedReport/>}/>
                           <Route path={REPORTS_DELIVERY_DENSITY} element={<DeliveryDensityReport/>}/>
                           <Route path={REPORTS_SALES_HOURLY_LABOUR} element={<SalesHourlyLabourReport/>}/>
