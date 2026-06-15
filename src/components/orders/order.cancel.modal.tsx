@@ -17,6 +17,7 @@ import ScrollContainer from "react-indiana-drag-scroll";
 import { nowSurrealDateTime } from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
+import {cancelItemStages} from "@/lib/kitchen/workflow.service.ts";
 
 interface OrderCancelModalProps {
   order: OrderModel
@@ -153,6 +154,9 @@ export const OrderCancelModal = ({
 
         if (qty >= item.quantity) {
           await db.merge(itemId, {deleted_at: now});
+          // Cancel any pending/waiting kitchen stages so the item stops
+          // surfacing downstream.
+          await cancelItemStages(db, key);
         } else {
           await db.merge(itemId, {quantity: item.quantity - qty});
         }

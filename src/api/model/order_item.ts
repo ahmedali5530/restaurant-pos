@@ -6,6 +6,7 @@ import {User} from "@/api/model/user.ts";
 import {Category} from "@/api/model/category.ts";
 import { DateTime } from "surrealdb";
 import {Order} from "@/api/model/order.ts";
+import {Workflow} from "@/api/model/workflow.ts";
 
 export interface OrderItem extends ID {
   comments?: string
@@ -28,6 +29,10 @@ export interface OrderItem extends ID {
   is_addition?: boolean
   is_refunded?: boolean
   created_by?: User
+
+  workflow?: Workflow
+  current_sequence?: number
+  workflow_status?: string
 
   order?: Order
 }

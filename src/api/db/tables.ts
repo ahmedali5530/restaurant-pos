@@ -8,6 +8,8 @@ export enum Tables {
   floors = 'floor',
   tables = 'floor_table',
   kitchens = 'kitchen',
+  workflows = 'workflow',
+  workflow_stages = 'workflow_stage',
   dishes = 'menu_item',
   dishes_recipes = 'menu_item_recipe',
   modifier_groups = 'modifier_group',

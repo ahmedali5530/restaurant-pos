@@ -18,6 +18,7 @@ import {assertOrderTakingAllowed} from "@/lib/closing.guard.ts";
 import {toast} from "sonner";
 import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
+import {createStageRows} from "@/lib/kitchen/workflow.service.ts";
 
 export const Payment = () => {
   const db = useDB();
@@ -93,30 +94,13 @@ export const Payment = () => {
         const record = await db.create(Tables.order_items, itemData);
         items.push(record[0].id);
 
-        // add in kitchens
-        const [kitchen]: any = await db.query(`SELECT *
-                                               from ${Tables.kitchens}
-                                               where items ?= ${item.dish.id.toString()}
-                                                 and deleted_at = none`);
-        if (kitchen.length > 0) {
-
-          for (const k of kitchen) {
-            await db.create(Tables.order_items_kitchen, {
-              created_at: date,
-              kitchen: new StringRecordId(k.id.toString()),
-              order_item: new StringRecordId(record[0].id.toString())
-            });
-
-            if (!kitchenItems[k.id.toString()]) {
-              kitchenItems[k.id.toString()] = [];
-            }
-
-            kitchenItems[k.id.toString()].push({
-              ...record[0],
-              item: item.dish,
-            });
-          }
-        }
+        // Route the item through its production workflow (or legacy parallel kitchens).
+        await createStageRows(db, {
+          orderItem: record[0],
+          dish: item.dish,
+          fireDate: date,
+          kitchenItems,
+        });
       }
     }
 

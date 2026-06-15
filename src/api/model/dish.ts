@@ -5,6 +5,7 @@ import { DishModifierGroup } from "@/api/model/dish_modifier_group.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import { DateTime } from "surrealdb";
 import {Document} from '@/api/model/document.ts'
+import {Workflow} from "@/api/model/workflow.ts";
 
 export interface Dish extends ID, Name, Priority {
   allow_half?: boolean
@@ -22,6 +23,9 @@ export interface Dish extends ID, Name, Priority {
   tax?: Tax
   menu_name?: string
 
+  workflow?: Workflow
+  stage_overrides?: Record<string, string>
+
   deleted_at?: DateTime
   created_at?: DateTime
 }
@@ -35,5 +39,5 @@ export interface MenuItemRecipe extends ID {
 }
 
 export const DISH_FETCHES = [
-  'categories', 'tax', 'items'
+  'categories', 'tax', 'items', 'workflow', 'workflow.stages', 'workflow.stages.kitchen'
 ]

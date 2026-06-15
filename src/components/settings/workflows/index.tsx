@@ -6,31 +6,24 @@ import { Button } from "@/components/common/input/button.tsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPencil, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { TableComponent } from "@/components/common/table/table.tsx";
-import { Kitchen } from "@/api/model/kitchen.ts";
-import { KitchenForm } from "@/components/settings/kitchens/kitchen.form.tsx";
-import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
-import {useDB} from "@/api/db/db.ts";
-import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
+import { Workflow } from "@/api/model/workflow.ts";
+import { WorkflowForm } from "@/components/settings/workflows/workflow.form.tsx";
+import { DeleteConfirm } from "@/components/common/table/delete.confirm.tsx";
+import { useDB } from "@/api/db/db.ts";
+import { executeSettingsDelete } from "@/lib/settings-delete.service.ts";
 
-export const AdminKitchens = () => {
-  const loadHook = useApi<SettingsData<Kitchen>>(Tables.kitchens, ['deleted_at = none'], ['priority asc'], 0, 10, ['items', 'printers']);
+export const AdminWorkflows = () => {
+  const loadHook = useApi<SettingsData<Workflow>>(Tables.workflows, ['deleted_at = none'], ['name asc'], 0, 10, []);
   const db = useDB();
 
-  const [data, setData] = useState<Kitchen>();
+  const [data, setData] = useState<Workflow>();
   const [formModal, setFormModal] = useState(false);
 
-  const columnHelper = createColumnHelper<Kitchen>();
+  const columnHelper = createColumnHelper<Workflow>();
 
   const columns: any = [
     columnHelper.accessor("name", {
       header: 'Name'
-    }),
-    columnHelper.accessor("printers", {
-      header: 'Printers',
-      cell: info => info.getValue()?.map(item => <span className="tag" key={item.id}>{item.name}</span>)
-    }),
-    columnHelper.accessor("priority", {
-      header: 'Priority'
     }),
     columnHelper.accessor("id", {
       id: "actions",
@@ -49,7 +42,7 @@ export const AdminKitchens = () => {
             ><FontAwesomeIcon icon={faPencil}/></Button>
             <div className="separator"></div>
             <DeleteConfirm
-              message={`Delete kitchen ${info.row.original.name}`}
+              message={`Delete workflow ${info.row.original.name}`}
               onConfirm={() => deleteItem(info.row.original.id)}
             />
           </div>
@@ -62,13 +55,15 @@ export const AdminKitchens = () => {
     await executeSettingsDelete({
       db,
       id,
-      entityLabel: 'Kitchen',
+      entityLabel: 'Workflow',
       usageChecks: [
         {
-          query: `SELECT count() AS count FROM ${Tables.order_items_kitchen} WHERE kitchen = $idRecord GROUP ALL`
-        },
+          query: `SELECT count() AS count FROM ${Tables.dishes} WHERE workflow = $idRecord AND deleted_at = none GROUP ALL`
+        }
+      ],
+      cleanupQueries: [
         {
-          query: `SELECT count() AS count FROM ${Tables.workflow_stages} WHERE kitchen = $idRecord GROUP ALL`
+          query: `DELETE ${Tables.workflow_stages} WHERE workflow = $idRecord`
         }
       ],
       onAfter: async () => {
@@ -86,12 +81,12 @@ export const AdminKitchens = () => {
         buttons={[
           <Button variant="primary" onClick={() => {
             setFormModal(true);
-          }} icon={faPlus}> Kitchen</Button>
+          }} icon={faPlus}> Workflow</Button>
         ]}
       />
 
       {formModal && (
-        <KitchenForm
+        <WorkflowForm
           open={formModal}
           data={data}
           onClose={() => {
@@ -101,7 +96,6 @@ export const AdminKitchens = () => {
           }}
         />
       )}
-
     </>
   )
 }

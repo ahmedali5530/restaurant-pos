@@ -16,18 +16,20 @@ import {cn, formatNumber, safeNumber, toRecordId} from "@/lib/utils.ts";
 import {Customers} from "@/components/customer/customer.tsx";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {LiveSubscription} from "surrealdb";
-import { nowSurrealDateTime, toLuxonDateTime, toSurrealDateTime } from "@/lib/datetime.ts";
+import { toLuxonDateTime, toSurrealDateTime } from "@/lib/datetime.ts";
 import { getInvoiceNumber } from "@/lib/order.ts";
 import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
 import {toast} from "sonner";
 import {useAtom} from "jotai";
-import {closingEnforcementAtom} from "@/store/jotai.ts";
+import {appPage, closingEnforcementAtom} from "@/store/jotai.ts";
+import {completeStage, recallStage} from "@/lib/kitchen/workflow.service.ts";
 
 
 
 export const KitchenScreen = () => {
   const db = useDB();
   const [enforcement] = useAtom(closingEnforcementAtom);
+  const [page] = useAtom(appPage);
   const mutationsBlocked = enforcement.orderMutationsBlocked;
 
   const [kitchen, setKitchen] = useState<Kitchen>();
@@ -36,10 +38,10 @@ export const KitchenScreen = () => {
   } = useApi<SettingsData<Kitchen>>(Tables.kitchens, ['deleted_at = none'], ['priority asc'], 0, 10, ['items', 'printers']);
   const [allOrders, setOrders] = useState<KitchenOrderModel[]>([]);
   const orders = useMemo(() => {
+    // Items already completed by the current user are excluded at query time;
+    // here we just drop groups that have no remaining non-deleted items.
     return allOrders.filter(item => {
-      return item.items.filter(iitem => {
-        return !!iitem.completed_at || !!iitem.order_item.deleted_at
-      }).length != item.items.length
+      return item.items.some(iitem => !iitem.order_item?.deleted_at);
     })
   }, [allOrders]);
   const [avgTime, setAvgTime] = useState('-');
@@ -71,27 +73,32 @@ export const KitchenScreen = () => {
   }, []);
 
   const loadOrders = useCallback(async (kitchenId: string) => {
+    const currentUser = page?.user?.id;
+    const userClause = currentUser ? `and completed_by CONTAINSNOT $currentUser` : '';
+
     const [kitchenOrderItemsRecord]: any = await db.query(`
       select *,
              time::format(created_at, '%F %T') as batch_created_at
       from ${Tables.order_items_kitchen}
       where 
---           order_item.order.status = 'In Progress'
---         and 
           kitchen = $kitchen
+        and activated_at != None
+        and status in ['pending', 'in_progress', 'completed']
+        ${userClause}
         and created_at >= $startDate
         and order_item.is_suspended != true
       order by created_at desc
       fetch order_item, order_item.item, order_item.order, order_item.order.table, order_item.order.user, order_item.order.order_type
     `, {
       kitchen: toRecordId(kitchenId),
+      currentUser: toRecordId(currentUser),
       startDate: toSurrealDateTime(DateTime.now().startOf('day'))
     });
 
     setOrders(groupKitchenOrderItems(kitchenOrderItemsRecord ?? []));
 
     await calculateAverageTime(kitchenId);
-  }, [groupKitchenOrderItems]);
+  }, [groupKitchenOrderItems, page?.user?.id]);
 
   const loadCompletedOrders = useCallback(async (kitchenId: string) => {
     setLoadingCompletedOrders(true);
@@ -103,13 +110,14 @@ export const KitchenScreen = () => {
       from ${Tables.order_items_kitchen}
       where
           kitchen = $kitchen
-        and completed_at != None
+        and completed_by CONTAINS $currentUser
         and created_at >= $startDate
         and order_item.is_suspended != true
       order by completed_at desc
       fetch order_item, order_item.item, order_item.order, order_item.order.table, order_item.order.user, order_item.order.order_type
     `, {
         kitchen: toRecordId(kitchenId),
+        currentUser: toRecordId(page?.user?.id),
         startDate: toSurrealDateTime(DateTime.now().startOf('day'))
       });
 
@@ -118,7 +126,7 @@ export const KitchenScreen = () => {
     } finally {
       setLoadingCompletedOrders(false);
     }
-  }, [groupKitchenOrderItems]);
+  }, [groupKitchenOrderItems, page?.user?.id]);
 
   const openCompletedOrdersModal = async () => {
     if(!kitchen?.id){
@@ -134,7 +142,7 @@ export const KitchenScreen = () => {
       return;
     }
 
-    const recallableItems = order.items.filter(item => !!item.completed_at);
+    const recallableItems = order.items;
     if(recallableItems.length === 0){
       return;
     }
@@ -146,9 +154,7 @@ export const KitchenScreen = () => {
       await assertOrderMutationsAllowed(db);
 
       await Promise.all(recallableItems.map((item) => {
-        return db.query(`update $item set completed_at = None`, {
-          item: toRecordId(item.id)
-        });
+        return recallStage(db, item.id.toString(), page?.user?.id);
       }));
 
       await loadOrders(kitchen.id);
@@ -215,13 +221,20 @@ export const KitchenScreen = () => {
 
   const completeAllOrders = async () => {
     if(confirm('Complete all open orders in this kitchen?')) {
-      await db.query(`update ${Tables.order_items_kitchen}
-                      set completed_at = $time
-                      where kitchen = $kitchen
-                        and completed_at = None`, {
-        kitchen: kitchen.id,
-        time: nowSurrealDateTime()
-      });
+      const userId = page?.user?.id;
+      // Complete each currently-open stage row so multi-stage items advance
+      // to their next kitchen instead of just being closed.
+      for (const group of orders) {
+        for (const item of group.items) {
+          if (!item.order_item?.deleted_at) {
+            await completeStage(db, item.id.toString(), userId);
+          }
+        }
+      }
+
+      if (kitchen?.id) {
+        await loadOrders(kitchen.id);
+      }
     }
   }
 

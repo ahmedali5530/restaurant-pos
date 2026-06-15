@@ -6,7 +6,10 @@ import { Button } from "@/components/common/input/button.tsx";
 import { useDB } from "@/api/db/db.ts";
 import { OrderItemName } from "@/components/common/order/order.item.tsx";
 import {getInvoiceNumber} from "@/lib/order.ts";
-import { nowSurrealDateTime, toLuxonDateTime } from "@/lib/datetime.ts";
+import { toLuxonDateTime } from "@/lib/datetime.ts";
+import { completeStage } from "@/lib/kitchen/workflow.service.ts";
+import { useAtom } from "jotai";
+import { appPage } from "@/store/jotai.ts";
 
 interface Props {
   order: KitchenOrderModel
@@ -16,21 +19,20 @@ export const KitchenOrder = ({
   order
 }: Props) => {
   const db = useDB();
+  const [page] = useAtom(appPage);
 
-  const diff = DateTime.now().diff(toLuxonDateTime(order.items[0]?.created_at)).as('minutes');
+  const stageStart = order.items[0]?.activated_at ?? order.items[0]?.created_at;
+  const diff = DateTime.now().diff(toLuxonDateTime(stageStart)).as('minutes');
 
   const ready = async () => {
     for(const item of order.items){
-      await db.merge(item.id, {
-        completed_at: nowSurrealDateTime()
-      });
+      if (item.order_item?.deleted_at) continue;
+      await completeStage(db, item.id.toString(), page?.user?.id);
     }
   }
 
   const singleReady = async (item: string) => {
-    await db.merge(item, {
-      completed_at: nowSurrealDateTime()
-    });
+    await completeStage(db, item, page?.user?.id);
   }
 
   const isAddon = () => {
@@ -58,7 +60,7 @@ export const KitchenOrder = ({
           <div className="flex flex-col items-start gap-1">
             <span className="font-bold text-xl">{order.order?.order_type?.name} / {getInvoiceNumber(order.order)}</span>
             <span className="text-xl font-bold">
-              <Countdown time={order.items[0].created_at} />
+              <Countdown time={stageStart} />
             </span>
           </div>
         </div>
@@ -74,13 +76,19 @@ export const KitchenOrder = ({
             className={
               cn(
                 "flex flex-col",
-                item.completed_at ? 'text-success-700 line-through' : '',
                 item.order_item?.deleted_at ? 'text-danger-700 line-through' : ''
               )
             }
             key={item.id}
           >
-            <OrderItemName item={item.order_item} showQuantity />
+            <div className="flex items-center gap-2">
+              <OrderItemName item={item.order_item} showQuantity />
+              {item.stage_name && (
+                <span className="text-xs font-semibold uppercase bg-primary-100 text-primary-700 rounded px-2 py-0.5">
+                  {item.stage_name}
+                </span>
+              )}
+            </div>
           </div>
         ))}
       </div>

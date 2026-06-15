@@ -12,6 +12,7 @@ import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Category} from "@/api/model/category.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {ModifierGroup} from "@/api/model/modifier_group.ts";
+import {Workflow} from "@/api/model/workflow.ts";
 import {Switch} from "@/components/common/input/switch.tsx";
 import _ from "lodash";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -36,6 +37,11 @@ const numberField = yup
 const validationSchema = yup.object({
   price: numberField.min(0, "This should be greater than or equal to 0").optional(),
   cost: numberField.min(0, "This should be greater than or equal to 0").optional(),
+  replace_workflow: yup.boolean().default(false),
+  workflow: yup.object({
+    label: yup.string(),
+    value: yup.string()
+  }).nullable().default(null),
   replace_categories: yup.boolean().default(false),
   categories: yup.array(yup.object({
     label: yup.string().required(),
@@ -81,6 +87,8 @@ export const DishBulkForm = ({
   const defaultValues = {
     price: undefined,
     cost: undefined,
+    replace_workflow: false,
+    workflow: null,
     replace_categories: false,
     categories: [],
     replace_modifier_groups: false,
@@ -131,11 +139,20 @@ export const DishBulkForm = ({
     enabled: false
   });
 
+  const {
+    data: workflows,
+    fetchData: fetchWorkflows,
+    isFetching: loadingWorkflows
+  } = useApi<SettingsData<Workflow>>(Tables.workflows, ["deleted_at = none"], ["name asc"], 0, 99999, [], {
+    enabled: false
+  });
+
   useEffect(() => {
     if (open) {
       fetchCategories();
       fetchModifierGroups();
       fetchInventoryItems();
+      fetchWorkflows();
       reset(defaultValues);
     }
   }, [open]);
@@ -158,6 +175,7 @@ export const DishBulkForm = ({
     control
   });
 
+  const replaceWorkflow = useWatch({control, name: "replace_workflow", defaultValue: false});
   const replaceCategories = useWatch({control, name: "replace_categories", defaultValue: false});
   const replaceModifierGroups = useWatch({control, name: "replace_modifier_groups", defaultValue: false});
   const replaceRecipes = useWatch({control, name: "replace_recipes", defaultValue: false});
@@ -198,6 +216,11 @@ export const DishBulkForm = ({
     }
     if (values.replace_categories) {
       payload.categories = values.categories.map((category) => new StringRecordId(category.value.toString()));
+    }
+    if (values.replace_workflow) {
+      payload.workflow = values.workflow?.value ? new StringRecordId(values.workflow.value.toString()) : null;
+      // Per-stage overrides are product/stage specific, so reset them on bulk assignment.
+      payload.stage_overrides = null;
     }
 
     try {
@@ -310,6 +333,43 @@ export const DishBulkForm = ({
                 )}
               />
             </div>
+          </div>
+
+          <div className="flex mb-3">
+            <fieldset className="border-2 border-neutral-900 rounded-lg p-3 flex-1">
+              <legend className="px-2">Production workflow</legend>
+              <div className="mb-3">
+                <Controller
+                  name="replace_workflow"
+                  control={control}
+                  render={({field}) => (
+                    <Switch checked={field.value} onChange={field.onChange}>
+                      Set workflow for selected dishes
+                    </Switch>
+                  )}
+                />
+              </div>
+              <div className="flex-1">
+                <label>Workflow (clear the selection to remove the workflow / use legacy routing)</label>
+                <Controller
+                  name="workflow"
+                  control={control}
+                  render={({field}) => (
+                    <ReactSelect
+                      isClearable
+                      value={field.value}
+                      onChange={field.onChange}
+                      isLoading={loadingWorkflows}
+                      isDisabled={!replaceWorkflow}
+                      options={workflows?.data?.map((item) => ({
+                        label: item.name,
+                        value: item.id.toString()
+                      }))}
+                    />
+                  )}
+                />
+              </div>
+            </fieldset>
           </div>
 
           <div className="mb-3">

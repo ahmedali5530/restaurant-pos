@@ -28,12 +28,12 @@ const validationSchema = z.object({
   printers: z.array(z.object({
     label: z.string(),
     value: z.string()
-  })),
+  })).nullable().optional(),
   items: z.array(z.object({
     label: z.string(),
     value: z.string()
   })),
-  priority: z.string().min(1, "This is required"),
+  priority: z.number().min(1, "This is required"),
 });
 
 export const KitchenForm = ({
@@ -57,7 +57,7 @@ export const KitchenForm = ({
       reset({
         ...data,
         name: data.name,
-        priority: data.priority.toString(),
+        priority: data.priority,
         printers: data?.printers?.map(item => ({
           label: item.name,
           value: item.id.toString()
@@ -89,6 +89,8 @@ export const KitchenForm = ({
   const { register, control, handleSubmit, formState: {errors}, reset } = useForm({
     resolver: zodResolver(validationSchema)
   });
+
+  console.log(errors)
 
   const onSubmit = async (values: any) => {
     const vals = {...values};

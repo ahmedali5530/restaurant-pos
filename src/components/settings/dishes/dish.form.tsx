@@ -22,6 +22,8 @@ import {ModifierGroupForm} from "@/components/settings/modifier_groups/modifier_
 import {RecordId, StringRecordId} from "surrealdb";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {detectMimeType} from "@/utils/files";
+import {Workflow} from "@/api/model/workflow.ts";
+import {Kitchen} from "@/api/model/kitchen.ts";
 
 interface Props {
   open: boolean
@@ -81,12 +83,19 @@ export const DishForm = ({
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoData, setPhotoData] = useState<ArrayBuffer | null>(null);
 
+  const [workflowOption, setWorkflowOption] = useState<{ label: string; value: string } | null>(null);
+  const [workflowStages, setWorkflowStages] = useState<any[]>([]);
+  const [stageOverrides, setStageOverrides] = useState<Record<string, string>>({});
+
   const closeModal = () => {
     onClose();
 
     setPhotoFile(null);
     setPhotoPreview(null);
     setPhotoData(null);
+    setWorkflowOption(null);
+    setWorkflowStages([]);
+    setStageOverrides({});
   }
 
   useEffect(() => {
@@ -112,10 +121,14 @@ export const DishForm = ({
 
       getModifierGroups(data.id);
       getRecipes(data.id);
+      loadWorkflowAssignment(data.id);
     } else {
       setPhotoFile(null);
       setPhotoPreview(null);
       setPhotoData(null);
+      setWorkflowOption(null);
+      setWorkflowStages([]);
+      setStageOverrides({});
     }
   }, [data]);
 
@@ -143,11 +156,27 @@ export const DishForm = ({
     enabled: false
   });
 
+  const {
+    data: workflows,
+    fetchData: fetchWorkflows
+  } = useApi<SettingsData<Workflow>>(Tables.workflows, ['deleted_at = none'], ['name asc'], 0, 99999, [], {
+    enabled: false
+  });
+
+  const {
+    data: kitchens,
+    fetchData: fetchKitchens
+  } = useApi<SettingsData<Kitchen>>(Tables.kitchens, ['deleted_at = none'], ['priority asc'], 0, 99999, [], {
+    enabled: false
+  });
+
   useEffect(() => {
     if (open) {
       fetchCategories();
       fetchModifierGroups();
       fetchInventoryItems();
+      fetchWorkflows();
+      fetchKitchens();
     }
   }, [open]);
 
@@ -199,6 +228,53 @@ export const DishForm = ({
 
   const db = useDB();
 
+  const loadStagesFor = async (workflowId: string, existingOverrides: Record<string, string> = {}) => {
+    const [stages]: any = await db.query(
+      `SELECT * FROM ${Tables.workflow_stages} WHERE workflow = $wf ORDER BY sequence ASC FETCH kitchen`,
+      {wf: new StringRecordId(workflowId.toString())}
+    );
+
+    setWorkflowStages(stages ?? []);
+    setStageOverrides(existingOverrides ?? {});
+  }
+
+  const loadWorkflowAssignment = async (dishId: string) => {
+    try {
+      const res: any = await db.query(
+        `SELECT stage_overrides, workflow FROM $dish FETCH workflow`,
+        {dish: new StringRecordId(dishId.toString())}
+      );
+      const row = res?.[0]?.[0];
+      const overrides: Record<string, string> = {};
+      if (row?.stage_overrides) {
+        for (const [stageId, kitchenId] of Object.entries(row.stage_overrides)) {
+          overrides[stageId] = (kitchenId as any)?.toString?.() ?? String(kitchenId);
+        }
+      }
+
+      if (row?.workflow?.id) {
+        setWorkflowOption({label: row.workflow.name, value: row.workflow.id.toString()});
+        await loadStagesFor(row.workflow.id.toString(), overrides);
+      } else {
+        setWorkflowOption(null);
+        setWorkflowStages([]);
+        setStageOverrides({});
+      }
+    } catch (e) {
+      console.log('Failed to load workflow assignment', e);
+    }
+  }
+
+  const onWorkflowChange = async (option: { label: string; value: string } | null) => {
+    setWorkflowOption(option);
+    setStageOverrides({});
+    if (option?.value) {
+      await loadStagesFor(option.value, {});
+    } else {
+      setWorkflowStages([]);
+    }
+  }
+
   const {register, control, handleSubmit, formState: {errors}, reset, watch, getValues, setValue} = useForm({
     resolver: yupResolver(validationSchema)
   });
@@ -232,6 +308,17 @@ export const DishForm = ({
         categories: values?.categories?.map(item => new StringRecordId(item.value.toString()))
       };
 
+      // Build per-stage kitchen overrides (only where they differ from the stage default).
+      const overridesPayload: Record<string, StringRecordId> = {};
+      for (const stage of workflowStages) {
+        const stageId = stage.id.toString();
+        const selectedKitchen = stageOverrides[stageId];
+        const defaultKitchen = stage.kitchen?.id?.toString() ?? stage.kitchen?.toString();
+        if (selectedKitchen && selectedKitchen !== defaultKitchen) {
+          overridesPayload[stageId] = new StringRecordId(selectedKitchen);
+        }
+      }
+
       const dishData: any = {
         name: formData.name,
         number: formData.number,
@@ -240,6 +327,8 @@ export const DishForm = ({
         price: formData.price,
         cost: formData.cost,
         categories: formData.categories,
+        workflow: workflowOption?.value ? new StringRecordId(workflowOption.value) : null,
+        stage_overrides: workflowOption?.value ? overridesPayload : null,
       };
 
 
@@ -482,6 +571,67 @@ export const DishForm = ({
                 <FontAwesomeIcon icon={faPlus}/>
               </Button>
             </div>
+          </div>
+
+          <div className="flex mb-3">
+            <fieldset className="border-2 border-neutral-900 rounded-lg p-3 flex-1">
+              <legend>Production workflow</legend>
+              <div className="flex-1 mb-3">
+                <label>Workflow (leave empty to use legacy kitchen routing)</label>
+                <ReactSelect
+                  isClearable
+                  value={workflowOption}
+                  onChange={(option: any) => onWorkflowChange(option ?? null)}
+                  options={workflows?.data?.map(item => ({
+                    label: item.name,
+                    value: item.id.toString()
+                  }))}
+                />
+              </div>
+
+              {workflowOption && workflowStages.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm text-neutral-600">
+                    Stages run in order. Override a stage's kitchen for this product if needed.
+                  </p>
+                  {workflowStages.map((stage, index) => {
+                    const stageId = stage.id.toString();
+                    const defaultKitchenId = stage.kitchen?.id?.toString() ?? stage.kitchen?.toString();
+                    const selectedKitchenId = stageOverrides[stageId] ?? defaultKitchenId;
+                    const selectedKitchen = kitchens?.data?.find(k => k.id.toString() === selectedKitchenId);
+                    return (
+                      <div className="flex gap-3 items-end" key={stageId}>
+                        <div className="flex-0 self-center text-neutral-500 font-bold w-6 text-center">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1">
+                          <Input label="Stage" value={stage.name} disabled readOnly/>
+                        </div>
+                        <div className="flex-1">
+                          <label>Kitchen / Station</label>
+                          <ReactSelect
+                            value={selectedKitchen ? {
+                              label: selectedKitchen.name,
+                              value: selectedKitchen.id.toString()
+                            } : null}
+                            onChange={(option: any) => {
+                              setStageOverrides(prev => ({
+                                ...prev,
+                                [stageId]: option?.value ?? defaultKitchenId
+                              }));
+                            }}
+                            options={kitchens?.data?.map(item => ({
+                              label: item.name,
+                              value: item.id.toString()
+                            }))}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </fieldset>
           </div>
 
           <div className="flex gap-3 mb-3 items-end">

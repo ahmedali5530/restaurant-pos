@@ -9,6 +9,7 @@ import { AdminCategories } from "@/components/settings/categories";
 import { AdminModifierGroups } from "@/components/settings/modifier_groups";
 import { AdminDiscounts } from "@/components/settings/discounts";
 import { AdminKitchens } from "@/components/settings/kitchens";
+import { AdminWorkflows } from "@/components/settings/workflows";
 import { AdminPrinters } from "@/components/settings/printers";
 import { AdminOrderTypes } from "@/components/settings/order_types";
 import { AdminPaymentTypes } from "@/components/settings/payment_types";
@@ -35,6 +36,7 @@ export const Admin = () => {
     'discounts': { component: <AdminDiscounts/>, title: 'Discounts' },
     'coupons': { component: <AdminCoupons/>, title: 'Coupons' },
     'kitchens': { component: <AdminKitchens/>, title: 'Kitchens' },
+    'workflows': { component: <AdminWorkflows/>, title: 'Workflows' },
     'printers': { component: <AdminPrinters/>, title: 'Printers' },
     'print_settings': { component: <AdminPrints/>, title: 'Print settings' },
     'order_types': { component: <AdminOrderTypes/>, title: 'Order Types' },

@@ -33,7 +33,7 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
   },
   "Admin": {
     label: "Administration",
-    children: ['Admin', "Dishes", "Menus", "Categories", 'Modifier Groups', 'Tables', 'Floors', 'Discounts', 'Coupons', 'Kitchens', 'Printers', 'Print settings', 'Order Types', 'Payment Types', 'Extras', 'Taxes', 'Users', 'Roles', 'Shifts', 'Tips definition'] as string[]
+    children: ['Admin', "Dishes", "Menus", "Categories", 'Modifier Groups', 'Tables', 'Floors', 'Discounts', 'Coupons', 'Kitchens', 'Workflows', 'Printers', 'Print settings', 'Order Types', 'Payment Types', 'Extras', 'Taxes', 'Users', 'Roles', 'Shifts', 'Tips definition'] as string[]
   },
   "Riders": {
     label: "Riders",
