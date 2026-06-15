@@ -54,10 +54,14 @@ This system solves that by combining everything into one platform:
 - **Multi-Order Table Management:**
     - **Concurrent Orders:** Support for multiple independent orders on the same table simultaneously.
     - **Visual Indicators:** Clear tracking of the number of active orders per table on the floor layout.
+- **Takeaway Mode:**
+    - **Quick Takeaway Orders:** Streamlined workflow for pickup and takeaway orders.
+    - **Separate Queue Management:** Dedicated tracking for takeaway orders independent of dine-in tables.
+    - **Customer Details:** Capture customer name, phone, and pickup time.
 - Fast item selection & modifiers
 - Split / merge / cancel / transfer orders / refunds
 - **Split & Half-n-Half Payments:** Flexible payment options allowing customers to split bills or pay for half-n-half dish combinations.
-- **Extras & Service Charges:** 
+- **Extras & Service Charges:**
     - **Automated Service Charges:** Apply percentage-based or fixed service charges to orders.
     - **Custom Extras:** Add additional charges for special requests, packaging, or premium services.
     - **Rule-based Application:** Automatically trigger extras based on order type, payment method, or specific tables.
@@ -79,6 +83,11 @@ This system solves that by combining everything into one platform:
 
 ### 👨‍🍳 Kitchen Display System (KDS)
 - Live incoming orders
+- **Multi-Stage Kitchen Workflows:**
+    - **Customizable Preparation Stages:** Create custom kitchen stages for complex workflows (e.g., Prep Station → Grill → Assembly → Expo).
+    - **Station-Based Routing:** Automatically route specific dishes to designated kitchen stations.
+    - **Stage-to-Stage Handoff:** Track order progression through each preparation stage with visual status updates.
+    - **Parallel Processing:** Multiple stations can work on different components of the same order simultaneously.
 - Status tracking:
     - Received
     - Preparing
@@ -134,7 +143,6 @@ This system solves that by combining everything into one platform:
 
 ### 📋 Multiple Menus Support
 - **Custom Menu Creation:** Create different menus for different times (e.g., Breakfast, Lunch, Dinner).
-[//]: # (- **Branch-specific Menus:** Assign specific menus to different restaurant branches.)
 - **Dynamic Pricing:** Set different prices for items across different menus.
 - **Delivery App Integration:** Link specific menus to delivery app.
 
@@ -145,7 +153,7 @@ This system solves that by combining everything into one platform:
 - **Multi-Provider Support:**
     - 💳 **Stripe** (Credit/Debit Cards)
     - 🅿️ **PayPal**
-    - 📱 **JazzCash / M-Pesa** (Mobile Payments)
+    - 📱 **JazzCash / M-Pesa / Telebirr** (Mobile Payments)
 - **Secure Processing:** PCI-compliant flows with sandbox/live mode support.
 - **Instant Settlement:** Real-time payment verification and order status updates.
 
