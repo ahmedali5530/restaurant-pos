@@ -77,19 +77,32 @@ export const ReportsLayout = ({
     if (onExportExcel) {
       onExportExcel();
     } else {
-      // Default: Export as CSV (can be opened in Excel)
-      const table = reportRef.current?.querySelector("table");
-      if(table) {
-        // Convert HTML table to SheetJS worksheet
-        const ws = XLSX.utils.table_to_sheet(table);
+      const tables = Array.from(
+        reportRef.current?.querySelectorAll("table") ?? [],
+      );
+      if (tables.length === 0) return;
 
-        // Create workbook
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Report");
+      const wb = XLSX.utils.book_new();
+      let ws: XLSX.WorkSheet | undefined;
+      let nextRow = 0;
 
-        // Download file
-        XLSX.writeFile(wb, "report.xlsx");
-      }
+      tables.forEach((table) => {
+        const tableWs = XLSX.utils.table_to_sheet(table);
+
+        if (!ws) {
+          ws = tableWs;
+          const range = XLSX.utils.decode_range(ws["!ref"] ?? "A1");
+          nextRow = range.e.r + 2;
+          return;
+        }
+
+        ws = appendWorksheetAtRow(ws, tableWs, nextRow);
+        const range = XLSX.utils.decode_range(ws["!ref"] ?? "A1");
+        nextRow = range.e.r + 2;
+      });
+
+      XLSX.utils.book_append_sheet(wb, ws!, "Report");
+      XLSX.writeFile(wb, "report.xlsx");
     }
   };
 
@@ -273,6 +286,40 @@ export const ReportsLayout = ({
     </div>
   );
 };
+
+function appendWorksheetAtRow(
+  target: XLSX.WorkSheet,
+  source: XLSX.WorkSheet,
+  startRow: number,
+): XLSX.WorkSheet {
+  const sourceRange = XLSX.utils.decode_range(source["!ref"] ?? "A1");
+  const targetRange = XLSX.utils.decode_range(target["!ref"] ?? "A1");
+
+  for (let row = sourceRange.s.r; row <= sourceRange.e.r; row++) {
+    for (let col = sourceRange.s.c; col <= sourceRange.e.c; col++) {
+      const sourceAddress = XLSX.utils.encode_cell({ r: row, c: col });
+      const cell = source[sourceAddress];
+      if (!cell) continue;
+
+      const destAddress = XLSX.utils.encode_cell({
+        r: startRow + (row - sourceRange.s.r),
+        c: col,
+      });
+      target[destAddress] = { ...cell };
+    }
+  }
+
+  const endRow = startRow + (sourceRange.e.r - sourceRange.s.r);
+  target["!ref"] = XLSX.utils.encode_range({
+    s: targetRange.s,
+    e: {
+      r: Math.max(targetRange.e.r, endRow),
+      c: Math.max(targetRange.e.c, sourceRange.e.c),
+    },
+  });
+
+  return target;
+}
 
 // Helper function to convert table to CSV
 function tableToCSV(table: HTMLTableElement): string {
