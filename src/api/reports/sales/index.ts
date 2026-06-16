@@ -14,6 +14,7 @@ import {
 } from "@/api/reports/sales/fetch.ts";
 
 export {
+  aggregateAccumulatedModifiersSummary,
   aggregateModifiersSummary,
   aggregateProductMixByCategory,
   aggregateSalesSummary,

@@ -309,6 +309,8 @@ const toPriceKey = (value: number) => safeNumber(value).toFixed(4);
 const buildModifierMergeKey = (name: string, depth: number, unitPrice: number) =>
   `${name.trim().toLowerCase()}|${depth}|${toPriceKey(unitPrice)}`;
 
+const buildModifierAccumulatedKey = (name: string) => name.trim().toLowerCase();
+
 interface WalkedModifier {
   modifierId: string;
   modifierName: string;
@@ -627,13 +629,54 @@ export const aggregateModifiersSummary = (
   });
 
   return Array.from(summaryMap.values()).sort((a, b) => {
-    if (a.depth !== b.depth) {
-      return a.depth - b.depth;
-    }
     const nameCompare = a.modifierName.localeCompare(b.modifierName);
     if (nameCompare !== 0) {
       return nameCompare;
     }
+    if (a.depth !== b.depth) {
+      return a.depth - b.depth;
+    }
     return a.unitPrice - b.unitPrice;
   });
+};
+
+export const aggregateAccumulatedModifiersSummary = (
+  orders: Order[],
+  filters: ProductMixFilters = {},
+): ModifierSummaryMetrics[] => {
+  const filteredOrders = filterOrdersByProductMix(orders, filters);
+  const selectedModifierIds = new Set(filters.modifierIds ?? []);
+  const summaryMap = new Map<string, ModifierSummaryMetrics>();
+
+  filteredOrders.forEach(order => {
+    getFilteredOrderItems(order, filters).forEach(item => {
+      if (!item.item) return;
+
+      walkSelectedModifiers(item.modifiers).forEach(modifier => {
+        if (selectedModifierIds.size > 0 && !selectedModifierIds.has(modifier.modifierId)) {
+          return;
+        }
+
+        const rowKey = buildModifierAccumulatedKey(modifier.modifierName);
+        const existing = summaryMap.get(rowKey) || {
+          rowKey,
+          modifierId: modifier.modifierId,
+          modifierName: modifier.modifierName,
+          depth: 1,
+          quantity: 0,
+          unitPrice: 0,
+          total: 0,
+        };
+
+        existing.quantity += modifier.quantity;
+        existing.total += modifier.price;
+        existing.unitPrice = existing.quantity > 0 ? safeNumber(existing.total / existing.quantity) : 0;
+        summaryMap.set(rowKey, existing);
+      });
+    });
+  });
+
+  return Array.from(summaryMap.values()).sort((a, b) =>
+    a.modifierName.localeCompare(b.modifierName),
+  );
 };

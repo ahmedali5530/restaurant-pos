@@ -3,12 +3,80 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {parseMultiFilter} from "@/api/reports/shared/filters.ts";
 import type {CategoryGroup, ModifierSummaryMetrics} from "@/api/reports/shared/types.ts";
-import {aggregateModifiersSummary, aggregateProductMixByCategory, fetchOrders, PRODUCT_MIX_FETCHES} from "@/api/reports/sales";
+import {aggregateAccumulatedModifiersSummary, aggregateModifiersSummary, aggregateProductMixByCategory, fetchOrders, PRODUCT_MIX_FETCHES} from "@/api/reports/sales";
 import {withCurrency, formatNumber} from "@/lib/utils.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faMinus} from "@fortawesome/free-solid-svg-icons";
 
 const COLUMN_COUNT = 15;
+
+interface ModifierSummaryTotals {
+  quantity: number;
+  total: number;
+}
+
+interface ModifiersSummaryTableProps {
+  title: string;
+  rows: ModifierSummaryMetrics[];
+  totals: ModifierSummaryTotals;
+  emptyMessage: string;
+  showDepthIndent?: boolean;
+}
+
+const ModifiersSummaryTable = ({
+  title,
+  rows,
+  totals,
+  emptyMessage,
+  showDepthIndent = true,
+}: ModifiersSummaryTableProps) => (
+  <div className="mt-8 overflow-x-auto">
+    <h3 className="mb-3 text-sm font-semibold text-neutral-800">{title}</h3>
+    <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">
+      <thead className="bg-neutral-50">
+        <tr>
+          <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Modifier</th>
+          <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Quantity</th>
+          <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Price</th>
+          <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">Total</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-neutral-100 bg-white">
+        {rows.map((modifier) => (
+          <tr key={modifier.rowKey} className="hover:bg-neutral-50">
+            <td className="py-3 pl-6 pr-3 text-sm text-neutral-700">
+              {showDepthIndent ? (
+                <span style={{paddingLeft: `${(modifier.depth - 1) * 1}rem`}}>
+                  {modifier.modifierName}
+                </span>
+              ) : (
+                modifier.modifierName
+              )}
+            </td>
+            <td className="py-3 px-3 text-sm text-right text-neutral-700">{formatNumber(modifier.quantity)}</td>
+            <td className="py-3 px-3 text-sm text-right text-neutral-700">{withCurrency(modifier.unitPrice)}</td>
+            <td className="py-3 pr-6 text-sm text-right font-semibold text-neutral-900">{withCurrency(modifier.total)}</td>
+          </tr>
+        ))}
+        {rows.length === 0 && (
+          <tr>
+            <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">
+              {emptyMessage}
+            </td>
+          </tr>
+        )}
+      </tbody>
+      <tfoot className="bg-neutral-50 font-semibold">
+        <tr>
+          <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">Totals</td>
+          <td className="py-3 px-3 text-sm text-right text-neutral-900">{formatNumber(totals.quantity)}</td>
+          <td className="py-3 px-3 text-sm text-right text-neutral-900">-</td>
+          <td className="py-3 pr-6 text-sm text-right text-neutral-900">{withCurrency(totals.total)}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+);
 
 interface ReportFilters {
   startDate?: string;
@@ -38,6 +106,7 @@ export const ProductMixSummaryReport = () => {
   const db = useDB();
   const [categoryGroups, setCategoryGroups] = useState<CategoryGroup[]>([]);
   const [modifiersSummary, setModifiersSummary] = useState<ModifierSummaryMetrics[]>([]);
+  const [accumulatedModifiersSummary, setAccumulatedModifiersSummary] = useState<ModifierSummaryMetrics[]>([]);
   const [expandedDishes, setExpandedDishes] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -68,6 +137,7 @@ export const ProductMixSummaryReport = () => {
 
       setCategoryGroups(aggregateProductMixByCategory(orders, productMixFilters));
       setModifiersSummary(aggregateModifiersSummary(orders, productMixFilters));
+      setAccumulatedModifiersSummary(aggregateAccumulatedModifiersSummary(orders, productMixFilters));
     } catch (err) {
       console.error("Failed to load product mix summary report", err);
       setError(err instanceof Error ? err.message : "Unable to load report");
@@ -142,6 +212,16 @@ export const ProductMixSummaryReport = () => {
       total: 0,
     });
   }, [modifiersSummary]);
+
+  const accumulatedModifierSummaryTotals = useMemo(() => {
+    return accumulatedModifiersSummary.reduce((totals, modifier) => ({
+      quantity: totals.quantity + modifier.quantity,
+      total: totals.total + modifier.total,
+    }), {
+      quantity: 0,
+      total: 0,
+    });
+  }, [accumulatedModifiersSummary]);
 
   if (loading) {
     return (
@@ -395,48 +475,20 @@ export const ProductMixSummaryReport = () => {
         </table>
       </div>
 
-      <div className="mt-8 overflow-x-auto">
-        <h3 className="mb-3 text-sm font-semibold text-neutral-800">Modifiers</h3>
-        <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">
-          <thead className="bg-neutral-50">
-            <tr>
-              <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Modifier</th>
-              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Quantity</th>
-              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Price</th>
-              <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">Total</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-neutral-100 bg-white">
-            {modifiersSummary.map((modifier) => (
-              <tr key={modifier.rowKey} className="hover:bg-neutral-50">
-                <td className="py-3 pl-6 pr-3 text-sm text-neutral-700">
-                  <span style={{paddingLeft: `${(modifier.depth - 1) * 1}rem`}}>
-                    {modifier.modifierName}
-                  </span>
-                </td>
-                <td className="py-3 px-3 text-sm text-right text-neutral-700">{formatNumber(modifier.quantity)}</td>
-                <td className="py-3 px-3 text-sm text-right text-neutral-700">{withCurrency(modifier.unitPrice)}</td>
-                <td className="py-3 pr-6 text-sm text-right font-semibold text-neutral-900">{withCurrency(modifier.total)}</td>
-              </tr>
-            ))}
-            {modifiersSummary.length === 0 && (
-              <tr>
-                <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">
-                  No modifiers available for the selected filters
-                </td>
-              </tr>
-            )}
-          </tbody>
-          <tfoot className="bg-neutral-50 font-semibold">
-            <tr>
-              <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">Totals</td>
-              <td className="py-3 px-3 text-sm text-right text-neutral-900">{formatNumber(modifierSummaryTotals.quantity)}</td>
-              <td className="py-3 px-3 text-sm text-right text-neutral-900">-</td>
-              <td className="py-3 pr-6 text-sm text-right text-neutral-900">{withCurrency(modifierSummaryTotals.total)}</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+      <ModifiersSummaryTable
+        title="Modifiers"
+        rows={modifiersSummary}
+        totals={modifierSummaryTotals}
+        emptyMessage="No modifiers available for the selected filters"
+      />
+
+      <ModifiersSummaryTable
+        title="Accumulated modifiers"
+        rows={accumulatedModifiersSummary}
+        totals={accumulatedModifierSummaryTotals}
+        emptyMessage="No accumulated modifiers available for the selected filters"
+        showDepthIndent={false}
+      />
     </ReportsLayout>
   );
 };
