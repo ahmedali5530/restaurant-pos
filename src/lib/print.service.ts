@@ -176,7 +176,7 @@ export async function dispatchPrint<Payload = any>(
 
   const driverPrinters = printers?.map(printerToDriverConfig);
   if (!driverPrinters || driverPrinters.length === 0) {
-    toast.error('No printers configured for this print type.');
+    console.error('No printers configured for this print type.');
     return;
   }
 
