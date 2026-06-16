@@ -22,7 +22,7 @@ import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
 import {toast} from "sonner";
 import {useAtom} from "jotai";
 import {appPage, closingEnforcementAtom} from "@/store/jotai.ts";
-import {completeStage, recallStage} from "@/lib/kitchen/workflow.service.ts";
+import {completeStages, recallStage} from "@/lib/kitchen/workflow.service.ts";
 
 
 
@@ -222,15 +222,12 @@ export const KitchenScreen = () => {
   const completeAllOrders = async () => {
     if(confirm('Complete all open orders in this kitchen?')) {
       const userId = page?.user?.id;
-      // Complete each currently-open stage row so multi-stage items advance
-      // to their next kitchen instead of just being closed.
-      for (const group of orders) {
-        for (const item of group.items) {
-          if (!item.order_item?.deleted_at) {
-            await completeStage(db, item.id.toString(), userId);
-          }
-        }
-      }
+      const ids = orders.flatMap((group) =>
+        group.items
+          .filter((item) => !item.order_item?.deleted_at)
+          .map((item) => item.id.toString())
+      );
+      await completeStages(db, ids, userId);
 
       if (kitchen?.id) {
         await loadOrders(kitchen.id);

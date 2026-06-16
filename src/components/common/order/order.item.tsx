@@ -13,7 +13,7 @@ export const OrderItemName = ({
   showModifierPrice?: boolean
 }) => {
   return (
-    <div className="hover:bg-neutral-200">
+    <div className="hover:bg-neutral-200 flex-1">
       <div className="pl-x flex text-lg gap-1" style={{
         '--padding': (item.level * 0.875) + 'rem'
       } as any}>

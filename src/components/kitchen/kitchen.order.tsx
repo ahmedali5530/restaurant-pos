@@ -7,7 +7,7 @@ import { useDB } from "@/api/db/db.ts";
 import { OrderItemName } from "@/components/common/order/order.item.tsx";
 import {getInvoiceNumber} from "@/lib/order.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
-import { completeStage } from "@/lib/kitchen/workflow.service.ts";
+import { completeStage, completeStages } from "@/lib/kitchen/workflow.service.ts";
 import { useAtom } from "jotai";
 import { appPage } from "@/store/jotai.ts";
 
@@ -25,10 +25,10 @@ export const KitchenOrder = ({
   const diff = DateTime.now().diff(toLuxonDateTime(stageStart)).as('minutes');
 
   const ready = async () => {
-    for(const item of order.items){
-      if (item.order_item?.deleted_at) continue;
-      await completeStage(db, item.id.toString(), page?.user?.id);
-    }
+    const ids = order.items
+      .filter((item) => !item.order_item?.deleted_at)
+      .map((item) => item.id.toString());
+    await completeStages(db, ids, page?.user?.id);
   }
 
   const singleReady = async (item: string) => {
@@ -83,11 +83,11 @@ export const KitchenOrder = ({
           >
             <div className="flex items-center gap-2">
               <OrderItemName item={item.order_item} showQuantity />
-              {item.stage_name && (
-                <span className="text-xs font-semibold uppercase bg-primary-100 text-primary-700 rounded px-2 py-0.5">
-                  {item.stage_name}
-                </span>
-              )}
+              {/*{item.stage_name && (*/}
+              {/*  <span className="text-xs font-semibold uppercase bg-primary-100 text-primary-700 rounded px-2 py-0.5">*/}
+              {/*    {item.stage_name}*/}
+              {/*  </span>*/}
+              {/*)}*/}
             </div>
           </div>
         ))}

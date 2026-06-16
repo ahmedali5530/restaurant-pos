@@ -262,43 +262,128 @@ const advanceFrom = async (
   }
 };
 
+const recordKey = (value: any): string => value?.toString?.() ?? String(value);
+
 /**
- * Complete a stage row for a specific user.
+ * Complete multiple stage rows in a fixed number of DB round trips.
  *
  * Completion is tracked per-user via `completed_by`, so one user clearing a dish
  * does not remove it from another user's KDS. The first user to complete a row
  * also advances the dish through the workflow (global status / completed_at).
  */
+export const completeStages = async (
+  db: AnyDb,
+  oikIds: string[],
+  userId?: string | null
+): Promise<void> => {
+  if (oikIds.length === 0) return;
+
+  const now = nowSurrealDateTime();
+  const ids = oikIds.map((id) => toRecordId(id));
+
+  const rows = rowsOf<any>(
+    await db.query(
+      `SELECT * FROM ${Tables.order_items_kitchen} WHERE id IN $ids`,
+      { ids }
+    )
+  );
+  if (rows.length === 0) return;
+
+  if (userId) {
+    await db.query(
+      `UPDATE ${Tables.order_items_kitchen}
+       SET completed_by = array::add(completed_by ?? [], $user)
+       WHERE id IN $ids`,
+      { ids, user: toRecordId(userId) }
+    );
+  }
+
+  const toComplete = rows.filter(
+    (row) => row.status !== OrderItemKitchenStatus.Completed
+  );
+  if (toComplete.length === 0) return;
+
+  const toCompleteIds = toComplete.map((row) => row.id);
+
+  await db.query(
+    `UPDATE ${Tables.order_items_kitchen}
+     SET status = $completed, completed_at = $now, user = $user
+     WHERE id IN $toCompleteIds`,
+    {
+      toCompleteIds,
+      completed: OrderItemKitchenStatus.Completed,
+      now,
+      user: userId ? toRecordId(userId) : null,
+    }
+  );
+
+  const orderItems = [
+    ...new Set(toComplete.map((row) => row.order_item)),
+  ];
+
+  const allWaiting = rowsOf<any>(
+    await db.query(
+      `SELECT * FROM ${Tables.order_items_kitchen}
+       WHERE order_item IN $ois AND status = $waiting
+       ORDER BY sequence ASC`,
+      {
+        ois: orderItems,
+        waiting: OrderItemKitchenStatus.Waiting,
+      }
+    )
+  );
+
+  const activations: { next: any; row: any }[] = [];
+  const workflowCompletions: any[] = [];
+
+  for (const row of toComplete) {
+    const orderItemKey = recordKey(row.order_item);
+    const next = allWaiting.find(
+      (waiting) =>
+        recordKey(waiting.order_item) === orderItemKey &&
+        Number(waiting.sequence ?? 0) > Number(row.sequence ?? 0)
+    );
+
+    if (next) {
+      activations.push({ next, row });
+    } else if (row.workflow) {
+      workflowCompletions.push(row.order_item);
+    }
+  }
+
+  await Promise.all(
+    activations.map(({ next }) =>
+      db.merge(next.id, {
+        status: OrderItemKitchenStatus.Pending,
+        activated_at: now,
+      })
+    )
+  );
+  await Promise.all(
+    activations.map(({ next, row }) =>
+      db.merge(row.order_item, {
+        current_sequence: Number(next.sequence ?? 0),
+      })
+    )
+  );
+  await Promise.all(
+    workflowCompletions.map((orderItem) =>
+      db.merge(orderItem, { workflow_status: "completed" })
+    )
+  );
+  await Promise.all(
+    activations.map(({ next }) => fireStageKOT(db, next.id))
+  );
+};
+
+/**
+ * Complete a single stage row for a specific user.
+ */
 export const completeStage = async (
   db: AnyDb,
   oikId: string,
   userId?: string | null
-): Promise<void> => {
-  const now = nowSurrealDateTime();
-  const row = firstRow<any>(
-    await db.query(`SELECT * FROM $oik`, { oik: toRecordId(oikId) })
-  );
-  if (!row) return;
-
-  // Record this user's completion (set union, so re-completing is a no-op).
-  if (userId) {
-    await db.query(
-      `UPDATE $oik SET completed_by = array::add(completed_by ?? [], $user)`,
-      { oik: toRecordId(oikId), user: toRecordId(userId) }
-    );
-  }
-
-  // Only the first completion advances the workflow / sets the global state.
-  if (row.status !== OrderItemKitchenStatus.Completed) {
-    await db.merge(toRecordId(oikId), {
-      status: OrderItemKitchenStatus.Completed,
-      completed_at: now,
-      user: userId ? toRecordId(userId) : null,
-    });
-
-    await advanceFrom(db, row, now);
-  }
-};
+): Promise<void> => completeStages(db, [oikId], userId);
 
 /**
  * Skip a stuck stage (station offline / manual override) and advance.
