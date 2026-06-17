@@ -257,6 +257,7 @@ Built for real restaurant pressure situations:
 ## 🏗️ Tech Stack
 
 - ⚛️ React.js (Frontend)
+- 🗄 IndexedDB
 - 🗄️ SurrealDB
 - 🌐  Websockets Architecture
 - 🗄️ Realtime Database-driven inventory & orders
@@ -295,8 +296,7 @@ docker compose up -d
 ```
 ---
 
-## 🧭 Roadmap
-- Offline mode support
+## 🧭 Roadmap and WIP
 - Advanced analytics dashboard
 - AI-based reporting and demand forecasting
 - Multi-branch synchronization improvements
@@ -306,7 +306,7 @@ docker compose up -d
 - Tap-to-pay payments on mobile apps
 - Targeted sales system for performance
 - Multi-currency support
-- Advanced inventory analytics
+- Advanced inventory operations and analytics
 - Loyalty module
 
 ---
