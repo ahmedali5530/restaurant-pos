@@ -12,16 +12,17 @@ import {MENU} from "@/routes/posr.ts";
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Button } from "@/components/common/input/button.tsx";
 import { Tables } from "@/api/db/tables.ts";
-import { DateTime } from "luxon";
-import { StringRecordId } from "surrealdb";
 import { toast } from "sonner";
 import { getUserModules } from "@/lib/access.rules.ts";
 import { UserRole } from "@/api/model/user_role.ts";
 import { Input } from "@/components/common/input/input.tsx";
 import { nowSurrealDateTime } from "@/lib/datetime.ts";
+import { useTranslation } from "react-i18next";
+import i18n from "@/lib/i18n.ts";
 
 export const Login = () => {
   const db = useDB();
+  const { t } = useTranslation('auth');
 
   const [code, setCode] = useState('');
   const [loginMethod, setLoginMethod] = useState<'pin'|'form'>('pin');
@@ -134,10 +135,10 @@ export const Login = () => {
         platform: 'web'
       });
 
-      toast.success('Clocked in successfully');
+      toast.success(i18n.t('auth:clockIn.success'));
       allowLogin(pendingUser);
     } catch (error) {
-      toast.error('Failed to clock in');
+      toast.error(i18n.t('auth:clockIn.failed'));
       console.error(error);
     }
   }
@@ -169,7 +170,7 @@ export const Login = () => {
   return (
     <div className="relative">
       <div className="bg-neutral-900 flex justify-center items-center h-screen flex-col gap-8">
-        <h4 className="text-4xl text-neutral-100">Login</h4>
+        <h4 className="text-4xl text-neutral-100">{t('login.title')}</h4>
         <div className="flex gap-3">
           <button
             className={cn(
@@ -186,7 +187,7 @@ export const Login = () => {
               setCode('');
             }}
           >
-            Pin
+            {t('login.pin')}
           </button>
           <button
             className={cn(
@@ -203,11 +204,13 @@ export const Login = () => {
               setCode('');
             }}
           >
-            Form
+            {t('login.form')}
           </button>
         </div>
         {page.locked && (
-          <div className="alert alert-warning">System locked by {page?.lockedBy?.first_name} {page?.lockedBy?.last_name}, only they can open now</div>
+          <div className="alert alert-warning">{t('login.systemLocked', {
+            name: `${page?.lockedBy?.first_name ?? ''} ${page?.lockedBy?.last_name ?? ''}`.trim()
+          })}</div>
         )}
         {loginMethod === 'pin' && (
           <>
@@ -250,7 +253,7 @@ export const Login = () => {
             }}
           >
             <div>
-              <label className="text-white" htmlFor="username">Username</label>
+              <label className="text-white" htmlFor="username">{t('login.username')}</label>
               <Input
                 id="username"
                 value={username}
@@ -259,7 +262,7 @@ export const Login = () => {
             </div>
             
             <div>
-              <label className="text-white" htmlFor="password">Password</label>
+              <label className="text-white" htmlFor="password">{t('login.password')}</label>
               <Input
                 id="password"
                 type="password"
@@ -267,11 +270,11 @@ export const Login = () => {
                 onChange={(event) => setPassword(event.target.value)}
               />
             </div>
-            <Button type="submit" variant="primary">Login</Button>
+            <Button type="submit" variant="primary">{t('login.submit')}</Button>
           </form>
         )}
         {error && loginMethod === 'form' && (
-          <div className="text-danger-500 text-sm">Invalid username or password.</div>
+          <div className="text-danger-500 text-sm">{t('login.invalidCredentials')}</div>
         )}
       </div>
       <div className="size-[100px] bg-warning-500/10 absolute top-10 right-[30%] rounded-full pointer-events-none transition-all blur-lg"></div>
@@ -287,13 +290,13 @@ export const Login = () => {
             setPendingUser(null);
             setCode('');
           }}
-          title="Clock In Required"
+          title={t('clockIn.title')}
           shouldCloseOnOverlayClick={false}
           shouldCloseOnEsc={false}
         >
           <div className="flex flex-col gap-4 items-center">
             <div className="text-lg alert alert-danger">
-              You need to clock in before accessing the system.
+              {t('clockIn.message')}
             </div>
             <div className="flex gap-2">
               <Button
@@ -302,7 +305,7 @@ export const Login = () => {
                 icon={faClock}
                 size="xl"
               >
-                Clock In
+                {t('clockIn.action')}
               </Button>
             </div>
           </div>

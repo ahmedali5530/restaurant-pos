@@ -28,6 +28,7 @@ import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import { Tables } from "@/api/db/tables";
 import {Tax} from "@/api/model/tax.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useTranslation} from "react-i18next";
 
 interface Props {
   order: OrderModel
@@ -40,6 +41,7 @@ interface Props {
 export const OrderBox = ({
   order, onMergeSelect, mergingOrders, merging, onAction
 }: Props) => {
+  const {t} = useTranslation('orders');
   const db = useDB();
   const [page] = useAtom(appPage);
   const [enforcement] = useAtom(closingEnforcementAtom);
@@ -103,26 +105,26 @@ export const OrderBox = ({
         <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
         <div className="flex flex-col gap-1">
           <div className="flex font-bold">
-            <div className="flex-1">Items ({getOrderFilteredItems(order).length})</div>
+            <div className="flex-1">{t('totals.items', {count: getOrderFilteredItems(order).length})}</div>
             <div className="text-right">{withCurrency(itemsTotal)}</div>
           </div>
           {order?.tax && (
             <div className="flex">
               <div className="flex-1">
-                Tax {order?.tax && <>({order?.tax?.name} {order?.tax?.rate}%)</>}
+                {t('totals.tax')} {order?.tax && <>({order?.tax?.name} {order?.tax?.rate}%)</>}
               </div>
               <div className="text-right">{withCurrency(order?.tax_amount)}</div>
             </div>
           )}
           {order?.discount ? (
             <div className="flex">
-              <div className="flex-1">Discount</div>
+              <div className="flex-1">{t('totals.discount')}</div>
               <div className="text-right">{withCurrency(order?.discount_amount)}</div>
             </div>
           ) : ''}
           {order?.service_charge && order?.service_charge > 0 ? (
             <div className="flex">
-              <div className="flex-1">Service charges ({order?.service_charge}{order?.service_charge_type === DiscountType.Percent ? '%' : ''})</div>
+              <div className="flex-1">{t('totals.serviceCharges', {value: order?.service_charge, unit: order?.service_charge_type === DiscountType.Percent ? '%' : ''})}</div>
               <div className="text-right">{withCurrency(order?.service_charge_amount)}</div>
             </div>
           ) : ''}
@@ -134,7 +136,7 @@ export const OrderBox = ({
           ))}
           {order?.tip_amount > 0 && (
             <div className="flex">
-              <div className="flex-1">Tip {order?.tip_type === DiscountType.Percent ? '%' : ''}</div>
+              <div className="flex-1">{order?.tip_type === DiscountType.Percent ? t('totals.tipPercent') : t('totals.tip')}</div>
               <div className="text-right">{withCurrency(order?.tip_amount)}</div>
             </div>
           )}
@@ -149,14 +151,14 @@ export const OrderBox = ({
           ))}
           <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
           <div className="flex font-bold text-2xl text-success-900">
-            <div className="flex-1">Total</div>
+            <div className="flex-1">{t('totals.total')}</div>
             <div className="text-right">{withCurrency(total)}</div>
           </div>
           {order?.payments?.length > 0 && changeDue !== 0 && (
             <>
               <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
               <div className="flex">
-                <div className="flex-1">Change</div>
+                <div className="flex-1">{t('totals.change')}</div>
                 <div className="text-right">{withCurrency(changeDue)}</div>
               </div>
             </>
@@ -172,12 +174,12 @@ export const OrderBox = ({
                   onMergeSelect(order, true);
                 }
 
-              }} checked={mergingOrderIds.includes(order.id.toString())} label="Select to merge" />
+              }} checked={mergingOrderIds.includes(order.id.toString())} label={t('actions.selectToMerge')} />
             </>
           ) : (
             <>
               <Dropdown
-                label={<><FontAwesomeIcon icon={faEllipsisV} className="mr-3"/> More</>}
+                label={<><FontAwesomeIcon icon={faEllipsisV} className="mr-3"/> {t('actions.more')}</>}
                 btnSize="lg"
                 btnFlat={true}
                 className="flex-1"
@@ -286,21 +288,21 @@ export const OrderBox = ({
                 {order.status === OrderStatus["In Progress"] && (
                   <>
                     <DropdownItem isDisabled={mutationsBlocked} id="cancel" key="cancel" className="min-w-[50px] bg-danger-100 text-danger-500">
-                      <FontAwesomeIcon icon={faMoneyBillTransfer} /> Cancel order
+                      <FontAwesomeIcon icon={faMoneyBillTransfer} /> {t('actions.cancelOrder')}
                     </DropdownItem>
                     <DropdownSeparator />
                     <DropdownItem isDisabled={mutationsBlocked || hasSeats !== true} id="split_by_seats" key="split_by_seats" className="min-w-[50px]">
-                      <FontAwesomeIcon icon={faChair} /> Split by seats
+                      <FontAwesomeIcon icon={faChair} /> {t('actions.splitBySeats')}
                     </DropdownItem>
                     <DropdownItem isDisabled={mutationsBlocked} id="split_by_items" key="split_by_items" className="min-w-[50px]">
-                      <FontAwesomeIcon icon={faCodeBranch} /> Split by items
+                      <FontAwesomeIcon icon={faCodeBranch} /> {t('actions.splitByItems')}
                     </DropdownItem>
                     <DropdownItem isDisabled={mutationsBlocked} id="split_by_amount" key="split_by_amount" className="min-w-[50px]">
-                      <FontAwesomeIcon icon={faCodeBranch} /> Split by amount
+                      <FontAwesomeIcon icon={faCodeBranch} /> {t('actions.splitByAmount')}
                     </DropdownItem>
                     <DropdownSeparator />
                     <DropdownItem isDisabled={mutationsBlocked} id="merge" key="merge" className="min-w-[50px]">
-                      <FontAwesomeIcon icon={faObjectGroup} /> Merge orders
+                      <FontAwesomeIcon icon={faObjectGroup} /> {t('actions.mergeOrders')}
                     </DropdownItem>
                   </>
                 )}
@@ -308,11 +310,11 @@ export const OrderBox = ({
                 {order.status === OrderStatus["Paid"] && (
                   <>
                     <DropdownItem id="refund" key="refund" className="min-w-[50px] bg-danger-100 text-danger-500">
-                      <FontAwesomeIcon icon={faMoneyBillTransfer} /> Refund
+                      <FontAwesomeIcon icon={faMoneyBillTransfer} /> {t('actions.refund')}
                     </DropdownItem>
                     <DropdownSeparator />
                     <DropdownItem id="final_bill" key="final_bill" className="min-w-[50px]">
-                      <FontAwesomeIcon icon={faPrint} /> Print final bill copy
+                      <FontAwesomeIcon icon={faPrint} /> {t('actions.printFinalBillCopy')}
                     </DropdownItem>
                   </>
                 )}
@@ -329,10 +331,10 @@ export const OrderBox = ({
                         order: order.id.toString()
                       }
                     });
-                  }} variant="primary" flat size="lg" className="flex-1" icon={faPrint}>Temp bill</Button>
+                  }} variant="primary" flat size="lg" className="flex-1" icon={faPrint}>{t('actions.tempBill')}</Button>
                   <Button variant="warning" filled size="lg" className="flex-1" onClick={() => setPayment(true)}
                           icon={faCreditCard}>
-                    Pay Now
+                    {t('actions.payNow')}
                   </Button>
                 </>
               )}

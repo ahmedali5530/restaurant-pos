@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {InventoryPurchase} from "@/api/model/inventory_purchase.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {useDB} from "@/api/db/db.ts";
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => {
+  const { t } = useTranslation('inventory');
   const db = useDB();
   const [viewPurchase, setViewPurchase] = useState<InventoryPurchase | null>(null);
   const [loading, setLoading] = useState(false);
@@ -81,7 +83,7 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
                 <div>{viewPurchase.purchase_order ? `PO #${viewPurchase.purchase_order.po_number}` : "—"}</div>
               </div>
               <div>
-                <div className="text-neutral-500 text-xs uppercase">Created by</div>
+                <div className="text-neutral-500 text-xs uppercase">{t('columns.createdBy')}</div>
                 <div>{viewPurchase.created_by?.first_name } {viewPurchase?.created_by?.last_name}</div>
               </div>
               <div>
@@ -89,7 +91,7 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
                 <div>{viewPurchase.method ?? "Manual"}</div>
               </div>
               <div className="md:col-span-2">
-                <div className="text-neutral-500 text-xs uppercase">Comments</div>
+                <div className="text-neutral-500 text-xs uppercase">{t('forms.comments')}</div>
                 <div>{viewPurchase.comments || "—"}</div>
               </div>
             </div>
@@ -142,7 +144,7 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
             <div className="flex items-center justify-between mb-3">
               <div className="text-sm font-semibold text-neutral-800 flex items-center gap-2">
                 <FontAwesomeIcon icon={faFile}/>
-                <span>Attached documents</span>
+                <span>{t('upload.attachDocuments')}</span>
               </div>
             </div>
             {viewPurchase.documents && viewPurchase.documents.length > 0 ? (

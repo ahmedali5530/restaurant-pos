@@ -239,7 +239,7 @@ export const TableComponent: FC<TableComponentProps> = ({
                       <Input
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder="Search..."
+                        placeholder={t('actions.search')}
                         type="search"
                         className="pr-10"
                       />
@@ -255,7 +255,7 @@ export const TableComponent: FC<TableComponentProps> = ({
                       <Input
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder="Search..."
+                        placeholder={t('actions.search')}
                         type="search"
                       />
                     )}
@@ -428,13 +428,13 @@ export const TableComponent: FC<TableComponentProps> = ({
         </nav>
         &bull;
         <span className="flex items-center gap-1">
-          <div>{t("Page")}</div>
+          <div>{t("table.page")}</div>
           <strong>
-            {table.getState().pagination.pageIndex + 1} {t("of")}{" "}
+            {table.getState().pagination.pageIndex + 1} {t("table.of")}{" "}
             {table.getPageCount()}
           </strong>
         </span>
-        &bull; <span>{t("Go to page")}</span>
+        &bull; <span>{t("table.goToPage")}</span>
         <span className="flex items-center gap-2">
           <select
             value={table.getState().pagination.pageIndex + 1}
@@ -459,11 +459,11 @@ export const TableComponent: FC<TableComponentProps> = ({
             className="w-auto form-control">
             {Object.keys(pageSizes).map((pageSize: string | number) => (
               <option key={pageSize} value={pageSizes[pageSize]}>
-                {t("Show")} {pageSize}
+                {t("table.show")} {pageSize}
               </option>
             ))}
           </select>{" "}
-          &bull; <span className="flex-grow flex-shrink-0">{t("Total records")}</span>{" "}
+          &bull; <span className="flex-grow flex-shrink-0">{t("table.totalRecords")}</span>{" "}
           <strong>{total}</strong>
         </span>
       </div>

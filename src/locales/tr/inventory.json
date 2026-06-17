@@ -1,0 +1,140 @@
+{
+  "tabs": {
+    "inventory": "Envanter",
+    "items": "Ürünler",
+    "suppliers": "Tedarikçiler",
+    "categories": "Ürün Kategorileri",
+    "stores": "Depolar",
+    "itemGroups": "Ürün Grupları",
+    "purchaseOrders": "Satın Alma Siparişleri",
+    "purchases": "Satın Almalar",
+    "purchaseReturns": "Satın Alma İadeleri",
+    "issues": "Çıkışlar",
+    "issueReturns": "Çıkış İadeleri",
+    "wastes": "Fireler"
+  },
+  "security": {
+    "accessTab": "{{module}} modülüne eriş"
+  },
+  "columns": {
+    "name": "Ad",
+    "code": "Kod",
+    "category": "Kategori",
+    "uom": "Ölçü birimi",
+    "baseQuantity": "Temel miktar",
+    "price": "Fiyat",
+    "averagePrice": "Ortalama fiyat",
+    "avgPrice": "Ort. Fiyat",
+    "stores": "Depolar",
+    "suppliers": "Tedarikçiler",
+    "actions": "İşlemler",
+    "address": "Adres",
+    "phone": "Telefon",
+    "email": "E-posta",
+    "priority": "Öncelik",
+    "mainItem": "Ana ürün",
+    "subItems": "Alt ürünler",
+    "invoiceNumber": "Fatura #",
+    "poNumber": "PO #",
+    "status": "Durum",
+    "createdAt": "Oluşturulma tarihi",
+    "items": "Ürünler",
+    "purchaseInvoice": "Satın alma fatura #",
+    "issueNumber": "Çıkış#",
+    "returnNumber": "İade#",
+    "issuance": "Çıkış",
+    "issuedTo": "Çıkış yapılan",
+    "kitchen": "Mutfak",
+    "createdBy": "Oluşturan",
+    "source": "Kaynak"
+  },
+  "buttons": {
+    "item": "Ürün",
+    "import": "İçe aktar",
+    "view": "Görüntüle",
+    "upload": "Yükle"
+  },
+  "forms": {
+    "createItem": "Yeni ürün oluştur",
+    "createCategory": "Yeni kategori oluştur",
+    "createSupplier": "Yeni tedarikçi oluştur",
+    "createStore": "Yeni depo oluştur",
+    "createIssue": "Yeni çıkış oluştur",
+    "createIssueReturn": "Yeni çıkış iadesi oluştur",
+    "createWaste": "Yeni fire oluştur",
+    "createPurchase": "Yeni satın alma oluştur",
+    "createPurchaseReturn": "Yeni satın alma iadesi oluştur",
+    "createPurchaseOrder": "Yeni satın alma siparişi oluştur",
+    "createItemGroup": "Yeni ürün grubu oluştur",
+    "nameOfItem": "Ürün adı",
+    "invoiceNumber": "Fatura numarası",
+    "returnInvoiceNumber": "İade fatura numarası",
+    "poNumber": "PO Numarası",
+    "date": "Tarih",
+    "comments": "Yorumlar",
+    "quantity": "Miktar",
+    "requested": "Talep edilen",
+    "issued": "Çıkış yapılan",
+    "returnedQuantity": "İade edilen miktar",
+    "expiryDate": "Son kullanma tarihi",
+    "manufacturingDate": "Üretim tarihi",
+    "storeInventory": "{{name}} deposu"
+  },
+  "validation": {
+    "required": "Bu alan zorunludur",
+    "number": "Bu bir sayı olmalıdır",
+    "selectStore": "En az bir depo seçin",
+    "addItem": "En az bir ürün ekleyin",
+    "addSubItem": "En az bir alt ürün ekleyin",
+    "selectPurchaseMethod": "Lütfen bir satın alma yöntemi seçin",
+    "storeRequired": "Depo zorunludur",
+    "supplierRequired": "Tedarikçi zorunludur",
+    "selectSourceType": "Kaynak türü seçin",
+    "selectSource": "Bir kaynak seçin",
+    "quantityMin": "Miktar en az 1 olmalıdır",
+    "atLeastOneItem": "En az bir ürün zorunludur",
+    "invalidCategory": "Geçersiz kategori \"{{name}}\"",
+    "invalidStore": "Geçersiz depo \"{{name}}\"",
+    "invalidSupplier": "Geçersiz tedarikçi \"{{name}}\""
+  },
+  "csv": {
+    "uploadTitle": "CSV dosyası kullanarak ürün ekle"
+  },
+  "modals": {
+    "viewPurchase": "Satın almayı görüntüle",
+    "viewIssue": "Çıkışı görüntüle",
+    "viewIssueReturn": "Çıkış iadesini görüntüle",
+    "viewWaste": "Fireyi görüntüle",
+    "viewPurchaseReturn": "Satın alma iadesini görüntüle",
+    "viewPurchaseOrder": "Satın alma siparişini görüntüle"
+  },
+  "summary": {
+    "title": "Envanter Özeti"
+  },
+  "purchaseMethod": {
+    "title": "Satın alma yöntemi"
+  },
+  "sourceType": {
+    "purchase": "Satın alma",
+    "issue": "Çıkış"
+  },
+  "status": {
+    "draft": "Taslak",
+    "approved": "Onaylandı",
+    "received": "Alındı",
+    "cancelled": "İptal edildi"
+  },
+  "upload": {
+    "attachDocuments": "Ekli belgeler"
+  },
+  "purchaseMethods": {
+    "manual": "Manuel",
+    "csv": "CSV",
+    "purchaseOrder": "Satın alma siparişi"
+  },
+  "uploadViaDocument": "Belge ile yükle",
+  "itemName": "Ürün adı",
+  "itemCode": "Ürün kodu",
+  "syncFromPo": "Ürünler seçilen satın alma siparişinden senkronize edilir. Listeyi düzenlemek için Manuel'e geri dönün.",
+  "syncFromCsv": "Ürünleri daha sonra içe aktarmak için CSV yükleyin. Listeyi burada düzenlemek için Manuel'e geri dönün."
+}

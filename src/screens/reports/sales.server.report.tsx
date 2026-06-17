@@ -1,6 +1,7 @@
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {Tables} from "@/api/db/tables.ts";
 import {Order} from "@/api/model/order.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
@@ -250,6 +251,7 @@ const ensureCategoryAggregate = (
 };
 
 export const SalesServerReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -299,7 +301,7 @@ export const SalesServerReport = () => {
         setOrders((result?.[0] ?? []) as Order[]);
       } catch (err) {
         console.error('Failed to load server sales report:', err);
-        setError(err instanceof Error ? err.message : 'Unable to load report');
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
       } finally {
         setLoading(false);
       }
@@ -427,17 +429,17 @@ export const SalesServerReport = () => {
 
   if (loading) {
     return (
-      <ReportsLayout title="Server sales" subtitle={subtitle}>
-        <div className="text-center p-6">Loading report...</div>
+      <ReportsLayout title={t('titles.serverSales')} subtitle={subtitle}>
+        <div className="text-center p-6">{t('loading.report')}</div>
       </ReportsLayout>
     );
   }
 
   if (error) {
     return (
-      <ReportsLayout title="Server sales" subtitle={subtitle}>
+      <ReportsLayout title={t('titles.serverSales')} subtitle={subtitle}>
         <div className="text-center p-6 text-danger-600">
-          Failed to load report: {error}
+          {t('errors.failedToLoad', { error })}
         </div>
       </ReportsLayout>
     );
@@ -445,7 +447,7 @@ export const SalesServerReport = () => {
 
   if (!sections.length) {
     return (
-      <ReportsLayout title="Server sales" subtitle={subtitle}>
+      <ReportsLayout title={t('titles.serverSales')} subtitle={subtitle}>
         <div className="text-center p-6 text-gray-500">
           No server sales found for the selected filters.
         </div>
@@ -455,7 +457,7 @@ export const SalesServerReport = () => {
 
   return (
     <ReportsLayout
-      title="Server sales"
+      title={t('titles.serverSales')}
       subtitle={subtitle}
     >
       <div className="flex flex-col gap-10">
@@ -509,15 +511,15 @@ export const SalesServerReport = () => {
                 <table className="table table-hover min-w-full">
                   <thead>
                     <tr>
-                      <th>Category</th>
-                      <th className="text-right">Amount Due</th>
+                      <th>{t('columns.category')}</th>
+                      <th className="text-right">{t('labels.amountDue')}</th>
                       <th className="text-right">Net Sales Due</th>
-                      <th className="text-right">Discounts</th>
-                      <th className="text-right">Coupons</th>
+                      <th className="text-right">{t('metrics.discounts')}</th>
+                      <th className="text-right">{t('metrics.coupons')}</th>
                       <th className="text-right">Taxes</th>
-                      <th className="text-right">Gross Sale</th>
-                      <th className="text-right">Avg Check</th>
-                      <th className="text-right">Avg Guest</th>
+                      <th className="text-right">{t('labels.grossSale')}</th>
+                      <th className="text-right">{t('columns.avgCheck')}</th>
+                      <th className="text-right">{t('columns.avgGuest')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -548,7 +550,7 @@ export const SalesServerReport = () => {
                   </tbody>
                   <tfoot>
                     <tr className="font-semibold">
-                      <td>Total</td>
+                      <td>{t('columns.total')}</td>
                       <td className="text-right">{withCurrency(categoryTotals.amountDue)}</td>
                       <td className="text-right">{withCurrency(categoryTotals.netSales)}</td>
                       <td className="text-right">{withCurrency(categoryTotals.discounts)}</td>
@@ -570,14 +572,14 @@ export const SalesServerReport = () => {
                 <table className="table table-hover min-w-full">
                   <thead>
                     <tr>
-                      <th>Day Part</th>
+                      <th>{t('columns.dayPart')}</th>
                       <th className="text-right">Net Sales Due</th>
                       <th className="text-right">Total Guests</th>
                       <th className="text-right">Total Checks</th>
                       <th className="text-right">Taxes</th>
-                      <th className="text-right">Payments</th>
+                      <th className="text-right">{t('columns.payments')}</th>
                       <th className="text-right">Service Charges</th>
-                      <th className="text-right">Coupons</th>
+                      <th className="text-right">{t('metrics.coupons')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -599,7 +601,7 @@ export const SalesServerReport = () => {
                   </tbody>
                   <tfoot>
                     <tr className="font-semibold">
-                      <td>Total</td>
+                      <td>{t('columns.total')}</td>
                       <td className="text-right">{withCurrency(dayPartTotals.netSales)}</td>
                       <td className="text-right">{formatNumber(dayPartTotals.guests)}</td>
                       <td className="text-right">{formatNumber(dayPartTotals.checks)}</td>

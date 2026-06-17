@@ -1,8 +1,12 @@
+import { useTranslation } from "react-i18next";
+
 export const Lock = () => {
+  const { t } = useTranslation('common');
+
   return (
     <>
-      <p>Locked by Kashif</p>
-      <p>Only Kashif can login now</p>
+      <p>{t('lock.lockedBy', { name: 'Kashif' })}</p>
+      <p>{t('lock.onlyUserCanLogin', { name: 'Kashif' })}</p>
     </>
   );
 }

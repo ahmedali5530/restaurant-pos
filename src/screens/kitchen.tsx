@@ -23,10 +23,12 @@ import {toast} from "sonner";
 import {useAtom} from "jotai";
 import {appPage, closingEnforcementAtom} from "@/store/jotai.ts";
 import {completeStages, recallStage} from "@/lib/kitchen/workflow.service.ts";
+import {useTranslation} from "react-i18next";
 
 
 
 export const KitchenScreen = () => {
+  const {t} = useTranslation(["kitchen", "toast"]);
   const db = useDB();
   const [enforcement] = useAtom(closingEnforcementAtom);
   const [page] = useAtom(appPage);
@@ -160,7 +162,7 @@ export const KitchenScreen = () => {
       await loadOrders(kitchen.id);
       await loadCompletedOrders(kitchen.id);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to recall order";
+      const message = error instanceof Error ? error.message : t("toast:kitchen.recallFailed");
       toast.error(message);
     } finally {
       setRecallingOrderKey(null);
@@ -213,14 +215,14 @@ export const KitchenScreen = () => {
     if(completedOrders[0].length > 0) {
       const duration: any = await db.query(`return duration::mins(duration::from_secs(math::floor(${safeNumber(completedOrders[0][0].diff / completedOrders[0][0].count, 0)})))`);
 
-      setAvgTime(`${formatNumber(duration[0])} mins`);
+      setAvgTime(t("kitchen:labels.avgTimeMins", {count: Number(duration[0])}));
     }else{
       setAvgTime('-');
     }
   }, []);
 
   const completeAllOrders = async () => {
-    if(confirm('Complete all open orders in this kitchen?')) {
+    if(confirm(t("kitchen:confirm.completeAll"))) {
       const userId = page?.user?.id;
       const ids = orders.flatMap((group) =>
         group.items
@@ -268,12 +270,12 @@ export const KitchenScreen = () => {
             ))}
           </div>
           <div className="flex gap-3">
-            <Button variant="success" size="lg" onClick={completeAllOrders}>Complete all open orders</Button>
-            <Button variant="secondary" size="lg" onClick={openCompletedOrdersModal}>Completed Orders</Button>
-            <Button variant="secondary" size="lg" onClick={() => setDishesModal(!dishesModal)}>View all dishes</Button>
+            <Button variant="success" size="lg" onClick={completeAllOrders}>{t("kitchen:actions.completeAllOpen")}</Button>
+            <Button variant="secondary" size="lg" onClick={openCompletedOrdersModal}>{t("kitchen:actions.completedOrders")}</Button>
+            <Button variant="secondary" size="lg" onClick={() => setDishesModal(!dishesModal)}>{t("kitchen:actions.viewAllDishes")}</Button>
           </div>
           <div className="input-group flex-1 justify-end flex gap-3 items-center h-full">
-            <span className="bg-neutral-900 text-warning-500 text-2xl h-full flex items-center px-3">Avg time: {avgTime}</span>
+            <span className="bg-neutral-900 text-warning-500 text-2xl h-full flex items-center px-3">{t("kitchen:labels.avgTime", {time: avgTime})}</span>
             {/*<span>timer</span>*/}
           </div>
         </div>
@@ -314,13 +316,13 @@ export const KitchenScreen = () => {
           setShowCompletedOrdersModal(false); 
           setCompletedOrders([]);
         }}
-        title={`${kitchen?.name ?? ''} Completed Orders (Today)`}
+        title={t("kitchen:modal.completedOrdersTitle", {kitchen: kitchen?.name ?? ""})}
         size="md"
       >
         <div className="space-y-3 max-h-[70vh] overflow-auto">
           {!loadingCompletedOrders && completedOrders.length === 0 && (
             <div className="p-4 rounded bg-white text-center text-neutral-600">
-              No completed orders found for today.
+              {t("kitchen:modal.noCompletedOrders")}
             </div>
           )}
 
@@ -335,10 +337,10 @@ export const KitchenScreen = () => {
                     {item.order?.order_type?.name} / {item.order ? getInvoiceNumber(item.order) : '-'}
                   </strong>
                   <span className="text-neutral-600">
-                    Completed: {toLuxonDateTime(completedAt).toFormat('hh:mm a')}
+                    {t("kitchen:labels.completed", {time: toLuxonDateTime(completedAt).toFormat('hh:mm a')})}
                   </span>
                   <span className="text-neutral-600">
-                    Items: {item.items.length}
+                    {t("kitchen:labels.items", {count: item.items.length})}
                   </span>
                 </div>
                 <Button
@@ -348,7 +350,7 @@ export const KitchenScreen = () => {
                   isLoading={recallingOrderKey === orderKey}
                   onClick={() => recallCompletedOrder(item, index)}
                 >
-                  Recall
+                  {t("kitchen:actions.recall")}
                 </Button>
               </div>
             );

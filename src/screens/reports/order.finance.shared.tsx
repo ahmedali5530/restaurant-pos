@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -51,6 +52,7 @@ interface Props {
 }
 
 export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -113,7 +115,7 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
         setOrders((result || []) as Order[]);
       } catch (err) {
         console.error(`Failed to load ${title}`, err);
-        setError(err instanceof Error ? err.message : "Unable to load report");
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
       } finally {
         setLoading(false);
       }
@@ -130,14 +132,14 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
     return <ReportsLayout title={title} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">Loading {title.toLowerCase()}...</div></ReportsLayout>;
   }
   if (error) {
-    return <ReportsLayout title={title} subtitle={subtitle}><div className="py-12 text-center text-red-600">Failed to load report: {error}</div></ReportsLayout>;
+    return <ReportsLayout title={title} subtitle={subtitle}><div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div></ReportsLayout>;
   }
 
   return (
     <ReportsLayout title={title} subtitle={subtitle}>
       <div className="space-y-4">
         <div className="border rounded-lg p-4 bg-neutral-50">
-          <div className="text-sm text-neutral-500">Orders</div>
+          <div className="text-sm text-neutral-500">{t('categories.orders')}</div>
           <div className="text-xl font-semibold">{formatNumber(orders.length)}</div>
           <div className="text-sm text-neutral-500 mt-2">Total {metricHeader.toLowerCase()}</div>
           <div className="text-xl font-semibold">{withCurrency(totalMetric)}</div>
@@ -147,11 +149,11 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
             <thead className="bg-neutral-50">
             <tr>
               <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">Created at</th>
-              <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Order</th>
-              <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Cashier</th>
-              <th className="py-3 px-3 text-right text-sm font-semibold text-neutral-700">Gross</th>
+              <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.order')}</th>
+              <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('metrics.cashier')}</th>
+              <th className="py-3 px-3 text-right text-sm font-semibold text-neutral-700">{t('metrics.gross')}</th>
               <th className="py-3 px-3 text-right text-sm font-semibold text-neutral-700">{metricHeader}</th>
-              <th className="py-3 pr-6 text-right text-sm font-semibold text-neutral-700">Net</th>
+              <th className="py-3 pr-6 text-right text-sm font-semibold text-neutral-700">{t('metrics.net')}</th>
             </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 bg-white">

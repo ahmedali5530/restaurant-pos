@@ -1,6 +1,7 @@
 import { DiscountType } from "@/api/model/discount.ts";
 import { Button } from "@/components/common/input/button.tsx";
 import React, { useEffect, useState } from "react";
+import {useTranslation} from "react-i18next";
 
 interface Props {
   tip: number;
@@ -13,6 +14,7 @@ interface Props {
 export const OrderPaymentTip = ({
   setTip, tipType, tip, setTipType
 }: Props) => {
+  const {t} = useTranslation('payment');
   const [draftTip, setDraftTip] = useState<number>(tip);
   const [draftTipType, setDraftTipType] = useState<DiscountType>(tipType);
 
@@ -32,21 +34,21 @@ export const OrderPaymentTip = ({
   return (
     <div className="flex flex-col justify-between h-full">
       <div className="mb-5 flex justify-between flex-col gap-5">
-        <Button variant="danger" active={draftTip === 0} onClick={() => setDraftTip(0)} size="lg">No Tip</Button>
+        <Button variant="danger" active={draftTip === 0} onClick={() => setDraftTip(0)} size="lg">{t('tip.noTip')}</Button>
         <div className="input-group">
           <Button
             size="lg" variant="primary" active={draftTipType === DiscountType.Percent}
             onClick={() => setDraftTipType(DiscountType.Percent)}
             className="min-w-[150px] flex-1"
           >
-            {DiscountType.Percent}
+            {t('discountType.percent')}
           </Button>
           <Button
             size="lg" variant="primary" active={draftTipType === DiscountType.Fixed}
             onClick={() => setDraftTipType(DiscountType.Fixed)}
             className="min-w-[150px] flex-1"
           >
-            {DiscountType.Fixed}
+            {t('discountType.fixed')}
           </Button>
         </div>
       </div>
@@ -112,7 +114,7 @@ export const OrderPaymentTip = ({
         className="w-full"
         filled
       >
-        OK
+        {t('common:actions.ok')}
       </Button>
 
     </div>

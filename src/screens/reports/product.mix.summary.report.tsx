@@ -1,4 +1,5 @@
 import {Fragment, useEffect, useMemo, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {parseMultiFilter} from "@/api/reports/shared/filters.ts";
@@ -29,16 +30,18 @@ const ModifiersSummaryTable = ({
   totals,
   emptyMessage,
   showDepthIndent = true,
-}: ModifiersSummaryTableProps) => (
+}: ModifiersSummaryTableProps) => {
+  const { t } = useTranslation('reports');
+  return (
   <div className="mt-8 overflow-x-auto">
     <h3 className="mb-3 text-sm font-semibold text-neutral-800">{title}</h3>
     <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">
       <thead className="bg-neutral-50">
         <tr>
           <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Modifier</th>
-          <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Quantity</th>
-          <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Price</th>
-          <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">Total</th>
+          <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
+          <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.price')}</th>
+          <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t('columns.total')}</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-neutral-100 bg-white">
@@ -76,7 +79,8 @@ const ModifiersSummaryTable = ({
       </tfoot>
     </table>
   </div>
-);
+  );
+};
 
 interface ReportFilters {
   startDate?: string;
@@ -103,6 +107,7 @@ const parseFilters = (): ReportFilters => {
 };
 
 export const ProductMixSummaryReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const [categoryGroups, setCategoryGroups] = useState<CategoryGroup[]>([]);
   const [modifiersSummary, setModifiersSummary] = useState<ModifierSummaryMetrics[]>([]);
@@ -140,7 +145,7 @@ export const ProductMixSummaryReport = () => {
       setAccumulatedModifiersSummary(aggregateAccumulatedModifiersSummary(orders, productMixFilters));
     } catch (err) {
       console.error("Failed to load product mix summary report", err);
-      setError(err instanceof Error ? err.message : "Unable to load report");
+      setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
     } finally {
       setLoading(false);
     }
@@ -225,22 +230,22 @@ export const ProductMixSummaryReport = () => {
 
   if (loading) {
     return (
-      <ReportsLayout title="Product Mix Summary" subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">Loading product mix summary report…</div>
+      <ReportsLayout title={t('reports.productMixSummary')} subtitle={subtitle}>
+        <div className="py-12 text-center text-neutral-500">{t('loading.productMixSummary')}</div>
       </ReportsLayout>
     );
   }
 
   if (error) {
     return (
-      <ReportsLayout title="Product Mix Summary" subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">Failed to load report: {error}</div>
+      <ReportsLayout title={t('reports.productMixSummary')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
       </ReportsLayout>
     );
   }
 
   return (
-    <ReportsLayout onRefresh={fetchData} title="Product Mix Summary" subtitle={subtitle}>
+    <ReportsLayout onRefresh={fetchData} title={t('reports.productMixSummary')} subtitle={subtitle}>
       <div className="alert alert-warning">This report doesn't include taxes, discounts, service charges, extras and tips</div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">
@@ -249,16 +254,16 @@ export const ProductMixSummaryReport = () => {
               <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700"></th>
               <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Rank</th>
               <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Item Number</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Name</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.name')}</th>
               <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Num Sold</th>
               <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Price Sold</th>
-              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Amount</th>
-              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Cost</th>
-              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Profit</th>
-              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Food Cost %</th>
+              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
+              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.cost')}</th>
+              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.profit')}</th>
+              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('labels.foodCostPercent')}</th>
               <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Sale %</th>
-              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Discount</th>
-              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Tax</th>
+              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('reports.discount')}</th>
+              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('reports.tax')}</th>
               <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Service Charges</th>
               <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">Total Collected</th>
             </tr>
@@ -380,12 +385,12 @@ export const ProductMixSummaryReport = () => {
                             <thead className="bg-neutral-100">
                               <tr>
                                 <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-700">Modifier</th>
-                                <th className="py-2 px-3 text-right text-xs font-semibold text-neutral-700">Quantity</th>
+                                <th className="py-2 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
                                 <th className="py-2 px-3 text-right text-xs font-semibold text-neutral-700">Unit Price</th>
-                                <th className="py-2 px-3 text-right text-xs font-semibold text-neutral-700">Discount</th>
-                                <th className="py-2 px-3 text-right text-xs font-semibold text-neutral-700">Tax</th>
+                                <th className="py-2 px-3 text-right text-xs font-semibold text-neutral-700">{t('reports.discount')}</th>
+                                <th className="py-2 px-3 text-right text-xs font-semibold text-neutral-700">{t('reports.tax')}</th>
                                 <th className="py-2 px-3 text-right text-xs font-semibold text-neutral-700">Service Charges</th>
-                                <th className="py-2 px-3 text-right text-xs font-semibold text-neutral-700">Total</th>
+                                <th className="py-2 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.total')}</th>
                                 <th className="py-2 px-3 text-right text-xs font-semibold text-neutral-700">Ratio</th>
                                 <th className="py-2 px-3 text-right text-xs font-semibold text-neutral-700">Meal Price</th>
                               </tr>
@@ -476,14 +481,14 @@ export const ProductMixSummaryReport = () => {
       </div>
 
       <ModifiersSummaryTable
-        title="Modifiers"
+        title={t('filters.modifiers')}
         rows={modifiersSummary}
         totals={modifierSummaryTotals}
         emptyMessage="No modifiers available for the selected filters"
       />
 
       <ModifiersSummaryTable
-        title="Accumulated modifiers"
+        title={t('labels.accumulatedModifiers')}
         rows={accumulatedModifiersSummary}
         totals={accumulatedModifierSummaryTotals}
         emptyMessage="No accumulated modifiers available for the selected filters"

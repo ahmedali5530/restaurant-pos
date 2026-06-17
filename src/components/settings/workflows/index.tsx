@@ -10,9 +10,11 @@ import { Workflow } from "@/api/model/workflow.ts";
 import { WorkflowForm } from "@/components/settings/workflows/workflow.form.tsx";
 import { DeleteConfirm } from "@/components/common/table/delete.confirm.tsx";
 import { useDB } from "@/api/db/db.ts";
+import {useTranslation} from 'react-i18next';
 import { executeSettingsDelete } from "@/lib/settings-delete.service.ts";
 
 export const AdminWorkflows = () => {
+  const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<Workflow>>(Tables.workflows, ['deleted_at = none'], ['name asc'], 0, 10, []);
   const db = useDB();
 
@@ -23,11 +25,11 @@ export const AdminWorkflows = () => {
 
   const columns: any = [
     columnHelper.accessor("name", {
-      header: 'Name'
+      header: t('columns.name')
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {
@@ -42,7 +44,7 @@ export const AdminWorkflows = () => {
             ><FontAwesomeIcon icon={faPencil}/></Button>
             <div className="separator"></div>
             <DeleteConfirm
-              message={`Delete workflow ${info.row.original.name}`}
+              message={t('delete.workflow', { name: info.row.original.name })}
               onConfirm={() => deleteItem(info.row.original.id)}
             />
           </div>
@@ -55,7 +57,7 @@ export const AdminWorkflows = () => {
     await executeSettingsDelete({
       db,
       id,
-      entityLabel: 'Workflow',
+      entityLabel: t('entities.workflow'),
       usageChecks: [
         {
           query: `SELECT count() AS count FROM ${Tables.dishes} WHERE workflow = $idRecord AND deleted_at = none GROUP ALL`
@@ -81,7 +83,7 @@ export const AdminWorkflows = () => {
         buttons={[
           <Button variant="primary" onClick={() => {
             setFormModal(true);
-          }} icon={faPlus}> Workflow</Button>
+          }} icon={faPlus}>{t('buttons.workflow')}</Button>
         ]}
       />
 

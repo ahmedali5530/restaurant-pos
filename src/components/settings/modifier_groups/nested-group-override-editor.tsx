@@ -11,6 +11,7 @@ import {
   buildOverrideItemsFromTemplate,
   normalizeNextGroupOverrides,
 } from "@/lib/modifier-groups.ts";
+import {useTranslation} from 'react-i18next';
 import ScrollContainer from "react-indiana-drag-scroll";
 
 interface Props {
@@ -34,6 +35,8 @@ export const NestedGroupOverrideEditor = ({
   onClose,
   onSave,
 }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
   const [draftItems, setDraftItems] = useState<ModifierNextGroupOverrideItem[]>([]);
 
   useEffect(() => {
@@ -88,7 +91,7 @@ export const NestedGroupOverrideEditor = ({
   return (
     <Modal
       open={open}
-      title={`Customize: ${title}`}
+      title={t('forms.customize', { title })}
       onClose={onClose}
       size="lg"
     >

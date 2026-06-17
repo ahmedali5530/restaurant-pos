@@ -9,9 +9,11 @@ import {Payment} from "@/components/payment/payment.tsx";
 import {Seats} from "@/components/cart/seats.tsx";
 import {CartActions} from "@/components/cart/cart.actions.tsx";
 import {MenuItemType} from "@/api/model/cart_item.ts";
+import {useTranslation} from "react-i18next";
 
 export const MenuCart = () => {
   const [state, setState] = useAtom(appState);
+  const { t } = useTranslation('cart');
 
   const cartItems = useMemo(() => {
     return state.cart.filter(item => item.seat === state.seat);
@@ -51,7 +53,7 @@ export const MenuCart = () => {
                   ...prev,
                   seat: prev.seats.at(-1)
                 }))
-              }}>Seat ?</Button>
+              }}>{t('seats.deleteSeat')}</Button>
             </div>
           )}
           <ScrollContainer className="gap-[4px] flex flex-col select-none">

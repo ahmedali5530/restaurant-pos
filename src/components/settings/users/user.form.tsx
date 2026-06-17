@@ -7,13 +7,15 @@ import { Tables } from "@/api/db/tables.ts";
 import { toast } from 'sonner';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect } from "react";
+import { useMemo,  useEffect  } from "react";
 import { User } from "@/api/model/user.ts";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { UserRole } from "@/api/model/user_role.ts";
 import { Shift } from "@/api/model/shift.ts";
 import { StringRecordId } from "surrealdb";
+import {useTranslation} from 'react-i18next';
+import i18n from '@/lib/i18n.ts';
 import _ from "lodash";
 
 interface Props {
@@ -26,12 +28,12 @@ const validationSchema = yup.object({
   login_method: yup.object({
     label: yup.string().required(),
     value: yup.string().required(),
-  }).required("This is required"),
-  first_name: yup.string().required("This is required"),
-  last_name: yup.string().required("This is required"),
+  }).required(i18n.t('validation:required')),
+  first_name: yup.string().required(i18n.t('validation:required')),
+  last_name: yup.string().required(i18n.t('validation:required')),
   login: yup
     .string()
-    .required("This is required")
+    .required(i18n.t('validation:required'))
     .when("login_method.value", {
       is: "pin",
       then: (schema) =>
@@ -51,6 +53,8 @@ const validationSchema = yup.object({
 export const UserForm = ({
   open, onClose, data
 }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
   const { register, control, handleSubmit, formState: { errors }, reset, watch } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -133,7 +137,7 @@ export const UserForm = ({
     }
 
     if(vals.login_method === "form" && !vals.id && !vals.password){
-      toast.error("Password is required for new user");
+      toast.error(t('toast:admin.passwordRequired'));
       return;
     }
 
@@ -159,7 +163,7 @@ export const UserForm = ({
       }
 
       closeModal();
-      toast.success(`User ${values.first_name} ${values.last_name} saved`);
+      toast.success(t('toast:admin.userSaved', { name: `${values.first_name} ${values.last_name}` }));
     } catch ( e ) {
       toast.error(e);
       console.log(e)
@@ -178,17 +182,17 @@ export const UserForm = ({
   return (
     <>
       <Modal
-        title={data ? `Update ${data?.first_name} ${data?.last_name}` : 'Create new user'}
+        title={data ? t('forms.updateUser', { name: `${data?.first_name} ${data?.last_name}` }) : t('forms.createUser')}
         open={open}
         onClose={closeModal}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-3 flex-col mb-3">
             <div className="flex-1">
-              <Input label="First name" {...register('first_name')} autoFocus error={errors?.first_name?.message}/>
+              <Input label={t('columns.firstName')} {...register('first_name')} autoFocus error={errors?.first_name?.message}/>
             </div>
             <div className="flex-1">
-              <Input label="Last name" {...register('last_name')} error={errors?.last_name?.message}/>
+              <Input label={t('columns.lastName')} {...register('last_name')} error={errors?.last_name?.message}/>
             </div>
             <div className="flex-1">
               <label htmlFor="login_method">Login method</label>
@@ -212,7 +216,7 @@ export const UserForm = ({
             </div>
             {!isPinLogin && (
               <div className="flex-1">
-                <Input type="password" label="Password" {...register('password')} error={errors?.password?.message}/>
+                <Input type="password" label={t('forms.password')} {...register('password')} error={errors?.password?.message}/>
               </div>
             )}
             <div className="flex-1">
@@ -254,7 +258,7 @@ export const UserForm = ({
           </div>
 
           <div>
-            <Button type="submit" variant="primary">Save</Button>
+            <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
           </div>
         </form>
       </Modal>

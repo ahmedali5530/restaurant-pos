@@ -1,4 +1,5 @@
 import React, {useEffect, useMemo, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import * as yup from "yup";
 import {Controller, useFieldArray, useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
@@ -132,6 +133,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
 }).required();
 
 export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
+  const { t } = useTranslation('inventory');
   const db = useDB();
   const [purchaseOrderModal, setPurchaseOrderModal] = useState(false);
   const [state,] = useAtom(appPage);
@@ -292,7 +294,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
       })
       .catch((error) => {
         console.error("Failed to fetch next purchase invoice number", error);
-        toast.error("Unable to generate next invoice number");
+        toast.error(t('toast:inventory.unableGenerateInvoiceNumber'));
       });
 
     return () => {
@@ -309,7 +311,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
           value: data.purchase_order.id
         } : null,
         method: data.method ? {label: data.method, value: data.method.toLowerCase()} : {
-          label: "Manual",
+          label: t('purchaseMethods.manual'),
           value: "manual"
         },
         comments: data.comments ?? "",
@@ -343,7 +345,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
       reset({
         invoice_number: 1,
         purchase_order: null,
-        method: {label: "Manual", value: "manual"},
+        method: {label: t('purchaseMethods.manual'), value: "manual"},
         comments: "",
         documents: undefined,
         date: getToday(),
@@ -492,7 +494,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
         }
       }
 
-      toast.success("Purchase saved");
+      toast.success(t('toast:inventory.purchaseSaved'));
       closeModal();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : String(error));
@@ -539,9 +541,9 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
   })) ?? [];
 
   const methodOptions: { label: string; value: PurchaseMethod }[] = [
-    {label: "Manual", value: "manual"},
-    {label: "CSV", value: "csv"},
-    {label: "Purchase order", value: "purchase_order"},
+    {label: t('purchaseMethods.manual'), value: "manual"},
+    {label: t('purchaseMethods.csv'), value: "csv"},
+    {label: t('purchaseMethods.purchaseOrder'), value: "purchase_order"},
   ];
 
   return (
@@ -561,7 +563,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                   control={control}
                   render={({field}) => (
                     <Input
-                      label="Invoice number"
+                      label={t('forms.invoiceNumber')}
                       type="number"
                       {...field}
                       value={field.value ?? ""}
@@ -593,7 +595,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                   control={control}
                   render={({field}) => (
                     <DatePicker
-                      label="Date"
+                      label={t('forms.date')}
                       value={field.value as DateValue}
                       onChange={field.onChange}
                       maxValue={getToday()}
@@ -640,14 +642,14 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                   variant="primary"
                   filled
                   onClick={() => setCsvModal(true)}
-                >Add items using CSV file</Button>
+                >{t('csv.uploadTitle')}</Button>
               </div>
             )}
 
             <div className="flex gap-3">
               <div className="flex-1">
                 <Textarea
-                  placeholder="Comments"
+                  placeholder={t('forms.comments')}
                   rows={4}
                   {...register("comments")}
                 />
@@ -679,7 +681,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
             </div>
 
             <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
-              <legend>Items</legend>
+              <legend>{t('tabs.items')}</legend>
               {!isManualMethod && (
                 <p className="text-sm text-neutral-500 mb-2">
                   {isPurchaseOrderMethod
@@ -727,7 +729,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                   <div className="flex flex-col gap-3 mb-4 border border-neutral-400 rounded-lg p-3" key={field.id}>
                     <div className="flex gap-3">
                       <div className="flex-1">
-                        <label>Item</label>
+                        <label>{t('buttons.item')}</label>
                         <Controller
                           name={`items.${index}.item`}
                           control={control}
@@ -751,7 +753,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                           control={control}
                           render={({field}) => (
                             <Input
-                              label="Base quantity"
+                              label={t('columns.baseQuantity')}
                               type="number"
                               value={field.value as number | string}
                               onChange={field.onChange}
@@ -767,7 +769,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                           control={control}
                           render={({field}) => (
                             <Input
-                              label="Quantity"
+                              label={t('forms.quantity')}
                               type="number"
                               value={field.value as number | string}
                               onChange={field.onChange}
@@ -782,7 +784,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                           control={control}
                           render={({field}) => (
                             <Input
-                              label="Requested"
+                              label={t('forms.requested')}
                               type="number"
                               value={field.value as number | string | undefined}
                               onChange={field.onChange}
@@ -798,7 +800,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                           control={control}
                           render={({field}) => (
                             <Input
-                              label="Price"
+                              label={t('columns.price')}
                               type="number"
                               value={field.value as number | string}
                               onChange={field.onChange}
@@ -816,7 +818,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                           control={control}
                           render={({field}) => (
                             <DatePicker
-                              label="Expiry date"
+                              label={t('forms.expiryDate')}
                               value={field.value as DateValue}
                               onChange={field.onChange}
                               isClearable
@@ -830,7 +832,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                           control={control}
                           render={({field}) => (
                             <DatePicker
-                              label="Manufacturing date"
+                              label={t('forms.manufacturingDate')}
                               value={field.value as DateValue}
                               onChange={field.onChange}
                               isClearable
@@ -875,7 +877,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                       </div>
                       <div className="flex-1">
                         <Input
-                          label="Comments"
+                          label={t('forms.comments')}
                           {...register(`items.${index}.comments` as const)}
                         />
                       </div>
@@ -898,7 +900,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
           </div>
 
           <div>
-            <Button type="submit" variant="primary">Save</Button>
+            <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
           </div>
         </form>
       </Modal>
@@ -918,37 +920,37 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
           onClose={() => setCsvModal(false)}
           fields={[{
             name: 'name',
-            label: 'Item name'
+            label: t('itemName')
           }, {
             name: 'code',
-            label: 'Item code'
+            label: t('itemCode')
           }, {
             name: 'base_quantity',
-            label: 'Base quantity'
+            label: t('columns.baseQuantity')
           }, {
             name: 'quantity',
-            label: 'Quantity'
+            label: t('forms.quantity')
           }, {
             name: 'requested',
-            label: 'Requested'
+            label: t('forms.requested')
           }, {
             name: 'price',
-            label: 'Price'
+            label: t('columns.price')
           }, {
             name: 'expiry_date',
-            label: 'Expiry date'
+            label: t('forms.expiryDate')
           }, {
             name: 'manufacturing_date',
-            label: 'Manufacturing date'
+            label: t('forms.manufacturingDate')
           }, {
             name: 'supplier',
-            label: 'Supplier'
+            label: t('columns.suppliers')
           }, {
             name: 'store',
-            label: 'Store'
+            label: t('columns.stores')
           }, {
             name: 'comments',
-            label: 'Comments'
+            label: t('forms.comments')
           }]}
           onCreateRow={async (rowData) => {
             try {

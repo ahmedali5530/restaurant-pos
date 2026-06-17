@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {InventoryIssueReturn} from "@/api/model/inventory_issue_return.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {useDB} from "@/api/db/db.ts";
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export const InventoryIssueReturnViewModal = ({open, issueReturn, onClose}: Props) => {
+  const { t } = useTranslation('inventory');
   const db = useDB();
   const [viewReturn, setViewReturn] = useState<InventoryIssueReturn | null>(null);
   const [loading, setLoading] = useState(false);
@@ -73,19 +75,19 @@ export const InventoryIssueReturnViewModal = ({open, issueReturn, onClose}: Prop
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-neutral-700">
               <div>
-                <div className="text-neutral-500 text-xs uppercase">Issuance</div>
+                <div className="text-neutral-500 text-xs uppercase">{t('columns.issuance')}</div>
                 <div>{viewReturn.issuance ? `Issue #${viewReturn.issuance.invoice_number}` : "—"}</div>
               </div>
               <div>
-                <div className="text-neutral-500 text-xs uppercase">Issued to</div>
+                <div className="text-neutral-500 text-xs uppercase">{t('columns.issuedTo')}</div>
                 <div>{viewReturn.issued_to ? `${viewReturn.issued_to.first_name} ${viewReturn.issued_to.last_name}` : "—"}</div>
               </div>
               <div>
-                <div className="text-neutral-500 text-xs uppercase">Kitchen</div>
+                <div className="text-neutral-500 text-xs uppercase">{t('columns.kitchen')}</div>
                 <div>{viewReturn.kitchen?.name ?? "—"}</div>
               </div>
               <div>
-                <div className="text-neutral-500 text-xs uppercase">Created by</div>
+                <div className="text-neutral-500 text-xs uppercase">{t('columns.createdBy')}</div>
                 <div>{viewReturn.created_by?.first_name} {viewReturn.created_by?.last_name}</div>
               </div>
             </div>
@@ -131,7 +133,7 @@ export const InventoryIssueReturnViewModal = ({open, issueReturn, onClose}: Prop
             <div className="flex items-center justify-between mb-3">
               <div className="text-sm font-semibold text-neutral-800 flex items-center gap-2">
                 <FontAwesomeIcon icon={faFile}/>
-                <span>Attached documents</span>
+                <span>{t('upload.attachDocuments')}</span>
               </div>
             </div>
             {viewReturn.documents && viewReturn.documents.length > 0 ? (

@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -84,11 +85,12 @@ const OperationsLineChart = ({
   data: {id: string; data: ChartDataPoint[]}[];
   isLoading: boolean;
 }) => {
+  const { t } = useTranslation('reports');
   return (
     <div className="bg-white p-5 rounded-lg shadow-xl border">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-2xl font-bold text-neutral-700">Inventory Operations Trend</h2>
+          <h2 className="text-2xl font-bold text-neutral-700">{t('labels.inventoryOperationsTrend')}</h2>
           <p className="text-sm text-neutral-500">All operations date by date (Purchases & Issues show value, Returns & Wastes show quantity)</p>
         </div>
       </div>
@@ -97,7 +99,7 @@ const OperationsLineChart = ({
           <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
             <div className="text-center">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
-              <p className="mt-2 text-sm text-neutral-500">Loading chart...</p>
+              <p className="mt-2 text-sm text-neutral-500">{t('loading.chart')}</p>
             </div>
           </div>
         ) : null}
@@ -215,6 +217,7 @@ const DataTable = ({
   data: any[];
   loading: boolean;
 }) => {
+  const { t } = useTranslation('reports');
   const colorMap: Record<string, {bg: string; icon: string; badge: string; badgeText: string}> = {
     primary: {bg: 'bg-primary-100', icon: 'text-primary-600', badge: 'bg-primary-100', badgeText: 'text-primary-500'},
     success: {bg: 'bg-success-100', icon: 'text-success-600', badge: 'bg-success-100', badgeText: 'text-success-500'},
@@ -234,7 +237,7 @@ const DataTable = ({
           </div>
           <div>
             <h2 className="text-xl font-bold text-neutral-700">{title}</h2>
-            <p className="text-xs text-neutral-500">Latest 20 records</p>
+            <p className="text-xs text-neutral-500">{t('labels.latest20Records')}</p>
           </div>
         </div>
         <span className={`${colors.badge} ${colors.badgeText} text-xs font-semibold px-3 py-1.5 rounded-full`}>
@@ -258,7 +261,7 @@ const DataTable = ({
                 <td colSpan={columns.length} className="py-8 text-center">
                   <div className="flex items-center justify-center">
                     <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500 mr-2"></div>
-                    <span className="text-sm text-neutral-500">Loading...</span>
+                    <span className="text-sm text-neutral-500">{t('common:actions.loading')}</span>
                   </div>
                 </td>
               </tr>
@@ -286,6 +289,7 @@ const DataTable = ({
 
 // ==================== Main Component ====================
 export const InventoryDashboardReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [loading, setLoading] = useState(true);
@@ -481,7 +485,7 @@ export const InventoryDashboardReport = () => {
 
       } catch (err) {
         console.error("Failed to load inventory dashboard", err);
-        setError(err instanceof Error ? err.message : "Unable to load report");
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
       } finally {
         setLoading(false);
       }
@@ -689,18 +693,18 @@ export const InventoryDashboardReport = () => {
 
   if (error) {
     return (
-      <ReportsLayout title="Inventory dashboard">
+      <ReportsLayout title={t('reports.inventoryDashboard')}>
         <div className="py-12 text-center text-danger-500">Failed to load dashboard: {error}</div>
       </ReportsLayout>
     );
   }
 
   return (
-    <ReportsLayout title="Inventory dashboard" subtitle={reportTitle}>
+    <ReportsLayout title={t('reports.inventoryDashboard')} subtitle={reportTitle}>
       <div className="space-y-5">
         {/* KPI Metrics Grid */}
         <div className="bg-white p-5 rounded-lg shadow">
-          <h2 className="text-2xl font-bold mb-4 text-neutral-700">Key Metrics</h2>
+          <h2 className="text-2xl font-bold mb-4 text-neutral-700">{t('labels.keyMetrics')}</h2>
           <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-5 gap-4">
             <KPIMetricWidget
               title="Total Purchases"
@@ -760,7 +764,7 @@ export const InventoryDashboardReport = () => {
               <Package className="w-5 h-5 text-primary-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-neutral-700">Current Stock by Store</h2>
+              <h2 className="text-xl font-bold text-neutral-700">{t('labels.currentStockByStore')}</h2>
               <p className="text-xs text-neutral-500">Inventory levels across all stores</p>
             </div>
           </div>
@@ -784,10 +788,10 @@ export const InventoryDashboardReport = () => {
                   <table className="table">
                     <thead className="bg-neutral-50">
                       <tr>
-                        <th className="py-3 pl-4 pr-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Item Name</th>
-                        <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Code</th>
-                        <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-600 uppercase tracking-wider">Quantity</th>
-                        <th className="py-3 pr-4 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">UOM</th>
+                        <th className="py-3 pl-4 pr-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('columns.itemName')}</th>
+                        <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('columns.code')}</th>
+                        <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('columns.quantity')}</th>
+                        <th className="py-3 pr-4 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('columns.uom')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-neutral-100 bg-white">
@@ -824,13 +828,13 @@ export const InventoryDashboardReport = () => {
           icon={ShoppingCart}
           color="primary"
           columns={[
-            {key: 'invoice', label: 'Invoice #'},
-            {key: 'date', label: 'Date'},
-            {key: 'supplier', label: 'Supplier'},
-            {key: 'store', label: 'Store'},
-            {key: 'createdBy', label: 'Created By'},
-            {key: 'items', label: 'Items'},
-            {key: 'total', label: 'Total', className: 'text-right font-semibold'},
+            {key: 'invoice', label: t('columns.invoice')},
+            {key: 'date', label: t('columns.date')},
+            {key: 'supplier', label: t('filters.supplier')},
+            {key: 'store', label: t('filters.store')},
+            {key: 'createdBy', label: t('columns.createdBy')},
+            {key: 'items', label: t('columns.items')},
+            {key: 'total', label: t('columns.total'), className: 'text-right font-semibold'},
           ]}
           data={purchasesTableData}
           loading={loading}
@@ -842,13 +846,13 @@ export const InventoryDashboardReport = () => {
           icon={RotateCcw}
           color="info"
           columns={[
-            {key: 'invoice', label: 'Invoice #'},
-            {key: 'date', label: 'Date'},
-            {key: 'purchase', label: 'Original Purchase'},
-            {key: 'store', label: 'Store'},
-            {key: 'createdBy', label: 'Created By'},
-            {key: 'items', label: 'Items'},
-            {key: 'total', label: 'Total', className: 'text-right font-semibold'},
+            {key: 'invoice', label: t('columns.invoice')},
+            {key: 'date', label: t('columns.date')},
+            {key: 'purchase', label: t('columns.purchase')},
+            {key: 'store', label: t('filters.store')},
+            {key: 'createdBy', label: t('columns.createdBy')},
+            {key: 'items', label: t('columns.items')},
+            {key: 'total', label: t('columns.total'), className: 'text-right font-semibold'},
           ]}
           data={purchaseReturnsTableData}
           loading={loading}
@@ -860,14 +864,14 @@ export const InventoryDashboardReport = () => {
           icon={Package}
           color="warning"
           columns={[
-            {key: 'invoice', label: 'Invoice #'},
-            {key: 'date', label: 'Date'},
-            {key: 'kitchen', label: 'Kitchen'},
-            {key: 'issuedTo', label: 'Issued To'},
-            {key: 'store', label: 'Store'},
-            {key: 'createdBy', label: 'Created By'},
-            {key: 'items', label: 'Items'},
-            {key: 'total', label: 'Total Qty', className: 'text-right font-semibold'},
+            {key: 'invoice', label: t('columns.invoice')},
+            {key: 'date', label: t('columns.date')},
+            {key: 'kitchen', label: t('filters.kitchen')},
+            {key: 'issuedTo', label: t('columns.issuedTo')},
+            {key: 'store', label: t('filters.store')},
+            {key: 'createdBy', label: t('columns.createdBy')},
+            {key: 'items', label: t('columns.items')},
+            {key: 'total', label: t('columns.totalQty'), className: 'text-right font-semibold'},
           ]}
           data={issuesTableData}
           loading={loading}
@@ -879,14 +883,14 @@ export const InventoryDashboardReport = () => {
           icon={ArrowLeftRight}
           color="success"
           columns={[
-            {key: 'invoice', label: 'Invoice #'},
-            {key: 'date', label: 'Date'},
-            {key: 'issuance', label: 'Original Issue'},
-            {key: 'kitchen', label: 'Kitchen'},
-            {key: 'store', label: 'Store'},
-            {key: 'createdBy', label: 'Created By'},
-            {key: 'items', label: 'Items'},
-            {key: 'total', label: 'Total Qty', className: 'text-right font-semibold'},
+            {key: 'invoice', label: t('columns.invoice')},
+            {key: 'date', label: t('columns.date')},
+            {key: 'issuance', label: t('columns.issuance')},
+            {key: 'kitchen', label: t('filters.kitchen')},
+            {key: 'store', label: t('filters.store')},
+            {key: 'createdBy', label: t('columns.createdBy')},
+            {key: 'items', label: t('columns.items')},
+            {key: 'total', label: t('columns.totalQty'), className: 'text-right font-semibold'},
           ]}
           data={issueReturnsTableData}
           loading={loading}
@@ -898,13 +902,13 @@ export const InventoryDashboardReport = () => {
           icon={Trash2}
           color="danger"
           columns={[
-            {key: 'invoice', label: 'Invoice #'},
-            {key: 'date', label: 'Date'},
+            {key: 'invoice', label: t('columns.invoice')},
+            {key: 'date', label: t('columns.date')},
             {key: 'purchase', label: 'From Purchase'},
             {key: 'issue', label: 'From Issue'},
-            {key: 'createdBy', label: 'Created By'},
-            {key: 'items', label: 'Items'},
-            {key: 'total', label: 'Total Qty', className: 'text-right font-semibold'},
+            {key: 'createdBy', label: t('columns.createdBy')},
+            {key: 'items', label: t('columns.items')},
+            {key: 'total', label: t('columns.totalQty'), className: 'text-right font-semibold'},
           ]}
           data={wastesTableData}
           loading={loading}

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { ReportsLayout } from "@/screens/partials/reports.layout.tsx";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
@@ -26,6 +27,7 @@ const parseFilters = () => {
 };
 
 export const TipsReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [distributions, setDistributions] = useState<any[]>([]);
@@ -83,7 +85,7 @@ export const TipsReport = () => {
         setDistributions((rows || []) as any[]);
       } catch (err) {
         console.error("Failed to load tips report", err);
-        setError(err instanceof Error ? err.message : "Unable to load report");
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
       } finally {
         setLoading(false);
       }
@@ -113,15 +115,15 @@ export const TipsReport = () => {
   }, [distributions]);
 
   if (loading) {
-    return <ReportsLayout title="Tips report" subtitle={subtitle}><div className="py-12 text-center text-neutral-500">Loading tips report...</div></ReportsLayout>;
+    return <ReportsLayout title={t('titles.tips')} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('loading.tips')}</div></ReportsLayout>;
   }
 
   if (error) {
-    return <ReportsLayout title="Tips report" subtitle={subtitle}><div className="py-12 text-center text-red-600">Failed to load report: {error}</div></ReportsLayout>;
+    return <ReportsLayout title={t('titles.tips')} subtitle={subtitle}><div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div></ReportsLayout>;
   }
 
   return (
-    <ReportsLayout title="Tips report" subtitle={subtitle}>
+    <ReportsLayout title={t('titles.tips')} subtitle={subtitle}>
       <div className="grid grid-cols-2 gap-4 mb-5">
         <div className="border rounded-lg p-4 bg-neutral-50">
           <div className="text-sm text-neutral-500">Total tips</div>
@@ -137,8 +139,8 @@ export const TipsReport = () => {
         <table className="min-w-full divide-y divide-neutral-200">
           <thead className="bg-neutral-50">
             <tr>
-              <th className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">User</th>
-              <th className="py-3.5 pr-6 text-right text-sm font-semibold text-neutral-700">Tips</th>
+              <th className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">{t('filters.user')}</th>
+              <th className="py-3.5 pr-6 text-right text-sm font-semibold text-neutral-700">{t('reports.tips')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100 bg-white">

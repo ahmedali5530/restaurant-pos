@@ -8,7 +8,9 @@ import { Category } from "@/api/model/category.ts";
 import { toast } from 'sonner';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import React, { useEffect } from "react";
+import React, { useMemo,  useEffect } from "react";
+import {useTranslation} from 'react-i18next';
+import i18n from '@/lib/i18n.ts';
 import {Switch} from "@/components/common/input/switch.tsx";
 
 interface Props {
@@ -18,14 +20,16 @@ interface Props {
 }
 
 const validationSchema = yup.object({
-  name: yup.string().required("This is required"),
-  priority: yup.string().required("This is required").typeError('This should be a number'),
+  name: yup.string().required(i18n.t('validation:required')),
+  priority: yup.string().required(i18n.t('validation:required')).typeError(i18n.t('validation:mustBeNumber')),
   show_in_menu: yup.boolean()
 });
 
 export const CategoryForm = ({
   open, onClose, data
 }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
   const closeModal = () => {
     onClose();
     reset({
@@ -68,7 +72,7 @@ export const CategoryForm = ({
       }
 
       closeModal();
-      toast.success(`Category ${values.name} saved`);
+      toast.success(t('toast:admin.categorySaved', { name: values.name }));
     }catch(e){
       toast.error(e);
       console.log(e)
@@ -78,21 +82,21 @@ export const CategoryForm = ({
   return (
     <>
       <Modal
-        title={data ? `Update ${data?.name}` : 'Create new category'}
+        title={data ? t('forms.updateCategory', { name: data?.name }) : t('forms.createCategory')}
         open={open}
         onClose={closeModal}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <Input label="Name of category" {...register('name')} autoFocus error={errors?.name?.message} />
+              <Input label={t('forms.nameOfCategory')} {...register('name')} autoFocus error={errors?.name?.message} />
             </div>
             <div className="flex-1">
               <Controller
                 render={({field}) => (
                   <Input
                     type="number"
-                    label="Priority"
+                    label={t('columns.priority')}
                     error={errors?.priority?.message}
                     value={field.value}
                     onChange={field.onChange}
@@ -117,7 +121,7 @@ export const CategoryForm = ({
             </div>
           </div>
           <div>
-            <Button type="submit" variant="primary">Save</Button>
+            <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
           </div>
         </form>
       </Modal>

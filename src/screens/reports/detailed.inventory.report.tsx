@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -43,6 +44,7 @@ const parseFilters = () => {
 };
 
 export const DetailedInventoryReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [transactions, setTransactions] = useState<InventoryTransaction[]>([]);
@@ -357,7 +359,7 @@ export const DetailedInventoryReport = () => {
         setItemBalances(balanceSummary);
       } catch (err) {
         console.error("Failed to load detailed inventory report", err);
-        setError(err instanceof Error ? err.message : "Unable to load report");
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
       } finally {
         setLoading(false);
       }
@@ -368,22 +370,22 @@ export const DetailedInventoryReport = () => {
 
   if (loading) {
     return (
-      <ReportsLayout title="Detailed Inventory" subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">Loading inventory report…</div>
+      <ReportsLayout title={t('reports.detailedInventory')} subtitle={subtitle}>
+        <div className="py-12 text-center text-neutral-500">{t('loading.inventory')}</div>
       </ReportsLayout>
     );
   }
 
   if (error) {
     return (
-      <ReportsLayout title="Detailed Inventory" subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">Failed to load report: {error}</div>
+      <ReportsLayout title={t('reports.detailedInventory')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
       </ReportsLayout>
     );
   }
 
   return (
-    <ReportsLayout title="Detailed Inventory" subtitle={subtitle}>
+    <ReportsLayout title={t('reports.detailedInventory')} subtitle={subtitle}>
       <div className="space-y-8">
         <div className="overflow-hidden rounded-lg border border-neutral-200">
           <table className="min-w-full divide-y divide-neutral-200">

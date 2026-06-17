@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {REPORTS_PRODUCT_MIX_SUMMARY} from "@/routes/posr.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
@@ -31,6 +32,7 @@ const notNull = <T,>(value: T | null | undefined): value is T =>
   value !== null && value !== undefined;
 
 export const ProductMixSummaryFilter = () => {
+  const { t } = useTranslation('reports');
   const {data: usersData, isLoading: loadingUsers} = useApi<SettingsData<User>>(Tables.users, [], ['first_name asc'], 0, 9999);
   const {data: orderTypesData, isLoading: loadingOrderTypes} = useApi<SettingsData<OrderType>>(Tables.order_types, [], ['name asc'], 0, 9999);
   const {data: categoriesData, isLoading: loadingCategories} = useApi<SettingsData<Category>>(Tables.categories, [], ['name asc'], 0, 9999);
@@ -62,7 +64,7 @@ export const ProductMixSummaryFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="product-mix-summary-order-takers">Order Takers</label>
+          <label htmlFor="product-mix-summary-order-takers">{t('filters.orderTakers')}</label>
           <ReactSelect
             id="product-mix-summary-order-takers"
             name="order_takers[]"
@@ -78,7 +80,7 @@ export const ProductMixSummaryFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="product-mix-summary-order-types">Order Types</label>
+          <label htmlFor="product-mix-summary-order-types">{t('filters.orderTypes')}</label>
           <ReactSelect
             id="product-mix-summary-order-types"
             name="order_types[]"
@@ -92,7 +94,7 @@ export const ProductMixSummaryFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="product-mix-summary-categories">Categories</label>
+          <label htmlFor="product-mix-summary-categories">{t('filters.categories')}</label>
           <ReactSelect
             id="product-mix-summary-categories"
             name="categories[]"
@@ -106,7 +108,7 @@ export const ProductMixSummaryFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="product-mix-summary-menu-items">Menu Items</label>
+          <label htmlFor="product-mix-summary-menu-items">{t('filters.menuItems')}</label>
           <ReactSelect
             id="product-mix-summary-menu-items"
             name="menu_items[]"
@@ -120,7 +122,7 @@ export const ProductMixSummaryFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="product-mix-summary-modifiers">Modifiers</label>
+          <label htmlFor="product-mix-summary-modifiers">{t('filters.modifiers')}</label>
           <ReactSelect
             id="product-mix-summary-modifiers"
             name="modifiers[]"

@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -46,6 +47,7 @@ const getTotalFromResult = (result: any): number => {
 };
 
 export const CurrentInventoryReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [balances, setBalances] = useState<InventoryBalance[]>([]);
@@ -182,7 +184,7 @@ export const CurrentInventoryReport = () => {
         setBalances(allBalances);
       } catch (err) {
         console.error("Failed to load current inventory report", err);
-        setError(err instanceof Error ? err.message : "Unable to load report");
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
       } finally {
         setLoading(false);
       }
@@ -193,16 +195,16 @@ export const CurrentInventoryReport = () => {
 
   if (loading) {
     return (
-      <ReportsLayout title="Current Inventory">
-        <div className="py-12 text-center text-neutral-500">Loading inventory report…</div>
+      <ReportsLayout title={t('reports.currentInventory')}>
+        <div className="py-12 text-center text-neutral-500">{t('loading.inventory')}</div>
       </ReportsLayout>
     );
   }
 
   if (error) {
     return (
-      <ReportsLayout title="Current Inventory">
-        <div className="py-12 text-center text-red-600">Failed to load report: {error}</div>
+      <ReportsLayout title={t('reports.currentInventory')}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
       </ReportsLayout>
     );
   }
@@ -215,7 +217,7 @@ export const CurrentInventoryReport = () => {
   });
 
   return (
-    <ReportsLayout title="Current Inventory">
+    <ReportsLayout title={t('reports.currentInventory')}>
       <div className="space-y-8">
         <div className="overflow-hidden rounded-lg border border-neutral-200">
           <table className="min-w-full divide-y divide-neutral-200">

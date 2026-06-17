@@ -1,6 +1,8 @@
-import {Order as OrderModel} from '@/api/model/order';
+import {Order as OrderModel, OrderStatus} from '@/api/model/order';
 import {OrderPayment} from "@/api/model/order_payment.ts";
+import {OrderVoidReason} from "@/api/model/order_void.ts";
 import {safeNumber} from "@/lib/utils.ts";
+import type {TFunction} from 'i18next';
 
 export const getInvoiceNumber = (order: OrderModel) => {
   return `${order.invoice_number}${order.split ? `/${order.split}` : ''}`;
@@ -72,4 +74,33 @@ export const getOrderPaymentTotals = (order: Pick<OrderModel, 'payments'>): Orde
     change: safeNumber(totalReceivedWithChange - amountCollected),
     totalReceivedWithChange,
   };
+};
+
+const ORDER_STATUS_I18N_KEY: Partial<Record<OrderStatus, string>> = {
+  [OrderStatus['In Progress']]: 'status.inProgress',
+  [OrderStatus.Paid]: 'status.paid',
+  [OrderStatus.Cancelled]: 'status.cancelled',
+  [OrderStatus.Spilt]: 'status.spilt',
+  [OrderStatus.Merged]: 'status.merged',
+  [OrderStatus.Refunded]: 'status.refunded',
+};
+
+export const translateOrderStatus = (t: TFunction<'orders'>, status: string) => {
+  const key = ORDER_STATUS_I18N_KEY[status as OrderStatus];
+  return key ? t(key) : status;
+};
+
+const VOID_REASON_I18N_KEY: Record<OrderVoidReason, string> = {
+  [OrderVoidReason.FOHNotMade]: 'voidReasons.fohNotMade',
+  [OrderVoidReason.BOHNotMade]: 'voidReasons.bohNotMade',
+  [OrderVoidReason.GuestNotMade]: 'voidReasons.guestNotMade',
+  [OrderVoidReason.FOHMade]: 'voidReasons.fohMade',
+  [OrderVoidReason.BOHMade]: 'voidReasons.bohMade',
+  [OrderVoidReason.GuestMade]: 'voidReasons.guestMade',
+  [OrderVoidReason.PunchByMistake]: 'voidReasons.punchByMistake',
+  [OrderVoidReason.Testing]: 'voidReasons.testing',
+};
+
+export const translateVoidReason = (t: TFunction<'orders'>, reason: OrderVoidReason) => {
+  return t(VOID_REASON_I18N_KEY[reason]);
 };

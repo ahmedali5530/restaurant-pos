@@ -7,7 +7,9 @@ import { Tables } from "@/api/db/tables.ts";
 import { toast } from 'sonner';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect } from "react";
+import { useMemo,  useEffect  } from "react";
+import {useTranslation} from 'react-i18next';
+import i18n from '@/lib/i18n.ts';
 import { Floor } from "@/api/model/floor.ts";
 
 interface Props {
@@ -17,8 +19,8 @@ interface Props {
 }
 
 const validationSchema = yup.object({
-  name: yup.string().required("This is required"),
-  priority: yup.string().required("This is required"),
+  name: yup.string().required(i18n.t('validation:required')),
+  priority: yup.string().required(i18n.t('validation:required')),
   background: yup.string(),
   color: yup.string(),
 });
@@ -26,6 +28,8 @@ const validationSchema = yup.object({
 export const FloorForm = ({
   open, onClose, data
 }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
   const closeModal = () => {
     onClose();
     reset({
@@ -70,7 +74,7 @@ export const FloorForm = ({
       }
 
       closeModal();
-      toast.success(`Floor ${values.name} saved`);
+      toast.success(t('toast:admin.floorSaved', { name: values.name }));
     } catch ( e ) {
       toast.error(e);
       console.log(e)
@@ -80,24 +84,24 @@ export const FloorForm = ({
   return (
     <>
       <Modal
-        title={data ? `Update ${data?.name}` : 'Create new Floor'}
+        title={data ? t('forms.updateFloor', { name: data?.name }) : t('forms.createFloor')}
         open={open}
         onClose={closeModal}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <Input label="Name of table" {...register('name')} autoFocus error={errors?.name?.message}/>
+              <Input label={t('forms.nameOfTable')} {...register('name')} autoFocus error={errors?.name?.message}/>
             </div>
           </div>
 
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <Input type="color" label="Background color" {...register('background')}
+              <Input type="color" label={t('forms.backgroundColor')} {...register('background')}
                      error={errors?.background?.message}/>
             </div>
             <div className="flex-1">
-              <Input type="color" label="Font color" {...register('color')} error={errors?.color?.message}/>
+              <Input type="color" label={t('forms.fontColor')} {...register('color')} error={errors?.color?.message}/>
             </div>
           </div>
 
@@ -107,7 +111,7 @@ export const FloorForm = ({
                 render={({ field }) => (
                   <Input
                     type="number"
-                    label="Priority"
+                    label={t('columns.priority')}
                     error={errors?.priority?.message}
                     value={field.value}
                     onChange={field.onChange}
@@ -120,7 +124,7 @@ export const FloorForm = ({
           </div>
 
           <div>
-            <Button type="submit" variant="primary">Save</Button>
+            <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
           </div>
         </form>
       </Modal>

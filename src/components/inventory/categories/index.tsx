@@ -1,4 +1,5 @@
 import {useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {createColumnHelper} from "@tanstack/react-table";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -10,6 +11,7 @@ import {faPencil, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {InventoryCategoryForm} from "@/components/inventory/categories/form.tsx";
 
 export const InventoryCategories = () => {
+  const { t } = useTranslation('inventory');
   const loadHook = useApi<SettingsData<InventoryCategory>>(Tables.inventory_categories, [], [], 0, 10, []);
 
   const [data, setData] = useState<InventoryCategory>();
@@ -19,14 +21,14 @@ export const InventoryCategories = () => {
 
   const columns: any = [
     columnHelper.accessor("name", {
-      header: "Name"
+      header: t('columns.name')
     }),
     columnHelper.accessor("priority", {
-      header: "Priority",
+      header: t('columns.priority'),
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {

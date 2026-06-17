@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -47,6 +48,7 @@ const parseFilters = () => {
 };
 
 export const ActivityReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [rows, setRows] = useState<Tracking[]>([]);
@@ -85,7 +87,7 @@ export const ActivityReport = () => {
       setRows((result || []) as Tracking[]);
     } catch (err) {
       console.error("Failed to load activity report", err);
-      setError(err instanceof Error ? err.message : "Unable to load report");
+      setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
     } finally {
       setLoading(false);
     }
@@ -96,15 +98,15 @@ export const ActivityReport = () => {
   }, [filters.endDate, filters.startDate]);
 
   if (loading) {
-    return <ReportsLayout title="Activity report" subtitle={subtitle}><div className="py-12 text-center text-neutral-500">Loading activity report...</div></ReportsLayout>;
+    return <ReportsLayout title={t('titles.activity')} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('loading.activity')}</div></ReportsLayout>;
   }
   if (error) {
-    return <ReportsLayout title="Activity report" subtitle={subtitle}><div className="py-12 text-center text-red-600">Failed to load report: {error}</div></ReportsLayout>;
+    return <ReportsLayout title={t('titles.activity')} subtitle={subtitle}><div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div></ReportsLayout>;
   }
 
   return (
     <ReportsLayout
-      title="Activity report"
+      title={t('titles.activity')}
       subtitle={subtitle}
       onRefresh={fetchData}
     >
@@ -112,18 +114,18 @@ export const ActivityReport = () => {
         <table className="min-w-full divide-y divide-neutral-200">
           <thead className="bg-neutral-50">
           <tr>
-            <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">Time</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">User</th>
+            <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">{t('common:actions.time')}</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('filters.user')}</th>
             <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Role</th>
             <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Shift</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Module</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Page</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.module')}</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('common:table.page')}</th>
             <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Auth</th>
             <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Manager</th>
             <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Manager Role</th>
             {/* <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Coords</th> */}
             <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Payload</th>
-            <th className="py-3 pr-6 text-left text-sm font-semibold text-neutral-700">Device</th>
+            <th className="py-3 pr-6 text-left text-sm font-semibold text-neutral-700">{t('columns.device')}</th>
           </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100 bg-white">

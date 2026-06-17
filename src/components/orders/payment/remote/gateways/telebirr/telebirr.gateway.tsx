@@ -10,6 +10,9 @@ import {
 } from "@/components/orders/payment/remote/core/types.ts";
 import { fetchWebhookPaymentResult, verifyPayment } from "@/lib/payment.service.ts";
 import { toast } from "sonner";
+import i18n from "@/lib/i18n.ts";
+
+const GATEWAY = "Telebirr";
 
 export const telebirrGatewayAdapter: RemoteGatewayAdapter = {
   gateway: "telebirr",
@@ -17,10 +20,10 @@ export const telebirrGatewayAdapter: RemoteGatewayAdapter = {
   preparePayment: async () => ({ proceed: true }),
   onIntentCreated({ intent }: AfterIntentCreatedInput) {
     if (intent.paymentUrl) {
-      toast.success("Scan the QR code with the Telebirr app to pay.");
+      toast.success(i18n.t('payment:remoteGateway.scanQr', { gateway: GATEWAY }));
       return;
     }
-    toast.success("Telebirr payment intent generated.");
+    toast.success(i18n.t('payment:remoteGateway.intentCreated', { gateway: GATEWAY }));
   },
   startStatusPolling(pendingIntent, context, handlers) {
     let attempts = 0;
@@ -33,7 +36,7 @@ export const telebirrGatewayAdapter: RemoteGatewayAdapter = {
           stopped = true;
           clearInterval(timer);
           handlers.onStatusChange("timeout");
-          toast.warning("Telebirr payment timed out. Tap Verify to check again.");
+          toast.warning(i18n.t('payment:remoteGateway.paymentTimedOut', { gateway: GATEWAY }));
           return;
         }
         try {
@@ -61,7 +64,7 @@ export const telebirrGatewayAdapter: RemoteGatewayAdapter = {
             stopped = true;
             clearInterval(timer);
             handlers.onStatusChange(result.status);
-            toast.error(`Telebirr payment ${result.status}.`);
+            toast.error(i18n.t('payment:remoteGateway.paymentStatus', { gateway: GATEWAY, status: result.status }));
             return;
           }
           handlers.onStatusChange(result.status);
@@ -83,5 +86,5 @@ export const telebirrGatewayAdapter: RemoteGatewayAdapter = {
     if (!intent.paymentUrl) return null;
     return <TelebirrQrDisplay value={intent.paymentUrl} amount={intent.amount} />;
   },
-  getVerifiedSuccessMessage: () => "Telebirr payment received.",
+  getVerifiedSuccessMessage: () => i18n.t('payment:remoteGateway.paymentReceived', { gateway: GATEWAY }),
 };

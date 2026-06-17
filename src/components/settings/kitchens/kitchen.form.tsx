@@ -10,6 +10,8 @@ import { useDB } from "@/api/db/db.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Tables } from "@/api/db/tables.ts";
 import { toast } from "sonner";
+import {useTranslation} from 'react-i18next';
+import i18n from '@/lib/i18n.ts';
 import * as z from "zod";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
@@ -24,7 +26,7 @@ interface Props {
 }
 
 const validationSchema = z.object({
-  name: z.string().min(1, "This is required"),
+  name: z.string().min(1, i18n.t('validation:required')),
   printers: z.array(z.object({
     label: z.string(),
     value: z.string()
@@ -33,12 +35,14 @@ const validationSchema = z.object({
     label: z.string(),
     value: z.string()
   })),
-  priority: z.number().min(1, "This is required"),
+  priority: z.number().min(1, i18n.t('validation:required')),
 });
 
 export const KitchenForm = ({
   open, onClose, data
 }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
   const [dishSearch, setDishSearch] = useState("");
 
   const closeModal = () => {
@@ -116,7 +120,7 @@ export const KitchenForm = ({
       }
 
       closeModal();
-      toast.success(`Kitchen ${values.name} saved`);
+      toast.success(t('toast:admin.kitchenSaved', { name: values.name }));
     }catch(e){
       toast.error(e);
       console.log(e)
@@ -133,21 +137,21 @@ export const KitchenForm = ({
   return (
     <>
       <Modal
-        title={data ? `Update ${data?.name}` : 'Create new kitchen'}
+        title={data ? t('forms.updateKitchen', { name: data?.name }) : t('forms.createKitchen')}
         open={open}
         onClose={closeModal}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-3 mb-3 flex-col">
             <div className="flex-1">
-              <Input label="Name" {...register('name')} autoFocus error={errors?.name?.message}/>
+              <Input label={t('columns.name')} {...register('name')} autoFocus error={errors?.name?.message}/>
             </div>
 
             <div className="flex-1">
               <label htmlFor="">Dishes</label>
               <div className="mt-2">
                 <Input
-                  placeholder="Search dishes..."
+                  placeholder={t('forms.searchDishes')}
                   value={dishSearch}
                   onChange={(e) => setDishSearch(e.target.value)}
                 />
@@ -236,7 +240,7 @@ export const KitchenForm = ({
                       if (!categories.length) {
                         return (
                           <p className="text-neutral-500">
-                            {searchTerm ? "No dishes match your search." : "No dishes found."}
+                            {searchTerm ? t('forms.noDishesMatch') : t('forms.noDishesFound')}
                           </p>
                         );
                       }
@@ -316,7 +320,7 @@ export const KitchenForm = ({
                 render={({ field }) => (
                   <Input
                     type="number"
-                    label="Priority"
+                    label={t('columns.priority')}
                     error={errors?.priority?.message}
                     value={transformValue.input(field.value)}
                     onChange={(e) => field.onChange(transformValue.output(e))}
@@ -328,7 +332,7 @@ export const KitchenForm = ({
             </div>
           </div>
           <div>
-            <Button type="submit" variant="primary">Save</Button>
+            <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
           </div>
         </form>
       </Modal>

@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -21,6 +22,7 @@ const toRecordString = (value: unknown): string => {
 };
 
 export const CashClosingReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [closing, setClosing] = useState<DayClosing | null>(null);
@@ -52,7 +54,7 @@ export const CashClosingReport = () => {
         setClosing((rows?.[0] || null) as DayClosing | null);
       } catch (err) {
         console.error("Failed to load cash closing report", err);
-        setError(err instanceof Error ? err.message : "Unable to load report");
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
       } finally {
         setLoading(false);
       }
@@ -72,30 +74,30 @@ export const CashClosingReport = () => {
 
   if (loading) {
     return (
-      <ReportsLayout title="Cash closing report" subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">Loading cash closing report...</div>
+      <ReportsLayout title={t('titles.cashClosing')} subtitle={subtitle}>
+        <div className="py-12 text-center text-neutral-500">{t('loading.cashClosing')}</div>
       </ReportsLayout>
     );
   }
 
   if (error) {
     return (
-      <ReportsLayout title="Cash closing report" subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">Failed to load report: {error}</div>
+      <ReportsLayout title={t('titles.cashClosing')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
       </ReportsLayout>
     );
   }
 
   if (!closing) {
     return (
-      <ReportsLayout title="Cash closing report" subtitle={subtitle}>
+      <ReportsLayout title={t('titles.cashClosing')} subtitle={subtitle}>
         <div className="py-12 text-center text-neutral-500">No cash closing found for selected date.</div>
       </ReportsLayout>
     );
   }
 
   return (
-    <ReportsLayout title="Cash closing report" subtitle={subtitle}>
+    <ReportsLayout title={t('titles.cashClosing')} subtitle={subtitle}>
       <div className="space-y-6">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div className="border rounded-lg p-4 bg-neutral-50">
@@ -111,15 +113,15 @@ export const CashClosingReport = () => {
             <div className="text-xl font-semibold">{withCurrency(totalOtherPayments)}</div>
           </div>
           <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">Cash added</div>
+            <div className="text-sm text-neutral-500">{t('labels.cashAdded')}</div>
             <div className="text-xl font-semibold">{withCurrency(Number(closing.cash_added || 0))}</div>
           </div>
           <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">Expenses</div>
+            <div className="text-sm text-neutral-500">{t('columns.expenses')}</div>
             <div className="text-xl font-semibold">{withCurrency(totalExpenses)}</div>
           </div>
           <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">Closing balance</div>
+            <div className="text-sm text-neutral-500">{t('labels.closingBalance')}</div>
             <div className="text-xl font-semibold">{withCurrency(closingBalance)}</div>
           </div>
         </div>
@@ -128,7 +130,7 @@ export const CashClosingReport = () => {
           <table className="min-w-full divide-y divide-neutral-200">
             <tbody className="divide-y divide-neutral-100 bg-white">
               <tr>
-                <td className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-700">Status</td>
+                <td className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-700">{t('filters.status')}</td>
                 <td className="py-3 pr-6 text-sm text-neutral-900 capitalize">{closing.status || "-"}</td>
               </tr>
               <tr>
@@ -163,7 +165,7 @@ export const CashClosingReport = () => {
             <thead className="bg-neutral-50">
               <tr>
                 <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Terminal</th>
-                <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Amount</th>
+                <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 bg-white">
@@ -189,7 +191,7 @@ export const CashClosingReport = () => {
             <thead className="bg-neutral-50">
               <tr>
                 <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Payment type</th>
-                <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Amount</th>
+                <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 bg-white">
@@ -212,13 +214,13 @@ export const CashClosingReport = () => {
         </div>
 
         <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">Expenses</h3>
+          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">{t('columns.expenses')}</h3>
           <table className="min-w-full divide-y divide-neutral-200">
             <thead className="bg-neutral-50">
               <tr>
-                <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Description</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Category</th>
-                <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Amount</th>
+                <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.description')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.category')}</th>
+                <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 bg-white">

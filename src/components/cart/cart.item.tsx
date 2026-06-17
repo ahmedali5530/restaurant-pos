@@ -14,6 +14,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {StringRecordId} from "surrealdb";
 import { nowSurrealDateTime } from "@/lib/datetime.ts";
 import {CartItemName} from "@/components/common/cart/cart.item.name.tsx";
+import {useTranslation} from "react-i18next";
 
 interface Props {
   item: MenuItem
@@ -22,6 +23,7 @@ interface Props {
 
 export const CartItem = ({ item, index }: Props) => {
   const db = useDB();
+  const { t } = useTranslation('cart');
   const [state, setState] = useAtom(appState);
   const [page, ] = useAtom(appPage);
   const [isModifiersOpen, setModifiersOpen] = useState(false);
@@ -268,7 +270,7 @@ export const CartItem = ({ item, index }: Props) => {
             }));
           }}
           type="text"
-          placeholder="Add comment"
+          placeholder={t('seats.addComment')}
           value={commentText}
           onChange={(v) => setCommentText(v)}
         />

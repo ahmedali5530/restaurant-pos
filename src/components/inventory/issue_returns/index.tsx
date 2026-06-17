@@ -1,4 +1,5 @@
 import {useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {createColumnHelper} from "@tanstack/react-table";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -12,6 +13,7 @@ import {InventoryIssueReturnViewModal} from "@/components/inventory/issue_return
 import { toJsDate } from "@/lib/datetime.ts";
 
 export const InventoryIssueReturns = () => {
+  const { t } = useTranslation('inventory');
   const loadHook = useApi<SettingsData<InventoryIssueReturn>>(
     Tables.inventory_issue_returns,
     [],
@@ -31,27 +33,27 @@ export const InventoryIssueReturns = () => {
   const columns: any = [
     columnHelper.accessor(row => row.issuance?.invoice_number ?? "", {
       id: "invoice_number",
-      header: "Return#"
+      header: t('columns.returnNumber')
     }),
     columnHelper.accessor(row => row.issuance?.invoice_number ?? "", {
       id: "issuance",
-      header: "Issuance"
+      header: t('columns.issuance')
     }),
     columnHelper.accessor("created_at", {
-      header: "Created at",
+      header: t('columns.createdAt'),
       cell: info => info.getValue() ? toJsDate(info.getValue() as any).toLocaleString() : ""
     }),
     columnHelper.accessor('issued_to', {
       id: "issued_to",
-      header: "Issued to",
+      header: t('columns.issuedTo'),
       cell: info => `${info.getValue()?.first_name} ${info.getValue()?.last_name}`
     }),
     columnHelper.accessor(row => row.kitchen?.name ?? "", {
       id: "kitchen",
-      header: "Kitchen"
+      header: t('columns.kitchen')
     }),
     columnHelper.accessor("items", {
-      header: "Items",
+      header: t('tabs.items'),
       cell: info => (
         <div className="flex flex-wrap gap-2">
           {info.getValue()?.slice(0, 5)?.map((item, index) => (
@@ -64,7 +66,7 @@ export const InventoryIssueReturns = () => {
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {

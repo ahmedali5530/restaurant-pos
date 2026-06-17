@@ -15,7 +15,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { cn } from "@/lib/utils.ts";
 import { Button } from "@/components/common/input/button.tsx";
-import { CSSProperties } from "react";
+import { CSSProperties, useMemo } from "react";
 import {NavLink, useNavigate} from "react-router";
 import {
   ADMIN,
@@ -35,9 +35,11 @@ import {
 import { getUserModules } from "@/lib/access.rules.ts";
 import { useSecurity } from "@/hooks/useSecurity.ts";
 import ScrollContainer from "react-indiana-drag-scroll";
+import { useTranslation } from "react-i18next";
 
 export const Sidebar = () => {
   const [page, setPage] = useAtom(appPage);
+  const { t } = useTranslation('navigation');
 
   const pathInfo = location.pathname;
 
@@ -56,7 +58,7 @@ export const Sidebar = () => {
 
   const protectedNavigate = async (to: string, module?: string, description?: string) => {
     await protectAction(() => navigation(to), {
-      description: description || `Authenticate to access ${module}`,
+      description: description || t('authenticateToAccess', { module }),
       module,
     });
   }
@@ -72,18 +74,18 @@ export const Sidebar = () => {
     navigation(LOGIN);
   }
 
-  const allSidebarItems = [
-    { title: 'Menu', icon: <FontAwesomeIcon icon={faBars} size="lg"/>, link: MENU, role: 'Menu' },
-    { title: 'Orders', icon: <FontAwesomeIcon icon={faList} size="lg"/>, link: ORDERS, role: 'Orders' },
-    { title: 'Summary', icon: <FontAwesomeIcon icon={faClipboardList} size="lg"/>, link: SUMMARY, role: 'Summary' },
-    { title: 'Kitchen', icon: <FontAwesomeIcon icon={faUtensils} size="lg"/>, link: KITCHEN, role: 'Kitchen' },
-    { title: 'Delivery', icon: <FontAwesomeIcon icon={faMotorcycle} size="lg"/>, link: DELIVERY, role: 'Delivery' },
-    { title: 'Closing', icon: <FontAwesomeIcon icon={faStore} size="lg"/>, link: CLOSING, role: 'Closing' },
-    { title: 'Inventory', icon: <FontAwesomeIcon icon={faWarehouse} size="lg"/>, link: INVENTORY, role: 'Admin' },
-    { title: 'Manage', icon: <FontAwesomeIcon icon={faGear} size="lg"/>, link: ADMIN, role: 'Admin' },
-    { title: 'Reports', icon: <FontAwesomeIcon icon={faLineChart} size="lg"/>, link: REPORTS, role: 'Reports' },
-    { title: 'Tip Dist.', icon: <FontAwesomeIcon icon={faBarChart} size="lg"/>, link: TIP_DISTRIBUTION, role: 'Admin' },
-  ];
+  const allSidebarItems = useMemo(() => [
+    { title: t('sidebar.menu'), icon: <FontAwesomeIcon icon={faBars} size="lg"/>, link: MENU, role: 'Menu' },
+    { title: t('sidebar.orders'), icon: <FontAwesomeIcon icon={faList} size="lg"/>, link: ORDERS, role: 'Orders' },
+    { title: t('sidebar.summary'), icon: <FontAwesomeIcon icon={faClipboardList} size="lg"/>, link: SUMMARY, role: 'Summary' },
+    { title: t('sidebar.kitchen'), icon: <FontAwesomeIcon icon={faUtensils} size="lg"/>, link: KITCHEN, role: 'Kitchen' },
+    { title: t('sidebar.delivery'), icon: <FontAwesomeIcon icon={faMotorcycle} size="lg"/>, link: DELIVERY, role: 'Delivery' },
+    { title: t('sidebar.closing'), icon: <FontAwesomeIcon icon={faStore} size="lg"/>, link: CLOSING, role: 'Closing' },
+    { title: t('sidebar.inventory'), icon: <FontAwesomeIcon icon={faWarehouse} size="lg"/>, link: INVENTORY, role: 'Admin' },
+    { title: t('sidebar.manage'), icon: <FontAwesomeIcon icon={faGear} size="lg"/>, link: ADMIN, role: 'Admin' },
+    { title: t('sidebar.reports'), icon: <FontAwesomeIcon icon={faLineChart} size="lg"/>, link: REPORTS, role: 'Reports' },
+    { title: t('sidebar.tipDist'), icon: <FontAwesomeIcon icon={faBarChart} size="lg"/>, link: TIP_DISTRIBUTION, role: 'Admin' },
+  ], [t]);
 
   // Filter sidebar items based on user roles
   const userRoles = getUserModules(page.user);

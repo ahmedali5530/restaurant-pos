@@ -1,4 +1,5 @@
 import React, {useEffect} from "react";
+import { useTranslation } from 'react-i18next';
 import * as yup from "yup";
 import {useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
@@ -42,6 +43,7 @@ const validationSchema: yup.ObjectSchema<SupplierFormValues> = yup.object({
 }).required();
 
 export const SupplierForm = ({open, onClose, data}: Props) => {
+  const { t } = useTranslation('inventory');
   const db = useDB();
 
   const {register, handleSubmit, formState: {errors}, reset} = useForm({
@@ -86,7 +88,7 @@ export const SupplierForm = ({open, onClose, data}: Props) => {
         await db.create(Tables.inventory_suppliers, payload);
       }
 
-      toast.success(`Supplier ${values.name} saved`);
+      toast.success(t('toast:inventory.supplierSaved', { name: values.name }));
       closeModal();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : String(error));
@@ -104,22 +106,22 @@ export const SupplierForm = ({open, onClose, data}: Props) => {
         <input type="hidden" {...register("id")} />
         <div className="flex flex-col gap-3 mb-3">
           <div className="flex-1">
-            <Input label="Name" {...register("name")} autoFocus error={errors?.name?.message} />
+            <Input label={t('columns.name')} {...register("name")} autoFocus error={errors?.name?.message} />
           </div>
           <div className="flex-1">
-            <Input label="Address" {...register("address")} error={errors?.address?.message ?? undefined} />
+            <Input label={t('columns.address')} {...register("address")} error={errors?.address?.message ?? undefined} />
           </div>
           <div className="flex gap-3">
             <div className="flex-1">
-              <Input label="Phone" {...register("phone")} error={errors?.phone?.message ?? undefined} />
+              <Input label={t('columns.phone')} {...register("phone")} error={errors?.phone?.message ?? undefined} />
             </div>
             <div className="flex-1">
-              <Input label="Email" {...register("email")} error={errors?.email?.message ?? undefined} />
+              <Input label={t('columns.email')} {...register("email")} error={errors?.email?.message ?? undefined} />
             </div>
           </div>
         </div>
         <div>
-          <Button type="submit" variant="primary">Save</Button>
+          <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
         </div>
       </form>
     </Modal>

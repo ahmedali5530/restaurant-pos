@@ -19,8 +19,10 @@ import {toast} from "sonner";
 import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {createStageRows} from "@/lib/kitchen/workflow.service.ts";
+import {useTranslation} from "react-i18next";
 
 export const Payment = () => {
+  const {t} = useTranslation(["payment", "toast"]);
   const db = useDB();
   const [state, setState] = useAtom(appState);
   const [page] = useAtom(appPage);
@@ -189,7 +191,7 @@ export const Payment = () => {
 
       const normalizedOrder = isNewOrder ? orderObj[0] : orderObj;
       postOrderTracking({
-        module: isNewOrder ? "Create order" : "Append order",
+        module: isNewOrder ? t("payment:tracking.createOrder") : t("payment:tracking.appendOrder"),
         page: page?.page,
         orderId: normalizedOrder?.id,
         payload: {
@@ -213,7 +215,7 @@ export const Payment = () => {
               table: state?.table,
               isAddOn: !isNewOrder,
             }, {
-              title: 'Kitchen print',
+              title: t("payment:print.kitchenTitle"),
               copies: 1,
               userId: page?.user?.id,
               printers: k.printers
@@ -238,7 +240,7 @@ export const Payment = () => {
       await createOrder();
       await reset();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unable to create order.";
+      const message = error instanceof Error ? error.message : t("payment:errors.createOrder");
       setLoading(false);
       console.error(error);
       toast.error(message);
@@ -289,7 +291,7 @@ export const Payment = () => {
         setPayment(true);
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unable to open payment.";
+      const message = error instanceof Error ? error.message : t("payment:errors.openPayment");
       console.error(error);
       toast.error(message);
     }
@@ -311,23 +313,23 @@ export const Payment = () => {
       <div className="font-bold">
         <div className="p-3">
           <div className="flex justify-between items-center">
-            <span>Sub Total ({state.cart.length})</span>
+            <span>{t("payment:labels.subTotal", {count: state.cart.length})}</span>
             <span>{withCurrency(total)}</span>
           </div>
         </div>
         <div className="h-[2px] separator"></div>
         <div className="p-3">
           <div className="flex justify-between items-center text-success-500 text-3xl">
-            <span>Total</span>
+            <span>{t("payment:labels.total")}</span>
             <span>{withCurrency(total)}</span>
           </div>
           <div className="flex gap-3 mt-3">
             <Button variant="success" className="flex-1" size="lg" icon={faCheck} onClick={createOrderAndBack}
-                    disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}>To kitchen</Button>
+                    disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}>{t("payment:actions.toKitchen")}</Button>
             <Button variant="warning" filled className="flex-1" size="lg" icon={faCreditCard} onClick={openPayment}
-                    disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}>Pay Now</Button>
+                    disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}>{t("payment:actions.payNow")}</Button>
             <Button variant="danger" className="flex-1" size="lg" icon={faCancel} onClick={cancel}
-                    disabled={isLoading}>Cancel</Button>
+                    disabled={isLoading}>{t("payment:actions.cancel")}</Button>
           </div>
         </div>
       </div>

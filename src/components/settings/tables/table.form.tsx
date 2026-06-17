@@ -7,7 +7,7 @@ import { Tables } from "@/api/db/tables.ts";
 import { toast } from 'sonner';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect } from "react";
+import { useMemo,  useEffect  } from "react";
 import { Table } from "@/api/model/table.ts";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
@@ -16,6 +16,8 @@ import { PaymentType } from "@/api/model/payment_type.ts";
 import { OrderType } from "@/api/model/order_type.ts";
 import { Floor } from "@/api/model/floor.ts";
 import { Switch } from "@/components/common/input/switch.tsx";
+import {useTranslation} from 'react-i18next';
+import i18n from '@/lib/i18n.ts';
 import { StringRecordId } from "surrealdb";
 
 interface Props {
@@ -25,11 +27,11 @@ interface Props {
 }
 
 const validationSchema = yup.object({
-  name: yup.string().required("This is required"),
-  number: yup.string().required('This is required'),
-  priority: yup.string().required("This is required"),
-  background: yup.string().required('This is required'),
-  color: yup.string().required('This is required'),
+  name: yup.string().required(i18n.t('validation:required')),
+  number: yup.string().required(i18n.t('validation:required')),
+  priority: yup.string().required(i18n.t('validation:required')),
+  background: yup.string().required(i18n.t('validation:required')),
+  color: yup.string().required(i18n.t('validation:required')),
   floor: yup.object({
     label: yup.string().required(),
     value: yup.string().required(),
@@ -52,6 +54,8 @@ const validationSchema = yup.object({
 export const TableForm = ({
   open, onClose, data
 }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
   const closeModal = () => {
     onClose();
     reset({
@@ -161,7 +165,7 @@ export const TableForm = ({
       }
 
       closeModal();
-      toast.success(`Table ${values.name}${values.number} saved`);
+      toast.success(t('toast:admin.tableSaved', { name: `${values.name}${values.number}` }));
     }catch(e){
       toast.error(e);
       console.log(e)
@@ -180,17 +184,17 @@ export const TableForm = ({
   return (
     <>
       <Modal
-        title={data ? `Update ${data?.name}${data?.number}` : 'Create new Table'}
+        title={data ? t('forms.updateTable', { name: `${data?.name}${data?.number}` }) : t('forms.createTable')}
         open={open}
         onClose={closeModal}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <Input label="Name of table" {...register('name')} autoFocus error={errors?.name?.message}/>
+              <Input label={t('forms.nameOfTable')} {...register('name')} autoFocus error={errors?.name?.message}/>
             </div>
             <div className="flex-1">
-              <Input label="Number of table" {...register('number')} error={errors?.number?.message}/>
+              <Input label={t('forms.numberOfTable')} {...register('number')} error={errors?.number?.message}/>
             </div>
           </div>
 
@@ -210,17 +214,17 @@ export const TableForm = ({
 
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <Input type="color" label="Background color" {...register('background')}
+              <Input type="color" label={t('forms.backgroundColor')} {...register('background')}
                      error={errors?.background?.message}/>
             </div>
             <div className="flex-1">
-              <Input type="color" label="Font color" {...register('color')} error={errors?.background?.message}/>
+              <Input type="color" label={t('forms.fontColor')} {...register('color')} error={errors?.background?.message}/>
             </div>
           </div>
 
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <label htmlFor="">Floor</label>
+              <label htmlFor="">{t('columns.floor')}</label>
               <Controller
                 render={({ field }) => (
                   <ReactSelect
@@ -246,7 +250,7 @@ export const TableForm = ({
                 render={({ field }) => (
                   <Input
                     type="number"
-                    label="Priority"
+                    label={t('columns.priority')}
                     error={errors?.priority?.message}
                     value={field.value}
                     onChange={field.onChange}
@@ -259,7 +263,7 @@ export const TableForm = ({
           </div>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <label htmlFor="">Categories</label>
+              <label htmlFor="">{t('columns.categories')}</label>
               <Controller
                 render={({ field }) => (
                   <ReactSelect
@@ -280,7 +284,7 @@ export const TableForm = ({
           </div>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <label htmlFor="">Order types</label>
+              <label htmlFor="">{t('columns.orderTypes')}</label>
               <Controller
                 render={({ field }) => (
                   <ReactSelect
@@ -301,7 +305,7 @@ export const TableForm = ({
           </div>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <label htmlFor="">Payment types</label>
+              <label htmlFor="">{t('columns.paymentTypes')}</label>
               <Controller
                 render={({ field }) => (
                   <ReactSelect
@@ -322,7 +326,7 @@ export const TableForm = ({
           </div>
 
           <div>
-            <Button type="submit" variant="primary">Save</Button>
+            <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
           </div>
         </form>
       </Modal>

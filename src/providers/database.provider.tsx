@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useMemo, useCallback, useS
 import { useMutation } from "@tanstack/react-query";
 import { Surreal } from "surrealdb";
 import { DB_REST_DB, DB_REST_NS, DB_REST_PASS, DB_REST_USER, withApi } from "@/api/db/settings.ts";
+import { useTranslation } from "react-i18next";
 
 export interface DatabaseProviderState {
   /** The Surreal instance */
@@ -32,6 +33,7 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
   children, 
   autoConnect = true 
 }) => {
+  const { t } = useTranslation('common');
   // Surreal instance remains stable across re-renders (created once)
   const [surrealInstance] = useState(() => new Surreal());
 
@@ -115,13 +117,13 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
         <div className="text-center max-w-md p-6 bg-danger-50 border border-danger-200 rounded-lg">
-          <h2 className="text-xl font-semibold text-danger-800 mb-2">Connection Error</h2>
-          <p className="text-danger-600 mb-4">{String(error) || 'Connection failed'}</p>
+          <h2 className="text-xl font-semibold text-danger-800 mb-2">{t('database.connectionError')}</h2>
+          <p className="text-danger-600 mb-4">{String(error) || t('database.connectionFailed')}</p>
           <button
             onClick={() => connect()}
             className="px-4 py-2 bg-danger-600 text-white rounded hover:bg-danger-700"
           >
-            Retry Connection
+            {t('database.retryConnection')}
           </button>
         </div>
       </div>
@@ -134,7 +136,7 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Connecting to server...</p>
+          <p className="text-gray-600">{t('database.connecting')}</p>
         </div>
       </div>
     );

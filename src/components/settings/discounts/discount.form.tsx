@@ -7,8 +7,10 @@ import { Tables } from "@/api/db/tables.ts";
 import { toast } from 'sonner';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect } from "react";
+import { useMemo,  useEffect  } from "react";
 import { Discount, DiscountType } from "@/api/model/discount.ts";
+import {useTranslation} from 'react-i18next';
+import i18n from '@/lib/i18n.ts';
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 
 interface Props {
@@ -18,20 +20,22 @@ interface Props {
 }
 
 const validationSchema = yup.object({
-  name: yup.string().required("This is required"),
+  name: yup.string().required(i18n.t('validation:required')),
   type: yup.object().shape({
     label: yup.string(),
     value: yup.string()
   }).default(undefined).required('This is required'),
-  min_rate: yup.number().required("This is required"),
-  max_rate: yup.number().required("This is required"),
+  min_rate: yup.number().required(i18n.t('validation:required')),
+  max_rate: yup.number().required(i18n.t('validation:required')),
   max_cap: yup.number().nullable(),
-  priority: yup.string().required("This is required"),
+  priority: yup.string().required(i18n.t('validation:required')),
 });
 
 export const DiscountForm = ({
   open, onClose, data
 }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
   const closeModal = () => {
     onClose();
     reset({
@@ -83,7 +87,7 @@ export const DiscountForm = ({
       }
 
       closeModal();
-      toast.success(`Discount ${values.name} saved`);
+      toast.success(t('toast:admin.discountSaved', { name: values.name }));
     } catch ( e ) {
       toast.error(e);
       console.log(e)
@@ -93,14 +97,14 @@ export const DiscountForm = ({
   return (
     <>
       <Modal
-        title={data ? `Update ${data?.name}` : 'Create new discount'}
+        title={data ? t('forms.updateDiscount', { name: data?.name }) : t('forms.createDiscount')}
         open={open}
         onClose={closeModal}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-3 flex-col mb-3">
             <div className="flex-1">
-              <Input label="Name" {...register('name')} autoFocus error={errors?.name?.message}/>
+              <Input label={t('columns.name')} {...register('name')} autoFocus error={errors?.name?.message}/>
             </div>
             <div className="flex-1">
               <label htmlFor="">Type</label>
@@ -125,7 +129,7 @@ export const DiscountForm = ({
                 <Controller
                   render={({ field }) => (
                     <Input
-                      label="Max Discount Cap"
+                      label={t('columns.maxDiscountCap')}
                       value={field.value}
                       onChange={field.onChange}
                       error={errors?.max_cap?.message}
@@ -171,7 +175,7 @@ export const DiscountForm = ({
                 render={({ field }) => (
                   <Input
                     type="number"
-                    label="Priority"
+                    label={t('columns.priority')}
                     error={errors?.priority?.message}
                     value={field.value}
                     onChange={field.onChange}
@@ -184,7 +188,7 @@ export const DiscountForm = ({
           </div>
 
           <div>
-            <Button type="submit" variant="primary">Save</Button>
+            <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
           </div>
         </form>
       </Modal>

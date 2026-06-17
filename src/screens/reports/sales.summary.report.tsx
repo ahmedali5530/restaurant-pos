@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {parseDateRangeFromParams} from "@/api/reports/shared/filters.ts";
@@ -20,6 +21,7 @@ type SummaryRow = {
 const parseFilters = () => parseDateRangeFromParams(new URLSearchParams(window.location.search));
 
 export const SalesSummaryReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const [summary, setSummary] = useState<ReturnType<typeof aggregateSalesSummary> | null>(null);
   const [loading, setLoading] = useState(true);
@@ -42,7 +44,7 @@ export const SalesSummaryReport = () => {
         setSummary(aggregateSalesSummary(orders, orderVoids));
       } catch (err) {
         console.error("Failed to load sales summary report", err);
-        setError(err instanceof Error ? err.message : "Unable to load report");
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
       } finally {
         setLoading(false);
       }
@@ -110,17 +112,17 @@ export const SalesSummaryReport = () => {
     return [
       {label: "Net sales", value: withCurrency(totalNetSales)},
       {label: "Amount collected", value: withCurrency(paymentSummary.amountCollected)},
-      {label: "Cash payments (net)", value: withCurrency(paymentSummary.cashPayments)},
+      {label: t('labels.cashPaymentsNet'), value: withCurrency(paymentSummary.cashPayments)},
       {label: "Rounding benefit", value: withCurrency(roundingBenefit)},
-      {label: "Check count by day part", breakdown: checkBreakdown},
+      {label: t('metrics.checkCountByDayPart'), breakdown: checkBreakdown},
       {label: "Sale by day part", breakdown: saleBreakdown},
       {label: "Net sales by order type", breakdown: orderTypeItems},
       {label: "Service charges", value: withCurrency(serviceCharges)},
       {label: "Taxes", value: withCurrency(taxes)},
       {label: "Non cash payments", value: withCurrency(paymentSummary.nonCashPayments), breakdown: nonCashItems},
-      {label: "Discounts", value: withCurrency(totalDiscounts)},
-      {label: "Coupons", value: withCurrency(totalCoupons)},
-      {label: "Voids", value: withCurrency(totalVoids)},
+      {label: t('metrics.discounts'), value: withCurrency(totalDiscounts)},
+      {label: t('metrics.coupons'), value: withCurrency(totalCoupons)},
+      {label: t('reports.voids'), value: withCurrency(totalVoids)},
     ];
   }, [
     dayPartTotals,
@@ -140,22 +142,22 @@ export const SalesSummaryReport = () => {
 
   if (loading) {
     return (
-      <ReportsLayout title="Sales summary" subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">Loading sales summary…</div>
+      <ReportsLayout title={t('titles.salesSummary')} subtitle={subtitle}>
+        <div className="py-12 text-center text-neutral-500">{t('loading.salesSummary')}</div>
       </ReportsLayout>
     );
   }
 
   if (error) {
     return (
-      <ReportsLayout title="Sales summary" subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">Failed to load report: {error}</div>
+      <ReportsLayout title={t('titles.salesSummary')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
       </ReportsLayout>
     );
   }
 
   return (
-    <ReportsLayout title="Sales summary" subtitle={subtitle}>
+    <ReportsLayout title={t('titles.salesSummary')} subtitle={subtitle}>
       <div className="space-y-8">
         <div className="overflow-hidden rounded-lg border border-neutral-200">
           <table className="min-w-full divide-y divide-neutral-200">

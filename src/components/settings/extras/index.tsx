@@ -10,9 +10,11 @@ import { TableComponent } from "@/components/common/table/table.tsx";
 import { ExtraForm } from "@/components/settings/extras/extra.form.tsx";
 import { DeleteConfirm } from "@/components/common/table/delete.confirm.tsx";
 import { useDB } from "@/api/db/db.ts";
+import {useTranslation} from 'react-i18next';
 import { withCurrency } from "@/lib/utils.ts";
 
 export const AdminExtras = () => {
+  const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<Extra>>(Tables.extras, [], ["name asc"], 0, 99999, [
     "payment_types",
     "order_types",
@@ -27,10 +29,10 @@ export const AdminExtras = () => {
 
   const columns: any = [
     columnHelper.accessor("name", {
-      header: "Name",
+      header: t('columns.name'),
     }),
     columnHelper.accessor("value", {
-      header: "Value",
+      header: t('columns.value'),
       cell: info => withCurrency(Number(info.getValue() || 0)),
     }),
     columnHelper.accessor("payment_types", {
@@ -42,20 +44,20 @@ export const AdminExtras = () => {
       cell: info => info.getValue()?.length || "-",
     }),
     columnHelper.accessor("tables", {
-      header: "Tables",
+      header: t('columns.tables'),
       cell: info => info.getValue()?.length || "-",
     }),
     columnHelper.accessor("delivery", {
-      header: "Delivery",
+      header: t('columns.delivery'),
       cell: info => info.getValue() ? <FontAwesomeIcon icon={faCheck} className="text-success-500" /> : <FontAwesomeIcon icon={faTimes} className="text-danger-500" />,
     }),
     columnHelper.accessor("apply_to_all", {
-      header: "Apply to all",
+      header: t('columns.applyToAll'),
       cell: info => info.getValue() ? <FontAwesomeIcon icon={faCheck} className="text-success-500" /> : <FontAwesomeIcon icon={faTimes} className="text-danger-500" />,
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {
@@ -72,7 +74,7 @@ export const AdminExtras = () => {
             </Button>
             <div className="separator"></div>
             <DeleteConfirm
-              message={`Delete extra ${info.row.original.name}`}
+              message={t('delete.extra', { name: info.row.original.name })}
               onConfirm={async () => {
                 await db.delete(info.row.original.id);
                 loadHook.fetchData();

@@ -9,6 +9,7 @@ import {MenuDish} from "@/components/menu/dish.tsx";
 import {CartModifierGroup, MenuItem} from "@/api/model/cart_item.ts";
 import {resolveMenuAwareData} from "@/lib/menu.resolver.ts";
 import {toast} from "sonner";
+import i18n from "@/lib/i18n.ts";
 
 export const MenuDishes = () => {
   const isTablet = useMediaQuery({maxWidth: 1024});
@@ -43,7 +44,7 @@ export const MenuDishes = () => {
 
   const onClick = (item: MenuItem, selectedGroups?: CartModifierGroup[]) => {
     if (orderTakingBlocked) {
-      toast.warning(enforcement.message ?? "Order taking is currently disabled.");
+      toast.warning(enforcement.message ?? i18n.t('closing:orderTakingDisabled'));
       return;
     }
 

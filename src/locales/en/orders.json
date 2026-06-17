@@ -1,0 +1,179 @@
+{
+  "customer": {
+    "name": "Name",
+    "phone": "Phone Number",
+    "address": "Address",
+    "attach": "Attach",
+    "search": "Search",
+    "columns": {
+      "select": "Select",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Addr.",
+      "secondaryAddress": "Secondary Addr.",
+      "points": "Points"
+    }
+  },
+  "filters": {
+    "status": "Select order status",
+    "orderTypes": "Select order types",
+    "floors": "Select floors",
+    "users": "Select users"
+  },
+  "view": {
+    "blocks": "Blocks",
+    "table": "Table"
+  },
+  "merge": {
+    "chooseTableAlert": "Please choose a new table",
+    "success": "Successfully merged into {{invoiceNumber}}",
+    "failed": "Failed to create merging orders",
+    "chooseTable": "Choose a table",
+    "selectTwoOrMore": "Select 2 or more orders",
+    "confirmMerging": "Confirm merging of {{count}} orders",
+    "cancelMerging": "Cancel merging"
+  },
+  "header": {
+    "orderNumber": "Order# {{invoice}} / {{orderType}}"
+  },
+  "status": {
+    "inProgress": "In Progress",
+    "paid": "Paid",
+    "cancelled": "Cancelled",
+    "spilt": "Spilt",
+    "merged": "Merged",
+    "refunded": "Refunded"
+  },
+  "totals": {
+    "items": "Items ({{count}})",
+    "itemsShort": "Items",
+    "tax": "Tax",
+    "discount": "Discount",
+    "serviceCharges": "Service charges ({{value}}{{unit}})",
+    "tip": "Tip",
+    "tipPercent": "Tip %",
+    "total": "Total",
+    "change": "Change",
+    "sc": "SC ({{value}}%)",
+    "extras": "Extras"
+  },
+  "actions": {
+    "selectToMerge": "Select to merge",
+    "more": "More",
+    "cancelOrder": "Cancel order",
+    "splitBySeats": "Split by seats",
+    "splitByItems": "Split by items",
+    "splitByAmount": "Split by amount",
+    "mergeOrders": "Merge orders",
+    "refund": "Refund",
+    "printFinalBillCopy": "Print final bill copy",
+    "tempBill": "Temp bill",
+    "payNow": "Pay Now"
+  },
+  "cancel": {
+    "title": "Cancel order",
+    "reason": "Reason",
+    "items": "Items",
+    "comments": "Comments",
+    "commentsPlaceholder": "Enter comments",
+    "confirmCancellation": "Confirm cancellation",
+    "unknownItem": "Unknown item",
+    "chooseReason": "Please choose a reason",
+    "selectAtLeastOne": "Please select at least one item",
+    "cannotIdentifyUser": "Unable to identify logged in user",
+    "successOrder": "Order cancelled successfully",
+    "successItems": "Selected items cancelled",
+    "failed": "Failed to cancel order"
+  },
+  "refund": {
+    "title": "Refund order",
+    "selectItems": "Select items to refund",
+    "itemsTotal": "Items Total:",
+    "tax": "Tax ({{name}} {{rate}}%):",
+    "discount": "Discount:",
+    "serviceCharges": "Service Charges ({{value}}{{unit}}):",
+    "tip": "Tip:",
+    "refundTotal": "Refund Total:",
+    "itemsSelected": "{{count}} item(s) selected",
+    "reason": "Reason",
+    "reasonPlaceholder": "Enter refund reason",
+    "refundButton": "Refund",
+    "refundButtonWithCount": "Refund {{count}} item(s)",
+    "selectAtLeastOne": "Please select at least one item to refund",
+    "cannotIdentifyUser": "Unable to identify logged in user",
+    "success": "Successfully refunded {{count}} item(s)",
+    "failed": "Failed to refund order"
+  },
+  "voidReasons": {
+    "fohNotMade": "FOH Not Made",
+    "bohNotMade": "BOH Not Made",
+    "guestNotMade": "Guest Not Made",
+    "fohMade": "FOH Made",
+    "bohMade": "BOH Made",
+    "guestMade": "Guest Made",
+    "punchByMistake": "Punch By Mistake",
+    "testing": "Testing"
+  },
+  "split": {
+    "title": "Split order {{invoice}}",
+    "titleByAmount": "Split by amount — Order {{invoice}}",
+    "splitName": "Split {{number}}",
+    "seatName": "Seat {{number}}",
+    "noSeat": "No Seat",
+    "toast": {
+      "success": "Successfully created {{count}} split order(s)",
+      "failed": "Failed to split order"
+    },
+    "bySeats": {
+      "heading": "Additional splits",
+      "scrollHint": "Scroll to see all splits",
+      "total": "Total: {{amount}}",
+      "noItems": "No items",
+      "dragItemsHere": "Drag items here",
+      "noAdditionalSplits": "No additional splits",
+      "addSplitHint": "Add a split to distribute items",
+      "creating": "Creating splits...",
+      "save": "Save {{count}} split(s)",
+      "addMoreSplits": "Add more splits before saving",
+      "allSplitsNeedItems": "All splits must have at least one item"
+    },
+    "byItems": {
+      "splitOneFixed": "Split 1 (main)",
+      "mainSplitHint": "Items start here. Drag to other splits.",
+      "total": "Total: {{amount}}",
+      "noItems": "No items",
+      "itemsReturnHere": "Items return here when moved back",
+      "additionalSplits": "Additional splits",
+      "scrollHint": "Scroll horizontally for more splits",
+      "addSplit": "Add split",
+      "dragFromSplitOne": "Drag items from Split 1",
+      "moveBackToSplitOne": "Move back to Split 1",
+      "noAdditionalSplits": "No additional splits",
+      "addSplitHint": "Add a split to distribute items",
+      "creating": "Creating splits...",
+      "save": "Save {{count}} split(s)",
+      "addMoreSplits": "Add more splits before saving",
+      "allSplitsNeedItems": "All splits must have at least one item"
+    },
+    "byAmount": {
+      "orderTotal": "Order total",
+      "assignHint": "Assign amounts to each split. Remaining must be zero.",
+      "assigned": "Assigned: {{amount}}",
+      "remaining": "Remaining: {{amount}}",
+      "amount": "Amount",
+      "percentage": "{{value}}%",
+      "itemsCount": "{{count}} item(s) in order",
+      "noItemsInOrder": "No items in this order",
+      "itemFallback": "Item",
+      "subtotal": "Subtotal",
+      "addSplit": "Add split",
+      "autoFillRemaining": "Auto-fill remaining",
+      "distributeEvenly": "Distribute evenly",
+      "assignRemaining": "Assign remaining {{amount}}",
+      "exceedsTotal": "Exceeds total by {{amount}}",
+      "creating": "Creating splits...",
+      "save": "Save {{count}} split(s)"
+    }
+  }
+}

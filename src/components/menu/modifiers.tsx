@@ -24,6 +24,7 @@ import {
   shouldAdvanceFromGroup,
   updateModifierNestedGroups,
 } from "@/lib/modifier-groups.ts";
+import {useTranslation} from "react-i18next";
 
 interface Props {
   dish?: Dish
@@ -61,6 +62,7 @@ const NestedModifiersSummary = ({groups}: { groups: CartModifierGroup[] }) => (
 export const MenuDishModifiers = (props: Props) => {
   const [state] = useAtom(appState);
   const [, setAlert] = useAtom(appAlert);
+  const { t } = useTranslation('menu');
 
   const [groups, setGroups] = useState(() => cloneCartModifierGroups(props.groups));
   const [group, setGroup] = useState<CartModifierGroup>();
@@ -209,7 +211,7 @@ export const MenuDishModifiers = (props: Props) => {
 
             setAlert(prev => ({
               ...prev,
-              message: 'Last modifier is replaced, to replace any other modifier remove it from right sidebar and choose again.',
+              message: t('modifiers.replacedWarning'),
               type: 'warning',
               opened: true
             }));
@@ -296,7 +298,7 @@ export const MenuDishModifiers = (props: Props) => {
   return (
     <Modal
       open={props.isOpen}
-      title={`Modify ${props.dish.name}`}
+      title={t('modifiers.modifyTitle', { name: props.dish.name })}
       shouldCloseOnOverlayClick={isDismissible}
       shouldCloseOnEsc={isDismissible}
       hideCloseButton={hideCloseButton}
@@ -373,7 +375,7 @@ export const MenuDishModifiers = (props: Props) => {
                 props.onClose([]);
               }}
               className="mb-3 w-full lg"
-            >Cancel</Button>
+            >{t('modifiers.cancel')}</Button>
             <ScrollContainer className="modifiers-swiper">
               {groups.map((g) => (
                 <div key={getGroupInstanceKey(g)}>

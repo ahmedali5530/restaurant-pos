@@ -7,6 +7,7 @@ import {TableSelectionSettings} from "@/components/user_settings/table_selection
 import {MenusSettings} from "@/components/user_settings/menus.tsx";
 import {AutoCheckCloseSettingsCard} from "@/components/user_settings/auto_check_close.tsx";
 import {ClosingCycleSettingsCard} from "@/components/user_settings/closing_cycle.tsx";
+import {LanguageSettings} from "@/components/user_settings/language.tsx";
 
 export const Settings = () => {
 
@@ -14,6 +15,7 @@ export const Settings = () => {
     <Layout containerClassName="p-5 gap-5 grid grid-cols-2">
       <Printersettings />
       <CacheSettings />
+      <LanguageSettings />
       <MenusSettings />
       <ServiceChargesSettings />
       <ClosingCycleSettingsCard />

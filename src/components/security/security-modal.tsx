@@ -5,8 +5,10 @@ import {PasswordAuth} from './auth/password-auth';
 import {QrCodeAuth} from './auth/qrcode-auth.tsx';
 import {Modal} from '../common/react-aria/modal';
 import {Button} from '../common/input/button';
+import { useTranslation } from 'react-i18next';
 
 export const SecurityModal = () => {
+  const { t } = useTranslation('auth');
   const {
     isModalOpen,
     currentAction,
@@ -75,11 +77,11 @@ export const SecurityModal = () => {
   const getAuthTypeLabel = (type: AuthType) => {
     switch (type) {
       case 'pin':
-        return 'PIN';
+        return t('security.pin');
       case 'password':
-        return 'Password';
+        return t('security.password');
       case 'qrcode':
-        return 'QR Code';
+        return t('security.qrcode');
       default:
         return type;
     }

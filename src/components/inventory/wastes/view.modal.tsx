@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {InventoryWaste} from "@/api/model/inventory_waste.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {useDB} from "@/api/db/db.ts";
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export const InventoryWasteViewModal = ({open, waste, onClose}: Props) => {
+  const { t } = useTranslation('inventory');
   const db = useDB();
   const [viewWaste, setViewWaste] = useState<InventoryWaste | null>(null);
   const [loading, setLoading] = useState(false);
@@ -73,7 +75,7 @@ export const InventoryWasteViewModal = ({open, waste, onClose}: Props) => {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-neutral-700">
               <div>
-                <div className="text-neutral-500 text-xs uppercase">Source</div>
+                <div className="text-neutral-500 text-xs uppercase">{t('columns.source')}</div>
                 <div>
                   {viewWaste.purchase
                     ? `Purchase #${viewWaste.purchase.invoice_number}`
@@ -83,7 +85,7 @@ export const InventoryWasteViewModal = ({open, waste, onClose}: Props) => {
                 </div>
               </div>
               <div>
-                <div className="text-neutral-500 text-xs uppercase">Created by</div>
+                <div className="text-neutral-500 text-xs uppercase">{t('columns.createdBy')}</div>
                 <div>{viewWaste.created_by?.first_name} {viewWaste.created_by?.last_name}</div>
               </div>
             </div>
@@ -124,7 +126,7 @@ export const InventoryWasteViewModal = ({open, waste, onClose}: Props) => {
             <div className="flex items-center justify-between mb-3">
               <div className="text-sm font-semibold text-neutral-800 flex items-center gap-2">
                 <FontAwesomeIcon icon={faFile}/>
-                <span>Attached documents</span>
+                <span>{t('upload.attachDocuments')}</span>
               </div>
             </div>
             {viewWaste.documents && viewWaste.documents.length > 0 ? (

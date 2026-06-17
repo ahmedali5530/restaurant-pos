@@ -1,0 +1,23 @@
+{
+  "actions": {
+    "completeAllOpen": "Completar todos los pedidos abiertos",
+    "completedOrders": "Pedidos completados",
+    "viewAllDishes": "Ver todos los platos",
+    "recall": "Recuperar",
+    "ready": "Listo"
+  },
+  "labels": {
+    "avgTime": "Tiempo prom.: {{time}}",
+    "avgTimeMins": "{{count}} min",
+    "addon": "COMPLEMENTO",
+    "completed": "Completado: {{time}}",
+    "items": "Artículos: {{count}}"
+  },
+  "modal": {
+    "completedOrdersTitle": "{{kitchen}} Pedidos completados (Hoy)",
+    "noCompletedOrders": "No se encontraron pedidos completados para hoy."
+  },
+  "confirm": {
+    "completeAll": "¿Completar todos los pedidos abiertos en esta cocina?"
+  }
+}

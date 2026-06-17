@@ -1,0 +1,91 @@
+{
+  "language": {
+    "title": "Dil",
+    "description": "Bu cihaz için görüntüleme dilini seçin. Yalnızca bu cihaza uygulanır.",
+    "changed": "Dil güncellendi"
+  },
+  "direction": {
+    "title": "Metin yönü",
+    "description": "Bu cihaz için soldan sağa veya sağdan sola düzeni seçin.",
+    "ltr": "LTR",
+    "rtl": "RTL"
+  },
+  "touch": {
+    "title": "Ekran klavyesi",
+    "description": "Ekran klavyesini etkinleştirin veya devre dışı bırakın. Yalnızca bu cihaza uygulanır."
+  },
+  "cache": {
+    "title": "Önbellek",
+    "description": "Veri setine göre mevcut önbellek boyutu.",
+    "reload": "Önbelleği yeniden yükle",
+    "orderTypes": "Sipariş türleri",
+    "categories": "Kategoriler",
+    "dishes": "Yemekler",
+    "modifierGroups": "Değiştirici grupları",
+    "groupDishes": "Grup yemekleri",
+    "floors": "Katlar",
+    "tables": "Masalar",
+    "kitchens": "Mutfaklar",
+    "paymentTypes": "Ödeme türleri",
+    "reloaded": "Önbellek veritabanından yeniden yüklendi",
+    "reloadFailed": "Önbellek yeniden yüklenemedi"
+  },
+  "serviceCharges": {
+    "title": "Servis ücretleri",
+    "updated": "Servis ücretleri güncellendi",
+    "saveDescription": "Servis ücretlerini kaydet"
+  },
+  "printers": {
+    "title": "Varsayılan yazıcılar",
+    "description": "Yazıcı atamaları kullanıcı başına saklanır. Her kullanıcı geçici, final, iade, teslimat ve özet yazıcılarını atayabilir. Hiçbiri ayarlanmadıysa genel ayarlar yedek olarak kullanılır.",
+    "loading": "Yazıcı ayarları yükleniyor…",
+    "tempPrint": "Geçici yazdırma yazıcıları",
+    "finalPrint": "Final yazdırma yazıcıları",
+    "refundPrint": "İade yazdırma yazıcıları",
+    "deliveryPrint": "Teslimat yazdırma yazıcıları",
+    "summaryPrint": "Özet yazdırma yazıcıları",
+    "selectPrinters": "Yazıcı seçin…",
+    "saving": "Kaydediliyor…",
+    "save": "Yazıcı ayarlarını kaydet",
+    "saveDescription": "Yazıcıları kaydet",
+    "loadFailed": "Yazıcı ayarları yüklenemedi",
+    "loginRequired": "Yazıcı ayarlarını kaydetmek için lütfen giriş yapın.",
+    "saved": "Yazıcı ayarları kaydedildi",
+    "saveFailed": "Yazıcı ayarları kaydedilemedi"
+  },
+  "menus": {
+    "title": "Menü ayarları",
+    "activateMenus": "Menüleri etkinleştir",
+    "selectMenus": "Menü seçin…",
+    "loading": "Menü ayarları yükleniyor…",
+    "saving": "Kaydediliyor…",
+    "save": "Menü ayarlarını kaydet",
+    "saveDescription": "Menüleri kaydet",
+    "loadFailed": "Menü ayarları yüklenemedi",
+    "loginRequired": "Menü ayarlarını kaydetmek için lütfen giriş yapın.",
+    "saved": "Menü ayarları kaydedildi",
+    "saveFailed": "Menü ayarları kaydedilemedi"
+  },
+  "tableSelection": {
+    "title": "Menüden masa seçimini gizle",
+    "description": "Masa seçimini atlayın ve menüyü doğrudan açın. Yalnızca bu cihaza uygulanır. Paket servis tabanlı sipariş için uygundur"
+  },
+  "autoCheckClose": {
+    "title": "Otomatik adisyon kapatma",
+    "description": "Kapanış döngüsü bitiş saatinde açık masa adisyonlarını otomatik olarak kapatır. Teslimat siparişleri hariç tutulur. Kapanmadan 1 dakika önce bir uyarı görünür.",
+    "printOnClose": "Kapanışta final faturayı yazdır",
+    "paymentType": "Ödeme türü",
+    "paymentTypeRequired": "Otomatik kapatma etkinleştirildiğinde ödeme türü zorunludur",
+    "paymentTypeRequiredField": "Ödeme türü zorunludur",
+    "updated": "Otomatik adisyon kapatma ayarları güncellendi",
+    "saveDescription": "Otomatik adisyon kapatma ayarlarını kaydet"
+  },
+  "closingCycle": {
+    "title": "Kapanış döngüsü",
+    "description": "Döngü başlangıç ve bitiş saatini yapılandırın. Bitiş saati ertesi gün olabilir (örnek: 06:00 - 02:00).",
+    "startTime": "Başlangıç saati",
+    "endTime": "Bitiş saati",
+    "updated": "Kapanış döngüsü ayarları güncellendi",
+    "saveDescription": "Kapanış döngüsü ayarlarını kaydet"
+  }
+}

@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -99,6 +100,7 @@ const parseFilters = (): ReportFilters => {
 };
 
 export const VoidsReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [orderVoids, setOrderVoids] = useState<OrderVoid[]>([]);
@@ -172,7 +174,7 @@ export const VoidsReport = () => {
         setOrderVoids(voids);
       } catch (err) {
         console.error('Failed to load voids report:', err);
-        setError(err instanceof Error ? err.message : 'Unable to load report');
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
       } finally {
         setLoading(false);
       }
@@ -252,23 +254,23 @@ export const VoidsReport = () => {
 
   if (loading) {
     return (
-      <ReportsLayout title="Voids summary" subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">Loading voids report…</div>
+      <ReportsLayout title={t('titles.voids')} subtitle={subtitle}>
+        <div className="py-12 text-center text-neutral-500">{t('loading.voids')}</div>
       </ReportsLayout>
     );
   }
 
   if (error) {
     return (
-      <ReportsLayout title="Voids summary" subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">Failed to load report: {error}</div>
+      <ReportsLayout title={t('titles.voids')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
       </ReportsLayout>
     );
   }
 
   return (
     <ReportsLayout
-      title="Voids summary"
+      title={t('titles.voids')}
       subtitle={subtitle}
     >
       <div className="space-y-8">
@@ -281,10 +283,10 @@ export const VoidsReport = () => {
               <table className="min-w-full divide-y divide-neutral-200">
                 <thead className="bg-neutral-50">
                   <tr>
-                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Reason</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Count</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Quantity</th>
-                    <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">Amount</th>
+                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.reason')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.count')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
+                    <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-100 bg-white">
@@ -319,9 +321,9 @@ export const VoidsReport = () => {
                 <thead className="bg-neutral-50">
                   <tr>
                     <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Manager</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Count</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Quantity</th>
-                    <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">Amount</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.count')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
+                    <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-100 bg-white">
@@ -356,9 +358,9 @@ export const VoidsReport = () => {
                 <thead className="bg-neutral-50">
                   <tr>
                     <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Menu Item</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Count</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Quantity</th>
-                    <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">Amount</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.count')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
+                    <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-100 bg-white">
@@ -393,16 +395,16 @@ export const VoidsReport = () => {
             <table className="min-w-full divide-y divide-neutral-200">
               <thead className="bg-neutral-50">
                 <tr>
-                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Date</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Time</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Reason</th>
+                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.date')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('common:actions.time')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.reason')}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Menu Item</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Quantity</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Line Total</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.lineTotal')}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Manager</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Cashier</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('metrics.cashier')}</th>
                   <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Order #</th>
-                  <th className="py-3 pr-6 text-left text-xs font-semibold text-neutral-700">Comments</th>
+                  <th className="py-3 pr-6 text-left text-xs font-semibold text-neutral-700">{t('columns.comments')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100 bg-white">
@@ -435,7 +437,7 @@ export const VoidsReport = () => {
                         <td className="py-3 px-3 text-sm text-neutral-700">
                           <div className="space-y-2">
                             {voidItems.length === 0 ? (
-                              <div>Unknown</div>
+                              <div>{t('common:actions.unknown')}</div>
                             ) : (
                               voidItems.map((item, itemIndex) => {
                                 const modifiers = getVoidItemModifiers(voidItem, item);
@@ -484,7 +486,7 @@ export const VoidsReport = () => {
               {orderVoids.length > 0 && (
                 <tfoot className="bg-neutral-50">
                   <tr>
-                    <td colSpan={4} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">Total</td>
+                    <td colSpan={4} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">{t('columns.total')}</td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
                       {formatNumber(orderVoids.reduce((sum, v) => sum + safeNumber(v.quantity), 0))}
                     </td>

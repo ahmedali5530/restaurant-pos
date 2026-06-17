@@ -10,9 +10,11 @@ import { Kitchen } from "@/api/model/kitchen.ts";
 import { KitchenForm } from "@/components/settings/kitchens/kitchen.form.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
+import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminKitchens = () => {
+  const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<Kitchen>>(Tables.kitchens, ['deleted_at = none'], ['priority asc'], 0, 10, ['items', 'printers']);
   const db = useDB();
 
@@ -23,18 +25,18 @@ export const AdminKitchens = () => {
 
   const columns: any = [
     columnHelper.accessor("name", {
-      header: 'Name'
+      header: t('columns.name')
     }),
     columnHelper.accessor("printers", {
-      header: 'Printers',
+      header: t('columns.printers'),
       cell: info => info.getValue()?.map(item => <span className="tag" key={item.id}>{item.name}</span>)
     }),
     columnHelper.accessor("priority", {
-      header: 'Priority'
+      header: t('columns.priority')
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {
@@ -49,7 +51,7 @@ export const AdminKitchens = () => {
             ><FontAwesomeIcon icon={faPencil}/></Button>
             <div className="separator"></div>
             <DeleteConfirm
-              message={`Delete kitchen ${info.row.original.name}`}
+              message={t('delete.kitchen', { name: info.row.original.name })}
               onConfirm={() => deleteItem(info.row.original.id)}
             />
           </div>
@@ -62,7 +64,7 @@ export const AdminKitchens = () => {
     await executeSettingsDelete({
       db,
       id,
-      entityLabel: 'Kitchen',
+      entityLabel: t('entities.kitchen'),
       usageChecks: [
         {
           query: `SELECT count() AS count FROM ${Tables.order_items_kitchen} WHERE kitchen = $idRecord GROUP ALL`
@@ -86,7 +88,7 @@ export const AdminKitchens = () => {
         buttons={[
           <Button variant="primary" onClick={() => {
             setFormModal(true);
-          }} icon={faPlus}> Kitchen</Button>
+          }} icon={faPlus}>{t('buttons.kitchen')}</Button>
         ]}
       />
 

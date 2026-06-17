@@ -1,0 +1,23 @@
+{
+  "actions": {
+    "completeAllOpen": "Tüm açık siparişleri tamamla",
+    "completedOrders": "Tamamlanan Siparişler",
+    "viewAllDishes": "Tüm yemekleri görüntüle",
+    "recall": "Geri çağır",
+    "ready": "Hazır"
+  },
+  "labels": {
+    "avgTime": "Ort. süre: {{time}}",
+    "avgTimeMins": "{{count}} dk",
+    "addon": "EK",
+    "completed": "Tamamlandı: {{time}}",
+    "items": "Ürünler: {{count}}"
+  },
+  "modal": {
+    "completedOrdersTitle": "{{kitchen}} Tamamlanan Siparişler (Bugün)",
+    "noCompletedOrders": "Bugün için tamamlanan sipariş bulunamadı."
+  },
+  "confirm": {
+    "completeAll": "Bu mutfaktaki tüm açık siparişler tamamlansın mı?"
+  }
+}

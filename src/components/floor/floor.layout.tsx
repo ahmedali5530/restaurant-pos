@@ -16,9 +16,12 @@ import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {getClosingEnforcementState} from "@/lib/closing.guard.ts";
 import {Link} from "react-router";
+import {useTranslation} from "react-i18next";
+import i18n from "@/lib/i18n.ts";
 
 
 export const FloorLayout = () => {
+  const { t } = useTranslation('closing');
   const [state, setState] = useAtom(appState);
   const [, setSettings] = useAtom(appSettings);
   const db = useDB();
@@ -157,7 +160,7 @@ export const FloorLayout = () => {
       if (enforcementState.orderTakingBlocked) {
         setAlert(prev => ({
           ...prev,
-          message: enforcementState.message ?? "Order taking is currently disabled.",
+          message: enforcementState.message ?? i18n.t('closing:orderTakingDisabled'),
           type: "warning",
           opened: true
         }));
@@ -167,7 +170,7 @@ export const FloorLayout = () => {
       console.error("Failed to check closing enforcement:", error);
       setAlert(prev => ({
         ...prev,
-        message: "Unable to verify closing cycle status. Please try again.",
+        message: i18n.t('closing:verifyClosingFailed'),
         type: "error",
         opened: true
       }));
@@ -177,7 +180,7 @@ export const FloorLayout = () => {
     if (item.is_locked) {
       setAlert(prev => ({
         ...prev,
-        message: `${item.locked_by} is already taking order on this table`,
+        message: t('tableLocked', { user: item.locked_by }),
         type: 'error',
         opened: true
       }))
@@ -290,8 +293,9 @@ export const FloorLayout = () => {
         background: state.floor?.background
       }}>
         <div className="h-[80px] bg-white p-3 flex items-center">
-          {state.switchTable && <div className="text-xl"><FontAwesomeIcon icon={faChair}/> Switch from
-              Table {state?.table?.name}{state?.table?.number} to another</div>}
+          {state.switchTable && <div className="text-xl"><FontAwesomeIcon icon={faChair}/> {t('floor.switchTable', {
+            table: `${state?.table?.name ?? ''}${state?.table?.number ?? ''}`
+          })}</div>}
           {isClosingLocked && closingLockMessage && (
             <div className="alert alert-warning w-full">
               {closingLockMessage}
@@ -301,7 +305,7 @@ export const FloorLayout = () => {
         <div className="layout relative h-[calc(100vh_-_80px_-_80px)] p-3 overflow-hidden">
           {floors?.length === 0 && (
             <div className="flex items-center justify-center text-2xl">
-              Press reload cache button from {" "}<span className="ml-2 btn btn-secondary"><Link to="/settings">settings</Link></span>
+              {t('floor.reloadCachePrefix')}{" "}<span className="ml-2 btn btn-secondary"><Link to="/settings">{t('floor.settings')}</Link></span>
             </div>
           )}
           {state.floor && (

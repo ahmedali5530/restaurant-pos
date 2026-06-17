@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -56,6 +57,7 @@ interface MenuItemMetrics {
 }
 
 export const ProductHourlyReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -98,7 +100,7 @@ export const ProductHourlyReport = () => {
         setOrders((ordersResult?.[0] ?? []) as Order[]);
       } catch (err) {
         console.error("Failed to load product hourly report", err);
-        setError(err instanceof Error ? err.message : "Unable to load report");
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
       } finally {
         setLoading(false);
       }
@@ -223,22 +225,22 @@ export const ProductHourlyReport = () => {
 
   if (loading) {
     return (
-      <ReportsLayout title="Product hourly" subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">Loading product hourly report…</div>
+      <ReportsLayout title={t('titles.productHourly')} subtitle={subtitle}>
+        <div className="py-12 text-center text-neutral-500">{t('loading.productHourly')}</div>
       </ReportsLayout>
     );
   }
 
   if (error) {
     return (
-      <ReportsLayout title="Product hourly" subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">Failed to load report: {error}</div>
+      <ReportsLayout title={t('titles.productHourly')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
       </ReportsLayout>
     );
   }
 
   return (
-    <ReportsLayout title="Product hourly" subtitle={subtitle}>
+    <ReportsLayout title={t('titles.productHourly')} subtitle={subtitle}>
       <div className="alert alert-warning">This report doesn't include taxes, discounts, service charges, extras and tips</div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">

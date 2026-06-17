@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -118,6 +119,7 @@ interface OrderTypeMetrics {
 }
 
 export const SalesSummary2Report = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -218,7 +220,7 @@ export const SalesSummary2Report = () => {
 
       } catch (err) {
         console.error("Failed to load sales summary 2 report", err);
-        setError(err instanceof Error ? err.message : "Unable to load report");
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
       } finally {
         setLoading(false);
       }
@@ -812,30 +814,30 @@ export const SalesSummary2Report = () => {
 
   if (loading) {
     return (
-      <ReportsLayout title="Sales summary 2" subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">Loading sales summary 2…</div>
+      <ReportsLayout title={t('titles.salesSummary2')} subtitle={subtitle}>
+        <div className="py-12 text-center text-neutral-500">{t('loading.salesSummary2')}</div>
       </ReportsLayout>
     );
   }
 
   if (error) {
     return (
-      <ReportsLayout title="Sales summary 2" subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">Failed to load report: {error}</div>
+      <ReportsLayout title={t('titles.salesSummary2')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
       </ReportsLayout>
     );
   }
 
   return (
-    <ReportsLayout title="Sales summary 2" subtitle={subtitle}>
+    <ReportsLayout title={t('titles.salesSummary2')} subtitle={subtitle}>
       <div className="space-y-8">
         {/* First section: Financial calculations with 4 sub-columns */}
         <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 font-semibold text-neutral-700">Financial Calculations</h3>
+          <h3 className="bg-neutral-100 px-6 py-3 font-semibold text-neutral-700">{t('labels.financialCalculations')}</h3>
           <div className="grid grid-cols-4 divide-x divide-neutral-200">
             {/* 1st subsection: Financial calculations */}
             <div className="p-4">
-              <h4 className="mb-3 font-semibold text-neutral-600">Financial Summary</h4>
+              <h4 className="mb-3 font-semibold text-neutral-600">{t('labels.financialSummary')}</h4>
               <table className="min-w-full ">
                 <tbody className="divide-y divide-neutral-100">
                   <tr>
@@ -964,7 +966,7 @@ export const SalesSummary2Report = () => {
 
             {/* 2nd subsection: Deletions & Cancellations */}
             <div className="p-4">
-              <h4 className="mb-3  font-semibold text-neutral-600">Deletions & Cancellations</h4>
+              <h4 className="mb-3  font-semibold text-neutral-600">{t('labels.deletionsCancellations')}</h4>
               <table className="min-w-full ">
                 <tbody className="divide-y divide-neutral-100">
                   <tr>
@@ -974,7 +976,7 @@ export const SalesSummary2Report = () => {
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">Cancelled orders</td>
+                    <td className="py-1.5 text-neutral-700">{t('metrics.cancelledOrders')}</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
                       {formatNumber(deletionMetrics.cancelledOrders)}
                     </td>
@@ -999,41 +1001,41 @@ export const SalesSummary2Report = () => {
 
             {/* 3rd subsection: Check Status */}
             <div className="p-4">
-              <h4 className="mb-3  font-semibold text-neutral-600">Check Status</h4>
+              <h4 className="mb-3  font-semibold text-neutral-600">{t('metrics.checkStatus')}</h4>
               <table className="min-w-full ">
                 <tbody className="divide-y divide-neutral-100">
                   <tr>
-                    <td className="py-1.5 text-neutral-700">Checks carried over</td>
+                    <td className="py-1.5 text-neutral-700">{t('metrics.checksCarriedOver')}</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
                       {formatNumber(checkStatusMetrics.checksCarriedOver)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">Checks begun</td>
+                    <td className="py-1.5 text-neutral-700">{t('metrics.checksBegun')}</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
                       {formatNumber(checkStatusMetrics.checksBegun)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">Checks paid</td>
+                    <td className="py-1.5 text-neutral-700">{t('metrics.checksPaid')}</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
                       {formatNumber(checkStatusMetrics.checksPaid)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">Checks cancelled</td>
+                    <td className="py-1.5 text-neutral-700">{t('metrics.checksCancelled')}</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
                       {formatNumber(checkStatusMetrics.checksCancelled)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">Checks merged</td>
+                    <td className="py-1.5 text-neutral-700">{t('metrics.checksMerged')}</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
                       {formatNumber(checkStatusMetrics.checksMerged)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">Checks open</td>
+                    <td className="py-1.5 text-neutral-700">{t('metrics.checksOpen')}</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
                       {formatNumber(checkStatusMetrics.checksOpen)}
                     </td>
@@ -1050,11 +1052,11 @@ export const SalesSummary2Report = () => {
 
             {/* 4th subsection: Discount Types & Breakdowns */}
             <div className="p-4">
-              <h4 className="mb-3  font-semibold text-neutral-600">Discount Types & Breakdowns</h4>
+              <h4 className="mb-3  font-semibold text-neutral-600">{t('labels.discountTypesBreakdowns')}</h4>
               <div className="space-y-4">
                 {discountTypesBreakdown.discountTypes.length > 0 && (
                   <div>
-                    <h5 className="mb-2  font-semibold text-neutral-600">Discount Types</h5>
+                    <h5 className="mb-2  font-semibold text-neutral-600">{t('labels.discountTypes')}</h5>
                     <table className="min-w-full ">
                       <tbody className="divide-y divide-neutral-100">
                         {discountTypesBreakdown.discountTypes.map(discount => (
@@ -1077,7 +1079,7 @@ export const SalesSummary2Report = () => {
                 )}
                 {discountTypesBreakdown.couponTypes.length > 0 && (
                   <div>
-                    <h5 className="mb-2  font-semibold text-neutral-600">Coupons</h5>
+                    <h5 className="mb-2  font-semibold text-neutral-600">{t('metrics.coupons')}</h5>
                     <table className="min-w-full ">
                       <tbody className="divide-y divide-neutral-100">
                         {discountTypesBreakdown.couponTypes.map(coupon => (
@@ -1125,7 +1127,7 @@ export const SalesSummary2Report = () => {
                 )}
                 {discountTypesBreakdown.tipsBreakdown.length > 0 && (
                   <div>
-                    <h5 className="mb-2  font-semibold text-neutral-600">Tips</h5>
+                    <h5 className="mb-2  font-semibold text-neutral-600">{t('reports.tips')}</h5>
                     <table className="min-w-full ">
                       <tbody className="divide-y divide-neutral-100">
                         {discountTypesBreakdown.tipsBreakdown.map(tipRow => (
@@ -1173,20 +1175,20 @@ export const SalesSummary2Report = () => {
             <table className="min-w-full divide-y divide-neutral-200">
               <thead className="bg-neutral-50">
                 <tr>
-                  <th className="py-3 pl-6 pr-3 text-left  font-semibold text-neutral-700">Order Type</th>
+                  <th className="py-3 pl-6 pr-3 text-left  font-semibold text-neutral-700">{t('filters.orderType')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Sale Price w/o Tax</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Taxes</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Amount Due</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('labels.amountDue')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Service Charges</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Tips</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Discounts</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Coupons</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Net</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('reports.tips')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('metrics.discounts')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('metrics.coupons')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('metrics.net')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">% of Total</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Guests</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Avg Guest</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Checks</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Avg Check</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.guests')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.avgGuest')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.checks')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.avgCheck')}</th>
                   <th className="py-3 pr-6 text-right  font-semibold text-neutral-700">Turn Time (min)</th>
                 </tr>
               </thead>
@@ -1239,20 +1241,20 @@ export const SalesSummary2Report = () => {
             <table className="min-w-full divide-y divide-neutral-200">
               <thead className="bg-neutral-50">
                 <tr>
-                  <th className="py-3 pl-6 pr-3 text-left  font-semibold text-neutral-700">Day Part</th>
+                  <th className="py-3 pl-6 pr-3 text-left  font-semibold text-neutral-700">{t('columns.dayPart')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Sale Price w/o Tax</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Taxes</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Amount Due</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('labels.amountDue')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Service Charges</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Tips</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Discounts</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Coupons</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Net</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('reports.tips')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('metrics.discounts')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('metrics.coupons')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('metrics.net')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">% of Total</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Guests</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Avg Guest</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Checks</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Avg Check</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.guests')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.avgGuest')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.checks')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.avgCheck')}</th>
                   <th className="py-3 pr-6 text-right  font-semibold text-neutral-700">Turn Time (min)</th>
                 </tr>
               </thead>
@@ -1298,18 +1300,18 @@ export const SalesSummary2Report = () => {
 
         {/* Fourth section: Breakdowns with 3 sub-columns */}
         <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 font-semibold text-neutral-700">Breakdowns</h3>
+          <h3 className="bg-neutral-100 px-6 py-3 font-semibold text-neutral-700">{t('labels.breakdowns')}</h3>
           <div className="grid grid-cols-3 divide-x divide-neutral-200">
             {/* 1st subsection: Categories with dishes and modifiers */}
             <div className="p-4">
-              <h4 className="mb-3  font-semibold text-neutral-600">Categories</h4>
+              <h4 className="mb-3  font-semibold text-neutral-600">{t('filters.categories')}</h4>
               {breakdownMetrics.categoryMix.length > 0 ? (
                 <div>
                   <div className="border-b border-neutral-300 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-600">
                     <div className="flex">
-                      <span className="w-1/2">Item</span>
+                      <span className="w-1/2">{t('filters.item')}</span>
                       <span className="w-1/6 text-right">Qty</span>
-                      <span className="w-1/6 text-right">Total</span>
+                      <span className="w-1/6 text-right">{t('columns.total')}</span>
                       <span className="w-1/6 text-right">Share</span>
                     </div>
                   </div>
@@ -1374,15 +1376,15 @@ export const SalesSummary2Report = () => {
 
             {/* 2nd subsection: Discounts by users */}
             <div className="p-4">
-              <h4 className="mb-3  font-semibold text-neutral-600">Discounts by Users</h4>
+              <h4 className="mb-3  font-semibold text-neutral-600">{t('labels.discountsByUsers')}</h4>
               {breakdownMetrics.userDiscounts.length > 0 ? (
                 <table className="min-w-full ">
                   <thead>
                     <tr>
-                      <th className="py-1.5 text-left  font-semibold text-neutral-600">User</th>
+                      <th className="py-1.5 text-left  font-semibold text-neutral-600">{t('filters.user')}</th>
                       <th className="py-1.5 text-right  font-semibold text-neutral-600">Rate</th>
                       <th className="py-1.5 text-right  font-semibold text-neutral-600">Qty</th>
-                      <th className="py-1.5 text-right  font-semibold text-neutral-600">Total</th>
+                      <th className="py-1.5 text-right  font-semibold text-neutral-600">{t('columns.total')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-neutral-100">
@@ -1416,9 +1418,9 @@ export const SalesSummary2Report = () => {
                 <table className="min-w-full ">
                   <thead>
                     <tr>
-                      <th className="py-1.5 text-left  font-semibold text-neutral-600">Payment Type</th>
+                      <th className="py-1.5 text-left  font-semibold text-neutral-600">{t('filters.paymentType')}</th>
                       <th className="py-1.5 text-right  font-semibold text-neutral-600">Qty</th>
-                      <th className="py-1.5 text-right  font-semibold text-neutral-600">Total</th>
+                      <th className="py-1.5 text-right  font-semibold text-neutral-600">{t('columns.total')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-neutral-100">

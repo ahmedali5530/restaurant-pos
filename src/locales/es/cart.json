@@ -1,0 +1,10 @@
+{
+  "seats": {
+    "seat": "Asiento",
+    "noSeat": "Sin asiento",
+    "seatNumber": "Asiento# {{number}}",
+    "newSeat": "Nuevo asiento",
+    "deleteSeat": "¿Asiento?",
+    "addComment": "Agregar comentario"
+  }
+}

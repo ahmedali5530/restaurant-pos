@@ -21,6 +21,7 @@ import { calculateOrderTotal } from "@/lib/cart.ts";
 import { Countdown } from "@/components/floor/countdown.tsx";
 import { DateTime } from "luxon";
 import { Input } from "@/components/common/input/input.tsx";
+import {useTranslation} from 'react-i18next';
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 
 interface Props {
@@ -39,6 +40,8 @@ interface Props {
 export const FloorTable = ({
   table, isEditing, onClick, onRemove, order, isLocked, numberOfOrders, boundaryWidth, boundaryHeight, isSelected
 }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
   const db = useDB();
 
   const minHeightWidth = 50;
@@ -190,7 +193,7 @@ export const FloorTable = ({
           {isLateOrder && (
             <span
               className="absolute -top-3 -left-3 rounded-full h-6 w-6 flex items-center justify-center bg-white text-danger-500 shadow"
-              title="More then 2 hours"
+              title={t('forms.moreThanTwoHours')}
             >
               <FontAwesomeIcon icon={faExclamationCircle} beat/>
             </span>
@@ -236,11 +239,11 @@ export const FloorTable = ({
             </Button>
             <Popover>
               <div className="w-[250px] p-3 flex gap-5 flex-col">
-                <Slider value={settings.height} label="Height" onChange={(value) => setSettings(prev => ({
+                <Slider value={settings.height} label={t('forms.height')} onChange={(value) => setSettings(prev => ({
                   ...prev,
                   height: value
                 }))} step={10} maxValue={maxHeightWidth} minValue={minHeightWidth}/>
-                <Slider value={settings.width} label="Width" onChange={(value) => setSettings(prev => ({
+                <Slider value={settings.width} label={t('forms.width')} onChange={(value) => setSettings(prev => ({
                   ...prev,
                   width: value
                 }))} step={10} maxValue={maxHeightWidth} minValue={minHeightWidth}/>

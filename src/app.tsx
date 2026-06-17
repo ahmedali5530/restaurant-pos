@@ -119,6 +119,7 @@ import {OrderLifecycleReport} from "@/screens/reports/order.lifecycle.report.tsx
 import {ExpenseReport} from "@/screens/reports/expense.report.tsx";
 import {ActivityReport} from "@/screens/reports/activity.report.tsx";
 import {AiReport} from "@/screens/reports/ai.report.tsx";
+import {I18nProvider} from "@/providers/i18n.provider.tsx";
 
 
 // react query client wrapper
@@ -161,6 +162,7 @@ function App() {
                   <TableLockProvider>
                     <SecurityProvider>
                       <BrowserRouter>
+                        <I18nProvider>
                         <GlobalDeliveryOrderPopup/>
                         <Routes>
                           <Route path="/" element={<Login/>}/>
@@ -215,6 +217,7 @@ function App() {
                           <Route path={REPORTS_CONSUMPTION} element={<ConsumptionReport/>}/>
                           <Route path={REPORTS_SALE_VS_CONSUMPTION} element={<SaleVsConsumptionReport/>}/>
                         </Routes>
+                        </I18nProvider>
                       </BrowserRouter>
                       <SecurityModal/>
                     </SecurityProvider>

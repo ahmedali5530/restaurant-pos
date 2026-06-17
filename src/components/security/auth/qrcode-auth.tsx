@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {SecurityAction, SecurityManager} from '@/providers/security.provider';
-import { QRCode } from "react-qr-code";
+import QRCode from "react-qr-code";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {useAtom} from "jotai";
@@ -9,6 +9,7 @@ import {toRecordId} from "@/lib/utils.ts";
 import {AuthPermission, AuthState} from "@/api/model/auth_permission.ts";
 import {nanoid} from "nanoid";
 import {LiveSubscription} from "surrealdb";
+import { useTranslation } from 'react-i18next';
 
 interface QrCodeAuthProps {
   onSuccess: (manager?: SecurityManager) => void;
@@ -20,6 +21,7 @@ export const QrCodeAuth: React.FC<QrCodeAuthProps> = ({
   onSuccess,
   currentAction
 }) => {
+  const { t } = useTranslation('auth');
   const [error, setError] = useState('');
   const [token, setToken] = useState<string>();
   const [{user}] = useAtom(appPage);
@@ -107,7 +109,9 @@ export const QrCodeAuth: React.FC<QrCodeAuthProps> = ({
               });
             } else if (result.state === AuthState.rejected) {
               setError(
-                `Permission to ${currentActionRef.current?.description ?? action.description} has been rejected`
+                t('security.permissionRejected', {
+                  description: currentActionRef.current?.description ?? action.description,
+                })
               );
             }
           }
@@ -135,10 +139,10 @@ export const QrCodeAuth: React.FC<QrCodeAuthProps> = ({
     <div className="space-y-4">
       <div className="text-center">
         <h3 className="text-lg font-medium text-gray-900 mb-2">
-          QR Code Authentication
+          {t('security.qrcodeTitle')}
         </h3>
         <p className="text-sm text-gray-600 mb-4">
-          Scan this QR Code with your manager App
+          {t('security.qrcodeHint')}
         </p>
 
         {error && (

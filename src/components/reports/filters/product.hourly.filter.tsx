@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {REPORTS_PRODUCT_HOURLY} from "@/routes/posr.ts";
 import {DateRange} from "@/components/reports/filters/date.range.tsx";
 import {Button} from "@/components/common/input/button.tsx";
@@ -28,6 +29,7 @@ const notNull = <T,>(value: T | null | undefined): value is T =>
   value !== null && value !== undefined;
 
 export const ProductHourlyFilter = () => {
+  const { t } = useTranslation('reports');
   const {data: dishesData, isLoading: loadingDishes} = useApi<SettingsData<Dish>>(Tables.dishes, [], ['name asc'], 0, 9999, ['categories']);
 
   return (
@@ -39,7 +41,7 @@ export const ProductHourlyFilter = () => {
       <DateRange isRequired label="Select a range" />
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="product-hourly-menu-items">Menu Items</label>
+        <label htmlFor="product-hourly-menu-items">{t('filters.menuItems')}</label>
         <ReactSelect
           id="product-hourly-menu-items"
           name="menu_items[]"
@@ -53,7 +55,7 @@ export const ProductHourlyFilter = () => {
       </div>
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="product-hourly-hours">Hours</label>
+        <label htmlFor="product-hourly-hours">{t('metrics.hours')}</label>
         <ReactSelect
           name="hours[]"
           isMulti
@@ -72,7 +74,7 @@ export const ProductHourlyFilter = () => {
         variant="primary"
         filled
         type="submit"
-      >Generate</Button>
+      >{t('filters.generate')}</Button>
     </form>
   );
 }

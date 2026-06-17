@@ -17,6 +17,7 @@ import {StringRecordId} from "surrealdb";
 import _ from "lodash";
 import {Switch} from "@/components/common/input/switch.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {useTranslation} from 'react-i18next';
 import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
@@ -71,6 +72,8 @@ const validationSchema = yup.object({
 export const MenuItems = ({
   open, onClose, menu
 }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
   const db = useDB();
   const [loading, setLoading] = useState(false);
   const [categoryAdjustments, setCategoryAdjustments] = useState<Record<string, CategoryAdjustment>>({});
@@ -184,7 +187,7 @@ export const MenuItems = ({
 
   const onSubmit = async (values: any) => {
     if (!menu?.id) {
-      toast.error("Menu not found");
+      toast.error(t('toast:admin.menuNotFound'));
       return;
     }
 
@@ -234,7 +237,7 @@ export const MenuItems = ({
       });
 
       closeModal();
-      toast.success(`Menu items saved`);
+      toast.success(t('toast:admin.menuItemsSaved'));
     } catch (e) {
       toast.error(String(e));
       console.log(e);
@@ -310,7 +313,7 @@ export const MenuItems = ({
     const {factor, mode} = getCategoryAdjustment(categoryId);
     const parsed = parseFloat(factor);
     if (!Number.isFinite(parsed)) {
-      toast.error('Enter a valid factor');
+      toast.error(t('toast:admin.invalidFactor'));
       return;
     }
 
@@ -326,7 +329,7 @@ export const MenuItems = ({
         shouldValidate: true,
       });
     });
-    toast.success(`Updated ${group.items.length} item(s)`);
+    toast.success(t('toast:admin.menuItemsUpdated', { count: group.items.length }));
   };
 
   // Handle master switch toggle for a category
@@ -366,7 +369,7 @@ export const MenuItems = ({
   return (
     <>
       <Modal
-        title={menu ? `Manage items for ${menu.name}` : 'Manage menu items'}
+        title={menu ? t('forms.manageItemsFor', { name: menu.name }) : t('forms.manageMenuItems')}
         open={open}
         onClose={closeModal}
         size="xl"
@@ -403,7 +406,7 @@ export const MenuItems = ({
                           <Input
                             type="number"
                             className="w-24"
-                            placeholder="Factor"
+                            placeholder={t('forms.factor')}
                             value={adjustment.factor}
                             onChange={(e) => updateCategoryAdjustment(categoryId, {factor: e.target.value})}
                           />
@@ -443,7 +446,7 @@ export const MenuItems = ({
                             <div className="flex gap-3 items-end">
                               <div className="flex-1">
                                 <Input
-                                  label="Item Name"
+                                  label={t('forms.itemName')}
                                   value={item.item_name || ''}
                                   readOnly
                                   disabled
@@ -455,7 +458,7 @@ export const MenuItems = ({
                                   control={control}
                                   render={({field}) => (
                                     <Input
-                                      label="Price"
+                                      label={t('common:actions.price')}
                                       type="number"
                                       value={field.value as number | string | undefined}
                                       onChange={field.onChange}
@@ -467,7 +470,7 @@ export const MenuItems = ({
                               <div className="flex-1">
                                 {item.org_price !== item.price && (
                                   <div>
-                                    <label htmlFor="">Org. price</label>
+                                    <label htmlFor="">{t('forms.orgPrice')}</label>
                                     <div className="input-group">
                                       <button
                                         className="btn btn-secondary"
@@ -488,7 +491,7 @@ export const MenuItems = ({
 
                               </div>
                               {/*<div className="flex-1">
-                              <label>Tax</label>
+                              <label>{t('columns.tax')}</label>
                               <Controller
                                 name={`items.${index}.tax`}
                                 control={control}

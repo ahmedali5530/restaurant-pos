@@ -14,9 +14,11 @@ import {useDB} from "@/api/db/db.ts";
 import {truthy} from "@/lib/utils.ts";
 import {CsvUploadModal} from "@/components/common/table/csv.uploader.tsx";
 import {Checkbox} from "@/components/common/input/checkbox";
+import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminCategories = () => {
+  const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<Category>>(Tables.categories, ['deleted_at = none']);
   const db = useDB();
 
@@ -49,19 +51,19 @@ export const AdminCategories = () => {
       ),
     },
     columnHelper.accessor("name", {
-      header: 'Name'
+      header: t('columns.name')
     }),
     columnHelper.accessor("show_in_menu", {
-      header: 'Show in menu',
+      header: t('columns.showInMenu'),
       cell: info => info.getValue() ? <FontAwesomeIcon icon={faCheck} className="text-success-500"/> :
         <FontAwesomeIcon icon={faTimes} className="text-danger-500"/>
     }),
     columnHelper.accessor("priority", {
-      header: 'Priority'
+      header: t('columns.priority')
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {
@@ -75,11 +77,11 @@ export const AdminCategories = () => {
               }}
             ><FontAwesomeIcon icon={faPencil}/></Button>
             <div className="separator"></div>
-            <DeleteConfirm message={`Delete category ${info.row.original.name}`} onConfirm={async () => {
+            <DeleteConfirm message={t('delete.category', { name: info.row.original.name })} onConfirm={async () => {
               await executeSettingsDelete({
                 db,
                 id: info.row.original.id,
-                entityLabel: 'Category',
+                entityLabel: t('entities.category'),
                 usageChecks: [
                   {
                     query: `SELECT count() AS count FROM ${Tables.dishes} WHERE categories ?= $idRecord AND deleted_at = none GROUP ALL`
@@ -107,10 +109,10 @@ export const AdminCategories = () => {
         buttons={[
           <Button variant="primary" onClick={() => {
             setImportModal(true);
-          }} icon={faUpload}> Import Categories</Button>,
+          }} icon={faUpload}>{t('buttons.importCategories')}</Button>,
           <Button variant="primary" onClick={() => {
             setFormModal(true);
-          }} icon={faPlus}> Category</Button>
+          }} icon={faPlus}>{t('buttons.category')}</Button>
         ]}
         enableSelection
         rowSelection={rowSelection}
@@ -127,7 +129,7 @@ export const AdminCategories = () => {
               ...prev,
               state: true,
             }));
-          }} icon={faPencil}> Bulk Edit</Button>
+          }} icon={faPencil}>{t('buttons.bulkEdit')}</Button>
         ]}
       />
 
@@ -137,13 +139,13 @@ export const AdminCategories = () => {
           onClose={() => setImportModal(false)}
           fields={[{
             name: 'name',
-            label: 'Name'
+            label: t('columns.name')
           }, {
             name: 'show_in_menu',
-            label: 'Show in menu'
+            label: t('columns.showInMenu')
           }, {
             name: 'priority',
-            label: 'Priority'
+            label: t('columns.priority')
           }]}
           onCreateRow={async (rowData) => {
             try {

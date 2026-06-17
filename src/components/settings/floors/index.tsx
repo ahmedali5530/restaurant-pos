@@ -12,9 +12,11 @@ import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { AdminFloorLayout } from "@/components/settings/floors/layout/layout.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
+import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminFloors = () => {
+  const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<Floor>>(Tables.floors, ['deleted_at = none'], [], 0, 10, ['tables']);
   const db = useDB();
 
@@ -25,14 +27,14 @@ export const AdminFloors = () => {
   const columnHelper = createColumnHelper<Floor>();
   const columns: any = [
     columnHelper.accessor("name", {
-      header: 'Name'
+      header: t('columns.name')
     }),
     columnHelper.accessor("priority", {
-      header: 'Priority'
+      header: t('columns.priority')
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {
@@ -58,7 +60,7 @@ export const AdminFloors = () => {
             </Button>
             <div className="separator"></div>
             <DeleteConfirm
-              message={`Delete floor ${info.row.original.name}`}
+              message={t('delete.floor', { name: info.row.original.name })}
               onConfirm={() => deleteItem(info.row.original.id)}
             />
           </div>
@@ -71,7 +73,7 @@ export const AdminFloors = () => {
     await executeSettingsDelete({
       db,
       id,
-      entityLabel: 'Floor',
+      entityLabel: t('entities.floor'),
       usageChecks: [
         {
           query: `SELECT count() AS count FROM ${Tables.tables} WHERE floor = $idRecord GROUP ALL`
@@ -95,7 +97,7 @@ export const AdminFloors = () => {
         buttons={[
           <Button variant="primary" onClick={() => {
             setFormModal(true);
-          }} icon={faPlus}> Floor</Button>
+          }} icon={faPlus}>{t('buttons.floor')}</Button>
         ]}
       />
 
@@ -119,7 +121,7 @@ export const AdminFloors = () => {
             setData(undefined);
             setLayoutModal(false);
           }}
-          title={`Layout of ${data?.name} floor`}
+          title={t('forms.floorLayout', { name: data?.name })}
           shouldCloseOnOverlayClick={false}
         >
           {data && (

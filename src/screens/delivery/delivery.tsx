@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {useDeliveryOrders} from "@/hooks/useDeliveryOrders.ts";
@@ -190,6 +191,7 @@ const DeliveryMapOverlays = ({mapAreas, deliveryOrders, openOrderPopup}: Deliver
 };
 
 export const Delivery = () => {
+  const { t } = useTranslation('delivery');
   const db = useDB();
   const {selectedOrder, openOrderPopup, deliveryOrders} = useDeliveryOrders();
   const [mapAreas, setMapAreas] = useState<MapArea[]>([]);
@@ -240,7 +242,7 @@ export const Delivery = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh_-_70px_-_25px)]">
-        <span className="text-neutral-600 text-lg">Loading delivery map...</span>
+        <span className="text-neutral-600 text-lg">{t('map.loading')}</span>
       </div>
     );
   }

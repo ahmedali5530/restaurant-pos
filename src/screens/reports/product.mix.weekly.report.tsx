@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -72,6 +73,7 @@ interface OrderTakerMetrics {
 }
 
 export const ProductMixWeeklyReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -132,7 +134,7 @@ export const ProductMixWeeklyReport = () => {
         setOrders((ordersResult?.[0] ?? []) as Order[]);
       } catch (err) {
         console.error("Failed to load product mix weekly report", err);
-        setError(err instanceof Error ? err.message : "Unable to load report");
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
       } finally {
         setLoading(false);
       }
@@ -285,22 +287,22 @@ export const ProductMixWeeklyReport = () => {
 
   if (loading) {
     return (
-      <ReportsLayout title="Product Mix Weekly" subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">Loading product mix weekly report…</div>
+      <ReportsLayout title={t('reports.productMixWeekly')} subtitle={subtitle}>
+        <div className="py-12 text-center text-neutral-500">{t('loading.productMixWeekly')}</div>
       </ReportsLayout>
     );
   }
 
   if (error) {
     return (
-      <ReportsLayout title="Product Mix Weekly" subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">Failed to load report: {error}</div>
+      <ReportsLayout title={t('reports.productMixWeekly')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
       </ReportsLayout>
     );
   }
 
   return (
-    <ReportsLayout title="Product Mix Weekly" subtitle={subtitle}>
+    <ReportsLayout title={t('reports.productMixWeekly')} subtitle={subtitle}>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">
           <thead className="bg-neutral-50">

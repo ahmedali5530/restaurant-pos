@@ -1,6 +1,7 @@
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {toast} from "sonner";
+import {useTranslation} from 'react-i18next';
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Setting} from "@/api/model/setting.ts";
 import {Controller, useForm} from "react-hook-form";
@@ -10,6 +11,7 @@ import {Switch} from "@/components/common/input/switch.tsx";
 import {useEffect, useState, useMemo} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTimes} from "@fortawesome/free-solid-svg-icons";
+import i18n from '@/lib/i18n.ts';
 import {detectMimeType, toArrayBuffer} from "@/utils/files.ts";
 
 interface Props {
@@ -21,6 +23,8 @@ interface Props {
 export const PrintForm = ({
   open, onClose, data
 }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoArrayBuffer, setLogoArrayBuffer] = useState<ArrayBuffer | null>(null);
   const [logoRemoved, setLogoRemoved] = useState(false);
@@ -147,7 +151,7 @@ export const PrintForm = ({
       }
 
       closeModal();
-      toast.success(`Print settings saved`);
+      toast.success(t('toast:admin.printSettingsSaved'));
     } catch (e) {
       toast.error(e);
       console.log(e)
@@ -157,7 +161,7 @@ export const PrintForm = ({
   return (
     <>
       <Modal
-        title={data ? `Update ${data?.key}` : 'Create new printer'}
+        title={data ? t('forms.updatePrintSettings', { key: data?.key }) : t('forms.createPrintSettings')}
         open={open}
         onClose={closeModal}
       >
@@ -183,14 +187,14 @@ export const PrintForm = ({
                   <div className="relative inline-block">
                     <img 
                       src={currentLogoUrl} 
-                      alt="Logo preview" 
+                      alt={t('forms.logoPreview')} 
                       className="max-h-20 max-w-full object-contain border border-neutral-300 rounded p-2"
                     />
                     <button
                       type="button"
                       onClick={handleRemoveLogo}
                       className="absolute -top-2 -right-2 bg-danger-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-danger-600 transition-colors"
-                      aria-label="Remove logo"
+                      aria-label={t('forms.removeLogo')}
                     >
                       <FontAwesomeIcon icon={faTimes} size="xs" />
                     </button>
@@ -234,7 +238,7 @@ export const PrintForm = ({
                   name="companyName"
                   control={control}
                   render={({field}) => (
-                    <Input label="Company name" value={field.value} onChange={field.onChange}/>
+                    <Input label={t('forms.companyName')} value={field.value} onChange={field.onChange}/>
                   )}
                 />
               </div>
@@ -259,7 +263,7 @@ export const PrintForm = ({
                   name="companyAddress"
                   control={control}
                   render={({field}) => (
-                    <Input label="Company address" value={field.value} onChange={field.onChange}/>
+                    <Input label={t('forms.companyAddress')} value={field.value} onChange={field.onChange}/>
                   )}
                 />
               </div>
@@ -284,7 +288,7 @@ export const PrintForm = ({
                   name="topDescription"
                   control={control}
                   render={({field}) => (
-                    <Input label="Top description" value={field.value} onChange={field.onChange}/>
+                    <Input label={t('forms.topDescription')} value={field.value} onChange={field.onChange}/>
                   )}
                 />
               </div>
@@ -309,7 +313,7 @@ export const PrintForm = ({
                   name="vatName"
                   control={control}
                   render={({field}) => (
-                    <Input label="VAT name" value={field.value} onChange={field.onChange}/>
+                    <Input label={t('forms.vatName')} value={field.value} onChange={field.onChange}/>
                   )}
                 />
               </div>
@@ -318,7 +322,7 @@ export const PrintForm = ({
                   name="vatNumber"
                   control={control}
                   render={({field}) => (
-                    <Input label="VAT number" value={field.value} onChange={field.onChange}/>
+                    <Input label={t('forms.vatNumber')} value={field.value} onChange={field.onChange}/>
                   )}
                 />
               </div>
@@ -329,7 +333,7 @@ export const PrintForm = ({
                   name="topMargin"
                   control={control}
                   render={({field}) => (
-                    <Input label="Top margin" type="number" value={field.value} onChange={field.onChange}/>
+                    <Input label={t('forms.topMargin')} type="number" value={field.value} onChange={field.onChange}/>
                   )}
                 />
               </div>
@@ -338,7 +342,7 @@ export const PrintForm = ({
                   name="bottomMargin"
                   control={control}
                   render={({field}) => (
-                    <Input label="Bottom margin" type="number" value={field.value} onChange={field.onChange}/>
+                    <Input label={t('forms.bottomMargin')} type="number" value={field.value} onChange={field.onChange}/>
                   )}
                 />
               </div>
@@ -347,7 +351,7 @@ export const PrintForm = ({
                   name="leftMargin"
                   control={control}
                   render={({field}) => (
-                    <Input label="Left margin" type="number" value={field.value} onChange={field.onChange}/>
+                    <Input label={t('forms.leftMargin')} type="number" value={field.value} onChange={field.onChange}/>
                   )}
                 />
               </div>
@@ -356,7 +360,7 @@ export const PrintForm = ({
                   name="rightMargin"
                   control={control}
                   render={({field}) => (
-                    <Input label="Right margin" type="number" value={field.value} onChange={field.onChange}/>
+                    <Input label={t('forms.rightMargin')} type="number" value={field.value} onChange={field.onChange}/>
                   )}
                 />
               </div>
@@ -453,13 +457,13 @@ export const PrintForm = ({
                   name="bottomDescription"
                   control={control}
                   render={({field}) => (
-                    <Input label="Bottom description" value={field.value} onChange={field.onChange}/>
+                    <Input label={t('forms.bottomDescription')} value={field.value} onChange={field.onChange}/>
                   )}
                 />
               </div>
             </div>
           </div>
-          <Button type="submit" variant="primary">Save</Button>
+          <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
         </form>
       </Modal>
     </>

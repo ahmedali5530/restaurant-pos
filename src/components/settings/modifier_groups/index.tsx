@@ -10,9 +10,11 @@ import { ModifierGroup } from "@/api/model/modifier_group.ts";
 import { ModifierGroupForm } from "@/components/settings/modifier_groups/modifier_group.form.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
+import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminModifierGroups = () => {
+  const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<ModifierGroup>>(Tables.modifier_groups, ['deleted_at = none'], ['priority asc'], 0, 10, ['modifiers', 'modifiers.modifier', 'modifiers.allowed_next_groups', 'modifiers.next_group_overrides']);
   const db = useDB();
 
@@ -23,16 +25,16 @@ export const AdminModifierGroups = () => {
 
   const columns: any = [
     columnHelper.accessor("name", {
-      header: 'Name'
+      header: t('columns.name')
     }),
     columnHelper.accessor("modifiers", {
-      header: 'Modifiers',
+      header: t('columns.modifiers'),
       cell: info => <div className="flex gap-2 flex-wrap">
         {info.getValue()?.map((item, index) => (
           <span className="tag" key={`${item.id}-${index}`}>
             {item.modifier.name} — {item.price}
             {item.allowed_next_groups != null && item.allowed_next_groups.length > 0 && (
-              <span className="text-neutral-500"> ({item.allowed_next_groups.length} next)</span>
+              <span className="text-neutral-500"> ({t('columns.nextCount', { count: item.allowed_next_groups.length })})</span>
             )}
           </span>
         ))}
@@ -40,11 +42,11 @@ export const AdminModifierGroups = () => {
       enableSorting: false
     }),
     columnHelper.accessor("priority", {
-      header: 'Priority'
+      header: t('columns.priority')
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {
@@ -59,7 +61,7 @@ export const AdminModifierGroups = () => {
             ><FontAwesomeIcon icon={faPencil}/></Button>
             <div className="separator"></div>
             <DeleteConfirm
-              message={`Delete item ${info.row.original.name}`}
+              message={t('delete.dish', { name: info.row.original.name })}
               onConfirm={() => deleteItem(info.row.original.id)}
             />
           </div>
@@ -72,7 +74,7 @@ export const AdminModifierGroups = () => {
     await executeSettingsDelete({
       db,
       id,
-      entityLabel: 'Modifier group',
+      entityLabel: t('entities.modifierGroup'),
       usageChecks: [
         {
           query: `SELECT count() AS count FROM ${Tables.dish_modifier_groups} WHERE out = $idRecord GROUP ALL`
@@ -101,7 +103,7 @@ export const AdminModifierGroups = () => {
         buttons={[
           <Button variant="primary" onClick={() => {
             setFormModal(true);
-          }} icon={faPlus}> Modifier group</Button>
+          }} icon={faPlus}>{t('buttons.modifierGroup')}</Button>
         ]}
       />
 

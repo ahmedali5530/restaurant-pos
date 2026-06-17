@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/common/input/button.tsx";
 import { Discount, DiscountType } from "@/api/model/discount.ts";
 import { withCurrency } from "@/lib/utils.ts";
+import {useTranslation} from "react-i18next";
 
 interface Props {
   discount?: Discount
@@ -18,6 +19,7 @@ interface Props {
 export const OrderPaymentDiscount = ({
   discount, setDiscount, setDiscountAmount, itemsTotal, discountAmount, setDiscountRate, discountRate
 }: Props) => {
+  const {t} = useTranslation('payment');
 
   const {
     data: discounts
@@ -134,7 +136,7 @@ export const OrderPaymentDiscount = ({
           }}
           size="lg"
         >
-          No discount
+          {t('discount.noDiscount')}
         </Button>
         <div className="flex gap-5 flex-wrap">
           {discounts?.data?.map(item => (
@@ -166,9 +168,9 @@ export const OrderPaymentDiscount = ({
       <div className="text-2xl text-center">
         {draftDiscount && (
           <>
-            Discount {draftDiscount.min_rate === draftDiscount.max_rate ? (draftDiscount.type === DiscountType.Fixed ? withCurrency(draftDiscount.min_rate) : draftDiscount.min_rate) : `${draftDiscount.min_rate} - ${draftDiscount.max_rate}`}
+            {t('discount.label')} {draftDiscount.min_rate === draftDiscount.max_rate ? (draftDiscount.type === DiscountType.Fixed ? withCurrency(draftDiscount.min_rate) : draftDiscount.min_rate) : `${draftDiscount.min_rate} - ${draftDiscount.max_rate}`}
             {draftDiscount.type === DiscountType.Percent && '%'}{' '}
-            {!!draftDiscount.max_cap && `with max cap of ${withCurrency(draftDiscount.max_cap)}`}
+            {!!draftDiscount.max_cap && t('discount.withMaxCap', {amount: withCurrency(draftDiscount.max_cap)})}
           </>
         )}
       </div>
@@ -207,7 +209,7 @@ export const OrderPaymentDiscount = ({
             setDiscountRate(resolvedDiscountRate);
           }}
         >
-          OK
+          {t('common:actions.ok')}
         </Button>
       </div>
     </div>

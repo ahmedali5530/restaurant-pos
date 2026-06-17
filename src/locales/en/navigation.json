@@ -1,0 +1,31 @@
+{
+  "sidebar": {
+    "menu": "Menu",
+    "orders": "Orders",
+    "summary": "Summary",
+    "kitchen": "Kitchen",
+    "delivery": "Delivery",
+    "closing": "Closing",
+    "inventory": "Inventory",
+    "manage": "Manage",
+    "reports": "Reports",
+    "tipDist": "Tip Dist.",
+    "settings": "Settings",
+    "clock": "Clock"
+  },
+  "modules": {
+    "Menu": "Menu",
+    "Orders": "Orders",
+    "Summary": "Summary",
+    "Reports": "Reports",
+    "Closing": "Closing",
+    "Kitchen": "Kitchen",
+    "Delivery": "Delivery",
+    "Admin": "Administration",
+    "Riders": "Riders",
+    "Tips": "Tip Distribution",
+    "Inventory": "Inventory",
+    "Settings": "Settings"
+  },
+  "authenticateToAccess": "Authenticate to access {{module}}"
+}

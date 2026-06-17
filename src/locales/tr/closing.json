@@ -1,0 +1,89 @@
+{
+  "orderTakingDisabled": "Sipariş alma şu anda devre dışı.",
+  "verifyClosingFailed": "Kapanış döngüsü durumu doğrulanamadı. Lütfen tekrar deneyin.",
+  "tableLocked": "{{user}} bu masada zaten sipariş alıyor",
+  "floor": {
+    "switchTable": "Masa {{table}}'den başka bir masaya geç",
+    "reloadCachePrefix": "Önbelleği yeniden yükle düğmesine basın",
+    "settings": "ayarlar"
+  },
+  "guard": {
+    "punchDisabled": "Mevcut döngü kapatılana veya mevcut döngü kapanışı silinene kadar giriş devre dışı.",
+    "cycleEnded": "Kapanış döngüsü {{time}} saatinde sona erdi. Henüz yapılmadıysa lütfen gün sonu kapanışını tamamlayın."
+  },
+  "window": {
+    "cycle": "Döngü",
+    "period": "Dönem",
+    "label": "{{prefix}}: {{start}} - {{end}}"
+  },
+  "terminal": {
+    "defaultName": "Terminal {{number}}",
+    "notes": "Notlar",
+    "coins": "Bozuk paralar",
+    "denomination": "x {{value}}",
+    "total": "Terminal Toplamı: {{amount}}",
+    "add": "Terminal Ekle"
+  },
+  "title": "{{date}} tarihli Günlük Kapanış",
+  "loading": "Kapanış yükleniyor...",
+  "alerts": {
+    "cycleDisabled": "Kapanış döngüsü devre dışı. Son tamamlanan kapanış saati bu dönemin başlangıcı olarak kullanılır ve mevcut saat bitiş olarak kullanılır.",
+    "cycleCompleted": "Bu döngü için kapanış tamamlandı. Bir sonraki döngüye kadar sipariş alma engellendi.",
+    "periodCompleted": "Bu dönem için kapanış tamamlandı."
+  },
+  "sections": {
+    "previousDayBalance": "Önceki Gün Bakiyesi",
+    "pettyCash": "Küçük Kasa",
+    "terminalCash": "Terminal Nakit",
+    "paymentTypesSummary": "Sistemden ödeme türleri özeti",
+    "expenses": "Giderler",
+    "notes": "Notlar",
+    "summary": "Özet"
+  },
+  "fields": {
+    "previousDayBalance": "Önceki Gün Bakiyesi",
+    "pettyCash": "Küçük Kasa",
+    "description": "Açıklama",
+    "category": "Kategori",
+    "amount": "Tutar",
+    "notesPlaceholder": "Ek notlar ekleyin..."
+  },
+  "totals": {
+    "totalCash": "Toplam Nakit: {{amount}}",
+    "cashFromPayments": "Ödeme özetinden nakit",
+    "difference": "Fark: {{amount}}",
+    "totalOtherPayments": "Toplam Diğer Ödemeler: {{amount}}",
+    "totalExpenses": "Toplam Giderler: {{amount}}",
+    "previousBalance": "Önceki Bakiye",
+    "totalCashShort": "Toplam Nakit",
+    "otherPayments": "Diğer Ödemeler",
+    "totalExpensesShort": "Toplam Giderler",
+    "netAmount": "Net Tutar"
+  },
+  "actions": {
+    "addExpense": "Gider Ekle",
+    "saveClosing": "Kapanışı Kaydet",
+    "closeClosing": "Kapanışı Kapat",
+    "saving": "Kaydediliyor...",
+    "reopen": "Düzenle (Yönetici Onayı)",
+    "reopening": "Yeniden açılıyor...",
+    "printClosing": "Kapanışı Yazdır",
+    "goToClosing": "Kapanışa git"
+  },
+  "security": {
+    "reopenDescription": "Günlük kapanışı yeniden aç",
+    "reopenModule": "Kapanışı Düzenle"
+  },
+  "autoCheckClose": {
+    "autoClosed_one": "{{count}} adisyon otomatik kapatıldı",
+    "autoClosed_other": "{{count}} adisyon otomatik kapatıldı",
+    "failed_one": "{{count}} adisyon otomatik kapatılamadı",
+    "failed_other": "{{count}} adisyon otomatik kapatılamadı",
+    "noOpenChecks": "Kapanış döngüsü sona erdi. Kapatılacak açık adisyon yok.",
+    "retry_one": "{{count}} açık adisyon bulundu ancak hiçbiri kapatılmadı{{skipped}}. Yeniden denenecek.",
+    "retry_other": "{{count}} açık adisyon bulundu ancak hiçbiri kapatılmadı{{skipped}}. Yeniden denenecek.",
+    "skippedSuffix": " ({{count}} atlandı)",
+    "executionFailed": "Adisyonlar otomatik kapatılamadı",
+    "warning": "Adisyonlar {{countdown}} içinde otomatik kapanacak"
+  }
+}

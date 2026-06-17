@@ -1,0 +1,170 @@
+{
+  "screen": {
+    "previousDate": "Fecha anterior",
+    "nextDate": "Fecha siguiente",
+    "printSummary": "Imprimir resumen",
+    "productMixReport": "Informe de mezcla de productos",
+    "serverSales": "Ventas del servidor"
+  },
+  "security": {
+    "printSummaryDescription": "Imprimir resumen",
+    "printSummaryModule": "Imprimir resumen",
+    "productMixDescription": "Informe de mezcla de productos",
+    "productMixModule": "Informe de mezcla de productos",
+    "serverSalesDescription": "Ventas del servidor",
+    "serverSalesModule": "Ventas del servidor"
+  },
+  "unknown": {
+    "user": "Desconocido",
+    "item": "Artículo desconocido",
+    "coupon": "Desconocido"
+  },
+  "report": {
+    "title": "Resumen de ventas diarias — {{date}}",
+    "orderDiscount": "Descuento del pedido",
+    "uncategorized": "Sin categoría",
+    "unknownItem": "Artículo desconocido",
+    "sections": {
+      "salesRevenue": "1. Ingresos por ventas",
+      "surchargesTaxes": "2. Recargos e impuestos",
+      "settlementCashier": "3. Liquidación y caja",
+      "operationalControls": "4. Controles operativos",
+      "productMix": "5. Mezcla de productos",
+      "paymentTypes": "6. Tipos de pago",
+      "taxesBreakdown": "7. Desglose de impuestos",
+      "discountsBreakdown": "8. Desglose de descuentos",
+      "extrasBreakdown": "9. Desglose de extras",
+      "couponsBreakdown": "10. Desglose de cupones"
+    },
+    "subtitles": {
+      "surchargesTaxes": "Recargos e impuestos cobrados (de pedidos; generalmente calculados sobre el neto después del descuento).",
+      "settlementCashier": "Vista de caja registradora.",
+      "operationalControls": "Señales de auditoría (anulaciones separadas de las ventas brutas).",
+      "productMix": "Categorías agrupadas con platos y sus modificadores.",
+      "paymentTypes": "Importe cobrado dividido por método de pago.",
+      "taxesBreakdown": "Componentes de impuestos cobrados de los pedidos.",
+      "discountsBreakdown": "Esquemas de descuento aplicados en este período.",
+      "extrasBreakdown": "Desglose de extras a nivel de pedido.",
+      "couponsBreakdown": "Cupones canjeados y sus valores."
+    },
+    "rows": {
+      "exclusiveSales": "Ventas exclusivas",
+      "extras": "Extras",
+      "grossSales": "Ventas brutas",
+      "itemDiscounts": "Descuentos por artículo",
+      "subtotalDiscounts": "Descuentos de subtotal",
+      "couponDiscounts": "Descuentos por cupón",
+      "discounts": "(−) Descuentos",
+      "netSales": "Ventas netas",
+      "serviceCharges": "Cargos por servicio",
+      "taxes": "Impuestos",
+      "totalRevenue": "Ingresos totales",
+      "amountDueBeforeTips": "Importe adeudado (antes de propinas)",
+      "tips": "Propinas",
+      "grandTotalDue": "Gran total (adeudado)",
+      "amountCollected": "Importe cobrado",
+      "rounding": "Redondeo",
+      "changeVariance": "Cambio / variación",
+      "voids": "Anulaciones",
+      "refunds": "Reembolsos",
+      "covers": "Cubiertos",
+      "averageCover": "Cubierto promedio",
+      "ordersChecks": "Pedidos / cuentas",
+      "averageOrderCheck": "Pedido / cuenta promedio",
+      "totalTips": "Total de propinas"
+    },
+    "hints": {
+      "exclusiveSales": "Solo ventas de artículos (antes de extras, servicio e impuestos).",
+      "extras": "Extras y recargos a nivel de pedido adjuntos a las cuentas.",
+      "grossSales": "Ventas exclusivas + extras (líneas anuladas excluidas).",
+      "itemDiscounts": "Valor de descuento aplicado directamente en líneas de artículos.",
+      "subtotalDiscounts": "Descuentos a nivel de pedido excluyendo reducciones a nivel de artículo.",
+      "couponDiscounts": "Importe de canje de cupón.",
+      "discounts": "Reducciones de línea, pedido y cupón.",
+      "netSales": "Ventas brutas − descuentos.",
+      "serviceCharges": "Importe en pedidos; basado en el neto después del descuento",
+      "taxes": "Impuesto gubernamental registrado por pedido.",
+      "totalRevenue": "Ventas netas + cargos por servicio + impuestos (antes de propinas).",
+      "amountDueBeforeTips": "Ventas netas + cargos por servicio + impuestos.",
+      "tips": "De campos de propina del pedido / sobre el total (no incluido en ventas brutas).",
+      "grandTotalDue": "Ingresos totales + propinas.",
+      "amountCollected": "Totales de pago aplicados por método (excluye cambio devuelto).",
+      "rounding": "Importe cobrado − gran total (adeudado); exceso/déficit vs. adeudado calculado.",
+      "changeVariance": "Efectivo entregado en exceso de los importes de pago aplicados.",
+      "voids": "Valor de líneas eliminadas después del registro (no en ventas brutas arriba).",
+      "refunds": "Devoluciones de pagos negativos o cuentas canceladas.",
+      "covers": "Cantidad de comensales (pax).",
+      "averageCover": "Importe adeudado (antes de propinas) ÷ cubiertos.",
+      "ordersChecks": "Número de cuentas/pedidos cerrados.",
+      "averageOrderCheck": "Importe adeudado (antes de propinas) ÷ pedidos.",
+      "roundingLegacy": "Importe cobrado - Importe adeudado"
+    },
+    "columns": {
+      "item": "Artículo",
+      "qty": "Cant.",
+      "total": "Total",
+      "share": "Participación"
+    },
+    "empty": {
+      "noCategoryData": "Sin datos de categoría para esta fecha.",
+      "noPaymentData": "Sin datos de pago para esta fecha.",
+      "noTaxRows": "Sin filas de impuestos para esta fecha.",
+      "noDiscountRows": "Sin filas de descuentos para esta fecha.",
+      "noExtras": "No se encontraron extras para esta fecha.",
+      "noCoupons": "Sin uso de cupones para esta fecha."
+    },
+    "footer": "Secuencia: ventas brutas → descuentos → ventas netas → cargos por servicio → impuestos → propinas → gran total → cobrado. La mezcla de productos se agrupa por categoría con platos anidados.",
+    "legacy": {
+      "tips": "Propinas",
+      "categories": "Categorías",
+      "dishes": "Platos",
+      "paymentTypes": "Tipos de pago",
+      "taxes": "Impuestos",
+      "discounts": "Descuentos",
+      "extras": "Extras",
+      "coupons": "Cupones",
+      "covers": "Cubiertos",
+      "averageCover": "Cubierto promedio",
+      "ordersChecks": "Pedidos/Cuentas",
+      "averageOrderCheck": "Pedido/cuenta promedio"
+    }
+  },
+  "clock": {
+    "title": "Reloj de fichaje",
+    "subtitle": "Registre sus horas de trabajo",
+    "saleSummary": "Resumen de ventas",
+    "loadingSaleData": "Cargando datos de ventas...",
+    "loading": "Cargando...",
+    "signedInAs": "Conectado como",
+    "shift": "Turno",
+    "endsNextDay": "termina al día siguiente",
+    "clockInTime": "Hora de entrada",
+    "timeElapsed": "Tiempo transcurrido",
+    "sinceClockIn": "Desde la entrada",
+    "clockOut": "Fichar salida",
+    "metrics": {
+      "totalSales": "Ventas totales",
+      "refunds": "Reembolsos",
+      "serviceCharges": "Cargos por servicio",
+      "discounts": "Descuentos",
+      "taxes": "Impuestos",
+      "extras": "Extras",
+      "voids": "Anulaciones",
+      "tips": "Propinas"
+    }
+  },
+  "tipDistribution": {
+    "shift": "Turno",
+    "date": "Fecha",
+    "loadTips": "Cargar propinas",
+    "submit": "Enviar",
+    "totalTips": "Total de propinas: {{amount}}",
+    "columns": {
+      "user": "Usuario",
+      "role": "Rol",
+      "weight": "Peso",
+      "amount": "Importe"
+    },
+    "empty": "Aún no se ha calculado la distribución."
+  }
+}

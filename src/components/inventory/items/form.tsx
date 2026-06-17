@@ -1,6 +1,7 @@
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import * as yup from "yup";
 import React, {useEffect, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {InventorySupplier} from "@/api/model/inventory_supplier.ts";
@@ -54,6 +55,7 @@ const validationSchema = yup.object({
 export const InventoryItemForm = ({
   open, data, onClose
 }: Props) => {
+  const { t } = useTranslation('inventory');
   const closeModal = () => {
     onClose();
     reset({
@@ -171,7 +173,7 @@ export const InventoryItemForm = ({
       }
 
       closeModal();
-      toast.success(`Item ${values.name} saved`);
+      toast.success(t('toast:inventory.itemSaved', { name: values.name }));
     } catch ( e ) {
       console.log(e)
       toast.error(e);
@@ -189,14 +191,14 @@ export const InventoryItemForm = ({
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <Input label="Name of item" {...register('name')} autoFocus error={errors?.name?.message}/>
+              <Input label={t('forms.nameOfItem')} {...register('name')} autoFocus error={errors?.name?.message}/>
             </div>
             <div className="flex-1">
-              <Input label="Code" {...register('code')} error={errors?.code?.message}/>
+              <Input label={t('columns.code')} {...register('code')} error={errors?.code?.message}/>
             </div>
             <div className="flex-1 flex gap-2 items-end">
               <div className="flex-1">
-                <label>Category</label>
+                <label>{t('columns.category')}</label>
                 <Controller
                   name="category"
                   render={({ field }) => (
@@ -227,7 +229,7 @@ export const InventoryItemForm = ({
               render={({field}) => (
                 <Input
                   type="number"
-                  label="Base quantity"
+                  label={t('columns.baseQuantity')}
                   {...field}
                   value={field.value ?? ""}
                   error={errors?.base_quantity?.message}
@@ -237,7 +239,7 @@ export const InventoryItemForm = ({
           </div>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <label>Unit of measurement</label>
+              <label>{t('columns.uom')}</label>
               <Controller
                 name="uom"
                 render={({ field }) => (
@@ -261,7 +263,7 @@ export const InventoryItemForm = ({
               <Controller render={({field}) => (
                 <Input
                   type="number"
-                  label="Price"
+                  label={t('columns.price')}
                   value={field.value}
                   onChange={field.onChange}
                   error={errors?.price?.message}
@@ -276,7 +278,7 @@ export const InventoryItemForm = ({
                 render={({field}) => (
                   <Input
                     type="number"
-                    label="Average price"
+                    label={t('columns.averagePrice')}
                     {...field}
                     value={field.value ?? ""}
                     error={errors?.average_price?.message}
@@ -289,7 +291,7 @@ export const InventoryItemForm = ({
           <div className="flex gap-3 mb-3 items-end">
             <div className="flex-1 flex gap-2 items-end">
               <div className="flex-1">
-                <label>Stores</label>
+                <label>{t('tabs.stores')}</label>
                 <Controller
                   name="stores"
                   render={({ field }) => (
@@ -316,7 +318,7 @@ export const InventoryItemForm = ({
 
           <div className="flex gap-3 mb-3 items-end">
             <div className="flex-1">
-              <label>Suppliers</label>
+              <label>{t('tabs.suppliers')}</label>
               <Controller
                 name="suppliers"
                 render={({ field }) => (
@@ -343,7 +345,7 @@ export const InventoryItemForm = ({
           </div>
 
           <div>
-            <Button type="submit" variant="primary">Save</Button>
+            <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
           </div>
         </form>
       </Modal>

@@ -8,9 +8,11 @@ import {useAtom} from "jotai";
 import {appState} from "@/store/jotai.ts";
 import {nanoid} from "nanoid";
 import {MenuItemType} from "@/api/model/cart_item.ts";
+import {useTranslation} from "react-i18next";
 
 export const CartActions = () => {
   const [state, setState] = useAtom(appState);
+  const { t } = useTranslation('cart');
   const [selected, setSelected] = useState(false);
 
   const hasOldItems = useMemo(() => {
@@ -126,13 +128,11 @@ export const CartActions = () => {
       <Button size="lg" iconButton variant="warning" onClick={toggleHoldSelectedCartItems}>
         <FontAwesomeIcon icon={faPause} size="lg"/>
       </Button>
-      <Dropdown label={
-        "Seat"
-      } btnSize="lg" onAction={onClickSeatItem}>
+      <Dropdown label={t('seats.seat')} btnSize="lg" onAction={onClickSeatItem}>
         {state.seats.map((seat, index) => (
           <DropdownItem id={seat} key={seat} className="min-w-[50px]">{index + 1}</DropdownItem>
         ))}
-        <DropdownItem id="new" key="new" className="min-w-[50px]">New Seat</DropdownItem>
+        <DropdownItem id="new" key="new" className="min-w-[50px]">{t('seats.newSeat')}</DropdownItem>
       </Dropdown>
     </div>
   )

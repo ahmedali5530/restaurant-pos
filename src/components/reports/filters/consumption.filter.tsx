@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {REPORTS_CONSUMPTION} from "@/routes/posr.ts";
 import {DateRange} from "@/components/reports/filters/date.range.tsx";
 import {Button} from "@/components/common/input/button.tsx";
@@ -28,6 +29,7 @@ const notNull = <T,>(value: T | null | undefined): value is T =>
   value !== null && value !== undefined;
 
 export const ConsumptionFilter = () => {
+  const { t } = useTranslation('reports');
   const {data: itemsData, isLoading: loadingItems} = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], ['name asc'], 0, 9999);
   const {data: dishesData, isLoading: loadingDishes} = useApi<SettingsData<Dish>>(Tables.dishes, [], ['name asc'], 0, 9999);
 
@@ -41,7 +43,7 @@ export const ConsumptionFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="consumption-items">Inventory Items</label>
+          <label htmlFor="consumption-items">{t('labels.inventoryItems')}</label>
           <ReactSelect
             id="consumption-items"
             name="items[]"
@@ -55,7 +57,7 @@ export const ConsumptionFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="consumption-dishes">Dishes</label>
+          <label htmlFor="consumption-dishes">{t('metrics.dishes')}</label>
           <ReactSelect
             id="consumption-dishes"
             name="dishes[]"
@@ -73,7 +75,7 @@ export const ConsumptionFilter = () => {
         variant="primary"
         filled
         type="submit"
-      >Generate</Button>
+      >{t('filters.generate')}</Button>
     </form>
   );
 };

@@ -12,9 +12,11 @@ import { MenuItems } from "@/components/settings/menu/menu.items.tsx";
 import { toJsDate } from "@/lib/datetime.ts";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
+import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminMenus = () => {
+  const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<Menu>>(Tables.menus, ['deleted_at = none'], [], 0, 10, ['items', 'items.menu_item', 'items.tax']);
   const db = useDB();
 
@@ -37,26 +39,26 @@ export const AdminMenus = () => {
 
   const columns: any = [
     columnHelper.accessor("name", {
-      header: 'Name'
+      header: t('columns.name')
     }),
     columnHelper.accessor("start_from", {
-      header: 'Start Time',
+      header: t('columns.startTime'),
       cell: info => formatTime(info.getValue())
     }),
     columnHelper.accessor("end_time", {
-      header: 'End Time',
+      header: t('columns.endTime'),
       cell: info => formatTime(info.getValue())
     }),
     columnHelper.accessor("ends_on_next_day", {
-      header: 'Ends Next Day',
-      cell: info => info.getValue() ? 'Yes' : 'No'
+      header: t('columns.endsNextDay'),
+      cell: info => info.getValue() ? t('columns.yes') : t('columns.no')
     }),
     columnHelper.accessor("active", {
-      header: 'Active',
+      header: t('columns.active'),
       cell: info => info.getValue() !== false ? <FontAwesomeIcon icon={faCheck} className="text-success-500" /> : <FontAwesomeIcon icon={faTimes} className="text-danger-500" />
     }),
     columnHelper.accessor("items", {
-      header: 'Items Count',
+      header: t('columns.itemsCount'),
       cell: info => {
         const inactiveItems = info.getValue()?.filter(item => item.active === true)?.length || 0;
         const total = info.getValue()?.length || 0;
@@ -70,7 +72,7 @@ export const AdminMenus = () => {
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {
@@ -93,7 +95,7 @@ export const AdminMenus = () => {
             ><FontAwesomeIcon icon={faList}/></Button>
             <div className="separator"></div>
             <DeleteConfirm
-              message={`Delete menu ${info.row.original.name}`}
+              message={t('delete.menu', { name: info.row.original.name })}
               onConfirm={() => deleteItem(info.row.original.id)}
             />
           </div>
@@ -106,7 +108,7 @@ export const AdminMenus = () => {
     await executeSettingsDelete({
       db,
       id,
-      entityLabel: 'Menu',
+      entityLabel: t('entities.menu'),
       usageChecks: [
         {
           query: `SELECT count() AS count FROM ${Tables.settings} WHERE key = 'delivery_menu' AND value = $idRecord GROUP ALL`
@@ -132,7 +134,7 @@ export const AdminMenus = () => {
         buttons={[
           <Button variant="primary" onClick={() => {
             setFormModal(true);
-          }} icon={faPlus}> Menu</Button>
+          }} icon={faPlus}>{t('buttons.menu')}</Button>
         ]}
       />
 

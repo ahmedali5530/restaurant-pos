@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -23,6 +24,7 @@ const parseFilters = () => {
 };
 
 export const SplitOrdersReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [rows, setRows] = useState<SplitOrderRow[]>([]);
@@ -66,7 +68,7 @@ export const SplitOrdersReport = () => {
         setRows((result || []) as SplitOrderRow[]);
       } catch (err) {
         console.error("Failed to load split orders report", err);
-        setError(err instanceof Error ? err.message : "Unable to load report");
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
       } finally {
         setLoading(false);
       }
@@ -76,24 +78,24 @@ export const SplitOrdersReport = () => {
   }, [filters.endDate, filters.startDate]);
 
   if (loading) {
-    return <ReportsLayout title="Split orders report" subtitle={subtitle}><div className="py-12 text-center text-neutral-500">Loading split orders report...</div></ReportsLayout>;
+    return <ReportsLayout title={t('titles.splitOrders')} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('loading.splitOrders')}</div></ReportsLayout>;
   }
   if (error) {
-    return <ReportsLayout title="Split orders report" subtitle={subtitle}><div className="py-12 text-center text-red-600">Failed to load report: {error}</div></ReportsLayout>;
+    return <ReportsLayout title={t('titles.splitOrders')} subtitle={subtitle}><div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div></ReportsLayout>;
   }
 
   return (
-    <ReportsLayout title="Split orders report" subtitle={subtitle}>
+    <ReportsLayout title={t('titles.splitOrders')} subtitle={subtitle}>
       <div className="overflow-hidden rounded-lg border border-neutral-200">
         <table className="min-w-full divide-y divide-neutral-200">
           <thead className="bg-neutral-50">
           <tr>
             <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">Created at</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Order</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.order')}</th>
             <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Split #</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Status</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Table</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">User</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('filters.status')}</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('filters.table')}</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('filters.user')}</th>
           </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100 bg-white">

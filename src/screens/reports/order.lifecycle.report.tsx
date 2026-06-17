@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -43,6 +44,7 @@ const parseFilters = () => {
 };
 
 export const OrderLifecycleReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [state, setState] = useState<LifecycleState>({
@@ -159,7 +161,7 @@ export const OrderLifecycleReport = () => {
       });
     } catch (err) {
       console.error("Failed to load order lifecycle report", err);
-      setError(err instanceof Error ? err.message : "Unable to load report");
+      setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
     } finally {
       setLoading(false);
     }
@@ -270,13 +272,13 @@ export const OrderLifecycleReport = () => {
   const reportTitle = 'Order lifecycle report';
 
   if (loading) {
-    return <ReportsLayout title={reportTitle} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">Loading order lifecycle report...</div></ReportsLayout>;
+    return <ReportsLayout title={reportTitle} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('loading.orderLifecycle')}</div></ReportsLayout>;
   }
   if (error) {
-    return <ReportsLayout title={reportTitle} subtitle={subtitle}><div className="py-12 text-center text-red-600">Failed to load report: {error}</div></ReportsLayout>;
+    return <ReportsLayout title={reportTitle} subtitle={subtitle}><div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div></ReportsLayout>;
   }
   if (!state.order) {
-    return <ReportsLayout title={reportTitle} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">No order found for provided ID.</div></ReportsLayout>;
+    return <ReportsLayout title={reportTitle} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('errors.noOrderFound')}</div></ReportsLayout>;
   }
 
   return (
@@ -287,7 +289,7 @@ export const OrderLifecycleReport = () => {
     >
       <div className="space-y-4">
         <div className="border rounded-lg p-4 bg-neutral-50">
-          <div className="text-sm text-neutral-500">Order</div>
+          <div className="text-sm text-neutral-500">{t('columns.order')}</div>
           <div className="text-xl font-semibold">{state.order.invoice_number ? `#${state.order.invoice_number}` : state.order.id.toString()}</div>
           <div className="text-sm text-neutral-600 mt-1">Status: {state.order.status}</div>
         </div>

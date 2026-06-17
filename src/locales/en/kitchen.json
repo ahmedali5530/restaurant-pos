@@ -1,0 +1,23 @@
+{
+  "actions": {
+    "completeAllOpen": "Complete all open orders",
+    "completedOrders": "Completed Orders",
+    "viewAllDishes": "View all dishes",
+    "recall": "Recall",
+    "ready": "Ready"
+  },
+  "labels": {
+    "avgTime": "Avg time: {{time}}",
+    "avgTimeMins": "{{count}} mins",
+    "addon": "ADDON",
+    "completed": "Completed: {{time}}",
+    "items": "Items: {{count}}"
+  },
+  "modal": {
+    "completedOrdersTitle": "{{kitchen}} Completed Orders (Today)",
+    "noCompletedOrders": "No completed orders found for today."
+  },
+  "confirm": {
+    "completeAll": "Complete all open orders in this kitchen?"
+  }
+}

@@ -1,5 +1,6 @@
 import React from "react";
 import { toast } from "sonner";
+import i18n from "@/lib/i18n.ts";
 import { Tables } from "@/api/db/tables.ts";
 import type { Printer } from "@/api/model/printer.ts";
 import {RecordId, StringRecordId} from "surrealdb";
@@ -203,12 +204,12 @@ export async function dispatchPrint<Payload = any>(
         const j = JSON.parse(text);
         msg = (j?.error as string) ?? text;
       } catch { /* ignore */ }
-      toast.error(msg || 'Print failed');
+      toast.error(msg || i18n.t('common:toast.printFailed'));
       return;
     }
   } catch (e) {
     const msg = e && typeof e === 'object' && 'message' in e ? String((e as Error).message) : 'Print request failed';
     console.error(msg);
-    toast.error('Error in printing');
+    toast.error(i18n.t('common:toast.printError'));
   }
 }

@@ -6,6 +6,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {Setting} from "@/api/model/setting.ts";
 import {withCurrency} from "@/lib/utils.ts";
 import {Order} from "@/api/model/order.ts";
+import {useTranslation} from "react-i18next";
 
 interface Props {
   serviceCharge: number
@@ -20,6 +21,7 @@ interface Props {
 export const OrderPaymentServiceCharges = ({
   serviceCharge, setServiceCharge, serviceChargeType, setServiceChargeType, order
 }: Props) => {
+  const {t} = useTranslation('payment');
   const [draftServiceCharge, setDraftServiceCharge] = useState<number>(serviceCharge);
   const [draftServiceChargeType, setDraftServiceChargeType] = useState<DiscountType>(serviceChargeType);
   const defaultAppliedRef = useRef(false);
@@ -85,7 +87,7 @@ export const OrderPaymentServiceCharges = ({
     <div className="flex flex-col justify-between h-full">
       <div className="mb-5 flex justify-between flex-col gap-5">
         <div className="text-xl bg-warning-500 px-3 py-5 text-white">
-          Default from settings: <span className="font-semibold ">{defaultFromSettings.label}</span>
+          {t('serviceCharges.defaultFromSettings')} <span className="font-semibold ">{defaultFromSettings.label}</span>
         </div>
         <Button
           className="min-w-[150px]"
@@ -94,7 +96,7 @@ export const OrderPaymentServiceCharges = ({
           onClick={() => setDraftServiceCharge(0)}
           size="lg"
         >
-          No Service charge
+          {t('serviceCharges.noServiceCharge')}
         </Button>
 
         <div className="input-group">
@@ -103,14 +105,14 @@ export const OrderPaymentServiceCharges = ({
             onClick={() => setDraftServiceChargeType(DiscountType.Percent)}
             className="min-w-[150px] flex-1"
           >
-            {DiscountType.Percent}
+            {t('discountType.percent')}
           </Button>
           <Button
             size="lg" variant="primary" active={draftServiceChargeType === DiscountType.Fixed}
             onClick={() => setDraftServiceChargeType(DiscountType.Fixed)}
             className="min-w-[150px] flex-1"
           >
-            {DiscountType.Fixed}
+            {t('discountType.fixed')}
           </Button>
         </div>
       </div>
@@ -156,7 +158,7 @@ export const OrderPaymentServiceCharges = ({
         className="w-full"
         filled
       >
-        OK
+        {t('common:actions.ok')}
       </Button>
     </div>
   )

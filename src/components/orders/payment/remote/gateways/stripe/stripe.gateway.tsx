@@ -4,6 +4,7 @@ import { PendingRemoteIntent } from "@/components/orders/payment/remote/core/typ
 import { AfterIntentCreatedInput } from "@/components/orders/payment/remote/core/types.ts";
 import { getGatewayDescriptor } from "@/lib/payment/gateway-catalog.ts";
 import { toast } from "sonner";
+import i18n from "@/lib/i18n.ts";
 
 export const stripeGatewayAdapter: RemoteGatewayAdapter = {
   gateway: "stripe",
@@ -12,13 +13,13 @@ export const stripeGatewayAdapter: RemoteGatewayAdapter = {
   preparePayment: async () => ({ proceed: true }),
   onIntentCreated({ intent }: AfterIntentCreatedInput) {
     if (intent.clientToken) {
-      toast.success("Enter card details below to complete payment.");
+      toast.success(i18n.t('payment:remoteGateway.enterCardDetails'));
       return;
     }
-    toast.success("Stripe payment intent created.");
+    toast.success(i18n.t('payment:remoteGateway.intentCreated', { gateway: 'Stripe' }));
   },
   renderPendingExtra(intent: PendingRemoteIntent) {
     return <StripePaymentForm intent={intent} />;
   },
-  getVerifiedSuccessMessage: () => "Stripe payment received.",
+  getVerifiedSuccessMessage: () => i18n.t('payment:remoteGateway.paymentReceived', { gateway: 'Stripe' }),
 };

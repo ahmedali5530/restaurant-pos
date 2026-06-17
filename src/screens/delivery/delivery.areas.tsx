@@ -1,4 +1,5 @@
 import {useCallback, useEffect, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {toast} from "sonner";
@@ -312,6 +313,7 @@ interface DeliveryAreasEditorProps {
 }
 
 const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) => {
+  const { t } = useTranslation('delivery');
   const map = useMap();
   const overlaysRef = useRef<Set<EditableOverlay>>(new Set());
   const listenersRef = useRef<google.maps.MapsEventListener[]>([]);
@@ -392,7 +394,7 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
     saveTimeoutRef.current = setTimeout(() => {
       serializeAndSave().catch((error) => {
         console.error("Error saving delivery areas:", error);
-        toast.error("Failed to save map areas");
+        toast.error(t('toast:delivery.mapAreasSaveFailed'));
       });
     }, 300);
   }, [serializeAndSave]);
@@ -534,7 +536,7 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
 
       const simplified = limitVertices(simplifyPath(path, SIMPLIFY_TOLERANCE_METERS), MAX_EDIT_VERTICES);
       if (simplified.length < 3) {
-        toast.error("Shape is too small. Drag a larger area.");
+        toast.error(t('map.shapeTooSmall'));
         return;
       }
 
@@ -659,7 +661,7 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
           addOverlay(rectangle);
           scheduleSave();
         } else {
-          toast.error("Rectangle is too small. Drag a larger area.");
+          toast.error(t('map.rectangleTooSmall'));
         }
 
         clearActiveDraw();
@@ -682,7 +684,7 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
           addOverlay(circle);
           scheduleSave();
         } else {
-          toast.error("Circle is too small. Drag a larger radius.");
+          toast.error(t('map.circleTooSmall'));
         }
 
         clearActiveDraw();
@@ -694,7 +696,7 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
       previewPolylineRef.current = null;
 
       if (path.length < 2 || haversineDistance(start, end) < MIN_SHAPE_SIZE_METERS) {
-        toast.error("Polygon is too small. Drag a larger outline.");
+        toast.error(t('map.polygonTooSmall'));
         clearActiveDraw();
         return;
       }
@@ -909,7 +911,7 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
         <div className="flex flex-row gap-1 rounded-md border border-neutral-300 bg-white p-1 shadow-sm">
           <button
             type="button"
-            title="Draw polygon"
+            title={t('map.drawPolygon')}
             className={`rounded px-3 py-2 text-left text-sm font-medium ${
               drawingMode === "polygon"
                 ? "bg-primary-500 text-white"
@@ -921,7 +923,7 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
           </button>
           <button
             type="button"
-            title="Draw rectangle"
+            title={t('map.drawRectangle')}
             className={`rounded px-3 py-2 text-left text-sm font-medium ${
               drawingMode === "rectangle"
                 ? "bg-primary-500 text-white"
@@ -933,7 +935,7 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
           </button>
           <button
             type="button"
-            title="Draw circle"
+            title={t('map.drawCircle')}
             className={`rounded px-3 py-2 text-left text-sm font-medium ${
               drawingMode === "circle"
                 ? "bg-primary-500 text-white"
@@ -947,9 +949,9 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
 
         {drawingMode && (
           <div className="max-w-xs rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-600 shadow-sm">
-            {drawingMode === "rectangle" && <p>Click and drag to draw a rectangle.</p>}
+            {drawingMode === "rectangle" && <p>{t('map.drawRectangleHint')}</p>}
             {drawingMode === "circle" && <p>Click and drag from the center to set the radius.</p>}
-            {drawingMode === "polygon" && <p>Click and drag to draw the zone outline, then release.</p>}
+            {drawingMode === "polygon" && <p>{t('map.drawPolygonHint')}</p>}
             <button
               type="button"
               className="mt-2 rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
@@ -978,6 +980,7 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
 };
 
 export const DeliveryAreas = () => {
+  const { t } = useTranslation('delivery');
   const db = useDB();
   const [mapAreas, setMapAreas] = useState<MapArea[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1009,7 +1012,7 @@ export const DeliveryAreas = () => {
         }
       } catch (error) {
         console.error("Error loading map areas:", error);
-        toast.error("Failed to load map areas");
+        toast.error(t('toast:delivery.mapAreasLoadFailed'));
       } finally {
         setLoading(false);
       }
@@ -1037,10 +1040,10 @@ export const DeliveryAreas = () => {
         });
       }
 
-      toast.success("Map areas saved successfully");
+      toast.success(t('map.areasSaved'));
     } catch (error) {
       console.error("Error saving map areas:", error);
-      toast.error("Failed to save map areas");
+      toast.error(t('toast:delivery.mapAreasSaveFailed'));
     }
   }, [db]);
 
@@ -1052,7 +1055,7 @@ export const DeliveryAreas = () => {
         </p>
         {loading ? (
           <div className="flex items-center justify-center h-[calc(100vh_-_70px)]">
-            <div className="text-lg">Loading map areas...</div>
+            <div className="text-lg">{t('map.loadingAreas')}</div>
           </div>
         ) : (
           <div className="relative">

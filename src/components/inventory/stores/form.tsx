@@ -1,4 +1,5 @@
 import React, {useEffect} from "react";
+import { useTranslation } from 'react-i18next';
 import * as yup from "yup";
 import {useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
@@ -25,6 +26,7 @@ const validationSchema = yup.object({
 }).required();
 
 export const InventoryStoreForm = ({open, onClose, data}: Props) => {
+  const { t } = useTranslation('inventory');
   const db = useDB();
 
   const {register, handleSubmit, formState: {errors}, reset} = useForm({
@@ -58,7 +60,7 @@ export const InventoryStoreForm = ({open, onClose, data}: Props) => {
         await db.create(Tables.inventory_stores, payload);
       }
 
-      toast.success(`Store ${values.name} saved`);
+      toast.success(t('toast:inventory.storeSaved', { name: values.name }));
       closeModal();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : String(error));
@@ -75,11 +77,11 @@ export const InventoryStoreForm = ({open, onClose, data}: Props) => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-3 mb-3">
           <div className="flex-1">
-            <Input label="Name" {...register("name")} autoFocus error={errors?.name?.message} />
+            <Input label={t('columns.name')} {...register("name")} autoFocus error={errors?.name?.message} />
           </div>
         </div>
         <div>
-          <Button type="submit" variant="primary">Save</Button>
+          <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
         </div>
       </form>
     </Modal>

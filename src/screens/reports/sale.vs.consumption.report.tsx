@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -61,6 +62,7 @@ interface ReportData {
 }
 
 export const SaleVsConsumptionReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [loading, setLoading] = useState(true);
@@ -227,7 +229,7 @@ export const SaleVsConsumptionReport = () => {
         });
       } catch (err) {
         console.error('Failed to load sale vs consumption report:', err);
-        setError(err instanceof Error ? err.message : 'Unable to load report');
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
       } finally {
         setLoading(false);
       }
@@ -238,23 +240,23 @@ export const SaleVsConsumptionReport = () => {
 
   if (loading) {
     return (
-      <ReportsLayout title="Sale vs Consumption Report" subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">Loading report…</div>
+      <ReportsLayout title={t('titles.saleVsConsumption')} subtitle={subtitle}>
+        <div className="py-12 text-center text-neutral-500">{t('loading.generic')}</div>
       </ReportsLayout>
     );
   }
 
   if (error) {
     return (
-      <ReportsLayout title="Sale vs Consumption Report" subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">Failed to load report: {error}</div>
+      <ReportsLayout title={t('titles.saleVsConsumption')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
       </ReportsLayout>
     );
   }
 
   if (!data) {
     return (
-      <ReportsLayout title="Sale vs Consumption Report" subtitle={subtitle}>
+      <ReportsLayout title={t('titles.saleVsConsumption')} subtitle={subtitle}>
         <div className="py-12 text-center text-neutral-500">No data available</div>
       </ReportsLayout>
     );
@@ -262,7 +264,7 @@ export const SaleVsConsumptionReport = () => {
 
   return (
     <ReportsLayout
-      title="Sale vs Consumption Report"
+      title={t('titles.saleVsConsumption')}
       subtitle={subtitle}
     >
       <div className="space-y-8">
@@ -274,7 +276,7 @@ export const SaleVsConsumptionReport = () => {
               <thead className="bg-neutral-50">
                 <tr>
                   <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Metric</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Amount</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100 bg-white">
@@ -283,11 +285,11 @@ export const SaleVsConsumptionReport = () => {
                   <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(data.saleTotal)}</td>
                 </tr>
                 <tr>
-                  <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">Consumption Total</td>
+                  <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{t('labels.consumptionTotal')}</td>
                   <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(data.consumptionTotal)}</td>
                 </tr>
                 <tr>
-                  <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">Estimated Profit</td>
+                  <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{t('labels.estimatedProfit')}</td>
                   <td className={`py-3 px-3 text-right text-sm font-semibold ${data.consumptionProfit >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
                     {withCurrency(data.consumptionProfit)}
                   </td>
@@ -311,7 +313,7 @@ export const SaleVsConsumptionReport = () => {
               <thead className="bg-neutral-50">
                 <tr>
                   <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Metric</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Amount</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100 bg-white">
@@ -320,11 +322,11 @@ export const SaleVsConsumptionReport = () => {
                   <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(data.saleTotal)}</td>
                 </tr>
                 <tr>
-                  <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">Issuance Total</td>
+                  <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{t('labels.issuanceTotal')}</td>
                   <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(data.issuanceTotal)}</td>
                 </tr>
                 <tr>
-                  <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">Estimated Profit</td>
+                  <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{t('labels.estimatedProfit')}</td>
                   <td className={`py-3 px-3 text-right text-sm font-semibold ${data.issuanceProfit >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
                     {withCurrency(data.issuanceProfit)}
                   </td>
@@ -348,7 +350,7 @@ export const SaleVsConsumptionReport = () => {
               <thead className="bg-neutral-50">
                 <tr>
                   <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Metric</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Amount</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100 bg-white">
@@ -361,7 +363,7 @@ export const SaleVsConsumptionReport = () => {
                   <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(data.purchaseTotal)}</td>
                 </tr>
                 <tr>
-                  <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">Estimated Profit</td>
+                  <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{t('labels.estimatedProfit')}</td>
                   <td className={`py-3 px-3 text-right text-sm font-semibold ${data.purchaseProfit >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
                     {withCurrency(data.purchaseProfit)}
                   </td>

@@ -1,0 +1,170 @@
+{
+  "screen": {
+    "previousDate": "Önceki tarih",
+    "nextDate": "Sonraki tarih",
+    "printSummary": "Özeti yazdır",
+    "productMixReport": "Ürün Karışımı Raporu",
+    "serverSales": "Garson Satışları"
+  },
+  "security": {
+    "printSummaryDescription": "Özeti yazdır",
+    "printSummaryModule": "Özeti yazdır",
+    "productMixDescription": "Ürün karışımı raporu",
+    "productMixModule": "Ürün karışımı raporu",
+    "serverSalesDescription": "Garson satışları",
+    "serverSalesModule": "Garson satışları"
+  },
+  "unknown": {
+    "user": "Bilinmiyor",
+    "item": "Bilinmeyen Ürün",
+    "coupon": "Bilinmiyor"
+  },
+  "report": {
+    "title": "Günlük satış özeti — {{date}}",
+    "orderDiscount": "Sipariş indirimi",
+    "uncategorized": "Kategorisiz",
+    "unknownItem": "Bilinmeyen ürün",
+    "sections": {
+      "salesRevenue": "1. Satış geliri",
+      "surchargesTaxes": "2. Ek ücretler ve vergiler",
+      "settlementCashier": "3. Mutabakat ve kasa",
+      "operationalControls": "4. Operasyonel kontroller",
+      "productMix": "5. Ürün karışımı",
+      "paymentTypes": "6. Ödeme türleri",
+      "taxesBreakdown": "7. Vergi dökümü",
+      "discountsBreakdown": "8. İndirim dökümü",
+      "extrasBreakdown": "9. Ekstra dökümü",
+      "couponsBreakdown": "10. Kupon dökümü"
+    },
+    "subtitles": {
+      "surchargesTaxes": "Tahsil edilen ek ücretler ve vergi (siparişlerden; genellikle indirim sonrası net üzerinden hesaplanır).",
+      "settlementCashier": "Kasa çekmecesi görünümü.",
+      "operationalControls": "Denetim sinyalleri (iptaller brüt satışlardan ayrı).",
+      "productMix": "Kategorilere göre gruplandırılmış yemekler ve değiştiricileri.",
+      "paymentTypes": "Ödeme yöntemine göre bölünmüş tahsil edilen tutar.",
+      "taxesBreakdown": "Siparişlerden tahsil edilen vergi bileşenleri.",
+      "discountsBreakdown": "Bu dönemde uygulanan indirim şemaları.",
+      "extrasBreakdown": "Sipariş düzeyinde ekstraların dökümü.",
+      "couponsBreakdown": "Kullanılan kuponlar ve değerleri."
+    },
+    "rows": {
+      "exclusiveSales": "Özel satışlar",
+      "extras": "Ekstralar",
+      "grossSales": "Brüt satışlar",
+      "itemDiscounts": "Ürün indirimleri",
+      "subtotalDiscounts": "Ara toplam indirimleri",
+      "couponDiscounts": "Kupon indirimleri",
+      "discounts": "(−) İndirimler",
+      "netSales": "Net satışlar",
+      "serviceCharges": "Servis ücretleri",
+      "taxes": "Vergiler",
+      "totalRevenue": "Toplam gelir",
+      "amountDueBeforeTips": "Ödenecek tutar (bahşiş öncesi)",
+      "tips": "Bahşişler",
+      "grandTotalDue": "Genel toplam (ödenecek)",
+      "amountCollected": "Tahsil edilen tutar",
+      "rounding": "Yuvarlama",
+      "changeVariance": "Para üstü / fark",
+      "voids": "İptaller",
+      "refunds": "İadeler",
+      "covers": "Kişi sayısı",
+      "averageCover": "Ortalama kişi",
+      "ordersChecks": "Siparişler / adisyonlar",
+      "averageOrderCheck": "Ortalama sipariş / adisyon",
+      "totalTips": "Toplam Bahşiş"
+    },
+    "hints": {
+      "exclusiveSales": "Yalnızca ürün satışları (ekstralar, servis ve vergi öncesi).",
+      "extras": "Adisyonlara eklenen sipariş düzeyinde ekstralar ve ek ücretler.",
+      "grossSales": "Özel satışlar + ekstralar (iptal edilen satırlar hariç).",
+      "itemDiscounts": "Satır ürünlerine doğrudan uygulanan indirim değeri.",
+      "subtotalDiscounts": "Ürün düzeyi indirimler hariç sipariş düzeyi indirimler.",
+      "couponDiscounts": "Kupon kullanım tutarı.",
+      "discounts": "Satır, sipariş ve kupon indirimleri.",
+      "netSales": "Brüt satışlar − indirimler.",
+      "serviceCharges": "Siparişlerdeki tutar; indirim sonrası net üzerinden",
+      "taxes": "Sipariş başına kaydedilen devlet vergisi.",
+      "totalRevenue": "Net satışlar + servis ücretleri + vergiler (bahşiş öncesi).",
+      "amountDueBeforeTips": "Net satışlar + servis ücretleri + vergiler.",
+      "tips": "Sipariş bahşiş alanlarından / toplam üzerinden (brüt satışlara dahil değil).",
+      "grandTotalDue": "Toplam gelir + bahşişler.",
+      "amountCollected": "Yönteme göre uygulanan ödeme toplamları (iade edilen para üstü hariç).",
+      "rounding": "Tahsil edilen tutar − genel toplam (ödenecek); hesaplanan borca göre fazla/eksik.",
+      "changeVariance": "Uygulanan ödeme tutarlarını aşan nakit ödeme.",
+      "voids": "Giriş sonrası kaldırılan satırların değeri (yukarıdaki brüt satışlarda değil).",
+      "refunds": "Negatif ödemelerden veya iptal edilen adisyonlardan iadeler.",
+      "covers": "Misafir sayısı (kişi).",
+      "averageCover": "Ödenecek tutar (bahşiş öncesi) ÷ kişi sayısı.",
+      "ordersChecks": "Kapatılan adisyon/sipariş sayısı.",
+      "averageOrderCheck": "Ödenecek tutar (bahşiş öncesi) ÷ siparişler.",
+      "roundingLegacy": "Tahsil edilen tutar - Ödenecek tutar"
+    },
+    "columns": {
+      "item": "Ürün",
+      "qty": "Adet",
+      "total": "Toplam",
+      "share": "Pay"
+    },
+    "empty": {
+      "noCategoryData": "Bu tarih için kategori verisi yok.",
+      "noPaymentData": "Bu tarih için ödeme verisi yok.",
+      "noTaxRows": "Bu tarih için vergi satırı yok.",
+      "noDiscountRows": "Bu tarih için indirim satırı yok.",
+      "noExtras": "Bu tarih için ekstra bulunamadı.",
+      "noCoupons": "Bu tarih için kupon kullanımı yok."
+    },
+    "footer": "Sıra: brüt satışlar → indirimler → net satışlar → servis ücretleri → vergiler → bahşişler → genel toplam → tahsil edilen. Ürün karışımı kategoriye göre gruplandırılmış, yemekler iç içe.",
+    "legacy": {
+      "tips": "Bahşişler",
+      "categories": "Kategoriler",
+      "dishes": "Yemekler",
+      "paymentTypes": "Ödeme türleri",
+      "taxes": "Vergiler",
+      "discounts": "İndirimler",
+      "extras": "Ekstralar",
+      "coupons": "Kuponlar",
+      "covers": "Kişi sayısı",
+      "averageCover": "Ortalama kişi",
+      "ordersChecks": "Siparişler/Adisyonlar",
+      "averageOrderCheck": "Ortalama sipariş/adisyon"
+    }
+  },
+  "clock": {
+    "title": "Zaman Saati",
+    "subtitle": "Çalışma saatlerinizi takip edin",
+    "saleSummary": "Satış Özeti",
+    "loadingSaleData": "Satış verileri yükleniyor...",
+    "loading": "Yükleniyor...",
+    "signedInAs": "Giriş yapan",
+    "shift": "Vardiya",
+    "endsNextDay": "ertesi gün biter",
+    "clockInTime": "Mesai Giriş Saati",
+    "timeElapsed": "Geçen Süre",
+    "sinceClockIn": "Mesai girişinden beri",
+    "clockOut": "Mesai Çıkışı",
+    "metrics": {
+      "totalSales": "Toplam Satışlar",
+      "refunds": "İadeler",
+      "serviceCharges": "Servis Ücretleri",
+      "discounts": "İndirimler",
+      "taxes": "Vergiler",
+      "extras": "Ekstralar",
+      "voids": "İptaller",
+      "tips": "Bahşişler"
+    }
+  },
+  "tipDistribution": {
+    "shift": "Vardiya",
+    "date": "Tarih",
+    "loadTips": "Bahşişleri yükle",
+    "submit": "Gönder",
+    "totalTips": "Toplam bahşiş: {{amount}}",
+    "columns": {
+      "user": "Kullanıcı",
+      "role": "Rol",
+      "weight": "Ağırlık",
+      "amount": "Tutar"
+    },
+    "empty": "Henüz dağıtım hesaplanmadı."
+  }
+}

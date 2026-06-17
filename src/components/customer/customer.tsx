@@ -8,6 +8,7 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {faCheck} from "@fortawesome/free-solid-svg-icons";
+import {useTranslation} from "react-i18next";
 
 export interface Props {
   onAttach?: () => void;
@@ -17,6 +18,7 @@ export const Customers = ({
 }: Props) => {
   const [state, setState] = useAtom(appState);
   const db = useDB();
+  const {t} = useTranslation("orders");
 
   const [search, setSearch] = useState("");
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -42,7 +44,7 @@ export const Customers = ({
       <div className="grid grid-cols-4 items-end gap-3 mb-3">
         <div>
           <Input
-            label="Name"
+            label={t("customer.name")}
             value={state.customer?.name}
             onChange={(event) => setState(prev => ({
               ...prev,
@@ -57,7 +59,7 @@ export const Customers = ({
         <div>
           <Input
             type="number"
-            label="Phone Number"
+            label={t("customer.phone")}
             value={state.customer?.phone}
             onChange={(event) => setState(prev => ({
               ...prev,
@@ -71,7 +73,7 @@ export const Customers = ({
         </div>
         <div>
           <Input
-            label="Address"
+            label={t("customer.address")}
             value={state.customer?.address}
             onChange={(event) => setState(prev => ({
               ...prev,
@@ -83,24 +85,24 @@ export const Customers = ({
             enableKeyboard
           />
         </div>
-        <Button type="button" variant="primary" filled onClick={onAttach}>Attach</Button>
+        <Button type="button" variant="primary" filled onClick={onAttach}>{t("customer.attach")}</Button>
       </div>
       <div className="h-[2px] bg-gray-300 my-5"/>
       <div className="mb-3">
-        <Input placeholder="Search" className="search-field" onChange={(event) => setSearch(event.target.value)} enableKeyboard />
+        <Input placeholder={t("customer.search")} className="search-field" onChange={(event) => setSearch(event.target.value)} enableKeyboard />
       </div>
 
       <div className="mb-3">
         <table className="table">
           <thead>
             <tr>
-              <th>Select</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Addr.</th>
-              <th>Secondary Addr.</th>
-              <th>Points</th>
+              <th>{t("customer.columns.select")}</th>
+              <th>{t("customer.columns.name")}</th>
+              <th>{t("customer.columns.email")}</th>
+              <th>{t("customer.columns.phone")}</th>
+              <th>{t("customer.columns.address")}</th>
+              <th>{t("customer.columns.secondaryAddress")}</th>
+              <th>{t("customer.columns.points")}</th>
             </tr>
           </thead>
           <tbody>

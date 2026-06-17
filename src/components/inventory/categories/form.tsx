@@ -1,4 +1,5 @@
 import React, {useEffect} from "react";
+import { useTranslation } from 'react-i18next';
 import * as yup from "yup";
 import {Controller, useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
@@ -28,6 +29,7 @@ const validationSchema: yup.ObjectSchema<InventoryCategoryFormValues> = yup.obje
 }).required();
 
 export const InventoryCategoryForm = ({open, onClose, data}: Props) => {
+  const { t } = useTranslation('inventory');
   const db = useDB();
 
   const {register, handleSubmit, formState: {errors}, reset, control} = useForm({
@@ -64,7 +66,7 @@ export const InventoryCategoryForm = ({open, onClose, data}: Props) => {
         await db.create(Tables.inventory_categories, payload);
       }
 
-      toast.success(`Category ${values.name} saved`);
+      toast.success(t('toast:inventory.categorySaved', { name: values.name }));
       closeModal();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : String(error));
@@ -81,7 +83,7 @@ export const InventoryCategoryForm = ({open, onClose, data}: Props) => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-3 mb-3">
           <div className="flex-1">
-            <Input label="Name" {...register("name")} autoFocus error={errors?.name?.message} />
+            <Input label={t('columns.name')} {...register("name")} autoFocus error={errors?.name?.message} />
           </div>
           <div className="flex-1">
             <Controller
@@ -89,7 +91,7 @@ export const InventoryCategoryForm = ({open, onClose, data}: Props) => {
               name="priority"
               render={({field}) => (
                 <Input
-                  label="Priority"
+                  label={t('columns.priority')}
                   type="number"
                   {...field}
                   value={field.value ?? ""}
@@ -100,7 +102,7 @@ export const InventoryCategoryForm = ({open, onClose, data}: Props) => {
           </div>
         </div>
         <div>
-          <Button type="submit" variant="primary">Save</Button>
+          <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
         </div>
       </form>
     </Modal>

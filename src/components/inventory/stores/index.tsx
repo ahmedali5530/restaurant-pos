@@ -1,4 +1,5 @@
 import {useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {createColumnHelper} from "@tanstack/react-table";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -10,6 +11,7 @@ import {faPencil, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {InventoryStoreForm} from "@/components/inventory/stores/form.tsx";
 
 export const InventoryStores = () => {
+  const { t } = useTranslation('inventory');
   const loadHook = useApi<SettingsData<InventoryStore>>(Tables.inventory_stores, [], [], 0, 10, []);
 
   const [data, setData] = useState<InventoryStore>();
@@ -19,11 +21,11 @@ export const InventoryStores = () => {
 
   const columns: any = [
     columnHelper.accessor("name", {
-      header: "Name"
+      header: t('columns.name')
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {

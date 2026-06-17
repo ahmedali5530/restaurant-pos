@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {REPORTS_DETAILED_INVENTORY} from "@/routes/posr.ts";
 import {DateRange} from "@/components/reports/filters/date.range.tsx";
 import {Button} from "@/components/common/input/button.tsx";
@@ -26,15 +27,15 @@ const toOption = <T extends { id?: any }>(
 const notNull = <T,>(value: T | null | undefined): value is T =>
   value !== null && value !== undefined;
 
-const TRANSACTION_TYPES = [
-  { label: "Purchase", value: "Purchase" },
-  { label: "Return", value: "Return" },
-  { label: "Issue", value: "Issue" },
-  { label: "Issue Return", value: "Issue Return" },
-  { label: "Waste", value: "Waste" },
-];
-
 export const DetailedInventoryFilter = () => {
+  const { t } = useTranslation('reports');
+  const TRANSACTION_TYPES = [
+    { label: t('reports.purchase'), value: "Purchase" },
+    { label: t('reports.purchaseReturn'), value: "Return" },
+    { label: t('reports.issue'), value: "Issue" },
+    { label: t('reports.issueReturn'), value: "Issue Return" },
+    { label: t('reports.waste'), value: "Waste" },
+  ];
   const {data: itemsData, isLoading: loadingItems} = useApi<SettingsData<InventoryItem>>(
     Tables.inventory_items, 
     [], 
@@ -54,7 +55,7 @@ export const DetailedInventoryFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="detailed-inventory-items">Inventory Items</label>
+          <label htmlFor="detailed-inventory-items">{t('labels.inventoryItems')}</label>
           <ReactSelect
             id="detailed-inventory-items"
             name="items[]"
@@ -83,7 +84,7 @@ export const DetailedInventoryFilter = () => {
         variant="primary"
         filled
         type="submit"
-      >Generate</Button>
+      >{t('filters.generate')}</Button>
     </form>
   );
 }

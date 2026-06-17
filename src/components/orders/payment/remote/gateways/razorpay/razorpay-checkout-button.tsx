@@ -4,6 +4,8 @@ import { PendingRemoteIntent } from "@/components/orders/payment/remote/core/typ
 import { settleRemotePayment } from "@/components/orders/payment/remote/core/remote-payment-settlement.ts";
 import { verifyPayment } from "@/lib/payment.service.ts";
 import { toast } from "sonner";
+import i18n from "@/lib/i18n.ts";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   intent: PendingRemoteIntent;
@@ -57,6 +59,7 @@ function loadRazorpayScript(): Promise<RazorpayConstructor> {
 }
 
 export function RazorpayCheckoutButton({ intent }: Props) {
+  const { t } = useTranslation(['payment', 'common']);
   const keyId = intent.gatewayPayload?.keyId;
   const [isReady, setIsReady] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -102,7 +105,7 @@ export function RazorpayCheckoutButton({ intent }: Props) {
               });
 
               if (result.status !== "paid" && result.status !== "authorized") {
-                toast.warning(`Payment is ${result.status}.`);
+                toast.warning(i18n.t('payment:remoteGateway.paymentIs', { status: result.status }));
                 return;
               }
 
@@ -122,7 +125,7 @@ export function RazorpayCheckoutButton({ intent }: Props) {
 
       checkout.on("payment.failed", (response) => {
         setIsSubmitting(false);
-        toast.error(response.error?.description || "Razorpay payment failed.");
+        toast.error(response.error?.description || i18n.t('payment:remoteGateway.razorpayPaymentFailed'));
       });
 
       checkout.open();
@@ -145,7 +148,7 @@ export function RazorpayCheckoutButton({ intent }: Props) {
         onClick={() => void handlePay()}
         disabled={!isReady || isSubmitting}
       >
-        {isSubmitting ? "Processing..." : "Pay with Razorpay"}
+        {isSubmitting ? t('common:actions.loading') : t('remoteGateway.payWithRazorpay')}
       </Button>
     </div>
   );

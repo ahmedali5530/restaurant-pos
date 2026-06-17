@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {toast} from "sonner";
@@ -87,6 +88,7 @@ const validationSchema = yup.object({
 });
 
 export const DeliverySettings = () => {
+  const { t } = useTranslation('delivery');
   const db = useDB();
   const [loading, setLoading] = useState(true);
   const {
@@ -174,7 +176,7 @@ export const DeliverySettings = () => {
         });
       } catch (error) {
         console.error("Error loading delivery settings:", error);
-        toast.error("Failed to load delivery settings");
+        toast.error(t('settings.loadFailed'));
       } finally {
         setLoading(false);
       }
@@ -220,10 +222,10 @@ export const DeliverySettings = () => {
         }
       }
 
-      toast.success("Delivery settings saved successfully");
+      toast.success(t('settings.saved'));
     } catch (error) {
       console.error("Error saving delivery settings:", error);
-      toast.error("Failed to save delivery settings");
+      toast.error(t('settings.saveFailed'));
     }
   };
 
@@ -248,10 +250,10 @@ export const DeliverySettings = () => {
     <>
       <div className="bg-white p-4">
         <div className="">
-          <h2 className="text-xl font-bold mb-4">Delivery Configuration</h2>
+          <h2 className="text-xl font-bold mb-4">{t('settings.title')}</h2>
           
           {loading ? (
-            <div className="text-center py-8">Loading settings...</div>
+            <div className="text-center py-8">{t('settings.loading')}</div>
           ) : (
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="flex flex-col gap-4">
@@ -261,7 +263,7 @@ export const DeliverySettings = () => {
                     control={control}
                     render={({field}) => (
                       <Checkbox
-                        label="Enable Delivery"
+                        label={t('settings.enableDelivery')}
                         checked={field.value}
                         onChange={(e) => field.onChange(e.currentTarget.checked)}
                       />
@@ -276,7 +278,7 @@ export const DeliverySettings = () => {
                     render={({field}) => (
                       <Input
                         type="number"
-                        label="Delivery Charges"
+                        label={t('settings.deliveryCharges')}
                         value={field.value}
                         onChange={(e) => {
                           const val = parseFloat(e.target.value) || 0;
@@ -297,7 +299,7 @@ export const DeliverySettings = () => {
                     render={({field}) => (
                       <Input
                         type="number"
-                        label="Minimum Order"
+                        label={t('settings.minimumOrder')}
                         value={field.value}
                         onChange={(e) => {
                           const val = parseFloat(e.target.value) || 0;
@@ -320,7 +322,7 @@ export const DeliverySettings = () => {
                     render={({field}) => (
                       <Input
                         type="number"
-                        label="Delivery time in minutes"
+                        label={t('settings.deliveryTimeMinutes')}
                         value={field.value}
                         onChange={(e) => {
                           const val = parseFloat(e.target.value) || 0;
@@ -337,7 +339,7 @@ export const DeliverySettings = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="delivery_menu">Delivery menu</label>
+                  <label htmlFor="delivery_menu">{t('settings.deliveryMenu')}</label>
                   <Controller
                     name="delivery_menu"
                     control={control}
@@ -355,7 +357,7 @@ export const DeliverySettings = () => {
                 </div>
 
                 <div className="border-t pt-4 mt-2">
-                  <h3 className="text-lg font-semibold mb-4">Map Center</h3>
+                  <h3 className="text-lg font-semibold mb-4">{t('settings.mapCenter')}</h3>
                   <div className="flex gap-3">
                     <div className="flex-1">
                       <Controller
@@ -364,7 +366,7 @@ export const DeliverySettings = () => {
                         render={({field}) => (
                           <Input
                             type="number"
-                            label="Latitude"
+                            label={t('settings.latitude')}
                             value={field.value}
                             onChange={(e) => {
                               const val = parseFloat(e.target.value) || 0;
@@ -383,7 +385,7 @@ export const DeliverySettings = () => {
                         render={({field}) => (
                           <Input
                             type="number"
-                            label="Longitude"
+                            label={t('settings.longitude')}
                             value={field.value}
                             onChange={(e) => {
                               const val = parseFloat(e.target.value) || 0;
@@ -400,7 +402,7 @@ export const DeliverySettings = () => {
 
                 <div className="border-t pt-4 mt-2">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold">Delivery Timing</h3>
+                    <h3 className="text-lg font-semibold">{t('settings.deliveryTiming')}</h3>
                     <Button
                       type="button"
                       variant="primary"
@@ -442,7 +444,7 @@ export const DeliverySettings = () => {
                                 render={({field: timeField}) => (
                                   <Input
                                     type="time"
-                                    label="Start Time"
+                                    label={t('settings.startTime')}
                                     value={timeField.value}
                                     onChange={timeField.onChange}
                                     // disabled={isDayOff}
@@ -458,7 +460,7 @@ export const DeliverySettings = () => {
                                 render={({field: timeField}) => (
                                   <Input
                                     type="time"
-                                    label="End Time"
+                                    label={t('settings.endTime')}
                                     value={timeField.value}
                                     onChange={timeField.onChange}
                                     // disabled={isDayOff}
@@ -473,7 +475,7 @@ export const DeliverySettings = () => {
                                 control={control}
                                 render={({field: checkboxField}) => (
                                   <Checkbox
-                                    label="End time in next day?"
+                                    label={t('settings.endTimeNextDay')}
                                     checked={checkboxField.value}
                                     onChange={(e) => checkboxField.onChange(e.currentTarget.checked)}
                                     disabled={isDayOff}
@@ -487,7 +489,7 @@ export const DeliverySettings = () => {
                                 control={control}
                                 render={({field: checkboxField}) => (
                                   <Checkbox
-                                    label="Enable delivery?"
+                                    label={t('settings.enableDeliveryQuestion')}
                                     checked={checkboxField.value}
                                     onChange={(e) => checkboxField.onChange(e.currentTarget.checked)}
                                   />

@@ -10,6 +10,7 @@ import { toLuxonDateTime } from "@/lib/datetime.ts";
 import { completeStage, completeStages } from "@/lib/kitchen/workflow.service.ts";
 import { useAtom } from "jotai";
 import { appPage } from "@/store/jotai.ts";
+import {useTranslation} from "react-i18next";
 
 interface Props {
   order: KitchenOrderModel
@@ -20,6 +21,7 @@ export const KitchenOrder = ({
 }: Props) => {
   const db = useDB();
   const [page] = useAtom(appPage);
+  const {t} = useTranslation("kitchen");
 
   const stageStart = order.items[0]?.activated_at ?? order.items[0]?.created_at;
   const diff = DateTime.now().diff(toLuxonDateTime(stageStart)).as('minutes');
@@ -66,7 +68,7 @@ export const KitchenOrder = ({
         </div>
         <div className="flex flex-col flex-1">
           <span className="text-lg font-bold px-1 rounded text-right">{order.order?.user?.first_name}</span>
-          <span className="text-right text-xl text-primary-500">{isAddon() ? 'ADDON' : ''}</span>
+          <span className="text-right text-xl text-primary-500">{isAddon() ? t("labels.addon") : ''}</span>
         </div>
       </div>
       <div className="p-3">
@@ -93,7 +95,7 @@ export const KitchenOrder = ({
         ))}
       </div>
       <div className="p-3">
-        <Button variant="success" filled className="w-full" size="lg" onClick={ready}>Ready</Button>
+        <Button variant="success" filled className="w-full" size="lg" onClick={ready}>{t("actions.ready")}</Button>
       </div>
     </div>
   )

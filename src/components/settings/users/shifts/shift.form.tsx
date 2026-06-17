@@ -3,6 +3,8 @@ import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { toast } from "sonner";
+import {useTranslation} from 'react-i18next';
+import i18n from '@/lib/i18n.ts';
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input } from "@/components/common/input/input.tsx";
 import { Button } from "@/components/common/input/button.tsx";
@@ -18,13 +20,14 @@ interface Props {
 }
 
 const validationSchema = yup.object({
-  name: yup.string().required("This is required"),
-  start_time: yup.string().required("This is required"),
-  end_time: yup.string().required("This is required"),
+  name: yup.string().required(i18n.t('validation:required')),
+  start_time: yup.string().required(i18n.t('validation:required')),
+  end_time: yup.string().required(i18n.t('validation:required')),
 });
 
 export const ShiftForm = ({ open, onClose, data }: Props) => {
   const db = useDB();
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
 
   const { register, control, watch, handleSubmit, formState: { errors }, reset } = useForm({
     resolver: yupResolver(validationSchema),
@@ -67,7 +70,7 @@ export const ShiftForm = ({ open, onClose, data }: Props) => {
         await db.create(Tables.shifts, payload);
       }
       closeModal();
-      toast.success(`Shift ${values.name} saved`);
+      toast.success(t('toast:admin.shiftSaved', { name: values.name }));
     } catch (e) {
       toast.error(String(e));
       console.log(e);
@@ -76,14 +79,14 @@ export const ShiftForm = ({ open, onClose, data }: Props) => {
 
   return (
     <Modal
-      title={data ? `Update ${data.name}` : "Create new shift"}
+      title={data ? t('forms.updateShift', { name: data.name }) : t('forms.createShift')}
       open={open}
       onClose={closeModal}
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-3 mb-3">
           <div className="flex-1">
-            <Input label="Shift name" {...register("name")} autoFocus error={errors?.name?.message} />
+            <Input label={t('forms.shiftName')} {...register("name")} autoFocus error={errors?.name?.message} />
           </div>
           <div className="flex gap-3">
             <div className="flex-1">
@@ -93,7 +96,7 @@ export const ShiftForm = ({ open, onClose, data }: Props) => {
                 render={({ field }) => (
                   <Input
                     type="time"
-                    label="Start time"
+                    label={t('columns.startTime')}
                     value={field.value}
                     onChange={field.onChange}
                     error={errors?.start_time?.message}
@@ -108,7 +111,7 @@ export const ShiftForm = ({ open, onClose, data }: Props) => {
                 render={({ field }) => (
                   <Input
                     type="time"
-                    label="End time"
+                    label={t('columns.endTime')}
                     value={field.value}
                     onChange={field.onChange}
                     error={errors?.end_time?.message}
@@ -122,7 +125,7 @@ export const ShiftForm = ({ open, onClose, data }: Props) => {
           </div>
         </div>
         <div>
-          <Button type="submit" variant="primary">Save</Button>
+          <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
         </div>
       </form>
     </Modal>

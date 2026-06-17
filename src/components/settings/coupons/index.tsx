@@ -10,9 +10,11 @@ import { Coupon } from "@/api/model/coupon.ts";
 import { CouponForm } from "@/components/settings/coupons/coupon.form.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
+import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminCoupons = () => {
+  const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<Coupon>>(Tables.coupons, ['deleted_at = none']);
   const db = useDB();
 
@@ -23,41 +25,41 @@ export const AdminCoupons = () => {
 
   const columns: any = [
     columnHelper.accessor("code", {
-      header: "Code",
+      header: t('columns.code'),
     }),
     columnHelper.accessor("description", {
-      header: "Description",
+      header: t('columns.description'),
     }),
     columnHelper.accessor("coupon_type", {
       header: "Type",
     }),
     columnHelper.accessor("discount_type", {
-      header: "Discount type",
+      header: t('columns.discountType'),
     }),
     columnHelper.accessor("discount_value", {
-      header: "Value",
+      header: t('columns.value'),
     }),
     columnHelper.accessor("min_order_amount", {
-      header: "Min order",
+      header: t('columns.minOrder'),
     }),
     columnHelper.accessor("max_discount_amount", {
-      header: "Max discount",
+      header: t('columns.maxDiscount'),
     }),
     columnHelper.accessor("usage_limit", {
-      header: "Usage limit",
+      header: t('columns.usageLimit'),
     }),
     columnHelper.accessor("usage_limit_per_user", {
-      header: "Per user limit",
+      header: t('columns.perUserLimit'),
     }),
     columnHelper.accessor("used_count", {
-      header: "Used",
+      header: t('columns.used'),
     }),
     columnHelper.accessor("stackable", {
-      header: "Stackable",
+      header: t('columns.stackable'),
       cell: (info) => (info.getValue() ? "Yes" : "No"),
     }),
     columnHelper.accessor("first_order_only", {
-      header: "First order only",
+      header: t('columns.firstOrderOnly'),
       cell: (info) => (info.getValue() ? "Yes" : "No"),
     }),
     columnHelper.accessor("priority", {
@@ -69,7 +71,7 @@ export const AdminCoupons = () => {
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {
@@ -86,7 +88,7 @@ export const AdminCoupons = () => {
             </Button>
             <div className="separator"></div>
             <DeleteConfirm
-              message={`Delete coupon ${info.row.original.code}`}
+              message={t('delete.coupon', { code: info.row.original.code })}
               onConfirm={() => deleteItem(info.row.original.id)}
             />
           </div>
@@ -99,7 +101,7 @@ export const AdminCoupons = () => {
     await executeSettingsDelete({
       db,
       id,
-      entityLabel: 'Coupon',
+      entityLabel: t('entities.coupon'),
       usageChecks: [
         {
           query: `SELECT count() AS count FROM ${Tables.order_coupons} WHERE coupon = $idRecord GROUP ALL`

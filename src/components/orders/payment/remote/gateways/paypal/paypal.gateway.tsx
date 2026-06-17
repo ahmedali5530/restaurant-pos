@@ -4,6 +4,7 @@ import { PendingRemoteIntent } from "@/components/orders/payment/remote/core/typ
 import { AfterIntentCreatedInput } from "@/components/orders/payment/remote/core/types.ts";
 import { getGatewayDescriptor } from "@/lib/payment/gateway-catalog.ts";
 import { toast } from "sonner";
+import i18n from "@/lib/i18n.ts";
 
 export const paypalGatewayAdapter: RemoteGatewayAdapter = {
   gateway: "paypal",
@@ -11,10 +12,10 @@ export const paypalGatewayAdapter: RemoteGatewayAdapter = {
     getGatewayDescriptor("paypal")?.currency || import.meta.env.VITE_CURRENCY || "USD",
   preparePayment: async () => ({ proceed: true }),
   onIntentCreated(_input: AfterIntentCreatedInput) {
-    toast.success("Use the PayPal button below to complete payment.");
+    toast.success(i18n.t('payment:remoteGateway.usePaypalButton'));
   },
   renderPendingExtra(intent: PendingRemoteIntent) {
     return <PaypalButtonsPanel intent={intent} />;
   },
-  getVerifiedSuccessMessage: () => "PayPal payment received.",
+  getVerifiedSuccessMessage: () => i18n.t('payment:remoteGateway.paymentReceived', { gateway: 'PayPal' }),
 };

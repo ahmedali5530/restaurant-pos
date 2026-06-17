@@ -8,6 +8,7 @@ import {OrderType} from "@/api/model/order_type.ts";
 import {Category} from "@/api/model/category.ts";
 import {Dish} from "@/api/model/dish.ts";
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {useDB} from "@/api/db/db.ts";
 import {DateTime} from "luxon";
 
@@ -55,6 +56,7 @@ const notNull = <T,>(value: T | null | undefined): value is T =>
   value !== null && value !== undefined;
 
 export const ProductMixWeeklyReportFilter = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [weeks, setWeeks] = useState<WeekOption[]>([]);
@@ -162,7 +164,7 @@ export const ProductMixWeeklyReportFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="product-mix-weekly-order-takers">Order Takers</label>
+          <label htmlFor="product-mix-weekly-order-takers">{t('filters.orderTakers')}</label>
           <ReactSelect
             id="product-mix-weekly-order-takers"
             name="order_takers[]"
@@ -178,7 +180,7 @@ export const ProductMixWeeklyReportFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="product-mix-weekly-order-types">Order Types</label>
+          <label htmlFor="product-mix-weekly-order-types">{t('filters.orderTypes')}</label>
           <ReactSelect
             id="product-mix-weekly-order-types"
             name="order_types[]"
@@ -192,7 +194,7 @@ export const ProductMixWeeklyReportFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="product-mix-weekly-categories">Categories</label>
+          <label htmlFor="product-mix-weekly-categories">{t('filters.categories')}</label>
           <ReactSelect
             id="product-mix-weekly-categories"
             name="categories[]"
@@ -206,7 +208,7 @@ export const ProductMixWeeklyReportFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="product-mix-weekly-menu-items">Menu Items</label>
+          <label htmlFor="product-mix-weekly-menu-items">{t('filters.menuItems')}</label>
           <ReactSelect
             id="product-mix-weekly-menu-items"
             name="menu_items[]"

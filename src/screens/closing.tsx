@@ -29,6 +29,7 @@ import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {ClosingCycleWindow, resolveClosingWindow} from "@/lib/closing-cycle.ts";
 import {getCurrentCycleClosing, hasOpenOrdersInCurrentCycle} from "@/lib/closing.guard.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useTranslation} from "react-i18next";
 
 const DEFAULT_TERMINALS: TerminalCash[] = [
   {terminal_id: "terminal_1", terminal_name: "Terminal 1", cash_amount: 0},
@@ -70,6 +71,7 @@ const normalizeTerminalDenomination = (input?: Partial<TerminalDenomination>): T
 };
 
 export const Closing = () => {
+  const {t} = useTranslation(["closing", "toast"]);
   const db = useDB();
   const [page] = useAtom(appPage);
   const {protectAction} = useSecurity();
@@ -99,9 +101,9 @@ export const Closing = () => {
   const closingWindowLabel = useMemo(() => {
     const start = LuxonDateTime.fromJSDate(closingWindow.date_from).toFormat("dd LLL yyyy, hh:mm a");
     const end = LuxonDateTime.fromJSDate(closingWindow.date_to).toFormat("dd LLL yyyy, hh:mm a");
-    const prefix = cycleEnabled ? "Cycle" : "Period";
-    return `${prefix}: ${start} - ${end}`;
-  }, [closingWindow.date_from, closingWindow.date_to, cycleEnabled]);
+    const prefix = cycleEnabled ? t("closing:window.cycle") : t("closing:window.period");
+    return t("closing:window.label", {prefix, start, end});
+  }, [closingWindow.date_from, closingWindow.date_to, cycleEnabled, t]);
 
   const getTerminalAmount = useCallback((terminalId: string) => {
     const terminal = terminalDenominations[terminalId];
@@ -165,7 +167,7 @@ export const Closing = () => {
 
     const normalizedTerminals = sourceTerminals.map((terminal, index) => ({
       terminal_id: terminal.terminal_id || `terminal_${index + 1}`,
-      terminal_name: terminal.terminal_name || `Terminal ${index + 1}`,
+      terminal_name: terminal.terminal_name || t("closing:terminal.defaultName", {number: index + 1}),
       cash_amount: 0,
     }));
     setTerminalCash(normalizedTerminals);
@@ -177,7 +179,7 @@ export const Closing = () => {
       return acc;
     }, {} as Record<string, TerminalDenomination>);
     setTerminalDenominations(normalizedDenominations);
-  }, []);
+  }, [t]);
 
   const hydratePayments = useCallback(async (source: ClosingModel | null) => {
     const systemPayments = await fetchCyclePayments();
@@ -214,7 +216,7 @@ export const Closing = () => {
       await hydratePayments(cycleClosing);
     } catch (error) {
       console.error("Error loading closing data:", error);
-      toast.error("Failed to load closing");
+      toast.error(t("toast:closing.loadFailed"));
     } finally {
       setLoading(false);
     }
@@ -295,7 +297,7 @@ export const Closing = () => {
       ...prev,
       {
         terminal_id: terminalId,
-        terminal_name: `Terminal ${prev.length + 1}`,
+        terminal_name: t("closing:terminal.defaultName", {number: prev.length + 1}),
         cash_amount: 0,
       }
     ]);
@@ -402,7 +404,7 @@ export const Closing = () => {
 
   const saveClosing = async (complete = false) => {
     if (isReadOnly) {
-      toast.info("This cycle is already closed.");
+      toast.info(t("toast:closing.alreadyClosed"));
       return;
     }
 
@@ -411,7 +413,7 @@ export const Closing = () => {
       if (complete) {
         const hasOpenOrders = await hasOpenOrdersInCurrentCycle(db);
         if (hasOpenOrders) {
-          toast.error("There are open orders. Please close them first.");
+          toast.error(t("toast:closing.openOrders"));
           return;
         }
       }
@@ -446,12 +448,12 @@ export const Closing = () => {
         await db.create(Tables.closings, closingData);
       }
 
-      toast.success(complete ? "Closing completed successfully!" : "Closing saved as draft successfully!");
+      toast.success(complete ? t("toast:closing.completed") : t("toast:closing.savedDraft"));
       await refreshClosingWindow();
       await loadClosingData();
     } catch (error) {
       console.error("Error saving closing:", error);
-      toast.error("Failed to save closing");
+      toast.error(t("toast:closing.saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -459,7 +461,7 @@ export const Closing = () => {
 
   const reopenClosing = async () => {
     if (!existingClosing?.id) {
-      toast.error("No closing found for this cycle.");
+      toast.error(t("toast:closing.notFound"));
       return;
     }
 
@@ -469,11 +471,11 @@ export const Closing = () => {
         status: "draft",
         closed_at: null,
       });
-      toast.success("Closing reopened in edit mode.");
+      toast.success(t("toast:closing.reopened"));
       await loadClosingData();
     } catch (error) {
       console.error("Failed to reopen closing:", error);
-      toast.error("Failed to reopen closing");
+      toast.error(t("toast:closing.reopenFailed"));
     } finally {
       setSaving(false);
     }
@@ -491,7 +493,7 @@ export const Closing = () => {
     return (
       <Layout overflowHidden>
         <div className="h-[calc(100vh_-_30px)] flex justify-center items-center text-xl font-semibold">
-          Loading closing...
+          {t("closing:loading")}
         </div>
       </Layout>
     );
@@ -501,35 +503,35 @@ export const Closing = () => {
     <Layout overflowHidden>
       <ScrollContainer className="overflow-y-auto h-[calc(100vh_-_30px)] select-none">
         <div className="p-6">
-          <h1 className="text-3xl font-bold mb-3 text-center">Daily Closing as of {today}</h1>
+          <h1 className="text-3xl font-bold mb-3 text-center">{t("closing:title", {date: today})}</h1>
           <div className="text-center mb-6 text-sm text-neutral-600">{closingWindowLabel}</div>
 
           {!cycleEnabled && (
             <div className="alert alert-warning mb-6 bg-white">
-              Closing cycle is disabled. The last completed closing time is used as the start of this period, and the current time is used as the end.
+              {t("closing:alerts.cycleDisabled")}
             </div>
           )}
 
           {cycleEnabled && isClosingCompleted && (
             <div className="alert alert-success mb-6 bg-white">
-              Closing is completed for this cycle. Order taking is now blocked until the next cycle.
+              {t("closing:alerts.cycleCompleted")}
             </div>
           )}
 
           {!cycleEnabled && isClosingCompleted && (
             <div className="alert alert-success mb-6 bg-white">
-              Closing is completed for this period.
+              {t("closing:alerts.periodCompleted")}
             </div>
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-4">Previous Day Balance</h2>
+              <h2 className="text-xl font-semibold mb-4">{t("closing:sections.previousDayBalance")}</h2>
               <Input
                 type="number"
                 value={previousDayBalance}
                 onChange={(e) => setPreviousDayBalance(Number(e.target.value))}
-                placeholder="Previous Day Balance"
+                placeholder={t("closing:fields.previousDayBalance")}
                 step="0.01"
                 enableKeyboard
                 inputSize="lg"
@@ -538,12 +540,12 @@ export const Closing = () => {
             </div>
 
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-4">Petty Cash</h2>
+              <h2 className="text-xl font-semibold mb-4">{t("closing:sections.pettyCash")}</h2>
               <Input
                 type="number"
                 value={pettyCash}
                 onChange={(e) => setPettyCash(Number(e.target.value))}
-                placeholder="Petty Cash"
+                placeholder={t("closing:fields.pettyCash")}
                 step="0.01"
                 enableKeyboard
                 inputSize="lg"
@@ -554,10 +556,10 @@ export const Closing = () => {
 
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold mb-4">Terminal Cash</h2>
+              <h2 className="text-xl font-semibold mb-4">{t("closing:sections.terminalCash")}</h2>
               <Button onClick={addTerminal} variant="primary" size="lg" type="button" disabled={isReadOnly}>
                 <FontAwesomeIcon icon={faPlus} className="mr-2"/>
-                Add Terminal
+                {t("closing:terminal.add")}
               </Button>
             </div>
             <div className="grid grid-cols-2 gap-6">
@@ -577,7 +579,7 @@ export const Closing = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <div className="font-semibold mb-2">Notes</div>
+                      <div className="font-semibold mb-2">{t("closing:terminal.notes")}</div>
                       <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
                         {DENOMINATION_NOTES.map(denomination => (
                           <div key={denomination}>
@@ -591,8 +593,8 @@ export const Closing = () => {
                                 denomination,
                                 Number(e.target.value)
                               )}
-                              label={`x ${denomination}`}
-                              placeholder={`x ${denomination}`}
+                              label={t("closing:terminal.denomination", {value: denomination})}
+                              placeholder={t("closing:terminal.denomination", {value: denomination})}
                               min={0}
                               step={1}
                               enableKeyboard
@@ -603,7 +605,7 @@ export const Closing = () => {
                       </div>
                     </div>
                     <div>
-                      <div className="font-semibold mb-2">Coins</div>
+                      <div className="font-semibold mb-2">{t("closing:terminal.coins")}</div>
                       <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
                         {DENOMINATION_COINS.map(denomination => (
                           <div key={denomination}>
@@ -617,8 +619,8 @@ export const Closing = () => {
                                 denomination,
                                 Number(e.target.value)
                               )}
-                              placeholder={`x ${denomination}`}
-                              label={`x ${denomination}`}
+                              placeholder={t("closing:terminal.denomination", {value: denomination})}
+                              label={t("closing:terminal.denomination", {value: denomination})}
                               min={0}
                               step={1}
                               enableKeyboard
@@ -631,27 +633,27 @@ export const Closing = () => {
                   </div>
 
                   <div className="mt-4 p-3 bg-gray-100 rounded-lg font-semibold">
-                    Terminal Total: {withCurrency(getTerminalAmount(terminal.terminal_id))}
+                    {t("closing:terminal.total", {amount: withCurrency(getTerminalAmount(terminal.terminal_id))})}
                   </div>
                 </div>
               ))}
             </div>
             <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-              <span className="text-lg font-semibold">Total Cash: {withCurrency(totalCash)}</span>
+              <span className="text-lg font-semibold">{t("closing:totals.totalCash", {amount: withCurrency(totalCash)})}</span>
             </div>
             <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-              <div className="text-sm text-gray-600">Cash from payment summary</div>
+              <div className="text-sm text-gray-600">{t("closing:totals.cashFromPayments")}</div>
               <div className="text-lg font-semibold">{withCurrency(totalSystemCash)}</div>
               <div
                 className={`mt-2 text-lg font-semibold ${cashDifference === 0 ? "text-gray-700" : cashDifference > 0 ? "text-success-600" : "text-danger-600"}`}
               >
-                Difference: {withCurrency(cashDifference)}
+                {t("closing:totals.difference", {amount: withCurrency(cashDifference)})}
               </div>
             </div>
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-semibold mb-4">Payment Types Summary from system</h2>
+            <h2 className="text-xl font-semibold mb-4">{t("closing:sections.paymentTypesSummary")}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {paymentSummaries.map((ps) => (
                 <div key={ps.payment_type.id} className="border rounded-lg p-4">
@@ -667,16 +669,16 @@ export const Closing = () => {
               ))}
             </div>
             <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-              <span className="text-lg font-semibold">Total Other Payments: {withCurrency(totalOtherPayments)}</span>
+              <span className="text-lg font-semibold">{t("closing:totals.totalOtherPayments", {amount: withCurrency(totalOtherPayments)})}</span>
             </div>
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Expenses</h2>
+              <h2 className="text-xl font-semibold">{t("closing:sections.expenses")}</h2>
               <Button onClick={addExpense} variant="primary" size="lg" type="button" disabled={isReadOnly}>
                 <FontAwesomeIcon icon={faPlus} className="mr-2"/>
-                Add Expense
+                {t("closing:actions.addExpense")}
               </Button>
             </div>
 
@@ -686,7 +688,7 @@ export const Closing = () => {
                   type="text"
                   value={expense.description}
                   onChange={(e) => updateExpense(expense.id, "description", e.target.value)}
-                  placeholder="Description"
+                  placeholder={t("closing:fields.description")}
                   enableKeyboard
                   inputSize="lg"
                   disabled={isReadOnly}
@@ -695,7 +697,7 @@ export const Closing = () => {
                   type="text"
                   value={expense.category || ""}
                   onChange={(e) => updateExpense(expense.id, "category", e.target.value)}
-                  placeholder="Category"
+                  placeholder={t("closing:fields.category")}
                   enableKeyboard
                   inputSize="lg"
                   disabled={isReadOnly}
@@ -704,7 +706,7 @@ export const Closing = () => {
                   type="number"
                   value={expense.amount}
                   onChange={(e) => updateExpense(expense.id, "amount", Number(e.target.value))}
-                  placeholder="Amount"
+                  placeholder={t("closing:fields.amount")}
                   step="0.01"
                   enableKeyboard
                   inputSize="lg"
@@ -724,17 +726,17 @@ export const Closing = () => {
 
             {expenses.length > 0 && (
               <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-                <span className="text-lg font-semibold">Total Expenses: {withCurrency(totalExpenses)}</span>
+                <span className="text-lg font-semibold">{t("closing:totals.totalExpenses", {amount: withCurrency(totalExpenses)})}</span>
               </div>
             )}
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-semibold mb-4">Notes</h2>
+            <h2 className="text-xl font-semibold mb-4">{t("closing:sections.notes")}</h2>
             <Textarea
               value={notes}
               onChange={(e) => setNotes(e.currentTarget.value)}
-              placeholder="Add any additional notes..."
+              placeholder={t("closing:fields.notesPlaceholder")}
               enableKeyboard
               disabled={isReadOnly}
             />
@@ -742,28 +744,28 @@ export const Closing = () => {
 
           {isClosingCompleted && (
             <div className="bg-primary-100 rounded-lg shadow-md p-6 mb-8">
-              <h2 className="text-2xl font-bold mb-4 text-center">Summary</h2>
+              <h2 className="text-2xl font-bold mb-4 text-center">{t("closing:sections.summary")}</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                 <div>
-                  <div className="text-sm text-gray-600">Previous Balance</div>
+                  <div className="text-sm text-gray-600">{t("closing:totals.previousBalance")}</div>
                   <div className="text-xl font-semibold">{withCurrency(previousDayBalance)}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600">Total Cash</div>
+                  <div className="text-sm text-gray-600">{t("closing:totals.totalCashShort")}</div>
                   <div className="text-xl font-semibold">{withCurrency(totalCash + pettyCash)}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600">Other Payments</div>
+                  <div className="text-sm text-gray-600">{t("closing:totals.otherPayments")}</div>
                   <div className="text-xl font-semibold">{withCurrency(totalOtherPayments)}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600">Total Expenses</div>
+                  <div className="text-sm text-gray-600">{t("closing:totals.totalExpensesShort")}</div>
                   <div className="text-xl font-semibold text-red-600">-{withCurrency(totalExpenses)}</div>
                 </div>
               </div>
               <div className="mt-6 p-4 bg-white rounded-lg border-2 border-blue-200">
                 <div className="text-center">
-                  <div className="text-lg text-gray-600">Net Amount</div>
+                  <div className="text-lg text-gray-600">{t("closing:totals.netAmount")}</div>
                   <div className="text-3xl font-bold text-green-600">{withCurrency(netAmount)}</div>
                 </div>
               </div>
@@ -781,7 +783,7 @@ export const Closing = () => {
                   type="button"
                 >
                   <FontAwesomeIcon icon={faSave} className="mr-2"/>
-                  {saving ? "Saving..." : "Save Closing"}
+                  {saving ? t("closing:actions.saving") : t("closing:actions.saveClosing")}
                 </Button>
                 <Button
                   onClick={() => saveClosing(true)}
@@ -791,7 +793,7 @@ export const Closing = () => {
                   type="button"
                 >
                   <FontAwesomeIcon icon={faSave} className="mr-2"/>
-                  {saving ? "Saving..." : "Close Closing"}
+                  {saving ? t("closing:actions.saving") : t("closing:actions.closeClosing")}
                 </Button>
               </>
             )}
@@ -802,8 +804,8 @@ export const Closing = () => {
                     void protectAction(() => {
                       void reopenClosing();
                     }, {
-                      description: "Re-open daily closing",
-                      module: "Edit Closing",
+                      description: t("closing:security.reopenDescription"),
+                      module: 'Edit Closing',
                     });
                   }}
                   variant="warning"
@@ -812,18 +814,18 @@ export const Closing = () => {
                   disabled={saving}
                 >
                   <FontAwesomeIcon icon={faSave} className="mr-2"/>
-                  {saving ? "Re-opening..." : "Edit (Manager Approval)"}
+                  {saving ? t("closing:actions.reopening") : t("closing:actions.reopen")}
                 </Button>
                 <Button
                   onClick={() => {
-                    printClosing().catch(() => toast.error("Failed to print closing"));
+                    printClosing().catch(() => toast.error(t("toast:closing.printFailed")));
                   }}
                   variant="primary"
                   size="lg"
                   type="button"
                 >
                   <FontAwesomeIcon icon={faPrint} className="mr-2"/>
-                  Print Closing
+                  {t("closing:actions.printClosing")}
                 </Button>
               </>
             )}

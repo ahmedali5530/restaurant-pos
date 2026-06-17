@@ -1,0 +1,125 @@
+{
+  "labels": {
+    "subTotal": "Sub Total ({{count}})",
+    "total": "Total"
+  },
+  "actions": {
+    "toKitchen": "To kitchen",
+    "payNow": "Pay Now",
+    "cancel": "Cancel"
+  },
+  "errors": {
+    "createOrder": "Unable to create order.",
+    "openPayment": "Unable to open payment."
+  },
+  "tracking": {
+    "createOrder": "Create order",
+    "appendOrder": "Append order"
+  },
+  "print": {
+    "kitchenTitle": "Kitchen print"
+  },
+  "title": "Order#{{invoice}}",
+  "tabs": {
+    "tax": "Tax",
+    "taxWithRate": "Tax ({{name}} {{rate}}%)",
+    "discount": "Discount",
+    "coupon": "Coupon",
+    "serviceCharges": "Service charges ({{value}}{{unit}})",
+    "tip": "Tip ({{value}}{{unit}})",
+    "notes": "Notes",
+    "total": "Total"
+  },
+  "totals": {
+    "items": "Items ({{count}})"
+  },
+  "tax": {
+    "noTax": "No Tax"
+  },
+  "discount": {
+    "noDiscount": "No discount",
+    "label": "Discount",
+    "withMaxCap": "with max cap of {{amount}}"
+  },
+  "coupon": {
+    "codeLabel": "Coupon code",
+    "applied": "Applied coupon: {{code}}",
+    "discount": "Discount: {{amount}}",
+    "discountFromCoupon": "Discount from coupon: {{amount}}",
+    "errors": {
+      "notFound": "Coupon not found or inactive",
+      "unsupportedType": "This coupon type is not supported on orders",
+      "belowMinimum": "Order total is below minimum amount for this coupon",
+      "notValidToday": "Coupon is not valid today",
+      "notValidTime": "Coupon is not valid at this time",
+      "notActiveYet": "Coupon is not active yet",
+      "expired": "Coupon has expired",
+      "usageLimitReached": "Coupon usage limit reached",
+      "userLimitReached": "You have reached the usage limit for this coupon",
+      "firstOrderOnly": "This coupon is only valid on the first order",
+      "notStackable": "This coupon cannot be used together with other discounts",
+      "noDiscount": "This coupon does not provide any discount for this order"
+    },
+    "appliedSuccess": "Coupon applied"
+  },
+  "serviceCharges": {
+    "defaultFromSettings": "Default from settings:",
+    "noServiceCharge": "No Service charge"
+  },
+  "tip": {
+    "noTip": "No Tip"
+  },
+  "notes": {
+    "title": "Any notes",
+    "hint": "You can write Card numbers or discount"
+  },
+  "receiving": {
+    "remaining": "Remaining",
+    "change": "Change",
+    "tempBill": "Temp bill",
+    "complete": "Complete",
+    "cannotAddCard": "Cannot add more payment for card",
+    "exactCardAmount": "Added exact amount for card based payment"
+  },
+  "remote": {
+    "remoteLabel": "{{name}} (Remote)",
+    "status": "Status: {{status}}",
+    "openLink": "Open link",
+    "verify": "Verify"
+  },
+  "discountType": {
+    "percent": "Percent",
+    "fixed": "Fixed"
+  },
+  "remoteGateway": {
+    "missingProvider": "Remote payment type is missing a gateway provider.",
+    "linkGenerated": "Remote payment link generated.",
+    "tokenGenerated": "Remote token generated: {{token}}",
+    "intentGenerated": "Remote payment intent generated.",
+    "paymentTimedOut": "{{gateway}} payment timed out. Tap Verify to check again.",
+    "paymentStatus": "{{gateway}} payment {{status}}.",
+    "completeOnPage": "Complete payment on the {{gateway}} page, then return to POS.",
+    "scanQr": "Scan the QR code with the {{gateway}} app to pay.",
+    "enterCardDetails": "Enter card details below to complete payment.",
+    "intentCreated": "{{gateway}} payment intent created.",
+    "usePaypalButton": "Use the PayPal button below to complete payment.",
+    "useRazorpayButton": "Tap Pay with Razorpay below to complete payment.",
+    "paymentFailed": "Payment failed.",
+    "paymentStatusLabel": "Payment status: {{status}}",
+    "paymentIs": "Payment is {{status}}.",
+    "paypalPaymentIs": "PayPal payment is {{status}}.",
+    "razorpayPaymentFailed": "Razorpay payment failed.",
+    "stripePaymentFailed": "Stripe payment failed.",
+    "mpesaPhoneUnavailable": "M-Pesa phone prompt is not available.",
+    "mpesaPromptSent": "STK push sent to {{phone}}. Check phone to enter M-Pesa PIN.",
+    "mpesaPromptSentGeneric": "STK push sent. Check phone to enter M-Pesa PIN.",
+    "mpesaInvalidPhone": "Enter a valid M-Pesa number (2547XXXXXXXX or 07XXXXXXXX).",
+    "verifiedAndAdded": "Remote payment verified and added.",
+    "generateFailed": "Failed to generate remote payment link/token",
+    "mustBePaid": "Payment is {{status}}. It must be paid/authorized before adding.",
+    "verifyFailed": "Failed to verify remote payment",
+    "paymentReceived": "{{gateway}} payment received.",
+    "payWithCard": "Pay with card",
+    "payWithRazorpay": "Pay with Razorpay"
+  }
+}

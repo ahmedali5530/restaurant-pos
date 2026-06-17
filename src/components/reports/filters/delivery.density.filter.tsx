@@ -10,6 +10,7 @@ import {Dish} from "@/api/model/dish.ts";
 import {Coupon} from "@/api/model/coupon.ts";
 import {useDB} from "@/api/db/db.ts";
 import {useEffect, useMemo, useState} from "react";
+import { useTranslation } from 'react-i18next';
 
 const toOption = <T extends {id?: any}>(
   item: T | undefined,
@@ -45,6 +46,7 @@ const getAddressArea = (address: string): string => {
 };
 
 export const DeliveryDensityFilter = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const [areas, setAreas] = useState<string[]>([]);
   const [loadingAreas, setLoadingAreas] = useState(false);
@@ -71,7 +73,7 @@ export const DeliveryDensityFilter = () => {
               .map((address: string) => getAddressArea(address))
               .filter(Boolean)
           )
-        ).sort((a, b) => a.localeCompare(b));
+        ).sort((a, b) => String(a).localeCompare(String(b))) as string[];
 
         setAreas(uniqueAreas);
       } catch (error) {
@@ -99,7 +101,7 @@ export const DeliveryDensityFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="delivery-density-coupons">Coupons</label>
+          <label htmlFor="delivery-density-coupons">{t('metrics.coupons')}</label>
           <ReactSelect
             id="delivery-density-coupons"
             name="coupons[]"
@@ -127,7 +129,7 @@ export const DeliveryDensityFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="delivery-density-menu-items">Menu Items</label>
+          <label htmlFor="delivery-density-menu-items">{t('filters.menuItems')}</label>
           <ReactSelect
             id="delivery-density-menu-items"
             name="menu_items[]"
@@ -154,7 +156,7 @@ export const DeliveryDensityFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label>Display Options</label>
+          <label>{t('labels.displayOptions')}</label>
           <div className="flex flex-col gap-3">
             <Checkbox name="show_menu_items" value="1" label="Show Menu Items" />
             <Checkbox name="show_details" value="1" label="Show Details" />
@@ -169,7 +171,7 @@ export const DeliveryDensityFilter = () => {
             className="form-control"
             defaultValue=""
           >
-            <option value="">Default</option>
+            <option value="">{t('labels.default')}</option>
             {["Invoice", "Date", "Status", "Total", "Area"].map(item => (
               <option key={item} value={item}>{item}</option>
             ))}
@@ -203,7 +205,7 @@ export const DeliveryDensityFilter = () => {
         </div>
       </div>
 
-      <Button variant="primary" filled type="submit">Generate</Button>
+      <Button variant="primary" filled type="submit">{t('filters.generate')}</Button>
     </form>
   );
 };

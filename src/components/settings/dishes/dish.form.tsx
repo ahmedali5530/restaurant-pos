@@ -5,7 +5,7 @@ import {Button} from "@/components/common/input/button.tsx";
 import {Controller, useFieldArray, useForm, useWatch} from "react-hook-form";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {useDB} from "@/api/db/db.ts";
-import React, {useCallback, useEffect, useState} from "react";
+import React, { useMemo, useCallback, useEffect, useState} from "react";
 import {Tables} from "@/api/db/tables.ts";
 import {Category} from "@/api/model/category.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -14,6 +14,8 @@ import {CategoryForm} from "@/components/settings/categories/category.form.tsx";
 import * as yup from 'yup';
 import {yupResolver} from "@hookform/resolvers/yup";
 import {toast} from "sonner";
+import {useTranslation} from 'react-i18next';
+import i18n from '@/lib/i18n.ts';
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {ModifierGroup} from "@/api/model/modifier_group.ts";
 import {Switch} from "@/components/common/input/switch.tsx";
@@ -32,43 +34,43 @@ interface Props {
 }
 
 const validationSchema = yup.object({
-  name: yup.string().required("This is required"),
-  number: yup.string().required("This is required"),
-  priority: yup.number().required("This is required").typeError('This should be a number'),
-  // position: yup.number().required("This is required").typeError('This should be a number'),
-  price: yup.number().required("This is required").typeError('This should be a number'),
-  cost: yup.number().required("This is required").typeError('This should be a number'),
+  name: yup.string().required(i18n.t('validation:required')),
+  number: yup.string().required(i18n.t('validation:required')),
+  priority: yup.number().required(i18n.t('validation:required')).typeError(i18n.t('validation:mustBeNumber')),
+  // position: yup.number().required(i18n.t('validation:required')).typeError(i18n.t('validation:mustBeNumber')),
+  price: yup.number().required(i18n.t('validation:required')).typeError(i18n.t('validation:mustBeNumber')),
+  cost: yup.number().required(i18n.t('validation:required')).typeError(i18n.t('validation:mustBeNumber')),
   categories: yup.array(yup.object({
     label: yup.string(),
     value: yup.string()
-  })).min(1, 'This is required'),
+  })).min(1, i18n.t('validation:required')),
   modifier_groups: yup.array(yup.object({
     modifier_group: yup.object({
       label: yup.string(),
       value: yup.string()
-    }).required('This is required'),
+    }).required(i18n.t('validation:required')),
     has_required_modifiers: yup.boolean(),
     required_modifiers: yup.number().when('has_required_modifiers', (has_required_modifiers, schema) => {
       if (has_required_modifiers[0]) {
-        return schema.min(1, 'This must be greater then 0').required('This is required');
+        return schema.min(1, i18n.t('validation:mustBeGreaterThanZero')).required(i18n.t('validation:required'));
       }
 
       return schema;
     }),
     should_auto_open: yup.boolean(),
     should_auto_select: yup.boolean(),
-    priority: yup.string().required('This is required'),
+    priority: yup.string().required(i18n.t('validation:required')),
   })),
   recipes: yup.array(yup.object({
     item: yup.object({
       label: yup.string(),
       value: yup.string()
-    }).required('This is required'),
-    quantity: yup.number().required('This is required').min(0.01, 'Quantity must be greater than 0'),
-    cost: yup.number().required('This is required').min(0, 'Cost must be greater than or equal to 0'),
+    }).required(i18n.t('validation:required')),
+    quantity: yup.number().required(i18n.t('validation:required')).min(0.01, i18n.t('validation:quantityMin')),
+    cost: yup.number().required(i18n.t('validation:required')).min(0, i18n.t('validation:costMin')),
     is_price_locked: yup.boolean().optional(),
     id: yup.string().nullable().optional()
-  })).test('unique-items', 'Each item can only be added once', function (recipes) {
+  })).test('unique-items', i18n.t('validation:uniqueItems'), function (recipes) {
     if (!recipes || recipes.length === 0) return true;
     const itemValues = recipes.map(r => r?.item?.value).filter(Boolean);
     return itemValues.length === new Set(itemValues).size;
@@ -78,6 +80,8 @@ const validationSchema = yup.object({
 export const DishForm = ({
   open, onClose, data
 }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
 
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -399,7 +403,7 @@ export const DishForm = ({
 
 
       closeModal();
-      toast.success(`Dish ${values.name} saved`);
+      toast.success(t('toast:admin.dishSaved', { name: values.name }));
     } catch (e) {
       toast.error(e);
       console.log(e)
@@ -465,7 +469,7 @@ export const DishForm = ({
   return (
     <>
       <Modal
-        title={data ? `Update ${data?.name}` : 'Create new dish'}
+        title={data ? t('forms.updateDish', { name: data?.name }) : t('forms.createDish')}
         open={open}
         onClose={closeModal}
         size="full"
@@ -473,10 +477,10 @@ export const DishForm = ({
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <Input label="Name of item" {...register('name')} autoFocus error={errors?.name?.message}/>
+              <Input label={t('forms.nameOfItem')} {...register('name')} autoFocus error={errors?.name?.message}/>
             </div>
             <div className="flex-1">
-              <Input label="Number of item" {...register('number')} error={errors?.number?.message}/>
+              <Input label={t('forms.numberOfItem')} {...register('number')} error={errors?.number?.message}/>
             </div>
             <div className="flex-1">
               <Controller
@@ -487,7 +491,7 @@ export const DishForm = ({
                     value={field.value}
                     onChange={field.onChange}
                     type="number"
-                    label="Priority"
+                    label={t('columns.priority')}
                     error={errors?.priority?.message}
                   />
                 )}
@@ -522,7 +526,7 @@ export const DishForm = ({
                     value={field.value}
                     onChange={field.onChange}
                     type="number"
-                    label="Sale price"
+                    label={t('columns.salePrice')}
                     error={errors?.price?.message}
                   />
                 )}
@@ -537,7 +541,7 @@ export const DishForm = ({
                     value={field.value}
                     onChange={field.onChange}
                     type="number"
-                    label="Cost of item"
+                    label={t('forms.costOfItem')}
                     error={errors?.cost?.message}
                   />
                 )}
@@ -605,7 +609,7 @@ export const DishForm = ({
                           {index + 1}
                         </div>
                         <div className="flex-1">
-                          <Input label="Stage" value={stage.name} disabled readOnly/>
+                          <Input label={t('forms.stage')} value={stage.name} disabled readOnly/>
                         </div>
                         <div className="flex-1">
                           <label>Kitchen / Station</label>
@@ -636,7 +640,7 @@ export const DishForm = ({
 
           <div className="flex gap-3 mb-3 items-end">
             <div className="flex-1">
-              <label className="block mb-1">Photo</label>
+              <label className="block mb-1">{t('forms.photo')}</label>
               <input
                 type="file"
                 accept="image/*"
@@ -654,7 +658,7 @@ export const DishForm = ({
                 className="w-24 h-24 rounded-lg overflow-hidden border border-neutral-300 flex items-center justify-center bg-neutral-100">
                 <img
                   src={photoPreview}
-                  alt="Dish photo preview"
+                  alt={t('forms.dishPhotoPreview')}
                   className="object-cover w-full h-full"
                 />
               </div>
@@ -744,7 +748,7 @@ export const DishForm = ({
                       render={({field}) => (
                         <Input
                           type="number" value={field.value} onChange={field.onChange}
-                          label="Required modifiers"
+                          label={t('forms.requiredModifiers')}
                           disabled={!toggleRequiredField(index)}
                           error={_.get(errors, ['modifier_groups', index, 'required_modifiers', 'message'])}
                         />
@@ -758,7 +762,7 @@ export const DishForm = ({
                       render={({field}) => (
                         <Input
                           type="number" value={field.value} onChange={field.onChange}
-                          label="Priority"
+                          label={t('columns.priority')}
                           error={_.get(errors, ['modifier_groups', index, 'priority', 'message'])}
                         />
                       )}
@@ -841,7 +845,7 @@ export const DishForm = ({
                             type="number"
                             value={field.value}
                             onChange={field.onChange}
-                            label="Quantity"
+                            label={t('forms.quantity')}
                             error={_.get(errors, ['recipes', index, 'quantity', 'message'])}
                           />
                         )}
@@ -856,7 +860,7 @@ export const DishForm = ({
                             type="number"
                             value={field.value}
                             onChange={field.onChange}
-                            label="Cost"
+                            label={t('forms.cost')}
                             error={_.get(errors, ['recipes', index, 'cost', 'message'])}
                           />
                         )}
@@ -888,7 +892,7 @@ export const DishForm = ({
           </div>
 
           <div>
-            <Button type="submit" variant="primary">Save</Button>
+            <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
           </div>
         </form>
       </Modal>

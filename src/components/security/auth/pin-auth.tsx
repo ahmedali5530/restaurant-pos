@@ -4,6 +4,7 @@ import { SecurityAction, SecurityManager } from '@/providers/security.provider';
 import {cn} from "@/lib/utils.ts";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
+import { useTranslation } from 'react-i18next';
 
 interface PinAuthProps {
   onSuccess: (manager?: SecurityManager) => void;
@@ -16,6 +17,7 @@ export const PinAuth: React.FC<PinAuthProps> = ({
   onCancel, 
   currentAction
 }) => {
+  const { t } = useTranslation('auth');
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const db = useDB();
@@ -53,7 +55,7 @@ export const PinAuth: React.FC<PinAuthProps> = ({
     if(userWithModules.length > 0){
       onSuccess(userWithModules[0] as SecurityManager);
     }else{
-      setError(`Invalid PIN, or user not found with ${currentAction.module} permission`);
+      setError(t('security.invalidPin', { module: currentAction?.module }));
     }
 
     setPin('');

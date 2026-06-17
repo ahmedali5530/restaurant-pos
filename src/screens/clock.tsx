@@ -20,6 +20,7 @@ import { getOrderFilteredItems } from "@/lib/order.ts";
 import { toRecordId, withCurrency } from "@/lib/utils.ts";
 import type { UserShift } from "@/api/model/user.ts";
 import { nowSurrealDateTime, toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
+import {useTranslation} from "react-i18next";
 
 const formatShiftClock = (time: string) => {
   const trimmed = time.trim();
@@ -29,6 +30,7 @@ const formatShiftClock = (time: string) => {
 };
 
 export const Clock = () => {
+  const {t} = useTranslation(["summary", "toast"]);
   const [page, setPage] = useAtom(appPage);
   const db = useDB();
   const navigation = useNavigate();
@@ -52,11 +54,11 @@ export const Clock = () => {
       if (timeEntryCheck[0].length > 0) {
         setTimeEntry(timeEntryCheck[0][0]);
       } else {
-        toast.error('No active time entry found');
+        toast.error(t("toast:clock.noActiveEntry"));
         navigation(LOGIN);
       }
     } catch (error) {
-      toast.error('Failed to load time entry');
+      toast.error(t("toast:clock.loadEntryFailed"));
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -137,7 +139,7 @@ export const Clock = () => {
       setOrders((result?.[0] ?? []) as Order[]);
     } catch (error) {
       console.error('Failed to load orders:', error);
-      toast.error('Failed to load sale summary');
+      toast.error(t("toast:clock.loadSaleSummaryFailed"));
     } finally {
       setOrdersLoading(false);
     }
@@ -276,7 +278,7 @@ export const Clock = () => {
         duration_seconds: durationSeconds,
       });
 
-      toast.success('Clocked out successfully');
+      toast.success(t("toast:clock.clockedOut"));
 
       // Log out user
       setPage(prev => ({
@@ -287,7 +289,7 @@ export const Clock = () => {
 
       navigation(LOGIN);
     } catch (error) {
-      toast.error('Failed to clock out');
+      toast.error(t("toast:clock.clockOutFailed"));
       console.error(error);
     }
   };
@@ -296,7 +298,7 @@ export const Clock = () => {
     return (
       <Layout containerClassName="p-5">
         <div className="bg-white shadow p-5 rounded-lg">
-          <p>Loading...</p>
+          <p>{t("summary:clock.loading")}</p>
         </div>
       </Layout>
     );
@@ -319,58 +321,58 @@ export const Clock = () => {
     <Layout containerClassName="p-5">
       {/* Sale Summary Widgets */}
       <div className="bg-white p-5 rounded-lg shadow">
-        <h2 className="text-2xl font-bold mb-4 text-neutral-700">Sale Summary</h2>
+        <h2 className="text-2xl font-bold mb-4 text-neutral-700">{t("summary:clock.saleSummary")}</h2>
         {ordersLoading ? (
           <div className="flex justify-center items-center py-8">
-            <p className="text-neutral-500">Loading sale data...</p>
+            <p className="text-neutral-500">{t("summary:clock.loadingSaleData")}</p>
           </div>
         ) : (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {/* Total Sales Widget */}
           <div className="bg-gradient-to-br from-success-100 to-success-200 p-2 rounded-lg border border-success-300">
-            <p className="text-sm text-success-700 font-medium mb-1">Total Sales</p>
+            <p className="text-sm text-success-700 font-medium mb-1">{t("summary:clock.metrics.totalSales")}</p>
             <p className="text-2xl font-bold text-success-900">{withCurrency(salePriceWithoutTax)}</p>
           </div>
 
           {/* Refunds Widget */}
           <div className="bg-gradient-to-br from-danger-100 to-danger-200 p-2 rounded-lg border border-danger-300">
-            <p className="text-sm text-danger-700 font-medium mb-1">Refunds</p>
+            <p className="text-sm text-danger-700 font-medium mb-1">{t("summary:clock.metrics.refunds")}</p>
             <p className="text-2xl font-bold text-danger-900">{withCurrency(refunds)}</p>
           </div>
 
           {/* Service Charges Widget */}
           <div className="bg-gradient-to-br from-info-100 to-info-200 p-2 rounded-lg border border-info-300">
-            <p className="text-sm text-info-700 font-medium mb-1">Service Charges</p>
+            <p className="text-sm text-info-700 font-medium mb-1">{t("summary:clock.metrics.serviceCharges")}</p>
             <p className="text-2xl font-bold text-info-900">{withCurrency(serviceCharges)}</p>
           </div>
 
           {/* Discounts Widget */}
           <div className="bg-gradient-to-br from-warning-100 to-warning-200 p-2 rounded-lg border border-warning-300">
-            <p className="text-sm text-warning-700 font-medium mb-1">Discounts</p>
+            <p className="text-sm text-warning-700 font-medium mb-1">{t("summary:clock.metrics.discounts")}</p>
             <p className="text-2xl font-bold text-warning-900">{withCurrency(discounts)}</p>
           </div>
 
           {/* Taxes Widget */}
           <div className="bg-gradient-to-br from-primary-100 to-primary-200 p-2 rounded-lg border border-primary-300">
-            <p className="text-sm text-primary-700 font-medium mb-1">Taxes</p>
+            <p className="text-sm text-primary-700 font-medium mb-1">{t("summary:clock.metrics.taxes")}</p>
             <p className="text-2xl font-bold text-primary-900">{withCurrency(taxCollected)}</p>
           </div>
 
           {/* Extras Widget */}
           <div className="bg-gradient-to-br from-info-100 to-info-200 p-2 rounded-lg border border-info-300">
-            <p className="text-sm text-info-700 font-medium mb-1">Extras</p>
+            <p className="text-sm text-info-700 font-medium mb-1">{t("summary:clock.metrics.extras")}</p>
             <p className="text-2xl font-bold text-info-900">{withCurrency(totalExtras)}</p>
           </div>
 
           {/* Voids Widget */}
           <div className="bg-gradient-to-br from-danger-100 to-danger-200 p-2 rounded-lg border border-danger-300">
-            <p className="text-sm text-danger-700 font-medium mb-1">Voids</p>
+            <p className="text-sm text-danger-700 font-medium mb-1">{t("summary:clock.metrics.voids")}</p>
             <p className="text-2xl font-bold text-danger-900">{withCurrency(voids)}</p>
           </div>
 
           {/* Tips Widget */}
           <div className="bg-gradient-to-br from-success-100 to-success-200 p-2 rounded-lg border border-success-300">
-            <p className="text-sm text-success-700 font-medium mb-1">Tips</p>
+            <p className="text-sm text-success-700 font-medium mb-1">{t("summary:clock.metrics.tips")}</p>
             <p className="text-2xl font-bold text-success-900">{withCurrency(tips)}</p>
           </div>
         </div>
@@ -384,8 +386,8 @@ export const Clock = () => {
               <FontAwesomeIcon icon={faClock} size="2x" className="text-primary-600" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold">Time Clock</h1>
-              <p className="text-sm text-neutral-500">Track your work hours</p>
+              <h1 className="text-3xl font-bold">{t("summary:clock.title")}</h1>
+              <p className="text-sm text-neutral-500">{t("summary:clock.subtitle")}</p>
             </div>
           </div>
           {user && (
@@ -395,7 +397,7 @@ export const Clock = () => {
                   <FontAwesomeIcon icon={faUser} className="text-lg" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">Signed in as</p>
+                  <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t("summary:clock.signedInAs")}</p>
                   <p className="truncate text-lg font-semibold text-neutral-800">{userDisplayName}</p>
                   {user.user_role?.name && (
                     <p className="mt-0.5 text-xs text-neutral-500">{user.user_role.name}</p>
@@ -408,11 +410,11 @@ export const Clock = () => {
                     <FontAwesomeIcon icon={faBriefcase} className="text-lg" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">Shift</p>
+                    <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t("summary:clock.shift")}</p>
                     <p className="truncate text-lg font-semibold text-neutral-800">{resolvedShift.name}</p>
                     <p className="mt-0.5 text-sm text-neutral-600">
                       {formatShiftClock(resolvedShift.start_time)} – {formatShiftClock(resolvedShift.end_time)}
-                      {resolvedShift.ends_next_day ? ' · ends next day' : ''}
+                      {resolvedShift.ends_next_day ? ` · ${t("summary:clock.endsNextDay")}` : ''}
                     </p>
                   </div>
                 </div>
@@ -424,18 +426,18 @@ export const Clock = () => {
         <div className="space-y-6">
           <div className="bg-neutral-50 p-6 rounded-lg">
             <div className="mb-4">
-              <p className="text-sm text-neutral-500 mb-1">Clock In Time</p>
+              <p className="text-sm text-neutral-500 mb-1">{t("summary:clock.clockInTime")}</p>
               <p className="text-2xl font-bold">{formattedClockInTime}</p>
               <p className="text-sm text-neutral-400">{formattedClockInDate}</p>
             </div>
           </div>
 
           <div className="bg-gradient-to-br from-primary-50 to-primary-100 p-8 rounded-lg text-center">
-            <p className="text-sm text-neutral-600 mb-2">Time Elapsed</p>
+            <p className="text-sm text-neutral-600 mb-2">{t("summary:clock.timeElapsed")}</p>
             <div className="text-5xl font-bold text-primary-700 mb-2">
               <Countdown time={clockInDate} showAll={true} />
             </div>
-            <p className="text-sm text-neutral-500">Since clock in</p>
+            <p className="text-sm text-neutral-500">{t("summary:clock.sinceClockIn")}</p>
           </div>
 
           <div className="flex justify-center gap-3 pt-4">
@@ -445,7 +447,7 @@ export const Clock = () => {
               size="xl"
               icon={faClock}
             >
-              Clock Out
+              {t("summary:clock.clockOut")}
             </Button>
           </div>
         </div>

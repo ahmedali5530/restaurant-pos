@@ -1,0 +1,91 @@
+{
+  "language": {
+    "title": "Idioma",
+    "description": "Elija el idioma de visualización para este dispositivo. Solo se aplica a este dispositivo.",
+    "changed": "Idioma actualizado"
+  },
+  "direction": {
+    "title": "Dirección del texto",
+    "description": "Elija el diseño de izquierda a derecha o de derecha a izquierda para este dispositivo.",
+    "ltr": "LTR",
+    "rtl": "RTL"
+  },
+  "touch": {
+    "title": "Teclado en pantalla",
+    "description": "Habilite o deshabilite el teclado en pantalla. Solo se aplica a este dispositivo."
+  },
+  "cache": {
+    "title": "Caché",
+    "description": "Tamaño actual de la caché por conjunto de datos.",
+    "reload": "Recargar caché",
+    "orderTypes": "Tipos de pedido",
+    "categories": "Categorías",
+    "dishes": "Platos",
+    "modifierGroups": "Grupos de modificadores",
+    "groupDishes": "Platos de grupo",
+    "floors": "Plantas",
+    "tables": "Mesas",
+    "kitchens": "Cocinas",
+    "paymentTypes": "Tipos de pago",
+    "reloaded": "Caché recargada desde la base de datos",
+    "reloadFailed": "Error al recargar la caché"
+  },
+  "serviceCharges": {
+    "title": "Cargos por servicio",
+    "updated": "Cargos por servicio actualizados",
+    "saveDescription": "Guardar cargos por servicio"
+  },
+  "printers": {
+    "title": "Impresoras predeterminadas",
+    "description": "Las asignaciones de impresoras se almacenan por usuario. Cada usuario puede asignar impresoras para impresión temporal, final, reembolso, entrega y resumen. Si no ha configurado ninguna, se usan los ajustes globales como respaldo.",
+    "loading": "Cargando configuración de impresoras…",
+    "tempPrint": "Impresoras para impresión temporal",
+    "finalPrint": "Impresoras para impresión final",
+    "refundPrint": "Impresoras para impresión de reembolso",
+    "deliveryPrint": "Impresoras para impresión de entrega",
+    "summaryPrint": "Impresoras para impresión de resumen",
+    "selectPrinters": "Seleccionar impresoras…",
+    "saving": "Guardando…",
+    "save": "Guardar configuración de impresoras",
+    "saveDescription": "Guardar impresoras",
+    "loadFailed": "Error al cargar la configuración de impresoras",
+    "loginRequired": "Inicie sesión para guardar la configuración de impresoras.",
+    "saved": "Configuración de impresoras guardada",
+    "saveFailed": "Error al guardar la configuración de impresoras"
+  },
+  "menus": {
+    "title": "Configuración de menús",
+    "activateMenus": "Activar menús",
+    "selectMenus": "Seleccionar menús…",
+    "loading": "Cargando configuración de menús…",
+    "saving": "Guardando…",
+    "save": "Guardar configuración de menús",
+    "saveDescription": "Guardar menús",
+    "loadFailed": "Error al cargar la configuración de menús",
+    "loginRequired": "Inicie sesión para guardar la configuración de menús.",
+    "saved": "Configuración de menús guardada",
+    "saveFailed": "Error al guardar la configuración de menús"
+  },
+  "tableSelection": {
+    "title": "Ocultar selección de mesa en el menú",
+    "description": "Omitir la selección de mesa y abrir el menú directamente. Solo se aplica a este dispositivo. Adecuado para pedidos para llevar"
+  },
+  "autoCheckClose": {
+    "title": "Cierre automático de cuentas",
+    "description": "Cerrar automáticamente las cuentas abiertas al final del ciclo de cierre. Los pedidos de entrega quedan excluidos. Aparece una advertencia 1 minuto antes del cierre.",
+    "printOnClose": "Imprimir factura final al cerrar",
+    "paymentType": "Tipo de pago",
+    "paymentTypeRequired": "El tipo de pago es obligatorio cuando el cierre automático está habilitado",
+    "paymentTypeRequiredField": "El tipo de pago es obligatorio",
+    "updated": "Configuración de cierre automático de cuentas actualizada",
+    "saveDescription": "Guardar configuración de cierre automático de cuentas"
+  },
+  "closingCycle": {
+    "title": "Ciclo de cierre",
+    "description": "Configure la hora de inicio y fin del ciclo. La hora de fin puede ser al día siguiente (ejemplo: 06:00 a 02:00).",
+    "startTime": "Hora de inicio",
+    "endTime": "Hora de fin",
+    "updated": "Configuración del ciclo de cierre actualizada",
+    "saveDescription": "Guardar configuración del ciclo de cierre"
+  }
+}

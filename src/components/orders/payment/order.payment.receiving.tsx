@@ -31,6 +31,7 @@ import {
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
+import {useTranslation} from "react-i18next";
 
 interface Props {
   order: Order
@@ -120,6 +121,7 @@ const OrderPaymentReceivingContent = ({
   selectedAmount,
   setSelectedAmount,
 }: ContentProps) => {
+  const {t} = useTranslation('payment');
   const remote = useRemotePayment();
   const db = useDB();
   const {protectAction} = useSecurity();
@@ -348,7 +350,7 @@ const OrderPaymentReceivingContent = ({
         ...prev,
         opened: true,
         type: 'error',
-        message: 'Cannot add more payment for card'
+        message: t('receiving.cannotAddCard')
       }));
 
       return;
@@ -359,7 +361,7 @@ const OrderPaymentReceivingContent = ({
         ...prev,
         opened: true,
         type: 'warning',
-        message: 'Added exact amount for card based payment'
+        message: t('receiving.exactCardAmount')
       }));
 
       amount = -1 * localChangeDue;
@@ -498,7 +500,7 @@ const OrderPaymentReceivingContent = ({
             changeDue > 0 && 'text-success-700'
           )
         }>
-          {changeDue < 0 ? 'Remaining' : 'Change'}: <span className="">{withCurrency(changeDue)}</span>
+          {changeDue < 0 ? t('receiving.remaining') : t('receiving.change')}: <span className="">{withCurrency(changeDue)}</span>
         </div>
         <div className="relative">
           <ScrollContainer className="gap-3 flex overflow-x-auto mb-5">
@@ -644,7 +646,7 @@ const OrderPaymentReceivingContent = ({
                   });
 
                 }}
-              >Temp bill</Button>
+              >{t('receiving.tempBill')}</Button>
               <Button
                 variant="success"
                 className="flex-1"
@@ -661,7 +663,7 @@ const OrderPaymentReceivingContent = ({
                 }}
                 disabled={changeDue < 0 || closing || remote.isProcessing}
                 flat
-              >Complete</Button>
+              >{t('receiving.complete')}</Button>
             </div>
           </div>
         </div>

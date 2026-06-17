@@ -1,5 +1,6 @@
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import { useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { createWorker } from "tesseract.js";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faUpload} from "@fortawesome/free-solid-svg-icons";
@@ -11,6 +12,7 @@ interface Props {
 export const InventoryPurchaseUpload = ({
   onClose
 }: Props) => {
+  const { t } = useTranslation('inventory');
   const [image, setImage] = useState(null);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -90,7 +92,7 @@ export const InventoryPurchaseUpload = ({
 
   return (
     <Modal
-      title="Upload via document"
+      title={t('uploadViaDocument')}
       open={true}
       onClose={onClose}
     >

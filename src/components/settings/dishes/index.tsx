@@ -15,9 +15,11 @@ import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {DishView} from "@/components/settings/dishes/dish.view.tsx";
 import {DishBulkForm} from "@/components/settings/dishes/dish.bulk.form.tsx";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
+import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminDishes = () => {
+  const { t } = useTranslation(['admin', 'common', 'toast']);
   const db = useDB();
 
   const loadHook = useApi<SettingsData<Dish & { modifiers: [] }>>(
@@ -62,7 +64,7 @@ export const AdminDishes = () => {
       ),
     },
     columnHelper.accessor("dish_photo", {
-      header: 'Photo',
+      header: t('columns.photo'),
       cell: info => {
         if (info.getValue()) {
           return <FontAwesomeIcon icon={faPhotoFilm}/>
@@ -72,22 +74,22 @@ export const AdminDishes = () => {
       enableSorting: false,
     }),
     columnHelper.accessor("name", {
-      header: 'Name'
+      header: t('columns.name')
     }),
     columnHelper.accessor("number", {
-      header: 'Number',
+      header: t('columns.number'),
     }),
     columnHelper.accessor("priority", {
-      header: 'Priority'
+      header: t('columns.priority')
     }),
     columnHelper.accessor("price", {
-      header: 'Sale price'
+      header: t('columns.salePrice')
     }),
     columnHelper.accessor("cost", {
-      header: 'Cost price'
+      header: t('columns.costPrice')
     }),
     columnHelper.accessor("categories", {
-      header: 'Categories',
+      header: t('columns.categories'),
       cell: info => <div className="flex gap-2 flex-wrap">
         {info.getValue()?.map((item, index) => (
           <span className="tag" key={`${item.id}-${index}`}>{item.name}</span>
@@ -96,7 +98,7 @@ export const AdminDishes = () => {
     }),
     columnHelper.accessor('id', {
       id: 'modifier_groups',
-      header: 'Modifier groups',
+      header: t('columns.modifierGroups'),
       cell: info => (
         <div className="flex gap-2 flex-wrap">
           {info.row.original.modifiers.map((item, index) => (
@@ -109,7 +111,7 @@ export const AdminDishes = () => {
     }),
     columnHelper.accessor('id', {
       id: 'modifier_items',
-      header: 'Used as modifier',
+      header: t('columns.usedAsModifier'),
       cell: info => (
         <div className="flex gap-2 flex-wrap">
           {info.row.original.modifier_items.map((item, index) => (
@@ -122,7 +124,7 @@ export const AdminDishes = () => {
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {
@@ -145,7 +147,7 @@ export const AdminDishes = () => {
             ><FontAwesomeIcon icon={faPencil}/></Button>
             <div className="separator"></div>
             <DeleteConfirm
-              message={`Delete item ${info.row.original.name}`}
+              message={t('delete.dish', { name: info.row.original.name })}
               onConfirm={() => deleteItem(info.row.original.id)}
             />
           </div>
@@ -158,7 +160,7 @@ export const AdminDishes = () => {
     await executeSettingsDelete({
       db,
       id,
-      entityLabel: 'Dish',
+      entityLabel: t('entities.dish'),
       usageChecks: [
         {
           query: `SELECT count() AS count FROM ${Tables.order_items} WHERE item = $idRecord GROUP ALL`
@@ -199,10 +201,10 @@ export const AdminDishes = () => {
         buttons={[
           <Button variant="primary" onClick={() => {
             setImportModal(true);
-          }} icon={faUpload}> Import Dishes</Button>,
+          }} icon={faUpload}>{t('buttons.importDishes')}</Button>,
           <Button variant="primary" onClick={() => {
             setFormModal(true);
-          }} icon={faPlus}> Dish</Button>
+          }} icon={faPlus}>{t('buttons.dish')}</Button>
         ]}
         customSearch
         customSearchHandler={(value) => {
@@ -228,7 +230,7 @@ export const AdminDishes = () => {
               ...prev,
               state: true,
             }));
-          }} icon={faPencil}> Bulk Edit</Button>
+          }} icon={faPencil}>{t('buttons.bulkEdit')}</Button>
         ]}
       />
 
@@ -253,22 +255,22 @@ export const AdminDishes = () => {
           onClose={() => setImportModal(false)}
           fields={[{
             name: 'name',
-            label: 'Name'
+            label: t('columns.name')
           }, {
             name: 'number',
-            label: 'Number'
+            label: t('columns.number')
           }, {
             name: 'priority',
-            label: 'Priority'
+            label: t('columns.priority')
           }, {
             name: 'sale_price',
-            label: 'Sale price'
+            label: t('columns.salePrice')
           }, {
             name: 'cost_price',
-            label: 'Cost price'
+            label: t('columns.costPrice')
           }, {
             name: 'categories',
-            label: 'Categories'
+            label: t('columns.categories')
           }]}
           onCreateRow={async (rowData) => {
             try {
@@ -279,7 +281,7 @@ export const AdminDishes = () => {
               });
 
               if (categories.length !== rowData?.categories?.split('|')?.filter(item => item !== '')?.length) {
-                throw new Error('Categories are invalid');
+                throw new Error(t('toast:admin.invalidCategories'));
               }
 
               const dishData: any = {

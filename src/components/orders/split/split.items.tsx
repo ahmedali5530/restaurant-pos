@@ -20,6 +20,7 @@ import {appPage} from "@/store/jotai.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
+import {useTranslation} from "react-i18next";
 
 interface Props {
   order: OrderModel
@@ -36,11 +37,12 @@ interface Split {
 export const SplitItems = ({
   order, onClose
 }: Props) => {
+  const {t} = useTranslation('orders');
   const db = useDB();
   const [page] = useAtom(appPage);
   // Initialize with one split containing all items
   const [splits, setSplits] = useState<Split[]>([
-    {id: 'split-1', name: 'Split 1', items: [...getOrderFilteredItems(order)], number: 1}
+    {id: 'split-1', name: t('split.splitName', {number: 1}), items: [...getOrderFilteredItems(order)], number: 1}
   ]);
   const [isSaving, setIsSaving] = useState(false);
   const [draggedItem, setDraggedItem] = useState<OrderItem | null>(null);
@@ -64,7 +66,7 @@ export const SplitItems = ({
     const newSplitId = nanoid();
     setSplits(prev => [...prev, {
       id: newSplitId,
-      name: `Split ${prev.length + 1}`,
+      name: t('split.splitName', {number: prev.length + 1}),
       number: prev.length + 1,
       items: []
     }]);
@@ -85,7 +87,7 @@ export const SplitItems = ({
         // Renumber splits to maintain sequential naming
         return filtered.map((split, index) => ({
           ...split,
-          name: `Split ${index + 1}`
+          name: t('split.splitName', {number: index + 1})
         }));
       });
     }
@@ -260,11 +262,11 @@ export const SplitItems = ({
         user: page?.user,
       });
 
-      toast.success(`Successfully created ${createdOrders.length} split orders`);
+      toast.success(t('split.toast.success', {count: createdOrders.length}));
       onClose?.();
     } catch (error) {
       console.error('Error creating split orders:', error);
-      toast.error('Failed to create split orders');
+      toast.error(t('split.toast.failed'));
     } finally {
       setIsSaving(false);
     }
@@ -275,7 +277,7 @@ export const SplitItems = ({
   return (
     <>
       <Modal
-        title={`Split order# ${getInvoiceNumber(order)}`}
+        title={t('split.title', {invoice: getInvoiceNumber(order)})}
         open={true}
         size="full"
         onClose={onClose}
@@ -286,10 +288,10 @@ export const SplitItems = ({
              <div className="mb-4">
                <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                 Split 1 (Fixed)
+                 {t('split.byItems.splitOneFixed')}
                </h3>
                <p className="text-xs text-gray-400 mt-1">
-                 Main split - items can be dragged from here
+                 {t('split.byItems.mainSplitHint')}
                </p>
              </div>
              {actualSplits.length > 0 && (
@@ -308,15 +310,15 @@ export const SplitItems = ({
                    </h4>
                    <div className="flex items-center gap-2">
                      <span className="text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                       Total: {formatNumber(splitTotals[0])}
+                       {t('split.byItems.total', {amount: formatNumber(splitTotals[0])})}
                      </span>
                    </div>
                  </div>
                  <div className="p-4 min-h-[120px] max-h-[calc(100vh-380px)] overflow-y-auto">
                    {actualSplits[0].items.length === 0 ? (
                      <div className="text-center py-6 text-gray-400">
-                       <p>No items in this split</p>
-                       <p className="text-xs mt-1">Items removed from other splits will appear here</p>
+                       <p>{t('split.byItems.noItems')}</p>
+                       <p className="text-xs mt-1">{t('split.byItems.itemsReturnHere')}</p>
                      </div>
                    ) : (
                      <div className="space-y-2">
@@ -350,10 +352,10 @@ export const SplitItems = ({
                <div>
                  <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
                    <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></span>
-                   Additional Splits
+                   {t('split.byItems.additionalSplits')}
                  </h3>
                  <p className="text-xs text-gray-400 mt-1">
-                   💡 Drag empty space to scroll horizontally
+                   {t('split.byItems.scrollHint')}
                  </p>
                </div>
                <Button
@@ -363,7 +365,7 @@ export const SplitItems = ({
                  size="lg"
                  className="shadow-lg hover:shadow-green-200"
                >
-                 Add Split
+                 {t('split.byItems.addSplit')}
                </Button>
              </div>
 
@@ -389,7 +391,7 @@ export const SplitItems = ({
                            </h4>
                            <div className="flex items-center gap-2">
                              <span className="text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                               Total: {formatNumber(splitTotals[index + 1])}
+                               {t('split.byItems.total', {amount: formatNumber(splitTotals[index + 1])})}
                              </span>
                              <Button
                                variant="danger"
@@ -404,8 +406,8 @@ export const SplitItems = ({
                          <div className="p-4 flex-1 overflow-y-auto">
                            {split.items.length === 0 ? (
                              <div className="text-center py-6 text-gray-400">
-                               <p>No items in this split</p>
-                               <p className="text-xs mt-1">Drag items from Split 1 here</p>
+                               <p>{t('split.byItems.noItems')}</p>
+                               <p className="text-xs mt-1">{t('split.byItems.dragFromSplitOne')}</p>
                              </div>
                            ) : (
                              <div className="space-y-2">
@@ -424,7 +426,7 @@ export const SplitItems = ({
                                        showPrice={true}
                                      />
                                    </div>
-                                   <div title="Move back to Split 1">
+                                   <div title={t('split.byItems.moveBackToSplitOne')}>
                                    <Button
                                      variant="danger"
                                      icon={faArrowLeft}
@@ -446,8 +448,8 @@ export const SplitItems = ({
                ) : (
                  <div className="flex items-center justify-center h-full text-gray-500">
                    <div className="text-center">
-                     <p className="text-lg">No additional splits yet</p>
-                     <p className="text-sm">Click "Add Split" to create more splits</p>
+                     <p className="text-lg">{t('split.byItems.noAdditionalSplits')}</p>
+                     <p className="text-sm">{t('split.byItems.addSplitHint')}</p>
                    </div>
                  </div>
                )}
@@ -465,14 +467,14 @@ export const SplitItems = ({
                  className="w-full shadow-lg hover:shadow-green-200 transition-all duration-300"
                  filled
                >
-                 {isSaving ? 'Creating Split Orders...' : `Save Split Orders (${actualSplits.length} orders)`}
-               </Button>
-               {!canSave && (
-                 <p className="text-sm text-gray-500 mt-2 text-center">
-                   {actualSplits.length <= 1
-                     ? "Add more splits and move items to them"
-                     : "All splits must have at least one item"
-                   }
+                 {isSaving ? t('split.byItems.creating') : t('split.byItems.save', {count: actualSplits.length})}
+              </Button>
+              {!canSave && (
+                <p className="text-sm text-gray-500 mt-2 text-center">
+                  {actualSplits.length <= 1
+                    ? t('split.byItems.addMoreSplits')
+                    : t('split.byItems.allSplitsNeedItems')
+                  }
                  </p>
                )}
              </div>

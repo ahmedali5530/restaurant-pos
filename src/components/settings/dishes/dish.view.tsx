@@ -5,6 +5,7 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {detectMimeType} from "@/utils/files.ts";
 import defaultImage from "@/assets/images/default-image.png";
+import {useTranslation} from 'react-i18next';
 import {withCurrency} from "@/lib/utils.ts";
 
 interface Props {
@@ -48,6 +49,8 @@ interface DishRecipeRow {
 export const DishView = ({
   open, onClose, data
 }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
   const db = useDB();
   const [modifierGroups, setModifierGroups] = useState<DishModifierGroupRow[]>([]);
   const [recipes, setRecipes] = useState<DishRecipeRow[]>([]);
@@ -173,6 +176,8 @@ export const DishView = ({
     };
   }, [open, data]);
 
+  const yesNo = (value?: boolean) => value ? t('columns.yes') : t('columns.no');
+
   const closeModal = () => {
     onClose();
   }
@@ -180,7 +185,7 @@ export const DishView = ({
   return (
     <>
       <Modal
-        title={`View ${data.name}`}
+        title={t('forms.viewDish', { name: data.name })}
         open={open}
         onClose={closeModal}
         size="lg"
@@ -197,44 +202,44 @@ export const DishView = ({
             </div>
 
             <div className="rounded-lg border border-neutral-200 bg-white p-4 md:col-span-2">
-              <h4 className="font-semibold text-lg mb-3">Dish details</h4>
+              <h4 className="font-semibold text-lg mb-3">{t('dishView.detailsTitle')}</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                 <div>
-                  <p className="text-neutral-500">Name</p>
+                  <p className="text-neutral-500">{t('columns.name')}</p>
                   <p className="font-medium">{data.name || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-neutral-500">Number</p>
+                  <p className="text-neutral-500">{t('columns.number')}</p>
                   <p className="font-medium">{data.number || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-neutral-500">Priority</p>
+                  <p className="text-neutral-500">{t('columns.priority')}</p>
                   <p className="font-medium">{data.priority ?? '-'}</p>
                 </div>
                 <div>
-                  <p className="text-neutral-500">Sale price</p>
+                  <p className="text-neutral-500">{t('columns.salePrice')}</p>
                   <p className="font-medium">{withCurrency(data.price ?? 0)}</p>
                 </div>
                 <div>
-                  <p className="text-neutral-500">Cost price</p>
+                  <p className="text-neutral-500">{t('columns.costPrice')}</p>
                   <p className="font-medium">{withCurrency(data.cost ?? 0)}</p>
                 </div>
                 <div>
-                  <p className="text-neutral-500">Discount</p>
+                  <p className="text-neutral-500">{t('dishView.discount')}</p>
                   <p className="font-medium">{data.discount ?? '-'}</p>
                 </div>
                 <div>
-                  <p className="text-neutral-500">Allow half</p>
-                  <p className="font-medium">{data.allow_half ? 'Yes' : 'No'}</p>
+                  <p className="text-neutral-500">{t('dishView.allowHalf')}</p>
+                  <p className="font-medium">{yesNo(data.allow_half)}</p>
                 </div>
                 <div>
-                  <p className="text-neutral-500">Allow service charges</p>
-                  <p className="font-medium">{data.allow_service_charges ? 'Yes' : 'No'}</p>
+                  <p className="text-neutral-500">{t('dishView.allowServiceCharges')}</p>
+                  <p className="font-medium">{yesNo(data.allow_service_charges)}</p>
                 </div>
               </div>
 
               <div className="mt-4">
-                <p className="text-neutral-500 text-sm mb-2">Categories</p>
+                <p className="text-neutral-500 text-sm mb-2">{t('columns.categories')}</p>
                 {categories.length > 0 ? (
                   <div className="flex gap-2 flex-wrap">
                     {categories.map((category) => (
@@ -247,7 +252,7 @@ export const DishView = ({
               </div>
 
               <div className="mt-4">
-                <p className="text-neutral-500 text-sm mb-2">Used as modifier</p>
+                <p className="text-neutral-500 text-sm mb-2">{t('columns.usedAsModifier')}</p>
                 {usedAsModifier.length > 0 ? (
                   <div className="flex gap-2 flex-wrap">
                     {usedAsModifier.map((item: { name?: string }, index: number) => (
@@ -262,21 +267,21 @@ export const DishView = ({
           </div>
 
           <div className="rounded-lg border border-neutral-200 bg-white p-4">
-            <h4 className="font-semibold text-lg mb-3">Attached modifier groups</h4>
+            <h4 className="font-semibold text-lg mb-3">{t('dishView.attachedModifierGroups')}</h4>
 
             {modifierGroups.length === 0 ? (
-              <p className="text-sm text-neutral-500">No modifier groups attached.</p>
+              <p className="text-sm text-neutral-500">{t('dishView.noModifierGroupsAttached')}</p>
             ) : (
               <div className="space-y-3">
                 {modifierGroups.map((group) => (
                   <div key={group.id} className="rounded-md border border-neutral-200 p-3">
                     <div className="flex flex-wrap gap-2 items-center mb-2">
                       <span className="font-medium">{group.out?.name ?? '-'}</span>
-                      <span className="tag">Priority: {group.priority ?? 0}</span>
-                      <span className="tag">Auto open: {group.should_auto_open ? 'Yes' : 'No'}</span>
-                      <span className="tag">Auto select: {group.should_auto_select ? 'Yes' : 'No'}</span>
-                      <span className="tag">Has required: {group.has_required_modifiers ? 'Yes' : 'No'}</span>
-                      <span className="tag">Required count: {group.required_modifiers ?? 0}</span>
+                      <span className="tag">{t('dishView.priority', { value: group.priority ?? 0 })}</span>
+                      <span className="tag">{t('dishView.autoOpen', { value: yesNo(group.should_auto_open) })}</span>
+                      <span className="tag">{t('dishView.autoSelect', { value: yesNo(group.should_auto_select) })}</span>
+                      <span className="tag">{t('dishView.hasRequired', { value: yesNo(group.has_required_modifiers) })}</span>
+                      <span className="tag">{t('dishView.requiredCount', { value: group.required_modifiers ?? 0 })}</span>
                     </div>
                     <div className="flex gap-2 flex-wrap">
                       {(group.out?.modifiers ?? []).length > 0 ? (
@@ -286,7 +291,7 @@ export const DishView = ({
                           </span>
                         ))
                       ) : (
-                        <p className="text-sm text-neutral-500">No modifiers in this group.</p>
+                        <p className="text-sm text-neutral-500">{t('dishView.noModifiersInGroup')}</p>
                       )}
                     </div>
                   </div>
@@ -296,21 +301,21 @@ export const DishView = ({
           </div>
 
           <div className="rounded-lg border border-neutral-200 bg-white p-4">
-            <h4 className="font-semibold text-lg mb-3">Recipe items</h4>
+            <h4 className="font-semibold text-lg mb-3">{t('dishView.recipeItems')}</h4>
 
             {recipes.length === 0 ? (
-              <p className="text-sm text-neutral-500">No recipe items attached.</p>
+              <p className="text-sm text-neutral-500">{t('dishView.noRecipeItems')}</p>
             ) : (
               <>
                 <div className="overflow-auto">
                   <table className="table-auto w-full">
                     <thead>
                     <tr className="text-left border-b border-neutral-200">
-                      <th className="py-2">Item</th>
-                      <th className="py-2">Quantity</th>
-                      <th className="py-2">Cost</th>
-                      <th className="py-2">Price locked</th>
-                      <th className="py-2">Line total</th>
+                      <th className="py-2">{t('dishView.item')}</th>
+                      <th className="py-2">{t('dishView.quantity')}</th>
+                      <th className="py-2">{t('dishView.cost')}</th>
+                      <th className="py-2">{t('dishView.priceLocked')}</th>
+                      <th className="py-2">{t('dishView.lineTotal')}</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -323,7 +328,7 @@ export const DishView = ({
                           <td className="py-2">{recipe.item?.name ?? '-'}</td>
                           <td className="py-2">{quantity}</td>
                           <td className="py-2">{withCurrency(cost)}</td>
-                          <td className="py-2">{recipe.is_price_locked ? 'Yes' : 'No'}</td>
+                          <td className="py-2">{yesNo(recipe.is_price_locked)}</td>
                           <td className="py-2">{withCurrency(lineTotal)}</td>
                         </tr>
                       );
@@ -333,7 +338,7 @@ export const DishView = ({
                 </div>
 
                 <div className="mt-3 flex justify-end">
-                  <span className="tag">Total recipe cost: {withCurrency(totalRecipeCost)}</span>
+                  <span className="tag">{t('dishView.totalRecipeCost', { amount: withCurrency(totalRecipeCost) })}</span>
                 </div>
               </>
             )}

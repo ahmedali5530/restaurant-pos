@@ -4,6 +4,7 @@ import { SecurityAction, SecurityManager } from '@/providers/security.provider';
 import {Input} from "@/components/common/input/input.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
+import { useTranslation } from 'react-i18next';
 
 interface PasswordAuthProps {
   onSuccess: (manager?: SecurityManager) => void;
@@ -16,6 +17,7 @@ export const PasswordAuth: React.FC<PasswordAuthProps> = ({
   onCancel,
   currentAction
 }) => {
+  const { t } = useTranslation(['auth', 'common']);
   const db = useDB();
 
   const [password, setPassword] = useState('');
@@ -33,7 +35,7 @@ export const PasswordAuth: React.FC<PasswordAuthProps> = ({
     if(userWithModules.length > 0){
       onSuccess(userWithModules[0] as SecurityManager);
     }else{
-      setError(`Invalid password, or user not found with ${currentAction.module} permission`);
+      setError(t('security.invalidPassword', { module: currentAction.module }));
     }
 
     setPassword('');
@@ -43,13 +45,13 @@ export const PasswordAuth: React.FC<PasswordAuthProps> = ({
     <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Enter Password
+          {t('security.enterPassword')}
         </label>
         <Input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Enter your password"
+          placeholder={t('security.passwordPlaceholder')}
           autoFocus
           autoComplete="off"
           enableKeyboard
@@ -67,7 +69,7 @@ export const PasswordAuth: React.FC<PasswordAuthProps> = ({
           variant="secondary"
           className="flex-1 lg"
         >
-          Cancel
+          {t('common:actions.cancel')}
         </Button>
         <Button
           type="submit"
@@ -75,7 +77,7 @@ export const PasswordAuth: React.FC<PasswordAuthProps> = ({
           variant="primary"
           active
         >
-          Confirm
+          {t('common:actions.confirm')}
         </Button>
       </div>
     </form>

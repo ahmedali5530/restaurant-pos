@@ -1,7 +1,8 @@
 import {TabList, Tabs} from "react-aria-components";
 import {Layout} from "@/screens/partials/layout.tsx";
 import {Tab, TabPanel} from "@/components/common/react-aria/tabs";
-import {useState} from "react";
+import {useMemo, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import ScrollContainer from "react-indiana-drag-scroll";
 import {InventoryItems} from "@/components/inventory/items/index.tsx";
 import {InventorySuppliers} from "@/components/inventory/suppliers/index.tsx";
@@ -17,24 +18,41 @@ import {InventoryWastes} from "@/components/inventory/wastes/index.tsx";
 import {InventorySummary} from "@/components/inventory/inventory/summary.tsx";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 
+/** Stable permission codes stored in user roles — not translated labels. */
+const INVENTORY_TAB_MODULES: Record<string, string> = {
+  inventory: 'Current Inventory',
+  items: 'Items',
+  suppliers: 'Suppliers',
+  categories: 'Item Categories',
+  stores: 'Stores',
+  'item-groups': 'Item Groups',
+  'purchase-orders': 'Purchase Orders',
+  purchases: 'Purchases',
+  'purchase-returns': 'Purchase Returns',
+  issues: 'Issues',
+  'issue-returns': 'Issue Returns',
+  wastes: 'Wastes',
+};
+
 export const Inventory = () => {
+  const { t } = useTranslation('inventory');
   const [selected, setSelected] = useState('inventory');
   const {protectAction} = useSecurity();
 
-  const pages = {
-    'inventory': {component: <InventorySummary/>, title: 'Inventory'},
-    'items': {component: <InventoryItems/>, title: 'Items'},
-    'suppliers': {component: <InventorySuppliers/>, title: 'Suppliers'},
-    'categories': {component: <InventoryCategories/>, title: 'Item Categories'},
-    'stores': {component: <InventoryStores/>, title: 'Stores'},
-    'item-groups': {component: <InventoryItemGroups/>, title: 'Item Groups'},
-    'purchase-orders': {component: <InventoryPurchaseOrders/>, title: 'Purchase Orders'},
-    'purchases': {component: <InventoryPurchases/>, title: 'Purchases'},
-    'purchase-returns': {component: <InventoryPurchaseReturns/>, title: 'Purchase Returns'},
-    'issues': {component: <InventoryIssues/>, title: 'Issues'},
-    'issue-returns': {component: <InventoryIssueReturns/>, title: 'Issue Returns'},
-    'wastes': {component: <InventoryWastes/>, title: 'Wastes'},
-  };
+  const pages = useMemo(() => ({
+    'inventory': {component: <InventorySummary/>, title: t('tabs.inventory')},
+    'items': {component: <InventoryItems/>, title: t('tabs.items')},
+    'suppliers': {component: <InventorySuppliers/>, title: t('tabs.suppliers')},
+    'categories': {component: <InventoryCategories/>, title: t('tabs.categories')},
+    'stores': {component: <InventoryStores/>, title: t('tabs.stores')},
+    'item-groups': {component: <InventoryItemGroups/>, title: t('tabs.itemGroups')},
+    'purchase-orders': {component: <InventoryPurchaseOrders/>, title: t('tabs.purchaseOrders')},
+    'purchases': {component: <InventoryPurchases/>, title: t('tabs.purchases')},
+    'purchase-returns': {component: <InventoryPurchaseReturns/>, title: t('tabs.purchaseReturns')},
+    'issues': {component: <InventoryIssues/>, title: t('tabs.issues')},
+    'issue-returns': {component: <InventoryIssueReturns/>, title: t('tabs.issueReturns')},
+    'wastes': {component: <InventoryWastes/>, title: t('tabs.wastes')},
+  }), [t]);
 
   return (
     <Layout
@@ -47,8 +65,8 @@ export const Inventory = () => {
           protectAction(() => {
             setSelected(key);
           }, {
-            module: pages[key].title,
-            description: `Access ${pages[key].title}`
+            module: INVENTORY_TAB_MODULES[key],
+            description: t('security.accessTab', { module: pages[key].title })
           });
         }}
       >

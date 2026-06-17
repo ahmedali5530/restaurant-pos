@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { appPage } from "@/store/jotai.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useTranslation} from 'react-i18next';
 
 const PRINTER_SETTING_KEYS = {
   temp_print_printers: "temp_print_printers",
@@ -72,6 +73,7 @@ export const Printersettings = () => {
   const [loading, setLoading] = useState(true);
   const userId = page?.user?.id != null ? toIdString(page.user.id) : null;
   const {protectFormSubmit} = useSecurity();
+  const { t } = useTranslation(['settings', 'common']);
 
   const { data: printersData } = useApi<SettingsData<Printer>>(
     Tables.printers,
@@ -122,7 +124,7 @@ export const Printersettings = () => {
         });
       } catch (e) {
         console.error("Error loading printer settings:", e);
-        toast.error("Failed to load printer settings");
+        toast.error(t('settings:printers.loadFailed'));
       } finally {
         setLoading(false);
       }
@@ -133,7 +135,7 @@ export const Printersettings = () => {
 
   const onSubmit = async (values: PrinterSettingsForm) => {
     if (!userId) {
-      toast.error("Please log in to save printer settings.");
+      toast.error(t('settings:printers.loginRequired'));
       return;
     }
     try {
@@ -163,10 +165,10 @@ export const Printersettings = () => {
         }
       }
 
-      toast.success("Printer settings saved");
+      toast.success(t('settings:printers.saved'));
     } catch (e) {
       console.error("Error saving printer settings:", e);
-      toast.error("Failed to save printer settings");
+      toast.error(t('settings:printers.saveFailed'));
     }
   };
 
@@ -177,21 +179,21 @@ export const Printersettings = () => {
 
   return (
     <div className="shadow p-5 rounded bg-white">
-      <h2 className="text-xl font-semibold mb-1">Default printers</h2>
+      <h2 className="text-xl font-semibold mb-1">{t('settings:printers.title')}</h2>
       <p className="text-sm text-neutral-500 mb-4">
-        Printer assignments are stored per user. Each user can assign printers for temp, final, refund, delivery, and summary. If you have not set any, global settings are used as fallback.
+        {t('settings:printers.description')}
       </p>
 
       {loading ? (
-        <div className="text-center py-6 text-neutral-500">Loading printer settings…</div>
+        <div className="text-center py-6 text-neutral-500">{t('settings:printers.loading')}</div>
       ) : (
         <form onSubmit={protectFormSubmit((handleSubmit(onSubmit)), {
-          description: 'Save printers',
+          description: t('settings:printers.saveDescription'),
           module: 'Printers'
         })} className="flex flex-col gap-4 max-w-xl">
 
           <div>
-            <label className="block text-sm font-medium mb-1">Printers for temp print</label>
+            <label className="block text-sm font-medium mb-1">{t('settings:printers.tempPrint')}</label>
             <Controller
               name="temp_print_printers"
               control={control}
@@ -201,14 +203,14 @@ export const Printersettings = () => {
                   value={field.value}
                   onChange={field.onChange}
                   options={printerOptions}
-                  placeholder="Select printers…"
+                  placeholder={t('settings:printers.selectPrinters')}
                 />
               )}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Printers for final print</label>
+            <label className="block text-sm font-medium mb-1">{t('settings:printers.finalPrint')}</label>
             <Controller
               name="final_print_printers"
               control={control}
@@ -218,14 +220,14 @@ export const Printersettings = () => {
                   value={field.value}
                   onChange={field.onChange}
                   options={printerOptions}
-                  placeholder="Select printers…"
+                  placeholder={t('settings:printers.selectPrinters')}
                 />
               )}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Printers for refund print</label>
+            <label className="block text-sm font-medium mb-1">{t('settings:printers.refundPrint')}</label>
             <Controller
               name="refund_print_printers"
               control={control}
@@ -235,14 +237,14 @@ export const Printersettings = () => {
                   value={field.value}
                   onChange={field.onChange}
                   options={printerOptions}
-                  placeholder="Select printers…"
+                  placeholder={t('settings:printers.selectPrinters')}
                 />
               )}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Printers for delivery print</label>
+            <label className="block text-sm font-medium mb-1">{t('settings:printers.deliveryPrint')}</label>
             <Controller
               name="delivery_print_printers"
               control={control}
@@ -252,14 +254,14 @@ export const Printersettings = () => {
                   value={field.value}
                   onChange={field.onChange}
                   options={printerOptions}
-                  placeholder="Select printers…"
+                  placeholder={t('settings:printers.selectPrinters')}
                 />
               )}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Printers for summary print</label>
+            <label className="block text-sm font-medium mb-1">{t('settings:printers.summaryPrint')}</label>
             <Controller
               name="summary_print_printers"
               control={control}
@@ -269,7 +271,7 @@ export const Printersettings = () => {
                   value={field.value}
                   onChange={field.onChange}
                   options={printerOptions}
-                  placeholder="Select printers…"
+                  placeholder={t('settings:printers.selectPrinters')}
                 />
               )}
             />
@@ -277,7 +279,7 @@ export const Printersettings = () => {
 
           <div>
             <Button type="submit" variant="primary" disabled={isSubmitting}>
-              {isSubmitting ? "Saving…" : "Save printer settings"}
+              {isSubmitting ? t('settings:printers.saving') : t('settings:printers.save')}
             </Button>
           </div>
         </form>

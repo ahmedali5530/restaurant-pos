@@ -10,9 +10,11 @@ import { Printer } from "@/api/model/printer.ts";
 import { PrinterForm } from "@/components/settings/printers/printer.form.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
+import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminPrinters = () => {
+  const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<Printer>>(Tables.printers, ['deleted_at = none'], ['priority asc']);
   const db = useDB();
 
@@ -23,23 +25,23 @@ export const AdminPrinters = () => {
 
   const columns: any = [
     columnHelper.accessor("name", {
-      header: 'Name'
+      header: t('columns.name')
     }),
     columnHelper.accessor("type", {
-      header: 'Type'
+      header: t('columns.type')
     }),
     columnHelper.accessor("ip_address", {
-      header: 'Path'
+      header: t('columns.path')
     }),
     columnHelper.accessor("port", {
-      header: 'Port'
+      header: t('columns.port')
     }),
     // columnHelper.accessor("priority", {
-    //   header: 'Priority'
+    //   header: t('columns.priority')
     // }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {
@@ -54,7 +56,7 @@ export const AdminPrinters = () => {
             ><FontAwesomeIcon icon={faPencil}/></Button>
             <div className="separator"></div>
             <DeleteConfirm
-              message={`Delete printer ${info.row.original.name}`}
+              message={t('delete.printer', { name: info.row.original.name })}
               onConfirm={() => deleteItem(info.row.original.id)}
             />
           </div>
@@ -67,7 +69,7 @@ export const AdminPrinters = () => {
     await executeSettingsDelete({
       db,
       id,
-      entityLabel: 'Printer',
+      entityLabel: t('entities.printer'),
       usageChecks: [
         {
           query: `SELECT count() AS count FROM ${Tables.kitchens} WHERE printers ?= $idRecord GROUP ALL`
@@ -88,7 +90,7 @@ export const AdminPrinters = () => {
         buttons={[
           <Button variant="primary" onClick={() => {
             setFormModal(true);
-          }} icon={faPlus}> Printer</Button>
+          }} icon={faPlus}>{t('buttons.printer')}</Button>
         ]}
       />
 

@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {InventoryPurchaseOrder} from "@/api/model/inventory_purchase_order.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {useDB} from "@/api/db/db.ts";
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export const InventoryPurchaseOrderViewModal = ({open, order, onClose}: Props) => {
+  const { t } = useTranslation('inventory');
   const db = useDB();
   const [viewOrder, setViewOrder] = useState<InventoryPurchaseOrder | null>(null);
   const [loading, setLoading] = useState(false);
@@ -79,7 +81,7 @@ export const InventoryPurchaseOrderViewModal = ({open, order, onClose}: Props) =
                 <div>{viewOrder.supplier?.name ?? "—"}</div>
               </div>
               <div>
-                <div className="text-neutral-500 text-xs uppercase">Created at</div>
+                <div className="text-neutral-500 text-xs uppercase">{t('columns.createdAt')}</div>
                 <div>{viewOrder.created_at ? toJsDate(viewOrder.created_at).toLocaleString() : "—"}</div>
               </div>
             </div>
@@ -89,7 +91,7 @@ export const InventoryPurchaseOrderViewModal = ({open, order, onClose}: Props) =
             <div className="flex items-center justify-between mb-3">
               <div className="text-sm font-semibold text-neutral-800 flex items-center gap-2">
                 <FontAwesomeIcon icon={faFile}/>
-                <span>Attached documents</span>
+                <span>{t('upload.attachDocuments')}</span>
               </div>
             </div>
             {viewOrder.documents && viewOrder.documents.length > 0 ? (

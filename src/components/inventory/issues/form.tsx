@@ -1,4 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import * as yup from "yup";
 import {Controller, useFieldArray, useForm, useWatch} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
@@ -116,6 +117,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
 }).required();
 
 export const InventoryIssueForm = ({open, onClose, data}: Props) => {
+  const { t } = useTranslation('inventory');
   const db = useDB();
   const validationSchema = useMemo(() => createValidationSchema(db, data?.id), [db, data?.id]);
   const resolver = useMemo(() => yupResolver(validationSchema), [validationSchema]);
@@ -302,7 +304,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
       })
       .catch((error) => {
         console.error("Failed to fetch next issue number", error);
-        toast.error("Unable to generate next issue number");
+        toast.error(t('toast:inventory.unableGenerateIssueNumber'));
       });
 
     return () => {
@@ -437,7 +439,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     try {
       const hasAvailableStock = await validateAvailableStock(values);
       if (!hasAvailableStock) {
-        toast.error("One or more items exceed available quantity");
+        toast.error(t('toast:inventory.itemsExceedQuantity'));
         return;
       }
 
@@ -515,7 +517,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
         items: itemRefs,
       });
 
-      toast.success("Issue saved");
+      toast.success(t('toast:inventory.issueSaved'));
       closeModal();
     } catch (error) {
       console.log(error)
@@ -566,12 +568,12 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                 name="invoice_number"
                 control={control}
                 render={({field}) => (
-                  <Input value={field.value} onChange={field.onChange} label="Issue#" error={_.get(errors, ["invoice_number", "message"])} />
+                  <Input value={field.value} onChange={field.onChange} label={t('columns.issueNumber')} error={_.get(errors, ["invoice_number", "message"])} />
                 )}
               />
             </div>
             <div className="flex-1">
-              <label>Issued to</label>
+              <label>{t('columns.issuedTo')}</label>
               <Controller
                 name="issued_to"
                 control={control}
@@ -588,7 +590,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
               <InputError error={_.get(errors, ["issued_to", "message"])}/>
             </div>
             <div className="flex-1">
-              <label>Kitchen</label>
+              <label>{t('columns.kitchen')}</label>
               <Controller
                 name="kitchen"
                 control={control}
@@ -610,7 +612,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                 control={control}
                 render={({field}) => (
                   <DatePicker
-                    label="Date"
+                    label={t('forms.date')}
                     value={field.value as any}
                     onChange={field.onChange}
                     maxValue={getToday()}
@@ -650,7 +652,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
           </div>
 
           <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
-            <legend>Items</legend>
+            <legend>{t('tabs.items')}</legend>
             <div className="mb-3">
               <Button
                 type="button"
@@ -691,7 +693,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                     <InputError error={_.get(errors, ["items", index, "store", "message"])}/>
                   </div>
                   <div className="flex-1">
-                    <label>Item</label>
+                    <label>{t('buttons.item')}</label>
                     <Controller
                       name={`items.${index}.item`}
                       control={control}
@@ -713,7 +715,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                       control={control}
                       render={({field}) => (
                         <Input
-                          label="Requested"
+                          label={t('forms.requested')}
                           type="number"
                           value={field.value as number | string | undefined}
                           onChange={field.onChange}
@@ -728,7 +730,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                       control={control}
                       render={({field}) => (
                         <Input
-                          label="Price"
+                          label={t('columns.price')}
                           type="number"
                           value={field.value as number | string | undefined}
                           onChange={field.onChange}
@@ -743,7 +745,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                       control={control}
                       render={({field}) => (
                         <Input
-                          label="Quantity"
+                          label={t('forms.quantity')}
                           type="number"
                           value={field.value as number | string}
                           onChange={field.onChange}
@@ -760,7 +762,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                   </div>
                   <div className="flex-1">
                     <Input
-                      label="Comments"
+                      label={t('forms.comments')}
                       {...register(`items.${index}.comments` as const)}
                     />
                   </div>
@@ -782,7 +784,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
         </div>
 
         <div>
-          <Button type="submit" variant="primary">Save</Button>
+          <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
         </div>
       </form>
     </Modal>

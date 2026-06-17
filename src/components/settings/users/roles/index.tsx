@@ -10,9 +10,11 @@ import { TableComponent } from "@/components/common/table/table.tsx";
 import { UserRoleForm } from "@/components/settings/users/roles/role.form.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
+import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminUserRoles = () => {
+  const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<UserRole>>(Tables.user_roles, ["deleted_at = none"], ["name asc"]);
   const db = useDB();
   const [data, setData] = useState<UserRole>();
@@ -22,10 +24,10 @@ export const AdminUserRoles = () => {
 
   const columns: any = [
     columnHelper.accessor("name", {
-      header: "Name",
+      header: t('columns.name'),
     }),
     columnHelper.accessor("roles", {
-      header: "Modules",
+      header: t('columns.modules'),
       enableColumnFilter: false,
       cell: (info) => (
         <div className="flex gap-2 flex-wrap">
@@ -37,7 +39,7 @@ export const AdminUserRoles = () => {
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => (
@@ -53,7 +55,7 @@ export const AdminUserRoles = () => {
           </Button>
           <div className="separator"></div>
           <DeleteConfirm
-            message={`Delete role ${info.row.original.name}`}
+            message={t('delete.role', { name: info.row.original.name })}
             onConfirm={() => deleteItem(info.row.original.id)}
           />
         </div>
@@ -65,7 +67,7 @@ export const AdminUserRoles = () => {
     await executeSettingsDelete({
       db,
       id,
-      entityLabel: 'Role',
+      entityLabel: t('entities.role'),
       usageChecks: [
         {
           query: `SELECT count() AS count FROM ${Tables.users} WHERE user_role = $idRecord GROUP ALL`

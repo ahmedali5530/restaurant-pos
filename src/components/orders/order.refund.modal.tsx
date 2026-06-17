@@ -19,6 +19,7 @@ import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import { nowSurrealDateTime } from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
+import {useTranslation} from "react-i18next";
 
 interface OrderRefundModalProps {
   order: OrderModel
@@ -31,6 +32,7 @@ export const OrderRefundModal = ({
   open,
   onClose,
 }: OrderRefundModalProps) => {
+  const {t} = useTranslation('orders');
   const db = useDB();
   const [page] = useAtom(appPage);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
@@ -107,12 +109,12 @@ export const OrderRefundModal = ({
 
   const handleRefund = async () => {
     if (selectedItems.size === 0) {
-      toast.error('Please select at least one item to refund');
+      toast.error(t('refund.selectAtLeastOne'));
       return;
     }
 
     if (!page?.user?.id) {
-      toast.error('Unable to identify logged in user');
+      toast.error(t('refund.cannotIdentifyUser'));
       return;
     }
 
@@ -169,7 +171,7 @@ export const OrderRefundModal = ({
         })),
       };
 
-      toast.success(`Successfully refunded ${selectedItems.size} item(s)`);
+      toast.success(t('refund.success', {count: selectedItems.size}));
       onClose();
 
       // Trigger refund print
@@ -181,7 +183,7 @@ export const OrderRefundModal = ({
       }, 300);
     } catch (error) {
       console.error('Failed to refund order', error);
-      toast.error('Failed to refund order');
+      toast.error(t('refund.failed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -191,14 +193,14 @@ export const OrderRefundModal = ({
     <Modal
       open={open}
       onClose={handleClose}
-      title="Refund order"
+      title={t('refund.title')}
       size="full"
     >
       <div className="flex flex-col gap-4" style={{ height: 'calc(100vh - 200px)', minHeight: '500px' }}>
         <div className="flex gap-6 flex-1 min-h-0">
           {/* Left side - Order items */}
           <div className="flex-1 flex flex-col min-w-0">
-            <label className="block text-sm font-semibold mb-2">Select items to refund</label>
+            <label className="block text-sm font-semibold mb-2">{t('refund.selectItems')}</label>
             <div className="flex-1 overflow-auto border border-neutral-200 rounded-lg p-3 bg-neutral-50" style={{ minHeight: 0 }}>
               {getOrderFilteredItems(order).map(item => (
                 <div
@@ -224,24 +226,24 @@ export const OrderRefundModal = ({
             {selectedItems.size > 0 && (
               <div className="mt-3 p-3 bg-primary-50 rounded-lg flex-shrink-0 space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="font-semibold">Items Total:</span>
+                  <span className="font-semibold">{t('refund.itemsTotal')}</span>
                   <span className="font-semibold">{withCurrency(refundCharges.itemsTotal)}</span>
                 </div>
                 {order.tax && refundCharges.taxAmount > 0 && (
                   <div className="flex justify-between items-center text-sm">
-                    <span>Tax ({order.tax.name} {order.tax.rate}%):</span>
+                    <span>{t('refund.tax', {name: order.tax.name, rate: order.tax.rate})}</span>
                     <span>{withCurrency(refundCharges.taxAmount)}</span>
                   </div>
                 )}
                 {order.discount && refundCharges.discountAmount > 0 ? (
                   <div className="flex justify-between items-center text-sm">
-                    <span>Discount:</span>
+                    <span>{t('refund.discount')}</span>
                     <span>{withCurrency(refundCharges.discountAmount)}</span>
                   </div>
                 ) : null}
                 {order.service_charge && order.service_charge > 0 && refundCharges.serviceChargeAmount > 0 ? (
                   <div className="flex justify-between items-center text-sm">
-                    <span>Service Charges ({order.service_charge}{order.service_charge_type === 'Percent' ? '%' : ''}):</span>
+                    <span>{t('refund.serviceCharges', {value: order.service_charge, unit: order.service_charge_type === 'Percent' ? '%' : ''})}</span>
                     <span>{withCurrency(refundCharges.serviceChargeAmount)}</span>
                   </div>
                 ) : null}
@@ -253,18 +255,18 @@ export const OrderRefundModal = ({
                 ))}
                 {order.tip_amount && refundCharges.tipAmount > 0 ? (
                   <div className="flex justify-between items-center text-sm">
-                    <span>Tip:</span>
+                    <span>{t('refund.tip')}</span>
                     <span>{withCurrency(refundCharges.tipAmount)}</span>
                   </div>
                 ) : null}
                 <div className="border-t border-neutral-200 pt-2 mt-2">
                   <div className="flex justify-between items-center">
-                    <span className="font-semibold">Refund Total:</span>
+                    <span className="font-semibold">{t('refund.refundTotal')}</span>
                     <span className="font-bold text-lg">{withCurrency(refundTotal)}</span>
                   </div>
                 </div>
                 <div className="text-sm text-neutral-600 mt-1">
-                  {selectedItems.size} item(s) selected
+                  {t('refund.itemsSelected', {count: selectedItems.size})}
                 </div>
               </div>
             )}
@@ -272,13 +274,13 @@ export const OrderRefundModal = ({
 
           {/* Right side - Reason */}
           <div className="flex-1 flex flex-col min-w-0">
-            <label className="block text-sm font-semibold mb-2">Reason</label>
+            <label className="block text-sm font-semibold mb-2">{t('refund.reason')}</label>
             <div className="flex-1" style={{ minHeight: 0 }}>
               <Textarea
                 value={reason}
                 onChange={(event) => setReason(event.currentTarget.value)}
                 rows={12}
-                placeholder="Enter refund reason"
+                placeholder={t('refund.reasonPlaceholder')}
                 enableKeyboard
                 className="w-full h-full"
                 style={{ minHeight: '400px' }}
@@ -296,7 +298,7 @@ export const OrderRefundModal = ({
             disabled={isSubmitting}
             size="xl"
           >
-            Close
+            {t('common:actions.close')}
           </Button>
           <Button
             variant="danger"
@@ -305,7 +307,9 @@ export const OrderRefundModal = ({
             disabled={isSubmitting || selectedItems.size === 0}
             size="xl"
           >
-            Refund {selectedItems.size > 0 ? `${selectedItems.size} item(s)` : ''}
+            {selectedItems.size > 0
+              ? t('refund.refundButtonWithCount', {count: selectedItems.size})
+              : t('refund.refundButton')}
           </Button>
         </div>
       </div>

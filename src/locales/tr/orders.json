@@ -1,0 +1,179 @@
+{
+  "customer": {
+    "name": "Ad",
+    "phone": "Telefon Numarası",
+    "address": "Adres",
+    "attach": "Ekle",
+    "search": "Ara",
+    "columns": {
+      "select": "Seç",
+      "name": "Ad",
+      "email": "E-posta",
+      "phone": "Telefon",
+      "address": "Adr.",
+      "secondaryAddress": "İkincil Adr.",
+      "points": "Puan"
+    }
+  },
+  "filters": {
+    "status": "Sipariş durumu seçin",
+    "orderTypes": "Sipariş türleri seçin",
+    "floors": "Katlar seçin",
+    "users": "Kullanıcılar seçin"
+  },
+  "view": {
+    "blocks": "Bloklar",
+    "table": "Tablo"
+  },
+  "merge": {
+    "chooseTableAlert": "Lütfen yeni bir masa seçin",
+    "success": "{{invoiceNumber}} numaralı siparişe başarıyla birleştirildi",
+    "failed": "Siparişler birleştirilemedi",
+    "chooseTable": "Masa seçin",
+    "selectTwoOrMore": "2 veya daha fazla sipariş seçin",
+    "confirmMerging": "{{count}} siparişin birleştirilmesini onaylayın",
+    "cancelMerging": "Birleştirmeyi iptal et"
+  },
+  "header": {
+    "orderNumber": "Sipariş# {{invoice}} / {{orderType}}"
+  },
+  "status": {
+    "inProgress": "Devam Ediyor",
+    "paid": "Ödendi",
+    "cancelled": "İptal Edildi",
+    "spilt": "Bölündü",
+    "merged": "Birleştirildi",
+    "refunded": "İade Edildi"
+  },
+  "totals": {
+    "items": "Ürünler ({{count}})",
+    "itemsShort": "Ürünler",
+    "tax": "Vergi",
+    "discount": "İndirim",
+    "serviceCharges": "Servis ücretleri ({{value}}{{unit}})",
+    "tip": "Bahşiş",
+    "tipPercent": "Bahşiş %",
+    "total": "Toplam",
+    "change": "Para üstü",
+    "sc": "SU ({{value}}%)",
+    "extras": "Ekstralar"
+  },
+  "actions": {
+    "selectToMerge": "Birleştirmek için seç",
+    "more": "Daha fazla",
+    "cancelOrder": "Siparişi iptal et",
+    "splitBySeats": "Koltuklara göre böl",
+    "splitByItems": "Ürünlere göre böl",
+    "splitByAmount": "Tutara göre böl",
+    "mergeOrders": "Siparişleri birleştir",
+    "refund": "İade",
+    "printFinalBillCopy": "Final fatura kopyasını yazdır",
+    "tempBill": "Geçici fatura",
+    "payNow": "Şimdi Öde"
+  },
+  "cancel": {
+    "title": "Siparişi iptal et",
+    "reason": "Sebep",
+    "items": "Ürünler",
+    "comments": "Yorumlar",
+    "commentsPlaceholder": "Yorum girin",
+    "confirmCancellation": "İptali onayla",
+    "unknownItem": "Bilinmeyen ürün",
+    "chooseReason": "Lütfen bir sebep seçin",
+    "selectAtLeastOne": "Lütfen en az bir ürün seçin",
+    "cannotIdentifyUser": "Giriş yapmış kullanıcı tanımlanamadı",
+    "successOrder": "Sipariş başarıyla iptal edildi",
+    "successItems": "Seçilen ürünler iptal edildi",
+    "failed": "Sipariş iptal edilemedi"
+  },
+  "refund": {
+    "title": "Siparişi iade et",
+    "selectItems": "İade edilecek ürünleri seçin",
+    "itemsTotal": "Ürün Toplamı:",
+    "tax": "Vergi ({{name}} {{rate}}%):",
+    "discount": "İndirim:",
+    "serviceCharges": "Servis Ücretleri ({{value}}{{unit}}):",
+    "tip": "Bahşiş:",
+    "refundTotal": "İade Toplamı:",
+    "itemsSelected": "{{count}} ürün seçildi",
+    "reason": "Sebep",
+    "reasonPlaceholder": "İade sebebini girin",
+    "refundButton": "İade",
+    "refundButtonWithCount": "{{count}} ürünü iade et",
+    "selectAtLeastOne": "Lütfen iade etmek için en az bir ürün seçin",
+    "cannotIdentifyUser": "Giriş yapmış kullanıcı tanımlanamadı",
+    "success": "{{count}} ürün başarıyla iade edildi",
+    "failed": "Sipariş iade edilemedi"
+  },
+  "voidReasons": {
+    "fohNotMade": "Ön Servis Yapılmadı",
+    "bohNotMade": "Arka Servis Yapılmadı",
+    "guestNotMade": "Misafir Yapılmadı",
+    "fohMade": "Ön Servis Yapıldı",
+    "bohMade": "Arka Servis Yapıldı",
+    "guestMade": "Misafir Yapıldı",
+    "punchByMistake": "Yanlışlıkla Giriş",
+    "testing": "Test"
+  },
+  "split": {
+    "title": "Siparişi böl {{invoice}}",
+    "titleByAmount": "Tutara göre böl — Sipariş {{invoice}}",
+    "splitName": "Bölüm {{number}}",
+    "seatName": "Koltuk {{number}}",
+    "noSeat": "Koltuk Yok",
+    "toast": {
+      "success": "{{count}} bölünmüş sipariş başarıyla oluşturuldu",
+      "failed": "Sipariş bölünemedi"
+    },
+    "bySeats": {
+      "heading": "Ek bölmeler",
+      "scrollHint": "Tüm bölmeleri görmek için kaydırın",
+      "total": "Toplam: {{amount}}",
+      "noItems": "Ürün yok",
+      "dragItemsHere": "Ürünleri buraya sürükleyin",
+      "noAdditionalSplits": "Ek bölme yok",
+      "addSplitHint": "Ürünleri dağıtmak için bölme ekleyin",
+      "creating": "Bölmeler oluşturuluyor...",
+      "save": "{{count}} bölmeyi kaydet",
+      "addMoreSplits": "Kaydetmeden önce daha fazla bölme ekleyin",
+      "allSplitsNeedItems": "Tüm bölmelerde en az bir ürün olmalıdır"
+    },
+    "byItems": {
+      "splitOneFixed": "Bölüm 1 (ana)",
+      "mainSplitHint": "Ürünler burada başlar. Diğer bölmelere sürükleyin.",
+      "total": "Toplam: {{amount}}",
+      "noItems": "Ürün yok",
+      "itemsReturnHere": "Geri taşındığında ürünler buraya döner",
+      "additionalSplits": "Ek bölmeler",
+      "scrollHint": "Daha fazla bölme için yatay kaydırın",
+      "addSplit": "Bölme ekle",
+      "dragFromSplitOne": "Bölüm 1'den ürün sürükleyin",
+      "moveBackToSplitOne": "Bölüm 1'e geri taşı",
+      "noAdditionalSplits": "Ek bölme yok",
+      "addSplitHint": "Ürünleri dağıtmak için bölme ekleyin",
+      "creating": "Bölmeler oluşturuluyor...",
+      "save": "{{count}} bölmeyi kaydet",
+      "addMoreSplits": "Kaydetmeden önce daha fazla bölme ekleyin",
+      "allSplitsNeedItems": "Tüm bölmelerde en az bir ürün olmalıdır"
+    },
+    "byAmount": {
+      "orderTotal": "Sipariş toplamı",
+      "assignHint": "Her bölmeye tutar atayın. Kalan sıfır olmalıdır.",
+      "assigned": "Atanan: {{amount}}",
+      "remaining": "Kalan: {{amount}}",
+      "amount": "Tutar",
+      "percentage": "{{value}}%",
+      "itemsCount": "Siparişte {{count}} ürün",
+      "noItemsInOrder": "Bu siparişte ürün yok",
+      "itemFallback": "Ürün",
+      "subtotal": "Ara toplam",
+      "addSplit": "Bölme ekle",
+      "autoFillRemaining": "Kalanı otomatik doldur",
+      "distributeEvenly": "Eşit dağıt",
+      "assignRemaining": "Kalan {{amount}} ata",
+      "exceedsTotal": "Toplamı {{amount}} kadar aşıyor",
+      "creating": "Bölmeler oluşturuluyor...",
+      "save": "{{count}} bölmeyi kaydet"
+    }
+  }
+}

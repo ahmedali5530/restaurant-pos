@@ -1,4 +1,5 @@
 import { ReactNode, useRef, useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/common/input/button.tsx";
 import {
   faPrint,
@@ -61,6 +62,7 @@ export const ReportsLayout = ({
   onRefresh,
   className,
 }: ReportsLayoutProps) => {
+  const { t } = useTranslation('reports');
   const reportRef = useRef<HTMLDivElement>(null);
   const [generatedAt] = useState(DateTime.now().toFormat(import.meta.env.VITE_DATE_TIME_FORMAT));
 

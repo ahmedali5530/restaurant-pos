@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {REPORTS_TAX} from "@/routes/posr.ts";
 import {DateRange} from "@/components/reports/filters/date.range.tsx";
 import {Button} from "@/components/common/input/button.tsx";
@@ -16,13 +17,14 @@ const notNull = <T,>(value: T | null | undefined): value is T =>
   value !== null && value !== undefined;
 
 export const TaxFilter = () => {
+  const { t } = useTranslation('reports');
   const {data: taxesData, isLoading: loadingTaxes} = useApi<SettingsData<Tax>>(Tables.taxes, [], ["name asc"], 0, 9999);
 
   return (
     <form action={REPORTS_TAX} className="flex flex-col gap-3 items-start w-full" target="_blank">
       <DateRange isRequired label="Select a range" />
       <div className="w-full flex flex-col gap-2">
-        <label htmlFor="tax-filter-tax">Tax</label>
+        <label htmlFor="tax-filter-tax">{t('reports.tax')}</label>
         <ReactSelect
           id="tax-filter-tax"
           name="tax_id"
@@ -34,7 +36,7 @@ export const TaxFilter = () => {
             .filter(notNull)}
         />
       </div>
-      <Button variant="primary" filled type="submit">Generate</Button>
+      <Button variant="primary" filled type="submit">{t('filters.generate')}</Button>
     </form>
   );
 };

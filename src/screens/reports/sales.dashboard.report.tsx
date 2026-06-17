@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -148,6 +149,7 @@ const SalesLineChart = ({
   data: SalesDataPoint[];
   isLoading: boolean;
 }) => {
+  const { t } = useTranslation('reports');
   const chartData = useMemo(() => [
     {
       id: 'Sales',
@@ -168,7 +170,7 @@ const SalesLineChart = ({
           <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
             <div className="text-center">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
-              <p className="mt-2 text-sm text-neutral-500">Loading chart...</p>
+              <p className="mt-2 text-sm text-neutral-500">{t('loading.chart')}</p>
             </div>
           </div>
         ) : null}
@@ -259,6 +261,7 @@ const OrdersPerHourChart = ({
   data: SalesDataPoint[];
   isLoading: boolean;
 }) => {
+  const { t } = useTranslation('reports');
   const chartData = useMemo(() => [
     {
       id: 'Orders',
@@ -279,7 +282,7 @@ const OrdersPerHourChart = ({
           <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
             <div className="text-center">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
-              <p className="mt-2 text-sm text-neutral-500">Loading chart...</p>
+              <p className="mt-2 text-sm text-neutral-500">{t('loading.chart')}</p>
             </div>
           </div>
         ) : null}
@@ -459,6 +462,7 @@ const DayPartsWidget = ({dayParts}: {dayParts: {label: string; orders: number; r
 
 
 const CategoryPieWidget = ({categories}: {categories: CategorySales[]}) => {
+  const { t } = useTranslation('reports');
   return (
     <div className="bg-white p-5 rounded-lg shadow-xl border">
       <div className="flex items-center gap-2 mb-4">
@@ -467,7 +471,7 @@ const CategoryPieWidget = ({categories}: {categories: CategorySales[]}) => {
         </div>
         <div>
           <h2 className="text-xl font-bold text-neutral-700">Sales by Category</h2>
-          <p className="text-xs text-neutral-500">Distribution</p>
+          <p className="text-xs text-neutral-500">{t('labels.distribution')}</p>
         </div>
       </div>
       <div className="h-[250px]">
@@ -540,6 +544,7 @@ const BreakdownTabsWidget = ({
   colorClass: {bg: string; text: string};
   countLabel: string;
 }) => {
+  const { t } = useTranslation('reports');
   const [selectedTab, setSelectedTab] = useState<'chart' | 'table'>('chart');
   const chartRows = rows.slice(0, 8).map((row, idx) => ({
     id: row.name,
@@ -563,8 +568,8 @@ const BreakdownTabsWidget = ({
       </div>
       <Tabs selectedKey={selectedTab} onSelectionChange={(key) => setSelectedTab(key as 'chart' | 'table')}>
         <TabList aria-label={`${title} tabs`} className="flex flex-row gap-3 mb-4">
-          <Tab activeClass="bg-neutral-900 text-warning-500" id="chart" key="chart">Chart</Tab>
-          <Tab activeClass="bg-neutral-900 text-warning-500" id="table" key="table">Table</Tab>
+          <Tab activeClass="bg-neutral-900 text-warning-500" id="chart" key="chart">{t('labels.chart')}</Tab>
+          <Tab activeClass="bg-neutral-900 text-warning-500" id="table" key="table">{t('filters.table')}</Tab>
         </TabList>
         <TabPanel id="chart" key="chart">
           <div className="h-[260px]">
@@ -617,9 +622,9 @@ const BreakdownTabsWidget = ({
             <table className="min-w-full divide-y divide-neutral-200">
               <thead className="bg-neutral-50">
                 <tr>
-                  <th className="py-2 px-3 text-left text-xs font-semibold uppercase text-neutral-600">Name</th>
+                  <th className="py-2 px-3 text-left text-xs font-semibold uppercase text-neutral-600">{t('columns.name')}</th>
                   <th className="py-2 px-3 text-right text-xs font-semibold uppercase text-neutral-600">{countLabel}</th>
-                  <th className="py-2 px-3 text-right text-xs font-semibold uppercase text-neutral-600">Amount</th>
+                  <th className="py-2 px-3 text-right text-xs font-semibold uppercase text-neutral-600">{t('columns.amount')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100">
@@ -644,6 +649,7 @@ const BreakdownTabsWidget = ({
 };
 
 const PeriodComparisonSection = ({periodSales}: {periodSales: PeriodSalesItem[]}) => {
+  const { t } = useTranslation('reports');
   return (
     <div className="bg-white p-5 rounded-lg shadow-xl border">
       <div className="flex items-center gap-2 mb-4">
@@ -652,7 +658,7 @@ const PeriodComparisonSection = ({periodSales}: {periodSales: PeriodSalesItem[]}
         </div>
         <div>
           <h2 className="text-xl font-bold text-neutral-700">Period Comparison</h2>
-          <p className="text-xs text-neutral-500">Database-calculated sales snapshots</p>
+          <p className="text-xs text-neutral-500">{t('labels.databaseSnapshots')}</p>
         </div>
       </div>
       <div className="rounded border border-neutral-200 overflow-hidden">
@@ -673,6 +679,7 @@ const PeriodComparisonSection = ({periodSales}: {periodSales: PeriodSalesItem[]}
 };
 
 const ActivitySection = () => {
+  const { t } = useTranslation('reports');
   const [trackingRows, setTrackingRows] = useState<Tracking[]>([]);
   const [trackingLoading, setTrackingLoading] = useState(true);
   const db = useDB();
@@ -700,11 +707,11 @@ const ActivitySection = () => {
 
   return (
     <div className="bg-white p-5 shadow-xl xl:col-span-1 rounded-lg border border-neutral-200">
-      <h3 className="text-lg font-semibold text-neutral-700">Latest Activity</h3>
+      <h3 className="text-lg font-semibold text-neutral-700">{t('labels.latestActivity')}</h3>
       <p className="text-xs text-neutral-500 mb-3">Top 100 records from tracking</p>
       <div className="max-h-[420px] overflow-y-auto rounded-md border border-neutral-200 bg-white">
         {trackingLoading ? (
-          <div className="p-4 text-sm text-neutral-500">Loading latest activity...</div>
+          <div className="p-4 text-sm text-neutral-500">{t('loading.latestActivity')}</div>
         ) : trackingRows.length === 0 ? (
           <div className="p-4 text-sm text-neutral-500">No activity found</div>
         ) : (
@@ -735,6 +742,7 @@ const ActivitySection = () => {
 }
 
 const DeliverySection = ({orders}: {orders: Order[]}) => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const [selectedTab, setSelectedTab] = useState<'map' | 'table'>('map');
   const [mapCenter, setMapCenter] = useState({lat: 0, lng: 0});
@@ -782,7 +790,7 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
         <div className="h-[400px] w-full rounded-lg bg-neutral-100 flex items-center justify-center">
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mb-2"></div>
-            <p className="text-sm text-neutral-500">Loading map...</p>
+            <p className="text-sm text-neutral-500">{t('loading.map')}</p>
           </div>
         </div>
       ) : (
@@ -849,10 +857,10 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
               <tr>
                 <th className="py-3 pl-4 pr-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Order #</th>
                 <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Customer</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Type</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Status</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Time</th>
-                <th className="py-3 pr-4 text-right text-xs font-semibold text-neutral-600 uppercase tracking-wider">Total</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('common:actions.type')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('filters.status')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('common:actions.time')}</th>
+                <th className="py-3 pr-4 text-right text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('columns.total')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 bg-white">
@@ -906,7 +914,7 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
           </div>
           <div>
             <h2 className="text-xl font-bold text-neutral-700">Delivery Orders</h2>
-            <p className="text-xs text-neutral-500">Active deliveries</p>
+            <p className="text-xs text-neutral-500">{t('labels.activeDeliveries')}</p>
           </div>
         </div>
         <span className="bg-primary-100 text-primary-500 text-xs font-semibold px-3 py-1.5 rounded-full">
@@ -920,8 +928,8 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
         onSelectionChange={(key: string) => setSelectedTab(key as 'map' | 'table')}
       >
         <TabList aria-label="Delivery tabs" className="flex flex-row gap-3 mb-4">
-          <Tab activeClass="bg-neutral-900 text-warning-500" id="map" key="map">Map View</Tab>
-          <Tab activeClass="bg-neutral-900 text-warning-500" id="table" key="table">Table View</Tab>
+          <Tab activeClass="bg-neutral-900 text-warning-500" id="map" key="map">{t('labels.mapView')}</Tab>
+          <Tab activeClass="bg-neutral-900 text-warning-500" id="table" key="table">{t('labels.tableView')}</Tab>
         </TabList>
         <TabPanel id="map" key="map">
           {tabs.map.component}
@@ -935,6 +943,7 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
 };
 
 const UserSessionsWidget = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const [sessions, setSessions] = useState<{
     user: string;
@@ -1028,7 +1037,7 @@ const UserSessionsWidget = () => {
           </div>
           <div>
             <h2 className="text-xl font-bold text-neutral-700">User Sessions</h2>
-            <p className="text-xs text-neutral-500">Latest time entries</p>
+            <p className="text-xs text-neutral-500">{t('labels.latestTimeEntries')}</p>
           </div>
         </div>
         <span className="bg-info-100 text-info-500 text-xs font-semibold px-3 py-1.5 rounded-full">
@@ -1039,13 +1048,13 @@ const UserSessionsWidget = () => {
         <table className="min-w-full divide-y divide-neutral-200">
           <thead className="bg-neutral-50">
             <tr>
-              <th className="py-3 pl-4 pr-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">User</th>
+              <th className="py-3 pl-4 pr-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('filters.user')}</th>
               <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Role</th>
               <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Shift</th>
               <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Clock In</th>
               <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Clock Out</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Duration</th>
-              <th className="py-3 pr-4 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Status</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('columns.duration')}</th>
+              <th className="py-3 pr-4 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('filters.status')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100 bg-white">
@@ -1054,7 +1063,7 @@ const UserSessionsWidget = () => {
                 <td colSpan={7} className="py-8 text-center">
                   <div className="flex items-center justify-center">
                     <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500 mr-2"></div>
-                    <span className="text-sm text-neutral-500">Loading sessions...</span>
+                    <span className="text-sm text-neutral-500">{t('loading.sessions')}</span>
                   </div>
                 </td>
               </tr>
@@ -1117,6 +1126,7 @@ const UserSessionsWidget = () => {
 };
 
 const LatestOrdersTable = ({orders}: {orders: Order[]}) => {
+  const { t } = useTranslation('reports');
   return (
     <div className="bg-white p-5 rounded-lg shadow-xl border">
       <div className="flex items-center gap-2 mb-4">
@@ -1124,22 +1134,22 @@ const LatestOrdersTable = ({orders}: {orders: Order[]}) => {
           <Clock className="w-5 h-5 text-neutral-600" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-neutral-700">Latest Orders</h2>
-          <p className="text-xs text-neutral-500">Last 10 orders</p>
+          <h2 className="text-xl font-bold text-neutral-700">{t('labels.latestOrders')}</h2>
+          <p className="text-xs text-neutral-500">{t('labels.last10Orders')}</p>
         </div>
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200">
           <thead className="bg-neutral-50">
             <tr>
-              <th className="py-3 pl-4 pr-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Invoice #</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Cashier</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Type</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Status</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Table</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Items</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Time</th>
-              <th className="py-3 pr-4 text-right text-xs font-semibold text-neutral-600 uppercase tracking-wider">Total</th>
+              <th className="py-3 pl-4 pr-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('columns.invoice')}</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('metrics.cashier')}</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('common:actions.type')}</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('filters.status')}</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('filters.table')}</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('columns.items')}</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('common:actions.time')}</th>
+              <th className="py-3 pr-4 text-right text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('columns.total')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100 bg-white">
@@ -1198,6 +1208,7 @@ const LatestOrdersTable = ({orders}: {orders: Order[]}) => {
 
 // ==================== Main Component ====================
 export const SalesDashboardReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -1303,16 +1314,16 @@ export const SalesDashboardReport = () => {
           {label: 'This period last year', amount: thisPeriodLastYear},
           {label: 'Yesterday sale', amount: yesterdaySale},
           {label: 'This week sale', amount: thisWeekSale},
-          {label: 'Last week sale', amount: lastWeekSale},
+          {label: t('labels.lastWeekSale'), amount: lastWeekSale},
           {label: 'This month sale', amount: thisMonthSale},
-          {label: 'Last month sale', amount: lastMonthSale},
+          {label: t('labels.lastMonthSale'), amount: lastMonthSale},
           {label: 'This year sale', amount: thisYearSale},
-          {label: 'Last year sale', amount: lastYearSale},
-          {label: 'All time sale', amount: allTimeSale},
+          {label: t('labels.lastYearSale'), amount: lastYearSale},
+          {label: t('labels.allTimeSale'), amount: allTimeSale},
         ]);
       } catch (err) {
         console.error("Failed to load sales dashboard", err);
-        setError(err instanceof Error ? err.message : "Unable to load report");
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
       } finally {
         setLoading(false);
       }
@@ -1575,20 +1586,20 @@ export const SalesDashboardReport = () => {
 
   if (error) {
     return (
-      <ReportsLayout title="Sales dashboard">
+      <ReportsLayout title={t('reports.salesDashboard')}>
         <div className="py-12 text-center text-danger-500">Failed to load dashboard: {error}</div>
       </ReportsLayout>
     );
   }
 
   return (
-    <ReportsLayout title="Sales dashboard" subtitle={reportTitle}>
+    <ReportsLayout title={t('reports.salesDashboard')} subtitle={reportTitle}>
       <div className="space-y-5">
         {/* KPI Metrics Grid - Matching clock.tsx style */}
         <div className="rounded-lg shadow-xl border">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 p-5">
             <KPIMetricWidget
-              title="Gross Sale"
+              title={t('labels.grossSale')}
               value={withCurrency(kpis.grossSale)}
               icon={DollarSign}
               gradientFrom="from-success-100"
@@ -1628,7 +1639,7 @@ export const SalesDashboardReport = () => {
               labelColor="text-primary-700"
             />
             <KPIMetricWidget
-              title="Tax"
+              title={t('reports.tax')}
               value={withCurrency(kpis.tax)}
               icon={Hash}
               gradientFrom="from-info-100"
@@ -1638,7 +1649,7 @@ export const SalesDashboardReport = () => {
               labelColor="text-info-700"
             />
             <KPIMetricWidget
-              title="Discount"
+              title={t('reports.discount')}
               value={withCurrency(kpis.discount)}
               icon={Tag}
               gradientFrom="from-warning-100"
@@ -1648,7 +1659,7 @@ export const SalesDashboardReport = () => {
               labelColor="text-warning-700"
             />
             <KPIMetricWidget
-              title="Void"
+              title={t('columns.void')}
               value={withCurrency(kpis.void)}
               icon={Trash2}
               gradientFrom="from-danger-100"
@@ -1728,7 +1739,7 @@ export const SalesDashboardReport = () => {
               labelColor="text-warning-700"
             />
             <KPIMetricWidget
-              title="Tips"
+              title={t('reports.tips')}
               value={withCurrency(kpis.tips)}
               icon={DollarSign}
               gradientFrom="from-primary-100"
@@ -1738,7 +1749,7 @@ export const SalesDashboardReport = () => {
               labelColor="text-primary-700"
             />
             <KPIMetricWidget
-              title="Coupon"
+              title={t('reports.coupon')}
               value={withCurrency(kpis.coupon)}
               icon={Tag}
               gradientFrom="from-danger-100"

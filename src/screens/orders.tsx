@@ -30,8 +30,11 @@ import {OrderMerge, OrderMergeCreatePayload} from "@/api/model/order_merge.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
+import {useTranslation} from "react-i18next";
+import {translateOrderStatus} from "@/lib/order.ts";
 
 export const Orders = () => {
+  const {t} = useTranslation('orders');
   const db = useDB();
   const [liveQuery, setLiveQuery] = useState<LiveSubscription | null>(null);
 
@@ -179,7 +182,7 @@ export const Orders = () => {
         ...prev,
         opened: true,
         type: 'error',
-        message: 'Please choose a new table'
+        message: t('merge.chooseTableAlert')
       }))
 
       return;
@@ -266,7 +269,7 @@ export const Orders = () => {
         user: app?.user,
       });
 
-      toast.success(`Successfully merged into ${mergedOrder[0].invoice_number}`);
+      toast.success(t('merge.success', {invoiceNumber: mergedOrder[0].invoice_number}));
 
       // reset to default
       setMerging(false);
@@ -275,7 +278,7 @@ export const Orders = () => {
 
     } catch (error) {
       console.error('Error creating merging orders:', error);
-      toast.error('Failed to create merging orders');
+      toast.error(t('merge.failed'));
     } finally {
       setIsSaving(false);
     }
@@ -288,11 +291,11 @@ export const Orders = () => {
           <div className="min-w-[200px]">
             <ReactSelect
               options={[OrderStatus["In Progress"], OrderStatus.Paid, OrderStatus.Cancelled, OrderStatus.Spilt, OrderStatus.Merged].map(item => ({
-                label: item,
+                label: translateOrderStatus(t, item),
                 value: item
               }))}
               isMulti
-              placeholder="Select order status"
+              placeholder={t('filters.status')}
               value={selectedOrderFilters.statuses}
               onChange={(value: LabelValue[]) => updateOrderFilter('statuses', value)}
             />
@@ -304,7 +307,7 @@ export const Orders = () => {
                 value: item.id
               }))}
               isMulti
-              placeholder="Select order types"
+              placeholder={t('filters.orderTypes')}
               value={selectedOrderFilters.orderTypes}
               onChange={(value: LabelValue[]) => updateOrderFilter('orderTypes', value)}
             />
@@ -316,7 +319,7 @@ export const Orders = () => {
                 value: item.id
               }))}
               isMulti
-              placeholder="Select floors"
+              placeholder={t('filters.floors')}
               value={selectedOrderFilters.floors}
               onChange={(value: LabelValue[]) => updateOrderFilter('floors', value)}
             />
@@ -328,7 +331,7 @@ export const Orders = () => {
                 value: item.id
               }))}
               isMulti
-              placeholder="Select users"
+              placeholder={t('filters.users')}
               value={selectedOrderFilters.users}
               onChange={(value: LabelValue[]) => updateOrderFilter('users', value)}
             />
@@ -339,10 +342,10 @@ export const Orders = () => {
           <div className="input-group flex-1 justify-end">
             <Button icon={faTableColumns} variant="primary" onClick={() => setView('column')}
                     active={view === 'column'}>
-              Blocks
+              {t('view.blocks')}
             </Button>
             <Button icon={faBars} variant="primary" onClick={() => setView('row')} active={view === 'row'}>
-              Table
+              {t('view.table')}
             </Button>
           </div>
         </div>
@@ -389,8 +392,7 @@ export const Orders = () => {
           {merging && (
             <div className="flex gap-5">
               <Dropdown
-                label={<><FontAwesomeIcon icon={faChair} className="mr-3"/> Choose a
-                  table {selectedTable ? `(${selectedTable.name}${selectedTable.number})` : ''}</>}
+                label={<><FontAwesomeIcon icon={faChair} className="mr-3"/> {t('merge.chooseTable')}{selectedTable ? ` (${selectedTable.name}${selectedTable.number})` : ''}</>}
                 btnSize="lg"
                 className="flex-1 h-[300px] overflow-auto"
                 onAction={(key) => {
@@ -412,15 +414,14 @@ export const Orders = () => {
                 onClick={confirmMerge}
                 isLoading={isSaving}
               >
-                {mergingOrders.length <= 1 ? 'Select 2 or more orders' : <>Confirm merging
-                  of {mergingOrders.length} orders</>}
+                {mergingOrders.length <= 1 ? t('merge.selectTwoOrMore') : t('merge.confirmMerging', {count: mergingOrders.length})}
               </Button>
 
               <Button flat size="lg" variant="danger" onClick={() => {
                 setMerging(false);
                 setMergingOrders([]);
               }}>
-                Cancel merging
+                {t('merge.cancelMerging')}
               </Button>
             </div>
           )}

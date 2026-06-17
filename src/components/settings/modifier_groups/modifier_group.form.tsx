@@ -5,6 +5,8 @@ import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
 import { toast } from 'sonner';
+import {useTranslation} from 'react-i18next';
+import i18n from '@/lib/i18n.ts';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {useCallback, useEffect, useMemo, useState} from "react";
@@ -37,14 +39,14 @@ interface Props {
 }
 
 const validationSchema = yup.object({
-  name: yup.string().required("This is required"),
-  priority: yup.string().required("This is required"),
+  name: yup.string().required(i18n.t('validation:required')),
+  priority: yup.string().required(i18n.t('validation:required')),
   modifiers: yup.array(yup.object({
     modifier: yup.object({
       label: yup.string(),
       value: yup.string()
-    }).default(undefined).required('This is required'),
-    price: yup.number().required('This is required'),
+    }).default(undefined).required(i18n.t('validation:required')),
+    price: yup.number().required(i18n.t('validation:required')),
     allowed_next_groups: yup.array(yup.string()).default([]),
     next_group_overrides: yup.array(yup.object({
       group_id: yup.string().required(),
@@ -54,7 +56,7 @@ const validationSchema = yup.object({
         hidden: yup.boolean().default(false),
       })).default([])
     })).default([])
-  })).min(1, 'This is required')
+  })).min(1, i18n.t('validation:required'))
 });
 
 const ModifierNextGroups = ({
@@ -68,6 +70,7 @@ const ModifierNextGroups = ({
   setValue: ReturnType<typeof useForm>['setValue']
   db: ReturnType<typeof useDB>
 }) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
   const modifier = useWatch({ control, name: `modifiers.${index}.modifier` });
   const allowedNextGroups: string[] = useWatch({ control, name: `modifiers.${index}.allowed_next_groups` }) ?? [];
   const nextGroupOverrides: ModifierNextGroupOverride[] = useWatch({
@@ -126,7 +129,7 @@ const ModifierNextGroups = ({
   if (loading) {
     return (
       <p className="text-sm text-neutral-500 col-span-full">
-        Loading modifier groups…
+        {t('forms.loadingModifierGroups')}
       </p>
     );
   }
@@ -134,7 +137,7 @@ const ModifierNextGroups = ({
   if (attachableGroups.length === 0) {
     return (
       <p className="text-sm text-neutral-500 col-span-full">
-        Attach modifier groups on the dish settings first.
+        {t('forms.attachModifierGroupsFirst')}
       </p>
     );
   }
@@ -156,7 +159,7 @@ const ModifierNextGroups = ({
   return (
     <>
       <div className="col-span-full">
-        <label className="text-sm font-medium">Next modifier groups</label>
+        <label className="text-sm font-medium">{t('forms.nextModifierGroups')}</label>
         <div className="flex flex-col gap-2">
           {attachableGroups.map((row) => {
             const groupId = row.out.id.toString();
@@ -230,9 +233,8 @@ const ModifierNextGroups = ({
   );
 };
 
-export const ModifierGroupForm = ({
-  open, onClose, data
-}: Props) => {
+export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
   const closeModal = () => {
     onClose();
   }
@@ -365,7 +367,7 @@ export const ModifierGroupForm = ({
       }
 
       closeModal();
-      toast.success(`Modifier group ${values.name} saved`);
+      toast.success(t('toast:admin.modifierGroupSaved', { name: values.name }));
     } catch (e) {
       toast.error(e);
       console.log(e)
@@ -377,7 +379,7 @@ export const ModifierGroupForm = ({
   return (
     <>
       <Modal
-        title={data ? `Update ${data?.name}` : 'Create new modifier group'}
+        title={data ? t('forms.updateModifierGroup', { name: data?.name }) : t('forms.createModifierGroup')}
         open={open}
         onClose={closeModal}
         size="lg"
@@ -385,14 +387,14 @@ export const ModifierGroupForm = ({
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-3 flex gap-3">
             <div>
-              <Input label="Name" {...register('name')} autoFocus error={errors?.name?.message}/>
+              <Input label={t('columns.name')} {...register('name')} autoFocus error={errors?.name?.message}/>
             </div>
             <div>
               <Controller
                 render={({ field }) => (
                   <Input
                     type="number"
-                    label="Priority"
+                    label={t('columns.priority')}
                     error={errors?.priority?.message}
                     value={field.value}
                     onChange={field.onChange}
@@ -466,7 +468,7 @@ export const ModifierGroupForm = ({
                       render={({ field }) => (
                         <Input
                           type="number"
-                          label="Price"
+                          label={t('common:actions.price')}
                           value={field.value}
                           onChange={field.onChange}
                         />
@@ -491,7 +493,7 @@ export const ModifierGroupForm = ({
           </div>
 
           <div>
-            <Button type="submit" variant="primary">Save</Button>
+            <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
           </div>
         </form>
       </Modal>

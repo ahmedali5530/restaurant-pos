@@ -1,6 +1,7 @@
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {useEffect, useState, useMemo, useRef} from "react";
+import { useTranslation } from 'react-i18next';
 import {Tables} from "@/api/db/tables.ts";
 import {Order} from "@/api/model/order.ts";
 import {TimeEntry} from "@/api/model/time_entry.ts";
@@ -23,6 +24,7 @@ interface HourlyData {
 }
 
 export const SalesHourlyLabourReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -248,15 +250,15 @@ export const SalesHourlyLabourReport = () => {
 
   if (loading) {
     return (
-      <ReportsLayout title="Sales Hourly Labour" subtitle={subtitle}>
-        <div className="text-center p-8">Loading...</div>
+      <ReportsLayout title={t('reports.salesHourlyLabour')} subtitle={subtitle}>
+        <div className="text-center p-8">{t('common:actions.loading')}</div>
       </ReportsLayout>
     );
   }
 
   if (error) {
     return (
-      <ReportsLayout title="Sales Hourly Labour" subtitle={subtitle}>
+      <ReportsLayout title={t('reports.salesHourlyLabour')} subtitle={subtitle}>
         <div className="text-center p-8 text-red-600">Error: {error}</div>
       </ReportsLayout>
     );
@@ -264,21 +266,21 @@ export const SalesHourlyLabourReport = () => {
 
   return (
     <ReportsLayout
-      title="Sales Hourly Labour"
+      title={t('reports.salesHourlyLabour')}
       subtitle={subtitle}
     >
       <table className="table table-hover">
         <thead>
           <tr>
             <th>Start Time</th>
-            <th className="text-right">Amount Collected</th>
-            <th className="text-right">Gross Sale</th>
-            <th className="text-right">Coupon Amount</th>
-            <th className="text-right">Guests</th>
-            <th className="text-right">Guest Avg</th>
-            <th className="text-right">Checks</th>
-            <th className="text-right">Check Avg</th>
-            <th className="text-right">Labour Hours (mins)</th>
+            <th className="text-right">{t('labels.amountCollected')}</th>
+            <th className="text-right">{t('labels.grossSale')}</th>
+            <th className="text-right">{t('metrics.couponAmount')}</th>
+            <th className="text-right">{t('columns.guests')}</th>
+            <th className="text-right">{t('labels.guestAvg')}</th>
+            <th className="text-right">{t('columns.checks')}</th>
+            <th className="text-right">{t('metrics.checkAvg')}</th>
+            <th className="text-right">{t('metrics.labourHoursMins')}</th>
           </tr>
         </thead>
         <tbody>

@@ -10,9 +10,11 @@ import { TableComponent } from "@/components/common/table/table.tsx";
 import { PaymentTypeForm } from "@/components/settings/payment_types/payment_type.form.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
+import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminPaymentTypes = () => {
+  const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<PaymentType>>(Tables.payment_types, ['deleted_at = none'], ['priority asc'], 0, 10, ['tax', 'discounts', 'gateway_config']);
   const db = useDB();
 
@@ -23,25 +25,25 @@ export const AdminPaymentTypes = () => {
 
   const columns: any = [
     columnHelper.accessor("name", {
-      header: 'Name'
+      header: t('columns.name')
     }),
     columnHelper.accessor("type", {
-      header: 'Type'
+      header: t('columns.type')
     }),
     columnHelper.accessor("gateway", {
-      header: 'Gateway',
+      header: t('columns.gateway'),
       cell: info => info.getValue() ? <div className="flex flex-wrap gap-2"><span className="tag">{info.getValue()}</span></div> : <span>-</span>
     }),
     columnHelper.accessor("gateway_mode", {
-      header: 'Mode',
+      header: t('columns.mode'),
       cell: info => info.getValue() ? <div className="flex gap-2 flex-wrap"><span className="tag">{info.getValue()}</span></div> : <span>-</span>
     }),
     columnHelper.accessor("tax", {
-      header: 'Tax',
+      header: t('columns.tax'),
       cell: info => info.getValue() && <div className="flex gap-2 flex-wrap"><span className="tag">{info.getValue()?.name} {info.getValue()?.rate}%</span></div>
     }),
     columnHelper.accessor("discounts", {
-      header: 'Discounts',
+      header: t('columns.discounts'),
       cell: info => <div className="flex gap-2 flex-wrap">
         {info.getValue()?.map((item, index) => (
           <span className="tag" key={`${item.id}-${index}`}>{item.name}</span>
@@ -49,11 +51,11 @@ export const AdminPaymentTypes = () => {
       </div>,
     }),
     columnHelper.accessor("priority", {
-      header: 'Priority'
+      header: t('columns.priority')
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {
@@ -68,7 +70,7 @@ export const AdminPaymentTypes = () => {
             ><FontAwesomeIcon icon={faPencil}/></Button>
             <div className="separator"></div>
             <DeleteConfirm
-              message={`Delete payment type ${info.row.original.name}`}
+              message={t('delete.paymentType', { name: info.row.original.name })}
               onConfirm={() => deleteItem(info.row.original.id)}
             />
           </div>
@@ -81,7 +83,7 @@ export const AdminPaymentTypes = () => {
     await executeSettingsDelete({
       db,
       id,
-      entityLabel: 'Payment type',
+      entityLabel: t('entities.paymentType'),
       usageChecks: [
         {
           query: `SELECT count() AS count FROM ${Tables.tables} WHERE payment_types ?= $idRecord GROUP ALL`
@@ -105,7 +107,7 @@ export const AdminPaymentTypes = () => {
         buttons={[
           <Button variant="primary" onClick={() => {
             setFormModal(true);
-          }} icon={faPlus}> Payment type</Button>
+          }} icon={faPlus}>{t('buttons.paymentType')}</Button>
         ]}
       />
 

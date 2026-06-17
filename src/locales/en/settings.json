@@ -1,0 +1,91 @@
+{
+  "language": {
+    "title": "Language",
+    "description": "Choose the display language for this device. Only applies to this device.",
+    "changed": "Language updated"
+  },
+  "direction": {
+    "title": "Text direction",
+    "description": "Choose left-to-right or right-to-left layout for this device.",
+    "ltr": "LTR",
+    "rtl": "RTL"
+  },
+  "touch": {
+    "title": "On screen keyboard",
+    "description": "Enable or disable on screen keyboard. Only applies to this device."
+  },
+  "cache": {
+    "title": "Cache",
+    "description": "Current cache size by dataset.",
+    "reload": "Reload cache",
+    "orderTypes": "Order types",
+    "categories": "Categories",
+    "dishes": "Dishes",
+    "modifierGroups": "Modifier groups",
+    "groupDishes": "Group dishes",
+    "floors": "Floors",
+    "tables": "Tables",
+    "kitchens": "Kitchens",
+    "paymentTypes": "Payment types",
+    "reloaded": "Cache reloaded from database",
+    "reloadFailed": "Failed to reload cache"
+  },
+  "serviceCharges": {
+    "title": "Service charges",
+    "updated": "Service charges updated",
+    "saveDescription": "Save service charges"
+  },
+  "printers": {
+    "title": "Default printers",
+    "description": "Printer assignments are stored per user. Each user can assign printers for temp, final, refund, delivery, and summary. If you have not set any, global settings are used as fallback.",
+    "loading": "Loading printer settings…",
+    "tempPrint": "Printers for temp print",
+    "finalPrint": "Printers for final print",
+    "refundPrint": "Printers for refund print",
+    "deliveryPrint": "Printers for delivery print",
+    "summaryPrint": "Printers for summary print",
+    "selectPrinters": "Select printers…",
+    "saving": "Saving…",
+    "save": "Save printer settings",
+    "saveDescription": "Save printers",
+    "loadFailed": "Failed to load printer settings",
+    "loginRequired": "Please log in to save printer settings.",
+    "saved": "Printer settings saved",
+    "saveFailed": "Failed to save printer settings"
+  },
+  "menus": {
+    "title": "Menu settings",
+    "activateMenus": "Activate menus",
+    "selectMenus": "Select menus…",
+    "loading": "Loading menu settings…",
+    "saving": "Saving…",
+    "save": "Save menu settings",
+    "saveDescription": "Save menus",
+    "loadFailed": "Failed to load menu settings",
+    "loginRequired": "Please log in to save menu settings.",
+    "saved": "Menu settings saved",
+    "saveFailed": "Failed to save menu settings"
+  },
+  "tableSelection": {
+    "title": "Hide table selection from menu",
+    "description": "Skip table selection and open the menu directly. Only applies to this device. Suitable for takeaway based ordering"
+  },
+  "autoCheckClose": {
+    "title": "Auto check close",
+    "description": "Automatically close open table checks at closing cycle end time. Delivery orders are excluded. A warning appears 1 minute before close.",
+    "printOnClose": "Print final bill on close",
+    "paymentType": "Payment type",
+    "paymentTypeRequired": "Payment type is required when auto close is enabled",
+    "paymentTypeRequiredField": "Payment type is required",
+    "updated": "Auto check close settings updated",
+    "saveDescription": "Save auto check close settings"
+  },
+  "closingCycle": {
+    "title": "Closing cycle",
+    "description": "Configure cycle start and end time. End time can be next day (example: 06:00 to 02:00).",
+    "startTime": "Start time",
+    "endTime": "End time",
+    "updated": "Closing cycle settings updated",
+    "saveDescription": "Save closing cycle settings"
+  }
+}

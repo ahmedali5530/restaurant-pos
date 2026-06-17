@@ -13,9 +13,12 @@ import {getInvoiceNumber} from "@/lib/order.ts";
 import ScrollContainer from "react-indiana-drag-scroll";
 import { nowSurrealDateTime } from "@/lib/datetime.ts";
 import {toast} from "sonner";
+import {useTranslation} from "react-i18next";
+import i18n from "@/lib/i18n.ts";
 
 export const MenuHeader = () => {
   const db = useDB();
+  const { t } = useTranslation('menu');
 
   const [state, setState] = useAtom(appState);
   const [setting] = useAtom(appSettings);
@@ -89,7 +92,7 @@ export const MenuHeader = () => {
   const onOrderClick = (key: string) => {
     if (key === 'new') {
       if (orderTakingBlocked) {
-        toast.warning(enforcement.message ?? "Order taking is currently disabled.");
+        toast.warning(enforcement.message ?? i18n.t('closing:orderTakingDisabled'));
         return;
       }
 
@@ -193,7 +196,7 @@ export const MenuHeader = () => {
                       size="lg"
                       active={state?.order?.id?.toString() === order?.id.toString()}
                     >
-                      Order# {getInvoiceNumber(order)}
+                      {t('header.orderNumber', { number: getInvoiceNumber(order) })}
                     </Button>
                   ))}
                 </div>
@@ -206,7 +209,7 @@ export const MenuHeader = () => {
                 disabled={orderTakingBlocked}
                 onClick={() => onOrderClick('new')}
                 icon={faPlus}
-              >New Order</Button>
+              >{t('header.newOrder')}</Button>
             </>
           ) : null}
 
@@ -223,17 +226,17 @@ export const MenuHeader = () => {
                   onClick={openPersons}
                   icon={faUsers}
           >
-            {state?.persons} PAX
+            {t('header.pax', { count: Number(state?.persons) || 0 })}
           </Button>
 
           <div className="input-group">
             <Button flat variant="primary" size="lg" icon={faUser} onClick={() => setCustomerModal(true)}>
-              {state?.customer ? state.customer?.name : 'Customer'}
+              {state?.customer ? state.customer?.name : t('header.customer')}
             </Button>
           </div>
           {state.cart.filter(item => item.newOrOld === MenuItemType.new).length > 0 && (
             <Button variant="danger" className="flex-1" size="lg" icon={faTimes} onClick={clear}
-            >Clear</Button>
+            >{t('header.clear')}</Button>
           )}
         </div>
 
@@ -267,7 +270,7 @@ export const MenuHeader = () => {
         onClose={() => {
           setCustomerModal(false)
         }}
-        title={state?.customer?.name || 'Select a customer'}
+        title={state?.customer?.name || t('header.selectCustomer')}
         size="md"
       >
         <Customers onAttach={() => {
@@ -281,12 +284,11 @@ export const MenuHeader = () => {
           onClose={() => {
             setConfirmCartAction(false)
           }}
-          title="Please confirm"
+          title={t('header.confirmTitle')}
           size="sm"
         >
           <div className="alert alert-danger">
-            There {newCartItems > 1 ? 'are' : 'is'} {newCartItems} item{newCartItems > 1 ? 's' : ''} in
-            cart, choose an action
+            {t('header.confirmCartMessage', { count: newCartItems })}
           </div>
           <Payment/>
         </Modal>

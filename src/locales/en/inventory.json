@@ -1,0 +1,140 @@
+{
+  "tabs": {
+    "inventory": "Inventory",
+    "items": "Items",
+    "suppliers": "Suppliers",
+    "categories": "Item Categories",
+    "stores": "Stores",
+    "itemGroups": "Item Groups",
+    "purchaseOrders": "Purchase Orders",
+    "purchases": "Purchases",
+    "purchaseReturns": "Purchase Returns",
+    "issues": "Issues",
+    "issueReturns": "Issue Returns",
+    "wastes": "Wastes"
+  },
+  "security": {
+    "accessTab": "Access {{module}}"
+  },
+  "columns": {
+    "name": "Name",
+    "code": "Code",
+    "category": "Category",
+    "uom": "Unit of measurement",
+    "baseQuantity": "Base quantity",
+    "price": "Price",
+    "averagePrice": "Average price",
+    "avgPrice": "Avg Price",
+    "stores": "Stores",
+    "suppliers": "Suppliers",
+    "actions": "Actions",
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "priority": "Priority",
+    "mainItem": "Main item",
+    "subItems": "Sub items",
+    "invoiceNumber": "Invoice #",
+    "poNumber": "PO #",
+    "status": "Status",
+    "createdAt": "Created at",
+    "items": "Items",
+    "purchaseInvoice": "Purchase invoice #",
+    "issueNumber": "Issue#",
+    "returnNumber": "Return#",
+    "issuance": "Issuance",
+    "issuedTo": "Issued to",
+    "kitchen": "Kitchen",
+    "createdBy": "Created by",
+    "source": "Source"
+  },
+  "buttons": {
+    "item": "Item",
+    "import": "Import",
+    "view": "View",
+    "upload": "Upload"
+  },
+  "forms": {
+    "createItem": "Create new item",
+    "createCategory": "Create new category",
+    "createSupplier": "Create new supplier",
+    "createStore": "Create new store",
+    "createIssue": "Create new issue",
+    "createIssueReturn": "Create new issue return",
+    "createWaste": "Create new waste",
+    "createPurchase": "Create new purchase",
+    "createPurchaseReturn": "Create new purchase return",
+    "createPurchaseOrder": "Create new purchase order",
+    "createItemGroup": "Create new item group",
+    "nameOfItem": "Name of item",
+    "invoiceNumber": "Invoice number",
+    "returnInvoiceNumber": "Return invoice number",
+    "poNumber": "PO Number",
+    "date": "Date",
+    "comments": "Comments",
+    "quantity": "Quantity",
+    "requested": "Requested",
+    "issued": "Issued",
+    "returnedQuantity": "Returned quantity",
+    "expiryDate": "Expiry date",
+    "manufacturingDate": "Manufacturing date",
+    "storeInventory": "{{name}} store"
+  },
+  "validation": {
+    "required": "This is required",
+    "number": "This should be a number",
+    "selectStore": "Select at least one store",
+    "addItem": "Add at least one item",
+    "addSubItem": "Add at least one sub item",
+    "selectPurchaseMethod": "Please select a purchase method",
+    "storeRequired": "Store is required",
+    "supplierRequired": "Supplier is required",
+    "selectSourceType": "Select source type",
+    "selectSource": "Select a source",
+    "quantityMin": "Quantity must be at least 1",
+    "atLeastOneItem": "At least one item is required",
+    "invalidCategory": "Invalid category \"{{name}}\"",
+    "invalidStore": "Invalid store \"{{name}}\"",
+    "invalidSupplier": "Invalid supplier \"{{name}}\""
+  },
+  "csv": {
+    "uploadTitle": "Add items using CSV file"
+  },
+  "modals": {
+    "viewPurchase": "View purchase",
+    "viewIssue": "View issue",
+    "viewIssueReturn": "View issue return",
+    "viewWaste": "View waste",
+    "viewPurchaseReturn": "View purchase return",
+    "viewPurchaseOrder": "View purchase order"
+  },
+  "summary": {
+    "title": "Inventory Summary"
+  },
+  "purchaseMethod": {
+    "title": "Purchase method"
+  },
+  "sourceType": {
+    "purchase": "Purchase",
+    "issue": "Issue"
+  },
+  "status": {
+    "draft": "Draft",
+    "approved": "Approved",
+    "received": "Received",
+    "cancelled": "Cancelled"
+  },
+  "upload": {
+    "attachDocuments": "Attached documents"
+  },
+  "purchaseMethods": {
+    "manual": "Manual",
+    "csv": "CSV",
+    "purchaseOrder": "Purchase order"
+  },
+  "uploadViaDocument": "Upload via document",
+  "itemName": "Item name",
+  "itemCode": "Item code",
+  "syncFromPo": "Items are synchronized from the selected purchase order. Switch back to Manual to edit the list.",
+  "syncFromCsv": "Upload a CSV to import items later. Switch back to Manual to edit the list here."
+}

@@ -3,10 +3,12 @@ import {useAtom} from "jotai";
 import {appAlert} from "@/store/jotai.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import colors from 'tailwindcss/colors';
+import { useTranslation } from "react-i18next";
 
 
 export const Alert = () => {
   const [state, setState] = useAtom(appAlert);
+  const { t } = useTranslation('common');
 
   const closeDialog = async () => {
     setState(prev => ({
@@ -33,7 +35,7 @@ export const Alert = () => {
 
   return (
     <Modal
-      title={state.type}
+      title={t(`actions.${state.type}`)}
       shouldCloseOnOverlayClick
       open={state.opened}
       size="sm"

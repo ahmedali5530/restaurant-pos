@@ -1,0 +1,125 @@
+{
+  "labels": {
+    "subTotal": "Subtotal ({{count}})",
+    "total": "Total"
+  },
+  "actions": {
+    "toKitchen": "A cocina",
+    "payNow": "Pagar ahora",
+    "cancel": "Cancelar"
+  },
+  "errors": {
+    "createOrder": "No se pudo crear el pedido.",
+    "openPayment": "No se pudo abrir el pago."
+  },
+  "tracking": {
+    "createOrder": "Crear pedido",
+    "appendOrder": "Agregar al pedido"
+  },
+  "print": {
+    "kitchenTitle": "Impresión de cocina"
+  },
+  "title": "Pedido#{{invoice}}",
+  "tabs": {
+    "tax": "Impuesto",
+    "taxWithRate": "Impuesto ({{name}} {{rate}}%)",
+    "discount": "Descuento",
+    "coupon": "Cupón",
+    "serviceCharges": "Cargos por servicio ({{value}}{{unit}})",
+    "tip": "Propina ({{value}}{{unit}})",
+    "notes": "Notas",
+    "total": "Total"
+  },
+  "totals": {
+    "items": "Artículos ({{count}})"
+  },
+  "tax": {
+    "noTax": "Sin impuesto"
+  },
+  "discount": {
+    "noDiscount": "Sin descuento",
+    "label": "Descuento",
+    "withMaxCap": "con tope máximo de {{amount}}"
+  },
+  "coupon": {
+    "codeLabel": "Código de cupón",
+    "applied": "Cupón aplicado: {{code}}",
+    "discount": "Descuento: {{amount}}",
+    "discountFromCoupon": "Descuento del cupón: {{amount}}",
+    "errors": {
+      "notFound": "Cupón no encontrado o inactivo",
+      "unsupportedType": "Este tipo de cupón no es compatible con pedidos",
+      "belowMinimum": "El total del pedido está por debajo del importe mínimo para este cupón",
+      "notValidToday": "El cupón no es válido hoy",
+      "notValidTime": "El cupón no es válido a esta hora",
+      "notActiveYet": "El cupón aún no está activo",
+      "expired": "El cupón ha expirado",
+      "usageLimitReached": "Se alcanzó el límite de uso del cupón",
+      "userLimitReached": "Ha alcanzado el límite de uso de este cupón",
+      "firstOrderOnly": "Este cupón solo es válido en el primer pedido",
+      "notStackable": "Este cupón no puede usarse junto con otros descuentos",
+      "noDiscount": "Este cupón no proporciona ningún descuento para este pedido"
+    },
+    "appliedSuccess": "Cupón aplicado"
+  },
+  "serviceCharges": {
+    "defaultFromSettings": "Predeterminado de la configuración:",
+    "noServiceCharge": "Sin cargo por servicio"
+  },
+  "tip": {
+    "noTip": "Sin propina"
+  },
+  "notes": {
+    "title": "Notas adicionales",
+    "hint": "Puede escribir números de tarjeta o descuentos"
+  },
+  "receiving": {
+    "remaining": "Restante",
+    "change": "Cambio",
+    "tempBill": "Factura temporal",
+    "complete": "Completar",
+    "cannotAddCard": "No se puede agregar más pago con tarjeta",
+    "exactCardAmount": "Se agregó el importe exacto para pago con tarjeta"
+  },
+  "remote": {
+    "remoteLabel": "{{name}} (Remoto)",
+    "status": "Estado: {{status}}",
+    "openLink": "Abrir enlace",
+    "verify": "Verificar"
+  },
+  "discountType": {
+    "percent": "Porcentaje",
+    "fixed": "Fijo"
+  },
+  "remoteGateway": {
+    "missingProvider": "El tipo de pago remoto no tiene un proveedor de pasarela.",
+    "linkGenerated": "Enlace de pago remoto generado.",
+    "tokenGenerated": "Token remoto generado: {{token}}",
+    "intentGenerated": "Intención de pago remoto generada.",
+    "paymentTimedOut": "El pago de {{gateway}} expiró. Toque Verificar para comprobar de nuevo.",
+    "paymentStatus": "Pago de {{gateway}} {{status}}.",
+    "completeOnPage": "Complete el pago en la página de {{gateway}} y luego regrese al POS.",
+    "scanQr": "Escanee el código QR con la aplicación de {{gateway}} para pagar.",
+    "enterCardDetails": "Ingrese los datos de la tarjeta a continuación para completar el pago.",
+    "intentCreated": "Intención de pago de {{gateway}} creada.",
+    "usePaypalButton": "Use el botón de PayPal a continuación para completar el pago.",
+    "useRazorpayButton": "Toque Pagar con Razorpay a continuación para completar el pago.",
+    "paymentFailed": "Pago fallido.",
+    "paymentStatusLabel": "Estado del pago: {{status}}",
+    "paymentIs": "El pago está {{status}}.",
+    "paypalPaymentIs": "El pago de PayPal está {{status}}.",
+    "razorpayPaymentFailed": "Pago de Razorpay fallido.",
+    "stripePaymentFailed": "Pago de Stripe fallido.",
+    "mpesaPhoneUnavailable": "La solicitud telefónica de M-Pesa no está disponible.",
+    "mpesaPromptSent": "STK push enviado a {{phone}}. Revise el teléfono para ingresar el PIN de M-Pesa.",
+    "mpesaPromptSentGeneric": "STK push enviado. Revise el teléfono para ingresar el PIN de M-Pesa.",
+    "mpesaInvalidPhone": "Ingrese un número de M-Pesa válido (2547XXXXXXXX o 07XXXXXXXX).",
+    "verifiedAndAdded": "Pago remoto verificado y agregado.",
+    "generateFailed": "Error al generar enlace/token de pago remoto",
+    "mustBePaid": "El pago está {{status}}. Debe estar pagado/autorizado antes de agregarlo.",
+    "verifyFailed": "Error al verificar el pago remoto",
+    "paymentReceived": "Pago de {{gateway}} recibido.",
+    "payWithCard": "Pagar con tarjeta",
+    "payWithRazorpay": "Pagar con Razorpay"
+  }
+}

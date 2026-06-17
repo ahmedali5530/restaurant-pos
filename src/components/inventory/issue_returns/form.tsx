@@ -1,4 +1,5 @@
 import React, {useEffect, useMemo} from "react";
+import { useTranslation } from 'react-i18next';
 import * as yup from "yup";
 import {Controller, useFieldArray, useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
@@ -109,6 +110,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
 }).required();
 
 export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
+  const { t } = useTranslation('inventory');
   const db = useDB();
   const validationSchema = useMemo(() => createValidationSchema(db, data?.id), [db, data?.id]);
   const resolver = useMemo(() => yupResolver(validationSchema), [validationSchema]);
@@ -260,7 +262,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
       })
       .catch((error) => {
         console.error("Failed to fetch next issue return number", error);
-        toast.error("Unable to generate next issue return number");
+        toast.error(t('toast:inventory.unableGenerateIssueReturnNumber'));
       });
 
     return () => {
@@ -434,7 +436,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
         items: itemRefs,
       });
 
-      toast.success("Issue return saved");
+      toast.success(t('toast:inventory.issueReturnSaved'));
       closeModal();
     } catch (error) {
       console.log(error)
@@ -479,7 +481,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
         <div className="flex flex-col gap-3 mb-3">
           <div className="flex gap-3">
             <div className="flex-1">
-              <label>Return#</label>
+              <label>{t('columns.returnNumber')}</label>
               <Controller
                 name="invoice_number"
                 control={control}
@@ -495,7 +497,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
               <InputError error={_.get(errors, ["issuance", "message"])}/>
             </div>
             <div className="flex-1">
-              <label>Issuance</label>
+              <label>{t('columns.issuance')}</label>
               <Controller
                 name="issuance"
                 control={control}
@@ -512,7 +514,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
               <InputError error={_.get(errors, ["issuance", "message"])}/>
             </div>
             <div className="flex-1">
-              <label>Issued to</label>
+              <label>{t('columns.issuedTo')}</label>
               <Controller
                 name="issued_to"
                 control={control}
@@ -530,7 +532,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
               <InputError error={_.get(errors, ["issued_to", "message"])}/>
             </div>
             <div className="flex-1">
-              <label>Kitchen</label>
+              <label>{t('columns.kitchen')}</label>
               <Controller
                 name="kitchen"
                 control={control}
@@ -553,7 +555,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
                 control={control}
                 render={({field}) => (
                   <DatePicker
-                    label="Date"
+                    label={t('forms.date')}
                     value={field.value as any}
                     onChange={field.onChange}
                     maxValue={getToday()}
@@ -579,7 +581,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
           </div>
 
           <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
-            <legend>Items</legend>
+            <legend>{t('tabs.items')}</legend>
             {fields.map((field, index) => (
               <div className="flex flex-col gap-3 mb-3" key={field.id}>
                 {/* Hidden input for issued_item value */}
@@ -595,7 +597,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
                 />
                 <div className="flex gap-3">
                   <div className="flex-1">
-                    <label>Item</label>
+                    <label>{t('buttons.item')}</label>
                     <Controller
                       name={`items.${index}.item`}
                       control={control}
@@ -617,7 +619,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
                       control={control}
                       render={({field}) => (
                         <Input
-                          label="Issued"
+                          label={t('forms.issued')}
                           type="number"
                           value={field.value as number | string | undefined}
                           onChange={field.onChange}
@@ -633,7 +635,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
                       control={control}
                       render={({field}) => (
                         <Input
-                          label="Returned quantity"
+                          label={t('forms.returnedQuantity')}
                           type="number"
                           value={field.value as number | string}
                           onChange={field.onChange}
@@ -644,7 +646,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
                   </div>
                   <div className="flex-1">
                     <Input
-                      label="Comments"
+                      label={t('forms.comments')}
                       {...register(`items.${index}.comments` as const)}
                     />
                   </div>
@@ -665,7 +667,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
         </div>
 
         <div>
-          <Button type="submit" variant="primary">Save</Button>
+          <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
         </div>
       </form>
     </Modal>

@@ -1,4 +1,5 @@
 import {useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {createColumnHelper} from "@tanstack/react-table";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -10,6 +11,7 @@ import {faPencil, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {InventoryItemGroupForm} from "@/components/inventory/item_groups/form.tsx";
 
 export const InventoryItemGroups = () => {
+  const { t } = useTranslation('inventory');
   const loadHook = useApi<SettingsData<InventoryItemGroup>>(Tables.inventory_item_groups, [], [], 0, 10, ['main_item', 'sub_items', 'sub_items.item']);
 
   const [data, setData] = useState<InventoryItemGroup>();
@@ -20,14 +22,14 @@ export const InventoryItemGroups = () => {
   const columns: any = [
     columnHelper.accessor('main_item', {
       id: "main_item",
-      header: "Main item",
+      header: t('columns.mainItem'),
       cell: info => `${info.getValue().name}-${info.getValue().code}`
     }),
     columnHelper.accessor("base_quantity", {
-      header: "Base quantity",
+      header: t('columns.baseQuantity'),
     }),
     columnHelper.accessor("sub_items", {
-      header: "Sub items",
+      header: t('columns.subItems'),
       cell: info => (
         <div className="flex flex-wrap gap-2">
           {info.getValue().slice(0, 5)?.map((item, index) => (
@@ -40,7 +42,7 @@ export const InventoryItemGroups = () => {
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {

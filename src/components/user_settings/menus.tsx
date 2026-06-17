@@ -12,6 +12,7 @@ import {appPage, appSettings} from "@/store/jotai.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {Menu} from "@/api/model/menu.ts";
+import {useTranslation} from 'react-i18next';
 
 
 export const MenusSettings = () => {
@@ -22,6 +23,7 @@ export const MenusSettings = () => {
   const [loading, setLoading] = useState(true);
   const userId = page?.user?.id?.toString();
   const {protectFormSubmit} = useSecurity();
+  const { t } = useTranslation(['settings', 'common']);
 
   const { data: menus } = useApi<SettingsData<Menu>>(
     Tables.menus,
@@ -56,7 +58,7 @@ export const MenusSettings = () => {
         }
       } catch (e) {
         console.error("Error loading menu settings:", e);
-        toast.error("Failed to load menu settings");
+        toast.error(t('settings:menus.loadFailed'));
       } finally {
         setLoading(false);
       }
@@ -77,7 +79,7 @@ export const MenusSettings = () => {
 
   const onSubmit = async (values: any) => {
     if (!userId) {
-      toast.error("Please log in to save menu settings.");
+      toast.error(t('settings:menus.loginRequired'));
       return;
     }
     try {
@@ -113,27 +115,27 @@ export const MenusSettings = () => {
         menus: resolvedMenus
       }));
 
-      toast.success("Menu settings saved");
+      toast.success(t('settings:menus.saved'));
     } catch (e) {
       console.error("Error saving menu settings:", e);
-      toast.error("Failed to save menu settings");
+      toast.error(t('settings:menus.saveFailed'));
     }
   };
 
   return (
     <div className="shadow p-5 rounded bg-white">
-      <h2 className="text-xl font-semibold mb-1">Menu settings</h2>
+      <h2 className="text-xl font-semibold mb-1">{t('settings:menus.title')}</h2>
       <p className="text-sm text-neutral-500 mb-4"></p>
 
       {loading ? (
-        <div className="text-center py-6 text-neutral-500">Loading menu settings…</div>
+        <div className="text-center py-6 text-neutral-500">{t('settings:menus.loading')}</div>
       ) : (
         <form onSubmit={protectFormSubmit((handleSubmit(onSubmit)), {
-          description: 'Save menus',
+          description: t('settings:menus.saveDescription'),
           module: 'Menus'
         })} className="flex flex-col gap-4 max-w-xl">
           <div>
-            <label className="block text-sm font-medium mb-1">Activate menus</label>
+            <label className="block text-sm font-medium mb-1">{t('settings:menus.activateMenus')}</label>
             <Controller
               name="menus"
               control={control}
@@ -146,7 +148,7 @@ export const MenusSettings = () => {
                     label: item.name,
                     value: item.id.toString()
                   }))}
-                  placeholder="Select menus…"
+                  placeholder={t('settings:menus.selectMenus')}
                 />
               )}
             />
@@ -154,7 +156,7 @@ export const MenusSettings = () => {
 
           <div>
             <Button type="submit" variant="primary" disabled={isSubmitting}>
-              {isSubmitting ? "Saving…" : "Save menu settings"}
+              {isSubmitting ? t('settings:menus.saving') : t('settings:menus.save')}
             </Button>
           </div>
         </form>

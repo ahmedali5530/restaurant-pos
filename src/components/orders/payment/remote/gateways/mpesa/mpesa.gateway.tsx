@@ -13,6 +13,7 @@ import {
 import { getOrderCustomerPhone } from "@/components/orders/payment/remote/core/utils.ts";
 import { fetchWebhookPaymentResult, verifyPayment } from "@/lib/payment.service.ts";
 import { toast } from "sonner";
+import i18n from "@/lib/i18n.ts";
 
 export type MpesaPhonePromptRequest = {
   amount: number;
@@ -40,7 +41,7 @@ export const mpesaGatewayAdapter: RemoteGatewayAdapter = {
       return { proceed: true, customerPhone: normalizeMpesaPhone(existingPhone!)! };
     }
     if (!mpesaPhonePromptApi) {
-      toast.error("M-Pesa phone prompt is not available.");
+      toast.error(i18n.t('payment:remoteGateway.mpesaPhoneUnavailable'));
       return { proceed: false, reason: "awaiting_input" };
     }
     const phone = await mpesaPhonePromptApi.requestPhone({
@@ -57,8 +58,8 @@ export const mpesaGatewayAdapter: RemoteGatewayAdapter = {
   onIntentCreated({ intent }: AfterIntentCreatedInput) {
     toast.success(
       intent.clientToken
-        ? `STK push sent to ${intent.clientToken}. Check phone to enter M-Pesa PIN.`
-        : "STK push sent. Check phone to enter M-Pesa PIN.",
+        ? i18n.t('payment:remoteGateway.mpesaPromptSent', { phone: intent.clientToken })
+        : i18n.t('payment:remoteGateway.mpesaPromptSentGeneric'),
     );
   },
   startStatusPolling(pendingIntent, context, handlers) {
@@ -72,7 +73,7 @@ export const mpesaGatewayAdapter: RemoteGatewayAdapter = {
           stopped = true;
           clearInterval(timer);
           handlers.onStatusChange("timeout");
-          toast.warning("M-Pesa payment timed out. Tap Verify to check again.");
+          toast.warning(i18n.t('payment:remoteGateway.paymentTimedOut', { gateway: 'M-Pesa' }));
           return;
         }
         try {
@@ -100,7 +101,7 @@ export const mpesaGatewayAdapter: RemoteGatewayAdapter = {
             stopped = true;
             clearInterval(timer);
             handlers.onStatusChange(result.status);
-            toast.error(`M-Pesa payment ${result.status}.`);
+            toast.error(i18n.t('payment:remoteGateway.paymentStatus', { gateway: 'M-Pesa', status: result.status }));
             return;
           }
           handlers.onStatusChange(result.status);
@@ -118,5 +119,5 @@ export const mpesaGatewayAdapter: RemoteGatewayAdapter = {
     if (!intent.clientToken) return null;
     return <span> · {intent.clientToken}</span>;
   },
-  getVerifiedSuccessMessage: () => "M-Pesa payment received.",
+  getVerifiedSuccessMessage: () => i18n.t('payment:remoteGateway.paymentReceived', { gateway: 'M-Pesa' }),
 };

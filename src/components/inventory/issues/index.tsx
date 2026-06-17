@@ -1,4 +1,5 @@
 import {useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {createColumnHelper} from "@tanstack/react-table";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -12,6 +13,7 @@ import {InventoryIssueViewModal} from "@/components/inventory/issues/view.modal.
 import { toJsDate } from "@/lib/datetime.ts";
 
 export const InventoryIssues = () => {
+  const { t } = useTranslation('inventory');
   const loadHook = useApi<SettingsData<InventoryIssue>>(
     Tables.inventory_issues,
     [],
@@ -30,26 +32,26 @@ export const InventoryIssues = () => {
 
   const columns: any = [
     columnHelper.accessor("invoice_number", {
-      header: "Issue#",
+      header: t('columns.issueNumber'),
     }),
     columnHelper.accessor("created_at", {
-      header: "Created at",
+      header: t('columns.createdAt'),
       cell: info => info.getValue() ? toJsDate(info.getValue() as any).toLocaleString() : ""
     }),
     columnHelper.accessor(row => row.created_by?.first_name ?? "", {
       id: "created_by",
-      header: "Created by"
+      header: t('columns.createdBy')
     }),
     columnHelper.accessor(row => row.issued_to?.first_name ?? "", {
       id: "issued_to",
-      header: "Issued to"
+      header: t('columns.issuedTo')
     }),
     columnHelper.accessor(row => row.kitchen?.name ?? "", {
       id: "kitchen",
-      header: "Kitchen"
+      header: t('columns.kitchen')
     }),
     columnHelper.accessor("items", {
-      header: "Items",
+      header: t('tabs.items'),
       cell: info => (
         <div className="flex flex-wrap gap-2">
           {info.getValue()?.slice(0, 5)?.map((item, index) => (
@@ -62,7 +64,7 @@ export const InventoryIssues = () => {
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {

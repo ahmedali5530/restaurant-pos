@@ -14,9 +14,11 @@ import {toRecordId, truthy} from "@/lib/utils.ts";
 import {CsvUploadModal} from "@/components/common/table/csv.uploader.tsx";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminTables = () => {
+  const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<Table>>(Tables.tables, ['deleted_at = none'], [], 0, 10, ['floor', 'categories', 'payment_types', 'order_types']);
   const db = useDB();
 
@@ -49,22 +51,22 @@ export const AdminTables = () => {
       ),
     },
     columnHelper.accessor("name", {
-      header: 'Name'
+      header: t('columns.name')
     }),
     columnHelper.accessor("number", {
-      header: 'Number'
+      header: t('columns.number')
     }),
     columnHelper.accessor("ask_for_covers", {
-      header: 'Ask for number of covers',
+      header: t('columns.askForCovers'),
       cell: info => info.getValue() ? <FontAwesomeIcon icon={faCheck} className="text-success-500" /> : null,
       enableColumnFilter: false
     }),
     columnHelper.accessor("floor", {
-      header: 'Floor',
+      header: t('columns.floor'),
       cell: info => info.getValue()?.name
     }),
     columnHelper.accessor('payment_types', {
-      header: 'Payment types',
+      header: t('columns.paymentTypes'),
       cell: info => <div className="flex gap-2 flex-wrap">
         {info.getValue()?.map((item, index) => (
           <span className="tag" key={`${item.id}-${index}`}>{item.name}</span>
@@ -74,7 +76,7 @@ export const AdminTables = () => {
       enableSorting: false
     }),
     columnHelper.accessor('order_types', {
-      header: 'Order types',
+      header: t('columns.orderTypes'),
       cell: info => <div className="flex gap-2 flex-wrap">
         {info.getValue()?.map((item, index) => (
           <span className="tag" key={`${item.id}-${index}`}>{item.name}</span>
@@ -84,17 +86,17 @@ export const AdminTables = () => {
       enableSorting: false
     }),
     columnHelper.accessor("priority", {
-      header: 'Priority'
+      header: t('columns.priority')
     }),
     columnHelper.accessor("is_locked", {
-      header: 'Locked',
-      cell: info => info.getValue() ? <FontAwesomeIcon icon={faLock} title="Click to unlock it" className="text-danger-500 cursor-pointer" onClick={() => releaseTable(info.row.original.id)} /> : null,
+      header: t('columns.locked'),
+      cell: info => info.getValue() ? <FontAwesomeIcon icon={faLock} title={t('columns.clickToUnlock')} className="text-danger-500 cursor-pointer" onClick={() => releaseTable(info.row.original.id)} /> : null,
       enableColumnFilter: false,
       enableSorting: false
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {
@@ -109,7 +111,7 @@ export const AdminTables = () => {
             ><FontAwesomeIcon icon={faPencil}/></Button>
             <div className="separator"></div>
             <DeleteConfirm
-              message={`Delete table ${info.row.original.name}${info.row.original.number}`}
+              message={t('delete.table', { name: `${info.row.original.name}${info.row.original.number}` })}
               onConfirm={() => deleteItem(info.row.original.id)}
             />
           </div>
@@ -130,7 +132,7 @@ export const AdminTables = () => {
     await executeSettingsDelete({
       db,
       id,
-      entityLabel: 'Table',
+      entityLabel: t('entities.table'),
       usageChecks: [
         {
           query: `SELECT count() AS count FROM ${Tables.orders} WHERE table = $idRecord GROUP ALL`
@@ -151,10 +153,10 @@ export const AdminTables = () => {
         buttons={[
           <Button variant="primary" onClick={() => {
             setImportModal(true);
-          }} icon={faUpload}> Import tables</Button>,
+          }} icon={faUpload}>{t('buttons.importTables')}</Button>,
           <Button variant="primary" onClick={() => {
             setFormModal(true);
-          }} icon={faPlus}> Table</Button>
+          }} icon={faPlus}>{t('buttons.table')}</Button>
         ]}
         enableSelection
         rowSelection={rowSelection}
@@ -171,7 +173,7 @@ export const AdminTables = () => {
               ...prev,
               state: true,
             }));
-          }} icon={faPencil}> Bulk Edit</Button>
+          }} icon={faPencil}>{t('buttons.bulkEdit')}</Button>
         ]}
       />
 
@@ -181,34 +183,34 @@ export const AdminTables = () => {
           onClose={() => setImportModal(false)}
           fields={[{
             name: 'name',
-            label: 'Name'
+            label: t('columns.name')
           },{
             name: 'number',
-            label: 'Number'
+            label: t('columns.number')
           },{
             name: 'ask_for_covers',
-            label: 'Ask for number of covers'
+            label: t('columns.askForCovers')
           },{
             name: 'background',
-            label: 'Background color'
+            label: t('forms.backgroundColor')
           },{
             name: 'color',
-            label: 'Font color'
+            label: t('forms.fontColor')
           },{
             name: 'floor',
-            label: 'Floor'
+            label: t('columns.floor')
           },{
             name: 'priority',
-            label: 'Priority'
+            label: t('columns.priority')
           },{
             name: 'categories',
-            label: 'Categories'
+            label: t('columns.categories')
           },{
             name: 'order_types',
-            label: 'Order types'
+            label: t('columns.orderTypes')
           },{
             name: 'payment_types',
-            label: 'Payment types'
+            label: t('columns.paymentTypes')
           }]}
           onCreateRow={async (rowData) => {
             try{
@@ -224,7 +226,7 @@ export const AdminTables = () => {
               });
 
               if(categories.length !== rowData?.categories?.split('|')?.filter(item => item !== '')?.length){
-                throw new Error('Categories are invalid');
+                throw new Error(t('toast:admin.invalidCategories'));
               }
 
               const [order_types] = await db.query(`SELECT id from ${Tables.order_types} where name IN $names and deleted_at = none`, {

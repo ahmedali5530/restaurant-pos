@@ -9,6 +9,8 @@ import { useDB } from "@/api/db/db.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Tables } from "@/api/db/tables.ts";
 import { toast } from "sonner";
+import {useTranslation} from 'react-i18next';
+import i18n from '@/lib/i18n.ts';
 import * as z from "zod";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
@@ -24,19 +26,21 @@ interface Props {
 }
 
 const validationSchema = z.object({
-  name: z.string().min(1, "This is required"),
+  name: z.string().min(1, i18n.t('validation:required')),
   stages: z.array(z.object({
-    name: z.string().min(1, "Stage name is required"),
+    name: z.string().min(1, i18n.t('forms.stageNameRequired')),
     kitchen: z.object({
       label: z.string(),
       value: z.string()
-    }).nullable().refine((value) => !!value?.value, { message: "Kitchen is required" })
-  })).min(1, "Add at least one stage"),
+    }).nullable().refine((value) => !!value?.value, { message: i18n.t('forms.kitchenRequired') })
+  })).min(1, i18n.t('forms.addAtLeastOneStage')),
 });
 
 export const WorkflowForm = ({
   open, onClose, data
 }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
   const db = useDB();
 
   const {
@@ -123,7 +127,7 @@ export const WorkflowForm = ({
       }
 
       closeModal();
-      toast.success(`Workflow ${values.name} saved`);
+      toast.success(t('toast:admin.workflowSaved', { name: values.name }));
     } catch (e) {
       toast.error(e);
       console.log(e);
@@ -137,7 +141,7 @@ export const WorkflowForm = ({
 
   return (
     <Modal
-      title={data ? `Update ${data?.name}` : 'Create new workflow'}
+      title={data ? t('forms.updateWorkflow', { name: data?.name }) : t('forms.createWorkflow')}
       open={open}
       onClose={closeModal}
       size="md"
@@ -145,7 +149,7 @@ export const WorkflowForm = ({
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex gap-3 mb-3 flex-col">
           <div className="flex-1">
-            <Input label="Name" {...register('name')} autoFocus error={errors?.name?.message}/>
+            <Input label={t('columns.name')} {...register('name')} autoFocus error={errors?.name?.message}/>
           </div>
 
           <div className="flex-1">
@@ -170,7 +174,7 @@ export const WorkflowForm = ({
                       control={control}
                       render={({ field }) => (
                         <Input
-                          label="Stage name"
+                          label={t('forms.stageName')}
                           value={field.value ?? ''}
                           onChange={field.onChange}
                           error={_.get(errors, ['stages', index, 'name', 'message'])}
@@ -215,7 +219,7 @@ export const WorkflowForm = ({
           </div>
         </div>
         <div>
-          <Button type="submit" variant="primary">Save</Button>
+          <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
         </div>
       </form>
     </Modal>

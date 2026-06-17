@@ -1,0 +1,31 @@
+{
+  "sidebar": {
+    "menu": "Menü",
+    "orders": "Siparişler",
+    "summary": "Özet",
+    "kitchen": "Mutfak",
+    "delivery": "Teslimat",
+    "closing": "Kapanış",
+    "inventory": "Envanter",
+    "manage": "Yönet",
+    "reports": "Raporlar",
+    "tipDist": "Bahşiş Dağıt.",
+    "settings": "Ayarlar",
+    "clock": "Mesai"
+  },
+  "modules": {
+    "Menu": "Menü",
+    "Orders": "Siparişler",
+    "Summary": "Özet",
+    "Reports": "Raporlar",
+    "Closing": "Kapanış",
+    "Kitchen": "Mutfak",
+    "Delivery": "Teslimat",
+    "Admin": "Yönetim",
+    "Riders": "Kuryeler",
+    "Tips": "Bahşiş Dağıtımı",
+    "Inventory": "Envanter",
+    "Settings": "Ayarlar"
+  },
+  "authenticateToAccess": "{{module}} modülüne erişmek için kimlik doğrulayın"
+}

@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -72,6 +73,7 @@ interface DayMetrics {
 }
 
 export const SalesWeeklyReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -117,7 +119,7 @@ export const SalesWeeklyReport = () => {
         setOrderVoids((voidsResult?.[0] ?? []) as OrderVoid[]);
       } catch (err) {
         console.error("Failed to load sales weekly report", err);
-        setError(err instanceof Error ? err.message : "Unable to load report");
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
       } finally {
         setLoading(false);
       }
@@ -240,7 +242,7 @@ export const SalesWeeklyReport = () => {
     // Net Sales
     const netSalesValues = dayHeaders.map(h => dayMetrics[h.dateKey]?.netSales || 0);
     rowData.push({
-      label: "Net Sales",
+      label: t('columns.netSales'),
       values: netSalesValues,
       total: netSalesValues.reduce((sum, val) => sum + val, 0),
       formatter: withCurrency,
@@ -249,7 +251,7 @@ export const SalesWeeklyReport = () => {
     // Cash Payments
     const cashPaymentsValues = dayHeaders.map(h => dayMetrics[h.dateKey]?.cashPayments || 0);
     rowData.push({
-      label: "Cash Payments",
+      label: t('labels.cashPayments'),
       values: cashPaymentsValues,
       total: cashPaymentsValues.reduce((sum, val) => sum + val, 0),
       formatter: withCurrency,
@@ -267,7 +269,7 @@ export const SalesWeeklyReport = () => {
     // Amount Collected
     const amountCollectedValues = dayHeaders.map(h => dayMetrics[h.dateKey]?.amountCollected || 0);
     rowData.push({
-      label: "Amount Collected",
+      label: t('labels.amountCollected'),
       values: amountCollectedValues,
       total: amountCollectedValues.reduce((sum, val) => sum + val, 0),
       formatter: withCurrency,
@@ -275,7 +277,7 @@ export const SalesWeeklyReport = () => {
 
     const tipsValues = dayHeaders.map(h => dayMetrics[h.dateKey]?.tips || 0);
     rowData.push({
-      label: "Tips",
+      label: t('reports.tips'),
       values: tipsValues,
       total: tipsValues.reduce((sum, val) => sum + val, 0),
       formatter: withCurrency,
@@ -283,7 +285,7 @@ export const SalesWeeklyReport = () => {
 
     const couponValues = dayHeaders.map(h => dayMetrics[h.dateKey]?.coupons || 0);
     rowData.push({
-      label: "Coupons",
+      label: t('metrics.coupons'),
       values: couponValues,
       total: couponValues.reduce((sum, val) => sum + val, 0),
       formatter: withCurrency,
@@ -322,7 +324,7 @@ export const SalesWeeklyReport = () => {
     // Voids
     const voidsValues = dayHeaders.map(h => dayMetrics[h.dateKey]?.voids || 0);
     rowData.push({
-      label: "Voids",
+      label: t('reports.voids'),
       values: voidsValues,
       total: voidsValues.reduce((sum, val) => sum + val, 0),
       formatter: withCurrency,
@@ -331,7 +333,7 @@ export const SalesWeeklyReport = () => {
     // Comps
     const compsValues = dayHeaders.map(h => dayMetrics[h.dateKey]?.comps || 0);
     rowData.push({
-      label: "Comps",
+      label: t('metrics.comps'),
       values: compsValues,
       total: compsValues.reduce((sum, val) => sum + val, 0),
       formatter: withCurrency,
@@ -360,22 +362,22 @@ export const SalesWeeklyReport = () => {
 
   if (loading) {
     return (
-      <ReportsLayout title="Sales weekly" subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">Loading sales weekly report…</div>
+      <ReportsLayout title={t('titles.salesWeekly')} subtitle={subtitle}>
+        <div className="py-12 text-center text-neutral-500">{t('loading.salesWeekly')}</div>
       </ReportsLayout>
     );
   }
 
   if (error) {
     return (
-      <ReportsLayout title="Sales weekly" subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">Failed to load report: {error}</div>
+      <ReportsLayout title={t('titles.salesWeekly')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
       </ReportsLayout>
     );
   }
 
   return (
-    <ReportsLayout title="Sales weekly" subtitle={subtitle}>
+    <ReportsLayout title={t('titles.salesWeekly')} subtitle={subtitle}>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">
           <thead className="bg-neutral-50">

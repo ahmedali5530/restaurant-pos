@@ -1,0 +1,82 @@
+{
+  "generic": {
+    "saved": "Saved successfully",
+    "updated": "Updated successfully",
+    "deleted": "Deleted successfully",
+    "created": "Created successfully",
+    "failed": "Operation failed",
+    "error": "An error occurred"
+  },
+  "inventory": {
+    "wasteSaved": "Waste saved",
+    "issueSaved": "Issue saved",
+    "issueReturnSaved": "Issue return saved",
+    "purchaseSaved": "Purchase saved",
+    "purchaseReturnSaved": "Purchase return saved",
+    "purchaseOrderSaved": "Purchase order saved",
+    "itemGroupSaved": "Item group saved",
+    "itemSaved": "Item {{name}} saved",
+    "categorySaved": "Category {{name}} saved",
+    "supplierSaved": "Supplier {{name}} saved",
+    "storeSaved": "Store {{name}} saved",
+    "unableGenerateWasteNumber": "Unable to generate next waste number",
+    "unableGenerateIssueNumber": "Unable to generate next issue number",
+    "unableGenerateIssueReturnNumber": "Unable to generate next issue return number",
+    "unableGenerateInvoiceNumber": "Unable to generate next invoice number",
+    "unableGenerateReturnNumber": "Unable to generate next return number",
+    "unableGeneratePoNumber": "Unable to generate next PO number",
+    "itemsExceedQuantity": "One or more items exceed available quantity"
+  },
+  "delivery": {
+    "settingsSaved": "Delivery settings saved successfully",
+    "settingsLoadFailed": "Failed to load delivery settings",
+    "settingsSaveFailed": "Failed to save delivery settings",
+    "mapAreasSaved": "Map areas saved successfully",
+    "mapAreasSaveFailed": "Failed to save map areas",
+    "mapAreasLoadFailed": "Failed to load map areas",
+    "shapeTooSmall": "Shape is too small. Drag a larger area.",
+    "rectangleTooSmall": "Rectangle is too small. Drag a larger area.",
+    "circleTooSmall": "Circle is too small. Drag a larger radius.",
+    "polygonTooSmall": "Polygon is too small. Drag a larger outline.",
+    "fetchRidersFailed": "Failed to fetch riders",
+    "acceptFailed": "Failed to accept order",
+    "rejectFailed": "Failed to reject order",
+    "sendFailed": "Failed to send order",
+    "attachRiderFailed": "Failed to attach rider"
+  },
+  "reports": {
+    "mapAreasSaveFailed": "Failed to save map areas"
+  },
+  "kitchen": {
+    "recallFailed": "Failed to recall order"
+  },
+  "closing": {
+    "loadFailed": "Failed to load closing",
+    "alreadyClosed": "This cycle is already closed.",
+    "openOrders": "There are open orders. Please close them first.",
+    "completed": "Closing completed successfully!",
+    "savedDraft": "Closing saved as draft successfully!",
+    "saveFailed": "Failed to save closing",
+    "notFound": "No closing found for this cycle.",
+    "reopened": "Closing reopened in edit mode.",
+    "reopenFailed": "Failed to reopen closing",
+    "printFailed": "Failed to print closing"
+  },
+  "summary": {
+    "noProductMix": "No items found for product mix.",
+    "noTimeEntries": "No completed time entries found for this date.",
+    "noServerSales": "No server sales data found for this date."
+  },
+  "clock": {
+    "noActiveEntry": "No active time entry found",
+    "loadEntryFailed": "Failed to load time entry",
+    "loadSaleSummaryFailed": "Failed to load sale summary",
+    "clockedOut": "Clocked out successfully",
+    "clockOutFailed": "Failed to clock out"
+  },
+  "tipDistribution": {
+    "selectShiftAndDate": "Please select shift and date",
+    "unableToDeriveRange": "Unable to derive time range from shift",
+    "saved": "Tip distribution saved"
+  }
+}

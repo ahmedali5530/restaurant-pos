@@ -20,6 +20,7 @@ import {appPage} from "@/store/jotai.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
+import {useTranslation} from "react-i18next";
 
 interface Props {
   order: OrderModel
@@ -36,6 +37,7 @@ interface Split {
 export const SplitBySeats = ({
   order, onClose
 }: Props) => {
+  const {t} = useTranslation('orders');
   const db = useDB();
   const [page] = useAtom(appPage);
   // Initialize with one split containing all items
@@ -204,11 +206,11 @@ export const SplitBySeats = ({
         user: page?.user,
       });
 
-      toast.success(`Successfully created ${createdOrders.length} split orders`);
+      toast.success(t('split.toast.success', {count: createdOrders.length}));
       onClose?.();
     } catch (error) {
       console.error('Error creating split orders:', error);
-      toast.error('Failed to create split orders');
+      toast.error(t('split.toast.failed'));
     } finally {
       setIsSaving(false);
     }
@@ -224,7 +226,7 @@ export const SplitBySeats = ({
     // Build groups: seat label -> items
     const seatToItems: Record<string, OrderItem[]> = {};
     for (const item of getOrderFilteredItems(order)) {
-      const seatKey = item.seat ?? 'No Seat';
+      const seatKey = item.seat ?? t('split.noSeat');
       if (!seatToItems[seatKey]) seatToItems[seatKey] = [];
       seatToItems[seatKey].push(item);
     }
@@ -250,18 +252,18 @@ export const SplitBySeats = ({
 
     const initialSplits: Split[] = seatKeys.map((seatKey, index) => ({
       id: nanoid(),
-      name: `Seat ${index + 1}`,
+      name: t('split.seatName', {number: index + 1}),
       number: index + 1,
       items: seatToItems[seatKey]
     }));
 
     setSplits(initialSplits);
-  }, [order]);
+  }, [order, t]);
 
   return (
     <>
       <Modal
-        title={`Split order# ${getInvoiceNumber(order)}`}
+        title={t('split.title', {invoice: getInvoiceNumber(order)})}
         open={true}
         size="full"
         onClose={onClose}
@@ -273,10 +275,10 @@ export const SplitBySeats = ({
               <div>
                 <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
                   <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></span>
-                  Create order splits based on seats
+                  {t('split.bySeats.heading')}
                 </h3>
                 <p className="text-xs text-gray-400 mt-1">
-                  💡 Drag empty space to scroll horizontally
+                  {t('split.bySeats.scrollHint')}
                 </p>
               </div>
             </div>
@@ -303,7 +305,7 @@ export const SplitBySeats = ({
                           </h4>
                           <div className="flex items-center gap-2">
                              <span className="text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                               Total: {withCurrency(splitTotals[index])}
+                               {t('split.bySeats.total', {amount: withCurrency(splitTotals[index])})}
                              </span>
                           </div>
                         </div>
@@ -311,8 +313,8 @@ export const SplitBySeats = ({
                         <div className="p-4 flex-1 overflow-y-auto">
                           {split.items.length === 0 ? (
                             <div className="text-center py-6 text-gray-400">
-                              <p>No items in this split</p>
-                              <p className="text-xs mt-1">Drag items from other splits here</p>
+                              <p>{t('split.bySeats.noItems')}</p>
+                              <p className="text-xs mt-1">{t('split.bySeats.dragItemsHere')}</p>
                             </div>
                           ) : (
                             <div className="space-y-2">
@@ -343,8 +345,8 @@ export const SplitBySeats = ({
               ) : (
                 <div className="flex items-center justify-center h-full text-gray-500">
                   <div className="text-center">
-                    <p className="text-lg">No additional splits yet</p>
-                    <p className="text-sm">Click "Add Split" to create more splits</p>
+                    <p className="text-lg">{t('split.bySeats.noAdditionalSplits')}</p>
+                    <p className="text-sm">{t('split.bySeats.addSplitHint')}</p>
                   </div>
                 </div>
               )}
@@ -362,13 +364,13 @@ export const SplitBySeats = ({
                 className="w-full shadow-lg hover:shadow-green-200 transition-all duration-300"
                 filled
               >
-                {isSaving ? 'Creating Split Orders...' : `Save Split Orders (${actualSplits.length} orders)`}
+                {isSaving ? t('split.bySeats.creating') : t('split.bySeats.save', {count: actualSplits.length})}
               </Button>
               {!canSave && (
                 <p className="text-sm text-gray-500 mt-2 text-center">
                   {actualSplits.length <= 1
-                    ? "Add more splits and move items to them"
-                    : "All splits must have at least one item"
+                    ? t('split.bySeats.addMoreSplits')
+                    : t('split.bySeats.allSplitsNeedItems')
                   }
                 </p>
               )}

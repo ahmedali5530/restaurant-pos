@@ -4,6 +4,8 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { StringRecordId } from "surrealdb";
 import { toast } from "sonner";
+import {useTranslation} from 'react-i18next';
+import i18n from '@/lib/i18n.ts';
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input } from "@/components/common/input/input.tsx";
 import { Button } from "@/components/common/input/button.tsx";
@@ -24,8 +26,8 @@ interface Props {
 }
 
 const validationSchema = yup.object({
-  name: yup.string().required("This is required"),
-  value: yup.number().required("This is required").typeError("This should be a number"),
+  name: yup.string().required(i18n.t('validation:required')),
+  value: yup.number().required(i18n.t('validation:required')).typeError(i18n.t('validation:mustBeNumber')),
   payment_types: yup.array(yup.object({
     label: yup.string(),
     value: yup.string(),
@@ -44,6 +46,7 @@ const validationSchema = yup.object({
 
 export const ExtraForm = ({ open, onClose, data }: Props) => {
   const db = useDB();
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
 
   const {
     data: paymentTypes,
@@ -137,7 +140,7 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
       }
 
       closeModal();
-      toast.success(`Extra ${values.name} saved`);
+      toast.success(t('toast:admin.extraSaved', { name: values.name }));
     } catch (e) {
       toast.error(e);
       console.log(e);
@@ -146,21 +149,21 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
 
   return (
     <Modal
-      title={data ? `Update ${data?.name}` : "Create new extra"}
+      title={data ? t('forms.updateExtra', { name: data?.name }) : t('forms.createExtra')}
       open={open}
       onClose={closeModal}
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex gap-3 mb-3">
           <div className="flex-1">
-            <Input label="Name" {...register("name")} autoFocus error={errors?.name?.message} />
+            <Input label={t('columns.name')} {...register("name")} autoFocus error={errors?.name?.message} />
           </div>
           <div className="flex-1">
             <Controller
               render={({ field }) => (
                 <Input
                   type="number"
-                  label="Value"
+                  label={t('columns.value')}
                   value={field.value}
                   onChange={field.onChange}
                   error={errors?.value?.message}
@@ -174,7 +177,7 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
 
         <div className="flex flex-col gap-3 mb-3">
           <div className="flex-1">
-            <label>Payment types</label>
+            <label>{t('columns.paymentTypes')}</label>
             <Controller
               render={({ field }) => (
                 <ReactSelect
@@ -192,7 +195,7 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
             />
           </div>
           <div className="flex-1">
-            <label>Order types</label>
+            <label>{t('columns.orderTypes')}</label>
             <Controller
               render={({ field }) => (
                 <ReactSelect
@@ -210,7 +213,7 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
             />
           </div>
           <div className="flex-1">
-            <label>Tables</label>
+            <label>{t('columns.tables')}</label>
             <Controller
               render={({ field }) => (
                 <ReactSelect
@@ -235,7 +238,7 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
             control={control}
             render={({ field }) => (
               <Switch checked={field.value} onChange={field.onChange}>
-                Delivery only
+                {t('forms.deliveryOnly')}
               </Switch>
             )}
           />
@@ -244,14 +247,14 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
             control={control}
             render={({ field }) => (
               <Switch checked={field.value} onChange={field.onChange}>
-                Apply to all
+                {t('forms.applyToAllSwitch')}
               </Switch>
             )}
           />
         </div>
 
         <div>
-          <Button type="submit" variant="primary">Save</Button>
+          <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
         </div>
       </form>
     </Modal>

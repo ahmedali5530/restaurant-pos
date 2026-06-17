@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -54,6 +55,7 @@ const parseFilters = (): ReportFilters => {
 };
 
 export const IssueReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [issues, setIssues] = useState<InventoryIssue[]>([]);
@@ -130,7 +132,7 @@ export const IssueReport = () => {
         setIssues(allIssues);
       } catch (err) {
         console.error('Failed to load issue report:', err);
-        setError(err instanceof Error ? err.message : 'Unable to load report');
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
       } finally {
         setLoading(false);
       }
@@ -158,23 +160,23 @@ export const IssueReport = () => {
 
   if (loading) {
     return (
-      <ReportsLayout title="Issue Report" subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">Loading issue report…</div>
+      <ReportsLayout title={t('titles.issue')} subtitle={subtitle}>
+        <div className="py-12 text-center text-neutral-500">{t('loading.issue')}</div>
       </ReportsLayout>
     );
   }
 
   if (error) {
     return (
-      <ReportsLayout title="Issue Report" subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">Failed to load report: {error}</div>
+      <ReportsLayout title={t('titles.issue')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
       </ReportsLayout>
     );
   }
 
   return (
     <ReportsLayout
-      title="Issue Report"
+      title={t('titles.issue')}
       subtitle={subtitle}
     >
       <div className="space-y-8">
@@ -196,22 +198,22 @@ export const IssueReport = () => {
 
         {/* Detailed table */}
         <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">Issue Details</h3>
+          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">{t('labels.issueDetails')}</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200">
               <thead className="bg-neutral-50">
                 <tr>
-                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Date</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Invoice #</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Kitchen</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Store</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Item</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Quantity</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Price</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Amount</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Issued To</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Created By</th>
-                  <th className="py-3 pr-6 text-left text-xs font-semibold text-neutral-700">Comments</th>
+                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.date')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.invoice')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.kitchen')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.store')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.item')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.price')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.issuedTo')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.createdBy')}</th>
+                  <th className="py-3 pr-6 text-left text-xs font-semibold text-neutral-700">{t('columns.comments')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100 bg-white">
@@ -262,7 +264,7 @@ export const IssueReport = () => {
               {issues.length > 0 && (
                 <tfoot className="bg-neutral-50">
                   <tr>
-                    <td colSpan={5} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">Total</td>
+                    <td colSpan={5} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">{t('columns.total')}</td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
                       {formatNumber(totals.totalQuantity)}
                     </td>

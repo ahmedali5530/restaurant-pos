@@ -55,12 +55,13 @@ export const useSecurity = () => {
 
     const [userWithModules] = await db.query(`SELECT * FROM ONLY ${toRecordId(user?.id)} WHERE deleted_at = none FETCH user_role`);
     if(userWithModules?.user_role?.roles.includes(module)){
+
       action();
       onSuccess?.();
       trackProtectActionSuccess(options, 'auto');
       return;
     }
-    
+
     requestSecurity({
       id: nanoid(),
       description,

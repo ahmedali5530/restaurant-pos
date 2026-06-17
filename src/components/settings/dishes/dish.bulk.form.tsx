@@ -4,6 +4,8 @@ import {Button} from "@/components/common/input/button.tsx";
 import {Controller, useFieldArray, useForm, useWatch} from "react-hook-form";
 import {useDB} from "@/api/db/db.ts";
 import {toast} from "sonner";
+import {useTranslation} from 'react-i18next';
+import i18n from '@/lib/i18n.ts';
 import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
 import {Dish} from "@/api/model/dish.ts";
@@ -32,11 +34,11 @@ interface Props {
 const numberField = yup
   .number()
   .transform((value, originalValue) => (originalValue === "" || originalValue === null ? undefined : value))
-  .typeError("This should be a number");
+  .typeError(i18n.t('validation:mustBeNumber'));
 
 const validationSchema = yup.object({
-  price: numberField.min(0, "This should be greater than or equal to 0").optional(),
-  cost: numberField.min(0, "This should be greater than or equal to 0").optional(),
+  price: numberField.min(0, i18n.t('forms.greaterThanOrEqualZero')).optional(),
+  cost: numberField.min(0, i18n.t('forms.greaterThanOrEqualZero')).optional(),
   replace_workflow: yup.boolean().default(false),
   workflow: yup.object({
     label: yup.string(),
@@ -52,38 +54,37 @@ const validationSchema = yup.object({
     modifier_group: yup.object({
       label: yup.string(),
       value: yup.string()
-    }).required("This is required"),
+    }).required(i18n.t('validation:required')),
     has_required_modifiers: yup.boolean(),
     required_modifiers: yup.number().when("has_required_modifiers", (hasRequiredModifiers, schema) => {
       if (hasRequiredModifiers[0]) {
-        return schema.min(1, "This must be greater then 0").required("This is required");
+        return schema.min(1, i18n.t('validation:mustBeGreaterThanZero')).required(i18n.t('validation:required'));
       }
 
       return schema;
     }),
     should_auto_open: yup.boolean(),
     should_auto_select: yup.boolean(),
-    priority: yup.number().required("This is required"),
+    priority: yup.number().required(i18n.t('validation:required')),
   })).default([]),
   replace_recipes: yup.boolean().default(false),
   recipes: yup.array(yup.object({
     item: yup.object({
       label: yup.string(),
       value: yup.string()
-    }).required("This is required"),
-    quantity: yup.number().required("This is required").min(0.01, "Quantity must be greater than 0"),
-    cost: yup.number().required("This is required").min(0, "Cost must be greater than or equal to 0"),
+    }).required(i18n.t('validation:required')),
+    quantity: yup.number().required(i18n.t('validation:required')).min(0.01, i18n.t('validation:quantityMin')),
+    cost: yup.number().required(i18n.t('validation:required')).min(0, i18n.t('validation:costMin')),
     is_price_locked: yup.boolean().optional(),
-  })).default([]).test("unique-items", "Each item can only be added once", function (recipes) {
+  })).default([]).test('unique-items', i18n.t('validation:uniqueItems'), function (recipes) {
     if (!recipes || recipes.length === 0) return true;
     const itemValues = recipes.map((recipe) => recipe?.item?.value).filter(Boolean);
     return itemValues.length === new Set(itemValues).size;
   })
 });
 
-export const DishBulkForm = ({
-  open, onClose, data
-}: Props) => {
+export const DishBulkForm = ({ open, onClose, data }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
   const defaultValues = {
     price: undefined,
     cost: undefined,
@@ -196,14 +197,14 @@ export const DishBulkForm = ({
     } catch (error) {
       setPhotoData(null);
       setPhotoPreview(null);
-      toast.error("Failed to read photo");
+      toast.error(t('toast:admin.failedReadPhoto'));
       console.log(error);
     }
   };
 
   const onSubmit = async (values: any) => {
     if (!data?.length) {
-      toast.error("No dishes selected");
+      toast.error(t('toast:admin.noDishesSelected'));
       return;
     }
 
@@ -284,10 +285,10 @@ export const DishBulkForm = ({
         }
       }
 
-      toast.success(`${data.length} dishes updated`);
+      toast.success(t('toast:admin.dishesBulkUpdated', { count: data.length }));
       closeModal();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to update dishes";
+      const message = error instanceof Error ? error.message : t('forms.failedUpdateDishes');
       toast.error(message);
       console.log(error);
     }
@@ -296,7 +297,7 @@ export const DishBulkForm = ({
   return (
     <>
       <Modal
-        title={`Bulk update ${data?.length || 0} dishes`}
+        title={t('forms.bulkUpdateDishes', { count: data?.length || 0 })}
         open={open}
         onClose={closeModal}
         size="full"
@@ -312,7 +313,7 @@ export const DishBulkForm = ({
                     value={field.value}
                     onChange={field.onChange}
                     type="number"
-                    label="Sale price"
+                    label={t('columns.salePrice')}
                     error={errors?.price?.message}
                   />
                 )}
@@ -327,7 +328,7 @@ export const DishBulkForm = ({
                     value={field.value}
                     onChange={field.onChange}
                     type="number"
-                    label="Cost"
+                    label={t('forms.cost')}
                     error={errors?.cost?.message}
                   />
                 )}
@@ -415,7 +416,7 @@ export const DishBulkForm = ({
 
           <div className="flex gap-3 mb-3 items-end">
             <div className="flex-1">
-              <label className="block mb-1">Photo</label>
+              <label className="block mb-1">{t('forms.photo')}</label>
               <input
                 type="file"
                 accept="image/*"
@@ -432,7 +433,7 @@ export const DishBulkForm = ({
               <div className="w-24 h-24 rounded-lg overflow-hidden border border-neutral-300 flex items-center justify-center bg-neutral-100">
                 <img
                   src={photoPreview}
-                  alt="Dish photo preview"
+                  alt={t('forms.dishPhotoPreview')}
                   className="object-cover w-full h-full"
                 />
               </div>
@@ -548,7 +549,7 @@ export const DishBulkForm = ({
                           type="number"
                           value={field.value}
                           onChange={field.onChange}
-                          label="Required modifiers"
+                          label={t('forms.requiredModifiers')}
                           disabled={!replaceModifierGroups || !watch(`modifier_groups.${index}.has_required_modifiers`)}
                           error={_.get(errors, ["modifier_groups", index, "required_modifiers", "message"])}
                         />
@@ -564,7 +565,7 @@ export const DishBulkForm = ({
                           type="number"
                           value={field.value}
                           onChange={field.onChange}
-                          label="Priority"
+                          label={t('columns.priority')}
                           disabled={!replaceModifierGroups}
                           error={_.get(errors, ["modifier_groups", index, "priority", "message"])}
                         />
@@ -647,7 +648,7 @@ export const DishBulkForm = ({
                             type="number"
                             value={field.value}
                             onChange={field.onChange}
-                            label="Quantity"
+                            label={t('forms.quantity')}
                             disabled={!replaceRecipes}
                             error={_.get(errors, ["recipes", index, "quantity", "message"])}
                           />
@@ -663,7 +664,7 @@ export const DishBulkForm = ({
                             type="number"
                             value={field.value}
                             onChange={field.onChange}
-                            label="Cost"
+                            label={t('forms.cost')}
                             disabled={!replaceRecipes}
                             error={_.get(errors, ["recipes", index, "cost", "message"])}
                           />
@@ -696,7 +697,7 @@ export const DishBulkForm = ({
           </div>
 
           <div>
-            <Button type="submit" variant="primary">Save</Button>
+            <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
           </div>
         </form>
       </Modal>

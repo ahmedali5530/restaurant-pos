@@ -1,0 +1,170 @@
+{
+  "screen": {
+    "previousDate": "Previous date",
+    "nextDate": "Next date",
+    "printSummary": "Print summary",
+    "productMixReport": "Product Mix Report",
+    "serverSales": "Server Sales"
+  },
+  "security": {
+    "printSummaryDescription": "Print summary",
+    "printSummaryModule": "Print summary",
+    "productMixDescription": "Product mix report",
+    "productMixModule": "Product mix report",
+    "serverSalesDescription": "Server sales",
+    "serverSalesModule": "Server sales"
+  },
+  "unknown": {
+    "user": "Unknown",
+    "item": "Unknown Item",
+    "coupon": "Unknown"
+  },
+  "report": {
+    "title": "Daily sales summary — {{date}}",
+    "orderDiscount": "Order discount",
+    "uncategorized": "Uncategorized",
+    "unknownItem": "Unknown item",
+    "sections": {
+      "salesRevenue": "1. Sales revenue",
+      "surchargesTaxes": "2. Surcharges and taxes",
+      "settlementCashier": "3. Settlement and cashier",
+      "operationalControls": "4. Operational controls",
+      "productMix": "5. Product mix",
+      "paymentTypes": "6. Payment types",
+      "taxesBreakdown": "7. Taxes breakdown",
+      "discountsBreakdown": "8. Discounts breakdown",
+      "extrasBreakdown": "9. Extras breakdown",
+      "couponsBreakdown": "10. Coupons breakdown"
+    },
+    "subtitles": {
+      "surchargesTaxes": "Collected surcharges and tax (from orders; typically calculated on net after discount).",
+      "settlementCashier": "Cash drawer view.",
+      "operationalControls": "Audit signals (voids separate from gross sales).",
+      "productMix": "Categories grouped with dishes and their modifiers.",
+      "paymentTypes": "Collected amount split by payment method.",
+      "taxesBreakdown": "Tax components collected from orders.",
+      "discountsBreakdown": "Discount schemes applied in this period.",
+      "extrasBreakdown": "Breakdown of order-level extras.",
+      "couponsBreakdown": "Coupons redeemed and their values."
+    },
+    "rows": {
+      "exclusiveSales": "Exclusive sales",
+      "extras": "Extras",
+      "grossSales": "Gross sales",
+      "itemDiscounts": "Item discounts",
+      "subtotalDiscounts": "Subtotal discounts",
+      "couponDiscounts": "Coupon discounts",
+      "discounts": "(−) Discounts",
+      "netSales": "Net sales",
+      "serviceCharges": "Service charges",
+      "taxes": "Taxes",
+      "totalRevenue": "Total revenue",
+      "amountDueBeforeTips": "Amount due (before tips)",
+      "tips": "Tips",
+      "grandTotalDue": "Grand total (due)",
+      "amountCollected": "Amount collected",
+      "rounding": "Rounding",
+      "changeVariance": "Change / variance",
+      "voids": "Voids",
+      "refunds": "Refunds",
+      "covers": "Covers",
+      "averageCover": "Average cover",
+      "ordersChecks": "Orders / checks",
+      "averageOrderCheck": "Average order / check",
+      "totalTips": "Total Tips"
+    },
+    "hints": {
+      "exclusiveSales": "Item sales only (before extras, service and tax).",
+      "extras": "Order-level extras and surcharges attached to checks.",
+      "grossSales": "Exclusive sales + extras (voided lines excluded).",
+      "itemDiscounts": "Discount value directly applied on line items.",
+      "subtotalDiscounts": "Order-level discounts excluding item-level reductions.",
+      "couponDiscounts": "Coupon redemption amount.",
+      "discounts": "Line, order, and coupon reductions.",
+      "netSales": "Gross sales − discounts.",
+      "serviceCharges": "Amount on orders; based on net after discount",
+      "taxes": "Government tax as recorded per order.",
+      "totalRevenue": "Net sales + service charges + taxes (before tips).",
+      "amountDueBeforeTips": "Net sales + service charges + taxes.",
+      "tips": "From order tip fields / over-total (not included in gross sales).",
+      "grandTotalDue": "Total revenue + tips.",
+      "amountCollected": "Applied payment totals by method (excludes change returned).",
+      "rounding": "Amount collected − grand total (due); over/short vs calculated due.",
+      "changeVariance": "Cash tendered in excess of applied payment amounts.",
+      "voids": "Value of lines removed after ring (not in gross sales above).",
+      "refunds": "Returns from negative payments or cancelled checks.",
+      "covers": "Guest count (pax).",
+      "averageCover": "Amount due (before tips) ÷ covers.",
+      "ordersChecks": "Number of closed checks/orders.",
+      "averageOrderCheck": "Amount due (before tips) ÷ orders.",
+      "roundingLegacy": "Amount collected - Amount due"
+    },
+    "columns": {
+      "item": "Item",
+      "qty": "Qty",
+      "total": "Total",
+      "share": "Share"
+    },
+    "empty": {
+      "noCategoryData": "No category data for this date.",
+      "noPaymentData": "No payment data for this date.",
+      "noTaxRows": "No tax rows for this date.",
+      "noDiscountRows": "No discount rows for this date.",
+      "noExtras": "No extras found for this date.",
+      "noCoupons": "No coupon usage for this date."
+    },
+    "footer": "Sequence: gross sales → discounts → net sales → service charges → taxes → tips → grand total → collected. Product mix is grouped by category with dishes nested inside.",
+    "legacy": {
+      "tips": "Tips",
+      "categories": "Categories",
+      "dishes": "Dishes",
+      "paymentTypes": "Payment types",
+      "taxes": "Taxes",
+      "discounts": "Discounts",
+      "extras": "Extras",
+      "coupons": "Coupons",
+      "covers": "Covers",
+      "averageCover": "Average cover",
+      "ordersChecks": "Orders/Checks",
+      "averageOrderCheck": "Average order/check"
+    }
+  },
+  "clock": {
+    "title": "Time Clock",
+    "subtitle": "Track your work hours",
+    "saleSummary": "Sale Summary",
+    "loadingSaleData": "Loading sale data...",
+    "loading": "Loading...",
+    "signedInAs": "Signed in as",
+    "shift": "Shift",
+    "endsNextDay": "ends next day",
+    "clockInTime": "Clock In Time",
+    "timeElapsed": "Time Elapsed",
+    "sinceClockIn": "Since clock in",
+    "clockOut": "Clock Out",
+    "metrics": {
+      "totalSales": "Total Sales",
+      "refunds": "Refunds",
+      "serviceCharges": "Service Charges",
+      "discounts": "Discounts",
+      "taxes": "Taxes",
+      "extras": "Extras",
+      "voids": "Voids",
+      "tips": "Tips"
+    }
+  },
+  "tipDistribution": {
+    "shift": "Shift",
+    "date": "Date",
+    "loadTips": "Load tips",
+    "submit": "Submit",
+    "totalTips": "Total tips: {{amount}}",
+    "columns": {
+      "user": "User",
+      "role": "Role",
+      "weight": "Weight",
+      "amount": "Amount"
+    },
+    "empty": "No distribution calculated yet."
+  }
+}

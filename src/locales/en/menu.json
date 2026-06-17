@@ -1,0 +1,29 @@
+{
+  "actions": {
+    "repeat": "Repeat",
+    "modify": "Modify",
+    "delete": "Delete",
+    "deleteAll": "Delete All",
+    "search": "Search",
+    "split": "Split"
+  },
+  "header": {
+    "newOrder": "New Order",
+    "orderNumber": "Order# {{number}}",
+    "customer": "Customer",
+    "clear": "Clear",
+    "selectCustomer": "Select a customer",
+    "confirmTitle": "Please confirm",
+    "confirmCartMessage_one": "There is {{count}} item in cart, choose an action",
+    "confirmCartMessage_other": "There are {{count}} items in cart, choose an action",
+    "pax": "{{count}} PAX"
+  },
+  "modifiers": {
+    "modifyTitle": "Modify {{name}}",
+    "cancel": "Cancel",
+    "replacedWarning": "Last modifier is replaced, to replace any other modifier remove it from right sidebar and choose again."
+  },
+  "persons": {
+    "chooseCount": "Choose number of persons"
+  }
+}

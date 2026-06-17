@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -21,6 +22,7 @@ const parseFilters = () => {
 };
 
 export const MergeOrdersReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [rows, setRows] = useState<MergeRow[]>([]);
@@ -61,7 +63,7 @@ export const MergeOrdersReport = () => {
         setRows((result || []) as MergeRow[]);
       } catch (err) {
         console.error("Failed to load merge orders report", err);
-        setError(err instanceof Error ? err.message : "Unable to load report");
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
       } finally {
         setLoading(false);
       }
@@ -71,15 +73,15 @@ export const MergeOrdersReport = () => {
   }, [filters.endDate, filters.startDate]);
 
   if (loading) {
-    return <ReportsLayout title="Merge orders report" subtitle={subtitle}><div className="py-12 text-center text-neutral-500">Loading merge orders report...</div></ReportsLayout>;
+    return <ReportsLayout title={t('titles.mergeOrders')} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('loading.mergeOrders')}</div></ReportsLayout>;
   }
 
   if (error) {
-    return <ReportsLayout title="Merge orders report" subtitle={subtitle}><div className="py-12 text-center text-red-600">Failed to load report: {error}</div></ReportsLayout>;
+    return <ReportsLayout title={t('titles.mergeOrders')} subtitle={subtitle}><div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div></ReportsLayout>;
   }
 
   return (
-    <ReportsLayout title="Merge orders report" subtitle={subtitle}>
+    <ReportsLayout title={t('titles.mergeOrders')} subtitle={subtitle}>
       <div className="overflow-hidden rounded-lg border border-neutral-200">
         <table className="min-w-full divide-y divide-neutral-200">
           <thead className="bg-neutral-50">

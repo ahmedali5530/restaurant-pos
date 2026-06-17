@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {REPORTS_VOIDS} from "@/routes/posr.ts";
 import {DateRange} from "@/components/reports/filters/date.range.tsx";
 import {Button} from "@/components/common/input/button.tsx";
@@ -29,6 +30,7 @@ const notNull = <T,>(value: T | null | undefined): value is T =>
   value !== null && value !== undefined;
 
 export const VoidsFilter = () => {
+  const { t } = useTranslation('reports');
   const {data: usersData, isLoading: loadingUsers} = useApi<SettingsData<User>>(Tables.users, [], ['first_name asc'], 0, 9999);
   const {data: dishesData, isLoading: loadingDishes} = useApi<SettingsData<Dish>>(Tables.dishes, [], ['name asc'], 0, 9999);
 
@@ -74,7 +76,7 @@ export const VoidsFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="voids-cashiers">Cashiers</label>
+          <label htmlFor="voids-cashiers">{t('metrics.cashiers')}</label>
           <ReactSelect
             id="voids-cashiers"
             name="cashiers[]"
@@ -90,7 +92,7 @@ export const VoidsFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="voids-menu-items">Menu Items</label>
+          <label htmlFor="voids-menu-items">{t('filters.menuItems')}</label>
           <ReactSelect
             id="voids-menu-items"
             name="menu_items[]"
@@ -108,7 +110,7 @@ export const VoidsFilter = () => {
         variant="primary"
         filled
         type="submit"
-      >Generate</Button>
+      >{t('filters.generate')}</Button>
     </form>
   );
 }

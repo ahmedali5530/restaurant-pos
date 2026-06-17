@@ -14,6 +14,7 @@ import {
   WARNING_TOAST_ID,
 } from "@/lib/auto-check-close.service.ts";
 import { AutoCloseCycleState} from "@/lib/closing-cycle.ts";
+import {useTranslation} from "react-i18next";
 
 const CHECK_INTERVAL_MS = 5_000;
 
@@ -24,6 +25,7 @@ interface AutoCheckCloseProviderProps {
 export const AutoCheckCloseProvider: React.FC<AutoCheckCloseProviderProps> = ({
   children,
 }) => {
+  const {t} = useTranslation(["closing", "toast"]);
   const db = useDB();
   const [page] = useAtom(appPage);
   const dbRef = useRef(db);
@@ -93,26 +95,29 @@ export const AutoCheckCloseProvider: React.FC<AutoCheckCloseProviderProps> = ({
 
       if (closed > 0) {
         toast.success(
-          `Auto-closed ${closed} check${closed === 1 ? '' : 's'}`
+          t("closing:autoCheckClose.autoClosed", {count: closed})
         );
       } else if (failed > 0) {
         toast.error(
-          `Failed to auto-close ${failed} check${failed === 1 ? '' : 's'}`
+          t("closing:autoCheckClose.failed", {count: failed})
         );
       } else if (candidates === 0) {
-        toast.info('Closing cycle ended. No open checks to close.');
+        toast.info(t("closing:autoCheckClose.noOpenChecks"));
       } else {
+        const skippedSuffix = skipped > 0
+          ? t("closing:autoCheckClose.skippedSuffix", {count: skipped})
+          : "";
         toast.error(
-          `Found ${candidates} open check${candidates === 1 ? '' : 's'} but none were closed${skipped > 0 ? ` (${skipped} skipped)` : ''}. Will retry.`
+          t("closing:autoCheckClose.retry", {count: candidates, skipped: skippedSuffix})
         );
       }
     } catch (error) {
       console.error('Auto check close execution failed:', error);
-      toast.error('Failed to auto-close checks');
+      toast.error(t("closing:autoCheckClose.executionFailed"));
     } finally {
       inFlightRef.current = false;
     }
-  }, []);
+  }, [t]);
 
   const evaluateAutoClose = useCallback(async () => {
     const userId = pageRef.current?.user?.id?.toString();
@@ -149,14 +154,14 @@ export const AutoCheckCloseProvider: React.FC<AutoCheckCloseProviderProps> = ({
       }
 
       toast.warning(
-        `Checks will auto-close in ${formatCountdown(state.secondsUntilEnd)}`,
+        t("closing:autoCheckClose.warning", {countdown: formatCountdown(state.secondsUntilEnd)}),
         { id: WARNING_TOAST_ID, duration: Infinity }
       );
       return;
     }
 
     dismissWarningToast();
-  }, [dismissWarningToast, executeAutoCloseIfNeeded]);
+  }, [dismissWarningToast, executeAutoCloseIfNeeded, t]);
 
   useEffect(() => {
     let isActive = true;

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {REPORTS_DISCOUNTS} from "@/routes/posr.ts";
 import {DateRange} from "@/components/reports/filters/date.range.tsx";
 import {Button} from "@/components/common/input/button.tsx";
@@ -16,6 +17,7 @@ const notNull = <T,>(value: T | null | undefined): value is T =>
   value !== null && value !== undefined;
 
 export const DiscountsFilter = () => {
+  const { t } = useTranslation('reports');
   const {data: discountsData, isLoading: loadingDiscounts} = useApi<SettingsData<Discount>>(Tables.discounts, [], ["name asc"], 0, 9999);
 
   return (
@@ -26,7 +28,7 @@ export const DiscountsFilter = () => {
     >
       <DateRange isRequired label="Select a range" />
       <div className="w-full flex flex-col gap-2">
-        <label htmlFor="discount-filter-discount">Discount</label>
+        <label htmlFor="discount-filter-discount">{t('reports.discount')}</label>
         <ReactSelect
           id="discount-filter-discount"
           name="discount_id"
@@ -43,7 +45,7 @@ export const DiscountsFilter = () => {
         variant="primary"
         filled
         type="submit"
-      >Generate</Button>
+      >{t('filters.generate')}</Button>
     </form>
   );
 }

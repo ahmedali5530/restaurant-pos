@@ -1,6 +1,7 @@
 import { Order, OrderStatus } from "@/api/model/order.ts";
 import { cn } from "@/lib/utils.ts";
-import {getInvoiceNumber} from "@/lib/order.ts";
+import {getInvoiceNumber, translateOrderStatus} from "@/lib/order.ts";
+import {useTranslation} from "react-i18next";
 
 interface Props {
   order: Order
@@ -9,6 +10,7 @@ interface Props {
 export const OrderHeader = ({
   order
 }: Props) => {
+  const {t} = useTranslation('orders');
 
   const colors = {
     [OrderStatus["In Progress"]]: 'bg-warning-100 text-warning-700',
@@ -30,13 +32,13 @@ export const OrderHeader = ({
         )}
 
         <div className="flex flex-col items-start gap-1">
-          <span className="font-bold">Order# {getInvoiceNumber(order)} / {order?.order_type?.name}</span>
+          <span className="font-bold">{t('header.orderNumber', {invoice: getInvoiceNumber(order), orderType: order?.order_type?.name})}</span>
           <span className={
             cn(
               "uppercase p-1 px-3 rounded-lg text-sm font-bold flex-grow-0 flex-shrink",
               colors[order?.status]
             )
-          }>{order?.status}</span>
+          }>{translateOrderStatus(t, order?.status)}</span>
 
         </div>
       </div>

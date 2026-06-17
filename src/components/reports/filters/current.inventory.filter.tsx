@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {REPORTS_CURRENT_INVENTORY} from "@/routes/posr.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
@@ -26,6 +27,7 @@ const notNull = <T,>(value: T | null | undefined): value is T =>
   value !== null && value !== undefined;
 
 export const CurrentInventoryFilter = () => {
+  const { t } = useTranslation('reports');
   const {data: itemsData, isLoading: loadingItems} = useApi<SettingsData<InventoryItem>>(
     Tables.inventory_items, 
     [], 
@@ -42,7 +44,7 @@ export const CurrentInventoryFilter = () => {
       target="_blank"
     >
       <div className="w-full flex flex-col gap-2">
-        <label htmlFor="current-inventory-items">Inventory Items</label>
+        <label htmlFor="current-inventory-items">{t('labels.inventoryItems')}</label>
         <ReactSelect
           id="current-inventory-items"
           name="items[]"
@@ -59,7 +61,7 @@ export const CurrentInventoryFilter = () => {
         variant="primary"
         filled
         type="submit"
-      >Generate</Button>
+      >{t('filters.generate')}</Button>
     </form>
   );
 }

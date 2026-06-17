@@ -15,6 +15,8 @@ import { Tax } from "@/api/model/tax.ts";
 import { StringRecordId } from "surrealdb";
 import {Discount} from "@/api/model/discount.ts";
 import {toRecordId} from "@/lib/utils.ts";
+import {useTranslation} from 'react-i18next';
+import i18n from '@/lib/i18n.ts';
 import {GATEWAY_CATALOG, getGatewayDescriptor} from "@/lib/payment/gateway-catalog.ts";
 
 interface Props {
@@ -24,8 +26,8 @@ interface Props {
 }
 
 const validationSchema = z.object({
-  name: z.string().min(1, "This is required"),
-  priority: z.string().min(1, "This is required"),
+  name: z.string().min(1, i18n.t('validation:required')),
+  priority: z.string().min(1, i18n.t('validation:required')),
   type: z.object({
     label: z.string(),
     value: z.string()
@@ -96,6 +98,8 @@ function getGatewayConfigValues(config: PaymentType["gateway_config"]) {
 export const PaymentTypeForm = ({
   open, onClose, data
 }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
   const closeModal = () => {
     onClose();
     reset({
@@ -225,7 +229,7 @@ export const PaymentTypeForm = ({
       }
 
       closeModal();
-      toast.success(`Payment type ${values.name} saved`);
+      toast.success(t('toast:admin.paymentTypeSaved', { name: values.name }));
     }catch(e){
       toast.error(e);
       console.log(e)
@@ -244,21 +248,21 @@ export const PaymentTypeForm = ({
   return (
     <>
       <Modal
-        title={data ? `Update ${data?.name}` : 'Create new payment type'}
+        title={data ? t('forms.updatePaymentType', { name: data?.name }) : t('forms.createPaymentType')}
         open={open}
         onClose={closeModal}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <Input label="Name" {...register('name')} autoFocus error={errors?.name?.message}/>
+              <Input label={t('columns.name')} {...register('name')} autoFocus error={errors?.name?.message}/>
             </div>
             <div className="flex-1">
               <Controller
                 render={({ field }) => (
                   <Input
                     type="number"
-                    label="Priority"
+                    label={t('columns.priority')}
                     error={errors?.priority?.message}
                     value={field.value}
                     onChange={field.onChange}
@@ -304,7 +308,7 @@ export const PaymentTypeForm = ({
                         value: item.id
                       }))}
                       isClearable
-                      placeholder="Select provider (optional)"
+                      placeholder={t('forms.selectProvider')}
                     />
                   )}
                   name="gateway"
@@ -324,7 +328,7 @@ export const PaymentTypeForm = ({
                       }))}
                       isClearable
                       isDisabled={!selectedGateway}
-                      placeholder="sandbox / live"
+                      placeholder={t('forms.sandboxLive')}
                     />
                   )}
                   name="gateway_mode"
@@ -398,7 +402,7 @@ export const PaymentTypeForm = ({
           </div>
 
           <div>
-            <Button type="submit" variant="primary">Save</Button>
+            <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
           </div>
         </form>
       </Modal>

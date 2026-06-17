@@ -1,0 +1,11 @@
+{
+  "required": "Bu alan zorunludur",
+  "invalidEmail": "Geçersiz e-posta adresi",
+  "invalidNumber": "Geçersiz numara",
+  "mustBeNumber": "Bu bir sayı olmalıdır",
+  "mustBeGreaterThanZero": "Bu 0'dan büyük olmalıdır",
+  "quantityMin": "Miktar 0'dan büyük olmalıdır",
+  "costMin": "Maliyet 0'a eşit veya daha büyük olmalıdır",
+  "uniqueItems": "Her ürün yalnızca bir kez eklenebilir",
+  "invalidPort": "Geçersiz Port numarası"
+}

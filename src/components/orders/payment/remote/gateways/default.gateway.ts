@@ -3,6 +3,7 @@ import { AfterIntentCreatedInput } from "@/components/orders/payment/remote/core
 import { GatewayType } from "@/lib/payment.service.ts";
 import { getGatewayDescriptor } from "@/lib/payment/gateway-catalog.ts";
 import { toast } from "sonner";
+import i18n from "@/lib/i18n.ts";
 
 export function createDefaultGatewayAdapter(gateway: GatewayType): RemoteGatewayAdapter {
   return {
@@ -13,11 +14,11 @@ export function createDefaultGatewayAdapter(gateway: GatewayType): RemoteGateway
     onIntentCreated({ intent }: AfterIntentCreatedInput) {
       if (intent.paymentUrl) {
         window.open(intent.paymentUrl, "_blank", "noopener,noreferrer");
-        toast.success("Remote payment link generated.");
+        toast.success(i18n.t('payment:remoteGateway.linkGenerated'));
       } else if (intent.clientToken) {
-        toast.success(`Remote token generated: ${intent.clientToken}`);
+        toast.success(i18n.t('payment:remoteGateway.tokenGenerated', { token: intent.clientToken }));
       } else {
-        toast.success("Remote payment intent generated.");
+        toast.success(i18n.t('payment:remoteGateway.intentGenerated'));
       }
     },
   };

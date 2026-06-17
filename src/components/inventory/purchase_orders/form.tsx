@@ -1,4 +1,5 @@
 import React, {useEffect, useMemo, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import * as yup from "yup";
 import {Controller, useFieldArray, useForm, useWatch} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
@@ -98,6 +99,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
 }).required();
 
 export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
+  const { t } = useTranslation('inventory');
   const db = useDB();
   const [state, ] = useAtom(appPage);
   const validationSchema = useMemo(() => createValidationSchema(db, data?.id), [db, data?.id]);
@@ -188,7 +190,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
       })
       .catch((error) => {
         console.error("Failed to fetch next PO number", error);
-        toast.error("Unable to generate next PO number");
+        toast.error(t('toast:inventory.unableGeneratePoNumber'));
       });
 
     return () => {
@@ -305,7 +307,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
         items: itemsRefs,
       });
 
-      toast.success("Purchase order saved");
+      toast.success(t('toast:inventory.purchaseOrderSaved'));
       closeModal();
     } catch (error) {
       console.log(error)
@@ -373,7 +375,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                   control={control}
                   render={({field}) => (
                     <Input
-                      label="PO Number"
+                      label={t('forms.poNumber')}
                       type="number"
                       {...field}
                       value={field.value ?? ""}
@@ -412,7 +414,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                   control={control}
                   render={({field}) => (
                     <DatePicker
-                      label="Date"
+                      label={t('forms.date')}
                       value={field.value as any}
                       onChange={field.onChange}
                       maxValue={getToday()}
@@ -438,7 +440,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
             </div>
 
             <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
-              <legend>Items</legend>
+              <legend>{t('tabs.items')}</legend>
               <div className="mb-3 flex gap-2">
                 <Button
                   type="button"
@@ -463,7 +465,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                   <div className="flex flex-col gap-3 mb-3" key={field.id}>
                     <div className="flex gap-3">
                       <div className="flex-1">
-                        <label>Item</label>
+                        <label>{t('buttons.item')}</label>
                         <Controller
                           name={`items.${index}.item`}
                           control={control}
@@ -484,7 +486,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                           control={control}
                           render={({field}) => (
                             <Input
-                              label="Quantity"
+                              label={t('forms.quantity')}
                               type="number"
                               value={field.value as number | string}
                               onChange={field.onChange}
@@ -499,7 +501,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                           control={control}
                           render={({field}) => (
                             <Input
-                              label="Price"
+                              label={t('columns.price')}
                               type="number"
                               value={field.value as number | string | undefined}
                               onChange={field.onChange}
@@ -543,7 +545,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
           </div>
 
           <div>
-            <Button type="submit" variant="primary">Save</Button>
+            <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
           </div>
         </form>
       </Modal>

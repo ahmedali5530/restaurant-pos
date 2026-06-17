@@ -18,6 +18,7 @@ import {
 } from "@/lib/payment.service.ts";
 import { nanoid } from "nanoid";
 import { toast } from "sonner";
+import i18n from "@/lib/i18n.ts";
 import {
   registerRemotePaymentSettler,
 } from "@/components/orders/payment/remote/core/remote-payment-settlement.ts";
@@ -95,7 +96,7 @@ export function useRemotePayments({
       stopPolling(pendingIntent.id);
       setPendingIntents((prev) => prev.filter((item) => item.id !== pendingIntent.id));
       toast.success(
-        adapter.getVerifiedSuccessMessage?.() ?? "Remote payment verified and added.",
+        adapter.getVerifiedSuccessMessage?.() ?? i18n.t('payment:remoteGateway.verifiedAndAdded'),
       );
     },
     [setPayments, stopPolling, trackVerifyPayment],
@@ -142,7 +143,7 @@ export function useRemotePayments({
         if (!Number.isFinite(numericAmount) || numericAmount <= 0) return;
 
         if (!gateway) {
-          toast.error("Remote payment type is missing a gateway provider.");
+          toast.error(i18n.t('payment:remoteGateway.missingProvider'));
           return;
         }
 
@@ -205,7 +206,7 @@ export function useRemotePayments({
         onIntentSettled?.();
       } catch (e) {
         const message =
-          e instanceof Error ? e.message : "Failed to generate remote payment link/token";
+          e instanceof Error ? e.message : i18n.t('payment:remoteGateway.generateFailed');
         toast.error(message);
       } finally {
         setIsProcessing(false);
@@ -219,7 +220,7 @@ export function useRemotePayments({
     async (amount: string | number, paymentType: PaymentType, payable: number) => {
       const gateway = paymentType.gateway as GatewayType | undefined;
       if (!gateway) {
-        toast.error("Remote payment type is missing a gateway provider.");
+        toast.error(i18n.t('payment:remoteGateway.missingProvider'));
         return;
       }
 
@@ -267,7 +268,7 @@ export function useRemotePayments({
 
         if (result.status !== "paid" && result.status !== "authorized") {
           toast.warning(
-            `Payment is ${result.status}. It must be paid/authorized before adding.`,
+            i18n.t('payment:remoteGateway.mustBePaid', { status: result.status }),
           );
           setPendingIntents((prev) =>
             prev.map((item) =>
@@ -279,7 +280,7 @@ export function useRemotePayments({
 
         completeRemotePayment(pendingIntent, result);
       } catch (e) {
-        const message = e instanceof Error ? e.message : "Failed to verify remote payment";
+        const message = e instanceof Error ? e.message : i18n.t('payment:remoteGateway.verifyFailed');
         toast.error(message);
       } finally {
         setVerifyingIntentId(null);

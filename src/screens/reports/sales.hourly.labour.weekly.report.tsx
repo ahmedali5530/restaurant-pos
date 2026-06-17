@@ -1,6 +1,7 @@
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {Tables} from "@/api/db/tables.ts";
 import {Order} from "@/api/model/order.ts";
 import {TimeEntry} from "@/api/model/time_entry.ts";
@@ -30,13 +31,6 @@ interface HourlyRow {
 }
 
 const WEEK_DAYS: WeekdayName[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
-const METRICS: { key: MetricKey; label: string; formatter: (value: number) => string }[] = [
-  { key: 'amountCollected', label: 'Amount Collected', formatter: withCurrency },
-  { key: 'grossSales', label: 'Gross Sales', formatter: withCurrency },
-  { key: 'couponAmount', label: 'Coupon Amount', formatter: withCurrency },
-  { key: 'labourMinutes', label: 'Labour Hours (mins)', formatter: (value) => formatNumber(value) },
-];
 
 const formatHourLabel = (hour: number) => {
   const suffix = hour >= 12 ? 'PM' : 'AM';
@@ -73,6 +67,13 @@ const createEmptyDayRecord = () => {
 };
 
 export const SalesHourlyLabourWeeklyReport = () => {
+  const { t } = useTranslation('reports');
+  const METRICS = useMemo<{ key: MetricKey; label: string; formatter: (value: number) => string }[]>(() => [
+    { key: 'amountCollected', label: t('labels.amountCollected'), formatter: withCurrency },
+    { key: 'grossSales', label: t('columns.grossSales'), formatter: withCurrency },
+    { key: 'couponAmount', label: t('metrics.couponAmount'), formatter: withCurrency },
+    { key: 'labourMinutes', label: t('metrics.labourHoursMins'), formatter: (value) => formatNumber(value) },
+  ], [t]);
   const db = useDB();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -118,7 +119,7 @@ export const SalesHourlyLabourWeeklyReport = () => {
         setTimeEntries((timeEntriesResult?.[0] ?? []) as TimeEntry[]);
       } catch (err) {
         console.error('Failed to load weekly labour report:', err);
-        setError(err instanceof Error ? err.message : 'Unable to load report');
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
       } finally {
         setLoading(false);
       }
@@ -240,17 +241,17 @@ export const SalesHourlyLabourWeeklyReport = () => {
 
   if (loading) {
     return (
-      <ReportsLayout title="Sales Hourly Labour Weekly" subtitle={subtitle}>
-        <div className="text-center p-6">Loading weekly labour report...</div>
+      <ReportsLayout title={t('reports.salesHourlyLabourWeekly')} subtitle={subtitle}>
+        <div className="text-center p-6">{t('loading.weeklyLabour')}</div>
       </ReportsLayout>
     );
   }
 
   if (error) {
     return (
-      <ReportsLayout title="Sales Hourly Labour Weekly" subtitle={subtitle}>
+      <ReportsLayout title={t('reports.salesHourlyLabourWeekly')} subtitle={subtitle}>
         <div className="text-center p-6 text-danger-600">
-          Failed to load report: {error}
+          {t('errors.failedToLoad', { error })}
         </div>
       </ReportsLayout>
     );
@@ -258,7 +259,7 @@ export const SalesHourlyLabourWeeklyReport = () => {
 
   if (!rows.length) {
     return (
-      <ReportsLayout title="Sales Hourly Labour Weekly" subtitle={subtitle}>
+      <ReportsLayout title={t('reports.salesHourlyLabourWeekly')} subtitle={subtitle}>
         <div className="text-center p-6 text-gray-500">
           No data available for the selected week.
         </div>
@@ -268,14 +269,14 @@ export const SalesHourlyLabourWeeklyReport = () => {
 
   return (
     <ReportsLayout
-      title="Sales Hourly Labour Weekly"
+      title={t('reports.salesHourlyLabourWeekly')}
       subtitle={subtitle}
     >
       <div className="overflow-x-auto">
         <table className="table table-hover min-w-full">
           <thead>
             <tr>
-              <th>Hour</th>
+              <th>{t('columns.hour')}</th>
               <th>Metric</th>
               {dayHeaders.map(({day, dateLabel}) => (
                 <th key={day} className="text-right">

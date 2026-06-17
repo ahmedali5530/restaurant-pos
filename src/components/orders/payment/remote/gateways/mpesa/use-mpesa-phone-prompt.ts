@@ -5,6 +5,7 @@ import {
 } from "@/components/orders/payment/remote/gateways/mpesa/mpesa.gateway.tsx";
 import { normalizeMpesaPhone } from "@/components/orders/payment/remote/gateways/mpesa/mpesa.utils.ts";
 import { toast } from "sonner";
+import i18n from "@/lib/i18n.ts";
 
 export function useMpesaPhonePrompt() {
   const [open, setOpen] = useState(false);
@@ -44,7 +45,7 @@ export function useMpesaPhonePrompt() {
 
     const normalized = normalizeMpesaPhone(phoneInput);
     if (!normalized) {
-      toast.error("Enter a valid M-Pesa number (2547XXXXXXXX or 07XXXXXXXX).");
+      toast.error(i18n.t('payment:remoteGateway.mpesaInvalidPhone'));
       return;
     }
 

@@ -11,6 +11,7 @@ import { useDB } from "@/api/db/db.ts";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import { Input } from "@/components/common/input/input.tsx";
 import { Button } from "@/components/common/input/button.tsx";
+import {useTranslation} from 'react-i18next';
 
 interface RoleDistributionRow {
   role_id: string
@@ -29,6 +30,7 @@ interface TipDistributionValues {
 
 export const AdminTipDistribution = () => {
   const db = useDB();
+  const { t } = useTranslation(['admin', 'common', 'toast']);
   const [settings, setSettings] = useState<Setting>();
   const [roleRows, setRoleRows] = useState<RoleDistributionRow[]>([]);
   const [userRows, setUserRows] = useState<UserDistributionRow[]>([]);
@@ -109,7 +111,7 @@ export const AdminTipDistribution = () => {
         });
       }
 
-      toast.success("Tip distribution saved");
+      toast.success(t('toast:admin.tipDistributionSaved'));
       await loadSettings();
     } catch (e) {
       toast.error(e);
@@ -122,7 +124,7 @@ export const AdminTipDistribution = () => {
     <div className="p-3 grid grid-cols-2 gap-5">
       <div className="shadow p-4 rounded bg-white">
         <div className="flex justify-between items-center mb-3">
-          <h3 className="text-lg font-semibold">By roles</h3>
+          <h3 className="text-lg font-semibold">{t('forms.byRoles')}</h3>
           <Button
             variant="primary"
             icon={faPlus}
@@ -133,18 +135,18 @@ export const AdminTipDistribution = () => {
               ]);
             }}
           >
-            Role weight
+            {t('forms.roleWeight')}
           </Button>
         </div>
 
         <div className="flex flex-col gap-3">
           {roleRows.length === 0 && (
-            <div className="text-sm text-neutral-500">No role weight added yet.</div>
+            <div className="text-sm text-neutral-500">{t('forms.noRoleWeight')}</div>
           )}
           {roleRows.map((row, index) => (
             <div key={`role-${index}`} className="grid grid-cols-3 gap-3 items-end">
               <div>
-                <label>Role</label>
+                <label>{t('columns.role')}</label>
                 <ReactSelect
                   value={row.role_id ? {
                     value: normalizeId(row.role_id),
@@ -165,7 +167,7 @@ export const AdminTipDistribution = () => {
               </div>
               <div>
                 <Input
-                  label="Weight"
+                  label={t('forms.weight')}
                   type="number"
                   value={row.weight}
                   onChange={(event) => {
@@ -189,7 +191,7 @@ export const AdminTipDistribution = () => {
 
       <div className="shadow p-4 rounded bg-white">
         <div className="flex justify-between items-center mb-3">
-          <h3 className="text-lg font-semibold">Specific users</h3>
+          <h3 className="text-lg font-semibold">{t('forms.specificUsers')}</h3>
           <Button
             variant="primary"
             icon={faPlus}
@@ -200,18 +202,18 @@ export const AdminTipDistribution = () => {
               ]);
             }}
           >
-            User weight
+            {t('forms.userWeight')}
           </Button>
         </div>
 
         <div className="flex flex-col gap-3">
           {userRows.length === 0 && (
-            <div className="text-sm text-neutral-500">No user-specific weight added yet.</div>
+            <div className="text-sm text-neutral-500">{t('forms.noUserWeight')}</div>
           )}
           {userRows.map((row, index) => (
             <div key={`user-${index}`} className="grid grid-cols-3 gap-3 items-end">
               <div>
-                <label>User</label>
+                <label>{t('tabs.users')}</label>
                 <ReactSelect
                   value={row.user_id ? {
                     value: normalizeId(row.user_id),
@@ -237,7 +239,7 @@ export const AdminTipDistribution = () => {
               </div>
               <div>
                 <Input
-                  label="Weight"
+                  label={t('forms.weight')}
                   type="number"
                   value={row.weight}
                   onChange={(event) => {
@@ -262,7 +264,7 @@ export const AdminTipDistribution = () => {
 
       <div className="col-span-2">
         <Button variant="primary" onClick={saveSettings} isLoading={saving}>
-          Save distribution
+          {t('forms.saveDistribution')}
         </Button>
       </div>
     </div>

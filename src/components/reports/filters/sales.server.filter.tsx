@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {REPORTS_SALES_SERVER} from "@/routes/posr.ts";
 import {DateRange} from "@/components/reports/filters/date.range.tsx";
 import {Button} from "@/components/common/input/button.tsx";
@@ -32,6 +33,7 @@ const notNull = <T,>(value: T | null | undefined): value is T =>
   value !== null && value !== undefined;
 
 export const SalesServerFilter = () => {
+  const { t } = useTranslation('reports');
   const {data: usersData, isLoading: loadingUsers} = useApi<SettingsData<User>>(Tables.users, [], ['first_name asc'], 0, 9999);
   const {data: orderTypesData, isLoading: loadingOrderTypes} = useApi<SettingsData<OrderType>>(Tables.order_types, [], ['name asc'], 0, 9999);
   const {data: categoriesData, isLoading: loadingCategories} = useApi<SettingsData<Category>>(Tables.categories, [], ['name asc'], 0, 9999);
@@ -79,7 +81,7 @@ export const SalesServerFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-server-categories">Categories</label>
+          <label htmlFor="sales-server-categories">{t('filters.categories')}</label>
           <ReactSelect
             id="sales-server-categories"
             name="categories[]"
@@ -93,7 +95,7 @@ export const SalesServerFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-server-dishes">Dishes</label>
+          <label htmlFor="sales-server-dishes">{t('metrics.dishes')}</label>
           <ReactSelect
             id="sales-server-dishes"
             name="dishes[]"
@@ -107,7 +109,7 @@ export const SalesServerFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-server-floors">Floors</label>
+          <label htmlFor="sales-server-floors">{t('metrics.floors')}</label>
           <ReactSelect
             id="sales-server-floors"
             name="floors[]"
@@ -139,7 +141,7 @@ export const SalesServerFilter = () => {
         variant="primary"
         filled
         type="submit"
-      >Generate</Button>
+      >{t('filters.generate')}</Button>
     </form>
   );
 }

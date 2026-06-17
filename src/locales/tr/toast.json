@@ -1,0 +1,82 @@
+{
+  "generic": {
+    "saved": "Başarıyla kaydedildi",
+    "updated": "Başarıyla güncellendi",
+    "deleted": "Başarıyla silindi",
+    "created": "Başarıyla oluşturuldu",
+    "failed": "İşlem başarısız",
+    "error": "Bir hata oluştu"
+  },
+  "inventory": {
+    "wasteSaved": "Fire kaydedildi",
+    "issueSaved": "Çıkış kaydedildi",
+    "issueReturnSaved": "Çıkış iadesi kaydedildi",
+    "purchaseSaved": "Satın alma kaydedildi",
+    "purchaseReturnSaved": "Satın alma iadesi kaydedildi",
+    "purchaseOrderSaved": "Satın alma siparişi kaydedildi",
+    "itemGroupSaved": "Ürün grubu kaydedildi",
+    "itemSaved": "{{name}} ürünü kaydedildi",
+    "categorySaved": "{{name}} kategorisi kaydedildi",
+    "supplierSaved": "{{name}} tedarikçisi kaydedildi",
+    "storeSaved": "{{name}} deposu kaydedildi",
+    "unableGenerateWasteNumber": "Sonraki fire numarası oluşturulamadı",
+    "unableGenerateIssueNumber": "Sonraki çıkış numarası oluşturulamadı",
+    "unableGenerateIssueReturnNumber": "Sonraki çıkış iade numarası oluşturulamadı",
+    "unableGenerateInvoiceNumber": "Sonraki fatura numarası oluşturulamadı",
+    "unableGenerateReturnNumber": "Sonraki iade numarası oluşturulamadı",
+    "unableGeneratePoNumber": "Sonraki PO numarası oluşturulamadı",
+    "itemsExceedQuantity": "Bir veya daha fazla ürün mevcut miktarı aşıyor"
+  },
+  "delivery": {
+    "settingsSaved": "Teslimat ayarları başarıyla kaydedildi",
+    "settingsLoadFailed": "Teslimat ayarları yüklenemedi",
+    "settingsSaveFailed": "Teslimat ayarları kaydedilemedi",
+    "mapAreasSaved": "Harita alanları başarıyla kaydedildi",
+    "mapAreasSaveFailed": "Harita alanları kaydedilemedi",
+    "mapAreasLoadFailed": "Harita alanları yüklenemedi",
+    "shapeTooSmall": "Şekil çok küçük. Daha büyük bir alan çizin.",
+    "rectangleTooSmall": "Dikdörtgen çok küçük. Daha büyük bir alan çizin.",
+    "circleTooSmall": "Daire çok küçük. Daha büyük bir yarıçap çizin.",
+    "polygonTooSmall": "Çokgen çok küçük. Daha büyük bir çerçeve çizin.",
+    "fetchRidersFailed": "Kuryeler getirilemedi",
+    "acceptFailed": "Sipariş kabul edilemedi",
+    "rejectFailed": "Sipariş reddedilemedi",
+    "sendFailed": "Sipariş gönderilemedi",
+    "attachRiderFailed": "Kurye atanamadı"
+  },
+  "reports": {
+    "mapAreasSaveFailed": "Harita alanları kaydedilemedi"
+  },
+  "kitchen": {
+    "recallFailed": "Sipariş geri çağrılamadı"
+  },
+  "closing": {
+    "loadFailed": "Kapanış yüklenemedi",
+    "alreadyClosed": "Bu döngü zaten kapatıldı.",
+    "openOrders": "Açık siparişler var. Lütfen önce bunları kapatın.",
+    "completed": "Kapanış başarıyla tamamlandı!",
+    "savedDraft": "Kapanış başarıyla taslak olarak kaydedildi!",
+    "saveFailed": "Kapanış kaydedilemedi",
+    "notFound": "Bu döngü için kapanış bulunamadı.",
+    "reopened": "Kapanış düzenleme modunda yeniden açıldı.",
+    "reopenFailed": "Kapanış yeniden açılamadı",
+    "printFailed": "Kapanış yazdırılamadı"
+  },
+  "summary": {
+    "noProductMix": "Ürün karışımı için öğe bulunamadı.",
+    "noTimeEntries": "Bu tarih için tamamlanmış zaman kaydı bulunamadı.",
+    "noServerSales": "Bu tarih için garson satış verisi bulunamadı."
+  },
+  "clock": {
+    "noActiveEntry": "Aktif zaman kaydı bulunamadı",
+    "loadEntryFailed": "Zaman kaydı yüklenemedi",
+    "loadSaleSummaryFailed": "Satış özeti yüklenemedi",
+    "clockedOut": "Mesai çıkışı başarılı",
+    "clockOutFailed": "Mesai çıkışı başarısız"
+  },
+  "tipDistribution": {
+    "selectShiftAndDate": "Lütfen vardiya ve tarih seçin",
+    "unableToDeriveRange": "Vardiyadan zaman aralığı türetilemedi",
+    "saved": "Bahşiş dağıtımı kaydedildi"
+  }
+}

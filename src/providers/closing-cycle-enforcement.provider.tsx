@@ -5,6 +5,7 @@ import { useDB } from "@/api/db/db.ts";
 import { appPage, closingEnforcementAtom, defaultClosingEnforcementState } from "@/store/jotai.ts";
 import { getClosingEnforcementState } from "@/lib/closing.guard.ts";
 import { CLOSING } from "@/routes/posr.ts";
+import {useTranslation} from "react-i18next";
 
 const CHECK_INTERVAL_MS = 30_000;
 export const CYCLE_ENDED_TOAST_ID = "closing-cycle-ended";
@@ -16,6 +17,7 @@ interface ClosingCycleEnforcementProviderProps {
 export const ClosingCycleEnforcementProvider: React.FC<ClosingCycleEnforcementProviderProps> = ({
   children,
 }) => {
+  const {t} = useTranslation("closing");
   const db = useDB();
   const [page] = useAtom(appPage);
   const setEnforcement = useSetAtom(closingEnforcementAtom);
@@ -64,7 +66,7 @@ export const ClosingCycleEnforcementProvider: React.FC<ClosingCycleEnforcementPr
             id: CYCLE_ENDED_TOAST_ID,
             duration: Infinity,
             action: {
-              label: "Go to closing",
+              label: t("actions.goToClosing"),
               onClick: () => {
                 window.location.href = CLOSING;
               },

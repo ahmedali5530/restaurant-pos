@@ -1,10 +1,12 @@
 import {useStoreInventory} from "@/hooks/useStoreInventory.ts";
 import {useMemo, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {Button} from "@/components/common/input/button.tsx";
 
 export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: InventoryItem}) => {
+  const { t } = useTranslation('inventory');
   const {netQuantity, loading, records} = useStoreInventory(item?.id, storeId);
   const [modal, setModal] = useState(false);
   const [display, setDisplay] = useState<"unified"|"split">("unified");
@@ -70,11 +72,11 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
             <table className="table table-hover table-sm mt-3 bg-white">
               <thead>
               <tr>
-                <th>Type</th>
-                <th>Date</th>
-                <th>Item</th>
-                <th>Quantity</th>
-                <th>Total</th>
+                <th>{t('common:actions.type')}</th>
+                <th>{t('forms.date')}</th>
+                <th>{t('buttons.item')}</th>
+                <th>{t('forms.quantity')}</th>
+                <th>{t('common:actions.total')}</th>
               </tr>
               </thead>
               <tbody>
@@ -98,7 +100,7 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
               </tbody>
               <tfoot>
               <tr>
-                <th className="text-left" colSpan={4}>Total</th>
+                <th className="text-left" colSpan={4}>{t('common:actions.total')}</th>
                 <th className="text-left">{total}</th>
               </tr>
               </tfoot>
@@ -117,8 +119,8 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
                     <table className="table table-hover table-sm bg-white">
                       <thead>
                       <tr>
-                        <th>Date</th>
-                        <th>Quantity</th>
+                        <th>{t('forms.date')}</th>
+                        <th>{t('forms.quantity')}</th>
                       </tr>
                       </thead>
                       <tbody>
@@ -139,7 +141,7 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
                       </tbody>
                       <tfoot>
                       <tr>
-                        <th className="text-left">Total</th>
+                        <th className="text-left">{t('common:actions.total')}</th>
                         <th className="text-left">{sectionTotal}</th>
                       </tr>
                       </tfoot>

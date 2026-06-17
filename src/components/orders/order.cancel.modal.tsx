@@ -10,7 +10,7 @@ import {StringRecordId} from "surrealdb";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
 import {toast} from "sonner";
-import {getOrderFilteredItems} from "@/lib/order.ts";
+import {getOrderFilteredItems, translateVoidReason} from "@/lib/order.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {Kitchen} from "@/api/model/kitchen.ts";
 import ScrollContainer from "react-indiana-drag-scroll";
@@ -18,6 +18,7 @@ import { nowSurrealDateTime } from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
 import {cancelItemStages} from "@/lib/kitchen/workflow.service.ts";
+import {useTranslation} from "react-i18next";
 
 interface OrderCancelModalProps {
   order: OrderModel
@@ -35,15 +36,16 @@ export const OrderCancelModal = ({
   open,
   onClose,
 }: OrderCancelModalProps) => {
+  const {t} = useTranslation('orders');
   const db = useDB();
   const [page] = useAtom(appPage);
 
   const reasonOptions = useMemo<ReasonOption[]>(() => {
     return Object.values(OrderVoidReason).map((reason) => ({
-      label: reason,
+      label: translateVoidReason(t, reason),
       value: reason as OrderVoidReason,
     }));
-  }, []);
+  }, [t]);
 
   const filteredItems = useMemo(() => getOrderFilteredItems(order), [order]);
 
@@ -116,17 +118,17 @@ export const OrderCancelModal = ({
 
   const handleConfirm = async () => {
     if (!selectedReason) {
-      toast.error('Please choose a reason');
+      toast.error(t('cancel.chooseReason'));
       return;
     }
 
     if (Object.keys(selectedItems).length === 0) {
-      toast.error('Please select at least one item');
+      toast.error(t('cancel.selectAtLeastOne'));
       return;
     }
 
     if (!page?.user?.id) {
-      toast.error('Unable to identify logged in user');
+      toast.error(t('cancel.cannotIdentifyUser'));
       return;
     }
 
@@ -231,11 +233,11 @@ export const OrderCancelModal = ({
         user: page?.user,
       });
 
-      toast.success(allSelected ? 'Order cancelled successfully' : 'Selected items cancelled');
+      toast.success(allSelected ? t('cancel.successOrder') : t('cancel.successItems'));
       onClose();
     } catch (error) {
       console.error('Failed to cancel order', error);
-      toast.error('Failed to cancel order');
+      toast.error(t('cancel.failed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -245,12 +247,12 @@ export const OrderCancelModal = ({
     <Modal
       open={open}
       onClose={handleClose}
-      title="Cancel order"
+      title={t('cancel.title')}
       size="md"
     >
       <div className="flex flex-col gap-4">
         <div>
-          <label className="block text-sm font-semibold mb-2">Reason</label>
+          <label className="block text-sm font-semibold mb-2">{t('cancel.reason')}</label>
           <div className="grid grid-cols-4 gap-3">
             {reasonOptions.map((option) => (
               <button
@@ -271,13 +273,13 @@ export const OrderCancelModal = ({
 
         <div>
           <div className="flex items-center mb-2 gap-5">
-            <label className="block text-sm font-semibold">Items</label>
+            <label className="block text-sm font-semibold">{t('cancel.items')}</label>
             <button
               type="button"
               className="text-sm font-medium text-primary-600 hover:text-primary-700"
               onClick={toggleSelectAll}
             >
-              {allSelected ? 'Deselect all' : 'Select all'}
+              {allSelected ? t('common:actions.deselectAll') : t('common:actions.selectAll')}
             </button>
           </div>
           <ScrollContainer className="border border-neutral-200 rounded-xl divide-y divide-neutral-100 max-h-[400px] overflow-y-auto">
@@ -306,7 +308,7 @@ export const OrderCancelModal = ({
                       )}
                     </div>
                     <span className="flex-1 font-medium truncate">
-                    {item.item?.name ?? 'Unknown item'}
+                    {item.item?.name ?? t('cancel.unknownItem')}
                   </span>
                     <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
                       <button
@@ -340,12 +342,12 @@ export const OrderCancelModal = ({
         </div>
 
         <div>
-          <label className="block text-sm font-semibold mb-2">Comments</label>
+          <label className="block text-sm font-semibold mb-2">{t('cancel.comments')}</label>
           <Textarea
             value={comments}
             onChange={(event) => setComments(event.currentTarget.value)}
             rows={4}
-            placeholder="Enter comments"
+            placeholder={t('cancel.commentsPlaceholder')}
             enableKeyboard
           />
         </div>
@@ -359,7 +361,7 @@ export const OrderCancelModal = ({
             disabled={isSubmitting}
             size="lg"
           >
-            Confirm cancellation
+            {t('cancel.confirmCancellation')}
           </Button>
         </div>
       </div>

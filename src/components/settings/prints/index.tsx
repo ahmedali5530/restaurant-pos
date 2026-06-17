@@ -7,9 +7,11 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPencil} from "@fortawesome/free-solid-svg-icons";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Setting} from "@/api/model/setting.ts";
+import {useTranslation} from 'react-i18next';
 import {PrintForm} from "@/components/settings/prints/print.form.tsx";
 
 export const AdminPrints = () => {
+  const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<Setting>>(Tables.settings, [
     '(key = "Temp Print" or key = "Final Print" or key = "Kitchen Print" or key = "Summary Print" or key = "Delivery Print")'
   ], ['priority asc']);
@@ -21,11 +23,11 @@ export const AdminPrints = () => {
 
   const columns: any = [
     columnHelper.accessor("key", {
-      header: 'Name'
+      header: t('columns.name')
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {

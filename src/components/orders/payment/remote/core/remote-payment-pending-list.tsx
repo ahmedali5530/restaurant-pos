@@ -2,6 +2,7 @@ import { Button } from "@/components/common/input/button.tsx";
 import { getRemoteGatewayAdapter } from "@/components/orders/payment/remote/gateways/registry.ts";
 import { PendingRemoteIntent } from "@/components/orders/payment/remote/core/types.ts";
 import { withCurrency } from "@/lib/utils.ts";
+import {useTranslation} from "react-i18next";
 
 type Props = {
   intents: PendingRemoteIntent[];
@@ -16,6 +17,8 @@ export function RemotePaymentPendingList({
   onVerify,
   onRemove,
 }: Props) {
+  const {t} = useTranslation('payment');
+
   if (intents.length === 0) return null;
 
   return (
@@ -25,11 +28,11 @@ export function RemotePaymentPendingList({
         return (
           <div key={intent.id} className="border border-warning-400 rounded p-2">
             <div className="flex justify-between text-sm mb-2">
-              <strong>{intent.paymentType.name} (Remote)</strong>
+              <strong>{t('remote.remoteLabel', {name: intent.paymentType.name})}</strong>
               <span>{withCurrency(intent.amount)}</span>
             </div>
             <div className="text-xs text-neutral-600 mb-2">
-              Status: {intent.status}
+              {t('remote.status', {status: intent.status})}
               {adapter.renderPendingDetail?.(intent)}
             </div>
             {adapter.renderPendingExtra?.(intent)}
@@ -42,7 +45,7 @@ export function RemotePaymentPendingList({
                     window.open(intent.paymentUrl as string, "_blank", "noopener,noreferrer")
                   }
                 >
-                  Open link
+                  {t('remote.openLink')}
                 </Button>
               )}
               <Button
@@ -51,10 +54,10 @@ export function RemotePaymentPendingList({
                 onClick={() => onVerify(intent)}
                 disabled={verifyingIntentId === intent.id}
               >
-                Verify
+                {t('remote.verify')}
               </Button>
               <Button size="sm" variant="danger" onClick={() => onRemove(intent.id)}>
-                Remove
+                {t('common:actions.remove')}
               </Button>
             </div>
           </div>

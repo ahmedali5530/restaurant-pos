@@ -15,6 +15,7 @@ import {
   DEFAULT_AUTO_CHECK_CLOSE,
 } from "@/api/model/auto_check_close.ts";
 import {toRecordId} from "@/lib/utils.ts";
+import {useTranslation} from 'react-i18next';
 interface FormValues {
   enabled: boolean;
   payment_type: { label: string; value: string } | null;
@@ -25,6 +26,7 @@ export const AutoCheckCloseSettingsCard = () => {
   const db = useDB();
   const [settings, setSettings] = useState<Setting>();
   const { protectFormSubmit } = useSecurity();
+  const { t } = useTranslation(['settings', 'common']);
 
   const { data: paymentTypesData } = useApi<SettingsData<PaymentType>>(
     Tables.payment_types,
@@ -63,7 +65,7 @@ export const AutoCheckCloseSettingsCard = () => {
 
   const saveSettings = async (values: FormValues) => {
     if (values.enabled && !values.payment_type?.value) {
-      toast.error('Payment type is required when auto close is enabled');
+      toast.error(t('settings:autoCheckClose.paymentTypeRequired'));
       return;
     }
 
@@ -85,7 +87,7 @@ export const AutoCheckCloseSettingsCard = () => {
       });
     }
 
-    toast.success('Auto check close settings updated');
+    toast.success(t('settings:autoCheckClose.updated'));
     await loadSettings();
   };
 
@@ -119,15 +121,14 @@ export const AutoCheckCloseSettingsCard = () => {
 
   return (
     <div className="shadow p-5 rounded bg-white">
-      <h2 className="text-xl font-semibold mb-1">Auto check close</h2>
+      <h2 className="text-xl font-semibold mb-1">{t('settings:autoCheckClose.title')}</h2>
       <p className="text-sm text-neutral-500 mb-5">
-        Automatically close open table checks at closing cycle end time.
-        Delivery orders are excluded. A warning appears 1 minute before close.
+        {t('settings:autoCheckClose.description')}
       </p>
       <form
         onSubmit={protectFormSubmit(handleSubmit(saveSettings), {
           module: 'Auto check close',
-          description: 'Save auto check close settings',
+          description: t('settings:autoCheckClose.saveDescription'),
         })}
       >
         <div className="grid grid-cols-2 gap-5 mb-5">
@@ -136,7 +137,7 @@ export const AutoCheckCloseSettingsCard = () => {
             control={control}
             render={({ field }) => (
               <Switch checked={!!field.value} onChange={field.onChange}>
-                Enabled
+                {t('common:actions.enabled')}
               </Switch>
             )}
           />
@@ -145,17 +146,17 @@ export const AutoCheckCloseSettingsCard = () => {
             control={control}
             render={({ field }) => (
               <Switch checked={!!field.value} onChange={field.onChange}>
-                Print final bill on close
+                {t('settings:autoCheckClose.printOnClose')}
               </Switch>
             )}
           />
           <Controller
             name="payment_type"
             control={control}
-            rules={{ required: enabled ? 'Payment type is required' : false }}
+            rules={{ required: enabled ? t('settings:autoCheckClose.paymentTypeRequiredField') : false }}
             render={({ field }) => (
               <div>
-                <label>Payment type</label>
+                <label>{t('settings:autoCheckClose.paymentType')}</label>
                 <ReactSelect
                   options={paymentTypeOptions}
                   value={field.value}
@@ -167,7 +168,7 @@ export const AutoCheckCloseSettingsCard = () => {
           />
         </div>
         <button className="btn btn-primary" type="submit">
-          Save
+          {t('common:actions.save')}
         </button>
       </form>
     </div>

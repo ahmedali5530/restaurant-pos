@@ -17,6 +17,7 @@ import {Floor} from "@/api/model/floor.ts";
 import {Menu} from "@/api/model/menu.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {RecordId} from "surrealdb";
+import {useTranslation} from 'react-i18next';
 
 const toRows = <T, >(result: unknown): T[] => {
   return Array.isArray(result) ? result as T[] : [];
@@ -26,18 +27,19 @@ export const CacheSettings = () => {
   const db = useDB();
   const [settings, setSettings] = useAtom(appSettings);
   const [isReloading, setIsReloading] = useState(false);
+  const { t } = useTranslation('settings');
 
   const cacheStats = useMemo(() => ([
-    {label: "Order types", count: settings.order_types.length},
-    {label: "Categories", count: settings.categories.length},
-    {label: "Dishes", count: settings.dishes.length},
-    {label: "Modifier groups", count: settings.modifier_groups.length},
-    {label: "Group dishes", count: settings.groups_dishes.length},
-    {label: "Floors", count: settings.floors.length},
-    {label: "Tables", count: settings.tables.length},
-    {label: "Kitchens", count: settings.kitchens.length},
-    {label: "Payment types", count: settings.payment_types.length},
-  ]), [settings]);
+    {label: t('cache.orderTypes'), count: settings.order_types.length},
+    {label: t('cache.categories'), count: settings.categories.length},
+    {label: t('cache.dishes'), count: settings.dishes.length},
+    {label: t('cache.modifierGroups'), count: settings.modifier_groups.length},
+    {label: t('cache.groupDishes'), count: settings.groups_dishes.length},
+    {label: t('cache.floors'), count: settings.floors.length},
+    {label: t('cache.tables'), count: settings.tables.length},
+    {label: t('cache.kitchens'), count: settings.kitchens.length},
+    {label: t('cache.paymentTypes'), count: settings.payment_types.length},
+  ]), [settings, t]);
 
   const reloadCache = async () => {
     try {
@@ -129,10 +131,10 @@ export const CacheSettings = () => {
         menus: toRows<Menu>(menusResult?.[0]),
       }));
 
-      toast.success("Cache reloaded from database");
+      toast.success(t('cache.reloaded'));
     } catch (error) {
       console.error("Failed to reload cache:", error);
-      toast.error("Failed to reload cache");
+      toast.error(t('cache.reloadFailed'));
     } finally {
       setIsReloading(false);
     }
@@ -142,11 +144,11 @@ export const CacheSettings = () => {
     <div className="shadow p-5 rounded bg-white">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold mb-1">Cache</h2>
-          <p className="text-sm text-neutral-500">Current cache size by dataset.</p>
+          <h2 className="text-xl font-semibold mb-1">{t('cache.title')}</h2>
+          <p className="text-sm text-neutral-500">{t('cache.description')}</p>
         </div>
         <Button variant="primary" size="lg" onClick={reloadCache} isLoading={isReloading}>
-          Reload cache
+          {t('cache.reload')}
         </Button>
       </div>
 

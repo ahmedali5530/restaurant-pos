@@ -1,5 +1,6 @@
 import {toRecordId} from "@/lib/utils.ts";
 import {toast} from "sonner";
+import i18n from '@/lib/i18n.ts';
 
 type DeleteQuery = {
   query: string;
@@ -65,7 +66,7 @@ export const executeSettingsDelete = async ({
 
     if (inUse) {
       await db.merge(id, {deleted_at: new Date()});
-      toast.info(`${entityLabel} is in use and was deactivated.`);
+      toast.info(i18n.t('toast:settingsDelete.deactivated', { entity: entityLabel }));
       if (onAfter) {
         await onAfter();
       }
@@ -80,13 +81,13 @@ export const executeSettingsDelete = async ({
     }
 
     await db.delete(id);
-    toast.success(`${entityLabel} deleted successfully.`);
+    toast.success(i18n.t('toast:settingsDelete.deleted', { entity: entityLabel }));
     if (onAfter) {
       await onAfter();
     }
     return "deleted";
   } catch (error: any) {
-    toast.error(error?.message ?? `Failed to delete ${entityLabel}.`);
+    toast.error(error?.message ?? i18n.t('toast:settingsDelete.failed', { entity: entityLabel }));
     throw error;
   }
 };

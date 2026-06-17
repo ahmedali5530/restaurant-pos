@@ -11,9 +11,11 @@ import { ShiftForm } from "@/components/settings/users/shifts/shift.form.tsx";
 import { shiftDisplayTime } from "@/lib/shift.utils.ts";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
+import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminShifts = () => {
+  const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<Shift>>(Tables.shifts, ["deleted_at = none"], ["name asc"]);
   const db = useDB();
   const [data, setData] = useState<Shift>();
@@ -23,16 +25,16 @@ export const AdminShifts = () => {
 
   const columns: any = [
     columnHelper.accessor("name", {
-      header: "Name",
+      header: t('columns.name'),
     }),
     columnHelper.accessor("start_time", {
-      header: "Shift hours",
+      header: t('columns.shiftHours'),
       enableColumnFilter: false,
       cell: (info) => shiftDisplayTime(info.row.original),
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => (
@@ -48,7 +50,7 @@ export const AdminShifts = () => {
           </Button>
           <div className="separator"></div>
           <DeleteConfirm
-            message={`Delete shift ${info.row.original.name}`}
+            message={t('delete.shift', { name: info.row.original.name })}
             onConfirm={() => deleteItem(info.row.original.id)}
           />
         </div>
@@ -60,7 +62,7 @@ export const AdminShifts = () => {
     await executeSettingsDelete({
       db,
       id,
-      entityLabel: 'Shift',
+      entityLabel: t('entities.shift'),
       usageChecks: [
         {
           query: `SELECT count() AS count FROM ${Tables.users} WHERE user_shift = $idRecord GROUP ALL`

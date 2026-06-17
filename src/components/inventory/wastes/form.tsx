@@ -1,4 +1,5 @@
 import React, {useEffect, useMemo, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import * as yup from "yup";
 import {Controller, useFieldArray, useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
@@ -80,6 +81,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
 }).required();
 
 export const InventoryWasteForm = ({open, onClose, data}: Props) => {
+  const { t } = useTranslation('inventory');
   const db = useDB();
   const [state, ] = useAtom(appPage);
   const validationSchema = useMemo(() => createValidationSchema(db, data?.id), [db, data?.id]);
@@ -171,7 +173,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
       })
       .catch((error) => {
         console.error("Failed to fetch next waste number", error);
-        toast.error("Unable to generate next waste number");
+        toast.error(t('toast:inventory.unableGenerateWasteNumber'));
       });
 
     return () => {
@@ -283,7 +285,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
         items: itemsRefs,
       });
 
-      toast.success("Waste saved");
+      toast.success(t('toast:inventory.wasteSaved'));
       closeModal();
     } catch (error) {
       console.log(error)
@@ -307,8 +309,8 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
   })) ?? [];
 
   const sourceTypeOptions = [
-    { label: "Purchase", value: "purchase" },
-    { label: "Issue", value: "issue" }
+    { label: t('sourceType.purchase'), value: "purchase" },
+    { label: t('sourceType.issue'), value: "issue" }
   ];
 
   return (
@@ -327,7 +329,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                 control={control}
                 render={({field}) => (
                   <Input
-                    label="Invoice number"
+                    label={t('forms.invoiceNumber')}
                     type="number"
                     {...field}
                     value={field.value ?? ""}
@@ -342,7 +344,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                 control={control}
                 render={({field}) => (
                   <DatePicker
-                    label="Date"
+                    label={t('forms.date')}
                     value={field.value as any}
                     onChange={field.onChange}
                     maxValue={getToday()}
@@ -368,7 +370,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
           </div>
 
           <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
-            <legend>Items</legend>
+            <legend>{t('tabs.items')}</legend>
             <div className="mb-3">
               <Button
                 type="button"
@@ -452,7 +454,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                       <InputError error={_.get(errors, ["items", index, "source_id", "message"])}/>
                     </div>
                     <div className="flex-1">
-                      <label>Item</label>
+                      <label>{t('buttons.item')}</label>
                       <Controller
                         name={`items.${index}.item`}
                         control={control}
@@ -493,7 +495,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                         control={control}
                         render={({field}) => (
                           <Input
-                            label="Quantity"
+                            label={t('forms.quantity')}
                             type="number"
                             value={field.value as number | string}
                             onChange={field.onChange}
@@ -504,7 +506,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                     </div>
                     <div className="flex-1">
                       <Input
-                        label="Comments"
+                        label={t('forms.comments')}
                         {...register(`items.${index}.comments` as const)}
                       />
                     </div>
@@ -526,7 +528,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
         </div>
 
         <div>
-          <Button type="submit" variant="primary">Save</Button>
+          <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
         </div>
       </form>
     </Modal>

@@ -1,6 +1,7 @@
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {createColumnHelper} from "@tanstack/react-table";
 import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -12,6 +13,7 @@ import {CsvUploadModal} from "@/components/common/table/csv.uploader.tsx";
 import {useDB} from "@/api/db/db.ts";
 
 export const InventoryItems = () => {
+  const { t } = useTranslation('inventory');
   const loadHook = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 10, ['category', 'suppliers', 'stores']);
   const db = useDB();
 
@@ -23,29 +25,29 @@ export const InventoryItems = () => {
 
   const columns: any = [
     columnHelper.accessor("name", {
-      header: 'Name'
+      header: t('columns.name')
     }),
     columnHelper.accessor("code", {
-      header: 'Code',
+      header: t('columns.code'),
     }),
     columnHelper.accessor(row => row.category?.name ?? "", {
       id: "category",
-      header: 'Category'
+      header: t('columns.category')
     }),
     columnHelper.accessor("uom", {
-      header: 'Unit of measurement'
+      header: t('columns.uom')
     }),
     columnHelper.accessor("base_quantity", {
-      header: 'Base quantity'
+      header: t('columns.baseQuantity')
     }),
     columnHelper.accessor("price", {
-      header: 'Price'
+      header: t('columns.price')
     }),
     columnHelper.accessor("average_price", {
-      header: 'Average price'
+      header: t('columns.averagePrice')
     }),
     columnHelper.accessor("stores", {
-      header: 'Stores',
+      header: t('tabs.stores'),
       cell: info => (
         <div className="flex flex-wrap gap-2">
           {info.getValue()?.map((store, index) => (
@@ -55,7 +57,7 @@ export const InventoryItems = () => {
       )
     }),
     columnHelper.accessor("suppliers", {
-      header: 'Suppliers',
+      header: t('tabs.suppliers'),
       cell: info => (
         <div className="flex flex-wrap gap-2">
           {info.getValue()?.map((item, index) => (
@@ -66,7 +68,7 @@ export const InventoryItems = () => {
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {
@@ -122,31 +124,31 @@ export const InventoryItems = () => {
           }}
           fields={[{
             name: 'name',
-            label: 'Name'
+            label: t('columns.name')
           }, {
             name: 'code',
-            label: 'Code'
+            label: t('columns.code')
           }, {
             name: 'category',
-            label: 'Category'
+            label: t('columns.category')
           }, {
             name: 'uom',
-            label: 'Unit of measurement'
+            label: t('columns.uom')
           }, {
             name: 'base_quantity',
-            label: 'Base quantity'
+            label: t('columns.baseQuantity')
           }, {
             name: 'price',
-            label: 'Price'
+            label: t('columns.price')
           }, {
             name: 'average_price',
-            label: 'Avg Price'
+            label: t('columns.avgPrice')
           }, {
             name: 'stores',
-            label: 'Stores'
+            label: t('tabs.stores')
           }, {
             name: 'suppliers',
-            label: 'Suppliers'
+            label: t('tabs.suppliers')
           }]}
           onCreateRow={async (data) => {
             try{

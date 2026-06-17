@@ -3,6 +3,8 @@ import {Button} from "@/components/common/input/button.tsx";
 import {Controller, useForm} from "react-hook-form";
 import {useDB} from "@/api/db/db.ts";
 import {toast} from "sonner";
+import {useTranslation} from 'react-i18next';
+import i18n from '@/lib/i18n.ts';
 import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
 import {Category} from "@/api/model/category.ts";
@@ -15,12 +17,14 @@ interface Props {
 }
 
 const validationSchema = yup.object({
-  show_in_menu: yup.boolean().required("This is required")
+  show_in_menu: yup.boolean().required(i18n.t('validation:required'))
 });
 
 export const CategoryBulkForm = ({
   open, onClose, data
 }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
   const db = useDB();
 
   const closeModal = () => {
@@ -39,7 +43,7 @@ export const CategoryBulkForm = ({
 
   const onSubmit = async (values: any) => {
     if (!data?.length) {
-      toast.error("No categories selected");
+      toast.error(t('toast:admin.noCategoriesSelected'));
       return;
     }
 
@@ -50,7 +54,7 @@ export const CategoryBulkForm = ({
         }))
       );
 
-      toast.success(`${data.length} categories updated`);
+      toast.success(t('toast:admin.categoriesBulkUpdated', { count: data.length }));
       closeModal();
     } catch (error) {
       toast.error(error);
@@ -60,7 +64,7 @@ export const CategoryBulkForm = ({
 
   return (
     <Modal
-      title={`Bulk update ${data?.length || 0} categories`}
+      title={t('forms.bulkUpdateCategories', { count: data?.length || 0 })}
       open={open}
       onClose={closeModal}
     >
@@ -71,13 +75,13 @@ export const CategoryBulkForm = ({
             control={control}
             render={({field}) => (
               <Switch checked={field.value} onChange={field.onChange}>
-                Show this category in menu
+                {t('forms.showCategoryInMenu')}
               </Switch>
             )}
           />
         </div>
         <div>
-          <Button type="submit" variant="primary">Save</Button>
+          <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
         </div>
       </form>
     </Modal>

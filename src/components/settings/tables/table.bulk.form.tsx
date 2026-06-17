@@ -7,7 +7,7 @@ import { Tables } from "@/api/db/tables.ts";
 import { toast } from 'sonner';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect } from "react";
+import { useMemo,  useEffect  } from "react";
 import { Table } from "@/api/model/table.ts";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
@@ -16,6 +16,8 @@ import { PaymentType } from "@/api/model/payment_type.ts";
 import { OrderType } from "@/api/model/order_type.ts";
 import { Floor } from "@/api/model/floor.ts";
 import { Switch } from "@/components/common/input/switch.tsx";
+import {useTranslation} from 'react-i18next';
+import i18n from '@/lib/i18n.ts';
 import { StringRecordId } from "surrealdb";
 
 interface Props {
@@ -25,8 +27,8 @@ interface Props {
 }
 
 const validationSchema = yup.object({
-  background: yup.string().required('This is required'),
-  color: yup.string().required('This is required'),
+  background: yup.string().required(i18n.t('validation:required')),
+  color: yup.string().required(i18n.t('validation:required')),
   floor: yup.object({
     label: yup.string().required(),
     value: yup.string().required(),
@@ -49,6 +51,8 @@ const validationSchema = yup.object({
 export const TableBulkForm = ({
   open, onClose, data
 }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
   const defaultValues = {
     background: "#ffffff",
     color: "#000000",
@@ -103,7 +107,7 @@ export const TableBulkForm = ({
 
   const onSubmit = async (values: any) => {
     if (!data?.length) {
-      toast.error("No tables selected");
+      toast.error(t('toast:admin.noTablesSelected'));
       return;
     }
 
@@ -129,7 +133,7 @@ export const TableBulkForm = ({
 
       closeModal();
       onClose();
-      toast.success(`${data.length} tables updated`);
+      toast.success(t('toast:admin.tablesBulkUpdated', { count: data.length }));
     }catch(e){
       toast.error(e);
       console.log(e)
@@ -148,7 +152,7 @@ export const TableBulkForm = ({
   return (
     <>
       <Modal
-        title={`Bulk update ${data?.length || 0} tables`}
+        title={t('forms.bulkUpdateTables', { count: data?.length || 0 })}
         open={open}
         onClose={closeModal}
       >
@@ -169,17 +173,17 @@ export const TableBulkForm = ({
 
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <Input type="color" label="Background color" {...register('background')}
+              <Input type="color" label={t('forms.backgroundColor')} {...register('background')}
                      error={errors?.background?.message}/>
             </div>
             <div className="flex-1">
-              <Input type="color" label="Front color" {...register('color')} error={errors?.color?.message}/>
+              <Input type="color" label={t('forms.frontColor')} {...register('color')} error={errors?.color?.message}/>
             </div>
           </div>
 
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <label htmlFor="">Floor</label>
+              <label htmlFor="">{t('columns.floor')}</label>
               <Controller
                 render={({ field }) => (
                   <ReactSelect
@@ -201,7 +205,7 @@ export const TableBulkForm = ({
 
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <label htmlFor="">Categories</label>
+              <label htmlFor="">{t('columns.categories')}</label>
               <Controller
                 render={({ field }) => (
                   <ReactSelect
@@ -222,7 +226,7 @@ export const TableBulkForm = ({
           </div>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <label htmlFor="">Order types</label>
+              <label htmlFor="">{t('columns.orderTypes')}</label>
               <Controller
                 render={({ field }) => (
                   <ReactSelect
@@ -243,7 +247,7 @@ export const TableBulkForm = ({
           </div>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <label htmlFor="">Payment types</label>
+              <label htmlFor="">{t('columns.paymentTypes')}</label>
               <Controller
                 render={({ field }) => (
                   <ReactSelect
@@ -264,7 +268,7 @@ export const TableBulkForm = ({
           </div>
 
           <div>
-            <Button type="submit" variant="primary">Save</Button>
+            <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
           </div>
         </form>
       </Modal>

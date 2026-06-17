@@ -8,11 +8,13 @@ import {Input} from "@/components/common/input/input.tsx";
 import {DiscountType} from "@/api/model/discount.ts";
 import {toast} from "sonner";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useTranslation} from 'react-i18next';
 
 export const ServiceChargesSettings = () => {
   const db = useDB();
   const [settings, setSettings] = useState<Setting>();
   const {protectFormSubmit} = useSecurity();
+  const { t } = useTranslation(['settings', 'common', 'toast']);
 
 
   const {control, handleSubmit, reset} = useForm();
@@ -60,7 +62,7 @@ export const ServiceChargesSettings = () => {
       });
     }
 
-    toast.success("Service charges updated");
+    toast.success(t('settings:serviceCharges.updated'));
   }
 
   useEffect(() => {
@@ -82,16 +84,16 @@ export const ServiceChargesSettings = () => {
 
   return (
     <div className="shadow p-5 rounded bg-white">
-      <h2 className="text-xl font-semibold mb-1">Service charges</h2>
+      <h2 className="text-xl font-semibold mb-1">{t('settings:serviceCharges.title')}</h2>
       <form onSubmit={protectFormSubmit((handleSubmit(saveSettings)), {
         module: 'Service charges',
-        description: 'Save service charges'
+        description: t('settings:serviceCharges.saveDescription')
       })}>
         <div className="grid grid-cols-2 gap-5 mb-5">
           <Controller
             render={({field}) => (
               <div>
-                <label htmlFor="type">Type</label>
+                <label htmlFor="type">{t('common:actions.type')}</label>
                 <ReactSelect
                   options={[DiscountType.Fixed, DiscountType.Percent].map(a => {
                     return {
@@ -111,7 +113,7 @@ export const ServiceChargesSettings = () => {
             <Controller
               render={({field}) => (
                 <Input
-                  label="Value"
+                  label={t('common:actions.value')}
                   value={field.value}
                   onChange={field.onChange}
                   type="number"
@@ -124,7 +126,7 @@ export const ServiceChargesSettings = () => {
           </div>
 
         </div>
-        <button className="btn btn-primary" type="submit">Save</button>
+        <button className="btn btn-primary" type="submit">{t('common:actions.save')}</button>
       </form>
     </div>
   );

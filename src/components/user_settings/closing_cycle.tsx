@@ -8,6 +8,7 @@ import {Switch} from "@/components/common/input/switch.tsx";
 import {toast} from "sonner";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {CLOSING_CYCLE_KEY} from "@/lib/closing-cycle.ts";
+import {useTranslation} from 'react-i18next';
 
 interface ClosingCycleValues {
   enabled: boolean;
@@ -25,6 +26,7 @@ export const ClosingCycleSettingsCard = () => {
   const db = useDB();
   const [settings, setSettings] = useState<Setting>();
   const {protectFormSubmit} = useSecurity();
+  const { t } = useTranslation(['settings', 'common']);
 
   const {control, handleSubmit, reset} = useForm<ClosingCycleValues>({
     defaultValues: DEFAULT_VALUES,
@@ -55,7 +57,7 @@ export const ClosingCycleSettingsCard = () => {
       });
     }
 
-    toast.success("Closing cycle settings updated");
+    toast.success(t('settings:closingCycle.updated'));
     await loadSettings();
   };
 
@@ -77,13 +79,13 @@ export const ClosingCycleSettingsCard = () => {
 
   return (
     <div className="shadow p-5 rounded bg-white">
-      <h2 className="text-xl font-semibold mb-1">Closing cycle</h2>
+      <h2 className="text-xl font-semibold mb-1">{t('settings:closingCycle.title')}</h2>
       <p className="text-sm text-neutral-500 mb-5">
-        Configure cycle start and end time. End time can be next day (example: 06:00 to 02:00).
+        {t('settings:closingCycle.description')}
       </p>
       <form onSubmit={protectFormSubmit(handleSubmit(saveSettings), {
         module: "Closing cycle",
-        description: "Save closing cycle settings",
+        description: t('settings:closingCycle.saveDescription'),
       })}>
         <div className="grid grid-cols-2 gap-5 mb-5">
           <Controller
@@ -91,7 +93,7 @@ export const ClosingCycleSettingsCard = () => {
             control={control}
             render={({field}) => (
               <Switch checked={!!field.value} onChange={field.onChange}>
-                Enabled
+                {t('common:actions.enabled')}
               </Switch>
             )}
           />
@@ -101,7 +103,7 @@ export const ClosingCycleSettingsCard = () => {
             control={control}
             render={({field}) => (
               <Input
-                label="Start time"
+                label={t('settings:closingCycle.startTime')}
                 type="time"
                 value={field.value}
                 onChange={field.onChange}
@@ -113,7 +115,7 @@ export const ClosingCycleSettingsCard = () => {
             control={control}
             render={({field}) => (
               <Input
-                label="End time"
+                label={t('settings:closingCycle.endTime')}
                 type="time"
                 value={field.value}
                 onChange={field.onChange}
@@ -121,7 +123,7 @@ export const ClosingCycleSettingsCard = () => {
             )}
           />
         </div>
-        <button className="btn btn-primary" type="submit">Save</button>
+        <button className="btn btn-primary" type="submit">{t('common:actions.save')}</button>
       </form>
     </div>
   );

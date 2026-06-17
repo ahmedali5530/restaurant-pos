@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {REPORTS_SALES_ADVANCED} from "@/routes/posr.ts";
 import {DateRange} from "@/components/reports/filters/date.range.tsx";
 import {Button} from "@/components/common/input/button.tsx";
@@ -34,6 +35,7 @@ const notNull = <T,>(value: T | null | undefined): value is T =>
   value !== null && value !== undefined;
 
 export const SalesAdvancedFilter = () => {
+  const { t } = useTranslation('reports');
   const {data: usersData, isLoading: loadingUsers} = useApi<SettingsData<User>>(Tables.users, [], ['first_name asc'], 0, 9999);
   const {data: orderTypesData, isLoading: loadingOrderTypes} = useApi<SettingsData<OrderType>>(Tables.order_types, [], ['name asc'], 0, 9999);
   const {data: floorsData, isLoading: loadingFloors} = useApi<SettingsData<Floor>>(Tables.floors, [], ['name asc'], 0, 9999);
@@ -52,7 +54,7 @@ export const SalesAdvancedFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-advanced-order-takers">Order Takers</label>
+          <label htmlFor="sales-advanced-order-takers">{t('filters.orderTakers')}</label>
           <ReactSelect
             id="sales-advanced-order-takers"
             name="order_takers[]"
@@ -68,7 +70,7 @@ export const SalesAdvancedFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-advanced-cashiers">Cashiers</label>
+          <label htmlFor="sales-advanced-cashiers">{t('metrics.cashiers')}</label>
           <ReactSelect
             id="sales-advanced-cashiers"
             name="cashiers[]"
@@ -98,7 +100,7 @@ export const SalesAdvancedFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-advanced-floors">Floors</label>
+          <label htmlFor="sales-advanced-floors">{t('metrics.floors')}</label>
           <ReactSelect
             id="sales-advanced-floors"
             name="floors[]"
@@ -112,7 +114,7 @@ export const SalesAdvancedFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-advanced-order-types">Order Types</label>
+          <label htmlFor="sales-advanced-order-types">{t('filters.orderTypes')}</label>
           <ReactSelect
             id="sales-advanced-order-types"
             name="order_types[]"
@@ -167,7 +169,7 @@ export const SalesAdvancedFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-advanced-menu-items">Menu Items</label>
+          <label htmlFor="sales-advanced-menu-items">{t('filters.menuItems')}</label>
           <ReactSelect
             id="sales-advanced-menu-items"
             name="menu_items[]"
@@ -204,7 +206,7 @@ export const SalesAdvancedFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label>Display Options</label>
+          <label>{t('labels.displayOptions')}</label>
           <div className="flex flex-col gap-3">
             <Checkbox name="show_menu_items" value="1" label="Show Menu Items for Details" />
             <Checkbox name="show_details" value="1" label="Show Details" />
@@ -220,7 +222,7 @@ export const SalesAdvancedFilter = () => {
               className="form-control"
               defaultValue="any"
             >
-              <option value="">Default</option>
+              <option value="">{t('labels.default')}</option>
               {['Invoice', 'Date', 'Status', 'Cashier', 'Order taker', 'Total'].map(item => (
                 <option value={item}>{item}</option>
               ))}
@@ -247,7 +249,7 @@ export const SalesAdvancedFilter = () => {
         variant="primary"
         filled
         type="submit"
-      >Generate</Button>
+      >{t('filters.generate')}</Button>
     </form>
   );
 }

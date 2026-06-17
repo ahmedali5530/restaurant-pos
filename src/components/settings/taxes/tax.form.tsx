@@ -7,7 +7,9 @@ import { Tables } from "@/api/db/tables.ts";
 import { toast } from 'sonner';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect } from "react";
+import { useMemo,  useEffect  } from "react";
+import {useTranslation} from 'react-i18next';
+import i18n from '@/lib/i18n.ts';
 import { Tax } from "@/api/model/tax.ts";
 
 interface Props {
@@ -17,14 +19,16 @@ interface Props {
 }
 
 const validationSchema = yup.object({
-  name: yup.string().required("This is required"),
-  rate: yup.number().required("This is required"),
-  priority: yup.string().required("This is required"),
+  name: yup.string().required(i18n.t('validation:required')),
+  rate: yup.number().required(i18n.t('validation:required')),
+  priority: yup.string().required(i18n.t('validation:required')),
 });
 
 export const TaxForm = ({
   open, onClose, data
 }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
   const closeModal = () => {
     onClose();
     reset({
@@ -67,7 +71,7 @@ export const TaxForm = ({
       }
 
       closeModal();
-      toast.success(`Tax ${values.name} saved`);
+      toast.success(t('toast:admin.taxSaved', { name: values.name }));
     } catch ( e ) {
       toast.error(e);
       console.log(e)
@@ -77,20 +81,20 @@ export const TaxForm = ({
   return (
     <>
       <Modal
-        title={data ? `Update ${data?.name}` : 'Create new tax'}
+        title={data ? t('forms.updateTax', { name: data?.name }) : t('forms.createTax')}
         open={open}
         onClose={closeModal}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-3 flex-col mb-3">
             <div className="flex-1">
-              <Input label="Name" {...register('name')} autoFocus error={errors?.name?.message}/>
+              <Input label={t('columns.name')} {...register('name')} autoFocus error={errors?.name?.message}/>
             </div>
             <div className="flex-1">
               <Controller
                 render={({ field }) => (
                   <Input
-                    label="Rate %"
+                    label={t('columns.ratePercent')}
                     value={field.value}
                     onChange={field.onChange}
                     error={errors?.rate?.message}
@@ -106,7 +110,7 @@ export const TaxForm = ({
                 render={({ field }) => (
                   <Input
                     type="number"
-                    label="Priority"
+                    label={t('columns.priority')}
                     error={errors?.priority?.message}
                     value={field.value}
                     onChange={field.onChange}
@@ -120,7 +124,7 @@ export const TaxForm = ({
           </div>
 
           <div>
-            <Button type="submit" variant="primary">Save</Button>
+            <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
           </div>
         </form>
       </Modal>

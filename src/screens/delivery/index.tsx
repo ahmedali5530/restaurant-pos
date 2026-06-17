@@ -1,21 +1,30 @@
 import {TabList, Tabs} from "react-aria-components";
 import {Tab, TabPanel} from "@/components/common/react-aria/tabs.tsx";
-import {useState} from "react";
+import {useMemo, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {Delivery} from "@/screens/delivery/delivery.tsx";
 import {DeliverySettings} from "@/screens/delivery/settings.tsx";
 import {Layout} from "@/screens/partials/layout.tsx";
 import {DeliveryAreas} from "@/screens/delivery/delivery.areas.tsx";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 
+/** Stable permission codes stored in user roles — not translated labels. */
+const DELIVERY_TAB_MODULES: Record<string, string> = {
+  delivery: 'Delivery orders',
+  areas: 'Delivery areas',
+  settings: 'Delivery settings',
+};
+
 export const Index = () => {
+  const { t } = useTranslation('delivery');
   const [selected, setSelected] = useState('delivery');
   const {protectAction} = useSecurity();
 
-  const pages = {
-    'delivery': {component: <Delivery/>, title: 'Delivery orders'},
-    'areas': {component: <DeliveryAreas/>, title: 'Delivery areas'},
-    'settings': {component: <DeliverySettings/>, title: 'Delivery settings'},
-  };
+  const pages = useMemo(() => ({
+    'delivery': {component: <Delivery/>, title: t('tabs.delivery')},
+    'areas': {component: <DeliveryAreas/>, title: t('tabs.areas')},
+    'settings': {component: <DeliverySettings/>, title: t('tabs.settings')},
+  }), [t]);
 
   return (
     <Layout>
@@ -24,8 +33,8 @@ export const Index = () => {
         selectedKey={selected}
         onSelectionChange={(key: string) => {
           protectAction(() => setSelected(key), {
-            module: pages[key].title,
-            description: `Access ${pages[key].title}`
+            module: DELIVERY_TAB_MODULES[key],
+            description: t('security.accessTab', { module: pages[key].title })
           });
         }}
       >

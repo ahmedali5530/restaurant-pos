@@ -1,0 +1,29 @@
+{
+  "actions": {
+    "repeat": "Tekrarla",
+    "modify": "Değiştir",
+    "delete": "Sil",
+    "deleteAll": "Tümünü Sil",
+    "search": "Ara",
+    "split": "Böl"
+  },
+  "header": {
+    "newOrder": "Yeni Sipariş",
+    "orderNumber": "Sipariş# {{number}}",
+    "customer": "Müşteri",
+    "clear": "Temizle",
+    "selectCustomer": "Müşteri seçin",
+    "confirmTitle": "Lütfen onaylayın",
+    "confirmCartMessage_one": "Sepette {{count}} ürün var, bir işlem seçin",
+    "confirmCartMessage_other": "Sepette {{count}} ürün var, bir işlem seçin",
+    "pax": "{{count}} KİŞİ"
+  },
+  "modifiers": {
+    "modifyTitle": "{{name}} değiştir",
+    "cancel": "İptal",
+    "replacedWarning": "Son değiştirici değiştirildi; başka bir değiştiriciyi değiştirmek için sağ kenar çubuğundan kaldırın ve tekrar seçin."
+  },
+  "persons": {
+    "chooseCount": "Kişi sayısını seçin"
+  }
+}

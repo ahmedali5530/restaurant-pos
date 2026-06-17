@@ -32,6 +32,7 @@ import {toast} from "sonner";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {nowSurrealDateTime, toJsDate} from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
+import {useTranslation} from "react-i18next";
 
 interface Props {
   order: Order
@@ -51,6 +52,7 @@ enum PaymentOptions {
 export const OrderPayment = ({
   order, onClose
 }: Props) => {
+  const {t} = useTranslation('payment');
   const db = useDB();
   const {protectAction} = useSecurity();
 
@@ -284,12 +286,12 @@ export const OrderPayment = ({
 
       const couponRecord = (coupons || [])[0];
       if (!couponRecord) {
-        toast.error("Coupon not found or inactive");
+        toast.error(t('coupon.errors.notFound'));
         return;
       }
 
       if (couponRecord.coupon_type !== "order") {
-        toast.error("This coupon type is not supported on orders");
+        toast.error(t('coupon.errors.unsupportedType'));
         return;
       }
 
@@ -298,7 +300,7 @@ export const OrderPayment = ({
         couponRecord.min_order_amount !== null &&
         itemsTotal < Number(couponRecord.min_order_amount)
       ) {
-        toast.error("Order total is below minimum amount for this coupon");
+        toast.error(t('coupon.errors.belowMinimum'));
         return;
       }
 
@@ -306,7 +308,7 @@ export const OrderPayment = ({
       if (Array.isArray(couponRecord.valid_days) && couponRecord.valid_days.length > 0) {
         const today = dayMap[nowJs.getDay()];
         if (!couponRecord.valid_days.includes(today)) {
-          toast.error("Coupon is not valid today");
+          toast.error(t('coupon.errors.notValidToday'));
           return;
         }
       }
@@ -334,7 +336,7 @@ export const OrderPayment = ({
           (startMinutes !== undefined && currentMinutes < startMinutes) ||
           (endMinutes !== undefined && currentMinutes > endMinutes)
         ) {
-          toast.error("Coupon is not valid at this time");
+          toast.error(t('coupon.errors.notValidTime'));
           return;
         }
       }
@@ -342,14 +344,14 @@ export const OrderPayment = ({
       if (couponRecord.start_date) {
         const startDate = toJsDate(couponRecord.start_date as any);
         if (nowJs < startDate) {
-          toast.error("Coupon is not active yet");
+          toast.error(t('coupon.errors.notActiveYet'));
           return;
         }
       }
       if (couponRecord.end_date) {
         const endDate = toJsDate(couponRecord.end_date as any);
         if (nowJs > endDate) {
-          toast.error("Coupon has expired");
+          toast.error(t('coupon.errors.expired'));
           return;
         }
       }
@@ -365,7 +367,7 @@ export const OrderPayment = ({
           {couponId: couponRecord.id}
         );
         if ((allRedemptions || []).length >= Number(couponRecord.usage_limit)) {
-          toast.error("Coupon usage limit reached");
+          toast.error(t('coupon.errors.usageLimitReached'));
           return;
         }
       }
@@ -389,18 +391,18 @@ export const OrderPayment = ({
           (userRedemptions || []).length >=
           Number(couponRecord.usage_limit_per_user)
         ) {
-          toast.error("You have reached the usage limit for this coupon");
+          toast.error(t('coupon.errors.userLimitReached'));
           return;
         }
 
         if (couponRecord.first_order_only && (userRedemptions || []).length > 0) {
-          toast.error("This coupon is only valid on the first order");
+          toast.error(t('coupon.errors.firstOrderOnly'));
           return;
         }
       }
 
       if (!couponRecord.stackable && discountAmount > 0) {
-        toast.error("This coupon cannot be used together with other discounts");
+        toast.error(t('coupon.errors.notStackable'));
         return;
       }
 
@@ -422,13 +424,13 @@ export const OrderPayment = ({
       computed = Math.min(computed, itemsTotal);
 
       if (computed <= 0) {
-        toast.error("This coupon does not provide any discount for this order");
+        toast.error(t('coupon.errors.noDiscount'));
         return;
       }
 
       setCoupon(couponRecord);
       setCouponAmount(computed);
-      toast.success("Coupon applied");
+      toast.success(t('coupon.appliedSuccess'));
     } catch (e) {
       toast.error(e);
     } finally {
@@ -591,7 +593,7 @@ export const OrderPayment = ({
 
   return (
     <Modal
-      title={`Order#${order.invoice_number}`}
+      title={t('title', {invoice: order.invoice_number})}
       open={true}
       onClose={closeModal}
       size="full"
@@ -617,7 +619,7 @@ export const OrderPayment = ({
           </div>
           <div className="flex flex-col font-bold text-lg">
             <div className="flex justify-between p-3">
-              <div>Items ({getOrderFilteredItems(order).length})</div>
+              <div>{t('totals.items', {count: getOrderFilteredItems(order).length})}</div>
               <div className="text-right">{withCurrency(itemsTotal)}</div>
             </div>
             <div className={
@@ -635,7 +637,10 @@ export const OrderPayment = ({
               });
             }}>
               <div>
-                Tax {tax && <>({tax.name} {tax.rate}%)</>} <FontAwesomeIcon icon={faPencil}/>
+                {tax
+                  ? t('tabs.taxWithRate', {name: tax.name, rate: tax.rate})
+                  : t('tabs.tax')}{' '}
+                <FontAwesomeIcon icon={faPencil}/>
               </div>
               <div className="text-right">{withCurrency(taxAmount)}</div>
             </div>
@@ -655,7 +660,7 @@ export const OrderPayment = ({
               });
             }}>
               <div>
-                Discount{' '}
+                {t('tabs.discount')}{' '}
                 {discount && (
                   discount.type === DiscountType.Percent ? discountRate + '%' : ''
                 )}{' '}
@@ -678,7 +683,7 @@ export const OrderPayment = ({
                 }
               });
             }}>
-              <div>Coupon <FontAwesomeIcon icon={faPencil}/></div>
+              <div>{t('tabs.coupon')} <FontAwesomeIcon icon={faPencil}/></div>
               <div className="text-right">{withCurrency(couponAmount)}</div>
             </div>
 
@@ -696,9 +701,8 @@ export const OrderPayment = ({
                 }
               });
             }}>
-              <div>Service charges
-                ({serviceCharge}{serviceChargeType === DiscountType.Percent ? '%' : ''}) <FontAwesomeIcon
-                  icon={faPencil}/></div>
+              <div>{t('tabs.serviceCharges', {value: serviceCharge, unit: serviceChargeType === DiscountType.Percent ? '%' : ''})}{' '}
+                <FontAwesomeIcon icon={faPencil}/></div>
               <div className="text-right">{withCurrency(serviceChargeAmount)}</div>
             </div>
 
@@ -716,7 +720,7 @@ export const OrderPayment = ({
                 }
               });
             }}>
-              <div>Tip ({tip}{tipType === DiscountType.Percent && '%'}) <FontAwesomeIcon icon={faPencil}/></div>
+              <div>{t('tabs.tip', {value: tip, unit: tipType === DiscountType.Percent ? '%' : ''})} <FontAwesomeIcon icon={faPencil}/></div>
               <div className="text-right">{withCurrency(tipAmount)}</div>
             </div>
 
@@ -752,12 +756,12 @@ export const OrderPayment = ({
                 mode === PaymentOptions.Notes && 'bg-neutral-900 text-warning-500'
               )
             } onClick={() => setMode(PaymentOptions.Notes)}>
-              <div>Notes <FontAwesomeIcon icon={faPencil}/></div>
+              <div>{t('tabs.notes')} <FontAwesomeIcon icon={faPencil}/></div>
               <div className="text-right">{notes}</div>
             </div>
 
             <div className="flex justify-between p-3">
-              <div className="text-2xl">Total</div>
+              <div className="text-2xl">{t('tabs.total')}</div>
               <div className="text-right text-2xl">{withCurrency(total)}</div>
             </div>
           </div>

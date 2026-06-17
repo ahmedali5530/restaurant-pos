@@ -10,6 +10,7 @@ import { faCircle, faEquals, faMinus, faPlus, faSquare, faSquareFull } from "@fo
 import { Input } from "@/components/common/input/input.tsx";
 import { useDB } from "@/api/db/db.ts";
 import { toast } from "sonner";
+import {useTranslation} from 'react-i18next';
 import { DialogTrigger } from "react-aria-components";
 import { Popover } from "@/components/common/react-aria/popover.tsx";
 import { toRecordId } from "@/lib/utils";
@@ -21,6 +22,8 @@ interface Props {
 export const AdminFloorLayout = ({
   floor,
 }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
   const db = useDB();
   const {
     data: tables,
@@ -127,7 +130,7 @@ export const AdminFloorLayout = ({
 
   const arrangeTablesByGrid = useCallback(async () => {
     if (!tables?.data?.length) {
-      toast.info("No tables found to arrange");
+      toast.info(t('toast:admin.noTablesToArrange'));
       return;
     }
 
@@ -160,7 +163,7 @@ export const AdminFloorLayout = ({
     await fetchTables();
 
     if (arrangedCount > 0) {
-      toast.success(`Arranged ${arrangedCount} tables inside the grid`);
+      toast.success(t('toast:admin.tablesArranged', { count: arrangedCount }));
     }
   }, [db, effectiveGridWidth, fetchTables, layoutGap, tables?.data]);
 
@@ -176,7 +179,7 @@ export const AdminFloorLayout = ({
 
   const applyBulkSettings = useCallback(async () => {
     if (!selectedTableIds.length) {
-      toast.info("Select at least one table");
+      toast.info(t('toast:admin.selectAtLeastOneTable'));
       return;
     }
 
@@ -191,7 +194,7 @@ export const AdminFloorLayout = ({
     }
 
     await fetchTables();
-    toast.success(`Updated ${selectedTableIds.length} tables`);
+    toast.success(t('toast:admin.tablesUpdated', { count: selectedTableIds.length }));
   }, [bulkSettings.background, bulkSettings.color, bulkSettings.height, bulkSettings.rounded, bulkSettings.width, db, fetchTables, selectedTableIds]);
 
   return (
@@ -200,7 +203,7 @@ export const AdminFloorLayout = ({
         className="h-[calc(100vh_-_80px_-_100px)] bg-neutral-50 w-[calc(100vw_-_100px)] relative bg-grid overflow-hidden">
         <div className="bg-white/90 rounded-lg p-3 flex items-end gap-3">
           <div className="w-[100px]">
-            <label className="text-sm block mb-1">Gap</label>
+            <label className="text-sm block mb-1">{t('forms.gap')}</label>
             <Input
               type="number"
               value={layoutGap}
@@ -208,7 +211,7 @@ export const AdminFloorLayout = ({
             />
           </div>
           <div className="w-[130px]">
-            <label className="text-sm block mb-1">Grid Width</label>
+            <label className="text-sm block mb-1">{t('forms.gridWidth')}</label>
             <Input
               type="number"
               value={layoutGridWidth ?? calculatedGrid.width}
@@ -216,24 +219,24 @@ export const AdminFloorLayout = ({
             />
           </div>
           <div className="w-[130px]">
-            <label className="text-sm block mb-1">Grid Height</label>
+            <label className="text-sm block mb-1">{t('forms.gridHeight')}</label>
             <Input
               type="number"
               value={layoutGridHeight ?? calculatedGrid.height}
               onChange={(e) => setLayoutGridHeight(safeNumber(Number(e.target.value), effectiveGridHeight, 0))}
             />
           </div>
-          <Button onClick={arrangeTablesByGrid} variant="primary">Arrange</Button>
+          <Button onClick={arrangeTablesByGrid} variant="primary">{t('forms.arrange')}</Button>
           <div className="bg-neutral-500 w-[2px] h-[36px] mx-1"></div>
           <Button onClick={() => {
             setZoom(prev => prev + 0.1);
-          }} aria-label="Zoom in" variant="primary" disabled={!canZoomIn()} icon={faPlus}>Zoom in</Button>
+          }} aria-label={t('buttons.zoomIn')} variant="primary" disabled={!canZoomIn()} icon={faPlus}>{t('buttons.zoomIn')}</Button>
           <Button onClick={() => {
             setZoom(prev => prev - 0.1);
-          }}  aria-label="Zoom out" variant="primary" disabled={!canZoomOut()} icon={faMinus}>Zoom out</Button>
+          }}  aria-label={t('buttons.zoomOut')} variant="primary" disabled={!canZoomOut()} icon={faMinus}>{t('buttons.zoomOut')}</Button>
           <Button onClick={() => {
             setZoom(1);
-          }}  aria-label="Zoom reset" variant="primary" disabled={zoom === 1} icon={faEquals}>Reset zoom</Button>
+          }}  aria-label={t('buttons.resetZoom')} variant="primary" disabled={zoom === 1} icon={faEquals}>{t('buttons.resetZoom')}</Button>
           <div className="bg-neutral-500 w-[2px] h-[36px] mx-1"></div>
           <Button
             variant="primary"
@@ -244,7 +247,7 @@ export const AdminFloorLayout = ({
               setSelectedTableIds([]);
             }}
           >
-            {isMultiSelectMode ? "Cancel Select" : "Select Tables"}
+            {isMultiSelectMode ? t('forms.cancelSelect') : t('forms.selectTables')}
           </Button>
           <DialogTrigger>
             <Button variant="primary" disabled={selectedTableIds.length === 0}>Bulk Edit ({selectedTableIds.length})</Button>
@@ -252,7 +255,7 @@ export const AdminFloorLayout = ({
               <div className="w-[280px] p-3 flex flex-col gap-3">
                 <div className="text-sm font-medium">Update selected tables</div>
                 <div>
-                  <label className="text-sm block mb-1">Width</label>
+                  <label className="text-sm block mb-1">{t('forms.width')}</label>
                   <Input
                     type="number"
                     value={bulkSettings.width}
@@ -263,7 +266,7 @@ export const AdminFloorLayout = ({
                   />
                 </div>
                 <div>
-                  <label className="text-sm block mb-1">Height</label>
+                  <label className="text-sm block mb-1">{t('forms.height')}</label>
                   <Input
                     type="number"
                     value={bulkSettings.height}
@@ -275,7 +278,7 @@ export const AdminFloorLayout = ({
                 </div>
                 <div className="flex gap-3">
                   <div className="flex-1">
-                    <label className="text-sm block mb-1">Color</label>
+                    <label className="text-sm block mb-1">{t('forms.color')}</label>
                     <Input
                       type="color"
                       value={bulkSettings.color}
@@ -286,7 +289,7 @@ export const AdminFloorLayout = ({
                     />
                   </div>
                   <div className="flex-1">
-                    <label className="text-sm block mb-1">Background</label>
+                    <label className="text-sm block mb-1">{t('forms.background')}</label>
                     <Input
                       type="color"
                       value={bulkSettings.background}
@@ -298,7 +301,7 @@ export const AdminFloorLayout = ({
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm block mb-2">Roundness</label>
+                  <label className="text-sm block mb-2">{t('forms.roundness')}</label>
                   <div className="flex gap-2">
                     <Button variant="primary" flat active={bulkSettings.rounded === "rounded-none"} onClick={() => {
                       setBulkSettings((prev) => ({ ...prev, rounded: "rounded-none" }));

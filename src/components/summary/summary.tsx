@@ -1,4 +1,5 @@
 import {useMemo} from "react";
+import {useTranslation} from "react-i18next";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {Order, OrderStatus} from "@/api/model/order.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
@@ -49,6 +50,7 @@ const getModifierRows = (modifiers: any[] = []): ModifierRow[] => {
 export const Summary = ({
   orders, date: _data
 }: Props) => {
+  const {t} = useTranslation('summary');
   // Calculate sale price without tax (items total)
   const salePriceWithoutTax = useMemo(() => {
     return safeNumber(
@@ -215,7 +217,7 @@ export const Summary = ({
     const list = {};
     orders?.forEach(order => {
       if (order?.coupon) {
-        const code = order.coupon.coupon?.code || 'Unknown';
+        const code = order.coupon.coupon?.code || t('unknown.coupon');
         if (!list[code]) {
           list[code] = 0;
         }
@@ -423,16 +425,16 @@ export const Summary = ({
           borderBottom: '1px solid #e5e7eb',
           padding: '0.75rem'
         }}>
-          <span>Extras</span>
+          <span>{t('report.rows.extras')}</span>
           <span>{withCurrency(totalExtras)}</span>
         </div>
         <div style={{display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e5e7eb', padding: '0.75rem'}}>
           <div style={{display: 'flex', justifyContent: 'space-between'}}>
-            <span>Rounding</span>
+            <span>{t('report.rows.rounding')}</span>
             <span>{withCurrency(rounding)}</span>
           </div>
           <div style={{fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem'}}>
-            Amount collected - Amount due
+            {t('report.hints.roundingLegacy')}
           </div>
         </div>
         <div style={{
@@ -441,7 +443,7 @@ export const Summary = ({
           borderBottom: '1px solid #e5e7eb',
           padding: '0.75rem'
         }}>
-          <span>Voids</span>
+          <span>{t('report.rows.voids')}</span>
           <span>{withCurrency(voids)}</span>
         </div>
         <div style={{
@@ -460,7 +462,7 @@ export const Summary = ({
           padding: '0.75rem',
           fontWeight: 700
         }}>
-          <span>Tips</span>
+          <span>{t('report.legacy.tips')}</span>
         </div>
         <div style={{
           display: 'flex',
@@ -468,7 +470,7 @@ export const Summary = ({
           borderBottom: '1px solid #e5e7eb',
           padding: '0.75rem'
         }}>
-          <span>Total Tips</span>
+          <span>{t('report.rows.totalTips')}</span>
           <span>{withCurrency(tips)}</span>
         </div>
         <div style={{
@@ -486,7 +488,7 @@ export const Summary = ({
           borderBottom: '1px solid #e5e7eb',
           padding: '0.75rem'
         }}>
-          <span>Covers</span>
+          <span>{t('report.legacy.covers')}</span>
           <span>{formatNumber(covers)}</span>
         </div>
         <div style={{
@@ -495,7 +497,7 @@ export const Summary = ({
           borderBottom: '1px solid #e5e7eb',
           padding: '0.75rem'
         }}>
-          <span>Average cover</span>
+          <span>{t('report.legacy.averageCover')}</span>
           <span>{withCurrency(covers > 0 ? amountDue / covers : 0)}</span>
         </div>
         <div style={{
@@ -504,7 +506,7 @@ export const Summary = ({
           borderBottom: '1px solid #e5e7eb',
           padding: '0.75rem'
         }}>
-          <span>Orders/Checks</span>
+          <span>{t('report.legacy.ordersChecks')}</span>
           <span>{formatNumber(orders?.length ?? 0)}</span>
         </div>
         <div style={{
@@ -513,7 +515,7 @@ export const Summary = ({
           borderBottom: '1px solid #e5e7eb',
           padding: '0.75rem'
         }}>
-          <span>Average order/check</span>
+          <span>{t('report.legacy.averageOrderCheck')}</span>
           <span>{withCurrency((orders?.length ?? 0) > 0 ? amountDue / (orders?.length ?? 1) : 0)}</span>
         </div>
         <div style={{
@@ -532,7 +534,7 @@ export const Summary = ({
           padding: '0.75rem',
           fontWeight: 700
         }}>
-          <span>Categories</span>
+          <span>{t('report.legacy.categories')}</span>
         </div>
         {Object.keys(categories).map(category => (
           <div style={{display: 'flex', borderBottom: '1px solid #e5e7eb', padding: '0.75rem'}} key={category}>
@@ -561,7 +563,7 @@ export const Summary = ({
           padding: '0.75rem',
           fontWeight: 700
         }}>
-          <span>Dishes</span>
+          <span>{t('report.legacy.dishes')}</span>
         </div>
         {Object.keys(dishes).map(dish => (
           <div style={{display: 'flex', borderBottom: '1px solid #e5e7eb', padding: '0.75rem'}} key={dish}>
@@ -604,7 +606,7 @@ export const Summary = ({
           padding: '0.75rem',
           fontWeight: 700
         }}>
-          <span>Payment types</span>
+          <span>{t('report.legacy.paymentTypes')}</span>
         </div>
         {Object.keys(paymentTypes).map(paymentType => (
           <div style={{
@@ -634,7 +636,7 @@ export const Summary = ({
           padding: '0.75rem',
           fontWeight: 700
         }}>
-          <span>Taxes</span>
+          <span>{t('report.legacy.taxes')}</span>
         </div>
         {Object.keys(taxesList).map(tax => (
           <div style={{
@@ -666,7 +668,7 @@ export const Summary = ({
           padding: '0.75rem',
           fontWeight: 700
         }}>
-          <span>Discounts</span>
+          <span>{t('report.legacy.discounts')}</span>
         </div>
         {Object.keys(discountsList).map(discount => (
           <div style={{
@@ -698,7 +700,7 @@ export const Summary = ({
           padding: '0.75rem',
           fontWeight: 700
         }}>
-          <span>Extras</span>
+          <span>{t('report.legacy.extras')}</span>
         </div>
         {Object.keys(extras).map(extra => (
           <div style={{
@@ -729,7 +731,7 @@ export const Summary = ({
           padding: '0.75rem',
           fontWeight: 700
         }}>
-          <span>Coupons</span>
+          <span>{t('report.legacy.coupons')}</span>
         </div>
         {Object.keys(couponsList).map(code => (
           <div

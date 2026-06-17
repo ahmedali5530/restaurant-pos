@@ -1,0 +1,125 @@
+{
+  "labels": {
+    "subTotal": "Ara Toplam ({{count}})",
+    "total": "Toplam"
+  },
+  "actions": {
+    "toKitchen": "Mutfağa gönder",
+    "payNow": "Şimdi Öde",
+    "cancel": "İptal"
+  },
+  "errors": {
+    "createOrder": "Sipariş oluşturulamadı.",
+    "openPayment": "Ödeme açılamadı."
+  },
+  "tracking": {
+    "createOrder": "Sipariş oluştur",
+    "appendOrder": "Siparişe ekle"
+  },
+  "print": {
+    "kitchenTitle": "Mutfak yazdırma"
+  },
+  "title": "Sipariş#{{invoice}}",
+  "tabs": {
+    "tax": "Vergi",
+    "taxWithRate": "Vergi ({{name}} {{rate}}%)",
+    "discount": "İndirim",
+    "coupon": "Kupon",
+    "serviceCharges": "Servis ücretleri ({{value}}{{unit}})",
+    "tip": "Bahşiş ({{value}}{{unit}})",
+    "notes": "Notlar",
+    "total": "Toplam"
+  },
+  "totals": {
+    "items": "Ürünler ({{count}})"
+  },
+  "tax": {
+    "noTax": "Vergi Yok"
+  },
+  "discount": {
+    "noDiscount": "İndirim yok",
+    "label": "İndirim",
+    "withMaxCap": "maksimum {{amount}} üst sınırı ile"
+  },
+  "coupon": {
+    "codeLabel": "Kupon kodu",
+    "applied": "Uygulanan kupon: {{code}}",
+    "discount": "İndirim: {{amount}}",
+    "discountFromCoupon": "Kupondan indirim: {{amount}}",
+    "errors": {
+      "notFound": "Kupon bulunamadı veya aktif değil",
+      "unsupportedType": "Bu kupon türü siparişlerde desteklenmiyor",
+      "belowMinimum": "Sipariş toplamı bu kupon için minimum tutarın altında",
+      "notValidToday": "Kupon bugün geçerli değil",
+      "notValidTime": "Kupon bu saatte geçerli değil",
+      "notActiveYet": "Kupon henüz aktif değil",
+      "expired": "Kuponun süresi doldu",
+      "usageLimitReached": "Kupon kullanım limitine ulaşıldı",
+      "userLimitReached": "Bu kupon için kullanım limitinize ulaştınız",
+      "firstOrderOnly": "Bu kupon yalnızca ilk siparişte geçerlidir",
+      "notStackable": "Bu kupon diğer indirimlerle birlikte kullanılamaz",
+      "noDiscount": "Bu kupon bu sipariş için herhangi bir indirim sağlamıyor"
+    },
+    "appliedSuccess": "Kupon uygulandı"
+  },
+  "serviceCharges": {
+    "defaultFromSettings": "Ayarlardan varsayılan:",
+    "noServiceCharge": "Servis ücreti yok"
+  },
+  "tip": {
+    "noTip": "Bahşiş Yok"
+  },
+  "notes": {
+    "title": "Notlar",
+    "hint": "Kart numaraları veya indirim yazabilirsiniz"
+  },
+  "receiving": {
+    "remaining": "Kalan",
+    "change": "Para üstü",
+    "tempBill": "Geçici fatura",
+    "complete": "Tamamla",
+    "cannotAddCard": "Kart için daha fazla ödeme eklenemez",
+    "exactCardAmount": "Kart tabanlı ödeme için tam tutar eklendi"
+  },
+  "remote": {
+    "remoteLabel": "{{name}} (Uzaktan)",
+    "status": "Durum: {{status}}",
+    "openLink": "Bağlantıyı aç",
+    "verify": "Doğrula"
+  },
+  "discountType": {
+    "percent": "Yüzde",
+    "fixed": "Sabit"
+  },
+  "remoteGateway": {
+    "missingProvider": "Uzaktan ödeme türünde ağ geçidi sağlayıcısı eksik.",
+    "linkGenerated": "Uzaktan ödeme bağlantısı oluşturuldu.",
+    "tokenGenerated": "Uzaktan token oluşturuldu: {{token}}",
+    "intentGenerated": "Uzaktan ödeme niyeti oluşturuldu.",
+    "paymentTimedOut": "{{gateway}} ödemesi zaman aşımına uğradı. Tekrar kontrol etmek için Doğrula'ya dokunun.",
+    "paymentStatus": "{{gateway}} ödemesi {{status}}.",
+    "completeOnPage": "{{gateway}} sayfasında ödemeyi tamamlayın, ardından POS'a dönün.",
+    "scanQr": "Ödemek için {{gateway}} uygulamasıyla QR kodu tarayın.",
+    "enterCardDetails": "Ödemeyi tamamlamak için aşağıya kart bilgilerini girin.",
+    "intentCreated": "{{gateway}} ödeme niyeti oluşturuldu.",
+    "usePaypalButton": "Ödemeyi tamamlamak için aşağıdaki PayPal düğmesini kullanın.",
+    "useRazorpayButton": "Ödemeyi tamamlamak için aşağıdaki Razorpay ile Öde'ye dokunun.",
+    "paymentFailed": "Ödeme başarısız.",
+    "paymentStatusLabel": "Ödeme durumu: {{status}}",
+    "paymentIs": "Ödeme {{status}}.",
+    "paypalPaymentIs": "PayPal ödemesi {{status}}.",
+    "razorpayPaymentFailed": "Razorpay ödemesi başarısız.",
+    "stripePaymentFailed": "Stripe ödemesi başarısız.",
+    "mpesaPhoneUnavailable": "M-Pesa telefon istemi kullanılamıyor.",
+    "mpesaPromptSent": "STK push {{phone}} numarasına gönderildi. M-Pesa PIN girmek için telefonu kontrol edin.",
+    "mpesaPromptSentGeneric": "STK push gönderildi. M-Pesa PIN girmek için telefonu kontrol edin.",
+    "mpesaInvalidPhone": "Geçerli bir M-Pesa numarası girin (2547XXXXXXXX veya 07XXXXXXXX).",
+    "verifiedAndAdded": "Uzaktan ödeme doğrulandı ve eklendi.",
+    "generateFailed": "Uzaktan ödeme bağlantısı/token oluşturulamadı",
+    "mustBePaid": "Ödeme {{status}}. Eklemeden önce ödenmiş/yetkilendirilmiş olmalıdır.",
+    "verifyFailed": "Uzaktan ödeme doğrulanamadı",
+    "paymentReceived": "{{gateway}} ödemesi alındı.",
+    "payWithCard": "Kartla öde",
+    "payWithRazorpay": "Razorpay ile öde"
+  }
+}

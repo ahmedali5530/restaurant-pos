@@ -7,8 +7,10 @@ import { Tables } from "@/api/db/tables.ts";
 import { toast } from 'sonner';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import React, { useEffect } from "react";
+import React, { useMemo,  useEffect } from "react";
 import { OrderType } from "@/api/model/order_type.ts";
+import {useTranslation} from 'react-i18next';
+import i18n from '@/lib/i18n.ts';
 import {Switch} from "@/components/common/input/switch.tsx";
 
 interface Props {
@@ -18,14 +20,16 @@ interface Props {
 }
 
 const validationSchema = yup.object({
-  name: yup.string().required("This is required"),
-  priority: yup.string().required("This is required"),
+  name: yup.string().required(i18n.t('validation:required')),
+  priority: yup.string().required(i18n.t('validation:required')),
   allow_service_charges: yup.boolean(),
 });
 
 export const OrderTypeForm = ({
   open, onClose, data
 }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
   const closeModal = () => {
     onClose();
     reset({
@@ -67,7 +71,7 @@ export const OrderTypeForm = ({
       }
 
       closeModal();
-      toast.success(`Order type ${values.name} saved`);
+      toast.success(t('toast:admin.orderTypeSaved', { name: values.name }));
     } catch ( e ) {
       toast.error(e);
       console.log(e)
@@ -77,21 +81,21 @@ export const OrderTypeForm = ({
   return (
     <>
       <Modal
-        title={data ? `Update ${data?.name}` : 'Create new order type'}
+        title={data ? t('forms.updateOrderType', { name: data?.name }) : t('forms.createOrderType')}
         open={open}
         onClose={closeModal}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <Input label="Name" {...register('name')} autoFocus error={errors?.name?.message}/>
+              <Input label={t('columns.name')} {...register('name')} autoFocus error={errors?.name?.message}/>
             </div>
             <div className="flex-1">
               <Controller
                 render={({ field }) => (
                   <Input
                     type="number"
-                    label="Priority"
+                    label={t('columns.priority')}
                     error={errors?.priority?.message}
                     value={field.value}
                     onChange={field.onChange}
@@ -119,7 +123,7 @@ export const OrderTypeForm = ({
           </div>
 
           <div>
-            <Button type="submit" variant="primary">Save</Button>
+            <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
           </div>
         </form>
       </Modal>

@@ -1,4 +1,5 @@
 import {useMemo, type ReactNode} from 'react';
+import {useTranslation} from 'react-i18next';
 import {Order, OrderStatus} from '@/api/model/order.ts';
 import {formatNumber, withCurrency} from '@/lib/utils.ts';
 import {getOrderFilteredItems, getOrderPaymentTotals} from '@/lib/order.ts';
@@ -129,6 +130,7 @@ const getOrderSubtotalDiscount = (order: Order) => {
 
 /** Active lines + extras only (no tax, service, tips); voided / refunded / suspended lines excluded. */
 function useDailySalesFigures(orders: Order[] | undefined) {
+  const {t} = useTranslation('summary');
   return useMemo(() => {
     const list = orders ?? [];
     const paymentTotals = list.map(order => getOrderPaymentTotals(order));
@@ -260,7 +262,7 @@ function useDailySalesFigures(orders: Order[] | undefined) {
       if (discountAmount <= 0) {
         return;
       }
-      const name = order.discount?.name ?? 'Order discount';
+      const name = order.discount?.name ?? t('report.orderDiscount');
       if (!discountsMap[name]) {
         discountsMap[name] = 0;
       }
@@ -288,7 +290,7 @@ function useDailySalesFigures(orders: Order[] | undefined) {
       if (!order?.coupon) {
         return;
       }
-      const code = order.coupon?.coupon?.code || 'Unknown';
+      const code = order.coupon?.coupon?.code || t('unknown.coupon');
       if (!couponsMap[code]) {
         couponsMap[code] = 0;
       }
@@ -301,8 +303,8 @@ function useDailySalesFigures(orders: Order[] | undefined) {
     const categoryMixMap: Record<string, CategoryMixAggregate> = {};
     list.forEach(order => {
       getOrderFilteredItems(order).forEach(item => {
-        const categoryName = String(item?.category || 'Uncategorized');
-        const dishName = String(item?.item?.name || 'Unknown item');
+        const categoryName = String(item?.category || t('report.uncategorized'));
+        const dishName = String(item?.item?.name || t('report.unknownItem'));
         const itemTotal = safeNumber(calculateOrderItemPrice(item));
         const itemQuantity = safeNumber(item?.quantity);
         const modifiers = getModifierRows(item?.modifiers ?? []);
@@ -392,153 +394,154 @@ function useDailySalesFigures(orders: Order[] | undefined) {
       couponsList,
       categoryMix,
     };
-  }, [orders]);
+  }, [orders, t]);
 }
 
 export function DailySalesSummaryReport({orders, date}: Props) {
+  const {t} = useTranslation('summary');
   const f = useDailySalesFigures(orders);
 
   return (
     <div className="mb-6 select-none">
       <div className="mb-3 text-center text-lg font-semibold text-neutral-900">
-        Daily sales summary — {date}
+        {t('report.title', {date})}
       </div>
 
       <Section
-        title="1. Sales revenue"
+        title={t('report.sections.salesRevenue')}
       >
         <Row
-          label="Exclusive sales"
+          label={t('report.rows.exclusiveSales')}
           value={withCurrency(f.exclusiveSales)}
-          hint="Item sales only (before extras, service and tax)."
+          hint={t('report.hints.exclusiveSales')}
         />
         <Row
-          label="Extras"
+          label={t('report.rows.extras')}
           value={withCurrency(f.totalExtras)}
-          hint="Order-level extras and surcharges attached to checks."
+          hint={t('report.hints.extras')}
         />
         <Row
-          label="Gross sales"
+          label={t('report.rows.grossSales')}
           value={withCurrency(f.grossSales)}
-          hint="Exclusive sales + extras (voided lines excluded)."
+          hint={t('report.hints.grossSales')}
         />
         <Row
-          label="Item discounts"
+          label={t('report.rows.itemDiscounts')}
           value={withCurrency(f.itemDiscounts)}
-          hint="Discount value directly applied on line items."
+          hint={t('report.hints.itemDiscounts')}
         />
         <Row
-          label="Subtotal discounts"
+          label={t('report.rows.subtotalDiscounts')}
           value={withCurrency(f.subtotalDiscounts)}
-          hint="Order-level discounts excluding item-level reductions."
+          hint={t('report.hints.subtotalDiscounts')}
         />
         <Row
-          label="Coupon discounts"
+          label={t('report.rows.couponDiscounts')}
           value={withCurrency(f.couponDiscounts)}
-          hint="Coupon redemption amount."
+          hint={t('report.hints.couponDiscounts')}
         />
         <Row
-          label="(−) Discounts"
+          label={t('report.rows.discounts')}
           value={withCurrency(f.discounts)}
-          hint="Line, order, and coupon reductions."
+          hint={t('report.hints.discounts')}
         />
         <Row
-          label="Net sales"
+          label={t('report.rows.netSales')}
           value={withCurrency(f.netSales)}
-          hint="Gross sales − discounts."
+          hint={t('report.hints.netSales')}
         />
       </Section>
 
       <Section
-        title="2. Surcharges and taxes"
-        subtitle="Collected surcharges and tax (from orders; typically calculated on net after discount)."
+        title={t('report.sections.surchargesTaxes')}
+        subtitle={t('report.subtitles.surchargesTaxes')}
       >
         <Row
-          label="Service charges"
+          label={t('report.rows.serviceCharges')}
           value={withCurrency(f.serviceCharges)}
-          hint="Amount on orders; based on net after discount"
+          hint={t('report.hints.serviceCharges')}
         />
         <Row
-          label="Taxes"
+          label={t('report.rows.taxes')}
           value={withCurrency(f.taxCollected)}
-          hint="Government tax as recorded per order."
+          hint={t('report.hints.taxes')}
         />
         <div className="border-b border-neutral-300 py-2">
           <div className="flex justify-between gap-3 text-sm font-bold">
-            <span>Total revenue</span>
+            <span>{t('report.rows.totalRevenue')}</span>
             <span className="tabular-nums">{withCurrency(f.totalRevenue)}</span>
           </div>
-          <p className="mt-1 text-xs text-neutral-500">Net sales + service charges + taxes (before tips).</p>
+          <p className="mt-1 text-xs text-neutral-500">{t('report.hints.totalRevenue')}</p>
         </div>
       </Section>
 
-      <Section title="3. Settlement and cashier" subtitle="Cash drawer view.">
+      <Section title={t('report.sections.settlementCashier')} subtitle={t('report.subtitles.settlementCashier')}>
         <Row
-          label="Amount due (before tips)"
+          label={t('report.rows.amountDueBeforeTips')}
           value={withCurrency(f.amountDue)}
-          hint="Net sales + service charges + taxes."
+          hint={t('report.hints.amountDueBeforeTips')}
         />
         <Row
-          label="Tips"
+          label={t('report.rows.tips')}
           value={withCurrency(f.tips)}
-          hint="From order tip fields / over-total (not included in gross sales)."
+          hint={t('report.hints.tips')}
         />
         <div className="border-b border-neutral-200 py-2">
           <div className="flex justify-between gap-3 text-sm font-bold">
-            <span>Grand total (due)</span>
+            <span>{t('report.rows.grandTotalDue')}</span>
             <span className="tabular-nums">{withCurrency(f.grandTotalDue)}</span>
           </div>
-          <p className="mt-1 text-xs text-neutral-500">Total revenue + tips.</p>
+          <p className="mt-1 text-xs text-neutral-500">{t('report.hints.grandTotalDue')}</p>
         </div>
         <Row
-          label="Amount collected"
+          label={t('report.rows.amountCollected')}
           value={withCurrency(f.amountCollected)}
-          hint="Applied payment totals by method (excludes change returned)."
+          hint={t('report.hints.amountCollected')}
         />
         <Row
-          label="Rounding"
+          label={t('report.rows.rounding')}
           value={withCurrency(f.rounding)}
-          hint="Amount collected − grand total (due); over/short vs calculated due."
+          hint={t('report.hints.rounding')}
         />
         <Row
-          label="Change / variance"
+          label={t('report.rows.changeVariance')}
           value={withCurrency(f.changeGiven)}
-          hint="Cash tendered in excess of applied payment amounts."
+          hint={t('report.hints.changeVariance')}
         />
       </Section>
 
-      <Section title="4. Operational controls" subtitle="Audit signals (voids separate from gross sales).">
-        <Row label="Voids" value={withCurrency(f.voids)} hint="Value of lines removed after ring (not in gross sales above)." />
-        <Row label="Refunds" value={withCurrency(f.refunds)} hint="Returns from negative payments or cancelled checks." />
-        <Row label="Covers" value={formatNumber(f.covers)} hint="Guest count (pax)." />
+      <Section title={t('report.sections.operationalControls')} subtitle={t('report.subtitles.operationalControls')}>
+        <Row label={t('report.rows.voids')} value={withCurrency(f.voids)} hint={t('report.hints.voids')} />
+        <Row label={t('report.rows.refunds')} value={withCurrency(f.refunds)} hint={t('report.hints.refunds')} />
+        <Row label={t('report.rows.covers')} value={formatNumber(f.covers)} hint={t('report.hints.covers')} />
         <Row
-          label="Average cover"
+          label={t('report.rows.averageCover')}
           value={withCurrency(f.averageCover)}
-          hint="Amount due (before tips) ÷ covers."
+          hint={t('report.hints.averageCover')}
         />
         <Row
-          label="Orders / checks"
+          label={t('report.rows.ordersChecks')}
           value={formatNumber(f.ordersCount)}
-          hint="Number of closed checks/orders."
+          hint={t('report.hints.ordersChecks')}
         />
         <Row
-          label="Average order / check"
+          label={t('report.rows.averageOrderCheck')}
           value={withCurrency(f.averageOrderCheck)}
-          hint="Amount due (before tips) ÷ orders."
+          hint={t('report.hints.averageOrderCheck')}
         />
       </Section>
 
-      <Section title="5. Product mix" subtitle="Categories grouped with dishes and their modifiers.">
+      <Section title={t('report.sections.productMix')} subtitle={t('report.subtitles.productMix')}>
         <div className="border-b border-neutral-300 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-600">
           <div className="flex">
-            <span className="w-1/2">Item</span>
-            <span className="w-1/6 text-right">Qty</span>
-            <span className="w-1/6 text-right">Total</span>
-            <span className="w-1/6 text-right">Share</span>
+            <span className="w-1/2">{t('report.columns.item')}</span>
+            <span className="w-1/6 text-right">{t('report.columns.qty')}</span>
+            <span className="w-1/6 text-right">{t('report.columns.total')}</span>
+            <span className="w-1/6 text-right">{t('report.columns.share')}</span>
           </div>
         </div>
         {f.categoryMix.length === 0 ? (
-          <p className="py-3 text-sm text-neutral-500">No category data for this date.</p>
+          <p className="py-3 text-sm text-neutral-500">{t('report.empty.noCategoryData')}</p>
         ) : (
           f.categoryMix.map(category => (
             <div key={category.name}>
@@ -586,9 +589,9 @@ export function DailySalesSummaryReport({orders, date}: Props) {
         )}
       </Section>
 
-      <Section title="6. Payment types" subtitle="Collected amount split by payment method.">
+      <Section title={t('report.sections.paymentTypes')} subtitle={t('report.subtitles.paymentTypes')}>
         {f.paymentTypes.length === 0 ? (
-          <p className="py-3 text-sm text-neutral-500">No payment data for this date.</p>
+          <p className="py-3 text-sm text-neutral-500">{t('report.empty.noPaymentData')}</p>
         ) : (
           f.paymentTypes.map(payment => (
             <div key={payment.name} className="border-b border-neutral-200 py-2 last:border-b-0">
@@ -604,9 +607,9 @@ export function DailySalesSummaryReport({orders, date}: Props) {
         )}
       </Section>
 
-      <Section title="7. Taxes breakdown" subtitle="Tax components collected from orders.">
+      <Section title={t('report.sections.taxesBreakdown')} subtitle={t('report.subtitles.taxesBreakdown')}>
         {f.taxesList.length === 0 ? (
-          <p className="py-3 text-sm text-neutral-500">No tax rows for this date.</p>
+          <p className="py-3 text-sm text-neutral-500">{t('report.empty.noTaxRows')}</p>
         ) : (
           f.taxesList.map(tax => (
             <div key={tax.name} className="border-b border-neutral-200 py-2 last:border-b-0">
@@ -622,9 +625,9 @@ export function DailySalesSummaryReport({orders, date}: Props) {
         )}
       </Section>
 
-      <Section title="8. Discounts breakdown" subtitle="Discount schemes applied in this period.">
+      <Section title={t('report.sections.discountsBreakdown')} subtitle={t('report.subtitles.discountsBreakdown')}>
         {f.discountsList.length === 0 ? (
-          <p className="py-3 text-sm text-neutral-500">No discount rows for this date.</p>
+          <p className="py-3 text-sm text-neutral-500">{t('report.empty.noDiscountRows')}</p>
         ) : (
           f.discountsList.map(discount => (
             <div key={discount.name} className="border-b border-neutral-200 py-2 last:border-b-0">
@@ -640,9 +643,9 @@ export function DailySalesSummaryReport({orders, date}: Props) {
         )}
       </Section>
 
-      <Section title="9. Extras breakdown" subtitle="Breakdown of order-level extras.">
+      <Section title={t('report.sections.extrasBreakdown')} subtitle={t('report.subtitles.extrasBreakdown')}>
         {f.extrasList.length === 0 ? (
-          <p className="py-3 text-sm text-neutral-500">No extras found for this date.</p>
+          <p className="py-3 text-sm text-neutral-500">{t('report.empty.noExtras')}</p>
         ) : (
           f.extrasList.map(extra => (
             <div key={extra.name} className="border-b border-neutral-200 py-2 last:border-b-0">
@@ -658,9 +661,9 @@ export function DailySalesSummaryReport({orders, date}: Props) {
         )}
       </Section>
 
-      <Section title="10. Coupons breakdown" subtitle="Coupons redeemed and their values.">
+      <Section title={t('report.sections.couponsBreakdown')} subtitle={t('report.subtitles.couponsBreakdown')}>
         {f.couponsList.length === 0 ? (
-          <p className="py-3 text-sm text-neutral-500">No coupon usage for this date.</p>
+          <p className="py-3 text-sm text-neutral-500">{t('report.empty.noCoupons')}</p>
         ) : (
           f.couponsList.map(coupon => (
             <div key={coupon.name} className="border-b border-neutral-200 py-2 last:border-b-0">
@@ -674,8 +677,7 @@ export function DailySalesSummaryReport({orders, date}: Props) {
       </Section>
 
       <p className="text-xs leading-relaxed text-neutral-500">
-        Sequence: gross sales → discounts → net sales → service charges → taxes → tips → grand total →
-        collected. Product mix is grouped by category with dishes nested inside.
+        {t('report.footer')}
       </p>
     </div>
   );

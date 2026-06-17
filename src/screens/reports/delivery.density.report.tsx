@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -123,6 +124,7 @@ const DensityMapOverlay = ({points}: {points: MapPoint[]}) => {
 };
 
 export const DeliveryDensityReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -199,7 +201,7 @@ export const DeliveryDensityReport = () => {
         setOrders((ordersResult?.[0] ?? []) as Order[]);
       } catch (err) {
         console.error("Failed to load delivery density report", err);
-        setError(err instanceof Error ? err.message : "Unable to load report");
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
       } finally {
         setLoading(false);
       }
@@ -275,22 +277,22 @@ export const DeliveryDensityReport = () => {
 
   if (loading) {
     return (
-      <ReportsLayout title="Delivery Density Report" subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">Loading delivery density report…</div>
+      <ReportsLayout title={t('titles.deliveryDensity')} subtitle={subtitle}>
+        <div className="py-12 text-center text-neutral-500">{t('loading.deliveryDensity')}</div>
       </ReportsLayout>
     );
   }
 
   if (error) {
     return (
-      <ReportsLayout title="Delivery Density Report" subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">Failed to load report: {error}</div>
+      <ReportsLayout title={t('titles.deliveryDensity')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
       </ReportsLayout>
     );
   }
 
   return (
-    <ReportsLayout title="Delivery Density Report" subtitle={subtitle}>
+    <ReportsLayout title={t('titles.deliveryDensity')} subtitle={subtitle}>
       <div className="space-y-8">
         <div className="overflow-hidden rounded-lg border border-neutral-200">
           <div className="bg-neutral-100 px-6 py-3 flex items-center justify-between">
@@ -317,22 +319,22 @@ export const DeliveryDensityReport = () => {
 
         <div className="overflow-hidden rounded-lg border border-neutral-200">
           <div className="bg-neutral-100 px-6 py-3">
-            <h3 className="text-sm font-semibold text-neutral-700">Orders</h3>
+            <h3 className="text-sm font-semibold text-neutral-700">{t('categories.orders')}</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200 table-hover">
               <thead className="bg-neutral-50">
               <tr>
-                <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Date</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Invoice #</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Status</th>
+                <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.date')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.invoice')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.status')}</th>
                 <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Area</th>
                 <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Address</th>
                 {filters.showMenuItems && (
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Menu Items</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.menuItems')}</th>
                 )}
                 {filters.showDetails && (
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Line Total</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.lineTotal')}</th>
                 )}
                 <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">Paid Amount</th>
               </tr>

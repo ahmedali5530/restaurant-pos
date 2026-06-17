@@ -1,0 +1,89 @@
+{
+  "orderTakingDisabled": "La toma de pedidos está deshabilitada actualmente.",
+  "verifyClosingFailed": "No se pudo verificar el estado del ciclo de cierre. Inténtelo de nuevo.",
+  "tableLocked": "{{user}} ya está tomando un pedido en esta mesa",
+  "floor": {
+    "switchTable": "Cambiar de la Mesa {{table}} a otra",
+    "reloadCachePrefix": "Presione el botón de recargar caché en",
+    "settings": "configuración"
+  },
+  "guard": {
+    "punchDisabled": "El registro está deshabilitado hasta que se cierre el ciclo actual, o elimine el cierre del ciclo actual.",
+    "cycleEnded": "El ciclo de cierre terminó a las {{time}}. Complete el cierre del día si aún no lo ha hecho."
+  },
+  "window": {
+    "cycle": "Ciclo",
+    "period": "Período",
+    "label": "{{prefix}}: {{start}} - {{end}}"
+  },
+  "terminal": {
+    "defaultName": "Terminal {{number}}",
+    "notes": "Notas",
+    "coins": "Monedas",
+    "denomination": "x {{value}}",
+    "total": "Total de terminal: {{amount}}",
+    "add": "Agregar terminal"
+  },
+  "title": "Cierre diario al {{date}}",
+  "loading": "Cargando cierre...",
+  "alerts": {
+    "cycleDisabled": "El ciclo de cierre está deshabilitado. Se usa la hora del último cierre completado como inicio de este período, y la hora actual como fin.",
+    "cycleCompleted": "El cierre está completado para este ciclo. La toma de pedidos está bloqueada hasta el próximo ciclo.",
+    "periodCompleted": "El cierre está completado para este período."
+  },
+  "sections": {
+    "previousDayBalance": "Saldo del día anterior",
+    "pettyCash": "Caja chica",
+    "terminalCash": "Efectivo de terminal",
+    "paymentTypesSummary": "Resumen de tipos de pago del sistema",
+    "expenses": "Gastos",
+    "notes": "Notas",
+    "summary": "Resumen"
+  },
+  "fields": {
+    "previousDayBalance": "Saldo del día anterior",
+    "pettyCash": "Caja chica",
+    "description": "Descripción",
+    "category": "Categoría",
+    "amount": "Importe",
+    "notesPlaceholder": "Agregue notas adicionales..."
+  },
+  "totals": {
+    "totalCash": "Total en efectivo: {{amount}}",
+    "cashFromPayments": "Efectivo del resumen de pagos",
+    "difference": "Diferencia: {{amount}}",
+    "totalOtherPayments": "Total de otros pagos: {{amount}}",
+    "totalExpenses": "Total de gastos: {{amount}}",
+    "previousBalance": "Saldo anterior",
+    "totalCashShort": "Total en efectivo",
+    "otherPayments": "Otros pagos",
+    "totalExpensesShort": "Total de gastos",
+    "netAmount": "Importe neto"
+  },
+  "actions": {
+    "addExpense": "Agregar gasto",
+    "saveClosing": "Guardar cierre",
+    "closeClosing": "Cerrar cierre",
+    "saving": "Guardando...",
+    "reopen": "Editar (aprobación del gerente)",
+    "reopening": "Reabriendo...",
+    "printClosing": "Imprimir cierre",
+    "goToClosing": "Ir al cierre"
+  },
+  "security": {
+    "reopenDescription": "Reabrir cierre diario",
+    "reopenModule": "Editar cierre"
+  },
+  "autoCheckClose": {
+    "autoClosed_one": "{{count}} cuenta cerrada automáticamente",
+    "autoClosed_other": "{{count}} cuentas cerradas automáticamente",
+    "failed_one": "Error al cerrar automáticamente {{count}} cuenta",
+    "failed_other": "Error al cerrar automáticamente {{count}} cuentas",
+    "noOpenChecks": "Ciclo de cierre finalizado. No hay cuentas abiertas para cerrar.",
+    "retry_one": "Se encontró {{count}} cuenta abierta pero ninguna se cerró{{skipped}}. Se reintentará.",
+    "retry_other": "Se encontraron {{count}} cuentas abiertas pero ninguna se cerró{{skipped}}. Se reintentará.",
+    "skippedSuffix": " ({{count}} omitida(s))",
+    "executionFailed": "Error al cerrar cuentas automáticamente",
+    "warning": "Las cuentas se cerrarán automáticamente en {{countdown}}"
+  }
+}

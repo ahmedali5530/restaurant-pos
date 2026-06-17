@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {REPORTS_PURCHASE_RETURN} from "@/routes/posr.ts";
 import {DateRange} from "@/components/reports/filters/date.range.tsx";
 import {Button} from "@/components/common/input/button.tsx";
@@ -30,6 +31,7 @@ const notNull = <T,>(value: T | null | undefined): value is T =>
   value !== null && value !== undefined;
 
 export const PurchaseReturnFilter = () => {
+  const { t } = useTranslation('reports');
   const {data: suppliersData, isLoading: loadingSuppliers} = useApi<SettingsData<InventorySupplier>>(Tables.inventory_suppliers, [], ['name asc'], 0, 9999);
   const {data: storesData, isLoading: loadingStores} = useApi<SettingsData<InventoryStore>>(Tables.inventory_stores, [], ['name asc'], 0, 9999);
   const {data: itemsData, isLoading: loadingItems} = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], ['name asc'], 0, 9999);
@@ -73,7 +75,7 @@ export const PurchaseReturnFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="purchase-return-items">Items</label>
+          <label htmlFor="purchase-return-items">{t('columns.items')}</label>
           <ReactSelect
             id="purchase-return-items"
             name="items[]"
@@ -87,7 +89,7 @@ export const PurchaseReturnFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="purchase-return-users">Created By</label>
+          <label htmlFor="purchase-return-users">{t('columns.createdBy')}</label>
           <ReactSelect
             id="purchase-return-users"
             name="users[]"
@@ -107,7 +109,7 @@ export const PurchaseReturnFilter = () => {
         variant="primary"
         filled
         type="submit"
-      >Generate</Button>
+      >{t('filters.generate')}</Button>
     </form>
   );
 };

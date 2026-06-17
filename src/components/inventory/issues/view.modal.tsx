@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {InventoryIssue} from "@/api/model/inventory_issue.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {useDB} from "@/api/db/db.ts";
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export const InventoryIssueViewModal = ({open, issue, onClose}: Props) => {
+  const { t } = useTranslation('inventory');
   const db = useDB();
   const [viewIssue, setViewIssue] = useState<InventoryIssue | null>(null);
   const [loading, setLoading] = useState(false);
@@ -73,15 +75,15 @@ export const InventoryIssueViewModal = ({open, issue, onClose}: Props) => {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-neutral-700">
               <div>
-                <div className="text-neutral-500 text-xs uppercase">Created by</div>
+                <div className="text-neutral-500 text-xs uppercase">{t('columns.createdBy')}</div>
                 <div>{viewIssue.created_by?.first_name} {viewIssue.created_by?.last_name}</div>
               </div>
               <div>
-                <div className="text-neutral-500 text-xs uppercase">Issued to</div>
+                <div className="text-neutral-500 text-xs uppercase">{t('columns.issuedTo')}</div>
                 <div>{viewIssue.issued_to ? `${viewIssue.issued_to.first_name} ${viewIssue.issued_to.last_name}` : "—"}</div>
               </div>
               <div>
-                <div className="text-neutral-500 text-xs uppercase">Kitchen</div>
+                <div className="text-neutral-500 text-xs uppercase">{t('columns.kitchen')}</div>
                 <div>{viewIssue.kitchen?.name ?? "—"}</div>
               </div>
             </div>
@@ -130,7 +132,7 @@ export const InventoryIssueViewModal = ({open, issue, onClose}: Props) => {
             <div className="flex items-center justify-between mb-3">
               <div className="text-sm font-semibold text-neutral-800 flex items-center gap-2">
                 <FontAwesomeIcon icon={faFile}/>
-                <span>Attached documents</span>
+                <span>{t('upload.attachDocuments')}</span>
               </div>
             </div>
             {viewIssue.documents && viewIssue.documents.length > 0 ? (

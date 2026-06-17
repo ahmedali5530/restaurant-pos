@@ -20,6 +20,7 @@ import {appPage} from "@/store/jotai.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
+import {useTranslation} from "react-i18next";
 
 interface Props {
   order: OrderModel
@@ -36,6 +37,7 @@ interface Split {
 export const SplitAmount = ({
   order, onClose
 }: Props) => {
+  const {t} = useTranslation('orders');
   const db = useDB();
   const [page] = useAtom(appPage);
 
@@ -50,8 +52,8 @@ export const SplitAmount = ({
 
   // Initialize with two empty splits
   const [splits, setSplits] = useState<Split[]>([
-    {id: nanoid(), name: 'Split 1', amount: 0, number: 1},
-    {id: nanoid(), name: 'Split 2', amount: 0, number: 2}
+    {id: nanoid(), name: t('split.splitName', {number: 1}), amount: 0, number: 1},
+    {id: nanoid(), name: t('split.splitName', {number: 2}), amount: 0, number: 2}
   ]);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -129,7 +131,7 @@ export const SplitAmount = ({
     const newSplitId = nanoid();
     setSplits(prev => [...prev, {
       id: newSplitId,
-      name: `Split ${prev.length + 1}`,
+      name: t('split.splitName', {number: prev.length + 1}),
       amount: 0,
       number: prev.length + 1
     }]);
@@ -141,7 +143,7 @@ export const SplitAmount = ({
         const filtered = prev.filter(split => split.id !== splitId);
         return filtered.map((split, index) => ({
           ...split,
-          name: `Split ${index + 1}`,
+          name: t('split.splitName', {number: index + 1}),
           number: index + 1
         }));
       });
@@ -311,11 +313,11 @@ export const SplitAmount = ({
         user: page?.user,
       });
 
-      toast.success(`Successfully created ${createdOrders.length} split orders`);
+      toast.success(t('split.toast.success', {count: createdOrders.length}));
       onClose?.();
     } catch (error) {
       console.error('Error creating split orders:', error);
-      toast.error('Failed to create split orders');
+      toast.error(t('split.toast.failed'));
     } finally {
       setIsSaving(false);
     }
@@ -326,7 +328,7 @@ export const SplitAmount = ({
   return (
     <>
       <Modal
-        title={`Split order# ${order.invoice_number} by amount`}
+        title={t('split.titleByAmount', {invoice: order.invoice_number})}
         open={true}
         size="full"
         onClose={onClose}
@@ -337,10 +339,10 @@ export const SplitAmount = ({
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-1">
-                  Order Total
+                  {t('split.byAmount.orderTotal')}
                 </h3>
                 <p className="text-sm text-gray-500">
-                  Assign amounts to each split. All amounts must equal the order total.
+                  {t('split.byAmount.assignHint')}
                 </p>
               </div>
               <div className="text-right">
@@ -348,12 +350,12 @@ export const SplitAmount = ({
                   {withCurrency(orderTotal)}
                 </div>
                 <div className="text-sm text-gray-500 mt-1">
-                  Assigned: {withCurrency(assignedTotal)}
+                  {t('split.byAmount.assigned', {amount: withCurrency(assignedTotal)})}
                 </div>
                 <div className={`text-sm font-medium mt-1 ${
                   remainingAmount === 0 ? 'text-green-600' : 'text-orange-600'
                 }`}>
-                  Remaining: {withCurrency(remainingAmount)}
+                  {t('split.byAmount.remaining', {amount: withCurrency(remainingAmount)})}
                 </div>
               </div>
             </div>
@@ -393,7 +395,7 @@ export const SplitAmount = ({
                       <div>
                         <Input
                           type="number"
-                          label="Amount"
+                          label={t('split.byAmount.amount')}
                           value={split.amount > 0 ? split.amount : ''}
                           onChange={(e) => {
                             const inputValue = e.target.value;
@@ -411,7 +413,7 @@ export const SplitAmount = ({
                         />
                         {split.amount > 0 && (
                           <div className="mt-2 text-sm text-gray-600">
-                            Percentage: {percentage}%
+                            {t('split.byAmount.percentage', {value: percentage})}
                           </div>
                         )}
                       </div>
@@ -419,12 +421,12 @@ export const SplitAmount = ({
                       {/* All Items Display */}
                       <div className="flex-1 min-h-[100px]">
                         <div className="text-xs font-medium text-gray-500 mb-2">
-                          Items ({allItems.length})
+                          {t('split.byAmount.itemsCount', {count: allItems.length})}
                         </div>
                         <div className="max-h-[300px] overflow-y-auto space-y-1">
                           {allItems.length === 0 ? (
                             <div className="text-center py-4 text-gray-400 text-sm">
-                              No items in this order
+                              {t('split.byAmount.noItemsInOrder')}
                             </div>
                           ) : (
                             allItems.map(item => {
@@ -439,7 +441,7 @@ export const SplitAmount = ({
                                   className="p-2 border border-gray-100 rounded-lg bg-gradient-to-r from-gray-50 to-transparent text-sm"
                                 >
                                   <div className="flex justify-between items-center mb-1">
-                                    <span className="flex-1 truncate">{item.item?.name || 'Item'}</span>
+                                    <span className="flex-1 truncate">{item.item?.name || t('split.byAmount.itemFallback')}</span>
                                     <span className="text-gray-400 text-xs line-through ml-2">
                                       {formatNumber(originalPrice)}
                                     </span>
@@ -464,7 +466,7 @@ export const SplitAmount = ({
                         {split.amount > 0 && (
                           <div className="mt-2 pt-2 border-t border-gray-200">
                             <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium text-gray-700">Subtotal:</span>
+                              <span className="text-sm font-medium text-gray-700">{t('split.byAmount.subtotal')}</span>
                               <span className="text-sm font-bold text-green-600">
                                 {formatNumber(splitTotals[index])}
                               </span>
@@ -490,7 +492,7 @@ export const SplitAmount = ({
                 size="lg"
                 className="shadow-lg"
               >
-                Add Split
+                {t('split.byAmount.addSplit')}
               </Button>
               {remainingAmount > 0 && (
                 <Button
@@ -500,7 +502,7 @@ export const SplitAmount = ({
                   className="shadow-lg"
                   flat
                 >
-                  Auto-Fill Remaining
+                  {t('split.byAmount.autoFillRemaining')}
                 </Button>
               )}
               {assignedTotal === 0 && (
@@ -511,7 +513,7 @@ export const SplitAmount = ({
                   className="shadow-lg"
                   flat
                 >
-                  Distribute Evenly
+                  {t('split.byAmount.distributeEvenly')}
                 </Button>
               )}
             </div>
@@ -520,8 +522,8 @@ export const SplitAmount = ({
               {!isValid && (
                 <div className="text-sm text-red-600">
                   {assignedTotal < orderTotal
-                    ? `Please assign the remaining ${withCurrency(remainingAmount)}`
-                    : `Total exceeds order amount by ${withCurrency(assignedTotal - orderTotal)}`
+                    ? t('split.byAmount.assignRemaining', {amount: withCurrency(remainingAmount)})
+                    : t('split.byAmount.exceedsTotal', {amount: withCurrency(assignedTotal - orderTotal)})
                   }
                 </div>
               )}
@@ -535,7 +537,7 @@ export const SplitAmount = ({
                 className="shadow-lg hover:shadow-green-200 transition-all duration-300"
                 filled
               >
-                {isSaving ? 'Creating Split Orders...' : `Save Split Orders (${splits.length} orders)`}
+                {isSaving ? t('split.byAmount.creating') : t('split.byAmount.save', {count: splits.length})}
               </Button>
             </div>
           </div>

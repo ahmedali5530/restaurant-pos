@@ -9,6 +9,9 @@ import {
 } from "@/components/orders/payment/remote/core/types.ts";
 import { fetchWebhookPaymentResult, verifyPayment } from "@/lib/payment.service.ts";
 import { toast } from "sonner";
+import i18n from "@/lib/i18n.ts";
+
+const GATEWAY = "JazzCash";
 
 export const jazzcashGatewayAdapter: RemoteGatewayAdapter = {
   gateway: "jazzcash",
@@ -17,10 +20,10 @@ export const jazzcashGatewayAdapter: RemoteGatewayAdapter = {
   onIntentCreated({ intent }: AfterIntentCreatedInput) {
     if (intent.paymentUrl) {
       window.open(intent.paymentUrl, "_blank", "noopener,noreferrer");
-      toast.success("Complete payment on the JazzCash page, then return to POS.");
+      toast.success(i18n.t('payment:remoteGateway.completeOnPage', { gateway: GATEWAY }));
       return;
     }
-    toast.success("JazzCash payment intent generated.");
+    toast.success(i18n.t('payment:remoteGateway.intentCreated', { gateway: GATEWAY }));
   },
   startStatusPolling(pendingIntent, context, handlers) {
     let attempts = 0;
@@ -33,7 +36,7 @@ export const jazzcashGatewayAdapter: RemoteGatewayAdapter = {
           stopped = true;
           clearInterval(timer);
           handlers.onStatusChange("timeout");
-          toast.warning("JazzCash payment timed out. Tap Verify to check again.");
+          toast.warning(i18n.t('payment:remoteGateway.paymentTimedOut', { gateway: GATEWAY }));
           return;
         }
         try {
@@ -61,7 +64,7 @@ export const jazzcashGatewayAdapter: RemoteGatewayAdapter = {
             stopped = true;
             clearInterval(timer);
             handlers.onStatusChange(result.status);
-            toast.error(`JazzCash payment ${result.status}.`);
+            toast.error(i18n.t('payment:remoteGateway.paymentStatus', { gateway: GATEWAY, status: result.status }));
             return;
           }
           handlers.onStatusChange(result.status);
@@ -80,5 +83,5 @@ export const jazzcashGatewayAdapter: RemoteGatewayAdapter = {
     if (!txnRef || typeof txnRef !== "string") return null;
     return <span> · Ref {txnRef}</span>;
   },
-  getVerifiedSuccessMessage: () => "JazzCash payment received.",
+  getVerifiedSuccessMessage: () => i18n.t('payment:remoteGateway.paymentReceived', { gateway: GATEWAY }),
 };

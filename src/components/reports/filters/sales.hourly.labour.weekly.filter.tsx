@@ -1,6 +1,7 @@
 import {REPORTS_SALES_HOURLY_LABOUR_WEEKLY} from "@/routes/posr.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {useDB} from "@/api/db/db.ts";
 import {DateTime} from "luxon";
 import {Tables} from "@/api/db/tables.ts";
@@ -29,6 +30,7 @@ const parseCreatedAt = (value?: string | Date | null) => {
 };
 
 export const SalesHourlyLabourWeeklyFilter = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [weeks, setWeeks] = useState<WeekOption[]>([]);
@@ -134,7 +136,7 @@ export const SalesHourlyLabourWeeklyFilter = () => {
         filled
         type="submit"
         disabled={!selectedWeek}
-      >Generate</Button>
+      >{t('filters.generate')}</Button>
     </form>
   );
 }

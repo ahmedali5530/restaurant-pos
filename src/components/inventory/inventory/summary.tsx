@@ -2,6 +2,7 @@ import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {useMemo, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {createColumnHelper} from "@tanstack/react-table";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {InventoryItemForm} from "@/components/inventory/items/form.tsx";
@@ -10,6 +11,7 @@ import {StoreInventoryCell} from "@/components/inventory/inventory/store.invento
 
 
 export const InventorySummary = () => {
+  const { t } = useTranslation('inventory');
   const loadHook = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 10, ['category', 'suppliers', 'stores']);
   const {
     data: stores
@@ -22,17 +24,17 @@ export const InventorySummary = () => {
   const columns = useMemo(() => {
     const c = [
       columnHelper.accessor("name", {
-        header: 'Name',
+        header: t('columns.name'),
       }),
       columnHelper.accessor("code", {
-        header: 'Code',
+        header: t('columns.code'),
       }),
       columnHelper.accessor(row => row.category?.name ?? "", {
         id: "category",
-        header: 'Category'
+        header: t('columns.category')
       }),
       columnHelper.accessor("suppliers", {
-        header: 'Suppliers',
+        header: t('tabs.suppliers'),
         cell: info => (
           <div className="flex flex-wrap gap-2">
             {info.getValue()?.map((item, index) => (

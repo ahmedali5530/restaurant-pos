@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Resolver, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -10,7 +10,10 @@ import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
 import { UserRole } from "@/api/model/user_role.ts";
 import { ACCESS_RULE_MODULES, AccessRuleModule } from "@/lib/access.rules.ts";
+import { getAccessRuleChildLabel, getAccessRuleModuleLabel } from "@/lib/access.rules.i18n.ts";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
+import {useTranslation} from 'react-i18next';
+import i18n from '@/lib/i18n.ts';
 
 interface Props {
   open: boolean
@@ -40,13 +43,13 @@ const ModuleCheckbox: React.FC<ModuleCheckboxProps> = ({
 
   // Filter children based on search term
   const filteredChildren = moduleConfig.children.filter(child => 
-    child.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    moduleConfig.label.toLowerCase().includes(searchTerm.toLowerCase())
+    getAccessRuleChildLabel(child).toLowerCase().includes(searchTerm.toLowerCase()) ||
+    getAccessRuleModuleLabel(module).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Check if this module or any of its children match the search
   const matchesSearch = 
-    moduleConfig.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    getAccessRuleModuleLabel(module).toLowerCase().includes(searchTerm.toLowerCase()) ||
     filteredChildren.length > 0;
 
   // If there's a search term and nothing matches, don't render this module
@@ -91,7 +94,7 @@ const ModuleCheckbox: React.FC<ModuleCheckboxProps> = ({
           checked={isChecked}
           onChange={(e) => handleModuleChange(e.currentTarget.checked)}
           className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-          label={moduleConfig.label}
+          label={getAccessRuleModuleLabel(module)}
         />
       </div>
       
@@ -105,7 +108,7 @@ const ModuleCheckbox: React.FC<ModuleCheckboxProps> = ({
                 checked={selectedModules.includes(child)}
                 onChange={(e) => handleChildChange(child, e.currentTarget.checked)}
                 className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                label={child}
+                label={getAccessRuleChildLabel(child)}
               />
             </div>
           ))}
@@ -115,11 +118,6 @@ const ModuleCheckbox: React.FC<ModuleCheckboxProps> = ({
   );
 };
 
-const validationSchema = yup.object({
-  name: yup.string().required("This is required"),
-  roles: yup.array().of(yup.string()).default([]).min(1, "This is required"),
-});
-
 type RoleFormValues = {
   name: string;
   roles: string[];
@@ -128,6 +126,12 @@ type RoleFormValues = {
 export const UserRoleForm = ({ open, onClose, data }: Props) => {
   const db = useDB();
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
+  const validationSchema = useMemo(() => yup.object({
+    name: yup.string().required(t('validation:required')),
+    roles: yup.array().of(yup.string()).default([]).min(1, t('validation:required')),
+  }), [t]);
 
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<RoleFormValues>({
     resolver: yupResolver(validationSchema) as Resolver<RoleFormValues>,
@@ -180,7 +184,7 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
         await db.create(Tables.user_roles, payload);
       }
       closeModal();
-      toast.success(`Role ${values.name} saved`);
+      toast.success(t('toast:admin.roleSaved', { name: values.name }));
     } catch (e) {
       toast.error(String(e));
       console.log(e);
@@ -189,19 +193,19 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
 
   return (
     <Modal
-      title={data ? `Update ${data.name}` : "Create new role"}
+      title={data ? t('forms.updateRole', { name: data.name }) : t('forms.createRole')}
       open={open}
       onClose={closeModal}
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-3 mb-3">
           <div className="flex-1">
-            <Input label="Role name" {...register("name")} autoFocus error={errors?.name?.message} />
+            <Input label={t('forms.roleName')} {...register("name")} autoFocus error={errors?.name?.message} />
           </div>
         </div>
         
         <div className="flex-1">
-          <label>Modules</label>
+          <label>{t('forms.modules')}</label>
           {errors?.roles?.message != null && (
             <p className="mt-1 text-sm text-red-600" role="alert">
               {String(errors.roles.message)}
@@ -212,7 +216,7 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
           <div className="mt-2 mb-4">
             <Input
               type="text"
-              placeholder="Search modules..."
+              placeholder={t('forms.searchModules')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full"
@@ -233,23 +237,23 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
               />
             ))}
             
-            {searchTerm && Object.entries(ACCESS_RULE_MODULES).every(([, moduleConfig]) => {
+            {searchTerm && Object.entries(ACCESS_RULE_MODULES).every(([moduleKey, moduleConfig]) => {
               const matchesSearch = 
-                moduleConfig.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                getAccessRuleModuleLabel(moduleKey).toLowerCase().includes(searchTerm.toLowerCase()) ||
                 moduleConfig.children.some(child => 
-                  child.toLowerCase().includes(searchTerm.toLowerCase())
+                  getAccessRuleChildLabel(child).toLowerCase().includes(searchTerm.toLowerCase())
                 );
               return !matchesSearch;
             }) && (
               <div className="text-center text-gray-500 py-4">
-                No modules found matching "{searchTerm}"
+                {t('forms.noModulesFound', { term: searchTerm })}
               </div>
             )}
           </div>
         </div>
         
         <div>
-          <Button type="submit" variant="primary">Save</Button>
+          <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
         </div>
       </form>
     </Modal>

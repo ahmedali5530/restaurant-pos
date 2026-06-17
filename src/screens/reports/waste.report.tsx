@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -50,6 +51,7 @@ const parseFilters = (): ReportFilters => {
 };
 
 export const WasteReport = () => {
+  const { t } = useTranslation('reports');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [wastes, setWastes] = useState<InventoryWaste[]>([]);
@@ -112,7 +114,7 @@ export const WasteReport = () => {
         setWastes(allWastes);
       } catch (err) {
         console.error('Failed to load waste report:', err);
-        setError(err instanceof Error ? err.message : 'Unable to load report');
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
       } finally {
         setLoading(false);
       }
@@ -138,23 +140,23 @@ export const WasteReport = () => {
 
   if (loading) {
     return (
-      <ReportsLayout title="Waste Report" subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">Loading waste report…</div>
+      <ReportsLayout title={t('titles.waste')} subtitle={subtitle}>
+        <div className="py-12 text-center text-neutral-500">{t('loading.waste')}</div>
       </ReportsLayout>
     );
   }
 
   if (error) {
     return (
-      <ReportsLayout title="Waste Report" subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">Failed to load report: {error}</div>
+      <ReportsLayout title={t('titles.waste')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
       </ReportsLayout>
     );
   }
 
   return (
     <ReportsLayout
-      title="Waste Report"
+      title={t('titles.waste')}
       subtitle={subtitle}
     >
       <div className="space-y-8">
@@ -177,13 +179,13 @@ export const WasteReport = () => {
             <table className="min-w-full divide-y divide-neutral-200">
               <thead className="bg-neutral-50">
                 <tr>
-                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Date</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Invoice #</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Item</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Quantity</th>
+                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.date')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.invoice')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.item')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Source</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Created By</th>
-                  <th className="py-3 pr-6 text-left text-xs font-semibold text-neutral-700">Comments</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.createdBy')}</th>
+                  <th className="py-3 pr-6 text-left text-xs font-semibold text-neutral-700">{t('columns.comments')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100 bg-white">
@@ -224,7 +226,7 @@ export const WasteReport = () => {
               {wastes.length > 0 && (
                 <tfoot className="bg-neutral-50">
                   <tr>
-                    <td colSpan={3} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">Total</td>
+                    <td colSpan={3} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">{t('columns.total')}</td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
                       {formatNumber(totals.totalQuantity)}
                     </td>

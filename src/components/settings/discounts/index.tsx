@@ -10,9 +10,11 @@ import { Discount } from "@/api/model/discount.ts";
 import { DiscountForm } from "@/components/settings/discounts/discount.form.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
+import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminDiscounts = () => {
+  const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<Discount>>(Tables.discounts, ['deleted_at = none']);
   const db = useDB();
 
@@ -23,27 +25,27 @@ export const AdminDiscounts = () => {
 
   const columns: any = [
     columnHelper.accessor("name", {
-      header: 'Name',
+      header: t('columns.name'),
 
     }),
     columnHelper.accessor("min_rate", {
-      header: 'Min Rate'
+      header: t('columns.minRate')
     }),
     columnHelper.accessor("max_rate", {
-      header: 'Max Rate'
+      header: t('columns.maxRate')
     }),
     columnHelper.accessor("max_cap", {
-      header: 'Max Discount Cap'
+      header: t('columns.maxDiscountCap')
     }),
     columnHelper.accessor("type", {
-      header: 'Type'
+      header: t('columns.type')
     }),
     columnHelper.accessor("priority", {
-      header: 'Priority'
+      header: t('columns.priority')
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {
@@ -58,7 +60,7 @@ export const AdminDiscounts = () => {
             ><FontAwesomeIcon icon={faPencil}/></Button>
             <div className="separator"></div>
             <DeleteConfirm
-              message={`Delete discount ${info.row.original.name}`}
+              message={t('delete.discount', { name: info.row.original.name })}
               onConfirm={() => deleteItem(info.row.original.id)}
             />
           </div>
@@ -71,7 +73,7 @@ export const AdminDiscounts = () => {
     await executeSettingsDelete({
       db,
       id,
-      entityLabel: 'Discount',
+      entityLabel: t('entities.discount'),
       usageChecks: [
         {
           query: `SELECT count() AS count FROM ${Tables.payment_types} WHERE discounts ?= $idRecord GROUP ALL`
@@ -95,7 +97,7 @@ export const AdminDiscounts = () => {
         buttons={[
           <Button variant="primary" onClick={() => {
             setFormModal(true);
-          }} icon={faPlus}> Discount</Button>
+          }} icon={faPlus}>{t('buttons.discount')}</Button>
         ]}
       />
 

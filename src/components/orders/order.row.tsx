@@ -3,8 +3,9 @@ import {calculateOrderTotal} from "@/lib/cart.ts";
 import React, {useMemo, useState} from "react";
 import {cn, withCurrency} from "@/lib/utils.ts";
 import {OrderPayment} from "@/components/orders/order.payment.tsx";
-import {getInvoiceNumber, getOrderFilteredItems} from "@/lib/order.ts";
+import {getInvoiceNumber, getOrderFilteredItems, translateOrderStatus} from "@/lib/order.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
+import {useTranslation} from "react-i18next";
 
 interface Props {
   order: OrderModel
@@ -13,6 +14,7 @@ interface Props {
 export const OrderRow = ({
   order
 }: Props) => {
+  const {t} = useTranslation('orders');
   const itemsTotal = calculateOrderTotal(order);
   const [payment, setPayment] = useState(false);
 
@@ -50,7 +52,7 @@ export const OrderRow = ({
             "uppercase p-1 px-3 rounded-lg text-sm font-bold flex-grow-0 flex-shrink",
             colors[order?.status]
           )
-        }>{order?.status}</span>
+        }>{translateOrderStatus(t, order?.status)}</span>
         </div>
         <div className="flex basis-[200px] items-center px-3">
           {toLuxonDateTime(order.created_at).toFormat('yyyy-MM-dd hh:mm a')}
@@ -58,7 +60,7 @@ export const OrderRow = ({
         <div className="flex items-center px-3 gap-1">
           <span className="inline-flex h-[24px] min-w-[24px] rounded-full bg-gray-900 text-white justify-center items-center">
             {getOrderFilteredItems(order).length}
-          </span> Items
+          </span> {t('totals.itemsShort')}
         </div>
         <div className="flex px-3 gap-1 items-center basis-[150px]">
           {withCurrency(itemsTotal)}
@@ -76,7 +78,7 @@ export const OrderRow = ({
         <div className="flex items-center px-3 basis-[180px]">
           {order?.service_charge_amount && (
             <>
-              <div className="flex-1">SC ({order?.service_charge}%)</div>
+              <div className="flex-1">{t('totals.sc', {value: order?.service_charge})}</div>
               <div className="text-right">{withCurrency(order?.service_charge_amount)}</div>
             </>
           )}
@@ -85,7 +87,7 @@ export const OrderRow = ({
         <div className="flex items-center px-3 basis-[180px] border-x border-neutral-500">
           {order?.extras && (
             <>
-              <div className="flex-1">Extras</div>
+              <div className="flex-1">{t('totals.extras')}</div>
               <div
                 className="text-right">{withCurrency(order?.extras?.reduce((prev, item) => prev + Number(item.value), 0))}</div>
             </>

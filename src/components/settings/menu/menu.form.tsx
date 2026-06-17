@@ -8,8 +8,10 @@ import { Menu } from "@/api/model/menu.ts";
 import { toast } from 'sonner';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import React, { useEffect } from "react";
+import React, { useMemo,  useEffect } from "react";
 import { Switch } from "@/components/common/input/switch.tsx";
+import {useTranslation} from 'react-i18next';
+import i18n from '@/lib/i18n.ts';
 import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
 
 interface Props {
@@ -19,7 +21,7 @@ interface Props {
 }
 
 const validationSchema = yup.object({
-  name: yup.string().required("This is required"),
+  name: yup.string().required(i18n.t('validation:required')),
   start_from: yup.string().nullable(),
   end_time: yup.string().nullable(),
   ends_on_next_day: yup.boolean(),
@@ -29,6 +31,8 @@ const validationSchema = yup.object({
 export const MenuForm = ({
   open, onClose, data
 }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
   // Helper function to convert Date to time string (HH:mm)
   const dateToTimeString = (date: unknown): string | null => {
     if (!date) return null;
@@ -113,7 +117,7 @@ export const MenuForm = ({
       }
 
       closeModal();
-      toast.success(`Menu ${values.name} saved`);
+      toast.success(t('toast:admin.menuSaved', { name: values.name }));
     }catch(e){
       toast.error(e);
       console.log(e)
@@ -123,14 +127,14 @@ export const MenuForm = ({
   return (
     <>
       <Modal
-        title={data ? `Update ${data?.name}` : 'Create new menu'}
+        title={data ? t('forms.updateMenu', { name: data?.name }) : t('forms.createMenu')}
         open={open}
         onClose={closeModal}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <Input label="Name" {...register('name')} autoFocus error={errors?.name?.message} />
+              <Input label={t('columns.name')} {...register('name')} autoFocus error={errors?.name?.message} />
             </div>
           </div>
           <div className="flex gap-3 mb-3">
@@ -141,7 +145,7 @@ export const MenuForm = ({
                 render={({field}) => (
                   <Input
                     type="time"
-                    label="Start Time"
+                    label={t('columns.startTime')}
                     value={field.value || ''}
                     onChange={field.onChange}
                     error={errors?.start_from?.message}
@@ -156,7 +160,7 @@ export const MenuForm = ({
                 render={({field}) => (
                   <Input
                     type="time"
-                    label="End Time"
+                    label={t('columns.endTime')}
                     value={field.value || ''}
                     onChange={field.onChange}
                     error={errors?.end_time?.message}
@@ -192,7 +196,7 @@ export const MenuForm = ({
             </div>
           </div>
           <div>
-            <Button type="submit" variant="primary">Save</Button>
+            <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
           </div>
         </form>
       </Modal>

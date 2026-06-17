@@ -4,8 +4,10 @@ import {DatePicker} from "@/components/common/antd/datepicker.tsx";
 import {getLocalTimeZone, today} from "@internationalized/date";
 import {DateValue} from "react-aria-components";
 import {useState} from "react";
+import { useTranslation } from 'react-i18next';
 
 export const CashClosingFilter = () => {
+  const { t } = useTranslation('reports');
   const [selectedDate, setSelectedDate] = useState<DateValue | null>(today(getLocalTimeZone()));
 
   return (
@@ -30,7 +32,7 @@ export const CashClosingFilter = () => {
         filled
         type="submit"
         disabled={!selectedDate}
-      >Generate</Button>
+      >{t('filters.generate')}</Button>
     </form>
   );
 }

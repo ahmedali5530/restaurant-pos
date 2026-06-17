@@ -23,6 +23,7 @@ import {toast} from "sonner";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import { toJsDate } from "@/lib/datetime.ts";
+import {useTranslation} from "react-i18next";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -40,12 +41,12 @@ const toIdString = (value: unknown): string => {
   return String(value);
 };
 
-const getUserDisplayName = (user: unknown): string => {
-  if (!user || typeof user !== 'object') return 'Unknown';
+const getUserDisplayName = (user: unknown, unknownLabel: string): string => {
+  if (!user || typeof user !== 'object') return unknownLabel;
   const u = user as { first_name?: string; last_name?: string; name?: string; login?: string };
   const first = (u.first_name || '').trim();
   const last = (u.last_name || '').trim();
-  return [first, last].filter(Boolean).join(' ') || u.name || u.login || 'Unknown';
+  return [first, last].filter(Boolean).join(' ') || u.name || u.login || unknownLabel;
 };
 
 const getOrderSale = (order: OrderModel): number => {
@@ -67,6 +68,7 @@ const formatDuration = (ms: number): string => {
 };
 
 export const Summary = () => {
+  const {t} = useTranslation(["summary", "toast"]);
   const db = useDB();
   const [page] = useAtom(appPage);
   const {protectAction} = useSecurity();
@@ -139,7 +141,7 @@ export const Summary = () => {
 
       const totalSale = rows.reduce((sum, row) => sum + row.total, 0);
       if (rows.length === 0) {
-        toast.error('No items found for product mix.');
+        toast.error(t("toast:summary.noProductMix"));
         return;
       }
 
@@ -201,7 +203,7 @@ export const Summary = () => {
 
       const entries = (Array.isArray(entryRes) ? entryRes : []) as TimeEntry[];
       if (entries.length === 0) {
-        toast.error('No completed time entries found for this date.');
+        toast.error(t("toast:summary.noTimeEntries"));
         return;
       }
 
@@ -216,7 +218,7 @@ export const Summary = () => {
         const userId = toIdString(entry.user);
         if (!userId) return;
         const current = perUser.get(userId) || {
-          name: getUserDisplayName(entry.user).substring(0, 12),
+          name: getUserDisplayName(entry.user, t("summary:unknown.user")).substring(0, 12),
           durationMs: 0,
           guests: 0,
           checks: 0,
@@ -239,7 +241,7 @@ export const Summary = () => {
 
       const rows = Array.from(perUser.values()).sort((a, b) => b.sales - a.sales);
       if (rows.length === 0) {
-        toast.error('No server sales data found for this date.');
+        toast.error(t("toast:summary.noServerSales"));
         return;
       }
 
@@ -321,7 +323,7 @@ export const Summary = () => {
                   })
                 }}
               >
-                Previous date</Button>
+                {t("summary:screen.previousDate")}</Button>
               <Button
                 rightIcon={faArrowRight} size="lg" variant="primary" filled
                 onClick={() => {
@@ -332,7 +334,7 @@ export const Summary = () => {
                   })
                 }}
               >
-                Next date</Button>
+                {t("summary:screen.nextDate")}</Button>
             </div>
             <div className="flex gap-3 mt-3 flex-wrap">
               <Button
@@ -340,23 +342,23 @@ export const Summary = () => {
                 variant="lg"
                 onClick={() => {
                   protectAction(handlePrintSummary, {
-                    description: 'Print summary',
+                    description: t("summary:security.printSummaryDescription"),
                     module: 'Print summary',
                   });
                 }}
-              >Print summary</Button>
+              >{t("summary:screen.printSummary")}</Button>
               <Button
                 icon={faPrint}
                 variant="lg"
                 isLoading={isPrintingMix}
                 onClick={() => {
                   protectAction(handlePrintProductMix, {
-                    description: 'Product mix report',
+                    description: t("summary:security.productMixDescription"),
                     module: 'Product mix report',
                   });
                 }}
               >
-                Product Mix Report
+                {t("summary:screen.productMixReport")}
               </Button>
               <Button
                 icon={faPrint}
@@ -364,12 +366,12 @@ export const Summary = () => {
                 isLoading={isPrintingServerSales}
                 onClick={() => {
                   protectAction(handlePrintServerSales, {
-                    description: 'Server sales',
+                    description: t("summary:security.serverSalesDescription"),
                     module: 'Server sales',
                   });
                 }}
               >
-                Server Sales
+                {t("summary:screen.serverSales")}
               </Button>
             </div>
           </div>

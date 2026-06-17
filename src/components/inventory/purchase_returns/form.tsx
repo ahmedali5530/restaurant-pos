@@ -1,4 +1,5 @@
 import React, {useEffect, useMemo, useState, useCallback, useRef} from "react";
+import { useTranslation } from 'react-i18next';
 import * as yup from "yup";
 import {Controller, useFieldArray, useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
@@ -89,6 +90,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
 }).required();
 
 export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
+  const { t } = useTranslation('inventory');
   const db = useDB();
   const [state, ] = useAtom(appPage);
   const validationSchema = useMemo(() => createValidationSchema(db, data?.id), [db, data?.id]);
@@ -221,7 +223,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
       })
       .catch((error) => {
         console.error("Failed to fetch next purchase return number", error);
-        toast.error("Unable to generate next return number");
+        toast.error(t('toast:inventory.unableGenerateReturnNumber'));
       });
 
     return () => {
@@ -277,7 +279,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
     try {
       const hasAvailableStock = await validateAvailableStock(values);
       if (!hasAvailableStock) {
-        toast.error("One or more items exceed available quantity");
+        toast.error(t('toast:inventory.itemsExceedQuantity'));
         return;
       }
 
@@ -347,7 +349,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
         items: itemsRefs,
       });
 
-      toast.success("Purchase return saved");
+      toast.success(t('toast:inventory.purchaseReturnSaved'));
       closeModal();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : String(error));
@@ -485,7 +487,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
                 control={control}
                 render={({field}) => (
                   <Input
-                    label="Return invoice number"
+                    label={t('forms.returnInvoiceNumber')}
                     type="number"
                     {...field}
                     value={field.value ?? ""}
@@ -496,7 +498,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
               />
             </div>
             <div className="flex-1">
-              <label>Purchase</label>
+              <label>{t('sourceType.purchase')}</label>
               <Controller
                 name="purchase"
                 control={control}
@@ -519,7 +521,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
                 control={control}
                 render={({field}) => (
                   <DatePicker
-                    label="Date"
+                    label={t('forms.date')}
                     value={field.value as any}
                     onChange={field.onChange}
                     maxValue={getToday()}
@@ -545,7 +547,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
           </div>
 
           <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
-            <legend>Items</legend>
+            <legend>{t('tabs.items')}</legend>
             <div className="mb-3">
               <Button
                 type="button"
@@ -596,7 +598,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
                       <InputError error={_.get(errors, ["items", index, "store", "message"])}/>
                     </div>
                     <div className="flex-1">
-                      <label>Item</label>
+                      <label>{t('buttons.item')}</label>
                       <Controller
                         name={`items.${index}.item`}
                         control={control}
@@ -649,7 +651,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
                     </div>
                     <div className="flex-1">
                       <Input
-                        label="Comments"
+                        label={t('forms.comments')}
                         {...register(`items.${index}.comments` as const)}
                       />
                     </div>
@@ -673,7 +675,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
         </div>
 
         <div>
-          <Button type="submit" variant="primary">Save</Button>
+          <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
         </div>
       </form>
     </Modal>

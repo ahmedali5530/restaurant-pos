@@ -3,6 +3,7 @@ import {Tables} from "@/api/db/tables.ts";
 import React, {useEffect, useState} from "react";
 import {Tax} from "@/api/model/tax.ts";
 import {Button} from "@/components/common/input/button.tsx";
+import {useTranslation} from "react-i18next";
 
 interface Props {
   tax?: Tax
@@ -12,6 +13,7 @@ interface Props {
 export const OrderPaymentTax = ({
   tax, setTax
 }: Props) => {
+  const {t} = useTranslation('payment');
   const [draftTax, setDraftTax] = useState<Tax | undefined>(tax);
 
   const {
@@ -32,7 +34,7 @@ export const OrderPaymentTax = ({
           onClick={() => setDraftTax(undefined)}
           size="lg"
         >
-          No Tax
+          {t('tax.noTax')}
         </Button>
         <div className="flex gap-5 flex-wrap">
           {taxes?.data?.map(item => (
@@ -50,7 +52,7 @@ export const OrderPaymentTax = ({
         </div>
       </div>
       <Button variant="success" size="lg" className="w-full" filled onClick={() => setTax(draftTax)}>
-        OK
+        {t('common:actions.ok')}
       </Button>
     </div>
   );

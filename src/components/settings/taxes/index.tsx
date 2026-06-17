@@ -10,9 +10,11 @@ import { Tax } from "@/api/model/tax.ts";
 import { TaxForm } from "@/components/settings/taxes/tax.form.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
+import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminTaxes = () => {
+  const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<Tax>>(Tables.taxes, ['deleted_at = none']);
   const db = useDB();
 
@@ -23,17 +25,17 @@ export const AdminTaxes = () => {
 
   const columns: any = [
     columnHelper.accessor("name", {
-      header: 'Name'
+      header: t('columns.name')
     }),
     columnHelper.accessor("rate", {
-      header: 'Rate %'
+      header: t('columns.ratePercent')
     }),
     columnHelper.accessor("priority", {
-      header: 'Priority'
+      header: t('columns.priority')
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {
@@ -48,8 +50,8 @@ export const AdminTaxes = () => {
             ><FontAwesomeIcon icon={faPencil}/></Button>
             <div className="separator"></div>
             <DeleteConfirm
-              message={`Delete tax ${info.row.original.name}`}
-              onConfirm={() => deleteItem(info.row.original.id)}
+              message={t('delete.tax', { name: info.row.original.name })}
+              onConfirm={() => deleteItem(info.row.original.id.toString())}
             />
           </div>
         );
@@ -61,7 +63,7 @@ export const AdminTaxes = () => {
     await executeSettingsDelete({
       db,
       id,
-      entityLabel: 'Tax',
+      entityLabel: t('entities.tax'),
       usageChecks: [
         {
           query: `SELECT count() AS count FROM ${Tables.payment_types} WHERE tax = $idRecord GROUP ALL`
@@ -88,7 +90,7 @@ export const AdminTaxes = () => {
         buttons={[
           <Button variant="primary" onClick={() => {
             setFormModal(true);
-          }} icon={faPlus}> Tax</Button>
+          }} icon={faPlus}>{t('buttons.tax')}</Button>
         ]}
       />
 

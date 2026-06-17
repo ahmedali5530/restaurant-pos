@@ -1,4 +1,5 @@
 import React, {useEffect} from "react";
+import { useTranslation } from 'react-i18next';
 import * as yup from "yup";
 import {Controller, useFieldArray, useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
@@ -48,6 +49,7 @@ const validationSchema = yup.object({
 }).required();
 
 export const InventoryItemGroupForm = ({open, onClose, data}: Props) => {
+  const { t } = useTranslation('inventory');
   const db = useDB();
 
   const {
@@ -180,7 +182,7 @@ export const InventoryItemGroupForm = ({open, onClose, data}: Props) => {
         sub_items: itemRefs,
       });
 
-      toast.success("Item group saved");
+      toast.success(t('toast:inventory.itemGroupSaved'));
       closeModal();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : String(error));
@@ -203,7 +205,7 @@ export const InventoryItemGroupForm = ({open, onClose, data}: Props) => {
         <div className="flex flex-col gap-3 mb-3">
           <div className="flex gap-3">
             <div className="flex-1">
-              <label>Main item</label>
+              <label>{t('columns.mainItem')}</label>
               <Controller
                 name="main_item"
                 control={control}
@@ -224,7 +226,7 @@ export const InventoryItemGroupForm = ({open, onClose, data}: Props) => {
                 control={control}
                 render={({field}) => (
                   <Input
-                    label="Base quantity"
+                    label={t('columns.baseQuantity')}
                     type="number"
                     {...field}
                     value={field.value ?? ""}
@@ -236,7 +238,7 @@ export const InventoryItemGroupForm = ({open, onClose, data}: Props) => {
           </div>
 
           <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
-            <legend>Sub items</legend>
+            <legend>{t('columns.subItems')}</legend>
             <div className="mb-3">
               <Button
                 type="button"
@@ -251,7 +253,7 @@ export const InventoryItemGroupForm = ({open, onClose, data}: Props) => {
             {fields.map((field, index) => (
               <div className="flex gap-3 mb-3" key={field.id}>
                 <div className="flex-1">
-                  <label>Item</label>
+                  <label>{t('buttons.item')}</label>
                   <Controller
                     name={`sub_items.${index}.item`}
                     control={control}
@@ -272,7 +274,7 @@ export const InventoryItemGroupForm = ({open, onClose, data}: Props) => {
                     control={control}
                     render={({field}) => (
                       <Input
-                        label="Quantity"
+                        label={t('forms.quantity')}
                         type="number"
                         value={field.value as number | string}
                         onChange={field.onChange}
@@ -297,7 +299,7 @@ export const InventoryItemGroupForm = ({open, onClose, data}: Props) => {
         </div>
 
         <div>
-          <Button type="submit" variant="primary">Save</Button>
+          <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
         </div>
       </form>
     </Modal>

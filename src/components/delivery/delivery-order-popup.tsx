@@ -1,4 +1,5 @@
 import React, {useMemo, useState, useEffect} from "react";
+import { useTranslation } from 'react-i18next';
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Order, OrderStatus} from "@/api/model/order.ts";
 import {Button} from "@/components/common/input/button.tsx";
@@ -39,6 +40,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
   onClose,
   onOrderUpdate,
 }) => {
+  const { t } = useTranslation('delivery');
   const db = useDB();
   const {deliveryOrders, openOrderPopup, selectedOrder: contextSelectedOrder, isPopupOpen} = useDeliveryOrders();
   const [riders, setRiders] = useState<User[]>([]);
@@ -81,7 +83,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
           setRiders(result as User[]);
         } catch (error) {
           console.error("Error fetching riders:", error);
-          toast.error("Failed to fetch riders");
+          toast.error(t('order.fetchRidersFailed'));
         } finally {
           setLoadingRiders(false);
         }
@@ -124,12 +126,12 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
         }
       });
 
-      toast.success(`Order ${getInvoiceNumber(order)} sent for delivery`);
+      toast.success(t('order.sentForDelivery', { invoice: getInvoiceNumber(order) }));
       onOrderUpdate?.();
       // onClose();
     } catch (error) {
       console.error("Error sending order:", error);
-      toast.error("Failed to send order");
+      toast.error(t('order.sendFailed'));
     }
   }
 
@@ -144,18 +146,18 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
         }
       });
 
-      toast.success(`Order ${getInvoiceNumber(order)} accepted`);
+      toast.success(t('order.accepted', { invoice: getInvoiceNumber(order) }));
       onOrderUpdate?.();
       // Don't close, show rider selection
     } catch (error) {
       console.error("Error accepting order:", error);
-      toast.error("Failed to accept order");
+      toast.error(t('order.acceptFailed'));
     }
   };
 
   const handleAttachRider = async () => {
     if (!selectedRider) {
-      toast.error("Please select a rider first");
+      toast.error(t('order.selectRiderFirst'));
       return;
     }
 
@@ -168,12 +170,14 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
         }
       });
 
-      toast.success(`Rider ${selectedRider.first_name} ${selectedRider.last_name} attached to order`);
+      toast.success(t('order.riderAttached', {
+        name: `${selectedRider.first_name} ${selectedRider.last_name}`.trim(),
+      }));
       setSelectedRider(null);
       onOrderUpdate?.();
     } catch (error) {
       console.error("Error attaching rider:", error);
-      toast.error("Failed to attach rider");
+      toast.error(t('order.attachRiderFailed'));
     }
   };
 
@@ -192,12 +196,12 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
         tags: Array.from(new Set([...(order.tags || []), OrderStatus.Cancelled])),
       });
 
-      toast.error(`Order ${getInvoiceNumber(order)} rejected`);
+      toast.error(t('order.rejected', { invoice: getInvoiceNumber(order) }));
       onOrderUpdate?.();
       onClose();
     } catch (error) {
       console.error("Error rejecting order:", error);
-      toast.error("Failed to reject order");
+      toast.error(t('order.rejectFailed'));
     }
   };
 
@@ -338,7 +342,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
             <div className="bg-green-50 p-4 rounded-lg border-2 border-green-200">
               <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
                 <FontAwesomeIcon icon={faUser} className="text-green-600"/>
-                <span>Assigned Rider</span>
+                <span>{t('order.assignedRider')}</span>
               </h3>
               <div className="flex items-center justify-between">
                 <div>
@@ -374,11 +378,11 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
           {customer && (
             <div className="bg-gray-200 p-4 rounded-lg border-2 border-gray-300">
               <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                <span>Customer Information</span>
+                <span>{t('order.customerInformation')}</span>
               </h3>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-sm font-medium text-neutral-600">Name</label>
+                  <label className="text-sm font-medium text-neutral-600">{t('common:actions.name')}</label>
                   <p className="text-base">{customer.name}</p>
                 </div>
                 {customer.phone && (
@@ -401,7 +405,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
           <div className="bg-primary-100 p-4 rounded-lg border-2 border-primary-200">
             <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
               <FontAwesomeIcon icon={faMapMarkerAlt} className="text-primary-600"/>
-              <span>Delivery Address</span>
+              <span>{t('order.deliveryAddress')}</span>
             </h3>
             <div className="space-y-2">
               {delivery?.place ? (

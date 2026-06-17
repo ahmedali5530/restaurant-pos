@@ -1,4 +1,5 @@
 import {useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {REPORTS_AI} from "@/routes/posr.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {Textarea} from "@/components/common/input/textarea.tsx";
@@ -11,6 +12,7 @@ import {
 import {faList, faTable} from "@fortawesome/free-solid-svg-icons";
 
 export const AiReportFilter = () => {
+  const { t } = useTranslation('reports');
   const [prompt, setPrompt] = useState("");
   const [format, setFormat] = useState<AiReportFormat>(() => loadAiReportFormat());
 
@@ -35,13 +37,13 @@ export const AiReportFilter = () => {
         Prompt
         <Textarea
           className="mt-1 min-h-40 w-full"
-          placeholder="Describe the report or analysis you want..."
+          placeholder={t('filters.aiPrompt')}
           value={prompt}
           onChange={(event) => setPrompt(event.currentTarget.value)}
         />
       </label>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm text-gray-600">Format:</span>
+        <span className="text-sm text-gray-600">{t('filters.format')}</span>
         <Button
           variant="primary"
           size="sm"

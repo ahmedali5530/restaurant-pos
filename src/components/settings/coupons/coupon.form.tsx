@@ -5,6 +5,8 @@ import {Controller, useForm} from "react-hook-form";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {toast} from "sonner";
+import {useTranslation} from 'react-i18next';
+import i18n from '@/lib/i18n.ts';
 import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
 import {useEffect} from "react";
@@ -30,40 +32,40 @@ const weekDayOptions: { label: string; value: WeekDay }[] = [
 ];
 
 const validationSchema = yup.object({
-  code: yup.string().required("This is required"),
+  code: yup.string().required(i18n.t('validation:required')),
   description: yup.string().nullable(),
   coupon_type: yup
     .object({
       label: yup.string(),
       value: yup.mixed<CouponType>(),
     })
-    .required("This is required"),
+    .required(i18n.t('validation:required')),
   discount_type: yup
     .object({
       label: yup.string(),
       value: yup.string(),
     })
-    .required("This is required"),
+    .required(i18n.t('validation:required')),
   discount_value: yup
     .number()
-    .typeError("This should be a number")
-    .required("This is required"),
+    .typeError(i18n.t('validation:mustBeNumber'))
+    .required(i18n.t('validation:required')),
   min_order_amount: yup
     .number()
-    .typeError("This should be a number")
+    .typeError(i18n.t('validation:mustBeNumber'))
     .nullable(),
   max_discount_amount: yup
     .number()
-    .typeError("This should be a number")
+    .typeError(i18n.t('validation:mustBeNumber'))
     .nullable(),
-  usage_limit: yup.number().typeError("This should be a number").nullable(),
+  usage_limit: yup.number().typeError(i18n.t('validation:mustBeNumber')).nullable(),
   usage_limit_per_user: yup
     .number()
-    .typeError("This should be a number")
+    .typeError(i18n.t('validation:mustBeNumber'))
     .nullable(),
   priority: yup
     .string()
-    .required("This is required"),
+    .required(i18n.t('validation:required')),
   valid_days: yup.array().of(
     yup.object({
       label: yup.string(),
@@ -79,7 +81,8 @@ const validationSchema = yup.object({
   end_date: yup.string().nullable(),
 });
 
-export const CouponForm = ({open, onClose, data}: Props) => {
+export const CouponForm = ({ open, onClose, data }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
   const db = useDB();
 
   const {
@@ -177,7 +180,7 @@ export const CouponForm = ({open, onClose, data}: Props) => {
       }
 
       closeModal();
-      toast.success(`Coupon ${values.code} saved`);
+      toast.success(t('toast:admin.couponSaved', { code: values.code }));
     } catch (e) {
       toast.error(e);
       // eslint-disable-next-line no-console
@@ -187,7 +190,7 @@ export const CouponForm = ({open, onClose, data}: Props) => {
 
   return (
     <Modal
-      title={data ? `Update coupon ${data.code}` : "Create new coupon"}
+      title={data ? t('forms.updateCoupon', { code: data.code }) : t('forms.createCoupon')}
       open={open}
       onClose={closeModal}
     >
@@ -200,7 +203,7 @@ export const CouponForm = ({open, onClose, data}: Props) => {
               render={({field}) => (
                 <div>
                   <Input
-                    label="Code"
+                    label={t('columns.code')}
                     autoFocus
                     value={field.value ?? ""}
                     onChange={field.onChange}
@@ -215,7 +218,7 @@ export const CouponForm = ({open, onClose, data}: Props) => {
               render={({field}) => (
                 <div>
                   <Input
-                    label="Description"
+                    label={t('columns.description')}
                     value={field.value ?? ""}
                     onChange={field.onChange}
                     error={errors?.description?.message as string}
@@ -268,7 +271,7 @@ export const CouponForm = ({open, onClose, data}: Props) => {
                 <div>
                   <Input
                     type="number"
-                    label="Discount value"
+                    label={t('forms.discountValue')}
                     value={field.value ?? ""}
                     onChange={field.onChange}
                     error={errors?.discount_value?.message as string}
@@ -283,7 +286,7 @@ export const CouponForm = ({open, onClose, data}: Props) => {
                 <div>
                   <Input
                     type="number"
-                    label="Min order amount"
+                    label={t('forms.minOrderAmount')}
                     value={field.value ?? ""}
                     onChange={field.onChange}
                     error={errors?.min_order_amount?.message as string}
@@ -298,7 +301,7 @@ export const CouponForm = ({open, onClose, data}: Props) => {
                 <div>
                   <Input
                     type="number"
-                    label="Max discount amount"
+                    label={t('forms.maxDiscountAmount')}
                     value={field.value ?? ""}
                     onChange={field.onChange}
                     error={errors?.max_discount_amount?.message as string}
@@ -313,7 +316,7 @@ export const CouponForm = ({open, onClose, data}: Props) => {
                 <div>
                   <Input
                     type="number"
-                    label="Usage limit (overall)"
+                    label={t('forms.usageLimitOverall')}
                     value={field.value ?? ""}
                     onChange={field.onChange}
                     error={errors?.usage_limit?.message as string}
@@ -328,7 +331,7 @@ export const CouponForm = ({open, onClose, data}: Props) => {
                 <div>
                   <Input
                     type="number"
-                    label="Usage limit per user"
+                    label={t('forms.usageLimitPerUser')}
                     value={field.value ?? ""}
                     onChange={field.onChange}
                     error={errors?.usage_limit_per_user?.message as string}
@@ -345,7 +348,7 @@ export const CouponForm = ({open, onClose, data}: Props) => {
                 <div>
                   <Input
                     type="number"
-                    label="Priority"
+                    label={t('columns.priority')}
                     value={field.value ?? ""}
                     onChange={field.onChange}
                     error={errors?.priority?.message as string}
@@ -383,7 +386,7 @@ export const CouponForm = ({open, onClose, data}: Props) => {
                     <div>
                       <Input
                         type="time"
-                        label="Start time"
+                        label={t('columns.startTime')}
                         value={value}
                         onChange={field.onChange}
                         error={errors?.start_time?.message as string}
@@ -405,7 +408,7 @@ export const CouponForm = ({open, onClose, data}: Props) => {
                     <div>
                       <Input
                         type="time"
-                        label="End time"
+                        label={t('columns.endTime')}
                         value={value}
                         onChange={field.onChange}
                         error={errors?.end_time?.message as string}
@@ -429,7 +432,7 @@ export const CouponForm = ({open, onClose, data}: Props) => {
                     <div>
                       <Input
                         type="datetime-local"
-                        label="Start date"
+                        label={t('forms.startDate')}
                         value={value}
                         onChange={field.onChange}
                         error={errors?.start_date?.message as string}
@@ -451,7 +454,7 @@ export const CouponForm = ({open, onClose, data}: Props) => {
                     <div>
                       <Input
                         type="datetime-local"
-                        label="End date"
+                        label={t('forms.endDate')}
                         value={value}
                         onChange={field.onChange}
                         error={errors?.end_date?.message as string}

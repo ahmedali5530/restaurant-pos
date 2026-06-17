@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {InventoryPurchaseReturn} from "@/api/model/inventory_purchase_return.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {useDB} from "@/api/db/db.ts";
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export const InventoryPurchaseReturnViewModal = ({open, purchaseReturn, onClose}: Props) => {
+  const { t } = useTranslation('inventory');
   const db = useDB();
   const [viewReturn, setViewReturn] = useState<InventoryPurchaseReturn | null>(null);
   const [loading, setLoading] = useState(false);
@@ -81,7 +83,7 @@ export const InventoryPurchaseReturnViewModal = ({open, purchaseReturn, onClose}
                 <div>{viewReturn.purchase?.supplier?.name ?? "—"}</div>
               </div>
               <div>
-                <div className="text-neutral-500 text-xs uppercase">Created by</div>
+                <div className="text-neutral-500 text-xs uppercase">{t('columns.createdBy')}</div>
                 <div>{viewReturn.created_by?.first_name} {viewReturn.created_by?.last_name}</div>
               </div>
             </div>
@@ -126,7 +128,7 @@ export const InventoryPurchaseReturnViewModal = ({open, purchaseReturn, onClose}
             <div className="flex items-center justify-between mb-3">
               <div className="text-sm font-semibold text-neutral-800 flex items-center gap-2">
                 <FontAwesomeIcon icon={faFile}/>
-                <span>Attached documents</span>
+                <span>{t('upload.attachDocuments')}</span>
               </div>
             </div>
             {viewReturn.documents && viewReturn.documents.length > 0 ? (

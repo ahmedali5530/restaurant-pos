@@ -1,0 +1,10 @@
+{
+  "seats": {
+    "seat": "Koltuk",
+    "noSeat": "Koltuk Yok",
+    "seatNumber": "Koltuk# {{number}}",
+    "newSeat": "Yeni Koltuk",
+    "deleteSeat": "Koltuk ?",
+    "addComment": "Yorum ekle"
+  }
+}

@@ -1,4 +1,5 @@
 import {useState} from "react";
+import { useTranslation } from 'react-i18next';
 import {createColumnHelper} from "@tanstack/react-table";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -12,6 +13,7 @@ import {InventoryPurchaseReturnViewModal} from "@/components/inventory/purchase_
 import { toJsDate } from "@/lib/datetime.ts";
 
 export const InventoryPurchaseReturns = () => {
+  const { t } = useTranslation('inventory');
   const loadHook = useApi<SettingsData<InventoryPurchaseReturn>>(
     Tables.inventory_purchase_returns,
     [],
@@ -30,18 +32,18 @@ export const InventoryPurchaseReturns = () => {
 
   const columns: any = [
     columnHelper.accessor("invoice_number", {
-      header: "Invoice #"
+      header: t('columns.invoiceNumber')
     }),
     columnHelper.accessor(row => row.purchase?.invoice_number ?? "", {
       id: "purchase",
-      header: "Purchase invoice #"
+      header: t('columns.purchaseInvoice')
     }),
     columnHelper.accessor("created_at", {
-      header: "Created at",
+      header: t('columns.createdAt'),
       cell: info => info.getValue() ? toJsDate(info.getValue() as any).toLocaleString() : ""
     }),
     columnHelper.accessor("items", {
-      header: "Items",
+      header: t('tabs.items'),
       cell: info => (
         <div className="flex flex-wrap gap-2">
           {info.getValue()?.slice(0, 5)?.map((item, index) => (
@@ -54,7 +56,7 @@ export const InventoryPurchaseReturns = () => {
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: "Actions",
+      header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {

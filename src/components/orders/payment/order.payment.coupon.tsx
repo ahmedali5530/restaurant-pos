@@ -3,6 +3,7 @@ import { Button } from "@/components/common/input/button.tsx";
 import { Input } from "@/components/common/input/input.tsx";
 import { Coupon } from "@/api/model/coupon.ts";
 import { withCurrency } from "@/lib/utils.ts";
+import {useTranslation} from "react-i18next";
 
 interface Props {
   coupon?: Coupon;
@@ -19,6 +20,7 @@ export const OrderPaymentCoupon = ({
   onApply,
   onClear,
 }: Props) => {
+  const {t} = useTranslation('payment');
   const [code, setCode] = useState("");
 
   const handleApply = () => {
@@ -34,7 +36,7 @@ export const OrderPaymentCoupon = ({
     <div className="flex flex-col justify-between h-full gap-4">
       <div className="flex flex-col gap-4">
         <Input
-          label="Coupon code"
+          label={t('coupon.codeLabel')}
           value={code}
           onChange={(e) => setCode(e.target.value)}
           enableKeyboard={true}
@@ -47,7 +49,7 @@ export const OrderPaymentCoupon = ({
             onClick={handleApply}
             isLoading={isApplying}
           >
-            Apply
+            {t('common:actions.apply')}
           </Button>
           <Button
             variant="secondary"
@@ -56,25 +58,25 @@ export const OrderPaymentCoupon = ({
             onClick={handleClear}
             disabled={!coupon && couponAmount === 0}
           >
-            Clear
+            {t('common:actions.clear')}
           </Button>
         </div>
         {coupon && (
           <div className="p-3 rounded bg-neutral-50 border border-neutral-200 text-sm">
             <div className="font-semibold mb-1">
-              Applied coupon: {coupon.code}
+              {t('coupon.applied', {code: coupon.code})}
             </div>
             {coupon.description && (
               <div className="mb-1 text-neutral-700">{coupon.description}</div>
             )}
             <div className="text-neutral-700">
-              Discount: {withCurrency(couponAmount)}
+              {t('coupon.discount', {amount: withCurrency(couponAmount)})}
             </div>
           </div>
         )}
         {!coupon && couponAmount > 0 && (
           <div className="p-3 rounded bg-neutral-50 border border-neutral-200 text-sm">
-            Discount from coupon: {withCurrency(couponAmount)}
+            {t('coupon.discountFromCoupon', {amount: withCurrency(couponAmount)})}
           </div>
         )}
       </div>

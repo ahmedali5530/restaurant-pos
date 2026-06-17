@@ -5,9 +5,11 @@ import ScrollContainer from "react-indiana-drag-scroll";
 import React, { useMemo } from "react";
 import { useAtom } from "jotai";
 import { appState } from "@/store/jotai.ts";
+import { useTranslation } from "react-i18next";
 
 export const Seats = () => {
   const [state, setState] = useAtom(appState);
+  const { t } = useTranslation('cart');
 
   const noSeat = useMemo(() => {
     return state.cart.some(item => item.seat === undefined);
@@ -26,7 +28,7 @@ export const Seats = () => {
             ],
             seat: newSeat
           }))
-        }}>Seat</Button>
+        }}>{t('seats.seat')}</Button>
         {noSeat && (
           <Button
             size="lg"
@@ -35,7 +37,7 @@ export const Seats = () => {
               ...prev,
               seat: undefined
             }))}
-          >No Seat</Button>
+          >{t('seats.noSeat')}</Button>
         )}
         {state.seats.map((item, index) => (
           <Button
@@ -46,7 +48,7 @@ export const Seats = () => {
               seat: item
             }))}
             key={index}
-          >Seat# {index + 1}</Button>
+          >{t('seats.seatNumber', { number: index + 1 })}</Button>
         ))}
       </div>
     </ScrollContainer>

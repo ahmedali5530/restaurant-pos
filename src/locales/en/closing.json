@@ -1,0 +1,89 @@
+{
+  "orderTakingDisabled": "Order taking is currently disabled.",
+  "verifyClosingFailed": "Unable to verify closing cycle status. Please try again.",
+  "tableLocked": "{{user}} is already taking order on this table",
+  "floor": {
+    "switchTable": "Switch from Table {{table}} to another",
+    "reloadCachePrefix": "Press reload cache button from",
+    "settings": "settings"
+  },
+  "guard": {
+    "punchDisabled": "Punching is disabled until current cycle is closed, or delete current cycle closing.",
+    "cycleEnded": "Closing cycle ended at {{time}}. Please complete day closing if not already done."
+  },
+  "window": {
+    "cycle": "Cycle",
+    "period": "Period",
+    "label": "{{prefix}}: {{start}} - {{end}}"
+  },
+  "terminal": {
+    "defaultName": "Terminal {{number}}",
+    "notes": "Notes",
+    "coins": "Coins",
+    "denomination": "x {{value}}",
+    "total": "Terminal Total: {{amount}}",
+    "add": "Add Terminal"
+  },
+  "title": "Daily Closing as of {{date}}",
+  "loading": "Loading closing...",
+  "alerts": {
+    "cycleDisabled": "Closing cycle is disabled. The last completed closing time is used as the start of this period, and the current time is used as the end.",
+    "cycleCompleted": "Closing is completed for this cycle. Order taking is now blocked until the next cycle.",
+    "periodCompleted": "Closing is completed for this period."
+  },
+  "sections": {
+    "previousDayBalance": "Previous Day Balance",
+    "pettyCash": "Petty Cash",
+    "terminalCash": "Terminal Cash",
+    "paymentTypesSummary": "Payment Types Summary from system",
+    "expenses": "Expenses",
+    "notes": "Notes",
+    "summary": "Summary"
+  },
+  "fields": {
+    "previousDayBalance": "Previous Day Balance",
+    "pettyCash": "Petty Cash",
+    "description": "Description",
+    "category": "Category",
+    "amount": "Amount",
+    "notesPlaceholder": "Add any additional notes..."
+  },
+  "totals": {
+    "totalCash": "Total Cash: {{amount}}",
+    "cashFromPayments": "Cash from payment summary",
+    "difference": "Difference: {{amount}}",
+    "totalOtherPayments": "Total Other Payments: {{amount}}",
+    "totalExpenses": "Total Expenses: {{amount}}",
+    "previousBalance": "Previous Balance",
+    "totalCashShort": "Total Cash",
+    "otherPayments": "Other Payments",
+    "totalExpensesShort": "Total Expenses",
+    "netAmount": "Net Amount"
+  },
+  "actions": {
+    "addExpense": "Add Expense",
+    "saveClosing": "Save Closing",
+    "closeClosing": "Close Closing",
+    "saving": "Saving...",
+    "reopen": "Edit (Manager Approval)",
+    "reopening": "Re-opening...",
+    "printClosing": "Print Closing",
+    "goToClosing": "Go to closing"
+  },
+  "security": {
+    "reopenDescription": "Re-open daily closing",
+    "reopenModule": "Edit Closing"
+  },
+  "autoCheckClose": {
+    "autoClosed_one": "Auto-closed {{count}} check",
+    "autoClosed_other": "Auto-closed {{count}} checks",
+    "failed_one": "Failed to auto-close {{count}} check",
+    "failed_other": "Failed to auto-close {{count}} checks",
+    "noOpenChecks": "Closing cycle ended. No open checks to close.",
+    "retry_one": "Found {{count}} open check but none were closed{{skipped}}. Will retry.",
+    "retry_other": "Found {{count}} open checks but none were closed{{skipped}}. Will retry.",
+    "skippedSuffix": " ({{count}} skipped)",
+    "executionFailed": "Failed to auto-close checks",
+    "warning": "Checks will auto-close in {{countdown}}"
+  }
+}

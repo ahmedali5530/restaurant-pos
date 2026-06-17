@@ -18,6 +18,7 @@ import { appPage } from "@/store/jotai.ts";
 import { isOvernightShift } from "@/lib/shift.utils.ts";
 import { DateValue } from "react-aria-components";
 import { getLocalTimeZone, today } from "@internationalized/date";
+import {useTranslation} from "react-i18next";
 
 interface DistributionRow {
   user: User
@@ -40,6 +41,7 @@ const normalizeId = (value: any): string => {
 };
 
 export const TipDistributionScreen = () => {
+  const {t} = useTranslation(["summary", "toast"]);
   const db = useDB();
   const [page] = useAtom(appPage);
 
@@ -79,7 +81,7 @@ export const TipDistributionScreen = () => {
 
   const calculateDistribution = async () => {
     if (!selectedShiftId || !shiftDate) {
-      toast.error("Please select shift and date");
+      toast.error(t("toast:tipDistribution.selectShiftAndDate"));
       return;
     }
 
@@ -87,7 +89,7 @@ export const TipDistributionScreen = () => {
     try {
       const range = getShiftDateRange();
       if (!range) {
-        toast.error("Unable to derive time range from shift");
+        toast.error(t("toast:tipDistribution.unableToDeriveRange"));
         return;
       }
       const { fromDate, toDate } = range;
@@ -148,7 +150,7 @@ export const TipDistributionScreen = () => {
 
   const saveDistribution = async () => {
     if (!selectedShiftId || !shiftDate) {
-      toast.error("Please select shift and date");
+      toast.error(t("toast:tipDistribution.selectShiftAndDate"));
       return;
     }
 
@@ -156,7 +158,7 @@ export const TipDistributionScreen = () => {
     try {
       const range = getShiftDateRange();
       if (!range) {
-        toast.error("Unable to derive time range from shift");
+        toast.error(t("toast:tipDistribution.unableToDeriveRange"));
         return;
       }
       const { fromDate, toDate } = range;
@@ -185,7 +187,7 @@ export const TipDistributionScreen = () => {
       await db.merge(distribution.id, {
         users: userShareIds,
       });
-      toast.success("Tip distribution saved");
+      toast.success(t("toast:tipDistribution.saved"));
     } catch (e) {
       toast.error(e);
     } finally {
@@ -197,7 +199,7 @@ export const TipDistributionScreen = () => {
     <Layout containerClassName="p-5 flex flex-col gap-5">
       <div className="bg-white rounded-xl shadow p-4 grid grid-cols-3 gap-4 items-end">
         <div>
-          <label>Shift</label>
+          <label>{t("summary:tipDistribution.shift")}</label>
           <ReactSelect
             value={selectedShiftId ? { value: selectedShiftId, label: selectedShift?.name || selectedShiftId } : null}
             onChange={(option: any) => setSelectedShiftId(option?.value || "")}
@@ -210,7 +212,7 @@ export const TipDistributionScreen = () => {
         </div>
         <div>
           <DatePicker
-            label="Date"
+            label={t("summary:tipDistribution.date")}
             maxValue={today(getLocalTimeZone())}
             value={shiftDate}
             onChange={setShiftDate}
@@ -218,26 +220,26 @@ export const TipDistributionScreen = () => {
           />
         </div>
         <div className="flex gap-2">
-          <Button variant="primary" onClick={calculateDistribution} isLoading={loading}>Load tips</Button>
-          <Button variant="success" onClick={saveDistribution} isLoading={saving} disabled={rows.length === 0}>Submit</Button>
+          <Button variant="primary" onClick={calculateDistribution} isLoading={loading}>{t("summary:tipDistribution.loadTips")}</Button>
+          <Button variant="success" onClick={saveDistribution} isLoading={saving} disabled={rows.length === 0}>{t("summary:tipDistribution.submit")}</Button>
         </div>
       </div>
 
       <div className="bg-white rounded-xl shadow p-4">
-        <div className="mb-3 text-lg font-semibold">Total tips: {withCurrency(totalTips)}</div>
+        <div className="mb-3 text-lg font-semibold">{t("summary:tipDistribution.totalTips", {amount: withCurrency(totalTips)})}</div>
         <table className="table-auto w-full border-collapse">
           <thead>
             <tr className="text-left border-b">
-              <th className="py-2">User</th>
-              <th className="py-2">Role</th>
-              <th className="py-2">Weight</th>
-              <th className="py-2">Amount</th>
+              <th className="py-2">{t("summary:tipDistribution.columns.user")}</th>
+              <th className="py-2">{t("summary:tipDistribution.columns.role")}</th>
+              <th className="py-2">{t("summary:tipDistribution.columns.weight")}</th>
+              <th className="py-2">{t("summary:tipDistribution.columns.amount")}</th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-4 text-neutral-500">No distribution calculated yet.</td>
+                <td colSpan={4} className="py-4 text-neutral-500">{t("summary:tipDistribution.empty")}</td>
               </tr>
             ) : (
               rows.map((row) => (

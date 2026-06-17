@@ -5,6 +5,8 @@ import { Tables } from "@/api/db/tables.ts";
 import {Controller, useForm, useWatch} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import {useTranslation} from 'react-i18next';
+import i18n from '@/lib/i18n.ts';
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input } from "@/components/common/input/input.tsx";
 import { Button } from "@/components/common/input/button.tsx";
@@ -19,10 +21,10 @@ interface Props {
 }
 
 const validationSchema = z.object({
-  name: z.string().min(1, "This is required"),
+  name: z.string().min(1, i18n.t('validation:required')),
   ip_address: z.string().optional(),
-  port: z.number({message: "Invalid Port number"}).optional(),
-  prints: z.number({message: "This is required"}).min(1, "This is required"),
+  port: z.number({message: i18n.t('validation:invalidPort')}).optional(),
+  prints: z.number({message: i18n.t('validation:required')}).min(1, i18n.t('validation:required')),
   type: z.object({
     label: z.string(),
     value: z.string()
@@ -34,6 +36,8 @@ const validationSchema = z.object({
 export const PrinterForm = ({
   open, onClose, data
 }: Props) => {
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+
   const closeModal = () => {
     onClose();
   }
@@ -79,7 +83,7 @@ export const PrinterForm = ({
       }
 
       closeModal();
-      toast.success(`Printer ${values.name} saved`);
+      toast.success(t('toast:admin.printerSaved', { name: values.name }));
     }catch(e){
       toast.error(e);
       console.log(e)
@@ -94,17 +98,17 @@ export const PrinterForm = ({
   return (
     <>
       <Modal
-        title={data ? `Update ${data?.name}` : 'Create new printer'}
+        title={data ? t('forms.updatePrinter', { name: data?.name }) : t('forms.createPrinter')}
         open={open}
         onClose={closeModal}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-3 mb-3 flex-col">
             <div className="flex-1">
-              <Input label="Name" {...register('name')} autoFocus error={errors?.name?.message}/>
+              <Input label={t('columns.name')} {...register('name')} autoFocus error={errors?.name?.message}/>
             </div>
             <div className="flex-1">
-              <label htmlFor="type">Type</label>
+              <label htmlFor="type">{t('columns.type')}</label>
               <Controller
                 render={({field}) => (
                   <ReactSelect
@@ -128,7 +132,7 @@ export const PrinterForm = ({
                     control={control}
                     render={({field}) => (
                       <Input
-                        label="Path"
+                        label={t('columns.path')}
                         value={field.value}
                         onChange={field.onChange}
                         error={errors?.ip_address?.message}/>
@@ -141,7 +145,7 @@ export const PrinterForm = ({
                     render={({ field }) => (
                       <Input
                         type="number"
-                        label="Port"
+                        label={t('columns.port')}
                         error={errors?.port?.message}
                         value={transformValue.input(field.value)}
                         onChange={(e) => field.onChange(transformValue.output(e))}
@@ -162,7 +166,7 @@ export const PrinterForm = ({
                     control={control}
                     render={({field}) => (
                       <Input
-                        label="VID"
+                        label={t('forms.vid')}
                         value={field.value}
                         onChange={field.onChange}
                         error={errors?.vid?.message}/>
@@ -174,7 +178,7 @@ export const PrinterForm = ({
                   <Controller
                     render={({ field }) => (
                       <Input
-                        label="PID"
+                        label={t('forms.pid')}
                         error={errors?.pid?.message}
                         value={field.value}
                         onChange={field.onChange}
@@ -195,7 +199,7 @@ export const PrinterForm = ({
                     control={control}
                     render={({field}) => (
                       <Input
-                        label="Path"
+                        label={t('columns.path')}
                         value={field.value}
                         onChange={field.onChange}
                         error={errors?.path?.message}/>
@@ -210,7 +214,7 @@ export const PrinterForm = ({
                 render={({ field }) => (
                   <Input
                     type="number"
-                    label="Prints"
+                    label={t('forms.prints')}
                     error={errors?.prints?.message}
                     value={transformValue.input(field.value)}
                     onChange={(e) => field.onChange(transformValue.output(e))}
@@ -222,7 +226,7 @@ export const PrinterForm = ({
             </div>
           </div>
           <div>
-            <Button type="submit" variant="primary">Save</Button>
+            <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
           </div>
         </form>
       </Modal>

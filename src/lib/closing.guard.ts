@@ -1,3 +1,4 @@
+import i18n from "@/lib/i18n.ts";
 import {Closing} from "@/api/model/closing.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {
@@ -25,11 +26,11 @@ export type ClosingEnforcementState = {
 };
 
 export const getOrderPunchDisabledMessage = () => {
-  return "Punching is disabled until current cycle is closed, or delete current cycle closing.";
+  return i18n.t("closing:guard.punchDisabled");
 };
 
 export const getCycleEndedMessage = (cycleEndedAt: Date) => {
-  return `Closing cycle ended at ${formatClosingCycleTime(cycleEndedAt)}. Please complete day closing if not already done.`;
+  return i18n.t("closing:guard.cycleEnded", {time: formatClosingCycleTime(cycleEndedAt)});
 };
 
 export const getClosingRecordForWindow = async (
