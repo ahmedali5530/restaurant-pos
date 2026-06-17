@@ -227,7 +227,7 @@ This system solves that by combining everything into one platform:
 ---
 
 ### 🌍 Multi-Lingual Support
-- **9 Supported Languages:**
+- **10 Supported Languages:**
     - 🇬🇧 **English**
     - 🇪🇸 **Español** (Spanish)
     - 🇹🇷 **Türkçe** (Turkish)
