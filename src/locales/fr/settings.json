@@ -1,0 +1,91 @@
+{
+  "language": {
+    "title": "Langue",
+    "description": "Choisissez la langue d'affichage pour cet appareil. S'applique uniquement à cet appareil.",
+    "changed": "Langue mise à jour"
+  },
+  "direction": {
+    "title": "Sens du texte",
+    "description": "Choisissez la disposition de gauche à droite ou de droite à gauche pour cet appareil.",
+    "ltr": "LTR",
+    "rtl": "RTL"
+  },
+  "touch": {
+    "title": "Clavier à l'écran",
+    "description": "Activer ou désactiver le clavier à l'écran. S'applique uniquement à cet appareil."
+  },
+  "cache": {
+    "title": "Cache",
+    "description": "Taille actuelle du cache par jeu de données.",
+    "reload": "Recharger le cache",
+    "orderTypes": "Types de commande",
+    "categories": "Catégories",
+    "dishes": "Plats",
+    "modifierGroups": "Groupes de modificateurs",
+    "groupDishes": "Plats de groupe",
+    "floors": "Salles",
+    "tables": "Tables",
+    "kitchens": "Cuisines",
+    "paymentTypes": "Types de paiement",
+    "reloaded": "Cache rechargé depuis la base de données",
+    "reloadFailed": "Échec du rechargement du cache"
+  },
+  "serviceCharges": {
+    "title": "Frais de service",
+    "updated": "Frais de service mis à jour",
+    "saveDescription": "Enregistrer les frais de service"
+  },
+  "printers": {
+    "title": "Imprimantes par défaut",
+    "description": "Les affectations d'imprimantes sont enregistrées par utilisateur. Chaque utilisateur peut assigner des imprimantes pour l'impression provisoire, finale, de remboursement, de livraison et de résumé. Si aucune n'est définie, les paramètres globaux sont utilisés en secours.",
+    "loading": "Chargement des paramètres d'impression…",
+    "tempPrint": "Imprimantes pour impression provisoire",
+    "finalPrint": "Imprimantes pour impression finale",
+    "refundPrint": "Imprimantes pour impression de remboursement",
+    "deliveryPrint": "Imprimantes pour impression de livraison",
+    "summaryPrint": "Imprimantes pour impression du résumé",
+    "selectPrinters": "Sélectionner les imprimantes…",
+    "saving": "Enregistrement…",
+    "save": "Enregistrer les paramètres d'impression",
+    "saveDescription": "Enregistrer les imprimantes",
+    "loadFailed": "Échec du chargement des paramètres d'impression",
+    "loginRequired": "Veuillez vous connecter pour enregistrer les paramètres d'impression.",
+    "saved": "Paramètres d'impression enregistrés",
+    "saveFailed": "Échec de l'enregistrement des paramètres d'impression"
+  },
+  "menus": {
+    "title": "Paramètres du menu",
+    "activateMenus": "Activer les menus",
+    "selectMenus": "Sélectionner les menus…",
+    "loading": "Chargement des paramètres du menu…",
+    "saving": "Enregistrement…",
+    "save": "Enregistrer les paramètres du menu",
+    "saveDescription": "Enregistrer les menus",
+    "loadFailed": "Échec du chargement des paramètres du menu",
+    "loginRequired": "Veuillez vous connecter pour enregistrer les paramètres du menu.",
+    "saved": "Paramètres du menu enregistrés",
+    "saveFailed": "Échec de l'enregistrement des paramètres du menu"
+  },
+  "tableSelection": {
+    "title": "Masquer la sélection de table dans le menu",
+    "description": "Ignorer la sélection de table et ouvrir le menu directement. S'applique uniquement à cet appareil. Adapté aux commandes à emporter"
+  },
+  "autoCheckClose": {
+    "title": "Clôture automatique des tickets",
+    "description": "Fermer automatiquement les tickets de table ouverts à l'heure de fin du cycle de clôture. Les commandes en livraison sont exclues. Un avertissement apparaît 1 minute avant la fermeture.",
+    "printOnClose": "Imprimer la note finale à la fermeture",
+    "paymentType": "Type de paiement",
+    "paymentTypeRequired": "Le type de paiement est requis lorsque la clôture automatique est activée",
+    "paymentTypeRequiredField": "Le type de paiement est requis",
+    "updated": "Paramètres de clôture automatique mis à jour",
+    "saveDescription": "Enregistrer les paramètres de clôture automatique"
+  },
+  "closingCycle": {
+    "title": "Cycle de clôture",
+    "description": "Configurer l'heure de début et de fin du cycle. L'heure de fin peut être le jour suivant (exemple : 06:00 à 02:00).",
+    "startTime": "Heure de début",
+    "endTime": "Heure de fin",
+    "updated": "Paramètres du cycle de clôture mis à jour",
+    "saveDescription": "Enregistrer les paramètres du cycle de clôture"
+  }
+}

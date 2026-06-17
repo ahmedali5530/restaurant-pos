@@ -1,0 +1,29 @@
+{
+  "actions": {
+    "repeat": "Wiederholen",
+    "modify": "Ändern",
+    "delete": "Löschen",
+    "deleteAll": "Alle löschen",
+    "search": "Suchen",
+    "split": "Aufteilen"
+  },
+  "header": {
+    "newOrder": "Neue Bestellung",
+    "orderNumber": "Bestellung# {{number}}",
+    "customer": "Kunde",
+    "clear": "Leeren",
+    "selectCustomer": "Kunde auswählen",
+    "confirmTitle": "Bitte bestätigen",
+    "confirmCartMessage_one": "Es ist {{count}} Artikel im Warenkorb, wählen Sie eine Aktion",
+    "confirmCartMessage_other": "Es sind {{count}} Artikel im Warenkorb, wählen Sie eine Aktion",
+    "pax": "{{count}} Gäste"
+  },
+  "modifiers": {
+    "modifyTitle": "{{name}} ändern",
+    "cancel": "Abbrechen",
+    "replacedWarning": "Letzter Modifikator wurde ersetzt. Um einen anderen Modifikator zu ersetzen, entfernen Sie ihn aus der rechten Seitenleiste und wählen Sie erneut."
+  },
+  "persons": {
+    "chooseCount": "Anzahl der Personen wählen"
+  }
+}

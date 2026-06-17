@@ -1,0 +1,91 @@
+{
+  "language": {
+    "title": "Lingua",
+    "description": "Scegli la lingua di visualizzazione per questo dispositivo. Si applica solo a questo dispositivo.",
+    "changed": "Lingua aggiornata"
+  },
+  "direction": {
+    "title": "Direzione del testo",
+    "description": "Scegli il layout da sinistra a destra o da destra a sinistra per questo dispositivo.",
+    "ltr": "LTR",
+    "rtl": "RTL"
+  },
+  "touch": {
+    "title": "Tastiera su schermo",
+    "description": "Abilita o disabilita la tastiera su schermo. Si applica solo a questo dispositivo."
+  },
+  "cache": {
+    "title": "Cache",
+    "description": "Dimensione attuale della cache per dataset.",
+    "reload": "Ricarica cache",
+    "orderTypes": "Tipi ordine",
+    "categories": "Categorie",
+    "dishes": "Piatti",
+    "modifierGroups": "Gruppi modificatori",
+    "groupDishes": "Piatti del gruppo",
+    "floors": "Sale",
+    "tables": "Tavoli",
+    "kitchens": "Cucine",
+    "paymentTypes": "Tipi di pagamento",
+    "reloaded": "Cache ricaricata dal database",
+    "reloadFailed": "Ricarica cache non riuscita"
+  },
+  "serviceCharges": {
+    "title": "Costo servizio",
+    "updated": "Costo servizio aggiornato",
+    "saveDescription": "Salva costo servizio"
+  },
+  "printers": {
+    "title": "Stampanti predefinite",
+    "description": "Le assegnazioni stampante sono salvate per utente. Ogni utente può assegnare stampanti per preconto, conto finale, rimborso, consegna e riepilogo. Se non ne hai impostate, vengono usate le impostazioni globali come fallback.",
+    "loading": "Caricamento impostazioni stampante…",
+    "tempPrint": "Stampanti per preconto",
+    "finalPrint": "Stampanti per conto finale",
+    "refundPrint": "Stampanti per stampa rimborso",
+    "deliveryPrint": "Stampanti per stampa consegna",
+    "summaryPrint": "Stampanti per stampa riepilogo",
+    "selectPrinters": "Seleziona stampanti…",
+    "saving": "Salvataggio…",
+    "save": "Salva impostazioni stampante",
+    "saveDescription": "Salva stampanti",
+    "loadFailed": "Caricamento impostazioni stampante non riuscito",
+    "loginRequired": "Accedi per salvare le impostazioni stampante.",
+    "saved": "Impostazioni stampante salvate",
+    "saveFailed": "Salvataggio impostazioni stampante non riuscito"
+  },
+  "menus": {
+    "title": "Impostazioni menu",
+    "activateMenus": "Attiva menu",
+    "selectMenus": "Seleziona menu…",
+    "loading": "Caricamento impostazioni menu…",
+    "saving": "Salvataggio…",
+    "save": "Salva impostazioni menu",
+    "saveDescription": "Salva menu",
+    "loadFailed": "Caricamento impostazioni menu non riuscito",
+    "loginRequired": "Accedi per salvare le impostazioni menu.",
+    "saved": "Impostazioni menu salvate",
+    "saveFailed": "Salvataggio impostazioni menu non riuscito"
+  },
+  "tableSelection": {
+    "title": "Nascondi selezione tavolo dal menu",
+    "description": "Salta la selezione tavolo e apri il menu direttamente. Si applica solo a questo dispositivo. Adatto per ordini da asporto"
+  },
+  "autoCheckClose": {
+    "title": "Chiusura automatica conti",
+    "description": "Chiudi automaticamente i conti aperti alla fine del ciclo di chiusura. Gli ordini di consegna sono esclusi. Un avviso compare 1 minuto prima della chiusura.",
+    "printOnClose": "Stampa conto finale alla chiusura",
+    "paymentType": "Tipo di pagamento",
+    "paymentTypeRequired": "Il tipo di pagamento è obbligatorio quando la chiusura automatica è abilitata",
+    "paymentTypeRequiredField": "Il tipo di pagamento è obbligatorio",
+    "updated": "Impostazioni chiusura automatica conti aggiornate",
+    "saveDescription": "Salva impostazioni chiusura automatica conti"
+  },
+  "closingCycle": {
+    "title": "Ciclo di chiusura",
+    "description": "Configura ora di inizio e fine ciclo. L'ora di fine può essere il giorno successivo (esempio: 06:00 - 02:00).",
+    "startTime": "Ora inizio",
+    "endTime": "Ora fine",
+    "updated": "Impostazioni ciclo di chiusura aggiornate",
+    "saveDescription": "Salva impostazioni ciclo di chiusura"
+  }
+}

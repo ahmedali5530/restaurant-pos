@@ -1,0 +1,89 @@
+{
+  "orderTakingDisabled": "استقبال الطلبات معطّل حالياً.",
+  "verifyClosingFailed": "تعذّر التحقق من حالة دورة الإغلاق. يُرجى المحاولة مجدداً.",
+  "tableLocked": "{{user}} يستقبل طلباً على هذه الطاولة بالفعل",
+  "floor": {
+    "switchTable": "الانتقال من الطاولة {{table}} إلى أخرى",
+    "reloadCachePrefix": "اضغط زر إعادة تحميل ذاكرة التخزين المؤقت من",
+    "settings": "الإعدادات"
+  },
+  "guard": {
+    "punchDisabled": "الإدخال معطّل حتى إغلاق الدورة الحالية، أو حذف إغلاق الدورة الحالية.",
+    "cycleEnded": "انتهت دورة الإغلاق في {{time}}. يُرجى إكمال إغلاق اليوم إذا لم يتم ذلك بعد."
+  },
+  "window": {
+    "cycle": "الدورة",
+    "period": "الفترة",
+    "label": "{{prefix}}: {{start}} - {{end}}"
+  },
+  "terminal": {
+    "defaultName": "الجهاز {{number}}",
+    "notes": "ملاحظات",
+    "coins": "عملات معدنية",
+    "denomination": "× {{value}}",
+    "total": "إجمالي الجهاز: {{amount}}",
+    "add": "إضافة جهاز"
+  },
+  "title": "الإغلاق اليومي بتاريخ {{date}}",
+  "loading": "جارٍ تحميل الإغلاق...",
+  "alerts": {
+    "cycleDisabled": "دورة الإغلاق معطّلة. يُستخدم وقت آخر إغلاق مكتمل كبداية لهذه الفترة، ويُستخدم الوقت الحالي كنهاية.",
+    "cycleCompleted": "اكتمل الإغلاق لهذه الدورة. استقبال الطلبات محظور حتى الدورة التالية.",
+    "periodCompleted": "اكتمل الإغلاق لهذه الفترة."
+  },
+  "sections": {
+    "previousDayBalance": "رصيد اليوم السابق",
+    "pettyCash": "الصندوق الصغير",
+    "terminalCash": "نقدية الجهاز",
+    "paymentTypesSummary": "ملخص أنواع الدفع من النظام",
+    "expenses": "المصروفات",
+    "notes": "ملاحظات",
+    "summary": "الملخص"
+  },
+  "fields": {
+    "previousDayBalance": "رصيد اليوم السابق",
+    "pettyCash": "الصندوق الصغير",
+    "description": "الوصف",
+    "category": "الفئة",
+    "amount": "المبلغ",
+    "notesPlaceholder": "أضف أي ملاحظات إضافية..."
+  },
+  "totals": {
+    "totalCash": "إجمالي النقد: {{amount}}",
+    "cashFromPayments": "النقد من ملخص الدفع",
+    "difference": "الفرق: {{amount}}",
+    "totalOtherPayments": "إجمالي المدفوعات الأخرى: {{amount}}",
+    "totalExpenses": "إجمالي المصروفات: {{amount}}",
+    "previousBalance": "الرصيد السابق",
+    "totalCashShort": "إجمالي النقد",
+    "otherPayments": "مدفوعات أخرى",
+    "totalExpensesShort": "إجمالي المصروفات",
+    "netAmount": "صافي المبلغ"
+  },
+  "actions": {
+    "addExpense": "إضافة مصروف",
+    "saveClosing": "حفظ الإغلاق",
+    "closeClosing": "إغلاق الإغلاق",
+    "saving": "جارٍ الحفظ...",
+    "reopen": "تعديل (موافقة المدير)",
+    "reopening": "جارٍ إعادة الفتح...",
+    "printClosing": "طباعة الإغلاق",
+    "goToClosing": "الانتقال إلى الإغلاق"
+  },
+  "security": {
+    "reopenDescription": "إعادة فتح الإغلاق اليومي",
+    "reopenModule": "تعديل الإغلاق"
+  },
+  "autoCheckClose": {
+    "autoClosed_one": "تم إغلاق {{count}} فاتورة تلقائياً",
+    "autoClosed_other": "تم إغلاق {{count}} فواتير تلقائياً",
+    "failed_one": "فشل الإغلاق التلقائي لـ {{count}} فاتورة",
+    "failed_other": "فشل الإغلاق التلقائي لـ {{count}} فواتير",
+    "noOpenChecks": "انتهت دورة الإغلاق. لا توجد فواتير مفتوحة للإغلاق.",
+    "retry_one": "وُجدت {{count}} فاتورة مفتوحة لكن لم يُغلق أي منها{{skipped}}. سيتم إعادة المحاولة.",
+    "retry_other": "وُجدت {{count}} فواتير مفتوحة لكن لم يُغلق أي منها{{skipped}}. سيتم إعادة المحاولة.",
+    "skippedSuffix": " ({{count}} تم تخطيها)",
+    "executionFailed": "فشل الإغلاق التلقائي للفواتير",
+    "warning": "سيتم إغلاق الفواتير تلقائياً خلال {{countdown}}"
+  }
+}

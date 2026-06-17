@@ -1,0 +1,23 @@
+{
+  "actions": {
+    "completeAllOpen": "Alle offenen Bestellungen abschließen",
+    "completedOrders": "Abgeschlossene Bestellungen",
+    "viewAllDishes": "Alle Gerichte anzeigen",
+    "recall": "Zurückrufen",
+    "ready": "Fertig"
+  },
+  "labels": {
+    "avgTime": "Ø Zeit: {{time}}",
+    "avgTimeMins": "{{count}} Min.",
+    "addon": "ZUSATZ",
+    "completed": "Abgeschlossen: {{time}}",
+    "items": "Artikel: {{count}}"
+  },
+  "modal": {
+    "completedOrdersTitle": "{{kitchen}} Abgeschlossene Bestellungen (Heute)",
+    "noCompletedOrders": "Keine abgeschlossenen Bestellungen für heute gefunden."
+  },
+  "confirm": {
+    "completeAll": "Alle offenen Bestellungen in dieser Küche abschließen?"
+  }
+}

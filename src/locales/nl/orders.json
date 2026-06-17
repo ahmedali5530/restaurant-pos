@@ -1,0 +1,179 @@
+{
+  "customer": {
+    "name": "Naam",
+    "phone": "Telefoonnummer",
+    "address": "Adres",
+    "attach": "Koppelen",
+    "search": "Zoeken",
+    "columns": {
+      "select": "Selecteren",
+      "name": "Naam",
+      "email": "E-mail",
+      "phone": "Telefoon",
+      "address": "Adr.",
+      "secondaryAddress": "Tweede adr.",
+      "points": "Punten"
+    }
+  },
+  "filters": {
+    "status": "Selecteer bestelstatus",
+    "orderTypes": "Selecteer bestellingstypes",
+    "floors": "Selecteer verdiepingen",
+    "users": "Selecteer gebruikers"
+  },
+  "view": {
+    "blocks": "Blokken",
+    "table": "Tabel"
+  },
+  "merge": {
+    "chooseTableAlert": "Kies een nieuwe tafel",
+    "success": "Succesvol samengevoegd in {{invoiceNumber}}",
+    "failed": "Bestellingen samenvoegen mislukt",
+    "chooseTable": "Kies een tafel",
+    "selectTwoOrMore": "Selecteer 2 of meer bestellingen",
+    "confirmMerging": "Bevestig samenvoegen van {{count}} bestellingen",
+    "cancelMerging": "Samenvoegen annuleren"
+  },
+  "header": {
+    "orderNumber": "Bestelling# {{invoice}} / {{orderType}}"
+  },
+  "status": {
+    "inProgress": "In behandeling",
+    "paid": "Betaald",
+    "cancelled": "Geannuleerd",
+    "spilt": "Gesplitst",
+    "merged": "Samengevoegd",
+    "refunded": "Terugbetaald"
+  },
+  "totals": {
+    "items": "Artikelen ({{count}})",
+    "itemsShort": "Artikelen",
+    "tax": "Belasting",
+    "discount": "Korting",
+    "serviceCharges": "Servicekosten ({{value}}{{unit}})",
+    "tip": "Fooi",
+    "tipPercent": "Fooi %",
+    "total": "Totaal",
+    "change": "Wisselgeld",
+    "sc": "SK ({{value}}%)",
+    "extras": "Extra's"
+  },
+  "actions": {
+    "selectToMerge": "Selecteren om samen te voegen",
+    "more": "Meer",
+    "cancelOrder": "Bestelling annuleren",
+    "splitBySeats": "Splitsen per stoel",
+    "splitByItems": "Splitsen per artikel",
+    "splitByAmount": "Splitsen per bedrag",
+    "mergeOrders": "Bestellingen samenvoegen",
+    "refund": "Terugbetaling",
+    "printFinalBillCopy": "Definitieve rekening afdrukken",
+    "tempBill": "Tijdelijke rekening",
+    "payNow": "Nu betalen"
+  },
+  "cancel": {
+    "title": "Bestelling annuleren",
+    "reason": "Reden",
+    "items": "Artikelen",
+    "comments": "Opmerkingen",
+    "commentsPlaceholder": "Voer opmerkingen in",
+    "confirmCancellation": "Annulering bevestigen",
+    "unknownItem": "Onbekend artikel",
+    "chooseReason": "Kies een reden",
+    "selectAtLeastOne": "Selecteer minimaal één artikel",
+    "cannotIdentifyUser": "Kan ingelogde gebruiker niet identificeren",
+    "successOrder": "Bestelling succesvol geannuleerd",
+    "successItems": "Geselecteerde artikelen geannuleerd",
+    "failed": "Bestelling annuleren mislukt"
+  },
+  "refund": {
+    "title": "Bestelling terugbetalen",
+    "selectItems": "Selecteer artikelen voor terugbetaling",
+    "itemsTotal": "Artikeltotaal:",
+    "tax": "Belasting ({{name}} {{rate}}%):",
+    "discount": "Korting:",
+    "serviceCharges": "Servicekosten ({{value}}{{unit}}):",
+    "tip": "Fooi:",
+    "refundTotal": "Terugbetalingstotaal:",
+    "itemsSelected": "{{count}} artikel(en) geselecteerd",
+    "reason": "Reden",
+    "reasonPlaceholder": "Voer reden voor terugbetaling in",
+    "refundButton": "Terugbetalen",
+    "refundButtonWithCount": "{{count}} artikel(en) terugbetalen",
+    "selectAtLeastOne": "Selecteer minimaal één artikel voor terugbetaling",
+    "cannotIdentifyUser": "Kan ingelogde gebruiker niet identificeren",
+    "success": "{{count}} artikel(en) succesvol terugbetaald",
+    "failed": "Bestelling terugbetalen mislukt"
+  },
+  "voidReasons": {
+    "fohNotMade": "FOH niet gemaakt",
+    "bohNotMade": "BOH niet gemaakt",
+    "guestNotMade": "Gast niet gemaakt",
+    "fohMade": "FOH gemaakt",
+    "bohMade": "BOH gemaakt",
+    "guestMade": "Gast gemaakt",
+    "punchByMistake": "Per ongeluk ingevoerd",
+    "testing": "Testen"
+  },
+  "split": {
+    "title": "Bestelling {{invoice}} splitsen",
+    "titleByAmount": "Splitsen per bedrag — Bestelling {{invoice}}",
+    "splitName": "Splitsing {{number}}",
+    "seatName": "Stoel {{number}}",
+    "noSeat": "Geen stoel",
+    "toast": {
+      "success": "{{count}} gesplitste bestelling(en) succesvol aangemaakt",
+      "failed": "Bestelling splitsen mislukt"
+    },
+    "bySeats": {
+      "heading": "Extra splitsingen",
+      "scrollHint": "Scroll om alle splitsingen te zien",
+      "total": "Totaal: {{amount}}",
+      "noItems": "Geen artikelen",
+      "dragItemsHere": "Sleep artikelen hierheen",
+      "noAdditionalSplits": "Geen extra splitsingen",
+      "addSplitHint": "Voeg een splitsing toe om artikelen te verdelen",
+      "creating": "Splitsingen aanmaken...",
+      "save": "{{count}} splitsing(en) opslaan",
+      "addMoreSplits": "Voeg meer splitsingen toe voordat u opslaat",
+      "allSplitsNeedItems": "Alle splitsingen moeten minimaal één artikel hebben"
+    },
+    "byItems": {
+      "splitOneFixed": "Splitsing 1 (hoofd)",
+      "mainSplitHint": "Artikelen beginnen hier. Sleep naar andere splitsingen.",
+      "total": "Totaal: {{amount}}",
+      "noItems": "Geen artikelen",
+      "itemsReturnHere": "Artikelen komen hier terug wanneer teruggezet",
+      "additionalSplits": "Extra splitsingen",
+      "scrollHint": "Scroll horizontaal voor meer splitsingen",
+      "addSplit": "Splitsing toevoegen",
+      "dragFromSplitOne": "Sleep artikelen van Splitsing 1",
+      "moveBackToSplitOne": "Terug naar Splitsing 1",
+      "noAdditionalSplits": "Geen extra splitsingen",
+      "addSplitHint": "Voeg een splitsing toe om artikelen te verdelen",
+      "creating": "Splitsingen aanmaken...",
+      "save": "{{count}} splitsing(en) opslaan",
+      "addMoreSplits": "Voeg meer splitsingen toe voordat u opslaat",
+      "allSplitsNeedItems": "Alle splitsingen moeten minimaal één artikel hebben"
+    },
+    "byAmount": {
+      "orderTotal": "Bestellingstotaal",
+      "assignHint": "Wijs bedragen toe aan elke splitsing. Resterend moet nul zijn.",
+      "assigned": "Toegewezen: {{amount}}",
+      "remaining": "Resterend: {{amount}}",
+      "amount": "Bedrag",
+      "percentage": "{{value}}%",
+      "itemsCount": "{{count}} artikel(en) in bestelling",
+      "noItemsInOrder": "Geen artikelen in deze bestelling",
+      "itemFallback": "Artikel",
+      "subtotal": "Subtotaal",
+      "addSplit": "Splitsing toevoegen",
+      "autoFillRemaining": "Resterend automatisch invullen",
+      "distributeEvenly": "Gelijk verdelen",
+      "assignRemaining": "Resterend {{amount}} toewijzen",
+      "exceedsTotal": "Overschrijdt totaal met {{amount}}",
+      "creating": "Splitsingen aanmaken...",
+      "save": "{{count}} splitsing(en) opslaan"
+    }
+  }
+}

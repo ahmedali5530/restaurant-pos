@@ -1,0 +1,91 @@
+{
+  "language": {
+    "title": "Idioma",
+    "description": "Escolha o idioma de exibição para este dispositivo. Aplica-se somente a este dispositivo.",
+    "changed": "Idioma atualizado"
+  },
+  "direction": {
+    "title": "Direção do texto",
+    "description": "Escolha o layout da esquerda para a direita ou da direita para a esquerda neste dispositivo.",
+    "ltr": "LTR",
+    "rtl": "RTL"
+  },
+  "touch": {
+    "title": "Teclado na tela",
+    "description": "Ativar ou desativar o teclado na tela. Aplica-se somente a este dispositivo."
+  },
+  "cache": {
+    "title": "Cache",
+    "description": "Tamanho atual do cache por conjunto de dados.",
+    "reload": "Recarregar cache",
+    "orderTypes": "Tipos de pedido",
+    "categories": "Categorias",
+    "dishes": "Pratos",
+    "modifierGroups": "Grupos de modificadores",
+    "groupDishes": "Pratos do grupo",
+    "floors": "Andares",
+    "tables": "Mesas",
+    "kitchens": "Cozinhas",
+    "paymentTypes": "Tipos de pagamento",
+    "reloaded": "Cache recarregado do banco de dados",
+    "reloadFailed": "Falha ao recarregar o cache"
+  },
+  "serviceCharges": {
+    "title": "Taxa de serviço",
+    "updated": "Taxa de serviço atualizada",
+    "saveDescription": "Salvar taxa de serviço"
+  },
+  "printers": {
+    "title": "Impressoras padrão",
+    "description": "As atribuições de impressora são armazenadas por usuário. Cada usuário pode atribuir impressoras para impressão temporária, final, reembolso, delivery e resumo. Se nenhuma estiver definida, as configurações globais serão usadas como alternativa.",
+    "loading": "Carregando configurações de impressora…",
+    "tempPrint": "Impressoras para impressão temporária",
+    "finalPrint": "Impressoras para impressão final",
+    "refundPrint": "Impressoras para impressão de reembolso",
+    "deliveryPrint": "Impressoras para impressão de delivery",
+    "summaryPrint": "Impressoras para impressão de resumo",
+    "selectPrinters": "Selecionar impressoras…",
+    "saving": "Salvando…",
+    "save": "Salvar configurações de impressora",
+    "saveDescription": "Salvar impressoras",
+    "loadFailed": "Falha ao carregar configurações de impressora",
+    "loginRequired": "Faça login para salvar as configurações de impressora.",
+    "saved": "Configurações de impressora salvas",
+    "saveFailed": "Falha ao salvar configurações de impressora"
+  },
+  "menus": {
+    "title": "Configurações de cardápio",
+    "activateMenus": "Ativar cardápios",
+    "selectMenus": "Selecionar cardápios…",
+    "loading": "Carregando configurações de cardápio…",
+    "saving": "Salvando…",
+    "save": "Salvar configurações de cardápio",
+    "saveDescription": "Salvar cardápios",
+    "loadFailed": "Falha ao carregar configurações de cardápio",
+    "loginRequired": "Faça login para salvar as configurações de cardápio.",
+    "saved": "Configurações de cardápio salvas",
+    "saveFailed": "Falha ao salvar configurações de cardápio"
+  },
+  "tableSelection": {
+    "title": "Ocultar seleção de mesa no cardápio",
+    "description": "Pular a seleção de mesa e abrir o cardápio diretamente. Aplica-se somente a este dispositivo. Adequado para pedidos para viagem"
+  },
+  "autoCheckClose": {
+    "title": "Fechamento automático de comanda",
+    "description": "Fechar automaticamente as comandas abertas no horário de término do ciclo de fechamento. Pedidos de delivery são excluídos. Um aviso aparece 1 minuto antes do fechamento.",
+    "printOnClose": "Imprimir conta final ao fechar",
+    "paymentType": "Tipo de pagamento",
+    "paymentTypeRequired": "O tipo de pagamento é obrigatório quando o fechamento automático está ativado",
+    "paymentTypeRequiredField": "O tipo de pagamento é obrigatório",
+    "updated": "Configurações de fechamento automático de comanda atualizadas",
+    "saveDescription": "Salvar configurações de fechamento automático de comanda"
+  },
+  "closingCycle": {
+    "title": "Ciclo de fechamento",
+    "description": "Configure o horário de início e término do ciclo. O horário de término pode ser no dia seguinte (exemplo: 06:00 às 02:00).",
+    "startTime": "Horário de início",
+    "endTime": "Horário de término",
+    "updated": "Configurações do ciclo de fechamento atualizadas",
+    "saveDescription": "Salvar configurações do ciclo de fechamento"
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "labels": {
+    "subTotal": "Sous-total ({{count}})",
+    "total": "Total"
+  },
+  "actions": {
+    "toKitchen": "En cuisine",
+    "payNow": "Payer maintenant",
+    "cancel": "Annuler"
+  },
+  "errors": {
+    "createOrder": "Impossible de créer la commande.",
+    "openPayment": "Impossible d'ouvrir le paiement."
+  },
+  "tracking": {
+    "createOrder": "Créer la commande",
+    "appendOrder": "Ajouter à la commande"
+  },
+  "print": {
+    "kitchenTitle": "Impression cuisine"
+  },
+  "title": "Commande n°{{invoice}}",
+  "tabs": {
+    "tax": "Taxe",
+    "taxWithRate": "Taxe ({{name}} {{rate}} %)",
+    "discount": "Remise",
+    "coupon": "Coupon",
+    "serviceCharges": "Frais de service ({{value}}{{unit}})",
+    "tip": "Pourboire ({{value}}{{unit}})",
+    "notes": "Notes",
+    "total": "Total"
+  },
+  "totals": {
+    "items": "Articles ({{count}})"
+  },
+  "tax": {
+    "noTax": "Sans taxe"
+  },
+  "discount": {
+    "noDiscount": "Sans remise",
+    "label": "Remise",
+    "withMaxCap": "avec un plafond maximum de {{amount}}"
+  },
+  "coupon": {
+    "codeLabel": "Code coupon",
+    "applied": "Coupon appliqué : {{code}}",
+    "discount": "Remise : {{amount}}",
+    "discountFromCoupon": "Remise du coupon : {{amount}}",
+    "errors": {
+      "notFound": "Coupon introuvable ou inactif",
+      "unsupportedType": "Ce type de coupon n'est pas pris en charge sur les commandes",
+      "belowMinimum": "Le total de la commande est inférieur au montant minimum pour ce coupon",
+      "notValidToday": "Le coupon n'est pas valable aujourd'hui",
+      "notValidTime": "Le coupon n'est pas valable à cette heure",
+      "notActiveYet": "Le coupon n'est pas encore actif",
+      "expired": "Le coupon a expiré",
+      "usageLimitReached": "Limite d'utilisation du coupon atteinte",
+      "userLimitReached": "Vous avez atteint la limite d'utilisation pour ce coupon",
+      "firstOrderOnly": "Ce coupon n'est valable que sur la première commande",
+      "notStackable": "Ce coupon ne peut pas être utilisé avec d'autres remises",
+      "noDiscount": "Ce coupon n'offre aucune remise pour cette commande"
+    },
+    "appliedSuccess": "Coupon appliqué"
+  },
+  "serviceCharges": {
+    "defaultFromSettings": "Par défaut depuis les paramètres :",
+    "noServiceCharge": "Sans frais de service"
+  },
+  "tip": {
+    "noTip": "Sans pourboire"
+  },
+  "notes": {
+    "title": "Notes éventuelles",
+    "hint": "Vous pouvez saisir des numéros de carte ou une remise"
+  },
+  "receiving": {
+    "remaining": "Restant",
+    "change": "Monnaie",
+    "tempBill": "Note provisoire",
+    "complete": "Terminer",
+    "cannotAddCard": "Impossible d'ajouter un paiement supplémentaire par carte",
+    "exactCardAmount": "Montant exact ajouté pour le paiement par carte"
+  },
+  "remote": {
+    "remoteLabel": "{{name}} (À distance)",
+    "status": "Statut : {{status}}",
+    "openLink": "Ouvrir le lien",
+    "verify": "Vérifier"
+  },
+  "discountType": {
+    "percent": "Pourcentage",
+    "fixed": "Fixe"
+  },
+  "remoteGateway": {
+    "missingProvider": "Le type de paiement à distance n'a pas de fournisseur de passerelle.",
+    "linkGenerated": "Lien de paiement à distance généré.",
+    "tokenGenerated": "Jeton à distance généré : {{token}}",
+    "intentGenerated": "Intention de paiement à distance générée.",
+    "paymentTimedOut": "Le paiement {{gateway}} a expiré. Appuyez sur Vérifier pour contrôler à nouveau.",
+    "paymentStatus": "Paiement {{gateway}} {{status}}.",
+    "completeOnPage": "Finalisez le paiement sur la page {{gateway}}, puis revenez au POS.",
+    "scanQr": "Scannez le code QR avec l'application {{gateway}} pour payer.",
+    "enterCardDetails": "Saisissez les détails de la carte ci-dessous pour finaliser le paiement.",
+    "intentCreated": "Intention de paiement {{gateway}} créée.",
+    "usePaypalButton": "Utilisez le bouton PayPal ci-dessous pour finaliser le paiement.",
+    "useRazorpayButton": "Appuyez sur Payer avec Razorpay ci-dessous pour finaliser le paiement.",
+    "paymentFailed": "Échec du paiement.",
+    "paymentStatusLabel": "Statut du paiement : {{status}}",
+    "paymentIs": "Le paiement est {{status}}.",
+    "paypalPaymentIs": "Le paiement PayPal est {{status}}.",
+    "razorpayPaymentFailed": "Échec du paiement Razorpay.",
+    "stripePaymentFailed": "Échec du paiement Stripe.",
+    "mpesaPhoneUnavailable": "L'invite téléphonique M-Pesa n'est pas disponible.",
+    "mpesaPromptSent": "STK push envoyé à {{phone}}. Vérifiez votre téléphone pour saisir le code PIN M-Pesa.",
+    "mpesaPromptSentGeneric": "STK push envoyé. Vérifiez votre téléphone pour saisir le code PIN M-Pesa.",
+    "mpesaInvalidPhone": "Saisissez un numéro M-Pesa valide (2547XXXXXXXX ou 07XXXXXXXX).",
+    "verifiedAndAdded": "Paiement à distance vérifié et ajouté.",
+    "generateFailed": "Échec de la génération du lien/jeton de paiement à distance",
+    "mustBePaid": "Le paiement est {{status}}. Il doit être payé/autorisé avant d'être ajouté.",
+    "verifyFailed": "Échec de la vérification du paiement à distance",
+    "paymentReceived": "Paiement {{gateway}} reçu.",
+    "payWithCard": "Payer par carte",
+    "payWithRazorpay": "Payer avec Razorpay"
+  }
+}

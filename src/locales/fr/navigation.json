@@ -1,0 +1,31 @@
+{
+  "sidebar": {
+    "menu": "Menu",
+    "orders": "Commandes",
+    "summary": "Résumé",
+    "kitchen": "Cuisine",
+    "delivery": "Livraison",
+    "closing": "Clôture",
+    "inventory": "Inventaire",
+    "manage": "Gérer",
+    "reports": "Rapports",
+    "tipDist": "Répart. pourb.",
+    "settings": "Paramètres",
+    "clock": "Pointage"
+  },
+  "modules": {
+    "Menu": "Menu",
+    "Orders": "Commandes",
+    "Summary": "Résumé",
+    "Reports": "Rapports",
+    "Closing": "Clôture",
+    "Kitchen": "Cuisine",
+    "Delivery": "Livraison",
+    "Admin": "Administration",
+    "Riders": "Livreurs",
+    "Tips": "Répartition des pourboires",
+    "Inventory": "Inventaire",
+    "Settings": "Paramètres"
+  },
+  "authenticateToAccess": "Authentifiez-vous pour accéder à {{module}}"
+}

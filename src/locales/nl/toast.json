@@ -1,0 +1,82 @@
+{
+  "generic": {
+    "saved": "Succesvol opgeslagen",
+    "updated": "Succesvol bijgewerkt",
+    "deleted": "Succesvol verwijderd",
+    "created": "Succesvol aangemaakt",
+    "failed": "Bewerking mislukt",
+    "error": "Er is een fout opgetreden"
+  },
+  "inventory": {
+    "wasteSaved": "Afval opgeslagen",
+    "issueSaved": "Uitgifte opgeslagen",
+    "issueReturnSaved": "Uitgifteretour opgeslagen",
+    "purchaseSaved": "Inkoop opgeslagen",
+    "purchaseReturnSaved": "Inkoopretour opgeslagen",
+    "purchaseOrderSaved": "Inkooporder opgeslagen",
+    "itemGroupSaved": "Artikelgroep opgeslagen",
+    "itemSaved": "Artikel {{name}} opgeslagen",
+    "categorySaved": "Categorie {{name}} opgeslagen",
+    "supplierSaved": "Leverancier {{name}} opgeslagen",
+    "storeSaved": "Magazijn {{name}} opgeslagen",
+    "unableGenerateWasteNumber": "Kan volgend afvalnummer niet genereren",
+    "unableGenerateIssueNumber": "Kan volgend uitgiftenummer niet genereren",
+    "unableGenerateIssueReturnNumber": "Kan volgend uitgifteretournummer niet genereren",
+    "unableGenerateInvoiceNumber": "Kan volgend factuurnummer niet genereren",
+    "unableGenerateReturnNumber": "Kan volgend retournummer niet genereren",
+    "unableGeneratePoNumber": "Kan volgend PO-nummer niet genereren",
+    "itemsExceedQuantity": "Een of meer artikelen overschrijden de beschikbare hoeveelheid"
+  },
+  "delivery": {
+    "settingsSaved": "Bezorginstellingen succesvol opgeslagen",
+    "settingsLoadFailed": "Bezorginstellingen laden mislukt",
+    "settingsSaveFailed": "Bezorginstellingen opslaan mislukt",
+    "mapAreasSaved": "Kaartgebieden succesvol opgeslagen",
+    "mapAreasSaveFailed": "Kaartgebieden opslaan mislukt",
+    "mapAreasLoadFailed": "Kaartgebieden laden mislukt",
+    "shapeTooSmall": "Vorm is te klein. Sleep een groter gebied.",
+    "rectangleTooSmall": "Rechthoek is te klein. Sleep een groter gebied.",
+    "circleTooSmall": "Cirkel is te klein. Sleep een grotere straal.",
+    "polygonTooSmall": "Veelhoek is te klein. Sleep een grotere omtrek.",
+    "fetchRidersFailed": "Bezorgers ophalen mislukt",
+    "acceptFailed": "Bestelling accepteren mislukt",
+    "rejectFailed": "Bestelling afwijzen mislukt",
+    "sendFailed": "Bestelling verzenden mislukt",
+    "attachRiderFailed": "Bezorger koppelen mislukt"
+  },
+  "reports": {
+    "mapAreasSaveFailed": "Kaartgebieden opslaan mislukt"
+  },
+  "kitchen": {
+    "recallFailed": "Bestelling terughalen mislukt"
+  },
+  "closing": {
+    "loadFailed": "Afsluiting laden mislukt",
+    "alreadyClosed": "Deze cyclus is al afgesloten.",
+    "openOrders": "Er zijn open bestellingen. Sluit deze eerst.",
+    "completed": "Afsluiting succesvol voltooid!",
+    "savedDraft": "Afsluiting succesvol opgeslagen als concept!",
+    "saveFailed": "Afsluiting opslaan mislukt",
+    "notFound": "Geen afsluiting gevonden voor deze cyclus.",
+    "reopened": "Afsluiting heropend in bewerkingsmodus.",
+    "reopenFailed": "Afsluiting heropenen mislukt",
+    "printFailed": "Afsluiting afdrukken mislukt"
+  },
+  "summary": {
+    "noProductMix": "Geen artikelen gevonden voor productmix.",
+    "noTimeEntries": "Geen voltooide tijdregistraties gevonden voor deze datum.",
+    "noServerSales": "Geen serververkoopgegevens gevonden voor deze datum."
+  },
+  "clock": {
+    "noActiveEntry": "Geen actieve tijdregistratie gevonden",
+    "loadEntryFailed": "Tijdregistratie laden mislukt",
+    "loadSaleSummaryFailed": "Verkoopoverzicht laden mislukt",
+    "clockedOut": "Succesvol uitgeklokt",
+    "clockOutFailed": "Uitklokken mislukt"
+  },
+  "tipDistribution": {
+    "selectShiftAndDate": "Selecteer dienst en datum",
+    "unableToDeriveRange": "Kan tijdsbereik niet afleiden van dienst",
+    "saved": "Fooiverdeling opgeslagen"
+  }
+}

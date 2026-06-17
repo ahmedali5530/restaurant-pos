@@ -1,0 +1,29 @@
+{
+  "actions": {
+    "repeat": "تكرار",
+    "modify": "تعديل",
+    "delete": "حذف",
+    "deleteAll": "حذف الكل",
+    "search": "بحث",
+    "split": "تقسيم"
+  },
+  "header": {
+    "newOrder": "طلب جديد",
+    "orderNumber": "طلب رقم {{number}}",
+    "customer": "العميل",
+    "clear": "مسح",
+    "selectCustomer": "اختر عميلاً",
+    "confirmTitle": "يُرجى التأكيد",
+    "confirmCartMessage_one": "يوجد {{count}} صنف في السلة، اختر إجراءً",
+    "confirmCartMessage_other": "يوجد {{count}} أصناف في السلة، اختر إجراءً",
+    "pax": "{{count}} ضيف"
+  },
+  "modifiers": {
+    "modifyTitle": "تعديل {{name}}",
+    "cancel": "إلغاء",
+    "replacedWarning": "تم استبدال آخر إضافة، لاستبدال أي إضافة أخرى أزلها من الشريط الجانبي الأيمن واخترها مجدداً."
+  },
+  "persons": {
+    "chooseCount": "اختر عدد الأشخاص"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "generic": {
+    "saved": "Erfolgreich gespeichert",
+    "updated": "Erfolgreich aktualisiert",
+    "deleted": "Erfolgreich gelöscht",
+    "created": "Erfolgreich erstellt",
+    "failed": "Vorgang fehlgeschlagen",
+    "error": "Ein Fehler ist aufgetreten"
+  },
+  "inventory": {
+    "wasteSaved": "Schwund gespeichert",
+    "issueSaved": "Ausgabe gespeichert",
+    "issueReturnSaved": "Ausgaberückgabe gespeichert",
+    "purchaseSaved": "Einkauf gespeichert",
+    "purchaseReturnSaved": "Einkaufsrückgabe gespeichert",
+    "purchaseOrderSaved": "Bestellung gespeichert",
+    "itemGroupSaved": "Artikelgruppe gespeichert",
+    "itemSaved": "Artikel {{name}} gespeichert",
+    "categorySaved": "Kategorie {{name}} gespeichert",
+    "supplierSaved": "Lieferant {{name}} gespeichert",
+    "storeSaved": "Lager {{name}} gespeichert",
+    "unableGenerateWasteNumber": "Nächste Schwundnummer konnte nicht generiert werden",
+    "unableGenerateIssueNumber": "Nächste Ausgabenummer konnte nicht generiert werden",
+    "unableGenerateIssueReturnNumber": "Nächste Ausgaberückgabenummer konnte nicht generiert werden",
+    "unableGenerateInvoiceNumber": "Nächste Rechnungsnummer konnte nicht generiert werden",
+    "unableGenerateReturnNumber": "Nächste Rückgabenummer konnte nicht generiert werden",
+    "unableGeneratePoNumber": "Nächste Bestellnummer konnte nicht generiert werden",
+    "itemsExceedQuantity": "Ein oder mehrere Artikel überschreiten die verfügbare Menge"
+  },
+  "delivery": {
+    "settingsSaved": "Liefereinstellungen erfolgreich gespeichert",
+    "settingsLoadFailed": "Liefereinstellungen konnten nicht geladen werden",
+    "settingsSaveFailed": "Liefereinstellungen konnten nicht gespeichert werden",
+    "mapAreasSaved": "Kartenbereiche erfolgreich gespeichert",
+    "mapAreasSaveFailed": "Kartenbereiche konnten nicht gespeichert werden",
+    "mapAreasLoadFailed": "Kartenbereiche konnten nicht geladen werden",
+    "shapeTooSmall": "Form ist zu klein. Ziehen Sie einen größeren Bereich.",
+    "rectangleTooSmall": "Rechteck ist zu klein. Ziehen Sie einen größeren Bereich.",
+    "circleTooSmall": "Kreis ist zu klein. Ziehen Sie einen größeren Radius.",
+    "polygonTooSmall": "Polygon ist zu klein. Ziehen Sie eine größere Umrandung.",
+    "fetchRidersFailed": "Fahrer konnten nicht abgerufen werden",
+    "acceptFailed": "Bestellung konnte nicht angenommen werden",
+    "rejectFailed": "Bestellung konnte nicht abgelehnt werden",
+    "sendFailed": "Bestellung konnte nicht gesendet werden",
+    "attachRiderFailed": "Fahrer konnte nicht zugewiesen werden"
+  },
+  "reports": {
+    "mapAreasSaveFailed": "Kartenbereiche konnten nicht gespeichert werden"
+  },
+  "kitchen": {
+    "recallFailed": "Bestellung konnte nicht zurückgerufen werden"
+  },
+  "closing": {
+    "loadFailed": "Tagesabschluss konnte nicht geladen werden",
+    "alreadyClosed": "Dieser Zyklus ist bereits abgeschlossen.",
+    "openOrders": "Es gibt offene Bestellungen. Bitte schließen Sie diese zuerst.",
+    "completed": "Tagesabschluss erfolgreich abgeschlossen!",
+    "savedDraft": "Tagesabschluss erfolgreich als Entwurf gespeichert!",
+    "saveFailed": "Tagesabschluss konnte nicht gespeichert werden",
+    "notFound": "Kein Tagesabschluss für diesen Zyklus gefunden.",
+    "reopened": "Tagesabschluss im Bearbeitungsmodus wieder geöffnet.",
+    "reopenFailed": "Tagesabschluss konnte nicht wieder geöffnet werden",
+    "printFailed": "Tagesabschluss konnte nicht gedruckt werden"
+  },
+  "summary": {
+    "noProductMix": "Keine Artikel für Produktmix gefunden.",
+    "noTimeEntries": "Keine abgeschlossenen Zeiteinträge für dieses Datum gefunden.",
+    "noServerSales": "Keine Kellnerumsatzdaten für dieses Datum gefunden."
+  },
+  "clock": {
+    "noActiveEntry": "Kein aktiver Zeiteintrag gefunden",
+    "loadEntryFailed": "Zeiteintrag konnte nicht geladen werden",
+    "loadSaleSummaryFailed": "Umsatzzusammenfassung konnte nicht geladen werden",
+    "clockedOut": "Erfolgreich ausgestempelt",
+    "clockOutFailed": "Ausstempeln fehlgeschlagen"
+  },
+  "tipDistribution": {
+    "selectShiftAndDate": "Bitte Schicht und Datum auswählen",
+    "unableToDeriveRange": "Zeitbereich konnte nicht aus der Schicht abgeleitet werden",
+    "saved": "Trinkgeldverteilung gespeichert"
+  }
+}

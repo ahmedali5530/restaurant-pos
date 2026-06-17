@@ -1,0 +1,140 @@
+{
+  "tabs": {
+    "inventory": "Estoque",
+    "items": "Itens",
+    "suppliers": "Fornecedores",
+    "categories": "Categorias de Itens",
+    "stores": "Depósitos",
+    "itemGroups": "Grupos de Itens",
+    "purchaseOrders": "Pedidos de Compra",
+    "purchases": "Compras",
+    "purchaseReturns": "Devoluções de Compra",
+    "issues": "Saídas",
+    "issueReturns": "Devoluções de Saída",
+    "wastes": "Desperdícios"
+  },
+  "security": {
+    "accessTab": "Acessar {{module}}"
+  },
+  "columns": {
+    "name": "Nome",
+    "code": "Código",
+    "category": "Categoria",
+    "uom": "Unidade de medida",
+    "baseQuantity": "Quantidade base",
+    "price": "Preço",
+    "averagePrice": "Preço médio",
+    "avgPrice": "Preço Médio",
+    "stores": "Depósitos",
+    "suppliers": "Fornecedores",
+    "actions": "Ações",
+    "address": "Endereço",
+    "phone": "Telefone",
+    "email": "E-mail",
+    "priority": "Prioridade",
+    "mainItem": "Item principal",
+    "subItems": "Subitens",
+    "invoiceNumber": "Nota Fiscal #",
+    "poNumber": "Pedido de Compra #",
+    "status": "Status",
+    "createdAt": "Criado em",
+    "items": "Itens",
+    "purchaseInvoice": "Nota fiscal de compra #",
+    "issueNumber": "Saída#",
+    "returnNumber": "Devolução#",
+    "issuance": "Emissão",
+    "issuedTo": "Emitido para",
+    "kitchen": "Cozinha",
+    "createdBy": "Criado por",
+    "source": "Origem"
+  },
+  "buttons": {
+    "item": "Item",
+    "import": "Importar",
+    "view": "Visualizar",
+    "upload": "Enviar"
+  },
+  "forms": {
+    "createItem": "Criar novo item",
+    "createCategory": "Criar nova categoria",
+    "createSupplier": "Criar novo fornecedor",
+    "createStore": "Criar novo depósito",
+    "createIssue": "Criar nova saída",
+    "createIssueReturn": "Criar nova devolução de saída",
+    "createWaste": "Criar novo desperdício",
+    "createPurchase": "Criar nova compra",
+    "createPurchaseReturn": "Criar nova devolução de compra",
+    "createPurchaseOrder": "Criar novo pedido de compra",
+    "createItemGroup": "Criar novo grupo de itens",
+    "nameOfItem": "Nome do item",
+    "invoiceNumber": "Número da nota fiscal",
+    "returnInvoiceNumber": "Número da nota fiscal de devolução",
+    "poNumber": "Número do Pedido de Compra",
+    "date": "Data",
+    "comments": "Comentários",
+    "quantity": "Quantidade",
+    "requested": "Solicitado",
+    "issued": "Emitido",
+    "returnedQuantity": "Quantidade devolvida",
+    "expiryDate": "Data de validade",
+    "manufacturingDate": "Data de fabricação",
+    "storeInventory": "Depósito {{name}}"
+  },
+  "validation": {
+    "required": "Este campo é obrigatório",
+    "number": "Deve ser um número",
+    "selectStore": "Selecione pelo menos um depósito",
+    "addItem": "Adicione pelo menos um item",
+    "addSubItem": "Adicione pelo menos um subitem",
+    "selectPurchaseMethod": "Selecione um método de compra",
+    "storeRequired": "O depósito é obrigatório",
+    "supplierRequired": "O fornecedor é obrigatório",
+    "selectSourceType": "Selecione o tipo de origem",
+    "selectSource": "Selecione uma origem",
+    "quantityMin": "A quantidade deve ser pelo menos 1",
+    "atLeastOneItem": "Pelo menos um item é obrigatório",
+    "invalidCategory": "Categoria inválida \"{{name}}\"",
+    "invalidStore": "Depósito inválido \"{{name}}\"",
+    "invalidSupplier": "Fornecedor inválido \"{{name}}\""
+  },
+  "csv": {
+    "uploadTitle": "Adicionar itens usando arquivo CSV"
+  },
+  "modals": {
+    "viewPurchase": "Visualizar compra",
+    "viewIssue": "Visualizar saída",
+    "viewIssueReturn": "Visualizar devolução de saída",
+    "viewWaste": "Visualizar desperdício",
+    "viewPurchaseReturn": "Visualizar devolução de compra",
+    "viewPurchaseOrder": "Visualizar pedido de compra"
+  },
+  "summary": {
+    "title": "Resumo de Estoque"
+  },
+  "purchaseMethod": {
+    "title": "Método de compra"
+  },
+  "sourceType": {
+    "purchase": "Compra",
+    "issue": "Saída"
+  },
+  "status": {
+    "draft": "Rascunho",
+    "approved": "Aprovado",
+    "received": "Recebido",
+    "cancelled": "Cancelado"
+  },
+  "upload": {
+    "attachDocuments": "Documentos anexados"
+  },
+  "purchaseMethods": {
+    "manual": "Manual",
+    "csv": "CSV",
+    "purchaseOrder": "Pedido de compra"
+  },
+  "uploadViaDocument": "Enviar via documento",
+  "itemName": "Nome do item",
+  "itemCode": "Código do item",
+  "syncFromPo": "Os itens são sincronizados do pedido de compra selecionado. Volte para Manual para editar a lista.",
+  "syncFromCsv": "Envie um CSV para importar itens depois. Volte para Manual para editar a lista aqui."
+}

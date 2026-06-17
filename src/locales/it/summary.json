@@ -1,0 +1,170 @@
+{
+  "screen": {
+    "previousDate": "Data precedente",
+    "nextDate": "Data successiva",
+    "printSummary": "Stampa riepilogo",
+    "productMixReport": "Report product mix",
+    "serverSales": "Vendite per cameriere"
+  },
+  "security": {
+    "printSummaryDescription": "Stampa riepilogo",
+    "printSummaryModule": "Stampa riepilogo",
+    "productMixDescription": "Report product mix",
+    "productMixModule": "Report product mix",
+    "serverSalesDescription": "Vendite per cameriere",
+    "serverSalesModule": "Vendite per cameriere"
+  },
+  "unknown": {
+    "user": "Sconosciuto",
+    "item": "Articolo sconosciuto",
+    "coupon": "Sconosciuto"
+  },
+  "report": {
+    "title": "Riepilogo vendite giornaliero — {{date}}",
+    "orderDiscount": "Sconto ordine",
+    "uncategorized": "Senza categoria",
+    "unknownItem": "Articolo sconosciuto",
+    "sections": {
+      "salesRevenue": "1. Ricavi vendite",
+      "surchargesTaxes": "2. Supplementi e imposte",
+      "settlementCashier": "3. Regolamento e cassa",
+      "operationalControls": "4. Controlli operativi",
+      "productMix": "5. Product mix",
+      "paymentTypes": "6. Tipi di pagamento",
+      "taxesBreakdown": "7. Dettaglio imposte",
+      "discountsBreakdown": "8. Dettaglio sconti",
+      "extrasBreakdown": "9. Dettaglio extra",
+      "couponsBreakdown": "10. Dettaglio coupon"
+    },
+    "subtitles": {
+      "surchargesTaxes": "Supplementi e imposte riscossi (dagli ordini; di solito calcolati sul netto dopo sconto).",
+      "settlementCashier": "Vista cassetto contanti.",
+      "operationalControls": "Segnali di audit (annullamenti separati dalle vendite lorde).",
+      "productMix": "Categorie raggruppate con piatti e relativi modificatori.",
+      "paymentTypes": "Importo riscosso suddiviso per metodo di pagamento.",
+      "taxesBreakdown": "Componenti imposta riscossi dagli ordini.",
+      "discountsBreakdown": "Schemi sconto applicati in questo periodo.",
+      "extrasBreakdown": "Dettaglio extra a livello ordine.",
+      "couponsBreakdown": "Coupon riscattati e relativi valori."
+    },
+    "rows": {
+      "exclusiveSales": "Vendite esclusive",
+      "extras": "Extra",
+      "grossSales": "Vendite lorde",
+      "itemDiscounts": "Sconti articolo",
+      "subtotalDiscounts": "Sconti subtotale",
+      "couponDiscounts": "Sconti coupon",
+      "discounts": "(−) Sconti",
+      "netSales": "Vendite nette",
+      "serviceCharges": "Costo servizio",
+      "taxes": "Imposte",
+      "totalRevenue": "Ricavo totale",
+      "amountDueBeforeTips": "Importo dovuto (prima delle mance)",
+      "tips": "Mance",
+      "grandTotalDue": "Totale generale (dovuto)",
+      "amountCollected": "Importo incassato",
+      "rounding": "Arrotondamento",
+      "changeVariance": "Resto / scostamento",
+      "voids": "Annullamenti",
+      "refunds": "Rimborsi",
+      "covers": "Coperti",
+      "averageCover": "Coperto medio",
+      "ordersChecks": "Ordini / conti",
+      "averageOrderCheck": "Ordine / conto medio",
+      "totalTips": "Totale mance"
+    },
+    "hints": {
+      "exclusiveSales": "Solo vendite articoli (prima di extra, servizio e imposte).",
+      "extras": "Extra e supplementi a livello ordine associati ai conti.",
+      "grossSales": "Vendite esclusive + extra (righe annullate escluse).",
+      "itemDiscounts": "Valore sconto applicato direttamente sulle righe.",
+      "subtotalDiscounts": "Sconti a livello ordine esclusi gli sconti riga.",
+      "couponDiscounts": "Importo riscatto coupon.",
+      "discounts": "Riduzioni riga, ordine e coupon.",
+      "netSales": "Vendite lorde − sconti.",
+      "serviceCharges": "Importo sugli ordini; basato sul netto dopo sconto",
+      "taxes": "Imposta governativa registrata per ordine.",
+      "totalRevenue": "Vendite nette + costo servizio + imposte (prima delle mance).",
+      "amountDueBeforeTips": "Vendite nette + costo servizio + imposte.",
+      "tips": "Dai campi mancia ordine / oltre totale (non incluso nelle vendite lorde).",
+      "grandTotalDue": "Ricavo totale + mance.",
+      "amountCollected": "Totali pagamento applicati per metodo (escluso resto restituito).",
+      "rounding": "Importo incassato − totale generale (dovuto); eccedenza/carenza rispetto al dovuto calcolato.",
+      "changeVariance": "Contanti versati in eccesso rispetto agli importi pagamento applicati.",
+      "voids": "Valore righe rimosse dopo inserimento (non nelle vendite lorde sopra).",
+      "refunds": "Resi da pagamenti negativi o conti annullati.",
+      "covers": "Numero ospiti (coperti).",
+      "averageCover": "Importo dovuto (prima delle mance) ÷ coperti.",
+      "ordersChecks": "Numero conti/ordini chiusi.",
+      "averageOrderCheck": "Importo dovuto (prima delle mance) ÷ ordini.",
+      "roundingLegacy": "Importo incassato - Importo dovuto"
+    },
+    "columns": {
+      "item": "Articolo",
+      "qty": "Qtà",
+      "total": "Totale",
+      "share": "Quota"
+    },
+    "empty": {
+      "noCategoryData": "Nessun dato categoria per questa data.",
+      "noPaymentData": "Nessun dato pagamento per questa data.",
+      "noTaxRows": "Nessuna riga imposta per questa data.",
+      "noDiscountRows": "Nessuna riga sconto per questa data.",
+      "noExtras": "Nessun extra trovato per questa data.",
+      "noCoupons": "Nessun utilizzo coupon per questa data."
+    },
+    "footer": "Sequenza: vendite lorde → sconti → vendite nette → costo servizio → imposte → mance → totale generale → incassato. Il product mix è raggruppato per categoria con piatti annidati.",
+    "legacy": {
+      "tips": "Mance",
+      "categories": "Categorie",
+      "dishes": "Piatti",
+      "paymentTypes": "Tipi di pagamento",
+      "taxes": "Imposte",
+      "discounts": "Sconti",
+      "extras": "Extra",
+      "coupons": "Coupon",
+      "covers": "Coperti",
+      "averageCover": "Coperto medio",
+      "ordersChecks": "Ordini/Conti",
+      "averageOrderCheck": "Ordine/conto medio"
+    }
+  },
+  "clock": {
+    "title": "Timbratura",
+    "subtitle": "Registra le tue ore di lavoro",
+    "saleSummary": "Riepilogo vendite",
+    "loadingSaleData": "Caricamento dati vendite...",
+    "loading": "Caricamento...",
+    "signedInAs": "Connesso come",
+    "shift": "Turno",
+    "endsNextDay": "termina il giorno successivo",
+    "clockInTime": "Ora entrata",
+    "timeElapsed": "Tempo trascorso",
+    "sinceClockIn": "Dall'entrata",
+    "clockOut": "Timbra uscita",
+    "metrics": {
+      "totalSales": "Vendite totali",
+      "refunds": "Rimborsi",
+      "serviceCharges": "Costo servizio",
+      "discounts": "Sconti",
+      "taxes": "Imposte",
+      "extras": "Extra",
+      "voids": "Annullamenti",
+      "tips": "Mance"
+    }
+  },
+  "tipDistribution": {
+    "shift": "Turno",
+    "date": "Data",
+    "loadTips": "Carica mance",
+    "submit": "Invia",
+    "totalTips": "Totale mance: {{amount}}",
+    "columns": {
+      "user": "Utente",
+      "role": "Ruolo",
+      "weight": "Peso",
+      "amount": "Importo"
+    },
+    "empty": "Nessuna distribuzione calcolata."
+  }
+}

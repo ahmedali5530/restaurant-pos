@@ -1,0 +1,89 @@
+{
+  "orderTakingDisabled": "La presa ordini è attualmente disabilitata.",
+  "verifyClosingFailed": "Impossibile verificare lo stato del ciclo di chiusura. Riprova.",
+  "tableLocked": "{{user}} sta già prendendo ordini su questo tavolo",
+  "floor": {
+    "switchTable": "Passa dal Tavolo {{table}} a un altro",
+    "reloadCachePrefix": "Premi il pulsante ricarica cache dalle",
+    "settings": "impostazioni"
+  },
+  "guard": {
+    "punchDisabled": "L'inserimento ordini è disabilitato finché il ciclo corrente non è chiuso, oppure elimina la chiusura del ciclo corrente.",
+    "cycleEnded": "Il ciclo di chiusura è terminato alle {{time}}. Completa la chiusura giornaliera se non l'hai già fatto."
+  },
+  "window": {
+    "cycle": "Ciclo",
+    "period": "Periodo",
+    "label": "{{prefix}}: {{start}} - {{end}}"
+  },
+  "terminal": {
+    "defaultName": "Terminale {{number}}",
+    "notes": "Note",
+    "coins": "Monete",
+    "denomination": "x {{value}}",
+    "total": "Totale terminale: {{amount}}",
+    "add": "Aggiungi terminale"
+  },
+  "title": "Chiusura giornaliera al {{date}}",
+  "loading": "Caricamento chiusura...",
+  "alerts": {
+    "cycleDisabled": "Il ciclo di chiusura è disabilitato. L'ora dell'ultima chiusura completata viene usata come inizio di questo periodo e l'ora corrente come fine.",
+    "cycleCompleted": "Chiusura completata per questo ciclo. La presa ordini è bloccata fino al prossimo ciclo.",
+    "periodCompleted": "Chiusura completata per questo periodo."
+  },
+  "sections": {
+    "previousDayBalance": "Saldo giorno precedente",
+    "pettyCash": "Cassa piccola",
+    "terminalCash": "Contanti terminale",
+    "paymentTypesSummary": "Riepilogo tipi di pagamento dal sistema",
+    "expenses": "Spese",
+    "notes": "Note",
+    "summary": "Riepilogo"
+  },
+  "fields": {
+    "previousDayBalance": "Saldo giorno precedente",
+    "pettyCash": "Cassa piccola",
+    "description": "Descrizione",
+    "category": "Categoria",
+    "amount": "Importo",
+    "notesPlaceholder": "Aggiungi eventuali note..."
+  },
+  "totals": {
+    "totalCash": "Totale contanti: {{amount}}",
+    "cashFromPayments": "Contanti dal riepilogo pagamenti",
+    "difference": "Differenza: {{amount}}",
+    "totalOtherPayments": "Totale altri pagamenti: {{amount}}",
+    "totalExpenses": "Totale spese: {{amount}}",
+    "previousBalance": "Saldo precedente",
+    "totalCashShort": "Totale contanti",
+    "otherPayments": "Altri pagamenti",
+    "totalExpensesShort": "Totale spese",
+    "netAmount": "Importo netto"
+  },
+  "actions": {
+    "addExpense": "Aggiungi spesa",
+    "saveClosing": "Salva chiusura",
+    "closeClosing": "Chiudi chiusura",
+    "saving": "Salvataggio...",
+    "reopen": "Modifica (approvazione manager)",
+    "reopening": "Riapertura...",
+    "printClosing": "Stampa chiusura",
+    "goToClosing": "Vai alla chiusura"
+  },
+  "security": {
+    "reopenDescription": "Riapri chiusura giornaliera",
+    "reopenModule": "Modifica chiusura"
+  },
+  "autoCheckClose": {
+    "autoClosed_one": "{{count}} conto chiuso automaticamente",
+    "autoClosed_other": "{{count}} conti chiusi automaticamente",
+    "failed_one": "Chiusura automatica non riuscita per {{count}} conto",
+    "failed_other": "Chiusura automatica non riuscita per {{count}} conti",
+    "noOpenChecks": "Ciclo di chiusura terminato. Nessun conto aperto da chiudere.",
+    "retry_one": "Trovato {{count}} conto aperto ma nessuno è stato chiuso{{skipped}}. Nuovo tentativo.",
+    "retry_other": "Trovati {{count}} conti aperti ma nessuno è stato chiuso{{skipped}}. Nuovo tentativo.",
+    "skippedSuffix": " ({{count}} saltati)",
+    "executionFailed": "Chiusura automatica conti non riuscita",
+    "warning": "I conti verranno chiusi automaticamente tra {{countdown}}"
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "labels": {
+    "subTotal": "المجموع الفرعي ({{count}})",
+    "total": "الإجمالي"
+  },
+  "actions": {
+    "toKitchen": "إلى المطبخ",
+    "payNow": "ادفع الآن",
+    "cancel": "إلغاء"
+  },
+  "errors": {
+    "createOrder": "تعذّر إنشاء الطلب.",
+    "openPayment": "تعذّر فتح الدفع."
+  },
+  "tracking": {
+    "createOrder": "إنشاء طلب",
+    "appendOrder": "إضافة إلى الطلب"
+  },
+  "print": {
+    "kitchenTitle": "طباعة المطبخ"
+  },
+  "title": "طلب رقم {{invoice}}",
+  "tabs": {
+    "tax": "الضريبة",
+    "taxWithRate": "الضريبة ({{name}} {{rate}}%)",
+    "discount": "الخصم",
+    "coupon": "قسيمة",
+    "serviceCharges": "رسوم الخدمة ({{value}}{{unit}})",
+    "tip": "الإكرامية ({{value}}{{unit}})",
+    "notes": "ملاحظات",
+    "total": "الإجمالي"
+  },
+  "totals": {
+    "items": "الأصناف ({{count}})"
+  },
+  "tax": {
+    "noTax": "بدون ضريبة"
+  },
+  "discount": {
+    "noDiscount": "بدون خصم",
+    "label": "الخصم",
+    "withMaxCap": "بحد أقصى {{amount}}"
+  },
+  "coupon": {
+    "codeLabel": "رمز القسيمة",
+    "applied": "القسيمة المطبقة: {{code}}",
+    "discount": "الخصم: {{amount}}",
+    "discountFromCoupon": "الخصم من القسيمة: {{amount}}",
+    "errors": {
+      "notFound": "القسيمة غير موجودة أو غير نشطة",
+      "unsupportedType": "نوع القسيمة هذا غير مدعوم على الطلبات",
+      "belowMinimum": "إجمالي الطلب أقل من الحد الأدنى لهذه القسيمة",
+      "notValidToday": "القسيمة غير صالحة اليوم",
+      "notValidTime": "القسيمة غير صالحة في هذا الوقت",
+      "notActiveYet": "القسيمة لم تُفعّل بعد",
+      "expired": "انتهت صلاحية القسيمة",
+      "usageLimitReached": "تم الوصول إلى حد استخدام القسيمة",
+      "userLimitReached": "لقد وصلت إلى حد استخدام هذه القسيمة",
+      "firstOrderOnly": "هذه القسيمة صالحة للطلب الأول فقط",
+      "notStackable": "لا يمكن استخدام هذه القسيمة مع خصومات أخرى",
+      "noDiscount": "هذه القسيمة لا توفر أي خصم لهذا الطلب"
+    },
+    "appliedSuccess": "تم تطبيق القسيمة"
+  },
+  "serviceCharges": {
+    "defaultFromSettings": "الافتراضي من الإعدادات:",
+    "noServiceCharge": "بدون رسوم خدمة"
+  },
+  "tip": {
+    "noTip": "بدون إكرامية"
+  },
+  "notes": {
+    "title": "أي ملاحظات",
+    "hint": "يمكنك كتابة أرقام البطاقات أو الخصم"
+  },
+  "receiving": {
+    "remaining": "المتبقي",
+    "change": "الباقي",
+    "tempBill": "فاتورة مؤقتة",
+    "complete": "إكمال",
+    "cannotAddCard": "لا يمكن إضافة المزيد من الدفع للبطاقة",
+    "exactCardAmount": "تمت إضافة المبلغ الدقيق للدفع بالبطاقة"
+  },
+  "remote": {
+    "remoteLabel": "{{name}} (عن بُعد)",
+    "status": "الحالة: {{status}}",
+    "openLink": "فتح الرابط",
+    "verify": "تحقق"
+  },
+  "discountType": {
+    "percent": "نسبة مئوية",
+    "fixed": "مبلغ ثابت"
+  },
+  "remoteGateway": {
+    "missingProvider": "نوع الدفع عن بُعد يفتقد مزود البوابة.",
+    "linkGenerated": "تم إنشاء رابط الدفع عن بُعد.",
+    "tokenGenerated": "تم إنشاء الرمز عن بُعد: {{token}}",
+    "intentGenerated": "تم إنشاء نية الدفع عن بُعد.",
+    "paymentTimedOut": "انتهت مهلة دفع {{gateway}}. اضغط تحقق للمحاولة مجدداً.",
+    "paymentStatus": "دفع {{gateway}} {{status}}.",
+    "completeOnPage": "أكمل الدفع في صفحة {{gateway}}، ثم ارجع إلى نقطة البيع.",
+    "scanQr": "امسح رمز QR بتطبيق {{gateway}} للدفع.",
+    "enterCardDetails": "أدخل بيانات البطاقة أدناه لإكمال الدفع.",
+    "intentCreated": "تم إنشاء نية دفع {{gateway}}.",
+    "usePaypalButton": "استخدم زر PayPal أدناه لإكمال الدفع.",
+    "useRazorpayButton": "اضغط الدفع عبر Razorpay أدناه لإكمال الدفع.",
+    "paymentFailed": "فشل الدفع.",
+    "paymentStatusLabel": "حالة الدفع: {{status}}",
+    "paymentIs": "الدفع {{status}}.",
+    "paypalPaymentIs": "دفع PayPal {{status}}.",
+    "razorpayPaymentFailed": "فشل دفع Razorpay.",
+    "stripePaymentFailed": "فشل دفع Stripe.",
+    "mpesaPhoneUnavailable": "مطالبة هاتف M-Pesa غير متاحة.",
+    "mpesaPromptSent": "تم إرسال STK push إلى {{phone}}. تحقق من الهاتف لإدخال رمز PIN لـ M-Pesa.",
+    "mpesaPromptSentGeneric": "تم إرسال STK push. تحقق من الهاتف لإدخال رمز PIN لـ M-Pesa.",
+    "mpesaInvalidPhone": "أدخل رقم M-Pesa صالحاً (2547XXXXXXXX أو 07XXXXXXXX).",
+    "verifiedAndAdded": "تم التحقق من الدفع عن بُعد وإضافته.",
+    "generateFailed": "فشل إنشاء رابط/رمز الدفع عن بُعد",
+    "mustBePaid": "الدفع {{status}}. يجب أن يكون مدفوعاً/مُصرّحاً قبل الإضافة.",
+    "verifyFailed": "فشل التحقق من الدفع عن بُعد",
+    "paymentReceived": "تم استلام دفع {{gateway}}.",
+    "payWithCard": "الدفع بالبطاقة",
+    "payWithRazorpay": "الدفع عبر Razorpay"
+  }
+}

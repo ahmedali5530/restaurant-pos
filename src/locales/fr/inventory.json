@@ -1,0 +1,140 @@
+{
+  "tabs": {
+    "inventory": "Inventaire",
+    "items": "Articles",
+    "suppliers": "Fournisseurs",
+    "categories": "Catégories d'articles",
+    "stores": "Magasins",
+    "itemGroups": "Groupes d'articles",
+    "purchaseOrders": "Bons de commande",
+    "purchases": "Achats",
+    "purchaseReturns": "Retours d'achat",
+    "issues": "Sorties",
+    "issueReturns": "Retours de sortie",
+    "wastes": "Pertes"
+  },
+  "security": {
+    "accessTab": "Accéder à {{module}}"
+  },
+  "columns": {
+    "name": "Nom",
+    "code": "Code",
+    "category": "Catégorie",
+    "uom": "Unité de mesure",
+    "baseQuantity": "Quantité de base",
+    "price": "Prix",
+    "averagePrice": "Prix moyen",
+    "avgPrice": "Prix moy.",
+    "stores": "Magasins",
+    "suppliers": "Fournisseurs",
+    "actions": "Actions",
+    "address": "Adresse",
+    "phone": "Téléphone",
+    "email": "E-mail",
+    "priority": "Priorité",
+    "mainItem": "Article principal",
+    "subItems": "Sous-articles",
+    "invoiceNumber": "Facture n°",
+    "poNumber": "BC n°",
+    "status": "Statut",
+    "createdAt": "Créé le",
+    "items": "Articles",
+    "purchaseInvoice": "Facture d'achat n°",
+    "issueNumber": "Sortie n°",
+    "returnNumber": "Retour n°",
+    "issuance": "Émission",
+    "issuedTo": "Émis à",
+    "kitchen": "Cuisine",
+    "createdBy": "Créé par",
+    "source": "Source"
+  },
+  "buttons": {
+    "item": "Article",
+    "import": "Importer",
+    "view": "Voir",
+    "upload": "Téléverser"
+  },
+  "forms": {
+    "createItem": "Créer un nouvel article",
+    "createCategory": "Créer une nouvelle catégorie",
+    "createSupplier": "Créer un nouveau fournisseur",
+    "createStore": "Créer un nouveau magasin",
+    "createIssue": "Créer une nouvelle sortie",
+    "createIssueReturn": "Créer un nouveau retour de sortie",
+    "createWaste": "Créer une nouvelle perte",
+    "createPurchase": "Créer un nouvel achat",
+    "createPurchaseReturn": "Créer un nouveau retour d'achat",
+    "createPurchaseOrder": "Créer un nouveau bon de commande",
+    "createItemGroup": "Créer un nouveau groupe d'articles",
+    "nameOfItem": "Nom de l'article",
+    "invoiceNumber": "Numéro de facture",
+    "returnInvoiceNumber": "Numéro de facture de retour",
+    "poNumber": "Numéro de bon de commande",
+    "date": "Date",
+    "comments": "Commentaires",
+    "quantity": "Quantité",
+    "requested": "Demandé",
+    "issued": "Émis",
+    "returnedQuantity": "Quantité retournée",
+    "expiryDate": "Date d'expiration",
+    "manufacturingDate": "Date de fabrication",
+    "storeInventory": "Magasin {{name}}"
+  },
+  "validation": {
+    "required": "Ce champ est obligatoire",
+    "number": "Ce champ doit être un nombre",
+    "selectStore": "Sélectionnez au moins un magasin",
+    "addItem": "Ajoutez au moins un article",
+    "addSubItem": "Ajoutez au moins un sous-article",
+    "selectPurchaseMethod": "Veuillez sélectionner une méthode d'achat",
+    "storeRequired": "Le magasin est requis",
+    "supplierRequired": "Le fournisseur est requis",
+    "selectSourceType": "Sélectionnez le type de source",
+    "selectSource": "Sélectionnez une source",
+    "quantityMin": "La quantité doit être d'au moins 1",
+    "atLeastOneItem": "Au moins un article est requis",
+    "invalidCategory": "Catégorie invalide « {{name}} »",
+    "invalidStore": "Magasin invalide « {{name}} »",
+    "invalidSupplier": "Fournisseur invalide « {{name}} »"
+  },
+  "csv": {
+    "uploadTitle": "Ajouter des articles via un fichier CSV"
+  },
+  "modals": {
+    "viewPurchase": "Voir l'achat",
+    "viewIssue": "Voir la sortie",
+    "viewIssueReturn": "Voir le retour de sortie",
+    "viewWaste": "Voir la perte",
+    "viewPurchaseReturn": "Voir le retour d'achat",
+    "viewPurchaseOrder": "Voir le bon de commande"
+  },
+  "summary": {
+    "title": "Résumé de l'inventaire"
+  },
+  "purchaseMethod": {
+    "title": "Méthode d'achat"
+  },
+  "sourceType": {
+    "purchase": "Achat",
+    "issue": "Sortie"
+  },
+  "status": {
+    "draft": "Brouillon",
+    "approved": "Approuvé",
+    "received": "Reçu",
+    "cancelled": "Annulé"
+  },
+  "upload": {
+    "attachDocuments": "Documents joints"
+  },
+  "purchaseMethods": {
+    "manual": "Manuel",
+    "csv": "CSV",
+    "purchaseOrder": "Bon de commande"
+  },
+  "uploadViaDocument": "Téléverser via document",
+  "itemName": "Nom de l'article",
+  "itemCode": "Code article",
+  "syncFromPo": "Les articles sont synchronisés depuis le bon de commande sélectionné. Revenez en Manuel pour modifier la liste.",
+  "syncFromCsv": "Téléversez un CSV pour importer les articles plus tard. Revenez en Manuel pour modifier la liste ici."
+}

@@ -1,0 +1,170 @@
+{
+  "screen": {
+    "previousDate": "Vorheriges Datum",
+    "nextDate": "Nächstes Datum",
+    "printSummary": "Zusammenfassung drucken",
+    "productMixReport": "Produktmix-Bericht",
+    "serverSales": "Kellnerumsatz"
+  },
+  "security": {
+    "printSummaryDescription": "Zusammenfassung drucken",
+    "printSummaryModule": "Zusammenfassung drucken",
+    "productMixDescription": "Produktmix-Bericht",
+    "productMixModule": "Produktmix-Bericht",
+    "serverSalesDescription": "Kellnerumsatz",
+    "serverSalesModule": "Kellnerumsatz"
+  },
+  "unknown": {
+    "user": "Unbekannt",
+    "item": "Unbekannter Artikel",
+    "coupon": "Unbekannt"
+  },
+  "report": {
+    "title": "Tagesumsatzübersicht — {{date}}",
+    "orderDiscount": "Bestellrabatt",
+    "uncategorized": "Ohne Kategorie",
+    "unknownItem": "Unbekannter Artikel",
+    "sections": {
+      "salesRevenue": "1. Umsatzerlöse",
+      "surchargesTaxes": "2. Zuschläge und Steuern",
+      "settlementCashier": "3. Abrechnung und Kasse",
+      "operationalControls": "4. Betriebskontrollen",
+      "productMix": "5. Produktmix",
+      "paymentTypes": "6. Zahlungsarten",
+      "taxesBreakdown": "7. Steueraufschlüsselung",
+      "discountsBreakdown": "8. Rabattaufschlüsselung",
+      "extrasBreakdown": "9. Extras-Aufschlüsselung",
+      "couponsBreakdown": "10. Gutscheinaufschlüsselung"
+    },
+    "subtitles": {
+      "surchargesTaxes": "Erhobene Zuschläge und Steuern (aus Bestellungen; typischerweise auf Netto nach Rabatt berechnet).",
+      "settlementCashier": "Kassenansicht.",
+      "operationalControls": "Prüfsignale (Stornos getrennt vom Bruttoumsatz).",
+      "productMix": "Kategorien gruppiert mit Gerichten und deren Modifikatoren.",
+      "paymentTypes": "Erhobener Betrag nach Zahlungsmethode aufgeteilt.",
+      "taxesBreakdown": "Aus Bestellungen erhobene Steuerkomponenten.",
+      "discountsBreakdown": "In diesem Zeitraum angewendete Rabattschemata.",
+      "extrasBreakdown": "Aufschlüsselung der Bestell-Extras.",
+      "couponsBreakdown": "Eingelöste Gutscheine und deren Werte."
+    },
+    "rows": {
+      "exclusiveSales": "Reiner Artikelumsatz",
+      "extras": "Extras",
+      "grossSales": "Bruttoumsatz",
+      "itemDiscounts": "Artikelrabatte",
+      "subtotalDiscounts": "Zwischensummenrabatte",
+      "couponDiscounts": "Gutscheinrabatte",
+      "discounts": "(−) Rabatte",
+      "netSales": "Nettoumsatz",
+      "serviceCharges": "Servicegebühren",
+      "taxes": "Steuern",
+      "totalRevenue": "Gesamterlös",
+      "amountDueBeforeTips": "Fälliger Betrag (vor Trinkgeld)",
+      "tips": "Trinkgeld",
+      "grandTotalDue": "Gesamtsumme (fällig)",
+      "amountCollected": "Eingezogener Betrag",
+      "rounding": "Rundung",
+      "changeVariance": "Wechselgeld / Abweichung",
+      "voids": "Stornos",
+      "refunds": "Rückerstattungen",
+      "covers": "Gäste",
+      "averageCover": "Durchschnitt pro Gast",
+      "ordersChecks": "Bestellungen / Rechnungen",
+      "averageOrderCheck": "Durchschnitt pro Bestellung / Rechnung",
+      "totalTips": "Trinkgeld gesamt"
+    },
+    "hints": {
+      "exclusiveSales": "Nur Artikelumsatz (vor Extras, Service und Steuern).",
+      "extras": "Bestell-Extras und Zuschläge an Rechnungen.",
+      "grossSales": "Reiner Artikelumsatz + Extras (stornierte Positionen ausgeschlossen).",
+      "itemDiscounts": "Rabattwert direkt auf Positionen angewendet.",
+      "subtotalDiscounts": "Bestellrabatte ohne positionsbezogene Reduzierungen.",
+      "couponDiscounts": "Gutscheineinlösungsbetrag.",
+      "discounts": "Positions-, Bestell- und Gutscheinreduzierungen.",
+      "netSales": "Bruttoumsatz − Rabatte.",
+      "serviceCharges": "Betrag auf Bestellungen; basierend auf Netto nach Rabatt",
+      "taxes": "Staatliche Steuer wie pro Bestellung erfasst.",
+      "totalRevenue": "Nettoumsatz + Servicegebühren + Steuern (vor Trinkgeld).",
+      "amountDueBeforeTips": "Nettoumsatz + Servicegebühren + Steuern.",
+      "tips": "Aus Bestell-Trinkgeldfeldern / über Gesamtsumme (nicht im Bruttoumsatz enthalten).",
+      "grandTotalDue": "Gesamterlös + Trinkgeld.",
+      "amountCollected": "Angewendete Zahlungssummen nach Methode (ohne zurückgegebenes Wechselgeld).",
+      "rounding": "Eingezogener Betrag − Gesamtsumme (fällig); Über-/Unterschuss gegenüber berechnetem Fälligkeitsbetrag.",
+      "changeVariance": "Bar gegeben über angewendete Zahlungsbeträge hinaus.",
+      "voids": "Wert der nach Erfassung entfernten Positionen (nicht im Bruttoumsatz oben).",
+      "refunds": "Rückgaben aus negativen Zahlungen oder stornierten Rechnungen.",
+      "covers": "Gästeanzahl.",
+      "averageCover": "Fälliger Betrag (vor Trinkgeld) ÷ Gäste.",
+      "ordersChecks": "Anzahl geschlossener Rechnungen/Bestellungen.",
+      "averageOrderCheck": "Fälliger Betrag (vor Trinkgeld) ÷ Bestellungen.",
+      "roundingLegacy": "Eingezogener Betrag - Fälliger Betrag"
+    },
+    "columns": {
+      "item": "Artikel",
+      "qty": "Menge",
+      "total": "Gesamt",
+      "share": "Anteil"
+    },
+    "empty": {
+      "noCategoryData": "Keine Kategoriedaten für dieses Datum.",
+      "noPaymentData": "Keine Zahlungsdaten für dieses Datum.",
+      "noTaxRows": "Keine Steuerzeilen für dieses Datum.",
+      "noDiscountRows": "Keine Rabattzeilen für dieses Datum.",
+      "noExtras": "Keine Extras für dieses Datum gefunden.",
+      "noCoupons": "Keine Gutscheinnutzung für dieses Datum."
+    },
+    "footer": "Reihenfolge: Bruttoumsatz → Rabatte → Nettoumsatz → Servicegebühren → Steuern → Trinkgeld → Gesamtsumme → eingezogen. Produktmix ist nach Kategorie gruppiert mit verschachtelten Gerichten.",
+    "legacy": {
+      "tips": "Trinkgeld",
+      "categories": "Kategorien",
+      "dishes": "Gerichte",
+      "paymentTypes": "Zahlungsarten",
+      "taxes": "Steuern",
+      "discounts": "Rabatte",
+      "extras": "Extras",
+      "coupons": "Gutscheine",
+      "covers": "Gäste",
+      "averageCover": "Durchschnitt pro Gast",
+      "ordersChecks": "Bestellungen/Rechnungen",
+      "averageOrderCheck": "Durchschnitt pro Bestellung/Rechnung"
+    }
+  },
+  "clock": {
+    "title": "Zeiterfassung",
+    "subtitle": "Arbeitszeiten erfassen",
+    "saleSummary": "Umsatzzusammenfassung",
+    "loadingSaleData": "Umsatzdaten werden geladen...",
+    "loading": "Wird geladen...",
+    "signedInAs": "Angemeldet als",
+    "shift": "Schicht",
+    "endsNextDay": "endet am nächsten Tag",
+    "clockInTime": "Einstempelzeit",
+    "timeElapsed": "Verstrichene Zeit",
+    "sinceClockIn": "Seit Einstempeln",
+    "clockOut": "Ausstempeln",
+    "metrics": {
+      "totalSales": "Gesamtumsatz",
+      "refunds": "Rückerstattungen",
+      "serviceCharges": "Servicegebühren",
+      "discounts": "Rabatte",
+      "taxes": "Steuern",
+      "extras": "Extras",
+      "voids": "Stornos",
+      "tips": "Trinkgeld"
+    }
+  },
+  "tipDistribution": {
+    "shift": "Schicht",
+    "date": "Datum",
+    "loadTips": "Trinkgeld laden",
+    "submit": "Absenden",
+    "totalTips": "Trinkgeld gesamt: {{amount}}",
+    "columns": {
+      "user": "Benutzer",
+      "role": "Rolle",
+      "weight": "Gewichtung",
+      "amount": "Betrag"
+    },
+    "empty": "Noch keine Verteilung berechnet."
+  }
+}

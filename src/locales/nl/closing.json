@@ -1,0 +1,89 @@
+{
+  "orderTakingDisabled": "Bestellingen opnemen is momenteel uitgeschakeld.",
+  "verifyClosingFailed": "Kan status afsluitingscyclus niet verifiëren. Probeer het opnieuw.",
+  "tableLocked": "{{user}} neemt al een bestelling op aan deze tafel",
+  "floor": {
+    "switchTable": "Wissel van Tafel {{table}} naar een andere",
+    "reloadCachePrefix": "Druk op de cache herladen-knop in",
+    "settings": "instellingen"
+  },
+  "guard": {
+    "punchDisabled": "Invoeren is uitgeschakeld totdat de huidige cyclus is afgesloten, of verwijder de huidige cyclusafsluiting.",
+    "cycleEnded": "Afsluitingscyclus beëindigd om {{time}}. Voltooi de dagafsluiting als dit nog niet is gedaan."
+  },
+  "window": {
+    "cycle": "Cyclus",
+    "period": "Periode",
+    "label": "{{prefix}}: {{start}} - {{end}}"
+  },
+  "terminal": {
+    "defaultName": "Terminal {{number}}",
+    "notes": "Opmerkingen",
+    "coins": "Munten",
+    "denomination": "x {{value}}",
+    "total": "Terminaltotaal: {{amount}}",
+    "add": "Terminal toevoegen"
+  },
+  "title": "Dagafsluiting per {{date}}",
+  "loading": "Afsluiting laden...",
+  "alerts": {
+    "cycleDisabled": "Afsluitingscyclus is uitgeschakeld. De laatst voltooide afsluitingstijd wordt gebruikt als start van deze periode, en de huidige tijd als einde.",
+    "cycleCompleted": "Afsluiting is voltooid voor deze cyclus. Bestellingen opnemen is geblokkeerd tot de volgende cyclus.",
+    "periodCompleted": "Afsluiting is voltooid voor deze periode."
+  },
+  "sections": {
+    "previousDayBalance": "Saldo vorige dag",
+    "pettyCash": "Kleingeld",
+    "terminalCash": "Terminalcontant",
+    "paymentTypesSummary": "Betaaltypenoverzicht uit systeem",
+    "expenses": "Uitgaven",
+    "notes": "Opmerkingen",
+    "summary": "Overzicht"
+  },
+  "fields": {
+    "previousDayBalance": "Saldo vorige dag",
+    "pettyCash": "Kleingeld",
+    "description": "Beschrijving",
+    "category": "Categorie",
+    "amount": "Bedrag",
+    "notesPlaceholder": "Voeg eventuele aanvullende opmerkingen toe..."
+  },
+  "totals": {
+    "totalCash": "Totaal contant: {{amount}}",
+    "cashFromPayments": "Contant uit betalingsoverzicht",
+    "difference": "Verschil: {{amount}}",
+    "totalOtherPayments": "Totaal overige betalingen: {{amount}}",
+    "totalExpenses": "Totaal uitgaven: {{amount}}",
+    "previousBalance": "Vorig saldo",
+    "totalCashShort": "Totaal contant",
+    "otherPayments": "Overige betalingen",
+    "totalExpensesShort": "Totaal uitgaven",
+    "netAmount": "Nettobedrag"
+  },
+  "actions": {
+    "addExpense": "Uitgave toevoegen",
+    "saveClosing": "Afsluiting opslaan",
+    "closeClosing": "Afsluiting sluiten",
+    "saving": "Opslaan...",
+    "reopen": "Bewerken (managertoestemming)",
+    "reopening": "Heropenen...",
+    "printClosing": "Afsluiting afdrukken",
+    "goToClosing": "Ga naar afsluiting"
+  },
+  "security": {
+    "reopenDescription": "Dagafsluiting heropenen",
+    "reopenModule": "Afsluiting bewerken"
+  },
+  "autoCheckClose": {
+    "autoClosed_one": "{{count}} bon automatisch gesloten",
+    "autoClosed_other": "{{count}} bonnen automatisch gesloten",
+    "failed_one": "{{count}} bon automatisch sluiten mislukt",
+    "failed_other": "{{count}} bonnen automatisch sluiten mislukt",
+    "noOpenChecks": "Afsluitingscyclus beëindigd. Geen open bonnen om te sluiten.",
+    "retry_one": "{{count}} open bon gevonden maar geen gesloten{{skipped}}. Opnieuw proberen.",
+    "retry_other": "{{count}} open bonnen gevonden maar geen gesloten{{skipped}}. Opnieuw proberen.",
+    "skippedSuffix": " ({{count}} overgeslagen)",
+    "executionFailed": "Bonnen automatisch sluiten mislukt",
+    "warning": "Bonnen worden automatisch gesloten over {{countdown}}"
+  }
+}

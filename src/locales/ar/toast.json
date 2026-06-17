@@ -1,0 +1,82 @@
+{
+  "generic": {
+    "saved": "تم الحفظ بنجاح",
+    "updated": "تم التحديث بنجاح",
+    "deleted": "تم الحذف بنجاح",
+    "created": "تم الإنشاء بنجاح",
+    "failed": "فشلت العملية",
+    "error": "حدث خطأ"
+  },
+  "inventory": {
+    "wasteSaved": "تم حفظ الهدر",
+    "issueSaved": "تم حفظ الصرف",
+    "issueReturnSaved": "تم حفظ إرجاع الصرف",
+    "purchaseSaved": "تم حفظ الشراء",
+    "purchaseReturnSaved": "تم حفظ إرجاع الشراء",
+    "purchaseOrderSaved": "تم حفظ أمر الشراء",
+    "itemGroupSaved": "تم حفظ مجموعة الأصناف",
+    "itemSaved": "تم حفظ الصنف {{name}}",
+    "categorySaved": "تم حفظ الفئة {{name}}",
+    "supplierSaved": "تم حفظ المورد {{name}}",
+    "storeSaved": "تم حفظ المخزن {{name}}",
+    "unableGenerateWasteNumber": "تعذّر إنشاء رقم الهدر التالي",
+    "unableGenerateIssueNumber": "تعذّر إنشاء رقم الصرف التالي",
+    "unableGenerateIssueReturnNumber": "تعذّر إنشاء رقم إرجاع الصرف التالي",
+    "unableGenerateInvoiceNumber": "تعذّر إنشاء رقم الفاتورة التالي",
+    "unableGenerateReturnNumber": "تعذّر إنشاء رقم الإرجاع التالي",
+    "unableGeneratePoNumber": "تعذّر إنشاء رقم أمر الشراء التالي",
+    "itemsExceedQuantity": "صنف واحد أو أكثر يتجاوز الكمية المتاحة"
+  },
+  "delivery": {
+    "settingsSaved": "تم حفظ إعدادات التوصيل بنجاح",
+    "settingsLoadFailed": "فشل تحميل إعدادات التوصيل",
+    "settingsSaveFailed": "فشل حفظ إعدادات التوصيل",
+    "mapAreasSaved": "تم حفظ مناطق الخريطة بنجاح",
+    "mapAreasSaveFailed": "فشل حفظ مناطق الخريطة",
+    "mapAreasLoadFailed": "فشل تحميل مناطق الخريطة",
+    "shapeTooSmall": "الشكل صغير جداً. ارسم منطقة أكبر.",
+    "rectangleTooSmall": "المستطيل صغير جداً. ارسم منطقة أكبر.",
+    "circleTooSmall": "الدائرة صغيرة جداً. ارسم نصف قطراً أكبر.",
+    "polygonTooSmall": "المضلع صغير جداً. ارسم محيطاً أكبر.",
+    "fetchRidersFailed": "فشل جلب السائقين",
+    "acceptFailed": "فشل قبول الطلب",
+    "rejectFailed": "فشل رفض الطلب",
+    "sendFailed": "فشل إرسال الطلب",
+    "attachRiderFailed": "فشل ربط السائق"
+  },
+  "reports": {
+    "mapAreasSaveFailed": "فشل حفظ مناطق الخريطة"
+  },
+  "kitchen": {
+    "recallFailed": "فشل استرجاع الطلب"
+  },
+  "closing": {
+    "loadFailed": "فشل تحميل الإغلاق",
+    "alreadyClosed": "هذه الدورة مغلقة بالفعل.",
+    "openOrders": "هناك طلبات مفتوحة. يُرجى إغلاقها أولاً.",
+    "completed": "تم الإغلاق بنجاح!",
+    "savedDraft": "تم حفظ الإغلاق كمسودة بنجاح!",
+    "saveFailed": "فشل حفظ الإغلاق",
+    "notFound": "لم يُعثر على إغلاق لهذه الدورة.",
+    "reopened": "تم إعادة فتح الإغلاق في وضع التعديل.",
+    "reopenFailed": "فشل إعادة فتح الإغلاق",
+    "printFailed": "فشل طباعة الإغلاق"
+  },
+  "summary": {
+    "noProductMix": "لم يُعثر على أصناف لخليط المنتجات.",
+    "noTimeEntries": "لم يُعثر على سجلات وقت مكتملة لهذا التاريخ.",
+    "noServerSales": "لم يُعثر على بيانات مبيعات الخادم لهذا التاريخ."
+  },
+  "clock": {
+    "noActiveEntry": "لم يُعثر على سجل وقت نشط",
+    "loadEntryFailed": "فشل تحميل سجل الوقت",
+    "loadSaleSummaryFailed": "فشل تحميل ملخص المبيعات",
+    "clockedOut": "تم تسجيل الانصراف بنجاح",
+    "clockOutFailed": "فشل تسجيل الانصراف"
+  },
+  "tipDistribution": {
+    "selectShiftAndDate": "يُرجى اختيار الوردية والتاريخ",
+    "unableToDeriveRange": "تعذّر تحديد النطاق الزمني من الوردية",
+    "saved": "تم حفظ توزيع الإكراميات"
+  }
+}

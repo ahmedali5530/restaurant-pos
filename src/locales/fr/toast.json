@@ -1,0 +1,82 @@
+{
+  "generic": {
+    "saved": "Enregistré avec succès",
+    "updated": "Mis à jour avec succès",
+    "deleted": "Supprimé avec succès",
+    "created": "Créé avec succès",
+    "failed": "Échec de l'opération",
+    "error": "Une erreur s'est produite"
+  },
+  "inventory": {
+    "wasteSaved": "Perte enregistrée",
+    "issueSaved": "Sortie enregistrée",
+    "issueReturnSaved": "Retour de sortie enregistré",
+    "purchaseSaved": "Achat enregistré",
+    "purchaseReturnSaved": "Retour d'achat enregistré",
+    "purchaseOrderSaved": "Bon de commande enregistré",
+    "itemGroupSaved": "Groupe d'articles enregistré",
+    "itemSaved": "Article {{name}} enregistré",
+    "categorySaved": "Catégorie {{name}} enregistrée",
+    "supplierSaved": "Fournisseur {{name}} enregistré",
+    "storeSaved": "Magasin {{name}} enregistré",
+    "unableGenerateWasteNumber": "Impossible de générer le prochain numéro de perte",
+    "unableGenerateIssueNumber": "Impossible de générer le prochain numéro de sortie",
+    "unableGenerateIssueReturnNumber": "Impossible de générer le prochain numéro de retour de sortie",
+    "unableGenerateInvoiceNumber": "Impossible de générer le prochain numéro de facture",
+    "unableGenerateReturnNumber": "Impossible de générer le prochain numéro de retour",
+    "unableGeneratePoNumber": "Impossible de générer le prochain numéro de bon de commande",
+    "itemsExceedQuantity": "Un ou plusieurs articles dépassent la quantité disponible"
+  },
+  "delivery": {
+    "settingsSaved": "Paramètres de livraison enregistrés avec succès",
+    "settingsLoadFailed": "Échec du chargement des paramètres de livraison",
+    "settingsSaveFailed": "Échec de l'enregistrement des paramètres de livraison",
+    "mapAreasSaved": "Zones de carte enregistrées avec succès",
+    "mapAreasSaveFailed": "Échec de l'enregistrement des zones de carte",
+    "mapAreasLoadFailed": "Échec du chargement des zones de carte",
+    "shapeTooSmall": "La forme est trop petite. Dessinez une zone plus grande.",
+    "rectangleTooSmall": "Le rectangle est trop petit. Dessinez une zone plus grande.",
+    "circleTooSmall": "Le cercle est trop petit. Dessinez un rayon plus grand.",
+    "polygonTooSmall": "Le polygone est trop petit. Dessinez un contour plus grand.",
+    "fetchRidersFailed": "Échec de la récupération des livreurs",
+    "acceptFailed": "Échec de l'acceptation de la commande",
+    "rejectFailed": "Échec du refus de la commande",
+    "sendFailed": "Échec de l'envoi de la commande",
+    "attachRiderFailed": "Échec de l'affectation du livreur"
+  },
+  "reports": {
+    "mapAreasSaveFailed": "Échec de l'enregistrement des zones de carte"
+  },
+  "kitchen": {
+    "recallFailed": "Échec du rappel de la commande"
+  },
+  "closing": {
+    "loadFailed": "Échec du chargement de la clôture",
+    "alreadyClosed": "Ce cycle est déjà clôturé.",
+    "openOrders": "Il y a des commandes ouvertes. Veuillez d'abord les clôturer.",
+    "completed": "Clôture effectuée avec succès !",
+    "savedDraft": "Clôture enregistrée comme brouillon avec succès !",
+    "saveFailed": "Échec de l'enregistrement de la clôture",
+    "notFound": "Aucune clôture trouvée pour ce cycle.",
+    "reopened": "Clôture rouverte en mode édition.",
+    "reopenFailed": "Échec de la réouverture de la clôture",
+    "printFailed": "Échec de l'impression de la clôture"
+  },
+  "summary": {
+    "noProductMix": "Aucun article trouvé pour le mix produits.",
+    "noTimeEntries": "Aucun pointage terminé trouvé pour cette date.",
+    "noServerSales": "Aucune donnée de ventes par serveur trouvée pour cette date."
+  },
+  "clock": {
+    "noActiveEntry": "Aucun pointage actif trouvé",
+    "loadEntryFailed": "Échec du chargement du pointage",
+    "loadSaleSummaryFailed": "Échec du chargement du résumé des ventes",
+    "clockedOut": "Pointage de sortie effectué avec succès",
+    "clockOutFailed": "Échec du pointage de sortie"
+  },
+  "tipDistribution": {
+    "selectShiftAndDate": "Veuillez sélectionner le service et la date",
+    "unableToDeriveRange": "Impossible de déterminer la plage horaire à partir du service",
+    "saved": "Répartition des pourboires enregistrée"
+  }
+}

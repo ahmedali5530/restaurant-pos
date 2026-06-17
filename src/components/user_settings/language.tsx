@@ -37,6 +37,7 @@ export const LanguageSettings = () => {
               setPage((prev) => ({
                 ...prev,
                 language: lang.code,
+                direction: lang.code === 'ar' ? 'rtl' : 'ltr',
               }));
             }}
           >

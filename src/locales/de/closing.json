@@ -1,0 +1,89 @@
+{
+  "orderTakingDisabled": "Bestellaufnahme ist derzeit deaktiviert.",
+  "verifyClosingFailed": "Abschlusszyklus-Status konnte nicht geprüft werden. Bitte erneut versuchen.",
+  "tableLocked": "{{user}} nimmt bereits eine Bestellung an diesem Tisch auf",
+  "floor": {
+    "switchTable": "Von Tisch {{table}} zu einem anderen wechseln",
+    "reloadCachePrefix": "Cache-Neuladen-Schaltfläche drücken in",
+    "settings": "Einstellungen"
+  },
+  "guard": {
+    "punchDisabled": "Erfassung ist deaktiviert, bis der aktuelle Zyklus abgeschlossen ist oder der aktuelle Zyklusabschluss gelöscht wird.",
+    "cycleEnded": "Abschlusszyklus endete um {{time}}. Bitte Tagesabschluss durchführen, falls noch nicht geschehen."
+  },
+  "window": {
+    "cycle": "Zyklus",
+    "period": "Zeitraum",
+    "label": "{{prefix}}: {{start}} - {{end}}"
+  },
+  "terminal": {
+    "defaultName": "Terminal {{number}}",
+    "notes": "Notizen",
+    "coins": "Münzen",
+    "denomination": "x {{value}}",
+    "total": "Terminal-Gesamt: {{amount}}",
+    "add": "Terminal hinzufügen"
+  },
+  "title": "Tagesabschluss per {{date}}",
+  "loading": "Tagesabschluss wird geladen...",
+  "alerts": {
+    "cycleDisabled": "Abschlusszyklus ist deaktiviert. Die Zeit des letzten abgeschlossenen Abschlusses wird als Start dieses Zeitraums verwendet, die aktuelle Uhrzeit als Ende.",
+    "cycleCompleted": "Abschluss für diesen Zyklus abgeschlossen. Bestellaufnahme ist bis zum nächsten Zyklus gesperrt.",
+    "periodCompleted": "Abschluss für diesen Zeitraum abgeschlossen."
+  },
+  "sections": {
+    "previousDayBalance": "Vortagssaldo",
+    "pettyCash": "Wechselgeld",
+    "terminalCash": "Terminal-Bargeld",
+    "paymentTypesSummary": "Zahlungsarten-Zusammenfassung aus System",
+    "expenses": "Ausgaben",
+    "notes": "Notizen",
+    "summary": "Zusammenfassung"
+  },
+  "fields": {
+    "previousDayBalance": "Vortagssaldo",
+    "pettyCash": "Wechselgeld",
+    "description": "Beschreibung",
+    "category": "Kategorie",
+    "amount": "Betrag",
+    "notesPlaceholder": "Zusätzliche Notizen hinzufügen..."
+  },
+  "totals": {
+    "totalCash": "Bargeld gesamt: {{amount}}",
+    "cashFromPayments": "Bargeld aus Zahlungsübersicht",
+    "difference": "Differenz: {{amount}}",
+    "totalOtherPayments": "Sonstige Zahlungen gesamt: {{amount}}",
+    "totalExpenses": "Ausgaben gesamt: {{amount}}",
+    "previousBalance": "Vorheriger Saldo",
+    "totalCashShort": "Bargeld gesamt",
+    "otherPayments": "Sonstige Zahlungen",
+    "totalExpensesShort": "Ausgaben gesamt",
+    "netAmount": "Nettobetrag"
+  },
+  "actions": {
+    "addExpense": "Ausgabe hinzufügen",
+    "saveClosing": "Abschluss speichern",
+    "closeClosing": "Abschluss schließen",
+    "saving": "Wird gespeichert...",
+    "reopen": "Bearbeiten (Manager-Freigabe)",
+    "reopening": "Wird wieder geöffnet...",
+    "printClosing": "Abschluss drucken",
+    "goToClosing": "Zum Tagesabschluss"
+  },
+  "security": {
+    "reopenDescription": "Tagesabschluss wieder öffnen",
+    "reopenModule": "Abschluss bearbeiten"
+  },
+  "autoCheckClose": {
+    "autoClosed_one": "{{count}} Rechnung automatisch geschlossen",
+    "autoClosed_other": "{{count}} Rechnungen automatisch geschlossen",
+    "failed_one": "{{count}} Rechnung konnte nicht automatisch geschlossen werden",
+    "failed_other": "{{count}} Rechnungen konnten nicht automatisch geschlossen werden",
+    "noOpenChecks": "Abschlusszyklus beendet. Keine offenen Rechnungen zum Schließen.",
+    "retry_one": "{{count}} offene Rechnung gefunden, aber keine geschlossen{{skipped}}. Wird erneut versucht.",
+    "retry_other": "{{count}} offene Rechnungen gefunden, aber keine geschlossen{{skipped}}. Wird erneut versucht.",
+    "skippedSuffix": " ({{count}} übersprungen)",
+    "executionFailed": "Rechnungen konnten nicht automatisch geschlossen werden",
+    "warning": "Rechnungen werden in {{countdown}} automatisch geschlossen"
+  }
+}

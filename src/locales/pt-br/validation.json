@@ -1,0 +1,11 @@
+{
+  "required": "Este campo é obrigatório",
+  "invalidEmail": "Endereço de e-mail inválido",
+  "invalidNumber": "Número inválido",
+  "mustBeNumber": "Deve ser um número",
+  "mustBeGreaterThanZero": "Deve ser maior que 0",
+  "quantityMin": "A quantidade deve ser maior que 0",
+  "costMin": "O custo deve ser maior ou igual a 0",
+  "uniqueItems": "Cada item só pode ser adicionado uma vez",
+  "invalidPort": "Número de porta inválido"
+}

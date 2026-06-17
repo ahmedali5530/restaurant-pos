@@ -1,0 +1,31 @@
+{
+  "sidebar": {
+    "menu": "Cardápio",
+    "orders": "Pedidos",
+    "summary": "Resumo",
+    "kitchen": "Cozinha",
+    "delivery": "Delivery",
+    "closing": "Fechamento",
+    "inventory": "Estoque",
+    "manage": "Gerenciar",
+    "reports": "Relatórios",
+    "tipDist": "Dist. Gorjetas",
+    "settings": "Configurações",
+    "clock": "Ponto"
+  },
+  "modules": {
+    "Menu": "Cardápio",
+    "Orders": "Pedidos",
+    "Summary": "Resumo",
+    "Reports": "Relatórios",
+    "Closing": "Fechamento",
+    "Kitchen": "Cozinha",
+    "Delivery": "Delivery",
+    "Admin": "Administração",
+    "Riders": "Entregadores",
+    "Tips": "Distribuição de Gorjetas",
+    "Inventory": "Estoque",
+    "Settings": "Configurações"
+  },
+  "authenticateToAccess": "Autentique-se para acessar {{module}}"
+}

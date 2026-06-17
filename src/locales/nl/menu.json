@@ -1,0 +1,29 @@
+{
+  "actions": {
+    "repeat": "Herhalen",
+    "modify": "Aanpassen",
+    "delete": "Verwijderen",
+    "deleteAll": "Alles verwijderen",
+    "search": "Zoeken",
+    "split": "Splitsen"
+  },
+  "header": {
+    "newOrder": "Nieuwe bestelling",
+    "orderNumber": "Bestelling# {{number}}",
+    "customer": "Klant",
+    "clear": "Wissen",
+    "selectCustomer": "Selecteer een klant",
+    "confirmTitle": "Bevestig alstublieft",
+    "confirmCartMessage_one": "Er staat {{count}} artikel in de winkelwagen, kies een actie",
+    "confirmCartMessage_other": "Er staan {{count}} artikelen in de winkelwagen, kies een actie",
+    "pax": "{{count}} PAX"
+  },
+  "modifiers": {
+    "modifyTitle": "{{name}} aanpassen",
+    "cancel": "Annuleren",
+    "replacedWarning": "Laatste modifier is vervangen. Om een andere modifier te vervangen, verwijder deze uit de rechterzijbalk en kies opnieuw."
+  },
+  "persons": {
+    "chooseCount": "Kies aantal personen"
+  }
+}

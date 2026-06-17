@@ -1,0 +1,29 @@
+{
+  "actions": {
+    "repeat": "Repetir",
+    "modify": "Modificar",
+    "delete": "Excluir",
+    "deleteAll": "Excluir Tudo",
+    "search": "Buscar",
+    "split": "Dividir"
+  },
+  "header": {
+    "newOrder": "Novo Pedido",
+    "orderNumber": "Pedido# {{number}}",
+    "customer": "Cliente",
+    "clear": "Limpar",
+    "selectCustomer": "Selecione um cliente",
+    "confirmTitle": "Por favor, confirme",
+    "confirmCartMessage_one": "Há {{count}} item no carrinho, escolha uma ação",
+    "confirmCartMessage_other": "Há {{count}} itens no carrinho, escolha uma ação",
+    "pax": "{{count}} PAX"
+  },
+  "modifiers": {
+    "modifyTitle": "Modificar {{name}}",
+    "cancel": "Cancelar",
+    "replacedWarning": "O último modificador foi substituído. Para substituir outro modificador, remova-o da barra lateral direita e escolha novamente."
+  },
+  "persons": {
+    "chooseCount": "Escolha o número de pessoas"
+  }
+}

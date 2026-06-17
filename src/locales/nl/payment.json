@@ -1,0 +1,125 @@
+{
+  "labels": {
+    "subTotal": "Subtotaal ({{count}})",
+    "total": "Totaal"
+  },
+  "actions": {
+    "toKitchen": "Naar keuken",
+    "payNow": "Nu betalen",
+    "cancel": "Annuleren"
+  },
+  "errors": {
+    "createOrder": "Kan bestelling niet aanmaken.",
+    "openPayment": "Kan betaling niet openen."
+  },
+  "tracking": {
+    "createOrder": "Bestelling aanmaken",
+    "appendOrder": "Bestelling toevoegen"
+  },
+  "print": {
+    "kitchenTitle": "Keukenafdruk"
+  },
+  "title": "Bestelling#{{invoice}}",
+  "tabs": {
+    "tax": "Belasting",
+    "taxWithRate": "Belasting ({{name}} {{rate}}%)",
+    "discount": "Korting",
+    "coupon": "Coupon",
+    "serviceCharges": "Servicekosten ({{value}}{{unit}})",
+    "tip": "Fooi ({{value}}{{unit}})",
+    "notes": "Opmerkingen",
+    "total": "Totaal"
+  },
+  "totals": {
+    "items": "Artikelen ({{count}})"
+  },
+  "tax": {
+    "noTax": "Geen belasting"
+  },
+  "discount": {
+    "noDiscount": "Geen korting",
+    "label": "Korting",
+    "withMaxCap": "met max. limiet van {{amount}}"
+  },
+  "coupon": {
+    "codeLabel": "Couponcode",
+    "applied": "Toegepaste coupon: {{code}}",
+    "discount": "Korting: {{amount}}",
+    "discountFromCoupon": "Korting van coupon: {{amount}}",
+    "errors": {
+      "notFound": "Coupon niet gevonden of inactief",
+      "unsupportedType": "Dit coupontype wordt niet ondersteund bij bestellingen",
+      "belowMinimum": "Bestellingstotaal is lager dan het minimumbedrag voor deze coupon",
+      "notValidToday": "Coupon is vandaag niet geldig",
+      "notValidTime": "Coupon is op dit tijdstip niet geldig",
+      "notActiveYet": "Coupon is nog niet actief",
+      "expired": "Coupon is verlopen",
+      "usageLimitReached": "Gebruikslimiet coupon bereikt",
+      "userLimitReached": "U heeft de gebruikslimiet voor deze coupon bereikt",
+      "firstOrderOnly": "Deze coupon is alleen geldig bij de eerste bestelling",
+      "notStackable": "Deze coupon kan niet samen met andere kortingen worden gebruikt",
+      "noDiscount": "Deze coupon biedt geen korting voor deze bestelling"
+    },
+    "appliedSuccess": "Coupon toegepast"
+  },
+  "serviceCharges": {
+    "defaultFromSettings": "Standaard uit instellingen:",
+    "noServiceCharge": "Geen servicekosten"
+  },
+  "tip": {
+    "noTip": "Geen fooi"
+  },
+  "notes": {
+    "title": "Eventuele opmerkingen",
+    "hint": "U kunt kaartnummers of korting noteren"
+  },
+  "receiving": {
+    "remaining": "Resterend",
+    "change": "Wisselgeld",
+    "tempBill": "Tijdelijke rekening",
+    "complete": "Voltooien",
+    "cannotAddCard": "Kan geen extra betaling toevoegen voor kaart",
+    "exactCardAmount": "Exact bedrag toegevoegd voor kaartbetaling"
+  },
+  "remote": {
+    "remoteLabel": "{{name}} (Op afstand)",
+    "status": "Status: {{status}}",
+    "openLink": "Link openen",
+    "verify": "Verifiëren"
+  },
+  "discountType": {
+    "percent": "Percentage",
+    "fixed": "Vast"
+  },
+  "remoteGateway": {
+    "missingProvider": "Betaaltype op afstand mist een gateway-provider.",
+    "linkGenerated": "Betalingslink op afstand gegenereerd.",
+    "tokenGenerated": "Token op afstand gegenereerd: {{token}}",
+    "intentGenerated": "Betalingsintentie op afstand gegenereerd.",
+    "paymentTimedOut": "{{gateway}}-betaling verlopen. Tik op Verifiëren om opnieuw te controleren.",
+    "paymentStatus": "{{gateway}}-betaling {{status}}.",
+    "completeOnPage": "Voltooi de betaling op de {{gateway}}-pagina en keer terug naar de kassa.",
+    "scanQr": "Scan de QR-code met de {{gateway}}-app om te betalen.",
+    "enterCardDetails": "Voer hieronder kaartgegevens in om de betaling te voltooien.",
+    "intentCreated": "{{gateway}}-betalingsintentie aangemaakt.",
+    "usePaypalButton": "Gebruik de PayPal-knop hieronder om de betaling te voltooien.",
+    "useRazorpayButton": "Tik hieronder op Betalen met Razorpay om de betaling te voltooien.",
+    "paymentFailed": "Betaling mislukt.",
+    "paymentStatusLabel": "Betalingsstatus: {{status}}",
+    "paymentIs": "Betaling is {{status}}.",
+    "paypalPaymentIs": "PayPal-betaling is {{status}}.",
+    "razorpayPaymentFailed": "Razorpay-betaling mislukt.",
+    "stripePaymentFailed": "Stripe-betaling mislukt.",
+    "mpesaPhoneUnavailable": "M-Pesa-telefoonprompt is niet beschikbaar.",
+    "mpesaPromptSent": "STK-push verzonden naar {{phone}}. Controleer telefoon om M-Pesa-PIN in te voeren.",
+    "mpesaPromptSentGeneric": "STK-push verzonden. Controleer telefoon om M-Pesa-PIN in te voeren.",
+    "mpesaInvalidPhone": "Voer een geldig M-Pesa-nummer in (2547XXXXXXXX of 07XXXXXXXX).",
+    "verifiedAndAdded": "Betaling op afstand geverifieerd en toegevoegd.",
+    "generateFailed": "Betalingslink/token op afstand genereren mislukt",
+    "mustBePaid": "Betaling is {{status}}. Deze moet betaald/geautoriseerd zijn voordat deze wordt toegevoegd.",
+    "verifyFailed": "Betaling op afstand verifiëren mislukt",
+    "paymentReceived": "{{gateway}}-betaling ontvangen.",
+    "payWithCard": "Betalen met kaart",
+    "payWithRazorpay": "Betalen met Razorpay"
+  }
+}

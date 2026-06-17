@@ -1,0 +1,91 @@
+{
+  "language": {
+    "title": "Taal",
+    "description": "Kies de weergavetaal voor dit apparaat. Geldt alleen voor dit apparaat.",
+    "changed": "Taal bijgewerkt"
+  },
+  "direction": {
+    "title": "Tekstrichting",
+    "description": "Kies links-naar-rechts of rechts-naar-links lay-out voor dit apparaat.",
+    "ltr": "LTR",
+    "rtl": "RTL"
+  },
+  "touch": {
+    "title": "Schermtoetsenbord",
+    "description": "Schermtoetsenbord in- of uitschakelen. Geldt alleen voor dit apparaat."
+  },
+  "cache": {
+    "title": "Cache",
+    "description": "Huidige cachegrootte per dataset.",
+    "reload": "Cache herladen",
+    "orderTypes": "Bestellingstypes",
+    "categories": "Categorieën",
+    "dishes": "Gerechten",
+    "modifierGroups": "Modifiergroepen",
+    "groupDishes": "Groepsgerechten",
+    "floors": "Verdiepingen",
+    "tables": "Tafels",
+    "kitchens": "Keukens",
+    "paymentTypes": "Betaaltypes",
+    "reloaded": "Cache herladen vanuit database",
+    "reloadFailed": "Cache herladen mislukt"
+  },
+  "serviceCharges": {
+    "title": "Servicekosten",
+    "updated": "Servicekosten bijgewerkt",
+    "saveDescription": "Servicekosten opslaan"
+  },
+  "printers": {
+    "title": "Standaardprinters",
+    "description": "Printertoewijzingen worden per gebruiker opgeslagen. Elke gebruiker kan printers toewijzen voor tijdelijke, definitieve, terugbetalings-, bezorg- en overzichtsafdrukken. Als u geen hebt ingesteld, worden globale instellingen als fallback gebruikt.",
+    "loading": "Printerinstellingen laden…",
+    "tempPrint": "Printers voor tijdelijke afdruk",
+    "finalPrint": "Printers voor definitieve afdruk",
+    "refundPrint": "Printers voor terugbetalingsafdruk",
+    "deliveryPrint": "Printers voor bezorgafdruk",
+    "summaryPrint": "Printers voor overzichtsafdruk",
+    "selectPrinters": "Selecteer printers…",
+    "saving": "Opslaan…",
+    "save": "Printerinstellingen opslaan",
+    "saveDescription": "Printers opslaan",
+    "loadFailed": "Printerinstellingen laden mislukt",
+    "loginRequired": "Log in om printerinstellingen op te slaan.",
+    "saved": "Printerinstellingen opgeslagen",
+    "saveFailed": "Printerinstellingen opslaan mislukt"
+  },
+  "menus": {
+    "title": "Menu-instellingen",
+    "activateMenus": "Menu's activeren",
+    "selectMenus": "Selecteer menu's…",
+    "loading": "Menu-instellingen laden…",
+    "saving": "Opslaan…",
+    "save": "Menu-instellingen opslaan",
+    "saveDescription": "Menu's opslaan",
+    "loadFailed": "Menu-instellingen laden mislukt",
+    "loginRequired": "Log in om menu-instellingen op te slaan.",
+    "saved": "Menu-instellingen opgeslagen",
+    "saveFailed": "Menu-instellingen opslaan mislukt"
+  },
+  "tableSelection": {
+    "title": "Tafelselectie verbergen in menu",
+    "description": "Tafelselectie overslaan en het menu direct openen. Geldt alleen voor dit apparaat. Geschikt voor afhaalbestellingen"
+  },
+  "autoCheckClose": {
+    "title": "Automatisch bon sluiten",
+    "description": "Open tafelbonnen automatisch sluiten bij het einde van de afsluitingscyclus. Bezorgbestellingen zijn uitgesloten. Er verschijnt 1 minuut voor sluiting een waarschuwing.",
+    "printOnClose": "Definitieve rekening afdrukken bij sluiten",
+    "paymentType": "Betaaltype",
+    "paymentTypeRequired": "Betaaltype is verplicht wanneer automatisch sluiten is ingeschakeld",
+    "paymentTypeRequiredField": "Betaaltype is verplicht",
+    "updated": "Instellingen automatisch bon sluiten bijgewerkt",
+    "saveDescription": "Instellingen automatisch bon sluiten opslaan"
+  },
+  "closingCycle": {
+    "title": "Afsluitingscyclus",
+    "description": "Configureer start- en eindtijd. Eindtijd kan de volgende dag zijn (voorbeeld: 06:00 tot 02:00).",
+    "startTime": "Starttijd",
+    "endTime": "Eindtijd",
+    "updated": "Afsluitingscyclus bijgewerkt",
+    "saveDescription": "Afsluitingscyclus opslaan"
+  }
+}

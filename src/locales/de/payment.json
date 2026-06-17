@@ -1,0 +1,125 @@
+{
+  "labels": {
+    "subTotal": "Zwischensumme ({{count}})",
+    "total": "Gesamt"
+  },
+  "actions": {
+    "toKitchen": "An Küche",
+    "payNow": "Jetzt bezahlen",
+    "cancel": "Abbrechen"
+  },
+  "errors": {
+    "createOrder": "Bestellung konnte nicht erstellt werden.",
+    "openPayment": "Zahlung konnte nicht geöffnet werden."
+  },
+  "tracking": {
+    "createOrder": "Bestellung erstellen",
+    "appendOrder": "Bestellung erweitern"
+  },
+  "print": {
+    "kitchenTitle": "Küchendruck"
+  },
+  "title": "Bestellung#{{invoice}}",
+  "tabs": {
+    "tax": "MwSt.",
+    "taxWithRate": "MwSt. ({{name}} {{rate}}%)",
+    "discount": "Rabatt",
+    "coupon": "Gutschein",
+    "serviceCharges": "Servicegebühr ({{value}}{{unit}})",
+    "tip": "Trinkgeld ({{value}}{{unit}})",
+    "notes": "Notizen",
+    "total": "Gesamt"
+  },
+  "totals": {
+    "items": "Artikel ({{count}})"
+  },
+  "tax": {
+    "noTax": "Keine MwSt."
+  },
+  "discount": {
+    "noDiscount": "Kein Rabatt",
+    "label": "Rabatt",
+    "withMaxCap": "mit Höchstbetrag von {{amount}}"
+  },
+  "coupon": {
+    "codeLabel": "Gutscheincode",
+    "applied": "Angewendeter Gutschein: {{code}}",
+    "discount": "Rabatt: {{amount}}",
+    "discountFromCoupon": "Rabatt durch Gutschein: {{amount}}",
+    "errors": {
+      "notFound": "Gutschein nicht gefunden oder inaktiv",
+      "unsupportedType": "Dieser Gutscheintyp wird bei Bestellungen nicht unterstützt",
+      "belowMinimum": "Bestellsumme liegt unter dem Mindestbetrag für diesen Gutschein",
+      "notValidToday": "Gutschein ist heute nicht gültig",
+      "notValidTime": "Gutschein ist zu dieser Uhrzeit nicht gültig",
+      "notActiveYet": "Gutschein ist noch nicht aktiv",
+      "expired": "Gutschein ist abgelaufen",
+      "usageLimitReached": "Nutzungslimit des Gutscheins erreicht",
+      "userLimitReached": "Sie haben das Nutzungslimit für diesen Gutschein erreicht",
+      "firstOrderOnly": "Dieser Gutschein gilt nur bei der ersten Bestellung",
+      "notStackable": "Dieser Gutschein kann nicht mit anderen Rabatten kombiniert werden",
+      "noDiscount": "Dieser Gutschein bietet für diese Bestellung keinen Rabatt"
+    },
+    "appliedSuccess": "Gutschein angewendet"
+  },
+  "serviceCharges": {
+    "defaultFromSettings": "Standard aus Einstellungen:",
+    "noServiceCharge": "Keine Servicegebühr"
+  },
+  "tip": {
+    "noTip": "Kein Trinkgeld"
+  },
+  "notes": {
+    "title": "Notizen",
+    "hint": "Sie können Kartennummern oder Rabatte eintragen"
+  },
+  "receiving": {
+    "remaining": "Verbleibend",
+    "change": "Wechselgeld",
+    "tempBill": "Zwischenrechnung",
+    "complete": "Abschließen",
+    "cannotAddCard": "Keine weitere Kartenzahlung möglich",
+    "exactCardAmount": "Exakter Betrag für Kartenzahlung hinzugefügt"
+  },
+  "remote": {
+    "remoteLabel": "{{name}} (Remote)",
+    "status": "Status: {{status}}",
+    "openLink": "Link öffnen",
+    "verify": "Prüfen"
+  },
+  "discountType": {
+    "percent": "Prozent",
+    "fixed": "Festbetrag"
+  },
+  "remoteGateway": {
+    "missingProvider": "Remote-Zahlungsart hat keinen Gateway-Anbieter.",
+    "linkGenerated": "Remote-Zahlungslink erstellt.",
+    "tokenGenerated": "Remote-Token erstellt: {{token}}",
+    "intentGenerated": "Remote-Zahlungsabsicht erstellt.",
+    "paymentTimedOut": "{{gateway}}-Zahlung abgelaufen. Tippen Sie auf Prüfen, um erneut zu prüfen.",
+    "paymentStatus": "{{gateway}}-Zahlung {{status}}.",
+    "completeOnPage": "Schließen Sie die Zahlung auf der {{gateway}}-Seite ab und kehren Sie dann zur Kasse zurück.",
+    "scanQr": "Scannen Sie den QR-Code mit der {{gateway}}-App zum Bezahlen.",
+    "enterCardDetails": "Geben Sie unten die Kartendaten ein, um die Zahlung abzuschließen.",
+    "intentCreated": "{{gateway}}-Zahlungsabsicht erstellt.",
+    "usePaypalButton": "Verwenden Sie die PayPal-Schaltfläche unten, um die Zahlung abzuschließen.",
+    "useRazorpayButton": "Tippen Sie unten auf Mit Razorpay bezahlen, um die Zahlung abzuschließen.",
+    "paymentFailed": "Zahlung fehlgeschlagen.",
+    "paymentStatusLabel": "Zahlungsstatus: {{status}}",
+    "paymentIs": "Zahlung ist {{status}}.",
+    "paypalPaymentIs": "PayPal-Zahlung ist {{status}}.",
+    "razorpayPaymentFailed": "Razorpay-Zahlung fehlgeschlagen.",
+    "stripePaymentFailed": "Stripe-Zahlung fehlgeschlagen.",
+    "mpesaPhoneUnavailable": "M-Pesa-Telefonaufforderung ist nicht verfügbar.",
+    "mpesaPromptSent": "STK-Push an {{phone}} gesendet. Prüfen Sie das Telefon zur Eingabe der M-Pesa-PIN.",
+    "mpesaPromptSentGeneric": "STK-Push gesendet. Prüfen Sie das Telefon zur Eingabe der M-Pesa-PIN.",
+    "mpesaInvalidPhone": "Geben Sie eine gültige M-Pesa-Nummer ein (2547XXXXXXXX oder 07XXXXXXXX).",
+    "verifiedAndAdded": "Remote-Zahlung geprüft und hinzugefügt.",
+    "generateFailed": "Remote-Zahlungslink/Token konnte nicht erstellt werden",
+    "mustBePaid": "Zahlung ist {{status}}. Sie muss bezahlt/autorisiert sein, bevor sie hinzugefügt werden kann.",
+    "verifyFailed": "Remote-Zahlung konnte nicht geprüft werden",
+    "paymentReceived": "{{gateway}}-Zahlung erhalten.",
+    "payWithCard": "Mit Karte bezahlen",
+    "payWithRazorpay": "Mit Razorpay bezahlen"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "seats": {
+    "seat": "مقعد",
+    "noSeat": "بدون مقعد",
+    "seatNumber": "مقعد رقم {{number}}",
+    "newSeat": "مقعد جديد",
+    "deleteSeat": "المقعد؟",
+    "addComment": "إضافة تعليق"
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "tabs": {
+    "inventory": "المخزون",
+    "items": "الأصناف",
+    "suppliers": "الموردون",
+    "categories": "فئات الأصناف",
+    "stores": "المخازن",
+    "itemGroups": "مجموعات الأصناف",
+    "purchaseOrders": "أوامر الشراء",
+    "purchases": "المشتريات",
+    "purchaseReturns": "مرتجعات الشراء",
+    "issues": "الصرف",
+    "issueReturns": "مرتجعات الصرف",
+    "wastes": "الهدر"
+  },
+  "security": {
+    "accessTab": "الوصول إلى {{module}}"
+  },
+  "columns": {
+    "name": "الاسم",
+    "code": "الرمز",
+    "category": "الفئة",
+    "uom": "وحدة القياس",
+    "baseQuantity": "الكمية الأساسية",
+    "price": "السعر",
+    "averagePrice": "متوسط السعر",
+    "avgPrice": "متوسط السعر",
+    "stores": "المخازن",
+    "suppliers": "الموردون",
+    "actions": "إجراءات",
+    "address": "العنوان",
+    "phone": "الهاتف",
+    "email": "البريد الإلكتروني",
+    "priority": "الأولوية",
+    "mainItem": "الصنف الرئيسي",
+    "subItems": "الأصناف الفرعية",
+    "invoiceNumber": "رقم الفاتورة",
+    "poNumber": "رقم أمر الشراء",
+    "status": "الحالة",
+    "createdAt": "تاريخ الإنشاء",
+    "items": "الأصناف",
+    "purchaseInvoice": "رقم فاتورة الشراء",
+    "issueNumber": "رقم الصرف",
+    "returnNumber": "رقم الإرجاع",
+    "issuance": "الصرف",
+    "issuedTo": "صُرف إلى",
+    "kitchen": "المطبخ",
+    "createdBy": "أنشأه",
+    "source": "المصدر"
+  },
+  "buttons": {
+    "item": "صنف",
+    "import": "استيراد",
+    "view": "عرض",
+    "upload": "رفع"
+  },
+  "forms": {
+    "createItem": "إنشاء صنف جديد",
+    "createCategory": "إنشاء فئة جديدة",
+    "createSupplier": "إنشاء مورد جديد",
+    "createStore": "إنشاء مخزن جديد",
+    "createIssue": "إنشاء صرف جديد",
+    "createIssueReturn": "إنشاء إرجاع صرف جديد",
+    "createWaste": "إنشاء هدر جديد",
+    "createPurchase": "إنشاء شراء جديد",
+    "createPurchaseReturn": "إنشاء إرجاع شراء جديد",
+    "createPurchaseOrder": "إنشاء أمر شراء جديد",
+    "createItemGroup": "إنشاء مجموعة أصناف جديدة",
+    "nameOfItem": "اسم الصنف",
+    "invoiceNumber": "رقم الفاتورة",
+    "returnInvoiceNumber": "رقم فاتورة الإرجاع",
+    "poNumber": "رقم أمر الشراء",
+    "date": "التاريخ",
+    "comments": "ملاحظات",
+    "quantity": "الكمية",
+    "requested": "المطلوب",
+    "issued": "المصروف",
+    "returnedQuantity": "الكمية المُرجعة",
+    "expiryDate": "تاريخ الانتهاء",
+    "manufacturingDate": "تاريخ التصنيع",
+    "storeInventory": "مخزن {{name}}"
+  },
+  "validation": {
+    "required": "هذا الحقل مطلوب",
+    "number": "يجب أن يكون رقماً",
+    "selectStore": "اختر مخزناً واحداً على الأقل",
+    "addItem": "أضف صنفاً واحداً على الأقل",
+    "addSubItem": "أضف صنفاً فرعياً واحداً على الأقل",
+    "selectPurchaseMethod": "يُرجى اختيار طريقة الشراء",
+    "storeRequired": "المخزن مطلوب",
+    "supplierRequired": "المورد مطلوب",
+    "selectSourceType": "اختر نوع المصدر",
+    "selectSource": "اختر مصدراً",
+    "quantityMin": "يجب أن تكون الكمية 1 على الأقل",
+    "atLeastOneItem": "صنف واحد على الأقل مطلوب",
+    "invalidCategory": "فئة غير صالحة \"{{name}}\"",
+    "invalidStore": "مخزن غير صالح \"{{name}}\"",
+    "invalidSupplier": "مورد غير صالح \"{{name}}\""
+  },
+  "csv": {
+    "uploadTitle": "إضافة أصناف باستخدام ملف CSV"
+  },
+  "modals": {
+    "viewPurchase": "عرض الشراء",
+    "viewIssue": "عرض الصرف",
+    "viewIssueReturn": "عرض إرجاع الصرف",
+    "viewWaste": "عرض الهدر",
+    "viewPurchaseReturn": "عرض إرجاع الشراء",
+    "viewPurchaseOrder": "عرض أمر الشراء"
+  },
+  "summary": {
+    "title": "ملخص المخزون"
+  },
+  "purchaseMethod": {
+    "title": "طريقة الشراء"
+  },
+  "sourceType": {
+    "purchase": "شراء",
+    "issue": "صرف"
+  },
+  "status": {
+    "draft": "مسودة",
+    "approved": "معتمد",
+    "received": "مستلم",
+    "cancelled": "ملغى"
+  },
+  "upload": {
+    "attachDocuments": "المستندات المرفقة"
+  },
+  "purchaseMethods": {
+    "manual": "يدوي",
+    "csv": "CSV",
+    "purchaseOrder": "أمر شراء"
+  },
+  "uploadViaDocument": "رفع عبر مستند",
+  "itemName": "اسم الصنف",
+  "itemCode": "رمز الصنف",
+  "syncFromPo": "يتم مزامنة الأصناف من أمر الشراء المحدد. ارجع إلى اليدوي لتعديل القائمة.",
+  "syncFromCsv": "ارفع ملف CSV لاستيراد الأصناف لاحقاً. ارجع إلى اليدوي لتعديل القائمة هنا."
+}

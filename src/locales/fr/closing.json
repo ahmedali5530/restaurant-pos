@@ -1,0 +1,89 @@
+{
+  "orderTakingDisabled": "La prise de commande est actuellement désactivée.",
+  "verifyClosingFailed": "Impossible de vérifier le statut du cycle de clôture. Veuillez réessayer.",
+  "tableLocked": "{{user}} prend déjà une commande sur cette table",
+  "floor": {
+    "switchTable": "Changer de la table {{table}} vers une autre",
+    "reloadCachePrefix": "Appuyez sur le bouton de rechargement du cache depuis les",
+    "settings": "paramètres"
+  },
+  "guard": {
+    "punchDisabled": "La saisie est désactivée jusqu'à la clôture du cycle en cours, ou supprimez la clôture du cycle actuel.",
+    "cycleEnded": "Le cycle de clôture s'est terminé à {{time}}. Veuillez effectuer la clôture de journée si ce n'est pas déjà fait."
+  },
+  "window": {
+    "cycle": "Cycle",
+    "period": "Période",
+    "label": "{{prefix}} : {{start}} - {{end}}"
+  },
+  "terminal": {
+    "defaultName": "Terminal {{number}}",
+    "notes": "Billets",
+    "coins": "Pièces",
+    "denomination": "x {{value}}",
+    "total": "Total du terminal : {{amount}}",
+    "add": "Ajouter un terminal"
+  },
+  "title": "Clôture journalière au {{date}}",
+  "loading": "Chargement de la clôture...",
+  "alerts": {
+    "cycleDisabled": "Le cycle de clôture est désactivé. L'heure de la dernière clôture terminée est utilisée comme début de cette période, et l'heure actuelle comme fin.",
+    "cycleCompleted": "La clôture est terminée pour ce cycle. La prise de commande est bloquée jusqu'au prochain cycle.",
+    "periodCompleted": "La clôture est terminée pour cette période."
+  },
+  "sections": {
+    "previousDayBalance": "Solde du jour précédent",
+    "pettyCash": "Caisse petite monnaie",
+    "terminalCash": "Espèces du terminal",
+    "paymentTypesSummary": "Résumé des types de paiement du système",
+    "expenses": "Dépenses",
+    "notes": "Notes",
+    "summary": "Résumé"
+  },
+  "fields": {
+    "previousDayBalance": "Solde du jour précédent",
+    "pettyCash": "Caisse petite monnaie",
+    "description": "Description",
+    "category": "Catégorie",
+    "amount": "Montant",
+    "notesPlaceholder": "Ajouter des notes supplémentaires..."
+  },
+  "totals": {
+    "totalCash": "Total espèces : {{amount}}",
+    "cashFromPayments": "Espèces du résumé des paiements",
+    "difference": "Écart : {{amount}}",
+    "totalOtherPayments": "Total autres paiements : {{amount}}",
+    "totalExpenses": "Total des dépenses : {{amount}}",
+    "previousBalance": "Solde précédent",
+    "totalCashShort": "Total espèces",
+    "otherPayments": "Autres paiements",
+    "totalExpensesShort": "Total des dépenses",
+    "netAmount": "Montant net"
+  },
+  "actions": {
+    "addExpense": "Ajouter une dépense",
+    "saveClosing": "Enregistrer la clôture",
+    "closeClosing": "Clôturer",
+    "saving": "Enregistrement...",
+    "reopen": "Modifier (approbation manager)",
+    "reopening": "Réouverture...",
+    "printClosing": "Imprimer la clôture",
+    "goToClosing": "Aller à la clôture"
+  },
+  "security": {
+    "reopenDescription": "Rouvrir la clôture journalière",
+    "reopenModule": "Modifier la clôture"
+  },
+  "autoCheckClose": {
+    "autoClosed_one": "{{count}} ticket clôturé automatiquement",
+    "autoClosed_other": "{{count}} tickets clôturés automatiquement",
+    "failed_one": "Échec de la clôture automatique de {{count}} ticket",
+    "failed_other": "Échec de la clôture automatique de {{count}} tickets",
+    "noOpenChecks": "Cycle de clôture terminé. Aucun ticket ouvert à clôturer.",
+    "retry_one": "{{count}} ticket ouvert trouvé mais aucun n'a été clôturé{{skipped}}. Nouvelle tentative.",
+    "retry_other": "{{count}} tickets ouverts trouvés mais aucun n'a été clôturé{{skipped}}. Nouvelle tentative.",
+    "skippedSuffix": " ({{count}} ignoré(s))",
+    "executionFailed": "Échec de la clôture automatique des tickets",
+    "warning": "Les tickets seront clôturés automatiquement dans {{countdown}}"
+  }
+}

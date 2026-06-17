@@ -1,0 +1,11 @@
+{
+  "required": "Dit veld is verplicht",
+  "invalidEmail": "Ongeldig e-mailadres",
+  "invalidNumber": "Ongeldig nummer",
+  "mustBeNumber": "Dit moet een nummer zijn",
+  "mustBeGreaterThanZero": "Dit moet groter zijn dan 0",
+  "quantityMin": "Aantal moet groter zijn dan 0",
+  "costMin": "Kosten moeten groter zijn dan of gelijk aan 0",
+  "uniqueItems": "Elk artikel kan slechts één keer worden toegevoegd",
+  "invalidPort": "Ongeldig poortnummer"
+}

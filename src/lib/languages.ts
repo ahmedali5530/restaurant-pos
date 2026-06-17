@@ -12,6 +12,12 @@ export const SUPPORTED_LANGUAGES: SupportedLanguage[] = [
   { code: 'en', label: 'English' },
   { code: 'es', label: 'Español' },
   { code: 'tr', label: 'Türkçe' },
+  { code: 'pt-BR', label: 'Português (Brasil)' },
+  { code: 'fr', label: 'Français' },
+  { code: 'nl', label: 'Nederlands' },
+  { code: 'de', label: 'Deutsch' },
+  { code: 'it', label: 'Italiano' },
+  { code: 'ar', label: 'العربية' },
 ];
 
 export const TEXT_DIRECTIONS: { code: AppTextDirection; labelKey: string }[] = [

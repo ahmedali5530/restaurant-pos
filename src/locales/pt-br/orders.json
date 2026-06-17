@@ -1,0 +1,179 @@
+{
+  "customer": {
+    "name": "Nome",
+    "phone": "Telefone",
+    "address": "Endereço",
+    "attach": "Vincular",
+    "search": "Buscar",
+    "columns": {
+      "select": "Selecionar",
+      "name": "Nome",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "address": "End.",
+      "secondaryAddress": "End. secundário",
+      "points": "Pontos"
+    }
+  },
+  "filters": {
+    "status": "Selecionar status do pedido",
+    "orderTypes": "Selecionar tipos de pedido",
+    "floors": "Selecionar andares",
+    "users": "Selecionar usuários"
+  },
+  "view": {
+    "blocks": "Blocos",
+    "table": "Mesa"
+  },
+  "merge": {
+    "chooseTableAlert": "Por favor, escolha uma nova mesa",
+    "success": "Mesclado com sucesso em {{invoiceNumber}}",
+    "failed": "Falha ao mesclar pedidos",
+    "chooseTable": "Escolha uma mesa",
+    "selectTwoOrMore": "Selecione 2 ou mais pedidos",
+    "confirmMerging": "Confirmar mesclagem de {{count}} pedidos",
+    "cancelMerging": "Cancelar mesclagem"
+  },
+  "header": {
+    "orderNumber": "Pedido# {{invoice}} / {{orderType}}"
+  },
+  "status": {
+    "inProgress": "Em Andamento",
+    "paid": "Pago",
+    "cancelled": "Cancelado",
+    "spilt": "Dividido",
+    "merged": "Mesclado",
+    "refunded": "Reembolsado"
+  },
+  "totals": {
+    "items": "Itens ({{count}})",
+    "itemsShort": "Itens",
+    "tax": "Imposto",
+    "discount": "Desconto",
+    "serviceCharges": "Taxa de serviço ({{value}}{{unit}})",
+    "tip": "Gorjeta",
+    "tipPercent": "Gorjeta %",
+    "total": "Total",
+    "change": "Troco",
+    "sc": "TS ({{value}}%)",
+    "extras": "Extras"
+  },
+  "actions": {
+    "selectToMerge": "Selecionar para mesclar",
+    "more": "Mais",
+    "cancelOrder": "Cancelar pedido",
+    "splitBySeats": "Dividir por lugares",
+    "splitByItems": "Dividir por itens",
+    "splitByAmount": "Dividir por valor",
+    "mergeOrders": "Mesclar pedidos",
+    "refund": "Reembolsar",
+    "printFinalBillCopy": "Imprimir cópia da conta final",
+    "tempBill": "Conta provisória",
+    "payNow": "Pagar Agora"
+  },
+  "cancel": {
+    "title": "Cancelar pedido",
+    "reason": "Motivo",
+    "items": "Itens",
+    "comments": "Comentários",
+    "commentsPlaceholder": "Digite os comentários",
+    "confirmCancellation": "Confirmar cancelamento",
+    "unknownItem": "Item desconhecido",
+    "chooseReason": "Por favor, escolha um motivo",
+    "selectAtLeastOne": "Por favor, selecione pelo menos um item",
+    "cannotIdentifyUser": "Não foi possível identificar o usuário logado",
+    "successOrder": "Pedido cancelado com sucesso",
+    "successItems": "Itens selecionados cancelados",
+    "failed": "Falha ao cancelar pedido"
+  },
+  "refund": {
+    "title": "Reembolsar pedido",
+    "selectItems": "Selecione os itens para reembolso",
+    "itemsTotal": "Total dos Itens:",
+    "tax": "Imposto ({{name}} {{rate}}%):",
+    "discount": "Desconto:",
+    "serviceCharges": "Taxa de Serviço ({{value}}{{unit}}):",
+    "tip": "Gorjeta:",
+    "refundTotal": "Total do Reembolso:",
+    "itemsSelected": "{{count}} item(ns) selecionado(s)",
+    "reason": "Motivo",
+    "reasonPlaceholder": "Digite o motivo do reembolso",
+    "refundButton": "Reembolsar",
+    "refundButtonWithCount": "Reembolsar {{count}} item(ns)",
+    "selectAtLeastOne": "Por favor, selecione pelo menos um item para reembolso",
+    "cannotIdentifyUser": "Não foi possível identificar o usuário logado",
+    "success": "{{count}} item(ns) reembolsado(s) com sucesso",
+    "failed": "Falha ao reembolsar pedido"
+  },
+  "voidReasons": {
+    "fohNotMade": "Salão Não Fez",
+    "bohNotMade": "Cozinha Não Fez",
+    "guestNotMade": "Cliente Não Fez",
+    "fohMade": "Salão Fez",
+    "bohMade": "Cozinha Fez",
+    "guestMade": "Cliente Fez",
+    "punchByMistake": "Lançado por Engano",
+    "testing": "Teste"
+  },
+  "split": {
+    "title": "Dividir pedido {{invoice}}",
+    "titleByAmount": "Dividir por valor — Pedido {{invoice}}",
+    "splitName": "Divisão {{number}}",
+    "seatName": "Lugar {{number}}",
+    "noSeat": "Sem Lugar",
+    "toast": {
+      "success": "{{count}} pedido(s) dividido(s) criado(s) com sucesso",
+      "failed": "Falha ao dividir pedido"
+    },
+    "bySeats": {
+      "heading": "Divisões adicionais",
+      "scrollHint": "Role para ver todas as divisões",
+      "total": "Total: {{amount}}",
+      "noItems": "Nenhum item",
+      "dragItemsHere": "Arraste os itens aqui",
+      "noAdditionalSplits": "Nenhuma divisão adicional",
+      "addSplitHint": "Adicione uma divisão para distribuir os itens",
+      "creating": "Criando divisões...",
+      "save": "Salvar {{count}} divisão(ões)",
+      "addMoreSplits": "Adicione mais divisões antes de salvar",
+      "allSplitsNeedItems": "Todas as divisões devem ter pelo menos um item"
+    },
+    "byItems": {
+      "splitOneFixed": "Divisão 1 (principal)",
+      "mainSplitHint": "Os itens começam aqui. Arraste para outras divisões.",
+      "total": "Total: {{amount}}",
+      "noItems": "Nenhum item",
+      "itemsReturnHere": "Os itens retornam aqui quando movidos de volta",
+      "additionalSplits": "Divisões adicionais",
+      "scrollHint": "Role horizontalmente para mais divisões",
+      "addSplit": "Adicionar divisão",
+      "dragFromSplitOne": "Arraste itens da Divisão 1",
+      "moveBackToSplitOne": "Mover de volta para a Divisão 1",
+      "noAdditionalSplits": "Nenhuma divisão adicional",
+      "addSplitHint": "Adicione uma divisão para distribuir os itens",
+      "creating": "Criando divisões...",
+      "save": "Salvar {{count}} divisão(ões)",
+      "addMoreSplits": "Adicione mais divisões antes de salvar",
+      "allSplitsNeedItems": "Todas as divisões devem ter pelo menos um item"
+    },
+    "byAmount": {
+      "orderTotal": "Total do pedido",
+      "assignHint": "Atribua valores a cada divisão. O restante deve ser zero.",
+      "assigned": "Atribuído: {{amount}}",
+      "remaining": "Restante: {{amount}}",
+      "amount": "Valor",
+      "percentage": "{{value}}%",
+      "itemsCount": "{{count}} item(ns) no pedido",
+      "noItemsInOrder": "Nenhum item neste pedido",
+      "itemFallback": "Item",
+      "subtotal": "Subtotal",
+      "addSplit": "Adicionar divisão",
+      "autoFillRemaining": "Preencher restante automaticamente",
+      "distributeEvenly": "Distribuir igualmente",
+      "assignRemaining": "Atribuir restante {{amount}}",
+      "exceedsTotal": "Excede o total em {{amount}}",
+      "creating": "Criando divisões...",
+      "save": "Salvar {{count}} divisão(ões)"
+    }
+  }
+}

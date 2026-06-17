@@ -1,0 +1,31 @@
+{
+  "sidebar": {
+    "menu": "القائمة",
+    "orders": "الطلبات",
+    "summary": "الملخص",
+    "kitchen": "المطبخ",
+    "delivery": "التوصيل",
+    "closing": "الإغلاق",
+    "inventory": "المخزون",
+    "manage": "الإدارة",
+    "reports": "التقارير",
+    "tipDist": "توزيع الإكراميات",
+    "settings": "الإعدادات",
+    "clock": "الساعة"
+  },
+  "modules": {
+    "Menu": "القائمة",
+    "Orders": "الطلبات",
+    "Summary": "الملخص",
+    "Reports": "التقارير",
+    "Closing": "الإغلاق",
+    "Kitchen": "المطبخ",
+    "Delivery": "التوصيل",
+    "Admin": "الإدارة",
+    "Riders": "السائقون",
+    "Tips": "توزيع الإكراميات",
+    "Inventory": "المخزون",
+    "Settings": "الإعدادات"
+  },
+  "authenticateToAccess": "يُرجى المصادقة للوصول إلى {{module}}"
+}

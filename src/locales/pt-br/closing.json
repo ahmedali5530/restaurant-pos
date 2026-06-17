@@ -1,0 +1,89 @@
+{
+  "orderTakingDisabled": "O lançamento de pedidos está desativado no momento.",
+  "verifyClosingFailed": "Não foi possível verificar o status do ciclo de fechamento. Tente novamente.",
+  "tableLocked": "{{user}} já está lançando pedido nesta mesa",
+  "floor": {
+    "switchTable": "Trocar da Mesa {{table}} para outra",
+    "reloadCachePrefix": "Pressione o botão de recarregar cache em",
+    "settings": "configurações"
+  },
+  "guard": {
+    "punchDisabled": "O lançamento está desativado até que o ciclo atual seja fechado ou o fechamento do ciclo atual seja excluído.",
+    "cycleEnded": "O ciclo de fechamento terminou às {{time}}. Conclua o fechamento do dia se ainda não foi feito."
+  },
+  "window": {
+    "cycle": "Ciclo",
+    "period": "Período",
+    "label": "{{prefix}}: {{start}} - {{end}}"
+  },
+  "terminal": {
+    "defaultName": "Terminal {{number}}",
+    "notes": "Observações",
+    "coins": "Moedas",
+    "denomination": "x {{value}}",
+    "total": "Total do Terminal: {{amount}}",
+    "add": "Adicionar Terminal"
+  },
+  "title": "Fechamento Diário em {{date}}",
+  "loading": "Carregando fechamento...",
+  "alerts": {
+    "cycleDisabled": "O ciclo de fechamento está desativado. O horário do último fechamento concluído é usado como início deste período, e o horário atual é usado como término.",
+    "cycleCompleted": "O fechamento deste ciclo foi concluído. O lançamento de pedidos está bloqueado até o próximo ciclo.",
+    "periodCompleted": "O fechamento deste período foi concluído."
+  },
+  "sections": {
+    "previousDayBalance": "Saldo do Dia Anterior",
+    "pettyCash": "Caixa Pequeno",
+    "terminalCash": "Dinheiro do Terminal",
+    "paymentTypesSummary": "Resumo de Tipos de Pagamento do sistema",
+    "expenses": "Despesas",
+    "notes": "Observações",
+    "summary": "Resumo"
+  },
+  "fields": {
+    "previousDayBalance": "Saldo do Dia Anterior",
+    "pettyCash": "Caixa Pequeno",
+    "description": "Descrição",
+    "category": "Categoria",
+    "amount": "Valor",
+    "notesPlaceholder": "Adicione observações adicionais..."
+  },
+  "totals": {
+    "totalCash": "Total em Dinheiro: {{amount}}",
+    "cashFromPayments": "Dinheiro do resumo de pagamentos",
+    "difference": "Diferença: {{amount}}",
+    "totalOtherPayments": "Total de Outros Pagamentos: {{amount}}",
+    "totalExpenses": "Total de Despesas: {{amount}}",
+    "previousBalance": "Saldo Anterior",
+    "totalCashShort": "Total em Dinheiro",
+    "otherPayments": "Outros Pagamentos",
+    "totalExpensesShort": "Total de Despesas",
+    "netAmount": "Valor Líquido"
+  },
+  "actions": {
+    "addExpense": "Adicionar Despesa",
+    "saveClosing": "Salvar Fechamento",
+    "closeClosing": "Fechar Fechamento",
+    "saving": "Salvando...",
+    "reopen": "Editar (Aprovação do Gerente)",
+    "reopening": "Reabrindo...",
+    "printClosing": "Imprimir Fechamento",
+    "goToClosing": "Ir para fechamento"
+  },
+  "security": {
+    "reopenDescription": "Reabrir fechamento diário",
+    "reopenModule": "Editar Fechamento"
+  },
+  "autoCheckClose": {
+    "autoClosed_one": "{{count}} comanda fechada automaticamente",
+    "autoClosed_other": "{{count}} comandas fechadas automaticamente",
+    "failed_one": "Falha ao fechar automaticamente {{count}} comanda",
+    "failed_other": "Falha ao fechar automaticamente {{count}} comandas",
+    "noOpenChecks": "Ciclo de fechamento encerrado. Nenhuma comanda aberta para fechar.",
+    "retry_one": "Encontrada {{count}} comanda aberta, mas nenhuma foi fechada{{skipped}}. Tentará novamente.",
+    "retry_other": "Encontradas {{count}} comandas abertas, mas nenhuma foi fechada{{skipped}}. Tentará novamente.",
+    "skippedSuffix": " ({{count}} ignorada(s))",
+    "executionFailed": "Falha ao fechar comandas automaticamente",
+    "warning": "As comandas serão fechadas automaticamente em {{countdown}}"
+  }
+}

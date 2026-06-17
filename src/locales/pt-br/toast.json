@@ -1,0 +1,82 @@
+{
+  "generic": {
+    "saved": "Salvo com sucesso",
+    "updated": "Atualizado com sucesso",
+    "deleted": "Excluído com sucesso",
+    "created": "Criado com sucesso",
+    "failed": "Operação falhou",
+    "error": "Ocorreu um erro"
+  },
+  "inventory": {
+    "wasteSaved": "Desperdício salvo",
+    "issueSaved": "Saída salva",
+    "issueReturnSaved": "Devolução de saída salva",
+    "purchaseSaved": "Compra salva",
+    "purchaseReturnSaved": "Devolução de compra salva",
+    "purchaseOrderSaved": "Pedido de compra salvo",
+    "itemGroupSaved": "Grupo de itens salvo",
+    "itemSaved": "Item {{name}} salvo",
+    "categorySaved": "Categoria {{name}} salva",
+    "supplierSaved": "Fornecedor {{name}} salvo",
+    "storeSaved": "Depósito {{name}} salvo",
+    "unableGenerateWasteNumber": "Não foi possível gerar o próximo número de desperdício",
+    "unableGenerateIssueNumber": "Não foi possível gerar o próximo número de saída",
+    "unableGenerateIssueReturnNumber": "Não foi possível gerar o próximo número de devolução de saída",
+    "unableGenerateInvoiceNumber": "Não foi possível gerar o próximo número de nota fiscal",
+    "unableGenerateReturnNumber": "Não foi possível gerar o próximo número de devolução",
+    "unableGeneratePoNumber": "Não foi possível gerar o próximo número de pedido de compra",
+    "itemsExceedQuantity": "Um ou mais itens excedem a quantidade disponível"
+  },
+  "delivery": {
+    "settingsSaved": "Configurações de delivery salvas com sucesso",
+    "settingsLoadFailed": "Falha ao carregar configurações de delivery",
+    "settingsSaveFailed": "Falha ao salvar configurações de delivery",
+    "mapAreasSaved": "Áreas do mapa salvas com sucesso",
+    "mapAreasSaveFailed": "Falha ao salvar áreas do mapa",
+    "mapAreasLoadFailed": "Falha ao carregar áreas do mapa",
+    "shapeTooSmall": "A forma é muito pequena. Desenhe uma área maior.",
+    "rectangleTooSmall": "O retângulo é muito pequeno. Desenhe uma área maior.",
+    "circleTooSmall": "O círculo é muito pequeno. Desenhe um raio maior.",
+    "polygonTooSmall": "O polígono é muito pequeno. Desenhe um contorno maior.",
+    "fetchRidersFailed": "Falha ao buscar entregadores",
+    "acceptFailed": "Falha ao aceitar pedido",
+    "rejectFailed": "Falha ao rejeitar pedido",
+    "sendFailed": "Falha ao enviar pedido",
+    "attachRiderFailed": "Falha ao atribuir entregador"
+  },
+  "reports": {
+    "mapAreasSaveFailed": "Falha ao salvar áreas do mapa"
+  },
+  "kitchen": {
+    "recallFailed": "Falha ao reconvocar pedido"
+  },
+  "closing": {
+    "loadFailed": "Falha ao carregar fechamento",
+    "alreadyClosed": "Este ciclo já está fechado.",
+    "openOrders": "Existem pedidos abertos. Feche-os primeiro.",
+    "completed": "Fechamento concluído com sucesso!",
+    "savedDraft": "Fechamento salvo como rascunho com sucesso!",
+    "saveFailed": "Falha ao salvar fechamento",
+    "notFound": "Nenhum fechamento encontrado para este ciclo.",
+    "reopened": "Fechamento reaberto em modo de edição.",
+    "reopenFailed": "Falha ao reabrir fechamento",
+    "printFailed": "Falha ao imprimir fechamento"
+  },
+  "summary": {
+    "noProductMix": "Nenhum item encontrado para o mix de produtos.",
+    "noTimeEntries": "Nenhum registro de ponto concluído encontrado para esta data.",
+    "noServerSales": "Nenhum dado de vendas por garçom encontrado para esta data."
+  },
+  "clock": {
+    "noActiveEntry": "Nenhum registro de ponto ativo encontrado",
+    "loadEntryFailed": "Falha ao carregar registro de ponto",
+    "loadSaleSummaryFailed": "Falha ao carregar resumo de vendas",
+    "clockedOut": "Saída registrada com sucesso",
+    "clockOutFailed": "Falha ao registrar saída"
+  },
+  "tipDistribution": {
+    "selectShiftAndDate": "Selecione o turno e a data",
+    "unableToDeriveRange": "Não foi possível determinar o intervalo de horário do turno",
+    "saved": "Distribuição de gorjetas salva"
+  }
+}

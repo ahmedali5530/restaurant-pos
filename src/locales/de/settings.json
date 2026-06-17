@@ -1,0 +1,91 @@
+{
+  "language": {
+    "title": "Sprache",
+    "description": "Anzeigesprache für dieses Gerät wählen. Gilt nur für dieses Gerät.",
+    "changed": "Sprache aktualisiert"
+  },
+  "direction": {
+    "title": "Textrichtung",
+    "description": "Linksläufiges oder rechtsläufiges Layout für dieses Gerät wählen.",
+    "ltr": "LTR",
+    "rtl": "RTL"
+  },
+  "touch": {
+    "title": "Bildschirmtastatur",
+    "description": "Bildschirmtastatur aktivieren oder deaktivieren. Gilt nur für dieses Gerät."
+  },
+  "cache": {
+    "title": "Cache",
+    "description": "Aktuelle Cache-Größe nach Datensatz.",
+    "reload": "Cache neu laden",
+    "orderTypes": "Bestellarten",
+    "categories": "Kategorien",
+    "dishes": "Gerichte",
+    "modifierGroups": "Modifikatorgruppen",
+    "groupDishes": "Gruppengerichte",
+    "floors": "Etagen",
+    "tables": "Tische",
+    "kitchens": "Küchen",
+    "paymentTypes": "Zahlungsarten",
+    "reloaded": "Cache aus Datenbank neu geladen",
+    "reloadFailed": "Cache konnte nicht neu geladen werden"
+  },
+  "serviceCharges": {
+    "title": "Servicegebühren",
+    "updated": "Servicegebühren aktualisiert",
+    "saveDescription": "Servicegebühren speichern"
+  },
+  "printers": {
+    "title": "Standarddrucker",
+    "description": "Druckerzuweisungen werden pro Benutzer gespeichert. Jeder Benutzer kann Drucker für Zwischen-, End-, Rückerstattungs-, Liefer- und Zusammenfassungsdruck zuweisen. Wenn keine gesetzt sind, werden globale Einstellungen als Fallback verwendet.",
+    "loading": "Druckereinstellungen werden geladen…",
+    "tempPrint": "Drucker für Zwischenrechnung",
+    "finalPrint": "Drucker für Endrechnung",
+    "refundPrint": "Drucker für Rückerstattung",
+    "deliveryPrint": "Drucker für Lieferung",
+    "summaryPrint": "Drucker für Zusammenfassung",
+    "selectPrinters": "Drucker auswählen…",
+    "saving": "Wird gespeichert…",
+    "save": "Druckereinstellungen speichern",
+    "saveDescription": "Drucker speichern",
+    "loadFailed": "Druckereinstellungen konnten nicht geladen werden",
+    "loginRequired": "Bitte melden Sie sich an, um Druckereinstellungen zu speichern.",
+    "saved": "Druckereinstellungen gespeichert",
+    "saveFailed": "Druckereinstellungen konnten nicht gespeichert werden"
+  },
+  "menus": {
+    "title": "Speisekarteneinstellungen",
+    "activateMenus": "Speisekarten aktivieren",
+    "selectMenus": "Speisekarten auswählen…",
+    "loading": "Speisekarteneinstellungen werden geladen…",
+    "saving": "Wird gespeichert…",
+    "save": "Speisekarteneinstellungen speichern",
+    "saveDescription": "Speisekarten speichern",
+    "loadFailed": "Speisekarteneinstellungen konnten nicht geladen werden",
+    "loginRequired": "Bitte melden Sie sich an, um Speisekarteneinstellungen zu speichern.",
+    "saved": "Speisekarteneinstellungen gespeichert",
+    "saveFailed": "Speisekarteneinstellungen konnten nicht gespeichert werden"
+  },
+  "tableSelection": {
+    "title": "Tischauswahl in Speisekarte ausblenden",
+    "description": "Tischauswahl überspringen und Speisekarte direkt öffnen. Gilt nur für dieses Gerät. Geeignet für Mitnahme-Bestellungen"
+  },
+  "autoCheckClose": {
+    "title": "Automatischer Rechnungsabschluss",
+    "description": "Offene Tischrechnungen am Ende des Abschlusszyklus automatisch schließen. Lieferbestellungen sind ausgeschlossen. Eine Warnung erscheint 1 Minute vor dem Abschluss.",
+    "printOnClose": "Endrechnung beim Abschluss drucken",
+    "paymentType": "Zahlungsart",
+    "paymentTypeRequired": "Zahlungsart ist erforderlich, wenn automatischer Abschluss aktiviert ist",
+    "paymentTypeRequiredField": "Zahlungsart ist erforderlich",
+    "updated": "Einstellungen für automatischen Rechnungsabschluss aktualisiert",
+    "saveDescription": "Einstellungen für automatischen Rechnungsabschluss speichern"
+  },
+  "closingCycle": {
+    "title": "Abschlusszyklus",
+    "description": "Start- und Endzeit des Zyklus konfigurieren. Endzeit kann am nächsten Tag liegen (Beispiel: 06:00 bis 02:00).",
+    "startTime": "Startzeit",
+    "endTime": "Endzeit",
+    "updated": "Abschlusszyklus-Einstellungen aktualisiert",
+    "saveDescription": "Abschlusszyklus-Einstellungen speichern"
+  }
+}

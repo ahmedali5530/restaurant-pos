@@ -1,0 +1,170 @@
+{
+  "screen": {
+    "previousDate": "Vorige datum",
+    "nextDate": "Volgende datum",
+    "printSummary": "Overzicht afdrukken",
+    "productMixReport": "Productmixrapport",
+    "serverSales": "Serververkoop"
+  },
+  "security": {
+    "printSummaryDescription": "Overzicht afdrukken",
+    "printSummaryModule": "Overzicht afdrukken",
+    "productMixDescription": "Productmixrapport",
+    "productMixModule": "Productmixrapport",
+    "serverSalesDescription": "Serververkoop",
+    "serverSalesModule": "Serververkoop"
+  },
+  "unknown": {
+    "user": "Onbekend",
+    "item": "Onbekend artikel",
+    "coupon": "Onbekend"
+  },
+  "report": {
+    "title": "Dagelijks verkoopoverzicht — {{date}}",
+    "orderDiscount": "Bestellingskorting",
+    "uncategorized": "Zonder categorie",
+    "unknownItem": "Onbekend artikel",
+    "sections": {
+      "salesRevenue": "1. Verkoopomzet",
+      "surchargesTaxes": "2. Toeslagen en belastingen",
+      "settlementCashier": "3. Afrekening en kassa",
+      "operationalControls": "4. Operationele controles",
+      "productMix": "5. Productmix",
+      "paymentTypes": "6. Betaaltypen",
+      "taxesBreakdown": "7. Belastingenoverzicht",
+      "discountsBreakdown": "8. Kortingenoverzicht",
+      "extrasBreakdown": "9. Extra'soverzicht",
+      "couponsBreakdown": "10. Couponsoverzicht"
+    },
+    "subtitles": {
+      "surchargesTaxes": "Geïnde toeslagen en belasting (van bestellingen; doorgaans berekend op netto na korting).",
+      "settlementCashier": "Kassalade-overzicht.",
+      "operationalControls": "Audit-signalen (annuleringen apart van brutoverkoop).",
+      "productMix": "Categorieën gegroepeerd met gerechten en hun modifiers.",
+      "paymentTypes": "Geïnd bedrag verdeeld per betaalmethode.",
+      "taxesBreakdown": "Belastingcomponenten geïnd van bestellingen.",
+      "discountsBreakdown": "Kortingsschema's toegepast in deze periode.",
+      "extrasBreakdown": "Overzicht van extra's op bestellingsniveau.",
+      "couponsBreakdown": "Ingewisselde coupons en hun waarden."
+    },
+    "rows": {
+      "exclusiveSales": "Exclusieve verkoop",
+      "extras": "Extra's",
+      "grossSales": "Brutoverkoop",
+      "itemDiscounts": "Artikelkortingen",
+      "subtotalDiscounts": "Subtotaalkortingen",
+      "couponDiscounts": "Couponkortingen",
+      "discounts": "(−) Kortingen",
+      "netSales": "Nettoverkoop",
+      "serviceCharges": "Servicekosten",
+      "taxes": "Belastingen",
+      "totalRevenue": "Totale omzet",
+      "amountDueBeforeTips": "Verschuldigd bedrag (vóór fooi)",
+      "tips": "Fooien",
+      "grandTotalDue": "Eindtotaal (verschuldigd)",
+      "amountCollected": "Geïnd bedrag",
+      "rounding": "Afronding",
+      "changeVariance": "Wisselgeld / verschil",
+      "voids": "Annuleringen",
+      "refunds": "Terugbetalingen",
+      "covers": "Couverts",
+      "averageCover": "Gemiddeld couvert",
+      "ordersChecks": "Bestellingen / bonnen",
+      "averageOrderCheck": "Gemiddelde bestelling / bon",
+      "totalTips": "Totaal fooien"
+    },
+    "hints": {
+      "exclusiveSales": "Alleen artikelverkoop (vóór extra's, service en belasting).",
+      "extras": "Extra's en toeslagen op bestellingsniveau gekoppeld aan bonnen.",
+      "grossSales": "Exclusieve verkoop + extra's (geannuleerde regels uitgesloten).",
+      "itemDiscounts": "Kortingswaarde direct toegepast op regelartikelen.",
+      "subtotalDiscounts": "Kortingen op bestellingsniveau exclusief kortingen op regelniveau.",
+      "couponDiscounts": "Couponinwisselingsbedrag.",
+      "discounts": "Regel-, bestellings- en couponkortingen.",
+      "netSales": "Brutoverkoop − kortingen.",
+      "serviceCharges": "Bedrag op bestellingen; gebaseerd op netto na korting",
+      "taxes": "Overheidsbelasting zoals geregistreerd per bestelling.",
+      "totalRevenue": "Nettoverkoop + servicekosten + belastingen (vóór fooi).",
+      "amountDueBeforeTips": "Nettoverkoop + servicekosten + belastingen.",
+      "tips": "Van fooivelden op bestelling / boven totaal (niet inbegrepen in brutoverkoop).",
+      "grandTotalDue": "Totale omzet + fooien.",
+      "amountCollected": "Toegepaste betalingstotalen per methode (exclusief teruggegeven wisselgeld).",
+      "rounding": "Geïnd bedrag − eindtotaal (verschuldigd); over/tekort t.o.v. berekend verschuldigd.",
+      "changeVariance": "Contant betaald in overschot van toegepaste betalingsbedragen.",
+      "voids": "Waarde van regels verwijderd na invoer (niet in brutoverkoop hierboven).",
+      "refunds": "Retouren van negatieve betalingen of geannuleerde bonnen.",
+      "covers": "Aantal gasten (pax).",
+      "averageCover": "Verschuldigd bedrag (vóór fooi) ÷ couverts.",
+      "ordersChecks": "Aantal gesloten bonnen/bestellingen.",
+      "averageOrderCheck": "Verschuldigd bedrag (vóór fooi) ÷ bestellingen.",
+      "roundingLegacy": "Geïnd bedrag - Verschuldigd bedrag"
+    },
+    "columns": {
+      "item": "Artikel",
+      "qty": "Aantal",
+      "total": "Totaal",
+      "share": "Aandeel"
+    },
+    "empty": {
+      "noCategoryData": "Geen categoriegegevens voor deze datum.",
+      "noPaymentData": "Geen betalingsgegevens voor deze datum.",
+      "noTaxRows": "Geen belastingregels voor deze datum.",
+      "noDiscountRows": "Geen kortingsregels voor deze datum.",
+      "noExtras": "Geen extra's gevonden voor deze datum.",
+      "noCoupons": "Geen coupongebruik voor deze datum."
+    },
+    "footer": "Volgorde: brutoverkoop → kortingen → nettoverkoop → servicekosten → belastingen → fooien → eindtotaal → geïnd. Productmix is gegroepeerd per categorie met gerechten genest.",
+    "legacy": {
+      "tips": "Fooien",
+      "categories": "Categorieën",
+      "dishes": "Gerechten",
+      "paymentTypes": "Betaaltypen",
+      "taxes": "Belastingen",
+      "discounts": "Kortingen",
+      "extras": "Extra's",
+      "coupons": "Coupons",
+      "covers": "Couverts",
+      "averageCover": "Gemiddeld couvert",
+      "ordersChecks": "Bestellingen/Bonnen",
+      "averageOrderCheck": "Gemiddelde bestelling/bon"
+    }
+  },
+  "clock": {
+    "title": "Tijdklok",
+    "subtitle": "Volg uw werkuren",
+    "saleSummary": "Verkoopoverzicht",
+    "loadingSaleData": "Verkoopgegevens laden...",
+    "loading": "Laden...",
+    "signedInAs": "Ingelogd als",
+    "shift": "Dienst",
+    "endsNextDay": "eindigt volgende dag",
+    "clockInTime": "Inkloktijd",
+    "timeElapsed": "Verstreken tijd",
+    "sinceClockIn": "Sinds inklokken",
+    "clockOut": "Uitklokken",
+    "metrics": {
+      "totalSales": "Totale verkoop",
+      "refunds": "Terugbetalingen",
+      "serviceCharges": "Servicekosten",
+      "discounts": "Kortingen",
+      "taxes": "Belastingen",
+      "extras": "Extra's",
+      "voids": "Annuleringen",
+      "tips": "Fooien"
+    }
+  },
+  "tipDistribution": {
+    "shift": "Dienst",
+    "date": "Datum",
+    "loadTips": "Fooien laden",
+    "submit": "Verzenden",
+    "totalTips": "Totaal fooien: {{amount}}",
+    "columns": {
+      "user": "Gebruiker",
+      "role": "Rol",
+      "weight": "Gewicht",
+      "amount": "Bedrag"
+    },
+    "empty": "Nog geen verdeling berekend."
+  }
+}

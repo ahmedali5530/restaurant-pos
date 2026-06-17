@@ -1,0 +1,140 @@
+{
+  "tabs": {
+    "inventory": "Voorraad",
+    "items": "Artikelen",
+    "suppliers": "Leveranciers",
+    "categories": "Artikelcategorieën",
+    "stores": "Magazijnen",
+    "itemGroups": "Artikelgroepen",
+    "purchaseOrders": "Inkooporders",
+    "purchases": "Inkopen",
+    "purchaseReturns": "Inkoopretouren",
+    "issues": "Uitgiftes",
+    "issueReturns": "Uitgifteretouren",
+    "wastes": "Afval"
+  },
+  "security": {
+    "accessTab": "Toegang tot {{module}}"
+  },
+  "columns": {
+    "name": "Naam",
+    "code": "Code",
+    "category": "Categorie",
+    "uom": "Maateenheid",
+    "baseQuantity": "Basishoeveelheid",
+    "price": "Prijs",
+    "averagePrice": "Gemiddelde prijs",
+    "avgPrice": "Gem. prijs",
+    "stores": "Magazijnen",
+    "suppliers": "Leveranciers",
+    "actions": "Acties",
+    "address": "Adres",
+    "phone": "Telefoon",
+    "email": "E-mail",
+    "priority": "Prioriteit",
+    "mainItem": "Hoofdartikel",
+    "subItems": "Subartikelen",
+    "invoiceNumber": "Factuur #",
+    "poNumber": "PO #",
+    "status": "Status",
+    "createdAt": "Aangemaakt op",
+    "items": "Artikelen",
+    "purchaseInvoice": "Inkoopfactuur #",
+    "issueNumber": "Uitgifte#",
+    "returnNumber": "Retour#",
+    "issuance": "Uitgifte",
+    "issuedTo": "Uitgegeven aan",
+    "kitchen": "Keuken",
+    "createdBy": "Aangemaakt door",
+    "source": "Bron"
+  },
+  "buttons": {
+    "item": "Artikel",
+    "import": "Importeren",
+    "view": "Bekijken",
+    "upload": "Uploaden"
+  },
+  "forms": {
+    "createItem": "Nieuw artikel aanmaken",
+    "createCategory": "Nieuwe categorie aanmaken",
+    "createSupplier": "Nieuwe leverancier aanmaken",
+    "createStore": "Nieuw magazijn aanmaken",
+    "createIssue": "Nieuwe uitgifte aanmaken",
+    "createIssueReturn": "Nieuwe uitgifteretour aanmaken",
+    "createWaste": "Nieuw afval aanmaken",
+    "createPurchase": "Nieuwe inkoop aanmaken",
+    "createPurchaseReturn": "Nieuwe inkoopretour aanmaken",
+    "createPurchaseOrder": "Nieuwe inkooporder aanmaken",
+    "createItemGroup": "Nieuwe artikelgroep aanmaken",
+    "nameOfItem": "Naam van artikel",
+    "invoiceNumber": "Factuurnummer",
+    "returnInvoiceNumber": "Retourfactuurnummer",
+    "poNumber": "PO-nummer",
+    "date": "Datum",
+    "comments": "Opmerkingen",
+    "quantity": "Aantal",
+    "requested": "Aangevraagd",
+    "issued": "Uitgegeven",
+    "returnedQuantity": "Geretourneerd aantal",
+    "expiryDate": "Vervaldatum",
+    "manufacturingDate": "Productiedatum",
+    "storeInventory": "{{name}} magazijn"
+  },
+  "validation": {
+    "required": "Dit is verplicht",
+    "number": "Dit moet een nummer zijn",
+    "selectStore": "Selecteer minimaal één magazijn",
+    "addItem": "Voeg minimaal één artikel toe",
+    "addSubItem": "Voeg minimaal één subartikel toe",
+    "selectPurchaseMethod": "Selecteer een inkoopmethode",
+    "storeRequired": "Magazijn is verplicht",
+    "supplierRequired": "Leverancier is verplicht",
+    "selectSourceType": "Selecteer brontype",
+    "selectSource": "Selecteer een bron",
+    "quantityMin": "Aantal moet minimaal 1 zijn",
+    "atLeastOneItem": "Minimaal één artikel is verplicht",
+    "invalidCategory": "Ongeldige categorie \"{{name}}\"",
+    "invalidStore": "Ongeldig magazijn \"{{name}}\"",
+    "invalidSupplier": "Ongeldige leverancier \"{{name}}\""
+  },
+  "csv": {
+    "uploadTitle": "Artikelen toevoegen via CSV-bestand"
+  },
+  "modals": {
+    "viewPurchase": "Inkoop bekijken",
+    "viewIssue": "Uitgifte bekijken",
+    "viewIssueReturn": "Uitgifteretour bekijken",
+    "viewWaste": "Afval bekijken",
+    "viewPurchaseReturn": "Inkoopretour bekijken",
+    "viewPurchaseOrder": "Inkooporder bekijken"
+  },
+  "summary": {
+    "title": "Voorraadoverzicht"
+  },
+  "purchaseMethod": {
+    "title": "Inkoopmethode"
+  },
+  "sourceType": {
+    "purchase": "Inkoop",
+    "issue": "Uitgifte"
+  },
+  "status": {
+    "draft": "Concept",
+    "approved": "Goedgekeurd",
+    "received": "Ontvangen",
+    "cancelled": "Geannuleerd"
+  },
+  "upload": {
+    "attachDocuments": "Bijgevoegde documenten"
+  },
+  "purchaseMethods": {
+    "manual": "Handmatig",
+    "csv": "CSV",
+    "purchaseOrder": "Inkooporder"
+  },
+  "uploadViaDocument": "Uploaden via document",
+  "itemName": "Artikelnaam",
+  "itemCode": "Artikelcode",
+  "syncFromPo": "Artikelen worden gesynchroniseerd vanuit de geselecteerde inkooporder. Schakel terug naar Handmatig om de lijst te bewerken.",
+  "syncFromCsv": "Upload een CSV om artikelen later te importeren. Schakel terug naar Handmatig om de lijst hier te bewerken."
+}

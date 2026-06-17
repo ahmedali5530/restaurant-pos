@@ -1,0 +1,31 @@
+{
+  "sidebar": {
+    "menu": "Menu",
+    "orders": "Ordini",
+    "summary": "Riepilogo",
+    "kitchen": "Cucina",
+    "delivery": "Consegna",
+    "closing": "Chiusura",
+    "inventory": "Magazzino",
+    "manage": "Gestione",
+    "reports": "Report",
+    "tipDist": "Distrib. mance",
+    "settings": "Impostazioni",
+    "clock": "Timbratura"
+  },
+  "modules": {
+    "Menu": "Menu",
+    "Orders": "Ordini",
+    "Summary": "Riepilogo",
+    "Reports": "Report",
+    "Closing": "Chiusura",
+    "Kitchen": "Cucina",
+    "Delivery": "Consegna",
+    "Admin": "Amministrazione",
+    "Riders": "Rider",
+    "Tips": "Distribuzione mance",
+    "Inventory": "Magazzino",
+    "Settings": "Impostazioni"
+  },
+  "authenticateToAccess": "Autenticati per accedere a {{module}}"
+}

@@ -1,0 +1,179 @@
+{
+  "customer": {
+    "name": "Nom",
+    "phone": "Numéro de téléphone",
+    "address": "Adresse",
+    "attach": "Associer",
+    "search": "Rechercher",
+    "columns": {
+      "select": "Sélectionner",
+      "name": "Nom",
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "address": "Adr.",
+      "secondaryAddress": "Adr. secondaire",
+      "points": "Points"
+    }
+  },
+  "filters": {
+    "status": "Sélectionner le statut de commande",
+    "orderTypes": "Sélectionner les types de commande",
+    "floors": "Sélectionner les salles",
+    "users": "Sélectionner les utilisateurs"
+  },
+  "view": {
+    "blocks": "Blocs",
+    "table": "Tableau"
+  },
+  "merge": {
+    "chooseTableAlert": "Veuillez choisir une nouvelle table",
+    "success": "Fusion réussie dans {{invoiceNumber}}",
+    "failed": "Échec de la fusion des commandes",
+    "chooseTable": "Choisir une table",
+    "selectTwoOrMore": "Sélectionner 2 commandes ou plus",
+    "confirmMerging": "Confirmer la fusion de {{count}} commandes",
+    "cancelMerging": "Annuler la fusion"
+  },
+  "header": {
+    "orderNumber": "Commande n° {{invoice}} / {{orderType}}"
+  },
+  "status": {
+    "inProgress": "En cours",
+    "paid": "Payée",
+    "cancelled": "Annulée",
+    "spilt": "Divisée",
+    "merged": "Fusionnée",
+    "refunded": "Remboursée"
+  },
+  "totals": {
+    "items": "Articles ({{count}})",
+    "itemsShort": "Articles",
+    "tax": "Taxe",
+    "discount": "Remise",
+    "serviceCharges": "Frais de service ({{value}}{{unit}})",
+    "tip": "Pourboire",
+    "tipPercent": "Pourboire %",
+    "total": "Total",
+    "change": "Monnaie",
+    "sc": "FS ({{value}} %)",
+    "extras": "Suppléments"
+  },
+  "actions": {
+    "selectToMerge": "Sélectionner pour fusionner",
+    "more": "Plus",
+    "cancelOrder": "Annuler la commande",
+    "splitBySeats": "Diviser par places",
+    "splitByItems": "Diviser par articles",
+    "splitByAmount": "Diviser par montant",
+    "mergeOrders": "Fusionner les commandes",
+    "refund": "Rembourser",
+    "printFinalBillCopy": "Imprimer une copie de la note finale",
+    "tempBill": "Note provisoire",
+    "payNow": "Payer maintenant"
+  },
+  "cancel": {
+    "title": "Annuler la commande",
+    "reason": "Motif",
+    "items": "Articles",
+    "comments": "Commentaires",
+    "commentsPlaceholder": "Saisir des commentaires",
+    "confirmCancellation": "Confirmer l'annulation",
+    "unknownItem": "Article inconnu",
+    "chooseReason": "Veuillez choisir un motif",
+    "selectAtLeastOne": "Veuillez sélectionner au moins un article",
+    "cannotIdentifyUser": "Impossible d'identifier l'utilisateur connecté",
+    "successOrder": "Commande annulée avec succès",
+    "successItems": "Articles sélectionnés annulés",
+    "failed": "Échec de l'annulation de la commande"
+  },
+  "refund": {
+    "title": "Rembourser la commande",
+    "selectItems": "Sélectionner les articles à rembourser",
+    "itemsTotal": "Total des articles :",
+    "tax": "Taxe ({{name}} {{rate}} %) :",
+    "discount": "Remise :",
+    "serviceCharges": "Frais de service ({{value}}{{unit}}) :",
+    "tip": "Pourboire :",
+    "refundTotal": "Total du remboursement :",
+    "itemsSelected": "{{count}} article(s) sélectionné(s)",
+    "reason": "Motif",
+    "reasonPlaceholder": "Saisir le motif du remboursement",
+    "refundButton": "Rembourser",
+    "refundButtonWithCount": "Rembourser {{count}} article(s)",
+    "selectAtLeastOne": "Veuillez sélectionner au moins un article à rembourser",
+    "cannotIdentifyUser": "Impossible d'identifier l'utilisateur connecté",
+    "success": "{{count}} article(s) remboursé(s) avec succès",
+    "failed": "Échec du remboursement de la commande"
+  },
+  "voidReasons": {
+    "fohNotMade": "Salle non préparée",
+    "bohNotMade": "Cuisine non préparée",
+    "guestNotMade": "Client non servi",
+    "fohMade": "Salle préparée",
+    "bohMade": "Cuisine préparée",
+    "guestMade": "Client servi",
+    "punchByMistake": "Saisie par erreur",
+    "testing": "Test"
+  },
+  "split": {
+    "title": "Diviser la commande {{invoice}}",
+    "titleByAmount": "Division par montant — Commande {{invoice}}",
+    "splitName": "Division {{number}}",
+    "seatName": "Place {{number}}",
+    "noSeat": "Sans place",
+    "toast": {
+      "success": "{{count}} commande(s) divisée(s) créée(s) avec succès",
+      "failed": "Échec de la division de la commande"
+    },
+    "bySeats": {
+      "heading": "Divisions supplémentaires",
+      "scrollHint": "Faites défiler pour voir toutes les divisions",
+      "total": "Total : {{amount}}",
+      "noItems": "Aucun article",
+      "dragItemsHere": "Glissez les articles ici",
+      "noAdditionalSplits": "Aucune division supplémentaire",
+      "addSplitHint": "Ajoutez une division pour répartir les articles",
+      "creating": "Création des divisions...",
+      "save": "Enregistrer {{count}} division(s)",
+      "addMoreSplits": "Ajoutez d'autres divisions avant d'enregistrer",
+      "allSplitsNeedItems": "Toutes les divisions doivent contenir au moins un article"
+    },
+    "byItems": {
+      "splitOneFixed": "Division 1 (principale)",
+      "mainSplitHint": "Les articles commencent ici. Glissez vers les autres divisions.",
+      "total": "Total : {{amount}}",
+      "noItems": "Aucun article",
+      "itemsReturnHere": "Les articles reviennent ici lorsqu'ils sont déplacés en arrière",
+      "additionalSplits": "Divisions supplémentaires",
+      "scrollHint": "Faites défiler horizontalement pour plus de divisions",
+      "addSplit": "Ajouter une division",
+      "dragFromSplitOne": "Glissez les articles depuis la Division 1",
+      "moveBackToSplitOne": "Revenir à la Division 1",
+      "noAdditionalSplits": "Aucune division supplémentaire",
+      "addSplitHint": "Ajoutez une division pour répartir les articles",
+      "creating": "Création des divisions...",
+      "save": "Enregistrer {{count}} division(s)",
+      "addMoreSplits": "Ajoutez d'autres divisions avant d'enregistrer",
+      "allSplitsNeedItems": "Toutes les divisions doivent contenir au moins un article"
+    },
+    "byAmount": {
+      "orderTotal": "Total de la commande",
+      "assignHint": "Attribuez des montants à chaque division. Le restant doit être zéro.",
+      "assigned": "Attribué : {{amount}}",
+      "remaining": "Restant : {{amount}}",
+      "amount": "Montant",
+      "percentage": "{{value}} %",
+      "itemsCount": "{{count}} article(s) dans la commande",
+      "noItemsInOrder": "Aucun article dans cette commande",
+      "itemFallback": "Article",
+      "subtotal": "Sous-total",
+      "addSplit": "Ajouter une division",
+      "autoFillRemaining": "Remplir automatiquement le restant",
+      "distributeEvenly": "Répartir équitablement",
+      "assignRemaining": "Attribuer le restant {{amount}}",
+      "exceedsTotal": "Dépasse le total de {{amount}}",
+      "creating": "Création des divisions...",
+      "save": "Enregistrer {{count}} division(s)"
+    }
+  }
+}

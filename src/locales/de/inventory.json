@@ -1,0 +1,140 @@
+{
+  "tabs": {
+    "inventory": "Lager",
+    "items": "Artikel",
+    "suppliers": "Lieferanten",
+    "categories": "Artikelkategorien",
+    "stores": "Lagerorte",
+    "itemGroups": "Artikelgruppen",
+    "purchaseOrders": "Bestellungen",
+    "purchases": "Einkäufe",
+    "purchaseReturns": "Einkaufsrückgaben",
+    "issues": "Ausgaben",
+    "issueReturns": "Ausgaberückgaben",
+    "wastes": "Schwund"
+  },
+  "security": {
+    "accessTab": "Zugriff auf {{module}}"
+  },
+  "columns": {
+    "name": "Name",
+    "code": "Code",
+    "category": "Kategorie",
+    "uom": "Maßeinheit",
+    "baseQuantity": "Basismenge",
+    "price": "Preis",
+    "averagePrice": "Durchschnittspreis",
+    "avgPrice": "Ø Preis",
+    "stores": "Lagerorte",
+    "suppliers": "Lieferanten",
+    "actions": "Aktionen",
+    "address": "Adresse",
+    "phone": "Telefon",
+    "email": "E-Mail",
+    "priority": "Priorität",
+    "mainItem": "Hauptartikel",
+    "subItems": "Unterartikel",
+    "invoiceNumber": "Rechnung #",
+    "poNumber": "Bestellung #",
+    "status": "Status",
+    "createdAt": "Erstellt am",
+    "items": "Artikel",
+    "purchaseInvoice": "Einkaufsrechnung #",
+    "issueNumber": "Ausgabe#",
+    "returnNumber": "Rückgabe#",
+    "issuance": "Ausgabe",
+    "issuedTo": "Ausgegeben an",
+    "kitchen": "Küche",
+    "createdBy": "Erstellt von",
+    "source": "Quelle"
+  },
+  "buttons": {
+    "item": "Artikel",
+    "import": "Importieren",
+    "view": "Anzeigen",
+    "upload": "Hochladen"
+  },
+  "forms": {
+    "createItem": "Neuen Artikel erstellen",
+    "createCategory": "Neue Kategorie erstellen",
+    "createSupplier": "Neuen Lieferanten erstellen",
+    "createStore": "Neuen Lagerort erstellen",
+    "createIssue": "Neue Ausgabe erstellen",
+    "createIssueReturn": "Neue Ausgaberückgabe erstellen",
+    "createWaste": "Neuen Schwund erstellen",
+    "createPurchase": "Neuen Einkauf erstellen",
+    "createPurchaseReturn": "Neue Einkaufsrückgabe erstellen",
+    "createPurchaseOrder": "Neue Bestellung erstellen",
+    "createItemGroup": "Neue Artikelgruppe erstellen",
+    "nameOfItem": "Artikelname",
+    "invoiceNumber": "Rechnungsnummer",
+    "returnInvoiceNumber": "Rückgaberechnungsnummer",
+    "poNumber": "Bestellnummer",
+    "date": "Datum",
+    "comments": "Kommentare",
+    "quantity": "Menge",
+    "requested": "Angefordert",
+    "issued": "Ausgegeben",
+    "returnedQuantity": "Zurückgegebene Menge",
+    "expiryDate": "Ablaufdatum",
+    "manufacturingDate": "Herstellungsdatum",
+    "storeInventory": "Lager {{name}}"
+  },
+  "validation": {
+    "required": "Pflichtfeld",
+    "number": "Muss eine Zahl sein",
+    "selectStore": "Mindestens einen Lagerort auswählen",
+    "addItem": "Mindestens einen Artikel hinzufügen",
+    "addSubItem": "Mindestens einen Unterartikel hinzufügen",
+    "selectPurchaseMethod": "Bitte eine Einkaufsmethode auswählen",
+    "storeRequired": "Lagerort ist erforderlich",
+    "supplierRequired": "Lieferant ist erforderlich",
+    "selectSourceType": "Quelltyp auswählen",
+    "selectSource": "Quelle auswählen",
+    "quantityMin": "Menge muss mindestens 1 sein",
+    "atLeastOneItem": "Mindestens ein Artikel ist erforderlich",
+    "invalidCategory": "Ungültige Kategorie \"{{name}}\"",
+    "invalidStore": "Ungültiger Lagerort \"{{name}}\"",
+    "invalidSupplier": "Ungültiger Lieferant \"{{name}}\""
+  },
+  "csv": {
+    "uploadTitle": "Artikel per CSV-Datei hinzufügen"
+  },
+  "modals": {
+    "viewPurchase": "Einkauf anzeigen",
+    "viewIssue": "Ausgabe anzeigen",
+    "viewIssueReturn": "Ausgaberückgabe anzeigen",
+    "viewWaste": "Schwund anzeigen",
+    "viewPurchaseReturn": "Einkaufsrückgabe anzeigen",
+    "viewPurchaseOrder": "Bestellung anzeigen"
+  },
+  "summary": {
+    "title": "Lagerübersicht"
+  },
+  "purchaseMethod": {
+    "title": "Einkaufsmethode"
+  },
+  "sourceType": {
+    "purchase": "Einkauf",
+    "issue": "Ausgabe"
+  },
+  "status": {
+    "draft": "Entwurf",
+    "approved": "Genehmigt",
+    "received": "Empfangen",
+    "cancelled": "Storniert"
+  },
+  "upload": {
+    "attachDocuments": "Angehängte Dokumente"
+  },
+  "purchaseMethods": {
+    "manual": "Manuell",
+    "csv": "CSV",
+    "purchaseOrder": "Bestellung"
+  },
+  "uploadViaDocument": "Per Dokument hochladen",
+  "itemName": "Artikelname",
+  "itemCode": "Artikelcode",
+  "syncFromPo": "Artikel werden aus der ausgewählten Bestellung synchronisiert. Wechseln Sie zurück zu Manuell, um die Liste zu bearbeiten.",
+  "syncFromCsv": "CSV hochladen, um Artikel später zu importieren. Wechseln Sie zurück zu Manuell, um die Liste hier zu bearbeiten."
+}

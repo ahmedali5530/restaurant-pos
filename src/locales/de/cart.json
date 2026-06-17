@@ -1,0 +1,10 @@
+{
+  "seats": {
+    "seat": "Platz",
+    "noSeat": "Kein Platz",
+    "seatNumber": "Platz# {{number}}",
+    "newSeat": "Neuer Platz",
+    "deleteSeat": "Platz ?",
+    "addComment": "Kommentar hinzufügen"
+  }
+}

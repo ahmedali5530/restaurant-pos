@@ -1,0 +1,179 @@
+{
+  "customer": {
+    "name": "الاسم",
+    "phone": "رقم الهاتف",
+    "address": "العنوان",
+    "attach": "ربط",
+    "search": "بحث",
+    "columns": {
+      "select": "اختيار",
+      "name": "الاسم",
+      "email": "البريد الإلكتروني",
+      "phone": "الهاتف",
+      "address": "العنوان",
+      "secondaryAddress": "عنوان إضافي",
+      "points": "النقاط"
+    }
+  },
+  "filters": {
+    "status": "اختر حالة الطلب",
+    "orderTypes": "اختر أنواع الطلبات",
+    "floors": "اختر الطوابق",
+    "users": "اختر المستخدمين"
+  },
+  "view": {
+    "blocks": "كتل",
+    "table": "جدول"
+  },
+  "merge": {
+    "chooseTableAlert": "يُرجى اختيار طاولة جديدة",
+    "success": "تم الدمج بنجاح في {{invoiceNumber}}",
+    "failed": "فشل دمج الطلبات",
+    "chooseTable": "اختر طاولة",
+    "selectTwoOrMore": "اختر طلبين أو أكثر",
+    "confirmMerging": "تأكيد دمج {{count}} طلبات",
+    "cancelMerging": "إلغاء الدمج"
+  },
+  "header": {
+    "orderNumber": "طلب رقم {{invoice}} / {{orderType}}"
+  },
+  "status": {
+    "inProgress": "قيد التنفيذ",
+    "paid": "مدفوع",
+    "cancelled": "ملغى",
+    "spilt": "مقسّم",
+    "merged": "مدمج",
+    "refunded": "مسترد"
+  },
+  "totals": {
+    "items": "الأصناف ({{count}})",
+    "itemsShort": "الأصناف",
+    "tax": "الضريبة",
+    "discount": "الخصم",
+    "serviceCharges": "رسوم الخدمة ({{value}}{{unit}})",
+    "tip": "الإكرامية",
+    "tipPercent": "نسبة الإكرامية %",
+    "total": "الإجمالي",
+    "change": "الباقي",
+    "sc": "رسوم الخدمة ({{value}}%)",
+    "extras": "إضافات"
+  },
+  "actions": {
+    "selectToMerge": "اختر للدمج",
+    "more": "المزيد",
+    "cancelOrder": "إلغاء الطلب",
+    "splitBySeats": "تقسيم حسب المقاعد",
+    "splitByItems": "تقسيم حسب الأصناف",
+    "splitByAmount": "تقسيم حسب المبلغ",
+    "mergeOrders": "دمج الطلبات",
+    "refund": "استرداد",
+    "printFinalBillCopy": "طباعة نسخة الفاتورة النهائية",
+    "tempBill": "فاتورة مؤقتة",
+    "payNow": "ادفع الآن"
+  },
+  "cancel": {
+    "title": "إلغاء الطلب",
+    "reason": "السبب",
+    "items": "الأصناف",
+    "comments": "ملاحظات",
+    "commentsPlaceholder": "أدخل الملاحظات",
+    "confirmCancellation": "تأكيد الإلغاء",
+    "unknownItem": "صنف غير معروف",
+    "chooseReason": "يُرجى اختيار سبب",
+    "selectAtLeastOne": "يُرجى اختيار صنف واحد على الأقل",
+    "cannotIdentifyUser": "تعذّر تحديد المستخدم المسجّل",
+    "successOrder": "تم إلغاء الطلب بنجاح",
+    "successItems": "تم إلغاء الأصناف المحددة",
+    "failed": "فشل إلغاء الطلب"
+  },
+  "refund": {
+    "title": "استرداد الطلب",
+    "selectItems": "اختر الأصناف للاسترداد",
+    "itemsTotal": "إجمالي الأصناف:",
+    "tax": "الضريبة ({{name}} {{rate}}%):",
+    "discount": "الخصم:",
+    "serviceCharges": "رسوم الخدمة ({{value}}{{unit}}):",
+    "tip": "الإكرامية:",
+    "refundTotal": "إجمالي الاسترداد:",
+    "itemsSelected": "تم اختيار {{count}} صنف",
+    "reason": "السبب",
+    "reasonPlaceholder": "أدخل سبب الاسترداد",
+    "refundButton": "استرداد",
+    "refundButtonWithCount": "استرداد {{count}} صنف",
+    "selectAtLeastOne": "يُرجى اختيار صنف واحد على الأقل للاسترداد",
+    "cannotIdentifyUser": "تعذّر تحديد المستخدم المسجّل",
+    "success": "تم استرداد {{count}} صنف بنجاح",
+    "failed": "فشل استرداد الطلب"
+  },
+  "voidReasons": {
+    "fohNotMade": "لم يُحضّر — صالة",
+    "bohNotMade": "لم يُحضّر — مطبخ",
+    "guestNotMade": "لم يُحضّر — ضيف",
+    "fohMade": "تم التحضير — صالة",
+    "bohMade": "تم التحضير — مطبخ",
+    "guestMade": "تم التحضير — ضيف",
+    "punchByMistake": "إدخال بالخطأ",
+    "testing": "اختبار"
+  },
+  "split": {
+    "title": "تقسيم الطلب {{invoice}}",
+    "titleByAmount": "تقسيم حسب المبلغ — الطلب {{invoice}}",
+    "splitName": "تقسيم {{number}}",
+    "seatName": "مقعد {{number}}",
+    "noSeat": "بدون مقعد",
+    "toast": {
+      "success": "تم إنشاء {{count}} طلب مقسّم بنجاح",
+      "failed": "فشل تقسيم الطلب"
+    },
+    "bySeats": {
+      "heading": "تقسيمات إضافية",
+      "scrollHint": "مرّر لعرض جميع التقسيمات",
+      "total": "الإجمالي: {{amount}}",
+      "noItems": "لا توجد أصناف",
+      "dragItemsHere": "اسحب الأصناف هنا",
+      "noAdditionalSplits": "لا توجد تقسيمات إضافية",
+      "addSplitHint": "أضف تقسيماً لتوزيع الأصناف",
+      "creating": "جارٍ إنشاء التقسيمات...",
+      "save": "حفظ {{count}} تقسيم",
+      "addMoreSplits": "أضف المزيد من التقسيمات قبل الحفظ",
+      "allSplitsNeedItems": "يجب أن يحتوي كل تقسيم على صنف واحد على الأقل"
+    },
+    "byItems": {
+      "splitOneFixed": "التقسيم 1 (الرئيسي)",
+      "mainSplitHint": "تبدأ الأصناف هنا. اسحبها إلى التقسيمات الأخرى.",
+      "total": "الإجمالي: {{amount}}",
+      "noItems": "لا توجد أصناف",
+      "itemsReturnHere": "تعود الأصناف هنا عند نقلها للخلف",
+      "additionalSplits": "تقسيمات إضافية",
+      "scrollHint": "مرّر أفقياً لمزيد من التقسيمات",
+      "addSplit": "إضافة تقسيم",
+      "dragFromSplitOne": "اسحب الأصناف من التقسيم 1",
+      "moveBackToSplitOne": "نقل للعودة إلى التقسيم 1",
+      "noAdditionalSplits": "لا توجد تقسيمات إضافية",
+      "addSplitHint": "أضف تقسيماً لتوزيع الأصناف",
+      "creating": "جارٍ إنشاء التقسيمات...",
+      "save": "حفظ {{count}} تقسيم",
+      "addMoreSplits": "أضف المزيد من التقسيمات قبل الحفظ",
+      "allSplitsNeedItems": "يجب أن يحتوي كل تقسيم على صنف واحد على الأقل"
+    },
+    "byAmount": {
+      "orderTotal": "إجمالي الطلب",
+      "assignHint": "عيّن المبالغ لكل تقسيم. يجب أن يكون المتبقي صفراً.",
+      "assigned": "المُعيَّن: {{amount}}",
+      "remaining": "المتبقي: {{amount}}",
+      "amount": "المبلغ",
+      "percentage": "{{value}}%",
+      "itemsCount": "{{count}} صنف في الطلب",
+      "noItemsInOrder": "لا توجد أصناف في هذا الطلب",
+      "itemFallback": "صنف",
+      "subtotal": "المجموع الفرعي",
+      "addSplit": "إضافة تقسيم",
+      "autoFillRemaining": "تعبئة المتبقي تلقائياً",
+      "distributeEvenly": "توزيع بالتساوي",
+      "assignRemaining": "تعيين المتبقي {{amount}}",
+      "exceedsTotal": "يتجاوز الإجمالي بمقدار {{amount}}",
+      "creating": "جارٍ إنشاء التقسيمات...",
+      "save": "حفظ {{count}} تقسيم"
+    }
+  }
+}

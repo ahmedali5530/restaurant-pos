@@ -1,0 +1,23 @@
+{
+  "actions": {
+    "completeAllOpen": "Alle open bestellingen voltooien",
+    "completedOrders": "Voltooide bestellingen",
+    "viewAllDishes": "Alle gerechten bekijken",
+    "recall": "Terughalen",
+    "ready": "Klaar"
+  },
+  "labels": {
+    "avgTime": "Gem. tijd: {{time}}",
+    "avgTimeMins": "{{count}} min",
+    "addon": "EXTRA",
+    "completed": "Voltooid: {{time}}",
+    "items": "Artikelen: {{count}}"
+  },
+  "modal": {
+    "completedOrdersTitle": "{{kitchen}} voltooide bestellingen (vandaag)",
+    "noCompletedOrders": "Geen voltooide bestellingen gevonden voor vandaag."
+  },
+  "confirm": {
+    "completeAll": "Alle open bestellingen in deze keuken voltooien?"
+  }
+}

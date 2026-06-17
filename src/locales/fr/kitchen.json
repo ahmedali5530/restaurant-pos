@@ -1,0 +1,23 @@
+{
+  "actions": {
+    "completeAllOpen": "Terminer toutes les commandes en cours",
+    "completedOrders": "Commandes terminées",
+    "viewAllDishes": "Voir tous les plats",
+    "recall": "Rappeler",
+    "ready": "Prêt"
+  },
+  "labels": {
+    "avgTime": "Temps moy. : {{time}}",
+    "avgTimeMins": "{{count}} min",
+    "addon": "SUPPLÉMENT",
+    "completed": "Terminé : {{time}}",
+    "items": "Articles : {{count}}"
+  },
+  "modal": {
+    "completedOrdersTitle": "{{kitchen}} — Commandes terminées (aujourd'hui)",
+    "noCompletedOrders": "Aucune commande terminée trouvée pour aujourd'hui."
+  },
+  "confirm": {
+    "completeAll": "Terminer toutes les commandes en cours dans cette cuisine ?"
+  }
+}

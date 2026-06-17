@@ -1,0 +1,179 @@
+{
+  "customer": {
+    "name": "Name",
+    "phone": "Telefonnummer",
+    "address": "Adresse",
+    "attach": "Zuweisen",
+    "search": "Suchen",
+    "columns": {
+      "select": "Auswählen",
+      "name": "Name",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "address": "Adr.",
+      "secondaryAddress": "Zweite Adr.",
+      "points": "Punkte"
+    }
+  },
+  "filters": {
+    "status": "Bestellstatus auswählen",
+    "orderTypes": "Bestellarten auswählen",
+    "floors": "Etagen auswählen",
+    "users": "Benutzer auswählen"
+  },
+  "view": {
+    "blocks": "Blöcke",
+    "table": "Tabelle"
+  },
+  "merge": {
+    "chooseTableAlert": "Bitte einen neuen Tisch wählen",
+    "success": "Erfolgreich in {{invoiceNumber}} zusammengeführt",
+    "failed": "Zusammenführen der Bestellungen fehlgeschlagen",
+    "chooseTable": "Tisch wählen",
+    "selectTwoOrMore": "Mindestens 2 Bestellungen auswählen",
+    "confirmMerging": "Zusammenführen von {{count}} Bestellungen bestätigen",
+    "cancelMerging": "Zusammenführen abbrechen"
+  },
+  "header": {
+    "orderNumber": "Bestellung# {{invoice}} / {{orderType}}"
+  },
+  "status": {
+    "inProgress": "In Bearbeitung",
+    "paid": "Bezahlt",
+    "cancelled": "Storniert",
+    "spilt": "Aufgeteilt",
+    "merged": "Zusammengeführt",
+    "refunded": "Erstattet"
+  },
+  "totals": {
+    "items": "Artikel ({{count}})",
+    "itemsShort": "Artikel",
+    "tax": "MwSt.",
+    "discount": "Rabatt",
+    "serviceCharges": "Servicegebühr ({{value}}{{unit}})",
+    "tip": "Trinkgeld",
+    "tipPercent": "Trinkgeld %",
+    "total": "Gesamt",
+    "change": "Wechselgeld",
+    "sc": "SG ({{value}}%)",
+    "extras": "Extras"
+  },
+  "actions": {
+    "selectToMerge": "Zum Zusammenführen auswählen",
+    "more": "Mehr",
+    "cancelOrder": "Bestellung stornieren",
+    "splitBySeats": "Nach Plätzen aufteilen",
+    "splitByItems": "Nach Artikeln aufteilen",
+    "splitByAmount": "Nach Betrag aufteilen",
+    "mergeOrders": "Bestellungen zusammenführen",
+    "refund": "Rückerstattung",
+    "printFinalBillCopy": "Endrechnungskopie drucken",
+    "tempBill": "Zwischenrechnung",
+    "payNow": "Jetzt bezahlen"
+  },
+  "cancel": {
+    "title": "Bestellung stornieren",
+    "reason": "Grund",
+    "items": "Artikel",
+    "comments": "Kommentare",
+    "commentsPlaceholder": "Kommentare eingeben",
+    "confirmCancellation": "Stornierung bestätigen",
+    "unknownItem": "Unbekannter Artikel",
+    "chooseReason": "Bitte einen Grund wählen",
+    "selectAtLeastOne": "Bitte mindestens einen Artikel auswählen",
+    "cannotIdentifyUser": "Angemeldeter Benutzer konnte nicht identifiziert werden",
+    "successOrder": "Bestellung erfolgreich storniert",
+    "successItems": "Ausgewählte Artikel storniert",
+    "failed": "Bestellung konnte nicht storniert werden"
+  },
+  "refund": {
+    "title": "Bestellung erstatten",
+    "selectItems": "Zu erstattende Artikel auswählen",
+    "itemsTotal": "Artikelsumme:",
+    "tax": "MwSt. ({{name}} {{rate}}%):",
+    "discount": "Rabatt:",
+    "serviceCharges": "Servicegebühr ({{value}}{{unit}}):",
+    "tip": "Trinkgeld:",
+    "refundTotal": "Erstattungssumme:",
+    "itemsSelected": "{{count}} Artikel ausgewählt",
+    "reason": "Grund",
+    "reasonPlaceholder": "Erstattungsgrund eingeben",
+    "refundButton": "Erstatten",
+    "refundButtonWithCount": "{{count}} Artikel erstatten",
+    "selectAtLeastOne": "Bitte mindestens einen Artikel zur Erstattung auswählen",
+    "cannotIdentifyUser": "Angemeldeter Benutzer konnte nicht identifiziert werden",
+    "success": "{{count}} Artikel erfolgreich erstattet",
+    "failed": "Bestellung konnte nicht erstattet werden"
+  },
+  "voidReasons": {
+    "fohNotMade": "Service nicht zubereitet",
+    "bohNotMade": "Küche nicht zubereitet",
+    "guestNotMade": "Gast nicht zubereitet",
+    "fohMade": "Service zubereitet",
+    "bohMade": "Küche zubereitet",
+    "guestMade": "Gast zubereitet",
+    "punchByMistake": "Versehentlich erfasst",
+    "testing": "Test"
+  },
+  "split": {
+    "title": "Bestellung {{invoice}} aufteilen",
+    "titleByAmount": "Nach Betrag aufteilen — Bestellung {{invoice}}",
+    "splitName": "Teilung {{number}}",
+    "seatName": "Platz {{number}}",
+    "noSeat": "Kein Platz",
+    "toast": {
+      "success": "{{count}} geteilte Bestellung(en) erfolgreich erstellt",
+      "failed": "Bestellung konnte nicht aufgeteilt werden"
+    },
+    "bySeats": {
+      "heading": "Zusätzliche Teilungen",
+      "scrollHint": "Scrollen, um alle Teilungen zu sehen",
+      "total": "Gesamt: {{amount}}",
+      "noItems": "Keine Artikel",
+      "dragItemsHere": "Artikel hierher ziehen",
+      "noAdditionalSplits": "Keine zusätzlichen Teilungen",
+      "addSplitHint": "Teilung hinzufügen, um Artikel zu verteilen",
+      "creating": "Teilungen werden erstellt...",
+      "save": "{{count}} Teilung(en) speichern",
+      "addMoreSplits": "Weitere Teilungen hinzufügen vor dem Speichern",
+      "allSplitsNeedItems": "Alle Teilungen müssen mindestens einen Artikel haben"
+    },
+    "byItems": {
+      "splitOneFixed": "Teilung 1 (Haupt)",
+      "mainSplitHint": "Artikel starten hier. In andere Teilungen ziehen.",
+      "total": "Gesamt: {{amount}}",
+      "noItems": "Keine Artikel",
+      "itemsReturnHere": "Artikel kehren hierher zurück, wenn sie zurückverschoben werden",
+      "additionalSplits": "Zusätzliche Teilungen",
+      "scrollHint": "Horizontal scrollen für weitere Teilungen",
+      "addSplit": "Teilung hinzufügen",
+      "dragFromSplitOne": "Artikel aus Teilung 1 ziehen",
+      "moveBackToSplitOne": "Zurück zu Teilung 1 verschieben",
+      "noAdditionalSplits": "Keine zusätzlichen Teilungen",
+      "addSplitHint": "Teilung hinzufügen, um Artikel zu verteilen",
+      "creating": "Teilungen werden erstellt...",
+      "save": "{{count}} Teilung(en) speichern",
+      "addMoreSplits": "Weitere Teilungen hinzufügen vor dem Speichern",
+      "allSplitsNeedItems": "Alle Teilungen müssen mindestens einen Artikel haben"
+    },
+    "byAmount": {
+      "orderTotal": "Bestellsumme",
+      "assignHint": "Beträge jeder Teilung zuweisen. Rest muss null sein.",
+      "assigned": "Zugewiesen: {{amount}}",
+      "remaining": "Verbleibend: {{amount}}",
+      "amount": "Betrag",
+      "percentage": "{{value}}%",
+      "itemsCount": "{{count}} Artikel in Bestellung",
+      "noItemsInOrder": "Keine Artikel in dieser Bestellung",
+      "itemFallback": "Artikel",
+      "subtotal": "Zwischensumme",
+      "addSplit": "Teilung hinzufügen",
+      "autoFillRemaining": "Rest automatisch ausfüllen",
+      "distributeEvenly": "Gleichmäßig verteilen",
+      "assignRemaining": "Verbleibende {{amount}} zuweisen",
+      "exceedsTotal": "Überschreitet Gesamtsumme um {{amount}}",
+      "creating": "Teilungen werden erstellt...",
+      "save": "{{count}} Teilung(en) speichern"
+    }
+  }
+}

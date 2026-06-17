@@ -1,0 +1,170 @@
+{
+  "screen": {
+    "previousDate": "Data anterior",
+    "nextDate": "Próxima data",
+    "printSummary": "Imprimir resumo",
+    "productMixReport": "Relatório de Mix de Produtos",
+    "serverSales": "Vendas por Garçom"
+  },
+  "security": {
+    "printSummaryDescription": "Imprimir resumo",
+    "printSummaryModule": "Imprimir resumo",
+    "productMixDescription": "Relatório de mix de produtos",
+    "productMixModule": "Relatório de mix de produtos",
+    "serverSalesDescription": "Vendas por garçom",
+    "serverSalesModule": "Vendas por garçom"
+  },
+  "unknown": {
+    "user": "Desconhecido",
+    "item": "Item Desconhecido",
+    "coupon": "Desconhecido"
+  },
+  "report": {
+    "title": "Resumo de vendas diárias — {{date}}",
+    "orderDiscount": "Desconto do pedido",
+    "uncategorized": "Sem categoria",
+    "unknownItem": "Item desconhecido",
+    "sections": {
+      "salesRevenue": "1. Receita de vendas",
+      "surchargesTaxes": "2. Acréscimos e impostos",
+      "settlementCashier": "3. Liquidação e caixa",
+      "operationalControls": "4. Controles operacionais",
+      "productMix": "5. Mix de produtos",
+      "paymentTypes": "6. Tipos de pagamento",
+      "taxesBreakdown": "7. Detalhamento de impostos",
+      "discountsBreakdown": "8. Detalhamento de descontos",
+      "extrasBreakdown": "9. Detalhamento de extras",
+      "couponsBreakdown": "10. Detalhamento de cupons"
+    },
+    "subtitles": {
+      "surchargesTaxes": "Acréscimos e impostos cobrados (dos pedidos; normalmente calculados sobre o líquido após desconto).",
+      "settlementCashier": "Visão do caixa.",
+      "operationalControls": "Sinais de auditoria (cancelamentos separados das vendas brutas).",
+      "productMix": "Categorias agrupadas com pratos e seus modificadores.",
+      "paymentTypes": "Valor cobrado dividido por forma de pagamento.",
+      "taxesBreakdown": "Componentes de imposto cobrados dos pedidos.",
+      "discountsBreakdown": "Esquemas de desconto aplicados neste período.",
+      "extrasBreakdown": "Detalhamento de extras no nível do pedido.",
+      "couponsBreakdown": "Cupons resgatados e seus valores."
+    },
+    "rows": {
+      "exclusiveSales": "Vendas exclusivas",
+      "extras": "Extras",
+      "grossSales": "Vendas brutas",
+      "itemDiscounts": "Descontos por item",
+      "subtotalDiscounts": "Descontos no subtotal",
+      "couponDiscounts": "Descontos de cupom",
+      "discounts": "(−) Descontos",
+      "netSales": "Vendas líquidas",
+      "serviceCharges": "Taxa de serviço",
+      "taxes": "Impostos",
+      "totalRevenue": "Receita total",
+      "amountDueBeforeTips": "Valor devido (antes das gorjetas)",
+      "tips": "Gorjetas",
+      "grandTotalDue": "Total geral (devido)",
+      "amountCollected": "Valor recebido",
+      "rounding": "Arredondamento",
+      "changeVariance": "Troco / variação",
+      "voids": "Cancelamentos",
+      "refunds": "Reembolsos",
+      "covers": "Coberturas",
+      "averageCover": "Média por cobertura",
+      "ordersChecks": "Pedidos / comandas",
+      "averageOrderCheck": "Média por pedido / comanda",
+      "totalTips": "Total de Gorjetas"
+    },
+    "hints": {
+      "exclusiveSales": "Somente vendas de itens (antes de extras, serviço e imposto).",
+      "extras": "Extras e acréscimos no nível do pedido vinculados às comandas.",
+      "grossSales": "Vendas exclusivas + extras (linhas canceladas excluídas).",
+      "itemDiscounts": "Valor de desconto aplicado diretamente nos itens.",
+      "subtotalDiscounts": "Descontos no nível do pedido, excluindo reduções por item.",
+      "couponDiscounts": "Valor de resgate de cupom.",
+      "discounts": "Reduções por linha, pedido e cupom.",
+      "netSales": "Vendas brutas − descontos.",
+      "serviceCharges": "Valor nos pedidos; baseado no líquido após desconto",
+      "taxes": "Imposto governamental conforme registrado por pedido.",
+      "totalRevenue": "Vendas líquidas + taxa de serviço + impostos (antes das gorjetas).",
+      "amountDueBeforeTips": "Vendas líquidas + taxa de serviço + impostos.",
+      "tips": "Dos campos de gorjeta do pedido / acima do total (não incluído nas vendas brutas).",
+      "grandTotalDue": "Receita total + gorjetas.",
+      "amountCollected": "Totais de pagamento aplicados por forma (exclui troco devolvido).",
+      "rounding": "Valor recebido − total geral (devido); sobra/falta em relação ao devido calculado.",
+      "changeVariance": "Dinheiro entregue em excesso dos valores de pagamento aplicados.",
+      "voids": "Valor de linhas removidas após lançamento (não nas vendas brutas acima).",
+      "refunds": "Devoluções de pagamentos negativos ou comandas canceladas.",
+      "covers": "Número de clientes (pax).",
+      "averageCover": "Valor devido (antes das gorjetas) ÷ coberturas.",
+      "ordersChecks": "Número de comandas/pedidos fechados.",
+      "averageOrderCheck": "Valor devido (antes das gorjetas) ÷ pedidos.",
+      "roundingLegacy": "Valor recebido - Valor devido"
+    },
+    "columns": {
+      "item": "Item",
+      "qty": "Qtd",
+      "total": "Total",
+      "share": "Participação"
+    },
+    "empty": {
+      "noCategoryData": "Nenhum dado de categoria para esta data.",
+      "noPaymentData": "Nenhum dado de pagamento para esta data.",
+      "noTaxRows": "Nenhuma linha de imposto para esta data.",
+      "noDiscountRows": "Nenhuma linha de desconto para esta data.",
+      "noExtras": "Nenhum extra encontrado para esta data.",
+      "noCoupons": "Nenhum uso de cupom para esta data."
+    },
+    "footer": "Sequência: vendas brutas → descontos → vendas líquidas → taxa de serviço → impostos → gorjetas → total geral → recebido. O mix de produtos é agrupado por categoria com pratos aninhados.",
+    "legacy": {
+      "tips": "Gorjetas",
+      "categories": "Categorias",
+      "dishes": "Pratos",
+      "paymentTypes": "Tipos de pagamento",
+      "taxes": "Impostos",
+      "discounts": "Descontos",
+      "extras": "Extras",
+      "coupons": "Cupons",
+      "covers": "Coberturas",
+      "averageCover": "Média por cobertura",
+      "ordersChecks": "Pedidos/Comandas",
+      "averageOrderCheck": "Média por pedido/comanda"
+    }
+  },
+  "clock": {
+    "title": "Registro de Ponto",
+    "subtitle": "Acompanhe suas horas de trabalho",
+    "saleSummary": "Resumo de Vendas",
+    "loadingSaleData": "Carregando dados de vendas...",
+    "loading": "Carregando...",
+    "signedInAs": "Conectado como",
+    "shift": "Turno",
+    "endsNextDay": "termina no dia seguinte",
+    "clockInTime": "Horário de Entrada",
+    "timeElapsed": "Tempo Decorrido",
+    "sinceClockIn": "Desde a entrada",
+    "clockOut": "Registrar Saída",
+    "metrics": {
+      "totalSales": "Vendas Totais",
+      "refunds": "Reembolsos",
+      "serviceCharges": "Taxa de Serviço",
+      "discounts": "Descontos",
+      "taxes": "Impostos",
+      "extras": "Extras",
+      "voids": "Cancelamentos",
+      "tips": "Gorjetas"
+    }
+  },
+  "tipDistribution": {
+    "shift": "Turno",
+    "date": "Data",
+    "loadTips": "Carregar gorjetas",
+    "submit": "Enviar",
+    "totalTips": "Total de gorjetas: {{amount}}",
+    "columns": {
+      "user": "Usuário",
+      "role": "Função",
+      "weight": "Peso",
+      "amount": "Valor"
+    },
+    "empty": "Nenhuma distribuição calculada ainda."
+  }
+}

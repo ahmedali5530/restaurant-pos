@@ -1,0 +1,10 @@
+{
+  "seats": {
+    "seat": "Coperto",
+    "noSeat": "Nessun coperto",
+    "seatNumber": "Coperto n. {{number}}",
+    "newSeat": "Nuovo coperto",
+    "deleteSeat": "Coperto?",
+    "addComment": "Aggiungi commento"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "actions": {
+    "completeAllOpen": "إكمال جميع الطلبات المفتوحة",
+    "completedOrders": "الطلبات المكتملة",
+    "viewAllDishes": "عرض جميع الأطباق",
+    "recall": "استرجاع",
+    "ready": "جاهز"
+  },
+  "labels": {
+    "avgTime": "متوسط الوقت: {{time}}",
+    "avgTimeMins": "{{count}} دقيقة",
+    "addon": "إضافة",
+    "completed": "مكتمل: {{time}}",
+    "items": "الأصناف: {{count}}"
+  },
+  "modal": {
+    "completedOrdersTitle": "طلبات {{kitchen}} المكتملة (اليوم)",
+    "noCompletedOrders": "لم يُعثر على طلبات مكتملة لليوم."
+  },
+  "confirm": {
+    "completeAll": "إكمال جميع الطلبات المفتوحة في هذا المطبخ؟"
+  }
+}

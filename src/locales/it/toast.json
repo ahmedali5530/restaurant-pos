@@ -1,0 +1,82 @@
+{
+  "generic": {
+    "saved": "Salvato con successo",
+    "updated": "Aggiornato con successo",
+    "deleted": "Eliminato con successo",
+    "created": "Creato con successo",
+    "failed": "Operazione non riuscita",
+    "error": "Si è verificato un errore"
+  },
+  "inventory": {
+    "wasteSaved": "Scarto salvato",
+    "issueSaved": "Scarico salvato",
+    "issueReturnSaved": "Reso scarico salvato",
+    "purchaseSaved": "Acquisto salvato",
+    "purchaseReturnSaved": "Reso acquisto salvato",
+    "purchaseOrderSaved": "Ordine di acquisto salvato",
+    "itemGroupSaved": "Gruppo articoli salvato",
+    "itemSaved": "Articolo {{name}} salvato",
+    "categorySaved": "Categoria {{name}} salvata",
+    "supplierSaved": "Fornitore {{name}} salvato",
+    "storeSaved": "Magazzino {{name}} salvato",
+    "unableGenerateWasteNumber": "Impossibile generare il prossimo numero scarto",
+    "unableGenerateIssueNumber": "Impossibile generare il prossimo numero scarico",
+    "unableGenerateIssueReturnNumber": "Impossibile generare il prossimo numero reso scarico",
+    "unableGenerateInvoiceNumber": "Impossibile generare il prossimo numero fattura",
+    "unableGenerateReturnNumber": "Impossibile generare il prossimo numero reso",
+    "unableGeneratePoNumber": "Impossibile generare il prossimo numero ordine di acquisto",
+    "itemsExceedQuantity": "Uno o più articoli superano la quantità disponibile"
+  },
+  "delivery": {
+    "settingsSaved": "Impostazioni consegna salvate con successo",
+    "settingsLoadFailed": "Caricamento impostazioni consegna non riuscito",
+    "settingsSaveFailed": "Salvataggio impostazioni consegna non riuscito",
+    "mapAreasSaved": "Aree mappa salvate con successo",
+    "mapAreasSaveFailed": "Salvataggio aree mappa non riuscito",
+    "mapAreasLoadFailed": "Caricamento aree mappa non riuscito",
+    "shapeTooSmall": "La forma è troppo piccola. Trascina un'area più grande.",
+    "rectangleTooSmall": "Il rettangolo è troppo piccolo. Trascina un'area più grande.",
+    "circleTooSmall": "Il cerchio è troppo piccolo. Trascina un raggio più grande.",
+    "polygonTooSmall": "Il poligono è troppo piccolo. Trascina un contorno più grande.",
+    "fetchRidersFailed": "Recupero rider non riuscito",
+    "acceptFailed": "Accettazione ordine non riuscita",
+    "rejectFailed": "Rifiuto ordine non riuscito",
+    "sendFailed": "Invio ordine non riuscito",
+    "attachRiderFailed": "Assegnazione rider non riuscita"
+  },
+  "reports": {
+    "mapAreasSaveFailed": "Salvataggio aree mappa non riuscito"
+  },
+  "kitchen": {
+    "recallFailed": "Richiamo ordine non riuscito"
+  },
+  "closing": {
+    "loadFailed": "Caricamento chiusura non riuscito",
+    "alreadyClosed": "Questo ciclo è già chiuso.",
+    "openOrders": "Ci sono ordini aperti. Chiudili prima.",
+    "completed": "Chiusura completata con successo!",
+    "savedDraft": "Chiusura salvata come bozza con successo!",
+    "saveFailed": "Salvataggio chiusura non riuscito",
+    "notFound": "Nessuna chiusura trovata per questo ciclo.",
+    "reopened": "Chiusura riaperta in modalità modifica.",
+    "reopenFailed": "Riapertura chiusura non riuscita",
+    "printFailed": "Stampa chiusura non riuscita"
+  },
+  "summary": {
+    "noProductMix": "Nessun articolo trovato per il product mix.",
+    "noTimeEntries": "Nessuna timbratura completata trovata per questa data.",
+    "noServerSales": "Nessun dato vendite per cameriere trovato per questa data."
+  },
+  "clock": {
+    "noActiveEntry": "Nessuna timbratura attiva trovata",
+    "loadEntryFailed": "Caricamento timbratura non riuscito",
+    "loadSaleSummaryFailed": "Caricamento riepilogo vendite non riuscito",
+    "clockedOut": "Uscita timbrata con successo",
+    "clockOutFailed": "Timbratura uscita non riuscita"
+  },
+  "tipDistribution": {
+    "selectShiftAndDate": "Seleziona turno e data",
+    "unableToDeriveRange": "Impossibile ricavare l'intervallo orario dal turno",
+    "saved": "Distribuzione mance salvata"
+  }
+}

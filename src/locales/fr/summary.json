@@ -1,0 +1,170 @@
+{
+  "screen": {
+    "previousDate": "Date précédente",
+    "nextDate": "Date suivante",
+    "printSummary": "Imprimer le résumé",
+    "productMixReport": "Rapport mix produits",
+    "serverSales": "Ventes par serveur"
+  },
+  "security": {
+    "printSummaryDescription": "Imprimer le résumé",
+    "printSummaryModule": "Imprimer le résumé",
+    "productMixDescription": "Rapport mix produits",
+    "productMixModule": "Rapport mix produits",
+    "serverSalesDescription": "Ventes par serveur",
+    "serverSalesModule": "Ventes par serveur"
+  },
+  "unknown": {
+    "user": "Inconnu",
+    "item": "Article inconnu",
+    "coupon": "Inconnu"
+  },
+  "report": {
+    "title": "Résumé des ventes journalières — {{date}}",
+    "orderDiscount": "Remise sur commande",
+    "uncategorized": "Non catégorisé",
+    "unknownItem": "Article inconnu",
+    "sections": {
+      "salesRevenue": "1. Chiffre d'affaires",
+      "surchargesTaxes": "2. Suppléments et taxes",
+      "settlementCashier": "3. Règlement et caisse",
+      "operationalControls": "4. Contrôles opérationnels",
+      "productMix": "5. Mix produits",
+      "paymentTypes": "6. Types de paiement",
+      "taxesBreakdown": "7. Détail des taxes",
+      "discountsBreakdown": "8. Détail des remises",
+      "extrasBreakdown": "9. Détail des suppléments",
+      "couponsBreakdown": "10. Détail des coupons"
+    },
+    "subtitles": {
+      "surchargesTaxes": "Suppléments et taxes collectés (depuis les commandes ; généralement calculés sur le net après remise).",
+      "settlementCashier": "Vue de la caisse.",
+      "operationalControls": "Signaux d'audit (annulations distinctes du chiffre d'affaires brut).",
+      "productMix": "Catégories regroupées avec les plats et leurs modificateurs.",
+      "paymentTypes": "Montant collecté réparti par mode de paiement.",
+      "taxesBreakdown": "Composantes fiscales collectées sur les commandes.",
+      "discountsBreakdown": "Schémas de remise appliqués sur cette période.",
+      "extrasBreakdown": "Détail des suppléments au niveau de la commande.",
+      "couponsBreakdown": "Coupons utilisés et leurs valeurs."
+    },
+    "rows": {
+      "exclusiveSales": "Ventes hors taxes",
+      "extras": "Suppléments",
+      "grossSales": "Ventes brutes",
+      "itemDiscounts": "Remises sur articles",
+      "subtotalDiscounts": "Remises sur sous-total",
+      "couponDiscounts": "Remises coupon",
+      "discounts": "(−) Remises",
+      "netSales": "Ventes nettes",
+      "serviceCharges": "Frais de service",
+      "taxes": "Taxes",
+      "totalRevenue": "Chiffre d'affaires total",
+      "amountDueBeforeTips": "Montant dû (avant pourboires)",
+      "tips": "Pourboires",
+      "grandTotalDue": "Total général (dû)",
+      "amountCollected": "Montant encaissé",
+      "rounding": "Arrondi",
+      "changeVariance": "Monnaie / écart",
+      "voids": "Annulations",
+      "refunds": "Remboursements",
+      "covers": "Couverts",
+      "averageCover": "Couvert moyen",
+      "ordersChecks": "Commandes / tickets",
+      "averageOrderCheck": "Commande / ticket moyen",
+      "totalTips": "Total des pourboires"
+    },
+    "hints": {
+      "exclusiveSales": "Ventes d'articles uniquement (avant suppléments, service et taxes).",
+      "extras": "Suppléments et surcharges au niveau de la commande attachés aux tickets.",
+      "grossSales": "Ventes hors taxes + suppléments (lignes annulées exclues).",
+      "itemDiscounts": "Valeur de remise appliquée directement sur les lignes d'articles.",
+      "subtotalDiscounts": "Remises au niveau de la commande hors réductions au niveau des articles.",
+      "couponDiscounts": "Montant de l'utilisation des coupons.",
+      "discounts": "Réductions sur lignes, commandes et coupons.",
+      "netSales": "Ventes brutes − remises.",
+      "serviceCharges": "Montant sur les commandes ; basé sur le net après remise",
+      "taxes": "Taxe gouvernementale enregistrée par commande.",
+      "totalRevenue": "Ventes nettes + frais de service + taxes (avant pourboires).",
+      "amountDueBeforeTips": "Ventes nettes + frais de service + taxes.",
+      "tips": "Depuis les champs pourboire des commandes / au-delà du total (non inclus dans les ventes brutes).",
+      "grandTotalDue": "Chiffre d'affaires total + pourboires.",
+      "amountCollected": "Totaux des paiements appliqués par mode (hors monnaie rendue).",
+      "rounding": "Montant encaissé − total général (dû) ; excédent/manque par rapport au dû calculé.",
+      "changeVariance": "Espèces remises en excès des montants de paiement appliqués.",
+      "voids": "Valeur des lignes supprimées après saisie (non incluse dans les ventes brutes ci-dessus).",
+      "refunds": "Retours issus de paiements négatifs ou de tickets annulés.",
+      "covers": "Nombre de couverts.",
+      "averageCover": "Montant dû (avant pourboires) ÷ couverts.",
+      "ordersChecks": "Nombre de tickets/commandes clôturés.",
+      "averageOrderCheck": "Montant dû (avant pourboires) ÷ commandes.",
+      "roundingLegacy": "Montant encaissé - Montant dû"
+    },
+    "columns": {
+      "item": "Article",
+      "qty": "Qté",
+      "total": "Total",
+      "share": "Part"
+    },
+    "empty": {
+      "noCategoryData": "Aucune donnée de catégorie pour cette date.",
+      "noPaymentData": "Aucune donnée de paiement pour cette date.",
+      "noTaxRows": "Aucune ligne de taxe pour cette date.",
+      "noDiscountRows": "Aucune ligne de remise pour cette date.",
+      "noExtras": "Aucun supplément trouvé pour cette date.",
+      "noCoupons": "Aucune utilisation de coupon pour cette date."
+    },
+    "footer": "Séquence : ventes brutes → remises → ventes nettes → frais de service → taxes → pourboires → total général → encaissé. Le mix produits est regroupé par catégorie avec les plats imbriqués.",
+    "legacy": {
+      "tips": "Pourboires",
+      "categories": "Catégories",
+      "dishes": "Plats",
+      "paymentTypes": "Types de paiement",
+      "taxes": "Taxes",
+      "discounts": "Remises",
+      "extras": "Suppléments",
+      "coupons": "Coupons",
+      "covers": "Couverts",
+      "averageCover": "Couvert moyen",
+      "ordersChecks": "Commandes/Tickets",
+      "averageOrderCheck": "Commande/ticket moyen"
+    }
+  },
+  "clock": {
+    "title": "Pointage",
+    "subtitle": "Suivez vos heures de travail",
+    "saleSummary": "Résumé des ventes",
+    "loadingSaleData": "Chargement des données de vente...",
+    "loading": "Chargement...",
+    "signedInAs": "Connecté en tant que",
+    "shift": "Service",
+    "endsNextDay": "se termine le lendemain",
+    "clockInTime": "Heure d'entrée",
+    "timeElapsed": "Temps écoulé",
+    "sinceClockIn": "Depuis le pointage d'entrée",
+    "clockOut": "Pointer la sortie",
+    "metrics": {
+      "totalSales": "Ventes totales",
+      "refunds": "Remboursements",
+      "serviceCharges": "Frais de service",
+      "discounts": "Remises",
+      "taxes": "Taxes",
+      "extras": "Suppléments",
+      "voids": "Annulations",
+      "tips": "Pourboires"
+    }
+  },
+  "tipDistribution": {
+    "shift": "Service",
+    "date": "Date",
+    "loadTips": "Charger les pourboires",
+    "submit": "Soumettre",
+    "totalTips": "Total des pourboires : {{amount}}",
+    "columns": {
+      "user": "Utilisateur",
+      "role": "Rôle",
+      "weight": "Poids",
+      "amount": "Montant"
+    },
+    "empty": "Aucune répartition calculée pour le moment."
+  }
+}
