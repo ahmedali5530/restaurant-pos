@@ -7,6 +7,7 @@ import {Order, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
 import {formatNumber, safeNumber, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {APIProvider, Map as GoogleMap, useMap} from "@vis.gl/react-google-maps";
+import {MarkerClusterer, type Cluster, type ClusterStats, type Renderer} from "@googlemaps/markerclusterer";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 
 interface ReportFilters {
@@ -27,13 +28,6 @@ interface ReportFilters {
   showDetails?: boolean;
   sortBy?: string;
   sortDirection: "Ascending" | "Descending";
-}
-
-interface MapPoint {
-  lat: number;
-  lng: number;
-  count: number;
-  area: string;
 }
 
 const getAddressArea = (address?: string | null): string => {
@@ -92,33 +86,87 @@ const getOrderCoordinates = (order: Order): {lat: number; lng: number} | null =>
   return {lat, lng};
 };
 
-const DensityMapOverlay = ({points}: {points: MapPoint[]}) => {
+const getClusterColor = (count: number): string => {
+  if (count >= 16) return "#F43A30";
+  if (count >= 6) return "#FFA514";
+  return "#0046FE";
+};
+
+const clusterRenderer: Renderer = {
+  render({count, position}: Cluster, _stats: ClusterStats) {
+    const color = getClusterColor(count);
+    const size = Math.min(50, 36 + Math.floor(count / 2));
+    const svg = btoa(`
+<svg fill="${color}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+  <circle cx="120" cy="120" opacity=".6" r="70" />
+  <circle cx="120" cy="120" opacity=".3" r="90" />
+  <circle cx="120" cy="120" opacity=".2" r="110" />
+</svg>`);
+
+    return new google.maps.Marker({
+      position,
+      icon: {
+        url: `data:image/svg+xml;base64,${svg}`,
+        scaledSize: new google.maps.Size(size, size),
+      },
+      label: {
+        text: String(count),
+        color: "#ffffff",
+        fontSize: "12px",
+        fontWeight: "bold",
+      },
+      zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
+    });
+  },
+};
+
+const DeliveryDensityClusterOverlay = ({orders}: {orders: Order[]}) => {
   const map = useMap();
 
   useEffect(() => {
     if (!map || !globalThis.google?.maps) return;
 
-    const circles: google.maps.Circle[] = [];
-    for (const point of points) {
-      const intensity = Math.min(1, point.count / 8);
-      const radius = 120 + point.count * 80;
-      const circle = new google.maps.Circle({
-        map,
-        center: {lat: point.lat, lng: point.lng},
-        radius,
-        strokeColor: "#ef4444",
-        strokeOpacity: 0.8,
-        strokeWeight: 1.5,
-        fillColor: "#ef4444",
-        fillOpacity: 0.15 + intensity * 0.35,
-      });
-      circles.push(circle);
+    const markers: google.maps.Marker[] = [];
+    for (const order of orders) {
+      const coordinates = getOrderCoordinates(order);
+      if (!coordinates) continue;
+
+      markers.push(new google.maps.Marker({
+        position: coordinates,
+        title: getAddressArea(order?.delivery?.address),
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 8,
+          fillColor: "#F43A30",
+          fillOpacity: 1,
+          strokeColor: "#ffffff",
+          strokeWeight: 2,
+        },
+      }));
+    }
+
+    const clusterer = new MarkerClusterer({
+      map,
+      markers,
+      renderer: clusterRenderer,
+    });
+
+    if (markers.length > 0) {
+      const bounds = new google.maps.LatLngBounds();
+      for (const marker of markers) {
+        const position = marker.getPosition();
+        if (position) bounds.extend(position);
+      }
+      if (!bounds.isEmpty()) {
+        map.fitBounds(bounds, 40);
+      }
     }
 
     return () => {
-      circles.forEach(circle => circle.setMap(null));
+      clusterer.clearMarkers();
+      markers.forEach(marker => marker.setMap(null));
     };
-  }, [map, points]);
+  }, [map, orders]);
 
   return null;
 };
@@ -252,28 +300,15 @@ export const DeliveryDensityReport = () => {
     return next;
   }, [orders, filters]);
 
-  const densityPoints = useMemo(() => {
-    const grouped = new Map<string, MapPoint>();
+  const locationCount = useMemo(() => {
+    const locations = new Set<string>();
     for (const order of filteredOrders) {
       const coordinates = getOrderCoordinates(order);
       if (!coordinates) continue;
-      const key = `${coordinates.lat.toFixed(3)}:${coordinates.lng.toFixed(3)}`;
-      const area = getAddressArea(order?.delivery?.address);
-
-      if (!grouped.has(key)) {
-        grouped.set(key, {lat: coordinates.lat, lng: coordinates.lng, count: 0, area});
-      }
-      grouped.get(key)!.count += 1;
+      locations.add(`${coordinates.lat.toFixed(6)}:${coordinates.lng.toFixed(6)}`);
     }
-    return Array.from(grouped.values());
+    return locations.size;
   }, [filteredOrders]);
-
-  const mapDisplayCenter = useMemo(() => {
-    if (densityPoints.length > 0) {
-      return {lat: densityPoints[0].lat, lng: densityPoints[0].lng};
-    }
-    return mapCenter;
-  }, [densityPoints, mapCenter]);
 
   if (loading) {
     return (
@@ -298,20 +333,19 @@ export const DeliveryDensityReport = () => {
           <div className="bg-neutral-100 px-6 py-3 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-neutral-700">Order Density Map</h3>
             <span className="text-xs text-neutral-600">
-              {formatNumber(filteredOrders.length)} orders • {formatNumber(densityPoints.length)} clusters
+              {formatNumber(filteredOrders.length)} orders • {formatNumber(locationCount)} locations
             </span>
           </div>
           <div className="h-[420px] w-full">
             <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
               <GoogleMap
                 className="h-full w-full"
-                defaultCenter={mapDisplayCenter}
-                center={mapDisplayCenter}
+                defaultCenter={mapCenter}
                 defaultZoom={11}
                 gestureHandling="greedy"
                 disableDefaultUI
               >
-                <DensityMapOverlay points={densityPoints} />
+                <DeliveryDensityClusterOverlay orders={filteredOrders} />
               </GoogleMap>
             </APIProvider>
           </div>
