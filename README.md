@@ -1,5 +1,5 @@
-# 🍽️ Open Source Restaurant POS System (React + SurrealDB)
-### ⚡ Fast • Multi-Branch • Touch Optimized • Full Restaurant Operations Platform
+# 🍽️ Open Source Restaurant POS System (React + SurrealDB) - Multi-Lingual Support
+### ⚡ Fast • Multi-Branch • Touch Optimized • Multi-Lingual • Full Restaurant Operations Platform
 
 A complete **restaurant management ecosystem** built for real-world cafés, restaurants, and food chains.
 
@@ -10,7 +10,7 @@ Designed to handle everything from **ordering → kitchen → delivery → staff
 ## 🚀 Live Demo
 
 👉 **Try it here:** [Demo](https://ahmedali5530.xyz/posr.html)  
-🔑 Login: `1234, 0000, 5555`
+🔑 Login: `1234, 0000, 5555 (super admin)`
 
 ---
 
@@ -26,21 +26,22 @@ Most restaurant systems are:
 This system solves that by combining everything into one platform:
 
 - ⚡ Real-time restaurant operations
-- 🍽️ Full kitchen + order lifecycle
+- 🍽️ Full kitchen and order lifecycle
 - 🍔 Advanced dish & modifiers management
 - 🚚 Built-in delivery workflow
 - 👨‍💼 Staff + manager + admin roles
 - 🔐 Secure protected modules
-- 📊 Full reporting & analytics layer
+- 📊 Full reporting and analytics layer
 - 🏪 Multi-branch scalable system
-- 🪑 Seat-based ordering & splitting
+- 🪑 Seat-based ordering and splitting
 - 📑 Multi-order table management
 - ☁️ Realtime Sync to cloud
 - 💾 Automatic backups
-- 💰 Automatic check closing + closing cycles
+- 💰 Automatic check closing and closing cycles
 - 📋 Multiple menus support
 - 💳 Third-party payment gateways support (Stripe, PayPal, M-Pesa, etc.)
 - 🖨️ ESC/POS Printing Support (USB, Network, Serial, Bluetooth)
+- 🌍 Multi-lingual interface support
 
 ---
 
@@ -222,6 +223,23 @@ This system solves that by combining everything into one platform:
 - **Multi-Store Support:** Manage inventory across different storage locations or branches.
 - **Low Stock Alerts:** Automated notifications when items fall below safety levels.
 - **Supplier Management:** Maintain a database of suppliers and their performance.
+
+---
+
+### 🌍 Multi-Lingual Support
+- **9 Supported Languages:**
+    - 🇬🇧 **English**
+    - 🇪🇸 **Español** (Spanish)
+    - 🇹🇷 **Türkçe** (Turkish)
+    - 🇧🇷 **Português** (Brazilian Portuguese)
+    - 🇫🇷 **Français** (French)
+    - 🇳🇱 **Nederlands** (Dutch)
+    - 🇩🇪 **Deutsch** (German)
+    - 🇮🇹 **Italiano** (Italian)
+    - 🇸🇦 **العربية** (Arabic)
+- **RTL Support:** Full right-to-left text direction support for Arabic and other RTL languages.
+- **Dynamic Language Switching:** Users can switch languages on-the-fly without reloading.
+- **Localized Interface:** All UI elements, menus, and system messages are fully translated.
 
 ---
 
