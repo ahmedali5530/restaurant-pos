@@ -6,6 +6,7 @@ const logger = require('../lib/logger');
 const {
   validateCreateIntentRequest,
   validateVerifyRequest,
+  validateCaptureRequest,
 } = require('../lib/validation');
 
 async function createIntent(req, res, next) {
@@ -55,7 +56,33 @@ async function verifyPayment(req, res, next) {
   }
 }
 
+async function capturePayment(req, res, next) {
+  try {
+    const payload = validateCaptureRequest(req.body);
+    const driver = getGatewayDriver(payload.gateway);
+    if (typeof driver.capture !== 'function') {
+      throw new Error(`Gateway ${payload.gateway} does not support capture`);
+    }
+    const data = await driver.capture(payload);
+    logger.info('controller', 'capturePayment success', {
+      gateway: payload.gateway,
+      status: data.status,
+      reference: data.reference,
+    });
+    sendSuccess(res, data);
+  } catch (err) {
+    logger.error('controller', 'capturePayment failed', {
+      gateway: req.body?.gateway,
+      intentId: req.body?.intentId,
+      message: err.message,
+      details: err.details,
+    });
+    next(err);
+  }
+}
+
 module.exports = {
   createIntent,
   verifyPayment,
+  capturePayment,
 };

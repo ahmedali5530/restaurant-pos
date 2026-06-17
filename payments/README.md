@@ -67,19 +67,21 @@ Request:
 }
 ```
 
-Response (scaffold mode):
+Response (scaffold mode for razorpay/jazzcash only):
 
 ```json
 {
   "success": true,
   "data": {
     "gateway": "stripe",
-    "intentId": "stripe_intent_xxx",
-    "paymentUrl": "https://mock-payments.local/stripe/pay/xxx",
-    "clientToken": null,
+    "intentId": "pi_xxx",
+    "paymentUrl": null,
+    "clientToken": "pi_xxx_secret_xxx",
     "status": "pending",
     "expiresAt": "2026-03-07T12:00:00.000Z",
-    "gatewayPayload": {}
+    "gatewayPayload": {
+      "publishableKey": "pk_test_xxx"
+    }
   }
 }
 ```
@@ -93,16 +95,31 @@ Request:
 ```json
 {
   "gateway": "paypal",
-  "paymentId": "PAY-123",
+  "intentId": "ORDER_ID",
   "metadata": {
+    "paymentTypeId": "payment_type:abc123",
     "orderId": "order-123"
+  }
+}
+```
+
+### `POST /payments/capture`
+
+Captures an approved PayPal order (embedded PayPal buttons flow).
+
+```json
+{
+  "gateway": "paypal",
+  "intentId": "PAYPAL_ORDER_ID",
+  "metadata": {
+    "paymentTypeId": "payment_type:abc123"
   }
 }
 ```
 
 ### `POST /webhooks/:gateway`
 
-Webhook receiver endpoint. Signature verification is scaffolded and should be implemented per gateway in production mode.
+Webhook receiver for Stripe, PayPal, Razorpay, and JazzCash (fixed dashboard URL). Order-scoped webhooks use `POST /webhooks/:gateway/:orderKey` (M-Pesa, Telebirr).
 
 ## Supported Gateways
 
@@ -114,6 +131,189 @@ Webhook receiver endpoint. Signature verification is scaffolded and should be im
 - `telebirr` (Ethio Telecom Fabric C2B checkout with POS QR display)
 
 Each gateway has its own driver under `src/gateways/drivers`.
+
+## Stripe (Embedded Elements)
+
+Stripe uses **real Stripe API** calls via PaymentIntents. Credentials are loaded from SurrealDB per payment type. The POS renders **Stripe Elements** in the pending payments panel using the publishable key and client secret returned from `create-intent`.
+
+### Admin setup
+
+1. Create a **Remote** payment type with gateway `stripe` and mode `sandbox` or `live`.
+2. Fill gateway keys on the payment type:
+   - **Publishable Key** → `pk_test_...` or `pk_live_...`
+   - **Secret Key** → `sk_test_...` or `sk_live_...`
+   - **Webhook Signing Secret** → `whsec_...` (from Stripe Dashboard → Webhooks)
+
+### Create intent (Stripe)
+
+- `gateway`: `stripe`
+- `metadata.paymentTypeId`: Surreal `payment_type` record id
+
+Response: `intentId` is the PaymentIntent id; `clientToken` is the client secret; `gatewayPayload.publishableKey` is safe for the browser.
+
+### Verify
+
+```json
+{
+  "gateway": "stripe",
+  "intentId": "pi_xxx",
+  "metadata": { "paymentTypeId": "payment_type:abc123" }
+}
+```
+
+- `succeeded` → `paid`
+- `requires_capture` → `authorized`
+- `canceled` → `canceled`
+
+### Webhook
+
+Configure Stripe Dashboard webhook endpoint:
+
+```
+{PAYMENT_CALLBACK_BASE_URL}/webhooks/stripe
+```
+
+Listen for `payment_intent.succeeded` and `payment_intent.payment_failed`. Include `paymentTypeId` in PaymentIntent metadata (set automatically by the server).
+
+### Sandbox test flow
+
+1. Use [Stripe test keys](https://dashboard.stripe.com/test/apikeys).
+2. In POS, select Stripe payment type and enter amount — card form appears in pending panel.
+3. Pay with test card `4242424242424242`, any future expiry, any CVC.
+
+## PayPal (Embedded Buttons)
+
+PayPal uses **PayPal Orders v2 REST API**. The server creates the order; the POS renders **PayPal Buttons** with the returned order id. Capture runs server-side after buyer approval.
+
+### Admin setup
+
+1. Create a **Remote** payment type with gateway `paypal` and mode `sandbox` or `live`.
+2. Fill gateway keys:
+   - **Client ID** → REST app Client ID
+   - **Client Secret** → REST app Secret
+   - **Webhook ID** (optional) → from PayPal Developer Dashboard → Webhooks
+
+### Create intent (PayPal)
+
+- `gateway`: `paypal`
+- `metadata.paymentTypeId`: Surreal `payment_type` record id
+
+Response: `intentId` is the PayPal order id; `gatewayPayload.clientId` is safe for the browser.
+
+### Capture + verify
+
+After buyer approves in the embedded button, the frontend calls `POST /payments/capture`, then verify if needed.
+
+### Webhook
+
+Configure PayPal webhook endpoint:
+
+```
+{PAYMENT_CALLBACK_BASE_URL}/webhooks/paypal
+```
+
+Subscribe to `PAYMENT.CAPTURE.COMPLETED`, `CHECKOUT.ORDER.APPROVED`, `CHECKOUT.ORDER.COMPLETED`.
+
+### Sandbox test flow
+
+1. Create a sandbox app at [PayPal Developer](https://developer.paypal.com/).
+2. Use sandbox buyer account to approve payment in the POS PayPal button panel.
+
+## Razorpay (Embedded Checkout)
+
+Razorpay uses **Orders API** + **Checkout.js**. The server creates the order; the POS opens the Razorpay modal and verifies the payment signature server-side.
+
+### Admin setup
+
+1. Create a **Remote** payment type with gateway `razorpay` and mode `sandbox` or `live`.
+2. Fill gateway keys:
+   - **Key ID** → `rzp_test_...` or `rzp_live_...`
+   - **Key Secret** → Razorpay API secret
+   - **Webhook Secret** → from Razorpay Dashboard → Webhooks
+
+### Create intent (Razorpay)
+
+- `gateway`: `razorpay`
+- `currency`: `INR`
+- `metadata.paymentTypeId`: Surreal `payment_type` record id
+
+Response: `intentId` is the Razorpay order id; `gatewayPayload.keyId` is safe for the browser.
+
+### Verify
+
+```json
+{
+  "gateway": "razorpay",
+  "intentId": "order_xxx",
+  "paymentId": "pay_xxx",
+  "metadata": { "paymentTypeId": "payment_type:abc123" },
+  "payload": { "signature": "..." }
+}
+```
+
+- `captured` → `paid`
+- `authorized` → `authorized`
+
+### Webhook
+
+Configure Razorpay webhook endpoint:
+
+```
+{PAYMENT_CALLBACK_BASE_URL}/webhooks/razorpay
+```
+
+Subscribe to `payment.captured`, `payment.authorized`, `payment.failed`.
+
+### Sandbox test flow
+
+1. Use [Razorpay test keys](https://dashboard.razorpay.com/app/keys).
+2. In POS, select Razorpay payment type — tap **Pay with Razorpay** in the pending panel.
+3. Complete payment with test card/UPI in the Razorpay modal.
+
+## JazzCash (Hosted Page Redirect)
+
+JazzCash uses **Page Redirection v2.0** with HMAC-signed form posts. The payment server builds the signed request and hosts an auto-submit checkout page; the POS polls until payment completes.
+
+### Admin setup
+
+1. Create a **Remote** payment type with gateway `jazzcash` and mode `sandbox` or `live`.
+2. Fill gateway keys:
+   - **Merchant ID** → JazzCash Merchant ID
+   - **Password** → JazzCash system password
+   - **Integrity Salt** → shared secret for `pp_SecureHash`
+   - **Transaction Type** (optional) → `CARD` (default) or `MWALLET`
+
+### Create intent (JazzCash)
+
+- `gateway`: `jazzcash`
+- `currency`: `PKR`
+- `metadata.paymentTypeId`: Surreal `payment_type` record id
+
+Response: `intentId` is `pp_TxnRefNo`; `paymentUrl` opens the server-hosted redirect page.
+
+### Return URL
+
+JazzCash redirects to:
+
+```
+{PAYMENT_BASE_URL}/payments/checkout/jazzcash/return
+```
+
+Successful returns are stored for POS polling and manual verify.
+
+### Webhook / IPN
+
+Configure JazzCash IPN/callback URL:
+
+```
+{PAYMENT_CALLBACK_BASE_URL}/webhooks/jazzcash
+```
+
+### Sandbox test flow
+
+1. Register at [JazzCash Sandbox](https://sandbox.jazzcash.com.pk/) and obtain merchant credentials.
+2. In POS, select JazzCash — hosted page opens in a new tab.
+3. Complete sandbox payment; POS polls automatically (or tap **Verify**).
 
 ## M-Pesa (Daraja STK Push)
 

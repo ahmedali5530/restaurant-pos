@@ -50,6 +50,119 @@ function mapTelebirrWebhookToVerifyResponse(stored) {
   };
 }
 
+function mapStripeWebhookToVerifyResponse(stored) {
+  const normalized =
+    stored?.normalized?.normalizedData ||
+    stored?.normalized ||
+    stored?.raw ||
+    stored;
+  if (!normalized) {
+    return null;
+  }
+
+  const paymentStatus = normalized.paymentStatus;
+  if (!paymentStatus) {
+    return null;
+  }
+
+  return {
+    gateway: 'stripe',
+    status: paymentStatus,
+    verifiedAt: new Date().toISOString(),
+    reference: normalized.reference || normalized.intentId || null,
+    gatewayPayload: {
+      eventType: normalized.eventType,
+      intentId: normalized.intentId,
+      orderId: normalized.orderId,
+    },
+  };
+}
+
+function mapPaypalWebhookToVerifyResponse(stored) {
+  const normalized =
+    stored?.normalized?.normalizedData ||
+    stored?.normalized ||
+    stored?.raw ||
+    stored;
+  if (!normalized) {
+    return null;
+  }
+
+  const paymentStatus = normalized.paymentStatus;
+  if (!paymentStatus) {
+    return null;
+  }
+
+  return {
+    gateway: 'paypal',
+    status: paymentStatus,
+    verifiedAt: new Date().toISOString(),
+    reference: normalized.reference || normalized.intentId || null,
+    gatewayPayload: {
+      eventType: normalized.eventType,
+      intentId: normalized.intentId,
+      orderId: normalized.orderId,
+    },
+  };
+}
+
+function mapJazzcashWebhookToVerifyResponse(stored) {
+  const normalized =
+    stored?.normalized?.normalizedData ||
+    stored?.normalized ||
+    stored?.raw ||
+    stored;
+  if (!normalized) {
+    return null;
+  }
+
+  const paymentStatus = normalized.paymentStatus;
+  if (!paymentStatus) {
+    return null;
+  }
+
+  return {
+    gateway: 'jazzcash',
+    status: paymentStatus,
+    verifiedAt: new Date().toISOString(),
+    reference: normalized.reference || normalized.txnRefNo || null,
+    gatewayPayload: {
+      responseCode: normalized.responseCode,
+      txnRefNo: normalized.txnRefNo,
+      orderId: normalized.orderId,
+    },
+  };
+}
+
+function mapRazorpayWebhookToVerifyResponse(stored) {
+  const normalized =
+    stored?.normalized?.normalizedData ||
+    stored?.normalized ||
+    stored?.raw ||
+    stored;
+  if (!normalized) {
+    return null;
+  }
+
+  const paymentStatus = normalized.paymentStatus;
+  if (!paymentStatus) {
+    return null;
+  }
+
+  return {
+    gateway: 'razorpay',
+    status: paymentStatus,
+    verifiedAt: new Date().toISOString(),
+    reference: normalized.reference || normalized.paymentId || null,
+    gatewayPayload: {
+      eventType: normalized.eventType,
+      intentId: normalized.intentId,
+      paymentId: normalized.paymentId,
+      orderId: normalized.orderId,
+    },
+  };
+}
+
 function mapStoredWebhookToVerifyResponse(gateway, stored) {
   const name = String(gateway || '').toLowerCase();
   if (name === 'mpesa') {
@@ -58,6 +171,18 @@ function mapStoredWebhookToVerifyResponse(gateway, stored) {
   if (name === 'telebirr') {
     return mapTelebirrWebhookToVerifyResponse(stored);
   }
+  if (name === 'stripe') {
+    return mapStripeWebhookToVerifyResponse(stored);
+  }
+  if (name === 'paypal') {
+    return mapPaypalWebhookToVerifyResponse(stored);
+  }
+  if (name === 'razorpay') {
+    return mapRazorpayWebhookToVerifyResponse(stored);
+  }
+  if (name === 'jazzcash') {
+    return mapJazzcashWebhookToVerifyResponse(stored);
+  }
   return null;
 }
 
@@ -65,4 +190,8 @@ module.exports = {
   mapStoredWebhookToVerifyResponse,
   mapMpesaWebhookToVerifyResponse,
   mapTelebirrWebhookToVerifyResponse,
+  mapStripeWebhookToVerifyResponse,
+  mapPaypalWebhookToVerifyResponse,
+  mapRazorpayWebhookToVerifyResponse,
+  mapJazzcashWebhookToVerifyResponse,
 };

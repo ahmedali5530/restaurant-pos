@@ -6,6 +6,7 @@ const { normalizeGateway, parseWebhookBody } = require('../lib/validation');
 const { normalizeOrderKey } = require('../lib/intent.utils');
 const { savePaymentWebhook, consumePaymentWebhook } = require('../lib/payment-webhook.store');
 const { mapStoredWebhookToVerifyResponse } = require('../lib/webhook-result.mapper');
+const { WebhookStatus } = require('../gateways/gateway.types');
 const logger = require('../lib/logger');
 
 async function processWebhook(gateway, rawBody, headers, signature) {
@@ -24,13 +25,36 @@ async function processWebhook(gateway, rawBody, headers, signature) {
 async function handleWebhook(req, res, next) {
   try {
     const gateway = normalizeGateway(req.params.gateway);
-    const signature = req.get('x-signature') || req.get('stripe-signature') || null;
+    const signature =
+      req.get('x-signature') ||
+      req.get('stripe-signature') ||
+      req.get('x-razorpay-signature') ||
+      null;
     const rawBody = req.body;
 
-    logger.warn('webhook', 'Received legacy webhook without order key', { gateway });
+    logger.info('webhook', 'Received legacy webhook', { gateway });
 
-    const data = await processWebhook(gateway, rawBody, req.headers, signature);
-    sendSuccess(res, data);
+    const driverResult = await processWebhook(gateway, rawBody, req.headers, signature);
+
+    const orderKey =
+      driverResult.orderKey ||
+      (typeof getGatewayDriver(gateway).extractOrderKeyFromWebhook === 'function'
+        ? getGatewayDriver(gateway).extractOrderKeyFromWebhook(driverResult.normalizedData)
+        : null);
+
+    if (orderKey && driverResult.status === WebhookStatus.RECEIVED) {
+      await savePaymentWebhook({
+        key: orderKey,
+        gateway,
+        data: {
+          raw: parseWebhookBody(rawBody),
+          normalized: driverResult,
+        },
+      });
+      logger.info('webhook', 'Stored legacy webhook', { gateway, orderKey });
+    }
+
+    sendSuccess(res, driverResult);
   } catch (err) {
     next(err);
   }
@@ -40,7 +64,11 @@ async function handleOrderWebhook(req, res, next) {
   try {
     const gateway = normalizeGateway(req.params.gateway);
     const orderKey = normalizeOrderKey(decodeURIComponent(req.params.orderKey));
-    const signature = req.get('x-signature') || req.get('stripe-signature') || null;
+    const signature =
+      req.get('x-signature') ||
+      req.get('stripe-signature') ||
+      req.get('x-razorpay-signature') ||
+      null;
     const rawBody = req.body;
 
     const driverResult = await processWebhook(gateway, rawBody, req.headers, signature);

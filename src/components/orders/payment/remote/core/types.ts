@@ -17,6 +17,9 @@ export type PendingRemoteIntent = {
   intentId: string;
   paymentUrl: string | null;
   clientToken: string | null;
+  gatewayPayload?: Record<string, unknown>;
+  orderId: string;
+  invoiceNumber?: string | number;
   status: string;
   expiresAt: string;
 };

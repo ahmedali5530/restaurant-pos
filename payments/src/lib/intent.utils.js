@@ -57,6 +57,26 @@ function buildCheckoutUrl(gateway, token) {
   return `${getPaymentBaseUrl()}/payments/checkout/${gateway}/${token}`;
 }
 
+function buildStripeWebhookCallbackUrl() {
+  return `${getPaymentCallbackBaseUrl()}/webhooks/stripe`;
+}
+
+function buildPaypalWebhookCallbackUrl() {
+  return `${getPaymentCallbackBaseUrl()}/webhooks/paypal`;
+}
+
+function buildRazorpayWebhookCallbackUrl() {
+  return `${getPaymentCallbackBaseUrl()}/webhooks/razorpay`;
+}
+
+function buildJazzcashWebhookCallbackUrl() {
+  return `${getPaymentCallbackBaseUrl()}/webhooks/jazzcash`;
+}
+
+function buildJazzcashReturnUrl() {
+  return `${getPaymentBaseUrl()}/payments/checkout/jazzcash/return`;
+}
+
 module.exports = {
   generateStrongToken,
   getPaymentBaseUrl,
@@ -65,5 +85,10 @@ module.exports = {
   buildGatewayWebhookCallbackUrl,
   buildMpesaWebhookCallbackUrl,
   buildTelebirrWebhookCallbackUrl,
+  buildStripeWebhookCallbackUrl,
+  buildPaypalWebhookCallbackUrl,
+  buildRazorpayWebhookCallbackUrl,
+  buildJazzcashWebhookCallbackUrl,
+  buildJazzcashReturnUrl,
   buildCheckoutUrl,
 };

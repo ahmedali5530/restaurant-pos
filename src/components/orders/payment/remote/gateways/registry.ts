@@ -4,10 +4,18 @@ import { RemoteGatewayAdapter } from "@/components/orders/payment/remote/gateway
 import { createDefaultGatewayAdapter } from "@/components/orders/payment/remote/gateways/default.gateway.ts";
 import { mpesaGatewayAdapter } from "@/components/orders/payment/remote/gateways/mpesa/index.ts";
 import { telebirrGatewayAdapter } from "@/components/orders/payment/remote/gateways/telebirr/index.ts";
+import { stripeGatewayAdapter } from "@/components/orders/payment/remote/gateways/stripe/index.ts";
+import { paypalGatewayAdapter } from "@/components/orders/payment/remote/gateways/paypal/index.ts";
+import { razorpayGatewayAdapter } from "@/components/orders/payment/remote/gateways/razorpay/index.ts";
+import { jazzcashGatewayAdapter } from "@/components/orders/payment/remote/gateways/jazzcash/index.ts";
 
 const customAdapters: Partial<Record<GatewayType, RemoteGatewayAdapter>> = {
   mpesa: mpesaGatewayAdapter,
   telebirr: telebirrGatewayAdapter,
+  stripe: stripeGatewayAdapter,
+  paypal: paypalGatewayAdapter,
+  razorpay: razorpayGatewayAdapter,
+  jazzcash: jazzcashGatewayAdapter,
 };
 
 const adapters: Partial<Record<GatewayType, RemoteGatewayAdapter>> = Object.fromEntries(

@@ -61,29 +61,76 @@ export const GATEWAY_CATALOG: GatewayDescriptor[] = [
     id: "stripe",
     label: "Stripe",
     supportsModes: true,
-    fields: DEFAULT_GATEWAY_FIELDS,
-    helpText: "Keys are saved with payment type for server-side gateway mapping later.",
+    fields: [
+      { configKey: "public_key", label: "Publishable Key", required: true },
+      { configKey: "secret_key", label: "Secret Key", type: "password", required: true },
+      {
+        configKey: "webhook_secret",
+        label: "Webhook Signing Secret",
+        type: "password",
+        required: true,
+      },
+    ],
+    helpText:
+      "Embedded Stripe Elements checkout. Set gateway mode to sandbox (test keys) or live.",
   },
   {
     id: "paypal",
     label: "PayPal",
     supportsModes: true,
-    fields: DEFAULT_GATEWAY_FIELDS,
-    helpText: "Keys are saved with payment type for server-side gateway mapping later.",
+    fields: [
+      { configKey: "client_id", label: "Client ID", required: true },
+      { configKey: "client_secret", label: "Client Secret", type: "password", required: true },
+      { configKey: "webhook_secret", label: "Webhook ID", type: "password" },
+    ],
+    helpText:
+      "Embedded PayPal buttons. Set gateway mode to sandbox or live. Webhook ID is optional but recommended.",
   },
   {
     id: "razorpay",
     label: "Razorpay",
+    currency: "INR",
     supportsModes: true,
-    fields: DEFAULT_GATEWAY_FIELDS,
-    helpText: "Keys are saved with payment type for server-side gateway mapping later.",
+    fields: [
+      { configKey: "public_key", label: "Key ID", required: true },
+      { configKey: "secret_key", label: "Key Secret", type: "password", required: true },
+      {
+        configKey: "webhook_secret",
+        label: "Webhook Secret",
+        type: "password",
+        required: true,
+      },
+    ],
+    helpText:
+      "Embedded Razorpay Checkout. Set gateway mode to sandbox (test keys) or live.",
   },
   {
     id: "jazzcash",
     label: "JazzCash",
+    currency: "PKR",
     supportsModes: true,
-    fields: DEFAULT_GATEWAY_FIELDS,
-    helpText: "Keys are saved with payment type for server-side gateway mapping later.",
+    fields: [
+      { configKey: "merchant_id", label: "Merchant ID", required: true },
+      { configKey: "client_secret", label: "Password", type: "password", required: true },
+      {
+        configKey: "integrity_salt",
+        label: "Integrity Salt",
+        type: "password",
+        required: true,
+      },
+      {
+        configKey: "public_key",
+        label: "Transaction Type (optional)",
+        placeholder: "CARD or MWALLET",
+      },
+      {
+        configKey: "webhook_secret",
+        label: "IPN salt override (optional)",
+        type: "password",
+      },
+    ],
+    helpText:
+      "Hosted JazzCash page redirection. Set gateway mode to sandbox or live. Default transaction type is CARD.",
   },
   {
     id: "mpesa",

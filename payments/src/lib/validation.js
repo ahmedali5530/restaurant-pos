@@ -92,9 +92,27 @@ function parseWebhookBody(rawBody) {
   }
 }
 
+function validateCaptureRequest(body) {
+  assertObject(body);
+  requireField(body, 'gateway');
+  requireField(body, 'intentId');
+  const gateway = normalizeGateway(body.gateway);
+  const metadata = body.metadata || {};
+  validateGatewayRequirements(gateway, body, metadata, 'verify');
+
+  return {
+    gateway,
+    intentId: String(body.intentId),
+    orderId: body.orderId || null,
+    metadata,
+    payload: body.payload || {},
+  };
+}
+
 module.exports = {
   validateCreateIntentRequest,
   validateVerifyRequest,
+  validateCaptureRequest,
   normalizeGateway,
   parseWebhookBody,
 };

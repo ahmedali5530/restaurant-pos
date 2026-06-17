@@ -51,6 +51,13 @@ export type VerifyPaymentResponse = {
   gatewayPayload: Record<string, unknown>;
 };
 
+export type CapturePaymentRequest = {
+  gateway: GatewayType;
+  intentId: string;
+  orderId?: string;
+  metadata?: Record<string, unknown>;
+};
+
 type ApiSuccess<T> = {
   success: true;
   data: T;
@@ -118,6 +125,12 @@ export async function verifyPayment(
   payload: VerifyPaymentRequest
 ): Promise<VerifyPaymentResponse> {
   return requestJson<VerifyPaymentResponse>("/payments/verify", payload);
+}
+
+export async function capturePayment(
+  payload: CapturePaymentRequest
+): Promise<VerifyPaymentResponse> {
+  return requestJson<VerifyPaymentResponse>("/payments/capture", payload);
 }
 
 function normalizeOrderKeyForUrl(orderId: string): string {

@@ -18,6 +18,9 @@ import {
 } from "@/lib/payment.service.ts";
 import { nanoid } from "nanoid";
 import { toast } from "sonner";
+import {
+  registerRemotePaymentSettler,
+} from "@/components/orders/payment/remote/core/remote-payment-settlement.ts";
 
 type UseRemotePaymentsOptions = RemotePaymentCallbacks & {
   order: Order;
@@ -119,6 +122,11 @@ export function useRemotePayments({
     [completeRemotePayment, stopPolling],
   );
 
+  useEffect(() => {
+    registerRemotePaymentSettler(completeRemotePayment);
+    return () => registerRemotePaymentSettler(null);
+  }, [completeRemotePayment]);
+
   const executeRemotePayment = useCallback(
     async (
       amount: string | number,
@@ -176,6 +184,9 @@ export function useRemotePayments({
           intentId: intent.intentId,
           paymentUrl: intent.paymentUrl,
           clientToken: intent.clientToken,
+          gatewayPayload: intent.gatewayPayload,
+          orderId: order.id.toString(),
+          invoiceNumber: order.invoice_number,
           status: intent.status,
           expiresAt: intent.expiresAt,
         };
