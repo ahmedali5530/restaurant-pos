@@ -1,0 +1,31 @@
+{
+  "sidebar": {
+    "menu": "Меню",
+    "orders": "Заказы",
+    "summary": "Сводка",
+    "kitchen": "Кухня",
+    "delivery": "Доставка",
+    "closing": "Закрытие смены",
+    "inventory": "Склад",
+    "manage": "Управление",
+    "reports": "Отчёты",
+    "tipDist": "Распр. чаевых",
+    "settings": "Настройки",
+    "clock": "Учёт времени"
+  },
+  "modules": {
+    "Menu": "Меню",
+    "Orders": "Заказы",
+    "Summary": "Сводка",
+    "Reports": "Отчёты",
+    "Closing": "Закрытие смены",
+    "Kitchen": "Кухня",
+    "Delivery": "Доставка",
+    "Admin": "Администрирование",
+    "Riders": "Курьеры",
+    "Tips": "Распределение чаевых",
+    "Inventory": "Склад",
+    "Settings": "Настройки"
+  },
+  "authenticateToAccess": "Авторизуйтесь для доступа к {{module}}"
+}

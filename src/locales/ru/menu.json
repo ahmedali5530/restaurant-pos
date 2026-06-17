@@ -1,0 +1,29 @@
+{
+  "actions": {
+    "repeat": "Повторить",
+    "modify": "Изменить",
+    "delete": "Удалить",
+    "deleteAll": "Удалить всё",
+    "search": "Поиск",
+    "split": "Разделить"
+  },
+  "header": {
+    "newOrder": "Новый заказ",
+    "orderNumber": "Заказ № {{number}}",
+    "customer": "Клиент",
+    "clear": "Очистить",
+    "selectCustomer": "Выберите клиента",
+    "confirmTitle": "Подтвердите действие",
+    "confirmCartMessage_one": "В корзине {{count}} позиция, выберите действие",
+    "confirmCartMessage_other": "В корзине {{count}} позиций, выберите действие",
+    "pax": "{{count}} гостей"
+  },
+  "modifiers": {
+    "modifyTitle": "Изменить {{name}}",
+    "cancel": "Отмена",
+    "replacedWarning": "Последний модификатор заменён. Чтобы заменить другой модификатор, удалите его в правой панели и выберите снова."
+  },
+  "persons": {
+    "chooseCount": "Выберите количество гостей"
+  }
+}

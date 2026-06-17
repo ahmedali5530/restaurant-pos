@@ -1,0 +1,125 @@
+{
+  "labels": {
+    "subTotal": "Подытог ({{count}})",
+    "total": "Итого"
+  },
+  "actions": {
+    "toKitchen": "На кухню",
+    "payNow": "Оплатить",
+    "cancel": "Отмена"
+  },
+  "errors": {
+    "createOrder": "Не удалось создать заказ.",
+    "openPayment": "Не удалось открыть оплату."
+  },
+  "tracking": {
+    "createOrder": "Создать заказ",
+    "appendOrder": "Добавить к заказу"
+  },
+  "print": {
+    "kitchenTitle": "Печать на кухню"
+  },
+  "title": "Заказ №{{invoice}}",
+  "tabs": {
+    "tax": "Налог",
+    "taxWithRate": "Налог ({{name}} {{rate}}%)",
+    "discount": "Скидка",
+    "coupon": "Купон",
+    "serviceCharges": "Сервисный сбор ({{value}}{{unit}})",
+    "tip": "Чаевые ({{value}}{{unit}})",
+    "notes": "Примечания",
+    "total": "Итого"
+  },
+  "totals": {
+    "items": "Позиции ({{count}})"
+  },
+  "tax": {
+    "noTax": "Без налога"
+  },
+  "discount": {
+    "noDiscount": "Без скидки",
+    "label": "Скидка",
+    "withMaxCap": "с максимальным лимитом {{amount}}"
+  },
+  "coupon": {
+    "codeLabel": "Код купона",
+    "applied": "Применён купон: {{code}}",
+    "discount": "Скидка: {{amount}}",
+    "discountFromCoupon": "Скидка по купону: {{amount}}",
+    "errors": {
+      "notFound": "Купон не найден или неактивен",
+      "unsupportedType": "Этот тип купона не поддерживается для заказов",
+      "belowMinimum": "Сумма заказа ниже минимальной для этого купона",
+      "notValidToday": "Купон недействителен сегодня",
+      "notValidTime": "Купон недействителен в это время",
+      "notActiveYet": "Купон ещё не активен",
+      "expired": "Срок действия купона истёк",
+      "usageLimitReached": "Достигнут лимит использования купона",
+      "userLimitReached": "Вы достигли лимита использования этого купона",
+      "firstOrderOnly": "Этот купон действует только на первый заказ",
+      "notStackable": "Этот купон нельзя использовать вместе с другими скидками",
+      "noDiscount": "Этот купон не даёт скидку для данного заказа"
+    },
+    "appliedSuccess": "Купон применён"
+  },
+  "serviceCharges": {
+    "defaultFromSettings": "По умолчанию из настроек:",
+    "noServiceCharge": "Без сервисного сбора"
+  },
+  "tip": {
+    "noTip": "Без чаевых"
+  },
+  "notes": {
+    "title": "Примечания",
+    "hint": "Можно указать номер карты или скидку"
+  },
+  "receiving": {
+    "remaining": "Остаток",
+    "change": "Сдача",
+    "tempBill": "Предварительный счёт",
+    "complete": "Завершить",
+    "cannotAddCard": "Нельзя добавить ещё оплату картой",
+    "exactCardAmount": "Добавлена точная сумма для оплаты картой"
+  },
+  "remote": {
+    "remoteLabel": "{{name}} (удалённо)",
+    "status": "Статус: {{status}}",
+    "openLink": "Открыть ссылку",
+    "verify": "Проверить"
+  },
+  "discountType": {
+    "percent": "Процент",
+    "fixed": "Фиксированная"
+  },
+  "remoteGateway": {
+    "missingProvider": "У удалённого типа оплаты не указан платёжный провайдер.",
+    "linkGenerated": "Ссылка для удалённой оплаты создана.",
+    "tokenGenerated": "Удалённый токен создан: {{token}}",
+    "intentGenerated": "Намерение удалённой оплаты создано.",
+    "paymentTimedOut": "Время оплаты через {{gateway}} истекло. Нажмите «Проверить» для повторной проверки.",
+    "paymentStatus": "Оплата через {{gateway}}: {{status}}.",
+    "completeOnPage": "Завершите оплату на странице {{gateway}}, затем вернитесь в POS.",
+    "scanQr": "Отсканируйте QR-код в приложении {{gateway}} для оплаты.",
+    "enterCardDetails": "Введите данные карты ниже для завершения оплаты.",
+    "intentCreated": "Намерение оплаты через {{gateway}} создано.",
+    "usePaypalButton": "Используйте кнопку PayPal ниже для завершения оплаты.",
+    "useRazorpayButton": "Нажмите «Оплатить через Razorpay» ниже для завершения оплаты.",
+    "paymentFailed": "Оплата не выполнена.",
+    "paymentStatusLabel": "Статус оплаты: {{status}}",
+    "paymentIs": "Оплата: {{status}}.",
+    "paypalPaymentIs": "Оплата PayPal: {{status}}.",
+    "razorpayPaymentFailed": "Оплата через Razorpay не выполнена.",
+    "stripePaymentFailed": "Оплата через Stripe не выполнена.",
+    "mpesaPhoneUnavailable": "Запрос M-Pesa на телефон недоступен.",
+    "mpesaPromptSent": "STK push отправлен на {{phone}}. Проверьте телефон и введите PIN M-Pesa.",
+    "mpesaPromptSentGeneric": "STK push отправлен. Проверьте телефон и введите PIN M-Pesa.",
+    "mpesaInvalidPhone": "Введите корректный номер M-Pesa (2547XXXXXXXX или 07XXXXXXXX).",
+    "verifiedAndAdded": "Удалённая оплата подтверждена и добавлена.",
+    "generateFailed": "Не удалось создать ссылку/токен удалённой оплаты",
+    "mustBePaid": "Оплата: {{status}}. Должна быть оплачена/авторизована перед добавлением.",
+    "verifyFailed": "Не удалось проверить удалённую оплату",
+    "paymentReceived": "Оплата через {{gateway}} получена.",
+    "payWithCard": "Оплатить картой",
+    "payWithRazorpay": "Оплатить через Razorpay"
+  }
+}

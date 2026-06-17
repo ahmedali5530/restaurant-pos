@@ -1,0 +1,179 @@
+{
+  "customer": {
+    "name": "Имя",
+    "phone": "Телефон",
+    "address": "Адрес",
+    "attach": "Привязать",
+    "search": "Поиск",
+    "columns": {
+      "select": "Выбрать",
+      "name": "Имя",
+      "email": "Email",
+      "phone": "Телефон",
+      "address": "Адрес",
+      "secondaryAddress": "Доп. адрес",
+      "points": "Баллы"
+    }
+  },
+  "filters": {
+    "status": "Выберите статус заказа",
+    "orderTypes": "Выберите типы заказов",
+    "floors": "Выберите залы",
+    "users": "Выберите пользователей"
+  },
+  "view": {
+    "blocks": "Блоки",
+    "table": "Таблица"
+  },
+  "merge": {
+    "chooseTableAlert": "Выберите новый стол",
+    "success": "Успешно объединено в {{invoiceNumber}}",
+    "failed": "Не удалось объединить заказы",
+    "chooseTable": "Выберите стол",
+    "selectTwoOrMore": "Выберите 2 или более заказов",
+    "confirmMerging": "Подтвердить объединение {{count}} заказов",
+    "cancelMerging": "Отменить объединение"
+  },
+  "header": {
+    "orderNumber": "Заказ № {{invoice}} / {{orderType}}"
+  },
+  "status": {
+    "inProgress": "В работе",
+    "paid": "Оплачен",
+    "cancelled": "Отменён",
+    "spilt": "Разделён",
+    "merged": "Объединён",
+    "refunded": "Возвращён"
+  },
+  "totals": {
+    "items": "Позиции ({{count}})",
+    "itemsShort": "Позиции",
+    "tax": "Налог",
+    "discount": "Скидка",
+    "serviceCharges": "Сервисный сбор ({{value}}{{unit}})",
+    "tip": "Чаевые",
+    "tipPercent": "Чаевые %",
+    "total": "Итого",
+    "change": "Сдача",
+    "sc": "СС ({{value}}%)",
+    "extras": "Дополнения"
+  },
+  "actions": {
+    "selectToMerge": "Выбрать для объединения",
+    "more": "Ещё",
+    "cancelOrder": "Отменить заказ",
+    "splitBySeats": "Разделить по местам",
+    "splitByItems": "Разделить по позициям",
+    "splitByAmount": "Разделить по сумме",
+    "mergeOrders": "Объединить заказы",
+    "refund": "Возврат",
+    "printFinalBillCopy": "Печать копии финального счёта",
+    "tempBill": "Предварительный счёт",
+    "payNow": "Оплатить"
+  },
+  "cancel": {
+    "title": "Отмена заказа",
+    "reason": "Причина",
+    "items": "Позиции",
+    "comments": "Комментарии",
+    "commentsPlaceholder": "Введите комментарии",
+    "confirmCancellation": "Подтвердить отмену",
+    "unknownItem": "Неизвестная позиция",
+    "chooseReason": "Выберите причину",
+    "selectAtLeastOne": "Выберите хотя бы одну позицию",
+    "cannotIdentifyUser": "Не удалось определить текущего пользователя",
+    "successOrder": "Заказ успешно отменён",
+    "successItems": "Выбранные позиции отменены",
+    "failed": "Не удалось отменить заказ"
+  },
+  "refund": {
+    "title": "Возврат заказа",
+    "selectItems": "Выберите позиции для возврата",
+    "itemsTotal": "Итого по позициям:",
+    "tax": "Налог ({{name}} {{rate}}%):",
+    "discount": "Скидка:",
+    "serviceCharges": "Сервисный сбор ({{value}}{{unit}}):",
+    "tip": "Чаевые:",
+    "refundTotal": "Сумма возврата:",
+    "itemsSelected": "Выбрано позиций: {{count}}",
+    "reason": "Причина",
+    "reasonPlaceholder": "Введите причину возврата",
+    "refundButton": "Возврат",
+    "refundButtonWithCount": "Возврат {{count}} поз.",
+    "selectAtLeastOne": "Выберите хотя бы одну позицию для возврата",
+    "cannotIdentifyUser": "Не удалось определить текущего пользователя",
+    "success": "Успешно возвращено позиций: {{count}}",
+    "failed": "Не удалось выполнить возврат заказа"
+  },
+  "voidReasons": {
+    "fohNotMade": "Зал — не приготовлено",
+    "bohNotMade": "Кухня — не приготовлено",
+    "guestNotMade": "Гость — не приготовлено",
+    "fohMade": "Зал — приготовлено",
+    "bohMade": "Кухня — приготовлено",
+    "guestMade": "Гость — приготовлено",
+    "punchByMistake": "Пробито по ошибке",
+    "testing": "Тестирование"
+  },
+  "split": {
+    "title": "Разделить заказ {{invoice}}",
+    "titleByAmount": "Разделение по сумме — заказ {{invoice}}",
+    "splitName": "Раздел {{number}}",
+    "seatName": "Место {{number}}",
+    "noSeat": "Без места",
+    "toast": {
+      "success": "Успешно создано разделений: {{count}}",
+      "failed": "Не удалось разделить заказ"
+    },
+    "bySeats": {
+      "heading": "Дополнительные разделы",
+      "scrollHint": "Прокрутите, чтобы увидеть все разделы",
+      "total": "Итого: {{amount}}",
+      "noItems": "Нет позиций",
+      "dragItemsHere": "Перетащите позиции сюда",
+      "noAdditionalSplits": "Нет дополнительных разделов",
+      "addSplitHint": "Добавьте раздел для распределения позиций",
+      "creating": "Создание разделов...",
+      "save": "Сохранить {{count}} разд.",
+      "addMoreSplits": "Добавьте ещё разделы перед сохранением",
+      "allSplitsNeedItems": "В каждом разделе должна быть хотя бы одна позиция"
+    },
+    "byItems": {
+      "splitOneFixed": "Раздел 1 (основной)",
+      "mainSplitHint": "Позиции начинаются здесь. Перетащите в другие разделы.",
+      "total": "Итого: {{amount}}",
+      "noItems": "Нет позиций",
+      "itemsReturnHere": "Позиции возвращаются сюда при переносе обратно",
+      "additionalSplits": "Дополнительные разделы",
+      "scrollHint": "Прокрутите горизонтально для других разделов",
+      "addSplit": "Добавить раздел",
+      "dragFromSplitOne": "Перетащите позиции из раздела 1",
+      "moveBackToSplitOne": "Вернуть в раздел 1",
+      "noAdditionalSplits": "Нет дополнительных разделов",
+      "addSplitHint": "Добавьте раздел для распределения позиций",
+      "creating": "Создание разделов...",
+      "save": "Сохранить {{count}} разд.",
+      "addMoreSplits": "Добавьте ещё разделы перед сохранением",
+      "allSplitsNeedItems": "В каждом разделе должна быть хотя бы одна позиция"
+    },
+    "byAmount": {
+      "orderTotal": "Сумма заказа",
+      "assignHint": "Назначьте суммы каждому разделу. Остаток должен быть нулевым.",
+      "assigned": "Назначено: {{amount}}",
+      "remaining": "Остаток: {{amount}}",
+      "amount": "Сумма",
+      "percentage": "{{value}}%",
+      "itemsCount": "Позиций в заказе: {{count}}",
+      "noItemsInOrder": "В этом заказе нет позиций",
+      "itemFallback": "Позиция",
+      "subtotal": "Подытог",
+      "addSplit": "Добавить раздел",
+      "autoFillRemaining": "Автозаполнение остатка",
+      "distributeEvenly": "Распределить поровну",
+      "assignRemaining": "Назначить остаток {{amount}}",
+      "exceedsTotal": "Превышает итог на {{amount}}",
+      "creating": "Создание разделов...",
+      "save": "Сохранить {{count}} разд."
+    }
+  }
+}

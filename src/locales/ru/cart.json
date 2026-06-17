@@ -1,0 +1,10 @@
+{
+  "seats": {
+    "seat": "Место",
+    "noSeat": "Без места",
+    "seatNumber": "Место № {{number}}",
+    "newSeat": "Новое место",
+    "deleteSeat": "Место?",
+    "addComment": "Добавить комментарий"
+  }
+}

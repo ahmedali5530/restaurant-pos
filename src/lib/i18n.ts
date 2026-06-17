@@ -158,6 +158,23 @@ import arReports from '@/locales/ar/reports.json';
 import arDelivery from '@/locales/ar/delivery.json';
 import arAdmin from '@/locales/ar/admin.json';
 import arValidation from '@/locales/ar/validation.json';
+import ruCommon from '@/locales/ru/common.json';
+import ruNavigation from '@/locales/ru/navigation.json';
+import ruAuth from '@/locales/ru/auth.json';
+import ruSettings from '@/locales/ru/settings.json';
+import ruToast from '@/locales/ru/toast.json';
+import ruMenu from '@/locales/ru/menu.json';
+import ruCart from '@/locales/ru/cart.json';
+import ruOrders from '@/locales/ru/orders.json';
+import ruPayment from '@/locales/ru/payment.json';
+import ruKitchen from '@/locales/ru/kitchen.json';
+import ruClosing from '@/locales/ru/closing.json';
+import ruSummary from '@/locales/ru/summary.json';
+import ruInventory from '@/locales/ru/inventory.json';
+import ruReports from '@/locales/ru/reports.json';
+import ruDelivery from '@/locales/ru/delivery.json';
+import ruAdmin from '@/locales/ru/admin.json';
+import ruValidation from '@/locales/ru/validation.json';
 
 export const I18N_NAMESPACES = [
   'common',
@@ -352,6 +369,25 @@ const resources = {
     delivery: arDelivery,
     admin: arAdmin,
     validation: arValidation,
+  },
+  ru: {
+    common: ruCommon,
+    navigation: ruNavigation,
+    auth: ruAuth,
+    settings: ruSettings,
+    toast: ruToast,
+    menu: ruMenu,
+    cart: ruCart,
+    orders: ruOrders,
+    payment: ruPayment,
+    kitchen: ruKitchen,
+    closing: ruClosing,
+    summary: ruSummary,
+    inventory: ruInventory,
+    reports: ruReports,
+    delivery: ruDelivery,
+    admin: ruAdmin,
+    validation: ruValidation,
   },
 };
 

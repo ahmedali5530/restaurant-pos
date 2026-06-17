@@ -1,0 +1,89 @@
+{
+  "orderTakingDisabled": "Приём заказов сейчас отключён.",
+  "verifyClosingFailed": "Не удалось проверить статус цикла закрытия. Попробуйте снова.",
+  "tableLocked": "{{user}} уже принимает заказ за этим столом",
+  "floor": {
+    "switchTable": "Перейти со стола {{table}} на другой",
+    "reloadCachePrefix": "Нажмите кнопку перезагрузки кэша в",
+    "settings": "настройках"
+  },
+  "guard": {
+    "punchDisabled": "Пробитие отключено до закрытия текущего цикла или удаления текущего закрытия смены.",
+    "cycleEnded": "Цикл закрытия завершён в {{time}}. Завершите закрытие дня, если это ещё не сделано."
+  },
+  "window": {
+    "cycle": "Цикл",
+    "period": "Период",
+    "label": "{{prefix}}: {{start}} — {{end}}"
+  },
+  "terminal": {
+    "defaultName": "Терминал {{number}}",
+    "notes": "Примечания",
+    "coins": "Монеты",
+    "denomination": "× {{value}}",
+    "total": "Итого по терминалу: {{amount}}",
+    "add": "Добавить терминал"
+  },
+  "title": "Ежедневное закрытие на {{date}}",
+  "loading": "Загрузка закрытия смены...",
+  "alerts": {
+    "cycleDisabled": "Цикл закрытия отключён. Время последнего завершённого закрытия используется как начало периода, текущее время — как конец.",
+    "cycleCompleted": "Закрытие смены для этого цикла завершено. Приём заказов заблокирован до следующего цикла.",
+    "periodCompleted": "Закрытие смены для этого периода завершено."
+  },
+  "sections": {
+    "previousDayBalance": "Остаток предыдущего дня",
+    "pettyCash": "Подотчётные средства",
+    "terminalCash": "Наличные в терминале",
+    "paymentTypesSummary": "Сводка по типам оплаты из системы",
+    "expenses": "Расходы",
+    "notes": "Примечания",
+    "summary": "Сводка"
+  },
+  "fields": {
+    "previousDayBalance": "Остаток предыдущего дня",
+    "pettyCash": "Подотчётные средства",
+    "description": "Описание",
+    "category": "Категория",
+    "amount": "Сумма",
+    "notesPlaceholder": "Добавьте дополнительные примечания..."
+  },
+  "totals": {
+    "totalCash": "Всего наличных: {{amount}}",
+    "cashFromPayments": "Наличные из сводки оплат",
+    "difference": "Разница: {{amount}}",
+    "totalOtherPayments": "Прочие оплаты: {{amount}}",
+    "totalExpenses": "Всего расходов: {{amount}}",
+    "previousBalance": "Предыдущий остаток",
+    "totalCashShort": "Всего наличных",
+    "otherPayments": "Прочие оплаты",
+    "totalExpensesShort": "Всего расходов",
+    "netAmount": "Чистая сумма"
+  },
+  "actions": {
+    "addExpense": "Добавить расход",
+    "saveClosing": "Сохранить закрытие",
+    "closeClosing": "Закрыть смену",
+    "saving": "Сохранение...",
+    "reopen": "Редактировать (одобрение менеджера)",
+    "reopening": "Повторное открытие...",
+    "printClosing": "Печать закрытия",
+    "goToClosing": "Перейти к закрытию"
+  },
+  "security": {
+    "reopenDescription": "Повторно открыть ежедневное закрытие",
+    "reopenModule": "Редактирование закрытия смены"
+  },
+  "autoCheckClose": {
+    "autoClosed_one": "Автозакрыт {{count}} чек",
+    "autoClosed_other": "Автозакрыто чеков: {{count}}",
+    "failed_one": "Не удалось автозакрыть {{count}} чек",
+    "failed_other": "Не удалось автозакрыть чеков: {{count}}",
+    "noOpenChecks": "Цикл закрытия завершён. Нет открытых чеков для закрытия.",
+    "retry_one": "Найден {{count}} открытый чек, но ни один не закрыт{{skipped}}. Повторная попытка.",
+    "retry_other": "Найдено открытых чеков: {{count}}, но ни один не закрыт{{skipped}}. Повторная попытка.",
+    "skippedSuffix": " (пропущено: {{count}})",
+    "executionFailed": "Не удалось автозакрыть чеки",
+    "warning": "Чеки будут автозакрыты через {{countdown}}"
+  }
+}

@@ -7,6 +7,7 @@ import {
   TEXT_DIRECTIONS,
 } from '@/lib/languages.ts';
 import { cn } from '@/lib/utils.ts';
+import {Button} from "@/components/common/input/button.tsx";
 
 export const LanguageSettings = () => {
   const [page, setPage] = useAtom(appPage);
@@ -24,15 +25,15 @@ export const LanguageSettings = () => {
       </div>
       <div className="flex flex-wrap gap-2 mb-6">
         {SUPPORTED_LANGUAGES.map((lang) => (
-          <button
+          <Button
             key={lang.code}
             type="button"
-            className={cn(
-              'btn btn-filled lg',
-              currentLanguage === lang.code
-                ? '!bg-success-500 text-white border-success-500'
-                : '!bg-neutral-100 text-neutral-900 border-neutral-200'
-            )}
+            variant="primary"
+            className={currentLanguage === lang.code
+              ? 'active'
+              : ''
+            }
+            size="lg"
             onClick={() => {
               setPage((prev) => ({
                 ...prev,
@@ -42,7 +43,7 @@ export const LanguageSettings = () => {
             }}
           >
             {lang.label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -54,15 +55,15 @@ export const LanguageSettings = () => {
       </div>
       <div className="flex flex-wrap gap-2">
         {TEXT_DIRECTIONS.map((item) => (
-          <button
+          <Button
             key={item.code}
             type="button"
-            className={cn(
-              'btn btn-filled lg',
-              currentDirection === item.code
-                ? '!bg-success-500 text-white border-success-500'
-                : '!bg-neutral-100 text-neutral-900 border-neutral-200'
-            )}
+            variant="primary"
+            className={currentDirection === item.code
+              ? 'active'
+              : ''
+            }
+            size="lg"
             onClick={() => {
               setPage((prev) => ({
                 ...prev,
@@ -71,7 +72,7 @@ export const LanguageSettings = () => {
             }}
           >
             {t(item.labelKey)}
-          </button>
+          </Button>
         ))}
       </div>
     </div>

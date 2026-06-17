@@ -1,0 +1,140 @@
+{
+  "tabs": {
+    "inventory": "Склад",
+    "items": "Товары",
+    "suppliers": "Поставщики",
+    "categories": "Категории товаров",
+    "stores": "Склады",
+    "itemGroups": "Группы товаров",
+    "purchaseOrders": "Заказы на закупку",
+    "purchases": "Закупки",
+    "purchaseReturns": "Возвраты закупок",
+    "issues": "Выдачи",
+    "issueReturns": "Возвраты выдач",
+    "wastes": "Списания"
+  },
+  "security": {
+    "accessTab": "Доступ к {{module}}"
+  },
+  "columns": {
+    "name": "Название",
+    "code": "Код",
+    "category": "Категория",
+    "uom": "Единица измерения",
+    "baseQuantity": "Базовое количество",
+    "price": "Цена",
+    "averagePrice": "Средняя цена",
+    "avgPrice": "Ср. цена",
+    "stores": "Склады",
+    "suppliers": "Поставщики",
+    "actions": "Действия",
+    "address": "Адрес",
+    "phone": "Телефон",
+    "email": "Email",
+    "priority": "Приоритет",
+    "mainItem": "Основной товар",
+    "subItems": "Подтовары",
+    "invoiceNumber": "Накладная №",
+    "poNumber": "Заказ №",
+    "status": "Статус",
+    "createdAt": "Создано",
+    "items": "Позиции",
+    "purchaseInvoice": "Накладная закупки №",
+    "issueNumber": "Выдача №",
+    "returnNumber": "Возврат №",
+    "issuance": "Выдача",
+    "issuedTo": "Выдано",
+    "kitchen": "Кухня",
+    "createdBy": "Создал",
+    "source": "Источник"
+  },
+  "buttons": {
+    "item": "Товар",
+    "import": "Импорт",
+    "view": "Просмотр",
+    "upload": "Загрузить"
+  },
+  "forms": {
+    "createItem": "Создать новый товар",
+    "createCategory": "Создать новую категорию",
+    "createSupplier": "Создать нового поставщика",
+    "createStore": "Создать новый склад",
+    "createIssue": "Создать новую выдачу",
+    "createIssueReturn": "Создать новый возврат выдачи",
+    "createWaste": "Создать новое списание",
+    "createPurchase": "Создать новую закупку",
+    "createPurchaseReturn": "Создать новый возврат закупки",
+    "createPurchaseOrder": "Создать новый заказ на закупку",
+    "createItemGroup": "Создать новую группу товаров",
+    "nameOfItem": "Название товара",
+    "invoiceNumber": "Номер накладной",
+    "returnInvoiceNumber": "Номер возвратной накладной",
+    "poNumber": "Номер заказа",
+    "date": "Дата",
+    "comments": "Комментарии",
+    "quantity": "Количество",
+    "requested": "Запрошено",
+    "issued": "Выдано",
+    "returnedQuantity": "Возвращённое количество",
+    "expiryDate": "Срок годности",
+    "manufacturingDate": "Дата производства",
+    "storeInventory": "Склад {{name}}"
+  },
+  "validation": {
+    "required": "Обязательное поле",
+    "number": "Значение должно быть числом",
+    "selectStore": "Выберите хотя бы один склад",
+    "addItem": "Добавьте хотя бы один товар",
+    "addSubItem": "Добавьте хотя бы один подтовар",
+    "selectPurchaseMethod": "Выберите способ закупки",
+    "storeRequired": "Склад обязателен",
+    "supplierRequired": "Поставщик обязателен",
+    "selectSourceType": "Выберите тип источника",
+    "selectSource": "Выберите источник",
+    "quantityMin": "Количество должно быть не менее 1",
+    "atLeastOneItem": "Требуется хотя бы один товар",
+    "invalidCategory": "Неверная категория «{{name}}»",
+    "invalidStore": "Неверный склад «{{name}}»",
+    "invalidSupplier": "Неверный поставщик «{{name}}»"
+  },
+  "csv": {
+    "uploadTitle": "Добавить товары через CSV-файл"
+  },
+  "modals": {
+    "viewPurchase": "Просмотр закупки",
+    "viewIssue": "Просмотр выдачи",
+    "viewIssueReturn": "Просмотр возврата выдачи",
+    "viewWaste": "Просмотр списания",
+    "viewPurchaseReturn": "Просмотр возврата закупки",
+    "viewPurchaseOrder": "Просмотр заказа на закупку"
+  },
+  "summary": {
+    "title": "Сводка по складу"
+  },
+  "purchaseMethod": {
+    "title": "Способ закупки"
+  },
+  "sourceType": {
+    "purchase": "Закупка",
+    "issue": "Выдача"
+  },
+  "status": {
+    "draft": "Черновик",
+    "approved": "Утверждено",
+    "received": "Получено",
+    "cancelled": "Отменено"
+  },
+  "upload": {
+    "attachDocuments": "Прикреплённые документы"
+  },
+  "purchaseMethods": {
+    "manual": "Вручную",
+    "csv": "CSV",
+    "purchaseOrder": "Заказ на закупку"
+  },
+  "uploadViaDocument": "Загрузить через документ",
+  "itemName": "Название товара",
+  "itemCode": "Код товара",
+  "syncFromPo": "Товары синхронизируются из выбранного заказа на закупку. Переключитесь на «Вручную» для редактирования списка.",
+  "syncFromCsv": "Загрузите CSV для импорта товаров позже. Переключитесь на «Вручную» для редактирования списка здесь."
+}

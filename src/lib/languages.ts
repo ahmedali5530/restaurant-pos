@@ -18,6 +18,7 @@ export const SUPPORTED_LANGUAGES: SupportedLanguage[] = [
   { code: 'de', label: 'Deutsch' },
   { code: 'it', label: 'Italiano' },
   { code: 'ar', label: 'العربية' },
+  { code: 'ru', label: 'Русский' },
 ];
 
 export const TEXT_DIRECTIONS: { code: AppTextDirection; labelKey: string }[] = [
