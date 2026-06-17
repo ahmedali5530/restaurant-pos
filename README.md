@@ -1,8 +1,8 @@
-# 🍽️ Open Source Restaurant POS System (React + SurrealDB) - Multi-Lingual Support
-### ⚡ Fast • Multi-Branch • Touch Optimized • Multi-Lingual • Full Restaurant Operations Platform
+# 🍽️ Open Source Restaurant POS System (React + TypeScript + SurrealDB)
+### ⚡ Fast • Modern • Touch Optimized • Multi-Lingual • Full Restaurant Operations Platform
 
 A complete **restaurant management ecosystem** built for real-world cafés, restaurants, and food chains.
-
+Offline-first POS that runs entirely on your local network — no internet required for day-to-day restaurant operations. Optional cloud sync enables multi-branch analytics and centralized management.
 Designed to handle everything from **ordering → kitchen → delivery → staff → reporting → inventory** in one unified system.
 
 ---
@@ -237,6 +237,7 @@ This system solves that by combining everything into one platform:
     - 🇩🇪 **Deutsch** (German)
     - 🇮🇹 **Italiano** (Italian)
     - 🇸🇦 **العربية** (Arabic)
+    - 🇷🇺 **Русский** (Russian)
 - **RTL Support:** Full right-to-left text direction support for Arabic and other RTL languages.
 - **Dynamic Language Switching:** Users can switch languages on-the-fly without reloading.
 - **Localized Interface:** All UI elements, menus, and system messages are fully translated.
