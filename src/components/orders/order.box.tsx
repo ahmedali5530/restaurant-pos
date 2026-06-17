@@ -179,7 +179,7 @@ export const OrderBox = ({
           ) : (
             <>
               <Dropdown
-                label={<><FontAwesomeIcon icon={faEllipsisV} className="mr-3"/> {t('actions.more')}</>}
+                label={<><FontAwesomeIcon icon={faEllipsisV} className="mr-3"/> </>}
                 btnSize="lg"
                 btnFlat={true}
                 className="flex-1"
@@ -331,10 +331,9 @@ export const OrderBox = ({
                         order: order.id.toString()
                       }
                     });
-                  }} variant="primary" flat size="lg" className="flex-1" icon={faPrint}>{t('actions.tempBill')}</Button>
+                  }} variant="primary" flat size="lg" className="flex-1" icon={faPrint}></Button>
                   <Button variant="warning" filled size="lg" className="flex-1" onClick={() => setPayment(true)}
                           icon={faCreditCard}>
-                    {t('actions.payNow')}
                   </Button>
                 </>
               )}
