@@ -13,6 +13,7 @@ import {Table} from "@/api/model/table.ts";
 import {Discount} from "@/api/model/discount.ts";
 import {PaymentType} from "@/api/model/payment_type.ts";
 import {Dish} from "@/api/model/dish.ts";
+import {Menu} from "@/api/model/menu.ts";
 
 const toOption = <T extends { id?: any }>(
   item: T | undefined,
@@ -42,6 +43,7 @@ export const SalesAdvancedFilter = () => {
   const {data: tablesData, isLoading: loadingTables} = useApi<SettingsData<Table>>(Tables.tables, [], ['name asc'], 0, 9999, ['floor']);
   const {data: discountsData, isLoading: loadingDiscounts} = useApi<SettingsData<Discount>>(Tables.discounts, [], ['name asc'], 0, 9999);
   const {data: paymentTypesData, isLoading: loadingPaymentTypes} = useApi<SettingsData<PaymentType>>(Tables.payment_types, [], ['name asc'], 0, 9999);
+  const {data: menusData, isLoading: loadingMenus} = useApi<SettingsData<Menu>>(Tables.menus, ['deleted_at = none'], ['name asc'], 0, 9999);
   const {data: menuItemsData, isLoading: loadingMenuItems} = useApi<SettingsData<Dish>>(Tables.dishes, [], ['name asc'], 0, 9999);
 
   return (
@@ -164,6 +166,20 @@ export const SalesAdvancedFilter = () => {
             className="w-full"
             options={(paymentTypesData?.data || [])
               .map(paymentType => toOption(paymentType, paymentType.name))
+              .filter(notNull)}
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label htmlFor="sales-advanced-menus">{t('filters.menus')}</label>
+          <ReactSelect
+            id="sales-advanced-menus"
+            name="menus[]"
+            isMulti
+            isLoading={loadingMenus}
+            className="w-full"
+            options={(menusData?.data || [])
+              .map(menu => toOption(menu, menu.name))
               .filter(notNull)}
           />
         </div>

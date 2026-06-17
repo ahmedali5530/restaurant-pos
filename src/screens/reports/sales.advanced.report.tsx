@@ -4,6 +4,7 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
+import {Menu} from "@/api/model/menu.ts";
 import {OrderVoid} from "@/api/model/order_void.ts";
 import {formatNumber, safeNumber, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
@@ -22,6 +23,25 @@ const recordToString = (value: any): string => {
     return value.toString();
   }
   return String(value);
+};
+
+const collectMenuDishIds = (menus: Menu[]): Set<string> => {
+  const dishIds = new Set<string>();
+
+  menus.forEach(menu => {
+    (menu.items ?? []).forEach(menuItem => {
+      if (menuItem.active === false) {
+        return;
+      }
+
+      const dishId = recordToString(menuItem.menu_item?.id ?? menuItem.menu_item);
+      if (dishId) {
+        dishIds.add(dishId);
+      }
+    });
+  });
+
+  return dishIds;
 };
 
 const calculateVoidEntryAmount = (voidEntry: OrderVoid): number => {
@@ -50,6 +70,7 @@ interface ReportFilters {
   withoutDiscount?: boolean;
   discountIds: string[];
   paymentTypeIds: string[];
+  menuIds: string[];
   menuItemIds: string[];
   menuItemsMatch: 'any' | 'all';
   refund?: boolean;
@@ -86,6 +107,7 @@ const parseFilters = (): ReportFilters => {
     withoutDiscount: params.has('without_discount'),
     discountIds: parseMulti('discounts'),
     paymentTypeIds: parseMulti('payment_types'),
+    menuIds: parseMulti('menus'),
     menuItemIds: parseMulti('menu_items'),
     menuItemsMatch: params.get('menu_items_match') === 'all' ? 'all' : 'any',
     refund: params.has('refund'),
@@ -105,6 +127,7 @@ export const SalesAdvancedReport = () => {
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
   const [orderVoids, setOrderVoids] = useState<OrderVoid[]>([]);
+  const [menuDishIds, setMenuDishIds] = useState<Set<string>>(new Set());
   const [expandedOrderIds, setExpandedOrderIds] = useState<Set<string>>(new Set());
 
   const [loading, setLoading] = useState(true);
@@ -218,6 +241,20 @@ export const SalesAdvancedReport = () => {
           orderConditions.push(`(${paymentFilter.join(' or ')})`);
         }
 
+        if (filters.menuIds.length > 0) {
+          const menusQuery = `
+            SELECT * FROM ${Tables.menus}
+            WHERE id INSIDE $menuIds
+            FETCH items, items.menu_item
+          `;
+          const menusResult: any = await queryRef.current(menusQuery, {
+            menuIds: filters.menuIds.map(item => toRecordId(item)),
+          });
+          setMenuDishIds(collectMenuDishIds((menusResult?.[0] ?? []) as Menu[]));
+        } else {
+          setMenuDishIds(new Set());
+        }
+
 
         let orderByMode = filters.sortDirection === 'Ascending' ? 'asc' : 'desc';
         let orderByClause = 'created_at';
@@ -301,18 +338,41 @@ export const SalesAdvancedReport = () => {
     filters.orderTypeIds,
     filters.discountIds, filters.withDiscount, filters.withoutDiscount,
     filters.paymentTypeIds,
+    filters.menuIds,
     filters.withTax, filters.withoutTax,
     filters.sortBy, filters.sortDirection
   ]);
 
   const filteredOrders = useMemo(() => {
+    let result = orders;
+
+    if (filters.menuIds.length > 0) {
+      if (menuDishIds.size === 0) {
+        return [];
+      }
+
+      result = result.filter(order => {
+        const orderItemIds = new Set(
+          (order.items ?? [])
+            .map(item => recordToString(item.item?.id ?? item.item))
+            .filter(Boolean),
+        );
+
+        if (orderItemIds.size === 0) {
+          return false;
+        }
+
+        return Array.from(menuDishIds).some(dishId => orderItemIds.has(dishId));
+      });
+    }
+
     if (filters.menuItemIds.length === 0) {
-      return orders;
+      return result;
     }
 
     const selectedItemIds = new Set(filters.menuItemIds);
 
-    return orders.filter(order => {
+    return result.filter(order => {
       const orderItemIds = new Set(
         (order.items ?? [])
           .map(item => recordToString(item.item?.id ?? item.item))
@@ -329,7 +389,7 @@ export const SalesAdvancedReport = () => {
 
       return Array.from(selectedItemIds).some(itemId => orderItemIds.has(itemId));
     });
-  }, [orders, filters]);
+  }, [orders, filters, menuDishIds]);
 
   const baseColumns = 10;
   const detailsColumns = filters.showDetails ? 14 : 1;
