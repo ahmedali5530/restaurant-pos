@@ -52,9 +52,12 @@
     "waste": "Waste",
     "transferIn": "Transfer In",
     "transferOut": "Transfer Out",
+    "productionIn": "Production In",
+    "productionOut": "Production Out",
     "consumption": "Consumption",
     "saleVsInventory": "Sale vs Inventory",
-    "kitchenReconciliation": "Kitchen Reconciliation"
+    "kitchenReconciliation": "Kitchen Reconciliation",
+    "productionReport": "Production Report"
   },
   "titles": {
     "aiReport": "AI Report",
@@ -95,6 +98,7 @@
     "consumption": "Consumption Report",
     "saleVsConsumption": "Sale vs Consumption Report",
     "kitchenReconciliation": "Kitchen Reconciliation Report",
+    "productionReport": "Production / Yield Report",
     "tablesSummary": "Tables summary"
   },
   "layout": {
@@ -369,6 +373,23 @@
     "dateWindow": "Date window",
     "dishes": "Dishes",
     "floors": "Floors",
-    "kitchens": "Kitchens"
+    "kitchens": "Kitchens",
+    "store": "Store",
+    "recipe": "Recipe",
+    "item": "Item",
+    "direction": "Direction",
+    "quantity": "Quantity",
+    "cost": "Cost"
+  },
+  "production": {
+    "batchNumber": "Batch #",
+    "date": "Date",
+    "producedQty": "Produced qty",
+    "yieldLoss": "Yield loss",
+    "inputCost": "Input cost",
+    "outputCost": "Output cost",
+    "lineDetails": "Line details",
+    "in": "In",
+    "out": "Out"
   }
 }

@@ -22,6 +22,7 @@ import _ from "lodash";
 import {KitchenReconciliation} from "@/api/model/kitchen_reconciliation.ts";
 import {listKitchenReconciliationsForReport} from "@/lib/kitchen/reconciliation.service.ts";
 import {fetchStoreTransferAggregates} from "@/lib/inventory/stock_transfer.service.ts";
+import {fetchProductionLinesForReport} from "@/lib/inventory/production.service.ts";
 import {computeLine, computeTotals} from "@/lib/kitchen/reconciliation.calculations.ts";
 
 // ==================== Types ====================
@@ -489,6 +490,17 @@ export const InventoryDashboardReport = () => {
         transferRows.forEach((row) => {
           const sign = row.direction === "in" ? 1 : -1;
           addToStock(row.storeId, row.itemId, sign * row.quantity);
+        });
+
+        const productionLines = await fetchProductionLinesForReport(db, {
+          dateFrom: filters.startDate ?? undefined,
+          dateTo: filters.endDate ?? undefined,
+        });
+
+        productionLines.forEach((line) => {
+          if (!line.storeId || !line.itemId) return;
+          const sign = line.direction === "in" ? 1 : -1;
+          addToStock(line.storeId, line.itemId, sign * line.quantity);
         });
 
         // Build final stock data with item details

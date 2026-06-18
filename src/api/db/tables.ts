@@ -75,6 +75,13 @@ export enum Tables {
   stock_transfers = 'stock_transfer',
   stock_transfer_items = 'stock_transfer_item',
 
+  recipes = 'recipe',
+  recipe_items = 'recipe_item',
+  recipe_outputs = 'recipe_output',
+  production_batches = 'production_batch',
+  production_batch_inputs = 'production_batch_input',
+  production_batch_outputs = 'production_batch_output',
+
   settings = 'setting',
 
   auth_permission = 'auth_permission',

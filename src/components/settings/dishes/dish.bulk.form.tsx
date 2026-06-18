@@ -22,6 +22,7 @@ import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {CategoryForm} from "@/components/settings/categories/category.form.tsx";
 import {ModifierGroupForm} from "@/components/settings/modifier_groups/modifier_group.form.tsx";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
+import {canUseInDishRecipe} from "@/utils/inventoryItemTypes.ts";
 import {StringRecordId, type RecordId} from "surrealdb";
 import React, {useEffect, useState} from "react";
 
@@ -615,7 +616,9 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
               </div>
 
               {recipeFields.map((item, index) => {
-                const availableOptions = inventoryItems?.data?.map((inventoryItem) => ({
+                const availableOptions = inventoryItems?.data
+                  ?.filter((inventoryItem) => canUseInDishRecipe(inventoryItem))
+                  ?.map((inventoryItem) => ({
                   label: inventoryItem.name,
                   value: inventoryItem.id.toString()
                 })) || [];

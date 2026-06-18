@@ -1,6 +1,6 @@
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import * as yup from "yup";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -21,6 +21,13 @@ import {InventoryCategory} from "@/api/model/inventory_category.ts";
 import {InventoryStore} from "@/api/model/inventory_store.ts";
 import {InventoryCategoryForm} from "@/components/inventory/categories/form.tsx";
 import {InventoryStoreForm} from "@/components/inventory/stores/form.tsx";
+import {
+  getItemTypeOptions,
+  getItemTypesFromRecord,
+  itemTypesToSelectOptions,
+  normalizeItemTypes,
+} from "@/utils/inventoryItemTypes.ts";
+import {InventoryItemType} from "@/api/model/inventory_item.ts";
 
 interface Props {
   open: boolean
@@ -50,6 +57,12 @@ const validationSchema = yup.object({
   })).min(1, 'Select at least one store'),
   price: yup.number().typeError("This should be a number").nullable().optional(),
   average_price: yup.number().typeError("This should be a number").nullable().optional(),
+  item_types: yup.array().of(
+    yup.object({
+      label: yup.string(),
+      value: yup.string().oneOf(['raw', 'semi_finished', 'finished']),
+    })
+  ).min(1, 'Select at least one item type'),
 });
 
 export const InventoryItemForm = ({
@@ -67,7 +80,8 @@ export const InventoryItemForm = ({
       stores: [],
       price: undefined,
       average_price: undefined,
-      uom: null
+      uom: null,
+      item_types: [{label: t('itemType.raw'), value: 'raw'}],
     });
   }
 
@@ -113,6 +127,8 @@ export const InventoryItemForm = ({
     resolver: yupResolver(validationSchema)
   });
 
+  const itemTypeOptions = useMemo(() => getItemTypeOptions(t), [t]);
+
   useEffect(() => {
     if( data ) {
       reset({
@@ -125,6 +141,7 @@ export const InventoryItemForm = ({
         },
         price: Number(data?.price),
         average_price: Number(data?.average_price),
+        item_types: itemTypesToSelectOptions(getItemTypesFromRecord(data), itemTypeOptions),
         category: data?.category ? {
           label: data.category.name,
           value: data.category.id
@@ -139,10 +156,14 @@ export const InventoryItemForm = ({
         })) ?? [],
       });
     }
-  }, [data]);
+  }, [data, itemTypeOptions, reset]);
 
   const onSubmit = async (values: any) => {
     try {
+      const itemTypes = normalizeItemTypes(
+        values.item_types?.map((option: {value: InventoryItemType}) => option.value) ?? []
+      );
+
       const datum = {
         ...values,
         base_quantity: parseInt(values.base_quantity),
@@ -152,6 +173,7 @@ export const InventoryItemForm = ({
         uom: values.uom.value,
         price: values.price !== undefined && values.price !== null && values.price !== '' ? parseFloat(values.price) : undefined,
         average_price: values.average_price !== undefined && values.average_price !== null && values.average_price !== '' ? parseFloat(values.average_price) : undefined,
+        item_types: itemTypes,
       };
 
       const itemsData = {
@@ -163,7 +185,8 @@ export const InventoryItemForm = ({
         suppliers: datum.suppliers,
         stores: datum.stores,
         price: datum.price,
-        average_price: datum.average_price
+        average_price: datum.average_price,
+        item_types: datum.item_types,
       };
 
       if( data?.id ) {
@@ -195,6 +218,23 @@ export const InventoryItemForm = ({
             </div>
             <div className="flex-1">
               <Input label={t('columns.code')} {...register('code')} error={errors?.code?.message}/>
+            </div>
+            <div className="flex-1">
+              <label>{t('itemType.label')}</label>
+              <Controller
+                name="item_types"
+                control={control}
+                render={({field}) => (
+                  <ReactSelect
+                    value={field.value}
+                    onChange={field.onChange}
+                    options={itemTypeOptions}
+                    isMulti
+                  />
+                )}
+              />
+              <p className="text-sm text-neutral-600 mt-1">{t('itemType.hint')}</p>
+              {errors?.item_types && <InputError error={errors?.item_types?.message as string}/>}
             </div>
             <div className="flex-1 flex gap-2 items-end">
               <div className="flex-1">

@@ -18,6 +18,17 @@ interface InventoryTotals {
   waste: number;
   transfersIn: number;
   transfersOut: number;
+  productionInputs: number;
+  productionOutputs: number;
+}
+
+export interface ProductionMovementRecord {
+  id: string;
+  quantity: number;
+  created_at: Date;
+  type: "production_in" | "production_out";
+  item: {name?: string; code?: string; uom?: string};
+  batchNumber?: string;
 }
 
 export interface StoreTransferRecord {
@@ -37,6 +48,8 @@ interface InventoryRecords {
   waste: InventoryWasteItem[];
   transfersIn: StoreTransferRecord[];
   transfersOut: StoreTransferRecord[];
+  productionInputs: ProductionMovementRecord[];
+  productionOutputs: ProductionMovementRecord[];
 }
 
 const initialTotals: InventoryTotals = {
@@ -47,6 +60,8 @@ const initialTotals: InventoryTotals = {
   waste: 0,
   transfersIn: 0,
   transfersOut: 0,
+  productionInputs: 0,
+  productionOutputs: 0,
 };
 
 const initialRecords: InventoryRecords = {
@@ -57,6 +72,8 @@ const initialRecords: InventoryRecords = {
   waste: [],
   transfersIn: [],
   transfersOut: [],
+  productionInputs: [],
+  productionOutputs: [],
 };
 
 type SumQueryResponse = Array<{ total: number | null }>;
@@ -149,6 +166,10 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
           wasteRecords,
           transferOutRecords,
           transferInRecords,
+          productionInputTotalsResult,
+          productionOutputTotalsResult,
+          productionInputRecords,
+          productionOutputRecords,
         ] = await Promise.all([
           queryRef.current(
             `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_purchase_items} WHERE item = $item AND store = $store GROUP ALL`,
@@ -211,6 +232,38 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
             FETCH item, transfer, transfer.from_store`,
             params
           ),
+          queryRef.current(
+            `SELECT math::sum(quantity) AS total FROM ${Tables.production_batch_inputs}
+            WHERE item = $item AND store = $store
+            AND batch IN (SELECT VALUE id FROM ${Tables.production_batches} WHERE status = 'completed')
+            GROUP ALL`,
+            params
+          ),
+          queryRef.current(
+            `SELECT math::sum(quantity) AS total FROM ${Tables.production_batch_outputs}
+            WHERE item = $item AND store = $store AND disposition = 'inventory'
+            AND batch IN (SELECT VALUE id FROM ${Tables.production_batches} WHERE status = 'completed')
+            GROUP ALL`,
+            params
+          ),
+          queryRef.current(
+            `SELECT *, batch.created_at AS created_at, batch.batch_number AS batch_number
+            FROM ${Tables.production_batch_inputs}
+            WHERE item = $item AND store = $store
+            AND batch IN (SELECT VALUE id FROM ${Tables.production_batches} WHERE status = 'completed')
+            ORDER BY batch.created_at DESC
+            FETCH item, batch`,
+            params
+          ),
+          queryRef.current(
+            `SELECT *, batch.created_at AS created_at, batch.batch_number AS batch_number
+            FROM ${Tables.production_batch_outputs}
+            WHERE item = $item AND store = $store AND disposition = 'inventory'
+            AND batch IN (SELECT VALUE id FROM ${Tables.production_batches} WHERE status = 'completed')
+            ORDER BY batch.created_at DESC
+            FETCH item, batch`,
+            params
+          ),
         ]);
 
         if (!cancelled) {
@@ -222,6 +275,8 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
             waste: getTotalFromRows(wasteTotalsResult as SumQueryResponse),
             transfersIn: transferTotals.transfersIn,
             transfersOut: transferTotals.transfersOut,
+            productionInputs: getTotalFromRows(productionInputTotalsResult as SumQueryResponse),
+            productionOutputs: getTotalFromRows(productionOutputTotalsResult as SumQueryResponse),
           });
 
           const mapTransferRows = (
@@ -249,6 +304,30 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
             waste: (wasteRecords[0] || []) as InventoryWasteItem[],
             transfersOut: mapTransferRows((transferOutRecords[0] || []) as any[], "transfer_out"),
             transfersIn: mapTransferRows((transferInRecords[0] || []) as any[], "transfer_in"),
+            productionInputs: ((productionInputRecords[0] || []) as any[]).map((row) => ({
+              id: String(row.id),
+              quantity: Number(row.quantity) || 0,
+              created_at: toJsDate(row.created_at),
+              type: "production_out" as const,
+              item: {
+                name: row.item?.name,
+                code: row.item?.code,
+                uom: row.item?.uom,
+              },
+              batchNumber: row.batch_number,
+            })),
+            productionOutputs: ((productionOutputRecords[0] || []) as any[]).map((row) => ({
+              id: String(row.id),
+              quantity: Number(row.quantity) || 0,
+              created_at: toJsDate(row.created_at),
+              type: "production_in" as const,
+              item: {
+                name: row.item?.name,
+                code: row.item?.code,
+                uom: row.item?.uom,
+              },
+              batchNumber: row.batch_number,
+            })),
           });
         }
       } catch (err) {

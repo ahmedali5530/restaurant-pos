@@ -1,6 +1,10 @@
 import type {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {
+  fetchProductionInputTotals,
+  fetchProductionOutputTotals,
+} from "@/lib/inventory/production.service.ts";
+import {
   fetchStoreTransferTotals,
   type StockTransferLineInput,
 } from "@/lib/inventory/stock_transfer.service.ts";
@@ -16,6 +20,8 @@ export type StoreInventoryBreakdown = {
   waste: number;
   transfersIn: number;
   transfersOut: number;
+  productionInputs: number;
+  productionOutputs: number;
   net: number;
 };
 
@@ -40,6 +46,8 @@ export const computeStoreNet = (breakdown: Omit<StoreInventoryBreakdown, "net">)
     - breakdown.waste
     - breakdown.transfersOut
     + breakdown.transfersIn
+    - breakdown.productionInputs
+    + breakdown.productionOutputs
   );
 };
 
@@ -62,6 +70,8 @@ export const fetchStoreInventoryBreakdown = async (
     [issueReturnRows],
     [wasteRows],
     transferTotals,
+    productionInputs,
+    productionOutputs,
   ] = await Promise.all([
     db.query(
       `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_purchase_items} WHERE item = $item AND store = $store GROUP ALL`,
@@ -84,6 +94,8 @@ export const fetchStoreInventoryBreakdown = async (
       params
     ),
     fetchStoreTransferTotals(db, itemId, storeId),
+    fetchProductionInputTotals(db, itemId, storeId),
+    fetchProductionOutputTotals(db, itemId, storeId),
   ]);
 
   const breakdown = {
@@ -94,6 +106,8 @@ export const fetchStoreInventoryBreakdown = async (
     waste: getTotalFromResult(wasteRows),
     transfersIn: transferTotals.transfersIn,
     transfersOut: transferTotals.transfersOut,
+    productionInputs,
+    productionOutputs,
   };
 
   return {
@@ -104,7 +118,7 @@ export const fetchStoreInventoryBreakdown = async (
 
 /**
  * Fetches the net available quantity of an item in a specific store.
- * Formula: purchases - returns - issues + issueReturns - waste - transfersOut + transfersIn
+ * Formula: purchases - returns - issues + issueReturns - waste - transfersOut + transfersIn - productionInputs + productionOutputs
  */
 export const fetchNetQuantity = async (
   db: DatabaseClient,
@@ -145,5 +159,24 @@ export const validateStoreTransferAvailability = async (
     }
   }
 
+  return {valid: true};
+};
+
+export const validateProductionAvailability = async (
+  db: DatabaseClient,
+  storeId: string,
+  items: Array<{itemId: string; quantity: number}>
+): Promise<{valid: boolean; itemId?: string; available?: number; requested?: number}> => {
+  for (const line of items) {
+    const available = await fetchNetQuantity(db, line.itemId, storeId);
+    if (Number(line.quantity) > available) {
+      return {
+        valid: false,
+        itemId: line.itemId,
+        available,
+        requested: Number(line.quantity),
+      };
+    }
+  }
   return {valid: true};
 };

@@ -23,6 +23,7 @@ import _ from "lodash";
 import {ModifierGroupForm} from "@/components/settings/modifier_groups/modifier_group.form.tsx";
 import {RecordId, StringRecordId} from "surrealdb";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
+import {canUseInDishRecipe} from "@/utils/inventoryItemTypes.ts";
 import {detectMimeType} from "@/utils/files";
 import {Workflow} from "@/api/model/workflow.ts";
 import {Kitchen} from "@/api/model/kitchen.ts";
@@ -797,6 +798,7 @@ export const DishForm = ({
               {recipeFields.map((item, index) => {
                 const currentItemValue = watch(`recipes.${index}.item`)?.value;
                 const availableOptions = inventoryItems?.data
+                  ?.filter(invItem => canUseInDishRecipe(invItem))
                   ?.filter(invItem => {
                     // Filter out items that are already selected in other recipe fields
                     const allSelectedItems = watch('recipes')

@@ -7,7 +7,7 @@ import {Button} from "@/components/common/input/button.tsx";
 import { toLuxonDateTime } from "@/lib/datetime";
 
 const isDebitType = (type: string) =>
-  type === "issue" || type === "return" || type === "waste" || type === "transfer_out";
+  type === "issue" || type === "return" || type === "waste" || type === "transfer_out" || type === "production_out";
 
 export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: InventoryItem}) => {
   const { t } = useTranslation('inventory');
@@ -83,6 +83,24 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
         item: row.item,
         counterparty: row.counterparty,
       })),
+      ...records.productionOutputs.map((row) => ({
+        id: row.id,
+        type: "production_in",
+        operator: "+",
+        quantity: row.quantity,
+        created_at: row.created_at,
+        item: row.item,
+        counterparty: row.batchNumber,
+      })),
+      ...records.productionInputs.map((row) => ({
+        id: row.id,
+        type: "production_out",
+        operator: "-",
+        quantity: row.quantity,
+        created_at: row.created_at,
+        item: row.item,
+        counterparty: row.batchNumber,
+      })),
     ];
 
     list.sort((a, b) => a.created_at.getTime() - b.created_at.getTime());
@@ -98,6 +116,8 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
     Waste: records.waste,
     [t("stockTransfer.transferIn")]: records.transfersIn,
     [t("stockTransfer.transferOut")]: records.transfersOut,
+    [t("production.productionIn")]: records.productionOutputs,
+    [t("production.productionOut")]: records.productionInputs,
   }), [records, t]);
 
   if (loading) {
@@ -155,7 +175,7 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
                 return (
                   <tr key={`${unifiedItem.type}-${unifiedItem.id}`}>
                     <td className="capitalize">{unifiedItem.type.replace(/_/g, " ")}</td>
-                    <td>{unifiedItem.created_at ? toLuxonDateTime(unifiedItem.created_at).toFormat(import.meta.env.VITE_DATE_FORMAT) : unifiedItem.created_at}</td>
+                    <td>{unifiedItem.created_at ? toLuxonDateTime(unifiedItem.created_at).toFormat(import.meta.env.VITE_DATE_FORMAT) : ""}</td>
                     <td>
                       {unifiedItem.item?.name}-{unifiedItem.item?.code}
                       {unifiedItem.counterparty ? ` → ${unifiedItem.counterparty}` : ""}

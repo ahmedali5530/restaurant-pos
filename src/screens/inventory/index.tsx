@@ -18,6 +18,9 @@ import {InventoryWastes} from "@/components/inventory/wastes/index.tsx";
 import {InventorySummary} from "@/components/inventory/inventory/summary.tsx";
 import {KitchenReconciliationScreen} from "@/components/inventory/kitchen_reconciliation/index.tsx";
 import {InventoryStockTransfers} from "@/components/inventory/stock_transfers/index.tsx";
+import {InventoryRecipes} from "@/components/inventory/recipes/index.tsx";
+import {InventoryProduction} from "@/components/inventory/production/index.tsx";
+import {InventoryProductionHistory} from "@/components/inventory/production_history/index.tsx";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 
 /** Stable permission codes stored in user roles — not translated labels. */
@@ -36,6 +39,9 @@ const INVENTORY_TAB_MODULES: Record<string, string> = {
   wastes: 'Wastes',
   'kitchen-reconciliation': 'Kitchen Reconciliation',
   'stock-transfers': 'Stock Transfers',
+  'recipes': 'Production Recipes',
+  'production': 'Production',
+  'production-history': 'Production History',
 };
 
 export const Inventory = () => {
@@ -58,6 +64,9 @@ export const Inventory = () => {
     'wastes': {component: <InventoryWastes/>, title: t('tabs.wastes')},
     'kitchen-reconciliation': {component: <KitchenReconciliationScreen/>, title: t('tabs.kitchenReconciliation')},
     'stock-transfers': {component: <InventoryStockTransfers/>, title: t('tabs.stockTransfers')},
+    'recipes': {component: <InventoryRecipes/>, title: t('tabs.recipes')},
+    'production': {component: <InventoryProduction/>, title: t('tabs.production')},
+    'production-history': {component: <InventoryProductionHistory/>, title: t('tabs.productionHistory')},
   }), [t]);
 
   return (

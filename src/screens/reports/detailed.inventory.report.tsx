@@ -11,6 +11,7 @@ import {InventoryWasteItem} from "@/api/model/inventory_waste.ts";
 import {formatNumber} from "@/lib/utils.ts";
 import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
 import {fetchStoreTransferLinesForReport} from "@/lib/inventory/stock_transfer.service.ts";
+import {fetchProductionBatchLinesForDetailedReport} from "@/lib/inventory/production.service.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
 
 type InventoryTransaction = {
@@ -302,6 +303,28 @@ export const DetailedInventoryReport = () => {
           });
         });
 
+        const productionLines = await fetchProductionBatchLinesForDetailedReport(
+          db,
+          filters.startDate,
+          filters.endDate
+        );
+
+        productionLines.forEach((line) => {
+          allTransactions.push({
+            date: line.createdAt.toISOString(),
+            item: line.itemName,
+            itemId: line.itemId,
+            category: "",
+            quantity: line.quantity,
+            unit: "",
+            type: line.direction === "in" ? "Production In" : "Production Out",
+            user: "",
+            storeName: line.storeName,
+            comments: `${line.batchNumber} / ${line.recipeName}`,
+            balance: 0,
+          });
+        });
+
         // Filter by selected items if provided
         let filteredTransactions = allTransactions;
         if (filters.itemIds.length > 0) {
@@ -377,6 +400,12 @@ export const DetailedInventoryReport = () => {
               break;
             case "Transfer In":
               balanceChange = transaction.quantity;
+              break;
+            case "Production In":
+              balanceChange = transaction.quantity;
+              break;
+            case "Production Out":
+              balanceChange = -transaction.quantity;
               break;
             default:
               balanceChange = 0;
