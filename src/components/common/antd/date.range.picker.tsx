@@ -35,7 +35,7 @@ export const DateRangePicker = ({
   const endValue = value?.[1]?.format("YYYY-MM-DD HH:mm") ?? "";
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col" data-react-aria-top-layer="true">
       {label && <label>{label}</label>}
       <RangePicker
         className="w-full app-ant-picker"
@@ -55,6 +55,7 @@ export const DateRangePicker = ({
             nextValue[1],
           ], dateStrings as [string, string]);
         }}
+        getPopupContainer={(trigger) => trigger.parentElement}
       />
       <input type="hidden" name={startName} value={startValue} required={required}/>
       <input type="hidden" name={endName} value={endValue} required={required}/>

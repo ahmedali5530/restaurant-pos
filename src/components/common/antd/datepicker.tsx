@@ -26,7 +26,7 @@ export const DatePicker = ({
   const selectedDate = dateValueToDayjs(value);
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col" data-react-aria-top-layer="true">
       {label && <label>{label}</label>}
       <AntDatePicker
         className="w-full app-ant-picker"
@@ -38,6 +38,7 @@ export const DatePicker = ({
         onChange={(nextValue) => {
           onChange?.(dayjsToCalendarDate(nextValue));
         }}
+        getPopupContainer={(trigger) => trigger.parentElement}
       />
       {name && (
         <input
