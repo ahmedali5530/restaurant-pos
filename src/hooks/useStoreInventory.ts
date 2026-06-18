@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {RecordId, StringRecordId} from "surrealdb";
+import {StringRecordId} from "surrealdb";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
 import { InventoryPurchaseItem } from "@/api/model/inventory_purchase.ts";
@@ -7,6 +7,8 @@ import { InventoryPurchaseReturnItem } from "@/api/model/inventory_purchase_retu
 import { InventoryIssueItem } from "@/api/model/inventory_issue.ts";
 import { InventoryIssueReturnItem } from "@/api/model/inventory_issue_return.ts";
 import { InventoryWasteItem } from "@/api/model/inventory_waste.ts";
+import {computeStoreNet} from "@/utils/inventory.ts";
+import {fetchStoreTransferTotals} from "@/lib/inventory/stock_transfer.service.ts";
 
 interface InventoryTotals {
   purchases: number;
@@ -14,6 +16,17 @@ interface InventoryTotals {
   issues: number;
   issueReturns: number;
   waste: number;
+  transfersIn: number;
+  transfersOut: number;
+}
+
+export interface StoreTransferRecord {
+  id: string;
+  quantity: number;
+  created_at: Date;
+  type: "transfer_in" | "transfer_out";
+  item: {name?: string; code?: string; uom?: string};
+  counterparty?: string;
 }
 
 interface InventoryRecords {
@@ -22,6 +35,8 @@ interface InventoryRecords {
   issues: InventoryIssueItem[];
   issueReturns: InventoryIssueReturnItem[];
   waste: InventoryWasteItem[];
+  transfersIn: StoreTransferRecord[];
+  transfersOut: StoreTransferRecord[];
 }
 
 const initialTotals: InventoryTotals = {
@@ -29,7 +44,9 @@ const initialTotals: InventoryTotals = {
   returns: 0,
   issues: 0,
   issueReturns: 0,
-  waste: 0
+  waste: 0,
+  transfersIn: 0,
+  transfersOut: 0,
 };
 
 const initialRecords: InventoryRecords = {
@@ -37,7 +54,9 @@ const initialRecords: InventoryRecords = {
   returns: [],
   issues: [],
   issueReturns: [],
-  waste: []
+  waste: [],
+  transfersIn: [],
+  transfersOut: [],
 };
 
 type SumQueryResponse = Array<{ total: number | null }>;
@@ -59,6 +78,15 @@ const toRecordId = (value?: string | { toString(): string }) => {
 
 const normalizeIdentifier = (value?: IdentifierValue) =>
   value ? toRecordId(value).toString() : undefined;
+
+const toJsDate = (value: unknown): Date => {
+  if (value instanceof Date) return value;
+  if (typeof value === "string" || typeof value === "number") return new Date(value);
+  if (value && typeof value === "object" && "toISOString" in value) {
+    return new Date((value as {toISOString(): string}).toISOString());
+  }
+  return new Date();
+};
 
 export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreId?: IdentifierValue) => {
   const db = useDB();
@@ -104,83 +132,123 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
       setLoading(true);
       setError(null);
 
+      const params = { item: toRecordId(itemId), store: toRecordId(storeId) };
+
       try {
         const [
-          // Totals queries
           [purchaseTotalsResult],
           [returnTotalsResult],
           [issueTotalsResult],
           [issueReturnTotalsResult],
           [wasteTotalsResult],
-          // Records queries
+          transferTotals,
           purchaseRecords,
           returnRecords,
           issueRecords,
           issueReturnRecords,
-          wasteRecords
+          wasteRecords,
+          transferOutRecords,
+          transferInRecords,
         ] = await Promise.all([
-          // Totals
           queryRef.current(
             `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_purchase_items} WHERE item = $item AND store = $store GROUP ALL`,
-            { item: toRecordId(itemId), store: toRecordId(storeId) }
+            params
           ),
           queryRef.current(
-            `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_purchase_return_items} WHERE item = $item AND store = $store GROUP ALL`,
-            { item: toRecordId(itemId), store: toRecordId(storeId) }
+            `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_purchase_return_items} WHERE item = $item AND purchase_item.store = $store GROUP ALL`,
+            params
           ),
           queryRef.current(
             `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_issue_items} WHERE item = $item AND store = $store GROUP ALL`,
-            { item: toRecordId(itemId), store: toRecordId(storeId) }
+            params
           ),
           queryRef.current(
             `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_issue_return_items} WHERE item = $item AND store = $store GROUP ALL`,
-            { item: toRecordId(itemId), store: toRecordId(storeId) }
+            params
           ),
           queryRef.current(
             `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_waste_items} WHERE item = $item AND purchase_item != null AND purchase_item.store = $store GROUP ALL`,
-            { item: toRecordId(itemId), store: toRecordId(storeId) }
+            params
           ),
-          // Records
+          fetchStoreTransferTotals(db, itemId, storeId),
           queryRef.current(
             `SELECT *, purchase.created_at as created_at, purchase.invoice_number as invoice_number FROM ${Tables.inventory_purchase_items} WHERE item = $item AND store = $store order by purchase.created_at DESC FETCH item`,
-            { item: toRecordId(itemId), store: toRecordId(storeId) }
+            params
           ),
           queryRef.current(
             `SELECT *, purchase_return.created_at as created_at, purchase_return.invoice_number as invoice_number FROM ${Tables.inventory_purchase_return_items} WHERE item = $item AND purchase_item.store = $store order by purchase_return.created_at DESC FETCH item`,
-            { item: toRecordId(itemId), store: toRecordId(storeId) }
+            params
           ),
           queryRef.current(
             `SELECT *, issue.created_at as created_at, issue.invoice_number as invoice_number FROM ${Tables.inventory_issue_items} WHERE item = $item AND store = $store order by issue.created_at DESC FETCH item`,
-            { item: toRecordId(itemId), store: toRecordId(storeId) }
+            params
           ),
           queryRef.current(
             `SELECT *, issue_return.created_at as created_at, issue_return.invoice_number as invoice_number FROM ${Tables.inventory_issue_return_items} WHERE item = $item AND store = $store order by issue_return.created_at DESC FETCH item`,
-            { item: toRecordId(itemId), store: toRecordId(storeId) }
+            params
           ),
           queryRef.current(
             `SELECT *, waste.created_at as created_at, waste.invoice_number as invoice_number FROM ${Tables.inventory_waste_items} WHERE item = $item AND ((purchase_item != none AND purchase_item.store = $store) or (issue_item != none and issue_item.store = $store)) order by waste.created_at DESC FETCH item`,
-            { item: toRecordId(itemId), store: toRecordId(storeId) }
-          )
+            params
+          ),
+          queryRef.current(
+            `SELECT *, transfer.created_at AS created_at, transfer.to_store.name AS counterparty
+            FROM ${Tables.stock_transfer_items}
+            WHERE item = $item AND transfer IN (
+              SELECT VALUE id FROM ${Tables.stock_transfers} WHERE from_store = $store AND to_store != NONE
+            )
+            ORDER BY transfer.created_at DESC
+            FETCH item, transfer, transfer.to_store`,
+            params
+          ),
+          queryRef.current(
+            `SELECT *, transfer.created_at AS created_at, transfer.from_store.name AS counterparty
+            FROM ${Tables.stock_transfer_items}
+            WHERE item = $item AND transfer IN (
+              SELECT VALUE id FROM ${Tables.stock_transfers} WHERE to_store = $store AND from_store != NONE
+            )
+            ORDER BY transfer.created_at DESC
+            FETCH item, transfer, transfer.from_store`,
+            params
+          ),
         ]);
 
         if (!cancelled) {
-          // For aggregate queries with GROUP ALL, SurrealDB returns ActionResult[] where result is [{total: number}]
           setTotals({
             purchases: getTotalFromRows(purchaseTotalsResult as SumQueryResponse),
             returns: getTotalFromRows(returnTotalsResult as SumQueryResponse),
             issues: getTotalFromRows(issueTotalsResult as SumQueryResponse),
             issueReturns: getTotalFromRows(issueReturnTotalsResult as SumQueryResponse),
-            waste: getTotalFromRows(wasteTotalsResult as SumQueryResponse)
+            waste: getTotalFromRows(wasteTotalsResult as SumQueryResponse),
+            transfersIn: transferTotals.transfersIn,
+            transfersOut: transferTotals.transfersOut,
           });
 
-          // Extract records: SurrealDB returns ActionResult[] where each element has a .result property
-          // For SELECT queries, we need to map over results and extract .result from each ActionResult
+          const mapTransferRows = (
+            rows: any[],
+            type: "transfer_in" | "transfer_out"
+          ): StoreTransferRecord[] =>
+            rows.map((row) => ({
+              id: String(row.id),
+              quantity: Number(row.quantity) || 0,
+              created_at: toJsDate(row.created_at),
+              type,
+              item: {
+                name: row.item?.name,
+                code: row.item?.code,
+                uom: row.item?.uom,
+              },
+              counterparty: row.counterparty,
+            }));
+
           setRecords({
             purchases: (purchaseRecords[0] || []) as InventoryPurchaseItem[],
             returns: (returnRecords[0] || []) as InventoryPurchaseReturnItem[],
             issues: (issueRecords[0] || []) as InventoryIssueItem[],
             issueReturns: (issueReturnRecords[0] || []) as InventoryIssueReturnItem[],
-            waste: (wasteRecords[0] || []) as InventoryWasteItem[]
+            waste: (wasteRecords[0] || []) as InventoryWasteItem[],
+            transfersOut: mapTransferRows((transferOutRecords[0] || []) as any[], "transfer_out"),
+            transfersIn: mapTransferRows((transferInRecords[0] || []) as any[], "transfer_in"),
           });
         }
       } catch (err) {
@@ -199,9 +267,7 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
     };
   }, [identifiers.itemId, identifiers.storeId]);
 
-  const netQuantity = useMemo(() => {
-    return totals.purchases - totals.returns - totals.issues + totals.issueReturns - totals.waste;
-  }, [totals]);
+  const netQuantity = useMemo(() => computeStoreNet(totals), [totals]);
 
   return { identifiers, setArgs, totals, records, netQuantity, loading, error };
 };

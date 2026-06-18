@@ -50,8 +50,11 @@
     "issue": "Issue",
     "issueReturn": "Issue Return",
     "waste": "Waste",
+    "transferIn": "Transfer In",
+    "transferOut": "Transfer Out",
     "consumption": "Consumption",
-    "saleVsInventory": "Sale vs Inventory"
+    "saleVsInventory": "Sale vs Inventory",
+    "kitchenReconciliation": "Kitchen Reconciliation"
   },
   "titles": {
     "aiReport": "AI Report",
@@ -91,6 +94,7 @@
     "waste": "Waste Report",
     "consumption": "Consumption Report",
     "saleVsConsumption": "Sale vs Consumption Report",
+    "kitchenReconciliation": "Kitchen Reconciliation Report",
     "tablesSummary": "Tables summary"
   },
   "layout": {
@@ -162,6 +166,7 @@
     "issueReturn": "Loading issue return report…",
     "waste": "Loading waste report…",
     "consumption": "Loading consumption report…",
+    "kitchenReconciliation": "Loading kitchen reconciliation report…",
     "deliveryDensity": "Loading delivery density report…",
     "cashClosing": "Loading cash closing report...",
     "mergeOrders": "Loading merge orders report...",
@@ -297,7 +302,41 @@
     "kitchenCompletion": "Kitchen completion",
     "orderPayment": "Order payment",
     "chart": "Chart",
-    "default": "Default"
+    "default": "Default",
+    "kitchenReconciliationCount": "Reconciliations",
+    "kitchenReconciliationVerified": "Verified",
+    "kitchenReconciliationDraft": "Draft",
+    "kitchenReconciliationMissed": "Missed",
+    "kitchenReconciliationTotalVariance": "Total variance",
+    "kitchenReconciliationHeaders": "Reconciliation summary",
+    "kitchenReconciliationDetails": "Line item details",
+    "kitchenReconciliationNoResults": "No reconciliations found for the selected filters",
+    "kitchenReconciliationLatest": "Latest Kitchen Reconciliations",
+    "kitchenReconciliationVarianceTrend": "Kitchen variance by business date",
+    "kitchenReconciliationStatus": {
+      "draft": "Draft",
+      "verified": "Verified",
+      "missed": "Missed"
+    },
+    "businessDate": "Business date",
+    "revision": "Revision",
+    "operationalWindow": "Operational window",
+    "verifiedBy": "Verified by",
+    "verifiedAt": "Verified at",
+    "lineCount": "Lines",
+    "totalVariance": "Total variance",
+    "opening": "Opening",
+    "issued": "Issued",
+    "transfersIn": "Transfers in",
+    "transfersOut": "Transfers out",
+    "theoretical": "Theoretical",
+    "expected": "Expected",
+    "physical": "Physical",
+    "waste": "Waste",
+    "staffMeal": "Staff meal",
+    "complimentary": "Complimentary",
+    "actualConsumption": "Actual consumption",
+    "variance": "Variance"
   },
   "metrics": {
     "gross": "Gross",

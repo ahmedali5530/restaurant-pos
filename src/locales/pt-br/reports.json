@@ -51,7 +51,8 @@
     "issueReturn": "Devolução de Saída",
     "waste": "Desperdício",
     "consumption": "Consumo",
-    "saleVsInventory": "Venda vs Estoque"
+    "saleVsInventory": "Venda vs Estoque",
+    "kitchenReconciliation": "Kitchen Reconciliation"
   },
   "titles": {
     "aiReport": "Relatório de IA",
@@ -91,7 +92,8 @@
     "waste": "Relatório de Desperdícios",
     "consumption": "Relatório de Consumo",
     "saleVsConsumption": "Relatório de Venda vs Consumo",
-    "tablesSummary": "Resumo de mesas"
+    "tablesSummary": "Resumo de mesas",
+    "kitchenReconciliation": "Kitchen Reconciliation Report"
   },
   "layout": {
     "print": "Imprimir",
@@ -176,7 +178,8 @@
     "chart": "Carregando gráfico...",
     "map": "Carregando mapa...",
     "latestActivity": "Carregando atividades recentes...",
-    "sessions": "Carregando sessões..."
+    "sessions": "Carregando sessões...",
+    "kitchenReconciliation": "Loading kitchen reconciliation report…"
   },
   "errors": {
     "unableToLoad": "Não foi possível carregar o relatório",

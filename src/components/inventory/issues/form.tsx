@@ -28,6 +28,7 @@ import {DateValue} from "react-aria-components";
 import {dateToCalendarDate, calendarDateToDate, getToday} from "@/utils/date.ts";
 import {Switch} from "@/components/common/input/switch.tsx";
 import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
+import {fetchNetQuantity} from "@/utils/inventory.ts";
 
 interface InventoryIssueItemFormValue {
   store: { label: string; value: string } | null;
@@ -190,45 +191,9 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     setRowNetQuantities({});
   }, [setRowNetQuantities]);
 
-  const getTotalFromResult = useCallback((result: any) => {
-    if (!result) return 0;
-    if (Array.isArray(result)) {
-      return result[0]?.total ?? 0;
-    }
-    if (Array.isArray(result.result)) {
-      return result.result[0]?.total ?? 0;
-    }
-    return 0;
-  }, []);
-
-  const fetchNetQuantity = useCallback(async (itemId: string, storeId: string) => {
-    const params = {
-      item: toRecordId(itemId),
-      store: toRecordId(storeId)
-    };
-
-    const [
-      [purchaseRows],
-      [returnRows],
-      [issueRows],
-      [issueReturnRows],
-      [wasteRows],
-    ] = await Promise.all([
-      db.query(`SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_purchase_items} WHERE item = $item AND store = $store GROUP ALL`, params),
-      db.query(`SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_purchase_return_items} WHERE item = $item AND purchase_item.store = $store GROUP ALL`, params),
-      db.query(`SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_issue_items} WHERE item = $item AND store = $store GROUP ALL`, params),
-      db.query(`SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_issue_return_items} WHERE item = $item AND store = $store GROUP ALL`, params),
-      db.query(`SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_waste_items} WHERE item = $item AND purchase_item != null AND purchase_item.store = $store GROUP ALL`, params),
-    ]);
-
-    const purchaseTotal = getTotalFromResult(purchaseRows);
-    const returnTotal = getTotalFromResult(returnRows);
-    const issueTotal = getTotalFromResult(issueRows);
-    const issueReturnTotal = getTotalFromResult(issueReturnRows);
-    const wasteTotal = getTotalFromResult(wasteRows);
-
-    return purchaseTotal - returnTotal - issueTotal + issueReturnTotal - wasteTotal;
-  }, [db, getTotalFromResult]);
+  const fetchNetQuantityForStore = useCallback(async (itemId: string, storeId: string) => {
+    return fetchNetQuantity(db, itemId, storeId);
+  }, [db]);
 
   const {fields, append, remove, replace} = useFieldArray({
     control,
@@ -343,7 +308,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
         return;
       }
 
-      fetchNetQuantity(itemId, storeId)
+      fetchNetQuantityForStore(itemId, storeId)
         .then((value) => {
           netQuantityCacheRef.current[cacheKey] = value;
           setRowNetQuantities(prev => ({ ...prev, [index]: value }));
@@ -354,7 +319,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
           setRowNetQuantities(prev => ({ ...prev, [index]: 0 }));
         });
     });
-  }, [watchedItems, fetchNetQuantity]);
+  }, [watchedItems, fetchNetQuantityForStore]);
 
   const validateAvailableStock = useCallback(async (formValues: InventoryIssueFormValues) => {
     let isValid = true;
@@ -374,7 +339,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
 
       if (available === undefined) {
         try {
-          available = await fetchNetQuantity(itemId, storeId);
+          available = await fetchNetQuantityForStore(itemId, storeId);
           netQuantityCacheRef.current[cacheKey] = available;
           setRowNetQuantities(prev => ({ ...prev, [index]: available }));
         } catch (error) {
@@ -395,7 +360,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     }
 
     return isValid;
-  }, [rowNetQuantities, fetchNetQuantity, setError, clearErrors, setRowNetQuantities]);
+  }, [rowNetQuantities, fetchNetQuantityForStore, setError, clearErrors, setRowNetQuantities]);
 
   const closeModal = () => {
     onClose();

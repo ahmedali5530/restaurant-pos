@@ -19,6 +19,10 @@ import {
 import {TabList, Tabs} from "react-aria-components";
 import {Tab, TabPanel} from "@/components/common/react-aria/tabs.tsx";
 import _ from "lodash";
+import {KitchenReconciliation} from "@/api/model/kitchen_reconciliation.ts";
+import {listKitchenReconciliationsForReport} from "@/lib/kitchen/reconciliation.service.ts";
+import {fetchStoreTransferAggregates} from "@/lib/inventory/stock_transfer.service.ts";
+import {computeLine, computeTotals} from "@/lib/kitchen/reconciliation.calculations.ts";
 
 // ==================== Types ====================
 type ChartDataPoint = {
@@ -49,6 +53,23 @@ const COLORS = [
 const safeNumber = (value: unknown): number => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const getReconciliationTotals = (reconciliation: KitchenReconciliation) => {
+  const lines = (reconciliation.items ?? []).map((line) =>
+    computeLine({
+      openingStock: line.opening_stock,
+      issuedQty: line.issued_qty,
+      transfersIn: line.transfers_in,
+      transfersOut: line.transfers_out,
+      theoreticalConsumption: line.theoretical_consumption,
+      physicalCount: line.physical_count ?? null,
+      wasteQty: line.waste_qty,
+      staffMealQty: line.staff_meal_qty,
+      complimentaryQty: line.complimentary_qty,
+    })
+  );
+  return computeTotals(lines);
 };
 
 // ==================== Widget Components ====================
@@ -300,6 +321,7 @@ export const InventoryDashboardReport = () => {
   const [issues, setIssues] = useState<any[]>([]);
   const [issueReturns, setIssueReturns] = useState<any[]>([]);
   const [wastes, setWastes] = useState<any[]>([]);
+  const [reconciliations, setReconciliations] = useState<KitchenReconciliation[]>([]);
   const [storeStock, setStoreStock] = useState<InventoryStoreStock[]>([]);
 
   // Parse date range from query strings - same pattern as sales.summary.report.tsx
@@ -357,6 +379,12 @@ export const InventoryDashboardReport = () => {
         setIssues((issuesResult?.[0] as any[]) || []);
         setIssueReturns((issueReturnsResult?.[0] as any[]) || []);
         setWastes((wastesResult?.[0] as any[]) || []);
+
+        const reconciliationRows = await listKitchenReconciliationsForReport(db, {
+          startDate: filters.startDate,
+          endDate: filters.endDate,
+        });
+        setReconciliations(reconciliationRows);
 
         // Process store stock - calculate current quantity per store per item
         // Using the same approach as useStoreInventory but for all items at once
@@ -452,6 +480,17 @@ export const InventoryDashboardReport = () => {
           }
         });
 
+        const transferRows = await fetchStoreTransferAggregates(
+          db,
+          filters.startDate,
+          filters.endDate
+        );
+
+        transferRows.forEach((row) => {
+          const sign = row.direction === "in" ? 1 : -1;
+          addToStock(row.storeId, row.itemId, sign * row.quantity);
+        });
+
         // Build final stock data with item details
         const stockData: InventoryStoreStock[] = stores
           .map((store: any) => {
@@ -516,6 +555,14 @@ export const InventoryDashboardReport = () => {
       return sum + w.items.reduce((itemSum: number, item: any) => itemSum + safeNumber(item.quantity), 0);
     }, 0);
 
+    const reconciliationCount = reconciliations.length;
+    const verifiedReconciliationCount = reconciliations.filter((r) => r.status === "verified").length;
+    const missedReconciliationCount = reconciliations.filter((r) => r.status === "missed").length;
+    const totalKitchenVariance = reconciliations.reduce(
+      (sum, reconciliation) => sum + getReconciliationTotals(reconciliation).totalVariance,
+      0
+    );
+
     const totalStockValue = storeStock.reduce((sum, store) => {
       return sum + store.items.reduce((itemSum, item) => itemSum + (item.quantity * 0), 0); // Would need price data
     }, 0);
@@ -531,9 +578,13 @@ export const InventoryDashboardReport = () => {
       issueCount: issues.length,
       issueReturnCount: issueReturns.length,
       wasteCount: wastes.length,
+      reconciliationCount,
+      verifiedReconciliationCount,
+      missedReconciliationCount,
+      totalKitchenVariance,
       totalStockValue,
     };
-  }, [purchases, purchaseReturns, issues, issueReturns, wastes, storeStock]);
+  }, [purchases, purchaseReturns, issues, issueReturns, wastes, reconciliations, storeStock]);
 
   const chartData = useMemo(() => {
     const allDates = new Set<string>();
@@ -594,6 +645,16 @@ export const InventoryDashboardReport = () => {
       wastesByDate.set(key, (wastesByDate.get(key) || 0) + totalValue);
     });
 
+    const kitchenVarianceByDate = new Map<string, number>();
+    reconciliations.forEach((reconciliation) => {
+      const key = DateTime.fromISO(reconciliation.business_date).toFormat(
+        import.meta.env.VITE_DATE_FORMAT
+      );
+      allDates.add(key);
+      const variance = getReconciliationTotals(reconciliation).totalVariance;
+      kitchenVarianceByDate.set(key, (kitchenVarianceByDate.get(key) || 0) + variance);
+    });
+
     const sortedDates = Array.from(allDates).sort();
 
     return [
@@ -622,8 +683,13 @@ export const InventoryDashboardReport = () => {
         color: COLORS[3],
         data: sortedDates.map(x => ({x, y: wastesByDate.get(x) || 0})),
       },
+      {
+        id: 'Kitchen Variance',
+        color: '#7C3AED',
+        data: sortedDates.map(x => ({x, y: kitchenVarianceByDate.get(x) || 0})),
+      },
     ];
-  }, [purchases, purchaseReturns, issues, issueReturns, wastes]);
+  }, [purchases, purchaseReturns, issues, issueReturns, wastes, reconciliations]);
 
   const purchasesTableData = useMemo(() => {
     return purchases.slice(0, 20).map(p => ({
@@ -687,6 +753,26 @@ export const InventoryDashboardReport = () => {
     }));
   }, [wastes]);
 
+  const reconciliationsTableData = useMemo(() => {
+    return [...reconciliations]
+      .sort((a, b) => b.business_date.localeCompare(a.business_date))
+      .slice(0, 20)
+      .map((reconciliation) => {
+        const totals = getReconciliationTotals(reconciliation);
+        return {
+          kitchen: reconciliation.kitchen?.name || "-",
+          businessDate: reconciliation.business_date,
+          status: reconciliation.status,
+          revision: reconciliation.revision,
+          lineCount: totals.lineCount,
+          totalVariance: formatNumber(totals.totalVariance),
+          verifiedBy: reconciliation.verified_by
+            ? `${reconciliation.verified_by.first_name || ""} ${reconciliation.verified_by.last_name || ""}`.trim()
+            : "-",
+        };
+      });
+  }, [reconciliations]);
+
   const reportTitle = useMemo(() => {
     return 'Inventory Dashboard';
   }, []);
@@ -745,6 +831,50 @@ export const InventoryDashboardReport = () => {
             <KPIMetricWidget
               title="Wastes"
               value={formatNumber(kpis.totalWastes)}
+              gradientFrom="from-danger-100"
+              gradientTo="danger-200"
+              borderColor="border-danger-300"
+              textColor="text-danger-900"
+              labelColor="text-danger-700"
+            />
+          </div>
+        </div>
+
+        <div className="bg-white p-5 rounded-lg shadow">
+          <h2 className="text-2xl font-bold mb-4 text-neutral-700">
+            {t("labels.kitchenReconciliationVarianceTrend")}
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <KPIMetricWidget
+              title={t("labels.kitchenReconciliationCount")}
+              value={formatNumber(kpis.reconciliationCount)}
+              gradientFrom="from-primary-100"
+              gradientTo="primary-200"
+              borderColor="border-primary-300"
+              textColor="text-primary-900"
+              labelColor="text-primary-700"
+            />
+            <KPIMetricWidget
+              title={t("labels.kitchenReconciliationVerified")}
+              value={formatNumber(kpis.verifiedReconciliationCount)}
+              gradientFrom="from-success-100"
+              gradientTo="success-200"
+              borderColor="border-success-300"
+              textColor="text-success-900"
+              labelColor="text-success-700"
+            />
+            <KPIMetricWidget
+              title={t("labels.kitchenReconciliationMissed")}
+              value={formatNumber(kpis.missedReconciliationCount)}
+              gradientFrom="from-warning-100"
+              gradientTo="warning-200"
+              borderColor="border-warning-300"
+              textColor="text-warning-900"
+              labelColor="text-warning-700"
+            />
+            <KPIMetricWidget
+              title={t("labels.kitchenReconciliationTotalVariance")}
+              value={formatNumber(kpis.totalKitchenVariance)}
               gradientFrom="from-danger-100"
               gradientTo="danger-200"
               borderColor="border-danger-300"
@@ -911,6 +1041,23 @@ export const InventoryDashboardReport = () => {
             {key: 'total', label: t('columns.totalQty'), className: 'text-right font-semibold'},
           ]}
           data={wastesTableData}
+          loading={loading}
+        />
+
+        <DataTable
+          title={t("labels.kitchenReconciliationLatest")}
+          icon={TrendingUp}
+          color="primary"
+          columns={[
+            {key: "kitchen", label: t("filters.kitchen")},
+            {key: "businessDate", label: t("labels.businessDate")},
+            {key: "status", label: t("filters.status")},
+            {key: "revision", label: t("labels.revision")},
+            {key: "lineCount", label: t("labels.lineCount")},
+            {key: "totalVariance", label: t("labels.totalVariance"), className: "text-right font-semibold"},
+            {key: "verifiedBy", label: t("labels.verifiedBy")},
+          ]}
+          data={reconciliationsTableData}
           loading={loading}
         />
       </div>

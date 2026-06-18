@@ -35,6 +35,8 @@ export const DetailedInventoryFilter = () => {
     { label: t('reports.issue'), value: "Issue" },
     { label: t('reports.issueReturn'), value: "Issue Return" },
     { label: t('reports.waste'), value: "Waste" },
+    { label: t('reports.transferIn'), value: "Transfer In" },
+    { label: t('reports.transferOut'), value: "Transfer Out" },
   ];
   const {data: itemsData, isLoading: loadingItems} = useApi<SettingsData<InventoryItem>>(
     Tables.inventory_items, 

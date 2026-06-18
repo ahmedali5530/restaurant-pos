@@ -51,7 +51,8 @@
     "issueReturn": "مرتجع الصرف",
     "waste": "الهدر",
     "consumption": "الاستهلاك",
-    "saleVsInventory": "المبيعات مقابل المخزون"
+    "saleVsInventory": "المبيعات مقابل المخزون",
+    "kitchenReconciliation": "Kitchen Reconciliation"
   },
   "titles": {
     "aiReport": "تقرير AI",
@@ -91,7 +92,8 @@
     "waste": "تقرير الهدر",
     "consumption": "تقرير الاستهلاك",
     "saleVsConsumption": "تقرير المبيعات مقابل الاستهلاك",
-    "tablesSummary": "ملخص الطاولات"
+    "tablesSummary": "ملخص الطاولات",
+    "kitchenReconciliation": "Kitchen Reconciliation Report"
   },
   "layout": {
     "print": "طباعة",
@@ -176,7 +178,8 @@
     "chart": "جارٍ تحميل الرسم البياني...",
     "map": "جارٍ تحميل الخريطة...",
     "latestActivity": "جارٍ تحميل آخر النشاط...",
-    "sessions": "جارٍ تحميل الجلسات..."
+    "sessions": "جارٍ تحميل الجلسات...",
+    "kitchenReconciliation": "Loading kitchen reconciliation report…"
   },
   "errors": {
     "unableToLoad": "تعذّر تحميل التقرير",

@@ -16,6 +16,8 @@ import {InventoryIssues} from "@/components/inventory/issues/index.tsx";
 import {InventoryIssueReturns} from "@/components/inventory/issue_returns/index.tsx";
 import {InventoryWastes} from "@/components/inventory/wastes/index.tsx";
 import {InventorySummary} from "@/components/inventory/inventory/summary.tsx";
+import {KitchenReconciliationScreen} from "@/components/inventory/kitchen_reconciliation/index.tsx";
+import {InventoryStockTransfers} from "@/components/inventory/stock_transfers/index.tsx";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 
 /** Stable permission codes stored in user roles — not translated labels. */
@@ -32,6 +34,8 @@ const INVENTORY_TAB_MODULES: Record<string, string> = {
   issues: 'Issues',
   'issue-returns': 'Issue Returns',
   wastes: 'Wastes',
+  'kitchen-reconciliation': 'Kitchen Reconciliation',
+  'stock-transfers': 'Stock Transfers',
 };
 
 export const Inventory = () => {
@@ -52,6 +56,8 @@ export const Inventory = () => {
     'issues': {component: <InventoryIssues/>, title: t('tabs.issues')},
     'issue-returns': {component: <InventoryIssueReturns/>, title: t('tabs.issueReturns')},
     'wastes': {component: <InventoryWastes/>, title: t('tabs.wastes')},
+    'kitchen-reconciliation': {component: <KitchenReconciliationScreen/>, title: t('tabs.kitchenReconciliation')},
+    'stock-transfers': {component: <InventoryStockTransfers/>, title: t('tabs.stockTransfers')},
   }), [t]);
 
   return (

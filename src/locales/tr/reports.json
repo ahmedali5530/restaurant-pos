@@ -51,7 +51,8 @@
     "issueReturn": "Çıkış İadesi",
     "waste": "Fire",
     "consumption": "Tüketim",
-    "saleVsInventory": "Satış vs Envanter"
+    "saleVsInventory": "Satış vs Envanter",
+    "kitchenReconciliation": "Kitchen Reconciliation"
   },
   "titles": {
     "aiReport": "AI Raporu",
@@ -91,7 +92,8 @@
     "waste": "Fire Raporu",
     "consumption": "Tüketim Raporu",
     "saleVsConsumption": "Satış vs Tüketim Raporu",
-    "tablesSummary": "Masa özeti"
+    "tablesSummary": "Masa özeti",
+    "kitchenReconciliation": "Kitchen Reconciliation Report"
   },
   "layout": {
     "print": "Yazdır",
@@ -176,7 +178,8 @@
     "chart": "Grafik yükleniyor...",
     "map": "Harita yükleniyor...",
     "latestActivity": "Son aktivite yükleniyor...",
-    "sessions": "Oturumlar yükleniyor..."
+    "sessions": "Oturumlar yükleniyor...",
+    "kitchenReconciliation": "Loading kitchen reconciliation report…"
   },
   "errors": {
     "unableToLoad": "Rapor yüklenemedi",

@@ -48,4 +48,5 @@ export const REPORTS_ISSUE_RETURN = REPORTS + '/issue-return';
 export const REPORTS_WASTE = REPORTS + '/waste';
 export const REPORTS_CONSUMPTION = REPORTS + '/consumption';
 export const REPORTS_SALE_VS_CONSUMPTION = REPORTS + '/sale-vs-consumption';
+export const REPORTS_KITCHEN_RECONCILIATION = REPORTS + '/kitchen-reconciliation';
 export const REPORTS_AI = REPORTS + '/ai';

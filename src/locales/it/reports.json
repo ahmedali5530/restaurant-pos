@@ -51,7 +51,8 @@
     "issueReturn": "Reso scarico",
     "waste": "Scarto",
     "consumption": "Consumo",
-    "saleVsInventory": "Vendite vs magazzino"
+    "saleVsInventory": "Vendite vs magazzino",
+    "kitchenReconciliation": "Kitchen Reconciliation"
   },
   "titles": {
     "aiReport": "Report AI",
@@ -91,7 +92,8 @@
     "waste": "Report scarti",
     "consumption": "Report consumi",
     "saleVsConsumption": "Report vendite vs consumi",
-    "tablesSummary": "Riepilogo tavoli"
+    "tablesSummary": "Riepilogo tavoli",
+    "kitchenReconciliation": "Kitchen Reconciliation Report"
   },
   "layout": {
     "print": "Stampa",
@@ -176,7 +178,8 @@
     "chart": "Caricamento grafico...",
     "map": "Caricamento mappa...",
     "latestActivity": "Caricamento ultima attività...",
-    "sessions": "Caricamento sessioni..."
+    "sessions": "Caricamento sessioni...",
+    "kitchenReconciliation": "Loading kitchen reconciliation report…"
   },
   "errors": {
     "unableToLoad": "Impossibile caricare il report",

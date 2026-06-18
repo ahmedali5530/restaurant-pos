@@ -6,7 +6,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {InventoryStore} from "@/api/model/inventory_store.ts";
 import {formatNumber} from "@/lib/utils.ts";
-import {StringRecordId} from "surrealdb";
+import {fetchStoreInventoryBreakdown} from "@/utils/inventory.ts";
 
 type InventoryBalance = {
   itemId: string;
@@ -23,27 +23,6 @@ const parseFilters = () => {
   const params = new URLSearchParams(window.location.search);
   const items = params.getAll("items[]").filter(item => item && item.trim() !== "");
   return {itemIds: items};
-};
-
-const toRecordId = (value?: string | { toString(): string }) => {
-  if (!value) return undefined;
-  const stringValue = typeof value === "string" ? value : value.toString();
-  return new StringRecordId(stringValue);
-};
-
-const getTotalFromResult = (result: any): number => {
-  if (!result || !Array.isArray(result) || result.length === 0) return 0;
-  const first = result[0];
-  // Handle ActionResult structure: {result: [...]}
-  if (first?.result && Array.isArray(first.result)) {
-    return Number(first.result[0]?.total ?? 0);
-  }
-  // Handle direct array structure: [{total: number}]
-  if (Array.isArray(first) && first.length > 0) {
-    return Number(first[0]?.total ?? 0);
-  }
-  // Handle direct object with total: {total: number}
-  return Number(first?.total ?? 0);
 };
 
 export const CurrentInventoryReport = () => {
@@ -120,47 +99,9 @@ export const CurrentInventoryReport = () => {
           for (const store of stores) {
             balancePromises.push(
               (async () => {
-                const params = {
-                  item: toRecordId(item.id),
-                  store: toRecordId(store.id),
-                };
-
-                const [
-                  purchaseResult,
-                  returnResult,
-                  issueResult,
-                  issueReturnResult,
-                  wasteResult,
-                ] = await Promise.all([
-                  queryRef.current(
-                    `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_purchase_items} WHERE item = $item AND store = $store GROUP ALL`,
-                    params
-                  ),
-                  queryRef.current(
-                    `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_purchase_return_items} WHERE item = $item AND purchase_item.store = $store GROUP ALL`,
-                    params
-                  ),
-                  queryRef.current(
-                    `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_issue_items} WHERE item = $item AND store = $store GROUP ALL`,
-                    params
-                  ),
-                  queryRef.current(
-                    `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_issue_return_items} WHERE item = $item AND store = $store GROUP ALL`,
-                    params
-                  ),
-                  queryRef.current(
-                    `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_waste_items} WHERE item = $item AND purchase_item != null AND purchase_item.store = $store GROUP ALL`,
-                    params
-                  ),
-                ]);
-
-                const purchaseTotal = getTotalFromResult(purchaseResult);
-                const returnTotal = getTotalFromResult(returnResult);
-                const issueTotal = getTotalFromResult(issueResult);
-                const issueReturnTotal = getTotalFromResult(issueReturnResult);
-                const wasteTotal = getTotalFromResult(wasteResult);
-
-                const netQuantity = purchaseTotal - returnTotal - issueTotal + issueReturnTotal - wasteTotal;
+                const itemId = String(item.id);
+                const storeId = String(store.id);
+                const breakdown = await fetchStoreInventoryBreakdown(db, itemId, storeId);
 
                 return {
                   itemId: item.id,
@@ -169,7 +110,7 @@ export const CurrentInventoryReport = () => {
                   category: item.category?.name || "",
                   storeId: store.id,
                   storeName: store.name || "",
-                  quantity: netQuantity,
+                  quantity: breakdown.net,
                   unit: item.uom || "",
                 };
               })()

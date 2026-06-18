@@ -17,7 +17,7 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
   },
   "Reports": {
     label: "Reports",
-    children: ['Reports', "Delivery Density", "Cash closing", "Sales dashboard", "Inventory dashboard", "Sales Hourly Labour", "Sales Hourly Labour Weekly", "Server Sales", "Sales Summary", 'Sales Summary 2', 'Sales Weekly', 'Tips', 'Advanced Sales', 'Discount', 'Tax', 'Coupon', 'Voids', 'Merge Orders', 'Split Orders', 'Order Life Cycle', 'Expense', 'Activity', 'Product Mix Weekly', 'Product Mix Summary', 'Products Hourly', 'Current Inventory', 'Detailed Inventory', 'Purchase', 'Purchase Return', 'Issue', 'Issue Return', 'Waste', 'Consumption', 'Sale vs Inventory', 'AI Report'] as string[]
+    children: ['Reports', "Delivery Density", "Cash closing", "Sales dashboard", "Inventory dashboard", "Sales Hourly Labour", "Sales Hourly Labour Weekly", "Server Sales", "Sales Summary", 'Sales Summary 2', 'Sales Weekly', 'Tips', 'Advanced Sales', 'Discount', 'Tax', 'Coupon', 'Voids', 'Merge Orders', 'Split Orders', 'Order Life Cycle', 'Expense', 'Activity', 'Product Mix Weekly', 'Product Mix Summary', 'Products Hourly', 'Current Inventory', 'Detailed Inventory', 'Purchase', 'Purchase Return', 'Issue', 'Issue Return', 'Waste', 'Consumption', 'Sale vs Inventory', 'Kitchen Reconciliation', 'AI Report'] as string[]
   },
   "Closing": {
     label: "Closing",
@@ -45,7 +45,7 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
   },
   'Inventory': {
     label: 'Inventory',
-    children: ['Inventory', 'Current Inventory', 'Items', 'Suppliers', 'Item Categories', 'Stores', 'Item Groups', 'Purchase Orders', 'Purchases', 'Purchase Returns', 'Issues', 'Issue Returns', 'Wastes'] as string[]
+    children: ['Inventory', 'Current Inventory', 'Items', 'Suppliers', 'Item Categories', 'Stores', 'Item Groups', 'Purchase Orders', 'Purchases', 'Purchase Returns', 'Issues', 'Issue Returns', 'Wastes', 'Stock Transfers', 'Kitchen Reconciliation'] as string[]
   },
   'Settings': {
     label: 'Settings',

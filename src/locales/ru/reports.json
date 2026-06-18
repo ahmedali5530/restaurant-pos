@@ -51,7 +51,8 @@
     "issueReturn": "Возврат выдачи",
     "waste": "Списание",
     "consumption": "Потребление",
-    "saleVsInventory": "Продажи и склад"
+    "saleVsInventory": "Продажи и склад",
+    "kitchenReconciliation": "Kitchen Reconciliation"
   },
   "titles": {
     "aiReport": "ИИ-отчёт",
@@ -91,7 +92,8 @@
     "waste": "Отчёт по списаниям",
     "consumption": "Отчёт по потреблению",
     "saleVsConsumption": "Отчёт «Продажи и потребление»",
-    "tablesSummary": "Сводка по столам"
+    "tablesSummary": "Сводка по столам",
+    "kitchenReconciliation": "Kitchen Reconciliation Report"
   },
   "layout": {
     "print": "Печать",
@@ -176,7 +178,8 @@
     "chart": "Загрузка диаграммы...",
     "map": "Загрузка карты...",
     "latestActivity": "Загрузка последней активности...",
-    "sessions": "Загрузка сессий..."
+    "sessions": "Загрузка сессий...",
+    "kitchenReconciliation": "Loading kitchen reconciliation report…"
   },
   "errors": {
     "unableToLoad": "Не удалось загрузить отчёт",

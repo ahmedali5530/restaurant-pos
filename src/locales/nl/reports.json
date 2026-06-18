@@ -51,7 +51,8 @@
     "issueReturn": "Uitgifteretour",
     "waste": "Afval",
     "consumption": "Verbruik",
-    "saleVsInventory": "Verkoop vs voorraad"
+    "saleVsInventory": "Verkoop vs voorraad",
+    "kitchenReconciliation": "Kitchen Reconciliation"
   },
   "titles": {
     "aiReport": "AI-rapport",
@@ -91,7 +92,8 @@
     "waste": "Afvalrapport",
     "consumption": "Verbruiksrapport",
     "saleVsConsumption": "Verkoop vs verbruiksrapport",
-    "tablesSummary": "Tafeloverzicht"
+    "tablesSummary": "Tafeloverzicht",
+    "kitchenReconciliation": "Kitchen Reconciliation Report"
   },
   "layout": {
     "print": "Afdrukken",
@@ -176,7 +178,8 @@
     "chart": "Grafiek laden...",
     "map": "Kaart laden...",
     "latestActivity": "Laatste activiteit laden...",
-    "sessions": "Sessies laden..."
+    "sessions": "Sessies laden...",
+    "kitchenReconciliation": "Loading kitchen reconciliation report…"
   },
   "errors": {
     "unableToLoad": "Kan rapport niet laden",

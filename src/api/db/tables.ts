@@ -65,6 +65,16 @@ export enum Tables {
   inventory_wastes = 'inventory_item_waste',
   inventory_waste_items = 'inventory_item_waste_item',
 
+  kitchen_reconciliations = 'kitchen_reconciliation',
+  kitchen_reconciliation_items = 'kitchen_reconciliation_item',
+  kitchen_stock_counts = 'kitchen_stock_count',
+  kitchen_wastes = 'kitchen_waste',
+  kitchen_staff_meals = 'kitchen_staff_meal',
+  kitchen_complimentary_items = 'kitchen_complimentary_item',
+  kitchen_reconciliation_revisions = 'kitchen_reconciliation_revision',
+  stock_transfers = 'stock_transfer',
+  stock_transfer_items = 'stock_transfer_item',
+
   settings = 'setting',
 
   auth_permission = 'auth_permission',

@@ -10,6 +10,8 @@ import {InventoryIssueReturnItem} from "@/api/model/inventory_issue_return.ts";
 import {InventoryWasteItem} from "@/api/model/inventory_waste.ts";
 import {formatNumber} from "@/lib/utils.ts";
 import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
+import {fetchStoreTransferLinesForReport} from "@/lib/inventory/stock_transfer.service.ts";
+import {recordToString} from "@/api/reports/shared/records.ts";
 
 type InventoryTransaction = {
   date: string;
@@ -21,6 +23,7 @@ type InventoryTransaction = {
   unit: string;
   type: string;
   user: string;
+  storeName?: string;
   comments?: string;
   balance: number;
 };
@@ -259,6 +262,46 @@ export const DetailedInventoryReport = () => {
           });
         });
 
+        const storeTransfers = await fetchStoreTransferLinesForReport(
+          db,
+          filters.startDate,
+          filters.endDate
+        );
+
+        storeTransfers.forEach((transfer) => {
+          const fromName = transfer.from_store?.name ?? "";
+          const toName = transfer.to_store?.name ?? "";
+          const userName = `${transfer.created_by?.first_name ?? ""} ${transfer.created_by?.last_name ?? ""}`.trim();
+
+          (transfer.items ?? []).forEach((line) => {
+            const itemId = recordToString(line.item?.id ?? line.item);
+            const base = {
+              date: String(transfer.created_at ?? ""),
+              item: line.item?.name || "",
+              itemCode: line.item?.code,
+              itemId,
+              category: "",
+              quantity: Number(line.quantity) || 0,
+              unit: line.item?.uom || "",
+              user: userName,
+              balance: 0,
+            };
+
+            allTransactions.push({
+              ...base,
+              type: "Transfer Out",
+              storeName: fromName,
+              comments: transfer.notes || `To ${toName}`,
+            });
+            allTransactions.push({
+              ...base,
+              type: "Transfer In",
+              storeName: toName,
+              comments: transfer.notes || `From ${fromName}`,
+            });
+          });
+        });
+
         // Filter by selected items if provided
         let filteredTransactions = allTransactions;
         if (filters.itemIds.length > 0) {
@@ -328,6 +371,12 @@ export const DetailedInventoryReport = () => {
               break;
             case "Return": // Purchase Return
               balanceChange = -transaction.quantity;
+              break;
+            case "Transfer Out":
+              balanceChange = -transaction.quantity;
+              break;
+            case "Transfer In":
+              balanceChange = transaction.quantity;
               break;
             default:
               balanceChange = 0;
@@ -404,6 +453,9 @@ export const DetailedInventoryReport = () => {
                 Quantity
               </th>
               <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-neutral-700">
+                Store
+              </th>
+              <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-neutral-700">
                 Type
               </th>
               <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-neutral-700">
@@ -429,6 +481,9 @@ export const DetailedInventoryReport = () => {
                   </td>
                   <td className="py-4 px-3 text-sm text-right text-neutral-700">
                     {formatNumber(transaction.quantity)} {transaction.unit}
+                  </td>
+                  <td className="py-4 px-3 text-sm text-neutral-700">
+                    {transaction.storeName || "—"}
                   </td>
                   <td className="py-4 px-3 text-sm text-neutral-700">
                     {transaction.type}

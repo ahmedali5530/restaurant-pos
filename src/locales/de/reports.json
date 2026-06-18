@@ -51,7 +51,8 @@
     "issueReturn": "Ausgaberückgabe",
     "waste": "Schwund",
     "consumption": "Verbrauch",
-    "saleVsInventory": "Umsatz vs. Lager"
+    "saleVsInventory": "Umsatz vs. Lager",
+    "kitchenReconciliation": "Kitchen Reconciliation"
   },
   "titles": {
     "aiReport": "KI-Bericht",
@@ -91,7 +92,8 @@
     "waste": "Schwund-Bericht",
     "consumption": "Verbrauchs-Bericht",
     "saleVsConsumption": "Umsatz vs. Verbrauch-Bericht",
-    "tablesSummary": "Tischübersicht"
+    "tablesSummary": "Tischübersicht",
+    "kitchenReconciliation": "Kitchen Reconciliation Report"
   },
   "layout": {
     "print": "Drucken",
@@ -176,7 +178,8 @@
     "chart": "Diagramm wird geladen...",
     "map": "Karte wird geladen...",
     "latestActivity": "Letzte Aktivität wird geladen...",
-    "sessions": "Sitzungen werden geladen..."
+    "sessions": "Sitzungen werden geladen...",
+    "kitchenReconciliation": "Loading kitchen reconciliation report…"
   },
   "errors": {
     "unableToLoad": "Bericht konnte nicht geladen werden",

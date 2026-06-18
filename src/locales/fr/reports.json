@@ -51,7 +51,8 @@
     "issueReturn": "Retours de sortie",
     "waste": "Pertes",
     "consumption": "Consommation",
-    "saleVsInventory": "Ventes vs inventaire"
+    "saleVsInventory": "Ventes vs inventaire",
+    "kitchenReconciliation": "Kitchen Reconciliation"
   },
   "titles": {
     "aiReport": "Rapport IA",
@@ -91,7 +92,8 @@
     "waste": "Rapport des pertes",
     "consumption": "Rapport de consommation",
     "saleVsConsumption": "Rapport ventes vs consommation",
-    "tablesSummary": "Résumé des tables"
+    "tablesSummary": "Résumé des tables",
+    "kitchenReconciliation": "Kitchen Reconciliation Report"
   },
   "layout": {
     "print": "Imprimer",
@@ -176,7 +178,8 @@
     "chart": "Chargement du graphique...",
     "map": "Chargement de la carte...",
     "latestActivity": "Chargement de la dernière activité...",
-    "sessions": "Chargement des sessions..."
+    "sessions": "Chargement des sessions...",
+    "kitchenReconciliation": "Loading kitchen reconciliation report…"
   },
   "errors": {
     "unableToLoad": "Impossible de charger le rapport",
