@@ -212,7 +212,7 @@ export const InventoryItemForm = ({
         size="lg"
       >
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex gap-3 mb-3">
+          <div className="grid grid-cols-4 gap-3 mb-3">
             <div className="flex-1">
               <Input label={t('forms.nameOfItem')} {...register('name')} autoFocus error={errors?.name?.message}/>
             </div>
@@ -236,7 +236,7 @@ export const InventoryItemForm = ({
               <p className="text-sm text-neutral-600 mt-1">{t('itemType.hint')}</p>
               {errors?.item_types && <InputError error={errors?.item_types?.message as string}/>}
             </div>
-            <div className="flex-1 flex gap-2 items-end">
+            <div className="flex-1 flex gap-2 self-start items-end">
               <div className="flex-1">
                 <label>{t('columns.category')}</label>
                 <Controller

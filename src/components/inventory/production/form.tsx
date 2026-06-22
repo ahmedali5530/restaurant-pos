@@ -10,6 +10,7 @@ import {useDB} from "@/api/db/db.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input, InputError} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
+import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {InventoryStore} from "@/api/model/inventory_store.ts";
 import {Recipe} from "@/api/model/recipe.ts";
@@ -223,10 +224,18 @@ export const ProductionForm = ({open, onClose}: Props) => {
 
         <Input label={t("production.notes")} {...register("notes")} />
 
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" {...register("updateItemCost")} />
-          {t("production.updateItemCost")}
-        </label>
+        <Controller
+          control={control}
+          name="updateItemCost"
+          render={({field: {value, onChange, ...field}}) => (
+            <Checkbox
+              {...field}
+              checked={value}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.checked)}
+              label={t("production.updateItemCost")}
+            />
+          )}
+        />
 
         <div className="border rounded-lg p-4 bg-neutral-50">
           <h4 className="font-medium mb-2">{t("production.preview")}</h4>

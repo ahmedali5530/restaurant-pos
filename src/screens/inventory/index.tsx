@@ -21,6 +21,8 @@ import {InventoryStockTransfers} from "@/components/inventory/stock_transfers/in
 import {InventoryRecipes} from "@/components/inventory/recipes/index.tsx";
 import {InventoryProduction} from "@/components/inventory/production/index.tsx";
 import {InventoryProductionHistory} from "@/components/inventory/production_history/index.tsx";
+import {BuffetMenus} from "@/components/inventory/buffet/menus/index.tsx";
+import {BuffetSessions} from "@/components/inventory/buffet/sessions/index.tsx";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 
 /** Stable permission codes stored in user roles — not translated labels. */
@@ -42,6 +44,8 @@ const INVENTORY_TAB_MODULES: Record<string, string> = {
   'recipes': 'Production Recipes',
   'production': 'Production',
   'production-history': 'Production History',
+  'buffet-menus': 'Buffet Menus',
+  'buffet-sessions': 'Buffet Sessions',
 };
 
 export const Inventory = () => {
@@ -67,6 +71,8 @@ export const Inventory = () => {
     'recipes': {component: <InventoryRecipes/>, title: t('tabs.recipes')},
     'production': {component: <InventoryProduction/>, title: t('tabs.production')},
     'production-history': {component: <InventoryProductionHistory/>, title: t('tabs.productionHistory')},
+    'buffet-menus': {component: <BuffetMenus/>, title: t('tabs.buffetMenus')},
+    'buffet-sessions': {component: <BuffetSessions/>, title: t('tabs.buffetSessions')},
   }), [t]);
 
   return (

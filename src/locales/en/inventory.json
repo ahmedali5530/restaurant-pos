@@ -16,7 +16,9 @@
     "stockTransfers": "Stock Transfers",
     "recipes": "Production Recipes",
     "production": "Production",
-    "productionHistory": "Production History"
+    "productionHistory": "Production History",
+    "buffetMenus": "Buffet Menus",
+    "buffetSessions": "Buffet Sessions"
   },
   "security": {
     "accessTab": "Access {{module}}"
@@ -50,6 +52,7 @@
     "issuance": "Issuance",
     "issuedTo": "Issued to",
     "kitchen": "Kitchen",
+    "store": "Store",
     "createdBy": "Created by",
     "source": "Source"
   },
@@ -57,7 +60,9 @@
     "item": "Item",
     "import": "Import",
     "view": "View",
-    "upload": "Upload"
+    "upload": "Upload",
+    "cancel": "Cancel",
+    "save": "Save"
   },
   "forms": {
     "createItem": "Create new item",
@@ -279,5 +284,104 @@
     "allocatedCost": "Allocated cost",
     "productionIn": "Production in",
     "productionOut": "Production out"
+  },
+  "buffet": {
+    "createMenu": "Create buffet menu",
+    "editMenu": "Edit buffet menu",
+    "menuCreated": "Buffet menu created",
+    "menuUpdated": "Buffet menu updated",
+    "menuDeleted": "Buffet menu deleted",
+    "menuSaveFailed": "Failed to save buffet menu",
+    "menuDeleteFailed": "Failed to delete buffet menu",
+    "confirmDeleteMenu": "Delete this buffet menu?",
+    "sessionType": "Session type",
+    "sessionTypes": {
+      "breakfast": "Breakfast",
+      "lunch": "Lunch",
+      "dinner": "Dinner"
+    },
+    "menuItems": "Menu items",
+    "addMenuItem": "Add menu item",
+    "perGuestQty": "Qty per guest (primary output)",
+    "createSession": "Create buffet session",
+    "sessionCreated": "Buffet session created",
+    "sessionCreateFailed": "Failed to create buffet session",
+    "userRequired": "User session required",
+    "menu": "Menu",
+    "businessDate": "Business date",
+    "expectedGuests": "Expected guests",
+    "actualGuests": "Actual guests",
+    "buffetPrice": "Buffet price",
+    "notes": "Notes",
+    "sessionNumber": "Session #",
+    "openSession": "Open",
+    "statuses": {
+      "draft": "Draft",
+      "planned": "Planned",
+      "in_progress": "In progress",
+      "closing": "Closing",
+      "closed": "Closed",
+      "voided": "Voided"
+    },
+    "batchStatuses": {
+      "planned": "Planned",
+      "completed": "Completed",
+      "skipped": "Skipped"
+    },
+    "snapshotTypes": {
+      "start": "Start",
+      "end": "End",
+      "refill": "Refill"
+    },
+    "backToSessions": "Back to sessions",
+    "backToDashboard": "Back to dashboard",
+    "sessionNotFound": "Session not found",
+    "projectedSales": "Projected sales",
+    "generatePlan": "Generate production plan",
+    "planGenerated": "Production plan generated",
+    "runProduction": "Run production",
+    "productionCompleted": "Production completed",
+    "startSession": "Start buffet",
+    "sessionStarted": "Buffet session started",
+    "captureStartStock": "Capture start stock",
+    "startSnapshotCaptured": "Start stock captured",
+    "recordGuests": "Actual guests",
+    "saveGuests": "Save guests",
+    "guestsRecorded": "Guest count saved",
+    "beginClosing": "Begin closing",
+    "closingStarted": "Closing started",
+    "productionStatus": "Production status",
+    "plannedQty": "Planned qty",
+    "noProductionPlan": "No production plan yet",
+    "stockSnapshots": "Stock snapshots",
+    "snapshotType": "Snapshot type",
+    "closingTitle": "Buffet closing",
+    "saveClosing": "Save closing data",
+    "closeSession": "Close session & post ledger",
+    "confirmClose": "Close this buffet session and post consumption to inventory ledger?",
+    "closingSaved": "Closing data saved",
+    "sessionClosed": "Buffet session closed",
+    "produced": "Produced",
+    "startStock": "Start stock",
+    "leftover": "Leftover",
+    "waste": "Waste",
+    "staffMeals": "Staff meals",
+    "guestConsumption": "Guest consumption",
+    "variance": "Variance",
+    "totalFoodCost": "Total food cost",
+    "costPerGuest": "Cost per guest",
+    "wastePercent": "Waste %",
+    "profit": "Profit",
+    "totalSales": "Total sales",
+    "sessionSummary": "Session summary",
+    "foodCost": "Food cost",
+    "consumption": "Buffet consumption",
+    "help": {
+      "menu": "Active buffet menus with linked recipes and per-guest production quantities.",
+      "store": "Inventory store where buffet batches are produced and stock is deducted on close.",
+      "sessionType": "Meal period for this session (breakfast, lunch, or dinner).",
+      "sessionTypeMenu": "Typical meal period when this menu is used for buffet sessions.",
+      "recipe": "Production recipe whose primary output is made and tracked on the buffet line."
+    }
   }
 }

@@ -10,6 +10,7 @@ import {useDB} from "@/api/db/db.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input, InputError} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
+import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {Recipe} from "@/api/model/recipe.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
@@ -24,6 +25,7 @@ import {
   updateRecipe,
 } from "@/lib/inventory/production.service.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
+import {Radio} from "@/components/common/input/radio.tsx";
 
 type SelectOption = {label: string; value: string} | null;
 
@@ -222,6 +224,11 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
     });
   };
 
+  const closeModal = () => {
+    reset(defaultValues);
+    onClose();
+  };
+
   const buildPayload = (values: RecipeFormValues): RecipeInput => ({
     name: values.name,
     code: values.code,
@@ -245,7 +252,10 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
   });
 
   const onSubmit = async (values: RecipeFormValues) => {
-    if (!state.user?.id) return;
+    if (!state.user?.id) {
+      toast.error(t("buffet.userRequired"));
+      return;
+    }
     setSubmitting(true);
     try {
       const payload = buildPayload(values);
@@ -257,7 +267,7 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
         await createRecipe(db, payload, userId);
         toast.success(t("production.recipeCreated"));
       }
-      onClose();
+      closeModal();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("production.recipeSaveFailed"));
     } finally {
@@ -268,11 +278,11 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
   return (
     <Modal
       open={open}
-      onClose={onClose}
+      onClose={closeModal}
       title={data ? t("production.editRecipe") : t("production.createRecipe")}
       size="xl"
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+      <form key={data?.id ?? "new"} onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-3">
           <div>
             <Input label={t("columns.name")} {...register("name")} error={errors.name?.message} />
@@ -306,6 +316,19 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
         </div>
 
         <Input label={t("production.notes")} {...register("notes")} />
+
+        <Controller
+          control={control}
+          name="isActive"
+          render={({field: {value, onChange, ...field}}) => (
+            <Checkbox
+              {...field}
+              checked={value}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.checked)}
+              label={t("production.active")}
+            />
+          )}
+        />
 
         <fieldset className="border rounded-lg p-3">
           <legend className="px-2">{t("production.inputs")}</legend>
@@ -380,11 +403,20 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
                 />
               </div>
               <div className="col-span-2">
-                <Input
-                  type="number"
-                  step="any"
-                  label={t("production.yieldPercent")}
-                  {...register(`outputs.${index}.yieldPercent`)}
+                <Controller
+                  control={control}
+                  name={`outputs.${index}.yieldPercent`}
+                  render={({field}) => (
+                    <Input
+                      type="number"
+                      step="any"
+                      label={t("production.yieldPercent")}
+                      name={field.name}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                    />
+                  )}
                 />
               </div>
               <div className="col-span-2">
@@ -398,17 +430,26 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
                 />
               </div>
               <div className="col-span-2">
-                <Input
-                  type="number"
-                  step="any"
-                  label={t("production.valueWeight")}
-                  {...register(`outputs.${index}.valueWeight`)}
+                <Controller
+                  control={control}
+                  name={`outputs.${index}.valueWeight`}
+                  render={({field}) => (
+                    <Input
+                      type="number"
+                      step="any"
+                      label={t("production.valueWeight")}
+                      name={field.name}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                    />
+                  )}
                 />
               </div>
               <div className="col-span-1 flex flex-col items-center">
-                <label className="text-xs">{t("production.primary")}</label>
-                <input
-                  type="radio"
+                <Radio
+                  name="primaryOutput"
+                  label={t("production.primary")}
                   checked={outputs?.[index]?.isPrimary ?? false}
                   onChange={() => setPrimaryOutput(index)}
                 />
@@ -447,7 +488,7 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
         <p className="text-sm text-neutral-600">{t("production.recipeHint")}</p>
 
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={onClose}>
+          <Button type="button" variant="secondary" onClick={closeModal}>
             {t("common:actions.cancel")}
           </Button>
           <Button type="submit" variant="primary" disabled={submitting}>

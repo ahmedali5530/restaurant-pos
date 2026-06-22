@@ -1,3 +1,4 @@
+import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {
   CostAllocationMethod,
   OutputDisposition,
@@ -5,6 +6,7 @@ import {
   RecipeItem,
   RecipeOutput,
 } from "@/api/model/recipe.ts";
+import {recordToString} from "@/api/reports/shared/records.ts";
 
 export type ScaledInputLine = {
   itemId: string;
@@ -48,6 +50,24 @@ export type RecipeForCalculation = Pick<Recipe, "base_batch_qty" | "cost_allocat
 
 const roundQty = (value: number) => Math.round(value * 10000) / 10000;
 const roundMoney = (value: number) => Math.round(value * 100) / 100;
+
+const resolveItemId = (item: unknown): string =>
+  recordToString(
+    typeof item === "object" && item !== null && "id" in item
+      ? (item as {id?: unknown}).id ?? item
+      : item
+  ) ?? "";
+
+const resolveItemName = (
+  item: unknown,
+  itemMeta: {name?: string}
+): string | undefined => {
+  if (itemMeta.name) return itemMeta.name;
+  if (typeof item === "object" && item !== null && "name" in item) {
+    return (item as InventoryItem).name;
+  }
+  return undefined;
+};
 
 export const getItemUnitCost = (item: {average_price?: number; price?: number}): number => {
   const avg = Number(item.average_price);
@@ -115,13 +135,13 @@ export const scaleRecipe = (
   const totalScaledInputQty = totalBaseInputQty * scaleFactor;
 
   const inputs: ScaledInputLine[] = (recipe.items ?? []).map((line) => {
-    const itemId = typeof line.item === "object" ? String(line.item.id) : String(line.item);
+    const itemId = resolveItemId(line.item);
     const itemMeta = itemPrices.get(itemId) ?? {};
     const quantity = roundQty(Number(line.quantity) * scaleFactor);
     const unitCost = getItemUnitCost(itemMeta);
     return {
       itemId,
-      itemName: itemMeta.name,
+      itemName: resolveItemName(line.item, itemMeta),
       quantity,
       unitCost,
       totalCost: roundMoney(quantity * unitCost),
@@ -131,12 +151,12 @@ export const scaleRecipe = (
   const totalInputCost = roundMoney(inputs.reduce((sum, line) => sum + line.totalCost, 0));
 
   const rawOutputs = (recipe.outputs ?? []).map((line) => {
-    const itemId = typeof line.item === "object" ? String(line.item.id) : String(line.item);
+    const itemId = resolveItemId(line.item);
     const itemMeta = itemPrices.get(itemId) ?? {};
     const quantity = roundQty((Number(line.yield_percent) / 100) * totalScaledInputQty);
     return {
       itemId,
-      itemName: itemMeta.name,
+      itemName: resolveItemName(line.item, itemMeta),
       quantity,
       yieldPercent: Number(line.yield_percent),
       disposition: line.disposition,

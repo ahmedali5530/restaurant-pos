@@ -7,7 +7,8 @@ import {Button} from "@/components/common/input/button.tsx";
 import { toLuxonDateTime } from "@/lib/datetime";
 
 const isDebitType = (type: string) =>
-  type === "issue" || type === "return" || type === "waste" || type === "transfer_out" || type === "production_out";
+  type === "issue" || type === "return" || type === "waste" || type === "transfer_out"
+  || type === "production_out" || type.startsWith("buffet_");
 
 export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: InventoryItem}) => {
   const { t } = useTranslation('inventory');
@@ -101,6 +102,15 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
         item: row.item,
         counterparty: row.batchNumber,
       })),
+      ...records.buffetConsumption.map((row) => ({
+        id: row.id,
+        type: row.type,
+        operator: "-",
+        quantity: row.quantity,
+        created_at: row.created_at,
+        item: {...row.item, name: item?.name, code: item?.code, uom: item?.uom},
+        counterparty: row.sessionNumber,
+      })),
     ];
 
     list.sort((a, b) => a.created_at.getTime() - b.created_at.getTime());
@@ -118,6 +128,7 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
     [t("stockTransfer.transferOut")]: records.transfersOut,
     [t("production.productionIn")]: records.productionOutputs,
     [t("production.productionOut")]: records.productionInputs,
+    [t("buffet.consumption")]: records.buffetConsumption,
   }), [records, t]);
 
   if (loading) {
@@ -198,47 +209,49 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
           {display === 'split' && (
             <>
               <div className="text-center text-2xl p-5 bg-gray-200 my-5">Current Quantity: {netQuantity}</div>
-              <div className="grid grid-cols-7 gap-3 mt-3">
-              {Object.entries(split).map(([type, rows]) => {
-                let sectionTotal = 0;
-                return (
-                  <div key={type}>
-                    <h4 className="text-xl">{type}</h4>
-                    <table className="table table-hover table-sm bg-white">
-                      <thead>
-                      <tr>
-                        <th>{t('forms.date')}</th>
-                        <th>{t('forms.quantity')}</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                      {rows.map((splitItem: any) => {
-                        const rowType = splitItem.type ?? type.toLowerCase().replace(/ /g, "_");
-                        if (isDebitType(rowType) || type.includes(t("stockTransfer.transferOut"))) {
-                          sectionTotal -= splitItem.quantity;
-                        } else {
-                          sectionTotal += splitItem.quantity;
-                        }
-
-                        return (
-                          <tr key={splitItem.id}>
-                            <td>{splitItem.created_at ? toLuxonDateTime(splitItem.created_at).toFormat(import.meta.env.VITE_DATE_FORMAT) : splitItem.created_at}</td>
-                            <td>{splitItem.quantity} {splitItem.item?.uom}</td>
+              <div className="overflow-x-auto">
+                <div className="grid grid-cols-[repeat(10,_300px)] gap-3 mt-3">
+                  {Object.entries(split).map(([type, rows]) => {
+                    let sectionTotal = 0;
+                    return (
+                      <div key={type}>
+                        <h4 className="text-xl">{type}</h4>
+                        <table className="table table-hover table-sm bg-white">
+                          <thead>
+                          <tr>
+                            <th>{t('forms.date')}</th>
+                            <th>{t('forms.quantity')}</th>
                           </tr>
-                        );
-                      })}
-                      </tbody>
-                      <tfoot>
-                      <tr>
-                        <th className="text-left">{t('common:actions.total')}</th>
-                        <th className="text-left">{sectionTotal}</th>
-                      </tr>
-                      </tfoot>
-                    </table>
-                  </div>
-                );
-              })}
-            </div>
+                          </thead>
+                          <tbody>
+                          {rows.map((splitItem: any) => {
+                            const rowType = splitItem.type ?? type.toLowerCase().replace(/ /g, "_");
+                            if (isDebitType(rowType) || type.includes(t("stockTransfer.transferOut"))) {
+                              sectionTotal -= splitItem.quantity;
+                            } else {
+                              sectionTotal += splitItem.quantity;
+                            }
+
+                            return (
+                              <tr key={splitItem.id}>
+                                <td>{splitItem.created_at ? toLuxonDateTime(splitItem.created_at).toFormat(import.meta.env.VITE_DATE_FORMAT) : splitItem.created_at}</td>
+                                <td>{splitItem.quantity} {splitItem.item?.uom}</td>
+                              </tr>
+                            );
+                          })}
+                          </tbody>
+                          <tfoot>
+                          <tr>
+                            <th className="text-left">{t('common:actions.total')}</th>
+                            <th className="text-left">{sectionTotal}</th>
+                          </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </>
           )}
         </Modal>

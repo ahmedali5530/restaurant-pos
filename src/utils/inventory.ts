@@ -8,6 +8,9 @@ import {
   fetchStoreTransferTotals,
   type StockTransferLineInput,
 } from "@/lib/inventory/stock_transfer.service.ts";
+import {fetchBuffetConsumptionTotals} from "@/lib/inventory/buffet.service.ts";
+import {toStoreRecordId} from "@/lib/inventory/stock_transfer.service.ts";
+import {recordToString} from "@/api/reports/shared/records.ts";
 import {toRecordId} from "@/lib/utils.ts";
 
 type DatabaseClient = ReturnType<typeof useDB>;
@@ -22,6 +25,7 @@ export type StoreInventoryBreakdown = {
   transfersOut: number;
   productionInputs: number;
   productionOutputs: number;
+  buffetConsumption: number;
   net: number;
 };
 
@@ -48,12 +52,19 @@ export const computeStoreNet = (breakdown: Omit<StoreInventoryBreakdown, "net">)
     + breakdown.transfersIn
     - breakdown.productionInputs
     + breakdown.productionOutputs
+    - breakdown.buffetConsumption
   );
 };
 
+const toItemRecordIdForQuery = (itemId: string) => {
+  const key = recordToString(itemId) || itemId;
+  const normalized = key.includes(":") ? key : `${Tables.inventory_items}:${key}`;
+  return toRecordId(normalized);
+};
+
 const normalizeRecordParams = (itemId: string, storeId: string) => ({
-  item: toRecordId(itemId),
-  store: toRecordId(storeId),
+  item: toItemRecordIdForQuery(itemId),
+  store: toStoreRecordId(recordToString(storeId) || storeId),
 });
 
 export const fetchStoreInventoryBreakdown = async (
@@ -72,6 +83,7 @@ export const fetchStoreInventoryBreakdown = async (
     transferTotals,
     productionInputs,
     productionOutputs,
+    buffetConsumption,
   ] = await Promise.all([
     db.query(
       `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_purchase_items} WHERE item = $item AND store = $store GROUP ALL`,
@@ -96,6 +108,7 @@ export const fetchStoreInventoryBreakdown = async (
     fetchStoreTransferTotals(db, itemId, storeId),
     fetchProductionInputTotals(db, itemId, storeId),
     fetchProductionOutputTotals(db, itemId, storeId),
+    fetchBuffetConsumptionTotals(db, itemId, storeId),
   ]);
 
   const breakdown = {
@@ -108,6 +121,7 @@ export const fetchStoreInventoryBreakdown = async (
     transfersOut: transferTotals.transfersOut,
     productionInputs,
     productionOutputs,
+    buffetConsumption,
   };
 
   return {

@@ -59,6 +59,7 @@ import {
   REPORTS_SALE_VS_CONSUMPTION,
   REPORTS_KITCHEN_RECONCILIATION,
   REPORTS_PRODUCTION,
+  REPORTS_BUFFET,
   REPORTS_SALES_ADVANCED,
   REPORTS_SALES_DASHBOARD,
   REPORTS_SALES_HOURLY_LABOUR,
@@ -107,6 +108,7 @@ import {ConsumptionReport} from "@/screens/reports/consumption.report.tsx";
 import {SaleVsConsumptionReport} from "@/screens/reports/sale.vs.consumption.report.tsx";
 import {KitchenReconciliationReport} from "@/screens/reports/kitchen.reconciliation.report.tsx";
 import {ProductionReport} from "@/screens/reports/production.report.tsx";
+import {BuffetReport} from "@/screens/reports/buffet.report.tsx";
 import {TipDistributionScreen} from "@/screens/tip.distribution.tsx";
 import {TipsReport} from "@/screens/reports/tips.report.tsx";
 import {SalesDashboardReport} from "@/screens/reports/sales.dashboard.report.tsx";
@@ -222,6 +224,7 @@ function App() {
                           <Route path={REPORTS_SALE_VS_CONSUMPTION} element={<SaleVsConsumptionReport/>}/>
                           <Route path={REPORTS_KITCHEN_RECONCILIATION} element={<KitchenReconciliationReport/>}/>
                           <Route path={REPORTS_PRODUCTION} element={<ProductionReport/>}/>
+                          <Route path={REPORTS_BUFFET} element={<BuffetReport/>}/>
                         </Routes>
                         </I18nProvider>
                       </BrowserRouter>

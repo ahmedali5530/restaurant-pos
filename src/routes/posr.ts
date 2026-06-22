@@ -50,4 +50,5 @@ export const REPORTS_CONSUMPTION = REPORTS + '/consumption';
 export const REPORTS_SALE_VS_CONSUMPTION = REPORTS + '/sale-vs-consumption';
 export const REPORTS_KITCHEN_RECONCILIATION = REPORTS + '/kitchen-reconciliation';
 export const REPORTS_PRODUCTION = REPORTS + '/production';
+export const REPORTS_BUFFET = REPORTS + '/buffet';
 export const REPORTS_AI = REPORTS + '/ai';

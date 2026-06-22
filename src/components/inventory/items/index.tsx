@@ -149,6 +149,9 @@ export const InventoryItems = () => {
           }, {
             name: 'suppliers',
             label: t('tabs.suppliers')
+          }, {
+            name: 'item_types',
+            label: t('itemType.label')
           }]}
           onCreateRow={async (data) => {
             try{

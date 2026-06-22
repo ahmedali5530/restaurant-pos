@@ -9,6 +9,10 @@ import { InventoryIssueReturnItem } from "@/api/model/inventory_issue_return.ts"
 import { InventoryWasteItem } from "@/api/model/inventory_waste.ts";
 import {computeStoreNet} from "@/utils/inventory.ts";
 import {fetchStoreTransferTotals} from "@/lib/inventory/stock_transfer.service.ts";
+import {
+  fetchBuffetConsumptionLinesForStore,
+  fetchBuffetConsumptionTotals,
+} from "@/lib/inventory/buffet.service.ts";
 
 interface InventoryTotals {
   purchases: number;
@@ -20,6 +24,16 @@ interface InventoryTotals {
   transfersOut: number;
   productionInputs: number;
   productionOutputs: number;
+  buffetConsumption: number;
+}
+
+export interface BuffetConsumptionRecord {
+  id: string;
+  quantity: number;
+  created_at: Date;
+  type: "buffet_guest" | "buffet_waste" | "buffet_staff_meal";
+  item: {name?: string; code?: string; uom?: string};
+  sessionNumber?: string;
 }
 
 export interface ProductionMovementRecord {
@@ -50,6 +64,7 @@ interface InventoryRecords {
   transfersOut: StoreTransferRecord[];
   productionInputs: ProductionMovementRecord[];
   productionOutputs: ProductionMovementRecord[];
+  buffetConsumption: BuffetConsumptionRecord[];
 }
 
 const initialTotals: InventoryTotals = {
@@ -62,6 +77,7 @@ const initialTotals: InventoryTotals = {
   transfersOut: 0,
   productionInputs: 0,
   productionOutputs: 0,
+  buffetConsumption: 0,
 };
 
 const initialRecords: InventoryRecords = {
@@ -74,6 +90,7 @@ const initialRecords: InventoryRecords = {
   transfersOut: [],
   productionInputs: [],
   productionOutputs: [],
+  buffetConsumption: [],
 };
 
 type SumQueryResponse = Array<{ total: number | null }>;
@@ -170,6 +187,8 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
           productionOutputTotalsResult,
           productionInputRecords,
           productionOutputRecords,
+          buffetConsumptionTotal,
+          buffetConsumptionRecords,
         ] = await Promise.all([
           queryRef.current(
             `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_purchase_items} WHERE item = $item AND store = $store GROUP ALL`,
@@ -264,6 +283,8 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
             FETCH item, batch`,
             params
           ),
+          fetchBuffetConsumptionTotals(db, itemId, storeId),
+          fetchBuffetConsumptionLinesForStore(db, itemId, storeId),
         ]);
 
         if (!cancelled) {
@@ -277,6 +298,7 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
             transfersOut: transferTotals.transfersOut,
             productionInputs: getTotalFromRows(productionInputTotalsResult as SumQueryResponse),
             productionOutputs: getTotalFromRows(productionOutputTotalsResult as SumQueryResponse),
+            buffetConsumption: buffetConsumptionTotal,
           });
 
           const mapTransferRows = (
@@ -327,6 +349,14 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
                 uom: row.item?.uom,
               },
               batchNumber: row.batch_number,
+            })),
+            buffetConsumption: buffetConsumptionRecords.map((row) => ({
+              id: `${row.id}-${row.source}`,
+              quantity: row.quantity,
+              created_at: toJsDate(row.createdAt),
+              type: row.source as BuffetConsumptionRecord["type"],
+              item: {},
+              sessionNumber: row.sessionNumber,
             })),
           });
         }

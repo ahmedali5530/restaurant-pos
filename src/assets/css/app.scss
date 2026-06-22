@@ -546,7 +546,7 @@ table th {
   }
 }
 .checkbox {
-  @apply inline-flex h-[32px] w-[32px] relative cursor-pointer rounded-lg focus:outline-none border-none
+  @apply inline-flex h-[40px] w-[40px] relative cursor-pointer rounded-full focus:outline-none border-none
   appearance-none bg-white;
   box-shadow: 0 0 0 2px theme("colors.neutral.900");
   &:hover,
@@ -564,6 +564,24 @@ table th {
   }
   &:indeterminate {
     background-image: url('data:image/svg+xml, <svg xmlns="http://www.w3.org/2000/svg" fill="rgb(23 23 23)" viewBox="0 96 960 960" ><path d="M280 606v-60h400v60H280Z"/></svg>');
+    box-shadow: 0 0 0 2px theme("colors.neutral.900");
+  }
+}
+.radio {
+  @apply inline-flex h-[40px] w-[40px] relative cursor-pointer rounded-full focus:outline-none border-none
+  appearance-none bg-white;
+  box-shadow: 0 0 0 2px theme("colors.neutral.900");
+  &:hover,
+  &:focus {
+    box-shadow: 0 0 0 2px theme("colors.neutral.900");
+  }
+  &:checked:after {
+    content: "";
+    background-image: url('data:image/svg+xml, <svg xmlns="http://www.w3.org/2000/svg" fill="rgb(23 23 23)" viewBox="0 0 40 40"><path d="m15.792 29.833-9.375-9.375 2-2 7.375 7.417 15.791-15.792 1.959 2Z"/></svg>');
+    height: 100%;
+    width: 100%;
+  }
+  &:checked {
     box-shadow: 0 0 0 2px theme("colors.neutral.900");
   }
 }

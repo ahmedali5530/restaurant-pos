@@ -1,33 +1,35 @@
 import {useState} from "react";
 import {useTranslation} from "react-i18next";
 import {createColumnHelper} from "@tanstack/react-table";
-import {Recipe} from "@/api/model/recipe.ts";
+import {BuffetMenu} from "@/api/model/buffet_menu.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPencil, faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
-import {RecipeForm} from "@/components/inventory/recipes/form.tsx";
-import {useRecipeList} from "@/hooks/useRecipeList.ts";
+import {BuffetMenuForm} from "@/components/inventory/buffet/menus/form.tsx";
+import {useBuffetMenuList} from "@/hooks/useBuffetMenuList.ts";
 import {useDB} from "@/api/db/db.ts";
-import {deleteRecipe} from "@/lib/inventory/production.service.ts";
+import {deleteBuffetMenu} from "@/lib/inventory/buffet.service.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
 import {toast} from "sonner";
 import classNames from "classnames";
 
-export const InventoryRecipes = () => {
+export const BuffetMenus = () => {
   const {t} = useTranslation("inventory");
   const db = useDB();
-  const loadHook = useRecipeList(0, 10);
-  const [data, setData] = useState<Recipe>();
+  const loadHook = useBuffetMenuList(0, 10);
+  const [data, setData] = useState<BuffetMenu>();
   const [formModal, setFormModal] = useState(false);
 
-  const columnHelper = createColumnHelper<Recipe>();
+  const columnHelper = createColumnHelper<BuffetMenu>();
 
   const columns: any = [
     columnHelper.accessor("name", {header: t("columns.name")}),
     columnHelper.accessor("code", {header: t("columns.code")}),
-    columnHelper.accessor("base_batch_qty", {header: t("production.baseBatchQty")}),
-    columnHelper.accessor("cost_allocation", {header: t("production.costAllocation")}),
+    columnHelper.accessor("session_type", {
+      header: t("buffet.sessionType"),
+      cell: (info) => t(`buffet.sessionTypes.${info.getValue()}`),
+    }),
     columnHelper.accessor("is_active", {
       header: t("columns.status"),
       cell: (info) => (
@@ -42,11 +44,7 @@ export const InventoryRecipes = () => {
       ),
     }),
     columnHelper.accessor("items", {
-      header: t("production.inputs"),
-      cell: (info) => info.getValue()?.length ?? 0,
-    }),
-    columnHelper.accessor("outputs", {
-      header: t("production.outputs"),
+      header: t("buffet.menuItems"),
       cell: (info) => info.getValue()?.length ?? 0,
     }),
     columnHelper.accessor("id", {
@@ -69,13 +67,13 @@ export const InventoryRecipes = () => {
             variant="danger"
             iconButton
             onClick={async () => {
-              if (!confirm(t("production.confirmDeleteRecipe"))) return;
+              if (!confirm(t("buffet.confirmDeleteMenu"))) return;
               try {
-                await deleteRecipe(db, recordToString(info.getValue())!);
-                toast.success(t("production.recipeDeleted"));
+                await deleteBuffetMenu(db, recordToString(info.getValue())!);
+                toast.success(t("buffet.menuDeleted"));
                 loadHook.fetchData();
               } catch (err) {
-                toast.error(err instanceof Error ? err.message : t("production.recipeDeleteFailed"));
+                toast.error(err instanceof Error ? err.message : t("buffet.menuDeleteFailed"));
               }
             }}
           >
@@ -95,21 +93,18 @@ export const InventoryRecipes = () => {
         enableSearch={false}
         buttons={[
           <Button
-            key="recipe-create"
+            key="buffet-menu-create"
             variant="primary"
-            onClick={() => {
-              setData(undefined);
-              setFormModal(true);
-            }}
+            onClick={() => setFormModal(true)}
             icon={faPlus}
           >
-            {t("production.createRecipe")}
+            {t("buffet.createMenu")}
           </Button>,
         ]}
       />
 
       {formModal && (
-        <RecipeForm
+        <BuffetMenuForm
           open
           data={data}
           onClose={() => {

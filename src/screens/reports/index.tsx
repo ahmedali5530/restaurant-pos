@@ -30,6 +30,7 @@ import {ConsumptionFilter} from "@/components/reports/filters/consumption.filter
 import {SaleVsConsumptionFilter} from "@/components/reports/filters/sale.vs.consumption.filter.tsx";
 import {KitchenReconciliationFilter} from "@/components/reports/filters/kitchen.reconciliation.filter.tsx";
 import {ProductionReportFilter} from "@/components/reports/filters/production.filter.tsx";
+import {BuffetReportFilter} from "@/components/reports/filters/buffet.filter.tsx";
 import { TipsFilter } from "@/components/reports/filters/tips.filter.tsx";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {SalesDashboardFilter} from "@/components/reports/filters/sales.dashboard.filter.tsx";
@@ -87,6 +88,7 @@ const REPORT_PERMISSION_MODULES: Record<string, string> = {
   saleVsInventory: 'Sale vs Inventory',
   kitchenReconciliation: 'Kitchen Reconciliation',
   productionReport: 'Production Report',
+  buffetReport: 'Buffet Report',
 };
 
 const buildReportEntries = (
@@ -155,6 +157,7 @@ export const Reports = () => {
         { reportKey: 'saleVsInventory', filter: <SaleVsConsumptionFilter /> },
         { reportKey: 'kitchenReconciliation', filter: <KitchenReconciliationFilter /> },
         { reportKey: 'productionReport', filter: <ProductionReportFilter /> },
+        { reportKey: 'buffetReport', filter: <BuffetReportFilter /> },
       ]),
     };
   }, [t]);

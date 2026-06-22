@@ -82,6 +82,15 @@ export enum Tables {
   production_batch_inputs = 'production_batch_input',
   production_batch_outputs = 'production_batch_output',
 
+  buffet_menus = 'buffet_menu',
+  buffet_menu_items = 'buffet_menu_item',
+  buffet_sessions = 'buffet_session',
+  buffet_production_batches = 'buffet_production_batch',
+  buffet_stock_snapshots = 'buffet_stock_snapshot',
+  buffet_guest_counts = 'buffet_guest_count',
+  buffet_waste_logs = 'buffet_waste_log',
+  buffet_consumption_logs = 'buffet_consumption_log',
+
   settings = 'setting',
 
   auth_permission = 'auth_permission',

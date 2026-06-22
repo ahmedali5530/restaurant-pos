@@ -57,7 +57,8 @@
     "consumption": "Consumption",
     "saleVsInventory": "Sale vs Inventory",
     "kitchenReconciliation": "Kitchen Reconciliation",
-    "productionReport": "Production Report"
+    "productionReport": "Production Report",
+    "buffetReport": "Buffet Report"
   },
   "titles": {
     "aiReport": "AI Report",
@@ -99,6 +100,7 @@
     "saleVsConsumption": "Sale vs Consumption Report",
     "kitchenReconciliation": "Kitchen Reconciliation Report",
     "productionReport": "Production / Yield Report",
+    "buffetReport": "Buffet Profitability Report",
     "tablesSummary": "Tables summary"
   },
   "layout": {
@@ -391,5 +393,28 @@
     "lineDetails": "Line details",
     "in": "In",
     "out": "Out"
+  },
+  "buffet": {
+    "sessionType": "Session type",
+    "sessionTypes": {
+      "breakfast": "Breakfast",
+      "lunch": "Lunch",
+      "dinner": "Dinner"
+    },
+    "sessionNumber": "Session #",
+    "businessDate": "Business date",
+    "actualGuests": "Actual guests",
+    "totalSales": "Total sales",
+    "totalFoodCost": "Total food cost",
+    "costPerGuest": "Cost per guest",
+    "wastePercent": "Waste %",
+    "overproduction": "Overproduction",
+    "profit": "Profit",
+    "profitMargin": "Profit margin %",
+    "totalGuests": "Total guests",
+    "help": {
+      "store": "Include only closed buffet sessions at this store. Leave empty for all stores.",
+      "sessionType": "Include only sessions for this meal period. Leave empty for all types."
+    }
   }
 }
