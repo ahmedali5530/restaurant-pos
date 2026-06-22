@@ -93,5 +93,10 @@
   "toast": {
     "printFailed": "Error al imprimir",
     "printError": "Error en la impresión"
+  },
+  "notFound": {
+    "title": "Página no encontrada",
+    "description": "La página que buscas no existe o ha sido movida.",
+    "backToMenu": "Volver al menú"
   }
 }

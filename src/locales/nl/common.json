@@ -93,5 +93,10 @@
   "toast": {
     "printFailed": "Afdrukken mislukt",
     "printError": "Fout bij afdrukken"
+  },
+  "notFound": {
+    "title": "Pagina niet gevonden",
+    "description": "De pagina die je zoekt bestaat niet of is verplaatst.",
+    "backToMenu": "Terug naar menu"
   }
 }

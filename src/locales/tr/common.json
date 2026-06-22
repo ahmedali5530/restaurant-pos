@@ -93,5 +93,10 @@
   "toast": {
     "printFailed": "Yazdırma başarısız",
     "printError": "Yazdırma hatası"
+  },
+  "notFound": {
+    "title": "Sayfa bulunamadı",
+    "description": "Aradığınız sayfa mevcut değil veya taşınmış.",
+    "backToMenu": "Menüye dön"
   }
 }

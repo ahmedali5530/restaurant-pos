@@ -93,5 +93,10 @@
   "toast": {
     "printFailed": "Print failed",
     "printError": "Error in printing"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "backToMenu": "Back to menu"
   }
 }

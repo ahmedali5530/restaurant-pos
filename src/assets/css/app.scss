@@ -883,7 +883,7 @@ table th {
  * To animate the gradient, we set the custom property to 1 full
  * rotation. The animation starts at the default value of `0deg`.
  */
-@keyframes spin {
+@keyframes bg-angle-spin {
   to {
     --bg-angle: 360deg;
   }
