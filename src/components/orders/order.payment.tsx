@@ -601,14 +601,14 @@ export const OrderPayment = ({
       onClose={closeModal}
       size="full"
     >
-      <div className="grid grid-cols-4 gap-5 mb-5 select-none">
-        <div className="bg-white rounded-xl flex flex-col overflow-auto h-[calc(100vh_-_150px)]">
+      <div className="grid grid-cols-4 gap-5 mb-0 select-none">
+        <div className="bg-white rounded-xl flex flex-col overflow-auto h-[calc(100vh_-_120px)]">
           <div className="p-3 flex gap-3 flex-col">
             <OrderHeader order={order}/>
             <OrderTimes order={order}/>
             <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
             <ScrollContainer className="gap-1 flex flex-col">
-              <div className="overflow-ellipsis max-h-[250px]">
+              <div className="overflow-ellipsis max-h-[170px]">
                 {getOrderFilteredItems(order).map(item => (
                   <OrderItemName
                     item={item}
@@ -785,7 +785,7 @@ export const OrderPayment = ({
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl flex flex-col p-3 h-[calc(100vh_-_150px)]">
+        <div className="bg-white rounded-xl flex flex-col p-3 h-[calc(100vh_-_120px)]">
           {mode === PaymentOptions.Tax && (
             <OrderPaymentTax tax={tax} setTax={setTax}/>
           )}

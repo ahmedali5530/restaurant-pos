@@ -1,6 +1,6 @@
 import {Button} from "@/components/common/input/button.tsx";
 import {faCancel, faCheck, faCreditCard, faTimes} from "@fortawesome/free-solid-svg-icons";
-import React, {useMemo, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {useAtom} from "jotai";
 import {appPage, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {calculateCartItemPrice} from "@/lib/cart.ts";
@@ -8,7 +8,8 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
 import {OrderPayment} from "@/components/orders/order.payment.tsx";
-import {toRecordId, withCurrency} from "@/lib/utils.ts";
+import {OrderTotals, CartTotals} from "@/components/orders/order.totals.tsx";
+import {toRecordId} from "@/lib/utils.ts";
 import {StringRecordId} from "surrealdb";
 import {MenuItemType} from "@/api/model/cart_item.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
@@ -30,6 +31,8 @@ export const Payment = () => {
   const orderTakingBlocked = enforcement.orderTakingBlocked;
 
   const [isLoading, setLoading] = useState(false);
+  const [payment, setPayment] = useState(false);
+  const [order, setOrder] = useState<Order>();
 
   const total = useMemo(() => {
     return state.cart.reduce((prev, item) => {
@@ -40,6 +43,26 @@ export const Payment = () => {
       return prev;
     }, 0);
   }, [state.cart]);
+
+  const cartItemCount = useMemo(() => {
+    return state.cart.filter(item => !item.deleted_at).length;
+  }, [state.cart]);
+
+  useEffect(() => {
+    (async () => {
+      if (state?.order?.id !== 'new') {
+        const orderId = toRecordId(state?.order?.id);
+
+        const [freshOrder] = await db.query(
+          `SELECT * FROM ONLY ${orderId} FETCH ${ORDER_FETCHES.join(", ")}`
+        );
+
+        setOrder(freshOrder);
+      } else {
+        setOrder(undefined);
+      }
+    })();
+  }, [db, state?.order?.id]);
 
   const createOrder = async () => {
     await assertOrderTakingAllowed(db);
@@ -272,8 +295,6 @@ export const Payment = () => {
     }));
   }
 
-  const [payment, setPayment] = useState(false);
-  const [order, setOrder] = useState<Order>();
   const openPayment = async () => {
     try {
       const result = await createOrder();
@@ -311,18 +332,22 @@ export const Payment = () => {
   return (
     <>
       <div className="font-bold">
-        <div className="p-3">
-          <div className="flex justify-between items-center">
-            <span>{t("payment:labels.subTotal", {count: state.cart.length})}</span>
-            <span>{withCurrency(total)}</span>
+        {order && (
+          <>
+            <div className="p-3">
+              <OrderTotals order={order} cart={state.cart} />
+            </div>
+            <div className="h-[2px] separator"></div>
+          </>
+        )}
+        {!order && (
+          <div className="p-3">
+            <CartTotals itemCount={cartItemCount} total={total} />
           </div>
-        </div>
-        <div className="h-[2px] separator"></div>
+        )}
+
+
         <div className="p-3">
-          <div className="flex justify-between items-center text-success-500 text-3xl">
-            <span>{t("payment:labels.total")}</span>
-            <span>{withCurrency(total)}</span>
-          </div>
           <div className="flex gap-3 mt-3">
             <Button variant="success" className="flex-1" size="lg" icon={faCheck} onClick={createOrderAndBack}
                     disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}>{t("payment:actions.toKitchen")}</Button>

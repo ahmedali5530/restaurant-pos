@@ -3,8 +3,6 @@ import React, {CSSProperties, useMemo, useState} from "react";
 import {useAtom} from "jotai";
 import {useDB} from "@/api/db/db.ts";
 import {appPage, closingEnforcementAtom} from "@/store/jotai.ts";
-import {calculateOrderTotal} from "@/lib/cart.ts";
-import {withCurrency} from "@/lib/utils.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {OrderPayment} from "@/components/orders/order.payment.tsx";
 import ScrollContainer from "react-indiana-drag-scroll";
@@ -24,7 +22,7 @@ import {Dropdown, DropdownItem, DropdownSeparator} from "@/components/common/rea
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {dispatchPrint} from "@/lib/print.service";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
-import {DiscountType} from "@/api/model/discount.ts";
+import {OrderTotals} from "@/components/orders/order.totals.tsx";
 import {SplitBySeats} from "@/components/orders/split/split.seats.tsx";
 import {SplitItems} from "@/components/orders/split/split.items.tsx";
 import {SplitAmount} from "@/components/orders/split/split.amount.tsx";
@@ -54,7 +52,6 @@ export const OrderBox = ({
   const [page] = useAtom(appPage);
   const [enforcement] = useAtom(closingEnforcementAtom);
   const mutationsBlocked = enforcement.orderMutationsBlocked;
-  const itemsTotal = calculateOrderTotal(order);
   const [payment, setPayment] = useState(false);
 
   const [splitBySeats, setSplitBySeats] = useState(false);
@@ -62,15 +59,6 @@ export const OrderBox = ({
   const [splitByAmount, setSplitByAmount] = useState(false);
   const [cancelOrderOpen, setCancelOrderOpen] = useState(false);
   const [refundOrderOpen, setRefundOrderOpen] = useState(false);
-
-  const total = useMemo(() => {
-    const extrasTotal = order?.extras ? order?.extras?.reduce((prev, item) => prev + item.value, 0) : 0;
-    return itemsTotal + extrasTotal + Number(order?.tax_amount ?? 0) - Number(order?.discount_amount ?? 0) + Number(order.service_charge_amount ?? 0) + Number(order?.tip_amount ?? 0);
-  }, [itemsTotal, order]);
-
-  const changeDue = useMemo(() => {
-    return order?.payments?.reduce((prev, item) => Number(prev) + Number(item.payable ?? 0) - Number(item.amount ?? 0), 0)
-  }, [])
 
   const hasSeats = useMemo(() => {
     const items = getOrderFilteredItems(order).filter((item) => item.seat !== undefined);
@@ -116,71 +104,7 @@ export const OrderBox = ({
           </div>
         </ScrollContainer>
         <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
-        <div className="flex flex-col gap-1">
-          <div className="flex font-bold">
-            <div className="flex-1">{t('totals.items', {count: getOrderFilteredItems(order).length})}</div>
-            <div className="text-right">{withCurrency(itemsTotal)}</div>
-          </div>
-          {order?.tax && (
-            <div className="flex">
-              <div className="flex-1">
-                {t('totals.tax')} {order?.tax && <>({order?.tax?.name} {order?.tax?.rate}%)</>}
-              </div>
-              <div className="text-right">{withCurrency(order?.tax_amount)}</div>
-            </div>
-          )}
-          {order?.discount ? (
-            <div className="flex">
-              <div className="flex-1">{t('totals.discount')}</div>
-              <div className="text-right">{withCurrency(order?.discount_amount)}</div>
-            </div>
-          ) : ''}
-          {order?.service_charge && order?.service_charge > 0 ? (
-            <div className="flex">
-              <div className="flex-1">{t('totals.serviceCharges', {
-                value: order?.service_charge,
-                unit: order?.service_charge_type === DiscountType.Percent ? '%' : ''
-              })}</div>
-              <div className="text-right">{withCurrency(order?.service_charge_amount)}</div>
-            </div>
-          ) : ''}
-          {order?.extras && order?.extras?.map((item, index) => (
-            <div className="flex" key={index}>
-              <div className="flex-1">{item.name}</div>
-              <div className="text-right">{withCurrency(item.value)}</div>
-            </div>
-          ))}
-          {order?.tip_amount > 0 && (
-            <div className="flex">
-              <div
-                className="flex-1">{order?.tip_type === DiscountType.Percent ? t('totals.tipPercent') : t('totals.tip')}</div>
-              <div className="text-right">{withCurrency(order?.tip_amount)}</div>
-            </div>
-          )}
-          {order?.payments?.length > 0 && (
-            <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
-          )}
-          {order?.payments?.map((item, index) => (
-            <div key={index} className="flex">
-              <div className="flex-1">{item.payment_type.name}</div>
-              <div className="text-right">{withCurrency(item.amount)}</div>
-            </div>
-          ))}
-          <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
-          <div className="flex font-bold text-2xl text-success-900">
-            <div className="flex-1">{t('totals.total')}</div>
-            <div className="text-right">{withCurrency(total)}</div>
-          </div>
-          {order?.payments?.length > 0 && changeDue !== 0 && (
-            <>
-              <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
-              <div className="flex">
-                <div className="flex-1">{t('totals.change')}</div>
-                <div className="text-right">{withCurrency(changeDue)}</div>
-              </div>
-            </>
-          )}
-        </div>
+        <OrderTotals order={order} />
         <div className="flex gap-5">
           {merging && (order.status === OrderStatus['In Progress']) ? (
             <>

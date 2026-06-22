@@ -181,7 +181,7 @@ export const Menu = () => {
     }
 
     return (
-      <div className="grid grid-cols-[minmax(0,1fr)_440px] gap-3 pl-3">
+      <div className="grid grid-cols-[minmax(0,1fr)_440px] gap-3 pl-3 h-[100vh] overflow-hidden">
         <div>
           <div className="h-[70px] flex items-center gap-3 mb-3">
             <MenuHeader/>
@@ -196,7 +196,7 @@ export const Menu = () => {
             <MenuActions/>
           </div>
         </div>
-        <div className="bg-white rounded-xl">
+        <div className="bg-white rounded-xl flex flex-col h-full min-h-0 overflow-hidden">
           <MenuCart/>
         </div>
       </div>
@@ -204,8 +204,14 @@ export const Menu = () => {
 
   }, [hideTableSelection, state.showFloor, state.showPersons]);
 
+  const isMenuOrderingScreen = !state.showFloor && !state.showPersons;
+
   return (
-    <Layout showSidebar={state.showFloor === true || state.showPersons === true || hideTableSelection}>
+    <Layout
+      overflowHidden={isMenuOrderingScreen}
+      containerClassName={isMenuOrderingScreen ? "overflow-hidden" : undefined}
+      showSidebar={state.showFloor === true || state.showPersons === true || hideTableSelection}
+    >
       {screen}
     </Layout>
   );

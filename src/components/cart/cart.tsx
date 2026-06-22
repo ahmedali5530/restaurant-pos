@@ -32,47 +32,45 @@ export const MenuCart = () => {
   }, [cartItems]);
 
   return (
-    <>
-      <div className="flex flex-col gap-3">
-        <div className="p-3">
-          {isSelected ? (
-            <CartActions/>
-          ) : (
-            <Seats/>
-          )}
-        </div>
-        <div className="flex flex-col gap-1 h-[calc(100vh_-_216px_-_50px)] overflow-auto">
-          {state.seat && cartItems.length === 0 && state.seats.length > 0 && (
-            <div className="items-center flex justify-center h-[100px]">
-              <Button variant="danger" size="lg" icon={faTrash} onClick={() => {
-                setState(prev => ({
-                  ...prev,
-                  seats: prev.seats.filter(s => s !== state.seat),
-                }));
-                setState(prev => ({
-                  ...prev,
-                  seat: prev.seats.at(-1)
-                }))
-              }}>{t('seats.deleteSeat')}</Button>
-            </div>
-          )}
-          <ScrollContainer className="gap-[4px] flex flex-col select-none">
-            {newItems.map((item, index) => (
-              <CartItem item={item} key={index} index={index}/>
-            ))}
-            {newItems.length > 0 && oldItems.length > 0 && (
-              <div className="h-[3px] bg-neutral-900 my-2 rounded-full"></div>
-            )}
-            {oldItems.map((item, index) => (
-              <CartItem item={item} key={index} index={index}/>
-            ))}
-          </ScrollContainer>
-        </div>
+    <div className="flex flex-col h-full min-h-0">
+      <div className="p-3 flex-shrink-0">
+        {isSelected ? (
+          <CartActions/>
+        ) : (
+          <Seats/>
+        )}
       </div>
-      <div className="">
+      <div className="flex-1 min-h-0 overflow-hidden">
+        {state.seat && cartItems.length === 0 && state.seats.length > 0 && (
+          <div className="items-center flex justify-center h-[100px]">
+            <Button variant="danger" size="lg" icon={faTrash} onClick={() => {
+              setState(prev => ({
+                ...prev,
+                seats: prev.seats.filter(s => s !== state.seat),
+              }));
+              setState(prev => ({
+                ...prev,
+                seat: prev.seats.at(-1)
+              }))
+            }}>{t('seats.deleteSeat')}</Button>
+          </div>
+        )}
+        <ScrollContainer className="h-full gap-[4px] flex flex-col select-none">
+          {newItems.map((item, index) => (
+            <CartItem item={item} key={index} index={index}/>
+          ))}
+          {newItems.length > 0 && oldItems.length > 0 && (
+            <div className="h-[3px] bg-neutral-900 my-2 rounded-full"></div>
+          )}
+          {oldItems.map((item, index) => (
+            <CartItem item={item} key={index} index={index}/>
+          ))}
+        </ScrollContainer>
+      </div>
+      <div className="flex-shrink-0">
         <div className="h-[2px] separator"></div>
         <Payment/>
       </div>
-    </>
+    </div>
   );
 }

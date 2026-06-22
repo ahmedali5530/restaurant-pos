@@ -38,9 +38,7 @@ export const CartItemName = ({ item, mainItem }: Omit<Props, "index">) => {
       {item?.selectedGroups?.map(group =>
         <div className="border-[3px] border-l-warning-500 border-r-0 border-y-0 mb-2" key={group.out?.id}>
           {group?.selectedModifiers?.map(modifier => (
-            <React.Fragment key={modifier.id}>
-              {CartItemName({ item: modifier, mainItem })}
-            </React.Fragment>
+            <CartItemName key={modifier.id} item={modifier} mainItem={mainItem} />
           ))}
         </div>
       )}

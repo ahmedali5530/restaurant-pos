@@ -488,7 +488,7 @@ const OrderPaymentReceivingContent = ({
   } = useApi<SettingsData<Tax>>(Tables.taxes, ['deleted_at = none'])
 
   return (
-    <div className="grid grid-cols-2 gap-5 h-[calc(100vh_-_150px)]">
+    <div className="grid grid-cols-2 gap-5 h-[calc(100vh_-_120px)]">
       <div className="bg-white rounded-xl h-full">
         <div className="mb-3 text-5xl p-5 text-center ">
           {withCurrency(tendered)}
