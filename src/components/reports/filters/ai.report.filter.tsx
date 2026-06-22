@@ -40,6 +40,7 @@ export const AiReportFilter = () => {
           placeholder={t('filters.aiPrompt')}
           value={prompt}
           onChange={(event) => setPrompt(event.currentTarget.value)}
+          enableKeyboard={false}
         />
       </label>
       <div className="flex flex-wrap items-center gap-2">

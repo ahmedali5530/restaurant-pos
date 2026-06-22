@@ -1,14 +1,15 @@
 import {useAtomValue} from "jotai";
-import {Navigate, Outlet} from "react-router";
+import {Navigate, Outlet, useLocation} from "react-router";
 import {appPage} from "@/store/jotai.ts";
 import {LOGIN} from "@/routes/posr.ts";
 
 export const ProtectedRoute = () => {
   const {user} = useAtomValue(appPage);
+  const location = useLocation();
 
   if (!user) {
-    return <Navigate to={LOGIN} replace />;
+    return <Navigate to={LOGIN} replace state={{from: location}}/>;
   }
 
-  return <Outlet />;
+  return <Outlet/>;
 };

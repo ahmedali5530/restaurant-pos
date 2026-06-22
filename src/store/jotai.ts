@@ -105,7 +105,9 @@ export const appPage = atomWithStorage<AppPageInterface>(
       showModifierPriceInOrderCard: false,
       showModifiersInOrderCard: false
     }
-  }
+  },
+  createJSONStorage<AppPageInterface>(),
+  {getOnInit: true}
 );
 
 const appStorageStore = createStore('posr-react', 'jotai-storage')

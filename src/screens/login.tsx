@@ -7,7 +7,7 @@ import { appPage } from "@/store/jotai.ts";
 import { cn } from "@/lib/utils.ts";
 import { useDB } from "@/api/db/db.ts";
 import { User } from "@/api/model/user.ts";
-import {useNavigate} from "react-router";
+import {useNavigate, useLocation} from "react-router";
 import {MENU} from "@/routes/posr.ts";
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Button } from "@/components/common/input/button.tsx";
@@ -34,6 +34,7 @@ export const Login = () => {
   const [pendingUser, setPendingUser] = useState<User | null>(null);
 
   const navigation = useNavigate();
+  const location = useLocation();
 
   const onClear = () => {
     setCode('');
@@ -163,9 +164,11 @@ export const Login = () => {
 
   useLayoutEffect(() => {
     if(page.user && !page.locked){
-      navigation(MENU);
+      const from = (location.state as { from?: { pathname: string; search?: string } })?.from;
+      const returnPath = from ? `${from.pathname}${from.search ?? ''}` : MENU;
+      navigation(returnPath, { replace: true });
     }
-  }, [page.user]);
+  }, [page.user, page.locked, location.state, navigation]);
 
   return (
     <div className="relative">
