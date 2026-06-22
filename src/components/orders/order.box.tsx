@@ -10,7 +10,15 @@ import {OrderPayment} from "@/components/orders/order.payment.tsx";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {OrderHeader} from "@/components/orders/order.header.tsx";
 import {OrderTimes} from "@/components/orders/order.times.tsx";
-import {faEllipsisV, faCodeBranch, faCreditCard, faPrint, faChair, faMoneyBillTransfer, faObjectGroup} from "@fortawesome/free-solid-svg-icons";
+import {
+  faChair,
+  faCodeBranch,
+  faCreditCard,
+  faEllipsisV,
+  faMoneyBillTransfer,
+  faObjectGroup,
+  faPrint
+} from "@fortawesome/free-solid-svg-icons";
 import {OrderItemName} from "@/components/common/order/order.item.tsx";
 import {Dropdown, DropdownItem, DropdownSeparator} from "@/components/common/react-aria/dropdown.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -25,7 +33,7 @@ import {OrderCancelModal} from "@/components/orders/order.cancel.modal.tsx";
 import {OrderRefundModal} from "@/components/orders/order.refund.modal.tsx";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
-import { Tables } from "@/api/db/tables";
+import {Tables} from "@/api/db/tables";
 import {Tax} from "@/api/model/tax.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {useTranslation} from "react-i18next";
@@ -78,10 +86,12 @@ export const OrderBox = ({
   } = useApi<SettingsData<Tax>>(Tables.taxes, ['deleted_at = none']);
 
   const printTempBill = () => {
-    void dispatchPrint(db, PRINT_TYPE.presale_bill, { order, taxes: taxes?.data }, { userId: page?.user?.id });
+    void dispatchPrint(db, PRINT_TYPE.presale_bill, {order, taxes: taxes?.data}, {userId: page?.user?.id});
   }
 
   const {protectAction} = useSecurity();
+
+  const [{menuConfig: {showTotalInOrderCard, showModifierPriceInOrderCard, showModifiersInOrderCard, showQuantityInOrderCard, showPriceInOrderCard, showGroupsInOrderCard}}] = useAtom(appPage);
 
   return (
     <>
@@ -94,10 +104,13 @@ export const OrderBox = ({
             {getOrderFilteredItems(order).map((item, index) => (
               <OrderItemName
                 item={item}
-                showPrice
-                showModifierPrice
-                showQuantity
+                showQuantity={showQuantityInOrderCard}
+                showPrice={showPriceInOrderCard}
+                showModifierPrice={showModifierPriceInOrderCard}
                 key={index}
+                showTotal={showTotalInOrderCard}
+                showGroups={showGroupsInOrderCard}
+                showModifiers={showModifiersInOrderCard}
               />
             ))}
           </div>
@@ -124,7 +137,10 @@ export const OrderBox = ({
           ) : ''}
           {order?.service_charge && order?.service_charge > 0 ? (
             <div className="flex">
-              <div className="flex-1">{t('totals.serviceCharges', {value: order?.service_charge, unit: order?.service_charge_type === DiscountType.Percent ? '%' : ''})}</div>
+              <div className="flex-1">{t('totals.serviceCharges', {
+                value: order?.service_charge,
+                unit: order?.service_charge_type === DiscountType.Percent ? '%' : ''
+              })}</div>
               <div className="text-right">{withCurrency(order?.service_charge_amount)}</div>
             </div>
           ) : ''}
@@ -136,7 +152,8 @@ export const OrderBox = ({
           ))}
           {order?.tip_amount > 0 && (
             <div className="flex">
-              <div className="flex-1">{order?.tip_type === DiscountType.Percent ? t('totals.tipPercent') : t('totals.tip')}</div>
+              <div
+                className="flex-1">{order?.tip_type === DiscountType.Percent ? t('totals.tipPercent') : t('totals.tip')}</div>
               <div className="text-right">{withCurrency(order?.tip_amount)}</div>
             </div>
           )}
@@ -168,13 +185,13 @@ export const OrderBox = ({
           {merging && (order.status === OrderStatus['In Progress']) ? (
             <>
               <Checkbox onChange={() => {
-                if(mergingOrderIds.includes(order.id.toString())){
+                if (mergingOrderIds.includes(order.id.toString())) {
                   onMergeSelect(order, false);
-                }else{
+                } else {
                   onMergeSelect(order, true);
                 }
 
-              }} checked={mergingOrderIds.includes(order.id.toString())} label={t('actions.selectToMerge')} />
+              }} checked={mergingOrderIds.includes(order.id.toString())} label={t('actions.selectToMerge')}/>
             </>
           ) : (
             <>
@@ -198,7 +215,7 @@ export const OrderBox = ({
 
                   if (key === 'final_bill') {
                     protectAction(() => {
-                      void dispatchPrint(db, PRINT_TYPE.final_bill, { order, duplicate: true }, { userId: page?.user?.id });
+                      void dispatchPrint(db, PRINT_TYPE.final_bill, {order, duplicate: true}, {userId: page?.user?.id});
                     }, {
                       module: 'Print final copy',
                       description: 'Print final copy',
@@ -208,7 +225,7 @@ export const OrderBox = ({
                     });
                   }
 
-                  if(key === 'split_by_seats' && hasSeats) {
+                  if (key === 'split_by_seats' && hasSeats) {
                     protectAction(() => {
                       setSplitBySeats(true)
                     }, {
@@ -220,7 +237,7 @@ export const OrderBox = ({
                     });
                   }
 
-                  if(key === 'split_by_items') {
+                  if (key === 'split_by_items') {
                     protectAction(() => {
                       setSplitByManually(true);
                     }, {
@@ -232,7 +249,7 @@ export const OrderBox = ({
                     });
                   }
 
-                  if(key === 'split_by_amount') {
+                  if (key === 'split_by_amount') {
                     protectAction(() => {
                       setSplitByAmount(true);
                     }, {
@@ -244,7 +261,7 @@ export const OrderBox = ({
                     });
                   }
 
-                  if(key === 'cancel') {
+                  if (key === 'cancel') {
                     protectAction(() => {
                       setCancelOrderOpen(true);
                     }, {
@@ -258,7 +275,7 @@ export const OrderBox = ({
                     return;
                   }
 
-                  if(key === 'merge'){
+                  if (key === 'merge') {
                     protectAction(() => {
                       onMergeSelect(order, true);
                     }, {
@@ -270,7 +287,7 @@ export const OrderBox = ({
                     });
                   }
 
-                  if(key === 'refund') {
+                  if (key === 'refund') {
                     protectAction(() => {
                       setRefundOrderOpen(true);
                     }, {
@@ -287,22 +304,26 @@ export const OrderBox = ({
               >
                 {order.status === OrderStatus["In Progress"] && (
                   <>
-                    <DropdownItem isDisabled={mutationsBlocked} id="cancel" key="cancel" className="min-w-[50px] bg-danger-100 text-danger-500">
-                      <FontAwesomeIcon icon={faMoneyBillTransfer} /> {t('actions.cancelOrder')}
+                    <DropdownItem isDisabled={mutationsBlocked} id="cancel" key="cancel"
+                                  className="min-w-[50px] bg-danger-100 text-danger-500">
+                      <FontAwesomeIcon icon={faMoneyBillTransfer}/> {t('actions.cancelOrder')}
                     </DropdownItem>
-                    <DropdownSeparator />
-                    <DropdownItem isDisabled={mutationsBlocked || hasSeats !== true} id="split_by_seats" key="split_by_seats" className="min-w-[50px]">
-                      <FontAwesomeIcon icon={faChair} /> {t('actions.splitBySeats')}
+                    <DropdownSeparator/>
+                    <DropdownItem isDisabled={mutationsBlocked || hasSeats !== true} id="split_by_seats"
+                                  key="split_by_seats" className="min-w-[50px]">
+                      <FontAwesomeIcon icon={faChair}/> {t('actions.splitBySeats')}
                     </DropdownItem>
-                    <DropdownItem isDisabled={mutationsBlocked} id="split_by_items" key="split_by_items" className="min-w-[50px]">
-                      <FontAwesomeIcon icon={faCodeBranch} /> {t('actions.splitByItems')}
+                    <DropdownItem isDisabled={mutationsBlocked} id="split_by_items" key="split_by_items"
+                                  className="min-w-[50px]">
+                      <FontAwesomeIcon icon={faCodeBranch}/> {t('actions.splitByItems')}
                     </DropdownItem>
-                    <DropdownItem isDisabled={mutationsBlocked} id="split_by_amount" key="split_by_amount" className="min-w-[50px]">
-                      <FontAwesomeIcon icon={faCodeBranch} /> {t('actions.splitByAmount')}
+                    <DropdownItem isDisabled={mutationsBlocked} id="split_by_amount" key="split_by_amount"
+                                  className="min-w-[50px]">
+                      <FontAwesomeIcon icon={faCodeBranch}/> {t('actions.splitByAmount')}
                     </DropdownItem>
-                    <DropdownSeparator />
+                    <DropdownSeparator/>
                     <DropdownItem isDisabled={mutationsBlocked} id="merge" key="merge" className="min-w-[50px]">
-                      <FontAwesomeIcon icon={faObjectGroup} /> {t('actions.mergeOrders')}
+                      <FontAwesomeIcon icon={faObjectGroup}/> {t('actions.mergeOrders')}
                     </DropdownItem>
                   </>
                 )}
@@ -310,11 +331,11 @@ export const OrderBox = ({
                 {order.status === OrderStatus["Paid"] && (
                   <>
                     <DropdownItem id="refund" key="refund" className="min-w-[50px] bg-danger-100 text-danger-500">
-                      <FontAwesomeIcon icon={faMoneyBillTransfer} /> {t('actions.refund')}
+                      <FontAwesomeIcon icon={faMoneyBillTransfer}/> {t('actions.refund')}
                     </DropdownItem>
-                    <DropdownSeparator />
+                    <DropdownSeparator/>
                     <DropdownItem id="final_bill" key="final_bill" className="min-w-[50px]">
-                      <FontAwesomeIcon icon={faPrint} /> {t('actions.printFinalBillCopy')}
+                      <FontAwesomeIcon icon={faPrint}/> {t('actions.printFinalBillCopy')}
                     </DropdownItem>
                   </>
                 )}
@@ -353,21 +374,21 @@ export const OrderBox = ({
         <SplitBySeats order={order} onClose={() => {
           setSplitBySeats(false);
           onAction && onAction();
-        }} />
+        }}/>
       )}
 
       {splitByManually && (
         <SplitItems order={order} onClose={() => {
           setSplitByManually(false);
           onAction && onAction();
-        }} />
+        }}/>
       )}
 
       {splitByAmount && (
         <SplitAmount order={order} onClose={() => {
           setSplitByAmount(false);
           onAction && onAction();
-        }} />
+        }}/>
       )}
 
       {cancelOrderOpen && (

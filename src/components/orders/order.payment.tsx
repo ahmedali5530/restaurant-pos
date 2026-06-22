@@ -5,7 +5,7 @@ import ScrollContainer from "react-indiana-drag-scroll";
 import React, {CSSProperties, useCallback, useEffect, useMemo, useState} from "react";
 import {OrderTimes} from "@/components/orders/order.times.tsx";
 import {calculateOrderGrandTotal, calculateOrderTotal} from "@/lib/cart.ts";
-import {cn, formatNumber, toRecordId, withCurrency} from "@/lib/utils.ts";
+import {cn, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {OrderPaymentReceiving} from "@/components/orders/payment/order.payment.receiving.tsx";
 import {OrderPaymentTax} from "@/components/orders/payment/order.payment.tax.tsx";
 import {Tax} from "@/api/model/tax.ts";
@@ -33,6 +33,7 @@ import {useSecurity} from "@/hooks/useSecurity.ts";
 import {nowSurrealDateTime, toJsDate} from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
+import {OrderItemName} from "@/components/common/order/order.item.tsx";
 
 interface Props {
   order: Order
@@ -591,6 +592,8 @@ export const OrderPayment = ({
     saveOrderProgress();
   }, [saveOrderProgress]);
 
+  const [{menuConfig: {showTotalInOrderCard, showModifierPriceInOrderCard, showModifiersInOrderCard, showQuantityInOrderCard, showPriceInOrderCard, showGroupsInOrderCard}}] = useAtom(appPage);
+
   return (
     <Modal
       title={t('title', {invoice: order.invoice_number})}
@@ -607,11 +610,23 @@ export const OrderPayment = ({
             <ScrollContainer className="gap-1 flex flex-col">
               <div className="overflow-ellipsis max-h-[250px]">
                 {getOrderFilteredItems(order).map(item => (
-                  <div className="flex gap-3 hover:bg-neutral-100" key={item.id}>
-                    <div className="flex-1 whitespace-break-spaces">{item.item.name}</div>
-                    <div className="text-right w-[50px] flex-shrink-0">{formatNumber(item.quantity)}</div>
-                    <div className="text-right w-[80px] flex-shrink-0">{formatNumber(item.price)}</div>
-                  </div>
+                  <OrderItemName
+                    item={item}
+                    showPrice={showPriceInOrderCard}
+                    showModifierPrice={showModifierPriceInOrderCard}
+                    showQuantity={showQuantityInOrderCard}
+                    showTotal={showTotalInOrderCard}
+                    showGroups={showGroupsInOrderCard}
+                    showModifiers={showModifiersInOrderCard}
+                  />
+                  // <div className="flex gap-3 hover:bg-neutral-100" key={item.id}>
+                  //   <div className="flex-1 whitespace-break-spaces">{item.item.name}</div>
+                  //   <div className="text-right w-[50px] flex-shrink-0">{formatNumber(item.quantity)}</div>
+                  //   <div className="text-right w-[80px] flex-shrink-0">{formatNumber(item.price)}</div>
+                  //   {showTotalInPaymentCard && (
+                  //     <div className="text-right w-[80px] flex-shrink-0">{formatNumber(item.quantity * item.price)}</div>
+                  //   )}
+                  // </div>
                 ))}
               </div>
             </ScrollContainer>
@@ -701,7 +716,10 @@ export const OrderPayment = ({
                 }
               });
             }}>
-              <div>{t('tabs.serviceCharges', {value: serviceCharge, unit: serviceChargeType === DiscountType.Percent ? '%' : ''})}{' '}
+              <div>{t('tabs.serviceCharges', {
+                value: serviceCharge,
+                unit: serviceChargeType === DiscountType.Percent ? '%' : ''
+              })}{' '}
                 <FontAwesomeIcon icon={faPencil}/></div>
               <div className="text-right">{withCurrency(serviceChargeAmount)}</div>
             </div>
@@ -720,7 +738,8 @@ export const OrderPayment = ({
                 }
               });
             }}>
-              <div>{t('tabs.tip', {value: tip, unit: tipType === DiscountType.Percent ? '%' : ''})} <FontAwesomeIcon icon={faPencil}/></div>
+              <div>{t('tabs.tip', {value: tip, unit: tipType === DiscountType.Percent ? '%' : ''})} <FontAwesomeIcon
+                icon={faPencil}/></div>
               <div className="text-right">{withCurrency(tipAmount)}</div>
             </div>
 

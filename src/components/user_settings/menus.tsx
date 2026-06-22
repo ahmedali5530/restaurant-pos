@@ -87,8 +87,6 @@ export const MenusSettings = () => {
         ? values.menus.map((item: { value: string }) => toRecordId(item.value))
         : [];
 
-      console.log(settingId)
-
       if(settingId){
         await db.merge(settingId, {
           key: 'menus',
@@ -123,7 +121,7 @@ export const MenusSettings = () => {
   };
 
   return (
-    <div className="shadow p-5 rounded bg-white">
+    <div className="shadow p-5 rounded-xl bg-white">
       <h2 className="text-xl font-semibold mb-1">{t('settings:menus.title')}</h2>
       <p className="text-sm text-neutral-500 mb-4"></p>
 

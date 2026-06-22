@@ -2,29 +2,39 @@ import { cn, formatNumber } from "@/lib/utils.ts";
 import React from "react";
 import { OrderItem, OrderItemModifier } from "@/api/model/order_item.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
+import {useAtom} from "jotai";
+import {appPage} from "@/store/jotai.ts";
 
 export const OrderItemName = ({
-  item, showGroups, showQuantity, showPrice, showModifierPrice
+  item, showGroups, showQuantity, showPrice, showModifierPrice, showTotal, showModifiers = true
 }: {
   item: OrderItem,
   showGroups?: boolean
   showQuantity?: boolean
   showPrice?: boolean
+  showTotal?: boolean
   showModifierPrice?: boolean
+  showModifiers?: boolean
 }) => {
+
   return (
     <div className="hover:bg-neutral-200 flex-1">
       <div className="pl-x flex text-lg gap-1" style={{
         '--padding': (item.level * 0.875) + 'rem'
       } as any}>
         <span className="flex-1">{item.item.name}</span>
-        {showQuantity && <span className="flex-0 w-[50px] text-right">{formatNumber(item.quantity)}</span>}
-        {showPrice && <span className="flex-0 w-[70px] text-right">{formatNumber(showModifierPrice ? item.price : calculateOrderItemPrice(item))}</span>}
+        <div className="flex gap-1 text-right">
+          {showQuantity && <span className="flex-0 w-[50px]">{formatNumber(item.quantity)}</span>}
+          {showPrice && <span className="flex-0 w-[70px]">{formatNumber(item.price)}</span>}
+          {showTotal && (
+            <span className="flex-0 w-[70px]">{formatNumber(item.price * item.quantity)}</span>
+          )}
+        </div>
       </div>
       {item.comments && (
         <span className="flex-1 text-sm italic text-danger-500">({item.comments})</span>
       )}
-      {item?.modifiers?.length > 0 && (
+      {showModifiers && item?.modifiers?.length > 0 && (
         <div className="pl-3 flex flex-col">
           {item?.modifiers?.map(modifier => (
             <OrderItemModifiers

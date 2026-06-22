@@ -16,7 +16,7 @@
   },
   "cache": {
     "title": "Cache",
-    "description": "Tamanho atual do cache por conjunto de dados.",
+    "description": "Armazena dados no navegador para operações mais rápidas.",
     "reload": "Recarregar cache",
     "orderTypes": "Tipos de pedido",
     "categories": "Categorias",
@@ -87,5 +87,19 @@
     "endTime": "Horário de término",
     "updated": "Configurações do ciclo de fechamento atualizadas",
     "saveDescription": "Salvar configurações do ciclo de fechamento"
+  },
+  "visibilityConfig": {
+    "title": "Configuração de visibilidade dos itens",
+    "description": "Atualize a configuração deste dispositivo para exibir ou ocultar colunas dos itens. Aplica-se somente a este dispositivo.",
+    "cart": "Carrinho",
+    "showTotalsInCart": "Exibir totais dos itens no carrinho",
+    "orders": "Pedidos",
+    "showTotalInOrderCard": "Exibir totais dos itens no cartão do pedido",
+    "showGroupsInOrderCard": "Exibir grupos dos itens no cartão do pedido",
+    "showQuantityInOrderCard": "Exibir quantidade dos itens no cartão do pedido",
+    "showPriceInOrderCard": "Exibir preço dos itens no cartão do pedido",
+    "showModifiersInOrderCard": "Exibir modificadores dos itens no cartão do pedido",
+    "showModifierPriceInOrderCard": "Exibir preço dos modificadores no cartão do pedido",
+    "showTotalInPaymentCard": "Exibir totais dos itens na caixa de pagamento"
   }
 }

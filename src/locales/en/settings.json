@@ -16,7 +16,7 @@
   },
   "cache": {
     "title": "Cache",
-    "description": "Current cache size by dataset.",
+    "description": "Stores data into browser for faster operations.",
     "reload": "Reload cache",
     "orderTypes": "Order types",
     "categories": "Categories",
@@ -87,5 +87,19 @@
     "endTime": "End time",
     "updated": "Closing cycle settings updated",
     "saveDescription": "Save closing cycle settings"
+  },
+  "visibilityConfig": {
+    "title": "Items visibility config",
+    "description": "Update config for this device for which columns for items you want to show or hide. Only applies to this device.",
+    "cart": "Cart",
+    "showTotalsInCart": "Show totals for items in cart item",
+    "orders": "Orders",
+    "showTotalInOrderCard": "Show totals for items in order card",
+    "showGroupsInOrderCard": "Show groups for items in order card",
+    "showQuantityInOrderCard": "Show quantity for items in order card",
+    "showPriceInOrderCard": "Show price for items in order card",
+    "showModifiersInOrderCard": "Show modifiers for items in order card",
+    "showModifierPriceInOrderCard": "Show modifier price for items in order card",
+    "showTotalInPaymentCard": "Show totals for items in payment box"
   }
 }

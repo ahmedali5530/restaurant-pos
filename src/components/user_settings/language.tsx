@@ -16,7 +16,7 @@ export const LanguageSettings = () => {
   const currentDirection: AppTextDirection = page.direction ?? 'ltr';
 
   return (
-    <div className="shadow p-5 rounded bg-white">
+    <div className="shadow p-5 rounded-xl bg-white">
       <div className="flex items-start mb-5">
         <div>
           <h2 className="text-xl font-semibold mb-1">{t('language.title')}</h2>

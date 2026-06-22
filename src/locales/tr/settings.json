@@ -16,7 +16,7 @@
   },
   "cache": {
     "title": "Önbellek",
-    "description": "Veri setine göre mevcut önbellek boyutu.",
+    "description": "Daha hızlı işlemler için verileri tarayıcıda saklar.",
     "reload": "Önbelleği yeniden yükle",
     "orderTypes": "Sipariş türleri",
     "categories": "Kategoriler",
@@ -87,5 +87,19 @@
     "endTime": "Bitiş saati",
     "updated": "Kapanış döngüsü ayarları güncellendi",
     "saveDescription": "Kapanış döngüsü ayarlarını kaydet"
+  },
+  "visibilityConfig": {
+    "title": "Ürün görünürlük ayarları",
+    "description": "Bu cihaz için hangi ürün sütunlarının gösterileceğini veya gizleneceğini ayarlayın. Yalnızca bu cihaza uygulanır.",
+    "cart": "Sepet",
+    "showTotalsInCart": "Sepetteki ürünlerin toplamlarını göster",
+    "orders": "Siparişler",
+    "showTotalInOrderCard": "Sipariş kartındaki ürünlerin toplamlarını göster",
+    "showGroupsInOrderCard": "Sipariş kartındaki ürün gruplarını göster",
+    "showQuantityInOrderCard": "Sipariş kartındaki ürün miktarını göster",
+    "showPriceInOrderCard": "Sipariş kartındaki ürün fiyatını göster",
+    "showModifiersInOrderCard": "Sipariş kartındaki ürün değiştiricilerini göster",
+    "showModifierPriceInOrderCard": "Sipariş kartındaki değiştirici fiyatını göster",
+    "showTotalInPaymentCard": "Ödeme kutusundaki ürünlerin toplamlarını göster"
   }
 }

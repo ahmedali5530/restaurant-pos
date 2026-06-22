@@ -66,6 +66,17 @@ export const appState = atomWithStorage<AppStateInterface>(
   }
 );
 
+export interface MenuConfigInterface {
+  showTotalInCart?: boolean
+
+  showTotalInOrderCard?: boolean
+  showGroupsInOrderCard?: boolean
+  showQuantityInOrderCard?: boolean
+  showPriceInOrderCard?: boolean
+  showModifierPriceInOrderCard?: boolean
+  showModifiersInOrderCard?: boolean
+}
+
 export interface AppPageInterface {
   page: string
   locked?: boolean
@@ -74,6 +85,8 @@ export interface AppPageInterface {
   touch?: boolean
   language?: string
   direction?: AppTextDirection
+
+  menuConfig?: MenuConfigInterface
 }
 
 export const appPage = atomWithStorage<AppPageInterface>(
@@ -83,6 +96,15 @@ export const appPage = atomWithStorage<AppPageInterface>(
     touch: true,
     language: 'en',
     direction: 'ltr',
+    menuConfig: {
+      showTotalInCart: false,
+      showTotalInOrderCard: false,
+      showGroupsInOrderCard: false,
+      showQuantityInOrderCard: false,
+      showPriceInOrderCard: false,
+      showModifierPriceInOrderCard: false,
+      showModifiersInOrderCard: false
+    }
   }
 );
 

@@ -8,20 +8,22 @@ import {MenusSettings} from "@/components/user_settings/menus.tsx";
 import {AutoCheckCloseSettingsCard} from "@/components/user_settings/auto_check_close.tsx";
 import {ClosingCycleSettingsCard} from "@/components/user_settings/closing_cycle.tsx";
 import {LanguageSettings} from "@/components/user_settings/language.tsx";
+import {ItemsVisibilityConfig} from "@/components/user_settings/items_visibility_config.tsx";
 
 export const Settings = () => {
 
   return (
-    <Layout containerClassName="p-5 gap-5 grid grid-cols-2">
+    <Layout containerClassName="p-5 gap-5 grid lg:grid-cols-3 md:grid-cols-2">
       <Printersettings />
-      <CacheSettings />
       <LanguageSettings />
+      <CacheSettings />
       <MenusSettings />
       <ServiceChargesSettings />
       <ClosingCycleSettingsCard />
       <AutoCheckCloseSettingsCard />
       <TouchSettings />
       <TableSelectionSettings />
+      <ItemsVisibilityConfig />
     </Layout>
   );
 }

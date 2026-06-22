@@ -16,7 +16,7 @@
   },
   "cache": {
     "title": "Cache",
-    "description": "Aktuelle Cache-Größe nach Datensatz.",
+    "description": "Speichert Daten im Browser für schnellere Operationen.",
     "reload": "Cache neu laden",
     "orderTypes": "Bestellarten",
     "categories": "Kategorien",
@@ -87,5 +87,19 @@
     "endTime": "Endzeit",
     "updated": "Abschlusszyklus-Einstellungen aktualisiert",
     "saveDescription": "Abschlusszyklus-Einstellungen speichern"
+  },
+  "visibilityConfig": {
+    "title": "Konfiguration der Artikelsichtbarkeit",
+    "description": "Konfiguration für dieses Gerät aktualisieren, welche Spalten für Artikel angezeigt oder ausgeblendet werden sollen. Gilt nur für dieses Gerät.",
+    "cart": "Warenkorb",
+    "showTotalsInCart": "Summen für Artikel im Warenkorb anzeigen",
+    "orders": "Bestellungen",
+    "showTotalInOrderCard": "Summen für Artikel in der Bestellkarte anzeigen",
+    "showGroupsInOrderCard": "Gruppen für Artikel in der Bestellkarte anzeigen",
+    "showQuantityInOrderCard": "Menge für Artikel in der Bestellkarte anzeigen",
+    "showPriceInOrderCard": "Preis für Artikel in der Bestellkarte anzeigen",
+    "showModifiersInOrderCard": "Modifikatoren für Artikel in der Bestellkarte anzeigen",
+    "showModifierPriceInOrderCard": "Modifikatorpreis für Artikel in der Bestellkarte anzeigen",
+    "showTotalInPaymentCard": "Summen für Artikel im Zahlungsfeld anzeigen"
   }
 }

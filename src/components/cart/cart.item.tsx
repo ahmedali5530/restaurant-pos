@@ -228,7 +228,7 @@ export const CartItem = ({ item, index }: Props) => {
             item.deleted_at ? 'line-through text-danger-500' : ''
           )
         }>
-          <CartItemName item={item} />
+          <CartItemName item={item} mainItem={item} />
         </div>
       </div>
       {isModifiersOpen && (

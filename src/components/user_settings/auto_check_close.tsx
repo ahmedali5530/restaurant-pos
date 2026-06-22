@@ -120,7 +120,7 @@ export const AutoCheckCloseSettingsCard = () => {
   }, [settings, paymentTypeOptions, reset]);
 
   return (
-    <div className="shadow p-5 rounded bg-white">
+    <div className="shadow p-5 rounded-xl bg-white">
       <h2 className="text-xl font-semibold mb-1">{t('settings:autoCheckClose.title')}</h2>
       <p className="text-sm text-neutral-500 mb-5">
         {t('settings:autoCheckClose.description')}
@@ -131,7 +131,7 @@ export const AutoCheckCloseSettingsCard = () => {
           description: t('settings:autoCheckClose.saveDescription'),
         })}
       >
-        <div className="grid grid-cols-2 gap-5 mb-5">
+        <div className="grid grid-cols-1 gap-5 mb-5">
           <Controller
             name="enabled"
             control={control}

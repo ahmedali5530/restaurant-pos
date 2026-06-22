@@ -16,6 +16,8 @@ import {
 } from "@/lib/modifier-groups.ts";
 import {Modifier} from "@/api/model/modifier.ts";
 import {DishModifierGroup} from "@/api/model/dish_modifier_group.ts";
+import {get} from 'idb-keyval'
+import {Tables} from "@/api/db/tables.ts";
 
 const dishImageCache = new Map<string, string>();
 
@@ -114,22 +116,28 @@ export const MenuDish = ({
 
     const loadImage = async () => {
       try {
-        const [photo] = await db.query(`SELECT * FROM ONLY ${dishPhotoId}`);
-        if (!photo?.content || !(photo.content instanceof ArrayBuffer)) {
-          if (!cancelled) {
-            setImageSrc(defaultImage);
+        const images = await get(Tables.documents);
+
+        if(Array.isArray(images)){
+          const photo = images.find(image => image.id.toString() === dishPhotoId);
+
+          if (!photo?.content || !(photo.content instanceof ArrayBuffer)) {
+            if (!cancelled) {
+              setImageSrc(defaultImage);
+            }
+            return;
           }
-          return;
+
+          const mimeType = detectMimeType(photo.content, "image/png");
+          const blob = new Blob([photo.content], {type: mimeType});
+          const objectUrl = URL.createObjectURL(blob);
+          dishImageCache.set(dishPhotoId, objectUrl);
+
+          if (!cancelled) {
+            setImageSrc(objectUrl);
+          }
         }
 
-        const mimeType = detectMimeType(photo.content, "image/png");
-        const blob = new Blob([photo.content], {type: mimeType});
-        const objectUrl = URL.createObjectURL(blob);
-        dishImageCache.set(dishPhotoId, objectUrl);
-
-        if (!cancelled) {
-          setImageSrc(objectUrl);
-        }
       } catch {
         if (!cancelled) {
           setImageSrc(defaultImage);
@@ -180,7 +188,7 @@ export const MenuDish = ({
               loading="lazy"
               src={imageSrc}
               alt={item.name}
-              className="rounded-xl rounded-r-none pointer-events-none h-full w-[90px] xl:w-[120px] object-contain"/>
+              className="rounded-xl rounded-r-none pointer-events-none h-full w-[80px] xl:w-[110px] object-cover"/>
           </div>
           <div className="flex flex-1 flex-col px-3 py-2">
             <span className="flex flex-row gap-2 mb-1">

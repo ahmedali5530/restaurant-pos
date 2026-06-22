@@ -16,7 +16,7 @@
   },
   "cache": {
     "title": "Cache",
-    "description": "Huidige cachegrootte per dataset.",
+    "description": "Slaat gegevens op in de browser voor snellere werking.",
     "reload": "Cache herladen",
     "orderTypes": "Bestellingstypes",
     "categories": "Categorieën",
@@ -87,5 +87,19 @@
     "endTime": "Eindtijd",
     "updated": "Afsluitingscyclus bijgewerkt",
     "saveDescription": "Afsluitingscyclus opslaan"
+  },
+  "visibilityConfig": {
+    "title": "Zichtbaarheid artikelen configureren",
+    "description": "Werk de configuratie voor dit apparaat bij om te bepalen welke kolommen voor artikelen worden weergegeven of verborgen. Geldt alleen voor dit apparaat.",
+    "cart": "Winkelwagen",
+    "showTotalsInCart": "Totalen voor artikelen in winkelwagen weergeven",
+    "orders": "Bestellingen",
+    "showTotalInOrderCard": "Totalen voor artikelen in orderkaart weergeven",
+    "showGroupsInOrderCard": "Groepen voor artikelen in orderkaart weergeven",
+    "showQuantityInOrderCard": "Hoeveelheid voor artikelen in orderkaart weergeven",
+    "showPriceInOrderCard": "Prijs voor artikelen in orderkaart weergeven",
+    "showModifiersInOrderCard": "Modifiers voor artikelen in orderkaart weergeven",
+    "showModifierPriceInOrderCard": "Modifierprijs voor artikelen in orderkaart weergeven",
+    "showTotalInPaymentCard": "Totalen voor artikelen in betalingsvenster weergeven"
   }
 }

@@ -18,6 +18,7 @@ import {Menu} from "@/api/model/menu.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {RecordId} from "surrealdb";
 import {useTranslation} from 'react-i18next';
+import {del, set, createStore} from 'idb-keyval'
 
 const toRows = <T, >(result: unknown): T[] => {
   return Array.isArray(result) ? result as T[] : [];
@@ -56,6 +57,7 @@ export const CacheSettings = () => {
         kitchensResult,
         paymentTypesResult,
         menuSettingsResult,
+        documentsResult
       ] = await Promise.all([
         db.query(`SELECT *
                   FROM ${Tables.order_types}
@@ -96,7 +98,8 @@ export const CacheSettings = () => {
         db.query(`SELECT values
                   FROM ${Tables.settings}
                   WHERE key = 'menus' AND is_global = true
-                  FETCH values`)
+                  FETCH values`),
+        db.query(`SELECT id, content from ${Tables.documents}`)
       ]);
 
       const selectedMenuIds = Array.isArray(menuSettingsResult?.[0]?.[0]?.values)
@@ -131,6 +134,14 @@ export const CacheSettings = () => {
         menus: toRows<Menu>(menusResult?.[0]),
       }));
 
+      // remove documents first
+      await del(Tables.documents);
+      // set documents in the indexdb database
+      await set(Tables.documents, (documentsResult?.[0] ?? []).map(item => ({
+        ...item,
+        id: item.id.toString(),
+      })));
+
       toast.success(t('cache.reloaded'));
     } catch (error) {
       console.error("Failed to reload cache:", error);
@@ -140,8 +151,12 @@ export const CacheSettings = () => {
     }
   };
 
+  const cacheSize = useMemo(() => {
+    return cacheStats.reduce((prev, item) => prev + item.count, 0);
+  }, [cacheStats]);
+
   return (
-    <div className="shadow p-5 rounded bg-white">
+    <div className="shadow p-5 rounded-xl bg-white">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-xl font-semibold mb-1">{t('cache.title')}</h2>
@@ -152,14 +167,11 @@ export const CacheSettings = () => {
         </Button>
       </div>
 
-      <div className="mt-4 grid grid-cols-1">
-        {cacheStats.map((item) => (
-          <div key={item.label} className="rounded border border-neutral-200 p-3 flex justify-between items-center">
-            <p className="text-sm text-neutral-500">{item.label}</p>
-            <p className="text-lg font-semibold">{item.count}</p>
-          </div>
-        ))}
-      </div>
+      {/*<div className="mt-4 grid grid-cols-1">*/}
+      {/*  <div className="rounded border border-neutral-200 p-3 flex justify-between items-center">*/}
+      {/*    <p className="text-xl font-semibold">{cacheSize}</p>*/}
+      {/*  </div>*/}
+      {/*</div>*/}
     </div>
   );
 };
