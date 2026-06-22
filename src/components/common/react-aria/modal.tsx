@@ -1,9 +1,12 @@
-import React, { FunctionComponent, PropsWithChildren, ReactNode, useEffect, useState, } from "react";
+import React, { FunctionComponent, PropsWithChildren, ReactNode, useCallback, useEffect, useState, } from "react";
 import { Dialog, Heading, Modal as ReactAriaModal, ModalOverlay } from 'react-aria-components';
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { cn } from "@/lib/utils.ts";
 import {createPortal} from "react-dom";
+
+const isReactAriaTopLayer = (element: Element) =>
+  !!element.closest('[data-react-aria-top-layer], .rs__menu-portal, .rs__menu');
 
 interface ModalProps extends PropsWithChildren {
   open?: boolean;
@@ -11,6 +14,7 @@ interface ModalProps extends PropsWithChildren {
   title?: ReactNode;
   shouldCloseOnOverlayClick?: boolean;
   shouldCloseOnEsc?: boolean;
+  shouldCloseOnInteractOutside?: (element: Element) => boolean;
   hideCloseButton?: boolean;
   transparentContainer?: boolean;
   header?: ReactNode;
@@ -41,6 +45,16 @@ export const Modal: FunctionComponent<ModalProps> = ({
     }
   };
 
+  const shouldCloseOnInteractOutside = useCallback(
+    (element: Element) => {
+      if (isReactAriaTopLayer(element)) {
+        return false;
+      }
+      return props.shouldCloseOnInteractOutside?.(element) ?? true;
+    },
+    [props.shouldCloseOnInteractOutside]
+  );
+
   return (
     <>
       {createPortal(
@@ -49,6 +63,7 @@ export const Modal: FunctionComponent<ModalProps> = ({
           isKeyboardDismissDisabled={props.shouldCloseOnEsc === undefined ? true : props.shouldCloseOnEsc}
           isOpen={open}
           onOpenChange={close}
+          shouldCloseOnInteractOutside={shouldCloseOnInteractOutside}
           className={
             cn(
               'react-aria-ModalOverlay',

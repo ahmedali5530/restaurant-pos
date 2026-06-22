@@ -16,7 +16,7 @@ import {
 import { AutoCloseCycleState} from "@/lib/closing-cycle.ts";
 import {useTranslation} from "react-i18next";
 
-const CHECK_INTERVAL_MS = 5_000;
+const CHECK_INTERVAL_MS = 30_000;
 
 interface AutoCheckCloseProviderProps {
   children: ReactNode;

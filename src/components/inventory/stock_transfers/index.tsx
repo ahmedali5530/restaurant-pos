@@ -226,7 +226,10 @@ export const InventoryStockTransfers = () => {
           <Button
             key="transfer-create"
             variant="primary"
-            onClick={() => setFormModal(true)}
+            onClick={() => {
+              setData(undefined);
+              setFormModal(true);
+            }}
             icon={faPlus}
           >
             {t("stockTransfer.create")}

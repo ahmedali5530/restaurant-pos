@@ -1,5 +1,9 @@
-import React from "react";
-import Select, {components as selectComponents, GroupBase, Props} from "react-select";
+import React, {ComponentProps, useLayoutEffect, useRef} from "react";
+import Select, {
+  components as selectComponents,
+  GroupBase,
+  Props,
+} from "react-select";
 import {Theme} from "react-select/dist/declarations/src/";
 import Spinner from "@/assets/images/spinner.svg";
 
@@ -45,6 +49,49 @@ const menuPortalZIndex = 1100;
 const defaultMenuPortalTarget =
   typeof document !== "undefined" ? document.body : undefined;
 
+const ensureTopLayerInteractive = (element: HTMLElement | null) => {
+  if (!element) return;
+  element.dataset.reactAriaTopLayer = "true";
+  element.inert = false;
+  element.removeAttribute("aria-hidden");
+};
+
+function TopLayerMenuPortal(props: ComponentProps<typeof selectComponents.MenuPortal> & {
+  Portal: typeof selectComponents.MenuPortal;
+}) {
+  const {Portal, ...menuPortalProps} = props;
+  const portalRef = useRef<HTMLDivElement | null>(null);
+  const {innerProps, ...rest} = menuPortalProps;
+
+  useLayoutEffect(() => {
+    ensureTopLayerInteractive(portalRef.current);
+  });
+
+  const setPortalRef = (node: HTMLDivElement | null) => {
+    portalRef.current = node;
+    const existingRef = innerProps?.ref;
+    if (typeof existingRef === "function") {
+      existingRef(node);
+    } else if (existingRef && typeof existingRef === "object") {
+      (existingRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+    }
+    if (node) {
+      ensureTopLayerInteractive(node);
+    }
+  };
+
+  return (
+    <Portal
+      {...rest}
+      innerProps={{
+        ...innerProps,
+        ref: setPortalRef,
+        "data-react-aria-top-layer": "true",
+      } as typeof innerProps}
+    />
+  );
+}
+
 export function ReactSelect<
   Option,
   IsMulti extends boolean = false,
@@ -62,6 +109,8 @@ export function ReactSelect<
     menuPortalTargetProp !== undefined
       ? menuPortalTargetProp
       : defaultMenuPortalTarget;
+
+  const BaseMenuPortal = componentsProp?.MenuPortal ?? selectComponents.MenuPortal;
 
   return (
     <Select
@@ -84,19 +133,12 @@ export function ReactSelect<
       classNamePrefix={classNamePrefix}
       components={{
         ...componentsProp,
-        MenuPortal: (menuPortalProps) => {
-          const Portal =
-            componentsProp?.MenuPortal ?? selectComponents.MenuPortal;
-          return (
-            <Portal
-              {...menuPortalProps}
-              innerProps={{
-                ...menuPortalProps.innerProps,
-                "data-react-aria-top-layer": "true",
-              } as typeof menuPortalProps.innerProps}
-            />
-          );
-        },
+        MenuPortal: (menuPortalProps) => (
+          <TopLayerMenuPortal
+            {...menuPortalProps}
+            Portal={BaseMenuPortal as typeof selectComponents.MenuPortal}
+          />
+        ),
         LoadingIndicator: componentsProp?.LoadingIndicator ?? LoadingIndicator,
       }}
     />

@@ -263,7 +263,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
         items: [createEmptyItem()],
       } as any);
     }
-  }, [data, open, reset, createEmptyItem]);
+  }, [data?.id, open, reset, createEmptyItem, data]);
 
   useEffect(() => {
     if (transferType !== "store" || !watchedFromStore?.value) {
@@ -291,25 +291,34 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
         setRowNetQuantities((prev) => ({...prev, [index]: value}));
       });
     });
-  }, [transferType, watchedFromStore?.value, watchedItems, db]);
+  }, [transferType, watchedFromStore?.value, watchedItems]);
 
-  const kitchenOptions =
-    kitchens?.data?.map((kitchen) => ({
-      label: kitchen.name,
-      value: toRecordIdString(kitchen.id),
-    })) ?? [];
+  const kitchenOptions = useMemo(
+    () =>
+      kitchens?.data?.map((kitchen) => ({
+        label: kitchen.name,
+        value: toRecordIdString(kitchen.id),
+      })) ?? [],
+    [kitchens]
+  );
 
-  const storeOptions =
-    stores?.data?.map((store) => ({
-      label: store.name,
-      value: toRecordIdString(store.id),
-    })) ?? [];
+  const storeOptions = useMemo(
+    () =>
+      stores?.data?.map((store) => ({
+        label: store.name,
+        value: toRecordIdString(store.id),
+      })) ?? [],
+    [stores]
+  );
 
-  const itemOptions =
-    items?.data?.map((item) => ({
-      label: `${item.name}-${item.code}`,
-      value: toRecordIdString(item.id),
-    })) ?? [];
+  const itemOptions = useMemo(
+    () =>
+      items?.data?.map((item) => ({
+        label: `${item.name}-${item.code}`,
+        value: toRecordIdString(item.id),
+      })) ?? [],
+    [items]
+  );
 
   const onSubmit = async (values: any) => {
     try {
@@ -420,6 +429,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
                     <ReactSelect
                       value={field.value}
                       onChange={field.onChange}
+                      onBlur={field.onBlur}
                       options={kitchenOptions}
                       isLoading={loadingKitchens}
                       isClearable
@@ -437,6 +447,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
                     <ReactSelect
                       value={field.value}
                       onChange={field.onChange}
+                      onBlur={field.onBlur}
                       options={kitchenOptions}
                       isLoading={loadingKitchens}
                       isClearable
@@ -457,6 +468,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
                     <ReactSelect
                       value={field.value}
                       onChange={field.onChange}
+                      onBlur={field.onBlur}
                       options={storeOptions}
                       isLoading={loadingStores}
                       isClearable
@@ -474,6 +486,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
                     <ReactSelect
                       value={field.value}
                       onChange={field.onChange}
+                      onBlur={field.onBlur}
                       options={storeOptions}
                       isLoading={loadingStores}
                       isClearable
@@ -536,6 +549,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
                       <ReactSelect
                         value={itemField.value}
                         onChange={itemField.onChange}
+                        onBlur={itemField.onBlur}
                         options={itemOptions}
                         isLoading={loadingItems}
                       />
