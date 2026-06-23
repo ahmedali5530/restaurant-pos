@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {SecurityAction, SecurityManager} from '@/providers/security.provider';
-import QRCode from "react-qr-code";
+import {ReactQrCode} from '@/lib/react-qr-code.tsx';
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {useAtom} from "jotai";
@@ -151,7 +151,7 @@ export const QrCodeAuth: React.FC<QrCodeAuthProps> = ({
 
         <div className="mx-auto flex items-center justify-center mb-4">
           {token && (
-            <QRCode value={`posr-auth://${token}`}/>
+            <ReactQrCode value={`posr-auth://${token}`}/>
           )}
         </div>
       </div>

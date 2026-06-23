@@ -1,4 +1,4 @@
-import QRCode from "react-qr-code";
+import { ReactQrCode } from '@/lib/react-qr-code.tsx';
 
 type Props = {
   value: string;
@@ -11,7 +11,7 @@ export function TelebirrQrDisplay({ value, amount }: Props) {
   return (
     <div className="flex flex-col items-center gap-2 py-2">
       <div className="bg-white p-3 rounded border border-neutral-200">
-        <QRCode value={value} size={160} />
+        <ReactQrCode value={value} size={160} />
       </div>
       {amount !== undefined && (
         <span className="text-sm font-medium">Amount: {amount.toFixed(2)} ETB</span>
