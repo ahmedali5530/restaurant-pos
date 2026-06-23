@@ -103,5 +103,31 @@ export const resolveNaturalDateRange = ({phrase}: {phrase: string}): DateRangeFi
     };
   }
 
-  throw new Error(`Could not resolve date range for phrase: "${phrase}". Try "yesterday", "today", "this week", "last week", "this month", or "last month".`);
+  if (normalized === "last 7 days" || normalized.includes("last 7 days") || normalized.includes("past 7 days")) {
+    return {
+      startDate: formatDateTimeForQuery(now.minus({days: 6}).startOf("day")),
+      endDate: formatDateTimeForQuery(now.endOf("day")),
+    };
+  }
+
+  if (normalized === "last 30 days" || normalized.includes("last 30 days") || normalized.includes("past 30 days")) {
+    return {
+      startDate: formatDateTimeForQuery(now.minus({days: 29}).startOf("day")),
+      endDate: formatDateTimeForQuery(now.endOf("day")),
+    };
+  }
+
+  const quarterMatch = normalized.match(/q([1-4])\s*(\d{4})?/);
+  if (quarterMatch) {
+    const quarter = Number(quarterMatch[1]);
+    const year = quarterMatch[2] ? Number(quarterMatch[2]) : now.year;
+    const startMonth = (quarter - 1) * 3 + 1;
+    const start = DateTime.fromObject({year, month: startMonth, day: 1}, {zone: getAppTimezone()});
+    return {
+      startDate: formatDateTimeForQuery(start.startOf("month")),
+      endDate: formatDateTimeForQuery(start.plus({months: 2}).endOf("month")),
+    };
+  }
+
+  throw new Error(`Could not resolve date range for phrase: "${phrase}". Try "yesterday", "today", "this week", "last week", "last 7 days", "last 30 days", "this month", "last month", or "Q1 2026".`);
 };

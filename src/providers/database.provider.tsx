@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useMemo, useCallback, useS
 import { useMutation } from "@tanstack/react-query";
 import { Surreal } from "surrealdb";
 import { DB_REST_DB, DB_REST_NS, DB_REST_PASS, DB_REST_USER, withApi } from "@/api/db/settings.ts";
+import { PageLoader } from "@/components/common/loader/page-loader.tsx";
 import { useTranslation } from "react-i18next";
 
 export interface DatabaseProviderState {
@@ -34,7 +35,6 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
   autoConnect = true 
 }) => {
   const { t } = useTranslation('common');
-  // Surreal instance remains stable across re-renders (created once)
   const [surrealInstance] = useState(() => new Surreal());
 
   // React Query mutation for connecting to Surreal
@@ -132,14 +132,7 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
 
   // Show loading state while connecting
   if (isPending || !isSuccess) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-neutral-300 border-t-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">{t('database.connecting')}</p>
-        </div>
-      </div>
-    );
+    return <PageLoader/>;
   }
 
   // Only render children when connection is successful

@@ -1,18 +1,19 @@
 import {useState} from "react";
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from "react-i18next";
 import {REPORTS_AI} from "@/routes/posr.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {Textarea} from "@/components/common/input/textarea.tsx";
+import {AiExamplePrompts} from "@/components/reports/ai/ai.example.prompts.tsx";
+import {AiFormatSelector} from "@/components/reports/ai/ai.format.selector.tsx";
 import {
   type AiReportFormat,
   loadAiReportFormat,
   saveAiReportFormat,
   saveAiReportPrompt,
 } from "@/lib/ai.report.storage.ts";
-import {faList, faTable} from "@fortawesome/free-solid-svg-icons";
 
 export const AiReportFilter = () => {
-  const { t } = useTranslation('reports');
+  const {t} = useTranslation("reports");
   const [prompt, setPrompt] = useState("");
   const [format, setFormat] = useState<AiReportFormat>(() => loadAiReportFormat());
 
@@ -34,40 +35,22 @@ export const AiReportFilter = () => {
   return (
     <div className="flex flex-col gap-3 items-start w-full">
       <label className="text-sm text-gray-600 w-full">
-        Prompt
+        {t("filters.prompt")}
         <Textarea
           className="mt-1 min-h-40 w-full"
-          placeholder={t('filters.aiPrompt')}
+          placeholder={t("filters.aiPrompt")}
           value={prompt}
-          onChange={(event) => setPrompt(event.currentTarget.value)}
+          onChange={event => setPrompt(event.currentTarget.value)}
           enableKeyboard={false}
         />
       </label>
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm text-gray-600">{t('filters.format')}</span>
-        <Button
-          variant="primary"
-          size="sm"
-          icon={faList}
-          active={format === "list"}
-          filled={format === "list"}
-          onClick={() => handleFormatChange("list")}
-        >
-          List
-        </Button>
-        <Button
-          variant="primary"
-          size="sm"
-          icon={faTable}
-          active={format === "table"}
-          filled={format === "table"}
-          onClick={() => handleFormatChange("table")}
-        >
-          Table
-        </Button>
-      </div>
+
+      <AiExamplePrompts onSelect={setPrompt}/>
+
+      <AiFormatSelector format={format} onChange={handleFormatChange} size="md"/>
+
       <Button variant="primary" filled onClick={handleRun} disabled={!prompt.trim()}>
-        Run
+        {t("filters.run")}
       </Button>
     </div>
   );

@@ -1,6 +1,9 @@
 const apiUrl = import.meta.env.VITE_OPENAI_API_URL as string | undefined;
+const proxyUrl = import.meta.env.VITE_OPENAI_PROXY_URL as string | undefined;
 const apiKey = import.meta.env.VITE_OPENAI_API_KEY as string | undefined;
 const model = (import.meta.env.VITE_OPENAI_MODEL as string | undefined) || "gpt-4o-mini";
+
+const resolveApiUrl = () => proxyUrl || apiUrl;
 
 const isAzureUrl = (url: string) => url.includes("openai.azure.com");
 
@@ -36,14 +39,14 @@ export interface OpenAIChatResponse {
   }[];
 }
 
-const getHeaders = () => {
+const getHeaders = (url: string) => {
   if (!apiKey) {
     throw new Error("OpenAI API key is not configured. Set VITE_OPENAI_API_KEY in your environment.");
   }
 
   return {
     "Content-Type": "application/json",
-    ...(isAzureUrl(apiUrl!)
+    ...(isAzureUrl(url)
       ? {"api-key": apiKey}
       : {Authorization: `Bearer ${apiKey}`}),
   };
@@ -56,8 +59,9 @@ export const callOpenAIChat = async ({
   messages: OpenAIChatMessage[];
   tools?: OpenAIToolDefinition[];
 }): Promise<OpenAIChatResponse> => {
-  if (!apiUrl) {
-    throw new Error("OpenAI API URL is not configured. Set VITE_OPENAI_API_URL in your environment.");
+  const resolvedUrl = resolveApiUrl();
+  if (!resolvedUrl) {
+    throw new Error("OpenAI API URL is not configured. Set VITE_OPENAI_API_URL or VITE_OPENAI_PROXY_URL in your environment.");
   }
 
   const body: Record<string, unknown> = {model, messages};
@@ -66,9 +70,9 @@ export const callOpenAIChat = async ({
     body.tool_choice = "auto";
   }
 
-  const response = await fetch(apiUrl, {
+  const response = await fetch(resolvedUrl, {
     method: "POST",
-    headers: getHeaders(),
+    headers: getHeaders(resolvedUrl),
     body: JSON.stringify(body),
   });
 

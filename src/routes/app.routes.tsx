@@ -1,10 +1,20 @@
-import {Suspense} from "react";
 import {Route, Routes} from "react-router";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faSpinner} from "@fortawesome/free-solid-svg-icons";
 import {Login} from "@/screens/login.tsx";
 import {NotFound} from "@/screens/not-found.tsx";
+import {Menu} from "@/screens/menu";
+import {Orders} from "@/screens/orders.tsx";
+import {Summary} from "@/screens/summary.tsx";
+import {Closing} from "@/screens/closing.tsx";
+import {KitchenScreen} from "@/screens/kitchen.tsx";
+import {Index as Delivery} from "@/screens/delivery/";
+import {Admin} from "@/screens/admin";
+import {Reports} from "@/screens/reports/";
+import {Settings} from "@/screens/settings.tsx";
+import {Clock} from "@/screens/clock.tsx";
+import {Inventory} from "@/screens/inventory/";
+import {TipDistributionScreen} from "@/screens/tip.distribution.tsx";
 import {ProtectedRoute} from "@/routes/protected-route.tsx";
+import {SuspenseOutlet} from "@/routes/suspense-outlet.tsx";
 import {
   ADMIN,
   CLOCK,
@@ -62,31 +72,23 @@ import {
 } from "@/routes/posr.ts";
 import {
   ActivityReport,
-  Admin,
   AiReport,
   AuditReport,
   BuffetReport,
   CashClosingReport,
-  Clock,
-  Closing,
   ConsumptionReport,
   CouponReport,
   CurrentInventoryReport,
-  Delivery,
   DeliveryDensityReport,
   DetailedInventoryReport,
   DiscountsReport,
   ExpenseReport,
-  Inventory,
   InventoryDashboardReport,
   IssueReport,
   IssueReturnReport,
   KitchenReconciliationReport,
-  KitchenScreen,
-  Menu,
   MergeOrdersReport,
   OrderLifecycleReport,
-  Orders,
   ProductHourlyReport,
   ProductListReport,
   ProductMixSummaryReport,
@@ -94,7 +96,6 @@ import {
   ProductionReport,
   PurchaseReport,
   PurchaseReturnReport,
-  Reports,
   SaleVsConsumptionReport,
   SalesAdvancedReport,
   SalesDashboardReport,
@@ -104,41 +105,32 @@ import {
   SalesSummary2Report,
   SalesSummaryReport,
   SalesWeeklyReport,
-  Settings,
   SplitOrdersReport,
-  Summary,
   TablesSummaryReport,
   TaxReport,
-  TipDistributionScreen,
   TipsReport,
   VoidsReport,
   WasteReport,
 } from "@/routes/lazy-screens.ts";
 
-const RouteFallback = () => (
-  <div className="flex h-screen items-center justify-center bg-neutral-900">
-    <FontAwesomeIcon icon={faSpinner} spin size="3x" className="text-neutral-400"/>
-  </div>
-);
-
 export const AppRoutes = () => (
-  <Suspense fallback={<RouteFallback/>}>
-    <Routes>
-      <Route path={LOGIN} element={<Login/>}/>
-      <Route element={<ProtectedRoute/>}>
-        <Route path={MENU} element={<Menu/>}/>
-        <Route path={ORDERS} element={<Orders/>}/>
-        <Route path={SUMMARY} element={<Summary/>}/>
-        <Route path={CLOSING} element={<Closing/>}/>
-        <Route path={KITCHEN} element={<KitchenScreen/>}/>
-        <Route path={DELIVERY} element={<Delivery/>}/>
-        <Route path={ADMIN} element={<Admin/>}/>
-        <Route path={SETTINGS} element={<Settings/>}/>
-        <Route path={CLOCK} element={<Clock/>}/>
-        <Route path={INVENTORY} element={<Inventory/>}/>
-        <Route path={TIP_DISTRIBUTION} element={<TipDistributionScreen/>}/>
+  <Routes>
+    <Route path={LOGIN} element={<Login/>}/>
+    <Route element={<ProtectedRoute/>}>
+      <Route path={MENU} element={<Menu/>}/>
+      <Route path={ORDERS} element={<Orders/>}/>
+      <Route path={SUMMARY} element={<Summary/>}/>
+      <Route path={CLOSING} element={<Closing/>}/>
+      <Route path={KITCHEN} element={<KitchenScreen/>}/>
+      <Route path={DELIVERY} element={<Delivery/>}/>
+      <Route path={ADMIN} element={<Admin/>}/>
+      <Route path={SETTINGS} element={<Settings/>}/>
+      <Route path={CLOCK} element={<Clock/>}/>
+      <Route path={INVENTORY} element={<Inventory/>}/>
+      <Route path={TIP_DISTRIBUTION} element={<TipDistributionScreen/>}/>
+      <Route path={REPORTS} element={<Reports/>}/>
 
-        <Route path={REPORTS} element={<Reports/>}/>
+      <Route element={<SuspenseOutlet/>}>
         <Route path={REPORTS_SALES_DASHBOARD} element={<SalesDashboardReport/>}/>
         <Route path={REPORTS_INVENTORY_DASHBOARD} element={<InventoryDashboardReport/>}/>
         <Route path={REPORTS_AUDIT} element={<AuditReport/>}/>
@@ -180,7 +172,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_PRODUCTION} element={<ProductionReport/>}/>
         <Route path={REPORTS_BUFFET} element={<BuffetReport/>}/>
       </Route>
-      <Route path="*" element={<NotFound/>}/>
-    </Routes>
-  </Suspense>
+    </Route>
+    <Route path="*" element={<NotFound/>}/>
+  </Routes>
 );

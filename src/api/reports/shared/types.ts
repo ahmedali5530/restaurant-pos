@@ -1,7 +1,7 @@
 import type {useDB} from "@/api/db/db.ts";
 import type {DayPartLabel} from "@/utils/dayParts";
 
-export type DbClient = ReturnType<typeof useDB>;
+export type DbClient = Pick<ReturnType<typeof useDB>, "query">;
 
 export interface DateRangeFilter {
   startDate?: string;
