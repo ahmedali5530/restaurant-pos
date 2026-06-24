@@ -3,6 +3,10 @@ import type {OpenAIToolDefinition} from "@/lib/openai.service.ts";
 const dateRangeProps = {
   startDate: {type: "string", description: "Optional start datetime in DB format"},
   endDate: {type: "string", description: "Optional end datetime in DB format"},
+  phrase: {
+    type: "string",
+    description: 'Optional date phrase such as "today", "yesterday", "this week". Use when startDate/endDate are not set.',
+  },
 };
 
 export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
@@ -105,7 +109,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_discount_summary",
-      description: "Get discount usage summary from paid orders.",
+      description: "Get discount usage summary from paid orders including order-level and line-level discounts. For 'today' or other periods, pass phrase or call resolve_date_range first.",
       parameters: {type: "object", properties: dateRangeProps},
     },
   },
@@ -237,8 +241,35 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
   {
     type: "function",
     function: {
+      name: "get_orders",
+      description: "List orders filtered by status and/or delivery channel. For delivery orders use deliveryOnly=true. 'Pending delivery orders' means delivery orders awaiting fulfillment (status Pending or In Progress), NOT a date phrase.",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateRangeProps,
+          deliveryOnly: {
+            type: "boolean",
+            description: "When true, only orders with a delivery object (online/delivery channel)",
+          },
+          statuses: {
+            type: "array",
+            items: {type: "string"},
+            description: 'Order statuses to include, e.g. ["In Progress"], ["Paid"]. Pass status here — "in progress" is a status, NOT a date phrase.',
+          },
+          status: {
+            type: "string",
+            description: 'Single order status, e.g. "In Progress"',
+          },
+          limit: {type: "number", description: "Max orders to return", default: 50},
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "get_order_lifecycle",
-      description: "Get merge and split order statistics.",
+      description: "Get merge and split order statistics only — NOT for listing orders by status. Use get_orders instead.",
       parameters: {type: "object", properties: dateRangeProps},
     },
   },

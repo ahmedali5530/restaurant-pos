@@ -17,4 +17,5 @@ export const AI_EXAMPLE_PROMPTS: AiExamplePrompt[] = [
   {category: "charts", prompt: "Forecast net sales for the next 7 days"},
   {category: "analysis", prompt: "Compare net sales this week vs last week"},
   {category: "analysis", prompt: "Give me a quick business health overview"},
+  {category: "analysis", prompt: "Show me orders with in progress status"},
 ];

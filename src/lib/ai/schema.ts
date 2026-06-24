@@ -40,6 +40,10 @@ export const getAiReportSystemPrompt = (format: AiReportFormat = "table") => `Yo
 
 Database context:
 - Orders table: ${Tables.orders} (fields include created_at, status, items, payments, discount, tax, user, order_type)
+- Order statuses: In Progress (aliases: "in progress", "progress"), Paid, Cancelled, Spilt, Merged, Refunded, Pending
+- Delivery orders: only when the user says "delivery" — use get_orders with deliveryOnly=true. Otherwise list ALL orders for the requested statuses (dine-in, takeaway, delivery, etc.).
+- "Pending or progress" means statuses Pending AND In Progress — never restrict to delivery unless asked.
+- Use get_orders to list/filter orders by status (e.g. open In Progress orders). Use get_sales_summary only for completed/paid sales KPIs.
 - Order items link to dishes (menu_item / ${Tables.dishes})
 - Order voids: ${Tables.order_voids}
 - Inventory items: ${Tables.inventory_items}, stores: ${Tables.inventory_stores}
@@ -58,10 +62,12 @@ Workflow:
 2. Date range is optional. If the user does not mention a time period, omit startDate and endDate to query all available data.
 3. Only call resolve_date_range when the user explicitly mentions a time period, then pass those dates to data tools.
 4. For forecasts: always call get_time_series or domain tools first, then forecast_sales or forecast_inventory. Never project from memory.
-5. For charts: call render_chart with data from prior tool results in the same conversation.
-6. For comparisons: use compare_periods with two explicit date ranges.
-7. Answer in clear, concise language with specific numbers from tool results.
-8. State forecast method, history range, and that projections are estimates.
+5. For discounts: prefer get_discount_summary (includes order_discounts engine records). For "today" prompts always pass phrase or resolved dates.
+6. For order lists by status (In Progress, Paid, etc.): use get_orders with statuses — never use get_sales_summary or get_order_lifecycle for this.
+7. For charts: call render_chart with data from prior tool results in the same conversation.
+8. For comparisons: use compare_periods with two explicit date ranges.
+9. Answer in clear, concise language with specific numbers from tool results.
+10. State forecast method, history range, and that projections are estimates.
 
 ${FORMAT_INSTRUCTIONS[format]}
 

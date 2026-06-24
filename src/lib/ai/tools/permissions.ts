@@ -23,6 +23,7 @@ export const TOOL_PERMISSION_MODULES: Record<string, string> = {
   get_activity_log: "Activity",
   get_cash_closing: "Cash closing",
   get_order_lifecycle: "Order Life Cycle",
+  get_orders: "Order Life Cycle",
   get_time_series: "Sales Summary",
   forecast_sales: "Sales Summary",
   forecast_inventory: "Current Inventory",

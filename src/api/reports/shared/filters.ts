@@ -131,3 +131,28 @@ export const resolveNaturalDateRange = ({phrase}: {phrase: string}): DateRangeFi
 
   throw new Error(`Could not resolve date range for phrase: "${phrase}". Try "yesterday", "today", "this week", "last week", "last 7 days", "last 30 days", "this month", "last month", or "Q1 2026".`);
 };
+
+/** Merge explicit dates with an optional natural-language phrase when dates are omitted. */
+export const parseDateRangeWithPhrase = (
+  args: {startDate?: unknown; endDate?: unknown; phrase?: unknown},
+): DateRangeFilter => {
+  const hasStart = args.startDate !== undefined && args.startDate !== null && String(args.startDate).trim() !== "";
+  const hasEnd = args.endDate !== undefined && args.endDate !== null && String(args.endDate).trim() !== "";
+
+  if (hasStart || hasEnd) {
+    const range: DateRangeFilter = {};
+    if (hasStart) {
+      range.startDate = normalizeQueryDate(String(args.startDate));
+    }
+    if (hasEnd) {
+      range.endDate = normalizeQueryDate(String(args.endDate));
+    }
+    return range;
+  }
+
+  if (args.phrase) {
+    return resolveNaturalDateRange({phrase: String(args.phrase)});
+  }
+
+  return {};
+};

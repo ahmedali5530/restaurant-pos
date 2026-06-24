@@ -1,6 +1,7 @@
-import {normalizeQueryDate, resolveNaturalDateRange} from "@/api/reports/shared/filters.ts";
+import {normalizeQueryDate, parseDateRangeWithPhrase, resolveNaturalDateRange} from "@/api/reports/shared/filters.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 import {getProductMix, getSalesSummary, getTopSellingDishes} from "@/api/reports/sales";
+import {getDiscountSummary} from "@/api/reports/sales/discounts.ts";
 import {
   getHourlyProductSales,
   getOrderFinanceSummary,
@@ -22,6 +23,8 @@ import {
   listInventoryItems,
   type InventoryMovementType,
 } from "@/api/reports/inventory/index.ts";
+import {getOrders} from "@/api/reports/operations/orders.ts";
+import {extractOrderStatusesFromArgs, inferOrderStatusesFromPrompt, isOrderListByStatusPrompt} from "@/lib/ai/order-query.ts";
 import {
   getActivityLog,
   getCashClosing,
@@ -80,7 +83,7 @@ export const executeAiReportTool = async (
     }
 
     case "get_sales_summary": {
-      const summary = await getSalesSummary(db, parseOptionalDateRangeArgs(args));
+      const summary = await getSalesSummary(db, parseDateRangeWithPhrase(args));
 
       return {
         totalNetSales: summary.totalNetSales,
@@ -147,10 +150,7 @@ export const executeAiReportTool = async (
       });
 
     case "get_discount_summary":
-      return getOrderFinanceSummary(db, {
-        ...parseOptionalDateRangeArgs(args),
-        metric: "discount_amount",
-      });
+      return getDiscountSummary(db, parseDateRangeWithPhrase(args));
 
     case "get_coupon_summary":
       return getOrderFinanceSummary(db, {
@@ -209,6 +209,14 @@ export const executeAiReportTool = async (
 
     case "get_cash_closing":
       return getCashClosing(db, {date: args.date ? String(args.date) : undefined});
+
+    case "get_orders":
+      return getOrders(db, {
+        ...parseOptionalDateRangeArgs(args),
+        statuses: extractOrderStatusesFromArgs(args),
+        deliveryOnly: args.deliveryOnly === true || args.deliveryOnly === "true",
+        limit: args.limit ? Number(args.limit) : 50,
+      });
 
     case "get_order_lifecycle":
       return getOrderLifecycleStats(db, parseOptionalDateRangeArgs(args));

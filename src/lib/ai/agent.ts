@@ -1,8 +1,10 @@
 import type {DbClient} from "@/api/reports/shared/types.ts";
+import {getOrders} from "@/api/reports/operations/orders.ts";
 import type {AiChartSpec} from "@/lib/ai/charts.ts";
 import {dedupeCharts} from "@/lib/ai/charts.ts";
 import {buildAutoChartsFromToolResults} from "@/lib/ai/auto-charts.ts";
 import type {AiReportFormat} from "@/lib/ai.report.storage.ts";
+import {isOrderListByStatusPrompt, resolveOrderListQueryFromPrompt} from "@/lib/ai/order-query.ts";
 import {getAiReportSystemPrompt} from "@/lib/ai/schema.ts";
 import {executeAiReportTool} from "@/lib/ai/tools/executor.ts";
 import {AI_REPORT_TOOLS} from "@/lib/ai/tools/definitions.ts";
@@ -44,7 +46,6 @@ export const runAiReportAgent = async (
     ...(options.conversationHistory ?? []).flatMap(entry => [
       {role: entry.role, content: entry.content} as OpenAIChatMessage,
     ]),
-    {role: "user", content: trimmedPrompt},
   ];
 
   const toolsUsed: AiReportAgentResult["toolsUsed"] = [];
@@ -58,6 +59,33 @@ export const runAiReportAgent = async (
     }
     return {answer, toolsUsed, charts: dedupeCharts(charts)};
   };
+
+  if (isOrderListByStatusPrompt(trimmedPrompt)) {
+    const {statuses, deliveryOnly} = resolveOrderListQueryFromPrompt(trimmedPrompt);
+    const data = await getOrders(db, {statuses, deliveryOnly});
+    toolsUsed.push({name: "get_orders", args: {statuses, deliveryOnly}});
+    toolResults.push({name: "get_orders", result: data});
+
+    const response = await callOpenAIChat({
+      messages: [
+        ...messages,
+        {
+          role: "user",
+          content: `${trimmedPrompt}\n\nget_orders returned ${data.totalCount} order(s), overallGrandTotal=${data.overallGrandTotal}:\n${JSON.stringify(data)}\n\nInclude invoice numbers, per-order grandTotal, and overallGrandTotal in your answer.`,
+        },
+      ],
+      tools: [],
+    });
+
+    const answer = response.choices[0]?.message?.content?.trim();
+    if (!answer) {
+      throw new Error("OpenAI returned an empty response.");
+    }
+
+    return finish(answer);
+  }
+
+  messages.push({role: "user", content: trimmedPrompt});
 
   for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
     const response = await callOpenAIChat({messages, tools});

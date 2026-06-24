@@ -8,6 +8,7 @@ import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
+import {getOrderDiscountTotal, orderHasDiscount} from "@/api/reports/sales/discounts.ts";
 
 type MetricKey = "discount_amount" | "tax_amount" | "coupon_discount";
 
@@ -29,6 +30,9 @@ const safeNumber = (value: unknown) => {
 const getMetricAmount = (order: Order, metric: MetricKey) => {
   if (metric === "coupon_discount") {
     return safeNumber(order.coupon?.discount);
+  }
+  if (metric === "discount_amount") {
+    return getOrderDiscountTotal(order);
   }
   return safeNumber((order as any)?.[metric]);
 };
@@ -85,7 +89,7 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
 
         if (metric === "coupon_discount") {
           conditions.push(`coupon != NONE`);
-        } else {
+        } else if (metric !== "discount_amount") {
           conditions.push(`${metric} > 0`);
         }
 
@@ -108,11 +112,17 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
           SELECT * FROM ${Tables.orders}
           WHERE ${conditions.join(" AND ")}
           ORDER BY created_at DESC
-          FETCH user, cashier, coupon, coupon.coupon, tax, discount
+          FETCH user, cashier, coupon, coupon.coupon, tax, discount, items, order_discounts, order_discounts.discount
         `;
 
         const [result] = await queryRef.current(query, params);
-        setOrders((result || []) as Order[]);
+        let fetchedOrders = (result || []) as Order[];
+
+        if (metric === "discount_amount") {
+          fetchedOrders = fetchedOrders.filter(orderHasDiscount);
+        }
+
+        setOrders(fetchedOrders);
       } catch (err) {
         console.error(`Failed to load ${title}`, err);
         setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
@@ -165,7 +175,7 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
               const gross = calculateGross(order);
               const metricAmount = getMetricAmount(order, metric);
               const net = gross + safeNumber(order.tax_amount) + safeNumber(order.service_charge_amount) + safeNumber(order.tip_amount)
-                - safeNumber(order.discount_amount) - safeNumber(order.coupon?.discount);
+                - getOrderDiscountTotal(order) - safeNumber(order.coupon?.discount);
               const cashierName = `${(order.cashier as any)?.first_name || (order.user as any)?.first_name || ""} ${(order.cashier as any)?.last_name || (order.user as any)?.last_name || ""}`.trim();
 
               return (
