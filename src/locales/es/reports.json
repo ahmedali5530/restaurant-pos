@@ -52,7 +52,13 @@
     "waste": "Desperdicio",
     "consumption": "Consumo",
     "saleVsInventory": "Venta vs inventario",
-    "kitchenReconciliation": "Kitchen Reconciliation"
+    "kitchenReconciliation": "Kitchen Reconciliation",
+    "transferIn": "Transferencia entrante",
+    "transferOut": "Transferencia saliente",
+    "productionIn": "Entrada de producción",
+    "productionOut": "Salida de producción",
+    "productionReport": "Informe de producción",
+    "buffetReport": "Informe de buffet"
   },
   "titles": {
     "aiReport": "Informe de IA",
@@ -93,7 +99,9 @@
     "consumption": "Informe de consumo",
     "saleVsConsumption": "Informe de venta vs consumo",
     "tablesSummary": "Resumen de mesas",
-    "kitchenReconciliation": "Kitchen Reconciliation Report"
+    "kitchenReconciliation": "Kitchen Reconciliation Report",
+    "productionReport": "Informe de producción / rendimiento",
+    "buffetReport": "Informe de rentabilidad de buffet"
   },
   "layout": {
     "print": "Imprimir",
@@ -134,7 +142,24 @@
     "list": "Lista",
     "table": "Tabla",
     "run": "Ejecutar",
-    "unnamedUser": "Usuario sin nombre"
+    "unnamedUser": "Usuario sin nombre",
+    "aiPromptEmpty": "El mensaje no puede estar vacío.",
+    "aiRunFailed": "Error al ejecutar el informe de IA.",
+    "aiFetching": "Obteniendo {{tool}}...",
+    "aiRunning": "Ejecutando informe de IA...",
+    "aiResponse": "Respuesta",
+    "aiExamples": "Ejemplos de mensajes",
+    "aiDataUsed": "Datos utilizados ({{count}} herramientas)",
+    "aiHistory": "Mensajes recientes ({{count}})",
+    "prompt": "Mensaje",
+    "chart": "Gráfico",
+    "analysis": "Análisis",
+    "aiCategory": {
+      "sales": "Ventas",
+      "inventory": "Inventario",
+      "charts": "Gráficos y pronósticos",
+      "analysis": "Análisis"
+    }
   },
   "datePresets": {
     "today": "Hoy",
@@ -300,7 +325,41 @@
     "kitchenCompletion": "Completado en cocina",
     "orderPayment": "Pago del pedido",
     "chart": "Gráfico",
-    "default": "Predeterminado"
+    "default": "Predeterminado",
+    "kitchenReconciliationCount": "Conciliaciones",
+    "kitchenReconciliationVerified": "Verificadas",
+    "kitchenReconciliationDraft": "Borrador",
+    "kitchenReconciliationMissed": "Omitidas",
+    "kitchenReconciliationTotalVariance": "Variación total",
+    "kitchenReconciliationHeaders": "Resumen de conciliación",
+    "kitchenReconciliationDetails": "Detalles de líneas",
+    "kitchenReconciliationNoResults": "No se encontraron conciliaciones para los filtros seleccionados",
+    "kitchenReconciliationLatest": "Últimas conciliaciones de cocina",
+    "kitchenReconciliationVarianceTrend": "Variación de cocina por fecha comercial",
+    "kitchenReconciliationStatus": {
+      "draft": "Borrador",
+      "verified": "Verificado",
+      "missed": "Omitido"
+    },
+    "businessDate": "Fecha comercial",
+    "revision": "Revisión",
+    "operationalWindow": "Ventana operativa",
+    "verifiedBy": "Verificado por",
+    "verifiedAt": "Verificado el",
+    "lineCount": "Líneas",
+    "totalVariance": "Variación total",
+    "opening": "Apertura",
+    "issued": "Emitido",
+    "transfersIn": "Transferencias entrantes",
+    "transfersOut": "Transferencias salientes",
+    "theoretical": "Teórico",
+    "expected": "Esperado",
+    "physical": "Físico",
+    "waste": "Desperdicio",
+    "staffMeal": "Comida del personal",
+    "complimentary": "Cortesía",
+    "actualConsumption": "Consumo real",
+    "variance": "Variación"
   },
   "metrics": {
     "gross": "Bruto",
@@ -333,6 +392,46 @@
     "dateWindow": "Ventana de fechas",
     "dishes": "Platos",
     "floors": "Plantas",
-    "kitchens": "Cocinas"
+    "kitchens": "Cocinas",
+    "store": "Almacén",
+    "recipe": "Receta",
+    "item": "Artículo",
+    "direction": "Dirección",
+    "quantity": "Cantidad",
+    "cost": "Costo"
+  },
+  "production": {
+    "batchNumber": "Lote #",
+    "date": "Fecha",
+    "producedQty": "Cantidad producida",
+    "yieldLoss": "Pérdida de rendimiento",
+    "inputCost": "Costo de entradas",
+    "outputCost": "Costo de salidas",
+    "lineDetails": "Detalles de líneas",
+    "in": "Entrada",
+    "out": "Salida"
+  },
+  "buffet": {
+    "sessionType": "Tipo de sesión",
+    "sessionTypes": {
+      "breakfast": "Desayuno",
+      "lunch": "Almuerzo",
+      "dinner": "Cena"
+    },
+    "sessionNumber": "Sesión #",
+    "businessDate": "Fecha comercial",
+    "actualGuests": "Comensales reales",
+    "totalSales": "Ventas totales",
+    "totalFoodCost": "Costo total de alimentos",
+    "costPerGuest": "Costo por comensal",
+    "wastePercent": "Desperdicio %",
+    "overproduction": "Sobreproducción",
+    "profit": "Ganancia",
+    "profitMargin": "Margen de ganancia %",
+    "totalGuests": "Total de comensales",
+    "help": {
+      "store": "Incluir solo sesiones de buffet cerradas en este almacén. Dejar vacío para todos los almacenes.",
+      "sessionType": "Incluir solo sesiones de este período de comida. Dejar vacío para todos los tipos."
+    }
   }
 }

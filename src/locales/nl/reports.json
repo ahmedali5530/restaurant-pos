@@ -52,7 +52,13 @@
     "waste": "Afval",
     "consumption": "Verbruik",
     "saleVsInventory": "Verkoop vs voorraad",
-    "kitchenReconciliation": "Kitchen Reconciliation"
+    "kitchenReconciliation": "Kitchen Reconciliation",
+    "transferIn": "Inkomende overdracht",
+    "transferOut": "Uitgaande overdracht",
+    "productionIn": "Productie-in",
+    "productionOut": "Productie-uit",
+    "productionReport": "Productierapport",
+    "buffetReport": "Buffetrapport"
   },
   "titles": {
     "aiReport": "AI-rapport",
@@ -93,7 +99,9 @@
     "consumption": "Verbruiksrapport",
     "saleVsConsumption": "Verkoop vs verbruiksrapport",
     "tablesSummary": "Tafeloverzicht",
-    "kitchenReconciliation": "Kitchen Reconciliation Report"
+    "kitchenReconciliation": "Kitchen Reconciliation Report",
+    "productionReport": "Productie- / opbrengstrapport",
+    "buffetReport": "Buffetwinstgevendheidsrapport"
   },
   "layout": {
     "print": "Afdrukken",
@@ -134,7 +142,24 @@
     "list": "Lijst",
     "table": "Tabel",
     "run": "Uitvoeren",
-    "unnamedUser": "Naamloze gebruiker"
+    "unnamedUser": "Naamloze gebruiker",
+    "aiPromptEmpty": "Prompt mag niet leeg zijn.",
+    "aiRunFailed": "AI-rapport uitvoeren mislukt.",
+    "aiFetching": "{{tool}} ophalen...",
+    "aiRunning": "AI-rapport uitvoeren...",
+    "aiResponse": "Antwoord",
+    "aiExamples": "Voorbeeldprompts",
+    "aiDataUsed": "Gebruikte gegevens ({{count}} tools)",
+    "aiHistory": "Recente prompts ({{count}})",
+    "prompt": "Prompt",
+    "chart": "Grafiek",
+    "analysis": "Analyse",
+    "aiCategory": {
+      "sales": "Omzet",
+      "inventory": "Voorraad",
+      "charts": "Grafieken en prognose",
+      "analysis": "Analyse"
+    }
   },
   "datePresets": {
     "today": "Vandaag",
@@ -300,7 +325,41 @@
     "kitchenCompletion": "Keukenvoltooiing",
     "orderPayment": "Bestellingsbetaling",
     "chart": "Grafiek",
-    "default": "Standaard"
+    "default": "Standaard",
+    "kitchenReconciliationCount": "Afstemmingen",
+    "kitchenReconciliationVerified": "Geverifieerd",
+    "kitchenReconciliationDraft": "Concept",
+    "kitchenReconciliationMissed": "Gemist",
+    "kitchenReconciliationTotalVariance": "Totale afwijking",
+    "kitchenReconciliationHeaders": "Afstemmingsoverzicht",
+    "kitchenReconciliationDetails": "Regeldetails",
+    "kitchenReconciliationNoResults": "Geen afstemmingen gevonden voor de geselecteerde filters",
+    "kitchenReconciliationLatest": "Laatste keukenafstemmingen",
+    "kitchenReconciliationVarianceTrend": "Keukenafwijking per bedrijfsdatum",
+    "kitchenReconciliationStatus": {
+      "draft": "Concept",
+      "verified": "Geverifieerd",
+      "missed": "Gemist"
+    },
+    "businessDate": "Bedrijfsdatum",
+    "revision": "Revisie",
+    "operationalWindow": "Operationeel venster",
+    "verifiedBy": "Geverifieerd door",
+    "verifiedAt": "Geverifieerd op",
+    "lineCount": "Regels",
+    "totalVariance": "Totale afwijking",
+    "opening": "Opening",
+    "issued": "Uitgegeven",
+    "transfersIn": "Inkomende overdrachten",
+    "transfersOut": "Uitgaande overdrachten",
+    "theoretical": "Theoretisch",
+    "expected": "Verwacht",
+    "physical": "Fysiek",
+    "waste": "Verspilling",
+    "staffMeal": "Personeelsmaaltijd",
+    "complimentary": "Gratis",
+    "actualConsumption": "Werkelijk verbruik",
+    "variance": "Afwijking"
   },
   "metrics": {
     "gross": "Bruto",
@@ -333,6 +392,46 @@
     "dateWindow": "Datumbereik",
     "dishes": "Gerechten",
     "floors": "Verdiepingen",
-    "kitchens": "Keukens"
+    "kitchens": "Keukens",
+    "store": "Magazijn",
+    "recipe": "Recept",
+    "item": "Artikel",
+    "direction": "Richting",
+    "quantity": "Hoeveelheid",
+    "cost": "Kosten"
+  },
+  "production": {
+    "batchNumber": "Batch #",
+    "date": "Datum",
+    "producedQty": "Geproduceerde hoeveelheid",
+    "yieldLoss": "Opbrengstverlies",
+    "inputCost": "Invoerkosten",
+    "outputCost": "Uitvoerkosten",
+    "lineDetails": "Regeldetails",
+    "in": "In",
+    "out": "Uit"
+  },
+  "buffet": {
+    "sessionType": "Sessietype",
+    "sessionTypes": {
+      "breakfast": "Ontbijt",
+      "lunch": "Lunch",
+      "dinner": "Diner"
+    },
+    "sessionNumber": "Sessie #",
+    "businessDate": "Bedrijfsdatum",
+    "actualGuests": "Werkelijke gasten",
+    "totalSales": "Totale omzet",
+    "totalFoodCost": "Totale voedselkosten",
+    "costPerGuest": "Kosten per gast",
+    "wastePercent": "Verspilling %",
+    "overproduction": "Overproductie",
+    "profit": "Winst",
+    "profitMargin": "Winstmarge %",
+    "totalGuests": "Totaal gasten",
+    "help": {
+      "store": "Alleen gesloten buffetsessies in dit magazijn opnemen. Leeg laten voor alle magazijnen.",
+      "sessionType": "Alleen sessies voor deze maaltijdperiode opnemen. Leeg laten voor alle typen."
+    }
   }
 }

@@ -52,7 +52,13 @@
     "waste": "Списание",
     "consumption": "Потребление",
     "saleVsInventory": "Продажи и склад",
-    "kitchenReconciliation": "Kitchen Reconciliation"
+    "kitchenReconciliation": "Kitchen Reconciliation",
+    "transferIn": "Входящее перемещение",
+    "transferOut": "Исходящее перемещение",
+    "productionIn": "Вход производства",
+    "productionOut": "Выход производства",
+    "productionReport": "Отчёт о производстве",
+    "buffetReport": "Отчёт о шведском столе"
   },
   "titles": {
     "aiReport": "ИИ-отчёт",
@@ -93,7 +99,9 @@
     "consumption": "Отчёт по потреблению",
     "saleVsConsumption": "Отчёт «Продажи и потребление»",
     "tablesSummary": "Сводка по столам",
-    "kitchenReconciliation": "Kitchen Reconciliation Report"
+    "kitchenReconciliation": "Kitchen Reconciliation Report",
+    "productionReport": "Отчёт о производстве / выходе",
+    "buffetReport": "Отчёт о рентабельности шведского стола"
   },
   "layout": {
     "print": "Печать",
@@ -134,7 +142,24 @@
     "list": "Список",
     "table": "Таблица",
     "run": "Запустить",
-    "unnamedUser": "Пользователь без имени"
+    "unnamedUser": "Пользователь без имени",
+    "aiPromptEmpty": "Запрос не может быть пустым.",
+    "aiRunFailed": "Не удалось выполнить отчёт ИИ.",
+    "aiFetching": "Получение {{tool}}...",
+    "aiRunning": "Выполнение отчёта ИИ...",
+    "aiResponse": "Ответ",
+    "aiExamples": "Примеры запросов",
+    "aiDataUsed": "Использованные данные ({{count}} инструментов)",
+    "aiHistory": "Недавние запросы ({{count}})",
+    "prompt": "Запрос",
+    "chart": "График",
+    "analysis": "Анализ",
+    "aiCategory": {
+      "sales": "Продажи",
+      "inventory": "Запасы",
+      "charts": "Графики и прогноз",
+      "analysis": "Анализ"
+    }
   },
   "datePresets": {
     "today": "Сегодня",
@@ -300,7 +325,41 @@
     "kitchenCompletion": "Завершение на кухне",
     "orderPayment": "Оплата заказа",
     "chart": "Диаграмма",
-    "default": "По умолчанию"
+    "default": "По умолчанию",
+    "kitchenReconciliationCount": "Сверки",
+    "kitchenReconciliationVerified": "Проверено",
+    "kitchenReconciliationDraft": "Черновик",
+    "kitchenReconciliationMissed": "Пропущено",
+    "kitchenReconciliationTotalVariance": "Общее отклонение",
+    "kitchenReconciliationHeaders": "Сводка сверки",
+    "kitchenReconciliationDetails": "Детали строк",
+    "kitchenReconciliationNoResults": "Сверки не найдены для выбранных фильтров",
+    "kitchenReconciliationLatest": "Последние сверки кухни",
+    "kitchenReconciliationVarianceTrend": "Отклонение кухни по рабочей дате",
+    "kitchenReconciliationStatus": {
+      "draft": "Черновик",
+      "verified": "Проверено",
+      "missed": "Пропущено"
+    },
+    "businessDate": "Рабочая дата",
+    "revision": "Ревизия",
+    "operationalWindow": "Операционное окно",
+    "verifiedBy": "Проверил",
+    "verifiedAt": "Проверено",
+    "lineCount": "Строки",
+    "totalVariance": "Общее отклонение",
+    "opening": "Начало",
+    "issued": "Выдано",
+    "transfersIn": "Входящие перемещения",
+    "transfersOut": "Исходящие перемещения",
+    "theoretical": "Теоретическое",
+    "expected": "Ожидаемое",
+    "physical": "Физическое",
+    "waste": "Потери",
+    "staffMeal": "Питание персонала",
+    "complimentary": "Бесплатно",
+    "actualConsumption": "Фактическое потребление",
+    "variance": "Отклонение"
   },
   "metrics": {
     "gross": "Валовый",
@@ -333,6 +392,46 @@
     "dateWindow": "Период",
     "dishes": "Блюда",
     "floors": "Залы",
-    "kitchens": "Кухни"
+    "kitchens": "Кухни",
+    "store": "Склад",
+    "recipe": "Рецепт",
+    "item": "Товар",
+    "direction": "Направление",
+    "quantity": "Количество",
+    "cost": "Стоимость"
+  },
+  "production": {
+    "batchNumber": "Партия #",
+    "date": "Дата",
+    "producedQty": "Произведённое кол-во",
+    "yieldLoss": "Потери выхода",
+    "inputCost": "Стоимость входов",
+    "outputCost": "Стоимость выходов",
+    "lineDetails": "Детали строк",
+    "in": "Вход",
+    "out": "Выход"
+  },
+  "buffet": {
+    "sessionType": "Тип сессии",
+    "sessionTypes": {
+      "breakfast": "Завтрак",
+      "lunch": "Обед",
+      "dinner": "Ужин"
+    },
+    "sessionNumber": "Сессия #",
+    "businessDate": "Рабочая дата",
+    "actualGuests": "Фактические гости",
+    "totalSales": "Общие продажи",
+    "totalFoodCost": "Общая стоимость продуктов",
+    "costPerGuest": "Стоимость на гостя",
+    "wastePercent": "Потери %",
+    "overproduction": "Сверхпроизводство",
+    "profit": "Прибыль",
+    "profitMargin": "Маржа прибыли %",
+    "totalGuests": "Всего гостей",
+    "help": {
+      "store": "Включать только закрытые сессии шведского стола на этом складе. Оставьте пустым для всех складов.",
+      "sessionType": "Включать только сессии этого периода приёма пищи. Оставьте пустым для всех типов."
+    }
   }
 }

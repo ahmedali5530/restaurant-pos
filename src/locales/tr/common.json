@@ -98,5 +98,6 @@
     "title": "Sayfa bulunamadı",
     "description": "Aradığınız sayfa mevcut değil veya taşınmış.",
     "backToMenu": "Menüye dön"
-  }
+  },
+  "loading": "Yükleniyor..."
 }

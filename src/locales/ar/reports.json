@@ -52,7 +52,13 @@
     "waste": "الهدر",
     "consumption": "الاستهلاك",
     "saleVsInventory": "المبيعات مقابل المخزون",
-    "kitchenReconciliation": "Kitchen Reconciliation"
+    "kitchenReconciliation": "Kitchen Reconciliation",
+    "transferIn": "تحويل وارد",
+    "transferOut": "تحويل صادر",
+    "productionIn": "دخول الإنتاج",
+    "productionOut": "خروج الإنتاج",
+    "productionReport": "تقرير الإنتاج",
+    "buffetReport": "تقرير البوفيه"
   },
   "titles": {
     "aiReport": "تقرير AI",
@@ -93,7 +99,9 @@
     "consumption": "تقرير الاستهلاك",
     "saleVsConsumption": "تقرير المبيعات مقابل الاستهلاك",
     "tablesSummary": "ملخص الطاولات",
-    "kitchenReconciliation": "Kitchen Reconciliation Report"
+    "kitchenReconciliation": "Kitchen Reconciliation Report",
+    "productionReport": "تقرير الإنتاج / العائد",
+    "buffetReport": "تقرير ربحية البوفيه"
   },
   "layout": {
     "print": "طباعة",
@@ -134,7 +142,24 @@
     "list": "قائمة",
     "table": "جدول",
     "run": "تشغيل",
-    "unnamedUser": "مستخدم بدون اسم"
+    "unnamedUser": "مستخدم بدون اسم",
+    "aiPromptEmpty": "لا يمكن أن يكون الطلب فارغًا.",
+    "aiRunFailed": "فشل تشغيل تقرير الذكاء الاصطناعي.",
+    "aiFetching": "جاري جلب {{tool}}...",
+    "aiRunning": "جاري تشغيل تقرير الذكاء الاصطناعي...",
+    "aiResponse": "الاستجابة",
+    "aiExamples": "أمثلة على الطلبات",
+    "aiDataUsed": "البيانات المستخدمة ({{count}} أدوات)",
+    "aiHistory": "الطلبات الأخيرة ({{count}})",
+    "prompt": "الطلب",
+    "chart": "الرسم البياني",
+    "analysis": "التحليل",
+    "aiCategory": {
+      "sales": "المبيعات",
+      "inventory": "المخزون",
+      "charts": "الرسوم البيانية والتنبؤ",
+      "analysis": "التحليل"
+    }
   },
   "datePresets": {
     "today": "اليوم",
@@ -300,7 +325,41 @@
     "kitchenCompletion": "إكمال المطبخ",
     "orderPayment": "دفع الطلب",
     "chart": "رسم بياني",
-    "default": "افتراضي"
+    "default": "افتراضي",
+    "kitchenReconciliationCount": "التسويات",
+    "kitchenReconciliationVerified": "متحقق",
+    "kitchenReconciliationDraft": "مسودة",
+    "kitchenReconciliationMissed": "فائت",
+    "kitchenReconciliationTotalVariance": "إجمالي الفرق",
+    "kitchenReconciliationHeaders": "ملخص التسوية",
+    "kitchenReconciliationDetails": "تفاصيل الأسطر",
+    "kitchenReconciliationNoResults": "لم يتم العثور على تسويات للفلاتر المحددة",
+    "kitchenReconciliationLatest": "أحدث تسويات المطبخ",
+    "kitchenReconciliationVarianceTrend": "فرق المطبخ حسب تاريخ العمل",
+    "kitchenReconciliationStatus": {
+      "draft": "مسودة",
+      "verified": "متحقق",
+      "missed": "فائت"
+    },
+    "businessDate": "تاريخ العمل",
+    "revision": "المراجعة",
+    "operationalWindow": "النافذة التشغيلية",
+    "verifiedBy": "تحقق بواسطة",
+    "verifiedAt": "تاريخ التحقق",
+    "lineCount": "الأسطر",
+    "totalVariance": "إجمالي الفرق",
+    "opening": "الافتتاح",
+    "issued": "صادر",
+    "transfersIn": "تحويلات واردة",
+    "transfersOut": "تحويلات صادرة",
+    "theoretical": "نظري",
+    "expected": "متوقع",
+    "physical": "فعلي",
+    "waste": "الهدر",
+    "staffMeal": "وجبة الموظف",
+    "complimentary": "مجاني",
+    "actualConsumption": "الاستهلاك الفعلي",
+    "variance": "الفرق"
   },
   "metrics": {
     "gross": "إجمالي",
@@ -333,6 +392,46 @@
     "dateWindow": "النافذة الزمنية",
     "dishes": "الأطباق",
     "floors": "الطوابق",
-    "kitchens": "المطابخ"
+    "kitchens": "المطابخ",
+    "store": "المخزن",
+    "recipe": "الوصفة",
+    "item": "الصنف",
+    "direction": "الاتجاه",
+    "quantity": "الكمية",
+    "cost": "التكلفة"
+  },
+  "production": {
+    "batchNumber": "الدفعة #",
+    "date": "التاريخ",
+    "producedQty": "الكمية المنتجة",
+    "yieldLoss": "فقد العائد",
+    "inputCost": "تكلفة المدخلات",
+    "outputCost": "تكلفة المخرجات",
+    "lineDetails": "تفاصيل الأسطر",
+    "in": "دخول",
+    "out": "خروج"
+  },
+  "buffet": {
+    "sessionType": "نوع الجلسة",
+    "sessionTypes": {
+      "breakfast": "الإفطار",
+      "lunch": "الغداء",
+      "dinner": "العشاء"
+    },
+    "sessionNumber": "الجلسة #",
+    "businessDate": "تاريخ العمل",
+    "actualGuests": "الضيوف الفعليون",
+    "totalSales": "إجمالي المبيعات",
+    "totalFoodCost": "إجمالي تكلفة الطعام",
+    "costPerGuest": "التكلفة لكل ضيف",
+    "wastePercent": "الهدر %",
+    "overproduction": "الإنتاج الزائد",
+    "profit": "الربح",
+    "profitMargin": "هامش الربح %",
+    "totalGuests": "إجمالي الضيوف",
+    "help": {
+      "store": "تضمين جلسات البوفيه المغلقة فقط في هذا المخزن. اتركه فارغًا لجميع المخازن.",
+      "sessionType": "تضمين جلسات فترة الوجبة هذه فقط. اتركه فارغًا لجميع الأنواع."
+    }
   }
 }

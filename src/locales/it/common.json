@@ -98,5 +98,6 @@
     "title": "Pagina non trovata",
     "description": "La pagina che stai cercando non esiste o è stata spostata.",
     "backToMenu": "Torna al menu"
-  }
+  },
+  "loading": "Caricamento..."
 }

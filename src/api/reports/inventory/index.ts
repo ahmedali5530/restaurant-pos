@@ -26,11 +26,12 @@ export const getCurrentInventory = async (
   options: {itemIds?: string[]; limit?: number} = {},
 ) => {
   const limit = options.limit ?? 100;
-  let itemsQuery = `SELECT * FROM ${Tables.inventory_items} FETCH category`;
+  let itemsQuery = `SELECT * FROM ${Tables.inventory_items}`;
   if (options.itemIds?.length) {
     itemsQuery += ` WHERE id IN [${options.itemIds.map(id => `$item${id}`).join(", ")}]`;
   }
   itemsQuery += ` LIMIT ${limit}`;
+  itemsQuery += ` FETCH category`;
 
   const items = unwrapQueryResult<{
     id: unknown;

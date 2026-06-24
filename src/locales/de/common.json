@@ -98,5 +98,6 @@
     "title": "Seite nicht gefunden",
     "description": "Die gesuchte Seite existiert nicht oder wurde verschoben.",
     "backToMenu": "Zurück zum Menü"
-  }
+  },
+  "loading": "Wird geladen..."
 }

@@ -52,7 +52,13 @@
     "waste": "Fire",
     "consumption": "Tüketim",
     "saleVsInventory": "Satış vs Envanter",
-    "kitchenReconciliation": "Kitchen Reconciliation"
+    "kitchenReconciliation": "Kitchen Reconciliation",
+    "transferIn": "Giriş Transferi",
+    "transferOut": "Çıkış Transferi",
+    "productionIn": "Üretim Girişi",
+    "productionOut": "Üretim Çıkışı",
+    "productionReport": "Üretim Raporu",
+    "buffetReport": "Büfe Raporu"
   },
   "titles": {
     "aiReport": "AI Raporu",
@@ -93,7 +99,9 @@
     "consumption": "Tüketim Raporu",
     "saleVsConsumption": "Satış vs Tüketim Raporu",
     "tablesSummary": "Masa özeti",
-    "kitchenReconciliation": "Kitchen Reconciliation Report"
+    "kitchenReconciliation": "Kitchen Reconciliation Report",
+    "productionReport": "Üretim / Verim Raporu",
+    "buffetReport": "Büfe Kârlılık Raporu"
   },
   "layout": {
     "print": "Yazdır",
@@ -134,7 +142,24 @@
     "list": "Liste",
     "table": "Tablo",
     "run": "Çalıştır",
-    "unnamedUser": "Adsız kullanıcı"
+    "unnamedUser": "Adsız kullanıcı",
+    "aiPromptEmpty": "İstem boş olamaz.",
+    "aiRunFailed": "Yapay zeka raporu çalıştırılamadı.",
+    "aiFetching": "{{tool}} getiriliyor...",
+    "aiRunning": "Yapay zeka raporu çalıştırılıyor...",
+    "aiResponse": "Yanıt",
+    "aiExamples": "Örnek istemler",
+    "aiDataUsed": "Kullanılan veriler ({{count}} araç)",
+    "aiHistory": "Son istemler ({{count}})",
+    "prompt": "İstem",
+    "chart": "Grafik",
+    "analysis": "Analiz",
+    "aiCategory": {
+      "sales": "Satış",
+      "inventory": "Envanter",
+      "charts": "Grafikler ve Tahmin",
+      "analysis": "Analiz"
+    }
   },
   "datePresets": {
     "today": "Bugün",
@@ -300,7 +325,41 @@
     "kitchenCompletion": "Mutfak tamamlama",
     "orderPayment": "Sipariş ödemesi",
     "chart": "Grafik",
-    "default": "Varsayılan"
+    "default": "Varsayılan",
+    "kitchenReconciliationCount": "Mutabakatlar",
+    "kitchenReconciliationVerified": "Doğrulanan",
+    "kitchenReconciliationDraft": "Taslak",
+    "kitchenReconciliationMissed": "Kaçırılan",
+    "kitchenReconciliationTotalVariance": "Toplam sapma",
+    "kitchenReconciliationHeaders": "Mutabakat özeti",
+    "kitchenReconciliationDetails": "Satır detayları",
+    "kitchenReconciliationNoResults": "Seçilen filtreler için mutabakat bulunamadı",
+    "kitchenReconciliationLatest": "Son Mutfak Mutabakatları",
+    "kitchenReconciliationVarianceTrend": "İş gününe göre mutfak sapması",
+    "kitchenReconciliationStatus": {
+      "draft": "Taslak",
+      "verified": "Doğrulandı",
+      "missed": "Kaçırıldı"
+    },
+    "businessDate": "İş günü",
+    "revision": "Revizyon",
+    "operationalWindow": "Operasyonel pencere",
+    "verifiedBy": "Doğrulayan",
+    "verifiedAt": "Doğrulama zamanı",
+    "lineCount": "Satırlar",
+    "totalVariance": "Toplam sapma",
+    "opening": "Açılış",
+    "issued": "Çıkış",
+    "transfersIn": "Giriş transferleri",
+    "transfersOut": "Çıkış transferleri",
+    "theoretical": "Teorik",
+    "expected": "Beklenen",
+    "physical": "Fiziksel",
+    "waste": "Fire",
+    "staffMeal": "Personel yemeği",
+    "complimentary": "İkram",
+    "actualConsumption": "Gerçek tüketim",
+    "variance": "Sapma"
   },
   "metrics": {
     "gross": "Brüt",
@@ -333,6 +392,46 @@
     "dateWindow": "Tarih aralığı",
     "dishes": "Yemekler",
     "floors": "Katlar",
-    "kitchens": "Mutfaklar"
+    "kitchens": "Mutfaklar",
+    "store": "Depo",
+    "recipe": "Tarif",
+    "item": "Ürün",
+    "direction": "Yön",
+    "quantity": "Miktar",
+    "cost": "Maliyet"
+  },
+  "production": {
+    "batchNumber": "Parti #",
+    "date": "Tarih",
+    "producedQty": "Üretilen miktar",
+    "yieldLoss": "Verim kaybı",
+    "inputCost": "Girdi maliyeti",
+    "outputCost": "Çıktı maliyeti",
+    "lineDetails": "Satır detayları",
+    "in": "Giriş",
+    "out": "Çıkış"
+  },
+  "buffet": {
+    "sessionType": "Oturum türü",
+    "sessionTypes": {
+      "breakfast": "Kahvaltı",
+      "lunch": "Öğle yemeği",
+      "dinner": "Akşam yemeği"
+    },
+    "sessionNumber": "Oturum #",
+    "businessDate": "İş günü",
+    "actualGuests": "Gerçek misafirler",
+    "totalSales": "Toplam satış",
+    "totalFoodCost": "Toplam yiyecek maliyeti",
+    "costPerGuest": "Misafir başına maliyet",
+    "wastePercent": "Fire %",
+    "overproduction": "Fazla üretim",
+    "profit": "Kâr",
+    "profitMargin": "Kâr marjı %",
+    "totalGuests": "Toplam misafir",
+    "help": {
+      "store": "Yalnızca bu depodaki kapatılmış büfe oturumlarını dahil edin. Tüm depolar için boş bırakın.",
+      "sessionType": "Yalnızca bu öğün dönemindeki oturumları dahil edin. Tüm türler için boş bırakın."
+    }
   }
 }
