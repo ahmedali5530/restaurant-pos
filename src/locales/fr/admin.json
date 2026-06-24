@@ -319,18 +319,42 @@
   },
   "accessRules": {
     "modules": {
-      "Menu": { "label": "Menu" },
-      "Orders": { "label": "Commandes" },
-      "Summary": { "label": "Résumé" },
-      "Reports": { "label": "Rapports" },
-      "Closing": { "label": "Clôture" },
-      "Kitchen": { "label": "Cuisine" },
-      "Delivery": { "label": "Livraison" },
-      "Admin": { "label": "Administration" },
-      "Riders": { "label": "Livreurs" },
-      "Tips": { "label": "Répartition des pourboires" },
-      "Inventory": { "label": "Inventaire" },
-      "Settings": { "label": "Paramètres" }
+      "Menu": {
+        "label": "Menu"
+      },
+      "Orders": {
+        "label": "Commandes"
+      },
+      "Summary": {
+        "label": "Résumé"
+      },
+      "Reports": {
+        "label": "Rapports"
+      },
+      "Closing": {
+        "label": "Clôture"
+      },
+      "Kitchen": {
+        "label": "Cuisine"
+      },
+      "Delivery": {
+        "label": "Livraison"
+      },
+      "Admin": {
+        "label": "Administration"
+      },
+      "Riders": {
+        "label": "Livreurs"
+      },
+      "Tips": {
+        "label": "Répartition des pourboires"
+      },
+      "Inventory": {
+        "label": "Inventaire"
+      },
+      "Settings": {
+        "label": "Paramètres"
+      }
     },
     "permissions": {
       "Change table": "Changer de table",
@@ -436,6 +460,155 @@
       "Service charges": "Frais de service",
       "Auto check close": "Clôture automatique des tickets",
       "Closing cycle": "Cycle de clôture"
+    }
+  },
+  "discountEngine": {
+    "tabs": {
+      "rules": "Règles de remise",
+      "reasons": "Motifs",
+      "permissions": "Autorisations"
+    },
+    "columns": {
+      "category": "Catégorie",
+      "scope": "Portée",
+      "mode": "Mode",
+      "code": "Code",
+      "active": "Actif",
+      "requiresApproval": "Approbation requise"
+    },
+    "sections": {
+      "basic": "Base",
+      "value": "Valeur et limites",
+      "stacking": "Cumul et taxe",
+      "options": "Options",
+      "schedule": "Horaire",
+      "bxgy": "Achetez X Obtenez Y",
+      "targets": "Cibles"
+    },
+    "fields": {
+      "category": "Catégorie",
+      "scope": "Portée",
+      "applicationMode": "Mode d'application",
+      "type": "Type",
+      "minPercent": "Min %",
+      "minRate": "Taux min",
+      "maxPercent": "Max %",
+      "maxRate": "Taux max",
+      "stackingMode": "Mode de cumul",
+      "taxTreatment": "Traitement fiscal",
+      "stackable": "Cumulable",
+      "exclusive": "Exclusif",
+      "requiresReason": "Motif requis",
+      "requiresApproval": "Approbation requise",
+      "isActive": "Actif",
+      "startTime": "Heure de début",
+      "endTime": "Heure de fin",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "daysOfWeek": "Jours de la semaine",
+      "addScheduleWindow": "Ajouter une plage horaire",
+      "removeScheduleWindow": "Supprimer la plage",
+      "buyQuantity": "Quantité à acheter",
+      "getQuantity": "Quantité offerte",
+      "buyCategoryIds": "IDs catégories achat (séparés par virgule)",
+      "getValueType": "Type de valeur offerte",
+      "maxPercentRole": "Pourcentage max",
+      "maxFixedAmount": "Montant fixe max",
+      "canApplyManual": "Peut appliquer manuellement",
+      "canOverrideApproval": "Peut outrepasser l'approbation",
+      "allowedCategoriesHint": "Catégories autorisées",
+      "buyCategories": "Catégories à acheter",
+      "buyItems": "Articles à acheter",
+      "getCategories": "Catégories offertes",
+      "getItems": "Articles offerts",
+      "targetCategories": "Catégories du menu",
+      "targetItems": "Articles du menu",
+      "targetFloors": "Étages",
+      "targetFloorsOptional": "Optionnel — limiter cette remise panier à certains étages",
+      "customerTags": "Tags client",
+      "customerTagsHint": "Tags séparés par virgule (ex. vip, corporate). Le client doit avoir au moins un tag.",
+      "minOrderAmount": "Montant minimum de commande"
+    },
+    "categories": {
+      "manager": "Manager",
+      "staff": "Personnel",
+      "vip": "VIP",
+      "corporate": "Entreprise",
+      "happy_hour": "Happy hour",
+      "category": "Catégorie",
+      "product": "Produit",
+      "floor": "Étage",
+      "damage_wastage": "Dommage / gaspillage",
+      "service_recovery": "Récupération service",
+      "bulk_order": "Commande groupée",
+      "manual": "Manuel",
+      "scheduled": "Planifié",
+      "buy_x_get_y": "Achetez X Obtenez Y"
+    },
+    "scopes": {
+      "item": "Article",
+      "category": "Catégorie",
+      "cart": "Panier",
+      "customer": "Client",
+      "floor": "Étage"
+    },
+    "applicationModes": {
+      "manual": "Manuel",
+      "automatic": "Automatique",
+      "both": "Les deux"
+    },
+    "stackingModes": {
+      "allow": "Autoriser le cumul",
+      "prevent": "Empêcher le cumul",
+      "highest_wins": "Le plus élevé gagne",
+      "priority": "Priorité"
+    },
+    "taxTreatments": {
+      "tax_before_discount": "Taxe avant remise",
+      "tax_after_discount": "Taxe après remise",
+      "inclusive": "Taxe incluse",
+      "exclusive": "Taxe exclusive"
+    },
+    "getValueTypes": {
+      "free": "Gratuit",
+      "percent": "Pourcentage",
+      "fixed_amount": "Montant fixe"
+    },
+    "days": {
+      "sun": "Dim",
+      "mon": "Lun",
+      "tue": "Mar",
+      "wed": "Mer",
+      "thu": "Jeu",
+      "fri": "Ven",
+      "sat": "Sam"
+    },
+    "reasons": {
+      "add": "Ajouter un motif",
+      "createTitle": "Nouveau motif de remise",
+      "created": "Motif créé"
+    },
+    "permissions": {
+      "policySaved": "Politique enregistrée",
+      "denials": {
+        "noUser": "Aucun utilisateur",
+        "manualNotAllowed": "Le rôle ne peut pas appliquer de remises manuelles",
+        "categoryNotAllowed": "Catégorie non autorisée pour le rôle",
+        "approvalRequired": "La remise nécessite l'approbation du manager",
+        "exceedsMaxPercent": "Dépasse le maximum du rôle {{percent}}%",
+        "exceedsMaxFixed": "Dépasse le montant fixe maximum du rôle"
+      }
+    },
+    "validation": {
+      "targetRequired": "Sélectionnez au moins une cible"
+    },
+    "placeholders": {
+      "startTime": "15:00",
+      "endTime": "18:00"
+    },
+    "errors": {
+      "saveFailed": "Impossible d'enregistrer la remise.",
+      "createReasonFailed": "Impossible de créer le motif de remise."
     }
   }
 }

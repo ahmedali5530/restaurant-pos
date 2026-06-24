@@ -319,18 +319,42 @@
   },
   "accessRules": {
     "modules": {
-      "Menu": { "label": "Cardápio" },
-      "Orders": { "label": "Pedidos" },
-      "Summary": { "label": "Resumo" },
-      "Reports": { "label": "Relatórios" },
-      "Closing": { "label": "Fechamento" },
-      "Kitchen": { "label": "Cozinha" },
-      "Delivery": { "label": "Delivery" },
-      "Admin": { "label": "Administração" },
-      "Riders": { "label": "Entregadores" },
-      "Tips": { "label": "Distribuição de Gorjetas" },
-      "Inventory": { "label": "Estoque" },
-      "Settings": { "label": "Configurações" }
+      "Menu": {
+        "label": "Cardápio"
+      },
+      "Orders": {
+        "label": "Pedidos"
+      },
+      "Summary": {
+        "label": "Resumo"
+      },
+      "Reports": {
+        "label": "Relatórios"
+      },
+      "Closing": {
+        "label": "Fechamento"
+      },
+      "Kitchen": {
+        "label": "Cozinha"
+      },
+      "Delivery": {
+        "label": "Delivery"
+      },
+      "Admin": {
+        "label": "Administração"
+      },
+      "Riders": {
+        "label": "Entregadores"
+      },
+      "Tips": {
+        "label": "Distribuição de Gorjetas"
+      },
+      "Inventory": {
+        "label": "Estoque"
+      },
+      "Settings": {
+        "label": "Configurações"
+      }
     },
     "permissions": {
       "Change table": "Trocar mesa",
@@ -436,6 +460,155 @@
       "Service charges": "Taxa de serviço",
       "Auto check close": "Fechamento automático de comanda",
       "Closing cycle": "Ciclo de fechamento"
+    }
+  },
+  "discountEngine": {
+    "tabs": {
+      "rules": "Regras de desconto",
+      "reasons": "Motivos",
+      "permissions": "Permissões"
+    },
+    "columns": {
+      "category": "Categoria",
+      "scope": "Escopo",
+      "mode": "Modo",
+      "code": "Código",
+      "active": "Ativo",
+      "requiresApproval": "Requer aprovação"
+    },
+    "sections": {
+      "basic": "Básico",
+      "value": "Valor e limites",
+      "stacking": "Acúmulo e imposto",
+      "options": "Opções",
+      "schedule": "Agenda",
+      "bxgy": "Compre X Leve Y",
+      "targets": "Alvos"
+    },
+    "fields": {
+      "category": "Categoria",
+      "scope": "Escopo",
+      "applicationMode": "Modo de aplicação",
+      "type": "Tipo",
+      "minPercent": "Mín %",
+      "minRate": "Taxa mín",
+      "maxPercent": "Máx %",
+      "maxRate": "Taxa máx",
+      "stackingMode": "Modo de acúmulo",
+      "taxTreatment": "Tratamento fiscal",
+      "stackable": "Acumulável",
+      "exclusive": "Exclusivo",
+      "requiresReason": "Requer motivo",
+      "requiresApproval": "Requer aprovação",
+      "isActive": "Ativo",
+      "startTime": "Hora início",
+      "endTime": "Hora fim",
+      "startDate": "Data início",
+      "endDate": "Data fim",
+      "daysOfWeek": "Dias da semana",
+      "addScheduleWindow": "Adicionar janela de horário",
+      "removeScheduleWindow": "Remover janela",
+      "buyQuantity": "Quantidade compra",
+      "getQuantity": "Quantidade grátis",
+      "buyCategoryIds": "IDs categoria compra (separados por vírgula)",
+      "getValueType": "Tipo de valor grátis",
+      "maxPercentRole": "Percentual máx",
+      "maxFixedAmount": "Valor fixo máx",
+      "canApplyManual": "Pode aplicar manualmente",
+      "canOverrideApproval": "Pode substituir aprovação",
+      "allowedCategoriesHint": "Categorias permitidas",
+      "buyCategories": "Categorias de compra",
+      "buyItems": "Itens de compra",
+      "getCategories": "Categorias grátis",
+      "getItems": "Itens grátis",
+      "targetCategories": "Categorias do menu",
+      "targetItems": "Itens do menu",
+      "targetFloors": "Andares",
+      "targetFloorsOptional": "Opcional — limitar este desconto do carrinho a andares específicos",
+      "customerTags": "Tags do cliente",
+      "customerTagsHint": "Tags separadas por vírgula (ex. vip, corporate). O cliente deve ter pelo menos uma.",
+      "minOrderAmount": "Valor mínimo do pedido"
+    },
+    "categories": {
+      "manager": "Gerente",
+      "staff": "Equipe",
+      "vip": "VIP",
+      "corporate": "Corporativo",
+      "happy_hour": "Happy hour",
+      "category": "Categoria",
+      "product": "Produto",
+      "floor": "Andar",
+      "damage_wastage": "Dano / desperdício",
+      "service_recovery": "Recuperação de serviço",
+      "bulk_order": "Pedido em massa",
+      "manual": "Manual",
+      "scheduled": "Agendado",
+      "buy_x_get_y": "Compre X Leve Y"
+    },
+    "scopes": {
+      "item": "Item",
+      "category": "Categoria",
+      "cart": "Carrinho",
+      "customer": "Cliente",
+      "floor": "Andar"
+    },
+    "applicationModes": {
+      "manual": "Manual",
+      "automatic": "Automático",
+      "both": "Ambos"
+    },
+    "stackingModes": {
+      "allow": "Permitir acúmulo",
+      "prevent": "Impedir acúmulo",
+      "highest_wins": "Maior vence",
+      "priority": "Prioridade"
+    },
+    "taxTreatments": {
+      "tax_before_discount": "Imposto antes do desconto",
+      "tax_after_discount": "Imposto após o desconto",
+      "inclusive": "Imposto incluso",
+      "exclusive": "Imposto exclusivo"
+    },
+    "getValueTypes": {
+      "free": "Grátis",
+      "percent": "Percentual",
+      "fixed_amount": "Valor fixo"
+    },
+    "days": {
+      "sun": "Dom",
+      "mon": "Seg",
+      "tue": "Ter",
+      "wed": "Qua",
+      "thu": "Qui",
+      "fri": "Sex",
+      "sat": "Sáb"
+    },
+    "reasons": {
+      "add": "Adicionar motivo",
+      "createTitle": "Novo motivo de desconto",
+      "created": "Motivo criado"
+    },
+    "permissions": {
+      "policySaved": "Política salva",
+      "denials": {
+        "noUser": "Sem usuário",
+        "manualNotAllowed": "Função não pode aplicar descontos manuais",
+        "categoryNotAllowed": "Categoria não permitida para a função",
+        "approvalRequired": "Desconto requer aprovação do gerente",
+        "exceedsMaxPercent": "Excede o máximo da função {{percent}}%",
+        "exceedsMaxFixed": "Excede o valor fixo máximo da função"
+      }
+    },
+    "validation": {
+      "targetRequired": "Selecione pelo menos um alvo"
+    },
+    "placeholders": {
+      "startTime": "15:00",
+      "endTime": "18:00"
+    },
+    "errors": {
+      "saveFailed": "Não foi possível salvar o desconto.",
+      "createReasonFailed": "Não foi possível criar o motivo de desconto."
     }
   }
 }

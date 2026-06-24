@@ -9,7 +9,9 @@ import { User } from "@/api/model/user.ts";
 import { Table } from "@/api/model/table.ts";
 import { OrderPayment } from "@/api/model/order_payment.ts";
 import { OrderCoupon } from "@/api/model/order_coupon.ts";
+import { OrderDiscount } from "@/api/model/order_discount.ts";
 import { DateTime } from "surrealdb";
+import { buildModifierFetches, MODIFIER_FETCH_DEPTH } from '@/api/model/order_fetches.ts';
 
 export interface Order extends ID{
   covers?: number
@@ -52,6 +54,7 @@ export interface Order extends ID{
   payments?: OrderPayment[]
 
   coupon?: OrderCoupon
+  order_discounts?: OrderDiscount[]
 }
 
 export interface OrderExtra extends ID{
@@ -69,11 +72,12 @@ export enum OrderStatus {
   Pending = 'Pending'
 }
 
-export const ORDER_FETCHES = [
+/** Core fetches for payment / POS — avoids deep modifier dish FETCH on embedded cart data. */
+export const ORDER_PAYMENT_FETCHES = [
   'items',
   'items.item',
-  'item.item.categories',
-  'item.item.modifiers',
+  'items.item.categories',
+  'items.modifiers',
   'table',
   'user',
   'cashier',
@@ -86,5 +90,30 @@ export const ORDER_FETCHES = [
   'extras',
   'extras.order_extras',
   'coupon',
-  'coupon.coupon'
+  'coupon.coupon',
+  'order_discounts',
+  'order_discounts.discount',
 ];
+
+export const ORDER_FETCHES = [
+  ...ORDER_PAYMENT_FETCHES,
+  ...buildModifierFetches(MODIFIER_FETCH_DEPTH),
+];
+
+/** Normalize SurrealDB SELECT result (FROM id vs FROM ONLY id). */
+export const parseOrderQueryResult = (result: unknown): Order | undefined => {
+  if (!Array.isArray(result) || result.length === 0) {
+    return undefined;
+  }
+
+  const row = result[0];
+  if (Array.isArray(row)) {
+    return row[0] as Order | undefined;
+  }
+
+  if (row && typeof row === 'object' && 'id' in row) {
+    return row as Order;
+  }
+
+  return undefined;
+};

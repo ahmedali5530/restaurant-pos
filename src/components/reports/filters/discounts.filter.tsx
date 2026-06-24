@@ -26,7 +26,7 @@ export const DiscountsFilter = () => {
       className="flex flex-col gap-3 items-start w-full"
       target="_blank"
     >
-      <DateRange isRequired label="Select a range" />
+      <DateRange isRequired label={t('filters.selectRange')} />
       <div className="w-full flex flex-col gap-2">
         <label htmlFor="discount-filter-discount">{t('reports.discount')}</label>
         <ReactSelect

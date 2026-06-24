@@ -39,7 +39,12 @@
   "discount": {
     "noDiscount": "İndirim yok",
     "label": "İndirim",
-    "withMaxCap": "maksimum {{amount}} üst sınırı ile"
+    "withMaxCap": "maksimum {{amount}} ile",
+    "applied": "Uygulandı",
+    "selectItems": "Ürünleri seç",
+    "reason": "Neden",
+    "reasonNotes": "Notlar (isteğe bağlı)",
+    "apply": "İndirimi uygula"
   },
   "coupon": {
     "codeLabel": "Kupon kodu",

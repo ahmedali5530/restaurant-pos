@@ -9,8 +9,18 @@ import {cn, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {OrderPaymentReceiving} from "@/components/orders/payment/order.payment.receiving.tsx";
 import {OrderPaymentTax} from "@/components/orders/payment/order.payment.tax.tsx";
 import {Tax} from "@/api/model/tax.ts";
-import {Discount, DiscountType} from "@/api/model/discount.ts";
-import {OrderPaymentDiscount} from "@/components/orders/payment/order.payment.discount.tsx";
+import {DiscountType} from "@/api/model/discount.ts";
+import {OrderPaymentDiscountEngine} from "@/components/orders/payment/order.payment.discount-engine.tsx";
+import type {AppliedDiscountLine} from "@/lib/discount-engine/types.ts";
+import {recalculateCart} from "@/lib/discount-engine/recalculate.ts";
+import {getDiscountCache} from "@/lib/discount-engine/cache.ts";
+import {useDiscountCache} from "@/hooks/useDiscountCache.ts";
+import {
+  loadActiveOrderDiscounts,
+  persistOrderDiscounts,
+  syncOrderDiscountDenorm,
+} from "@/lib/discount-engine/service.ts";
+import {orderDiscountToAppliedLine} from "@/lib/discount-engine/context.ts";
 import {OrderPaymentServiceCharges} from "@/components/orders/payment/order.payment.service_charges.tsx";
 import {OrderPaymentTip} from "@/components/orders/payment/order.payment.tip.tsx";
 import {faPencil} from "@fortawesome/free-solid-svg-icons";
@@ -56,6 +66,7 @@ export const OrderPayment = ({
   const {t} = useTranslation('payment');
   const db = useDB();
   const {protectAction} = useSecurity();
+  useDiscountCache();
 
   const [page] = useAtom(appPage);
 
@@ -69,9 +80,9 @@ export const OrderPayment = ({
   const [tax, setTax] = useState<Tax>();
   const [taxAmount, setTaxAmount] = useState<number>(0);
 
-  const [discount, setDiscount] = useState<Discount>();
+  const [discountLines, setDiscountLines] = useState<AppliedDiscountLine[]>([]);
   const [discountAmount, setDiscountAmount] = useState<number>(0);
-  const [discountRate, setDiscountRate] = useState<number>(0);
+  const [orderDiscountIds, setOrderDiscountIds] = useState<string[]>([]);
 
   const [serviceCharge, setServiceCharge] = useState<number>(0);
   const [serviceChargeAmount, setServiceChargeAmount] = useState<number>(0);
@@ -177,13 +188,33 @@ export const OrderPayment = ({
     return mapped;
   }, [defaultExtras, extraToggles]);
 
+  const cartTotals = useMemo(() => {
+    const extrasTotal = Object.values(extras).reduce((prev, item) => prev + item, 0);
+    return recalculateCart(order, {
+      existingApplications: discountLines.filter(l => l.applicationType === 'manual'),
+      manualRequests: [],
+      extrasTotal,
+      serviceChargeAmount: serviceCharge
+        ? (serviceChargeType === DiscountType.Percent ? itemsTotal * serviceCharge / 100 : serviceCharge)
+        : 0,
+      couponAmount,
+      tipAmount: tipType === DiscountType.Fixed ? tip : itemsTotal * tip / 100,
+      rules: getDiscountCache().all,
+    });
+  }, [order, discountLines, extras, serviceCharge, serviceChargeType, couponAmount, tip, tipType, itemsTotal]);
+
   useEffect(() => {
-    if (tax) {
-      setTaxAmount(itemsTotal * tax.rate / 100)
-    } else {
-      setTaxAmount(0);
+    const autoLines = cartTotals.discountLines.filter(l => l.applicationType === 'automatic');
+    const manualLines = discountLines.filter(l => l.applicationType === 'manual');
+    const merged = [...autoLines, ...manualLines];
+    const total = merged.reduce((s, l) => s + l.appliedAmount, 0);
+    if (total !== discountAmount) {
+      setDiscountAmount(total);
     }
-  }, [tax, itemsTotal]);
+    if (tax) {
+      setTaxAmount(cartTotals.taxAmount);
+    }
+  }, [cartTotals, discountLines, discountAmount, tax]);
 
   useEffect(() => {
     if (tipType === DiscountType.Fixed) {
@@ -214,9 +245,33 @@ export const OrderPayment = ({
     setTax(order?.tax);
     setTaxAmount(order?.tax_amount ?? 0);
 
-    setDiscount(order?.discount);
-    setDiscountAmount(order?.discount_amount ?? 0);
-    setDiscountRate(order?.discount_rate ?? 0);
+    void (async () => {
+      try {
+        const rows = await loadActiveOrderDiscounts(db, order.id);
+        if (rows.length > 0) {
+          const lines = rows.map(orderDiscountToAppliedLine);
+          setDiscountLines(lines);
+          setOrderDiscountIds(rows.map(r => r.id));
+          setDiscountAmount(lines.reduce((s, l) => s + l.appliedAmount, 0));
+        } else if (order?.discount_amount) {
+          setDiscountAmount(order.discount_amount);
+          if (order.discount) {
+            setDiscountLines([{
+              discountId: order.discount.id,
+              name: order.discount.name,
+              appliedAmount: order.discount_amount,
+              appliedRate: order.discount_rate,
+              scope: 'cart',
+              valueType: 'percent',
+              taxTreatment: 'tax_before_discount',
+              applicationType: 'manual',
+            }]);
+          }
+        }
+      } catch {
+        setDiscountAmount(order?.discount_amount ?? 0);
+      }
+    })();
 
     setServiceCharge(Number(order?.service_charge || 0));
     setServiceChargeAmount(order?.service_charge_amount ?? 0);
@@ -255,13 +310,13 @@ export const OrderPayment = ({
     return calculateOrderGrandTotal({
       itemsTotal,
       extrasTotal,
-      taxAmount,
-      discountAmount,
+      taxAmount: cartTotals.taxAmount,
+      discountTotal: cartTotals.discountTotal,
       serviceChargeAmount,
       couponAmount,
       tipAmount,
     });
-  }, [itemsTotal, taxAmount, discountAmount, serviceChargeAmount, extras, tipAmount, couponAmount]);
+  }, [itemsTotal, cartTotals, serviceChargeAmount, extras, tipAmount, couponAmount]);
 
   const [mode, setMode] = useState(PaymentOptions.Tax);
 
@@ -524,16 +579,25 @@ export const OrderPayment = ({
       await db.delete(order.coupon.id);
     }
 
-    const resolvedDiscountAmount = discountAmount ?? order.discount_amount ?? 0;
-    const resolvedDiscountId = discount?.id ?? order.discount?.id;
+    const allLines = cartTotals.discountLines;
+    const resolvedDiscountAmount = allLines.reduce((s, l) => s + l.appliedAmount, 0);
+
+    try {
+      await persistOrderDiscounts(db, order.id, allLines, page?.user, orderDiscountIds);
+      const freshRows = await loadActiveOrderDiscounts(db, order.id);
+      setOrderDiscountIds(freshRows.map(r => r.id));
+      await syncOrderDiscountDenorm(db, order.id, allLines);
+    } catch (e) {
+      console.error('Failed to persist order discounts', e);
+    }
 
     const progressMerge: Record<string, unknown> = {
       payments: orderPayments,
       extras: extraOptions,
       tax: tax ? toRecordId(tax?.id) : null,
-      tax_amount: taxAmount,
+      tax_amount: cartTotals.taxAmount,
       discount_amount: resolvedDiscountAmount,
-      discount_rate: discountRate,
+      discount_rate: allLines[0]?.appliedRate ?? 0,
       tip: tip,
       tip_amount: tipAmount,
       tip_type: tipType,
@@ -544,8 +608,8 @@ export const OrderPayment = ({
       coupon: orderCouponId,
     };
 
-    if (resolvedDiscountId) {
-      progressMerge.discount = toRecordId(resolvedDiscountId);
+    if (allLines[0]?.discountId) {
+      progressMerge.discount = toRecordId(allLines[0].discountId);
     }
 
     await db.merge(order.id, progressMerge);
@@ -558,22 +622,21 @@ export const OrderPayment = ({
         payment_count: paymentTypes.length,
         extras_count: extraOptions.length,
         tax: tax?.id?.toString(),
-        discount: discount?.id?.toString(),
+        discount_count: allLines.length,
+        discount: allLines[0]?.discountId,
         coupon: coupon?.id?.toString(),
       },
       user: page?.user,
     });
   }, [
     order,
-    db,
     paymentTypes,
     total,
     extras,
     tax,
     taxAmount,
-    discount,
-    discountAmount,
-    discountRate,
+    cartTotals,
+    discountLines,
     tip,
     tipAmount,
     tipType,
@@ -676,12 +739,10 @@ export const OrderPayment = ({
             }}>
               <div>
                 {t('tabs.discount')}{' '}
-                {discount && (
-                  discount.type === DiscountType.Percent ? discountRate + '%' : ''
-                )}{' '}
+                {discountLines.length > 0 && `(${discountLines.length})`}{' '}
                 <FontAwesomeIcon icon={faPencil}/>
               </div>
-              <div className="text-right">{withCurrency(discountAmount)}</div>
+              <div className="text-right">{withCurrency(cartTotals.discountTotal)}</div>
             </div>
 
             <div className={
@@ -790,12 +851,13 @@ export const OrderPayment = ({
             <OrderPaymentTax tax={tax} setTax={setTax}/>
           )}
           {mode === PaymentOptions.Discount && (
-            <OrderPaymentDiscount
-              discount={discount} setDiscount={setDiscount}
-              discountAmount={discountAmount} setDiscountAmount={setDiscountAmount}
-              itemsTotal={itemsTotal}
-              setDiscountRate={setDiscountRate}
-              discountRate={discountRate}
+            <OrderPaymentDiscountEngine
+              order={order}
+              discountLines={discountLines.filter(l => l.applicationType === 'manual')}
+              onApply={(manualLines) => {
+                const autoLines = cartTotals.discountLines.filter(l => l.applicationType === 'automatic');
+                setDiscountLines([...autoLines, ...manualLines]);
+              }}
             />
           )}
           {mode === PaymentOptions.Coupon && (
@@ -830,10 +892,22 @@ export const OrderPayment = ({
             onComplete={onPayment}
             extras={extras}
             setTax={setTax}
-            discountAmount={discountAmount}
-            discount={discount}
-            setDiscount={setDiscount}
-            setDiscountAmount={setDiscountAmount}
+            discountAmount={cartTotals.discountTotal}
+            onPaymentTypeDiscount={(d, amount) => {
+              const line: AppliedDiscountLine = {
+                discountId: d.id,
+                name: d.name,
+                appliedAmount: amount,
+                scope: (d.scope || 'cart') as AppliedDiscountLine['scope'],
+                valueType: (d.value_type || 'percent') as AppliedDiscountLine['valueType'],
+                taxTreatment: (d.tax_treatment || 'tax_before_discount') as AppliedDiscountLine['taxTreatment'],
+                applicationType: 'automatic',
+              };
+              setDiscountLines(prev => {
+                const withoutPt = prev.filter(l => l.applicationType !== 'automatic' || l.discountId !== d.id);
+                return [...withoutPt, line];
+              });
+            }}
             tax={tax}
             taxAmount={taxAmount}
             tip={tip}

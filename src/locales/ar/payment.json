@@ -23,7 +23,7 @@
   "tabs": {
     "tax": "الضريبة",
     "taxWithRate": "الضريبة ({{name}} {{rate}}%)",
-    "discount": "الخصم",
+    "discount": "خصم",
     "coupon": "قسيمة",
     "serviceCharges": "رسوم الخدمة ({{value}}{{unit}})",
     "tip": "الإكرامية ({{value}}{{unit}})",
@@ -38,8 +38,13 @@
   },
   "discount": {
     "noDiscount": "بدون خصم",
-    "label": "الخصم",
-    "withMaxCap": "بحد أقصى {{amount}}"
+    "label": "خصم",
+    "withMaxCap": "بحد أقصى {{amount}}",
+    "applied": "مطبّق",
+    "selectItems": "اختر العناصر",
+    "reason": "السبب",
+    "reasonNotes": "ملاحظات (اختياري)",
+    "apply": "تطبيق الخصم"
   },
   "coupon": {
     "codeLabel": "رمز القسيمة",
@@ -89,7 +94,7 @@
   },
   "discountType": {
     "percent": "نسبة مئوية",
-    "fixed": "مبلغ ثابت"
+    "fixed": "ثابت"
   },
   "remoteGateway": {
     "missingProvider": "نوع الدفع عن بُعد يفتقد مزود البوابة.",

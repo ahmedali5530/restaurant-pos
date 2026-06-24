@@ -319,18 +319,42 @@
   },
   "accessRules": {
     "modules": {
-      "Menu": { "label": "Menu" },
-      "Orders": { "label": "Bestellingen" },
-      "Summary": { "label": "Overzicht" },
-      "Reports": { "label": "Rapporten" },
-      "Closing": { "label": "Afsluiting" },
-      "Kitchen": { "label": "Keuken" },
-      "Delivery": { "label": "Bezorging" },
-      "Admin": { "label": "Beheer" },
-      "Riders": { "label": "Bezorgers" },
-      "Tips": { "label": "Fooiverdeling" },
-      "Inventory": { "label": "Voorraad" },
-      "Settings": { "label": "Instellingen" }
+      "Menu": {
+        "label": "Menu"
+      },
+      "Orders": {
+        "label": "Bestellingen"
+      },
+      "Summary": {
+        "label": "Overzicht"
+      },
+      "Reports": {
+        "label": "Rapporten"
+      },
+      "Closing": {
+        "label": "Afsluiting"
+      },
+      "Kitchen": {
+        "label": "Keuken"
+      },
+      "Delivery": {
+        "label": "Bezorging"
+      },
+      "Admin": {
+        "label": "Beheer"
+      },
+      "Riders": {
+        "label": "Bezorgers"
+      },
+      "Tips": {
+        "label": "Fooiverdeling"
+      },
+      "Inventory": {
+        "label": "Voorraad"
+      },
+      "Settings": {
+        "label": "Instellingen"
+      }
     },
     "permissions": {
       "Change table": "Tafel wijzigen",
@@ -436,6 +460,155 @@
       "Service charges": "Servicekosten",
       "Auto check close": "Automatisch bon sluiten",
       "Closing cycle": "Afsluitingscyclus"
+    }
+  },
+  "discountEngine": {
+    "tabs": {
+      "rules": "Kortingsregels",
+      "reasons": "Redenen",
+      "permissions": "Machtigingen"
+    },
+    "columns": {
+      "category": "Categorie",
+      "scope": "Bereik",
+      "mode": "Modus",
+      "code": "Code",
+      "active": "Actief",
+      "requiresApproval": "Goedkeuring vereist"
+    },
+    "sections": {
+      "basic": "Basis",
+      "value": "Waarde en limieten",
+      "stacking": "Stapelen en belasting",
+      "options": "Opties",
+      "schedule": "Schema",
+      "bxgy": "Koop X Krijg Y",
+      "targets": "Doelen"
+    },
+    "fields": {
+      "category": "Categorie",
+      "scope": "Bereik",
+      "applicationMode": "Toepassingsmodus",
+      "type": "Type",
+      "minPercent": "Min %",
+      "minRate": "Min tarief",
+      "maxPercent": "Max %",
+      "maxRate": "Max tarief",
+      "stackingMode": "Stapelmodus",
+      "taxTreatment": "Belastingbehandeling",
+      "stackable": "Stapelbaar",
+      "exclusive": "Exclusief",
+      "requiresReason": "Reden vereist",
+      "requiresApproval": "Goedkeuring vereist",
+      "isActive": "Actief",
+      "startTime": "Starttijd",
+      "endTime": "Eindtijd",
+      "startDate": "Startdatum",
+      "endDate": "Einddatum",
+      "daysOfWeek": "Dagen van de week",
+      "addScheduleWindow": "Tijdvenster toevoegen",
+      "removeScheduleWindow": "Tijdvenster verwijderen",
+      "buyQuantity": "Koop aantal",
+      "getQuantity": "Gratis aantal",
+      "buyCategoryIds": "Koop categorie-IDs (kommagescheiden)",
+      "getValueType": "Gratis waardetype",
+      "maxPercentRole": "Max percentage",
+      "maxFixedAmount": "Max vast bedrag",
+      "canApplyManual": "Kan handmatig toepassen",
+      "canOverrideApproval": "Kan goedkeuring overschrijven",
+      "allowedCategoriesHint": "Toegestane categorieën",
+      "buyCategories": "Koop categorieën",
+      "buyItems": "Koop artikelen",
+      "getCategories": "Gratis categorieën",
+      "getItems": "Gratis artikelen",
+      "targetCategories": "Menucategorieën",
+      "targetItems": "Menuartikelen",
+      "targetFloors": "Verdiepingen",
+      "targetFloorsOptional": "Optioneel — beperk deze winkelwagenkorting tot specifieke verdiepingen",
+      "customerTags": "Klanttags",
+      "customerTagsHint": "Kommagescheiden tags (bijv. vip, corporate). Klant moet minstens één tag hebben.",
+      "minOrderAmount": "Minimum bestelbedrag"
+    },
+    "categories": {
+      "manager": "Manager",
+      "staff": "Personeel",
+      "vip": "VIP",
+      "corporate": "Zakelijk",
+      "happy_hour": "Happy hour",
+      "category": "Categorie",
+      "product": "Product",
+      "floor": "Verdieping",
+      "damage_wastage": "Schade / verspilling",
+      "service_recovery": "Serviceherstel",
+      "bulk_order": "Grote bestelling",
+      "manual": "Handmatig",
+      "scheduled": "Gepland",
+      "buy_x_get_y": "Koop X Krijg Y"
+    },
+    "scopes": {
+      "item": "Artikel",
+      "category": "Categorie",
+      "cart": "Winkelwagen",
+      "customer": "Klant",
+      "floor": "Verdieping"
+    },
+    "applicationModes": {
+      "manual": "Handmatig",
+      "automatic": "Automatisch",
+      "both": "Beide"
+    },
+    "stackingModes": {
+      "allow": "Stapelen toestaan",
+      "prevent": "Stapelen voorkomen",
+      "highest_wins": "Hoogste wint",
+      "priority": "Prioriteit"
+    },
+    "taxTreatments": {
+      "tax_before_discount": "Belasting vóór korting",
+      "tax_after_discount": "Belasting na korting",
+      "inclusive": "Inclusief belasting",
+      "exclusive": "Exclusief belasting"
+    },
+    "getValueTypes": {
+      "free": "Gratis",
+      "percent": "Percentage",
+      "fixed_amount": "Vast bedrag"
+    },
+    "days": {
+      "sun": "Zo",
+      "mon": "Ma",
+      "tue": "Di",
+      "wed": "Wo",
+      "thu": "Do",
+      "fri": "Vr",
+      "sat": "Za"
+    },
+    "reasons": {
+      "add": "Reden toevoegen",
+      "createTitle": "Nieuwe kortingsreden",
+      "created": "Reden aangemaakt"
+    },
+    "permissions": {
+      "policySaved": "Beleid opgeslagen",
+      "denials": {
+        "noUser": "Geen gebruiker",
+        "manualNotAllowed": "Rol kan geen handmatige kortingen toepassen",
+        "categoryNotAllowed": "Categorie niet toegestaan voor rol",
+        "approvalRequired": "Korting vereist managergoedkeuring",
+        "exceedsMaxPercent": "Overschrijdt rolmaximum {{percent}}%",
+        "exceedsMaxFixed": "Overschrijdt vast rolmaximum"
+      }
+    },
+    "validation": {
+      "targetRequired": "Selecteer minstens één doel"
+    },
+    "placeholders": {
+      "startTime": "15:00",
+      "endTime": "18:00"
+    },
+    "errors": {
+      "saveFailed": "Korting kon niet worden opgeslagen.",
+      "createReasonFailed": "Kortingsreden kon niet worden aangemaakt."
     }
   }
 }

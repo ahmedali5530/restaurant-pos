@@ -39,7 +39,12 @@
   "discount": {
     "noDiscount": "Geen korting",
     "label": "Korting",
-    "withMaxCap": "met max. limiet van {{amount}}"
+    "withMaxCap": "met maximum van {{amount}}",
+    "applied": "Toegepast",
+    "selectItems": "Artikelen selecteren",
+    "reason": "Reden",
+    "reasonNotes": "Notities (optioneel)",
+    "apply": "Korting toepassen"
   },
   "coupon": {
     "codeLabel": "Couponcode",

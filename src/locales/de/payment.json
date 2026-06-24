@@ -39,7 +39,12 @@
   "discount": {
     "noDiscount": "Kein Rabatt",
     "label": "Rabatt",
-    "withMaxCap": "mit Höchstbetrag von {{amount}}"
+    "withMaxCap": "mit Höchstbetrag von {{amount}}",
+    "applied": "Angewendet",
+    "selectItems": "Artikel auswählen",
+    "reason": "Grund",
+    "reasonNotes": "Notizen (optional)",
+    "apply": "Rabatt anwenden"
   },
   "coupon": {
     "codeLabel": "Gutscheincode",
@@ -89,7 +94,7 @@
   },
   "discountType": {
     "percent": "Prozent",
-    "fixed": "Festbetrag"
+    "fixed": "Fest"
   },
   "remoteGateway": {
     "missingProvider": "Remote-Zahlungsart hat keinen Gateway-Anbieter.",

@@ -65,6 +65,7 @@ export interface OrderTotalsInput {
   extrasTotal?: number;
   taxAmount?: number;
   discountAmount?: number;
+  discountTotal?: number;
   serviceChargeAmount?: number;
   couponAmount?: number;
   tipAmount?: number;
@@ -75,16 +76,18 @@ export const calculateOrderGrandTotal = ({
   extrasTotal = 0,
   taxAmount = 0,
   discountAmount = 0,
+  discountTotal,
   serviceChargeAmount = 0,
   couponAmount = 0,
   tipAmount = 0,
 }: OrderTotalsInput) => {
+  const resolvedDiscount = discountTotal ?? discountAmount;
   return (
     itemsTotal +
     extrasTotal +
     taxAmount +
     serviceChargeAmount -
-    discountAmount -
+    resolvedDiscount -
     couponAmount +
     tipAmount
   );

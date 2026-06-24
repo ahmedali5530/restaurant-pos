@@ -54,7 +54,15 @@ export const CommonBillParts = ({
             <div style={{ textAlign: 'right' }}>{withCurrency(order?.tax_amount)}</div>
           </div>
         )}
-        {order?.discount && (
+        {((order as Order & { order_discounts?: { name: string; applied_amount: number; removed_at?: unknown }[] }).order_discounts || [])
+          .filter(od => !od.removed_at)
+          .map((od, idx) => (
+          <div key={idx} style={{ display: 'flex' }}>
+            <div style={{ flex: 1 }}>{od.name}</div>
+            <div style={{ textAlign: 'right' }}>-{withCurrency(od.applied_amount)}</div>
+          </div>
+        ))}
+        {!(order as Order & { order_discounts?: unknown[] }).order_discounts?.length && order?.discount && (
           <div style={{ display: 'flex' }}>
             <div style={{ flex: 1 }}>Discount</div>
             <div style={{ textAlign: 'right' }}>{withCurrency(order?.discount_amount)}</div>

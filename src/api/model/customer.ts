@@ -9,4 +9,5 @@ export interface Customer extends ID, Name{
   secondary_address?: string
   postal_code?: number
   points?: number
+  tags?: string[]
 }

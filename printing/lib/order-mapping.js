@@ -342,6 +342,9 @@ function mapOrderToBill(order, opts) {
   const pay = getOrderPaymentSummary(order, total);
   const items = getOrderItems(order);
   const tipLabel = order && order.tip_type === 'Percent' ? 'Tip %' : 'Tip';
+  const discountLines = (order.order_discounts || [])
+    .filter((od) => !od.removed_at)
+    .map((od) => ({ name: od.name, amount: Number(od.applied_amount || 0) }));
   return {
     orderId: getOrderId(order),
     table: getOrderTable(order),
@@ -351,8 +354,9 @@ function mapOrderToBill(order, opts) {
     items,
     itemsCount: items.length,
     itemsTotal: tot.itemsTotal,
-    discount: !!order.discount,
+    discount: !!order.discount || discountLines.length > 0,
     discountAmount: tot.discountAmount,
+    discountLines,
     tax: tot.tax,
     taxLabel: getOrderTaxLabel(order),
     serviceChargeLabel: getOrderServiceChargeLabel(order),

@@ -319,18 +319,42 @@
   },
   "accessRules": {
     "modules": {
-      "Menu": { "label": "Speisekarte" },
-      "Orders": { "label": "Bestellungen" },
-      "Summary": { "label": "Zusammenfassung" },
-      "Reports": { "label": "Berichte" },
-      "Closing": { "label": "Tagesabschluss" },
-      "Kitchen": { "label": "Küche" },
-      "Delivery": { "label": "Lieferung" },
-      "Admin": { "label": "Verwaltung" },
-      "Riders": { "label": "Fahrer" },
-      "Tips": { "label": "Trinkgeldverteilung" },
-      "Inventory": { "label": "Lager" },
-      "Settings": { "label": "Einstellungen" }
+      "Menu": {
+        "label": "Speisekarte"
+      },
+      "Orders": {
+        "label": "Bestellungen"
+      },
+      "Summary": {
+        "label": "Zusammenfassung"
+      },
+      "Reports": {
+        "label": "Berichte"
+      },
+      "Closing": {
+        "label": "Tagesabschluss"
+      },
+      "Kitchen": {
+        "label": "Küche"
+      },
+      "Delivery": {
+        "label": "Lieferung"
+      },
+      "Admin": {
+        "label": "Verwaltung"
+      },
+      "Riders": {
+        "label": "Fahrer"
+      },
+      "Tips": {
+        "label": "Trinkgeldverteilung"
+      },
+      "Inventory": {
+        "label": "Lager"
+      },
+      "Settings": {
+        "label": "Einstellungen"
+      }
     },
     "permissions": {
       "Change table": "Tisch wechseln",
@@ -436,6 +460,155 @@
       "Service charges": "Servicegebühren",
       "Auto check close": "Automatischer Rechnungsabschluss",
       "Closing cycle": "Abschlusszyklus"
+    }
+  },
+  "discountEngine": {
+    "tabs": {
+      "rules": "Rabattregeln",
+      "reasons": "Gründe",
+      "permissions": "Berechtigungen"
+    },
+    "columns": {
+      "category": "Kategorie",
+      "scope": "Bereich",
+      "mode": "Modus",
+      "code": "Code",
+      "active": "Aktiv",
+      "requiresApproval": "Genehmigung erforderlich"
+    },
+    "sections": {
+      "basic": "Grundlagen",
+      "value": "Wert & Limits",
+      "stacking": "Kombination & Steuer",
+      "options": "Optionen",
+      "schedule": "Zeitplan",
+      "bxgy": "Kauf X Erhalte Y",
+      "targets": "Ziele"
+    },
+    "fields": {
+      "category": "Kategorie",
+      "scope": "Bereich",
+      "applicationMode": "Anwendungsmodus",
+      "type": "Typ",
+      "minPercent": "Min. %",
+      "minRate": "Min. Satz",
+      "maxPercent": "Max. %",
+      "maxRate": "Max. Satz",
+      "stackingMode": "Kombinationsmodus",
+      "taxTreatment": "Steuerbehandlung",
+      "stackable": "Kombinierbar",
+      "exclusive": "Exklusiv",
+      "requiresReason": "Grund erforderlich",
+      "requiresApproval": "Genehmigung erforderlich",
+      "isActive": "Aktiv",
+      "startTime": "Startzeit",
+      "endTime": "Endzeit",
+      "startDate": "Startdatum",
+      "endDate": "Enddatum",
+      "daysOfWeek": "Wochentage",
+      "addScheduleWindow": "Zeitfenster hinzufügen",
+      "removeScheduleWindow": "Zeitfenster entfernen",
+      "buyQuantity": "Kaufmenge",
+      "getQuantity": "Gratis-Menge",
+      "buyCategoryIds": "Kauf-Kategorie-IDs (kommagetrennt)",
+      "getValueType": "Gratis-Werttyp",
+      "maxPercentRole": "Max. Prozent",
+      "maxFixedAmount": "Max. Festbetrag",
+      "canApplyManual": "Manuell anwendbar",
+      "canOverrideApproval": "Genehmigung überschreiben",
+      "allowedCategoriesHint": "Erlaubte Kategorien",
+      "buyCategories": "Kauf-Kategorien",
+      "buyItems": "Kauf-Artikel",
+      "getCategories": "Gratis-Kategorien",
+      "getItems": "Gratis-Artikel",
+      "targetCategories": "Menükategorien",
+      "targetItems": "Menüartikel",
+      "targetFloors": "Etagen",
+      "targetFloorsOptional": "Optional — Warenkorb-Rabatt auf bestimmte Etagen beschränken",
+      "customerTags": "Kunden-Tags",
+      "customerTagsHint": "Kommagetrennte Tags (z. B. vip, corporate). Kunde muss mindestens ein Tag haben.",
+      "minOrderAmount": "Mindestbestellwert"
+    },
+    "categories": {
+      "manager": "Manager",
+      "staff": "Personal",
+      "vip": "VIP",
+      "corporate": "Firmenkunde",
+      "happy_hour": "Happy Hour",
+      "category": "Kategorie",
+      "product": "Produkt",
+      "floor": "Etage",
+      "damage_wastage": "Schaden / Verderb",
+      "service_recovery": "Service-Wiederherstellung",
+      "bulk_order": "Großbestellung",
+      "manual": "Manuell",
+      "scheduled": "Geplant",
+      "buy_x_get_y": "Kauf X Erhalte Y"
+    },
+    "scopes": {
+      "item": "Artikel",
+      "category": "Kategorie",
+      "cart": "Warenkorb",
+      "customer": "Kunde",
+      "floor": "Etage"
+    },
+    "applicationModes": {
+      "manual": "Manuell",
+      "automatic": "Automatisch",
+      "both": "Beides"
+    },
+    "stackingModes": {
+      "allow": "Kombination erlauben",
+      "prevent": "Kombination verhindern",
+      "highest_wins": "Höchster gewinnt",
+      "priority": "Priorität"
+    },
+    "taxTreatments": {
+      "tax_before_discount": "Steuer vor Rabatt",
+      "tax_after_discount": "Steuer nach Rabatt",
+      "inclusive": "Inklusive Steuer",
+      "exclusive": "Exklusive Steuer"
+    },
+    "getValueTypes": {
+      "free": "Gratis",
+      "percent": "Prozent",
+      "fixed_amount": "Festbetrag"
+    },
+    "days": {
+      "sun": "So",
+      "mon": "Mo",
+      "tue": "Di",
+      "wed": "Mi",
+      "thu": "Do",
+      "fri": "Fr",
+      "sat": "Sa"
+    },
+    "reasons": {
+      "add": "Grund hinzufügen",
+      "createTitle": "Neuer Rabattgrund",
+      "created": "Grund erstellt"
+    },
+    "permissions": {
+      "policySaved": "Richtlinie gespeichert",
+      "denials": {
+        "noUser": "Kein Benutzer",
+        "manualNotAllowed": "Rolle darf keine manuellen Rabatte anwenden",
+        "categoryNotAllowed": "Kategorie für Rolle nicht erlaubt",
+        "approvalRequired": "Rabatt erfordert Manager-Genehmigung",
+        "exceedsMaxPercent": "Überschreitet Rollen-Maximum {{percent}}%",
+        "exceedsMaxFixed": "Überschreitet festes Rollen-Maximum"
+      }
+    },
+    "validation": {
+      "targetRequired": "Mindestens ein Ziel auswählen"
+    },
+    "placeholders": {
+      "startTime": "15:00",
+      "endTime": "18:00"
+    },
+    "errors": {
+      "saveFailed": "Rabatt konnte nicht gespeichert werden.",
+      "createReasonFailed": "Rabattgrund konnte nicht erstellt werden."
     }
   }
 }

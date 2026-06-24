@@ -171,6 +171,7 @@ export const MenuDish = ({
               selectedGroups: [],
               newOrOld: MenuItemType.new,
               category: state.category ? state.category?.name : (item.categories.length === 1 ? item.categories[0].name : ''),
+              category_id: state.category?.id?.toString(),
               price: price,
               menu_name: item.menu_name
             }, undefined, price)
@@ -222,6 +223,7 @@ export const MenuDish = ({
                 level: level,
                 newOrOld: MenuItemType.new,
                 category: state.category ? state.category?.name : (item.categories.length === 1 ? item.categories[0].name : ''),
+              category_id: state.category?.id?.toString(),
                 price: price,
                 menu_name: item.menu_name
               }, clonedGroups, price);

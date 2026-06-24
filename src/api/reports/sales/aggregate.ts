@@ -25,7 +25,12 @@ export const getOrderFigures = (order: Order): OrderFigures => {
   const grossSales = safeNumber(exclusiveSales + extras);
 
   const lineDiscounts = safeNumber(order.items?.reduce((sum, item) => sum + safeNumber(item?.discount), 0) ?? 0);
-  const orderDiscount = safeNumber(order.discount_amount);
+  const engineDiscounts = safeNumber(
+    (order.order_discounts || [])
+      .filter(od => !od.removed_at)
+      .reduce((sum, od) => sum + safeNumber(od.applied_amount), 0)
+  );
+  const orderDiscount = engineDiscounts > 0 ? engineDiscounts : safeNumber(order.discount_amount);
   const subtotalDiscount = Math.max(0, orderDiscount - lineDiscounts);
   const couponDiscount = safeNumber(order.coupon?.discount);
   const discounts = safeNumber(lineDiscounts + subtotalDiscount + couponDiscount);
@@ -233,7 +238,7 @@ export const aggregateSalesSummary = (orders: Order[], orderVoids: OrderVoid[]):
   const roundingBenefit = paymentSummary.amountDue - paymentSummary.amountCollected;
   const serviceCharges = orders.reduce((sum, order) => sum + safeNumber(order.service_charge_amount), 0);
   const taxes = orders.reduce((sum, order) => sum + safeNumber(order.tax_amount), 0);
-  const totalDiscounts = orders.reduce((sum, order) => sum + safeNumber(order.discount_amount), 0);
+  const totalDiscounts = orders.reduce((sum, order) => sum + getOrderFigures(order).discounts, 0);
   const totalCoupons = orders.reduce((sum, order) => sum + safeNumber(order.coupon?.discount), 0);
 
   const dayPartTotals = DAY_PARTS.reduce(
@@ -265,17 +270,33 @@ export const aggregateSalesSummary = (orders: Order[], orderVoids: OrderVoid[]):
 
   const discountMap = new Map<string, {quantity: number; amount: number}>();
   orders.forEach(order => {
+    const activeLines = (order.order_discounts ?? []).filter(line => !line.removed_at);
+
+    if (activeLines.length > 0) {
+      activeLines.forEach(line => {
+        const discountName = line.name || order.discount?.name || "Discount";
+        const amount = safeNumber(line.applied_amount);
+        const current = discountMap.get(discountName) ?? {quantity: 0, amount: 0};
+        current.quantity += 1;
+        current.amount += amount;
+        discountMap.set(discountName, current);
+      });
+      return;
+    }
+
+    const discountTotal = getOrderFigures(order).discounts;
+    if (discountTotal <= 0) {
+      return;
+    }
+
     const discountName =
       order.discount?.name
       || (typeof order.discount === "string" ? order.discount : null)
-      || (safeNumber(order.discount_amount) > 0 ? "Custom discount" : null);
+      || "Custom discount";
 
-    if (!discountName) return;
-
-    const amount = safeNumber(order.discount_amount);
     const current = discountMap.get(discountName) ?? {quantity: 0, amount: 0};
     current.quantity += 1;
-    current.amount += amount;
+    current.amount += discountTotal;
     discountMap.set(discountName, current);
   });
 

@@ -319,18 +319,42 @@
   },
   "accessRules": {
     "modules": {
-      "Menu": { "label": "Меню" },
-      "Orders": { "label": "Заказы" },
-      "Summary": { "label": "Сводка" },
-      "Reports": { "label": "Отчёты" },
-      "Closing": { "label": "Закрытие смены" },
-      "Kitchen": { "label": "Кухня" },
-      "Delivery": { "label": "Доставка" },
-      "Admin": { "label": "Администрирование" },
-      "Riders": { "label": "Курьеры" },
-      "Tips": { "label": "Распределение чаевых" },
-      "Inventory": { "label": "Склад" },
-      "Settings": { "label": "Настройки" }
+      "Menu": {
+        "label": "Меню"
+      },
+      "Orders": {
+        "label": "Заказы"
+      },
+      "Summary": {
+        "label": "Сводка"
+      },
+      "Reports": {
+        "label": "Отчёты"
+      },
+      "Closing": {
+        "label": "Закрытие смены"
+      },
+      "Kitchen": {
+        "label": "Кухня"
+      },
+      "Delivery": {
+        "label": "Доставка"
+      },
+      "Admin": {
+        "label": "Администрирование"
+      },
+      "Riders": {
+        "label": "Курьеры"
+      },
+      "Tips": {
+        "label": "Распределение чаевых"
+      },
+      "Inventory": {
+        "label": "Склад"
+      },
+      "Settings": {
+        "label": "Настройки"
+      }
     },
     "permissions": {
       "Change table": "Смена стола",
@@ -436,6 +460,155 @@
       "Service charges": "Сервисный сбор",
       "Auto check close": "Автозакрытие чеков",
       "Closing cycle": "Цикл закрытия"
+    }
+  },
+  "discountEngine": {
+    "tabs": {
+      "rules": "Правила скидок",
+      "reasons": "Причины",
+      "permissions": "Разрешения"
+    },
+    "columns": {
+      "category": "Категория",
+      "scope": "Область",
+      "mode": "Режим",
+      "code": "Код",
+      "active": "Активно",
+      "requiresApproval": "Требуется одобрение"
+    },
+    "sections": {
+      "basic": "Основное",
+      "value": "Значение и лимиты",
+      "stacking": "Накопление и налог",
+      "options": "Опции",
+      "schedule": "Расписание",
+      "bxgy": "Купи X Получи Y",
+      "targets": "Цели"
+    },
+    "fields": {
+      "category": "Категория",
+      "scope": "Область",
+      "applicationMode": "Режим применения",
+      "type": "Тип",
+      "minPercent": "Мин %",
+      "minRate": "Мин ставка",
+      "maxPercent": "Макс %",
+      "maxRate": "Макс ставка",
+      "stackingMode": "Режим накопления",
+      "taxTreatment": "Налоговый режим",
+      "stackable": "Совместимая",
+      "exclusive": "Эксклюзивная",
+      "requiresReason": "Требуется причина",
+      "requiresApproval": "Требуется одобрение",
+      "isActive": "Активно",
+      "startTime": "Время начала",
+      "endTime": "Время окончания",
+      "startDate": "Дата начала",
+      "endDate": "Дата окончания",
+      "daysOfWeek": "Дни недели",
+      "addScheduleWindow": "Добавить окно",
+      "removeScheduleWindow": "Удалить окно",
+      "buyQuantity": "Количество покупки",
+      "getQuantity": "Бесплатное количество",
+      "buyCategoryIds": "ID категорий покупки (через запятую)",
+      "getValueType": "Тип бесплатного значения",
+      "maxPercentRole": "Макс процент",
+      "maxFixedAmount": "Макс фикс. сумма",
+      "canApplyManual": "Может применять вручную",
+      "canOverrideApproval": "Может переопределить одобрение",
+      "allowedCategoriesHint": "Разрешённые категории",
+      "buyCategories": "Категории покупки",
+      "buyItems": "Позиции покупки",
+      "getCategories": "Бесплатные категории",
+      "getItems": "Бесплатные позиции",
+      "targetCategories": "Категории меню",
+      "targetItems": "Позиции меню",
+      "targetFloors": "Этажи",
+      "targetFloorsOptional": "Необязательно — ограничить скидку корзины определёнными этажами",
+      "customerTags": "Теги клиента",
+      "customerTagsHint": "Теги через запятую (напр. vip, corporate). У клиента должен быть хотя бы один тег.",
+      "minOrderAmount": "Минимальная сумма заказа"
+    },
+    "categories": {
+      "manager": "Менеджер",
+      "staff": "Персонал",
+      "vip": "VIP",
+      "corporate": "Корпоративный",
+      "happy_hour": "Happy hour",
+      "category": "Категория",
+      "product": "Продукт",
+      "floor": "Этаж",
+      "damage_wastage": "Порча / отходы",
+      "service_recovery": "Восстановление сервиса",
+      "bulk_order": "Оптовый заказ",
+      "manual": "Вручную",
+      "scheduled": "По расписанию",
+      "buy_x_get_y": "Купи X Получи Y"
+    },
+    "scopes": {
+      "item": "Позиция",
+      "category": "Категория",
+      "cart": "Корзина",
+      "customer": "Клиент",
+      "floor": "Этаж"
+    },
+    "applicationModes": {
+      "manual": "Вручную",
+      "automatic": "Автоматически",
+      "both": "Оба"
+    },
+    "stackingModes": {
+      "allow": "Разрешить накопление",
+      "prevent": "Запретить накопление",
+      "highest_wins": "Побеждает большая",
+      "priority": "Приоритет"
+    },
+    "taxTreatments": {
+      "tax_before_discount": "Налог до скидки",
+      "tax_after_discount": "Налог после скидки",
+      "inclusive": "Включая налог",
+      "exclusive": "Без налога"
+    },
+    "getValueTypes": {
+      "free": "Бесплатно",
+      "percent": "Процент",
+      "fixed_amount": "Фикс. сумма"
+    },
+    "days": {
+      "sun": "Вс",
+      "mon": "Пн",
+      "tue": "Вт",
+      "wed": "Ср",
+      "thu": "Чт",
+      "fri": "Пт",
+      "sat": "Сб"
+    },
+    "reasons": {
+      "add": "Добавить причину",
+      "createTitle": "Новая причина скидки",
+      "created": "Причина создана"
+    },
+    "permissions": {
+      "policySaved": "Политика сохранена",
+      "denials": {
+        "noUser": "Нет пользователя",
+        "manualNotAllowed": "Роль не может применять ручные скидки",
+        "categoryNotAllowed": "Категория не разрешена для роли",
+        "approvalRequired": "Скидка требует одобрения менеджера",
+        "exceedsMaxPercent": "Превышает максимум роли {{percent}}%",
+        "exceedsMaxFixed": "Превышает максимальную фикс. сумму роли"
+      }
+    },
+    "validation": {
+      "targetRequired": "Выберите хотя бы одну цель"
+    },
+    "placeholders": {
+      "startTime": "15:00",
+      "endTime": "18:00"
+    },
+    "errors": {
+      "saveFailed": "Не удалось сохранить скидку.",
+      "createReasonFailed": "Не удалось создать причину скидки."
     }
   }
 }

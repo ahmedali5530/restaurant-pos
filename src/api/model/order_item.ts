@@ -26,6 +26,7 @@ export interface OrderItem extends ID {
   is_suspended?: boolean
   level?: number
   category?: string
+  category_id?: string
   is_addition?: boolean
   is_refunded?: boolean
   created_by?: User

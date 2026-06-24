@@ -1,5 +1,6 @@
 import {Tables} from "@/api/db/tables.ts";
 import {ORDER_FETCHES} from "@/api/model/order.ts";
+import {MODIFIER_FETCH_DEPTH, buildModifierFetches} from "@/api/model/order_fetches.ts";
 import type {Order} from "@/api/model/order.ts";
 import type {OrderVoid} from "@/api/model/order_void.ts";
 import {buildCreatedAtDateConditions, buildOrConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
@@ -14,26 +15,9 @@ export const SALES_SUMMARY_FETCHES = [
   "items.item",
   "coupon",
   "coupon.coupon",
+  "order_discounts",
+  "order_discounts.discount",
 ];
-
-// SurrealQL FETCH cannot express truly unbounded recursion, so nested modifier
-// `dish` links are resolved down to a generous bounded depth that effectively
-// covers any real menu. Deeper nodes still render with their fallback name.
-export const MODIFIER_FETCH_DEPTH = 8;
-
-const buildModifierFetches = (depth: number): string[] => {
-  const fetches: string[] = [];
-  let path = "items.modifiers";
-
-  for (let level = 0; level <= depth; level += 1) {
-    path += ".selectedModifiers";
-    fetches.push(path);
-    fetches.push(`${path}.dish`);
-    path += ".selectedGroups";
-  }
-
-  return fetches;
-};
 
 export const PRODUCT_MIX_FETCHES = [
   "user",

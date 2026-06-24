@@ -84,7 +84,7 @@
     "menuSaved": "{{name}} menüsü kaydedildi",
     "categorySaved": "{{name}} kategorisi kaydedildi",
     "couponSaved": "{{code}} kuponu kaydedildi",
-    "discountSaved": "{{name}} indirimi kaydedildi",
+    "discountSaved": "İndirim {{name}} kaydedildi",
     "extraSaved": "{{name}} ekstrası kaydedildi",
     "floorSaved": "{{name}} katı kaydedildi",
     "kitchenSaved": "{{name}} mutfağı kaydedildi",

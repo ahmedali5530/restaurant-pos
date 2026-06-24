@@ -135,6 +135,7 @@ export const MenuHeader = () => {
           updated_at: item.updated_at,
           deleted_at: item.deleted_at,
           category: item.category,
+          category_id: item.category_id,
           comments: item.comments,
         })) ?? [],
         seats: seatsArray,

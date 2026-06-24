@@ -1,0 +1,177 @@
+{
+  "admin": {
+    "discountEngine": {
+      "tabs": {
+        "rules": "قواعد الخصم",
+        "reasons": "الأسباب",
+        "permissions": "الصلاحيات"
+      },
+      "columns": {
+        "category": "الفئة",
+        "scope": "النطاق",
+        "mode": "الوضع",
+        "code": "الرمز",
+        "active": "نشط",
+        "requiresApproval": "يتطلب موافقة"
+      },
+      "sections": {
+        "basic": "أساسي",
+        "targets": "الأهداف",
+        "value": "القيمة والحدود",
+        "stacking": "التجميع والضريبة",
+        "options": "خيارات",
+        "schedule": "الجدول",
+        "bxgy": "اشترِ X واحصل على Y"
+      },
+      "fields": {
+        "category": "الفئة",
+        "scope": "النطاق",
+        "applicationMode": "وضع التطبيق",
+        "type": "النوع",
+        "minPercent": "الحد الأدنى %",
+        "minRate": "الحد الأدنى للمعدل",
+        "maxPercent": "الحد الأقصى %",
+        "maxRate": "الحد الأقصى للمعدل",
+        "stackingMode": "وضع التجميع",
+        "taxTreatment": "معالجة الضريبة",
+        "stackable": "قابل للتجميع",
+        "exclusive": "حصري",
+        "requiresReason": "يتطلب سبباً",
+        "requiresApproval": "يتطلب موافقة",
+        "isActive": "نشط",
+        "startTime": "وقت البداية",
+        "endTime": "وقت النهاية",
+        "startDate": "تاريخ البداية",
+        "endDate": "تاريخ النهاية",
+        "daysOfWeek": "أيام الأسبوع",
+        "addScheduleWindow": "إضافة نافذة زمنية",
+        "removeScheduleWindow": "إزالة النافذة",
+        "buyQuantity": "كمية الشراء",
+        "getQuantity": "الكمية المجانية",
+        "buyCategories": "فئات الشراء",
+        "buyItems": "عناصر الشراء",
+        "getCategories": "فئات مجانية",
+        "getItems": "عناصر مجانية",
+        "buyCategoryIds": "معرفات فئات الشراء (مفصولة بفاصلة)",
+        "getValueType": "نوع القيمة المجانية",
+        "targetCategories": "فئات القائمة",
+        "targetItems": "عناصر القائمة",
+        "targetFloors": "الطوابق",
+        "targetFloorsOptional": "اختياري — حدّ خصم السلة لطوابق محددة",
+        "customerTags": "وسوم العميل",
+        "customerTagsHint": "وسوم مفصولة بفاصلة (مثل vip، corporate). يجب أن يكون للعميل وسم واحد على الأقل.",
+        "minOrderAmount": "الحد الأدنى لمبلغ الطلب",
+        "maxPercentRole": "الحد الأقصى للنسبة",
+        "maxFixedAmount": "الحد الأقصى للمبلغ الثابت",
+        "canApplyManual": "يمكن التطبيق يدوياً",
+        "canOverrideApproval": "يمكن تجاوز الموافقة",
+        "allowedCategoriesHint": "الفئات المسموحة"
+      },
+      "validation": {
+        "targetRequired": "اختر هدفاً واحداً على الأقل"
+      },
+      "placeholders": {
+        "startTime": "15:00",
+        "endTime": "18:00"
+      },
+      "errors": {
+        "saveFailed": "تعذر حفظ الخصم.",
+        "createReasonFailed": "تعذر إنشاء سبب الخصم."
+      },
+      "categories": {
+        "manager": "مدير",
+        "staff": "موظف",
+        "vip": "VIP",
+        "corporate": "شركات",
+        "happy_hour": "ساعة سعيدة",
+        "category": "فئة",
+        "product": "منتج",
+        "floor": "طابق",
+        "damage_wastage": "تلف / هدر",
+        "service_recovery": "استرداد الخدمة",
+        "bulk_order": "طلب جماعي",
+        "manual": "يدوي",
+        "scheduled": "مجدول",
+        "buy_x_get_y": "اشترِ X واحصل على Y"
+      },
+      "scopes": {
+        "item": "عنصر",
+        "category": "فئة",
+        "cart": "السلة",
+        "customer": "عميل",
+        "floor": "طابق"
+      },
+      "applicationModes": {
+        "manual": "يدوي",
+        "automatic": "تلقائي",
+        "both": "كلاهما"
+      },
+      "stackingModes": {
+        "allow": "السماح بالتجميع",
+        "prevent": "منع التجميع",
+        "highest_wins": "الأعلى يفوز",
+        "priority": "الأولوية"
+      },
+      "taxTreatments": {
+        "tax_before_discount": "ضريبة قبل الخصم",
+        "tax_after_discount": "ضريبة بعد الخصم",
+        "inclusive": "ضريبة شاملة",
+        "exclusive": "ضريبة منفصلة"
+      },
+      "getValueTypes": {
+        "free": "مجاني",
+        "percent": "نسبة مئوية",
+        "fixed_amount": "مبلغ ثابت"
+      },
+      "days": {
+        "sun": "أحد",
+        "mon": "إثن",
+        "tue": "ثلا",
+        "wed": "أرب",
+        "thu": "خمي",
+        "fri": "جمع",
+        "sat": "سبت"
+      },
+      "reasons": {
+        "add": "إضافة سبب",
+        "createTitle": "سبب خصم جديد",
+        "created": "تم إنشاء السبب"
+      },
+      "permissions": {
+        "policySaved": "تم حفظ السياسة",
+        "denials": {
+          "noUser": "لا يوجد مستخدم",
+          "manualNotAllowed": "الدور لا يمكنه تطبيق خصومات يدوية",
+          "categoryNotAllowed": "الفئة غير مسموحة للدور",
+          "approvalRequired": "الخصم يتطلب موافقة المدير",
+          "exceedsMaxPercent": "يتجاوز الحد الأقصى للدور {{percent}}%",
+          "exceedsMaxFixed": "يتجاوز الحد الأقصى للمبلغ الثابت للدور"
+        }
+      }
+    }
+  },
+  "payment": {
+    "tabs": {
+      "discount": "خصم"
+    },
+    "discount": {
+      "noDiscount": "بدون خصم",
+      "label": "خصم",
+      "withMaxCap": "بحد أقصى {{amount}}",
+      "applied": "مطبّق",
+      "selectItems": "اختر العناصر",
+      "reason": "السبب",
+      "reasonNotes": "ملاحظات (اختياري)",
+      "apply": "تطبيق الخصم"
+    },
+    "discountType": {
+      "percent": "نسبة مئوية",
+      "fixed": "ثابت"
+    }
+  },
+  "toast": {
+    "admin": {
+      "discountSaved": "تم حفظ الخصم {{name}}"
+    }
+  }
+}

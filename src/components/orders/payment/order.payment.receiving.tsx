@@ -31,6 +31,9 @@ import {
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
+import {computeScopedDiscount} from "@/lib/discount-engine/calculator.ts";
+import {orderItemToEvaluable} from "@/lib/discount-engine/context.ts";
+import {getOrderFilteredItems} from "@/lib/order.ts";
 import {useTranslation} from "react-i18next";
 
 interface Props {
@@ -44,10 +47,8 @@ interface Props {
   tax?: Tax
   taxAmount?: number
 
-  discount?: Discount
   discountAmount?: number
-  setDiscount?: (discount?: Discount) => void
-  setDiscountAmount?: (amount: number) => void
+  onPaymentTypeDiscount?: (discount: Discount, amount: number) => void
 
   tip: number
   tipType?: DiscountType
@@ -102,10 +103,8 @@ const OrderPaymentReceivingContent = ({
   setTax,
   tax,
   taxAmount,
-  discount,
   discountAmount,
-  setDiscount,
-  setDiscountAmount,
+  onPaymentTypeDiscount,
   tipType,
   tip,
   tipAmount,
@@ -197,7 +196,7 @@ const OrderPaymentReceivingContent = ({
       }
 
       const resolvedDiscountAmount = discountAmount ?? order.discount_amount ?? 0;
-      const resolvedDiscountId = discount?.id ?? order.discount?.id;
+      const resolvedDiscountId = order.discount?.id;
 
       let orderCouponId: string | null = order?.coupon?.id
         ? String(order.coupon.id)
@@ -439,27 +438,13 @@ const OrderPaymentReceivingContent = ({
     if (!d) {
       return undefined;
     }
-    const hasVariableRates = (d.min_rate ?? 0) !== (d.max_rate ?? 0);
-    let computed: number;
-    if (d.type === DiscountType.Percent) {
-      // Use min_rate as default for auto-apply if variable
-      const rate = hasVariableRates ? (d.min_rate ?? 0) : (d.min_rate ?? 0);
-      computed = (rate * itemsTotal) / 100;
-    } else { // Fixed
-      computed = d.min_rate ?? 0;
-    }
-    if (d.max_cap !== undefined && d.max_cap !== null) {
-      computed = Math.min(computed, d.max_cap);
-    }
-    // Never exceed itemsTotal
-    computed = Math.min(computed, itemsTotal);
-    return computed;
+    const items = getOrderFilteredItems(order).map(orderItemToEvaluable);
+    const computed = computeScopedDiscount(d, items);
+    return computed.appliedAmount;
   }
 
   const clearAutoDiscountIfNeeded = (newPaymentTypeId?: string) => {
     if (autoDiscountMeta?.paymentTypeId && autoDiscountMeta.paymentTypeId !== newPaymentTypeId) {
-      setDiscount && setDiscount(undefined);
-      setDiscountAmount && setDiscountAmount(0);
       setAutoDiscountMeta(undefined);
     }
   }
@@ -468,15 +453,11 @@ const OrderPaymentReceivingContent = ({
     clearAutoDiscountIfNeeded(paymentType.id.toString());
     const d = selectBestDiscount(paymentType.discounts);
     const amount = computeDiscountAmountFor(d);
-    if (d) {
-      setDiscount && setDiscount(d);
-      setDiscountAmount && setDiscountAmount(amount);
+    if (d && amount !== undefined) {
+      onPaymentTypeDiscount?.(d, amount);
       setAutoDiscountMeta({paymentTypeId: paymentType.id.toString(), discountId: d.id.toString()});
     } else {
-      // If no discount on this PT, and previous was auto, ensure cleared
       if (autoDiscountMeta) {
-        setDiscount && setDiscount(undefined);
-        setDiscountAmount && setDiscountAmount(0);
         setAutoDiscountMeta(undefined);
       }
     }

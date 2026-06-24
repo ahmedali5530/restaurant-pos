@@ -39,7 +39,12 @@
   "discount": {
     "noDiscount": "Без скидки",
     "label": "Скидка",
-    "withMaxCap": "с максимальным лимитом {{amount}}"
+    "withMaxCap": "с максимумом {{amount}}",
+    "applied": "Применено",
+    "selectItems": "Выбрать позиции",
+    "reason": "Причина",
+    "reasonNotes": "Заметки (необязательно)",
+    "apply": "Применить скидку"
   },
   "coupon": {
     "codeLabel": "Код купона",

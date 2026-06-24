@@ -10,6 +10,12 @@
     "preview": "vite preview",
     "i18n:verify": "node scripts/i18n-verify-parity.mjs",
     "i18n:verify-keys": "node scripts/i18n-verify-keys.mjs",
+    "i18n:backfill-discount": "node scripts/generate-discount-patches.mjs && node scripts/i18n-backfill-discount.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "migrate:discounts": "node scripts/migrate-discounts.mjs",
+    "seed:discounts": "node scripts/seed-discounts.mjs",
+    "backfill:order-discounts": "node scripts/backfill-order-discounts.mjs",
     "print-server": "cd printing && npm start",
     "payment-server": "cd payments && npm start",
     "tracking-server": "cd tracking-api && npm start"
@@ -103,6 +109,7 @@
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.0.2",
-    "vite": "8.0.8"
+    "vite": "8.0.8",
+    "vitest": "^3.2.6"
   }
 }

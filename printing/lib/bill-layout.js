@@ -72,7 +72,11 @@ function printBillLayout(printer, bill, config, opts) {
       });
     }
   }
-  if (bill.discount && bill.discountAmount != null && Number(bill.discountAmount) !== 0) {
+  if (Array.isArray(bill.discountLines) && bill.discountLines.length > 0) {
+    bill.discountLines.forEach((d) => {
+      printLineLeftRight(printer, d.name || 'Discount', '-' + formatMoney(d.amount, sym));
+    });
+  } else if (bill.discount && bill.discountAmount != null && Number(bill.discountAmount) !== 0) {
     printLineLeftRight(printer, 'Discount', formatMoney(bill.discountAmount, sym));
   }
   if (bill.serviceChargeLabel && bill.serviceChargeAmount != null && Number(bill.serviceChargeAmount) !== 0) {

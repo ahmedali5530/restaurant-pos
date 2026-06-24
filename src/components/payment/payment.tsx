@@ -6,7 +6,13 @@ import {appPage, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {calculateCartItemPrice} from "@/lib/cart.ts";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {Order, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
+import {
+  Order,
+  ORDER_FETCHES,
+  ORDER_PAYMENT_FETCHES,
+  OrderStatus,
+  parseOrderQueryResult,
+} from "@/api/model/order.ts";
 import {OrderPayment} from "@/components/orders/order.payment.tsx";
 import {OrderTotals, CartTotals} from "@/components/orders/order.totals.tsx";
 import {toRecordId} from "@/lib/utils.ts";
@@ -31,8 +37,9 @@ export const Payment = () => {
   const orderTakingBlocked = enforcement.orderTakingBlocked;
 
   const [isLoading, setLoading] = useState(false);
-  const [payment, setPayment] = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
   const [order, setOrder] = useState<Order>();
+  const [paymentOrder, setPaymentOrder] = useState<Order>();
 
   const total = useMemo(() => {
     return state.cart.reduce((prev, item) => {
@@ -48,21 +55,57 @@ export const Payment = () => {
     return state.cart.filter(item => !item.deleted_at).length;
   }, [state.cart]);
 
+  const fetchOrderForPayment = async (orderId: unknown): Promise<Order | undefined> => {
+    const id = toRecordId(orderId);
+    const runQuery = async (fetches: string[]) => {
+      const onlyResult = await db.query(
+        `SELECT * FROM ONLY ${id} FETCH ${fetches.join(", ")}`
+      );
+      const parsed = parseOrderQueryResult(onlyResult);
+      if (parsed?.items) {
+        return parsed;
+      }
+
+      const legacyResult = await db.query(
+        `SELECT * FROM ${id} FETCH ${fetches.join(", ")}`
+      );
+      return parseOrderQueryResult(legacyResult);
+    };
+
+    try {
+      const full = await runQuery(ORDER_FETCHES);
+      if (full) {
+        return full;
+      }
+    } catch (error) {
+      console.warn('Full order fetch failed, retrying with payment fetches', error);
+    }
+
+    return runQuery(ORDER_PAYMENT_FETCHES);
+  };
+
   useEffect(() => {
+    if (paymentOpen) {
+      return;
+    }
+
+    let cancelled = false;
+
     (async () => {
       if (state?.order?.id !== 'new') {
-        const orderId = toRecordId(state?.order?.id);
-
-        const [freshOrder] = await db.query(
-          `SELECT * FROM ONLY ${orderId} FETCH ${ORDER_FETCHES.join(", ")}`
-        );
-
-        setOrder(freshOrder);
+        const freshOrder = await fetchOrderForPayment(state?.order?.id);
+        if (!cancelled) {
+          setOrder(freshOrder);
+        }
       } else {
         setOrder(undefined);
       }
     })();
-  }, [db, state?.order?.id]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [state?.order?.id, paymentOpen]);
 
   const createOrder = async () => {
     await assertOrderTakingAllowed(db);
@@ -99,6 +142,7 @@ export const Payment = () => {
         is_suspended: item.isHold,
         level: item.level,
         category: item.category,
+        category_id: item.category_id,
         is_addition: false,
         menu: item.menu_name,
       };
@@ -304,12 +348,14 @@ export const Payment = () => {
           orderId = result[0].id;
         }
 
-        const freshOrder = await db.query(
-          `SELECT *
-           FROM ${orderId} FETCH ${ORDER_FETCHES.join(", ")}`
-        );
-        setOrder(freshOrder[0][0]);
-        setPayment(true);
+        const freshOrder = await fetchOrderForPayment(orderId);
+        if (!freshOrder?.items?.length) {
+          throw new Error(t("payment:errors.openPayment"));
+        }
+
+        setPaymentOrder(freshOrder);
+        setOrder(freshOrder);
+        setPaymentOpen(true);
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : t("payment:errors.openPayment");
@@ -358,12 +404,13 @@ export const Payment = () => {
           </div>
         </div>
       </div>
-      {payment && (
+      {paymentOpen && paymentOrder && (
         <OrderPayment
-          order={order}
+          order={paymentOrder}
           onClose={async () => {
+            setPaymentOpen(false);
+            setPaymentOrder(undefined);
             await reset();
-            setPayment(false);
           }}
         />
       )}

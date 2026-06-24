@@ -319,18 +319,42 @@
   },
   "accessRules": {
     "modules": {
-      "Menu": { "label": "Menü" },
-      "Orders": { "label": "Siparişler" },
-      "Summary": { "label": "Özet" },
-      "Reports": { "label": "Raporlar" },
-      "Closing": { "label": "Kapanış" },
-      "Kitchen": { "label": "Mutfak" },
-      "Delivery": { "label": "Teslimat" },
-      "Admin": { "label": "Yönetim" },
-      "Riders": { "label": "Kuryeler" },
-      "Tips": { "label": "Bahşiş Dağıtımı" },
-      "Inventory": { "label": "Envanter" },
-      "Settings": { "label": "Ayarlar" }
+      "Menu": {
+        "label": "Menü"
+      },
+      "Orders": {
+        "label": "Siparişler"
+      },
+      "Summary": {
+        "label": "Özet"
+      },
+      "Reports": {
+        "label": "Raporlar"
+      },
+      "Closing": {
+        "label": "Kapanış"
+      },
+      "Kitchen": {
+        "label": "Mutfak"
+      },
+      "Delivery": {
+        "label": "Teslimat"
+      },
+      "Admin": {
+        "label": "Yönetim"
+      },
+      "Riders": {
+        "label": "Kuryeler"
+      },
+      "Tips": {
+        "label": "Bahşiş Dağıtımı"
+      },
+      "Inventory": {
+        "label": "Envanter"
+      },
+      "Settings": {
+        "label": "Ayarlar"
+      }
     },
     "permissions": {
       "Change table": "Masa değiştir",
@@ -436,6 +460,155 @@
       "Service charges": "Servis ücretleri",
       "Auto check close": "Otomatik adisyon kapatma",
       "Closing cycle": "Kapanış döngüsü"
+    }
+  },
+  "discountEngine": {
+    "tabs": {
+      "rules": "İndirim kuralları",
+      "reasons": "Nedenler",
+      "permissions": "İzinler"
+    },
+    "columns": {
+      "category": "Kategori",
+      "scope": "Kapsam",
+      "mode": "Mod",
+      "code": "Kod",
+      "active": "Aktif",
+      "requiresApproval": "Onay gerekli"
+    },
+    "sections": {
+      "basic": "Temel",
+      "value": "Değer ve limitler",
+      "stacking": "Birleştirme ve vergi",
+      "options": "Seçenekler",
+      "schedule": "Zamanlama",
+      "bxgy": "X Al Y Kazan",
+      "targets": "Hedefler"
+    },
+    "fields": {
+      "category": "Kategori",
+      "scope": "Kapsam",
+      "applicationMode": "Uygulama modu",
+      "type": "Tür",
+      "minPercent": "Min %",
+      "minRate": "Min oran",
+      "maxPercent": "Maks %",
+      "maxRate": "Maks oran",
+      "stackingMode": "Birleştirme modu",
+      "taxTreatment": "Vergi işlemi",
+      "stackable": "Birleştirilebilir",
+      "exclusive": "Özel",
+      "requiresReason": "Neden gerekli",
+      "requiresApproval": "Onay gerekli",
+      "isActive": "Aktif",
+      "startTime": "Başlangıç saati",
+      "endTime": "Bitiş saati",
+      "startDate": "Başlangıç tarihi",
+      "endDate": "Bitiş tarihi",
+      "daysOfWeek": "Haftanın günleri",
+      "addScheduleWindow": "Zaman aralığı ekle",
+      "removeScheduleWindow": "Aralığı kaldır",
+      "buyQuantity": "Alım miktarı",
+      "getQuantity": "Bedava miktar",
+      "buyCategoryIds": "Alım kategori ID (virgülle ayrılmış)",
+      "getValueType": "Bedava değer türü",
+      "maxPercentRole": "Maks yüzde",
+      "maxFixedAmount": "Maks sabit tutar",
+      "canApplyManual": "Manuel uygulayabilir",
+      "canOverrideApproval": "Onayı geçersiz kılabilir",
+      "allowedCategoriesHint": "İzin verilen kategoriler",
+      "buyCategories": "Alım kategorileri",
+      "buyItems": "Alım ürünleri",
+      "getCategories": "Bedava kategoriler",
+      "getItems": "Bedava ürünler",
+      "targetCategories": "Menü kategorileri",
+      "targetItems": "Menü ürünleri",
+      "targetFloors": "Katlar",
+      "targetFloorsOptional": "İsteğe bağlı — sepet indirimini belirli katlarla sınırla",
+      "customerTags": "Müşteri etiketleri",
+      "customerTagsHint": "Virgülle ayrılmış etiketler (örn. vip, corporate). Müşterinin en az bir etiketi olmalı.",
+      "minOrderAmount": "Minimum sipariş tutarı"
+    },
+    "categories": {
+      "manager": "Yönetici",
+      "staff": "Personel",
+      "vip": "VIP",
+      "corporate": "Kurumsal",
+      "happy_hour": "Happy hour",
+      "category": "Kategori",
+      "product": "Ürün",
+      "floor": "Kat",
+      "damage_wastage": "Hasar / fire",
+      "service_recovery": "Hizmet telafisi",
+      "bulk_order": "Toplu sipariş",
+      "manual": "Manuel",
+      "scheduled": "Zamanlanmış",
+      "buy_x_get_y": "X Al Y Kazan"
+    },
+    "scopes": {
+      "item": "Ürün",
+      "category": "Kategori",
+      "cart": "Sepet",
+      "customer": "Müşteri",
+      "floor": "Kat"
+    },
+    "applicationModes": {
+      "manual": "Manuel",
+      "automatic": "Otomatik",
+      "both": "Her ikisi"
+    },
+    "stackingModes": {
+      "allow": "Birleştirmeye izin ver",
+      "prevent": "Birleştirmeyi engelle",
+      "highest_wins": "En yüksek kazanır",
+      "priority": "Öncelik"
+    },
+    "taxTreatments": {
+      "tax_before_discount": "İndirimden önce vergi",
+      "tax_after_discount": "İndirimden sonra vergi",
+      "inclusive": "Dahil vergi",
+      "exclusive": "Hariç vergi"
+    },
+    "getValueTypes": {
+      "free": "Bedava",
+      "percent": "Yüzde",
+      "fixed_amount": "Sabit tutar"
+    },
+    "days": {
+      "sun": "Paz",
+      "mon": "Pzt",
+      "tue": "Sal",
+      "wed": "Çar",
+      "thu": "Per",
+      "fri": "Cum",
+      "sat": "Cmt"
+    },
+    "reasons": {
+      "add": "Neden ekle",
+      "createTitle": "Yeni indirim nedeni",
+      "created": "Neden oluşturuldu"
+    },
+    "permissions": {
+      "policySaved": "Politika kaydedildi",
+      "denials": {
+        "noUser": "Kullanıcı yok",
+        "manualNotAllowed": "Rol manuel indirim uygulayamaz",
+        "categoryNotAllowed": "Kategori role izinli değil",
+        "approvalRequired": "İndirim yönetici onayı gerektirir",
+        "exceedsMaxPercent": "Rol maksimumunu aşıyor {{percent}}%",
+        "exceedsMaxFixed": "Rol sabit tutar maksimumunu aşıyor"
+      }
+    },
+    "validation": {
+      "targetRequired": "En az bir hedef seçin"
+    },
+    "placeholders": {
+      "startTime": "15:00",
+      "endTime": "18:00"
+    },
+    "errors": {
+      "saveFailed": "İndirim kaydedilemedi.",
+      "createReasonFailed": "İndirim nedeni oluşturulamadı."
     }
   }
 }

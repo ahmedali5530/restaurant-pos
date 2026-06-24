@@ -37,9 +37,14 @@
     "noTax": "Sans taxe"
   },
   "discount": {
-    "noDiscount": "Sans remise",
+    "noDiscount": "Aucune remise",
     "label": "Remise",
-    "withMaxCap": "avec un plafond maximum de {{amount}}"
+    "withMaxCap": "avec plafond de {{amount}}",
+    "applied": "Appliquée",
+    "selectItems": "Sélectionner les articles",
+    "reason": "Motif",
+    "reasonNotes": "Notes (optionnel)",
+    "apply": "Appliquer la remise"
   },
   "coupon": {
     "codeLabel": "Code coupon",

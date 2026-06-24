@@ -1,0 +1,177 @@
+{
+  "admin": {
+    "discountEngine": {
+      "tabs": {
+        "rules": "Regole sconto",
+        "reasons": "Motivi",
+        "permissions": "Permessi"
+      },
+      "columns": {
+        "category": "Categoria",
+        "scope": "Ambito",
+        "mode": "Modalità",
+        "code": "Codice",
+        "active": "Attivo",
+        "requiresApproval": "Richiede approvazione"
+      },
+      "sections": {
+        "basic": "Base",
+        "targets": "Obiettivi",
+        "value": "Valore e limiti",
+        "stacking": "Cumulo e tasse",
+        "options": "Opzioni",
+        "schedule": "Programmazione",
+        "bxgy": "Compra X Ottieni Y"
+      },
+      "fields": {
+        "category": "Categoria",
+        "scope": "Ambito",
+        "applicationMode": "Modalità applicazione",
+        "type": "Tipo",
+        "minPercent": "Min %",
+        "minRate": "Tasso min",
+        "maxPercent": "Max %",
+        "maxRate": "Tasso max",
+        "stackingMode": "Modalità cumulo",
+        "taxTreatment": "Trattamento fiscale",
+        "stackable": "Cumulabile",
+        "exclusive": "Esclusivo",
+        "requiresReason": "Richiede motivo",
+        "requiresApproval": "Richiede approvazione",
+        "isActive": "Attivo",
+        "startTime": "Ora inizio",
+        "endTime": "Ora fine",
+        "startDate": "Data inizio",
+        "endDate": "Data fine",
+        "daysOfWeek": "Giorni della settimana",
+        "addScheduleWindow": "Aggiungi finestra oraria",
+        "removeScheduleWindow": "Rimuovi finestra",
+        "buyQuantity": "Quantità da acquistare",
+        "getQuantity": "Quantità omaggio",
+        "buyCategories": "Categorie acquisto",
+        "buyItems": "Articoli acquisto",
+        "getCategories": "Categorie omaggio",
+        "getItems": "Articoli omaggio",
+        "buyCategoryIds": "ID categorie acquisto (separati da virgola)",
+        "getValueType": "Tipo valore omaggio",
+        "targetCategories": "Categorie menu",
+        "targetItems": "Articoli menu",
+        "targetFloors": "Piani",
+        "targetFloorsOptional": "Opzionale — limita questo sconto carrello a piani specifici",
+        "customerTags": "Tag cliente",
+        "customerTagsHint": "Tag separati da virgola (es. vip, corporate). Il cliente deve averne almeno uno.",
+        "minOrderAmount": "Importo minimo ordine",
+        "maxPercentRole": "Percentuale max",
+        "maxFixedAmount": "Importo fisso max",
+        "canApplyManual": "Può applicare manualmente",
+        "canOverrideApproval": "Può sovrascrivere approvazione",
+        "allowedCategoriesHint": "Categorie consentite"
+      },
+      "validation": {
+        "targetRequired": "Seleziona almeno un obiettivo"
+      },
+      "placeholders": {
+        "startTime": "15:00",
+        "endTime": "18:00"
+      },
+      "errors": {
+        "saveFailed": "Impossibile salvare lo sconto.",
+        "createReasonFailed": "Impossibile creare il motivo sconto."
+      },
+      "categories": {
+        "manager": "Manager",
+        "staff": "Personale",
+        "vip": "VIP",
+        "corporate": "Aziendale",
+        "happy_hour": "Happy hour",
+        "category": "Categoria",
+        "product": "Prodotto",
+        "floor": "Piano",
+        "damage_wastage": "Danno / spreco",
+        "service_recovery": "Recupero servizio",
+        "bulk_order": "Ordine massivo",
+        "manual": "Manuale",
+        "scheduled": "Programmato",
+        "buy_x_get_y": "Compra X Ottieni Y"
+      },
+      "scopes": {
+        "item": "Articolo",
+        "category": "Categoria",
+        "cart": "Carrello",
+        "customer": "Cliente",
+        "floor": "Piano"
+      },
+      "applicationModes": {
+        "manual": "Manuale",
+        "automatic": "Automatico",
+        "both": "Entrambi"
+      },
+      "stackingModes": {
+        "allow": "Consenti cumulo",
+        "prevent": "Impedisci cumulo",
+        "highest_wins": "Vince il maggiore",
+        "priority": "Priorità"
+      },
+      "taxTreatments": {
+        "tax_before_discount": "Tassa prima dello sconto",
+        "tax_after_discount": "Tassa dopo lo sconto",
+        "inclusive": "Tassa inclusa",
+        "exclusive": "Tassa esclusa"
+      },
+      "getValueTypes": {
+        "free": "Gratis",
+        "percent": "Percentuale",
+        "fixed_amount": "Importo fisso"
+      },
+      "days": {
+        "sun": "Dom",
+        "mon": "Lun",
+        "tue": "Mar",
+        "wed": "Mer",
+        "thu": "Gio",
+        "fri": "Ven",
+        "sat": "Sab"
+      },
+      "reasons": {
+        "add": "Aggiungi motivo",
+        "createTitle": "Nuovo motivo sconto",
+        "created": "Motivo creato"
+      },
+      "permissions": {
+        "policySaved": "Politica salvata",
+        "denials": {
+          "noUser": "Nessun utente",
+          "manualNotAllowed": "Il ruolo non può applicare sconti manuali",
+          "categoryNotAllowed": "Categoria non consentita per il ruolo",
+          "approvalRequired": "Lo sconto richiede approvazione del manager",
+          "exceedsMaxPercent": "Supera il massimo del ruolo {{percent}}%",
+          "exceedsMaxFixed": "Supera l'importo fisso massimo del ruolo"
+        }
+      }
+    }
+  },
+  "payment": {
+    "tabs": {
+      "discount": "Sconto"
+    },
+    "discount": {
+      "noDiscount": "Nessuno sconto",
+      "label": "Sconto",
+      "withMaxCap": "con tetto massimo di {{amount}}",
+      "applied": "Applicato",
+      "selectItems": "Seleziona articoli",
+      "reason": "Motivo",
+      "reasonNotes": "Note (opzionale)",
+      "apply": "Applica sconto"
+    },
+    "discountType": {
+      "percent": "Percentuale",
+      "fixed": "Fisso"
+    }
+  },
+  "toast": {
+    "admin": {
+      "discountSaved": "Sconto {{name}} salvato"
+    }
+  }
+}

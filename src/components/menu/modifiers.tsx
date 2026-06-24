@@ -154,6 +154,7 @@ export const MenuDishModifiers = (props: Props) => {
               : (catalog.dish.categories.length === 1
                 ? catalog.dish.categories[0].name
                 : ''),
+            category_id: state.category?.id?.toString(),
           },
           catalog.selectedGroups,
           catalog.price,
@@ -180,6 +181,7 @@ export const MenuDishModifiers = (props: Props) => {
       selectedGroups: nestedGroups,
       newOrOld: MenuItemType.new,
       category: state.category ? state.category?.name : (dish.categories.length === 1 ? dish.categories[0].name : ''),
+      category_id: state.category?.id?.toString(),
       isModifier: true,
       price: price,
       sourceModifier,

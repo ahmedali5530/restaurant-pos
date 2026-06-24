@@ -39,7 +39,12 @@
   "discount": {
     "noDiscount": "Nessuno sconto",
     "label": "Sconto",
-    "withMaxCap": "con tetto massimo di {{amount}}"
+    "withMaxCap": "con tetto massimo di {{amount}}",
+    "applied": "Applicato",
+    "selectItems": "Seleziona articoli",
+    "reason": "Motivo",
+    "reasonNotes": "Note (opzionale)",
+    "apply": "Applica sconto"
   },
   "coupon": {
     "codeLabel": "Codice coupon",

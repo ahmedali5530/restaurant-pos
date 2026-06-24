@@ -317,20 +317,193 @@
   "users": {
     "manageTabs": "Manage users tabs"
   },
+  "discountEngine": {
+    "tabs": {
+      "rules": "Discount rules",
+      "reasons": "Reasons",
+      "permissions": "Permissions"
+    },
+    "columns": {
+      "category": "Category",
+      "scope": "Scope",
+      "mode": "Mode",
+      "code": "Code",
+      "active": "Active",
+      "requiresApproval": "Requires approval"
+    },
+    "sections": {
+      "basic": "Basic",
+      "targets": "Targets",
+      "value": "Value & limits",
+      "stacking": "Stacking & tax",
+      "options": "Options",
+      "schedule": "Schedule",
+      "bxgy": "Buy X Get Y"
+    },
+    "fields": {
+      "category": "Category",
+      "scope": "Scope",
+      "applicationMode": "Application mode",
+      "type": "Type",
+      "minPercent": "Min %",
+      "minRate": "Min rate",
+      "maxPercent": "Max %",
+      "maxRate": "Max rate",
+      "stackingMode": "Stacking mode",
+      "taxTreatment": "Tax treatment",
+      "stackable": "Stackable",
+      "exclusive": "Exclusive",
+      "requiresReason": "Requires reason",
+      "requiresApproval": "Requires approval",
+      "isActive": "Active",
+      "startTime": "Start time",
+      "endTime": "End time",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "daysOfWeek": "Days of week",
+      "addScheduleWindow": "Add schedule window",
+      "removeScheduleWindow": "Remove window",
+      "buyQuantity": "Buy quantity",
+      "getQuantity": "Get quantity",
+      "buyCategories": "Buy categories",
+      "buyItems": "Buy items",
+      "getCategories": "Get categories",
+      "getItems": "Get items",
+      "buyCategoryIds": "Buy category IDs (comma-separated)",
+      "getValueType": "Get value type",
+      "targetCategories": "Menu categories",
+      "targetItems": "Menu items",
+      "targetFloors": "Floors",
+      "targetFloorsOptional": "Optional — limit this cart discount to specific floors",
+      "customerTags": "Customer tags",
+      "customerTagsHint": "Comma-separated tags (e.g. vip, corporate). Order customer must have at least one tag.",
+      "minOrderAmount": "Minimum order amount",
+      "maxPercentRole": "Max percent",
+      "maxFixedAmount": "Max fixed amount",
+      "canApplyManual": "Can apply manual",
+      "canOverrideApproval": "Can override approval",
+      "allowedCategoriesHint": "Allowed categories"
+    },
+    "validation": {
+      "targetRequired": "Select at least one target"
+    },
+    "placeholders": {
+      "startTime": "15:00",
+      "endTime": "18:00"
+    },
+    "errors": {
+      "saveFailed": "Unable to save discount.",
+      "createReasonFailed": "Unable to create discount reason."
+    },
+    "categories": {
+      "manager": "Manager",
+      "staff": "Staff",
+      "vip": "VIP",
+      "corporate": "Corporate",
+      "happy_hour": "Happy hour",
+      "category": "Category",
+      "product": "Product",
+      "floor": "Floor",
+      "damage_wastage": "Damage / wastage",
+      "service_recovery": "Service recovery",
+      "bulk_order": "Bulk order",
+      "manual": "Manual",
+      "scheduled": "Scheduled",
+      "buy_x_get_y": "Buy X Get Y"
+    },
+    "scopes": {
+      "item": "Item",
+      "category": "Category",
+      "cart": "Cart",
+      "customer": "Customer",
+      "floor": "Floor"
+    },
+    "applicationModes": {
+      "manual": "Manual",
+      "automatic": "Automatic",
+      "both": "Both"
+    },
+    "stackingModes": {
+      "allow": "Allow stacking",
+      "prevent": "Prevent stacking",
+      "highest_wins": "Highest wins",
+      "priority": "Priority"
+    },
+    "taxTreatments": {
+      "tax_before_discount": "Tax before discount",
+      "tax_after_discount": "Tax after discount",
+      "inclusive": "Inclusive tax",
+      "exclusive": "Exclusive tax"
+    },
+    "getValueTypes": {
+      "free": "Free",
+      "percent": "Percent",
+      "fixed_amount": "Fixed amount"
+    },
+    "days": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    },
+    "reasons": {
+      "add": "Add reason",
+      "createTitle": "New discount reason",
+      "created": "Reason created"
+    },
+    "permissions": {
+      "policySaved": "Policy saved",
+      "denials": {
+        "noUser": "No user",
+        "manualNotAllowed": "Role cannot apply manual discounts",
+        "categoryNotAllowed": "Category not allowed for role",
+        "approvalRequired": "Discount requires manager approval",
+        "exceedsMaxPercent": "Exceeds role max {{percent}}%",
+        "exceedsMaxFixed": "Exceeds role max fixed amount"
+      }
+    }
+  },
   "accessRules": {
     "modules": {
-      "Menu": { "label": "Menu" },
-      "Orders": { "label": "Orders" },
-      "Summary": { "label": "Summary" },
-      "Reports": { "label": "Reports" },
-      "Closing": { "label": "Closing" },
-      "Kitchen": { "label": "Kitchen" },
-      "Delivery": { "label": "Delivery" },
-      "Admin": { "label": "Administration" },
-      "Riders": { "label": "Riders" },
-      "Tips": { "label": "Tip Distribution" },
-      "Inventory": { "label": "Inventory" },
-      "Settings": { "label": "Settings" }
+      "Menu": {
+        "label": "Menu"
+      },
+      "Orders": {
+        "label": "Orders"
+      },
+      "Summary": {
+        "label": "Summary"
+      },
+      "Reports": {
+        "label": "Reports"
+      },
+      "Closing": {
+        "label": "Closing"
+      },
+      "Kitchen": {
+        "label": "Kitchen"
+      },
+      "Delivery": {
+        "label": "Delivery"
+      },
+      "Admin": {
+        "label": "Administration"
+      },
+      "Riders": {
+        "label": "Riders"
+      },
+      "Tips": {
+        "label": "Tip Distribution"
+      },
+      "Inventory": {
+        "label": "Inventory"
+      },
+      "Settings": {
+        "label": "Settings"
+      }
     },
     "permissions": {
       "Change table": "Change table",
