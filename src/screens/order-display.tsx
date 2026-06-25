@@ -11,8 +11,7 @@ import { useAtom } from 'jotai';
 import { appState, AppStateInterface } from '@/store/jotai.ts';
 import { LabelValue } from '@/api/model/common.ts';
 import { Button } from '@/components/common/input/button.tsx';
-import { DateTime } from 'luxon';
-import { toSurrealDateTime } from '@/lib/datetime.ts';
+import { toSurrealDateTime, getAppStartOfDaySurreal } from '@/lib/datetime.ts';
 import { useTranslation } from 'react-i18next';
 import { translateOrderStatus } from '@/lib/order.ts';
 import {
@@ -96,7 +95,7 @@ export const OrderDisplayScreen = () => {
   }, [selectedFilters]);
 
   const fetchOrders = useCallback(async () => {
-    const startDate = toSurrealDateTime(DateTime.now().startOf('day'));
+    const startDate = getAppStartOfDaySurreal();
     const filterSql = whereClauses.length > 0 ? `and ${whereClauses.join(' and ')}` : '';
     const fetchList = ORDER_FETCHES.join(', ');
 

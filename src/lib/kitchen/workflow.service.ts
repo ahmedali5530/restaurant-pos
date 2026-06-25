@@ -1,6 +1,5 @@
 import { Tables } from "@/api/db/tables.ts";
 import { toRecordId } from "@/lib/utils.ts";
-import { nowSurrealDateTime } from "@/lib/datetime.ts";
 import { dispatchPrint } from "@/lib/print.service.ts";
 import { OrderItemKitchenStatus } from "@/api/model/order_item_kitchen.ts";
 import { Dish } from "@/api/model/dish.ts";
@@ -114,11 +113,10 @@ export const createStageRows = async (
   params: {
     orderItem: any;
     dish: Dish;
-    fireDate: Date;
     kitchenItems?: Record<string, any[]>;
   }
 ): Promise<void> => {
-  const { orderItem, dish, fireDate, kitchenItems } = params;
+  const { orderItem, dish, kitchenItems } = params;
   const orderItemRef = toRecordId(orderItem.id.toString());
   const dishId = dish.id.toString();
 
@@ -135,15 +133,21 @@ export const createStageRows = async (
 
     for (const k of kitchens) {
       const kitchenId = k.id.toString();
-      await db.create(Tables.order_items_kitchen, {
-        created_at: fireDate,
-        activated_at: fireDate,
-        kitchen: toRecordId(kitchenId),
-        order_item: orderItemRef,
-        status: OrderItemKitchenStatus.Pending,
-        sequence: 0,
-        is_terminal: true,
-      });
+      await db.query(
+        `CREATE ${Tables.order_items_kitchen} SET
+          created_at = time::now(),
+          activated_at = time::now(),
+          kitchen = $kitchen,
+          order_item = $orderItem,
+          status = $status,
+          sequence = 0,
+          is_terminal = true`,
+        {
+          kitchen: toRecordId(kitchenId),
+          orderItem: orderItemRef,
+          status: OrderItemKitchenStatus.Pending,
+        }
+      );
 
       pushKitchenItem(kitchenItems, kitchenId, { ...orderItem, item: dish });
     }
@@ -163,22 +167,56 @@ export const createStageRows = async (
     const isFirst = i === 0;
     const isLast = i === stages.length - 1;
 
-    await db.create(Tables.order_items_kitchen, {
-      created_at: fireDate,
-      activated_at: isFirst ? fireDate : undefined,
-      kitchen: toRecordId(stage.kitchenId),
-      order_item: orderItemRef,
-      stage: toRecordId(stage.id),
-      stage_name: stage.name,
-      workflow: toRecordId(stage.workflowId),
-      sequence: stage.sequence,
-      status: isFirst ? OrderItemKitchenStatus.Pending : OrderItemKitchenStatus.Waiting,
-      is_terminal: stage.is_terminal || isLast,
-    });
-
     if (isFirst) {
+      await db.query(
+        `CREATE ${Tables.order_items_kitchen} SET
+          created_at = time::now(),
+          activated_at = time::now(),
+          kitchen = $kitchen,
+          order_item = $orderItem,
+          stage = $stage,
+          stage_name = $stageName,
+          workflow = $workflow,
+          sequence = $sequence,
+          status = $status,
+          is_terminal = $isTerminal`,
+        {
+          kitchen: toRecordId(stage.kitchenId),
+          orderItem: orderItemRef,
+          stage: toRecordId(stage.id),
+          stageName: stage.name,
+          workflow: toRecordId(stage.workflowId),
+          sequence: stage.sequence,
+          status: OrderItemKitchenStatus.Pending,
+          isTerminal: stage.is_terminal || isLast,
+        }
+      );
       pushKitchenItem(kitchenItems, stage.kitchenId, { ...orderItem, item: dish });
+      continue;
     }
+
+    await db.query(
+      `CREATE ${Tables.order_items_kitchen} SET
+        created_at = time::now(),
+        kitchen = $kitchen,
+        order_item = $orderItem,
+        stage = $stage,
+        stage_name = $stageName,
+        workflow = $workflow,
+        sequence = $sequence,
+        status = $status,
+        is_terminal = $isTerminal`,
+      {
+        kitchen: toRecordId(stage.kitchenId),
+        orderItem: orderItemRef,
+        stage: toRecordId(stage.id),
+        stageName: stage.name,
+        workflow: toRecordId(stage.workflowId),
+        sequence: stage.sequence,
+        status: OrderItemKitchenStatus.Waiting,
+        isTerminal: stage.is_terminal || isLast,
+      }
+    );
   }
 };
 
@@ -226,8 +264,7 @@ const fireStageKOT = async (db: AnyDb, oikId: any): Promise<void> => {
  */
 const advanceFrom = async (
   db: AnyDb,
-  row: { id: any; order_item: any; sequence?: number; workflow?: any },
-  now: any
+  row: { id: any; order_item: any; sequence?: number; workflow?: any }
 ): Promise<void> => {
   const next = firstRow<any>(
     await db.query(
@@ -243,10 +280,13 @@ const advanceFrom = async (
   );
 
   if (next) {
-    await db.merge(next.id, {
-      status: OrderItemKitchenStatus.Pending,
-      activated_at: now,
-    });
+    await db.query(
+      `UPDATE $next SET status = $pending, activated_at = time::now()`,
+      {
+        next: next.id,
+        pending: OrderItemKitchenStatus.Pending,
+      }
+    );
     await db.merge(row.order_item, {
       current_sequence: Number(next.sequence ?? 0),
     });
@@ -278,7 +318,6 @@ export const completeStages = async (
 ): Promise<void> => {
   if (oikIds.length === 0) return;
 
-  const now = nowSurrealDateTime();
   const ids = oikIds.map((id) => toRecordId(id));
 
   const rows = rowsOf<any>(
@@ -307,12 +346,11 @@ export const completeStages = async (
 
   await db.query(
     `UPDATE ${Tables.order_items_kitchen}
-     SET status = $completed, completed_at = $now, user = $user
+     SET status = $completed, completed_at = time::now(), user = $user
      WHERE id IN $toCompleteIds`,
     {
       toCompleteIds,
       completed: OrderItemKitchenStatus.Completed,
-      now,
       user: userId ? toRecordId(userId) : null,
     }
   );
@@ -353,9 +391,9 @@ export const completeStages = async (
 
   await Promise.all(
     activations.map(({ next }) =>
-      db.merge(next.id, {
-        status: OrderItemKitchenStatus.Pending,
-        activated_at: now,
+      db.query(`UPDATE $next SET status = $pending, activated_at = time::now()`, {
+        next: next.id,
+        pending: OrderItemKitchenStatus.Pending,
       })
     )
   );
@@ -393,19 +431,21 @@ export const skipStage = async (
   oikId: string,
   userId?: string | null
 ): Promise<void> => {
-  const now = nowSurrealDateTime();
   const row = firstRow<any>(
     await db.query(`SELECT * FROM $oik`, { oik: toRecordId(oikId) })
   );
   if (!row) return;
 
-  await db.merge(toRecordId(oikId), {
-    status: OrderItemKitchenStatus.Skipped,
-    completed_at: now,
-    user: userId ? toRecordId(userId) : null,
-  });
+  await db.query(
+    `UPDATE $oik SET status = $skipped, completed_at = time::now(), user = $user`,
+    {
+      oik: toRecordId(oikId),
+      skipped: OrderItemKitchenStatus.Skipped,
+      user: userId ? toRecordId(userId) : null,
+    }
+  );
 
-  await advanceFrom(db, row, now);
+  await advanceFrom(db, row);
 };
 
 /**

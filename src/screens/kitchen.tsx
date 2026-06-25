@@ -7,15 +7,14 @@ import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Kitchen, KitchenOrder as KitchenOrderModel} from "@/api/model/kitchen.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order} from "@/api/model/order.ts";
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDB} from "@/api/db/db.ts";
 import {OrderItemKitchen} from "@/api/model/order_item_kitchen.ts";
 import {KitchenOrder} from "@/components/kitchen/kitchen.order.tsx";
-import {DateTime} from "luxon";
-import {cn, safeNumber, toRecordId} from "@/lib/utils.ts";
+import {cn, toRecordId} from "@/lib/utils.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {LiveSubscription} from "surrealdb";
-import {toLuxonDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
+import {toLuxonDateTime, getAppStartOfDaySurreal} from "@/lib/datetime.ts";
 import {getInvoiceNumber} from "@/lib/order.ts";
 import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
 import {toast} from "sonner";
@@ -49,13 +48,27 @@ export const KitchenScreen = () => {
   const [completedOrders, setCompletedOrders] = useState<KitchenOrderModel[]>([]);
   const [loadingCompletedOrders, setLoadingCompletedOrders] = useState(false);
   const [recallingOrderKey, setRecallingOrderKey] = useState<string | null>(null);
+  const loadOrdersTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const resolveFetchedOrder = (value: unknown): Order | undefined => {
+    if (!value || typeof value !== 'object') {
+      return undefined;
+    }
+
+    const candidate = value as Order;
+    if (candidate.invoice_number == null) {
+      return undefined;
+    }
+
+    return candidate;
+  };
 
   const groupKitchenOrderItems = useCallback((records: OrderItemKitchen[] = []) => {
     const groupedOrders = new Map<string, KitchenOrderModel>();
 
     for (const item of records ?? []) {
-      const order = item.order_item?.order as Order | undefined;
-      const orderId = order?.id ?? String(item.order_item?.order ?? '');
+      const order = resolveFetchedOrder(item.order_item?.order);
+      const orderId = order?.id?.toString() ?? String(item.order_item?.order ?? '');
       const createdAtKey = (item as any).batch_created_at ?? '';
       const groupKey = `${orderId}_${createdAtKey}`;
 
@@ -66,7 +79,11 @@ export const KitchenScreen = () => {
         });
       }
 
-      groupedOrders.get(groupKey)?.items.push(item);
+      const group = groupedOrders.get(groupKey);
+      group?.items.push(item);
+      if (order && group && !group.order) {
+        group.order = order;
+      }
     }
 
     return Array.from(groupedOrders.values());
@@ -90,7 +107,7 @@ export const KitchenScreen = () => {
     `, {
       kitchen: toRecordId(kitchenId),
       currentUser: toRecordId(currentUser),
-      startDate: toSurrealDateTime(DateTime.now().startOf('day'))
+      startDate: getAppStartOfDaySurreal()
     });
 
     setOrders(groupKitchenOrderItems(kitchenOrderItemsRecord ?? []));
@@ -115,7 +132,7 @@ export const KitchenScreen = () => {
       `, {
         kitchen: toRecordId(kitchenId),
         currentUser: toRecordId(page?.user?.id),
-        startDate: toSurrealDateTime(DateTime.now().startOf('day'))
+        startDate: getAppStartOfDaySurreal()
       });
 
       const groupedCompletedOrders = groupKitchenOrderItems(kitchenOrderItemsRecord ?? []);
@@ -170,23 +187,49 @@ export const KitchenScreen = () => {
     }
   }, [kitchens, kitchen]);
 
+  const scheduleLoadOrders = useCallback((kitchenId: string) => {
+    if (loadOrdersTimerRef.current) {
+      clearTimeout(loadOrdersTimerRef.current);
+    }
+
+    loadOrdersTimerRef.current = setTimeout(() => {
+      void loadOrders(kitchenId);
+    }, 200);
+  }, [loadOrders]);
+
   const [ordersLiveQuery, setOrdersLiveQuery] = useState<LiveSubscription | null>(null);
   const [kitchenItemsLiveQuery, setKitchenItemsLiveQuery] = useState<LiveSubscription | null>(null);
+  const [orderItemsLiveQuery, setOrderItemsLiveQuery] = useState<LiveSubscription | null>(null);
+
   const runLiveQuery = async () => {
-    const result = await db.live(Tables.orders, function (action) {
-      if (action === 'CREATE') {
-        loadOrders(kitchen.id);
+    if (!kitchen?.id) {
+      return;
+    }
+
+    const kitchenId = kitchen.id.toString();
+    const refresh = () => scheduleLoadOrders(kitchenId);
+
+    const result = await db.live(Tables.orders, (action) => {
+      if (action === 'CREATE' || action === 'UPDATE') {
+        refresh();
       }
     });
 
-    const kitchenItems = await db.live(Tables.order_items_kitchen, function (action) {
-      if (action === 'UPDATE') {
-        loadOrders(kitchen.id);
+    const kitchenItems = await db.live(Tables.order_items_kitchen, (action) => {
+      if (action === 'CREATE' || action === 'UPDATE') {
+        refresh();
+      }
+    });
+
+    const orderItems = await db.live(Tables.order_items, (action) => {
+      if (action === 'CREATE' || action === 'UPDATE') {
+        refresh();
       }
     });
 
     setOrdersLiveQuery(result);
     setKitchenItemsLiveQuery(kitchenItems);
+    setOrderItemsLiveQuery(orderItems);
   }
 
   useEffect(() => {
@@ -196,29 +239,64 @@ export const KitchenScreen = () => {
     }
 
     return () => {
+      if (loadOrdersTimerRef.current) {
+        clearTimeout(loadOrdersTimerRef.current);
+      }
       ordersLiveQuery?.kill().catch(() => undefined);
       kitchenItemsLiveQuery?.kill().catch(() => undefined);
+      orderItemsLiveQuery?.kill().catch(() => undefined);
     }
   }, [kitchen]);
 
   const calculateAverageTime = useCallback(async (kitchenId: string) => {
-    const completedOrders = await db.query(`select math::sum(time::unix(completed_at) - time::unix(created_at)) AS diff, count()
-                                            from ${Tables.order_items_kitchen}
-                                            where kitchen = $kitchen
-                                              and completed_at != None and time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_DATE_FORMAT}") = $date
-                                            group all`, {
-      kitchen: kitchenId,
-      date: DateTime.now().toFormat(import.meta.env.VITE_DATE_FORMAT)
-    });
+    const startDate = getAppStartOfDaySurreal();
+    const maxPrepMinutes = 240;
 
-    if (completedOrders[0].length > 0) {
-      const duration: any = await db.query(`return duration::mins(duration::from_secs(math::floor(${safeNumber(completedOrders[0][0].diff / completedOrders[0][0].count, 0)})))`);
+    const [rows]: any = await db.query(
+      `SELECT completed_at, activated_at, created_at
+       FROM ${Tables.order_items_kitchen}
+       WHERE kitchen = $kitchen
+         AND completed_at != None
+         AND created_at >= $startDate`,
+      {
+        kitchen: toRecordId(kitchenId),
+        startDate,
+      }
+    );
 
-      setAvgTime(t("kitchen:labels.avgTimeMins", {count: Number(duration[0])}));
-    } else {
-      setAvgTime('-');
+    const durations: number[] = [];
+
+    for (const row of rows ?? []) {
+      const start = row.activated_at ?? row.created_at;
+      const end = row.completed_at;
+      if (!start || !end) {
+        continue;
+      }
+
+      const startAt = toLuxonDateTime(start);
+      const endAt = toLuxonDateTime(end);
+      if (!startAt.isValid || !endAt.isValid) {
+        continue;
+      }
+
+      const minutes = endAt.diff(startAt, 'minutes').minutes;
+      if (!Number.isFinite(minutes) || minutes < 0 || minutes > maxPrepMinutes) {
+        continue;
+      }
+
+      durations.push(minutes);
     }
-  }, []);
+
+    if (durations.length === 0) {
+      setAvgTime('-');
+      return;
+    }
+
+    const averageMinutes = Math.round(
+      durations.reduce((sum, value) => sum + value, 0) / durations.length
+    );
+    setAvgTime(t('kitchen:labels.avgTimeMins', { count: averageMinutes }));
+  }, [t]);
 
   const completeAllOrders = async () => {
     if (confirm(t("kitchen:confirm.completeAll"))) {

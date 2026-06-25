@@ -1,12 +1,11 @@
 import { KitchenOrder as KitchenOrderModel } from "@/api/model/kitchen.ts";
 import { Countdown } from "@/components/floor/countdown.tsx";
-import { DateTime } from "luxon";
 import { cn } from "@/lib/utils.ts";
 import { Button } from "@/components/common/input/button.tsx";
 import { useDB } from "@/api/db/db.ts";
 import { OrderItemName } from "@/components/common/order/order.item.tsx";
 import {getInvoiceNumber} from "@/lib/order.ts";
-import { toLuxonDateTime } from "@/lib/datetime.ts";
+import { nowInAppTimezone, toLuxonDateTime } from "@/lib/datetime.ts";
 import { completeStage, completeStages } from "@/lib/kitchen/workflow.service.ts";
 import { useAtom } from "jotai";
 import { appPage } from "@/store/jotai.ts";
@@ -24,7 +23,7 @@ export const KitchenOrder = ({
   const {t} = useTranslation("kitchen");
 
   const stageStart = order.items[0]?.activated_at ?? order.items[0]?.created_at;
-  const diff = DateTime.now().diff(toLuxonDateTime(stageStart)).as('minutes');
+  const diff = nowInAppTimezone().diff(toLuxonDateTime(stageStart)).as('minutes');
 
   const ready = async () => {
     const ids = order.items
@@ -38,7 +37,7 @@ export const KitchenOrder = ({
   }
 
   const isAddon = () => {
-    return order.items.filter(item => item.order_item.is_addition).length > 0
+    return order.items.filter((item) => item.order_item?.is_addition).length > 0;
   }
 
   return (
@@ -60,7 +59,9 @@ export const KitchenOrder = ({
 
 
           <div className="flex flex-col items-start gap-1">
-            <span className="font-bold text-xl">{order.order?.order_type?.name} / {getInvoiceNumber(order.order)}</span>
+            <span className="font-bold text-xl">
+              {[order.order?.order_type?.name, getInvoiceNumber(order.order)].filter(Boolean).join(' / ')}
+            </span>
             <span className="text-xl font-bold">
               <Countdown time={stageStart} />
             </span>

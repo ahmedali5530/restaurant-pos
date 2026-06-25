@@ -186,7 +186,7 @@ export const MenuHeader = () => {
           )}
           {state?.orders?.length > 0 ? (
             <>
-              <ScrollContainer className="max-w-[380px] flex flex-nowrap gap-3">
+              <ScrollContainer className="max-w-[300px] flex flex-nowrap gap-3">
                 <div className="input-group">
                   {state?.orders?.map((order, index) => (
                     <Button

@@ -4,7 +4,11 @@ import {OrderVoidReason} from "@/api/model/order_void.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import type {TFunction} from 'i18next';
 
-export const getInvoiceNumber = (order: OrderModel) => {
+export const getInvoiceNumber = (order?: OrderModel | null) => {
+  if (!order || order.invoice_number == null) {
+    return '-';
+  }
+
   return `${order.invoice_number}${order.split ? `/${order.split}` : ''}`;
 }
 

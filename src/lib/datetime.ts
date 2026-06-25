@@ -33,14 +33,50 @@ export const toSurrealDateTime = (value?: DateInput): SurrealDateTime => {
   }
 
   if (typeof value === "string") {
-    return new SurrealDateTime(new Date(value));
+    return new SurrealDateTime(toJsDate(value));
   }
 
-  return new SurrealDateTime(value);
+  if (typeof value === "number" || typeof value === "bigint") {
+    return new SurrealDateTime(Number(value));
+  }
+
+  return SurrealDateTime.now();
 };
 
 export const nowSurrealDateTime = (): SurrealDateTime => {
   return SurrealDateTime.now();
+};
+
+export const nowInAppTimezone = (): LuxonDateTime => {
+  return LuxonDateTime.now().setZone(getAppTimezone());
+};
+
+const hasExplicitOffset = (value: string): boolean =>
+  /[zZ]$|[+-]\d{2}:?\d{2}$/.test(value.trim());
+
+const parseIsoString = (value: string): LuxonDateTime => {
+  const trimmed = value.trim();
+  const timezone = getAppTimezone();
+
+  if (hasExplicitOffset(trimmed)) {
+    return LuxonDateTime.fromISO(trimmed, { setZone: true }).setZone(timezone);
+  }
+
+  // SurrealDB datetimes without an offset are UTC.
+  const asUtc = LuxonDateTime.fromISO(trimmed, { zone: "utc" });
+  if (asUtc.isValid) {
+    return asUtc.setZone(timezone);
+  }
+
+  return LuxonDateTime.fromISO(trimmed, { zone: timezone });
+};
+
+export const getAppStartOfDay = (): LuxonDateTime => {
+  return nowInAppTimezone().startOf("day");
+};
+
+export const getAppStartOfDaySurreal = (): SurrealDateTime => {
+  return toSurrealDateTime(getAppStartOfDay());
 };
 
 export const getAppTimezone = (): string => {
@@ -69,30 +105,34 @@ export const getBusinessDayUnixRange = (value?: DateInput) => {
 
 export const toLuxonDateTime = (value?: DateInput): LuxonDateTime => {
   if (value === undefined || value === null) {
-    return LuxonDateTime.now();
+    return nowInAppTimezone();
   }
 
   if (LuxonDateTime.isDateTime(value)) {
-    return value;
+    return value.setZone(getAppTimezone());
   }
 
   if (isSurrealDateTime(value)) {
-    return LuxonDateTime.fromJSDate(value.toDate());
+    return LuxonDateTime.fromJSDate(value.toDate(), { zone: getAppTimezone() });
   }
 
   if (value instanceof Date) {
-    return LuxonDateTime.fromJSDate(value);
+    return LuxonDateTime.fromJSDate(value, { zone: getAppTimezone() });
   }
 
   if (typeof value === "number") {
-    return LuxonDateTime.fromMillis(value);
+    return LuxonDateTime.fromMillis(value, { zone: getAppTimezone() });
   }
 
   if (typeof value === "bigint") {
-    return LuxonDateTime.fromMillis(Number(value));
+    return LuxonDateTime.fromMillis(Number(value), { zone: getAppTimezone() });
   }
 
-  return LuxonDateTime.fromISO(value);
+  if (typeof value === "string") {
+    return parseIsoString(value);
+  }
+
+  return nowInAppTimezone();
 };
 
 export const toJsDate = (value?: DateInput): Date => {
@@ -120,5 +160,9 @@ export const toJsDate = (value?: DateInput): Date => {
     return new Date(Number(value));
   }
 
-  return new Date(value);
+  if (typeof value === "string") {
+    return parseIsoString(value).toJSDate();
+  }
+
+  return new Date();
 };

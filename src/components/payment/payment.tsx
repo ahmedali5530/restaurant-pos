@@ -20,12 +20,12 @@ import {StringRecordId} from "surrealdb";
 import {MenuItemType} from "@/api/model/cart_item.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {DiscountType} from "@/api/model/discount.ts";
-import {DateTime} from "luxon";
 import {assertOrderTakingAllowed} from "@/lib/closing.guard.ts";
 import {toast} from "sonner";
 import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {createStageRows} from "@/lib/kitchen/workflow.service.ts";
+import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {useTranslation} from "react-i18next";
 
 export const Payment = () => {
@@ -111,7 +111,7 @@ export const Payment = () => {
     await assertOrderTakingAllowed(db);
 
     setLoading(true);
-    const date = DateTime.now().toJSDate();
+    const date = nowSurrealDateTime();
 
     const isNewOrder = state?.order?.id === 'new';
 
@@ -167,7 +167,6 @@ export const Payment = () => {
         await createStageRows(db, {
           orderItem: record[0],
           dish: item.dish,
-          fireDate: date,
           kitchenItems,
         });
       }
