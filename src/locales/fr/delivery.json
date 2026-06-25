@@ -57,7 +57,19 @@
     "mapCenterRequired": "Le centre de la carte est requis",
     "dayOrDateRequired": "Le jour ou la date est requis",
     "startTimeRequired": "L'heure de début est requise",
-    "endTimeRequired": "L'heure de fin est requise"
+    "endTimeRequired": "L'heure de fin est requise",
+    "banners": {
+      "title": "Bannières",
+      "description": "Téléchargez des images de bannières promotionnelles pour la livraison.",
+      "pickImages": "Choisir des images",
+      "saveBanners": "Enregistrer les bannières",
+      "saving": "Enregistrement...",
+      "saved": "Bannières de livraison enregistrées avec succès",
+      "loadFailed": "Échec du chargement des bannières de livraison",
+      "saveFailed": "Échec de l'enregistrement des bannières de livraison",
+      "remove": "Supprimer la bannière",
+      "noBanners": "Aucune bannière téléchargée pour le moment."
+    }
   },
   "order": {
     "noAddress": "Aucune adresse",

@@ -57,7 +57,19 @@
     "mapCenterRequired": "Harita merkezi zorunludur",
     "dayOrDateRequired": "Gün veya tarih zorunludur",
     "startTimeRequired": "Başlangıç saati zorunludur",
-    "endTimeRequired": "Bitiş saati zorunludur"
+    "endTimeRequired": "Bitiş saati zorunludur",
+    "banners": {
+      "title": "Bannerlar",
+      "description": "Teslimat için promosyon banner görselleri yükleyin.",
+      "pickImages": "Görsel seç",
+      "saveBanners": "Bannerları kaydet",
+      "saving": "Kaydediliyor...",
+      "saved": "Teslimat bannerları başarıyla kaydedildi",
+      "loadFailed": "Teslimat bannerları yüklenemedi",
+      "saveFailed": "Teslimat bannerları kaydedilemedi",
+      "remove": "Bannerı kaldır",
+      "noBanners": "Henüz banner yüklenmedi."
+    }
   },
   "order": {
     "noAddress": "Adres yok",

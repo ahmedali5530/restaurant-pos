@@ -57,7 +57,19 @@
     "mapCenterRequired": "Kartenmittelpunkt ist erforderlich",
     "dayOrDateRequired": "Wochentag oder Datum ist erforderlich",
     "startTimeRequired": "Startzeit ist erforderlich",
-    "endTimeRequired": "Endzeit ist erforderlich"
+    "endTimeRequired": "Endzeit ist erforderlich",
+    "banners": {
+      "title": "Banner",
+      "description": "Laden Sie Werbebanner-Bilder für die Lieferung hoch.",
+      "pickImages": "Bilder auswählen",
+      "saveBanners": "Banner speichern",
+      "saving": "Speichern...",
+      "saved": "Lieferbanner erfolgreich gespeichert",
+      "loadFailed": "Lieferbanner konnten nicht geladen werden",
+      "saveFailed": "Lieferbanner konnten nicht gespeichert werden",
+      "remove": "Banner entfernen",
+      "noBanners": "Noch keine Banner hochgeladen."
+    }
   },
   "order": {
     "noAddress": "Keine Adresse",

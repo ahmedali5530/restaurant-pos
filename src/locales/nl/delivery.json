@@ -57,7 +57,19 @@
     "mapCenterRequired": "Kaartcentrum is verplicht",
     "dayOrDateRequired": "Dag of datum is verplicht",
     "startTimeRequired": "Starttijd is verplicht",
-    "endTimeRequired": "Eindtijd is verplicht"
+    "endTimeRequired": "Eindtijd is verplicht",
+    "banners": {
+      "title": "Banners",
+      "description": "Upload promotionele bannerafbeeldingen voor bezorging.",
+      "pickImages": "Afbeeldingen kiezen",
+      "saveBanners": "Banners opslaan",
+      "saving": "Opslaan...",
+      "saved": "Bezorgbanners succesvol opgeslagen",
+      "loadFailed": "Bezorgbanners laden mislukt",
+      "saveFailed": "Bezorgbanners opslaan mislukt",
+      "remove": "Banner verwijderen",
+      "noBanners": "Nog geen banners geüpload."
+    }
   },
   "order": {
     "noAddress": "Geen adres",

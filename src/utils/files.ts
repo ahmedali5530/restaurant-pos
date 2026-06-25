@@ -22,20 +22,45 @@ export const downloadArrayBuffer = (
 };
 
 /**
- * Converts a value that might be ArrayBuffer or string to ArrayBuffer
+ * Converts binary data from SurrealDB (Uint8Array, ArrayBuffer, base64 string) to Uint8Array
  */
-export const toArrayBuffer = (value: ArrayBuffer | string): ArrayBuffer => {
-  if (value instanceof ArrayBuffer) {
+export const toUint8Array = (value: unknown): Uint8Array => {
+  if (value instanceof Uint8Array) {
     return value;
   }
+  if (value instanceof ArrayBuffer) {
+    return new Uint8Array(value);
+  }
+  if (ArrayBuffer.isView(value)) {
+    const view = value as ArrayBufferView;
+    return new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
+  }
   if (typeof value === 'string') {
-    // Assume it's base64 encoded
     const binaryString = atob(value);
     const bytes = new Uint8Array(binaryString.length);
     for (let i = 0; i < binaryString.length; i++) {
       bytes[i] = binaryString.charCodeAt(i);
     }
-    return bytes.buffer;
+    return bytes;
+  }
+  throw new Error('Invalid value type for binary conversion');
+};
+
+/**
+ * Converts a value that might be ArrayBuffer or string to ArrayBuffer
+ */
+export const toArrayBuffer = (value: ArrayBuffer | Uint8Array | string): ArrayBuffer => {
+  if (value instanceof ArrayBuffer) {
+    return value;
+  }
+  if (value instanceof Uint8Array) {
+    return toUint8Array(value).buffer.slice(
+      value.byteOffset,
+      value.byteOffset + value.byteLength
+    ) as ArrayBuffer;
+  }
+  if (typeof value === 'string') {
+    return toUint8Array(value).buffer;
   }
   throw new Error('Invalid value type for ArrayBuffer conversion');
 };
@@ -45,8 +70,13 @@ export const toArrayBuffer = (value: ArrayBuffer | string): ArrayBuffer => {
  * @param arrayBuffer - The ArrayBuffer or string (base64) to analyze
  * @param defaultMimeType - Default MIME type if detection fails
  */
-export const detectMimeType = (arrayBuffer: ArrayBuffer | string, defaultMimeType: string = 'application/octet-stream'): string => {
-  const buffer = toArrayBuffer(arrayBuffer);
+export const detectMimeType = (
+  arrayBuffer: ArrayBuffer | Uint8Array | string,
+  defaultMimeType: string = 'application/octet-stream'
+): string => {
+  const buffer = arrayBuffer instanceof Uint8Array
+    ? arrayBuffer.buffer.slice(arrayBuffer.byteOffset, arrayBuffer.byteOffset + arrayBuffer.byteLength)
+  : toArrayBuffer(arrayBuffer);
   // Check for common file signatures
   const bytes = new Uint8Array(buffer.slice(0, 4));
   

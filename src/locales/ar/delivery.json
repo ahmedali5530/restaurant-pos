@@ -57,7 +57,19 @@
     "mapCenterRequired": "مركز الخريطة مطلوب",
     "dayOrDateRequired": "يوم أو تاريخ مطلوب",
     "startTimeRequired": "وقت البداية مطلوب",
-    "endTimeRequired": "وقت النهاية مطلوب"
+    "endTimeRequired": "وقت النهاية مطلوب",
+    "banners": {
+      "title": "اللافتات",
+      "description": "ارفع صور لافتات ترويجية للتوصيل.",
+      "pickImages": "اختر الصور",
+      "saveBanners": "حفظ اللافتات",
+      "saving": "جارٍ الحفظ...",
+      "saved": "تم حفظ لافتات التوصيل بنجاح",
+      "loadFailed": "فشل تحميل لافتات التوصيل",
+      "saveFailed": "فشل حفظ لافتات التوصيل",
+      "remove": "إزالة اللافتة",
+      "noBanners": "لم يتم رفع أي لافتات بعد."
+    }
   },
   "order": {
     "noAddress": "لا يوجد عنوان",

@@ -15,6 +15,7 @@ import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {Menu} from "@/api/model/menu.ts";
 import {StringRecordId} from "surrealdb";
+import {DeliveryBannersSection} from "@/components/delivery/delivery-banners-section.tsx";
 
 interface DeliveryTimingEntry {
   id: string;
@@ -527,6 +528,8 @@ export const DeliverySettings = () => {
               </div>
             </form>
           )}
+
+          {!loading && <DeliveryBannersSection />}
         </div>
       </div>
     </>

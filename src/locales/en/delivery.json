@@ -57,7 +57,19 @@
     "mapCenterRequired": "Map center is required",
     "dayOrDateRequired": "Day or date is required",
     "startTimeRequired": "Start time is required",
-    "endTimeRequired": "End time is required"
+    "endTimeRequired": "End time is required",
+    "banners": {
+      "title": "Banners",
+      "description": "Upload promotional banner images for delivery.",
+      "pickImages": "Pick images",
+      "saveBanners": "Save Banners",
+      "saving": "Saving...",
+      "saved": "Delivery banners saved successfully",
+      "loadFailed": "Failed to load delivery banners",
+      "saveFailed": "Failed to save delivery banners",
+      "remove": "Remove banner",
+      "noBanners": "No banners uploaded yet."
+    }
   },
   "order": {
     "noAddress": "No address",

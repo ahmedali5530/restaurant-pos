@@ -57,7 +57,19 @@
     "mapCenterRequired": "O centro do mapa é obrigatório",
     "dayOrDateRequired": "O dia ou a data é obrigatório",
     "startTimeRequired": "O horário de início é obrigatório",
-    "endTimeRequired": "O horário de término é obrigatório"
+    "endTimeRequired": "O horário de término é obrigatório",
+    "banners": {
+      "title": "Banners",
+      "description": "Envie imagens de banners promocionais para delivery.",
+      "pickImages": "Selecionar imagens",
+      "saveBanners": "Salvar banners",
+      "saving": "Salvando...",
+      "saved": "Banners de delivery salvos com sucesso",
+      "loadFailed": "Falha ao carregar banners de delivery",
+      "saveFailed": "Falha ao salvar banners de delivery",
+      "remove": "Remover banner",
+      "noBanners": "Nenhum banner enviado ainda."
+    }
   },
   "order": {
     "noAddress": "Sem endereço",
