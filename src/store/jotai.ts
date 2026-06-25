@@ -6,7 +6,7 @@ import {Category} from "@/api/model/category.ts";
 import {ModifierGroup} from "@/api/model/modifier_group.ts";
 import {Floor} from "@/api/model/floor.ts";
 import {Customer} from "@/api/model/customer.ts";
-import {Order} from "@/api/model/order.ts";
+import {Order, OrderStatus} from "@/api/model/order.ts";
 import {MenuItem} from "@/api/model/cart_item.ts";
 import {OrderType} from "@/api/model/order_type.ts";
 import {User} from "@/api/model/user.ts";
@@ -46,6 +46,10 @@ export interface AppStateInterface {
     statuses: LabelValue[]
     orderTypes: LabelValue[]
   }
+  orderDisplayFilters: {
+    statuses: LabelValue[]
+    orderTypes: LabelValue[]
+  }
 }
 
 export const appState = atomWithStorage<AppStateInterface>(
@@ -62,7 +66,11 @@ export const appState = atomWithStorage<AppStateInterface>(
       floors: [],
       statuses: [],
       orderTypes: [],
-    }
+    },
+    orderDisplayFilters: {
+      statuses: [{ label: OrderStatus['In Progress'], value: OrderStatus['In Progress'] }],
+      orderTypes: [],
+    },
   }
 );
 

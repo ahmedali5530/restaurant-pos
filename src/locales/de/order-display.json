@@ -1,0 +1,12 @@
+{
+  "preparing": "In Zubereitung",
+  "readyForPickup": "Abholbereit",
+  "orderTime": "Bestellt um",
+  "celebrationTitle": "Abholbereit!",
+  "orderReadyAnnouncement": "Bestellung Nummer {{number}} ist fertig",
+  "filters": {
+    "status": "Status",
+    "orderTypes": "Bestellarten"
+  },
+  "toggleSidebar": "Seitenleiste anzeigen"
+}

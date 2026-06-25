@@ -27,6 +27,10 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
     label: "Kitchen",
     children: ['Kitchen'] as string[]
   },
+  "Order Display": {
+    label: "Order Display",
+    children: ['Order Display'] as string[]
+  },
   "Delivery": {
     label: "Delivery",
     children: ['Delivery', "Delivery orders", "Delivery areas", "Delivery settings"] as string[]

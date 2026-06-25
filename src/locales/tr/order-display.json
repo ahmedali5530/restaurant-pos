@@ -1,0 +1,12 @@
+{
+  "preparing": "Hazırlanıyor",
+  "readyForPickup": "Teslime hazır",
+  "orderTime": "Sipariş saati",
+  "celebrationTitle": "Teslime hazır!",
+  "orderReadyAnnouncement": "{{number}} numaralı sipariş hazır",
+  "filters": {
+    "status": "Durum",
+    "orderTypes": "Sipariş türleri"
+  },
+  "toggleSidebar": "Kenar çubuğunu göster"
+}

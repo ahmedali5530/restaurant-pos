@@ -1,0 +1,12 @@
+{
+  "preparing": "Готовится",
+  "readyForPickup": "Готов к выдаче",
+  "orderTime": "Заказ в",
+  "celebrationTitle": "Готов к выдаче!",
+  "orderReadyAnnouncement": "Заказ номер {{number}} готов",
+  "filters": {
+    "status": "Статус",
+    "orderTypes": "Типы заказов"
+  },
+  "toggleSidebar": "Показать боковую панель"
+}

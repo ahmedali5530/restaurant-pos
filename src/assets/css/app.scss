@@ -1033,3 +1033,35 @@ table th {
     transform: scale(1);
   }
 }
+
+@keyframes order-ready-confetti-fall {
+  0% {
+    transform: translate3d(0, -10vh, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 110vh, 0) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.order-ready-confetti {
+  animation-name: order-ready-confetti-fall;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes order-ready-tile-celebrate {
+  0%, 100% {
+    transform: scale(1.05);
+    box-shadow: 0 20px 40px rgba(34, 197, 94, 0.35);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 24px 48px rgba(34, 197, 94, 0.5);
+  }
+}
+
+.order-ready-tile-celebrate {
+  animation: order-ready-tile-celebrate 0.8s ease-in-out infinite;
+}

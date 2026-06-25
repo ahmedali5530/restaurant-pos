@@ -486,6 +486,9 @@
       "Kitchen": {
         "label": "Kitchen"
       },
+      "Order Display": {
+        "label": "Order Display"
+      },
       "Delivery": {
         "label": "Delivery"
       },
@@ -566,6 +569,7 @@
       "Closing": "Closing",
       "Edit Closing": "Edit Closing",
       "Kitchen": "Kitchen",
+      "Order Display": "Order Display",
       "Delivery": "Delivery",
       "Delivery orders": "Delivery orders",
       "Delivery areas": "Delivery areas",

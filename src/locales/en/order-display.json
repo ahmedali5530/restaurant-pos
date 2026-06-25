@@ -1,0 +1,12 @@
+{
+  "preparing": "Preparing",
+  "readyForPickup": "Ready for pickup",
+  "orderTime": "Ordered at",
+  "celebrationTitle": "Ready for pickup!",
+  "orderReadyAnnouncement": "Order number {{number}} is ready",
+  "filters": {
+    "status": "Status",
+    "orderTypes": "Order types"
+  },
+  "toggleSidebar": "Show sidebar"
+}

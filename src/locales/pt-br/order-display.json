@@ -1,0 +1,12 @@
+{
+  "preparing": "Em preparo",
+  "readyForPickup": "Pronto para retirada",
+  "orderTime": "Pedido às",
+  "celebrationTitle": "Pronto para retirada!",
+  "orderReadyAnnouncement": "O pedido número {{number}} está pronto",
+  "filters": {
+    "status": "Status",
+    "orderTypes": "Tipos de pedido"
+  },
+  "toggleSidebar": "Mostrar barra lateral"
+}

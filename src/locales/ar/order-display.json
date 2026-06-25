@@ -1,0 +1,12 @@
+{
+  "preparing": "قيد التحضير",
+  "readyForPickup": "جاهز للاستلام",
+  "orderTime": "وقت الطلب",
+  "celebrationTitle": "جاهز للاستلام!",
+  "orderReadyAnnouncement": "الطلب رقم {{number}} جاهز",
+  "filters": {
+    "status": "الحالة",
+    "orderTypes": "أنواع الطلب"
+  },
+  "toggleSidebar": "إظهار الشريط الجانبي"
+}

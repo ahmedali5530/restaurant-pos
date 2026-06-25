@@ -6,6 +6,7 @@ import {Orders} from "@/screens/orders.tsx";
 import {Summary} from "@/screens/summary.tsx";
 import {Closing} from "@/screens/closing.tsx";
 import {KitchenScreen} from "@/screens/kitchen.tsx";
+import {OrderDisplayScreen} from "@/screens/order-display.tsx";
 import {Index as Delivery} from "@/screens/delivery/";
 import {Admin} from "@/screens/admin";
 import {Reports} from "@/screens/reports/";
@@ -22,6 +23,7 @@ import {
   DELIVERY,
   INVENTORY,
   KITCHEN,
+  ORDER_DISPLAY,
   LOGIN,
   MENU,
   ORDERS,
@@ -122,6 +124,7 @@ export const AppRoutes = () => (
       <Route path={SUMMARY} element={<Summary/>}/>
       <Route path={CLOSING} element={<Closing/>}/>
       <Route path={KITCHEN} element={<KitchenScreen/>}/>
+      <Route path={ORDER_DISPLAY} element={<OrderDisplayScreen/>}/>
       <Route path={DELIVERY} element={<Delivery/>}/>
       <Route path={ADMIN} element={<Admin/>}/>
       <Route path={SETTINGS} element={<Settings/>}/>

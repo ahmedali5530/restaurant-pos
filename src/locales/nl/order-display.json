@@ -1,0 +1,12 @@
+{
+  "preparing": "In bereiding",
+  "readyForPickup": "Klaar om op te halen",
+  "orderTime": "Besteld om",
+  "celebrationTitle": "Klaar om op te halen!",
+  "orderReadyAnnouncement": "Bestelling nummer {{number}} is klaar",
+  "filters": {
+    "status": "Status",
+    "orderTypes": "Bestellingstypes"
+  },
+  "toggleSidebar": "Zijbalk tonen"
+}
