@@ -88,7 +88,7 @@ export const GeneralLedger = () => {
       const whereClause = (clauses: string[]) => (clauses.length ? clauses.join(" AND ") : "true");
 
       const openingQuery = `
-          SELECT account, math::sum(debit - credit) AS balance
+          SELECT account, account.id, math::sum(debit - credit) AS balance
           FROM ${Tables.account_journal_lines}
           WHERE ${whereClause(openingWhere)}
           GROUP BY account
@@ -98,7 +98,9 @@ export const GeneralLedger = () => {
       const periodQuery = `
           SELECT
             account,
+            account.id,
             account.code,
+            account.name,
             math::sum(debit) AS total_debit,
             math::sum(credit) AS total_credit,
             math::sum(debit - credit) AS balance
@@ -115,18 +117,18 @@ export const GeneralLedger = () => {
       ]);
 
       const openingByAccount = new Map<string, number>();
-      (openingRows || []).forEach((row: {account?: {id?: string}; balance?: number}) => {
-        const accountId = row.account?.id?.toString();
-        if (!accountId) {
+      (openingRows || []).forEach((row: {account?: any; balance?: number}) => {
+        const accountId = row.account?.id?.toString() || (row.account && typeof row.account === 'string' ? row.account : row.account?.toString());
+        if (!accountId || accountId === '[object Object]') {
           return;
         }
         openingByAccount.set(accountId, Number(row.balance || 0));
       });
 
       const periodByAccount = new Map<string, LedgerRow>();
-      (periodRows || []).forEach((row: LedgerRow & {account?: {id?: string}}) => {
-        const accountId = row.account?.id?.toString();
-        if (!accountId) {
+      (periodRows || []).forEach((row: LedgerRow & {account?: any}) => {
+        const accountId = row.account?.id?.toString() || (row.account && typeof row.account === 'string' ? row.account : row.account?.toString());
+        if (!accountId || accountId === '[object Object]') {
           return;
         }
         periodByAccount.set(accountId, {
@@ -140,9 +142,12 @@ export const GeneralLedger = () => {
       });
 
       const openingOnlyRows: LedgerRow[] = (openingRows || [])
-        .filter((row: {account?: {id?: string}}) => {
-          const accountId = row.account?.id?.toString();
-          return accountId && openingByAccount.has(accountId);
+        .filter((row: {account?: any}) => {
+          const accountId = row.account?.id?.toString() || (row.account && typeof row.account === 'string' ? row.account : row.account?.toString());
+          if (!accountId || accountId === '[object Object]') {
+            return false;
+          }
+          return openingByAccount.has(accountId);
         })
         .map((row: {account: LedgerRow["account"]; balance?: number}) => ({
           account: row.account,
@@ -153,7 +158,7 @@ export const GeneralLedger = () => {
         }));
 
       const merged = [...periodByAccount.values(), ...openingOnlyRows]
-        .sort((a, b) => (a.account?.code || "").localeCompare(b.account?.code || ""));
+        .sort((a, b) => String(a.account?.code || "").localeCompare(String(b.account?.code || "")));
 
       setRows(merged);
     } finally {
