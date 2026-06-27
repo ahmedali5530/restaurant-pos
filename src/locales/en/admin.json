@@ -506,6 +506,9 @@
       },
       "Settings": {
         "label": "Settings"
+      },
+      "Accounts": {
+        "label": "Accounts"
       }
     },
     "permissions": {
@@ -612,7 +615,18 @@
       "Settings": "Settings",
       "Service charges": "Service charges",
       "Auto check close": "Auto check close",
-      "Closing cycle": "Closing cycle"
+      "Closing cycle": "Closing cycle",
+      "Accounts": "Accounts",
+      "Chart of Accounts": "Chart of Accounts",
+      "Account Groups": "Account Groups",
+      "Journal Entries": "Journal Entries",
+      "General Ledger": "General Ledger",
+      "Trial Balance": "Trial Balance",
+      "Balance Sheet": "Balance Sheet",
+      "Profit & Loss": "Profit & Loss",
+      "Cash Flow": "Cash Flow",
+      "Customer Statement": "Customer Statement",
+      "Supplier Statement": "Supplier Statement"
     }
   }
 }

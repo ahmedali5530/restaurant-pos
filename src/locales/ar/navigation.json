@@ -11,7 +11,8 @@
     "reports": "التقارير",
     "tipDist": "توزيع الإكراميات",
     "settings": "الإعدادات",
-    "clock": "الساعة"
+    "clock": "الساعة",
+    "accounts": "Accounts"
   },
   "modules": {
     "Menu": "القائمة",
@@ -25,7 +26,8 @@
     "Riders": "السائقون",
     "Tips": "توزيع الإكراميات",
     "Inventory": "المخزون",
-    "Settings": "الإعدادات"
+    "Settings": "الإعدادات",
+    "Accounts": "Accounts"
   },
   "authenticateToAccess": "يُرجى المصادقة للوصول إلى {{module}}"
 }

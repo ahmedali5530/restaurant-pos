@@ -11,6 +11,7 @@
     "manage": "Manage",
     "reports": "Reports",
     "tipDist": "Tip Dist.",
+    "accounts": "Accounts",
     "settings": "Settings",
     "clock": "Clock"
   },
@@ -27,6 +28,7 @@
     "Riders": "Riders",
     "Tips": "Tip Distribution",
     "Inventory": "Inventory",
+    "Accounts": "Accounts",
     "Settings": "Settings"
   },
   "authenticateToAccess": "Authenticate to access {{module}}"

@@ -54,6 +54,22 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
   'Settings': {
     label: 'Settings',
     children: ['Settings', 'Printers', 'Service charges', 'Auto check close', 'Closing cycle']
+  },
+  'Accounts': {
+    label: 'Accounts',
+    children: [
+      'Accounts',
+      'Chart of Accounts',
+      'Account Groups',
+      'Journal Entries',
+      'General Ledger',
+      'Trial Balance',
+      'Balance Sheet',
+      'Profit & Loss',
+      'Cash Flow',
+      'Customer Statement',
+      'Supplier Statement',
+    ] as string[]
   }
 };
 

@@ -11,7 +11,8 @@
     "reports": "Отчёты",
     "tipDist": "Распр. чаевых",
     "settings": "Настройки",
-    "clock": "Учёт времени"
+    "clock": "Учёт времени",
+    "accounts": "Accounts"
   },
   "modules": {
     "Menu": "Меню",
@@ -25,7 +26,8 @@
     "Riders": "Курьеры",
     "Tips": "Распределение чаевых",
     "Inventory": "Склад",
-    "Settings": "Настройки"
+    "Settings": "Настройки",
+    "Accounts": "Accounts"
   },
   "authenticateToAccess": "Авторизуйтесь для доступа к {{module}}"
 }

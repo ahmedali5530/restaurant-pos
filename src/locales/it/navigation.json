@@ -11,7 +11,8 @@
     "reports": "Report",
     "tipDist": "Distrib. mance",
     "settings": "Impostazioni",
-    "clock": "Timbratura"
+    "clock": "Timbratura",
+    "accounts": "Accounts"
   },
   "modules": {
     "Menu": "Menu",
@@ -25,7 +26,8 @@
     "Riders": "Rider",
     "Tips": "Distribuzione mance",
     "Inventory": "Magazzino",
-    "Settings": "Impostazioni"
+    "Settings": "Impostazioni",
+    "Accounts": "Accounts"
   },
   "authenticateToAccess": "Autenticati per accedere a {{module}}"
 }

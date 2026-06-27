@@ -11,7 +11,8 @@
     "reports": "Relatórios",
     "tipDist": "Dist. Gorjetas",
     "settings": "Configurações",
-    "clock": "Ponto"
+    "clock": "Ponto",
+    "accounts": "Accounts"
   },
   "modules": {
     "Menu": "Cardápio",
@@ -25,7 +26,8 @@
     "Riders": "Entregadores",
     "Tips": "Distribuição de Gorjetas",
     "Inventory": "Estoque",
-    "Settings": "Configurações"
+    "Settings": "Configurações",
+    "Accounts": "Accounts"
   },
   "authenticateToAccess": "Autentique-se para acessar {{module}}"
 }

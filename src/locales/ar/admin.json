@@ -354,6 +354,9 @@
       },
       "Settings": {
         "label": "الإعدادات"
+      },
+      "Accounts": {
+        "label": "Accounts"
       }
     },
     "permissions": {
@@ -459,7 +462,18 @@
       "Settings": "الإعدادات",
       "Service charges": "رسوم الخدمة",
       "Auto check close": "إغلاق الفاتورة تلقائياً",
-      "Closing cycle": "دورة الإغلاق"
+      "Closing cycle": "دورة الإغلاق",
+      "Accounts": "Accounts",
+      "Chart of Accounts": "Chart of Accounts",
+      "Account Groups": "Account Groups",
+      "Journal Entries": "Journal Entries",
+      "General Ledger": "General Ledger",
+      "Trial Balance": "Trial Balance",
+      "Balance Sheet": "Balance Sheet",
+      "Profit & Loss": "Profit & Loss",
+      "Cash Flow": "Cash Flow",
+      "Customer Statement": "Customer Statement",
+      "Supplier Statement": "Supplier Statement"
     }
   },
   "discountEngine": {

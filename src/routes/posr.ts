@@ -11,6 +11,7 @@ export const SETTINGS = '/settings';
 export const CLOCK = '/clock';
 export const INVENTORY = '/inventory';
 export const TIP_DISTRIBUTION = '/tip-distribution';
+export const ACCOUNTS = '/accounts';
 
 export const REPORTS = '/reports';
 export const REPORTS_PRODUCT_MIX_WEEKLY = REPORTS + '/product-mix-weekly';

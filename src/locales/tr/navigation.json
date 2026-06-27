@@ -11,7 +11,8 @@
     "reports": "Raporlar",
     "tipDist": "Bahşiş Dağıt.",
     "settings": "Ayarlar",
-    "clock": "Mesai"
+    "clock": "Mesai",
+    "accounts": "Accounts"
   },
   "modules": {
     "Menu": "Menü",
@@ -25,7 +26,8 @@
     "Riders": "Kuryeler",
     "Tips": "Bahşiş Dağıtımı",
     "Inventory": "Envanter",
-    "Settings": "Ayarlar"
+    "Settings": "Ayarlar",
+    "Accounts": "Accounts"
   },
   "authenticateToAccess": "{{module}} modülüne erişmek için kimlik doğrulayın"
 }

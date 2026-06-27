@@ -142,7 +142,7 @@ export const Payment = () => {
         is_suspended: item.isHold,
         level: item.level,
         category: item.category,
-        category_id: item.category_id,
+        category_id: item.category_id ? toRecordId(item.category_id) : null,
         is_addition: false,
         menu: item.menu_name,
       };

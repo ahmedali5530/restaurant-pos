@@ -70,7 +70,7 @@ import {
   REPORTS_WASTE,
   SETTINGS,
   SUMMARY,
-  TIP_DISTRIBUTION,
+  TIP_DISTRIBUTION, ACCOUNTS,
 } from "@/routes/posr.ts";
 import {
   ActivityReport,
@@ -114,6 +114,7 @@ import {
   VoidsReport,
   WasteReport,
 } from "@/routes/lazy-screens.ts";
+import {AccountsScreen} from "@/screens/accounts.tsx";
 
 export const AppRoutes = () => (
   <Routes>
@@ -131,6 +132,7 @@ export const AppRoutes = () => (
       <Route path={CLOCK} element={<Clock/>}/>
       <Route path={INVENTORY} element={<Inventory/>}/>
       <Route path={TIP_DISTRIBUTION} element={<TipDistributionScreen/>}/>
+      <Route path={ACCOUNTS} element={<AccountsScreen/>}/>
       <Route path={REPORTS} element={<Reports/>}/>
 
       <Route element={<SuspenseOutlet/>}>

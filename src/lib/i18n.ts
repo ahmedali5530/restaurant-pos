@@ -20,6 +20,7 @@ export const I18N_NAMESPACES = [
   'reports',
   'delivery',
   'admin',
+  'accounts',
   'validation',
 ] as const;
 

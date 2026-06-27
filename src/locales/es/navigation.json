@@ -11,7 +11,8 @@
     "reports": "Informes",
     "tipDist": "Dist. propinas",
     "settings": "Configuración",
-    "clock": "Reloj"
+    "clock": "Reloj",
+    "accounts": "Accounts"
   },
   "modules": {
     "Menu": "Menú",
@@ -25,7 +26,8 @@
     "Riders": "Repartidores",
     "Tips": "Distribución de propinas",
     "Inventory": "Inventario",
-    "Settings": "Configuración"
+    "Settings": "Configuración",
+    "Accounts": "Accounts"
   },
   "authenticateToAccess": "Autentíquese para acceder a {{module}}"
 }

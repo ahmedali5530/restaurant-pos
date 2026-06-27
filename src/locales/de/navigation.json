@@ -11,7 +11,8 @@
     "reports": "Berichte",
     "tipDist": "Trinkgeld",
     "settings": "Einstellungen",
-    "clock": "Zeiterfassung"
+    "clock": "Zeiterfassung",
+    "accounts": "Accounts"
   },
   "modules": {
     "Menu": "Speisekarte",
@@ -25,7 +26,8 @@
     "Riders": "Fahrer",
     "Tips": "Trinkgeldverteilung",
     "Inventory": "Lager",
-    "Settings": "Einstellungen"
+    "Settings": "Einstellungen",
+    "Accounts": "Accounts"
   },
   "authenticateToAccess": "Authentifizierung erforderlich für {{module}}"
 }

@@ -11,7 +11,8 @@
     "reports": "Rapporten",
     "tipDist": "Fooiverd.",
     "settings": "Instellingen",
-    "clock": "Klok"
+    "clock": "Klok",
+    "accounts": "Accounts"
   },
   "modules": {
     "Menu": "Menu",
@@ -25,7 +26,8 @@
     "Riders": "Bezorgers",
     "Tips": "Fooiverdeling",
     "Inventory": "Voorraad",
-    "Settings": "Instellingen"
+    "Settings": "Instellingen",
+    "Accounts": "Accounts"
   },
   "authenticateToAccess": "Authenticeer om toegang te krijgen tot {{module}}"
 }

@@ -354,6 +354,9 @@
       },
       "Settings": {
         "label": "Configuración"
+      },
+      "Accounts": {
+        "label": "Accounts"
       }
     },
     "permissions": {
@@ -459,7 +462,18 @@
       "Settings": "Configuración",
       "Service charges": "Cargos por servicio",
       "Auto check close": "Cierre automático de cuentas",
-      "Closing cycle": "Ciclo de cierre"
+      "Closing cycle": "Ciclo de cierre",
+      "Accounts": "Accounts",
+      "Chart of Accounts": "Chart of Accounts",
+      "Account Groups": "Account Groups",
+      "Journal Entries": "Journal Entries",
+      "General Ledger": "General Ledger",
+      "Trial Balance": "Trial Balance",
+      "Balance Sheet": "Balance Sheet",
+      "Profit & Loss": "Profit & Loss",
+      "Cash Flow": "Cash Flow",
+      "Customer Statement": "Customer Statement",
+      "Supplier Statement": "Supplier Statement"
     }
   },
   "discountEngine": {

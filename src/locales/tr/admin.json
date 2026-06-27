@@ -354,6 +354,9 @@
       },
       "Settings": {
         "label": "Ayarlar"
+      },
+      "Accounts": {
+        "label": "Accounts"
       }
     },
     "permissions": {
@@ -459,7 +462,18 @@
       "Settings": "Ayarlar",
       "Service charges": "Servis ücretleri",
       "Auto check close": "Otomatik adisyon kapatma",
-      "Closing cycle": "Kapanış döngüsü"
+      "Closing cycle": "Kapanış döngüsü",
+      "Accounts": "Accounts",
+      "Chart of Accounts": "Chart of Accounts",
+      "Account Groups": "Account Groups",
+      "Journal Entries": "Journal Entries",
+      "General Ledger": "General Ledger",
+      "Trial Balance": "Trial Balance",
+      "Balance Sheet": "Balance Sheet",
+      "Profit & Loss": "Profit & Loss",
+      "Cash Flow": "Cash Flow",
+      "Customer Statement": "Customer Statement",
+      "Supplier Statement": "Supplier Statement"
     }
   },
   "discountEngine": {

@@ -97,5 +97,10 @@ export enum Tables {
   settings = 'setting',
 
   auth_permission = 'auth_permission',
-  tracking = 'tracking'
+  tracking = 'tracking',
+
+  accounts = 'account',
+  account_groups = 'account_group',
+  account_journal_entries = 'account_journal_entry',
+  account_journal_lines = 'account_journal_line'
 }

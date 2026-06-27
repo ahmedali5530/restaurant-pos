@@ -354,6 +354,9 @@
       },
       "Settings": {
         "label": "Настройки"
+      },
+      "Accounts": {
+        "label": "Accounts"
       }
     },
     "permissions": {
@@ -459,7 +462,18 @@
       "Settings": "Настройки",
       "Service charges": "Сервисный сбор",
       "Auto check close": "Автозакрытие чеков",
-      "Closing cycle": "Цикл закрытия"
+      "Closing cycle": "Цикл закрытия",
+      "Accounts": "Accounts",
+      "Chart of Accounts": "Chart of Accounts",
+      "Account Groups": "Account Groups",
+      "Journal Entries": "Journal Entries",
+      "General Ledger": "General Ledger",
+      "Trial Balance": "Trial Balance",
+      "Balance Sheet": "Balance Sheet",
+      "Profit & Loss": "Profit & Loss",
+      "Cash Flow": "Cash Flow",
+      "Customer Statement": "Customer Statement",
+      "Supplier Statement": "Supplier Statement"
     }
   },
   "discountEngine": {

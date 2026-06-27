@@ -354,6 +354,9 @@
       },
       "Settings": {
         "label": "Instellingen"
+      },
+      "Accounts": {
+        "label": "Accounts"
       }
     },
     "permissions": {
@@ -459,7 +462,18 @@
       "Settings": "Instellingen",
       "Service charges": "Servicekosten",
       "Auto check close": "Automatisch bon sluiten",
-      "Closing cycle": "Afsluitingscyclus"
+      "Closing cycle": "Afsluitingscyclus",
+      "Accounts": "Accounts",
+      "Chart of Accounts": "Chart of Accounts",
+      "Account Groups": "Account Groups",
+      "Journal Entries": "Journal Entries",
+      "General Ledger": "General Ledger",
+      "Trial Balance": "Trial Balance",
+      "Balance Sheet": "Balance Sheet",
+      "Profit & Loss": "Profit & Loss",
+      "Cash Flow": "Cash Flow",
+      "Customer Statement": "Customer Statement",
+      "Supplier Statement": "Supplier Statement"
     }
   },
   "discountEngine": {
