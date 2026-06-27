@@ -1,21 +1,31 @@
-import {useMemo, useState} from "react";
-import {createColumnHelper} from "@tanstack/react-table";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faPlus} from "@fortawesome/free-solid-svg-icons";
-import {DateTime} from "luxon";
-import {useTranslation} from "react-i18next";
-import {Button} from "@/components/common/input/button.tsx";
-import {TableComponent} from "@/components/common/table/table.tsx";
-import useApi, {SettingsData} from "@/api/db/use.api.ts";
-import {Tables} from "@/api/db/tables.ts";
-import {AccountJournalEntry} from "@/api/model/account.journal.entry.ts";
-import {Account} from "@/api/model/account.ts";
-import {CreateJournalEntry} from "@/components/accounts/create.journal.entry.tsx";
-import {formatMoney} from "@/components/accounts/account.constants.ts";
+import { useMemo, useState } from "react";
+import { createColumnHelper } from "@tanstack/react-table";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faPlus, faUndo } from "@fortawesome/free-solid-svg-icons";
+import { DateTime } from "luxon";
+import { useTranslation } from "react-i18next";
+import { Button } from "@/components/common/input/button.tsx";
+import { TableComponent } from "@/components/common/table/table.tsx";
+import useApi, { SettingsData } from "@/api/db/use.api.ts";
+import { Tables } from "@/api/db/tables.ts";
+import { AccountJournalEntry } from "@/api/model/account.journal.entry.ts";
+import { Account } from "@/api/model/account.ts";
+import { CreateJournalEntry } from "@/components/accounts/create.journal.entry.tsx";
+import { ViewJournalEntry } from "@/components/accounts/view.journal.entry.tsx";
+import { formatMoney } from "@/components/accounts/account.constants.ts";
+import { useDB } from "@/api/db/db.ts";
+import { toast } from "sonner";
+import { StringRecordId } from "surrealdb";
+import { appPage } from "@/store/jotai.ts";
+import { useAtom } from "jotai";
 
 export const JournalEntries = () => {
-  const {t} = useTranslation('accounts');
+  const { t } = useTranslation('accounts');
+  const db = useDB();
+  const [{ user }] = useAtom(appPage);
   const [modal, setModal] = useState(false);
+  const [viewModal, setViewModal] = useState(false);
+  const [selectedEntry, setSelectedEntry] = useState<AccountJournalEntry | null>(null);
 
   const accountHook = useApi<SettingsData<Account>>(
     Tables.accounts,
@@ -26,11 +36,60 @@ export const JournalEntries = () => {
   const journalHook = useApi<SettingsData<AccountJournalEntry>>(
     Tables.account_journal_entries,
     [],
-    ["date DESC"],
+    ["entry_number DESC", "date DESC"],
     0,
     25,
     ["lines", "lines.account", "lines.account.group", "created_by"],
   );
+
+  const handleReverse = async (entry: AccountJournalEntry) => {
+    if (!window.confirm(t('messages.confirmReverse', 'Are you sure you want to reverse this journal entry?'))) {
+      return;
+    }
+    try {
+      const [fullEntry] = await db.query(`SELECT * FROM ONLY ${entry.id} FETCH lines`);
+      if (!fullEntry) {
+        throw new Error('Entry not found');
+      }
+
+      const [rows] = await db.query(`SELECT math::max(<int>entry_number) as max_value
+                                     FROM ${Tables.account_journal_entries}
+                                     GROUP ALL`);
+      const num = Number(rows?.[0]?.max_value || 0);
+      const nextEntryNumber = isFinite(num) ? num + 1 : 1;
+
+      const [newEntry] = await db.insert(Tables.account_journal_entries, {
+        entry_number: nextEntryNumber,
+        date: new Date(),
+        memo: `(Reversal) ${fullEntry.memo || ''}`.trim(),
+        source_module: fullEntry.source_module || null,
+        source_id: fullEntry.source_id || null,
+        created_by: user?.id ? new StringRecordId(user.id.toString()) : null,
+        posted: true,
+      });
+
+      const lineIds: any[] = [];
+      for (const line of fullEntry.lines || []) {
+        const [createdLine] = await db.insert(Tables.account_journal_lines, {
+          entry: new StringRecordId(newEntry.id.toString()),
+          account: line.account,
+          debit: Number(line.credit || 0), // Swap
+          credit: Number(line.debit || 0), // Swap
+          description: line.description || null,
+        });
+        lineIds.push(createdLine.id);
+      }
+
+      await db.merge(new StringRecordId(newEntry.id.toString()), {
+        lines: lineIds,
+      });
+
+      toast.success(t('messages.reverseSuccess', 'Journal entry reversed successfully'));
+      await journalHook.fetchData();
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to reverse entry');
+    }
+  };
 
   const columnHelper = createColumnHelper<AccountJournalEntry>();
   const columns = useMemo(() => [
@@ -87,7 +146,30 @@ export const JournalEntries = () => {
         </span>
       ),
     }),
-  ], [columnHelper, t]);
+    columnHelper.display({
+      id: "actions",
+      header: t('columns.actions', 'Actions'),
+      cell: (info) => (
+        <div className="flex gap-2 justify-end">
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setSelectedEntry(info.row.original);
+              setViewModal(true);
+            }}
+          >
+            <FontAwesomeIcon icon={faEye} />
+          </Button>
+          <Button
+            variant="warning"
+            onClick={() => handleReverse(info.row.original)}
+          >
+            <FontAwesomeIcon icon={faUndo} />
+          </Button>
+        </div>
+      ),
+    }),
+  ], [columnHelper, t, db, user, journalHook]);
 
   return (
     <>
@@ -102,7 +184,7 @@ export const JournalEntries = () => {
             onClick={() => setModal(true)}
             disabled={(accountHook?.data?.data || []).length < 2}
           >
-            <FontAwesomeIcon icon={faPlus} className="mr-2"/> {t('actions.journalEntry')}
+            <FontAwesomeIcon icon={faPlus} className="mr-2" /> {t('actions.journalEntry')}
           </Button>
         ]}
       />
@@ -120,6 +202,17 @@ export const JournalEntries = () => {
           onClose={async () => {
             setModal(false);
             await journalHook.fetchData();
+          }}
+        />
+      )}
+
+      {viewModal && selectedEntry && (
+        <ViewJournalEntry
+          open={viewModal}
+          entry={selectedEntry}
+          onClose={() => {
+            setViewModal(false);
+            setSelectedEntry(null);
           }}
         />
       )}

@@ -173,12 +173,13 @@ export const GeneralLedger = () => {
   const totals = useMemo(() => {
     return rows.reduce(
       (acc, item) => {
+        acc.opening += Number(item.opening_balance || 0);
         acc.debit += Number(item.total_debit || 0);
         acc.credit += Number(item.total_credit || 0);
-        acc.balance += Number(item.balance || 0);
+        acc.balance += Number(item.opening_balance || 0) + Number(item.balance || 0);
         return acc;
       },
-      {debit: 0, credit: 0, balance: 0}
+      {opening: 0, debit: 0, credit: 0, balance: 0}
     );
   }, [rows]);
 
@@ -243,7 +244,7 @@ export const GeneralLedger = () => {
                 <td className="text-right">{formatMoney(Number(row.opening_balance || 0))}</td>
                 <td className="text-right">{formatMoney(Number(row.total_debit || 0))}</td>
                 <td className="text-right">{formatMoney(Number(row.total_credit || 0))}</td>
-                <td className="text-right">{formatMoney(Number(row.balance || 0))}</td>
+                <td className="text-right">{formatMoney(Number(row.opening_balance || 0) + Number(row.balance || 0))}</td>
               </tr>
             ))}
             {rows.length === 0 && (
@@ -255,7 +256,7 @@ export const GeneralLedger = () => {
             <tfoot>
             <tr className="font-bold">
               <td>{t('reports.total')}</td>
-              <td></td>
+              <td className="text-right">{formatMoney(totals.opening)}</td>
               <td className="text-right">{formatMoney(totals.debit)}</td>
               <td className="text-right">{formatMoney(totals.credit)}</td>
               <td className="text-right">{formatMoney(totals.balance)}</td>

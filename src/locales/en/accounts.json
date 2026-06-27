@@ -9,7 +9,8 @@
     "profitLoss": "Profit & Loss",
     "cashFlow": "Cash Flow",
     "customerStatement": "Customer Statement",
-    "supplierStatement": "Supplier Statement"
+    "supplierStatement": "Supplier Statement",
+    "lines": "Lines"
   },
   "security": {
     "accessTab": "Access {{module}}"
@@ -62,7 +63,8 @@
     "selectGroup": "Select group",
     "createGroupFirst": "Create a group first",
     "createGroupsBeforeAccounts": "Create account groups before adding accounts.",
-    "parentAccount": "Parent account"
+    "parentAccount": "Parent account",
+    "journalEntry": "Journal Entry"
   },
   "confirm": {
     "title": "Confirmation",
@@ -130,6 +132,12 @@
     "saveJournalFailed": "Failed to save journal entry.",
     "needTwoLines": "At least two journal lines are required.",
     "needValidLines": "Add at least two valid lines with account and amount.",
-    "mustBeBalanced": "Journal entry must be balanced (debit = credit)."
+    "mustBeBalanced": "Journal entry must be balanced (debit = credit).",
+    "confirmReverse": "Are you sure you want to reverse this journal entry?",
+    "reverseSuccess": "Journal entry reversed successfully"
+  },
+  "upload": {
+    "attachDocuments": "Attach Documents",
+    "documents": "Documents"
   }
 }

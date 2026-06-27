@@ -3,7 +3,7 @@ import {Controller, useFieldArray, useForm} from "react-hook-form";
 import {DateTime} from "luxon";
 import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {StringRecordId} from "surrealdb";
+import {StringRecordId, RecordId} from "surrealdb";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
 import {useTranslation} from "react-i18next";
@@ -12,6 +12,8 @@ import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
+import {InputError} from "@/components/common/input/input.error.tsx";
+import _ from "lodash";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Account, NormalBalance} from "@/api/model/account.ts";
@@ -34,6 +36,7 @@ interface JournalEntryForm {
   memo?: string;
   source_module?: string;
   source_id?: string;
+  documents?: any;
   lines: JournalLineForm[];
 }
 
@@ -176,6 +179,30 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
     append(Array.from({length: count}, () => ({...EMPTY_LINE})));
   };
 
+  const convertFilesToDocuments = async (files: FileList | null | undefined): Promise<RecordId[]> => {
+    if (!files || files.length === 0) return [];
+
+    const documentRefs: RecordId[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const content = await file.arrayBuffer();
+
+      const [created] = await db.create(Tables.documents, {
+        name: file.name,
+        content,
+        size: file.size,
+        mimeType: file.type || undefined,
+      });
+
+      if (created?.id) {
+        documentRefs.push(created.id as RecordId);
+      }
+    }
+
+    return documentRefs;
+  };
+
   const saveJournalEntry = async (values: JournalEntryForm) => {
     setSaving(true);
     try {
@@ -197,6 +224,7 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
         return;
       }
 
+      const documentRefs = await convertFilesToDocuments(values.documents);
       const resolvedEntryNumber = entryNumber ?? await fetchNextEntryNumber();
       const [entry] = await db.insert(Tables.account_journal_entries, {
         entry_number: resolvedEntryNumber,
@@ -204,6 +232,7 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
         memo: values.memo || null,
         source_module: values.source_module || null,
         source_id: values.source_id || null,
+        documents: documentRefs.length > 0 ? documentRefs : undefined,
         created_by: user?.id ? new StringRecordId(user.id.toString()) : null,
         posted: true,
       });
@@ -266,6 +295,18 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
           </div>
           <div>
             <Input {...register("memo")} id="entry_memo" className="w-full" label={t('columns.memo')} placeholder="entry memo"/>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-5 gap-4 mt-4">
+          <div className="col-span-2">
+            <label className="block mb-2 text-sm font-medium text-gray-900">{t('upload.attachDocuments', 'Attach Documents')}</label>
+            <input
+              type="file"
+              multiple
+              {...register("documents")}
+              className="w-full px-3 py-2 border border-neutral-400 rounded-lg text-sm"
+            />
           </div>
         </div>
 
