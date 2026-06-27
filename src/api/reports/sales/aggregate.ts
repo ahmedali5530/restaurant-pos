@@ -415,7 +415,11 @@ export const aggregateProductMixByCategory = (
       const totalCost = cost * quantity;
 
       const discount = safeNumber(item.discount || 0);
-      const tax = safeNumber(item.tax || 0);
+      // Handle multiple taxes - sum all tax amounts if taxes array exists
+      let tax = safeNumber(item.tax || 0);
+      if (item.taxes && item.taxes.length > 0) {
+        tax = item.taxes.reduce((sum, t) => sum + safeNumber(t.rate || 0), 0) * (safeNumber(item.price || 0) * quantity) / 100;
+      }
       const serviceCharges = safeNumber(item.service_charges || 0);
       const baseDishPrice = safeNumber(item.price || 0) * quantity;
       const total = safeNumber(amount + tax + serviceCharges - discount);

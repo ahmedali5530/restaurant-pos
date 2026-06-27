@@ -1,6 +1,6 @@
 import {normalizeQueryDate, parseDateRangeWithPhrase, resolveNaturalDateRange} from "@/api/reports/shared/filters.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
-import {getProductMix, getSalesSummary, getTopSellingDishes} from "@/api/reports/sales";
+import {getProductMix, getSalesSummary, getTopSellingDishes, getUnsoldProducts, listMenuItems} from "@/api/reports/sales";
 import {getDiscountSummary} from "@/api/reports/sales/discounts.ts";
 import {
   getHourlyProductSales,
@@ -103,6 +103,12 @@ export const executeAiReportTool = async (
         discountRows: summary.discountRows,
       };
     }
+
+    case "get_unsold_products":
+      return getUnsoldProducts(db, {
+        ...parseDateRangeWithPhrase(args),
+        limit: args.limit ? Number(args.limit) : 100,
+      });
 
     case "get_product_mix": {
       const mix = await getProductMix(db, {
@@ -281,6 +287,12 @@ export const executeAiReportTool = async (
 
     case "list_categories":
       return listCategories(db, {limit: args.limit ? Number(args.limit) : 50});
+
+    case "list_menu_items":
+      return listMenuItems(db, {
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 500,
+      });
 
     case "list_inventory_items":
       return listInventoryItems(db, {

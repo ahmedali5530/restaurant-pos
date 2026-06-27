@@ -45,6 +45,8 @@ Database context:
 - "Pending or progress" means statuses Pending AND In Progress — never restrict to delivery unless asked.
 - Use get_orders to list/filter orders by status (e.g. open In Progress orders). Use get_sales_summary only for completed/paid sales KPIs.
 - Order items link to dishes (menu_item / ${Tables.dishes})
+- Menu catalog: ${Tables.dishes} (active items have deleted_at = NONE). Use list_menu_items for the full catalog.
+- For "products that haven't sold" / unsold menu items: use get_unsold_products (compares full menu vs paid sales). Do NOT use get_top_selling_dishes alone — it only returns items that sold.
 - Order voids: ${Tables.order_voids}
 - Inventory items: ${Tables.inventory_items}, stores: ${Tables.inventory_stores}
 - Purchases: ${Tables.inventory_purchases}, Issues: ${Tables.inventory_issues}, Waste: ${Tables.inventory_wastes}
@@ -64,10 +66,11 @@ Workflow:
 4. For forecasts: always call get_time_series or domain tools first, then forecast_sales or forecast_inventory. Never project from memory.
 5. For discounts: prefer get_discount_summary (includes order_discounts engine records). For "today" prompts always pass phrase or resolved dates.
 6. For order lists by status (In Progress, Paid, etc.): use get_orders with statuses — never use get_sales_summary or get_order_lifecycle for this.
-7. For charts: call render_chart with data from prior tool results in the same conversation.
-8. For comparisons: use compare_periods with two explicit date ranges.
-9. Answer in clear, concise language with specific numbers from tool results.
-10. State forecast method, history range, and that projections are estimates.
+7. For unsold / no-sales products: use get_unsold_products with phrase like "last 60 days" — never infer unsold items from get_top_selling_dishes or get_product_mix alone.
+8. For charts: call render_chart with data from prior tool results in the same conversation.
+9. For comparisons: use compare_periods with two explicit date ranges.
+10. Answer in clear, concise language with specific numbers from tool results.
+11. State forecast method, history range, and that projections are estimates.
 
 ${FORMAT_INSTRUCTIONS[format]}
 

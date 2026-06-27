@@ -53,6 +53,20 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
   {
     type: "function",
     function: {
+      name: "get_unsold_products",
+      description: "Find menu products with zero paid sales in a date range. Compares the full active menu catalog against sold products — use this for 'products that haven't sold' questions, NOT get_top_selling_dishes alone.",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateRangeProps,
+          limit: {type: "number", description: "Max unsold products to return", default: 100},
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "get_product_mix",
       description: "Get product mix by category with sales amounts, costs, and profit.",
       parameters: {
@@ -420,6 +434,20 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
       parameters: {
         type: "object",
         properties: {limit: {type: "number", default: 50}},
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "list_menu_items",
+      description: "List all active menu products/dishes in the catalog.",
+      parameters: {
+        type: "object",
+        properties: {
+          search: {type: "string", description: "Optional name search"},
+          limit: {type: "number", default: 500},
+        },
       },
     },
   },

@@ -5,6 +5,7 @@ export const TOOL_PERMISSION_MODULES: Record<string, string> = {
   get_top_selling_dishes: "Product Mix Summary",
   get_sales_summary: "Sales Summary",
   get_product_mix: "Product Mix Summary",
+  get_unsold_products: "Product Mix Summary",
   get_voids: "Voids",
   get_tips: "Tips",
   get_server_sales: "Server Sales",
@@ -33,6 +34,7 @@ export const TOOL_PERMISSION_MODULES: Record<string, string> = {
   resolve_date_range: "AI Report",
   list_staff: "AI Report",
   list_categories: "AI Report",
+  list_menu_items: "Product Mix Summary",
   list_inventory_items: "Current Inventory",
 };
 

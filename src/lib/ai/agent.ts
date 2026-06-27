@@ -5,6 +5,8 @@ import {dedupeCharts} from "@/lib/ai/charts.ts";
 import {buildAutoChartsFromToolResults} from "@/lib/ai/auto-charts.ts";
 import type {AiReportFormat} from "@/lib/ai.report.storage.ts";
 import {isOrderListByStatusPrompt, resolveOrderListQueryFromPrompt} from "@/lib/ai/order-query.ts";
+import {isUnsoldProductsPrompt, resolveUnsoldProductsDateRange} from "@/lib/ai/product-query.ts";
+import {getUnsoldProducts} from "@/api/reports/sales/products.ts";
 import {getAiReportSystemPrompt} from "@/lib/ai/schema.ts";
 import {executeAiReportTool} from "@/lib/ai/tools/executor.ts";
 import {AI_REPORT_TOOLS} from "@/lib/ai/tools/definitions.ts";
@@ -72,6 +74,31 @@ export const runAiReportAgent = async (
         {
           role: "user",
           content: `${trimmedPrompt}\n\nget_orders returned ${data.totalCount} order(s), overallGrandTotal=${data.overallGrandTotal}:\n${JSON.stringify(data)}\n\nInclude invoice numbers, per-order grandTotal, and overallGrandTotal in your answer.`,
+        },
+      ],
+      tools: [],
+    });
+
+    const answer = response.choices[0]?.message?.content?.trim();
+    if (!answer) {
+      throw new Error("OpenAI returned an empty response.");
+    }
+
+    return finish(answer);
+  }
+
+  if (isUnsoldProductsPrompt(trimmedPrompt)) {
+    const dateRange = resolveUnsoldProductsDateRange(trimmedPrompt);
+    const data = await getUnsoldProducts(db, dateRange);
+    toolsUsed.push({name: "get_unsold_products", args: {...dateRange}});
+    toolResults.push({name: "get_unsold_products", result: data});
+
+    const response = await callOpenAIChat({
+      messages: [
+        ...messages,
+        {
+          role: "user",
+          content: `${trimmedPrompt}\n\nget_unsold_products (${data.soldProductCount} products sold in period, ${data.unsoldCount} unsold):\n${JSON.stringify(data)}\n\nList unsold products. Mention soldProductCount and unsoldCount.`,
         },
       ],
       tools: [],
