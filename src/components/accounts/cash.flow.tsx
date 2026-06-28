@@ -36,7 +36,8 @@ export const CashFlow = () => {
             entry.source_module as source_module,
             debit,
             credit,
-            account
+            account.code, account.name, 
+            account.group
           FROM ${Tables.account_journal_lines}
           WHERE entry.date >= <datetime>$date_from
             AND entry.date <= <datetime>$date_to
@@ -60,6 +61,7 @@ export const CashFlow = () => {
         grouped[key].total_debit += Number(line.debit || 0);
         grouped[key].total_credit += Number(line.credit || 0);
       });
+
       setRows(Object.values(grouped));
     } finally {
       setIsLoading(false);

@@ -44,7 +44,8 @@
     "active": "Active",
     "inactive": "Inactive",
     "posted": "Posted",
-    "draft": "Draft"
+    "draft": "Draft",
+    "reversed": "Reversed"
   },
   "forms": {
     "createAccountGroup": "Create account group",
@@ -134,7 +135,8 @@
     "needValidLines": "Add at least two valid lines with account and amount.",
     "mustBeBalanced": "Journal entry must be balanced (debit = credit).",
     "confirmReverse": "Are you sure you want to reverse this journal entry?",
-    "reverseSuccess": "Journal entry reversed successfully"
+    "reverseSuccess": "Journal entry reversed successfully",
+    "cannotReverse": "Only posted entries can be reversed"
   },
   "upload": {
     "attachDocuments": "Attach Documents",

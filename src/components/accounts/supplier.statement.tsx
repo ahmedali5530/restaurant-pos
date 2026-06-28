@@ -48,7 +48,7 @@ export const SupplierStatement = () => {
   const accountHook = useApi<SettingsData<Account>>(
     Tables.accounts,
     [`is_active = true`],
-    ["code ASC"],
+    ["account.code ASC"],
     0,
     9999,
     ["group"],

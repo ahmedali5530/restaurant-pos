@@ -92,8 +92,14 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
               </div>
               <div>
                 <div className="text-neutral-500 text-xs uppercase">{t('columns.status')}</div>
-                <div className={viewEntry.posted ? "text-success-600 font-medium" : "text-warning-600 font-medium"}>
-                  {viewEntry.posted ? t('status.posted') : t('status.draft')}
+                <div className={
+                  viewEntry.status === 'posted' ? "text-success-600 font-medium"
+                    : viewEntry.status === 'reversed' ? "text-neutral-500 font-medium"
+                      : "text-warning-600 font-medium"
+                }>
+                  {viewEntry.status === 'posted' ? t('status.posted')
+                    : viewEntry.status === 'reversed' ? t('status.reversed')
+                      : t('status.draft')}
                 </div>
               </div>
               <div className="md:col-span-4">

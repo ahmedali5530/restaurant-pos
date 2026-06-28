@@ -12,8 +12,6 @@ import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
-import {InputError} from "@/components/common/input/input.error.tsx";
-import _ from "lodash";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Account, NormalBalance} from "@/api/model/account.ts";
@@ -192,7 +190,7 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
         name: file.name,
         content,
         size: file.size,
-        mimeType: file.type || undefined,
+        type: file.type || undefined,
       });
 
       if (created?.id) {
@@ -234,7 +232,7 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
         source_id: values.source_id || null,
         documents: documentRefs.length > 0 ? documentRefs : undefined,
         created_by: user?.id ? new StringRecordId(user.id.toString()) : null,
-        posted: true,
+        status: "posted",
       });
 
       const lineIds: any[] = [];

@@ -106,7 +106,7 @@ export const GeneralLedger = () => {
             math::sum(debit - credit) AS balance
           FROM ${Tables.account_journal_lines}
           WHERE ${whereClause(periodWhere)}
-          GROUP BY account
+          GROUP BY account.id, account.code, account.name
           ORDER BY account.code ASC
           FETCH account, account.group
       `;

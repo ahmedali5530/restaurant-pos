@@ -38,7 +38,7 @@ export const TrialBalance = () => {
                  math::sum(debit) as total_debit, math::sum(credit) as total_credit
           FROM ${Tables.account_journal_lines}
           WHERE entry.date <= <datetime>$as_of
-          GROUP BY account
+          GROUP BY account.code, account.name
           ORDER BY account.code ASC
               FETCH account
       `, {

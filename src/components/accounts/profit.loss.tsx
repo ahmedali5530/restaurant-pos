@@ -41,12 +41,13 @@ export const ProfitLoss = () => {
                  account,
                  account.code,
                  account.name,
+                 account.group,
                  math::sum(debit) as total_debit,
                  math::sum(credit) as total_credit
           FROM ${Tables.account_journal_lines}
           WHERE entry.date >= <datetime>$date_from
             AND entry.date <= <datetime>$date_to
-          GROUP BY account
+          GROUP BY account.code, account.name, account.group
           ORDER BY account.code ASC
           FETCH account, account.group
         `,

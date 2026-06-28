@@ -3,6 +3,8 @@ import type {User} from "./user";
 import type {AccountJournalLine} from "./account.journal.line";
 import type {Document} from "./document";
 
+export type AccountJournalEntryStatus = "draft" | "posted" | "reversed";
+
 export interface AccountJournalEntry {
   id: RecordId | string;
   entry_number: number;
@@ -11,7 +13,7 @@ export interface AccountJournalEntry {
   source_module?: string;
   source_id?: string;
   created_by?: User;
-  posted: boolean;
+  status: AccountJournalEntryStatus;
   lines?: AccountJournalLine[];
   documents?: Document[];
   created_at?: Date;

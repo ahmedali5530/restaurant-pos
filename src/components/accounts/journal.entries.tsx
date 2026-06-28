@@ -52,6 +52,11 @@ export const JournalEntries = () => {
         throw new Error('Entry not found');
       }
 
+      if (fullEntry.status !== 'posted') {
+        toast.error(t('messages.cannotReverse', 'Only posted entries can be reversed'));
+        return;
+      }
+
       const [rows] = await db.query(`SELECT math::max(<int>entry_number) as max_value
                                      FROM ${Tables.account_journal_entries}
                                      GROUP ALL`);
@@ -65,7 +70,7 @@ export const JournalEntries = () => {
         source_module: fullEntry.source_module || null,
         source_id: fullEntry.source_id || null,
         created_by: user?.id ? new StringRecordId(user.id.toString()) : null,
-        posted: true,
+        status: 'posted',
       });
 
       const lineIds: any[] = [];
@@ -82,6 +87,10 @@ export const JournalEntries = () => {
 
       await db.merge(new StringRecordId(newEntry.id.toString()), {
         lines: lineIds,
+      });
+
+      await db.merge(new StringRecordId(entry.id.toString()), {
+        status: 'reversed',
       });
 
       toast.success(t('messages.reverseSuccess', 'Journal entry reversed successfully'));
@@ -138,13 +147,20 @@ export const JournalEntries = () => {
         return formatMoney(total);
       }
     }),
-    columnHelper.accessor("posted", {
+    columnHelper.accessor("status", {
       header: t('columns.status'),
-      cell: (info) => (
-        <span className={info.getValue() ? "text-success-600" : "text-warning-600"}>
-          {info.getValue() ? t('status.posted') : t('status.draft')}
-        </span>
-      ),
+      cell: (info) => {
+        const status = info.getValue();
+        const className =
+          status === 'posted' ? 'text-success-600'
+            : status === 'reversed' ? 'text-neutral-500'
+              : 'text-warning-600';
+        const label =
+          status === 'posted' ? t('status.posted')
+            : status === 'reversed' ? t('status.reversed')
+              : t('status.draft');
+        return <span className={className}>{label}</span>;
+      },
     }),
     columnHelper.display({
       id: "actions",
@@ -160,12 +176,14 @@ export const JournalEntries = () => {
           >
             <FontAwesomeIcon icon={faEye} />
           </Button>
-          <Button
-            variant="warning"
-            onClick={() => handleReverse(info.row.original)}
-          >
-            <FontAwesomeIcon icon={faUndo} />
-          </Button>
+          {info.row.original.status === 'posted' && (
+            <Button
+              variant="warning"
+              onClick={() => handleReverse(info.row.original)}
+            >
+              <FontAwesomeIcon icon={faUndo} />
+            </Button>
+          )}
         </div>
       ),
     }),
