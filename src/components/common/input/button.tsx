@@ -6,7 +6,7 @@ import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { Button as AriaButton, ButtonProps as BaseProps } from 'react-aria-components';
 
 type Variant =
-  |'primary' | 'danger' | 'warning' | 'success' | 'custom' | 'gradient' | 'secondary' | string;
+  | 'primary' | 'danger' | 'warning' | 'success' | 'custom' | 'gradient' | 'secondary' | string;
 
 interface ButtonProps extends BaseProps {
   size?: "lg" | "xl" | "sm"
@@ -47,16 +47,16 @@ export const Button = (props: ButtonProps) => {
     >
       {icon && (
         <span className={children === undefined ? '' : 'mr-2'}>
-          <FontAwesomeIcon icon={icon}/>
+          <FontAwesomeIcon icon={icon} />
         </span>
       )}
       {isLoading && (
-        <FontAwesomeIcon icon={faSpinner} spin/>
+        <FontAwesomeIcon icon={faSpinner} spin />
       )}
       {children as ReactNode}
       {rightIcon && (
         <span className={children === undefined ? '' : 'ml-2'}>
-          <FontAwesomeIcon icon={rightIcon}/>
+          <FontAwesomeIcon icon={rightIcon} />
         </span>
       )}
     </AriaButton>

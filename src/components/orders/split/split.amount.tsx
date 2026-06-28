@@ -232,6 +232,8 @@ export const SplitAmount = ({
             category: originalItem.category || undefined,
             is_addition: false,
             tax: originalItem.tax ? (originalItem.tax * splitRatio) : 0,
+            tax_mode: originalItem.tax_mode || 'exclusive',
+            taxes: originalItem.taxes || undefined,
             created_at: nowSurrealDateTime(),
             // Set original_price: use current price if empty, otherwise keep existing original_price
             original_price: originalPrice

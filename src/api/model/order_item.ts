@@ -7,6 +7,8 @@ import {Category} from "@/api/model/category.ts";
 import { DateTime } from "surrealdb";
 import {Order} from "@/api/model/order.ts";
 import {Workflow} from "@/api/model/workflow.ts";
+import {Tax} from "@/api/model/tax.ts";
+import {TaxMode} from "@/api/model/menu.ts";
 
 export interface OrderItem extends ID {
   comments?: string
@@ -22,6 +24,8 @@ export interface OrderItem extends ID {
   quantity: number
   service_charges?: number
   tax?: number
+  taxes?: Tax[]
+  tax_mode?: TaxMode
   seat?: string
   is_suspended?: boolean
   level?: number

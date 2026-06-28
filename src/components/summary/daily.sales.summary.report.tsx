@@ -167,7 +167,22 @@ function useDailySalesFigures(orders: Order[] | undefined) {
     const netSales = safeNumber(grossSales - discounts);
 
     const serviceCharges = list.reduce((sum, order) => sum + safeNumber(order.service_charge_amount), 0);
-    const taxCollected = list.reduce((sum, order) => sum + safeNumber(order.tax_amount), 0);
+    // Handle multiple taxes from order items
+    const taxCollected = list.reduce((sum, order) => {
+      if (order.tax_amount !== undefined && order.tax_amount !== null) {
+        return sum + safeNumber(order.tax_amount);
+      }
+      // Calculate from order items with multiple taxes support
+      const itemsTax = (getOrderFilteredItems(order) ?? []).reduce((itemSum, item) => {
+        let itemTax = safeNumber(item.tax || 0);
+        if (item.taxes && item.taxes.length > 0) {
+          const basePrice = safeNumber(item.price || 0) * safeNumber(item.quantity || 1);
+          itemTax = item.taxes.reduce((taxSum, t) => taxSum + safeNumber(t.rate || 0), 0) * basePrice / 100;
+        }
+        return itemSum + itemTax;
+      }, 0);
+      return sum + itemsTax;
+    }, 0);
 
     const amountDue = safeNumber(netSales + serviceCharges + taxCollected);
     const totalRevenue = safeNumber(netSales + serviceCharges + taxCollected);
@@ -243,14 +258,29 @@ function useDailySalesFigures(orders: Order[] | undefined) {
 
     const taxesMap: Record<string, number> = {};
     list.forEach(order => {
-      if (!order?.tax) {
-        return;
-      }
-      const key = `${order.tax?.name} ${order.tax?.rate}`;
-      if (!taxesMap[key]) {
-        taxesMap[key] = 0;
-      }
-      taxesMap[key] += safeNumber(order?.tax_amount);
+      // Handle multiple taxes from order items
+      const items = getOrderFilteredItems(order) ?? [];
+      items.forEach(item => {
+        if (item.taxes && item.taxes.length > 0) {
+          // Multiple taxes
+          item.taxes.forEach(tax => {
+            const key = `${tax.name} ${tax.rate}%`;
+            if (!taxesMap[key]) {
+              taxesMap[key] = 0;
+            }
+            const basePrice = safeNumber(item.price || 0) * safeNumber(item.quantity || 1);
+            const taxAmount = safeNumber(tax.rate || 0) * basePrice / 100;
+            taxesMap[key] += taxAmount;
+          });
+        } else if (order?.tax) {
+          // Legacy single tax at order level
+          const key = `${order.tax?.name} ${order.tax?.rate}%`;
+          if (!taxesMap[key]) {
+            taxesMap[key] = 0;
+          }
+          taxesMap[key] += safeNumber(order?.tax_amount);
+        }
+      });
     });
     const taxesList: BreakdownEntry[] = Object.entries(taxesMap)
       .map(([name, total]) => ({name, total}))

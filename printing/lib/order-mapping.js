@@ -140,11 +140,30 @@ function getOrderDeliveryCharges(order) {
 }
 
 function getOrderTaxLabel(order) {
-  if (!order || !order.tax) return 'Tax';
-  const t = order.tax;
-  const name = t.name || 'Tax';
-  const rate = t.rate;
-  return rate != null ? `${name} ${rate}%` : name;
+  if (!order) return 'Tax';
+  // Handle multiple taxes from order items
+  const items = order.items || [];
+  const taxLabels = [];
+  items.forEach(item => {
+    if (item.taxes && item.taxes.length > 0) {
+      item.taxes.forEach(tax => {
+        const name = tax.name || 'Tax';
+        const rate = tax.rate;
+        const label = rate != null ? `${name} ${rate}%` : name;
+        if (!taxLabels.includes(label)) {
+          taxLabels.push(label);
+        }
+      });
+    }
+  });
+  // Fallback to legacy single tax at order level
+  if (taxLabels.length === 0 && order.tax) {
+    const t = order.tax;
+    const name = t.name || 'Tax';
+    const rate = t.rate;
+    return rate != null ? `${name} ${rate}%` : name;
+  }
+  return taxLabels.length > 0 ? taxLabels.join(', ') : 'Tax';
 }
 
 /**
@@ -197,7 +216,24 @@ function getOrderTotals(order) {
   const itemsTotal = items.reduce((s, it) => s + Number(it.total != null ? it.total : it.price * it.qty), 0);
   const discountAmount = Number(order.discount_amount || 0);
   const extrasTotal = (order.extras || []).reduce((s, e) => s + Number(e.value || 0), 0);
-  const tax = Number(order.tax_amount || 0);
+  
+  // Handle multiple taxes from order items
+  let tax = Number(order.tax_amount || 0);
+  if (order.items && order.items.length > 0) {
+    const itemsTax = order.items.reduce((sum, item) => {
+      if (!item.deleted_at && item.is_refunded !== true && item.is_suspended !== true) {
+        let itemTax = Number(item.tax || 0);
+        if (item.taxes && item.taxes.length > 0) {
+          const basePrice = Number(item.price || 0) * Number(item.quantity || 1);
+          itemTax = item.taxes.reduce((taxSum, t) => taxSum + Number(t.rate || 0), 0) * basePrice / 100;
+        }
+        return sum + itemTax;
+      }
+      return sum;
+    }, 0);
+    tax = itemsTax > 0 ? itemsTax : tax;
+  }
+  
   const service = Number(order.service_charge_amount || 0);
   const deliveryCharges = getOrderDeliveryCharges(order);
   const tip = Number(order.tip_amount || 0);

@@ -79,3 +79,6 @@ export const getProductMix = async (
 
   return {categories: categoryGroups, topItems};
 };
+
+export {getUnsoldProducts, listMenuItems} from "@/api/reports/sales/products.ts";
+export type {GetUnsoldProductsOptions, ListMenuItemsOptions, MenuItemSummary} from "@/api/reports/sales/products.ts";

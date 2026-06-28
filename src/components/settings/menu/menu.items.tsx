@@ -4,7 +4,7 @@ import {Button} from "@/components/common/input/button.tsx";
 import {Controller, useForm, useWatch} from "react-hook-form";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {Menu, MenuMenuItem} from "@/api/model/menu.ts";
+import {Menu, MenuMenuItem, TaxMode} from "@/api/model/menu.ts";
 import {toast} from 'sonner';
 import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
@@ -19,6 +19,8 @@ import {Switch} from "@/components/common/input/switch.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useTranslation} from 'react-i18next';
 import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";
+import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
+import {calculateInclusiveBasePrice, calculateDisplayPrice, formatTaxBreakdown} from "@/lib/tax-calculator.ts";
 
 interface Props {
   open: boolean
@@ -31,8 +33,11 @@ interface MenuItemFormValue {
   item_name: string;
   dish_id: string;
   price?: number;
+  base_price?: number;
   org_price: number
   tax?: { label: string; value: string } | null;
+  taxes?: { label: string; value: string }[] | null;
+  tax_mode?: TaxMode;
   active?: boolean;
   menu_menu_item_id?: string; // ID of the menu_item_item record if it exists
 }
@@ -62,7 +67,10 @@ const validationSchema = yup.object({
       item_name: yup.string(),
       dish_id: yup.string().required(),
       price: yup.number().nullable(),
+      base_price: yup.number().nullable(),
       tax: yup.object().nullable(),
+      taxes: yup.array().nullable(),
+      tax_mode: yup.string().oneOf(['exclusive', 'inclusive']).nullable(),
       active: yup.boolean(),
       menu_menu_item_id: yup.string().nullable()
     })
@@ -141,12 +149,38 @@ export const MenuItems = ({
       // Create form items for all dishes
       const items = dishes.data.map((dish: Dish) => {
         const existingItem = existingItemsMap.get(dish.id.toString());
+        
+        // Handle new multi-tax structure
+        const taxes = existingItem?.taxes && existingItem.taxes.length > 0
+          ? existingItem.taxes.map(t => ({
+              label: `${t.name} (${t.rate}%)`,
+              value: t.id
+            }))
+          : (existingItem?.tax ? [{
+              label: `${existingItem.tax.name} (${existingItem.tax.rate}%)`,
+              value: existingItem.tax.id
+            }] : null);
+
+        const taxMode = existingItem?.tax_mode || 'exclusive';
+        const price = existingItem?.price !== undefined && existingItem?.price !== null ? existingItem.price : dish.price || 0;
+        
+        // Calculate base price for inclusive mode
+        let basePrice = existingItem?.base_price;
+        if (!basePrice && taxMode === 'inclusive' && taxes && taxes.length > 0) {
+          const taxObjects = existingItem?.taxes || [];
+          basePrice = calculateInclusiveBasePrice(price, taxObjects);
+        }
+        if (!basePrice) {
+          basePrice = price;
+        }
+
         return {
           id: existingItem?.id,
           item_name: dish.name,
           dish_id: dish.id,
           menu_menu_item_id: existingItem?.id || undefined,
-          price: existingItem?.price !== undefined && existingItem?.price !== null ? existingItem.price : dish.price || 0,
+          price: price,
+          base_price: basePrice,
           org_price: dish.price,
           tax: existingItem?.tax ? {
             label: `${existingItem.tax.name} (${existingItem.tax.rate}%)`,
@@ -155,12 +189,14 @@ export const MenuItems = ({
             label: `${dish.tax.name} (${dish.tax.rate}%)`,
             value: dish.tax.id
           } : null),
+          taxes: taxes,
+          tax_mode: taxMode,
           active: existingItem?.active !== undefined ? existingItem.active : true
         };
       });
       reset({items});
     }
-  }, [dishes?.data, menu, reset]);
+  }, [dishes?.data, menu, reset, taxes?.data]);
 
   const closeModal = () => {
     onClose();
@@ -214,8 +250,20 @@ export const MenuItems = ({
           menuMenuItemData.price = parseFloat(item.price.toString());
         }
 
-        if (item.tax) {
+        if (item.base_price !== undefined && item.base_price !== null && item.base_price !== '') {
+          menuMenuItemData.base_price = parseFloat(item.base_price.toString());
+        }
+
+        // Handle new multi-tax structure
+        if (item.taxes && item.taxes.length > 0) {
+          menuMenuItemData.taxes = item.taxes.map(t => new StringRecordId(t.value));
+        } else if (item.tax) {
+          // Fallback to legacy single tax
           menuMenuItemData.tax = new StringRecordId(item.tax.value);
+        }
+
+        if (item.tax_mode) {
+          menuMenuItemData.tax_mode = item.tax_mode;
         }
 
         if (item.active !== undefined) {
@@ -490,23 +538,40 @@ export const MenuItems = ({
                                 )}
 
                               </div>
-                              {/*<div className="flex-1">
-                              <label>{t('columns.tax')}</label>
-                              <Controller
-                                name={`items.${index}.tax`}
-                                control={control}
-                                render={({field}) => (
-                                  <ReactSelect
-                                    value={field.value}
-                                    onChange={field.onChange}
-                                    options={taxOptions}
-                                    isLoading={loadingTaxes}
-                                    isClearable
-                                  />
-                                )}
-                              />
-                              <InputError error={_.get(errors, ["items", index, "tax", "message"])}/>
-                            </div>*/}
+                              <div className="flex-1">
+                                <label>Tax Mode</label>
+                                <Controller
+                                  name={`items.${index}.tax_mode`}
+                                  control={control}
+                                  render={({field}) => (
+                                    <select
+                                      className="form-control"
+                                      value={field.value || 'exclusive'}
+                                      onChange={field.onChange}
+                                    >
+                                      <option value="exclusive">Exclusive</option>
+                                      <option value="inclusive">Inclusive</option>
+                                    </select>
+                                  )}
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <label>Taxes</label>
+                                <Controller
+                                  name={`items.${index}.taxes`}
+                                  control={control}
+                                  render={({field}) => (
+                                    <ReactSelect
+                                      value={field.value}
+                                      onChange={field.onChange}
+                                      options={taxOptions}
+                                      isLoading={loadingTaxes}
+                                      isMulti
+                                      isClearable
+                                    />
+                                  )}
+                                />
+                              </div>
                               <div className="flex-1">
                                 <Controller
                                   name={`items.${index}.active`}

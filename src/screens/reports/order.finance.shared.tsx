@@ -34,6 +34,22 @@ const getMetricAmount = (order: Order, metric: MetricKey) => {
   if (metric === "discount_amount") {
     return getOrderDiscountTotal(order);
   }
+  if (metric === "tax_amount") {
+    // Handle multiple taxes from order items
+    if (order.tax_amount !== undefined && order.tax_amount !== null) {
+      return safeNumber(order.tax_amount);
+    }
+    // Calculate from order items with multiple taxes support
+    const itemsTax = (getOrderFilteredItems(order) ?? []).reduce((itemSum, item) => {
+      let itemTax = safeNumber(item.tax || 0);
+      if (item.taxes && item.taxes.length > 0) {
+        const basePrice = safeNumber(item.price || 0) * safeNumber(item.quantity || 1);
+        itemTax = item.taxes.reduce((taxSum, t) => taxSum + safeNumber(t.rate || 0), 0) * basePrice / 100;
+      }
+      return itemSum + itemTax;
+    }, 0);
+    return itemsTax;
+  }
   return safeNumber((order as any)?.[metric]);
 };
 

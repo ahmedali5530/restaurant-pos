@@ -3,6 +3,8 @@ import { ModifierGroup } from "@/api/model/modifier_group.ts";
 import { DishModifierGroup } from "@/api/model/dish_modifier_group.ts";
 import { Modifier } from "@/api/model/modifier.ts";
 import { DateTime } from "surrealdb";
+import { Tax } from "@/api/model/tax.ts";
+import { TaxMode } from "@/api/model/menu.ts";
 
 export enum MenuItemType {
   new = 'new',
@@ -49,6 +51,12 @@ export interface MenuItem {
 
   /** Template price at clone time; used to reset instance overrides. */
   basePrice?: number
+
+  /** Tax mode for this item (exclusive or inclusive) */
+  tax_mode?: TaxMode
+
+  /** Multiple taxes applied to this item */
+  taxes?: Tax[]
 
   created_at?: DateTime
   updated_at?: DateTime

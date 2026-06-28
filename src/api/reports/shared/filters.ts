@@ -117,6 +117,15 @@ export const resolveNaturalDateRange = ({phrase}: {phrase: string}): DateRangeFi
     };
   }
 
+  const lastDaysMatch = normalized.match(/(?:last|past)\s+(\d+)\s+days?/);
+  if (lastDaysMatch) {
+    const days = Math.max(1, Number(lastDaysMatch[1]));
+    return {
+      startDate: formatDateTimeForQuery(now.minus({days: days - 1}).startOf("day")),
+      endDate: formatDateTimeForQuery(now.endOf("day")),
+    };
+  }
+
   const quarterMatch = normalized.match(/q([1-4])\s*(\d{4})?/);
   if (quarterMatch) {
     const quarter = Number(quarterMatch[1]);
@@ -129,7 +138,7 @@ export const resolveNaturalDateRange = ({phrase}: {phrase: string}): DateRangeFi
     };
   }
 
-  throw new Error(`Could not resolve date range for phrase: "${phrase}". Try "yesterday", "today", "this week", "last week", "last 7 days", "last 30 days", "this month", "last month", or "Q1 2026".`);
+  throw new Error(`Could not resolve date range for phrase: "${phrase}". Try "yesterday", "today", "this week", "last week", "last 7 days", "last 30 days", "last 60 days", "this month", "last month", or "Q1 2026".`);
 };
 
 /** Merge explicit dates with an optional natural-language phrase when dates are omitted. */

@@ -147,6 +147,14 @@ export const Payment = () => {
         menu: item.menu_name,
       };
 
+      // Add tax mode and taxes if present
+      if (item.tax_mode) {
+        itemData.tax_mode = item.tax_mode;
+      }
+      if (item.taxes && item.taxes.length > 0) {
+        itemData.taxes = item.taxes.map(t => toRecordId(t.id));
+      }
+
       if (!isNewOrder && typeof item.id === 'string') {
         itemData.is_addition = true
       }

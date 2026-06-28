@@ -1,7 +1,7 @@
 import {Order as OrderModel} from "@/api/model/order.ts";
 import {MenuItem} from "@/api/model/cart_item.ts";
 import React, {CSSProperties, useMemo} from "react";
-import {calculateOrderTotal, calculateOrderTotalsPreview} from "@/lib/cart.ts";
+import {calculateOrderExtrasTotal, calculateOrderTotal, calculateOrderTotalsPreview} from "@/lib/cart.ts";
 import {withCurrency, cn} from "@/lib/utils.ts";
 import {DiscountType} from "@/api/model/discount.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
@@ -48,7 +48,7 @@ export const OrderTotals = ({order, cart, className}: Props) => {
     }
 
     const itemsTotal = calculateOrderTotal(order);
-    const extrasTotal = order?.extras ? order?.extras?.reduce((prev, item) => prev + item.value, 0) : 0;
+    const extrasTotal = calculateOrderExtrasTotal(order);
     const total = itemsTotal + extrasTotal + Number(order?.tax_amount ?? 0) - Number(order?.discount_amount ?? 0) + Number(order.service_charge_amount ?? 0) + Number(order?.tip_amount ?? 0);
 
     return {
@@ -95,7 +95,8 @@ export const OrderTotals = ({order, cart, className}: Props) => {
           <div className="text-right">{withCurrency(preview.serviceChargeAmount)}</div>
         </div>
       ) : ''}
-      {order?.extras && order?.extras?.map((item, index) => (
+      {order?.extras && order?.extras?.filter(item => item !== undefined)
+        ?.map((item, index) => (
         <div className="flex" key={index}>
           <div className="flex-1">{item.name}</div>
           <div className="text-right">{withCurrency(item.value)}</div>
@@ -111,7 +112,8 @@ export const OrderTotals = ({order, cart, className}: Props) => {
       {order?.payments?.length > 0 && (
         <div className="separator h-[2px]" style={separatorStyle}></div>
       )}
-      {order?.payments?.map((item, index) => (
+      {order?.payments?.filter(item => item !== undefined)
+        ?.map((item, index) => (
         <div key={index} className="flex">
           <div className="flex-1">{item.payment_type.name}</div>
           <div className="text-right">{withCurrency(item.amount)}</div>

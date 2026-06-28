@@ -4,6 +4,7 @@ import {OrderItem} from "@/api/model/order_item.ts";
 import {DiscountType} from "@/api/model/discount.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import {safeNumber} from "@/lib/utils.ts";
+import {calculateItemTax} from "@/lib/tax-calculator.ts";
 
 export const calculateCartItemPrice = (item: MenuItem) => {
   const quantity = safeNumber(item?.quantity || 1);
@@ -16,7 +17,18 @@ export const calculateCartItemPrice = (item: MenuItem) => {
     }, 0);
   }, 0);
 
-  return (unitPrice + modifiersUnitTotal) * quantity;
+  // Handle tax mode for pricing
+  let finalUnitPrice = unitPrice;
+  if (item?.tax_mode === 'inclusive' && item?.taxes && item.taxes.length > 0) {
+    // For inclusive pricing, the price already includes tax
+    finalUnitPrice = unitPrice;
+  } else if (item?.tax_mode === 'exclusive' && item?.taxes && item.taxes.length > 0) {
+    // For exclusive pricing, tax is added to base price
+    const taxCalc = calculateItemTax(unitPrice, item.taxes, 'exclusive');
+    finalUnitPrice = taxCalc.gross_price;
+  }
+
+  return (finalUnitPrice + modifiersUnitTotal) * quantity;
 }
 
 export const calculateCartTotal = (items: MenuItem[]) => {
@@ -52,6 +64,13 @@ export const calculateOrderTotal = (order?: Order) => {
 
   return price;
 }
+
+export const calculateOrderExtrasTotal = (order?: Order) => {
+  return (order?.extras ?? []).reduce(
+    (sum, extra) => sum + safeNumber(extra?.value),
+    0,
+  );
+};
 
 export const calculateExtrasTotalFromRecord = (extras: Record<string, number> | undefined | null) => {
   if (!extras) {

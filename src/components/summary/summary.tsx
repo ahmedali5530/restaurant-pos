@@ -68,10 +68,26 @@ export const Summary = ({
 
   const exclusive = salePriceWithoutTax;
 
-  // Tax collected
+  // Tax collected - handle multiple taxes from order items if available
   const taxCollected = useMemo(() => {
     return safeNumber(
-      orders?.reduce((sum, order) => sum + safeNumber(order.tax_amount), 0) ?? 0
+      orders?.reduce((sum, order) => {
+        // If order has tax_amount, use it (legacy support)
+        if (order.tax_amount !== undefined && order.tax_amount !== null) {
+          return sum + safeNumber(order.tax_amount);
+        }
+        // Otherwise, calculate from order items with multiple taxes support
+        const itemsTax = (getOrderFilteredItems(order) ?? []).reduce((itemSum, item) => {
+          let itemTax = safeNumber(item.tax || 0);
+          if (item.taxes && item.taxes.length > 0) {
+            // Calculate tax from multiple taxes array
+            const basePrice = safeNumber(item.price || 0) * safeNumber(item.quantity || 1);
+            itemTax = item.taxes.reduce((taxSum, t) => taxSum + safeNumber(t.rate || 0), 0) * basePrice / 100;
+          }
+          return itemSum + itemTax;
+        }, 0);
+        return sum + itemsTax;
+      }, 0) ?? 0
     );
   }, [orders]);
 

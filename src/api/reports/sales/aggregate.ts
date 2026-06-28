@@ -237,7 +237,24 @@ export const aggregateSalesSummary = (orders: Order[], orderVoids: OrderVoid[]):
 
   const roundingBenefit = paymentSummary.amountDue - paymentSummary.amountCollected;
   const serviceCharges = orders.reduce((sum, order) => sum + safeNumber(order.service_charge_amount), 0);
-  const taxes = orders.reduce((sum, order) => sum + safeNumber(order.tax_amount), 0);
+  
+  // Handle multiple taxes from order items
+  const taxes = orders.reduce((sum, order) => {
+    if (order.tax_amount !== undefined && order.tax_amount !== null) {
+      return sum + safeNumber(order.tax_amount);
+    }
+    // Calculate from order items with multiple taxes support
+    const itemsTax = (getOrderFilteredItems(order) ?? []).reduce((itemSum, item) => {
+      let itemTax = safeNumber(item.tax || 0);
+      if (item.taxes && item.taxes.length > 0) {
+        const basePrice = safeNumber(item.price || 0) * safeNumber(item.quantity || 1);
+        itemTax = item.taxes.reduce((taxSum, t) => taxSum + safeNumber(t.rate || 0), 0) * basePrice / 100;
+      }
+      return itemSum + itemTax;
+    }, 0);
+    return sum + itemsTax;
+  }, 0);
+  
   const totalDiscounts = orders.reduce((sum, order) => sum + getOrderFigures(order).discounts, 0);
   const totalCoupons = orders.reduce((sum, order) => sum + safeNumber(order.coupon?.discount), 0);
 
