@@ -1,0 +1,1 @@
+DEFINE FIELD taxes ON TABLE order_item TYPE option<array<record<tax>>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;

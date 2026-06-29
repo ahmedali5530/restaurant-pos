@@ -112,10 +112,10 @@ export const OrderTotals = ({order, cart, className}: Props) => {
       {order?.payments?.length > 0 && (
         <div className="separator h-[2px]" style={separatorStyle}></div>
       )}
-      {order?.payments?.filter(item => item !== undefined)
+      {order?.payments?.filter(item => item != null)
         ?.map((item, index) => (
         <div key={index} className="flex">
-          <div className="flex-1">{item.payment_type.name}</div>
+          <div className="flex-1">{item.payment_type?.name ?? 'Payment'}</div>
           <div className="text-right">{withCurrency(item.amount)}</div>
         </div>
       ))}

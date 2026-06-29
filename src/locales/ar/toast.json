@@ -114,6 +114,7 @@
     "menuNotFound": "القائمة غير موجودة",
     "menuItemsSaved": "تم حفظ عناصر القائمة",
     "invalidFactor": "أدخل معاملًا صالحًا",
+    "selectCategoriesRequired": "اختر فئة واحدة على الأقل",
     "menuItemsUpdated": "تم تحديث {{count}} عنصر",
     "invalidCategories": "الفئات غير صالحة",
     "passwordRequired": "كلمة المرور مطلوبة للمستخدم الجديد"

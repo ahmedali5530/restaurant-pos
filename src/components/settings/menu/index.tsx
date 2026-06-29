@@ -17,7 +17,7 @@ import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 
 export const AdminMenus = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
-  const loadHook = useApi<SettingsData<Menu>>(Tables.menus, ['deleted_at = none'], [], 0, 10, ['items', 'items.menu_item', 'items.tax']);
+  const loadHook = useApi<SettingsData<Menu>>(Tables.menus, ['deleted_at = none'], [], 0, 10, ['items', 'items.menu_item', 'items.taxes']);
   const db = useDB();
 
   const [data, setData] = useState<Menu>();

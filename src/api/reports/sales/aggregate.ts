@@ -13,8 +13,9 @@ import type {
   TopSellingDish,
 } from "@/api/reports/shared/types.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
+import {getOrderItemTaxAmount, getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {toJsDate} from "@/lib/datetime.ts";
-import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
+import {getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding} from "@/lib/order.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import {DAY_PARTS, getDayPartLabel, type DayPartLabel} from "@/utils/dayParts";
 
@@ -37,7 +38,7 @@ export const getOrderFigures = (order: Order): OrderFigures => {
   const netSales = safeNumber(grossSales - discounts);
 
   const serviceCharge = safeNumber(order.service_charge_amount);
-  const tax = safeNumber(order.tax_amount);
+  const tax = getOrderTaxAmount(order);
   const tips = safeNumber(order.tip_amount);
   const totalRevenue = safeNumber(netSales + serviceCharge + tax);
   const grandTotal = safeNumber(totalRevenue + tips);
@@ -79,17 +80,7 @@ export const calculateOrderNetSales = (order: Order): number => {
 };
 
 const calculateOrderAmountDue = (order: Order): number => {
-  const filteredItems = getOrderFilteredItems(order);
-  const salePriceWithoutTax = filteredItems.reduce((sum, item) => sum + safeNumber(calculateOrderItemPrice(item)), 0);
-  const lineDiscounts = filteredItems.reduce((sum, item) => sum + safeNumber(item?.discount), 0);
-  const orderDiscount = safeNumber(order.discount_amount);
-  const couponDiscount = safeNumber(order.coupon?.discount);
-  const extraDiscount = Math.max(0, orderDiscount - lineDiscounts);
-  const totalDiscounts = lineDiscounts + extraDiscount;
-  const taxes = safeNumber(order.tax_amount);
-  const serviceCharges = safeNumber(order.service_charge_amount);
-  const tips = safeNumber(order.tip_amount);
-  return safeNumber(salePriceWithoutTax + taxes + serviceCharges + tips - totalDiscounts - couponDiscount);
+  return getOrderAmountDueFromPayments(order);
 };
 
 const calculateVoidEntryAmount = (entry: OrderVoid): number => {
@@ -235,25 +226,10 @@ export const aggregateSalesSummary = (orders: Order[], orderVoids: OrderVoid[]):
     },
   );
 
-  const roundingBenefit = paymentSummary.amountDue - paymentSummary.amountCollected;
+  const roundingBenefit = orders.reduce((sum, order) => sum - getOrderRounding(order), 0);
   const serviceCharges = orders.reduce((sum, order) => sum + safeNumber(order.service_charge_amount), 0);
   
-  // Handle multiple taxes from order items
-  const taxes = orders.reduce((sum, order) => {
-    if (order.tax_amount !== undefined && order.tax_amount !== null) {
-      return sum + safeNumber(order.tax_amount);
-    }
-    // Calculate from order items with multiple taxes support
-    const itemsTax = (getOrderFilteredItems(order) ?? []).reduce((itemSum, item) => {
-      let itemTax = safeNumber(item.tax || 0);
-      if (item.taxes && item.taxes.length > 0) {
-        const basePrice = safeNumber(item.price || 0) * safeNumber(item.quantity || 1);
-        itemTax = item.taxes.reduce((taxSum, t) => taxSum + safeNumber(t.rate || 0), 0) * basePrice / 100;
-      }
-      return itemSum + itemTax;
-    }, 0);
-    return sum + itemsTax;
-  }, 0);
+  const taxes = orders.reduce((sum, order) => sum + getOrderTaxAmount(order), 0);
   
   const totalDiscounts = orders.reduce((sum, order) => sum + getOrderFigures(order).discounts, 0);
   const totalCoupons = orders.reduce((sum, order) => sum + safeNumber(order.coupon?.discount), 0);
@@ -432,11 +408,7 @@ export const aggregateProductMixByCategory = (
       const totalCost = cost * quantity;
 
       const discount = safeNumber(item.discount || 0);
-      // Handle multiple taxes - sum all tax amounts if taxes array exists
-      let tax = safeNumber(item.tax || 0);
-      if (item.taxes && item.taxes.length > 0) {
-        tax = item.taxes.reduce((sum, t) => sum + safeNumber(t.rate || 0), 0) * (safeNumber(item.price || 0) * quantity) / 100;
-      }
+      const tax = getOrderItemTaxAmount(item, order);
       const serviceCharges = safeNumber(item.service_charges || 0);
       const baseDishPrice = safeNumber(item.price || 0) * quantity;
       const total = safeNumber(amount + tax + serviceCharges - discount);

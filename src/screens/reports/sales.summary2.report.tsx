@@ -8,7 +8,7 @@ import {DiscountType} from "@/api/model/discount.ts";
 import {OrderVoid} from "@/api/model/order_void.ts";
 import {withCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
-import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
+import {getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures} from "@/lib/order.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 import {DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
 
@@ -231,27 +231,10 @@ export const SalesSummary2Report = () => {
 
   // Calculate metrics for a single order
   const calculateOrderMetrics = (order: Order) => {
-    const filteredItems = getOrderFilteredItems(order);
-    const salePriceWithoutTax = safeNumber(
-      filteredItems.reduce((sum, item) => {
-        const price = calculateOrderItemPrice(item);
-        return sum + safeNumber(price);
-      }, 0)
-    );
-    const itemDiscounts = safeNumber(
-      filteredItems.reduce((sum, item) => sum + safeNumber(item?.discount), 0)
-    );
-    const lineDiscounts = itemDiscounts;
-    const orderDiscount = safeNumber(order.discount_amount);
-    const couponDiscount = safeNumber(order.coupon?.discount);
-    const subtotalDiscount = Math.max(0, safeNumber(orderDiscount - lineDiscounts));
-    const totalDiscounts = safeNumber(lineDiscounts + subtotalDiscount);
-    const taxes = safeNumber(order.tax_amount);
-    const serviceCharges = safeNumber(order.service_charge_amount);
-    const tips = safeNumber(order.tip_amount);
-    const amountDue = safeNumber(salePriceWithoutTax + taxes + serviceCharges + tips - totalDiscounts - couponDiscount);
-    const amountCollected = getOrderPaymentTotals(order).amountCollected;
-    const net = safeNumber(amountCollected - serviceCharges - taxes);
+    const figures = getOrderSettlementFigures(order);
+    const paymentTotals = getOrderPaymentTotals(order);
+    const amountCollected = paymentTotals.amountCollected;
+    const net = safeNumber(amountCollected - figures.serviceCharges - figures.tax);
 
     // Calculate turn time: for paid orders, estimate based on payment time
     // Since we don't have payment timestamps, we'll use 0 for now
@@ -259,13 +242,13 @@ export const SalesSummary2Report = () => {
     const turnTime = 0;
 
     return {
-      salePriceWithoutTax,
-      taxes,
-      amountDue,
-      serviceCharges,
-      tips,
-      discounts: totalDiscounts,
-      coupons: couponDiscount,
+      salePriceWithoutTax: figures.itemsTotal,
+      taxes: figures.tax,
+      amountDue: getOrderAmountDueFromPayments(order),
+      serviceCharges: figures.serviceCharges,
+      tips: figures.tips,
+      discounts: safeNumber(figures.lineDiscounts + figures.cartDiscount),
+      coupons: figures.couponDiscount,
       net,
       turnTime,
     };
@@ -273,63 +256,22 @@ export const SalesSummary2Report = () => {
 
   // First section: Financial calculations
   const financialMetrics = useMemo(() => {
-    const salePriceWithoutTax = safeNumber(
-      orders.reduce((sum, order) => {
-        const filteredItems = getOrderFilteredItems(order);
-        const itemsTotal = safeNumber(
-          filteredItems.reduce((itemSum, item) => {
-            const price = calculateOrderItemPrice(item);
-            return itemSum + safeNumber(price);
-          }, 0)
-        );
-        return sum + itemsTotal;
-      }, 0)
-    );
+    const settlementFigures = orders.map(order => getOrderSettlementFigures(order));
 
-    const taxCollected = safeNumber(
-      orders.reduce((sum, order) => sum + safeNumber(order.tax_amount), 0)
-    );
-
-    const serviceCharges = safeNumber(
-      orders.reduce((sum, order) => sum + safeNumber(order.service_charge_amount), 0)
-    );
-    const tips = safeNumber(
-      orders.reduce((sum, order) => sum + safeNumber(order.tip_amount), 0)
-    );
-
-    const itemDiscounts = safeNumber(
-      orders.reduce((sum, order) => {
-        const filteredItems = getOrderFilteredItems(order);
-        return sum + safeNumber(filteredItems.reduce((itemSum, item) => itemSum + safeNumber(item?.discount), 0));
-      }, 0)
-    );
-
-    const subtotalDiscounts = safeNumber(
-      orders.reduce((sum, order) => {
-        const filteredItems = getOrderFilteredItems(order);
-        const lineDiscounts = safeNumber(
-          filteredItems.reduce((itemSum, item) => itemSum + safeNumber(item?.discount), 0)
-        );
-        const orderDiscount = safeNumber(order.discount_amount);
-        const extraDiscount = Math.max(0, safeNumber(orderDiscount - lineDiscounts));
-        return sum + extraDiscount;
-      }, 0)
-    );
-    const couponDiscounts = safeNumber(
-      orders.reduce((sum, order) => sum + safeNumber(order.coupon?.discount), 0)
-    );
-
-    const amountDue = safeNumber(
-      salePriceWithoutTax + taxCollected + serviceCharges + tips - itemDiscounts - subtotalDiscounts - couponDiscounts
-    );
+    const salePriceWithoutTax = settlementFigures.reduce((sum, figures) => sum + figures.itemsTotal, 0);
+    const taxCollected = settlementFigures.reduce((sum, figures) => sum + figures.tax, 0);
+    const serviceCharges = settlementFigures.reduce((sum, figures) => sum + figures.serviceCharges, 0);
+    const tips = settlementFigures.reduce((sum, figures) => sum + figures.tips, 0);
+    const itemDiscounts = settlementFigures.reduce((sum, figures) => sum + figures.lineDiscounts, 0);
+    const subtotalDiscounts = settlementFigures.reduce((sum, figures) => sum + figures.cartDiscount, 0);
+    const couponDiscounts = settlementFigures.reduce((sum, figures) => sum + figures.couponDiscount, 0);
+    const amountDue = orders.reduce((sum, order) => sum + getOrderAmountDueFromPayments(order), 0);
 
     const amountCollected = safeNumber(
-      orders.reduce((sum, order) => {
-        return sum + getOrderPaymentTotals(order).amountCollected;
-      }, 0)
+      orders.reduce((sum, order) => sum + getOrderPaymentTotals(order).amountCollected, 0)
     );
 
-    const rounding = safeNumber(amountCollected - amountDue);
+    const rounding = orders.reduce((sum, order) => sum + getOrderRounding(order), 0);
 
     const net = safeNumber(amountCollected - serviceCharges - taxCollected);
 

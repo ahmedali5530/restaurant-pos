@@ -114,6 +114,7 @@
     "menuNotFound": "Menü bulunamadı",
     "menuItemsSaved": "Menü öğeleri kaydedildi",
     "invalidFactor": "Geçerli bir faktör girin",
+    "selectCategoriesRequired": "En az bir kategori seçin",
     "menuItemsUpdated": "{{count}} öğe güncellendi",
     "invalidCategories": "Kategoriler geçersiz",
     "passwordRequired": "Yeni kullanıcı için şifre gerekli"

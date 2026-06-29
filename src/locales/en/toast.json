@@ -114,6 +114,7 @@
     "menuNotFound": "Menu not found",
     "menuItemsSaved": "Menu items saved",
     "invalidFactor": "Enter a valid factor",
+    "selectCategoriesRequired": "Select at least one category",
     "menuItemsUpdated": "Updated {{count}} item(s)",
     "invalidCategories": "Categories are invalid",
     "passwordRequired": "Password is required for new user"

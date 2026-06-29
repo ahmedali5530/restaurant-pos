@@ -22,6 +22,7 @@ export const recalculateCart = (
     serviceChargeAmount?: number
     couponAmount?: number
     tipAmount?: number
+    taxRate?: number
     now?: Date
     rules?: EvaluationContext['rules']
   }
@@ -33,6 +34,7 @@ export const recalculateCart = (
     existingApplications: options?.existingApplications,
     manualRequests: options?.manualRequests,
     now: options?.now,
+    taxRate: options?.taxRate,
   })
 
   const result = evaluateDiscounts(ctx)

@@ -51,6 +51,7 @@ export const cartItemToEvaluable = (item: MenuItem, tempId: string): EvaluableLi
 export const buildEvaluationContext = (
   order: Order,
   options: {
+    taxRate?: number
     rules: EvaluationContext['rules']
     now?: Date
     pendingCart?: MenuItem[]
@@ -74,7 +75,7 @@ export const buildEvaluationContext = (
     orderType: order.order_type,
     floorId: order.floor?.id?.toString(),
     now: options.now || new Date(),
-    taxRate: order.tax?.rate,
+    taxRate: options.taxRate ?? order.tax?.rate,
     rules: options.rules,
     existingApplications: options.existingApplications || [],
     manualRequests: options.manualRequests,

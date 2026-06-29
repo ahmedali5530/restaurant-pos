@@ -131,7 +131,7 @@ export const Payment = () => {
       const itemData: any = {
         tax: 0,
         item: new StringRecordId(item.dish.id.toString()),
-        price: item.dish.price,
+        price: item.price ?? item.dish.price,
         quantity: item.quantity,
         position: 0,
         comments: item.comments,
@@ -148,9 +148,7 @@ export const Payment = () => {
       };
 
       // Add tax mode and taxes if present
-      if (item.tax_mode) {
-        itemData.tax_mode = item.tax_mode;
-      }
+      itemData.tax_mode = item.tax_mode ?? item.dish?.tax_mode ?? 'exclusive';
       if (item.taxes && item.taxes.length > 0) {
         itemData.taxes = item.taxes.map(t => toRecordId(t.id));
       }

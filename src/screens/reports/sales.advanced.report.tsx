@@ -8,7 +8,7 @@ import {Menu} from "@/api/model/menu.ts";
 import {OrderVoid} from "@/api/model/order_void.ts";
 import {formatNumber, safeNumber, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
-import {getOrderFilteredItems, getOrderPaymentTotals, type OrderPaymentTotals} from "@/lib/order.ts";
+import {getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures, type OrderPaymentTotals} from "@/lib/order.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {OrderItemName} from "@/components/common/order/order.item.tsx";
 
@@ -442,46 +442,30 @@ export const SalesAdvancedReport = () => {
   };
 
   const calculateOrderTotals = (order: Order) => {
+    const figures = getOrderSettlementFigures(order);
     const filteredItems = getOrderFilteredItems(order);
     const itemsCount = safeNumber(
       filteredItems.reduce((sum, item) => sum + safeNumber(item?.quantity), 0)
     );
     const covers = safeNumber(order.covers);
-    const salePriceWithoutTax = safeNumber(
-      filteredItems.reduce((sum, item) => {
-        const price = calculateOrderItemPrice(item);
-        return sum + safeNumber(price);
-      }, 0)
-    );
-    const lineDiscounts = safeNumber(
-      filteredItems.reduce((sum, item) => sum + safeNumber(item?.discount), 0)
-    );
-    const orderDiscount = safeNumber(order.discount_amount);
-    const couponDiscount = safeNumber(order.coupon?.discount);
-    const subtotalDiscount = Math.max(0, safeNumber(orderDiscount - lineDiscounts));
-    const totalDiscounts = safeNumber(lineDiscounts + subtotalDiscount);
-    const taxes = safeNumber(order.tax_amount);
-    const tips = safeNumber(order?.tip_amount);
-    const extras = safeNumber(order?.extras?.reduce((sum, item) => sum + item.value, 0));
-    const serviceCharges = safeNumber(order.service_charge_amount);
-    const amountDue = safeNumber(salePriceWithoutTax + taxes + serviceCharges - totalDiscounts - couponDiscount + tips + extras);
     const paymentTotals = getOrderPaymentTotals(order);
     const amountCollected = paymentTotals.amountCollected;
+    const amountDue = getOrderAmountDueFromPayments(order);
     const changeDue = paymentTotals.change;
     const paymentBreakdown = getOrderPaymentBreakdown(paymentTotals);
-    const net = safeNumber(amountCollected - serviceCharges - taxes);
-    const rounding = safeNumber(amountCollected - amountDue);
+    const net = safeNumber(amountCollected - figures.serviceCharges - figures.tax);
+    const rounding = getOrderRounding(order);
 
     return {
       itemsCount,
       covers,
-      salePriceWithoutTax,
-      taxes,
-      tips,
+      salePriceWithoutTax: figures.itemsTotal,
+      taxes: figures.tax,
+      tips: figures.tips,
       amountDue,
-      serviceCharges,
-      discounts: totalDiscounts,
-      coupons: couponDiscount,
+      serviceCharges: figures.serviceCharges,
+      discounts: safeNumber(figures.lineDiscounts + figures.cartDiscount),
+      coupons: figures.couponDiscount,
       net,
       rounding,
       amountCollected,

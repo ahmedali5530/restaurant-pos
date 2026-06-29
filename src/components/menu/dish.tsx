@@ -99,6 +99,11 @@ export const MenuDish = ({
     return state.cart.filter(item => item.dish === dish).reduce((prev, item) => prev + item.quantity, 0)
   }, [state.cart]);
 
+  const menuTaxFields = useMemo(() => ({
+    tax_mode: item.tax_mode ?? 'exclusive',
+    taxes: item.taxes,
+  }), [item.tax_mode, item.taxes]);
+
   useEffect(() => {
     let cancelled = false;
     const dishPhotoId = item?.dish_photo?.toString();
@@ -173,7 +178,8 @@ export const MenuDish = ({
               category: state.category ? state.category?.name : (item.categories.length === 1 ? item.categories[0].name : ''),
               category_id: state.category?.id?.toString(),
               price: price,
-              menu_name: item.menu_name
+              menu_name: item.menu_name,
+              ...menuTaxFields,
             }, undefined, price)
           }
         }}
@@ -225,7 +231,8 @@ export const MenuDish = ({
                 category: state.category ? state.category?.name : (item.categories.length === 1 ? item.categories[0].name : ''),
               category_id: state.category?.id?.toString(),
                 price: price,
-                menu_name: item.menu_name
+                menu_name: item.menu_name,
+                ...menuTaxFields,
               }, clonedGroups, price);
             }
             setModifiersModal(false);

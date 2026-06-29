@@ -114,6 +114,7 @@
     "menuNotFound": "Menu niet gevonden",
     "menuItemsSaved": "Menu-items opgeslagen",
     "invalidFactor": "Voer een geldige factor in",
+    "selectCategoriesRequired": "Selecteer minstens één categorie",
     "menuItemsUpdated": "{{count}} item(s) bijgewerkt",
     "invalidCategories": "Categorieën zijn ongeldig",
     "passwordRequired": "Wachtwoord is verplicht voor nieuwe gebruiker"

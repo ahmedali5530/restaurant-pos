@@ -5,8 +5,7 @@ import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {DiscountType} from "@/api/model/discount.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
-import {Tax} from "@/api/model/tax.ts";
-import {formatTaxBreakdown} from "@/lib/tax-calculator.ts";
+import {getOrderTaxBreakdown} from "@/lib/tax-calculator.ts";
 
 interface Props {
   order: Order
@@ -14,45 +13,10 @@ interface Props {
   total: number
 }
 
-// Helper function to collect and format taxes from order items
-const collectTaxesFromOrder = (order: Order): Array<{ name: string; rate: number; amount: number }> => {
-  const taxMap = new Map<string, { rate: number; amount: number }>();
-  
-  (getOrderFilteredItems(order) ?? []).forEach(item => {
-    // Handle legacy single tax
-    if (item.tax && !item.taxes) {
-      const basePrice = (item.price || 0) * (item.quantity || 1);
-      const taxAmount = basePrice * (item.tax.rate || 0) / 100;
-      const key = `${item.tax.name}`;
-      const existing = taxMap.get(key) || { rate: item.tax.rate || 0, amount: 0 };
-      existing.amount += taxAmount;
-      taxMap.set(key, existing);
-    }
-    
-    // Handle multiple taxes
-    if (item.taxes && item.taxes.length > 0) {
-      const basePrice = (item.price || 0) * (item.quantity || 1);
-      item.taxes.forEach(tax => {
-        const taxAmount = basePrice * (tax.rate || 0) / 100;
-        const key = `${tax.name}`;
-        const existing = taxMap.get(key) || { rate: tax.rate || 0, amount: 0 };
-        existing.amount += taxAmount;
-        taxMap.set(key, existing);
-      });
-    }
-  });
-  
-  return Array.from(taxMap.entries()).map(([name, data]) => ({
-    name,
-    rate: data.rate,
-    amount: data.amount
-  }));
-};
-
 export const CommonBillParts = ({
   order, itemsTotal, total
 }: Props) => {
-  const taxes = collectTaxesFromOrder(order);
+  const taxes = getOrderTaxBreakdown(order);
   
   return (
     <>

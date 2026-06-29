@@ -4,6 +4,7 @@ import {useEffect, useMemo, useRef, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import {useDB} from "@/api/db/db.ts";
 import {DateTime} from "luxon";
+import {DateTime as SurrealDateTime} from 'surrealdb';
 import {Tables} from "@/api/db/tables.ts";
 
 interface WeekOption {
@@ -17,7 +18,7 @@ const formatWeekLabel = (date: DateTime) => {
   return `${start.toFormat('yyyy-LL-dd')} → ${end.toFormat('yyyy-LL-dd')}`;
 };
 
-const parseCreatedAt = (value?: string | Date | null) => {
+const parseCreatedAt = (value?: string | Date | null | SurrealDateTime) => {
   if (!value) {
     return null;
   }
@@ -25,6 +26,11 @@ const parseCreatedAt = (value?: string | Date | null) => {
     const parsed = DateTime.fromISO(value);
     return parsed.isValid ? parsed : null;
   }
+
+  if(value instanceof SurrealDateTime){
+    value = value.toDate();
+  }
+
   const parsed = DateTime.fromJSDate(value);
   return parsed.isValid ? parsed : null;
 };

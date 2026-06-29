@@ -108,11 +108,17 @@ const resolveMenuDish = (baseDish: Dish | undefined, menuItem: MenuMenuItem, men
   }
 
   const resolvedPrice = menuItem.price ?? sourceDish.price;
+  const taxes = menuItem.taxes && menuItem.taxes.length > 0
+    ? menuItem.taxes
+    : null;
 
   return {
     ...sourceDish,
     price: resolvedPrice,
-    menu_name: menuName
+    menu_name: menuName,
+    tax_mode: menuItem.tax_mode ?? 'exclusive',
+    taxes,
+    tax: taxes?.[0],
   };
 };
 

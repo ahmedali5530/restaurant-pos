@@ -115,7 +115,7 @@ export const CacheSettings = () => {
       const menusResult = selectedMenuIds.length > 0
         ? await db.query(`SELECT * FROM ${Tables.menus}
                           WHERE id INSIDE $ids
-                          FETCH items, items.menu_item, items.menu_item.categories, items.tax`, {
+                          FETCH items, items.menu_item, items.menu_item.categories, items.tax, items.taxes, items.tax_mode`, {
           ids: selectedMenuIds
         })
         : [[]];

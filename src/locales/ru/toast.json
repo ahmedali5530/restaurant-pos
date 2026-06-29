@@ -114,6 +114,7 @@
     "menuNotFound": "Меню не найдено",
     "menuItemsSaved": "Позиции меню сохранены",
     "invalidFactor": "Введите корректный коэффициент",
+    "selectCategoriesRequired": "Выберите хотя бы одну категорию",
     "menuItemsUpdated": "Обновлено позиций: {{count}}",
     "invalidCategories": "Категории недействительны",
     "passwordRequired": "Для нового пользователя требуется пароль"

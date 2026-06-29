@@ -1,6 +1,8 @@
 import {Order as OrderModel, OrderStatus} from '@/api/model/order';
 import {OrderPayment} from "@/api/model/order_payment.ts";
 import {OrderVoidReason} from "@/api/model/order_void.ts";
+import {calculateOrderItemPrice} from "@/lib/cart.ts";
+import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import type {TFunction} from 'i18next';
 
@@ -78,6 +80,77 @@ export const getOrderPaymentTotals = (order: Pick<OrderModel, 'payments'>): Orde
     change: safeNumber(totalReceivedWithChange - amountCollected),
     totalReceivedWithChange,
   };
+};
+
+export interface OrderSettlementFigures {
+  itemsTotal: number;
+  extrasTotal: number;
+  lineDiscounts: number;
+  cartDiscount: number;
+  couponDiscount: number;
+  discounts: number;
+  grossSales: number;
+  netSales: number;
+  serviceCharges: number;
+  tax: number;
+  amountDueBeforeTips: number;
+  tips: number;
+  grandTotalDue: number;
+}
+
+/** Per-order settlement totals using persisted amounts (matches payment save). */
+export const getOrderSettlementFigures = (order: OrderModel): OrderSettlementFigures => {
+  const items = getOrderFilteredItems(order);
+  const itemsTotal = items.reduce((sum, item) => sum + safeNumber(calculateOrderItemPrice(item)), 0);
+  const extrasTotal = (order.extras ?? []).reduce((sum, extra) => sum + safeNumber(extra.value), 0);
+  const lineDiscounts = items.reduce((sum, item) => sum + safeNumber(item.discount), 0);
+  const orderDiscount = safeNumber(order.discount_amount);
+  const cartDiscount = Math.max(0, orderDiscount - lineDiscounts);
+  const couponDiscount = safeNumber(order.coupon?.discount);
+  const discounts = safeNumber(lineDiscounts + cartDiscount + couponDiscount);
+  const grossSales = safeNumber(itemsTotal + extrasTotal);
+  const netSales = safeNumber(grossSales - discounts);
+  const serviceCharges = safeNumber(order.service_charge_amount);
+  const tax = getOrderTaxAmount(order);
+  const tips = safeNumber(order.tip_amount);
+  const amountDueBeforeTips = safeNumber(netSales + serviceCharges + tax);
+  const grandTotalDue = safeNumber(amountDueBeforeTips + tips);
+
+  return {
+    itemsTotal,
+    extrasTotal,
+    lineDiscounts,
+    cartDiscount,
+    couponDiscount,
+    discounts,
+    grossSales,
+    netSales,
+    serviceCharges,
+    tax,
+    amountDueBeforeTips,
+    tips,
+    grandTotalDue,
+  };
+};
+
+/** Amount due at checkout: max payment payable when recorded, else reconstructed settlement. */
+export const getOrderAmountDueFromPayments = (order: OrderModel): number => {
+  const payments = order.payments ?? [];
+  const payables = payments
+    .map((payment) => safeNumber(payment?.payable))
+    .filter((payable) => payable > 0);
+
+  if (payables.length > 0) {
+    return Math.max(...payables);
+  }
+
+  return getOrderSettlementFigures(order).grandTotalDue;
+};
+
+/** Collected minus amount due (zero when payment matches checkout payable). */
+export const getOrderRounding = (order: OrderModel): number => {
+  const amountDue = getOrderAmountDueFromPayments(order);
+  return safeNumber(getOrderPaymentTotals(order).amountCollected - amountDue);
 };
 
 const ORDER_STATUS_I18N_KEY: Partial<Record<OrderStatus, string>> = {

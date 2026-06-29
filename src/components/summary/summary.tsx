@@ -1,9 +1,10 @@
 import {useMemo} from "react";
 import {useTranslation} from "react-i18next";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
+import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {Order, OrderStatus} from "@/api/model/order.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
-import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
+import {getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures} from "@/lib/order.ts";
 
 interface Props {
   orders: Order[]
@@ -71,23 +72,7 @@ export const Summary = ({
   // Tax collected - handle multiple taxes from order items if available
   const taxCollected = useMemo(() => {
     return safeNumber(
-      orders?.reduce((sum, order) => {
-        // If order has tax_amount, use it (legacy support)
-        if (order.tax_amount !== undefined && order.tax_amount !== null) {
-          return sum + safeNumber(order.tax_amount);
-        }
-        // Otherwise, calculate from order items with multiple taxes support
-        const itemsTax = (getOrderFilteredItems(order) ?? []).reduce((itemSum, item) => {
-          let itemTax = safeNumber(item.tax || 0);
-          if (item.taxes && item.taxes.length > 0) {
-            // Calculate tax from multiple taxes array
-            const basePrice = safeNumber(item.price || 0) * safeNumber(item.quantity || 1);
-            itemTax = item.taxes.reduce((taxSum, t) => taxSum + safeNumber(t.rate || 0), 0) * basePrice / 100;
-          }
-          return itemSum + itemTax;
-        }, 0);
-        return sum + itemsTax;
-      }, 0) ?? 0
+      orders?.reduce((sum, order) => sum + getOrderTaxAmount(order), 0) ?? 0
     );
   }, [orders]);
 
@@ -166,10 +151,12 @@ export const Summary = ({
     );
   }, [orders]);
 
-  // Rounding (difference between amount collected and amount due)
+  // Rounding (difference between amount collected and grand total due, per order)
   const rounding = useMemo(() => {
-    return safeNumber(amountCollected - amountDue);
-  }, [amountCollected, amountDue]);
+    return safeNumber(
+      orders?.reduce((sum, order) => sum + getOrderRounding(order), 0) ?? 0
+    );
+  }, [orders]);
 
   // Net (amount collected minus service charges and taxes)
   const net = useMemo(() => {

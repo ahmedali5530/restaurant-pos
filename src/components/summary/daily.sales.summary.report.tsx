@@ -2,8 +2,9 @@ import {useMemo, type ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import {Order, OrderStatus} from '@/api/model/order.ts';
 import {formatNumber, withCurrency} from '@/lib/utils.ts';
-import {getOrderFilteredItems, getOrderPaymentTotals} from '@/lib/order.ts';
+import {getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures} from '@/lib/order.ts';
 import {calculateOrderItemPrice} from '@/lib/cart.ts';
+import {getOrderTaxBreakdown} from '@/lib/tax-calculator.ts';
 
 interface Props {
   orders: Order[];
@@ -114,82 +115,39 @@ function Section({
   );
 }
 
-const sumFilteredItemDiscounts = (order: Order) =>
-  safeNumber(
-    getOrderFilteredItems(order).reduce((sum, item) => sum + safeNumber(item?.discount), 0),
-  );
-
-const getOrderSubtotalDiscount = (order: Order) => {
-  const lineDiscounts = sumFilteredItemDiscounts(order);
-  const orderDiscount = safeNumber(order.discount_amount);
-  if (order.discount) {
-    return orderDiscount;
-  }
-  return Math.max(0, orderDiscount - lineDiscounts);
-};
-
 /** Active lines + extras only (no tax, service, tips); voided / refunded / suspended lines excluded. */
 function useDailySalesFigures(orders: Order[] | undefined) {
   const {t} = useTranslation('summary');
   return useMemo(() => {
     const list = orders ?? [];
     const paymentTotals = list.map(order => getOrderPaymentTotals(order));
+    const settlementFigures = list.map(order => getOrderSettlementFigures(order));
 
-    const exclusiveSales = list.reduce((sum, order) => {
-      const items = (getOrderFilteredItems(order) ?? []).reduce(
-        (s, item) => s + safeNumber(calculateOrderItemPrice(item)),
-        0,
-      );
-      return sum + items;
-    }, 0);
+    const exclusiveSales = settlementFigures.reduce((sum, figures) => sum + figures.itemsTotal, 0);
 
-    const totalExtras = list.reduce((sum, order) => {
-      const extras = (order.extras ?? []).reduce((s, extra) => s + safeNumber(extra.value), 0);
-      return sum + extras;
-    }, 0);
+    const totalExtras = settlementFigures.reduce((sum, figures) => sum + figures.extrasTotal, 0);
 
     const grossSales = safeNumber(exclusiveSales + totalExtras);
 
-    const itemDiscounts = list.reduce(
-      (sum, order) => sum + sumFilteredItemDiscounts(order),
-      0,
-    );
+    const itemDiscounts = settlementFigures.reduce((sum, figures) => sum + figures.lineDiscounts, 0);
 
-    const subtotalDiscounts = list.reduce(
-      (sum, order) => sum + getOrderSubtotalDiscount(order),
-      0,
-    );
+    const subtotalDiscounts = settlementFigures.reduce((sum, figures) => sum + figures.cartDiscount, 0);
 
-    const couponDiscounts = list.reduce((sum, order) => sum + safeNumber(order.coupon?.discount), 0);
+    const couponDiscounts = settlementFigures.reduce((sum, figures) => sum + figures.couponDiscount, 0);
 
     const discounts = safeNumber(itemDiscounts + subtotalDiscounts + couponDiscounts);
 
-    const netSales = safeNumber(grossSales - discounts);
+    const netSales = settlementFigures.reduce((sum, figures) => sum + figures.netSales, 0);
 
-    const serviceCharges = list.reduce((sum, order) => sum + safeNumber(order.service_charge_amount), 0);
-    // Handle multiple taxes from order items
-    const taxCollected = list.reduce((sum, order) => {
-      if (order.tax_amount !== undefined && order.tax_amount !== null) {
-        return sum + safeNumber(order.tax_amount);
-      }
-      // Calculate from order items with multiple taxes support
-      const itemsTax = (getOrderFilteredItems(order) ?? []).reduce((itemSum, item) => {
-        let itemTax = safeNumber(item.tax || 0);
-        if (item.taxes && item.taxes.length > 0) {
-          const basePrice = safeNumber(item.price || 0) * safeNumber(item.quantity || 1);
-          itemTax = item.taxes.reduce((taxSum, t) => taxSum + safeNumber(t.rate || 0), 0) * basePrice / 100;
-        }
-        return itemSum + itemTax;
-      }, 0);
-      return sum + itemsTax;
-    }, 0);
+    const serviceCharges = settlementFigures.reduce((sum, figures) => sum + figures.serviceCharges, 0);
+    const taxCollected = settlementFigures.reduce((sum, figures) => sum + figures.tax, 0);
 
-    const amountDue = safeNumber(netSales + serviceCharges + taxCollected);
-    const totalRevenue = safeNumber(netSales + serviceCharges + taxCollected);
+    const amountDue = settlementFigures.reduce((sum, figures) => sum + figures.amountDueBeforeTips, 0);
+    const totalRevenue = amountDue;
 
-    const tips = list.reduce((sum, order) => sum + safeNumber(order.tip_amount), 0);
+    const tips = settlementFigures.reduce((sum, figures) => sum + figures.tips, 0);
 
-    const grandTotalDue = safeNumber(totalRevenue + tips);
+    const grandTotalDue = settlementFigures.reduce((sum, figures) => sum + figures.grandTotalDue, 0);
 
     const amountCollected = paymentTotals.reduce(
       (sum, totals) => sum + safeNumber(totals.amountCollected),
@@ -198,7 +156,7 @@ function useDailySalesFigures(orders: Order[] | undefined) {
     const amountCollectedRaw = amountCollected;
 
     const changeGiven = paymentTotals.reduce((sum, totals) => sum + safeNumber(totals.change), 0);
-    const rounding = safeNumber(amountCollected - grandTotalDue);
+    const rounding = list.reduce((sum, order) => sum + getOrderRounding(order), 0);
 
     const refunds = list.reduce((sum, order) => {
       if (order.status === OrderStatus.Cancelled) {
@@ -258,28 +216,9 @@ function useDailySalesFigures(orders: Order[] | undefined) {
 
     const taxesMap: Record<string, number> = {};
     list.forEach(order => {
-      // Handle multiple taxes from order items
-      const items = getOrderFilteredItems(order) ?? [];
-      items.forEach(item => {
-        if (item.taxes && item.taxes.length > 0) {
-          // Multiple taxes
-          item.taxes.forEach(tax => {
-            const key = `${tax.name} ${tax.rate}%`;
-            if (!taxesMap[key]) {
-              taxesMap[key] = 0;
-            }
-            const basePrice = safeNumber(item.price || 0) * safeNumber(item.quantity || 1);
-            const taxAmount = safeNumber(tax.rate || 0) * basePrice / 100;
-            taxesMap[key] += taxAmount;
-          });
-        } else if (order?.tax) {
-          // Legacy single tax at order level
-          const key = `${order.tax?.name} ${order.tax?.rate}%`;
-          if (!taxesMap[key]) {
-            taxesMap[key] = 0;
-          }
-          taxesMap[key] += safeNumber(order?.tax_amount);
-        }
+      getOrderTaxBreakdown(order).forEach(({name, rate, amount}) => {
+        const key = `${name} ${rate}%`;
+        taxesMap[key] = (taxesMap[key] ?? 0) + amount;
       });
     });
     const taxesList: BreakdownEntry[] = Object.entries(taxesMap)

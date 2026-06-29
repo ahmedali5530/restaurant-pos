@@ -6,28 +6,46 @@ import {getOrderFilteredItems} from "@/lib/order.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import {calculateItemTax} from "@/lib/tax-calculator.ts";
 
-export const calculateCartItemPrice = (item: MenuItem) => {
-  const quantity = safeNumber(item?.quantity || 1);
+export const getCartItemTaxableUnitBase = (item: MenuItem): number => {
   const unitPrice = safeNumber(item?.price ?? item?.dish?.price ?? 0);
   const modifiersUnitTotal = (item?.selectedGroups ?? []).reduce((groupsTotal, group) => {
     const selectedModifiers = group?.selectedModifiers ?? [];
     return groupsTotal + selectedModifiers.reduce((modifiersTotal, modifier) => {
-      const modifierTotal = calculateCartItemPrice(modifier);
-      return modifiersTotal + modifierTotal;
+      return modifiersTotal + getCartItemTaxableUnitBase(modifier);
     }, 0);
   }, 0);
+  return unitPrice + modifiersUnitTotal;
+};
+
+export const getOrderItemTaxableUnitBase = (item: OrderItem): number => {
+  const unitPrice = safeNumber(item?.price ?? item?.item?.price ?? 0);
+  const modifiersUnitTotal = (item?.modifiers ?? []).reduce((groupsTotal, group) => {
+    const selectedModifiers = group?.selectedModifiers ?? [];
+    return groupsTotal + selectedModifiers.reduce((modifiersTotal, selectedModifier) => {
+      if (!selectedModifier) {
+        return modifiersTotal;
+      }
+      return modifiersTotal + getCartItemTaxableUnitBase(selectedModifier);
+    }, 0);
+  }, 0);
+  return unitPrice + modifiersUnitTotal;
+};
+
+export const calculateCartItemPrice = (item: MenuItem) => {
+  const quantity = safeNumber(item?.quantity || 1);
+  const unitBase = getCartItemTaxableUnitBase(item);
+  const unitPrice = safeNumber(item?.price ?? item?.dish?.price ?? 0);
 
   // Handle tax mode for pricing
   let finalUnitPrice = unitPrice;
   if (item?.tax_mode === 'inclusive' && item?.taxes && item.taxes.length > 0) {
-    // For inclusive pricing, the price already includes tax
     finalUnitPrice = unitPrice;
   } else if (item?.tax_mode === 'exclusive' && item?.taxes && item.taxes.length > 0) {
-    // For exclusive pricing, tax is added to base price
     const taxCalc = calculateItemTax(unitPrice, item.taxes, 'exclusive');
     finalUnitPrice = taxCalc.gross_price;
   }
 
+  const modifiersUnitTotal = unitBase - unitPrice;
   return (finalUnitPrice + modifiersUnitTotal) * quantity;
 }
 
@@ -37,19 +55,7 @@ export const calculateCartTotal = (items: MenuItem[]) => {
 
 export const calculateOrderItemPrice = (item: OrderItem) => {
   const quantity = safeNumber(item?.quantity || 1);
-  const unitPrice = safeNumber(item?.price ?? item?.item?.price ?? 0);
-  const modifiersUnitTotal = (item?.modifiers ?? []).reduce((groupsTotal, group) => {
-    const selectedModifiers = group?.selectedModifiers ?? [];
-    return groupsTotal + selectedModifiers.reduce((modifiersTotal, selectedModifier) => {
-      if (!selectedModifier) {
-        return modifiersTotal;
-      }
-
-      return modifiersTotal + calculateCartItemPrice(selectedModifier);
-    }, 0);
-  }, 0);
-
-  return (unitPrice + modifiersUnitTotal) * quantity;
+  return getOrderItemTaxableUnitBase(item) * quantity;
 }
 
 export const calculateOrderTotal = (order?: Order) => {

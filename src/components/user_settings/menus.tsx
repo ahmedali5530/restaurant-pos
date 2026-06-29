@@ -70,7 +70,7 @@ export const MenusSettings = () => {
   const fetchMenus = async (ids: RecordId[]) => {
     const [rows] = await db.query<Menu[]>(`SELECT * FROM ${Tables.menus}
                                            WHERE id INSIDE $ids
-                                           FETCH items, items.menu_item, items.menu_item.categories, items.tax`, {
+                                           FETCH items, items.menu_item, items.menu_item.categories, items.tax, items.taxes, items.tax_mode`, {
       ids
     });
 

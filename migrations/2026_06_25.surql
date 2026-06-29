@@ -1,1 +1,1 @@
-DEFINE FIELD OVERWRITE category_id ON order_item TYPE option<string|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD OVERWRITE category_id ON order_item TYPE option<record<category>|string|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;

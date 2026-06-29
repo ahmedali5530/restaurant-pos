@@ -5,6 +5,9 @@ import ScrollContainer from "react-indiana-drag-scroll";
 import React, {CSSProperties, useCallback, useEffect, useMemo, useState} from "react";
 import {OrderTimes} from "@/components/orders/order.times.tsx";
 import {calculateOrderGrandTotal, calculateOrderTotal} from "@/lib/cart.ts";
+import {
+  calculateOrderPaymentTaxAmount,
+} from "@/lib/tax-calculator.ts";
 import {cn, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {OrderPaymentReceiving} from "@/components/orders/payment/order.payment.receiving.tsx";
 import {OrderPaymentTax} from "@/components/orders/payment/order.payment.tax.tsx";
@@ -190,7 +193,7 @@ export const OrderPayment = ({
 
   const cartTotals = useMemo(() => {
     const extrasTotal = Object.values(extras).reduce((prev, item) => prev + item, 0);
-    return recalculateCart(order, {
+    const base = recalculateCart(order, {
       existingApplications: discountLines.filter(l => l.applicationType === 'manual'),
       manualRequests: [],
       extrasTotal,
@@ -199,9 +202,22 @@ export const OrderPayment = ({
         : 0,
       couponAmount,
       tipAmount: tipType === DiscountType.Fixed ? tip : itemsTotal * tip / 100,
+      taxRate: tax?.rate ?? order.tax?.rate,
       rules: getDiscountCache().all,
     });
-  }, [order, discountLines, extras, serviceCharge, serviceChargeType, couponAmount, tip, tipType, itemsTotal]);
+
+    const resolvedTaxAmount = calculateOrderPaymentTaxAmount(
+      order,
+      tax ?? order.tax ?? null,
+    );
+
+    const taxDelta = resolvedTaxAmount - base.taxAmount;
+    return {
+      ...base,
+      taxAmount: resolvedTaxAmount,
+      grandTotal: base.grandTotal + taxDelta,
+    };
+  }, [order, discountLines, extras, serviceCharge, serviceChargeType, couponAmount, tip, tipType, itemsTotal, tax, order.tax]);
 
   useEffect(() => {
     const autoLines = cartTotals.discountLines.filter(l => l.applicationType === 'automatic');
@@ -211,10 +227,8 @@ export const OrderPayment = ({
     if (total !== discountAmount) {
       setDiscountAmount(total);
     }
-    if (tax) {
-      setTaxAmount(cartTotals.taxAmount);
-    }
-  }, [cartTotals, discountLines, discountAmount, tax]);
+    setTaxAmount(cartTotals.taxAmount);
+  }, [cartTotals, discountLines, discountAmount, tax, order.tax]);
 
   useEffect(() => {
     if (tipType === DiscountType.Fixed) {

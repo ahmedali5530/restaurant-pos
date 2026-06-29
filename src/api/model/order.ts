@@ -77,6 +77,8 @@ export const ORDER_PAYMENT_FETCHES = [
   'items',
   'items.item',
   'items.item.categories',
+  'items.taxes',
+  'items.tax_mode',
   'items.modifiers',
   'table',
   'user',
