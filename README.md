@@ -16,7 +16,7 @@ Designed to handle everything from **ordering → kitchen → delivery → staff
 
 ## 🎬 See it in Action
 
-![Restaurant POS system demo](docs/demo.gif)
+<video src="https://github.com/ahmedali5530/restaurant-pos/blob/master/docs/demo.mp4" width="100%" controls autoplay loop muted></video>
 
 ---
 
