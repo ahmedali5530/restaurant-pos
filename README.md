@@ -16,9 +16,11 @@ Designed to handle everything from **ordering → kitchen → delivery → staff
 
 ## 🎬 See it in Action
 
-<video src="docs/demo.mp4" controls width="100%">
-  <a href="docs/demo.mp4">Watch the demo video</a>
-</video>
+<p>
+  <video src="https://ahmedali5530.xyz/assets/posr/demo-video.mp4" controls width="900" playsinline>
+    <a href="https://ahmedali5530.xyz/assets/posr/demo-video.mp4">Watch the demo video</a>
+  </video>
+</p>
 
 ---
 
