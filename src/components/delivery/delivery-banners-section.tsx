@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState, type ChangeEvent} from "react";
 import {useTranslation} from "react-i18next";
 import {toast} from "sonner";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -6,17 +6,16 @@ import {faTrash} from "@fortawesome/free-solid-svg-icons";
 import {useDB} from "@/api/db/db.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {
-  deleteBanner,
+  createBannerDocument,
+  deleteBannerDocument,
   DeliveryBanner,
-  fetchBannerBytes,
+  fetchBannerContent,
   loadDeliveryBanners,
   saveDeliveryBanners,
-  uploadBanner,
 } from "@/lib/delivery/banners.service.ts";
-import {detectMimeType, toUint8Array} from "@/utils/files.ts";
+import {detectMimeType} from "@/utils/files.ts";
 
 type ExistingBannerItem = DeliveryBanner & {
-  id: string;
   previewUrl: string;
 };
 
@@ -35,13 +34,14 @@ const revokeUrl = (url: string | null | undefined) => {
 export const DeliveryBannersSection = () => {
   const {t} = useTranslation("delivery");
   const db = useDB();
+  const dbRef = useRef(db);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [existingBanners, setExistingBanners] = useState<ExistingBannerItem[]>([]);
   const [initialBannerCount, setInitialBannerCount] = useState(0);
   const [pendingBanners, setPendingBanners] = useState<PendingBannerItem[]>([]);
-  const [removedPaths, setRemovedPaths] = useState<string[]>([]);
+  const [removedDocumentIds, setRemovedDocumentIds] = useState<string[]>([]);
   const previewUrlsRef = useRef<Set<string>>(new Set());
 
   const trackPreviewUrl = (url: string) => {
@@ -55,34 +55,36 @@ export const DeliveryBannersSection = () => {
   };
 
   useEffect(() => {
+    dbRef.current = db;
+  }, [db]);
+
+  useEffect(() => {
     let cancelled = false;
 
     const loadBanners = async () => {
       try {
         setLoading(true);
-        const banners = await loadDeliveryBanners(db.query);
+        const banners = await loadDeliveryBanners(dbRef.current.query);
 
         const loaded = await Promise.all(
           banners.map(async (banner) => {
             try {
-              const bytes = await fetchBannerBytes(db.query, banner.path);
-              if (!bytes) {
+              const content = await fetchBannerContent(dbRef.current.query, banner.documentId);
+              if (!content) {
                 return null;
               }
 
-              const data = toUint8Array(bytes);
-              const mimeType = banner.mimeType || detectMimeType(data, "image/jpeg");
-              const blob = new Blob([data], {type: mimeType});
+              const mimeType = banner.mimeType || detectMimeType(content, "image/jpeg");
+              const blob = new Blob([new Uint8Array(content)], {type: mimeType});
               const previewUrl = trackPreviewUrl(URL.createObjectURL(blob));
 
               return {
                 ...banner,
                 mimeType,
-                id: banner.path,
                 previewUrl,
               };
             } catch (error) {
-              console.error(`Failed to load banner ${banner.path}:`, error);
+              console.error(`Failed to load banner ${banner.id}:`, error);
               return null;
             }
           })
@@ -120,7 +122,7 @@ export const DeliveryBannersSection = () => {
     };
   }, []);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files?.length) {
       return;
@@ -138,7 +140,7 @@ export const DeliveryBannersSection = () => {
 
   const removeExistingBanner = (banner: ExistingBannerItem) => {
     setExistingBanners((prev) => prev.filter((item) => item.id !== banner.id));
-    setRemovedPaths((prev) => [...prev, banner.path]);
+    setRemovedDocumentIds((prev) => [...prev, banner.documentId]);
     releasePreviewUrl(banner.previewUrl);
   };
 
@@ -152,25 +154,27 @@ export const DeliveryBannersSection = () => {
       setSaving(true);
 
       const uploadedBanners = await Promise.all(
-        pendingBanners.map((banner) => uploadBanner(db.query, banner.file))
+        pendingBanners.map((banner) => createBannerDocument(db.create, banner.file))
       );
 
-      const keptExisting = existingBanners.map(({path, name, mimeType}) => ({
-        path,
+      const keptExisting = existingBanners.map(({id, name, mimeType, documentId}) => ({
+        id,
         name,
         mimeType,
+        documentId,
       }));
 
       const finalBanners: DeliveryBanner[] = [...keptExisting, ...uploadedBanners];
 
-      await Promise.all(removedPaths.map((path) => deleteBanner(db.query, path)));
+      await Promise.all(
+        removedDocumentIds.map((documentId) => deleteBannerDocument(db.delete, documentId))
+      );
       await saveDeliveryBanners(db.query, db.merge, db.create, finalBanners);
 
       const nextExisting: ExistingBannerItem[] = [
         ...existingBanners,
         ...pendingBanners.map((pending, index) => ({
           ...uploadedBanners[index],
-          id: uploadedBanners[index].path,
           previewUrl: pending.previewUrl,
         })),
       ];
@@ -178,7 +182,7 @@ export const DeliveryBannersSection = () => {
       setExistingBanners(nextExisting);
       setInitialBannerCount(nextExisting.length);
       setPendingBanners([]);
-      setRemovedPaths([]);
+      setRemovedDocumentIds([]);
       toast.success(t("settings.banners.saved"));
     } catch (error) {
       console.error("Error saving delivery banners:", error);
@@ -191,7 +195,7 @@ export const DeliveryBannersSection = () => {
   const hasBanners = existingBanners.length > 0 || pendingBanners.length > 0;
   const hasChanges =
     pendingBanners.length > 0 ||
-    removedPaths.length > 0 ||
+    removedDocumentIds.length > 0 ||
     existingBanners.length !== initialBannerCount;
 
   return (

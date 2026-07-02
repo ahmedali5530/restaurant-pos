@@ -1,13 +1,15 @@
 import {nanoid} from "nanoid";
 import {Tables} from "@/api/db/tables.ts";
+import {toRecordId} from "@/lib/utils.ts";
+import {toUint8Array} from "@/utils/files.ts";
 
-export const DELIVERY_BANNERS_BUCKET = "my_bucket";
 export const DELIVERY_BANNERS_SETTING_KEY = "delivery_banners";
 
 export type DeliveryBanner = {
-  path: string;
+  id: string;
   name: string;
   mimeType: string;
+  documentId: string;
 };
 
 type DbQuery = <R extends unknown[] = unknown[]>(
@@ -17,96 +19,57 @@ type DbQuery = <R extends unknown[] = unknown[]>(
 
 type DbMerge = (thing: string, data: Record<string, unknown>) => Promise<unknown>;
 type DbCreate = (table: string, data: Record<string, unknown>) => Promise<unknown>;
+type DbDelete = (thing: string) => Promise<unknown>;
 
-const getFileExtension = (fileName: string, mimeType: string): string => {
-  const fromName = fileName.split(".").pop()?.toLowerCase();
-  if (fromName && fromName.length <= 5) {
-    return fromName;
-  }
-
-  const mimeMap: Record<string, string> = {
-    "image/jpeg": "jpg",
-    "image/png": "png",
-    "image/gif": "gif",
-    "image/webp": "webp",
-  };
-
-  return mimeMap[mimeType] ?? "jpg";
-};
-
-export const buildBannerPath = (fileName: string, mimeType: string): string => {
-  const ext = getFileExtension(fileName, mimeType);
-  return `delivery/banners/${nanoid()}.${ext}`;
-};
-
-export const uploadBanner = async (
-  query: DbQuery,
-  file: File,
-  path?: string
+export const createBannerDocument = async (
+  create: DbCreate,
+  file: File
 ): Promise<DeliveryBanner> => {
   const mimeType = file.type || "image/jpeg";
-  const bannerPath = path ?? buildBannerPath(file.name, mimeType);
   const content = await file.arrayBuffer();
 
-  await query(
-    `type::file($bucket, $path).put($content)`,
-    {bucket: DELIVERY_BANNERS_BUCKET, path: bannerPath, content}
-  );
+  const [document] = await create(Tables.documents, {
+    name: file.name,
+    content,
+    size: file.size,
+    type: mimeType,
+  }) as [{id: string}];
 
   return {
-    path: bannerPath,
+    id: nanoid(),
     name: file.name,
     mimeType,
+    documentId: document.id.toString(),
   };
 };
 
-const extractQueryReturn = (queryResult: unknown): unknown => {
-  if (
-    queryResult instanceof Uint8Array ||
-    queryResult instanceof ArrayBuffer ||
-    (ArrayBuffer.isView(queryResult) && !(queryResult instanceof DataView))
-  ) {
-    return queryResult;
-  }
+export const fetchBannerContent = async (
+  query: DbQuery,
+  documentId: string
+): Promise<Uint8Array | null> => {
+  const [rows] = await query(
+    `SELECT content FROM ONLY $id`,
+    {id: toRecordId(documentId)}
+  );
 
-  if (!Array.isArray(queryResult) || queryResult.length === 0) {
+  const record = (Array.isArray(rows) ? rows[0] : rows) as {content?: unknown} | undefined;
+
+  if (!record?.content) {
     return null;
   }
 
-  const first = queryResult[0];
-
-  if (
-    first instanceof Uint8Array ||
-    first instanceof ArrayBuffer ||
-    (ArrayBuffer.isView(first) && !(first instanceof DataView))
-  ) {
-    return first;
+  try {
+    return toUint8Array(record.content);
+  } catch {
+    return null;
   }
-
-  if (Array.isArray(first)) {
-    return first.length > 0 ? first[0] : null;
-  }
-
-  return first ?? null;
 };
 
-export const fetchBannerBytes = async (
-  query: DbQuery,
-  path: string
-): Promise<unknown | null> => {
-  const result = await query(
-    `RETURN type::file($bucket, $path).get()`,
-    {bucket: DELIVERY_BANNERS_BUCKET, path}
-  );
-
-  return extractQueryReturn(result);
-};
-
-export const deleteBanner = async (query: DbQuery, path: string): Promise<void> => {
-  await query(
-    `type::file($bucket, $path).delete()`,
-    {bucket: DELIVERY_BANNERS_BUCKET, path}
-  );
+export const deleteBannerDocument = async (
+  del: DbDelete,
+  documentId: string
+): Promise<void> => {
+  await del(documentId);
 };
 
 export const loadDeliveryBanners = async (query: DbQuery): Promise<DeliveryBanner[]> => {
@@ -126,9 +89,10 @@ export const loadDeliveryBanners = async (query: DbQuery): Promise<DeliveryBanne
 
   return values.filter(
     (banner): banner is DeliveryBanner =>
-      typeof banner?.path === "string" &&
+      typeof banner?.id === "string" &&
       typeof banner?.name === "string" &&
-      typeof banner?.mimeType === "string"
+      typeof banner?.mimeType === "string" &&
+      typeof banner?.documentId === "string"
   );
 };
 
