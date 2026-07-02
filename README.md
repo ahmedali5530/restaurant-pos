@@ -14,6 +14,14 @@ Designed to handle everything from **ordering → kitchen → delivery → staff
 
 ---
 
+## 🎬 See it in Action
+
+<video src="docs/demo.mp4" controls width="100%">
+  <a href="docs/demo.mp4">Watch the demo video</a>
+</video>
+
+---
+
 ## 💥 Why This Project?
 
 Most restaurant systems are:
