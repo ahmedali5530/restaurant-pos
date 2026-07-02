@@ -255,7 +255,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
         supplier: values.supplier ? toRecordId(values.supplier.value) : undefined,
         items: [],
         created_at: values.date ? toSurrealDateTime(calendarDateToDate(values.date) || undefined) : nowSurrealDateTime(),
-        created_by: state.user.id,
+        created_by: toRecordId(state.user.id),
         status: PurchaseOrderStatus.pending,
         documents: documentRefs.length > 0 ? documentRefs : undefined,
       };
