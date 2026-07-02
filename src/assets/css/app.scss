@@ -556,6 +556,7 @@ table th {
   &:checked:after {
     content: "";
     background-image: url('data:image/svg+xml, <svg xmlns="http://www.w3.org/2000/svg" fill="rgb(23 23 23)" viewBox="0 0 40 40"><path d="m15.792 29.833-9.375-9.375 2-2 7.375 7.417 15.791-15.792 1.959 2Z"/></svg>');
+    background-repeat: no-repeat;
     height: 100%;
     width: 100%;
   }

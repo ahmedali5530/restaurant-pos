@@ -27,6 +27,7 @@ import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {createStageRows} from "@/lib/kitchen/workflow.service.ts";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {useTranslation} from "react-i18next";
+import {DateTime} from "luxon";
 
 export const Payment = () => {
   const {t} = useTranslation(["payment", "toast"]);
@@ -111,7 +112,7 @@ export const Payment = () => {
     await assertOrderTakingAllowed(db);
 
     setLoading(true);
-    const date = nowSurrealDateTime();
+    const date = DateTime.now().toJSDate();
 
     const isNewOrder = state?.order?.id === 'new';
 
