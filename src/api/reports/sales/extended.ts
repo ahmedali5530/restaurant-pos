@@ -5,6 +5,7 @@ import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
 import {buildCreatedAtDateConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
+import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import {getDayPartLabel} from "@/utils/dayParts";
@@ -126,6 +127,9 @@ const getMetricAmount = (order: Order, metric: MetricKey) => {
   if (metric === "coupon_discount") {
     return safeNumber(order.coupon?.discount);
   }
+  if (metric === "tax_amount") {
+    return getOrderTaxAmount(order);
+  }
   return safeNumber((order as unknown as Record<string, unknown>)?.[metric]);
 };
 
@@ -141,7 +145,7 @@ export const getOrderFinanceSummary = async (
 
   if (options.metric === "coupon_discount") {
     conditions.push("coupon != NONE");
-  } else {
+  } else if (options.metric !== "tax_amount") {
     conditions.push(`${options.metric} > 0`);
   }
 
@@ -150,16 +154,19 @@ export const getOrderFinanceSummary = async (
     WHERE ${conditions.join(" AND ")}
     ORDER BY created_at DESC
     LIMIT 200
-    FETCH user, cashier, coupon, tax, discount
+    FETCH user, cashier, coupon, tax, discount, items, items.taxes, items.tax_mode, order_taxes, order_taxes.tax
   `;
 
   const orders = unwrapQueryResult<Order>(await db.query(query, params));
-  const total = orders.reduce((sum, order) => sum + getMetricAmount(order, options.metric), 0);
+  const filteredOrders = options.metric === "tax_amount"
+    ? orders.filter(order => getOrderTaxAmount(order) > 0)
+    : orders;
+  const total = filteredOrders.reduce((sum, order) => sum + getMetricAmount(order, options.metric), 0);
 
   return {
-    orderCount: orders.length,
+    orderCount: filteredOrders.length,
     total,
-    topOrders: orders.slice(0, 20).map(order => ({
+    topOrders: filteredOrders.slice(0, 20).map(order => ({
       invoiceNumber: order.invoice_number,
       amount: getMetricAmount(order, options.metric),
       createdAt: order.created_at,
@@ -178,7 +185,7 @@ export const getServerSales = async (db: DbClient, options: DateRangeFilter & {l
   const query = `
     SELECT * FROM ${Tables.orders}
     WHERE ${conditions.join(" AND ")}
-    FETCH user, items, items.item, order_type
+    FETCH user, items, items.item, items.taxes, items.tax_mode, order_type, tax, order_taxes, order_taxes.tax
   `;
 
   const orders = unwrapQueryResult<Order>(await db.query(query, params));
@@ -193,7 +200,7 @@ export const getServerSales = async (db: DbClient, options: DateRangeFilter & {l
 
     const paymentTotals = getOrderPaymentTotals(order);
     const netSales = safeNumber(
-      paymentTotals.amountCollected - safeNumber(order.service_charge_amount) - safeNumber(order.tax_amount),
+      paymentTotals.amountCollected - safeNumber(order.service_charge_amount) - getOrderTaxAmount(order),
     );
 
     const existing = byServer.get(userId) || {userName, netSales: 0, checks: 0, guests: 0};
@@ -220,7 +227,7 @@ export const getWeeklySales = async (db: DbClient, options: DateRangeFilter) => 
   const query = `
     SELECT * FROM ${Tables.orders}
     WHERE ${conditions.join(" AND ")}
-    FETCH payments
+    FETCH payments, items, items.taxes, items.tax_mode, tax, order_taxes, order_taxes.tax
   `;
 
   const orders = unwrapQueryResult<Order>(await db.query(query, params));
@@ -231,7 +238,7 @@ export const getWeeklySales = async (db: DbClient, options: DateRangeFilter) => 
     const dayKey = DateTime.fromJSDate(jsDate).toISODate() ?? "unknown";
     const paymentTotals = getOrderPaymentTotals(order);
     const netSales = safeNumber(
-      paymentTotals.amountCollected - safeNumber(order.service_charge_amount) - safeNumber(order.tax_amount),
+      paymentTotals.amountCollected - safeNumber(order.service_charge_amount) - getOrderTaxAmount(order),
     );
     const existing = byDay.get(dayKey) || {netSales: 0, orderCount: 0};
     existing.netSales += netSales;
@@ -260,7 +267,7 @@ export const getHourlyProductSales = async (
   const query = `
     SELECT * FROM ${Tables.orders}
     ${conditions.length ? `WHERE ${conditions.join(" AND ")}` : ""}
-    FETCH items, items.item
+    FETCH items, items.item, items.taxes, items.tax_mode, tax
   `;
 
   const orders = unwrapQueryResult<Order>(await db.query(query, params));

@@ -6,6 +6,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {Order} from "@/api/model/order.ts";
 import {OrderItem} from "@/api/model/order_item.ts";
 import {withCurrency, formatNumber} from "@/lib/utils.ts";
+import {getOrderItemTaxAmount} from "@/lib/tax-calculator.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
@@ -93,7 +94,7 @@ export const ProductHourlyReport = () => {
         const ordersQuery = `
           SELECT * FROM ${Tables.orders}
           WHERE ${conditions.length > 0 ? conditions.join(' AND ') : '1 = 1'}
-          FETCH items, items.item, items.modifiers, items.modifiers.selectedModifiers
+          FETCH items, items.item, items.taxes, items.tax_mode, tax, items.modifiers, items.modifiers.selectedModifiers
         `;
 
         const ordersResult: any = await queryRef.current(ordersQuery, params);
@@ -164,7 +165,7 @@ export const ProductHourlyReport = () => {
           const quantity = safeNumber(item.quantity);
           const itemPrice = calculateOrderItemPrice(item);
           const subtotal = safeNumber(itemPrice);
-          const tax = safeNumber(item.tax || 0);
+          const tax = getOrderItemTaxAmount(item, order);
 
           metrics.hours[hourKey].quantity += quantity;
           metrics.hours[hourKey].subtotal += subtotal;

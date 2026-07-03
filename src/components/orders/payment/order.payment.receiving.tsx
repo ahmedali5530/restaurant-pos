@@ -21,7 +21,8 @@ import {appAlert, appPage} from "@/store/jotai.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {StringRecordId} from "surrealdb";
-import {calculateChangeDue, calculateOrderGrandTotal} from "@/lib/cart.ts";
+import {calculateChangeDue} from "@/lib/cart.ts";
+import {syncOrderTaxes} from "@/lib/order-tax.service.ts";
 import {
   isRemotePaymentType,
   RemotePaymentPendingSlot,
@@ -110,7 +111,7 @@ const OrderPaymentReceivingContent = ({
   tipAmount,
   payments,
   setPayments,
-  itemsTotal,
+  itemsTotal: _itemsTotal,
   serviceChargeAmount,
   serviceCharge,
   serviceChargeType,
@@ -249,6 +250,7 @@ const OrderPaymentReceivingContent = ({
       }
 
       await db.merge(order.id, mergePayload);
+      await syncOrderTaxes(db, order, tax ?? order.tax ?? null);
 
       if (hasCoupon) {
         await db.create(Tables.coupon_redemptions, {
@@ -378,23 +380,6 @@ const OrderPaymentReceivingContent = ({
     setSelectedAmount('');
   }
 
-  const calculateTotal = (taxRate: number, overrideDiscountAmount?: number) => {
-    const txAmount = (itemsTotal * taxRate) / 100;
-    const extrasTotal = Object.values(extras).reduce((prev, item) => prev + item, 0);
-    const effectiveDiscount = overrideDiscountAmount !== undefined ? overrideDiscountAmount : (discountAmount ?? 0);
-    const couponDiscount = couponAmount ?? 0;
-
-    return calculateOrderGrandTotal({
-      itemsTotal,
-      extrasTotal,
-      taxAmount: txAmount,
-      discountAmount: effectiveDiscount,
-      serviceChargeAmount,
-      couponAmount: couponDiscount,
-      tipAmount,
-    });
-  }
-
   // Determine highest tax among existing payments, optionally considering a candidate tax
   const getHighestTaxRate = (candidateRate?: number) => {
     const existingRates = payments
@@ -498,10 +483,8 @@ const OrderPaymentReceivingContent = ({
               if (hasTax) {
                 setTax && setTax(highestTax);
               }
-              const highestRate = hasTax ? (highestTax ? highestTax.rate : 0) : (tax ? tax.rate : getHighestTaxRate());
-              const autoDiscountAmount = applyPaymentTypeDiscountIfAny(pt);
-              const payable = calculateTotal(highestRate, autoDiscountAmount);
-              void addPayment(total, pt, payable);
+              applyPaymentTypeDiscountIfAny(pt);
+              void addPayment(total, pt, total);
               setMode('quick');
             }}
           >{withCurrency(total)}</span>
@@ -520,10 +503,8 @@ const OrderPaymentReceivingContent = ({
                   if (hasTax) {
                     setTax && setTax(highestTax);
                   }
-                  const highestRate = hasTax ? (highestTax ? highestTax.rate : 0) : (tax ? tax.rate : getHighestTaxRate());
-                  const autoDiscountAmount = applyPaymentTypeDiscountIfAny(pt);
-                  const payable = calculateTotal(highestRate, autoDiscountAmount);
-                  void addPayment(item, pt, payable);
+                  applyPaymentTypeDiscountIfAny(pt);
+                  void addPayment(item, pt, total);
                   setMode('quick');
                 }}
               >{withCurrency(item)}</span>
@@ -548,24 +529,16 @@ const OrderPaymentReceivingContent = ({
                   setTax && setTax(highestTax);
                 }
                 // For non-tax payment types, use current order-level tax (or highest among existing payments)
-                const highestRate = hasTax
-                  ? (highestTax ? highestTax.rate : 0)
-                  : (tax ? tax.rate : getHighestTaxRate());
-
                 // Apply discount(s) attached to the payment type (auto)
-                const autoDiscountAmount = applyPaymentTypeDiscountIfAny(item);
-
-                const payable = calculateTotal(highestRate, autoDiscountAmount);
+                applyPaymentTypeDiscountIfAny(item);
 
                 if (selectedAmount.trim().length > 0) {
-                  // Respect typed amount; add with proper payable (includes highest tax)
-                  void addPayment(selectedAmount, item, payable)
+                  void addPayment(selectedAmount, item, total)
                 } else if (changeDue < 0) {
-                  // No typed amount: auto-fill remaining for convenience
-                  const remaining = payable - tendered;
+                  const remaining = total - tendered;
                   const amt = remaining.toString();
                   setSelectedAmount(amt);
-                  void addPayment(amt, item, payable)
+                  void addPayment(amt, item, total)
                 } else {
                   // Nothing typed and no remaining due – do nothing (card will be blocked inside addPayment)
                 }

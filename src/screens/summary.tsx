@@ -17,6 +17,7 @@ import {appPage} from "@/store/jotai.ts";
 import {useQueryBuilder} from "@/api/db/query-builder.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
+import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {TimeEntry} from "@/api/model/time_entry.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import {toast} from "sonner";
@@ -54,7 +55,7 @@ const getOrderSale = (order: OrderModel): number => {
     return sum + safeNumber(calculateOrderItemPrice(item));
   }, 0);
   const extrasTotal = (order.extras || []).reduce((sum, extra) => sum + safeNumber(extra.value), 0);
-  const taxAmount = safeNumber(order.tax_amount);
+  const taxAmount = getOrderTaxAmount(order);
   const serviceAmount = safeNumber(order.service_charge_amount);
   const discountAmount = safeNumber(order.discount_amount);
   return safeNumber(itemsTotal + extrasTotal + taxAmount + serviceAmount - discountAmount);

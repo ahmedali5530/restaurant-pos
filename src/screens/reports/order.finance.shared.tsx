@@ -116,7 +116,7 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
           SELECT * FROM ${Tables.orders}
           WHERE ${conditions.join(" AND ")}
           ORDER BY created_at DESC
-          FETCH user, cashier, coupon, coupon.coupon, tax, discount, items, order_discounts, order_discounts.discount
+          FETCH user, cashier, coupon, coupon.coupon, tax, discount, items, items.taxes, items.tax_mode, order_taxes, order_taxes.tax, order_discounts, order_discounts.discount
         `;
 
         const [result] = await queryRef.current(query, params);
@@ -178,7 +178,7 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
             ) : orders.map((order) => {
               const gross = calculateGross(order);
               const metricAmount = getMetricAmount(order, metric);
-              const net = gross + safeNumber(order.tax_amount) + safeNumber(order.service_charge_amount) + safeNumber(order.tip_amount)
+              const net = gross + getOrderTaxAmount(order) + safeNumber(order.service_charge_amount) + safeNumber(order.tip_amount)
                 - getOrderDiscountTotal(order) - safeNumber(order.coupon?.discount);
               const cashierName = `${(order.cashier as any)?.first_name || (order.user as any)?.first_name || ""} ${(order.cashier as any)?.last_name || (order.user as any)?.last_name || ""}`.trim();
 

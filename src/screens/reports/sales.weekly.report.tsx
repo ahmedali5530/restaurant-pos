@@ -10,6 +10,7 @@ import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {DateTime} from "luxon";
 import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
 import {DAY_PART_LABELS, DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
+import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
 
 const safeNumber = (value: unknown) => {
@@ -53,7 +54,7 @@ const parseWeekParams = () => {
 const calculateOrderNetSales = (order: Order): number => {
   const paymentTotals = getOrderPaymentTotals(order);
   const serviceChargeAmount = safeNumber(order.service_charge_amount);
-  const taxAmount = safeNumber(order.tax_amount);
+  const taxAmount = getOrderTaxAmount(order);
   return safeNumber(paymentTotals.amountCollected - serviceChargeAmount - taxAmount);
 };
 

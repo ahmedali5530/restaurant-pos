@@ -5,6 +5,7 @@ import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import type {Order} from "@/api/model/order.ts";
 import type {OrderVoid} from "@/api/model/order_void.ts";
 import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
+import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import {toJsDate} from "@/lib/datetime.ts";
 import {DateTime} from "luxon";
@@ -66,7 +67,7 @@ export const getTimeSeries = async (
     const query = `
       SELECT * FROM ${Tables.orders}
       ${conditions.length ? `WHERE ${conditions.join(" AND ")}` : ""}
-      FETCH payments
+      FETCH payments, items, items.taxes, items.tax_mode, tax, order_taxes, order_taxes.tax
     `;
     const orders = unwrapQueryResult<Order>(await db.query(query, params));
 
@@ -84,7 +85,7 @@ export const getTimeSeries = async (
       points: aggregateOrders(orders, granularity, order => {
         const paymentTotals = getOrderPaymentTotals(order);
         return safeNumber(
-          paymentTotals.amountCollected - safeNumber(order.service_charge_amount) - safeNumber(order.tax_amount),
+          paymentTotals.amountCollected - safeNumber(order.service_charge_amount) - getOrderTaxAmount(order),
         );
       }),
     };

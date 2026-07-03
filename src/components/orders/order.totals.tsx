@@ -2,6 +2,7 @@ import {Order as OrderModel} from "@/api/model/order.ts";
 import {MenuItem} from "@/api/model/cart_item.ts";
 import React, {CSSProperties, useMemo} from "react";
 import {calculateOrderExtrasTotal, calculateOrderTotal, calculateOrderTotalsPreview} from "@/lib/cart.ts";
+import {getOrderTaxAmount, getOrderTaxBreakdown} from "@/lib/tax-calculator.ts";
 import {withCurrency, cn} from "@/lib/utils.ts";
 import {DiscountType} from "@/api/model/discount.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
@@ -49,17 +50,25 @@ export const OrderTotals = ({order, cart, className}: Props) => {
 
     const itemsTotal = calculateOrderTotal(order);
     const extrasTotal = calculateOrderExtrasTotal(order);
-    const total = itemsTotal + extrasTotal + Number(order?.tax_amount ?? 0) - Number(order?.discount_amount ?? 0) + Number(order.service_charge_amount ?? 0) + Number(order?.tip_amount ?? 0);
+    const taxAmount = getOrderTaxAmount(order);
+    const total = itemsTotal + extrasTotal + taxAmount - Number(order?.discount_amount ?? 0) + Number(order.service_charge_amount ?? 0) + Number(order?.tip_amount ?? 0);
 
     return {
       itemsTotal,
       itemCount: getOrderFilteredItems(order).length,
-      taxAmount: Number(order?.tax_amount ?? 0),
+      taxAmount,
       serviceChargeAmount: Number(order?.service_charge_amount ?? 0),
       discountAmount: Number(order?.discount_amount ?? 0),
       tipAmount: Number(order?.tip_amount ?? 0),
       total,
     };
+  }, [order, cart]);
+
+  const taxBreakdown = useMemo(() => {
+    if (cart) {
+      return [];
+    }
+    return getOrderTaxBreakdown(order);
   }, [order, cart]);
 
   const changeDue = useMemo(() => {
@@ -72,13 +81,23 @@ export const OrderTotals = ({order, cart, className}: Props) => {
         <div className="flex-1">{t('totals.items', {count: preview.itemCount})}</div>
         <div className="text-right">{withCurrency(preview.itemsTotal)}</div>
       </div>
-      {order?.tax && (
-        <div className="flex">
-          <div className="flex-1">
-            {t('totals.tax')} {order?.tax && <>({order?.tax?.name} {order?.tax?.rate}%)</>}
+      {preview.taxAmount > 0 && (
+        taxBreakdown.length > 0 ? taxBreakdown.map((entry, index) => (
+          <div className="flex" key={`${entry.name}-${entry.rate}-${index}`}>
+            <div className="flex-1">
+              {t('totals.tax')} ({entry.name} {entry.rate}%)
+            </div>
+            <div className="text-right">{withCurrency(entry.amount)}</div>
           </div>
-          <div className="text-right">{withCurrency(preview.taxAmount)}</div>
-        </div>
+        )) : (
+          <div className="flex">
+            <div className="flex-1">
+              {t('totals.tax')}
+              {order?.tax && <> ({order.tax.name} {order.tax.rate}%)</>}
+            </div>
+            <div className="text-right">{withCurrency(preview.taxAmount)}</div>
+          </div>
+        )
       )}
       {order?.discount ? (
         <div className="flex">

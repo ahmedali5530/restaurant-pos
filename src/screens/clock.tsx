@@ -16,6 +16,7 @@ import { TimeEntry } from "@/api/model/time_entry.ts";
 import { StringRecordId } from "surrealdb";
 import { Order, OrderStatus } from "@/api/model/order.ts";
 import { calculateOrderItemPrice } from "@/lib/cart.ts";
+import { getOrderTaxAmount } from "@/lib/tax-calculator.ts";
 import { getOrderFilteredItems } from "@/lib/order.ts";
 import { toRecordId, withCurrency } from "@/lib/utils.ts";
 import type { UserShift } from "@/api/model/user.ts";
@@ -128,7 +129,7 @@ export const Clock = () => {
         WHERE user = $userId
           AND created_at >= $clockInTime
           AND created_at <= time::now()
-        FETCH items, items.item, items.modifiers, payments, payments.payment_type, discount, tax, extras
+        FETCH items, items.item, items.taxes, items.tax_mode, items.modifiers, payments, payments.payment_type, discount, tax, order_taxes, order_taxes.tax, extras
       `;
 
       const result: any = await db.query(ordersQuery, {
@@ -176,7 +177,7 @@ export const Clock = () => {
 
   const taxCollected = useMemo(() => {
     return safeNumber(
-      orders?.filter(order => order.status === OrderStatus.Paid).reduce((sum, order) => sum + safeNumber(order.tax_amount), 0) ?? 0
+      orders?.filter(order => order.status === OrderStatus.Paid).reduce((sum, order) => sum + getOrderTaxAmount(order), 0) ?? 0
     );
   }, [orders]);
 

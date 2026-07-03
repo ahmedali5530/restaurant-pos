@@ -4,6 +4,8 @@ import React, {useEffect, useMemo, useState} from "react";
 import {useAtom} from "jotai";
 import {appPage, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {calculateCartItemPrice} from "@/lib/cart.ts";
+import {buildOrderItemPayload} from "@/lib/order-item-pricing.ts";
+import {syncOrderTaxes} from "@/lib/order-tax.service.ts";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {
@@ -129,16 +131,17 @@ export const Payment = () => {
     // create items and store their ids
     const items = [];
     for (const item of state.cart) {
+      const pricing = buildOrderItemPayload(item);
       const itemData: any = {
-        tax: 0,
+        tax: pricing.tax,
         item: new StringRecordId(item.dish.id.toString()),
-        price: item.price ?? item.dish.price,
+        price: pricing.price,
         quantity: item.quantity,
         position: 0,
         comments: item.comments,
         service_charges: 0,
         discount: 0,
-        modifiers: item.selectedGroups,
+        modifiers: pricing.modifiers,
         seat: item.seat,
         is_suspended: item.isHold,
         level: item.level,
@@ -146,12 +149,15 @@ export const Payment = () => {
         category_id: item.category_id ? toRecordId(item.category_id) : null,
         is_addition: false,
         menu: item.menu_name,
+        tax_mode: pricing.tax_mode,
       };
 
-      // Add tax mode and taxes if present
-      itemData.tax_mode = item.tax_mode ?? item.dish?.tax_mode ?? 'exclusive';
-      if (item.taxes && item.taxes.length > 0) {
-        itemData.taxes = item.taxes.map(t => toRecordId(t.id));
+      if (pricing.original_price !== undefined) {
+        itemData.original_price = pricing.original_price;
+      }
+
+      if (pricing.taxes && pricing.taxes.length > 0) {
+        itemData.taxes = pricing.taxes.map(t => toRecordId(t.id));
       }
 
       if (!isNewOrder && typeof item.id === 'string') {
@@ -263,6 +269,8 @@ export const Payment = () => {
       }
 
       const normalizedOrder = isNewOrder ? orderObj[0] : orderObj;
+      await syncOrderTaxes(db, toRecordId(normalizedOrder?.id));
+
       postOrderTracking({
         module: isNewOrder ? t("payment:tracking.createOrder") : t("payment:tracking.appendOrder"),
         page: page?.page,

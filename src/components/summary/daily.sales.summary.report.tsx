@@ -4,7 +4,7 @@ import {Order, OrderStatus} from '@/api/model/order.ts';
 import {formatNumber, withCurrency} from '@/lib/utils.ts';
 import {getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures} from '@/lib/order.ts';
 import {calculateOrderItemPrice} from '@/lib/cart.ts';
-import {getOrderTaxBreakdown} from '@/lib/tax-calculator.ts';
+import {getOrdersTaxBreakdown} from '@/lib/tax-calculator.ts';
 
 interface Props {
   orders: Order[];
@@ -215,11 +215,9 @@ function useDailySalesFigures(orders: Order[] | undefined) {
       .sort((a, b) => b.total - a.total);
 
     const taxesMap: Record<string, number> = {};
-    list.forEach(order => {
-      getOrderTaxBreakdown(order).forEach(({name, rate, amount}) => {
-        const key = `${name} ${rate}%`;
-        taxesMap[key] = (taxesMap[key] ?? 0) + amount;
-      });
+    getOrdersTaxBreakdown(list).forEach(({ name, rate, amount }) => {
+      const key = `${name} ${rate}%`;
+      taxesMap[key] = (taxesMap[key] ?? 0) + amount;
     });
     const taxesList: BreakdownEntry[] = Object.entries(taxesMap)
       .map(([name, total]) => ({name, total}))

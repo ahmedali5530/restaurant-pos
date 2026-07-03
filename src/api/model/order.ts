@@ -10,6 +10,7 @@ import { Table } from "@/api/model/table.ts";
 import { OrderPayment } from "@/api/model/order_payment.ts";
 import { OrderCoupon } from "@/api/model/order_coupon.ts";
 import { OrderDiscount } from "@/api/model/order_discount.ts";
+import { OrderTax } from "@/api/model/order_tax.ts";
 import { DateTime } from "surrealdb";
 import { buildModifierFetches, MODIFIER_FETCH_DEPTH } from '@/api/model/order_fetches.ts';
 
@@ -34,6 +35,7 @@ export interface Order extends ID{
 
   tax?: Tax
   tax_amount?: number
+  order_taxes?: OrderTax[]
 
   service_charge_type?: string
   service_charge?: number
@@ -87,6 +89,8 @@ export const ORDER_PAYMENT_FETCHES = [
   'customer',
   'discount',
   'tax',
+  'order_taxes',
+  'order_taxes.tax',
   'payments',
   'payments.payment_type',
   'extras',

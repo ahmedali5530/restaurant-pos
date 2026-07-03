@@ -4,6 +4,7 @@ import {useEffect, useMemo, useRef, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import {Tables} from "@/api/db/tables.ts";
 import {Order} from "@/api/model/order.ts";
+import {getOrderTaxAmount, getOrderItemTaxAmount} from "@/lib/tax-calculator.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
@@ -141,7 +142,7 @@ const collectCategoryTotals = (order: Order): Map<string, TempCategoryTotals> =>
     const grossSale = safeNumber(calculateOrderItemPrice(item));
     const discount = safeNumber(item?.discount);
     const netSales = grossSale - discount;
-    const taxes = safeNumber(item?.tax);
+    const taxes = getOrderItemTaxAmount(item, order);
     const amountDue = netSales + taxes;
     const categories = collectCategories(item);
     const share = categories.length > 0 ? (1 / categories.length) : 1;
@@ -187,7 +188,7 @@ const collectCategoryTotals = (order: Order): Map<string, TempCategoryTotals> =>
     });
   }
 
-  const orderTax = safeNumber(order.tax_amount);
+  const orderTax = getOrderTaxAmount(order);
   const extraTax = Math.max(0, orderTax - totals.tax);
   if (extraTax > 0) {
     const totalNet = Array.from(map.values()).reduce((sum, row) => sum + row.netSales, 0);
@@ -290,6 +291,11 @@ export const SalesServerReport = () => {
                 items,
                 items.item,
                 items.item.categories,
+                items.taxes,
+                items.tax_mode,
+                tax,
+                order_taxes,
+                order_taxes.tax,
                 table,
                 floor,
                 payments,
@@ -385,7 +391,7 @@ export const SalesServerReport = () => {
       dayPart.netSales += orderNet;
       dayPart.guests += covers;
       dayPart.checks += 1;
-      dayPart.taxes += safeNumber(order.tax_amount);
+      dayPart.taxes += getOrderTaxAmount(order);
       dayPart.payments += sumPayments(order);
       dayPart.serviceCharges += safeNumber(order.service_charge_amount);
       dayPart.coupons += safeNumber(order.coupon?.discount);

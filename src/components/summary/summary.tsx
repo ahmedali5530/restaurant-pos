@@ -1,7 +1,7 @@
 import {useMemo} from "react";
 import {useTranslation} from "react-i18next";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
-import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
+import {getOrderTaxAmount, getOrdersTaxBreakdown} from "@/lib/tax-calculator.ts";
 import {Order, OrderStatus} from "@/api/model/order.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import {getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures} from "@/lib/order.ts";
@@ -234,15 +234,10 @@ export const Summary = ({
   const taxes = taxCollected;
 
   const taxesList = useMemo(() => {
-    const list = {};
-    orders?.forEach(order => {
-      if (order?.tax) {
-        if (!list[`${order?.tax?.name} ${order?.tax?.rate}`]) {
-          list[`${order?.tax?.name} ${order?.tax?.rate}`] = 0;
-        }
-
-        list[`${order?.tax?.name} ${order?.tax?.rate}`] += safeNumber(order?.tax_amount);
-      }
+    const list: Record<string, number> = {};
+    getOrdersTaxBreakdown(orders ?? []).forEach(({ name, rate, amount }) => {
+      const key = `${name} ${rate}`;
+      list[key] = (list[key] ?? 0) + amount;
     });
     return list;
   }, [orders]);

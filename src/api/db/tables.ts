@@ -32,6 +32,7 @@ export enum Tables {
   order_split = 'order_split',
   order_voids = 'order_void',
   order_refunds = 'order_refund',
+  order_taxes = 'order_tax',
 
   order_types = 'order_type',
   extras = 'extra',

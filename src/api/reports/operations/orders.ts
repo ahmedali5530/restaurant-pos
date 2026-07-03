@@ -5,6 +5,7 @@ import {recordToString} from "@/api/reports/shared/records.ts";
 import {buildCreatedAtDateConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 import {getOrderFigures} from "@/api/reports/sales/aggregate.ts";
+import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {calculateOrderGrandTotal, calculateOrderTotal} from "@/lib/cart.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import {toJsDate} from "@/lib/datetime.ts";
@@ -65,7 +66,7 @@ const formatOrderRow = (order: Order) => {
   const displayTotal = calculateOrderGrandTotal({
     itemsTotal,
     extrasTotal,
-    taxAmount: safeNumber(order.tax_amount),
+    taxAmount: getOrderTaxAmount(order),
     discountAmount: safeNumber(order.discount_amount),
     serviceChargeAmount: safeNumber(order.service_charge_amount),
     tipAmount: safeNumber(order.tip_amount),

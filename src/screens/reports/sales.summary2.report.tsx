@@ -8,6 +8,7 @@ import {DiscountType} from "@/api/model/discount.ts";
 import {OrderVoid} from "@/api/model/order_void.ts";
 import {withCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
+import {getOrdersTaxBreakdown} from "@/lib/tax-calculator.ts";
 import {getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures} from "@/lib/order.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 import {DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
@@ -567,15 +568,9 @@ export const SalesSummary2Report = () => {
       return acc;
     }, {} as Record<string, number>);
 
-    const taxesBreakdown = orders.reduce((acc, order) => {
-      const amount = safeNumber(order.tax_amount);
-      if (amount > 0 && order.tax) {
-        const taxName =
-          order.tax?.name ||
-          (typeof order.tax === "string" ? order.tax : null) ||
-          "Tax";
-        const rate = order.tax && typeof order.tax === "object" && "rate" in order.tax ? safeNumber(order.tax.rate) : 0;
-        const key = `${taxName} (${rate}%)`;
+    const taxesBreakdown = getOrdersTaxBreakdown(orders).reduce((acc, { name, rate, amount }) => {
+      if (amount > 0) {
+        const key = `${name} (${rate}%)`;
         acc[key] = (acc[key] || 0) + amount;
       }
       return acc;

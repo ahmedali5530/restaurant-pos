@@ -179,6 +179,50 @@ const getLineItemTaxCalculation = (
   };
 };
 
+/** Order items store inclusive lines as net price + menu taxes (exclusive add). */
+const getOrderLineItemTaxCalculation = (
+  unitBase: number,
+  quantity: number,
+  taxMode: TaxMode,
+  itemTaxes: Tax[] | undefined | null,
+  orderTax?: Tax | null,
+): TaxCalculationResult => {
+  const qty = safeNumber(quantity || 1);
+
+  if (taxMode === 'inclusive') {
+    if (!itemTaxes || itemTaxes.length === 0) {
+      return calculateItemTax(0, [], 'exclusive');
+    }
+    const perUnit = calculateItemTax(unitBase, itemTaxes, 'exclusive');
+    return {
+      ...perUnit,
+      tax_amounts: perUnit.tax_amounts.map((entry) => ({
+        ...entry,
+        amount: roundTax(entry.amount * qty),
+      })),
+      total_tax: roundTax(perUnit.total_tax * qty),
+      net_price: roundTax(perUnit.net_price * qty),
+      gross_price: roundTax(perUnit.gross_price * qty),
+    };
+  }
+
+  if (!orderTax) {
+    return calculateItemTax(0, [], 'exclusive');
+  }
+
+  const perUnit = calculateItemTax(unitBase, [orderTax], 'exclusive');
+  return {
+    ...perUnit,
+    tax_amounts: perUnit.tax_amounts.map((entry) => ({
+      ...entry,
+      amount: roundTax(entry.amount * qty),
+    })),
+    total_tax: roundTax(perUnit.total_tax * qty),
+    net_price: roundTax(perUnit.net_price * qty),
+    gross_price: roundTax(perUnit.gross_price * qty),
+  };
+};
+
 /**
  * Per-line payment tax: inclusive embedded tax from menu taxes, or exclusive runtime tax from order tax.
  */
@@ -189,7 +233,7 @@ export const calculateOrderItemPaymentTax = (
   const taxMode = item.tax_mode ?? 'exclusive';
   const unitBase = getOrderItemTaxableUnitBase(item);
   const quantity = safeNumber(item.quantity || 1);
-  const calculation = getLineItemTaxCalculation(
+  const calculation = getOrderLineItemTaxCalculation(
     unitBase,
     quantity,
     taxMode,
@@ -243,10 +287,13 @@ export const calculateOrderPaymentTaxAmount = (
 };
 
 /**
- * Canonical order tax total: saved amount when present, otherwise computed.
+ * Canonical order tax total: junction rows when loaded, else stored amount, else computed.
  */
 export const getOrderTaxAmount = (order: Order): number => {
-  if (order.tax_amount !== undefined && order.tax_amount !== null) {
+  if (order.order_taxes && order.order_taxes.length > 0) {
+    return roundTax(order.order_taxes.reduce((sum, row) => sum + safeNumber(row.amount), 0));
+  }
+  if (order.tax_amount !== undefined && order.tax_amount !== null && order.tax_amount > 0) {
     return safeNumber(order.tax_amount);
   }
   return calculateOrderPaymentTaxAmount(order, order.tax ?? null);
@@ -266,7 +313,7 @@ const getOrderItemPaymentTaxBreakdown = (
   const taxMode = item.tax_mode ?? 'exclusive';
   const unitBase = getOrderItemTaxableUnitBase(item);
   const quantity = safeNumber(item.quantity || 1);
-  return getLineItemTaxCalculation(unitBase, quantity, taxMode, item.taxes, orderTax).tax_amounts;
+  return getOrderLineItemTaxCalculation(unitBase, quantity, taxMode, item.taxes, orderTax).tax_amounts;
 };
 
 const reconcileTaxBreakdownTotal = (
@@ -326,6 +373,50 @@ export const getOrderTaxBreakdown = (order: Order): OrderTaxBreakdownEntry[] => 
   }));
 
   return reconcileTaxBreakdownTotal(entries, getOrderTaxAmount(order), order);
+};
+
+export const collectOrderTaxRows = (
+  order: Order,
+  orderTax?: Tax | null,
+): Array<{ tax: Tax; amount: number }> => {
+  const breakdownMap = new Map<string, { tax: Tax; amount: number }>();
+  const resolvedOrderTax = orderTax ?? order.tax ?? null;
+
+  (getOrderFilteredItems(order) ?? []).forEach((item) => {
+    getOrderItemPaymentTaxBreakdown(item, resolvedOrderTax).forEach(({ tax, amount }) => {
+      const key = tax.id?.toString() ?? `${tax.name}-${tax.rate}`;
+      const existing = breakdownMap.get(key) ?? { tax, amount: 0 };
+      existing.amount += amount;
+      breakdownMap.set(key, existing);
+    });
+  });
+
+  return Array.from(breakdownMap.values()).map((entry) => ({
+    ...entry,
+    amount: roundTax(entry.amount),
+  }));
+};
+
+export const getOrdersTaxBreakdown = (orders: Order[]): OrderTaxBreakdownEntry[] => {
+  const breakdownMap = new Map<string, OrderTaxBreakdownEntry>();
+
+  orders.forEach((order) => {
+    getOrderTaxBreakdown(order).forEach(({ name, rate, amount }) => {
+      const key = `${name} ${rate}%`;
+      const existing = breakdownMap.get(key) ?? { name, rate, amount: 0 };
+      existing.amount += amount;
+      breakdownMap.set(key, existing);
+    });
+  });
+
+  return Array.from(breakdownMap.values()).map((entry) => ({
+    ...entry,
+    amount: roundTax(entry.amount),
+  }));
+};
+
+export const getOrdersTaxTotal = (orders: Order[]): number => {
+  return roundTax(orders.reduce((sum, order) => sum + getOrderTaxAmount(order), 0));
 };
 
 // Re-export taxable base helpers for consumers that import from tax-calculator
