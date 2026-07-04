@@ -39,7 +39,7 @@ This system solves that by combining everything into one platform:
 - 🚚 Built-in delivery workflow
 - 👨‍💼 Staff + manager + admin roles
 - 🔐 Secure protected modules
-- 📊 Full reporting and analytics layer
+- 📊 Full reporting including **[AI Reports](docs/images/AI%20report1.png)** and analytics layer
 - 🏪 Multi-branch scalable system
 - 🪑 Seat-based ordering and splitting
 - 📑 Multi-order table management
@@ -285,6 +285,7 @@ Built for real restaurant pressure situations:
 ## 🔥 Key Highlights
 
 - Built specifically for **restaurant workflows**
+- **AI reporting** for sales and inventory operations
 - Handles **real-time order lifecycle**
 - Designed for **high-pressure environments**
 - Supports **multi-table restaurant operations**
