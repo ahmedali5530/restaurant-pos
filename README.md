@@ -9,7 +9,7 @@ Designed to handle everything from **ordering → kitchen → delivery → staff
 
 ## 🚀 Live Demo
 
-👉 **Try it here:** [Demo](https://ahmedali5530.xyz/posr.html)  
+👉 **Try it here:** [Demo](https://ahmedali5530.xyz/posr)  
 🔑 Login: `1234, 0000, 5555 (super admin)`
 
 ---
