@@ -353,8 +353,20 @@ const reconcileTaxBreakdownTotal = (
 
 /**
  * Aggregated per-tax breakdown for reports and bills.
+ * Junction-first: order_taxes rows; legacy item-level compute + reconcile fallback.
  */
 export const getOrderTaxBreakdown = (order: Order): OrderTaxBreakdownEntry[] => {
+  if (order.order_taxes && order.order_taxes.length > 0) {
+    return order.order_taxes.map(row => {
+      const tax = typeof row.tax === 'object' && row.tax !== null ? row.tax : null;
+      return {
+        name: tax?.name ?? 'Tax',
+        rate: safeNumber(tax?.rate),
+        amount: roundTax(safeNumber(row.amount)),
+      };
+    });
+  }
+
   const breakdownMap = new Map<string, OrderTaxBreakdownEntry>();
   const orderTax = order.tax ?? null;
 

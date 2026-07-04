@@ -11,7 +11,7 @@ import {DateTime} from "luxon";
 import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
 import {DAY_PART_LABELS, DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
 import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
-import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
+import {getOrderFilteredItems, getOrderPaymentTotals, getOrderCartDiscountAmount} from "@/lib/order.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -197,7 +197,7 @@ export const SalesWeeklyReport = () => {
 
       // Comps (100% discounts or complimentary items)
       const filteredItems = getOrderFilteredItems(order);
-      const totalDiscount = safeNumber(order.discount_amount);
+      const totalDiscount = getOrderCartDiscountAmount(order);
       const itemDiscounts = safeNumber(
         filteredItems.reduce((sum, item) => sum + safeNumber(item?.discount), 0)
       );

@@ -9,7 +9,7 @@ import {OrderVoid} from "@/api/model/order_void.ts";
 import {withCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrdersTaxBreakdown} from "@/lib/tax-calculator.ts";
-import {getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures} from "@/lib/order.ts";
+import {aggregateOrderDiscountBreakdown, getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures} from "@/lib/order.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 import {DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
 
@@ -528,25 +528,9 @@ export const SalesSummary2Report = () => {
   }, [statusOrders, filters.startDate, filters.endDate]);
 
   const discountTypesBreakdown = useMemo(() => {
-    const discountTypes = new Map<string, {quantity: number; total: number; rates: Set<number>}>();
+    const discountTypes = aggregateOrderDiscountBreakdown(orders, 'name');
     const couponTypes = new Map<string, {quantity: number; total: number}>();
     orders.forEach(order => {
-      if (order.discount) {
-        const discountName =
-          order.discount?.name ||
-          (typeof order.discount === "string" ? order.discount : null) ||
-          "Custom discount";
-        const amount = safeNumber(order.discount_amount);
-        const existing = discountTypes.get(discountName) || {quantity: 0, total: 0, rates: new Set<number>()};
-        existing.quantity += 1;
-        existing.total += amount;
-        const discountRate = safeNumber(order.discount_rate);
-        if (discountRate > 0) {
-          existing.rates.add(discountRate);
-        }
-        discountTypes.set(discountName, existing);
-      }
-
       const couponAmount = safeNumber(order.coupon?.discount);
       if (couponAmount > 0) {
         const couponName =
@@ -613,12 +597,7 @@ export const SalesSummary2Report = () => {
     }, {} as Record<string, number>);
 
     return {
-      discountTypes: Array.from(discountTypes.entries()).map(([name, data]) => ({
-        name,
-        quantity: data.quantity,
-        total: data.total,
-        rates: Array.from(data.rates).sort((a, b) => a - b),
-      })),
+      discountTypes,
       couponTypes: Array.from(couponTypes.entries())
         .map(([name, data]) => ({
           name,
@@ -698,24 +677,7 @@ export const SalesSummary2Report = () => {
       .sort((a, b) => b.total - a.total);
 
     // 3rd subsection: Discounts made by users
-    const userDiscountsMap = new Map<string, {quantity: number; total: number; rates: Set<number>}>();
-    orders.forEach(order => {
-      const discountAmount = safeNumber(order.discount_amount);
-      if (discountAmount > 0) {
-        const userName =
-          order.user?.first_name && order.user?.last_name
-            ? `${order.user.first_name} ${order.user.last_name}`
-            : order.user?.login || "Unknown";
-        const existing = userDiscountsMap.get(userName) || {quantity: 0, total: 0, rates: new Set<number>()};
-        existing.quantity = safeNumber(existing.quantity + 1);
-        existing.total = safeNumber(existing.total + discountAmount);
-        const discountRate = safeNumber(order.discount_rate);
-        if (discountRate > 0) {
-          existing.rates.add(discountRate);
-        }
-        userDiscountsMap.set(userName, existing);
-      }
-    });
+    const userDiscounts = aggregateOrderDiscountBreakdown(orders, 'user');
 
     // 4th subsection: Payment types with quantity + total
     const paymentTypesMap = new Map<string, {quantity: number; total: number}>();
@@ -735,14 +697,7 @@ export const SalesSummary2Report = () => {
 
     return {
       categoryMix,
-      userDiscounts: Array.from(userDiscountsMap.entries())
-        .map(([name, data]) => ({
-          name,
-          quantity: data.quantity,
-          total: data.total,
-          rates: Array.from(data.rates).sort((a, b) => a - b),
-        }))
-        .sort((a, b) => b.total - a.total),
+      userDiscounts,
       paymentTypes: Array.from(paymentTypesMap.entries())
         .map(([name, data]) => ({name, ...data}))
         .sort((a, b) => b.total - a.total),
@@ -1000,9 +955,7 @@ export const SalesSummary2Report = () => {
                           <tr key={discount.name}>
                             <td className="py-1 text-neutral-700">{discount.name}</td>
                             <td className="py-1 text-right text-neutral-700">
-                              {discount.rates.length > 0
-                                ? discount.rates.map(rate => `${formatNumber(rate)}%`).join(", ")
-                                : "-"}
+                              {discount.rateLabel}
                             </td>
                             <td className="py-1 text-right text-neutral-700">{formatNumber(discount.quantity)}</td>
                             <td className="py-1 text-right font-semibold text-neutral-900">
@@ -1329,9 +1282,7 @@ export const SalesSummary2Report = () => {
                       <tr key={userDiscount.name}>
                         <td className="py-1.5 text-neutral-700">{userDiscount.name}</td>
                         <td className="py-1.5 text-right text-neutral-700">
-                          {userDiscount.rates.length > 0
-                            ? userDiscount.rates.map(rate => `${formatNumber(rate)}%`).join(", ")
-                            : "-"}
+                          {userDiscount.rateLabel}
                         </td>
                         <td className="py-1.5 text-right text-neutral-700">
                           {formatNumber(userDiscount.quantity)}

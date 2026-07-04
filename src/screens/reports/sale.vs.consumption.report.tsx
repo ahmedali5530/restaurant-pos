@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {Order} from "@/api/model/order.ts";
+import {Order, ORDER_FETCHES} from "@/api/model/order.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
-import {calculateOrderItemPrice} from "@/lib/cart.ts";
+import {calculateOrderNetSales} from "@/lib/order.ts";
 import {StringRecordId} from "surrealdb";
 
 const safeNumber = (value: unknown) => {
@@ -24,15 +24,6 @@ const recordToString = (value: any): string => {
     return value.toString();
   }
   return String(value);
-};
-
-const calculateOrderNetSales = (order: Order): number => {
-  const grossTotal = order.items?.reduce((sum, item) => sum + calculateOrderItemPrice(item), 0) ?? 0;
-  const lineDiscounts = order.items?.reduce((sum, item) => sum + safeNumber(item?.discount), 0) ?? 0;
-  const orderDiscount = safeNumber(order.discount_amount);
-  const extraDiscount = Math.max(0, orderDiscount - lineDiscounts);
-  const net = grossTotal - lineDiscounts - extraDiscount;
-  return net > 0 ? net : 0;
 };
 
 interface ReportFilters {
@@ -101,7 +92,7 @@ export const SaleVsConsumptionReport = () => {
           SELECT * FROM ${Tables.orders}
           WHERE status = 'Paid'
           ${conditions.length ? `AND ${conditions.join(' AND ')}` : ''}
-          FETCH items, items.item
+          FETCH ${ORDER_FETCHES.join(', ')}
         `;
 
         // Fetch issues

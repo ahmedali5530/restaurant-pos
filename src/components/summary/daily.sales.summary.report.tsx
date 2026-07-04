@@ -2,7 +2,7 @@ import {useMemo, type ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import {Order, OrderStatus} from '@/api/model/order.ts';
 import {formatNumber, withCurrency} from '@/lib/utils.ts';
-import {getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures} from '@/lib/order.ts';
+import {aggregateOrderDiscountBreakdown, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures} from '@/lib/order.ts';
 import {calculateOrderItemPrice} from '@/lib/cart.ts';
 import {getOrdersTaxBreakdown} from '@/lib/tax-calculator.ts';
 
@@ -223,21 +223,8 @@ function useDailySalesFigures(orders: Order[] | undefined) {
       .map(([name, total]) => ({name, total}))
       .sort((a, b) => b.total - a.total);
 
-    const discountsMap: Record<string, number> = {};
-    list.forEach(order => {
-      const discountAmount = safeNumber(order.discount_amount);
-      if (discountAmount <= 0) {
-        return;
-      }
-      const name = order.discount?.name ?? t('report.orderDiscount');
-      if (!discountsMap[name]) {
-        discountsMap[name] = 0;
-      }
-      discountsMap[name] += discountAmount;
-    });
-    const discountsList: BreakdownEntry[] = Object.entries(discountsMap)
-      .map(([name, total]) => ({name, total}))
-      .sort((a, b) => b.total - a.total);
+    const discountsList: BreakdownEntry[] = aggregateOrderDiscountBreakdown(list, 'name', t('report.orderDiscount'))
+      .map(row => ({name: row.name, total: row.total}));
 
     const extrasMap: Record<string, number> = {};
     list.forEach(order => {

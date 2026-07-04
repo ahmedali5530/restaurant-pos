@@ -7,7 +7,7 @@ import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 import {getOrderFigures} from "@/api/reports/sales/aggregate.ts";
 import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {calculateOrderGrandTotal, calculateOrderTotal} from "@/lib/cart.ts";
-import {getOrderFilteredItems} from "@/lib/order.ts";
+import {getOrderFilteredItems, getOrderCartDiscountAmount} from "@/lib/order.ts";
 import {toJsDate} from "@/lib/datetime.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import {DateTime} from "luxon";
@@ -67,7 +67,7 @@ const formatOrderRow = (order: Order) => {
     itemsTotal,
     extrasTotal,
     taxAmount: getOrderTaxAmount(order),
-    discountAmount: safeNumber(order.discount_amount),
+    discountAmount: getOrderCartDiscountAmount(order),
     serviceChargeAmount: safeNumber(order.service_charge_amount),
     tipAmount: safeNumber(order.tip_amount),
   });

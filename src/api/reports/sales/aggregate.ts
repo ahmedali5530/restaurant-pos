@@ -15,7 +15,7 @@ import type {
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderItemTaxAmount, getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {toJsDate} from "@/lib/datetime.ts";
-import {getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding} from "@/lib/order.ts";
+import {getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderCartDiscountAmount, getOrderLineDiscountTotal, calculateOrderNetSales, aggregateOrderDiscountBreakdown} from "@/lib/order.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import {DAY_PARTS, getDayPartLabel, type DayPartLabel} from "@/utils/dayParts";
 
@@ -25,13 +25,8 @@ export const getOrderFigures = (order: Order): OrderFigures => {
   const extras = (order.extras ?? []).reduce((sum, extra) => sum + safeNumber(extra.value), 0);
   const grossSales = safeNumber(exclusiveSales + extras);
 
-  const lineDiscounts = safeNumber(order.items?.reduce((sum, item) => sum + safeNumber(item?.discount), 0) ?? 0);
-  const engineDiscounts = safeNumber(
-    (order.order_discounts || [])
-      .filter(od => !od.removed_at)
-      .reduce((sum, od) => sum + safeNumber(od.applied_amount), 0)
-  );
-  const orderDiscount = engineDiscounts > 0 ? engineDiscounts : safeNumber(order.discount_amount);
+  const lineDiscounts = getOrderLineDiscountTotal(order);
+  const orderDiscount = getOrderCartDiscountAmount(order);
   const subtotalDiscount = Math.max(0, orderDiscount - lineDiscounts);
   const couponDiscount = safeNumber(order.coupon?.discount);
   const discounts = safeNumber(lineDiscounts + subtotalDiscount + couponDiscount);
@@ -68,16 +63,7 @@ export const getOrderFigures = (order: Order): OrderFigures => {
   };
 };
 
-export const calculateOrderNetSales = (order: Order): number => {
-  const filteredItems = getOrderFilteredItems(order);
-  const grossTotal = filteredItems.reduce((sum, item) => sum + calculateOrderItemPrice(item), 0);
-  const lineDiscounts = filteredItems.reduce((sum, item) => sum + safeNumber(item?.discount), 0);
-  const orderDiscount = safeNumber(order.discount_amount);
-  const couponDiscount = safeNumber(order.coupon?.discount);
-  const extraDiscount = Math.max(0, orderDiscount - lineDiscounts);
-  const net = grossTotal - lineDiscounts - extraDiscount - couponDiscount;
-  return net > 0 ? net : 0;
-};
+export {calculateOrderNetSales} from "@/lib/order.ts";
 
 const calculateOrderAmountDue = (order: Order): number => {
   return getOrderAmountDueFromPayments(order);
@@ -261,41 +247,11 @@ export const aggregateSalesSummary = (orders: Order[], orderVoids: OrderVoid[]):
 
   const totalVoids = orderVoids.reduce((sum, entry) => sum + calculateVoidEntryAmount(entry), 0);
 
-  const discountMap = new Map<string, {quantity: number; amount: number}>();
-  orders.forEach(order => {
-    const activeLines = (order.order_discounts ?? []).filter(line => !line.removed_at);
-
-    if (activeLines.length > 0) {
-      activeLines.forEach(line => {
-        const discountName = line.name || order.discount?.name || "Discount";
-        const amount = safeNumber(line.applied_amount);
-        const current = discountMap.get(discountName) ?? {quantity: 0, amount: 0};
-        current.quantity += 1;
-        current.amount += amount;
-        discountMap.set(discountName, current);
-      });
-      return;
-    }
-
-    const discountTotal = getOrderFigures(order).discounts;
-    if (discountTotal <= 0) {
-      return;
-    }
-
-    const discountName =
-      order.discount?.name
-      || (typeof order.discount === "string" ? order.discount : null)
-      || "Custom discount";
-
-    const current = discountMap.get(discountName) ?? {quantity: 0, amount: 0};
-    current.quantity += 1;
-    current.amount += discountTotal;
-    discountMap.set(discountName, current);
-  });
-
-  const discountRows = Array.from(discountMap.entries())
-    .map(([type, stats]) => ({type, quantity: stats.quantity, amount: stats.amount}))
-    .sort((a, b) => b.amount - a.amount);
+  const discountRows = aggregateOrderDiscountBreakdown(orders, 'name').map(row => ({
+    type: row.name,
+    quantity: row.quantity,
+    amount: row.total,
+  }));
 
   return {
     totalNetSales,

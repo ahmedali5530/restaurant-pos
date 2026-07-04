@@ -6,7 +6,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {Order} from "@/api/model/order.ts";
 import {getOrderTaxAmount, getOrderItemTaxAmount} from "@/lib/tax-calculator.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
-import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
+import {getOrderFilteredItems, getOrderPaymentTotals, getOrderCartDiscountAmount} from "@/lib/order.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import {OrderItem} from "@/api/model/order_item.ts";
 import { toJsDate } from "@/lib/datetime.ts";
@@ -176,7 +176,7 @@ const collectCategoryTotals = (order: Order): Map<string, TempCategoryTotals> =>
     return acc;
   }, { gross: 0, discount: 0, tax: 0 });
 
-  const orderDiscount = safeNumber(order.discount_amount);
+  const orderDiscount = getOrderCartDiscountAmount(order);
   const extraDiscount = Math.max(0, orderDiscount - totals.discount);
   if (extraDiscount > 0 && totals.gross > 0) {
     map.forEach(row => {
@@ -300,7 +300,9 @@ export const SalesServerReport = () => {
                 floor,
                 payments,
                 coupon,
-                coupon.coupon
+                coupon.coupon,
+                order_discounts,
+                order_discounts.discount
         `;
 
         const result: any = await queryRef.current(query, params);

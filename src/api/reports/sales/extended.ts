@@ -6,7 +6,7 @@ import {recordToString} from "@/api/reports/shared/records.ts";
 import {buildCreatedAtDateConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
-import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
+import {getOrderFilteredItems, getOrderPaymentTotals, getOrderDiscountTotal, orderHasDiscount} from "@/lib/order.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import {getDayPartLabel} from "@/utils/dayParts";
 import {toJsDate} from "@/lib/datetime.ts";
@@ -71,9 +71,28 @@ export const getVoids = async (db: DbClient, options: DateRangeFilter & {limit?:
 
 type MetricKey = "discount_amount" | "tax_amount" | "coupon_discount";
 
+const ORDER_FINANCE_FETCHES = [
+  "user",
+  "cashier",
+  "coupon",
+  "coupon.coupon",
+  "tax",
+  "discount",
+  "items",
+  "items.taxes",
+  "items.tax_mode",
+  "order_taxes",
+  "order_taxes.tax",
+  "order_discounts",
+  "order_discounts.discount",
+];
+
 const getMetricAmount = (order: Order, metric: MetricKey) => {
   if (metric === "coupon_discount") {
     return safeNumber(order.coupon?.discount);
+  }
+  if (metric === "discount_amount") {
+    return getOrderDiscountTotal(order);
   }
   if (metric === "tax_amount") {
     return getOrderTaxAmount(order);
@@ -93,8 +112,8 @@ export const getOrderFinanceSummary = async (
 
   if (options.metric === "coupon_discount") {
     conditions.push("coupon != NONE");
-  } else if (options.metric !== "tax_amount") {
-    conditions.push(`${options.metric} > 0`);
+  } else if (options.metric === "tax_amount") {
+    conditions.push("tax_amount > 0");
   }
 
   const query = `
@@ -102,13 +121,15 @@ export const getOrderFinanceSummary = async (
     WHERE ${conditions.join(" AND ")}
     ORDER BY created_at DESC
     LIMIT 200
-    FETCH user, cashier, coupon, tax, discount, items, items.taxes, items.tax_mode, order_taxes, order_taxes.tax
+    FETCH ${ORDER_FINANCE_FETCHES.join(", ")}
   `;
 
   const orders = unwrapQueryResult<Order>(await db.query(query, params));
   const filteredOrders = options.metric === "tax_amount"
     ? orders.filter(order => getOrderTaxAmount(order) > 0)
-    : orders;
+    : options.metric === "discount_amount"
+      ? orders.filter(orderHasDiscount)
+      : orders;
   const total = filteredOrders.reduce((sum, order) => sum + getMetricAmount(order, options.metric), 0);
 
   return {
@@ -133,7 +154,7 @@ export const getServerSales = async (db: DbClient, options: DateRangeFilter & {l
   const query = `
     SELECT * FROM ${Tables.orders}
     WHERE ${conditions.join(" AND ")}
-    FETCH user, items, items.item, items.taxes, items.tax_mode, order_type, tax, order_taxes, order_taxes.tax
+    FETCH user, items, items.item, items.taxes, items.tax_mode, order_type, tax, order_taxes, order_taxes.tax, order_discounts, order_discounts.discount
   `;
 
   const orders = unwrapQueryResult<Order>(await db.query(query, params));

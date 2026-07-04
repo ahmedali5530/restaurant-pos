@@ -8,7 +8,7 @@ import {Menu} from "@/api/model/menu.ts";
 import {OrderVoid} from "@/api/model/order_void.ts";
 import {formatNumber, safeNumber, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
-import {getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures, type OrderPaymentTotals} from "@/lib/order.ts";
+import {getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures, orderHasDiscount, orderMatchesDiscountId, type OrderPaymentTotals} from "@/lib/order.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {OrderItemName} from "@/components/common/order/order.item.tsx";
 
@@ -210,19 +210,6 @@ export const SalesAdvancedReport = () => {
           params['orderTypeIds'] = filters.orderTypeIds.map(item => toRecordId(item))
         }
 
-        if (filters.discountIds.length > 0) {
-          orderConditions.push(`discount INSIDE $discountIds`);
-          params['discountIds'] = filters.discountIds.map(item => toRecordId(item))
-        }
-
-        if (filters.withDiscount) {
-          orderConditions.push(`discount_amount > 0`);
-        }
-
-        if (filters.withoutDiscount) {
-          orderConditions.push(`(discount_amount = 0 or discount_amount = null or discount_amount = none)`);
-        }
-
         if (filters.withTax) {
           orderConditions.push(`tax_amount > 0`);
         }
@@ -345,6 +332,20 @@ export const SalesAdvancedReport = () => {
 
   const filteredOrders = useMemo(() => {
     let result = orders;
+
+    if (filters.discountIds.length > 0) {
+      result = result.filter(order =>
+        filters.discountIds.some(discountId => orderMatchesDiscountId(order, discountId)),
+      );
+    }
+
+    if (filters.withDiscount) {
+      result = result.filter(orderHasDiscount);
+    }
+
+    if (filters.withoutDiscount) {
+      result = result.filter(order => !orderHasDiscount(order));
+    }
 
     if (filters.menuIds.length > 0) {
       if (menuDishIds.size === 0) {

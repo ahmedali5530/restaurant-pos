@@ -8,8 +8,7 @@ import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
-import {getOrderFilteredItems} from "@/lib/order.ts";
-import {getOrderDiscountTotal, orderHasDiscount} from "@/api/reports/sales/discounts.ts";
+import {getOrderFilteredItems, getOrderDiscountTotal, orderHasDiscount, orderMatchesDiscountId} from "@/lib/order.ts";
 
 type MetricKey = "discount_amount" | "tax_amount" | "coupon_discount";
 
@@ -102,11 +101,6 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
           params.taxId = normalizeRecordSuffix(filters.taxId);
         }
 
-        if (metric === "discount_amount" && filters.discountId) {
-          conditions.push(`discount = type::record('${Tables.discounts}', $discountId)`);
-          params.discountId = normalizeRecordSuffix(filters.discountId);
-        }
-
         if (metric === "coupon_discount" && filters.couponId) {
           conditions.push(`coupon.coupon = type::record('${Tables.coupons}', $couponId)`);
           params.couponId = normalizeRecordSuffix(filters.couponId);
@@ -124,6 +118,11 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
 
         if (metric === "discount_amount") {
           fetchedOrders = fetchedOrders.filter(orderHasDiscount);
+          if (filters.discountId) {
+            fetchedOrders = fetchedOrders.filter(order =>
+              orderMatchesDiscountId(order, filters.discountId),
+            );
+          }
         }
 
         setOrders(fetchedOrders);
