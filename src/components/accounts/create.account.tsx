@@ -50,7 +50,7 @@ export const CreateAccount: FC<CreateAccountProps> = ({
   const groupsHook = useApi<SettingsData<AccountGroup>>(
     Tables.account_groups,
     [],
-    ["code ASC"],
+    [`${Tables.account_groups}.code ASC`],
     0,
     9999,
   );
