@@ -274,11 +274,12 @@ Built for real restaurant pressure situations:
 
 ## 📸 Screenshots
 
-![floor_layout.png](docs/images/floor_layout.png)
-![menu.png](docs/images/menu.png)
-![kds_panel.png](docs/images/kds_panel.png)
-![payment.png](docs/images/payment.png)
-![delivery.png](docs/images/delivery.png)
+![Floor layout](docs/images/floor_layout.png)
+![AI Report](docs/images/AI%20report7.png)
+![menu](docs/images/menu.png)
+![kds panel](docs/images/kds_panel.png)
+![payment](docs/images/payment.png)
+![delivery](docs/images/delivery.png)
 
 ---
 
