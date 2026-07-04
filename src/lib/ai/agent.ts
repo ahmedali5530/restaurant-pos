@@ -6,6 +6,10 @@ import {buildAutoChartsFromToolResults} from "@/lib/ai/auto-charts.ts";
 import type {AiReportFormat} from "@/lib/ai.report.storage.ts";
 import {isOrderListByStatusPrompt, resolveOrderListQueryFromPrompt} from "@/lib/ai/order-query.ts";
 import {isUnsoldProductsPrompt, resolveUnsoldProductsDateRange} from "@/lib/ai/product-query.ts";
+import {isCurrentSessionSalesPrompt} from "@/lib/ai/session-query.ts";
+import {isTipsPrompt, resolveTipsDateRange, wantsTipDistribution} from "@/lib/ai/tip-query.ts";
+import {getCurrentSessionServerSales} from "@/api/reports/operations/sessions.ts";
+import {getTips} from "@/api/reports/sales/tips.ts";
 import {getUnsoldProducts} from "@/api/reports/sales/products.ts";
 import {getAiReportSystemPrompt} from "@/lib/ai/schema.ts";
 import {executeAiReportTool} from "@/lib/ai/tools/executor.ts";
@@ -63,6 +67,7 @@ export const runAiReportAgent = async (
   };
 
   if (isOrderListByStatusPrompt(trimmedPrompt)) {
+    options.onToolStart?.("get_orders");
     const {statuses, deliveryOnly} = resolveOrderListQueryFromPrompt(trimmedPrompt);
     const data = await getOrders(db, {statuses, deliveryOnly});
     toolsUsed.push({name: "get_orders", args: {statuses, deliveryOnly}});
@@ -88,6 +93,7 @@ export const runAiReportAgent = async (
   }
 
   if (isUnsoldProductsPrompt(trimmedPrompt)) {
+    options.onToolStart?.("get_unsold_products");
     const dateRange = resolveUnsoldProductsDateRange(trimmedPrompt);
     const data = await getUnsoldProducts(db, dateRange);
     toolsUsed.push({name: "get_unsold_products", args: {...dateRange}});
@@ -99,6 +105,64 @@ export const runAiReportAgent = async (
         {
           role: "user",
           content: `${trimmedPrompt}\n\nget_unsold_products (${data.soldProductCount} products sold in period, ${data.unsoldCount} unsold):\n${JSON.stringify(data)}\n\nList unsold products. Mention soldProductCount and unsoldCount.`,
+        },
+      ],
+      tools: [],
+    });
+
+    const answer = response.choices[0]?.message?.content?.trim();
+    if (!answer) {
+      throw new Error("OpenAI returned an empty response.");
+    }
+
+    return finish(answer);
+  }
+
+  if (isTipsPrompt(trimmedPrompt)) {
+    options.onToolStart?.("get_tips");
+    const dateRange = resolveTipsDateRange(trimmedPrompt);
+    const data = await getTips(db, {
+      ...dateRange,
+      includeProjectedDistribution: true,
+    });
+    toolsUsed.push({name: "get_tips", args: {...dateRange, includeProjectedDistribution: true}});
+    toolResults.push({name: "get_tips", result: data});
+
+    const distributionHint = wantsTipDistribution(trimmedPrompt) || data.projectedShares.length > 0
+      ? "Include projectedShares (each person's weighted share if tips were distributed). Mention savedDistributions only if non-empty."
+      : "Mention tipsCollected and tipsByCashier.";
+
+    const response = await callOpenAIChat({
+      messages: [
+        ...messages,
+        {
+          role: "user",
+          content: `${trimmedPrompt}\n\nget_tips (tipsCollected=${data.tipsCollected}, orders with tips=${data.orderCountWithTips}):\n${JSON.stringify(data)}\n\n${distributionHint} tipsCollected matches Advanced Sales (sum of order tip_amount on paid orders).`,
+        },
+      ],
+      tools: [],
+    });
+
+    const answer = response.choices[0]?.message?.content?.trim();
+    if (!answer) {
+      throw new Error("OpenAI returned an empty response.");
+    }
+
+    return finish(answer);
+  }
+
+  if (isCurrentSessionSalesPrompt(trimmedPrompt)) {
+    options.onToolStart?.("get_current_session_sales");
+    const data = await getCurrentSessionServerSales(db);
+    toolsUsed.push({name: "get_current_session_sales", args: {}});
+    toolResults.push({name: "get_current_session_sales", result: data});
+
+    const response = await callOpenAIChat({
+      messages: [
+        ...messages,
+        {
+          role: "user",
+          content: `${trimmedPrompt}\n\nget_current_session_sales (${data.activeSessionCount} active session(s)):\n${JSON.stringify(data)}\n\nReport per order taker: session duration, net sales, checks, guests, avg check, avg guest sale. Include totals.`,
         },
       ],
       tools: [],

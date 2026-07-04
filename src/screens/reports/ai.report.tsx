@@ -11,9 +11,9 @@ import {AiExamplePrompts} from "@/components/reports/ai/ai.example.prompts.tsx";
 import {AiFormatSelector} from "@/components/reports/ai/ai.format.selector.tsx";
 import {AiReportCharts} from "@/components/reports/ai/ai.report.charts.tsx";
 import {AiReportHistory} from "@/components/reports/ai/ai.report.history.tsx";
+import type {DbClient} from "@/api/reports/shared/types.ts";
 import {runAiReportAgent, type AiReportAgentResult} from "@/lib/ai/agent.ts";
 import {AI_EXAMPLE_PROMPTS} from "@/lib/ai/example.prompts.ts";
-import {createStableDbClient} from "@/lib/ai/db.client.ts";
 import {
   type AiReportFormat,
   type AiReportHistoryEntry,
@@ -117,16 +117,18 @@ export const AiReport = () => {
   const [error, setError] = useState<string | null>(null);
   const [hasRun, setHasRun] = useState(false);
 
-  const stableDb = useMemo(() => createStableDbClient((...args) => queryRef.current(...args)), []);
+  useEffect(() => {
+    queryRef.current = db.query;
+  }, [db]);
+
+  const stableDb = useMemo((): DbClient => ({
+    query: (sql, params) => queryRef.current(sql, params),
+  }), []);
 
   const allowedModules = useMemo(() => {
     const roles = user?.user_role?.roles ?? user?.role?.roles ?? [];
     return Array.isArray(roles) ? roles as string[] : [];
   }, [user?.user_role?.roles, user?.role?.roles]);
-
-  useEffect(() => {
-    queryRef.current = db.query;
-  });
 
   const applyResult = useCallback((result: AiReportAgentResult, userPrompt: string) => {
     setResponse(result.answer);

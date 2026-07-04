@@ -69,58 +69,6 @@ export const getVoids = async (db: DbClient, options: DateRangeFilter & {limit?:
   };
 };
 
-export const getTips = async (
-  db: DbClient,
-  options: DateRangeFilter & {shiftId?: string},
-) => {
-  const conditions: string[] = [];
-  const params: Record<string, string> = {};
-  const dbFormat = import.meta.env.VITE_DB_DATABASE_FORMAT as string;
-
-  if (options.startDate) {
-    conditions.push(`time::format(from_at, "${dbFormat}") >= $startDate`);
-    params.startDate = options.startDate;
-  }
-  if (options.endDate) {
-    conditions.push(`time::format(from_at, "${dbFormat}") <= $endDate`);
-    params.endDate = options.endDate;
-  }
-  if (options.shiftId) {
-    conditions.push("shift = $shiftId");
-    params.shiftId = options.shiftId;
-  }
-
-  const query = `
-    SELECT * FROM ${Tables.tip_distributions}
-    ${conditions.length ? `WHERE ${conditions.join(" AND ")}` : ""}
-    FETCH shift, users, users.user
-  `;
-
-  const distributions = unwrapQueryResult<{
-    total_tips?: number;
-    users?: Array<{user?: {first_name?: string; last_name?: string}; amount?: number}>;
-  }>(await db.query(query, params));
-
-  const tipsByUser = new Map<string, number>();
-  distributions.forEach(distribution => {
-    (distribution.users || []).forEach(share => {
-      const user = share?.user;
-      const name = user
-        ? `${user.first_name || ""} ${user.last_name || ""}`.trim() || "Unknown"
-        : "Unknown";
-      tipsByUser.set(name, (tipsByUser.get(name) || 0) + safeNumber(share?.amount));
-    });
-  });
-
-  return {
-    totalTips: distributions.reduce((sum, d) => sum + safeNumber(d.total_tips), 0),
-    distributionCount: distributions.length,
-    tipsByUser: Array.from(tipsByUser.entries())
-      .map(([name, amount]) => ({name, amount}))
-      .sort((a, b) => b.amount - a.amount),
-  };
-};
-
 type MetricKey = "discount_amount" | "tax_amount" | "coupon_discount";
 
 const getMetricAmount = (order: Order, metric: MetricKey) => {

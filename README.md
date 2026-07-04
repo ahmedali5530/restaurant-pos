@@ -134,7 +134,7 @@ This system solves that by combining everything into one platform:
 ---
 
 ### 👨‍💼 Manager App (Admin Control Center)
-- Real-time business dashboard
+- Real-time business dashboard with AI reporting
 - Sales & performance analytics
 - Staff performance tracking
 - Branch-level reporting

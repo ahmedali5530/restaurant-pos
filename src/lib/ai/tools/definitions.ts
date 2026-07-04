@@ -93,18 +93,39 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_tips",
-      description: "Get tip distributions and per-user totals.",
+      description: "Get tips collected from paid orders (matches Advanced Sales report tip column). Returns tipsCollected, tipsByCashier, projectedShares (weighted split using tip_distribution settings), and savedDistributions (finalized records if any). For 'today' pass phrase: today.",
       parameters: {
         type: "object",
-        properties: {...dateRangeProps, shiftId: {type: "string"}},
+        properties: {
+          ...dateRangeProps,
+          phrase: {type: "string", description: "Natural date phrase e.g. today, yesterday, this week"},
+          shiftId: {type: "string", description: "Optional shift id to filter cashiers and distribution pool"},
+          includeProjectedDistribution: {type: "boolean", default: true},
+        },
       },
     },
   },
   {
     type: "function",
     function: {
+      name: "get_current_session_sales",
+      description: "Sales summary for every order taker during their current active clock-in session (time_entry where clock_out is empty). Returns session duration, net sales, checks, guests, average check, and average guest sale per order taker.",
+      parameters: {type: "object", properties: {}},
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "list_active_sessions",
+      description: "List users currently clocked in (active time_entry sessions with no clock_out).",
+      parameters: {type: "object", properties: {}},
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "get_server_sales",
-      description: "Get per-server net sales, checks, and guests.",
+      description: "Get per-server net sales, checks, and guests for a date range. For current clock-in sessions use get_current_session_sales instead.",
       parameters: {
         type: "object",
         properties: {...dateRangeProps, limit: {type: "number", default: 20}},

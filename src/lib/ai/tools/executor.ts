@@ -7,12 +7,12 @@ import {
   getOrderFinanceSummary,
   getSalesDashboardSnapshot,
   getServerSales,
-  getTips,
   getVoids,
   getWeeklySales,
   listCategories,
   listStaff,
 } from "@/api/reports/sales/extended.ts";
+import {getTips} from "@/api/reports/sales/tips.ts";
 import {
   getConsumptionSummary,
   getCurrentInventory,
@@ -31,6 +31,7 @@ import {
   getExpenses,
   getOrderLifecycleStats,
 } from "@/api/reports/operations/index.ts";
+import {getActiveSessions, getCurrentSessionServerSales} from "@/api/reports/operations/sessions.ts";
 import {comparePeriods, getTimeSeries, type TimeSeriesMetric} from "@/api/reports/time-series.ts";
 import {forecastFromPoints, forecastInventoryConsumption} from "@/lib/ai/forecast.ts";
 import {type AiChartSpec, validateChartSpec, dedupeCharts} from "@/lib/ai/charts.ts";
@@ -139,9 +140,16 @@ export const executeAiReportTool = async (
 
     case "get_tips":
       return getTips(db, {
-        ...parseOptionalDateRangeArgs(args),
+        ...parseDateRangeWithPhrase(args),
         shiftId: args.shiftId ? String(args.shiftId) : undefined,
+        includeProjectedDistribution: args.includeProjectedDistribution !== false,
       });
+
+    case "get_current_session_sales":
+      return getCurrentSessionServerSales(db);
+
+    case "list_active_sessions":
+      return getActiveSessions(db);
 
     case "get_server_sales":
       return getServerSales(db, {

@@ -11,6 +11,8 @@ export const AI_EXAMPLE_PROMPTS: AiExamplePrompt[] = [
   {category: "sales", prompt: "Product mix by category this month — lowest profit items"},
   {category: "sales", prompt: "Who were the top 5 servers by net sales last month?"},
   {category: "sales", prompt: "Which products haven't sold in 60 days?"},
+  {category: "sales", prompt: "Sales summary for every order taker during their current session"},
+  {category: "sales", prompt: "How much tips were collected today and how would they be distributed?"},
   {category: "inventory", prompt: "Which inventory items are below reorder level?"},
   {category: "inventory", prompt: "Summarize waste by item for last week"},
   {category: "charts", prompt: "Line chart of daily net sales for the last 30 days"},

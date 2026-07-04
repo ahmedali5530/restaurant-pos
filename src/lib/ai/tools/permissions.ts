@@ -9,6 +9,8 @@ export const TOOL_PERMISSION_MODULES: Record<string, string> = {
   get_voids: "Voids",
   get_tips: "Tips",
   get_server_sales: "Server Sales",
+  get_current_session_sales: "Server Sales",
+  list_active_sessions: "Sales Hourly Labour",
   get_tax_summary: "Tax",
   get_discount_summary: "Discount",
   get_coupon_summary: "Coupon",

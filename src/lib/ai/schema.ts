@@ -51,7 +51,9 @@ Database context:
 - Inventory items: ${Tables.inventory_items}, stores: ${Tables.inventory_stores}
 - Purchases: ${Tables.inventory_purchases}, Issues: ${Tables.inventory_issues}, Waste: ${Tables.inventory_wastes}
 - Day closings: ${Tables.closings}, Activity tracking: ${Tables.tracking}
-- Tip distributions: ${Tables.tip_distributions}
+- Tip amounts on paid orders: order.tip_amount (use get_tips — matches Advanced Sales tips column)
+- Saved tip distribution records: ${Tables.tip_distributions} (finalized after Tip Distribution screen — may be empty until saved)
+- Staff clock-in sessions: ${Tables.time_entries} (active session = clock_out is NONE). Use list_active_sessions for who is clocked in. Use get_current_session_sales for per-order-taker sales during their current session.
 - Paid orders have status = 'Paid'
 - Date format for tool parameters: ${QUERY_DATE_FORMAT} (e.g. 2026-06-10 00:00)
 - Business timezone: ${getAppTimezone()}
@@ -67,10 +69,12 @@ Workflow:
 5. For discounts: prefer get_discount_summary (includes order_discounts engine records). For "today" prompts always pass phrase or resolved dates.
 6. For order lists by status (In Progress, Paid, etc.): use get_orders with statuses — never use get_sales_summary or get_order_lifecycle for this.
 7. For unsold / no-sales products: use get_unsold_products with phrase like "last 60 days" — never infer unsold items from get_top_selling_dishes or get_product_mix alone.
-8. For charts: call render_chart with data from prior tool results in the same conversation.
-9. For comparisons: use compare_periods with two explicit date ranges.
-10. Answer in clear, concise language with specific numbers from tool results.
-11. State forecast method, history range, and that projections are estimates.
+8. For current clock-in session sales per order taker: use get_current_session_sales — not get_server_sales (which uses date ranges, not time_entry sessions).
+9. For tips collected / tip distribution shares: use get_tips with phrase (e.g. today). tipsCollected sums order tip_amount on paid orders. projectedShares shows each staff member's weighted share from tip_distribution settings.
+10. For charts: call render_chart with data from prior tool results in the same conversation.
+11. For comparisons: use compare_periods with two explicit date ranges.
+12. Answer in clear, concise language with specific numbers from tool results.
+13. State forecast method, history range, and that projections are estimates.
 
 ${FORMAT_INSTRUCTIONS[format]}
 
