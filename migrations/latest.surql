@@ -5,6 +5,80 @@
 OPTION IMPORT;
 
 -- ------------------------------
+-- TABLE: account
+-- ------------------------------
+
+DEFINE TABLE account TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD account_type ON account TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD code ON account TYPE string PERMISSIONS FULL;
+DEFINE FIELD created_at ON account TYPE none | datetime | null VALUE time::now() PERMISSIONS FULL;
+DEFINE FIELD group ON account TYPE none | record<account_group> | null PERMISSIONS FULL;
+DEFINE FIELD is_active ON account TYPE none | bool | null DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD name ON account TYPE string PERMISSIONS FULL;
+DEFINE FIELD normal_balance ON account TYPE string PERMISSIONS FULL;
+DEFINE FIELD notes ON account TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD parent ON account TYPE none | record<account> | null PERMISSIONS FULL;
+DEFINE FIELD updated_at ON account TYPE none | datetime | null PERMISSIONS FULL;
+
+DEFINE INDEX account_code_unique ON account FIELDS code UNIQUE;
+
+
+-- ------------------------------
+-- TABLE: account_group
+-- ------------------------------
+
+DEFINE TABLE account_group TYPE ANY SCHEMALESS PERMISSIONS NONE;
+
+DEFINE FIELD code ON account_group TYPE string PERMISSIONS FULL;
+DEFINE FIELD created_at ON account_group TYPE none | datetime | null VALUE time::now() PERMISSIONS FULL;
+DEFINE FIELD head_type ON account_group TYPE string PERMISSIONS FULL;
+DEFINE FIELD is_active ON account_group TYPE none | bool | null DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD name ON account_group TYPE string PERMISSIONS FULL;
+DEFINE FIELD normal_balance ON account_group TYPE string PERMISSIONS FULL;
+DEFINE FIELD notes ON account_group TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD updated_at ON account_group TYPE none | datetime | null PERMISSIONS FULL;
+
+DEFINE INDEX account_group_code_unique ON account_group FIELDS code UNIQUE;
+
+
+-- ------------------------------
+-- TABLE: account_journal_entry
+-- ------------------------------
+
+DEFINE TABLE account_journal_entry TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD created_at ON account_journal_entry TYPE none | datetime | null VALUE time::now() PERMISSIONS FULL;
+DEFINE FIELD created_by ON account_journal_entry TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD date ON account_journal_entry TYPE datetime PERMISSIONS FULL;
+DEFINE FIELD documents ON account_journal_entry TYPE none | array<record<document>> | null PERMISSIONS FULL;
+DEFINE FIELD entry_number ON account_journal_entry TYPE int PERMISSIONS FULL;
+DEFINE FIELD lines ON account_journal_entry TYPE none | array<record<account_journal_line>> | null PERMISSIONS FULL;
+DEFINE FIELD memo ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD source_id ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD source_module ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD status ON account_journal_entry TYPE string DEFAULT 'draft' ASSERT $value INSIDE ['draft', 'posted', 'reversed'] PERMISSIONS FULL;
+DEFINE FIELD updated_at ON account_journal_entry TYPE none | datetime | null PERMISSIONS FULL;
+
+DEFINE INDEX account_journal_entry_number_unique ON account_journal_entry FIELDS entry_number UNIQUE;
+
+
+-- ------------------------------
+-- TABLE: account_journal_line
+-- ------------------------------
+
+DEFINE TABLE account_journal_line TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD account ON account_journal_line TYPE record<account> PERMISSIONS FULL;
+DEFINE FIELD created_at ON account_journal_line TYPE none | datetime | null VALUE time::now() PERMISSIONS FULL;
+DEFINE FIELD credit ON account_journal_line TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD debit ON account_journal_line TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD description ON account_journal_line TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD entry ON account_journal_line TYPE record<account_journal_entry> PERMISSIONS FULL;
+
+
+
+-- ------------------------------
 -- TABLE: auth_permission
 -- ------------------------------
 
@@ -638,6 +712,7 @@ DEFINE FIELD supplier ON inventory_purchase_item TYPE none | record<inventory_su
 DEFINE TABLE inventory_purchase_order TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
 DEFINE FIELD created_at ON inventory_purchase_order TYPE datetime PERMISSIONS FULL;
+DEFINE FIELD created_by ON inventory_purchase_order TYPE none | record<user> | null PERMISSIONS FULL;
 DEFINE FIELD documents ON inventory_purchase_order TYPE none | array<record<document>> | null PERMISSIONS FULL;
 DEFINE FIELD items ON inventory_purchase_order TYPE array<record<inventory_purchase_order_item>> PERMISSIONS FULL;
 DEFINE FIELD po_number ON inventory_purchase_order TYPE int PERMISSIONS FULL;
@@ -960,10 +1035,26 @@ DEFINE FIELD quantity ON menu_item_recipe TYPE float PERMISSIONS FULL;
 DEFINE TABLE menu_menu_item TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
 DEFINE FIELD active ON menu_menu_item TYPE none | bool | null PERMISSIONS FULL;
+DEFINE FIELD base_price ON menu_menu_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD menu_item ON menu_menu_item TYPE record<menu_item> PERMISSIONS FULL;
 DEFINE FIELD price ON menu_menu_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD tax ON menu_menu_item TYPE none | record<tax> | null PERMISSIONS FULL;
+DEFINE FIELD tax_mode ON menu_menu_item TYPE string DEFAULT 'exclusive' ASSERT $value INSIDE ['exclusive', 'inclusive'] PERMISSIONS FULL;
+DEFINE FIELD taxes ON menu_menu_item TYPE none | array<record<tax>> | null PERMISSIONS FULL;
 
+
+
+-- ------------------------------
+-- TABLE: menu_menu_item_tax
+-- ------------------------------
+
+DEFINE TABLE menu_menu_item_tax TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD menu_menu_item ON menu_menu_item_tax TYPE record<menu_menu_item> PERMISSIONS FULL;
+DEFINE FIELD priority ON menu_menu_item_tax TYPE int DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD tax ON menu_menu_item_tax TYPE record<tax> PERMISSIONS FULL;
+
+DEFINE INDEX mmit_unique ON menu_menu_item_tax FIELDS menu_menu_item, tax UNIQUE;
 
 
 -- ------------------------------
@@ -1028,6 +1119,7 @@ DEFINE FIELD invoice_number ON order TYPE int PERMISSIONS FULL;
 DEFINE FIELD invoice_prefix ON order TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD items ON order TYPE array<record<order_item>> PERMISSIONS FULL;
 DEFINE FIELD notes ON order TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD order_taxes ON order TYPE none | array<record<order_tax>> | null PERMISSIONS FULL;
 DEFINE FIELD order_type ON order TYPE record<order_type> PERMISSIONS FULL;
 DEFINE FIELD payments ON order TYPE none | array<record<order_payment>> | null PERMISSIONS FULL;
 DEFINE FIELD service_charge ON order TYPE none | float | null PERMISSIONS FULL;
@@ -1109,7 +1201,7 @@ DEFINE FIELD `value` ON order_extras TYPE float PERMISSIONS FULL;
 DEFINE TABLE order_item TYPE ANY SCHEMAFULL PERMISSIONS NONE;
 
 DEFINE FIELD category ON order_item TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD category_id ON order_item TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD category_id ON order_item TYPE none | record<category> | null | string PERMISSIONS FULL;
 DEFINE FIELD comments ON order_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD cost ON order_item TYPE none | float PERMISSIONS FULL;
 DEFINE FIELD created_at ON order_item TYPE datetime PERMISSIONS FULL;
@@ -1132,6 +1224,8 @@ DEFINE FIELD quantity ON order_item TYPE float PERMISSIONS FULL;
 DEFINE FIELD seat ON order_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD service_charges ON order_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD tax ON order_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD tax_mode ON order_item TYPE string DEFAULT 'exclusive' ASSERT $value INSIDE ['exclusive', 'inclusive'] PERMISSIONS FULL;
+DEFINE FIELD taxes ON order_item TYPE none | array<record<tax>> | null PERMISSIONS FULL;
 DEFINE FIELD updated_at ON order_item TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD workflow ON order_item TYPE none | record<workflow> | null PERMISSIONS FULL;
 DEFINE FIELD workflow_status ON order_item TYPE none | string | null PERMISSIONS FULL;
@@ -1230,6 +1324,19 @@ DEFINE FIELD new_orders ON order_split TYPE array<record<order>> PERMISSIONS FUL
 DEFINE FIELD old_items ON order_split TYPE any PERMISSIONS FULL;
 DEFINE FIELD old_order ON order_split TYPE record<order> PERMISSIONS FULL;
 
+
+
+-- ------------------------------
+-- TABLE: order_tax
+-- ------------------------------
+
+DEFINE TABLE order_tax TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD amount ON order_tax TYPE float PERMISSIONS FULL;
+DEFINE FIELD order ON order_tax TYPE record<order> PERMISSIONS FULL;
+DEFINE FIELD tax ON order_tax TYPE record<tax> PERMISSIONS FULL;
+
+DEFINE INDEX order_tax_unique ON order_tax FIELDS order, tax UNIQUE;
 
 
 -- ------------------------------
