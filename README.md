@@ -1,9 +1,7 @@
-# 🍽️ Open Source Restaurant POS System (React + TypeScript + SurrealDB)
-### ⚡ Fast • Modern • Touch Optimized • Multi-Lingual • Full Restaurant Operations Platform
+# 🍽️ Open Source Modern Restaurant POS System
+### ⚡ AI Powered • Fast • Modern • Touch Optimized • Multi-Lingual • Full Restaurant Operations Platform
 
-A complete **restaurant management ecosystem** built for real-world cafés, restaurants, and food chains.
-Offline-first POS that runs entirely on your local network — no internet required for day-to-day restaurant operations. Optional cloud sync enables multi-branch analytics and centralized management.
-Designed to handle everything from **ordering → kitchen → delivery → staff → reporting → inventory** in one unified system.
+A high-performance, scalable, and resilient Point of Sale (POS) system designed specifically for the fast-paced restaurant industry. Built on a modern tech stack featuring React, Vite, and SurrealDB, this system offers ultra-fast response times, multi-tenant capabilities, and an offline-first architecture to ensure business continuity even during network drops.
 
 ---
 
@@ -53,7 +51,14 @@ This system solves that by combining everything into one platform:
 
 ---
 
-## ✨ Core Modules
+## 🌟 Key Features
+
+### 🧠 [AI-Powered Business Intelligence & Reporting](docs/images/AI%20report1.png)
+- Transform raw transactional data into actionable business strategies. Our integrated AI reporting module analyzes sales patterns, customer behavior, and inventory levels to give you a competitive edge.
+- **Predictive Inventory Forecasting:** Machine learning insights predict ingredient demand based on historical trends, seasonal factors, and weather patterns to minimize waste.
+- **Automated Menu Optimization:** AI flags slow-moving, low-margin items and suggests high-profit menu combinations or dynamic pricing strategies.
+- **Smart Staff Scheduling Insights:** Analyzes hourly traffic and peak sales data to recommend optimal staffing levels, cutting labor costs without sacrificing service quality.
+- **Natural Language Analytics:** Ask plain-text questions (e.g., *"Which menu item grew the most this weekend?"* or *"Summarize last month's top delivery zones"*) and get instant visual reports.
 
 ### 🍽️ POS & Order Management
 - Table-based ordering system
@@ -296,7 +301,9 @@ Built for real restaurant pressure situations:
 - Manager apps for **authentication and reporting**
 ---
 
-## ⚡ Quick Start with Docker
+## ⚡ Quick Start
+
+[Read the documentation](https://ahmedali5530.xyz/posr/docs)
 
 ```bash
 git clone https://github.com/ahmedali5530/restaurant-pos
@@ -307,17 +314,17 @@ docker compose up -d
 ---
 
 ## 🧭 Roadmap and WIP
-- Advanced analytics dashboard
-- AI-based reporting and demand forecasting
-- Multi-branch synchronization improvements
-- Payroll system integration
-- Account module integration
-- OR Code and Self ordering system
-- Tap-to-pay payments on mobile apps
-- Targeted sales system for performance
-- Multi-currency support
-- Advanced inventory operations and analytics
-- Loyalty module
+1. [x] 🚀 AI-based reporting and demand forecasting
+2. [x] 🚀 Payroll system integration
+3. [x] 🚀 Account module integration
+4. [x] 🚀 Advanced inventory operations and analytics
+5. [x] 🚀 Advanced analytics dashboard
+6. [ ] 🚀 Multi-branch synchronization improvements
+7. [ ] 🚀 QR Code and Self ordering system
+8. [ ] 🚀 Tap-to-pay payments on mobile apps
+9. [ ] 🚀 Targeted sales system for performance
+10. [ ] 🚀 Multi-currency support
+11. [ ] 🚀 Loyalty module
 
 ---
 
