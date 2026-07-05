@@ -88,10 +88,10 @@ export const GeneralLedger = () => {
       const whereClause = (clauses: string[]) => (clauses.length ? clauses.join(" AND ") : "true");
 
       const openingQuery = `
-          SELECT account, account.id, math::sum(debit - credit) AS balance
+          SELECT account.code, account.name, account.id, math::sum(debit - credit) AS balance
           FROM ${Tables.account_journal_lines}
           WHERE ${whereClause(openingWhere)}
-          GROUP BY account
+          GROUP BY account.id, account.name, account.code
           FETCH account
       `;
 
