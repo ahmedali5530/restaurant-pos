@@ -21,6 +21,7 @@ import { getOrderFilteredItems } from "@/lib/order.ts";
 import { toRecordId, withCurrency } from "@/lib/utils.ts";
 import type { UserShift } from "@/api/model/user.ts";
 import { nowSurrealDateTime, toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
+import { clockOut as laborClockOut } from "@/lib/labor-engine/attendance/attendance.service.ts";
 import {useTranslation} from "react-i18next";
 
 const formatShiftClock = (time: string) => {
@@ -269,14 +270,9 @@ export const Clock = () => {
     if (!timeEntry || !page.user) return;
 
     try {
-      const clockOutTime = nowSurrealDateTime();
-      const clockInTime = toJsDate(timeEntry.clock_in);
-      const durationSeconds = Math.floor((toJsDate(clockOutTime).getTime() - clockInTime.getTime()) / 1000);
-
-      // Update time entry with clock out time and duration
-      await db.merge(timeEntry.id, {
-        clock_out: clockOutTime,
-        duration_seconds: durationSeconds,
+      await laborClockOut(db, {
+        timeEntryId: timeEntry.id,
+        user: page.user,
       });
 
       toast.success(t("toast:clock.clockedOut"));

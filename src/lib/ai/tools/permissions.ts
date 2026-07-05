@@ -38,6 +38,15 @@ export const TOOL_PERMISSION_MODULES: Record<string, string> = {
   list_categories: "AI Report",
   list_menu_items: "Product Mix Summary",
   list_inventory_items: "Current Inventory",
+  get_labor_dashboard_snapshot: "Labor Dashboard",
+  get_daily_labor_cost: "Daily Labor Cost",
+  get_labor_percent: "Labor Percent",
+  get_overtime_report: "Overtime Report",
+  get_attendance_report: "Attendance Report",
+  get_payroll_summary: "Payroll Summary",
+  get_scheduled_vs_actual: "Scheduled vs Actual",
+  get_labor_trend: "Labor Trend",
+  get_ai_labor_datasets: "Labor Dashboard",
 };
 
 export const filterToolsByPermissions = (

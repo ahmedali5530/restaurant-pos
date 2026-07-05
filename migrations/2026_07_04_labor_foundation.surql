@@ -1,0 +1,102 @@
+-- Enterprise Labor & HR: organization config, employees, pay profiles, policies, pay rules
+
+DEFINE TABLE department SCHEMAFULL;
+DEFINE FIELD code ON department TYPE string PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD name ON department TYPE string PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD description ON department TYPE option<string|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD is_active ON department TYPE bool DEFAULT true PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD deleted_at ON department TYPE option<datetime|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE INDEX IF NOT EXISTS dept_code ON department FIELDS code UNIQUE;
+
+DEFINE TABLE cost_center SCHEMAFULL;
+DEFINE FIELD code ON cost_center TYPE string PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD name ON cost_center TYPE string PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD description ON cost_center TYPE option<string|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD is_active ON cost_center TYPE bool DEFAULT true PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD deleted_at ON cost_center TYPE option<datetime|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE INDEX IF NOT EXISTS cc_code ON cost_center FIELDS code UNIQUE;
+
+DEFINE TABLE position SCHEMAFULL;
+DEFINE FIELD code ON position TYPE string PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD name ON position TYPE string PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD department ON position TYPE option<record<department>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD default_cost_center ON position TYPE option<record<cost_center>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD is_active ON position TYPE bool DEFAULT true PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD deleted_at ON position TYPE option<datetime|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE INDEX IF NOT EXISTS pos_code ON position FIELDS code UNIQUE;
+
+DEFINE TABLE employee SCHEMAFULL;
+DEFINE FIELD employee_number ON employee TYPE string PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD user ON employee TYPE option<record<user>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD first_name ON employee TYPE string PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD last_name ON employee TYPE string PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD department ON employee TYPE option<record<department>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD position ON employee TYPE option<record<position>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD cost_center ON employee TYPE option<record<cost_center>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD manager ON employee TYPE option<record<employee>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD employment_status ON employee TYPE string DEFAULT 'active' PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD employment_type ON employee TYPE string DEFAULT 'hourly' PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD hire_date ON employee TYPE option<datetime|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD termination_date ON employee TYPE option<datetime|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD rehire_date ON employee TYPE option<datetime|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD is_rehire ON employee TYPE bool DEFAULT false PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD emergency_contact ON employee TYPE any PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD notes ON employee TYPE option<string|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD deleted_at ON employee TYPE option<datetime|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE INDEX IF NOT EXISTS emp_number ON employee FIELDS employee_number UNIQUE;
+DEFINE INDEX IF NOT EXISTS emp_user ON employee FIELDS user;
+DEFINE INDEX IF NOT EXISTS emp_status ON employee FIELDS employment_status;
+
+DEFINE TABLE employee_assignment_history SCHEMAFULL;
+DEFINE FIELD employee ON employee_assignment_history TYPE record<employee> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD department ON employee_assignment_history TYPE option<record<department>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD position ON employee_assignment_history TYPE option<record<position>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD cost_center ON employee_assignment_history TYPE option<record<cost_center>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD manager ON employee_assignment_history TYPE option<record<employee>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD effective_from ON employee_assignment_history TYPE datetime PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD effective_to ON employee_assignment_history TYPE option<datetime|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD changed_by ON employee_assignment_history TYPE option<record<user>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD created_at ON employee_assignment_history TYPE datetime DEFAULT time::now() PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD reason ON employee_assignment_history TYPE option<string|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE INDEX IF NOT EXISTS eah_employee ON employee_assignment_history FIELDS employee;
+
+DEFINE TABLE labor_policy SCHEMAFULL;
+DEFINE FIELD code ON labor_policy TYPE string PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD name ON labor_policy TYPE string PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD policy_type ON labor_policy TYPE string PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD config ON labor_policy TYPE any DEFAULT {} PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD is_active ON labor_policy TYPE bool DEFAULT true PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD deleted_at ON labor_policy TYPE option<datetime|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE INDEX IF NOT EXISTS lp_code ON labor_policy FIELDS code UNIQUE;
+
+DEFINE TABLE employee_pay_profile SCHEMAFULL;
+DEFINE FIELD employee ON employee_pay_profile TYPE record<employee> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD effective_from ON employee_pay_profile TYPE datetime PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD effective_to ON employee_pay_profile TYPE option<datetime|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD pay_type ON employee_pay_profile TYPE string PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD base_rate ON employee_pay_profile TYPE float DEFAULT 0 PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD currency ON employee_pay_profile TYPE string DEFAULT 'USD' PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD overtime_policy ON employee_pay_profile TYPE option<record<labor_policy>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD holiday_policy ON employee_pay_profile TYPE option<record<labor_policy>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD night_policy ON employee_pay_profile TYPE option<record<labor_policy>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD weekend_policy ON employee_pay_profile TYPE option<record<labor_policy>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD maximum_hours_per_day ON employee_pay_profile TYPE option<float|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD maximum_hours_per_week ON employee_pay_profile TYPE option<float|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD break_rules ON employee_pay_profile TYPE any DEFAULT [] PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD created_by ON employee_pay_profile TYPE option<record<user>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD created_at ON employee_pay_profile TYPE datetime DEFAULT time::now() PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD notes ON employee_pay_profile TYPE option<string|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE INDEX IF NOT EXISTS epp_employee_dates ON employee_pay_profile FIELDS employee, effective_from;
+
+DEFINE TABLE labor_pay_rule SCHEMAFULL;
+DEFINE FIELD name ON labor_pay_rule TYPE string PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD code ON labor_pay_rule TYPE string PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD priority ON labor_pay_rule TYPE int DEFAULT 100 PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD is_active ON labor_pay_rule TYPE bool DEFAULT true PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD deleted_at ON labor_pay_rule TYPE option<datetime|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD conditions ON labor_pay_rule TYPE any DEFAULT {} PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD effects ON labor_pay_rule TYPE any DEFAULT [] PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD stacking_mode ON labor_pay_rule TYPE string DEFAULT 'allow' PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD exclusive ON labor_pay_rule TYPE bool DEFAULT false PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE INDEX IF NOT EXISTS lpr_active_priority ON labor_pay_rule FIELDS is_active, priority;
+DEFINE INDEX IF NOT EXISTS lpr_code ON labor_pay_rule FIELDS code UNIQUE;

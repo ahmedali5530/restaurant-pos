@@ -12,6 +12,7 @@
     "tipDist": "Распр. чаевых",
     "settings": "Настройки",
     "clock": "Учёт времени",
+    "hr": "Кадры",
     "accounts": "Accounts"
   },
   "modules": {
@@ -27,7 +28,8 @@
     "Tips": "Распределение чаевых",
     "Inventory": "Склад",
     "Settings": "Настройки",
-    "Accounts": "Accounts"
+    "Accounts": "Accounts",
+    "HR": "Управление персоналом"
   },
   "authenticateToAccess": "Авторизуйтесь для доступа к {{module}}"
 }

@@ -16,7 +16,8 @@ import { toast } from "sonner";
 import { getUserModules } from "@/lib/access.rules.ts";
 import { UserRole } from "@/api/model/user_role.ts";
 import { Input } from "@/components/common/input/input.tsx";
-import { nowSurrealDateTime } from "@/lib/datetime.ts";
+import { clockIn as laborClockIn } from "@/lib/labor-engine/attendance/attendance.service.ts";
+import { ensureEmployeeForUser } from "@/lib/labor-engine/employee.resolver.ts";
 import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n.ts";
 
@@ -129,11 +130,12 @@ export const Login = () => {
     if(!pendingUser) return;
 
     try {
-      const now = nowSurrealDateTime();
-      await db.create(Tables.time_entries, {
-        clock_in: now,
-        user: (pendingUser.id),
-        platform: 'web'
+      const employee = await ensureEmployeeForUser(db, pendingUser);
+      await laborClockIn(db, {
+        user: pendingUser,
+        employeeId: employee.id,
+        platform: 'web',
+        shiftTemplateId: pendingUser.user_shift?.id,
       });
 
       toast.success(i18n.t('auth:clockIn.success'));

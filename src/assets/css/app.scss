@@ -326,6 +326,9 @@ h1, h2, h3, h4, h5, h6, .title, .card-title, th{
   border-neutral-900 disabled:bg-neutral-100 read-only:bg-neutral-100 focus:outline-none
   h-[40px] w-full;
   transition: all 100ms linear;
+  &[type=file]{
+    @apply py-1;
+  }
   &:focus {
     //box-shadow: inset 2px 2px 0 0 #0095ff, inset -2px -2px 0 0 #0095ff;
   }

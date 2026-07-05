@@ -17,7 +17,7 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
   },
   "Reports": {
     label: "Reports",
-    children: ['Reports', "Delivery Density", "Cash closing", "Sales dashboard", "Inventory dashboard", "Sales Hourly Labour", "Sales Hourly Labour Weekly", "Server Sales", "Sales Summary", 'Sales Summary 2', 'Sales Weekly', 'Tips', 'Advanced Sales', 'Discount', 'Tax', 'Coupon', 'Voids', 'Merge Orders', 'Split Orders', 'Order Life Cycle', 'Expense', 'Activity', 'Product Mix Weekly', 'Product Mix Summary', 'Products Hourly', 'Current Inventory', 'Detailed Inventory', 'Purchase', 'Purchase Return', 'Issue', 'Issue Return', 'Waste', 'Consumption', 'Sale vs Inventory', 'Kitchen Reconciliation', 'Production Report', 'Buffet Report', 'AI Report'] as string[]
+    children: ['Reports', "Delivery Density", "Cash closing", "Sales dashboard", "Inventory dashboard", "Sales Hourly Labour", "Sales Hourly Labour Weekly", "Server Sales", "Sales Summary", 'Sales Summary 2', 'Sales Weekly', 'Tips', 'Advanced Sales', 'Discount', 'Tax', 'Coupon', 'Voids', 'Merge Orders', 'Split Orders', 'Order Life Cycle', 'Expense', 'Activity', 'Product Mix Weekly', 'Product Mix Summary', 'Products Hourly', 'Current Inventory', 'Detailed Inventory', 'Purchase', 'Purchase Return', 'Issue', 'Issue Return', 'Waste', 'Consumption', 'Sale vs Inventory', 'Kitchen Reconciliation', 'Production Report', 'Buffet Report', 'AI Report', 'Labor Dashboard', 'Daily Labor Cost', 'Weekly Labor Cost', 'Monthly Labor Cost', 'Employee Labor Cost', 'Department Labor Cost', 'Cost Center Labor Cost', 'Average Hourly Cost', 'Labor Percent', 'Sales Per Labor Hour', 'Revenue Per Employee', 'Overtime Report', 'Attendance Report', 'Late Arrival Report', 'Absence Report', 'Leave Report', 'Holiday Cost Report', 'Scheduled vs Actual', 'Manager Approval Report', 'Top Labor Cost Employees', 'Top Overtime Employees', 'Payroll Summary', 'Payroll Details', 'Labor Trend', 'Labor Forecast Dataset'] as string[]
   },
   "Closing": {
     label: "Closing",
@@ -50,6 +50,28 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
   'Inventory': {
     label: 'Inventory',
     children: ['Inventory', 'Current Inventory', 'Items', 'Suppliers', 'Item Categories', 'Stores', 'Item Groups', 'Purchase Orders', 'Purchases', 'Purchase Returns', 'Issues', 'Issue Returns', 'Wastes', 'Stock Transfers', 'Kitchen Reconciliation', 'Production Recipes', 'Production', 'Production History', 'Buffet Menus', 'Buffet Sessions'] as string[]
+  },
+  'HR': {
+    label: 'HR',
+    children: [
+      'HR',
+      'HR Dashboard',
+      'Employees',
+      'Departments',
+      'Positions',
+      'Cost Centers',
+      'Pay Profiles',
+      'Pay Rules',
+      'Scheduling',
+      'Attendance',
+      'Leave',
+      'Holidays',
+      'Payroll Periods',
+      'Payroll Runs',
+      'Adjustments',
+      'Documents',
+      'Performance',
+    ] as string[]
   },
   'Settings': {
     label: 'Settings',

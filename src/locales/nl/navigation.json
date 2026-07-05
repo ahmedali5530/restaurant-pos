@@ -12,6 +12,7 @@
     "tipDist": "Fooiverd.",
     "settings": "Instellingen",
     "clock": "Klok",
+    "hr": "HR",
     "accounts": "Accounts"
   },
   "modules": {
@@ -27,7 +28,8 @@
     "Tips": "Fooiverdeling",
     "Inventory": "Voorraad",
     "Settings": "Instellingen",
-    "Accounts": "Accounts"
+    "Accounts": "Accounts",
+    "HR": "Personeelszaken"
   },
   "authenticateToAccess": "Authenticeer om toegang te krijgen tot {{module}}"
 }

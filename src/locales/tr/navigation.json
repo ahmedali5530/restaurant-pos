@@ -12,6 +12,7 @@
     "tipDist": "Bahşiş Dağıt.",
     "settings": "Ayarlar",
     "clock": "Mesai",
+    "hr": "İK",
     "accounts": "Accounts"
   },
   "modules": {
@@ -27,7 +28,8 @@
     "Tips": "Bahşiş Dağıtımı",
     "Inventory": "Envanter",
     "Settings": "Ayarlar",
-    "Accounts": "Accounts"
+    "Accounts": "Accounts",
+    "HR": "İnsan Kaynakları"
   },
   "authenticateToAccess": "{{module}} modülüne erişmek için kimlik doğrulayın"
 }

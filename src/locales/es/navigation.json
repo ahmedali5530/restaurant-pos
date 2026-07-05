@@ -12,6 +12,7 @@
     "tipDist": "Dist. propinas",
     "settings": "Configuración",
     "clock": "Reloj",
+    "hr": "RR. HH.",
     "accounts": "Accounts"
   },
   "modules": {
@@ -27,7 +28,8 @@
     "Tips": "Distribución de propinas",
     "Inventory": "Inventario",
     "Settings": "Configuración",
-    "Accounts": "Accounts"
+    "Accounts": "Accounts",
+    "HR": "Recursos Humanos"
   },
   "authenticateToAccess": "Autentíquese para acceder a {{module}}"
 }

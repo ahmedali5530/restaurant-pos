@@ -35,6 +35,17 @@ import {getActiveSessions, getCurrentSessionServerSales} from "@/api/reports/ope
 import {comparePeriods, getTimeSeries, type TimeSeriesMetric} from "@/api/reports/time-series.ts";
 import {forecastFromPoints, forecastInventoryConsumption} from "@/lib/ai/forecast.ts";
 import {type AiChartSpec, validateChartSpec, dedupeCharts} from "@/lib/ai/charts.ts";
+import {
+  getAttendanceReport,
+  getDailyLaborCost,
+  getLaborPercent,
+  getLaborTrend,
+  getOvertimeReport,
+  getPayrollSummary,
+  getScheduledVsActual,
+} from "@/api/reports/labor/facade.ts";
+import {getLaborDashboardSnapshot} from "@/api/reports/labor/dashboard.ts";
+import {getAiLaborDatasets} from "@/api/reports/labor/ai-datasets.ts";
 
 const hasDateValue = (value: unknown) => {
   if (value === undefined || value === null) {
@@ -306,6 +317,39 @@ export const executeAiReportTool = async (
       return listInventoryItems(db, {
         search: args.search ? String(args.search) : undefined,
         limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "get_labor_dashboard_snapshot":
+      return getLaborDashboardSnapshot(db);
+
+    case "get_daily_labor_cost":
+      return getDailyLaborCost(db, parseDateRangeWithPhrase(args));
+
+    case "get_labor_percent":
+      return getLaborPercent(db, parseDateRangeWithPhrase(args));
+
+    case "get_overtime_report": {
+      const rows = await getOvertimeReport(db, parseDateRangeWithPhrase(args));
+      const limit = args.limit ? Number(args.limit) : 20;
+      return rows.slice(0, limit);
+    }
+
+    case "get_attendance_report":
+      return getAttendanceReport(db, parseDateRangeWithPhrase(args));
+
+    case "get_payroll_summary":
+      return getPayrollSummary(db, parseDateRangeWithPhrase(args));
+
+    case "get_scheduled_vs_actual":
+      return getScheduledVsActual(db, parseDateRangeWithPhrase(args));
+
+    case "get_labor_trend":
+      return getLaborTrend(db, parseDateRangeWithPhrase(args));
+
+    case "get_ai_labor_datasets":
+      return getAiLaborDatasets(db, {
+        ...parseDateRangeWithPhrase(args),
+        topLimit: args.topLimit ? Number(args.topLimit) : 10,
       });
 
     default:

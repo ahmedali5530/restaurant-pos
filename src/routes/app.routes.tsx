@@ -13,6 +13,7 @@ import {Reports} from "@/screens/reports/";
 import {Settings} from "@/screens/settings.tsx";
 import {Clock} from "@/screens/clock.tsx";
 import {Inventory} from "@/screens/inventory/";
+import {HrScreen} from "@/screens/hr/";
 import {TipDistributionScreen} from "@/screens/tip.distribution.tsx";
 import {ProtectedRoute} from "@/routes/protected-route.tsx";
 import {SuspenseOutlet} from "@/routes/suspense-outlet.tsx";
@@ -22,6 +23,7 @@ import {
   CLOSING,
   DELIVERY,
   INVENTORY,
+  HR,
   KITCHEN,
   ORDER_DISPLAY,
   LOGIN,
@@ -54,6 +56,12 @@ import {
   REPORTS_KITCHEN_RECONCILIATION,
   REPORTS_PRODUCTION,
   REPORTS_BUFFET,
+  REPORTS_LABOR_ATTENDANCE,
+  REPORTS_LABOR_DAILY_COST,
+  REPORTS_LABOR_DASHBOARD,
+  REPORTS_LABOR_OVERTIME,
+  REPORTS_LABOR_PAYROLL_SUMMARY,
+  REPORTS_LABOR_SCHEDULED_VS_ACTUAL,
   REPORTS_SALES_ADVANCED,
   REPORTS_SALES_DASHBOARD,
   REPORTS_SALES_HOURLY_LABOUR,
@@ -77,6 +85,12 @@ import {
   AiReport,
   AuditReport,
   BuffetReport,
+  LaborAttendanceReport,
+  LaborDailyCostReport,
+  LaborDashboardReport,
+  LaborOvertimeReport,
+  LaborPayrollSummaryReport,
+  LaborScheduledVsActualReport,
   CashClosingReport,
   ConsumptionReport,
   CouponReport,
@@ -131,6 +145,7 @@ export const AppRoutes = () => (
       <Route path={SETTINGS} element={<Settings/>}/>
       <Route path={CLOCK} element={<Clock/>}/>
       <Route path={INVENTORY} element={<Inventory/>}/>
+      <Route path={HR} element={<HrScreen/>}/>
       <Route path={TIP_DISTRIBUTION} element={<TipDistributionScreen/>}/>
       <Route path={ACCOUNTS} element={<AccountsScreen/>}/>
       <Route path={REPORTS} element={<Reports/>}/>
@@ -176,6 +191,12 @@ export const AppRoutes = () => (
         <Route path={REPORTS_KITCHEN_RECONCILIATION} element={<KitchenReconciliationReport/>}/>
         <Route path={REPORTS_PRODUCTION} element={<ProductionReport/>}/>
         <Route path={REPORTS_BUFFET} element={<BuffetReport/>}/>
+        <Route path={REPORTS_LABOR_DASHBOARD} element={<LaborDashboardReport/>}/>
+        <Route path={REPORTS_LABOR_DAILY_COST} element={<LaborDailyCostReport/>}/>
+        <Route path={REPORTS_LABOR_OVERTIME} element={<LaborOvertimeReport/>}/>
+        <Route path={REPORTS_LABOR_ATTENDANCE} element={<LaborAttendanceReport/>}/>
+        <Route path={REPORTS_LABOR_PAYROLL_SUMMARY} element={<LaborPayrollSummaryReport/>}/>
+        <Route path={REPORTS_LABOR_SCHEDULED_VS_ACTUAL} element={<LaborScheduledVsActualReport/>}/>
       </Route>
     </Route>
     <Route path="*" element={<NotFound/>}/>

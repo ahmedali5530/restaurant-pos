@@ -1,5 +1,6 @@
 import { DatePicker } from "antd";
 import { Dayjs } from "dayjs";
+import { antPickerPopupProps } from "@/components/common/antd/picker.shared.ts";
 
 const { RangePicker } = DatePicker;
 
@@ -55,7 +56,7 @@ export const DateRangePicker = ({
             nextValue[1],
           ], dateStrings as [string, string]);
         }}
-        getPopupContainer={(trigger) => trigger.parentElement}
+        {...antPickerPopupProps}
       />
       <input type="hidden" name={startName} value={startValue} required={required}/>
       <input type="hidden" name={endName} value={endValue} required={required}/>

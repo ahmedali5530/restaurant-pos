@@ -1,0 +1,73 @@
+-- Enterprise Labor & HR: payroll periods, runs, snapshots, adjustments, cost events
+
+DEFINE TABLE payroll_period SCHEMAFULL;
+DEFINE FIELD name ON payroll_period TYPE string PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD period_type ON payroll_period TYPE string DEFAULT 'weekly' PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD start_date ON payroll_period TYPE datetime PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD end_date ON payroll_period TYPE datetime PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD status ON payroll_period TYPE string DEFAULT 'open' PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD locked_at ON payroll_period TYPE option<datetime|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD locked_by ON payroll_period TYPE option<record<user>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD closed_at ON payroll_period TYPE option<datetime|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD paid_at ON payroll_period TYPE option<datetime|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE INDEX IF NOT EXISTS pp_dates ON payroll_period FIELDS start_date, end_date;
+
+DEFINE TABLE payroll_run SCHEMAFULL;
+DEFINE FIELD payroll_period ON payroll_run TYPE record<payroll_period> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD run_number ON payroll_run TYPE int DEFAULT 1 PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD status ON payroll_run TYPE string DEFAULT 'draft' PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD generated_at ON payroll_run TYPE option<datetime|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD generated_by ON payroll_run TYPE option<record<user>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD approved_at ON payroll_run TYPE option<datetime|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD approved_by ON payroll_run TYPE option<record<user>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD notes ON payroll_run TYPE option<string|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE INDEX IF NOT EXISTS pr_period ON payroll_run FIELDS payroll_period;
+
+DEFINE TABLE payroll_snapshot SCHEMAFULL;
+DEFINE FIELD payroll_run ON payroll_snapshot TYPE record<payroll_run> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD employee ON payroll_snapshot TYPE record<employee> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD pay_profile_id ON payroll_snapshot TYPE option<record<employee_pay_profile>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD regular_hours ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD overtime_hours ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD double_time_hours ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD night_premium_hours ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD weekend_premium_hours ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD holiday_premium_hours ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD regular_pay ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD overtime_pay ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD premium_pay ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD bonuses ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD deductions ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD adjustments ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD tips ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD gross_pay ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD net_pay ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD rule_applications ON payroll_snapshot TYPE any DEFAULT [] PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD calculated_at ON payroll_snapshot TYPE datetime DEFAULT time::now() PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD calculation_version ON payroll_snapshot TYPE string DEFAULT '1.0.0' PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE INDEX IF NOT EXISTS ps_run ON payroll_snapshot FIELDS payroll_run;
+DEFINE INDEX IF NOT EXISTS ps_employee ON payroll_snapshot FIELDS employee;
+
+DEFINE TABLE labor_adjustment SCHEMAFULL;
+DEFINE FIELD employee ON labor_adjustment TYPE record<employee> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD payroll_period ON labor_adjustment TYPE option<record<payroll_period>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD type ON labor_adjustment TYPE string PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD amount ON labor_adjustment TYPE float PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD currency ON labor_adjustment TYPE string DEFAULT 'USD' PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD description ON labor_adjustment TYPE option<string|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD effective_date ON labor_adjustment TYPE datetime PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD status ON labor_adjustment TYPE string DEFAULT 'pending' PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD approved_by ON labor_adjustment TYPE option<record<user>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD created_by ON labor_adjustment TYPE option<record<user>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD created_at ON labor_adjustment TYPE datetime DEFAULT time::now() PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE INDEX IF NOT EXISTS la_employee ON labor_adjustment FIELDS employee;
+
+DEFINE TABLE labor_cost_event SCHEMAFULL;
+DEFINE FIELD event_type ON labor_cost_event TYPE string PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD payroll_run ON labor_cost_event TYPE option<record<payroll_run>|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD period_start ON labor_cost_event TYPE option<datetime|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD period_end ON labor_cost_event TYPE option<datetime|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD payload ON labor_cost_event TYPE any DEFAULT {} PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD emitted_at ON labor_cost_event TYPE datetime DEFAULT time::now() PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE FIELD consumed_at ON labor_cost_event TYPE option<datetime|null> PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
+DEFINE INDEX IF NOT EXISTS lce_type ON labor_cost_event FIELDS event_type;

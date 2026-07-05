@@ -12,6 +12,7 @@
     "tipDist": "Trinkgeld",
     "settings": "Einstellungen",
     "clock": "Zeiterfassung",
+    "hr": "Personal",
     "accounts": "Accounts"
   },
   "modules": {
@@ -27,7 +28,8 @@
     "Tips": "Trinkgeldverteilung",
     "Inventory": "Lager",
     "Settings": "Einstellungen",
-    "Accounts": "Accounts"
+    "Accounts": "Accounts",
+    "HR": "Personalwesen"
   },
   "authenticateToAccess": "Authentifizierung erforderlich für {{module}}"
 }

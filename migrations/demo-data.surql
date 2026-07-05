@@ -179,7 +179,6 @@ DEFINE FIELD login ON user TYPE string PERMISSIONS FULL;
 DEFINE FIELD login_method ON user TYPE none | string | null DEFAULT pin PERMISSIONS FULL;
 DEFINE FIELD password ON user TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD roles ON user TYPE array<string> PERMISSIONS FULL;
-DEFINE FIELD roles.* ON user TYPE string PERMISSIONS FULL;
 DEFINE FIELD user_role ON user TYPE none | record<user_role> | null PERMISSIONS FULL;
 DEFINE FIELD user_shift ON user TYPE none | record<shift> | null PERMISSIONS FULL;
 
@@ -200,7 +199,6 @@ DEFINE TABLE user_role TYPE ANY SCHEMALESS PERMISSIONS NONE;
 DEFINE FIELD deleted_at ON user_role TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD name ON user_role TYPE string PERMISSIONS FULL;
 DEFINE FIELD roles ON user_role TYPE array<string> PERMISSIONS FULL;
-DEFINE FIELD roles.* ON user_role TYPE string PERMISSIONS FULL;
 
 
 

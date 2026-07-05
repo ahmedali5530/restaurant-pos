@@ -120,3 +120,21 @@ export const ActivityReport = lazy(() =>
 export const AiReport = lazy(() =>
   import('@/screens/reports/ai.report.tsx').then(m => ({default: m.AiReport}))
 );
+export const LaborDashboardReport = lazy(() =>
+  import('@/screens/reports/labor.dashboard.report.tsx').then(m => ({default: m.LaborDashboardReport}))
+);
+export const LaborDailyCostReport = lazy(() =>
+  import('@/screens/reports/labor.daily.cost.report.tsx').then(m => ({default: m.LaborDailyCostReport}))
+);
+export const LaborOvertimeReport = lazy(() =>
+  import('@/screens/reports/labor.overtime.report.tsx').then(m => ({default: m.LaborOvertimeReport}))
+);
+export const LaborAttendanceReport = lazy(() =>
+  import('@/screens/reports/labor.attendance.report.tsx').then(m => ({default: m.LaborAttendanceReport}))
+);
+export const LaborPayrollSummaryReport = lazy(() =>
+  import('@/screens/reports/labor.payroll.summary.report.tsx').then(m => ({default: m.LaborPayrollSummaryReport}))
+);
+export const LaborScheduledVsActualReport = lazy(() =>
+  import('@/screens/reports/labor.scheduled.vs.actual.report.tsx').then(m => ({default: m.LaborScheduledVsActualReport}))
+);

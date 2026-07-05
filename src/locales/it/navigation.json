@@ -12,6 +12,7 @@
     "tipDist": "Distrib. mance",
     "settings": "Impostazioni",
     "clock": "Timbratura",
+    "hr": "HR",
     "accounts": "Accounts"
   },
   "modules": {
@@ -27,7 +28,8 @@
     "Tips": "Distribuzione mance",
     "Inventory": "Magazzino",
     "Settings": "Impostazioni",
-    "Accounts": "Accounts"
+    "Accounts": "Accounts",
+    "HR": "Risorse umane"
   },
   "authenticateToAccess": "Autenticati per accedere a {{module}}"
 }

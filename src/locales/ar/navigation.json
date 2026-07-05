@@ -12,6 +12,7 @@
     "tipDist": "توزيع الإكراميات",
     "settings": "الإعدادات",
     "clock": "الساعة",
+    "hr": "الموارد البشرية",
     "accounts": "Accounts"
   },
   "modules": {
@@ -27,7 +28,8 @@
     "Tips": "توزيع الإكراميات",
     "Inventory": "المخزون",
     "Settings": "الإعدادات",
-    "Accounts": "Accounts"
+    "Accounts": "Accounts",
+    "HR": "الموارد البشرية"
   },
   "authenticateToAccess": "يُرجى المصادقة للوصول إلى {{module}}"
 }

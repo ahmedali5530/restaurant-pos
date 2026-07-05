@@ -44,6 +44,12 @@ import {OrderLifecycleFilter} from "@/components/reports/filters/order.lifecycle
 import {ExpenseFilter} from "@/components/reports/filters/expense.filter.tsx";
 import {ActivityFilter} from "@/components/reports/filters/activity.filter.tsx";
 import {AiReportFilter} from "@/components/reports/filters/ai.report.filter.tsx";
+import {LaborDashboardFilter} from "@/components/reports/filters/labor.dashboard.filter.tsx";
+import {LaborDailyCostFilter} from "@/components/reports/filters/labor.daily.cost.filter.tsx";
+import {LaborOvertimeFilter} from "@/components/reports/filters/labor.overtime.filter.tsx";
+import {LaborAttendanceFilter} from "@/components/reports/filters/labor.attendance.filter.tsx";
+import {LaborPayrollSummaryFilter} from "@/components/reports/filters/labor.payroll.summary.filter.tsx";
+import {LaborScheduledVsActualFilter} from "@/components/reports/filters/labor.scheduled.vs.actual.filter.tsx";
 
 type ReportEntry = {
   filter: ReactNode;
@@ -89,6 +95,12 @@ const REPORT_PERMISSION_MODULES: Record<string, string> = {
   kitchenReconciliation: 'Kitchen Reconciliation',
   productionReport: 'Production Report',
   buffetReport: 'Buffet Report',
+  laborDashboard: 'Labor Dashboard',
+  dailyLaborCost: 'Daily Labor Cost',
+  overtimeReport: 'Overtime Report',
+  attendanceReport: 'Attendance Report',
+  payrollSummary: 'Payroll Summary',
+  scheduledVsActual: 'Scheduled vs Actual',
 };
 
 const buildReportEntries = (
@@ -158,6 +170,14 @@ export const Reports = () => {
         { reportKey: 'kitchenReconciliation', filter: <KitchenReconciliationFilter /> },
         { reportKey: 'productionReport', filter: <ProductionReportFilter /> },
         { reportKey: 'buffetReport', filter: <BuffetReportFilter /> },
+      ]),
+      [t('categories.labor')]: buildReportEntries(t, [
+        { reportKey: 'laborDashboard', filter: <LaborDashboardFilter /> },
+        { reportKey: 'dailyLaborCost', filter: <LaborDailyCostFilter /> },
+        { reportKey: 'overtimeReport', filter: <LaborOvertimeFilter /> },
+        { reportKey: 'attendanceReport', filter: <LaborAttendanceFilter /> },
+        { reportKey: 'payrollSummary', filter: <LaborPayrollSummaryFilter /> },
+        { reportKey: 'scheduledVsActual', filter: <LaborScheduledVsActualFilter /> },
       ]),
     };
   }, [t]);

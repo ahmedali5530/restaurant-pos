@@ -13,7 +13,8 @@
     "tipDist": "Tip Dist.",
     "accounts": "Accounts",
     "settings": "Settings",
-    "clock": "Clock"
+    "clock": "Clock",
+    "hr": "HR"
   },
   "modules": {
     "Menu": "Menu",
@@ -29,7 +30,8 @@
     "Tips": "Tip Distribution",
     "Inventory": "Inventory",
     "Accounts": "Accounts",
-    "Settings": "Settings"
+    "Settings": "Settings",
+    "HR": "Human Resources"
   },
   "authenticateToAccess": "Authenticate to access {{module}}"
 }

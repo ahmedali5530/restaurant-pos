@@ -12,6 +12,7 @@
     "tipDist": "Répart. pourb.",
     "settings": "Paramètres",
     "clock": "Pointage",
+    "hr": "RH",
     "accounts": "Accounts"
   },
   "modules": {
@@ -27,7 +28,8 @@
     "Tips": "Répartition des pourboires",
     "Inventory": "Inventaire",
     "Settings": "Paramètres",
-    "Accounts": "Accounts"
+    "Accounts": "Accounts",
+    "HR": "Ressources humaines"
   },
   "authenticateToAccess": "Authentifiez-vous pour accéder à {{module}}"
 }

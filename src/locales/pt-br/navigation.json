@@ -12,6 +12,7 @@
     "tipDist": "Dist. Gorjetas",
     "settings": "Configurações",
     "clock": "Ponto",
+    "hr": "RH",
     "accounts": "Accounts"
   },
   "modules": {
@@ -27,7 +28,8 @@
     "Tips": "Distribuição de Gorjetas",
     "Inventory": "Estoque",
     "Settings": "Configurações",
-    "Accounts": "Accounts"
+    "Accounts": "Accounts",
+    "HR": "Recursos Humanos"
   },
   "authenticateToAccess": "Autentique-se para acessar {{module}}"
 }

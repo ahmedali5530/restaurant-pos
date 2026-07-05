@@ -4,6 +4,7 @@ import type {AiChartSpec} from "@/lib/ai/charts.ts";
 import {dedupeCharts} from "@/lib/ai/charts.ts";
 import {buildAutoChartsFromToolResults} from "@/lib/ai/auto-charts.ts";
 import type {AiReportFormat} from "@/lib/ai.report.storage.ts";
+import {isLocalAiReportCompactMode} from "@/lib/ai/config.ts";
 import {isOrderListByStatusPrompt, resolveOrderListQueryFromPrompt} from "@/lib/ai/order-query.ts";
 import {isUnsoldProductsPrompt, resolveUnsoldProductsDateRange} from "@/lib/ai/product-query.ts";
 import {isCurrentSessionSalesPrompt} from "@/lib/ai/session-query.ts";
@@ -13,11 +14,11 @@ import {getTips} from "@/api/reports/sales/tips.ts";
 import {getUnsoldProducts} from "@/api/reports/sales/products.ts";
 import {getAiReportSystemPrompt} from "@/lib/ai/schema.ts";
 import {executeAiReportTool} from "@/lib/ai/tools/executor.ts";
-import {AI_REPORT_TOOLS} from "@/lib/ai/tools/definitions.ts";
-import {filterToolsByPermissions} from "@/lib/ai/tools/permissions.ts";
+import {selectToolsForPrompt} from "@/lib/ai/tools/select-tools.ts";
 import {callOpenAIChat, type OpenAIChatMessage} from "@/lib/openai.service.ts";
 
 const MAX_ITERATIONS = 10;
+const COMPACT_HISTORY_TURNS = 2;
 
 export interface AiReportAgentResult {
   answer: string;
@@ -32,6 +33,24 @@ export interface AiReportAgentOptions {
   onToolStart?: (toolName: string) => void;
 }
 
+const buildAgentMessages = (
+  format: AiReportFormat,
+  compact: boolean,
+  domains: ReturnType<typeof selectToolsForPrompt>["domains"],
+  conversationHistory: AiReportAgentOptions["conversationHistory"],
+): OpenAIChatMessage[] => {
+  const history = compact
+    ? (conversationHistory ?? []).slice(-COMPACT_HISTORY_TURNS)
+    : (conversationHistory ?? []);
+
+  return [
+    {role: "system", content: getAiReportSystemPrompt(format, domains, compact)},
+    ...history.flatMap(entry => [
+      {role: entry.role, content: entry.content} as OpenAIChatMessage,
+    ]),
+  ];
+};
+
 export const runAiReportAgent = async (
   db: DbClient,
   prompt: string,
@@ -43,16 +62,15 @@ export const runAiReportAgent = async (
   }
 
   const format = options.format ?? "table";
-  const tools = options.allowedModules?.length
-    ? filterToolsByPermissions(AI_REPORT_TOOLS, options.allowedModules)
-    : AI_REPORT_TOOLS;
+  const compact = isLocalAiReportCompactMode();
+  const {tools, domains} = selectToolsForPrompt(
+    trimmedPrompt,
+    format,
+    options.allowedModules ?? [],
+    compact,
+  );
 
-  const messages: OpenAIChatMessage[] = [
-    {role: "system", content: getAiReportSystemPrompt(format)},
-    ...(options.conversationHistory ?? []).flatMap(entry => [
-      {role: entry.role, content: entry.content} as OpenAIChatMessage,
-    ]),
-  ];
+  const messages = buildAgentMessages(format, compact, domains, options.conversationHistory);
 
   const toolsUsed: AiReportAgentResult["toolsUsed"] = [];
   const charts: AiChartSpec[] = [];

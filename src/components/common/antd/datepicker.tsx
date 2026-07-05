@@ -1,5 +1,6 @@
 import { DatePicker as AntDatePicker } from "antd";
 import { DateValue } from "react-aria-components";
+import { antPickerPopupProps } from "@/components/common/antd/picker.shared.ts";
 import { dayjsToCalendarDate, dateValueToDayjs } from "@/utils/date.ts";
 
 interface Props {
@@ -38,7 +39,7 @@ export const DatePicker = ({
         onChange={(nextValue) => {
           onChange?.(dayjsToCalendarDate(nextValue));
         }}
-        getPopupContainer={(trigger) => trigger.parentElement}
+        {...antPickerPopupProps}
       />
       {name && (
         <input

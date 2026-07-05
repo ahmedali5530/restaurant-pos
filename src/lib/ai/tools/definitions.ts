@@ -483,4 +483,85 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "get_labor_dashboard_snapshot",
+      description: "Get real-time labor dashboard KPIs: clocked-in count, labor cost today, projected EOD cost, labor %, scheduled/missing/late/on-break counts.",
+      parameters: {type: "object", properties: {}},
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_daily_labor_cost",
+      description: "Get day-by-day labor cost breakdown for a date range.",
+      parameters: {type: "object", properties: dateRangeProps},
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_labor_percent",
+      description: "Get labor cost as a percentage of net sales for a date range.",
+      parameters: {type: "object", properties: dateRangeProps},
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_overtime_report",
+      description: "Get overtime hours and pay by employee for a date range.",
+      parameters: {
+        type: "object",
+        properties: {...dateRangeProps, limit: {type: "number", default: 20}},
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_attendance_report",
+      description: "Get attendance summary: scheduled vs worked, late, absent, on-time counts by employee.",
+      parameters: {type: "object", properties: dateRangeProps},
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_payroll_summary",
+      description: "Get payroll summary from payroll snapshots for a date range.",
+      parameters: {type: "object", properties: dateRangeProps},
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_scheduled_vs_actual",
+      description: "Compare scheduled vs actual labor hours and cost by employee and day.",
+      parameters: {type: "object", properties: dateRangeProps},
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_labor_trend",
+      description: "Get labor cost trend over time with optional labor percent.",
+      parameters: {type: "object", properties: dateRangeProps},
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_ai_labor_datasets",
+      description: "Bundle key labor metrics for AI analysis: dashboard, daily cost, labor %, overtime, attendance, payroll, schedule variance, trend, top cost employees.",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateRangeProps,
+          topLimit: {type: "number", default: 10},
+        },
+      },
+    },
+  },
 ];
