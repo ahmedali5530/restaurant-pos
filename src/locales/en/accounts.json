@@ -38,7 +38,8 @@
     "journalEntry": "Journal entry",
     "importCsv": "Import CSV",
     "load": "Load",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "view": "View"
   },
   "status": {
     "active": "Active",
@@ -81,6 +82,10 @@
     "balance": "Balance",
     "total": "Total",
     "noLedgerData": "No ledger data for selected filters.",
+    "ledgerEntries": "Ledger entries",
+    "ledgerEntriesFor": "{{account}} — {{from}} to {{to}}",
+    "noLedgerEntries": "No journal entries for this account in the selected date range.",
+    "viewEntry": "View entry",
     "totalDebit": "Total Debit",
     "totalCredit": "Total Credit",
     "closingDebit": "Closing Debit",

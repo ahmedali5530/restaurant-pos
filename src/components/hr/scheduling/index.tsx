@@ -337,16 +337,16 @@ export const HrScheduling = () => {
   return (
     <div className="p-2 space-y-4">
       <div className="flex flex-wrap gap-2 px-2">
-        <Button variant={subTab === "schedules" ? "primary" : "neutral"} onClick={() => setSubTab("schedules")}>
+        <Button variant="primary" active={subTab === "schedules"} onClick={() => setSubTab("schedules")}>
           {t("tabs.scheduling")}
         </Button>
-        <Button variant={subTab === "shifts" ? "primary" : "neutral"} onClick={() => setSubTab("shifts")}>
+        <Button variant="primary" active={subTab === "shifts"} onClick={() => setSubTab("shifts")}>
           {t("scheduling.assignedShifts")}
         </Button>
-        <Button variant={subTab === "templates" ? "primary" : "neutral"} onClick={() => setSubTab("templates")}>
+        <Button variant="primary" active={subTab === "templates"} onClick={() => setSubTab("templates")}>
           {t("scheduling.templates")}
         </Button>
-        <Button variant={subTab === "swaps" ? "primary" : "neutral"} onClick={() => setSubTab("swaps")}>
+        <Button variant="primary" active={subTab === "swaps"} onClick={() => setSubTab("swaps")}>
           {t("scheduling.swapRequests")}
         </Button>
       </div>
@@ -360,7 +360,7 @@ export const HrScheduling = () => {
             <Button key="schedule-create" variant="primary" onClick={() => { setSchedule(undefined); setScheduleModal(true); }} icon={faPlus}>
               {t("buttons.schedule")}
             </Button>,
-            <Button key="generate-shifts" variant="neutral" onClick={() => setGenerateModal(true)}>
+            <Button key="generate-shifts" variant="warning" onClick={() => setGenerateModal(true)}>
               {t("scheduling.generateFromTemplate")}
             </Button>,
           ]}

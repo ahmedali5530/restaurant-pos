@@ -30,6 +30,27 @@ export const computeRunningBalances = <T extends {debit?: number; credit?: numbe
   });
 };
 
+export const sortJournalLinesByEntry = <T extends {
+  id?: string;
+  entry?: {date?: string | Date; entry_number?: number};
+}>(rows: T[]): T[] => {
+  return [...rows].sort((a, b) => {
+    const dateA = a.entry?.date ? new Date(a.entry.date).getTime() : 0;
+    const dateB = b.entry?.date ? new Date(b.entry.date).getTime() : 0;
+    if (dateA !== dateB) {
+      return dateA - dateB;
+    }
+
+    const numA = Number(a.entry?.entry_number ?? 0);
+    const numB = Number(b.entry?.entry_number ?? 0);
+    if (numA !== numB) {
+      return numA - numB;
+    }
+
+    return String(a.id ?? "").localeCompare(String(b.id ?? ""));
+  });
+};
+
 export const toAccountBalance = (
   debit: number,
   credit: number,

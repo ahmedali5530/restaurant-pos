@@ -38,7 +38,8 @@
     "journalEntry": "Journal entry",
     "importCsv": "Import CSV",
     "load": "Load",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "view": "View"
   },
   "status": {
     "active": "Active",
@@ -122,7 +123,11 @@
     "balanced": "Balanced",
     "notBalanced": "Not balanced",
     "debitTotal": "Debit total",
-    "creditTotal": "Credit total"
+    "creditTotal": "Credit total",
+    "ledgerEntries": "Ledger entries",
+    "ledgerEntriesFor": "{{account}} — {{from}} to {{to}}",
+    "noLedgerEntries": "No journal entries for this account in the selected date range.",
+    "viewEntry": "View entry"
   },
   "messages": {
     "needTwoAccounts": "Add at least two active accounts before posting journal entries.",

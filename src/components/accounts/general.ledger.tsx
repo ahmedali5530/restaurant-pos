@@ -1,6 +1,8 @@
 import {useEffect, useMemo, useState} from "react";
 import {DateTime} from "luxon";
 import {Controller, useForm} from "react-hook-form";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faEye} from "@fortawesome/free-solid-svg-icons";
 import {useTranslation} from "react-i18next";
 import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
@@ -13,6 +15,7 @@ import {formatMoney} from "@/components/accounts/account.constants.ts";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Account} from "@/api/model/account.ts";
 import {toQueryDateTime} from "@/components/accounts/reports.utils.ts";
+import {LedgerEntriesModal} from "@/components/accounts/ledger.entries.modal.tsx";
 
 interface LedgerRow {
   account: {
@@ -31,6 +34,8 @@ export const GeneralLedger = () => {
   const db = useDB();
   const [isLoading, setIsLoading] = useState(false);
   const [rows, setRows] = useState<LedgerRow[]>([]);
+  const [ledgerDetailOpen, setLedgerDetailOpen] = useState(false);
+  const [selectedLedger, setSelectedLedger] = useState<LedgerRow | null>(null);
   const {control, watch} = useForm({
     defaultValues: {
       account: null as {label: string; value: string} | null,
@@ -235,6 +240,7 @@ export const GeneralLedger = () => {
               <th className="text-right">{t('columns.debit')}</th>
               <th className="text-right">{t('columns.credit')}</th>
               <th className="text-right">{t('reports.balance')}</th>
+              <th>{t('columns.actions')}</th>
             </tr>
             </thead>
             <tbody>
@@ -245,11 +251,22 @@ export const GeneralLedger = () => {
                 <td className="text-right">{formatMoney(Number(row.total_debit || 0))}</td>
                 <td className="text-right">{formatMoney(Number(row.total_credit || 0))}</td>
                 <td className="text-right">{formatMoney(Number(row.opening_balance || 0) + Number(row.balance || 0))}</td>
+                <td>
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setSelectedLedger(row);
+                      setLedgerDetailOpen(true);
+                    }}
+                  >
+                    <FontAwesomeIcon icon={faEye}/>
+                  </Button>
+                </td>
               </tr>
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={5} className="text-center text-gray-500">{t('reports.noLedgerData')}</td>
+                <td colSpan={6} className="text-center text-gray-500">{t('reports.noLedgerData')}</td>
               </tr>
             )}
             </tbody>
@@ -260,11 +277,31 @@ export const GeneralLedger = () => {
               <td className="text-right">{formatMoney(totals.debit)}</td>
               <td className="text-right">{formatMoney(totals.credit)}</td>
               <td className="text-right">{formatMoney(totals.balance)}</td>
+              <td></td>
             </tr>
             </tfoot>
           </table>
         </div>
       )}
+
+      {ledgerDetailOpen && (
+        <LedgerEntriesModal
+          open={ledgerDetailOpen}
+          onClose={() => {
+            setLedgerDetailOpen(false);
+            setSelectedLedger(null);
+          }}
+          account={selectedLedger?.account ? {
+            id: selectedLedger.account.id?.toString(),
+            code: selectedLedger.account.code,
+            name: selectedLedger.account.name,
+          } : null}
+          dateFrom={filters.date_from}
+          dateTo={filters.date_to}
+          openingBalance={Number(selectedLedger?.opening_balance || 0)}
+        />
+      )}
+      
     </>
   );
 };
