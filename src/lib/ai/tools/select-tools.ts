@@ -12,7 +12,7 @@ import {
 } from "@/lib/ai/tools/categories.ts";
 import {filterToolsByPermissions} from "@/lib/ai/tools/permissions.ts";
 
-const SALES_KEYWORDS = /\b(sales|revenue|dishes?|dish|product|menu|server|servers|tips?|tip|voids?|discount|coupon|tax|day[\s-]?part|product mix|top selling|unsold|haven't sold|hasn't sold|dashboard|health overview|kpi)\b/i;
+const SALES_KEYWORDS = /\b(sales|revenue|dishes?|dish|product|menu|items|server|servers|tips?|tip|voids?|discount|coupon|tax|day[\s-]?part|product mix|top selling|unsold|haven't sold|hasn't sold|dashboard|health overview|kpi)\b/i;
 const INVENTORY_KEYWORDS = /\b(inventory|stock|reorder|consumption|waste|purchase|issue|kitchen reconciliation|sale vs consumption|below reorder)\b/i;
 const OPERATIONS_KEYWORDS = /\b(orders?|delivery|expense|activity log|audit|cash closing|closing|clocked in|clock[\s-]?in|active session)\b/i;
 const LABOR_KEYWORDS = /\b(labor|labour|payroll|overtime|attendance|scheduled|shift|employee|staff cost|labor cost|labor percent|labor %|workforce|hr)\b/i;
