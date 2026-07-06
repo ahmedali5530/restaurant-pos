@@ -5,15 +5,24 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Restaurant POS</title>
-  </head>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-GD3G5YDS2F"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    <script>
+      (function () {
+        var gaId = '%VITE_GA4_ID%';
+        if (!gaId) return;
 
-    gtag('config', 'G-GD3G5YDS2F');
-  </script>
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(gaId);
+        document.head.appendChild(script);
+
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        window.gtag = gtag;
+        gtag('js', new Date());
+        gtag('config', gaId);
+      })();
+    </script>
+  </head>
   <body class="bg-neutral-300">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
