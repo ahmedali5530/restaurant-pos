@@ -32,6 +32,8 @@
     "price": "Preço",
     "averagePrice": "Preço médio",
     "avgPrice": "Preço Médio",
+    "reorderLevel": "Nível de reabastecimento",
+    "reorderLevels": "Níveis de reabastecimento",
     "stores": "Depósitos",
     "suppliers": "Fornecedores",
     "actions": "Ações",
@@ -88,7 +90,8 @@
     "returnedQuantity": "Quantidade devolvida",
     "expiryDate": "Data de validade",
     "manufacturingDate": "Data de fabricação",
-    "storeInventory": "Depósito {{name}}"
+    "storeInventory": "Depósito {{name}}",
+    "reorderLevelHint": "Quantidade mínima opcional por depósito antes do alerta de reabastecimento"
   },
   "validation": {
     "required": "Este campo é obrigatório",
@@ -132,7 +135,8 @@
     "draft": "Rascunho",
     "approved": "Aprovado",
     "received": "Recebido",
-    "cancelled": "Cancelado"
+    "cancelled": "Cancelado",
+    "belowReorder": "Abaixo do nível de reabastecimento"
   },
   "upload": {
     "attachDocuments": "Documentos anexados"

@@ -32,6 +32,8 @@
     "price": "Prix",
     "averagePrice": "Prix moyen",
     "avgPrice": "Prix moy.",
+    "reorderLevel": "Niveau de réapprovisionnement",
+    "reorderLevels": "Niveaux de réapprovisionnement",
     "stores": "Magasins",
     "suppliers": "Fournisseurs",
     "actions": "Actions",
@@ -88,7 +90,8 @@
     "returnedQuantity": "Quantité retournée",
     "expiryDate": "Date d'expiration",
     "manufacturingDate": "Date de fabrication",
-    "storeInventory": "Magasin {{name}}"
+    "storeInventory": "Magasin {{name}}",
+    "reorderLevelHint": "Quantité minimale optionnelle par magasin avant alerte de réapprovisionnement"
   },
   "validation": {
     "required": "Ce champ est obligatoire",
@@ -132,7 +135,8 @@
     "draft": "Brouillon",
     "approved": "Approuvé",
     "received": "Reçu",
-    "cancelled": "Annulé"
+    "cancelled": "Annulé",
+    "belowReorder": "Sous le niveau de réapprovisionnement"
   },
   "upload": {
     "attachDocuments": "Documents joints"

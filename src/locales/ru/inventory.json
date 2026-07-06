@@ -32,6 +32,8 @@
     "price": "Цена",
     "averagePrice": "Средняя цена",
     "avgPrice": "Ср. цена",
+    "reorderLevel": "Уровень перезаказа",
+    "reorderLevels": "Уровни перезаказа",
     "stores": "Склады",
     "suppliers": "Поставщики",
     "actions": "Действия",
@@ -88,7 +90,8 @@
     "returnedQuantity": "Возвращённое количество",
     "expiryDate": "Срок годности",
     "manufacturingDate": "Дата производства",
-    "storeInventory": "Склад {{name}}"
+    "storeInventory": "Склад {{name}}",
+    "reorderLevelHint": "Необязательный минимальный запас для каждого склада"
   },
   "validation": {
     "required": "Обязательное поле",
@@ -132,7 +135,8 @@
     "draft": "Черновик",
     "approved": "Утверждено",
     "received": "Получено",
-    "cancelled": "Отменено"
+    "cancelled": "Отменено",
+    "belowReorder": "Ниже уровня перезаказа"
   },
   "upload": {
     "attachDocuments": "Прикреплённые документы"

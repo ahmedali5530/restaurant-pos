@@ -5,6 +5,7 @@ import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import { toLuxonDateTime } from "@/lib/datetime";
+import {getReorderLevelForStore, isBelowReorderLevel} from "@/utils/inventory.ts";
 
 const isDebitType = (type: string) =>
   type === "issue" || type === "return" || type === "waste" || type === "transfer_out"
@@ -135,14 +136,20 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
     return <span className="text-gray-400">...</span>;
   }
 
+  const reorderLevel = item ? getReorderLevelForStore(item, storeId) : 0;
+  const belowReorder = item ? isBelowReorderLevel(item, storeId, netQuantity) : false;
+
   let total = 0;
 
   return (
     <>
       <span
         onClick={() => setModal(true)}
-        className="underline cursor-pointer">
+        className={`underline cursor-pointer ${belowReorder ? 'text-danger-600 font-medium' : ''}`}>
         {netQuantity > 0 ? netQuantity : '-'} {item?.uom}
+        {reorderLevel > 0 && (
+          <span className="text-neutral-500 font-normal"> / {reorderLevel}</span>
+        )}
       </span>
 
       {modal && (

@@ -21,6 +21,18 @@ export const formatDateTimeForQuery = (dt: DateTime) => dt.toFormat(QUERY_DATE_T
 
 const getNow = () => DateTime.now().setZone(getAppTimezone());
 
+/** Human-readable anchor date for AI system prompts. */
+export const getBusinessDateContext = (): string => {
+  const now = getNow();
+  const dateFormat = import.meta.env.VITE_DATE_FORMAT as string;
+
+  return [
+    `Today is ${now.toFormat("cccc, MMMM d, yyyy")} (${now.toFormat(dateFormat)})`,
+    `current month is ${now.toFormat("MMMM yyyy")}`,
+    `current year is ${now.year}`,
+  ].join("; ");
+};
+
 /** Normalize a date string from AI or user input into the query parameter format. */
 export const normalizeQueryDate = (value: string): string => {
   const trimmed = value.trim();

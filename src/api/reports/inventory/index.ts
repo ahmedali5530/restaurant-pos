@@ -3,7 +3,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
 import {buildCreatedAtDateConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
-import {fetchStoreInventoryBreakdown} from "@/utils/inventory.ts";
+import {fetchStoreInventoryBreakdown, getReorderLevelForStore} from "@/utils/inventory.ts";
 import {safeNumber} from "@/lib/utils.ts";
 
 export type InventoryMovementType =
@@ -37,7 +37,7 @@ export const getCurrentInventory = async (
     id: unknown;
     name?: string;
     code?: string;
-    reorder_level?: number;
+    reorder_levels?: Record<string, number>;
     category?: {name?: string};
     unit?: string;
   }>(await db.query(itemsQuery));
@@ -65,7 +65,7 @@ export const getCurrentInventory = async (
           itemId,
           storeId,
         );
-        const reorderLevel = safeNumber(item.reorder_level);
+        const reorderLevel = getReorderLevelForStore(item, storeId);
         balances.push({
           itemId,
           itemName: item.name ?? "Unknown",
@@ -139,7 +139,7 @@ export const listInventoryItems = async (
 ) => {
   const limit = options.limit ?? 50;
   const query = `
-    SELECT id, name, code, reorder_level FROM ${Tables.inventory_items}
+    SELECT id, name, code, reorder_levels FROM ${Tables.inventory_items}
     ORDER BY name ASC
     LIMIT ${limit}
   `;
@@ -147,7 +147,7 @@ export const listInventoryItems = async (
     id: unknown;
     name?: string;
     code?: string;
-    reorder_level?: number;
+    reorder_levels?: Record<string, number>;
   }>(await db.query(query));
 
   const search = options.search?.toLowerCase();
@@ -156,7 +156,13 @@ export const listInventoryItems = async (
       id: recordToString(item.id),
       name: item.name ?? "Unknown",
       code: item.code,
-      reorderLevel: safeNumber(item.reorder_level) || undefined,
+      reorderLevels: item.reorder_levels && typeof item.reorder_levels === "object"
+        ? Object.fromEntries(
+          Object.entries(item.reorder_levels)
+            .map(([storeId, level]) => [storeId, safeNumber(level)])
+            .filter(([, level]) => level as number > 0),
+        )
+        : undefined,
     }))
     .filter(item => !search || item.name.toLowerCase().includes(search));
 };

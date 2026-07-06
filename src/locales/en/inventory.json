@@ -32,6 +32,8 @@
     "price": "Price",
     "averagePrice": "Average price",
     "avgPrice": "Avg Price",
+    "reorderLevel": "Reorder level",
+    "reorderLevels": "Reorder levels",
     "stores": "Stores",
     "suppliers": "Suppliers",
     "actions": "Actions",
@@ -88,7 +90,8 @@
     "returnedQuantity": "Returned quantity",
     "expiryDate": "Expiry date",
     "manufacturingDate": "Manufacturing date",
-    "storeInventory": "{{name}} store"
+    "storeInventory": "{{name}} store",
+    "reorderLevelHint": "Optional minimum quantity per store before reorder alert"
   },
   "validation": {
     "required": "This is required",
@@ -132,7 +135,8 @@
     "draft": "Draft",
     "approved": "Approved",
     "received": "Received",
-    "cancelled": "Cancelled"
+    "cancelled": "Cancelled",
+    "belowReorder": "Below reorder"
   },
   "upload": {
     "attachDocuments": "Attached documents"

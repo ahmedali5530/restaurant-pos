@@ -32,6 +32,8 @@
     "price": "Prezzo",
     "averagePrice": "Prezzo medio",
     "avgPrice": "Prezzo medio",
+    "reorderLevel": "Livello di riordino",
+    "reorderLevels": "Livelli di riordino",
     "stores": "Magazzini",
     "suppliers": "Fornitori",
     "actions": "Azioni",
@@ -88,7 +90,8 @@
     "returnedQuantity": "Quantità resa",
     "expiryDate": "Data scadenza",
     "manufacturingDate": "Data produzione",
-    "storeInventory": "Magazzino {{name}}"
+    "storeInventory": "Magazzino {{name}}",
+    "reorderLevelHint": "Quantità minima opzionale per magazzino prima dell'avviso di riordino"
   },
   "validation": {
     "required": "Campo obbligatorio",
@@ -132,7 +135,8 @@
     "draft": "Bozza",
     "approved": "Approvato",
     "received": "Ricevuto",
-    "cancelled": "Annullato"
+    "cancelled": "Annullato",
+    "belowReorder": "Sotto il livello di riordino"
   },
   "upload": {
     "attachDocuments": "Documenti allegati"

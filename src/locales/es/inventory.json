@@ -32,6 +32,8 @@
     "price": "Precio",
     "averagePrice": "Precio promedio",
     "avgPrice": "Precio prom.",
+    "reorderLevel": "Nivel de reorden",
+    "reorderLevels": "Niveles de reorden",
     "stores": "Almacenes",
     "suppliers": "Proveedores",
     "actions": "Acciones",
@@ -88,7 +90,8 @@
     "returnedQuantity": "Cantidad devuelta",
     "expiryDate": "Fecha de vencimiento",
     "manufacturingDate": "Fecha de fabricación",
-    "storeInventory": "Almacén {{name}}"
+    "storeInventory": "Almacén {{name}}",
+    "reorderLevelHint": "Cantidad mínima opcional por almacén antes de la alerta de reorden"
   },
   "validation": {
     "required": "Este campo es obligatorio",
@@ -132,7 +135,8 @@
     "draft": "Borrador",
     "approved": "Aprobado",
     "received": "Recibido",
-    "cancelled": "Cancelado"
+    "cancelled": "Cancelado",
+    "belowReorder": "Por debajo del nivel de reorden"
   },
   "upload": {
     "attachDocuments": "Documentos adjuntos"

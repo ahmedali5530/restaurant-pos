@@ -32,6 +32,8 @@
     "price": "Fiyat",
     "averagePrice": "Ortalama fiyat",
     "avgPrice": "Ort. Fiyat",
+    "reorderLevel": "Yeniden sipariş seviyesi",
+    "reorderLevels": "Yeniden sipariş seviyeleri",
     "stores": "Depolar",
     "suppliers": "Tedarikçiler",
     "actions": "İşlemler",
@@ -88,7 +90,8 @@
     "returnedQuantity": "İade edilen miktar",
     "expiryDate": "Son kullanma tarihi",
     "manufacturingDate": "Üretim tarihi",
-    "storeInventory": "{{name}} deposu"
+    "storeInventory": "{{name}} deposu",
+    "reorderLevelHint": "Yeniden sipariş uyarısı için depo başına isteğe bağlı minimum miktar"
   },
   "validation": {
     "required": "Bu alan zorunludur",
@@ -132,7 +135,8 @@
     "draft": "Taslak",
     "approved": "Onaylandı",
     "received": "Alındı",
-    "cancelled": "İptal edildi"
+    "cancelled": "İptal edildi",
+    "belowReorder": "Yeniden sipariş seviyesinin altında"
   },
   "upload": {
     "attachDocuments": "Ekli belgeler"

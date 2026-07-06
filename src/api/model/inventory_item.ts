@@ -16,4 +16,5 @@ export interface InventoryItem{
   stores: InventoryStore[]
   price: number
   average_price: number
+  reorder_levels?: Record<string, number>
 }

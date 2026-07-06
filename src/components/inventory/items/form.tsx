@@ -28,6 +28,7 @@ import {
   normalizeItemTypes,
 } from "@/utils/inventoryItemTypes.ts";
 import {InventoryItemType} from "@/api/model/inventory_item.ts";
+import {getReorderLevelForStore} from "@/utils/inventory.ts";
 
 interface Props {
   open: boolean
@@ -83,6 +84,7 @@ export const InventoryItemForm = ({
       uom: null,
       item_types: [{label: t('itemType.raw'), value: 'raw'}],
     });
+    setReorderLevels({});
   }
 
   const {
@@ -120,17 +122,43 @@ export const InventoryItemForm = ({
   const [suppliersModal, setSuppliersModal] = useState(false);
   const [categoriesModal, setCategoriesModal] = useState(false);
   const [storesModal, setStoresModal] = useState(false);
+  const [reorderLevels, setReorderLevels] = useState<Record<string, string>>({});
 
   const db = useDB();
 
-  const { register, control, handleSubmit, formState: { errors }, reset } = useForm({
+  const { register, control, handleSubmit, formState: { errors }, reset, watch } = useForm({
     resolver: yupResolver(validationSchema)
   });
 
   const itemTypeOptions = useMemo(() => getItemTypeOptions(t), [t]);
+  const selectedStores = watch('stores') as Array<{label: string; value: string}> | undefined;
+
+  useEffect(() => {
+    if (!selectedStores) {
+      return;
+    }
+    const selectedIds = new Set(selectedStores.map(store => store.value));
+    setReorderLevels(prev => {
+      const next: Record<string, string> = {};
+      for (const storeId of selectedIds) {
+        if (prev[storeId] !== undefined) {
+          next[storeId] = prev[storeId];
+        }
+      }
+      return next;
+    });
+  }, [selectedStores]);
 
   useEffect(() => {
     if( data ) {
+      const levels: Record<string, string> = {};
+      for (const store of data.stores ?? []) {
+        const level = getReorderLevelForStore(data, store.id);
+        if (level > 0) {
+          levels[store.id] = String(level);
+        }
+      }
+      setReorderLevels(levels);
       reset({
         name: data.name,
         code: data.code ?? '',
@@ -176,6 +204,17 @@ export const InventoryItemForm = ({
         item_types: itemTypes,
       };
 
+      const reorderLevelsPayload: Record<string, number> = {};
+      for (const store of values.stores ?? []) {
+        const raw = reorderLevels[store.value];
+        if (raw !== undefined && raw !== '') {
+          const parsed = parseFloat(raw);
+          if (Number.isFinite(parsed) && parsed > 0) {
+            reorderLevelsPayload[store.value] = parsed;
+          }
+        }
+      }
+
       const itemsData = {
         name: datum.name,
         code: datum.code,
@@ -187,6 +226,7 @@ export const InventoryItemForm = ({
         price: datum.price,
         average_price: datum.average_price,
         item_types: datum.item_types,
+        reorder_levels: reorderLevelsPayload,
       };
 
       if( data?.id ) {
@@ -355,6 +395,35 @@ export const InventoryItemForm = ({
               </Button>
             </div>
           </div>
+
+          {selectedStores && selectedStores.length > 0 && (
+            <div className="mb-3">
+              <label className="block mb-1">{t('columns.reorderLevels')}</label>
+              <p className="text-sm text-neutral-600 mb-2">{t('forms.reorderLevelHint')}</p>
+              <div className="grid grid-cols-2 gap-3">
+                {selectedStores.map(store => (
+                  <Input
+                    key={store.value}
+                    type="number"
+                    min={0}
+                    label={store.label}
+                    value={reorderLevels[store.value] ?? ''}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setReorderLevels(prev => {
+                        if (value === '') {
+                          const next = {...prev};
+                          delete next[store.value];
+                          return next;
+                        }
+                        return {...prev, [store.value]: value};
+                      });
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="flex gap-3 mb-3 items-end">
             <div className="flex-1">

@@ -32,6 +32,8 @@
     "price": "Preis",
     "averagePrice": "Durchschnittspreis",
     "avgPrice": "Ø Preis",
+    "reorderLevel": "Meldebestand",
+    "reorderLevels": "Meldebestände",
     "stores": "Lagerorte",
     "suppliers": "Lieferanten",
     "actions": "Aktionen",
@@ -88,7 +90,8 @@
     "returnedQuantity": "Zurückgegebene Menge",
     "expiryDate": "Ablaufdatum",
     "manufacturingDate": "Herstellungsdatum",
-    "storeInventory": "Lager {{name}}"
+    "storeInventory": "Lager {{name}}",
+    "reorderLevelHint": "Optionale Mindestmenge pro Lager vor Nachbestellwarnung"
   },
   "validation": {
     "required": "Pflichtfeld",
@@ -132,7 +135,8 @@
     "draft": "Entwurf",
     "approved": "Genehmigt",
     "received": "Empfangen",
-    "cancelled": "Storniert"
+    "cancelled": "Storniert",
+    "belowReorder": "Unter Meldebestand"
   },
   "upload": {
     "attachDocuments": "Angehängte Dokumente"

@@ -12,6 +12,7 @@ import {fetchBuffetConsumptionTotals} from "@/lib/inventory/buffet.service.ts";
 import {toStoreRecordId} from "@/lib/inventory/stock_transfer.service.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
 import {toRecordId} from "@/lib/utils.ts";
+import type {InventoryItem} from "@/api/model/inventory_item.ts";
 
 type DatabaseClient = ReturnType<typeof useDB>;
 
@@ -193,4 +194,39 @@ export const validateProductionAvailability = async (
     }
   }
   return {valid: true};
+};
+
+const normalizeRecordKey = (id: string): string => {
+  const str = recordToString(id);
+  const colonIdx = str.lastIndexOf(":");
+  return colonIdx >= 0 ? str.slice(colonIdx + 1) : str;
+};
+
+export const getReorderLevelForStore = (
+  item: Pick<InventoryItem, "reorder_levels"> | undefined,
+  storeId: string,
+): number => {
+  const levels = item?.reorder_levels;
+  if (!levels || typeof levels !== "object") {
+    return 0;
+  }
+
+  const targetKey = normalizeRecordKey(storeId);
+  for (const [key, value] of Object.entries(levels)) {
+    if (normalizeRecordKey(key) === targetKey) {
+      const num = Number(value);
+      return Number.isFinite(num) && num > 0 ? num : 0;
+    }
+  }
+
+  return 0;
+};
+
+export const isBelowReorderLevel = (
+  item: Pick<InventoryItem, "reorder_levels"> | undefined,
+  storeId: string,
+  quantity: number,
+): boolean => {
+  const reorderLevel = getReorderLevelForStore(item, storeId);
+  return reorderLevel > 0 && quantity < reorderLevel;
 };

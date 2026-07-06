@@ -6,7 +6,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {InventoryStore} from "@/api/model/inventory_store.ts";
 import {formatNumber} from "@/lib/utils.ts";
-import {fetchStoreInventoryBreakdown} from "@/utils/inventory.ts";
+import {fetchStoreInventoryBreakdown, getReorderLevelForStore, isBelowReorderLevel} from "@/utils/inventory.ts";
 
 type InventoryBalance = {
   itemId: string;
@@ -17,6 +17,8 @@ type InventoryBalance = {
   storeName: string;
   quantity: number;
   unit: string;
+  reorderLevel: number;
+  belowReorder: boolean;
 };
 
 const parseFilters = () => {
@@ -102,6 +104,7 @@ export const CurrentInventoryReport = () => {
                 const itemId = String(item.id);
                 const storeId = String(store.id);
                 const breakdown = await fetchStoreInventoryBreakdown(db, itemId, storeId);
+                const reorderLevel = getReorderLevelForStore(item, storeId);
 
                 return {
                   itemId: item.id,
@@ -112,6 +115,8 @@ export const CurrentInventoryReport = () => {
                   storeName: store.name || "",
                   quantity: breakdown.net,
                   unit: item.uom || "",
+                  reorderLevel,
+                  belowReorder: isBelowReorderLevel(item, storeId, breakdown.net),
                 };
               })()
             );
@@ -176,6 +181,12 @@ export const CurrentInventoryReport = () => {
               <th scope="col" className="py-3.5 px-3 text-right text-sm font-semibold text-neutral-700">
                 Current Balance
               </th>
+              <th scope="col" className="py-3.5 px-3 text-right text-sm font-semibold text-neutral-700">
+                {t('inventory:columns.reorderLevel')}
+              </th>
+              <th scope="col" className="py-3.5 px-3 text-center text-sm font-semibold text-neutral-700">
+                {t('inventory:status.belowReorder')}
+              </th>
             </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 bg-white">
@@ -191,14 +202,20 @@ export const CurrentInventoryReport = () => {
                   <td className="py-4 px-3 text-sm text-neutral-700">
                     {balance.storeName}
                   </td>
-                  <td className="py-4 px-3 text-sm text-right text-neutral-700">
+                  <td className={`py-4 px-3 text-sm text-right ${balance.belowReorder ? 'text-danger-600 font-medium' : 'text-neutral-700'}`}>
                     {formatNumber(balance.quantity)} {balance.unit}
+                  </td>
+                  <td className="py-4 px-3 text-sm text-right text-neutral-700">
+                    {balance.reorderLevel > 0 ? formatNumber(balance.reorderLevel) : '-'}
+                  </td>
+                  <td className="py-4 px-3 text-sm text-center text-neutral-700">
+                    {balance.reorderLevel > 0 ? (balance.belowReorder ? t('common:actions.yes') : t('common:actions.no')) : '-'}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">
+                <td colSpan={6} className="py-6 text-center text-sm text-neutral-500">
                   No inventory items found.
                 </td>
               </tr>

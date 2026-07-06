@@ -32,6 +32,8 @@
     "price": "Prijs",
     "averagePrice": "Gemiddelde prijs",
     "avgPrice": "Gem. prijs",
+    "reorderLevel": "Herbestelniveau",
+    "reorderLevels": "Herbestelniveaus",
     "stores": "Magazijnen",
     "suppliers": "Leveranciers",
     "actions": "Acties",
@@ -88,7 +90,8 @@
     "returnedQuantity": "Geretourneerd aantal",
     "expiryDate": "Vervaldatum",
     "manufacturingDate": "Productiedatum",
-    "storeInventory": "{{name}} magazijn"
+    "storeInventory": "{{name}} magazijn",
+    "reorderLevelHint": "Optionele minimale hoeveelheid per magazijn voor herbestelwaarschuwing"
   },
   "validation": {
     "required": "Dit is verplicht",
@@ -132,7 +135,8 @@
     "draft": "Concept",
     "approved": "Goedgekeurd",
     "received": "Ontvangen",
-    "cancelled": "Geannuleerd"
+    "cancelled": "Geannuleerd",
+    "belowReorder": "Onder herbestelniveau"
   },
   "upload": {
     "attachDocuments": "Bijgevoegde documenten"

@@ -32,6 +32,8 @@
     "price": "السعر",
     "averagePrice": "متوسط السعر",
     "avgPrice": "متوسط السعر",
+    "reorderLevel": "حد إعادة الطلب",
+    "reorderLevels": "حدود إعادة الطلب",
     "stores": "المخازن",
     "suppliers": "الموردون",
     "actions": "إجراءات",
@@ -88,7 +90,8 @@
     "returnedQuantity": "الكمية المُرجعة",
     "expiryDate": "تاريخ الانتهاء",
     "manufacturingDate": "تاريخ التصنيع",
-    "storeInventory": "مخزن {{name}}"
+    "storeInventory": "مخزن {{name}}",
+    "reorderLevelHint": "الحد الأدنى الاختياري لكل مخزن قبل تنبيه إعادة الطلب"
   },
   "validation": {
     "required": "هذا الحقل مطلوب",
@@ -132,7 +135,8 @@
     "draft": "مسودة",
     "approved": "معتمد",
     "received": "مستلم",
-    "cancelled": "ملغى"
+    "cancelled": "ملغى",
+    "belowReorder": "أقل من حد إعادة الطلب"
   },
   "upload": {
     "attachDocuments": "المستندات المرفقة"

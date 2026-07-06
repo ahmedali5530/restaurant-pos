@@ -11,6 +11,7 @@ import {TableComponent} from "@/components/common/table/table.tsx";
 import {InventoryItemForm} from "@/components/inventory/items/form.tsx";
 import {CsvUploadModal} from "@/components/common/table/csv.uploader.tsx";
 import {useDB} from "@/api/db/db.ts";
+import {getReorderLevelForStore} from "@/utils/inventory.ts";
 
 export const InventoryItems = () => {
   const { t } = useTranslation('inventory');
@@ -45,6 +46,31 @@ export const InventoryItems = () => {
     }),
     columnHelper.accessor("average_price", {
       header: t('columns.averagePrice')
+    }),
+    columnHelper.accessor("reorder_levels", {
+      header: t('columns.reorderLevels'),
+      cell: info => {
+        const item = info.row.original;
+        const stores = item.stores ?? [];
+        const tags = stores
+          .map(store => {
+            const level = getReorderLevelForStore(item, store.id);
+            return level > 0 ? `${store.name}: ${level}` : null;
+          })
+          .filter(Boolean);
+
+        if (tags.length === 0) {
+          return <span className="text-neutral-400">-</span>;
+        }
+
+        return (
+          <div className="flex flex-wrap gap-2">
+            {tags.map((tag, index) => (
+              <span className="tag" key={index}>{tag}</span>
+            ))}
+          </div>
+        );
+      },
     }),
     columnHelper.accessor("stores", {
       header: t('tabs.stores'),
@@ -152,6 +178,9 @@ export const InventoryItems = () => {
           }, {
             name: 'item_types',
             label: t('itemType.label')
+          }, {
+            name: 'reorder_levels',
+            label: t('columns.reorderLevels')
           }]}
           onCreateRow={async (data) => {
             try{
@@ -163,7 +192,7 @@ export const InventoryItems = () => {
                 throw new Error(`Invalid category "${data.category}"`);
               }
 
-              const stores = [];
+              const stores: Array<{id: string; name: string}> = [];
               for(const store of data.stores.split(',')){
                 const [dbStore] = await db.query(`select * from ${Tables.inventory_stores} where name = $name`, {
                   name: store.trim()
@@ -173,7 +202,7 @@ export const InventoryItems = () => {
                   throw new Error(`Invalid store "${store}"`);
                 }
 
-                stores.push(dbStore[0].id);
+                stores.push({id: dbStore[0].id, name: dbStore[0].name});
               }
 
               const suppliers = [];
@@ -189,6 +218,25 @@ export const InventoryItems = () => {
                 suppliers.push(dbSupplier[0].id);
               }
 
+              const reorderLevels: Record<string, number> = {};
+              if (data.reorder_levels?.trim()) {
+                for (const entry of data.reorder_levels.split(',')) {
+                  const [storeName, levelStr] = entry.split(':').map(part => part.trim());
+                  if (!storeName || !levelStr) {
+                    throw new Error(`Invalid reorder level entry "${entry.trim()}"`);
+                  }
+                  const store = stores.find(item => item.name === storeName);
+                  if (!store) {
+                    throw new Error(`Invalid store in reorder levels "${storeName}"`);
+                  }
+                  const level = Number(levelStr);
+                  if (!Number.isFinite(level) || level <= 0) {
+                    throw new Error(`Invalid reorder level for "${storeName}"`);
+                  }
+                  reorderLevels[store.id] = level;
+                }
+              }
+
               await db.create(Tables.inventory_items, {
                 name: data.name,
                 code: data.code,
@@ -196,9 +244,10 @@ export const InventoryItems = () => {
                 category: category[0].id,
                 base_quantity: Number(data.base_quantity),
                 suppliers: suppliers,
-                stores: stores,
+                stores: stores.map(store => store.id),
                 price: Number(data.price),
-                average_price: Number(data.average_price)
+                average_price: Number(data.average_price),
+                reorder_levels: reorderLevels,
               });
 
             }catch(e){
