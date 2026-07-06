@@ -100,6 +100,20 @@ const markdownComponents = {
 
 type ConversationEntry = {role: "user" | "assistant"; content: string};
 
+type AutoRunState = {
+  key: string;
+  status: "running" | "done";
+};
+
+let autoRunState: AutoRunState | null = null;
+
+const buildAutoRunKey = (prompt: string, format: AiReportFormat) =>
+  `${prompt}\0${format}\0${window.location.search}`;
+
+const shouldSkipAutoRun = (key: string) =>
+  autoRunState?.key === key
+  && (autoRunState.status === "running" || autoRunState.status === "done");
+
 export const AiReport = () => {
   const {t} = useTranslation("reports");
   const db = useDB();
@@ -181,6 +195,9 @@ export const AiReport = () => {
     }
   }, [allowedModules, applyResult, conversation, format, stableDb, t]);
 
+  const runPromptRef = useRef(runPrompt);
+  runPromptRef.current = runPrompt;
+
   const handleFormatChange = (nextFormat: AiReportFormat) => {
     setFormat(nextFormat);
     saveAiReportFormat(nextFormat);
@@ -202,27 +219,20 @@ export const AiReport = () => {
       return;
     }
 
-    const runStoredPrompt = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        setHasRun(true);
-        const result = await runAiReportAgent(stableDb, storedPrompt, {
-          format: storedFormat,
-          allowedModules,
-          onToolStart: setLoadingTool,
-        });
-        applyResult(result, storedPrompt);
-      } catch (err) {
-        setResponse("");
-        setError(err instanceof Error ? err.message : t("filters.aiRunFailed"));
-      } finally {
-        setLoading(false);
-        setLoadingTool(null);
-      }
-    };
+    const autoRunKey = buildAutoRunKey(storedPrompt, storedFormat);
+    if (shouldSkipAutoRun(autoRunKey)) {
+      return;
+    }
 
-    void runStoredPrompt();
+    autoRunState = {key: autoRunKey, status: "running"};
+
+    void (async () => {
+      try {
+        await runPromptRef.current(storedPrompt, storedFormat, {appendConversation: false});
+      } finally {
+        autoRunState = {key: autoRunKey, status: "done"};
+      }
+    })();
   }, [isConnected]);
 
   const handleHistorySelect = (entry: AiReportHistoryEntry) => {

@@ -1,4 +1,5 @@
 import {Tables} from "@/api/db/tables.ts";
+import {getBusinessDateContext} from "@/api/reports/shared/filters.ts";
 import type {AiReportFormat} from "@/lib/ai.report.storage.ts";
 import {getAppTimezone} from "@/lib/datetime.ts";
 import type {AiReportToolDomain} from "@/lib/ai/tools/categories.ts";
@@ -43,8 +44,9 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
 - Tips: use get_tips with phrase. Current session sales: get_current_session_sales (not get_server_sales).
 - Menu catalog: ${Tables.dishes}. Voids: ${Tables.order_voids}.`,
   inventory: `- Inventory: ${Tables.inventory_items}, stores: ${Tables.inventory_stores}.
+- inventory_item.reorder_levels: map of inventory_store id to minimum quantity before reorder (per store).
 - Purchases: ${Tables.inventory_purchases}, Issues: ${Tables.inventory_issues}, Waste: ${Tables.inventory_wastes}.
-- Reorder levels: get_current_inventory. Waste/consumption: get_waste_summary / get_consumption.`,
+- Reorder levels: get_current_inventory compares per-store stock to reorder_levels. Waste/consumption: get_waste_summary / get_consumption.`,
   operations: `- Orders: ${Tables.orders}. Statuses: In Progress, Paid, Cancelled, Pending, etc.
 - List orders by status: get_orders with statuses. Delivery only when user says "delivery" (deliveryOnly=true).
 - Expenses: ${Tables.closings}. Activity: ${Tables.tracking}. Active clock-in: list_active_sessions.`,
@@ -67,7 +69,7 @@ const FULL_DATABASE_CONTEXT = `Database context:
 - Menu catalog: ${Tables.dishes} (active items have deleted_at = NONE). Use list_menu_items for the full catalog.
 - For "products that haven't sold" / unsold menu items: use get_unsold_products (compares full menu vs paid sales). Do NOT use get_top_selling_dishes alone — it only returns items that sold.
 - Order voids: ${Tables.order_voids}
-- Inventory items: ${Tables.inventory_items}, stores: ${Tables.inventory_stores}
+- Inventory items: ${Tables.inventory_items} (reorder_levels: per-store minimum quantity map), stores: ${Tables.inventory_stores}
 - Purchases: ${Tables.inventory_purchases}, Issues: ${Tables.inventory_issues}, Waste: ${Tables.inventory_wastes}
 - Day closings: ${Tables.closings}, Activity tracking: ${Tables.tracking}
 - Tip amounts on paid orders: order.tip_amount (use get_tips — matches Advanced Sales tips column)
@@ -78,25 +80,30 @@ const FULL_DATABASE_CONTEXT = `Database context:
 const FULL_WORKFLOW = `Workflow:
 1. Call the appropriate data tool for the question domain (sales, inventory, operations).
 2. Date range is optional. If the user does not mention a time period, omit startDate and endDate to query all available data.
-3. Only call resolve_date_range when the user explicitly mentions a time period, then pass those dates to data tools.
-4. For forecasts: always call get_time_series or domain tools first, then forecast_sales or forecast_inventory. Never project from memory.
-5. For discounts: prefer get_discount_summary (includes order_discounts engine records). For "today" prompts always pass phrase or resolved dates.
-6. For order lists by status (In Progress, Paid, etc.): use get_orders with statuses — never use get_sales_summary or get_order_lifecycle for this.
-7. For unsold / no-sales products: use get_unsold_products with phrase like "last 60 days" — never infer unsold items from get_top_selling_dishes or get_product_mix alone.
-8. For current clock-in session sales per order taker: use get_current_session_sales — not get_server_sales (which uses date ranges, not time_entry sessions).
-9. For tips collected / tip distribution shares: use get_tips with phrase (e.g. today). tipsCollected sums order tip_amount on paid orders. projectedShares shows each staff member's weighted share from tip_distribution settings.
-10. For charts: call render_chart with data from prior tool results in the same conversation.
-11. For comparisons: use compare_periods with two explicit date ranges.
-12. Answer in clear, concise language with specific numbers from tool results.
-13. State forecast method, history range, and that projections are estimates.`;
+3. For relative time periods ("today", "this month", "last week", etc.): call resolve_date_range with the phrase, OR pass phrase directly to data tools — never invent startDate/endDate yourself.
+4. Anchor all relative dates to the current business date provided above (e.g. "this month" means the current calendar month, not a past year).
+5. For forecasts: always call get_time_series or domain tools first, then forecast_sales or forecast_inventory. Never project from memory.
+6. For discounts: prefer get_discount_summary (includes order_discounts engine records). For "today" prompts always pass phrase or resolved dates.
+7. For order lists by status (In Progress, Paid, etc.): use get_orders with statuses — never use get_sales_summary or get_order_lifecycle for this.
+8. For unsold / no-sales products: use get_unsold_products with phrase like "last 60 days" — never infer unsold items from get_top_selling_dishes or get_product_mix alone.
+9. For current clock-in session sales per order taker: use get_current_session_sales — not get_server_sales (which uses date ranges, not time_entry sessions).
+10. For tips collected / tip distribution shares: use get_tips with phrase (e.g. today). tipsCollected sums order tip_amount on paid orders. projectedShares shows each staff member's weighted share from tip_distribution settings.
+11. For charts: call render_chart with data from prior tool results in the same conversation.
+12. For comparisons: use compare_periods with two explicit date ranges.
+13. Answer in clear, concise language with specific numbers from tool results.
+14. State forecast method, history range, and that projections are estimates.`;
+
+const buildDateContextBlock = () =>
+  `Current business date (${getAppTimezone()}): ${getBusinessDateContext()}.`;
 
 export const getAiReportCorePrompt = (format: AiReportFormat = "table"): string =>
   `You are a POS restaurant reporting assistant. Use tools to fetch live data — never guess numbers.
 
-Date format: ${QUERY_DATE_FORMAT}. Timezone: ${getAppTimezone()}. Currency: ${APP_CURRENCY} (${CURRENCY_SYMBOL}).
+${buildDateContextBlock()}
+Date format for tool parameters: ${QUERY_DATE_FORMAT}. Currency: ${APP_CURRENCY} (${CURRENCY_SYMBOL}).
 
 Rules:
-- Call resolve_date_range only when the user mentions a time period; otherwise omit dates.
+- For relative dates, call resolve_date_range or pass phrase to tools — do not compute startDate/endDate from memory.
 - Use tool results for all numbers. Explain tool errors plainly.
 - Answer clearly with specific figures from tool output.
 
@@ -117,8 +124,9 @@ ${snippets}`;
 const buildFullPrompt = (format: AiReportFormat): string =>
   `You are a POS restaurant reporting assistant. You help managers understand sales, inventory, and operations using real data from their point-of-sale system.
 
+${buildDateContextBlock()}
 ${FULL_DATABASE_CONTEXT}
-- Date format for tool parameters: ${QUERY_DATE_FORMAT} (e.g. 2026-06-10 00:00)
+- Date format for tool parameters: ${QUERY_DATE_FORMAT} (e.g. 2026-07-01 00:00)
 - Business timezone: ${getAppTimezone()}
 - Business currency: ${APP_CURRENCY} (${CURRENCY_SYMBOL}). Format all monetary amounts using ${APP_CURRENCY} or ${CURRENCY_SYMBOL}. Never use INR, USD, or other currencies.
 

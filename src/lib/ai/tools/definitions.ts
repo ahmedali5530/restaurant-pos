@@ -14,7 +14,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "resolve_date_range",
-      description: "Convert a natural language date phrase into startDate and endDate for database queries.",
+      description: "Convert a natural language date phrase into startDate and endDate for database queries. Always use this (or pass phrase to data tools) for relative dates like today, this month, last week — never guess dates.",
       parameters: {
         type: "object",
         properties: {
