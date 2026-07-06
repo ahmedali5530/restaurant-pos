@@ -14,6 +14,16 @@ import {
 } from "@/api/reports/sales/extended.ts";
 import {getTips} from "@/api/reports/sales/tips.ts";
 import {
+  estimatePriceChangeImpact,
+  getMenuEngineeringMatrix,
+  getMenuSalesTrends,
+} from "@/api/reports/sales/menu-engineering.ts";
+import {
+  getServerTicketTimes,
+  getStaffAccountabilityMetrics,
+} from "@/api/reports/sales/server-analytics.ts";
+import {getHourlyLaborVsSales} from "@/api/reports/labor/hourly.ts";
+import {
   getConsumptionSummary,
   getCurrentInventory,
   getInventoryMovements,
@@ -32,6 +42,22 @@ import {
   getOrderLifecycleStats,
 } from "@/api/reports/operations/index.ts";
 import {getActiveSessions, getCurrentSessionServerSales} from "@/api/reports/operations/sessions.ts";
+import {getVoidAndCancelSummary} from "@/api/reports/operations/void-cancel.ts";
+import {
+  getKitchenStationDelays,
+  getPrepTimesByOrderType,
+} from "@/api/reports/operations/kitchen-timing.ts";
+import {getCashSettlementAudit} from "@/api/reports/operations/cash-audit.ts";
+import {
+  getAccountStatement,
+  getBalanceSheet,
+  getCashFlow,
+  getGeneralLedger,
+  getJournalEntries,
+  getProfitLoss,
+  getTrialBalance,
+  listAccounts,
+} from "@/api/reports/accounts/index.ts";
 import {comparePeriods, getTimeSeries, type TimeSeriesMetric} from "@/api/reports/time-series.ts";
 import {forecastFromPoints, forecastInventoryConsumption} from "@/lib/ai/forecast.ts";
 import {type AiChartSpec, validateChartSpec, dedupeCharts} from "@/lib/ai/charts.ts";
@@ -123,10 +149,15 @@ export const executeAiReportTool = async (
       });
 
     case "get_product_mix": {
+      const fullMenu = args.fullMenu === true || args.fullMenu === "true";
       const mix = await getProductMix(db, {
-        ...parseOptionalDateRangeArgs(args),
+        ...parseDateRangeWithPhrase(args),
         limit: args.limit ? Number(args.limit) : undefined,
       });
+
+      if (fullMenu) {
+        return mix;
+      }
 
       return {
         categories: mix.categories.map(category => ({
@@ -175,7 +206,12 @@ export const executeAiReportTool = async (
       });
 
     case "get_discount_summary":
-      return getDiscountSummary(db, parseDateRangeWithPhrase(args));
+      return getDiscountSummary(db, {
+        ...parseDateRangeWithPhrase(args),
+        billPercentThreshold: args.billPercentThreshold
+          ? Number(args.billPercentThreshold)
+          : undefined,
+      });
 
     case "get_coupon_summary":
       return getOrderFinanceSummary(db, {
@@ -228,8 +264,10 @@ export const executeAiReportTool = async (
 
     case "get_activity_log":
       return getActivityLog(db, {
-        ...parseOptionalDateRangeArgs(args),
+        ...parseDateRangeWithPhrase(args),
         limit: args.limit ? Number(args.limit) : 50,
+        module: args.module ? String(args.module) : undefined,
+        modules: Array.isArray(args.modules) ? args.modules.map(String) : undefined,
       });
 
     case "get_cash_closing":
@@ -350,6 +388,124 @@ export const executeAiReportTool = async (
       return getAiLaborDatasets(db, {
         ...parseDateRangeWithPhrase(args),
         topLimit: args.topLimit ? Number(args.topLimit) : 10,
+      });
+
+    case "get_server_ticket_times":
+      return getServerTicketTimes(db, {
+        ...parseDateRangeWithPhrase(args),
+        limit: args.limit ? Number(args.limit) : 3,
+        dineInOnly: args.dineInOnly === true || args.dineInOnly === "true",
+      });
+
+    case "get_staff_accountability_metrics":
+      return getStaffAccountabilityMetrics(db, {
+        ...parseDateRangeWithPhrase(args),
+        thresholdMultiplier: args.thresholdMultiplier
+          ? Number(args.thresholdMultiplier)
+          : undefined,
+      });
+
+    case "get_menu_engineering_matrix":
+      return getMenuEngineeringMatrix(db, parseDateRangeWithPhrase(args));
+
+    case "get_menu_sales_trends":
+      return getMenuSalesTrends(db, {
+        volumeDropPercent: args.volumeDropPercent ? Number(args.volumeDropPercent) : undefined,
+        highProfitOnly: args.highProfitOnly !== false && args.highProfitOnly !== "false",
+      });
+
+    case "estimate_price_change_impact":
+      return estimatePriceChangeImpact(db, {
+        ...parseDateRangeWithPhrase(args),
+        priceChangePercent: args.priceChangePercent ? Number(args.priceChangePercent) : undefined,
+        topN: args.topN ? Number(args.topN) : undefined,
+      });
+
+    case "get_void_and_cancel_summary":
+      return getVoidAndCancelSummary(db, {
+        ...parseDateRangeWithPhrase(args),
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "get_hourly_labor_vs_sales":
+      return getHourlyLaborVsSales(db, {
+        ...parseDateRangeWithPhrase(args),
+        startHour: args.startHour !== undefined ? Number(args.startHour) : undefined,
+        endHour: args.endHour !== undefined ? Number(args.endHour) : undefined,
+        hourPhrase: args.hourPhrase ? String(args.hourPhrase) : undefined,
+        laborPercentThreshold: args.laborPercentThreshold
+          ? Number(args.laborPercentThreshold)
+          : undefined,
+      });
+
+    case "get_prep_times_by_order_type":
+      return getPrepTimesByOrderType(db, parseDateRangeWithPhrase(args));
+
+    case "get_kitchen_station_delays":
+      return getKitchenStationDelays(db, {
+        ...parseDateRangeWithPhrase(args),
+        startHour: args.startHour !== undefined ? Number(args.startHour) : undefined,
+        endHour: args.endHour !== undefined ? Number(args.endHour) : undefined,
+        hourPhrase: args.hourPhrase ? String(args.hourPhrase) : undefined,
+      });
+
+    case "get_cash_settlement_audit":
+      return getCashSettlementAudit(db, {
+        ...parseDateRangeWithPhrase(args),
+        minutesBeforeClose: args.minutesBeforeClose
+          ? Number(args.minutesBeforeClose)
+          : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "get_trial_balance":
+      return getTrialBalance(db, {
+        ...parseDateRangeWithPhrase(args),
+        asOf: args.asOf ? String(args.asOf) : undefined,
+      });
+
+    case "get_balance_sheet":
+      return getBalanceSheet(db, {
+        ...parseDateRangeWithPhrase(args),
+        asOf: args.asOf ? String(args.asOf) : undefined,
+      });
+
+    case "get_profit_loss":
+      return getProfitLoss(db, parseDateRangeWithPhrase(args));
+
+    case "get_cash_flow":
+      return getCashFlow(db, parseDateRangeWithPhrase(args));
+
+    case "get_general_ledger":
+      return getGeneralLedger(db, {
+        ...parseDateRangeWithPhrase(args),
+        accountCode: args.accountCode ? String(args.accountCode) : undefined,
+        accountId: args.accountId ? String(args.accountId) : undefined,
+      });
+
+    case "get_journal_entries":
+      return getJournalEntries(db, {
+        ...parseDateRangeWithPhrase(args),
+        status: args.status ? String(args.status) as "draft" | "posted" | "reversed" : undefined,
+        sourceModule: args.sourceModule ? String(args.sourceModule) : undefined,
+        limit: args.limit ? Number(args.limit) : undefined,
+      });
+
+    case "get_account_statement":
+      return getAccountStatement(db, {
+        ...parseDateRangeWithPhrase(args),
+        accountCode: args.accountCode ? String(args.accountCode) : undefined,
+        accountId: args.accountId ? String(args.accountId) : undefined,
+        statementType: args.statementType === "supplier" ? "supplier" : "customer",
+      });
+
+    case "list_accounts":
+      return listAccounts(db, {
+        headType: args.headType ? String(args.headType) as "asset" | "liability" | "equity" | "income" | "expense" : undefined,
+        search: args.search ? String(args.search) : undefined,
+        customerOnly: args.customerOnly === true || args.customerOnly === "true",
+        supplierOnly: args.supplierOnly === true || args.supplierOnly === "true",
+        activeOnly: args.activeOnly !== false && args.activeOnly !== "false",
       });
 
     default:

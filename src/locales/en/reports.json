@@ -205,8 +205,12 @@
     "analysis": "Analysis",
     "run": "Run",
     "aiCategory": {
+      "all": "All",
       "sales": "Sales",
       "inventory": "Inventory",
+      "operations": "Operations",
+      "labor": "Labor",
+      "accounts": "Accounts",
       "charts": "Charts & Forecast",
       "analysis": "Analysis"
     },

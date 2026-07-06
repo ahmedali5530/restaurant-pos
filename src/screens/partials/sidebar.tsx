@@ -13,7 +13,8 @@ import {
   faUtensils, faUsers, faWarehouse, faWrench,
   faClock,
   faPowerOff,
-  faReceipt
+  faReceipt,
+  faUser
 } from "@fortawesome/free-solid-svg-icons";
 import { cn } from "@/lib/utils.ts";
 import { Button } from "@/components/common/input/button.tsx";
@@ -158,7 +159,7 @@ export const Sidebar = () => {
               '--padding': '0.5rem'
             } as CSSProperties}
           >
-            <FontAwesomeIcon icon={faClock} />
+            <FontAwesomeIcon icon={faUser} />
           </NavLink>
         </div>
         <div className="input-group">

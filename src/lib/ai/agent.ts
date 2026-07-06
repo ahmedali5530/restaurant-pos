@@ -15,6 +15,9 @@ import {getUnsoldProducts} from "@/api/reports/sales/products.ts";
 import {getAiReportSystemPrompt} from "@/lib/ai/schema.ts";
 import {executeAiReportTool} from "@/lib/ai/tools/executor.ts";
 import {selectToolsForPrompt} from "@/lib/ai/tools/select-tools.ts";
+import {tryAnalyticsFastPath} from "@/lib/ai/analytics-fast-path.ts";
+import {tryAccountsFastPath} from "@/lib/ai/accounts-fast-path.ts";
+import {isFraudSuspiciousPrompt} from "@/lib/ai/fraud-query.ts";
 import {callOpenAIChat, type OpenAIChatMessage} from "@/lib/openai.service.ts";
 
 const MAX_ITERATIONS = 10;
@@ -194,7 +197,60 @@ export const runAiReportAgent = async (
     return finish(answer);
   }
 
-  messages.push({role: "user", content: trimmedPrompt});
+  const analyticsFastPath = await tryAnalyticsFastPath(db, trimmedPrompt);
+  if (analyticsFastPath) {
+    options.onToolStart?.(analyticsFastPath.toolName);
+    toolsUsed.push({name: analyticsFastPath.toolName, args: analyticsFastPath.args});
+    toolResults.push({name: analyticsFastPath.toolName, result: analyticsFastPath.data});
+
+    const response = await callOpenAIChat({
+      messages: [
+        ...messages,
+        {
+          role: "user",
+          content: `${trimmedPrompt}\n\n${analyticsFastPath.toolName}:\n${JSON.stringify(analyticsFastPath.data)}\n\n${analyticsFastPath.hint}`,
+        },
+      ],
+      tools: [],
+    });
+
+    const answer = response.choices[0]?.message?.content?.trim();
+    if (!answer) {
+      throw new Error("OpenAI returned an empty response.");
+    }
+    return finish(answer);
+  }
+
+  const accountsFastPath = await tryAccountsFastPath(db, trimmedPrompt);
+  if (accountsFastPath) {
+    options.onToolStart?.(accountsFastPath.toolName);
+    toolsUsed.push({name: accountsFastPath.toolName, args: accountsFastPath.args});
+    toolResults.push({name: accountsFastPath.toolName, result: accountsFastPath.data});
+
+    const response = await callOpenAIChat({
+      messages: [
+        ...messages,
+        {
+          role: "user",
+          content: `${trimmedPrompt}\n\n${accountsFastPath.toolName}:\n${JSON.stringify(accountsFastPath.data)}\n\n${accountsFastPath.hint}`,
+        },
+      ],
+      tools: [],
+    });
+
+    const answer = response.choices[0]?.message?.content?.trim();
+    if (!answer) {
+      throw new Error("OpenAI returned an empty response.");
+    }
+    return finish(answer);
+  }
+
+  const fraudWorkflowHint = isFraudSuspiciousPrompt(trimmedPrompt)
+    ? "\n\nWorkflow: Start with get_voids, get_staff_accountability_metrics, and get_cash_settlement_audit. "
+      + "Call get_activity_log only if findings warrant tracking detail — use a narrow date range and limit."
+    : "";
+
+  messages.push({role: "user", content: trimmedPrompt + fraudWorkflowHint});
 
   for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
     const response = await callOpenAIChat({messages, tools});

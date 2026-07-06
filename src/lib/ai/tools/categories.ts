@@ -4,6 +4,7 @@ export type AiReportToolDomain =
   | "operations"
   | "analysis"
   | "labor"
+  | "accounts"
   | "chart"
   | "lookup";
 
@@ -24,6 +25,11 @@ export const AI_REPORT_TOOL_CATEGORIES: Record<AiReportToolDomain | "core", read
     "get_weekly_sales",
     "get_hourly_product_sales",
     "get_dashboard_snapshot",
+    "get_server_ticket_times",
+    "get_staff_accountability_metrics",
+    "get_menu_engineering_matrix",
+    "get_menu_sales_trends",
+    "estimate_price_change_impact",
   ],
   inventory: [
     "get_current_inventory",
@@ -40,6 +46,10 @@ export const AI_REPORT_TOOL_CATEGORIES: Record<AiReportToolDomain | "core", read
     "get_activity_log",
     "get_cash_closing",
     "list_active_sessions",
+    "get_void_and_cancel_summary",
+    "get_prep_times_by_order_type",
+    "get_kitchen_station_delays",
+    "get_cash_settlement_audit",
   ],
   analysis: [
     "get_time_series",
@@ -57,6 +67,17 @@ export const AI_REPORT_TOOL_CATEGORIES: Record<AiReportToolDomain | "core", read
     "get_scheduled_vs_actual",
     "get_labor_trend",
     "get_ai_labor_datasets",
+    "get_hourly_labor_vs_sales",
+  ],
+  accounts: [
+    "get_trial_balance",
+    "get_balance_sheet",
+    "get_profit_loss",
+    "get_cash_flow",
+    "get_general_ledger",
+    "get_journal_entries",
+    "get_account_statement",
+    "list_accounts",
   ],
   chart: ["render_chart"],
   lookup: [
@@ -74,6 +95,7 @@ export const ALL_AI_REPORT_TOOL_NAMES = [
   ...AI_REPORT_TOOL_CATEGORIES.operations,
   ...AI_REPORT_TOOL_CATEGORIES.analysis,
   ...AI_REPORT_TOOL_CATEGORIES.labor,
+  ...AI_REPORT_TOOL_CATEGORIES.accounts,
   ...AI_REPORT_TOOL_CATEGORIES.chart,
   ...AI_REPORT_TOOL_CATEGORIES.lookup,
 ];

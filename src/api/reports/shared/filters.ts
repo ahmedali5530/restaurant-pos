@@ -150,7 +150,99 @@ export const resolveNaturalDateRange = ({phrase}: {phrase: string}): DateRangeFi
     };
   }
 
-  throw new Error(`Could not resolve date range for phrase: "${phrase}". Try "yesterday", "today", "this week", "last week", "last 7 days", "last 30 days", "last 60 days", "this month", "last month", or "Q1 2026".`);
+  const weekdayRange = resolveWeekdayPhrase(normalized, now);
+  if (weekdayRange) {
+    return weekdayRange;
+  }
+
+  throw new Error(`Could not resolve date range for phrase: "${phrase}". Try "yesterday", "today", "this week", "last week", "last Friday", "this month", "last month", or "Q1 2026".`);
+};
+
+const WEEKDAY_NAMES: Record<string, number> = {
+  monday: 1,
+  mon: 1,
+  tuesday: 2,
+  tue: 2,
+  tues: 2,
+  wednesday: 3,
+  wed: 3,
+  thursday: 4,
+  thu: 4,
+  thur: 4,
+  thurs: 4,
+  friday: 5,
+  fri: 5,
+  saturday: 6,
+  sat: 6,
+  sunday: 7,
+  sun: 7,
+};
+
+const resolveWeekdayPhrase = (normalized: string, now: DateTime): DateRangeFilter | null => {
+  const match = normalized.match(/\b(last|this)\s+(monday|mon|tuesday|tue|tues|wednesday|wed|thursday|thu|thur|thurs|friday|fri|saturday|sat|sunday|sun)\b/);
+  if (!match) {
+    return null;
+  }
+
+  const modifier = match[1] as "last" | "this";
+  const weekday = WEEKDAY_NAMES[match[2]];
+  if (!weekday) {
+    return null;
+  }
+
+  if (modifier === "last") {
+    const daysBack = (now.weekday - weekday + 7) % 7;
+    const offset = daysBack === 0 ? 7 : daysBack;
+    const target = now.minus({days: offset});
+    return {
+      startDate: formatDateTimeForQuery(target.startOf("day")),
+      endDate: formatDateTimeForQuery(target.endOf("day")),
+    };
+  }
+
+  const startOfWeek = now.startOf("week");
+  let target = startOfWeek.plus({days: weekday - 1});
+  if (target > now.endOf("day")) {
+    target = target.minus({weeks: 1});
+  }
+  return {
+    startDate: formatDateTimeForQuery(target.startOf("day")),
+    endDate: formatDateTimeForQuery(target.endOf("day")),
+  };
+};
+
+/** Default peak dining hours in business timezone (7 PM – 9 PM). */
+export const getPeakHoursRange = () => ({
+  startHour: 19,
+  endHour: 21,
+  label: "7 PM – 9 PM",
+});
+
+/** Parse hour range from phrases like "7 PM - 9 PM" or "peak hours". */
+export const parseHourRangeFromPhrase = (
+  phrase: string,
+): {startHour: number; endHour: number} | null => {
+  const normalized = phrase.trim().toLowerCase();
+  if (/\bpeak\s+hours?\b/.test(normalized)) {
+    const peak = getPeakHoursRange();
+    return {startHour: peak.startHour, endHour: peak.endHour};
+  }
+
+  const rangeMatch = normalized.match(/(\d{1,2})\s*(?:pm|am)?\s*[-–to]+\s*(\d{1,2})\s*(pm|am)?/i);
+  if (rangeMatch) {
+    let start = Number(rangeMatch[1]);
+    let end = Number(rangeMatch[2]);
+    const suffix = (rangeMatch[3] || normalized.match(/pm/i) ? "pm" : "").toLowerCase();
+    if (suffix === "pm" || normalized.includes("pm")) {
+      if (start < 12) start += 12;
+      if (end < 12) end += 12;
+    }
+    if (end > start) {
+      return {startHour: start, endHour: end};
+    }
+  }
+
+  return null;
 };
 
 /** Merge explicit dates with an optional natural-language phrase when dates are omitted. */

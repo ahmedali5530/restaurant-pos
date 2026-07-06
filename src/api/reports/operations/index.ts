@@ -52,9 +52,24 @@ export const getExpenses = async (db: DbClient, options: DateRangeFilter) => {
   };
 };
 
-export const getActivityLog = async (db: DbClient, options: DateRangeFilter & {limit?: number}) => {
-  const {limit = 50, ...dateRange} = options;
+export const getActivityLog = async (
+  db: DbClient,
+  options: DateRangeFilter & {limit?: number; module?: string; modules?: string[]} = {},
+) => {
+  const {limit = 50, module, modules, ...dateRange} = options;
   const {conditions, params} = buildCreatedAtDateConditions(dateRange);
+
+  if (module) {
+    conditions.push("module = $module");
+    params.module = module;
+  } else if (modules?.length) {
+    const parts = modules.map((name, index) => {
+      const param = `module${index}`;
+      params[param] = name;
+      return `module = $${param}`;
+    });
+    conditions.push(`(${parts.join(" OR ")})`);
+  }
 
   const query = `
     SELECT * FROM ${Tables.tracking}
@@ -70,6 +85,7 @@ export const getActivityLog = async (db: DbClient, options: DateRangeFilter & {l
     page?: string;
     user_name?: string;
     auth_method?: string;
+    payload?: Record<string, unknown>;
   }>(await db.query(query, params));
 
   return {
@@ -81,6 +97,7 @@ export const getActivityLog = async (db: DbClient, options: DateRangeFilter & {l
       page: row.page,
       userName: row.user_name,
       authMethod: row.auth_method,
+      payload: row.payload,
     })),
   };
 };

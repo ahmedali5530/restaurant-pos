@@ -144,8 +144,14 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_discount_summary",
-      description: "Get discount usage summary from paid orders including order-level and line-level discounts. For 'today' or other periods, pass phrase or call resolve_date_range first.",
-      parameters: {type: "object", properties: dateRangeProps},
+      description: "Get discount usage summary with promotional detail and bill-percent flags. Use billPercentThreshold (default 20) to highlight discounts exceeding that share of the bill.",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateRangeProps,
+          billPercentThreshold: {type: "number", default: 20},
+        },
+      },
     },
   },
   {
@@ -255,7 +261,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_activity_log",
-      description: "Get user activity/audit log entries.",
+      description: "Get user activity/audit tracking log entries (module, user, payload). Large result sets — for fraud/suspicious prompts, call after lighter audit tools and use a narrow date range with limit.",
       parameters: {
         type: "object",
         properties: {...dateRangeProps, limit: {type: "number", default: 50}},
@@ -393,6 +399,249 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
           period2End: {type: "string"},
         },
         required: ["metric", "period1Start", "period1End", "period2Start", "period2End"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_server_ticket_times",
+      description: "Server speed rankings using ticket time (created_at to completed_at). Returns fastest/slowest servers, turnaround vs check size. Not rider delivery time.",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateRangeProps,
+          limit: {type: "number", default: 3},
+          dineInOnly: {type: "boolean"},
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_staff_accountability_metrics",
+      description: "Void, discount, and deleted-item rates per order taker vs team average. Flags staff exceeding threshold.",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateRangeProps,
+          thresholdMultiplier: {type: "number", default: 1.5},
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_menu_engineering_matrix",
+      description: "Menu engineering matrix: classify items as Stars, Plowhorses, Puzzles, or Dogs by popularity and margin.",
+      parameters: {type: "object", properties: dateRangeProps},
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_menu_sales_trends",
+      description: "Month-over-month dish volume trends. Highlights high-profit items with declining sales.",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateRangeProps,
+          volumeDropPercent: {type: "number", default: 10},
+          highProfitOnly: {type: "boolean", default: true},
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "estimate_price_change_impact",
+      description: "Estimate gross profit impact of a price change on top-volume items (assumes volume unchanged).",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateRangeProps,
+          priceChangePercent: {type: "number", default: 5},
+          topN: {type: "number", default: 3},
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_void_and_cancel_summary",
+      description: "Summarize void reasons, cancelled orders, and complimentary (100% discount) comps.",
+      parameters: {
+        type: "object",
+        properties: {...dateRangeProps, limit: {type: "number", default: 50}},
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_hourly_labor_vs_sales",
+      description: "Hourly labor cost % vs net sales. Flags over-staffing windows. Use phrase last Friday or peak hours for hour filter.",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateRangeProps,
+          startHour: {type: "number"},
+          endHour: {type: "number"},
+          hourPhrase: {type: "string"},
+          laborPercentThreshold: {type: "number", default: 35},
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_prep_times_by_order_type",
+      description: "Average ticket time (created to completed) by order type — e.g. delivery vs dine-in.",
+      parameters: {type: "object", properties: dateRangeProps},
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_kitchen_station_delays",
+      description: "Kitchen prep delays by station, stage, and category during peak hours (default 7-9 PM).",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateRangeProps,
+          startHour: {type: "number"},
+          endHour: {type: "number"},
+          hourPhrase: {type: "string"},
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_cash_settlement_audit",
+      description: "Cash-settled orders modified or with items removed shortly before close.",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateRangeProps,
+          minutesBeforeClose: {type: "number", default: 30},
+          limit: {type: "number", default: 50},
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_trial_balance",
+      description: "Trial balance as-of date from posted journal lines. Returns debit/credit totals and isBalanced flag. Read-only.",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateRangeProps,
+          asOf: {type: "string", description: "As-of datetime; defaults to endDate or today"},
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_balance_sheet",
+      description: "Balance sheet (assets, liabilities, equity) as-of date from posted journal lines. Read-only.",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateRangeProps,
+          asOf: {type: "string", description: "As-of datetime; defaults to endDate or today"},
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_profit_loss",
+      description: "Profit & loss (income, expenses, net profit) for a date range from posted journal lines. Read-only.",
+      parameters: {type: "object", properties: dateRangeProps},
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_cash_flow",
+      description: "Cash flow by source module and Operating/Investing/Financing buckets for cash/bank accounts. Read-only.",
+      parameters: {type: "object", properties: dateRangeProps},
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_general_ledger",
+      description: "General ledger summary with opening balance, period debits/credits, and closing balance per account. Optional accountCode filter. Read-only.",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateRangeProps,
+          accountCode: {type: "string"},
+          accountId: {type: "string"},
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_journal_entries",
+      description: "List journal entries for a date range. Filter by status (posted/draft/reversed) or source_module. Read-only.",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateRangeProps,
+          status: {type: "string", enum: ["draft", "posted", "reversed"]},
+          sourceModule: {type: "string"},
+          limit: {type: "number", default: 50},
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_account_statement",
+      description: "Customer or supplier account statement with opening balance, line detail, and closing balance. Requires accountCode. Uses name/code heuristics for AR/AP. Read-only.",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateRangeProps,
+          accountCode: {type: "string"},
+          accountId: {type: "string"},
+          statementType: {type: "string", enum: ["customer", "supplier"], default: "customer"},
+        },
+        required: ["accountCode"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "list_accounts",
+      description: "List chart of accounts. Filter by headType, customerOnly, supplierOnly, or search. Read-only.",
+      parameters: {
+        type: "object",
+        properties: {
+          headType: {type: "string", enum: ["asset", "liability", "equity", "income", "expense"]},
+          search: {type: "string"},
+          customerOnly: {type: "boolean"},
+          supplierOnly: {type: "boolean"},
+          activeOnly: {type: "boolean", default: true},
+        },
       },
     },
   },

@@ -214,7 +214,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_activity_log",
-      description: "User activity/audit log.",
+      description: "Tracking log with payload. Defer on fraud prompts until lighter audit tools run.",
       parameters: dateOnly,
     },
   },
@@ -480,6 +480,195 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
       parameters: {
         type: "object",
         properties: {...dateParams, topLimit: {type: "number"}},
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_server_ticket_times",
+      description: "Server ticket time rankings (created to completed).",
+      parameters: {
+        type: "object",
+        properties: {...dateParams, limit: {type: "number"}, dineInOnly: {type: "boolean"}},
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_staff_accountability_metrics",
+      description: "Void/discount/deleted-item rates vs team average.",
+      parameters: dateOnly,
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_menu_engineering_matrix",
+      description: "Menu engineering quadrants: Stars, Plowhorses, Puzzles, Dogs.",
+      parameters: dateOnly,
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_menu_sales_trends",
+      description: "MoM dish volume trends for high-profit items.",
+      parameters: dateOnly,
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "estimate_price_change_impact",
+      description: "Profit impact of price change on top-volume items.",
+      parameters: {
+        type: "object",
+        properties: {...dateParams, priceChangePercent: {type: "number"}, topN: {type: "number"}},
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_void_and_cancel_summary",
+      description: "Void, cancel, and comp reasons summary.",
+      parameters: dateOnly,
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_hourly_labor_vs_sales",
+      description: "Hourly labor % vs sales; over-staffing windows.",
+      parameters: {
+        type: "object",
+        properties: {...dateParams, hourPhrase: {type: "string"}, laborPercentThreshold: {type: "number"}},
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_prep_times_by_order_type",
+      description: "Ticket time by order type (delivery vs dine-in).",
+      parameters: dateOnly,
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_kitchen_station_delays",
+      description: "Kitchen/category delays during peak hours.",
+      parameters: {
+        type: "object",
+        properties: {...dateParams, hourPhrase: {type: "string"}},
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_cash_settlement_audit",
+      description: "Cash orders modified before close.",
+      parameters: dateOnly,
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_trial_balance",
+      description: "Trial balance as-of date; debit/credit totals.",
+      parameters: {
+        type: "object",
+        properties: {...dateParams, asOf: {type: "string"}},
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_balance_sheet",
+      description: "Balance sheet: assets, liabilities, equity.",
+      parameters: {
+        type: "object",
+        properties: {...dateParams, asOf: {type: "string"}},
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_profit_loss",
+      description: "P&L income, expenses, net profit.",
+      parameters: dateOnly,
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_cash_flow",
+      description: "Cash flow by source module and bucket.",
+      parameters: dateOnly,
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_general_ledger",
+      description: "GL summary with opening/closing balances.",
+      parameters: {
+        type: "object",
+        properties: {...dateParams, accountCode: {type: "string"}},
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_journal_entries",
+      description: "Journal entries list by date/status/source.",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateParams,
+          status: {type: "string"},
+          sourceModule: {type: "string"},
+          limit: {type: "number"},
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_account_statement",
+      description: "Customer or supplier statement with running balance.",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateParams,
+          accountCode: {type: "string"},
+          statementType: {type: "string"},
+        },
+        required: ["accountCode"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "list_accounts",
+      description: "Chart of accounts lookup.",
+      parameters: {
+        type: "object",
+        properties: {
+          headType: {type: "string"},
+          search: {type: "string"},
+          customerOnly: {type: "boolean"},
+          supplierOnly: {type: "boolean"},
+        },
       },
     },
   },

@@ -50,8 +50,8 @@ export interface ReportsLayoutProps {
 export const ReportsLayout = ({
   title,
   subtitle,
-  restaurantName = "Test Restaurant",
-  restaurantAddress = "Hawks bay, Seaview",
+  restaurantName = import.meta.env.VITE_RESTAURANT_NAME,
+  restaurantAddress = import.meta.env.VITE_RESTAURANT_ADDRESS,
   children,
   pagination,
   customActions,

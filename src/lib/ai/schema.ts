@@ -42,6 +42,8 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
   sales: `- Paid orders have status = 'Paid'. Use get_sales_summary for KPIs.
 - Unsold products: use get_unsold_products (not get_top_selling_dishes alone).
 - Tips: use get_tips with phrase. Current session sales: get_current_session_sales (not get_server_sales).
+- Server speed: get_server_ticket_times (ticket time = created to completed). Accountability: get_staff_accountability_metrics.
+- Menu engineering: get_menu_engineering_matrix. MoM trends: get_menu_sales_trends. Price impact: estimate_price_change_impact.
 - Menu catalog: ${Tables.dishes}. Voids: ${Tables.order_voids}.`,
   inventory: `- Inventory: ${Tables.inventory_items}, stores: ${Tables.inventory_stores}.
 - inventory_item.reorder_levels: map of inventory_store id to minimum quantity before reorder (per store).
@@ -49,10 +51,19 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
 - Reorder levels: get_current_inventory compares per-store stock to reorder_levels. Waste/consumption: get_waste_summary / get_consumption.`,
   operations: `- Orders: ${Tables.orders}. Statuses: In Progress, Paid, Cancelled, Pending, etc.
 - List orders by status: get_orders with statuses. Delivery only when user says "delivery" (deliveryOnly=true).
-- Expenses: ${Tables.closings}. Activity: ${Tables.tracking}. Active clock-in: list_active_sessions.`,
+- Void/cancel/comp reasons: get_void_and_cancel_summary. Prep delays: get_prep_times_by_order_type, get_kitchen_station_delays.
+- Cash audit: get_cash_settlement_audit. Expenses: ${Tables.closings}. Activity/tracking: ${Tables.tracking} via get_activity_log.
+- Fraud/suspicious prompts: start with get_voids, get_staff_accountability_metrics, get_cash_settlement_audit. Call get_activity_log only when needed (large payloads — use narrow dates and limit).`,
   labor: `- Staff sessions: ${Tables.time_entries} (active = clock_out is NONE).
+- Hourly labor % vs sales: get_hourly_labor_vs_sales (use phrase last Friday or peak hours).
 - Labor reports: get_labor_dashboard_snapshot, get_daily_labor_cost, get_overtime_report, etc.
 - Session sales per order taker: get_current_session_sales. Date-range server sales: get_server_sales.`,
+  accounts: `- GL tables: ${Tables.accounts}, ${Tables.account_groups}, ${Tables.account_journal_entries}, ${Tables.account_journal_lines}.
+- Financial statements use posted journal lines only (entry.status = 'posted'). Read-only — no create/reverse entries.
+- Trial balance: get_trial_balance. Balance sheet: get_balance_sheet. P&L: get_profit_loss. Cash flow: get_cash_flow.
+- General ledger: get_general_ledger (optional accountCode). Journal list: get_journal_entries.
+- Customer/supplier statements: get_account_statement with accountCode. Chart of accounts: list_accounts.
+- Customer/supplier detection uses code/name heuristics (same as Accounts UI). POS sales do not auto-post to GL.`,
   analysis: `- Forecasts: call get_time_series first, then forecast_sales or forecast_inventory.
 - Comparisons: use compare_periods with two explicit date ranges. State method and that projections are estimates.`,
   chart: `- Call render_chart with data from prior tool results before the final answer.`,
@@ -88,10 +99,17 @@ const FULL_WORKFLOW = `Workflow:
 8. For unsold / no-sales products: use get_unsold_products with phrase like "last 60 days" — never infer unsold items from get_top_selling_dishes or get_product_mix alone.
 9. For current clock-in session sales per order taker: use get_current_session_sales — not get_server_sales (which uses date ranges, not time_entry sessions).
 10. For tips collected / tip distribution shares: use get_tips with phrase (e.g. today). tipsCollected sums order tip_amount on paid orders. projectedShares shows each staff member's weighted share from tip_distribution settings.
-11. For charts: call render_chart with data from prior tool results in the same conversation.
-12. For comparisons: use compare_periods with two explicit date ranges.
-13. Answer in clear, concise language with specific numbers from tool results.
-14. State forecast method, history range, and that projections are estimates.`;
+11. For server speed: get_server_ticket_times. For staff accountability (voids/discounts/deleted items): get_staff_accountability_metrics.
+12. For menu engineering (Plowhorses/Puzzles): get_menu_engineering_matrix. MoM volume drops: get_menu_sales_trends. Price impact: estimate_price_change_impact.
+13. For hourly labor % vs sales / over-staffing: get_hourly_labor_vs_sales with phrase (last Friday, peak hours).
+14. For prep delays by channel: get_prep_times_by_order_type. Kitchen bottlenecks: get_kitchen_station_delays.
+15. For cash orders modified before close: get_cash_settlement_audit. Void/cancel/comp reasons: get_void_and_cancel_summary.
+16. For accounting/GL: get_trial_balance, get_balance_sheet, get_profit_loss, get_cash_flow, get_general_ledger, get_journal_entries, get_account_statement, list_accounts. Use posted journal data only.
+17. For fraud/suspicious/unauthorized activity: start with get_voids, get_staff_accountability_metrics, and get_cash_settlement_audit. Call get_activity_log only when findings need tracking/payload detail (use a narrow date range and limit — do not fetch tracking first).
+18. For charts: call render_chart with data from prior tool results in the same conversation.
+19. For comparisons: use compare_periods with two explicit date ranges.
+20. Answer in clear, concise language with specific numbers from tool results.
+21. State forecast method, history range, and that projections are estimates.`;
 
 const buildDateContextBlock = () =>
   `Current business date (${getAppTimezone()}): ${getBusinessDateContext()}.`;

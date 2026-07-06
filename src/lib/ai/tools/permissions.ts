@@ -1,7 +1,7 @@
 import type {OpenAIToolDefinition} from "@/lib/openai.service.ts";
 
 /** Maps tool names to report permission modules. */
-export const TOOL_PERMISSION_MODULES: Record<string, string> = {
+export const TOOL_PERMISSION_MODULES: Record<string, string | string[]> = {
   get_top_selling_dishes: "Product Mix Summary",
   get_sales_summary: "Sales Summary",
   get_product_mix: "Product Mix Summary",
@@ -47,6 +47,24 @@ export const TOOL_PERMISSION_MODULES: Record<string, string> = {
   get_scheduled_vs_actual: "Scheduled vs Actual",
   get_labor_trend: "Labor Trend",
   get_ai_labor_datasets: "Labor Dashboard",
+  get_hourly_labor_vs_sales: "Sales Hourly Labour",
+  get_server_ticket_times: "Server Sales",
+  get_staff_accountability_metrics: "Server Sales",
+  get_menu_engineering_matrix: "Product Mix Summary",
+  get_menu_sales_trends: "Product Mix Summary",
+  estimate_price_change_impact: "Product Mix Summary",
+  get_void_and_cancel_summary: "Voids",
+  get_prep_times_by_order_type: "Order Life Cycle",
+  get_kitchen_station_delays: "Order Life Cycle",
+  get_cash_settlement_audit: "Activity",
+  get_trial_balance: "Trial Balance",
+  get_balance_sheet: "Balance Sheet",
+  get_profit_loss: "Profit & Loss",
+  get_cash_flow: "Cash Flow",
+  get_general_ledger: "General Ledger",
+  get_journal_entries: "Journal Entries",
+  get_account_statement: ["Customer Statement", "Supplier Statement"],
+  list_accounts: "Chart of Accounts",
 };
 
 export const filterToolsByPermissions = (
@@ -62,6 +80,8 @@ export const filterToolsByPermissions = (
     if (!module) {
       return true;
     }
-    return allowedModules.includes(module) || allowedModules.includes("AI Report");
+    const modules = Array.isArray(module) ? module : [module];
+    return modules.some(name => allowedModules.includes(name))
+      || allowedModules.includes("AI Report");
   });
 };
