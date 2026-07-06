@@ -1,13 +1,14 @@
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input } from "@/components/common/input/input.tsx";
 import { Button } from "@/components/common/input/button.tsx";
+import { Checkbox } from "@/components/common/input/checkbox.tsx";
 import { Controller, useForm } from "react-hook-form";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
 import { toast } from 'sonner';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useMemo,  useEffect  } from "react";
+import { useEffect, useRef } from "react";
 import { User } from "@/api/model/user.ts";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
@@ -17,6 +18,12 @@ import { StringRecordId } from "surrealdb";
 import {useTranslation} from 'react-i18next';
 import i18n from '@/lib/i18n.ts';
 import _ from "lodash";
+import {
+  createLinkedEmployee,
+  extractFirstRecord,
+  generateEmployeeNumber,
+} from "@/lib/labor-engine/employee.resolver.ts";
+import {recordIdToString} from "@/api/reports/shared/records.ts";
 
 interface Props {
   open: boolean
@@ -47,7 +54,13 @@ const validationSchema = yup.object({
   user_shift: yup.object({
     label: yup.string(),
     value: yup.string(),
-  }).nullable().default(null)
+  }).nullable().default(null),
+  create_employee: yup.boolean().default(true),
+  employee_number: yup.string().when('create_employee', {
+    is: true,
+    then: (schema) => schema.required(i18n.t('validation:required')),
+    otherwise: (schema) => schema.nullable(),
+  }),
 });
 
 export const UserForm = ({
@@ -55,15 +68,22 @@ export const UserForm = ({
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
 
-  const { register, control, handleSubmit, formState: { errors }, reset, watch } = useForm({
+  const { register, control, handleSubmit, formState: { errors }, reset, watch, setValue, getValues } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       login_method: {
         label: "Pin",
         value: "pin",
       },
+      create_employee: true,
+      employee_number: '',
     },
   });
+
+  const lastAutoEmployeeNumber = useRef('');
+  const login = watch('login');
+  const createEmployee = watch('create_employee');
+  const isCreateMode = !data;
 
   const closeModal = () => {
     onClose();
@@ -77,8 +97,11 @@ export const UserForm = ({
       login: null,
       password: null,
       user_role: null,
-      user_shift: null
+      user_shift: null,
+      create_employee: true,
+      employee_number: '',
     });
+    lastAutoEmployeeNumber.current = '';
   }
 
   useEffect(() => {
@@ -100,10 +123,27 @@ export const UserForm = ({
           label: (data as any)?.user_shift?.name,
           value: (data as any)?.user_shift?.id,
         } : null,
-        password: null
+        password: null,
+        create_employee: false,
+        employee_number: '',
       });
     }
   }, [data, reset]);
+
+  useEffect(() => {
+    if (!isCreateMode || !createEmployee || !login) {
+      return;
+    }
+
+    const current = getValues('employee_number');
+    if (current && current !== lastAutoEmployeeNumber.current) {
+      return;
+    }
+
+    const next = generateEmployeeNumber(login);
+    setValue('employee_number', next);
+    lastAutoEmployeeNumber.current = next;
+  }, [login, createEmployee, isCreateMode, setValue, getValues]);
 
   const db = useDB();
   const {
@@ -141,6 +181,8 @@ export const UserForm = ({
       return;
     }
 
+    const displayName = `${values.first_name} ${values.last_name}`;
+
     try {
       if( data?.id ) {
         if (vals.login_method === "pin") {
@@ -156,16 +198,57 @@ export const UserForm = ({
             ...vals
           });
         }
-      } else {
-        await db.query(`INSERT INTO user (first_name, last_name, login, login_method, password, roles, user_role, user_shift) values ($first_name, $last_name, $login, $login_method, crypto::bcrypt::generate($password), $roles, $user_role, $user_shift)`, {
-          ...vals
-        });
-      }
 
-      closeModal();
-      toast.success(t('toast:admin.userSaved', { name: `${values.first_name} ${values.last_name}` }));
+        closeModal();
+        toast.success(t('toast:admin.userSaved', { name: displayName }));
+      } else {
+        const userParams = {
+          first_name: vals.first_name,
+          last_name: vals.last_name,
+          login: vals.login,
+          login_method: vals.login_method,
+          password: vals.password,
+          roles: vals.roles,
+          user_role: vals.user_role,
+          user_shift: vals.user_shift,
+        };
+
+        const result = await db.query(
+          `INSERT INTO user (first_name, last_name, login, login_method, password, roles, user_role, user_shift) VALUES ($first_name, $last_name, $login, $login_method, crypto::bcrypt::generate($password), $roles, $user_role, $user_shift) RETURN AFTER`,
+          userParams,
+        );
+        const createdUser = extractFirstRecord<User>(result);
+        const userId = recordIdToString(createdUser?.id ?? createdUser);
+
+        if (values.create_employee) {
+          if (!userId) {
+            closeModal();
+            toast.error(t('toast:admin.employeeLinkFailed'));
+            toast.success(t('toast:admin.userSaved', { name: displayName }));
+            return;
+          }
+
+          try {
+            await createLinkedEmployee(db, {
+              userId,
+              employeeNumber: values.employee_number,
+              first_name: values.first_name,
+              last_name: values.last_name,
+            });
+            closeModal();
+            toast.success(t('toast:admin.userAndEmployeeSaved', { name: displayName }));
+          } catch (employeeError) {
+            closeModal();
+            toast.error(employeeError instanceof Error ? employeeError.message : String(employeeError));
+            toast.success(t('toast:admin.userSaved', { name: displayName }));
+          }
+        } else {
+          closeModal();
+          toast.success(t('toast:admin.userSaved', { name: displayName }));
+        }
+      }
     } catch ( e ) {
-      toast.error(e);
+      toast.error(e instanceof Error ? e.message : String(e));
       console.log(e)
     }
   }
@@ -176,8 +259,6 @@ export const UserForm = ({
       fetchShifts();
     }
   }, [open, fetchRoles, fetchShifts]);
-
-  console.log(errors);
 
   return (
     <>
@@ -255,6 +336,32 @@ export const UserForm = ({
                 )}
               />
             </div>
+
+            {isCreateMode && (
+              <div className="flex flex-col gap-3 pt-2 border-t border-neutral-200">
+                <Controller
+                  name="create_employee"
+                  control={control}
+                  render={({field}) => (
+                    <Checkbox
+                      label={t('forms.createEmployeeToo')}
+                      checked={field.value}
+                      onChange={(e) => field.onChange(e.currentTarget.checked)}
+                    />
+                  )}
+                />
+                {createEmployee && (
+                  <>
+                    <p className="text-sm text-neutral-500">{t('forms.createEmployeeHint')}</p>
+                    <Input
+                      label={t('forms.employeeNumber')}
+                      {...register('employee_number')}
+                      error={errors?.employee_number?.message}
+                    />
+                  </>
+                )}
+              </div>
+            )}
           </div>
 
           <div>

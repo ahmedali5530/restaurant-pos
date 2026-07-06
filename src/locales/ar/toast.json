@@ -98,6 +98,8 @@
     "tableSaved": "تم حفظ الطاولة {{name}}",
     "taxSaved": "تم حفظ الضريبة {{name}}",
     "userSaved": "تم حفظ المستخدم {{name}}",
+    "userAndEmployeeSaved": "تم حفظ المستخدم {{name}} وسجل الموظف",
+    "employeeLinkFailed": "تم حفظ المستخدم ولكن تعذر ربط الموظف. أنشئ الموظف يدويًا في الموارد البشرية.",
     "workflowSaved": "تم حفظ سير العمل {{name}}",
     "tipDistributionSaved": "تم حفظ توزيع الإكراميات",
     "categoriesBulkUpdated": "تم تحديث {{count}} فئة",

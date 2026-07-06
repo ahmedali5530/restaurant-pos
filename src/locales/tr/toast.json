@@ -98,6 +98,8 @@
     "tableSaved": "{{name}} masası kaydedildi",
     "taxSaved": "{{name}} vergisi kaydedildi",
     "userSaved": "{{name}} kullanıcısı kaydedildi",
+    "userAndEmployeeSaved": "{{name}} kullanıcısı ve çalışan kaydı kaydedildi",
+    "employeeLinkFailed": "Kullanıcı kaydedildi ancak çalışan bağlanamadı. Çalışanı İK bölümünden manuel oluşturun.",
     "workflowSaved": "{{name}} iş akışı kaydedildi",
     "tipDistributionSaved": "Bahşiş dağıtımı kaydedildi",
     "categoriesBulkUpdated": "{{count}} kategori güncellendi",

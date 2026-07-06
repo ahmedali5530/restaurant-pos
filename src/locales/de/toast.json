@@ -98,6 +98,8 @@
     "tableSaved": "Tisch {{name}} gespeichert",
     "taxSaved": "Steuer {{name}} gespeichert",
     "userSaved": "Benutzer {{name}} gespeichert",
+    "userAndEmployeeSaved": "Benutzer {{name}} und Mitarbeiterdatensatz gespeichert",
+    "employeeLinkFailed": "Benutzer gespeichert, aber Mitarbeiter konnte nicht verknüpft werden. Erstellen Sie den Mitarbeiter manuell in HR.",
     "workflowSaved": "Workflow {{name}} gespeichert",
     "tipDistributionSaved": "Trinkgeldverteilung gespeichert",
     "categoriesBulkUpdated": "{{count}} Kategorien aktualisiert",

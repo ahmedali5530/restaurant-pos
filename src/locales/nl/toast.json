@@ -98,6 +98,8 @@
     "tableSaved": "Tafel {{name}} opgeslagen",
     "taxSaved": "Belasting {{name}} opgeslagen",
     "userSaved": "Gebruiker {{name}} opgeslagen",
+    "userAndEmployeeSaved": "Gebruiker {{name}} en werknemersrecord opgeslagen",
+    "employeeLinkFailed": "Gebruiker opgeslagen maar werknemer kon niet worden gekoppeld. Maak de werknemer handmatig aan in HR.",
     "workflowSaved": "Workflow {{name}} opgeslagen",
     "tipDistributionSaved": "Fooienverdeling opgeslagen",
     "categoriesBulkUpdated": "{{count}} categorieën bijgewerkt",

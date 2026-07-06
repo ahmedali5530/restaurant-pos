@@ -98,6 +98,8 @@
     "tableSaved": "Table {{name}} enregistrée",
     "taxSaved": "Taxe {{name}} enregistrée",
     "userSaved": "Utilisateur {{name}} enregistré",
+    "userAndEmployeeSaved": "Utilisateur {{name}} et enregistrement employé enregistrés",
+    "employeeLinkFailed": "Utilisateur enregistré mais impossible de lier l'employé. Créez l'employé manuellement dans RH.",
     "workflowSaved": "Flux de travail {{name}} enregistré",
     "tipDistributionSaved": "Répartition des pourboires enregistrée",
     "categoriesBulkUpdated": "{{count}} catégories mises à jour",

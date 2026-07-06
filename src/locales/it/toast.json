@@ -98,6 +98,8 @@
     "tableSaved": "Tavolo {{name}} salvato",
     "taxSaved": "Tassa {{name}} salvata",
     "userSaved": "Utente {{name}} salvato",
+    "userAndEmployeeSaved": "Utente {{name}} e record dipendente salvati",
+    "employeeLinkFailed": "Utente salvato ma impossibile collegare il dipendente. Crea il dipendente manualmente in HR.",
     "workflowSaved": "Flusso di lavoro {{name}} salvato",
     "tipDistributionSaved": "Distribuzione mance salvata",
     "categoriesBulkUpdated": "{{count}} categorie aggiornate",

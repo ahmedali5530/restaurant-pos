@@ -98,6 +98,8 @@
     "tableSaved": "Стол {{name}} сохранён",
     "taxSaved": "Налог {{name}} сохранён",
     "userSaved": "Пользователь {{name}} сохранён",
+    "userAndEmployeeSaved": "Пользователь {{name}} и запись сотрудника сохранены",
+    "employeeLinkFailed": "Пользователь сохранён, но не удалось связать сотрудника. Создайте сотрудника вручную в HR.",
     "workflowSaved": "Рабочий процесс {{name}} сохранён",
     "tipDistributionSaved": "Распределение чаевых сохранено",
     "categoriesBulkUpdated": "Обновлено категорий: {{count}}",

@@ -98,6 +98,8 @@
     "tableSaved": "Mesa {{name}} guardada",
     "taxSaved": "Impuesto {{name}} guardado",
     "userSaved": "Usuario {{name}} guardado",
+    "userAndEmployeeSaved": "Usuario {{name}} y registro de empleado guardados",
+    "employeeLinkFailed": "Usuario guardado pero no se pudo vincular el empleado. Cree el empleado manualmente en RRHH.",
     "workflowSaved": "Flujo de trabajo {{name}} guardado",
     "tipDistributionSaved": "Distribución de propinas guardada",
     "categoriesBulkUpdated": "{{count}} categorías actualizadas",

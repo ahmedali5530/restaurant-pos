@@ -98,6 +98,8 @@
     "tableSaved": "Mesa {{name}} salva",
     "taxSaved": "Imposto {{name}} salvo",
     "userSaved": "Usuário {{name}} salvo",
+    "userAndEmployeeSaved": "Usuário {{name}} e registro de funcionário salvos",
+    "employeeLinkFailed": "Usuário salvo, mas não foi possível vincular o funcionário. Crie o funcionário manualmente em RH.",
     "workflowSaved": "Fluxo de trabalho {{name}} salvo",
     "tipDistributionSaved": "Distribuição de gorjetas salva",
     "categoriesBulkUpdated": "{{count}} categorias atualizadas",

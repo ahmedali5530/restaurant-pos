@@ -98,6 +98,8 @@
     "tableSaved": "Table {{name}} saved",
     "taxSaved": "Tax {{name}} saved",
     "userSaved": "User {{name}} saved",
+    "userAndEmployeeSaved": "User {{name}} and employee record saved",
+    "employeeLinkFailed": "User was saved but employee could not be linked. Create the employee manually in HR.",
     "workflowSaved": "Workflow {{name}} saved",
     "tipDistributionSaved": "Tip distribution saved",
     "categoriesBulkUpdated": "{{count}} categories updated",
