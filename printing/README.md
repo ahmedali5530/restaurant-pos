@@ -31,15 +31,33 @@ sudo mv mkcert-v*-linux-amd64 /usr/local/bin/mkcert
 brew install mkcert
 ```
 
+```powershell
+# Windows (PowerShell)
+winget install FiloSottile.mkcert
+# or: choco install mkcert
+```
+
 ### 2. Generate local certificates
 
-From this directory:
+From the `printing` directory:
 
 ```bash
+# Linux / macOS
 ./scripts/setup-local-certs.sh
 ```
 
-This runs `mkcert -install` (may prompt for sudo) and writes:
+```powershell
+# Windows (PowerShell)
+.\scripts\setup-local-certs.ps1
+```
+
+If execution is blocked, run once in an elevated PowerShell:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+This runs `mkcert -install` (may prompt for admin) and writes:
 
 - `certs/localhost.pem`
 - `certs/localhost-key.pem`
@@ -54,16 +72,27 @@ If the container fails to start with a missing-cert error, re-run the script abo
 docker compose -f docker-compose.standalone.yml up -d --build
 ```
 
-- **URL:** `https://localhost` (port 443)
-- **Health:** `curl https://localhost/health`
-- **Preview:** `https://localhost/print/preview`
+```powershell
+# Windows (PowerShell) — same command
+docker compose -f docker-compose.standalone.yml up -d --build
+```
 
-USB printers: the compose file passes `/dev/bus/usb` through, same as the main stack's `printer` service.
+- **URL:** `https://localhost:3132` (host port `3132` → HTTPS `443` in the container)
+- **Health:** `curl https://localhost:3132/health`
+- **Preview:** `https://localhost:3132/print/preview`
+
+**Windows:** Do not add `/dev/bus/usb` device mapping — that path is Linux-only and will fail on Docker Desktop for Windows. Use **network** or **serial** printers from the container, or run the print server on the host with `npm start` for direct USB access.
+
+**Linux USB printers** (optional): use the USB override compose file:
+
+```bash
+docker compose -f docker-compose.standalone.yml -f docker-compose.standalone.usb.yml up -d --build
+```
 
 Point the React app at this server when using standalone HTTPS (root `.env`):
 
 ```
-VITE_PRINT_SERVER_URL=https://localhost
+VITE_PRINT_SERVER_URL=https://localhost:3132
 ```
 
 The root [`docker-compose.yml`](../docker-compose.yml) and [`Dockerfile`](Dockerfile) (HTTP dev service) are unchanged.

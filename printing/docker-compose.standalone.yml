@@ -8,6 +8,4 @@ services:
       - "3132:443"
     volumes:
       - ./certs:/certs:ro
-    devices:
-      - /dev/bus/usb:/dev/bus/usb
     restart: unless-stopped

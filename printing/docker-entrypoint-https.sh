@@ -9,7 +9,9 @@ PRINT_HOST="${PRINT_HOST:-127.0.0.1}"
 if [ ! -r "$TLS_CERT" ] || [ ! -r "$TLS_KEY" ]; then
   echo "ERROR: TLS certificate files not found or not readable." >&2
   echo "  Expected: $TLS_CERT and $TLS_KEY" >&2
-  echo "  Run on the host: ./scripts/setup-local-certs.sh" >&2
+  echo "  Run on the host:" >&2
+  echo "    Linux/macOS: ./scripts/setup-local-certs.sh" >&2
+  echo "    Windows:     .\\scripts\\setup-local-certs.ps1" >&2
   exit 1
 fi
 

@@ -1,0 +1,7 @@
+# Optional Linux-only override for USB printer passthrough.
+# Usage:
+#   docker compose -f docker-compose.standalone.yml -f docker-compose.standalone.usb.yml up -d --build
+services:
+  print-server:
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
