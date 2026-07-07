@@ -42,13 +42,39 @@ winget install FiloSottile.mkcert
 From the `printing` directory:
 
 ```bash
-# Linux / macOS
+# Linux / macOS — localhost only
 ./scripts/setup-local-certs.sh
+
+# Include LAN IP (e.g. POS on another device on the same network)
+./scripts/setup-local-certs.sh 192.168.1.50
 ```
 
 ```powershell
-# Windows (PowerShell)
+# Windows (PowerShell) — localhost only
 .\scripts\setup-local-certs.ps1
+
+# Include LAN IP
+.\scripts\setup-local-certs.ps1 -LocalIp 192.168.1.50
+# or
+.\scripts\setup-local-certs.ps1 192.168.1.50
+```
+
+**mkcert syntax:** `-cert-file` and `-key-file` are **output filenames**, not IP addresses. Put IPs at the end:
+
+```powershell
+# Correct
+mkcert -cert-file localhost.pem -key-file localhost-key.pem localhost 127.0.0.1 192.168.1.50
+
+# Wrong — 192.168.1.50 is not a valid cert filename here
+mkcert -cert-file 192.168.1.50 -key-file localhost-key.pem localhost
+```
+
+Find your Windows LAN IP:
+
+```powershell
+Get-NetIPAddress -AddressFamily IPv4 |
+  Where-Object { $_.InterfaceAlias -notmatch 'Loopback' -and $_.IPAddress -notlike '169.254*' } |
+  Select-Object IPAddress, InterfaceAlias
 ```
 
 If execution is blocked, run once in an elevated PowerShell:
@@ -61,8 +87,11 @@ This runs `mkcert -install` (may prompt for admin) and writes:
 
 - `certs/localhost.pem`
 - `certs/localhost-key.pem`
+- `certs/tls-hosts.txt` — hosts Caddy serves (used by the container entrypoint)
 
-Certs cover `localhost`, `127.0.0.1`, and `::1`. PEM files are gitignored — each developer generates them locally.
+Default certs cover `localhost`, `127.0.0.1`, and `::1`. Add your LAN IP when other machines on the network need HTTPS. PEM files are gitignored — each developer generates them locally.
+
+**LAN access:** Each client device (tablets, other PCs) must run `mkcert -install` with the same mkcert CA, or the browser will warn about the certificate. Regenerate certs after changing IPs, then restart the container.
 
 If the container fails to start with a missing-cert error, re-run the script above.
 
@@ -77,7 +106,8 @@ docker compose -f docker-compose.standalone.yml up -d --build
 docker compose -f docker-compose.standalone.yml up -d --build
 ```
 
-- **URL:** `https://localhost:3132` (host port `3132` → HTTPS `443` in the container)
+- **URL (same machine):** `https://localhost:3132`
+- **URL (LAN IP):** `https://192.168.1.50:3132` (after including that IP when generating certs)
 - **Health:** `curl https://localhost:3132/health`
 - **Preview:** `https://localhost:3132/print/preview`
 
@@ -92,7 +122,11 @@ docker compose -f docker-compose.standalone.yml -f docker-compose.standalone.usb
 Point the React app at this server when using standalone HTTPS (root `.env`):
 
 ```
+# same machine
 VITE_PRINT_SERVER_URL=https://localhost:3132
+
+# LAN IP (after cert includes that IP)
+VITE_PRINT_SERVER_URL=https://192.168.1.50:3132
 ```
 
 The root [`docker-compose.yml`](../docker-compose.yml) and [`Dockerfile`](Dockerfile) (HTTP dev service) are unchanged.

@@ -18,8 +18,16 @@ fi
 CADDYFILE=/etc/caddy/Caddyfile
 mkdir -p /etc/caddy
 
+if [ -f /certs/tls-hosts.txt ]; then
+  TLS_HOSTS=$(tr -d ' \n\r' < /certs/tls-hosts.txt)
+elif [ -n "${PRINT_TLS_HOSTS:-}" ]; then
+  TLS_HOSTS="$PRINT_TLS_HOSTS"
+else
+  TLS_HOSTS="localhost,127.0.0.1"
+fi
+
 cat > "$CADDYFILE" <<EOF
-localhost, 127.0.0.1 {
+${TLS_HOSTS} {
   tls $TLS_CERT $TLS_KEY
   reverse_proxy ${PRINT_HOST}:${PRINT_PORT}
 }
@@ -35,6 +43,6 @@ cleanup() {
 trap cleanup INT TERM EXIT
 
 echo "Print server listening on http://${PRINT_HOST}:${PRINT_PORT}"
-echo "HTTPS available at https://localhost"
+echo "HTTPS hosts: ${TLS_HOSTS}"
 
 exec caddy run --config "$CADDYFILE"
