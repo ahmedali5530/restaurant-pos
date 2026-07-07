@@ -139,7 +139,8 @@ export const MenuHeader = () => {
           comments: item.comments,
         })) ?? [],
         seats: seatsArray,
-        seat: noSeat ? undefined : (seatsArray.length > 0 ? seatsArray[0] : undefined)
+        seat: noSeat ? undefined : (seatsArray.length > 0 ? seatsArray[0] : undefined),
+        customer: order?.customer, // attach customer
       }));
     }
   }
