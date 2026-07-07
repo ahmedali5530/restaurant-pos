@@ -1,0 +1,9 @@
+node_modules
+npm-debug.log*
+
+certs/*.pem
+certs/*.crt
+certs/*.key
+
+.git
+.gitignore

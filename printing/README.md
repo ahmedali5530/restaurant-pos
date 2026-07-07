@@ -12,6 +12,62 @@ npm start
 
 Server listens on `http://localhost:3132` (or `PRINT_PORT`).
 
+## Standalone HTTPS (Docker)
+
+Run the print server alone over **trusted HTTPS** on localhost (no browser certificate warnings). TLS is handled by Caddy in front of the same Express app — `server.js` stays HTTP-only inside the container.
+
+### 1. Install mkcert (one-time per machine)
+
+[mkcert](https://github.com/FiloSottile/mkcert) creates certificates trusted by your OS and browser after you install its local CA.
+
+```bash
+# Debian/Ubuntu
+sudo apt install libnss3-tools
+curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
+chmod +x mkcert-v*-linux-amd64
+sudo mv mkcert-v*-linux-amd64 /usr/local/bin/mkcert
+
+# macOS (Homebrew)
+brew install mkcert
+```
+
+### 2. Generate local certificates
+
+From this directory:
+
+```bash
+./scripts/setup-local-certs.sh
+```
+
+This runs `mkcert -install` (may prompt for sudo) and writes:
+
+- `certs/localhost.pem`
+- `certs/localhost-key.pem`
+
+Certs cover `localhost`, `127.0.0.1`, and `::1`. PEM files are gitignored — each developer generates them locally.
+
+If the container fails to start with a missing-cert error, re-run the script above.
+
+### 3. Start the HTTPS container
+
+```bash
+docker compose -f docker-compose.standalone.yml up -d --build
+```
+
+- **URL:** `https://localhost` (port 443)
+- **Health:** `curl https://localhost/health`
+- **Preview:** `https://localhost/print/preview`
+
+USB printers: the compose file passes `/dev/bus/usb` through, same as the main stack's `printer` service.
+
+Point the React app at this server when using standalone HTTPS (root `.env`):
+
+```
+VITE_PRINT_SERVER_URL=https://localhost
+```
+
+The root [`docker-compose.yml`](../docker-compose.yml) and [`Dockerfile`](Dockerfile) (HTTP dev service) are unchanged.
+
 ## Preview (no printer needed)
 
 - **GET http://localhost:3132/print/preview** — Tool page: choose print type, paste JSON (same shape as `/print`), click Preview. Opens the receipt layout in a new tab.
