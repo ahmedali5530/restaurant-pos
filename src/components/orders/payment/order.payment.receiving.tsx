@@ -40,6 +40,7 @@ import {useTranslation} from "react-i18next";
 interface Props {
   order: Order
   total: number
+  resolvePayable: (taxOverride?: Tax | null) => number
   onComplete: () => void
 
   extras: Record<string, number>
@@ -98,6 +99,7 @@ export const OrderPaymentReceiving = (props: Props) => {
 
 const OrderPaymentReceivingContent = ({
   total,
+  resolvePayable,
   order,
   onComplete,
   extras,
@@ -380,16 +382,6 @@ const OrderPaymentReceivingContent = ({
     setSelectedAmount('');
   }
 
-  // Determine highest tax among existing payments, optionally considering a candidate tax
-  const getHighestTaxRate = (candidateRate?: number) => {
-    const existingRates = payments
-      .map(p => getPaymentTypeTax(p.payment_type))
-      .filter((paymentTax): paymentTax is Tax => !!paymentTax)
-      .map(paymentTax => paymentTax.rate);
-    const currentMax = existingRates.length > 0 ? Math.max(...existingRates) : 0;
-    return candidateRate === undefined ? currentMax : Math.max(currentMax, candidateRate);
-  }
-
   const getHighestTaxObject = (candidate?: Tax): Tax | undefined => {
     const existingTaxes = payments
       .map(p => getPaymentTypeTax(p.payment_type))
@@ -403,6 +395,17 @@ const OrderPaymentReceivingContent = ({
       }
     }
     return highest;
+  }
+
+  const applyPaymentTypeTaxAndDiscount = (paymentType: PaymentType): number => {
+    const candidateTax = getPaymentTypeTax(paymentType);
+    const hasTax = !!candidateTax;
+    const highestTax = hasTax ? getHighestTaxObject(candidateTax) : getHighestTaxObject(undefined);
+    if (hasTax) {
+      setTax && setTax(highestTax);
+    }
+    applyPaymentTypeDiscountIfAny(paymentType);
+    return resolvePayable(hasTax ? highestTax : undefined);
   }
 
   const selectBestDiscount = (discounts?: Discount[]): Discount | undefined => {
@@ -477,14 +480,8 @@ const OrderPaymentReceivingContent = ({
                 return;
               }
               const pt = paymentTypes[0];
-              const paymentTypeTax = getPaymentTypeTax(pt);
-              const hasTax = !!paymentTypeTax;
-              const highestTax = hasTax ? getHighestTaxObject(paymentTypeTax) : getHighestTaxObject(undefined);
-              if (hasTax) {
-                setTax && setTax(highestTax);
-              }
-              applyPaymentTypeDiscountIfAny(pt);
-              void addPayment(total, pt, total);
+              const payable = applyPaymentTypeTaxAndDiscount(pt);
+              void addPayment(payable, pt, payable);
               setMode('quick');
             }}
           >{withCurrency(total)}</span>
@@ -497,14 +494,8 @@ const OrderPaymentReceivingContent = ({
                     return;
                   }
                   const pt = paymentTypes[0];
-                  const paymentTypeTax = getPaymentTypeTax(pt);
-                  const hasTax = !!paymentTypeTax;
-                  const highestTax = hasTax ? getHighestTaxObject(paymentTypeTax) : getHighestTaxObject(undefined);
-                  if (hasTax) {
-                    setTax && setTax(highestTax);
-                  }
-                  applyPaymentTypeDiscountIfAny(pt);
-                  void addPayment(item, pt, total);
+                  const payable = applyPaymentTypeTaxAndDiscount(pt);
+                  void addPayment(item, pt, payable);
                   setMode('quick');
                 }}
               >{withCurrency(item)}</span>
@@ -520,25 +511,15 @@ const OrderPaymentReceivingContent = ({
               variant="primary"
               key={item.id}
               onClick={() => {
-                // Determine the effective highest tax after choosing this payment type
-                const candidateTax = getPaymentTypeTax(item);
-                const hasTax = !!candidateTax;
-                const highestTax = hasTax ? getHighestTaxObject(candidateTax) : getHighestTaxObject(undefined);
-                // Only update global tax when this payment type has a tax attached
-                if (hasTax) {
-                  setTax && setTax(highestTax);
-                }
-                // For non-tax payment types, use current order-level tax (or highest among existing payments)
-                // Apply discount(s) attached to the payment type (auto)
-                applyPaymentTypeDiscountIfAny(item);
+                const payable = applyPaymentTypeTaxAndDiscount(item);
 
                 if (selectedAmount.trim().length > 0) {
-                  void addPayment(selectedAmount, item, total)
+                  void addPayment(selectedAmount, item, payable)
                 } else if (changeDue < 0) {
-                  const remaining = total - tendered;
+                  const remaining = payable - tendered;
                   const amt = remaining.toString();
                   setSelectedAmount(amt);
-                  void addPayment(amt, item, total)
+                  void addPayment(amt, item, payable)
                 } else {
                   // Nothing typed and no remaining due – do nothing (card will be blocked inside addPayment)
                 }

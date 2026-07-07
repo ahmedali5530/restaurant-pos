@@ -4,10 +4,8 @@ import {OrderHeader} from "@/components/orders/order.header.tsx";
 import ScrollContainer from "react-indiana-drag-scroll";
 import React, {CSSProperties, useCallback, useEffect, useMemo, useState} from "react";
 import {OrderTimes} from "@/components/orders/order.times.tsx";
-import {calculateOrderGrandTotal, calculateOrderTotal} from "@/lib/cart.ts";
-import {
-  calculateOrderPaymentTaxAmount,
-} from "@/lib/tax-calculator.ts";
+import {calculateOrderTotal} from "@/lib/cart.ts";
+import {computeOrderPaymentTotals} from "@/lib/order-payment-totals.ts";
 import {cn, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {OrderPaymentReceiving} from "@/components/orders/payment/order.payment.receiving.tsx";
 import {OrderPaymentTax} from "@/components/orders/payment/order.payment.tax.tsx";
@@ -15,8 +13,6 @@ import {Tax} from "@/api/model/tax.ts";
 import {DiscountType} from "@/api/model/discount.ts";
 import {OrderPaymentDiscountEngine} from "@/components/orders/payment/order.payment.discount-engine.tsx";
 import type {AppliedDiscountLine} from "@/lib/discount-engine/types.ts";
-import {recalculateCart} from "@/lib/discount-engine/recalculate.ts";
-import {getDiscountCache} from "@/lib/discount-engine/cache.ts";
 import {useDiscountCache} from "@/hooks/useDiscountCache.ts";
 import {
   loadActiveOrderDiscounts,
@@ -191,33 +187,30 @@ export const OrderPayment = ({
     return mapped;
   }, [defaultExtras, extraToggles]);
 
-  const cartTotals = useMemo(() => {
-    const extrasTotal = Object.values(extras).reduce((prev, item) => prev + item, 0);
-    const base = recalculateCart(order, {
-      existingApplications: discountLines.filter(l => l.applicationType === 'manual'),
-      manualRequests: [],
-      extrasTotal,
-      serviceChargeAmount: serviceCharge
-        ? (serviceChargeType === DiscountType.Percent ? itemsTotal * serviceCharge / 100 : serviceCharge)
-        : 0,
-      couponAmount,
-      tipAmount: tipType === DiscountType.Fixed ? tip : itemsTotal * tip / 100,
-      taxRate: tax?.rate ?? order.tax?.rate,
-      rules: getDiscountCache().all,
-    });
+  const paymentTotalsParams = useMemo(() => ({
+    tax: tax ?? order.tax ?? null,
+    discountLines,
+    extras,
+    serviceCharge,
+    serviceChargeType,
+    couponAmount,
+    tip,
+    tipType,
+    itemsTotal,
+  }), [tax, order.tax, discountLines, extras, serviceCharge, serviceChargeType, couponAmount, tip, tipType, itemsTotal]);
 
-    const resolvedTaxAmount = calculateOrderPaymentTaxAmount(
-      order,
-      tax ?? order.tax ?? null,
-    );
+  const paymentTotals = useMemo(
+    () => computeOrderPaymentTotals(order, paymentTotalsParams),
+    [order, paymentTotalsParams],
+  );
 
-    const taxDelta = resolvedTaxAmount - base.taxAmount;
-    return {
-      ...base,
-      taxAmount: resolvedTaxAmount,
-      grandTotal: base.grandTotal + taxDelta,
-    };
-  }, [order, discountLines, extras, serviceCharge, serviceChargeType, couponAmount, tip, tipType, itemsTotal, tax, order.tax]);
+  const cartTotals = useMemo(() => ({
+    ...paymentTotals,
+    itemsTotal,
+    extrasTotal: Object.values(extras).reduce((prev, item) => prev + item, 0),
+    couponAmount,
+    taxableAmount: 0,
+  }), [paymentTotals, itemsTotal, extras, couponAmount]);
 
   useEffect(() => {
     const autoLines = cartTotals.discountLines.filter(l => l.applicationType === 'automatic');
@@ -319,18 +312,14 @@ export const OrderPayment = ({
     setInitialized(true);
   }, [order, isInitialized]);
 
-  const total = useMemo(() => {
-    const extrasTotal = Object.values(extras).reduce((prev, item) => prev + item, 0);
-    return calculateOrderGrandTotal({
-      itemsTotal,
-      extrasTotal,
-      taxAmount: cartTotals.taxAmount,
-      discountTotal: cartTotals.discountTotal,
-      serviceChargeAmount,
-      couponAmount,
-      tipAmount,
-    });
-  }, [itemsTotal, cartTotals, serviceChargeAmount, extras, tipAmount, couponAmount]);
+  const total = paymentTotals.total;
+
+  const resolvePayable = useCallback((taxOverride?: Tax | null) => {
+    return computeOrderPaymentTotals(order, {
+      ...paymentTotalsParams,
+      tax: taxOverride !== undefined ? taxOverride : paymentTotalsParams.tax,
+    }).total;
+  }, [order, paymentTotalsParams]);
 
   const [mode, setMode] = useState(PaymentOptions.Tax);
 
@@ -903,6 +892,7 @@ export const OrderPayment = ({
           <OrderPaymentReceiving
             order={order}
             total={total}
+            resolvePayable={resolvePayable}
             onComplete={onPayment}
             extras={extras}
             setTax={setTax}
