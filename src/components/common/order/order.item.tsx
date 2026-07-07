@@ -36,10 +36,10 @@ export const OrderItemName = ({
       )}
       {showModifiers && item?.modifiers?.length > 0 && (
         <div className="pl-3 flex flex-col">
-          {item?.modifiers?.map(modifier => (
+          {item?.modifiers?.map((modifier, k) => (
             <OrderItemModifiers
               modifier={modifier}
-              key={modifier.id}
+              key={k}
               showGroups={showGroups}
               showPrice={showModifierPrice}
             />

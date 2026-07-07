@@ -5,6 +5,7 @@ import type { AppliedDiscountLine } from '@/lib/discount-engine/types.ts'
 import { nowSurrealDateTime } from '@/lib/datetime.ts'
 import type { useDB } from '@/api/db/db.ts'
 import type { User } from '@/api/model/user.ts'
+import {toRecordId} from "@/lib/utils.ts";
 
 export type DbClient = ReturnType<typeof useDB>
 
@@ -19,7 +20,7 @@ export const persistOrderDiscounts = async (
     for (const id of existingIds) {
       await db.merge(id, {
         removed_at: nowSurrealDateTime(),
-        removed_by: user?.id || null,
+        removed_by: toRecordId(user?.id || null),
       })
     }
   }
@@ -39,7 +40,7 @@ export const persistOrderDiscounts = async (
       application_type: line.applicationType,
       reason: line.reasonId || null,
       reason_text: line.reasonText || null,
-      applied_by: user?.id || null,
+      applied_by: toRecordId(user?.id || null),
       order_items: line.lineAllocations?.map(l => l.orderItemId) || [],
       line_allocations: line.lineAllocations?.map(l => ({
         order_item: l.orderItemId,
