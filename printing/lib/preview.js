@@ -1,8 +1,63 @@
 'use strict';
 
-const { formatMoney, normalizeConfig } = require('./receipt-helpers');
+const { formatMoney, normalizeConfig, normalizeSections } = require('./receipt-helpers');
 const { mapOrderToTemp, mapOrderToFinal, mapOrderToDelivery, mapOrderToRefund } = require('./order-mapping');
 const { computeSummary, formatNum } = require('./summary-mapping');
+
+function sectionAlignClass(align) {
+  if (align === 'left') return 'left';
+  if (align === 'right') return 'right';
+  return 'center';
+}
+
+function sectionSizeClass(size) {
+  if (size === 'large') return 'size-large';
+  if (size === 'medium') return 'size-medium';
+  return 'size-normal';
+}
+
+function renderSectionsToHtml(sections) {
+  const parts = [];
+  normalizeSections(sections).filter((section) => section.enabled).forEach((section) => {
+    const alignCls = sectionAlignClass(section.align);
+    if (section.type === 'image' && section.content) {
+      const src = /^data:/.test(section.content) ? section.content : `data:image/png;base64,${section.content}`;
+      parts.push(`<div class="section ${alignCls}"><img src="${escapeHtml(src)}" alt="" style="max-width:120px;max-height:60px;" /></div>`);
+    } else if (section.type === 'text' && section.content) {
+      parts.push(`<div class="section ${alignCls} ${sectionSizeClass(section.size)}">${escapeHtml(section.content)}</div>`);
+    }
+  });
+  return parts.join('\n  ');
+}
+
+function renderBrandingHeader(cfg) {
+  const parts = [];
+  if (cfg.showLogo && cfg.logo && String(cfg.logo).trim()) {
+    const src = /^data:/.test(cfg.logo) ? cfg.logo : `data:image/png;base64,${cfg.logo}`;
+    parts.push(`<div class="logo"><img src="${escapeHtml(src)}" alt="Logo" style="max-width:120px;max-height:60px;" /></div>`);
+  }
+  const headerSections = renderSectionsToHtml(cfg.headerSections);
+  if (headerSections) parts.push(headerSections);
+  return parts.join('\n  ');
+}
+
+const receiptPreviewStyles = `
+    body { margin: 0; padding: 16px; background: #f0f0f0; font-family: 'Courier New', Consolas, monospace; }
+    .receipt { width: 280px; margin: 0 auto; padding: 12px; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.15); font-size: 12px; line-height: 1.4; }
+    .title, .center { text-align: center; }
+    .left { text-align: left; }
+    .right { text-align: right; }
+    .title { font-weight: bold; margin-bottom: 8px; }
+    .row { display: flex; justify-content: space-between; gap: 12px; }
+    .row span:last-child { text-align: right; }
+    .bold { font-weight: bold; }
+    .thankyou { margin-top: 8px; }
+    .section { margin: 2px 0; }
+    .size-medium { font-size: 14px; }
+    .size-large { font-size: 16px; font-weight: bold; }
+    hr { border: none; border-top: 1px dashed #333; margin: 6px 0; }
+    .logo { text-align: center; margin-bottom: 4px; }
+`;
 
 function escapeHtml(s) {
   if (s == null) return '';
@@ -35,23 +90,13 @@ function renderBillToHtml(bill, config, opts) {
 
   const parts = [];
 
-  // Logo (only when showLogo is true)
-  if (cfg.showLogo && cfg.logo && String(cfg.logo).trim()) {
-    const src = /^data:/.test(cfg.logo) ? cfg.logo : `data:image/png;base64,${cfg.logo}`;
-    parts.push(`<div class="logo"><img src="${escapeHtml(src)}" alt="Logo" style="max-width:120px;max-height:60px;" /></div>`);
-  }
-  if (cfg.showCompanyName && cfg.companyName) {
-    parts.push(`<div class="center">${escapeHtml(cfg.companyName)}</div>`);
-  }
-  if (cfg.showCompanyAddress && cfg.companyAddress) {
-    parts.push(`<div class="center">${escapeHtml(String(cfg.companyAddress).slice(0, 48))}</div>`);
-  }
-  if (cfg.showTopDescription && cfg.topDescription) {
-    parts.push(`<div class="center">${escapeHtml(String(cfg.topDescription).slice(0, 48))}</div>`);
-  }
+  const brandingHeader = renderBrandingHeader(cfg);
+  if (brandingHeader) parts.push(brandingHeader);
 
-  // Header
   parts.push(`<div class="title">${escapeHtml(title)}</div>`);
+  if (cfg.showVatNumber && cfg.vatNumber) {
+    parts.push(`<div class="center">${escapeHtml(cfg.vatName + ': ' + cfg.vatNumber)}</div>`);
+  }
   parts.push(row(`Invoice# ${bill.orderId || ''}`, bill.date || ''));
   parts.push(row(bill.table || '', bill.userName || ''));
   if (address) parts.push(`<div class="row"><span>Address: ${escapeHtml(String(address).slice(0, 40))}</span></div>`);
@@ -103,9 +148,6 @@ function renderBillToHtml(bill, config, opts) {
     parts.push(`<div class="row bold"><span>Change</span><span>${escapeHtml(formatMoney(bill.change, sym))}</span></div>`);
   }
 
-  if (cfg.showVatNumber && cfg.vatNumber) {
-    parts.push(`<div class="row">${escapeHtml(cfg.vatName + ': ' + cfg.vatNumber)}</div>`);
-  }
   if (notes) {
     parts.push('<hr/>');
     parts.push(`<div class="row"><span>Notes: ${escapeHtml(String(notes).slice(0, 48))}</span></div>`);
@@ -113,26 +155,15 @@ function renderBillToHtml(bill, config, opts) {
   if (thankYou) {
     parts.push(`<div class="center thankyou">${escapeHtml(thankYou)}</div>`);
   }
-  if (cfg.showBottomDescription && cfg.bottomDescription) {
-    parts.push(`<div class="center">${escapeHtml(String(cfg.bottomDescription).slice(0, 48))}</div>`);
-  }
+  const footerSections = renderSectionsToHtml(cfg.footerSections);
+  if (footerSections) parts.push(footerSections);
 
   return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <title>Receipt preview</title>
-  <style>
-    body { margin: 0; padding: 16px; background: #f0f0f0; font-family: 'Courier New', Consolas, monospace; }
-    .receipt { width: 280px; margin: 0 auto; padding: 12px; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.15); font-size: 12px; line-height: 1.4; }
-    .title, .center { text-align: center; }
-    .title { font-weight: bold; margin-bottom: 8px; }
-    .row { display: flex; justify-content: space-between; gap: 12px; }
-    .row span:last-child { text-align: right; }
-    .bold { font-weight: bold; }
-    .thankyou { margin-top: 8px; }
-    hr { border: none; border-top: 1px dashed #333; margin: 6px 0; }
-    .logo { text-align: center; margin-bottom: 4px; }
+  <style>${receiptPreviewStyles}
   </style>
 </head>
 <body>
@@ -159,19 +190,8 @@ function renderSummaryToHtml(data, config) {
   const ex = s.exclusiveSales;
 
   const parts = [];
-  if (cfg.showLogo && cfg.logo && String(cfg.logo).trim()) {
-    const src = /^data:/.test(cfg.logo) ? cfg.logo : `data:image/png;base64,${cfg.logo}`;
-    parts.push(`<div class="logo"><img src="${escapeHtml(src)}" alt="Logo" style="max-width:120px;max-height:60px;" /></div>`);
-  }
-  if (cfg.showCompanyName && cfg.companyName) {
-    parts.push(`<div class="center">${escapeHtml(cfg.companyName)}</div>`);
-  }
-  if (cfg.showCompanyAddress && cfg.companyAddress) {
-    parts.push(`<div class="center">${escapeHtml(String(cfg.companyAddress).slice(0, 48))}</div>`);
-  }
-  if (cfg.showTopDescription && cfg.topDescription) {
-    parts.push(`<div class="center">${escapeHtml(String(cfg.topDescription).slice(0, 48))}</div>`);
-  }
+  const brandingHeader = renderBrandingHeader(cfg);
+  if (brandingHeader) parts.push(brandingHeader);
   parts.push(`<div class="title">Daily sales summary — ${escapeHtml(s.date)}</div>`);
   parts.push('<hr/>');
   parts.push(sect('1. Sales revenue'));
@@ -285,7 +305,12 @@ function renderSummaryToHtml(data, config) {
   }
   if (cfg.showVatNumber && cfg.vatNumber) {
     parts.push('<hr/>');
-    parts.push(`<div class="row">${escapeHtml(cfg.vatName + ': ' + cfg.vatNumber)}</div>`);
+    parts.push(`<div class="center">${escapeHtml(cfg.vatName + ': ' + cfg.vatNumber)}</div>`);
+  }
+  const footerSections = renderSectionsToHtml(cfg.footerSections);
+  if (footerSections) {
+    parts.push('<hr/>');
+    parts.push(footerSections);
   }
   return `<!DOCTYPE html>
 <html>
@@ -377,20 +402,12 @@ function renderRefundToHtml(data, config) {
     `<div class="row"><span>${escapeHtml(left)}</span><span>${escapeHtml(right)}</span></div>`;
 
   const parts = [];
-  if (cfg.showLogo && cfg.logo && String(cfg.logo).trim()) {
-    const src = /^data:/.test(cfg.logo) ? cfg.logo : `data:image/png;base64,${cfg.logo}`;
-    parts.push(`<div class="logo"><img src="${escapeHtml(src)}" alt="Logo" style="max-width:120px;max-height:60px;" /></div>`);
-  }
-  if (cfg.showCompanyName && cfg.companyName) {
-    parts.push(`<div class="center">${escapeHtml(cfg.companyName)}</div>`);
-  }
-  if (cfg.showCompanyAddress && cfg.companyAddress) {
-    parts.push(`<div class="center">${escapeHtml(String(cfg.companyAddress).slice(0, 48))}</div>`);
-  }
-  if (cfg.showTopDescription && cfg.topDescription) {
-    parts.push(`<div class="center">${escapeHtml(String(cfg.topDescription).slice(0, 48))}</div>`);
-  }
+  const brandingHeader = renderBrandingHeader(cfg);
+  if (brandingHeader) parts.push(brandingHeader);
   parts.push(`<div class="title">REFUND RECEIPT</div>`);
+  if (cfg.showVatNumber && cfg.vatNumber) {
+    parts.push(`<div class="center">${escapeHtml(cfg.vatName + ': ' + cfg.vatNumber)}</div>`);
+  }
   parts.push(row(`Original Invoice# ${bill.originalOrderId || ''}`, ''));
   parts.push(row(`Refund Date: ${bill.refundDate || ''}`, ''));
   parts.push('<hr/>');
@@ -419,24 +436,14 @@ function renderRefundToHtml(data, config) {
   }
   parts.push('<hr/>');
   parts.push(`<div class="row bold"><span>Refund Total</span><span>${escapeHtml(formatMoney(bill.total, sym))}</span></div>`);
-  if (cfg.showVatNumber && cfg.vatNumber) {
-    parts.push(`<div class="row">${escapeHtml(cfg.vatName + ': ' + cfg.vatNumber)}</div>`);
-  }
+  const footerSections = renderSectionsToHtml(cfg.footerSections);
+  if (footerSections) parts.push(footerSections);
   return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <title>Refund preview</title>
-  <style>
-    body { margin: 0; padding: 16px; background: #f0f0f0; font-family: 'Courier New', Consolas, monospace; }
-    .receipt { width: 280px; margin: 0 auto; padding: 12px; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.15); font-size: 12px; line-height: 1.4; }
-    .title, .center { text-align: center; }
-    .title { font-weight: bold; margin-bottom: 8px; }
-    .row { display: flex; justify-content: space-between; gap: 12px; }
-    .row span:last-child { text-align: right; }
-    .bold { font-weight: bold; }
-    hr { border: none; border-top: 1px dashed #333; margin: 6px 0; }
-    .logo { text-align: center; margin-bottom: 4px; }
+  <style>${receiptPreviewStyles}
   </style>
 </head>
 <body>

@@ -3,7 +3,7 @@
 const {
   normalizeConfig,
   printReceiptHeader,
-  printBottomDescription,
+  printFooterSections,
   feedBottomMargin,
 } = require('../lib/receipt-helpers');
 
@@ -103,11 +103,12 @@ function build(printer, data = {}, config = {}) {
       printer.tableCustom(row.cells, { size });
     });
 
-    printBottomDescription(printer, cfg);
-    feedBottomMargin(printer, cfg);
-    if (feed > 0) printer.feed(feed);
-    if (shouldCut) printer.cut();
-    return printer;
+    return printFooterSections(printer, cfg).then(() => {
+      feedBottomMargin(printer, cfg);
+      if (feed > 0) printer.feed(feed);
+      if (shouldCut) printer.cut();
+      return printer;
+    });
   });
 }
 

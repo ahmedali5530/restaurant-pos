@@ -75,6 +75,20 @@ function logoToBase64(logo: unknown): string | undefined {
   return `data:image/png;base64,${btoa(b)}`;
 }
 
+function normalizeReceiptSections(sections: unknown): unknown[] {
+  if (!Array.isArray(sections)) return [];
+  return sections.map((section) => {
+    if (!section || typeof section !== 'object') return section;
+    const s = section as Record<string, unknown>;
+    if (s.type !== 'image') return section;
+    const image = logoToBase64(s.content);
+    return {
+      ...s,
+      content: image ?? s.content,
+    };
+  });
+}
+
 function printerToDriverConfig(p: Printer): { type: string; ip?: string; port?: number } {
   const type = String(p.type || 'network').toLowerCase();
   return {
@@ -99,6 +113,8 @@ export async function getPrintConfig(db: PrintDB, template: string): Promise<Rec
   return {
     ...values,
     logo: logo ?? values.logo,
+    headerSections: normalizeReceiptSections(values.headerSections),
+    footerSections: normalizeReceiptSections(values.footerSections),
     currencySymbol: (values.currencySymbol as string) ?? currencySymbol,
   };
 }

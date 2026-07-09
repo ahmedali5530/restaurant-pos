@@ -11,13 +11,65 @@ import {Switch} from "@/components/common/input/switch.tsx";
 import {useEffect, useState, useMemo} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTimes} from "@fortawesome/free-solid-svg-icons";
-import i18n from '@/lib/i18n.ts';
 import {detectMimeType, toArrayBuffer} from "@/utils/files.ts";
+import {ReceiptSectionEditor} from "@/components/settings/prints/receipt-section.editor.tsx";
+import {ReceiptSection} from "@/api/model/receipt-section.ts";
 
 interface Props {
   open: boolean
   onClose: () => void;
   data?: Setting
+}
+
+type PrintFormValues = {
+  showLogo?: boolean
+  logo?: ArrayBuffer | null
+  headerSections?: ReceiptSection[]
+  footerSections?: ReceiptSection[]
+  showVatNumber?: boolean
+  vatName?: string
+  vatNumber?: string
+  topMargin?: number
+  bottomMargin?: number
+  leftMargin?: number
+  rightMargin?: number
+  showItemNumber?: boolean
+  showItemName?: boolean
+  showItemQuantity?: boolean
+  showItemPrice?: boolean
+  showItemTotal?: boolean
+}
+
+function normalizeSectionsFromDb(sections: unknown): ReceiptSection[] {
+  if (!Array.isArray(sections)) return [];
+  return sections.map((section) => {
+    const s = section as Partial<ReceiptSection>;
+    return {
+      enabled: s.enabled !== false,
+      type: s.type === 'image' ? 'image' : 'text',
+      align: s.align === 'left' || s.align === 'right' ? s.align : 'center',
+      size: s.size === 'medium' || s.size === 'large' ? s.size : 'normal',
+      content: s.content ?? '',
+    };
+  });
+}
+
+function preserveSectionImages(
+  sections: ReceiptSection[] | undefined,
+  existing: ReceiptSection[] | undefined,
+): ReceiptSection[] {
+  if (!sections) return [];
+  return sections.map((section, index) => {
+    if (section.type !== 'image') return section;
+    const hasNewImage = section.content instanceof ArrayBuffer
+      || (Array.isArray(section.content) && section.content.length > 0);
+    if (hasNewImage) return section;
+    const prev = existing?.[index];
+    if (prev?.type === 'image' && prev.content) {
+      return {...section, content: prev.content};
+    }
+    return section;
+  });
 }
 
 export const PrintForm = ({
@@ -30,12 +82,11 @@ export const PrintForm = ({
   const [logoRemoved, setLogoRemoved] = useState(false);
 
   const db = useDB();
-  const {handleSubmit, control, reset, setValue} = useForm();
+  const {handleSubmit, control, reset, setValue} = useForm<PrintFormValues>();
 
-  // Create preview URL from existing logo in database
   const existingLogoUrl = useMemo(() => {
     if (!data?.values?.logo) return null;
-    
+
     try {
       const buffer = toArrayBuffer(data.values.logo);
       const mimeType = detectMimeType(buffer, 'image/png');
@@ -47,14 +98,15 @@ export const PrintForm = ({
     }
   }, [data?.values?.logo]);
 
-  // Use existing logo URL or new preview
   const currentLogoUrl = logoPreview || existingLogoUrl;
 
   useEffect(() => {
     if(data?.values){
       reset({
-        ...data?.values,
-        logo: null
+        ...data.values,
+        logo: null,
+        headerSections: normalizeSectionsFromDb(data.values.headerSections),
+        footerSections: normalizeSectionsFromDb(data.values.footerSections),
       });
       setLogoPreview(null);
       setLogoArrayBuffer(data?.values?.logo || null);
@@ -62,7 +114,6 @@ export const PrintForm = ({
     }
   }, [data?.values, reset]);
 
-  // Clean up object URLs on unmount
   useEffect(() => {
     return () => {
       if (existingLogoUrl) {
@@ -91,12 +142,11 @@ export const PrintForm = ({
 
       const blob = new Blob([buffer], { type: file.type || 'image/png' });
       const objectUrl = URL.createObjectURL(blob);
-      
-      // Revoke previous preview if exists
+
       if (logoPreview) {
         URL.revokeObjectURL(logoPreview);
       }
-      
+
       setLogoPreview(objectUrl);
       setValue('logo', buffer);
     } catch (err) {
@@ -109,7 +159,6 @@ export const PrintForm = ({
   };
 
   const handleRemoveLogo = () => {
-    // Only revoke logoPreview (newly selected), not existingLogoUrl (managed by useMemo)
     if (logoPreview) {
       URL.revokeObjectURL(logoPreview);
     }
@@ -123,22 +172,27 @@ export const PrintForm = ({
     onClose();
   }
 
-  const onSubmit = async (values: any) => {
+  const onSubmit = async (values: PrintFormValues) => {
     const vals = {...values};
-    
-    // Handle logo: if removed, set to null; if new one selected, use it; otherwise keep existing
+
     if (logoRemoved) {
       vals.logo = null;
     } else if (logoArrayBuffer) {
-      // New logo was selected
       vals.logo = logoArrayBuffer;
     } else if (data?.values?.logo) {
-      // Keep existing logo
       vals.logo = data.values.logo;
     } else {
-      // No logo
       vals.logo = null;
     }
+
+    vals.headerSections = preserveSectionImages(
+      values.headerSections,
+      normalizeSectionsFromDb(data?.values?.headerSections),
+    );
+    vals.footerSections = preserveSectionImages(
+      values.footerSections,
+      normalizeSectionsFromDb(data?.values?.footerSections),
+    );
 
     try {
       if (data?.id) {
@@ -185,9 +239,9 @@ export const PrintForm = ({
               <div className="flex-1">
                 {currentLogoUrl && !logoRemoved ? (
                   <div className="relative inline-block">
-                    <img 
-                      src={currentLogoUrl} 
-                      alt={t('forms.logoPreview')} 
+                    <img
+                      src={currentLogoUrl}
+                      alt={t('forms.logoPreview')}
                       className="max-h-20 max-w-full object-contain border border-neutral-300 rounded p-2"
                     />
                     <button
@@ -218,81 +272,19 @@ export const PrintForm = ({
                 )}
               </div>
             </div>
-            <div className="grid md:grid-cols-2 gap-3">
-              <div className="flex items-end">
-                <Controller
-                  name="showCompanyName"
-                  control={control}
-                  render={({field}) => (
-                    <Switch
-                      checked={field.value}
-                      onChange={field.onChange}
-                    >
-                      Show company name
-                    </Switch>
-                  )}
-                />
-              </div>
-              <div className="flex-1">
-                <Controller
-                  name="companyName"
-                  control={control}
-                  render={({field}) => (
-                    <Input label={t('forms.companyName')} value={field.value} onChange={field.onChange}/>
-                  )}
-                />
-              </div>
-            </div>
-            <div className="grid md:grid-cols-2 gap-3">
-              <div className="flex items-end">
-                <Controller
-                  name="showCompanyAddress"
-                  control={control}
-                  render={({field}) => (
-                    <Switch
-                      checked={field.value}
-                      onChange={field.onChange}
-                    >
-                      Show company address
-                    </Switch>
-                  )}
-                />
-              </div>
-              <div className="flex-1">
-                <Controller
-                  name="companyAddress"
-                  control={control}
-                  render={({field}) => (
-                    <Input label={t('forms.companyAddress')} value={field.value} onChange={field.onChange}/>
-                  )}
-                />
-              </div>
-            </div>
-            <div className="grid md:grid-cols-2 gap-3">
-              <div className="flex items-end">
-                <Controller
-                  name="showTopDescription"
-                  control={control}
-                  render={({field}) => (
-                    <Switch
-                      checked={field.value}
-                      onChange={field.onChange}
-                    >
-                      Show top description
-                    </Switch>
-                  )}
-                />
-              </div>
-              <div className="flex-1">
-                <Controller
-                  name="topDescription"
-                  control={control}
-                  render={({field}) => (
-                    <Input label={t('forms.topDescription')} value={field.value} onChange={field.onChange}/>
-                  )}
-                />
-              </div>
-            </div>
+
+            <ReceiptSectionEditor
+              control={control}
+              name="headerSections"
+              label={t('forms.headerSections')}
+            />
+
+            <ReceiptSectionEditor
+              control={control}
+              name="footerSections"
+              label={t('forms.footerSections')}
+            />
+
             <div className="grid md:grid-cols-3 gap-3">
               <div className="flex items-end">
                 <Controller
@@ -433,31 +425,6 @@ export const PrintForm = ({
                     >
                       Show item total
                     </Switch>
-                  )}
-                />
-              </div>
-            </div>
-            <div className="grid md:grid-cols-2 gap-3">
-              <div className="flex items-end">
-                <Controller
-                  name="showBottomDescription"
-                  control={control}
-                  render={({field}) => (
-                    <Switch
-                      checked={field.value}
-                      onChange={field.onChange}
-                    >
-                      Show bottom description
-                    </Switch>
-                  )}
-                />
-              </div>
-              <div className="flex-1">
-                <Controller
-                  name="bottomDescription"
-                  control={control}
-                  render={({field}) => (
-                    <Input label={t('forms.bottomDescription')} value={field.value} onChange={field.onChange}/>
                   )}
                 />
               </div>

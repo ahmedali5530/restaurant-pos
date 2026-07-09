@@ -1,36 +1,34 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
-
 const escpos = require('escpos');
 const Image = escpos.Image;
+
+const PRINTER_WIDTH = 42;
 
 const DEFAULTS = {
   bottomMargin: 0,
   topMargin: 0,
   leftMargin: 0,
   rightMargin: 0,
-  bottomDescription: '',
-  topDescription: '',
-  companyAddress: '',
-  companyName: '',
   logo: '',
-  showBottomDescription: false,
-  showCompanyAddress: false,
-  showCompanyName: false,
   showItemNumber: false,
   showItemName: true,
   showItemPrice: false,
   showItemQuantity: true,
   showItemTotal: false,
   showLogo: false,
-  showTopDescription: false,
   showVatNumber: false,
   vatName: 'VAT',
   vatNumber: '',
   currencySymbol: '$',
+  headerSections: [],
+  footerSections: [],
+};
+
+const TEXT_SIZE_MAP = {
+  normal: [1, 1],
+  medium: [2, 1],
+  large: [2, 2],
 };
 
 /**
@@ -51,6 +49,27 @@ function normalizeLogo(logo) {
   return `data:image/png;base64,${buf.toString('base64')}`;
 }
 
+function normalizeSection(section) {
+  if (!section || typeof section !== 'object') return null;
+  const align = ['left', 'center', 'right'].includes(section.align) ? section.align : 'center';
+  const size = ['normal', 'medium', 'large'].includes(section.size) ? section.size : 'normal';
+  const type = section.type === 'image' ? 'image' : 'text';
+  return {
+    enabled: section.enabled !== false,
+    type,
+    align,
+    size,
+    content: type === 'image'
+      ? (normalizeLogo(section.content) || '')
+      : String(section.content || '').slice(0, PRINTER_WIDTH),
+  };
+}
+
+function normalizeSections(sections) {
+  if (!Array.isArray(sections)) return [];
+  return sections.map(normalizeSection).filter(Boolean);
+}
+
 /**
  * Normalize printer config from request.
  * @param {Object} c - raw config
@@ -67,26 +86,58 @@ function normalizeConfig(c = {}) {
     topMargin: num(c.topMargin, DEFAULTS.topMargin),
     leftMargin: num(c.leftMargin, DEFAULTS.leftMargin),
     rightMargin: num(c.rightMargin, DEFAULTS.rightMargin),
-    bottomDescription: String(n(c.bottomDescription, DEFAULTS.bottomDescription)),
-    topDescription: String(n(c.topDescription, DEFAULTS.topDescription)),
-    companyAddress: String(n(c.companyAddress, DEFAULTS.companyAddress)),
-    companyName: String(n(c.companyName, DEFAULTS.companyName)),
     logo: normalizeLogo(c.logo) || DEFAULTS.logo,
-    showBottomDescription: Boolean(c.showBottomDescription !== undefined ? c.showBottomDescription : DEFAULTS.showBottomDescription),
-    showCompanyAddress: Boolean(c.showCompanyAddress !== undefined ? c.showCompanyAddress : DEFAULTS.showCompanyAddress),
-    showCompanyName: Boolean(c.showCompanyName !== undefined ? c.showCompanyName : DEFAULTS.showCompanyName),
     showItemNumber: Boolean(c.showItemNumber !== undefined ? c.showItemNumber : DEFAULTS.showItemNumber),
     showItemName: Boolean(c.showItemName !== undefined ? c.showItemName : DEFAULTS.showItemName),
     showItemPrice: Boolean(c.showItemPrice !== undefined ? c.showItemPrice : DEFAULTS.showItemPrice),
     showItemQuantity: Boolean(c.showItemQuantity !== undefined ? c.showItemQuantity : DEFAULTS.showItemQuantity),
     showItemTotal: Boolean(c.showItemTotal !== undefined ? c.showItemTotal : DEFAULTS.showItemTotal),
     showLogo: Boolean(c.showLogo !== undefined ? c.showLogo : DEFAULTS.showLogo),
-    showTopDescription: Boolean(c.showTopDescription !== undefined ? c.showTopDescription : DEFAULTS.showTopDescription),
     showVatNumber: Boolean(c.showVatNumber !== undefined ? c.showVatNumber : DEFAULTS.showVatNumber),
     vatName: String(n(c.vatName, DEFAULTS.vatName) || 'VAT'),
     vatNumber: String(n(c.vatNumber, DEFAULTS.vatNumber)),
     currencySymbol: String(n(c.currencySymbol, DEFAULTS.currencySymbol) || '$'),
+    headerSections: normalizeSections(c.headerSections),
+    footerSections: normalizeSections(c.footerSections),
   };
+}
+
+function padRight(str, len) {
+  str = String(str);
+  return str.length >= len ? str.slice(0, len) : str + ' '.repeat(len - str.length);
+}
+
+function padLeft(str, len) {
+  str = String(str);
+  return str.length >= len ? str.slice(0, len) : ' '.repeat(len - str.length) + str;
+}
+
+function padAlign(text, align, width = PRINTER_WIDTH) {
+  const str = String(text || '').slice(0, width);
+  if (align === 'right') return padLeft(str, width);
+  if (align === 'center') {
+    const pad = Math.max(0, width - str.length);
+    const left = Math.floor(pad / 2);
+    return ' '.repeat(left) + str + ' '.repeat(pad - left);
+  }
+  return padRight(str, width);
+}
+
+function resetTextSize(printer) {
+  printer.buffer.write('\x1d\x21\x00');
+  printer.align('lt');
+  printer.style('normal');
+}
+
+function applyTextSize(printer, size) {
+  const dims = TEXT_SIZE_MAP[size] || TEXT_SIZE_MAP.normal;
+  printer.size(dims[0], dims[1]);
+}
+
+function escposAlign(align) {
+  if (align === 'right') return 'rt';
+  if (align === 'center') return 'ct';
+  return 'lt';
 }
 
 /**
@@ -101,7 +152,7 @@ function formatMoney(amount, symbol) {
 }
 
 /**
- * Print one line: label left, value right. Uses tableCustom.
+ * Print one line: label left, value right using fixed-width padding.
  * @param {Object} printer - escpos Printer
  * @param {string} left
  * @param {string} right
@@ -109,13 +160,29 @@ function formatMoney(amount, symbol) {
  */
 function printLineLeftRight(printer, left, right, opts) {
   const size = (opts && opts.size) || [1, 1];
-  printer.tableCustom(
-    [
-      { text: String(left || ''), align: 'LEFT', width: 0.5 },
-      { text: String(right || ''), align: 'RIGHT', width: 0.5 },
-    ],
-    { size }
-  );
+  const [w, h] = size;
+  if (w !== 1 || h !== 1) {
+    applyTextSize(printer, w === 2 && h === 2 ? 'large' : 'medium');
+  }
+  const half = Math.floor(PRINTER_WIDTH / 2);
+  const leftStr = padRight(String(left || '').slice(0, half), half);
+  const rightStr = padLeft(String(right || '').slice(0, half), half);
+  printer.align('lt').text(leftStr + rightStr);
+  if (w !== 1 || h !== 1) resetTextSize(printer);
+}
+
+function printAlignedText(printer, text, align, opts) {
+  const style = opts && opts.style;
+  const size = opts && opts.size;
+  if (size) applyTextSize(printer, size);
+  if (style === 'bold') printer.style('b');
+  else if (style === 'bold-underline') printer.style('bu');
+  printer.align('lt').text(padAlign(text, align || 'center'));
+  resetTextSize(printer);
+}
+
+function printCenteredText(printer, text, opts) {
+  printAlignedText(printer, text, 'center', opts);
 }
 
 /**
@@ -133,17 +200,18 @@ function applyMargins(printer, config) {
 }
 
 /**
- * Print logo from base64 or data URI. Loads image from buffer (get-pixels supports Buffer), then awaits printer.image() so it finishes before continuing.
- * No-op if logo is empty. Resolves on success or on skip/error.
+ * Print image from base64 or data URI.
  * @param {Object} printer - escpos Printer
  * @param {string} logo - base64 string, or data:image/...;base64,...
+ * @param {{ align?: string }} opts
  * @returns {Promise<void>}
  */
-function printLogo(printer, logo) {
+function printLogo(printer, logo, opts) {
   if (!logo || typeof logo !== 'string' || logo.trim() === '') {
     return Promise.resolve();
   }
 
+  const align = (opts && opts.align) || 'center';
   let mime = 'image/png';
   let b64 = logo.trim();
 
@@ -162,7 +230,6 @@ function printLogo(printer, logo) {
     }
     if (buf.length === 0) return resolve();
 
-    // escpos Image.load callback can be either (img) or (err, img) depending on version.
     Image.load(buf, mime, (...cbArgs) => {
       const hasErrStyle = cbArgs.length >= 2;
       const loadErr = hasErrStyle ? cbArgs[0] : null;
@@ -170,49 +237,16 @@ function printLogo(printer, logo) {
       if (loadErr || !img) return resolve();
       (async () => {
         try {
-          printer.align('ct');
+          printer.align(escposAlign(align));
           await printer.image(img, 's24');
         } catch (e) {
           // ignore
         }
+        resetTextSize(printer);
         resolve();
       })();
     });
   });
-}
-
-/**
- * Print company name when showCompanyName is true.
- * @param {Object} printer - escpos Printer
- * @param {Object} config - normalized config
- */
-function printCompanyName(printer, config) {
-  if (!config.showCompanyName || !config.companyName) return;
-  printer.align('ct').text(config.companyName);
-}
-
-/**
- * Print top description when showTopDescription is true.
- */
-function printTopDescription(printer, config) {
-  if (!config.showTopDescription || !config.topDescription) return;
-  printer.align('ct').text(String(config.topDescription).slice(0, 48));
-}
-
-/**
- * Print company address when showCompanyAddress is true.
- */
-function printCompanyAddress(printer, config) {
-  if (!config.showCompanyAddress || !config.companyAddress) return;
-  printer.align('ct').text(String(config.companyAddress).slice(0, 48));
-}
-
-/**
- * Print bottom description when showBottomDescription is true (called before cut).
- */
-function printBottomDescription(printer, config) {
-  if (!config.showBottomDescription || !config.bottomDescription) return;
-  printer.align('ct').text(String(config.bottomDescription).slice(0, 48));
 }
 
 /**
@@ -222,7 +256,7 @@ function printBottomDescription(printer, config) {
  */
 function printVatLine(printer, config) {
   if (!config.showVatNumber || !config.vatNumber) return;
-  printer.align('ct').text(`${config.vatName}: ${config.vatNumber}`);
+  printCenteredText(printer, `${config.vatName}: ${config.vatNumber}`);
 }
 
 /**
@@ -236,24 +270,56 @@ function feedBottomMargin(printer, config) {
 }
 
 /**
- * Build receipt header: margins, logo (if showLogo), company name, address, top description. Async when logo is present.
+ * Print configured receipt sections (text or image).
+ * @param {Object} printer
+ * @param {Array} sections
+ * @returns {Promise<void>}
+ */
+function printSections(printer, sections) {
+  const list = normalizeSections(sections).filter((section) => section.enabled);
+  let chain = Promise.resolve();
+
+  list.forEach((section) => {
+    chain = chain.then(() => {
+      if (section.type === 'image' && section.content) {
+        return printLogo(printer, section.content, { align: section.align });
+      }
+      if (section.type === 'text' && section.content) {
+        resetTextSize(printer);
+        applyTextSize(printer, section.size);
+        printer.align('lt').text(padAlign(section.content, section.align));
+        resetTextSize(printer);
+      }
+      return Promise.resolve();
+    });
+  });
+
+  return chain;
+}
+
+/**
+ * Build receipt header: margins, logo (if showLogo), header sections.
  * @param {Object} printer - escpos Printer
  * @param {Object} config - normalized config
  * @returns {Promise<void>}
  */
 function printReceiptHeader(printer, config) {
   applyMargins(printer, config);
-  // GS ! 0x00 = reset character magnification to 1x width, 1x height
-  printer.buffer.write('\x1d\x21\x00');
-  printer.style('normal');
+  resetTextSize(printer);
   const logoPromise = config.showLogo && config.logo
-    ? printLogo(printer, config.logo)
+    ? printLogo(printer, config.logo, { align: 'center' })
     : Promise.resolve();
-  return logoPromise.then(() => {
-    printCompanyName(printer, config);
-    printCompanyAddress(printer, config);
-    printTopDescription(printer, config);
-  });
+  return logoPromise.then(() => printSections(printer, config.headerSections || []));
+}
+
+/**
+ * Print footer sections from config.
+ * @param {Object} printer
+ * @param {Object} config
+ * @returns {Promise<void>}
+ */
+function printFooterSections(printer, config) {
+  return printSections(printer, config.footerSections || []);
 }
 
 /**
@@ -266,12 +332,11 @@ function printReceiptHeader(printer, config) {
 function formatItemLine(item, config) {
   const name = (item.name || item.title || '').slice(0, 28);
   const qty = item.qty != null ? item.qty : 1;
-  const price = item.price != null ? Number(price) : 0;
-  const total = item.total != null ? Number(total) : price * qty;
+  const price = item.price != null ? Number(item.price) : 0;
+  const total = item.total != null ? Number(item.total) : price * qty;
   const dp = typeof config.decimal_place === 'number' ? config.decimal_place : 0;
 
   const parts = [];
-  // For the simple text line we ignore item number; that's for table layout only.
   if (config.showItemName !== false) parts.push(name);
   if (config.showItemQuantity) parts.push(`x${qty}`);
   if (config.showItemPrice) parts.push(price.toFixed(dp));
@@ -304,21 +369,10 @@ function getItemLineLeftRight(item, config) {
   };
 }
 
-// Item column widths: must sum to 42 (default printer width).
 const ITEM_COL_NAME = 22;
 const ITEM_COL_QTY = 3;
 const ITEM_COL_RATE = 7;
 const ITEM_COL_TOTAL = 10;
-
-function padRight(str, len) {
-  str = String(str);
-  return str.length >= len ? str.slice(0, len) : str + ' '.repeat(len - str.length);
-}
-
-function padLeft(str, len) {
-  str = String(str);
-  return str.length >= len ? str.slice(0, len) : ' '.repeat(len - str.length) + str;
-}
 
 /**
  * Build a single fixed-width item line string (no tableCustom, avoids leftoverSpace bug).
@@ -395,15 +449,18 @@ function sendCashDrawerPulse(printer) {
 module.exports = {
   normalizeConfig,
   normalizeLogo,
+  normalizeSections,
   applyMargins,
   printLogo,
-  printCompanyName,
-  printCompanyAddress,
-  printTopDescription,
-  printBottomDescription,
   printVatLine,
   feedBottomMargin,
   printReceiptHeader,
+  printFooterSections,
+  printSections,
+  printCenteredText,
+  printAlignedText,
+  padAlign,
+  resetTextSize,
   formatItemLine,
   getItemLineLeftRight,
   printBillItemLine,
@@ -413,4 +470,5 @@ module.exports = {
   formatMoney,
   printLineLeftRight,
   sendCashDrawerPulse,
+  PRINTER_WIDTH,
 };
