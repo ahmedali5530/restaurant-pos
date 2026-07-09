@@ -1,0 +1,33 @@
+{
+  "tabs": {
+    "providers": "Anbieter",
+    "configuration": "Konfiguration",
+    "health": "Status",
+    "queue": "Warteschlange"
+  },
+  "title": "Integrationen",
+  "description": "Anbieterinstallation, Konfiguration, Status und wartende Aufträge verwalten.",
+  "configure": "Konfigurieren",
+  "provider": "Anbieter",
+  "saveConfiguration": "Konfiguration speichern",
+  "configurationSaved": "Integrationskonfiguration aktualisiert",
+  "noPendingJobs": "Keine ausstehenden Aufträge.",
+  "security": {
+    "accessTab": "Zugriff auf {{module}}",
+    "saveConfiguration": "Integrationskonfiguration speichern"
+  },
+  "fields": {
+    "status": "Status",
+    "auth": "Authentifizierung",
+    "failedJobs": "Fehlgeschlagene Aufträge",
+    "action": "Aktion",
+    "attempts": "Versuche"
+  },
+  "enabled": "Aktiviert",
+  "disabled": "Deaktiviert",
+  "enableProvider": "Aktivieren",
+  "disableProvider": "Deaktivieren",
+  "providerEnabled": "Anbieter aktiviert",
+  "providerDisabled": "Anbieter deaktiviert",
+  "enableFailed": "Anbieterstatus konnte nicht aktualisiert werden"
+}

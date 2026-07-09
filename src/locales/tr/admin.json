@@ -367,6 +367,9 @@
       },
       "Accounts": {
         "label": "Accounts"
+      },
+      "Integrations": {
+        "label": "Entegrasyonlar"
       }
     },
     "permissions": {
@@ -483,7 +486,12 @@
       "Profit & Loss": "Profit & Loss",
       "Cash Flow": "Cash Flow",
       "Customer Statement": "Customer Statement",
-      "Supplier Statement": "Supplier Statement"
+      "Supplier Statement": "Supplier Statement",
+      "Integrations": "Entegrasyonlar",
+      "Integration providers": "Entegrasyon sağlayıcıları",
+      "Integration configuration": "Entegrasyon yapılandırması",
+      "Integration health": "Entegrasyon durumu",
+      "Integration queue": "Entegrasyon kuyruğu"
     }
   },
   "discountEngine": {

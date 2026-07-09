@@ -1,0 +1,33 @@
+{
+  "tabs": {
+    "providers": "المزودون",
+    "configuration": "الإعداد",
+    "health": "الحالة",
+    "queue": "قائمة الانتظار"
+  },
+  "title": "التكاملات",
+  "description": "إدارة تثبيت المزودين والإعداد والحالة والمهام في قائمة الانتظار.",
+  "configure": "إعداد",
+  "provider": "المزود",
+  "saveConfiguration": "حفظ الإعداد",
+  "configurationSaved": "تم تحديث إعداد التكامل",
+  "noPendingJobs": "لا توجد مهام معلقة.",
+  "security": {
+    "accessTab": "الوصول إلى {{module}}",
+    "saveConfiguration": "حفظ إعداد التكامل"
+  },
+  "fields": {
+    "status": "الحالة",
+    "auth": "المصادقة",
+    "failedJobs": "المهام الفاشلة",
+    "action": "الإجراء",
+    "attempts": "المحاولات"
+  },
+  "enabled": "مفعل",
+  "disabled": "معطل",
+  "enableProvider": "تفعيل",
+  "disableProvider": "تعطيل",
+  "providerEnabled": "تم تفعيل المزود",
+  "providerDisabled": "تم تعطيل المزود",
+  "enableFailed": "تعذر تحديث حالة المزود"
+}

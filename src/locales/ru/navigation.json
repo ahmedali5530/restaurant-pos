@@ -13,7 +13,8 @@
     "settings": "Настройки",
     "clock": "Учёт времени",
     "hr": "Кадры",
-    "accounts": "Accounts"
+    "accounts": "Accounts",
+    "integrations": "Интеграции"
   },
   "modules": {
     "Menu": "Меню",
@@ -29,7 +30,8 @@
     "Inventory": "Склад",
     "Settings": "Настройки",
     "Accounts": "Accounts",
-    "HR": "Управление персоналом"
+    "HR": "Управление персоналом",
+    "Integrations": "Интеграции"
   },
   "authenticateToAccess": "Авторизуйтесь для доступа к {{module}}"
 }

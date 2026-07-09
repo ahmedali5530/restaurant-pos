@@ -20,6 +20,7 @@ import {AutoCheckCloseProvider} from "@/providers/auto-check-close.provider.tsx"
 import {ClosingCycleEnforcementProvider} from "@/providers/closing-cycle-enforcement.provider.tsx";
 import {I18nProvider} from "@/providers/i18n.provider.tsx";
 import {AppRoutes} from "@/routes/app.routes.tsx";
+import {IntegrationProvider} from "@/providers/integration.provider.tsx";
 
 
 // react query client wrapper
@@ -60,15 +61,17 @@ function App() {
               <DeliveryOrdersProvider>
                 <PrintProvider>
                   <TableLockProvider>
-                    <SecurityProvider>
-                      <BrowserRouter>
-                        <I18nProvider>
-                        <GlobalDeliveryOrderPopup/>
-                        <AppRoutes/>
-                        </I18nProvider>
-                      </BrowserRouter>
-                      <SecurityModal/>
-                    </SecurityProvider>
+                    <IntegrationProvider>
+                      <SecurityProvider>
+                        <BrowserRouter>
+                          <I18nProvider>
+                          <GlobalDeliveryOrderPopup/>
+                          <AppRoutes/>
+                          </I18nProvider>
+                        </BrowserRouter>
+                        <SecurityModal/>
+                      </SecurityProvider>
+                    </IntegrationProvider>
                   </TableLockProvider>
                 </PrintProvider>
               </DeliveryOrdersProvider>

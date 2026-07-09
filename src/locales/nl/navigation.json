@@ -13,7 +13,8 @@
     "settings": "Instellingen",
     "clock": "Klok",
     "hr": "HR",
-    "accounts": "Accounts"
+    "accounts": "Accounts",
+    "integrations": "Integraties"
   },
   "modules": {
     "Menu": "Menu",
@@ -29,7 +30,8 @@
     "Inventory": "Voorraad",
     "Settings": "Instellingen",
     "Accounts": "Accounts",
-    "HR": "Personeelszaken"
+    "HR": "Personeelszaken",
+    "Integrations": "Integraties"
   },
   "authenticateToAccess": "Authenticeer om toegang te krijgen tot {{module}}"
 }

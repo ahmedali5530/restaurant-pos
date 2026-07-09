@@ -1,0 +1,33 @@
+{
+  "tabs": {
+    "providers": "Провайдеры",
+    "configuration": "Конфигурация",
+    "health": "Состояние",
+    "queue": "Очередь"
+  },
+  "title": "Интеграции",
+  "description": "Управляйте установкой провайдеров, конфигурацией, состоянием и задачами в очереди.",
+  "configure": "Настроить",
+  "provider": "Провайдер",
+  "saveConfiguration": "Сохранить конфигурацию",
+  "configurationSaved": "Конфигурация интеграции обновлена",
+  "noPendingJobs": "Нет ожидающих задач.",
+  "security": {
+    "accessTab": "Доступ к {{module}}",
+    "saveConfiguration": "Сохранить конфигурацию интеграции"
+  },
+  "fields": {
+    "status": "Состояние",
+    "auth": "Аутентификация",
+    "failedJobs": "Неудачные задачи",
+    "action": "Действие",
+    "attempts": "Попытки"
+  },
+  "enabled": "Включено",
+  "disabled": "Отключено",
+  "enableProvider": "Включить",
+  "disableProvider": "Отключить",
+  "providerEnabled": "Провайдер включен",
+  "providerDisabled": "Провайдер отключен",
+  "enableFailed": "Не удалось обновить статус провайдера"
+}

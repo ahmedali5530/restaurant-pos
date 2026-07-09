@@ -1,0 +1,33 @@
+{
+  "tabs": {
+    "providers": "Fornitori",
+    "configuration": "Configurazione",
+    "health": "Stato",
+    "queue": "Coda"
+  },
+  "title": "Integrazioni",
+  "description": "Gestisci installazione fornitori, configurazione, stato e lavori in coda.",
+  "configure": "Configura",
+  "provider": "Fornitore",
+  "saveConfiguration": "Salva configurazione",
+  "configurationSaved": "Configurazione integrazione aggiornata",
+  "noPendingJobs": "Nessun lavoro in sospeso.",
+  "security": {
+    "accessTab": "Accedi a {{module}}",
+    "saveConfiguration": "Salva configurazione integrazione"
+  },
+  "fields": {
+    "status": "Stato",
+    "auth": "Autenticazione",
+    "failedJobs": "Lavori falliti",
+    "action": "Azione",
+    "attempts": "Tentativi"
+  },
+  "enabled": "Abilitato",
+  "disabled": "Disabilitato",
+  "enableProvider": "Abilita",
+  "disableProvider": "Disabilita",
+  "providerEnabled": "Fornitore abilitato",
+  "providerDisabled": "Fornitore disabilitato",
+  "enableFailed": "Impossibile aggiornare lo stato del fornitore"
+}

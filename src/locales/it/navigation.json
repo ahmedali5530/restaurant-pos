@@ -13,7 +13,8 @@
     "settings": "Impostazioni",
     "clock": "Timbratura",
     "hr": "HR",
-    "accounts": "Accounts"
+    "accounts": "Accounts",
+    "integrations": "Integrazioni"
   },
   "modules": {
     "Menu": "Menu",
@@ -29,7 +30,8 @@
     "Inventory": "Magazzino",
     "Settings": "Impostazioni",
     "Accounts": "Accounts",
-    "HR": "Risorse umane"
+    "HR": "Risorse umane",
+    "Integrations": "Integrazioni"
   },
   "authenticateToAccess": "Autenticati per accedere a {{module}}"
 }

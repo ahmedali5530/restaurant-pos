@@ -96,6 +96,17 @@ export enum Tables {
   buffet_consumption_logs = 'buffet_consumption_log',
 
   settings = 'setting',
+  integration_providers = 'integration_provider',
+  integration_provider_configs = 'integration_provider_config',
+  integration_installed_providers = 'integration_installed_provider',
+  integration_queue = 'integration_queue',
+  integration_queue_attempts = 'integration_queue_attempt',
+  integration_provider_health = 'integration_provider_health',
+  integration_provider_secrets = 'integration_provider_secret',
+  integration_provider_certificates = 'integration_provider_certificate',
+  integration_provider_webhooks = 'integration_provider_webhook',
+  integration_schedules = 'integration_schedule',
+  integration_execution_history = 'integration_execution_history',
 
   auth_permission = 'auth_permission',
   tracking = 'tracking',

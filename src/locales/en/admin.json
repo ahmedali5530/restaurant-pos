@@ -519,6 +519,9 @@
       },
       "Accounts": {
         "label": "Accounts"
+      },
+      "Integrations": {
+        "label": "Integrations"
       }
     },
     "permissions": {
@@ -636,7 +639,12 @@
       "Profit & Loss": "Profit & Loss",
       "Cash Flow": "Cash Flow",
       "Customer Statement": "Customer Statement",
-      "Supplier Statement": "Supplier Statement"
+      "Supplier Statement": "Supplier Statement",
+      "Integrations": "Integrations",
+      "Integration providers": "Integration providers",
+      "Integration configuration": "Integration configuration",
+      "Integration health": "Integration health",
+      "Integration queue": "Integration queue"
     }
   }
 }

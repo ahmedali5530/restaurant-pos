@@ -1,0 +1,33 @@
+{
+  "tabs": {
+    "providers": "Provedores",
+    "configuration": "Configuração",
+    "health": "Status",
+    "queue": "Fila"
+  },
+  "title": "Integrações",
+  "description": "Gerencie instalação de provedores, configuração, status e trabalhos na fila.",
+  "configure": "Configurar",
+  "provider": "Provedor",
+  "saveConfiguration": "Salvar configuração",
+  "configurationSaved": "Configuração de integração atualizada",
+  "noPendingJobs": "Nenhum trabalho pendente.",
+  "security": {
+    "accessTab": "Acessar {{module}}",
+    "saveConfiguration": "Salvar configuração de integração"
+  },
+  "fields": {
+    "status": "Status",
+    "auth": "Autenticação",
+    "failedJobs": "Trabalhos com falha",
+    "action": "Ação",
+    "attempts": "Tentativas"
+  },
+  "enabled": "Habilitado",
+  "disabled": "Desabilitado",
+  "enableProvider": "Habilitar",
+  "disableProvider": "Desabilitar",
+  "providerEnabled": "Provedor habilitado",
+  "providerDisabled": "Provedor desabilitado",
+  "enableFailed": "Não foi possível atualizar o status do provedor"
+}

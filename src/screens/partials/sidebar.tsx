@@ -14,7 +14,8 @@ import {
   faClock,
   faPowerOff,
   faReceipt,
-  faUser
+  faUser,
+  faPlug
 } from "@fortawesome/free-solid-svg-icons";
 import { cn } from "@/lib/utils.ts";
 import { Button } from "@/components/common/input/button.tsx";
@@ -34,6 +35,7 @@ import {
   ORDERS,
   REPORTS,
   SETTINGS,
+  INTEGRATIONS,
   SUMMARY,
   TIP_DISTRIBUTION, ACCOUNTS
 } from "@/routes/posr.ts";
@@ -93,6 +95,7 @@ export const Sidebar = () => {
     { title: t('sidebar.tipDist'), icon: <FontAwesomeIcon icon={faBarChart} size="lg"/>, link: TIP_DISTRIBUTION, role: 'Tips' },
     { title: t('sidebar.accounts'), icon: <FontAwesomeIcon icon={faReceipt} size="lg"/>, link: ACCOUNTS, role: 'Accounts' },
     { title: t('sidebar.hr'), icon: <FontAwesomeIcon icon={faUsers} size="lg"/>, link: HR, role: 'HR' },
+    { title: t('sidebar.integrations'), icon: <FontAwesomeIcon icon={faPlug} size="lg"/>, link: INTEGRATIONS, role: 'Integrations' },
   ], [t]);
 
   // Filter sidebar items based on user roles

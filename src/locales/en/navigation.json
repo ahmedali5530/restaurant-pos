@@ -14,7 +14,8 @@
     "accounts": "Accounts",
     "settings": "Settings",
     "clock": "Clock",
-    "hr": "HR"
+    "hr": "HR",
+    "integrations": "Integrations"
   },
   "modules": {
     "Menu": "Menu",
@@ -31,7 +32,8 @@
     "Inventory": "Inventory",
     "Accounts": "Accounts",
     "Settings": "Settings",
-    "HR": "Human Resources"
+    "HR": "Human Resources",
+    "Integrations": "Integrations"
   },
   "authenticateToAccess": "Authenticate to access {{module}}"
 }

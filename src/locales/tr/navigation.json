@@ -13,7 +13,8 @@
     "settings": "Ayarlar",
     "clock": "Mesai",
     "hr": "İK",
-    "accounts": "Accounts"
+    "accounts": "Accounts",
+    "integrations": "Entegrasyonlar"
   },
   "modules": {
     "Menu": "Menü",
@@ -29,7 +30,8 @@
     "Inventory": "Envanter",
     "Settings": "Ayarlar",
     "Accounts": "Accounts",
-    "HR": "İnsan Kaynakları"
+    "HR": "İnsan Kaynakları",
+    "Integrations": "Entegrasyonlar"
   },
   "authenticateToAccess": "{{module}} modülüne erişmek için kimlik doğrulayın"
 }

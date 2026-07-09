@@ -13,7 +13,8 @@
     "settings": "Einstellungen",
     "clock": "Zeiterfassung",
     "hr": "Personal",
-    "accounts": "Accounts"
+    "accounts": "Accounts",
+    "integrations": "Integrationen"
   },
   "modules": {
     "Menu": "Speisekarte",
@@ -29,7 +30,8 @@
     "Inventory": "Lager",
     "Settings": "Einstellungen",
     "Accounts": "Accounts",
-    "HR": "Personalwesen"
+    "HR": "Personalwesen",
+    "Integrations": "Integrationen"
   },
   "authenticateToAccess": "Authentifizierung erforderlich für {{module}}"
 }

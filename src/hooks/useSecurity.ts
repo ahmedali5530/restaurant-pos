@@ -58,7 +58,7 @@ export const useSecurity = () => {
 
       action();
       onSuccess?.();
-      trackProtectActionSuccess(options, 'auto');
+      void trackProtectActionSuccess(options, 'auto');
       return;
     }
 
@@ -70,7 +70,7 @@ export const useSecurity = () => {
       onConfirm: (manager?: SecurityManager, usedAuthType?: AuthType) => {
         action();
         onSuccess?.(manager);
-        trackProtectActionSuccess(options, usedAuthType ?? authType, manager);
+        void trackProtectActionSuccess(options, usedAuthType ?? authType, manager);
       },
       onCancel,
       onError,

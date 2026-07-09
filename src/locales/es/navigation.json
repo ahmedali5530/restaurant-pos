@@ -13,7 +13,8 @@
     "settings": "Configuración",
     "clock": "Reloj",
     "hr": "RR. HH.",
-    "accounts": "Accounts"
+    "accounts": "Accounts",
+    "integrations": "Integraciones"
   },
   "modules": {
     "Menu": "Menú",
@@ -29,7 +30,8 @@
     "Inventory": "Inventario",
     "Settings": "Configuración",
     "Accounts": "Accounts",
-    "HR": "Recursos Humanos"
+    "HR": "Recursos Humanos",
+    "Integrations": "Integraciones"
   },
   "authenticateToAccess": "Autentíquese para acceder a {{module}}"
 }

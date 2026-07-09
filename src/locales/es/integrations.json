@@ -1,0 +1,33 @@
+{
+  "tabs": {
+    "providers": "Proveedores",
+    "configuration": "Configuración",
+    "health": "Estado",
+    "queue": "Cola"
+  },
+  "title": "Integraciones",
+  "description": "Gestione la instalación de proveedores, la configuración, el estado y los trabajos en cola.",
+  "configure": "Configurar",
+  "provider": "Proveedor",
+  "saveConfiguration": "Guardar configuración",
+  "configurationSaved": "Configuración de integración actualizada",
+  "noPendingJobs": "No hay trabajos pendientes.",
+  "security": {
+    "accessTab": "Acceder a {{module}}",
+    "saveConfiguration": "Guardar configuración de integración"
+  },
+  "fields": {
+    "status": "Estado",
+    "auth": "Autenticación",
+    "failedJobs": "Trabajos fallidos",
+    "action": "Acción",
+    "attempts": "Intentos"
+  },
+  "enabled": "Habilitado",
+  "disabled": "Deshabilitado",
+  "enableProvider": "Habilitar",
+  "disableProvider": "Deshabilitar",
+  "providerEnabled": "Proveedor habilitado",
+  "providerDisabled": "Proveedor deshabilitado",
+  "enableFailed": "No se pudo actualizar el estado del proveedor"
+}

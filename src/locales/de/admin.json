@@ -367,6 +367,9 @@
       },
       "Accounts": {
         "label": "Accounts"
+      },
+      "Integrations": {
+        "label": "Integrationen"
       }
     },
     "permissions": {
@@ -483,7 +486,12 @@
       "Profit & Loss": "Profit & Loss",
       "Cash Flow": "Cash Flow",
       "Customer Statement": "Customer Statement",
-      "Supplier Statement": "Supplier Statement"
+      "Supplier Statement": "Supplier Statement",
+      "Integrations": "Integrationen",
+      "Integration providers": "Integrationsanbieter",
+      "Integration configuration": "Integrationskonfiguration",
+      "Integration health": "Integrationsstatus",
+      "Integration queue": "Integrationswarteschlange"
     }
   },
   "discountEngine": {

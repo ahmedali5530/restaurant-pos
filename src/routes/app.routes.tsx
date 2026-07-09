@@ -11,6 +11,7 @@ import {Index as Delivery} from "@/screens/delivery/";
 import {Admin} from "@/screens/admin";
 import {Reports} from "@/screens/reports/";
 import {Settings} from "@/screens/settings.tsx";
+import {IntegrationsScreen} from "@/screens/integrations/index.tsx";
 import {Clock} from "@/screens/clock.tsx";
 import {Inventory} from "@/screens/inventory/";
 import {HrScreen} from "@/screens/hr/";
@@ -77,6 +78,7 @@ import {
   REPORTS_VOIDS,
   REPORTS_WASTE,
   SETTINGS,
+  INTEGRATIONS,
   SUMMARY,
   TIP_DISTRIBUTION, ACCOUNTS,
 } from "@/routes/posr.ts";
@@ -143,6 +145,7 @@ export const AppRoutes = () => (
       <Route path={DELIVERY} element={<Delivery/>}/>
       <Route path={ADMIN} element={<Admin/>}/>
       <Route path={SETTINGS} element={<Settings/>}/>
+      <Route path={INTEGRATIONS} element={<IntegrationsScreen/>}/>
       <Route path={CLOCK} element={<Clock/>}/>
       <Route path={INVENTORY} element={<Inventory/>}/>
       <Route path={HR} element={<HrScreen/>}/>

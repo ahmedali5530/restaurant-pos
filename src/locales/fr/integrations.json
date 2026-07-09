@@ -1,0 +1,33 @@
+{
+  "tabs": {
+    "providers": "Fournisseurs",
+    "configuration": "Configuration",
+    "health": "État",
+    "queue": "File d'attente"
+  },
+  "title": "Intégrations",
+  "description": "Gérez l'installation des fournisseurs, la configuration, l'état et les tâches en file d'attente.",
+  "configure": "Configurer",
+  "provider": "Fournisseur",
+  "saveConfiguration": "Enregistrer la configuration",
+  "configurationSaved": "Configuration d'intégration mise à jour",
+  "noPendingJobs": "Aucune tâche en attente.",
+  "security": {
+    "accessTab": "Accéder à {{module}}",
+    "saveConfiguration": "Enregistrer la configuration d'intégration"
+  },
+  "fields": {
+    "status": "État",
+    "auth": "Authentification",
+    "failedJobs": "Tâches échouées",
+    "action": "Action",
+    "attempts": "Tentatives"
+  },
+  "enabled": "Activé",
+  "disabled": "Désactivé",
+  "enableProvider": "Activer",
+  "disableProvider": "Désactiver",
+  "providerEnabled": "Fournisseur activé",
+  "providerDisabled": "Fournisseur désactivé",
+  "enableFailed": "Impossible de mettre à jour l'état du fournisseur"
+}

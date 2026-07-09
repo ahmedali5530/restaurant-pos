@@ -8,6 +8,7 @@ export const DELIVERY = '/delivery';
 export const CLOSING = '/closing';
 export const ADMIN = '/admin';
 export const SETTINGS = '/settings';
+export const INTEGRATIONS = '/integrations';
 export const CLOCK = '/clock';
 export const INVENTORY = '/inventory';
 export const HR = '/hr';

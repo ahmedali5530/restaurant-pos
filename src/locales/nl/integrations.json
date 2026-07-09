@@ -1,0 +1,33 @@
+{
+  "tabs": {
+    "providers": "Providers",
+    "configuration": "Configuratie",
+    "health": "Status",
+    "queue": "Wachtrij"
+  },
+  "title": "Integraties",
+  "description": "Beheer providerinstallatie, configuratie, status en wachtrijtaken.",
+  "configure": "Configureren",
+  "provider": "Provider",
+  "saveConfiguration": "Configuratie opslaan",
+  "configurationSaved": "Integratieconfiguratie bijgewerkt",
+  "noPendingJobs": "Geen openstaande taken.",
+  "security": {
+    "accessTab": "Toegang tot {{module}}",
+    "saveConfiguration": "Integratieconfiguratie opslaan"
+  },
+  "fields": {
+    "status": "Status",
+    "auth": "Authenticatie",
+    "failedJobs": "Mislukte taken",
+    "action": "Actie",
+    "attempts": "Pogingen"
+  },
+  "enabled": "Ingeschakeld",
+  "disabled": "Uitgeschakeld",
+  "enableProvider": "Inschakelen",
+  "disableProvider": "Uitschakelen",
+  "providerEnabled": "Provider ingeschakeld",
+  "providerDisabled": "Provider uitgeschakeld",
+  "enableFailed": "Kan providerstatus niet bijwerken"
+}

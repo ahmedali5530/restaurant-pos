@@ -1,0 +1,33 @@
+{
+  "tabs": {
+    "providers": "Sağlayıcılar",
+    "configuration": "Yapılandırma",
+    "health": "Durum",
+    "queue": "Kuyruk"
+  },
+  "title": "Entegrasyonlar",
+  "description": "Sağlayıcı kurulumu, yapılandırma, durum ve kuyruktaki işleri yönetin.",
+  "configure": "Yapılandır",
+  "provider": "Sağlayıcı",
+  "saveConfiguration": "Yapılandırmayı kaydet",
+  "configurationSaved": "Entegrasyon yapılandırması güncellendi",
+  "noPendingJobs": "Bekleyen iş yok.",
+  "security": {
+    "accessTab": "{{module}} erişimi",
+    "saveConfiguration": "Entegrasyon yapılandırmasını kaydet"
+  },
+  "fields": {
+    "status": "Durum",
+    "auth": "Kimlik doğrulama",
+    "failedJobs": "Başarısız işler",
+    "action": "İşlem",
+    "attempts": "Denemeler"
+  },
+  "enabled": "Etkin",
+  "disabled": "Devre dışı",
+  "enableProvider": "Etkinleştir",
+  "disableProvider": "Devre dışı bırak",
+  "providerEnabled": "Sağlayıcı etkinleştirildi",
+  "providerDisabled": "Sağlayıcı devre dışı bırakıldı",
+  "enableFailed": "Sağlayıcı durumu güncellenemedi"
+}

@@ -1,0 +1,33 @@
+{
+  "tabs": {
+    "providers": "Providers",
+    "configuration": "Configuration",
+    "health": "Health",
+    "queue": "Queue"
+  },
+  "title": "Integrations",
+  "description": "Manage provider installation state, configuration, health, and queued jobs.",
+  "configure": "Configure",
+  "provider": "Provider",
+  "saveConfiguration": "Save configuration",
+  "enabled": "Enabled",
+  "disabled": "Disabled",
+  "enableProvider": "Enable",
+  "disableProvider": "Disable",
+  "providerEnabled": "Provider enabled",
+  "providerDisabled": "Provider disabled",
+  "enableFailed": "Unable to update provider state",
+  "configurationSaved": "Integration configuration updated",
+  "noPendingJobs": "No pending jobs.",
+  "security": {
+    "accessTab": "Access {{module}}",
+    "saveConfiguration": "Save integration configuration"
+  },
+  "fields": {
+    "status": "Status",
+    "auth": "Authentication",
+    "failedJobs": "Failed jobs",
+    "action": "Action",
+    "attempts": "Attempts"
+  }
+}

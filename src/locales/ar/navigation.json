@@ -13,7 +13,8 @@
     "settings": "الإعدادات",
     "clock": "الساعة",
     "hr": "الموارد البشرية",
-    "accounts": "Accounts"
+    "accounts": "Accounts",
+    "integrations": "التكاملات"
   },
   "modules": {
     "Menu": "القائمة",
@@ -29,7 +30,8 @@
     "Inventory": "المخزون",
     "Settings": "الإعدادات",
     "Accounts": "Accounts",
-    "HR": "الموارد البشرية"
+    "HR": "الموارد البشرية",
+    "Integrations": "التكاملات"
   },
   "authenticateToAccess": "يُرجى المصادقة للوصول إلى {{module}}"
 }
