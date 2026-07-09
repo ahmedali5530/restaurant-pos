@@ -79,7 +79,7 @@ Wrong (IP is not a filename):
 }
 
 $caddyHosts = $hosts | Where-Object { $_ -ne '::1' }
-Set-Content -Path (Join-Path $CertsDir 'tls-hosts.txt') -Value ($caddyHosts -join ',') -NoNewline
+Set-Content -Path (Join-Path $CertsDir 'tls-hosts.txt') -Value ($caddyHosts -join ', ') -NoNewline
 
 Write-Host ''
 Write-Host 'Certificates written to:'
@@ -89,5 +89,12 @@ Write-Host "  $(Join-Path $CertsDir 'tls-hosts.txt')"
 Write-Host ''
 Write-Host "HTTPS hosts: $((Get-Content (Join-Path $CertsDir 'tls-hosts.txt') -Raw).Trim())"
 Write-Host ''
+if ($LocalIp) {
+    Write-Host 'LAN IP included. Trust notes:'
+    Write-Host '  - Same PC: https://localhost:3132 is enough for the POS app on this machine.'
+    Write-Host '  - Other devices: copy rootCA.pem and run install-mkcert-ca.ps1 as Administrator.'
+    Write-Host '  - Verify SANs: .\scripts\verify-local-certs.ps1'
+    Write-Host ''
+}
 Write-Host 'Start the server:'
 Write-Host '  docker compose -f docker-compose.standalone.yml up -d --build'

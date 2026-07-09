@@ -63,11 +63,11 @@ export const OrderItemModifiers = ({
             {showPrice && <span className="flex-0 w-[70px] text-right">{formatNumber(selectedModifier.price)}</span>}
           </div>
 
-          {selectedModifier?.selectedGroups?.map(selectedGroup => (
+          {selectedModifier?.selectedGroups?.map((selectedGroup, k) => (
             <OrderItemModifiers
               showPrice={showPrice}
               modifier={selectedGroup}
-              key={selectedGroup.id}
+              key={k}
             />
           ))}
         </div>

@@ -29,6 +29,7 @@ const PRINTER_SETTING_KEYS: Record<string, string> = {
   summary: 'summary_print_printers',
   kitchen: 'kitchen_print_printers',
   deletion: 'kitchen_print_printers',
+  pulse: 'final_print_printers',
 };
 
 // Template -> setting key for print config (AdminPrints: "Temp Print", etc.)
@@ -40,6 +41,7 @@ const PRINT_CONFIG_KEYS: Record<string, string> = {
   deletion: 'Deletion Print',
   delivery: 'Delivery Print',
   summary: 'Summary Print',
+  pulse: 'Final Print',
 };
 
 const CURRENCY_SYMBOLS: Record<string, string> = {

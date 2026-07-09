@@ -68,6 +68,7 @@
     "mergeOrders": "Siparişleri birleştir",
     "refund": "İade",
     "printFinalBillCopy": "Final fatura kopyasını yazdır",
+    "openCashDrawer": "Nakit çekmecesini aç",
     "tempBill": "Geçici fatura",
     "payNow": "Şimdi Öde"
   },

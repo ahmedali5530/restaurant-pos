@@ -383,6 +383,15 @@ function printBillItemLine(printer, item, config) {
   printModifierLines(printer, item.modifierLines);
 }
 
+/**
+ * Send ESC/POS cash drawer pulse (pin 2).
+ * ESC p m t1 t2 — m=0 (pin 2), t1=0x19 (~25ms), t2=0xFA (~250ms).
+ * @param {Object} printer - escpos Printer
+ */
+function sendCashDrawerPulse(printer) {
+  printer.buffer.write('\x1B\x70\x00\x19\xFA');
+}
+
 module.exports = {
   normalizeConfig,
   normalizeLogo,
@@ -403,4 +412,5 @@ module.exports = {
   buildItemHeaderString,
   formatMoney,
   printLineLeftRight,
+  sendCashDrawerPulse,
 };

@@ -91,9 +91,76 @@ This runs `mkcert -install` (may prompt for admin) and writes:
 
 Default certs cover `localhost`, `127.0.0.1`, and `::1`. Add your LAN IP when other machines on the network need HTTPS. PEM files are gitignored — each developer generates them locally.
 
-**LAN access:** Each client device (tablets, other PCs) must run `mkcert -install` with the same mkcert CA, or the browser will warn about the certificate. Regenerate certs after changing IPs, then restart the container.
+**LAN access:** `localhost` is trusted on the machine where you ran `mkcert -install`. A **LAN IP will still show "Not secure"** on any other device (tablet, phone, another PC) until that device trusts the mkcert root CA too.
 
-If the container fails to start with a missing-cert error, re-run the script above.
+```powershell
+# On the print-server PC — copy CA for other devices
+.\scripts\export-mkcert-ca.ps1
+
+# Check cert includes your IP
+.\scripts\verify-local-certs.ps1
+```
+
+Install the mkcert **root CA** on each client (not `localhost.pem`).
+
+```powershell
+# Print-server PC — export CA
+.\scripts\export-mkcert-ca.ps1
+
+# Copy printing\certs\rootCA.pem to the client Windows machine, then (Admin PowerShell):
+cd printing
+.\scripts\install-mkcert-ca.ps1
+```
+
+Use **`rootCA.pem`** with `install-mkcert-ca.ps1` (do not use `certutil -encode` on PEM files — that corrupts them and Windows reports "invalid certificate"). `rootCA.cer` is optional DER format for GUI import only.
+
+| Device | Install root CA |
+|--------|-----------------|
+| Windows | **Admin PowerShell:** `.\scripts\install-mkcert-ca.ps1` using **`rootCA.pem`** |
+| Android | Settings → Security → Encryption & credentials → Install a certificate → **CA certificate** |
+| macOS / iOS | macOS: Keychain Access → import → Always Trust. iOS: AirDrop/email + install profile |
+
+After installing the root CA, **fully quit and reopen Chrome**, then open `https://192.168.x.x:3132/health`.
+
+**Same PC only?** If the POS browser and Docker print server run on the **same Windows PC**, skip LAN IP entirely:
+
+```
+VITE_PRINT_SERVER_URL=https://localhost:3132
+```
+
+Use the LAN IP only when the browser runs on a **different** machine than the print server.
+
+### Troubleshooting: Chrome / Edge still show invalid certificate
+
+Run the diagnostic on the **PC where the browser runs**:
+
+```powershell
+.\scripts\diagnose-https.ps1 -Url https://192.168.68.115:3132/health
+```
+
+It checks: cert files, name/IP in certificate, root CA trust, live TLS from Docker, and HTTPS request.
+
+**Correct order (two machines):**
+
+| Step | Where | Command |
+|------|--------|---------|
+| 1 | Print-server PC | `.\scripts\setup-local-certs.ps1 <lan-ip>` |
+| 2 | Print-server PC | `.\scripts\export-mkcert-ca.ps1` |
+| 3 | Print-server PC | `docker compose -f docker-compose.standalone.yml up -d --build` |
+| 4 | Client PC (browser) | Copy `certs\rootCA.pem` only |
+| 5 | Client PC | Admin: `.\scripts\install-mkcert-ca.ps1` |
+| 6 | Client PC | `.\scripts\diagnose-https.ps1 -Url https://<lan-ip>:3132/health` |
+
+**Common mistakes:**
+- Running `install-mkcert-ca.ps1` on the server but browsing on a **different** PC without copying `rootCA.pem` there
+- Using LAN IP in browser but forgetting to include that IP in `setup-local-certs.ps1`
+- Not restarting Docker after regenerating certs
+- Installing `localhost.pem` instead of `rootCA.pem`
+- `rootCA.pem` and `localhost.pem` from different mkcert installs (diagnose reports "not signed by rootCA.pem")
+
+**Same PC for browser and Docker?** Use `https://localhost:3132` - no LAN IP or client CA install needed.
+
+If the container fails to start with a missing-cert error, re-run the setup script above.
 
 ### 3. Start the HTTPS container
 
@@ -144,7 +211,7 @@ Use this to check layout and content before printing.
 ```json
 {
   "printers": [ ... ],
-  "data": { "printType": "temp|summary|kitchen|delivery|final|refund|deletion|table", ... },
+  "data": { "printType": "temp|summary|kitchen|delivery|final|refund|deletion|table|pulse", ... },
   "config": {
     "bottomMargin": "1",
     "companyName": "Your Co",
@@ -204,7 +271,8 @@ Use this to check layout and content before printing.
 | printType | purpose |
 |-----------|---------|
 | `temp`    | Quick slip from `order` (items, totals) |
-| `final`   | Customer receipt from `order` |
+| `final`   | Customer receipt from `order` (also sends cash drawer pulse) |
+| `pulse`   | Cash drawer pulse only (no receipt); uses same printers as `final` |
 | `delivery`| Delivery slip from `order` (delivery/customer address, phone, items, totals) |
 | `kitchen` | Kitchen ticket from `order` (table, items with comments, time, priority) |
 | `table`   | Generic table-only print; pass prebuilt `rows` with escpos `tableCustom` cells |

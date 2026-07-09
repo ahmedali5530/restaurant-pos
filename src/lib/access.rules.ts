@@ -9,7 +9,7 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
   },
   "Orders": {
     label: "Orders", 
-    children: ['Orders', 'Cancel order', 'Split by seats', 'Split by items', 'Split by amount', 'Merge orders', 'Refund order', 'Print final copy', 'Print temp bill', 'Apply tax', 'Apply discount', 'Apply coupon', 'Apply service charges', 'Apply tips', 'Change extras', 'Complete order'] as string[]
+    children: ['Orders', 'Cancel order', 'Split by seats', 'Split by items', 'Split by amount', 'Merge orders', 'Refund order', 'Print final copy', 'Print temp bill', 'Open cash drawer', 'Apply tax', 'Apply discount', 'Apply coupon', 'Apply service charges', 'Apply tips', 'Change extras', 'Complete order'] as string[]
   },
   "Summary": {
     label: "Summary",
@@ -91,6 +91,16 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
       'Cash Flow',
       'Customer Statement',
       'Supplier Statement',
+    ] as string[]
+  },
+  'Integrations': {
+    label: 'Integrations',
+    children: [
+      'Integrations',
+      'Integration providers',
+      'Integration configuration',
+      'Integration health',
+      'Integration queue',
     ] as string[]
   }
 };

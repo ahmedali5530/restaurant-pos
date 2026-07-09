@@ -1,6 +1,6 @@
 'use strict';
 
-const { normalizeConfig, printReceiptHeader } = require('../lib/receipt-helpers');
+const { normalizeConfig, printReceiptHeader, sendCashDrawerPulse } = require('../lib/receipt-helpers');
 const { printBillLayout } = require('../lib/bill-layout');
 const { mapOrderToFinal } = require('../lib/order-mapping');
 
@@ -26,7 +26,10 @@ function build(printer, data = {}, config = {}) {
       showChange: true,
       showDeliveryLine: false,
       isFinal: true,
-    }).then(() => printer);
+    }).then(() => {
+      sendCashDrawerPulse(printer);
+      return printer;
+    });
   });
 }
 

@@ -65,7 +65,14 @@ for host in "${UNIQUE_HOSTS[@]}"; do
     CADDY_HOSTS+=("$host")
   fi
 done
-printf '%s\n' "$(IFS=,; echo "${CADDY_HOSTS[*]}")" > tls-hosts.txt
+{
+  out=""
+  for host in "${CADDY_HOSTS[@]}"; do
+    if [ -n "$out" ]; then out="$out, "; fi
+    out="$out$host"
+  done
+  printf '%s\n' "$out"
+} > tls-hosts.txt
 
 echo ""
 echo "Certificates written to:"

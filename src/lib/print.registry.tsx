@@ -11,7 +11,8 @@ export enum PRINT_TYPE {
   refund_bill = 'refund',
   kitchen_bill = 'kitchen',
   delivery_bill = 'delivery',
-  summary = 'summary'
+  summary = 'summary',
+  pulse = 'pulse',
 }
 
 export function initializePrintTemplates() {

@@ -16,7 +16,7 @@ import {DatePicker} from "@/components/common/antd/datepicker.tsx";
 import {getLocalTimeZone, today} from '@internationalized/date';
 import {DateValue} from "react-aria-components";
 import {Button} from "@/components/common/input/button.tsx";
-import {faBars, faChair, faTableColumns} from "@fortawesome/free-solid-svg-icons";
+import {faBars, faChair, faMoneyBillWave, faTableColumns} from "@fortawesome/free-solid-svg-icons";
 import {OrderRow} from "@/components/orders/order.row.tsx";
 import {Table} from "@/api/model/table.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -32,10 +32,14 @@ import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
 import {translateOrderStatus} from "@/lib/order.ts";
+import {useSecurity} from "@/hooks/useSecurity.ts";
+import {dispatchPrint} from "@/lib/print.service.ts";
+import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 
 export const Orders = () => {
   const {t} = useTranslation('orders');
   const db = useDB();
+  const {protectAction} = useSecurity();
   const [liveQuery, setLiveQuery] = useState<LiveSubscription | null>(null);
 
   const [state, setState] = useAtom(appState);
@@ -340,6 +344,20 @@ export const Orders = () => {
             <DatePicker value={date} onChange={setDate} maxValue={today(getLocalTimeZone())} isClearable/>
           </div>
           <div className="input-group flex-1 justify-end">
+            <Button
+              icon={faMoneyBillWave}
+              variant="primary"
+              onClick={() => {
+                protectAction(() => {
+                  void dispatchPrint(db, PRINT_TYPE.pulse, {}, {userId: app?.user?.id});
+                }, {
+                  module: 'Open cash drawer',
+                  description: 'Open cash drawer',
+                });
+              }}
+            >
+              {t('actions.openCashDrawer')}
+            </Button>
             <Button icon={faTableColumns} variant="primary" onClick={() => setView('column')}
                     active={view === 'column'}>
               {t('view.blocks')}

@@ -18,12 +18,27 @@ fi
 CADDYFILE=/etc/caddy/Caddyfile
 mkdir -p /etc/caddy
 
+# Caddy site addresses must be comma-separated with a space: "a, b, c"
+normalize_tls_hosts() {
+  printf '%s' "$1" | awk -F',' '{
+    out = ""
+    for (i = 1; i <= NF; i++) {
+      gsub(/^[ \t]+|[ \t]+$/, "", $i)
+      if ($i != "") {
+        if (out != "") out = out ", "
+        out = out $i
+      }
+    }
+    print out
+  }'
+}
+
 if [ -f /certs/tls-hosts.txt ]; then
-  TLS_HOSTS=$(tr -d ' \n\r' < /certs/tls-hosts.txt)
+  TLS_HOSTS=$(normalize_tls_hosts "$(tr -d '\n\r' < /certs/tls-hosts.txt)")
 elif [ -n "${PRINT_TLS_HOSTS:-}" ]; then
-  TLS_HOSTS="$PRINT_TLS_HOSTS"
+  TLS_HOSTS=$(normalize_tls_hosts "$PRINT_TLS_HOSTS")
 else
-  TLS_HOSTS="localhost,127.0.0.1"
+  TLS_HOSTS="localhost, 127.0.0.1"
 fi
 
 cat > "$CADDYFILE" <<EOF

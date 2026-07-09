@@ -68,6 +68,7 @@
     "mergeOrders": "Fusionner les commandes",
     "refund": "Rembourser",
     "printFinalBillCopy": "Imprimer une copie de la note finale",
+    "openCashDrawer": "Ouvrir le tiroir-caisse",
     "tempBill": "Note provisoire",
     "payNow": "Payer maintenant"
   },

@@ -1,4 +1,5 @@
 *.pem
 *.crt
+*.cer
 *.key
 tls-hosts.txt
