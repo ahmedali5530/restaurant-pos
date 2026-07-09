@@ -182,6 +182,10 @@ function getOrderServiceChargeLabel(order) {
 function getOrderUserName(order) {
   if (!order || !order.user) return '';
   const u = order.user;
+  if (typeof u === 'string') {
+    if (isBareRecordId(u)) return '';
+    return u;
+  }
   const f = (u.first_name || '').trim();
   const l = (u.last_name || '').trim();
   return [f, l].filter(Boolean).join(' ') || (u.name || u.login || '');
@@ -269,13 +273,24 @@ function getOrderTable(order) {
 /**
  * Order type display from order.order_type (string or object).
  */
+function isBareRecordId(value) {
+  if (value == null || value === '') return false;
+  const s = typeof value === 'object' && value.id != null ? String(value.id) : String(value);
+  return /^[a-zA-Z0-9_]+:[\w-]+$/.test(s) && !s.includes(' ');
+}
+
 function getOrderType(order) {
   if (!order) return '';
   const ot = order.order_type;
   if (!ot) return '';
-  if (typeof ot === 'string') return ot;
+  if (typeof ot === 'string') {
+    if (isBareRecordId(ot)) return '';
+    return ot;
+  }
   if (typeof ot === 'object') {
-    return ot.name || ot.title || ot.type || '';
+    const name = ot.name || ot.title || ot.type || '';
+    if (name) return String(name);
+    if (isBareRecordId(ot)) return '';
   }
   return '';
 }
@@ -528,6 +543,7 @@ module.exports = {
   calculateOrderItemPricePrint,
   getOrderCustomerName,
   getOrderDeliveryTime,
+  getOrderUserName,
   mapOrderToTemp,
   mapOrderToFinal,
   mapOrderToDelivery,

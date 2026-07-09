@@ -119,6 +119,42 @@ export async function getPrintConfig(db: PrintDB, template: string): Promise<Rec
   };
 }
 
+function isBareRecordRef(value: unknown): boolean {
+  if (value == null) return false;
+  const s = typeof value === 'object' && value !== null && 'id' in value
+    ? String((value as { id: unknown }).id)
+    : String(value);
+  return /^[a-zA-Z0-9_]+:[\w-]+$/.test(s) && !s.includes(' ');
+}
+
+function orderNeedsEnrichment(order: Record<string, unknown>): boolean {
+  if (!order?.id) return false;
+  if (isBareRecordRef(order.order_type)) return true;
+  if (isBareRecordRef(order.user)) return true;
+  return false;
+}
+
+async function enrichOrderForPrint(db: PrintDB, order: Record<string, unknown>): Promise<Record<string, unknown>> {
+  if (!orderNeedsEnrichment(order)) return order;
+  try {
+    const [res] = await db.query(
+      `SELECT * FROM $id FETCH order_type, user, table`,
+      { id: order.id }
+    );
+    const rows = Array.isArray(res) ? res : [];
+    const fetched = rows[0] as Record<string, unknown> | undefined;
+    if (!fetched) return order;
+    return {
+      ...order,
+      order_type: fetched.order_type ?? order.order_type,
+      user: fetched.user ?? order.user,
+      table: order.table ?? fetched.table,
+    };
+  } catch {
+    return order;
+  }
+}
+
 export async function getPrintersForType(db: PrintDB, template: string, userId?: string | null): Promise<Printer[]> {
   const key = PRINTER_SETTING_KEYS[template];
   if (!key) return [];
@@ -199,8 +235,13 @@ export async function dispatchPrint<Payload = any>(
     return;
   }
 
+  let printPayload = { ...(payload as Record<string, unknown>) };
+  if (printPayload.order && (template === 'kitchen' || template === 'deletion')) {
+    printPayload.order = await enrichOrderForPrint(db, printPayload.order as Record<string, unknown>);
+  }
+
   const body = {
-    data: { printType: template, ...payload },
+    data: { printType: template, ...printPayload },
     config : {
       ...config,
       decimal_place: import.meta.env.VITE_DECIMAL_PLACES

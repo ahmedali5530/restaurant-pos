@@ -21,6 +21,8 @@ export const PrintFinalBill: React.FC<Props> = ({order, duplicate}) => {
     return order?.payments?.reduce((prev, item) => prev + Number(item.amount), 0);
   }, [order]);
 
+  const changeDue = useMemo(() => payments - total, [payments, total]);
+
   return (
     <div style={{padding: 12, fontFamily: 'monospace', width: 280}}>
       <div style={{textAlign: 'center', marginBottom: 8}}>
@@ -34,11 +36,15 @@ export const PrintFinalBill: React.FC<Props> = ({order, duplicate}) => {
           <div style={{textAlign: 'right'}}>{withCurrency(item.amount)}</div>
         </div>
       ))}
-      <hr/>
-      <div style={{display: 'flex', fontWeight: 'bold'}}>
-        <div style={{flex: 1}}>Change</div>
-        <div style={{textAlign: 'right'}}>{withCurrency(payments - total)}</div>
-      </div>
+      {changeDue !== 0 && (
+        <>
+          <hr/>
+          <div style={{display: 'flex', fontWeight: 'bold'}}>
+            <div style={{flex: 1}}>Change</div>
+            <div style={{textAlign: 'right'}}>{withCurrency(changeDue)}</div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

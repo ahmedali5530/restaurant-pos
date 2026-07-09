@@ -227,7 +227,7 @@ const fireStageKOT = async (db: AnyDb, oikId: any): Promise<void> => {
   try {
     const row = firstRow<any>(
       await db.query(
-        `SELECT * FROM $oik FETCH order_item, order_item.item, order_item.order, order_item.order.table, kitchen, kitchen.printers`,
+        `SELECT * FROM $oik FETCH order_item, order_item.item, order_item.order, order_item.order.table, order_item.order.order_type, order_item.order.user, kitchen, kitchen.printers`,
         { oik: toRecordId(oikId.toString()) }
       )
     );

@@ -7,33 +7,19 @@ const {
   buildItemRowString,
   buildItemHeaderString,
   printModifierLines,
+  printFixedLine,
 } = require('../lib/receipt-helpers');
-const { getOrderId, getOrderCreatedAt, getOrderItemModifierLines } = require('../lib/order-mapping');
+const { printKotHeader } = require('../lib/kot-layout');
+const {
+  getOrderId,
+  getOrderCreatedAt,
+  getOrderItemModifierLines,
+  getOrderUserName,
+  getOrderType,
+} = require('../lib/order-mapping');
 
-/**
- * Kitchen print builder (KOT).
- * Expects data: { order, items, kitchenName?, table?, isAddOn? }
- *   - order:       normalized order object (with invoice_number etc.)
- *   - items:       kitchen-specific items with full dish in `item` field
- *   - kitchenName: name of the kitchen station
- *   - table:       table object with name/number
- *   - isAddOn:     true when items are added to an existing order
- */
-function build(printer, data = {}, config = {}) {
-  const order = data.order;
-  const items = Array.isArray(data.items) ? data.items : [];
-  const kitchenName = data.kitchenName || '';
-  const isAddOn = !!data.isAddOn;
-  const cfg = normalizeConfig(config);
-
-  const orderId = order ? getOrderId(order) : '';
-  const createdAt = order ? getOrderCreatedAt(order) : new Date().toLocaleTimeString();
-
-  const table = data.table
-    ? String(data.table.name || '') + String(data.table.number || '')
-    : '';
-
-  const printItems = items.map((it) => {
+function mapPrintItems(items) {
+  return items.map((it) => {
     const dish = it.item || it.dish || {};
     return {
       name: dish.name || dish.title || '',
@@ -44,27 +30,49 @@ function build(printer, data = {}, config = {}) {
       modifierLines: getOrderItemModifierLines(it),
     };
   });
+}
+
+function getTableLabel(data) {
+  if (data.table) {
+    return String(data.table.name || '') + String(data.table.number || '');
+  }
+  return '';
+}
+
+/**
+ * Kitchen print builder (KOT).
+ * Expects data: { order, items, kitchenName?, table?, isAddOn? }
+ */
+function build(printer, data = {}, config = {}) {
+  const order = data.order;
+  const items = Array.isArray(data.items) ? data.items : [];
+  const kitchenName = data.kitchenName || '';
+  const isAddOn = !!data.isAddOn;
+  const cfg = normalizeConfig(config);
+
+  const orderId = order ? getOrderId(order) : '';
+  const createdAt = order ? getOrderCreatedAt(order) : new Date().toLocaleTimeString();
+  const orderTaker = order ? getOrderUserName(order) : '';
+  const orderType = order ? getOrderType(order) : '';
+  const table = getTableLabel(data);
+  const printItems = mapPrintItems(items);
 
   return printReceiptHeader(printer, cfg).then(() => {
-    printer.align('ct').style('bu');
-    printer.text(kitchenName || 'KOT');
-    printer.style('normal');
-    printer.drawLine();
+    printKotHeader(printer, {
+      kitchenName,
+      bannerLabel: isAddOn ? 'ADDON' : 'New Order',
+      orderId,
+      table,
+      orderType,
+      orderTaker,
+      createdAt,
+    });
 
-    if (isAddOn) {
-      printer.align('ct').style('b').text('** ADDON **').style('normal');
-    }
-    if (orderId) printer.text(`Order# ${orderId}`);
-    if (table) printer.text(`Table: ${table}`);
-    printer.text(`Time: ${createdAt}`);
-    printer.drawLine();
-
-    printer.align('lt');
-    printer.style('b').text(buildItemHeaderString(cfg)).style('normal');
+    printFixedLine(printer, buildItemHeaderString(cfg), { align: 'left', style: 'bold' });
     printItems.forEach((it) => {
-      printer.text(buildItemRowString(it, cfg));
+      printFixedLine(printer, buildItemRowString(it, cfg), { align: 'left' });
       if (it.notes) {
-        printer.text(` >> ${it.notes.slice(0, 26)}`);
+        printFixedLine(printer, ` >> ${it.notes.slice(0, 26)}`, { align: 'left' });
       }
       printModifierLines(printer, it.modifierLines);
     });

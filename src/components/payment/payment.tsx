@@ -291,7 +291,11 @@ export const Payment = () => {
           if (kitchenItems[k.id.toString()]) {
             void dispatchPrint(db, 'kitchen', {
               items: kitchenItems[k.id.toString()],
-              order: normalizedOrder,
+              order: {
+                ...normalizedOrder,
+                order_type: state?.orderType ?? normalizedOrder.order_type,
+                user: page?.user ?? normalizedOrder.user,
+              },
               kitchenName: k.name,
               table: state?.table,
               isAddOn: !isNewOrder,

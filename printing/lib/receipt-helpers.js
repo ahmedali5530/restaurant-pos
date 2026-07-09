@@ -4,6 +4,7 @@ const escpos = require('escpos');
 const Image = escpos.Image;
 
 const PRINTER_WIDTH = 42;
+const MAX_LOGO_WIDTH_PX = 320;
 
 const DEFAULTS = {
   bottomMargin: 0,
@@ -102,6 +103,11 @@ function normalizeConfig(c = {}) {
   };
 }
 
+function getEffectiveLineWidth(size) {
+  const dims = TEXT_SIZE_MAP[size] || TEXT_SIZE_MAP.normal;
+  return Math.max(1, Math.floor(PRINTER_WIDTH / dims[0]));
+}
+
 function padRight(str, len) {
   str = String(str);
   return str.length >= len ? str.slice(0, len) : str + ' '.repeat(len - str.length);
@@ -112,21 +118,35 @@ function padLeft(str, len) {
   return str.length >= len ? str.slice(0, len) : ' '.repeat(len - str.length) + str;
 }
 
-function padAlign(text, align, width = PRINTER_WIDTH) {
-  const str = String(text || '').slice(0, width);
-  if (align === 'right') return padLeft(str, width);
+function padAlign(text, align, width, size) {
+  const lineWidth = width || getEffectiveLineWidth(size || 'normal');
+  const str = String(text || '').slice(0, lineWidth);
+  if (align === 'right') return padLeft(str, lineWidth);
   if (align === 'center') {
-    const pad = Math.max(0, width - str.length);
+    const pad = Math.max(0, lineWidth - str.length);
     const left = Math.floor(pad / 2);
     return ' '.repeat(left) + str + ' '.repeat(pad - left);
   }
-  return padRight(str, width);
+  return padRight(str, lineWidth);
+}
+
+/**
+ * Force a consistent left column across printers. Avoids mixing ESC/POS align
+ * modes (ct/rt) with manually padded lt lines, which diverge on some firmware.
+ */
+function hardResetLayout(printer) {
+  printer.align('lt');
+  printer.buffer.write('\x1d\x21\x00');
+  printer.style('normal');
+  printer.marginLeft(0);
+  printer.marginRight(0);
+  if (typeof printer.font === 'function') {
+    printer.font('A');
+  }
 }
 
 function resetTextSize(printer) {
-  printer.buffer.write('\x1d\x21\x00');
-  printer.align('lt');
-  printer.style('normal');
+  hardResetLayout(printer);
 }
 
 function applyTextSize(printer, size) {
@@ -140,6 +160,40 @@ function escposAlign(align) {
   return 'lt';
 }
 
+function printHardwareAlignedLine(printer, text, opts) {
+  const options = opts || {};
+  const align = options.align || 'center';
+  const size = options.size || 'normal';
+  const style = options.style;
+  const maxLen = getEffectiveLineWidth(size);
+  const content = String(text || '').slice(0, maxLen);
+  if (!content) return;
+  hardResetLayout(printer);
+  if (size !== 'normal') applyTextSize(printer, size);
+  if (style === 'bold') printer.style('b');
+  else if (style === 'bold-underline') printer.style('bu');
+  printer.align(escposAlign(align)).text(content);
+  hardResetLayout(printer);
+}
+
+function printFixedLine(printer, text, opts) {
+  const options = opts || {};
+  const align = options.align || 'left';
+  const size = options.size || 'normal';
+  const style = options.style;
+  hardResetLayout(printer);
+  if (size !== 'normal') applyTextSize(printer, size);
+  if (style === 'bold') printer.style('b');
+  else if (style === 'bold-underline') printer.style('bu');
+  printer.align('lt').text(padAlign(text, align, null, size));
+  hardResetLayout(printer);
+}
+
+function printDivider(printer) {
+  hardResetLayout(printer);
+  printer.align('lt').text('-'.repeat(PRINTER_WIDTH));
+}
+
 /**
  * Format amount as currency string (e.g. "$12.34").
  * @param {number} amount
@@ -147,7 +201,7 @@ function escposAlign(align) {
  * @returns {string}
  */
 function formatMoney(amount, symbol) {
-  const s = symbol != null ? symbol : '$';
+  const s = symbol != null ? symbol+' ' : '$';
   return s + Number(amount || 0).toFixed(0);
 }
 
@@ -159,26 +213,39 @@ function formatMoney(amount, symbol) {
  * @param {{ size?: [number,number] }} opts
  */
 function printLineLeftRight(printer, left, right, opts) {
-  const size = (opts && opts.size) || [1, 1];
+  const options = opts || {};
+  const size = options.size || [1, 1];
   const [w, h] = size;
-  if (w !== 1 || h !== 1) {
-    applyTextSize(printer, w === 2 && h === 2 ? 'large' : 'medium');
-  }
-  const half = Math.floor(PRINTER_WIDTH / 2);
+  const textSize = w === 2 && h === 2 ? 'large' : (w !== 1 || h !== 1 ? 'medium' : 'normal');
+  hardResetLayout(printer);
+  if (textSize !== 'normal') applyTextSize(printer, textSize);
+  if (options.style === 'bold-underline') printer.style('bu');
+  else if (options.style === 'bold') printer.style('b');
+  const lineWidth = getEffectiveLineWidth(textSize);
+  const half = Math.floor(lineWidth / 2);
   const leftStr = padRight(String(left || '').slice(0, half), half);
   const rightStr = padLeft(String(right || '').slice(0, half), half);
-  printer.align('lt').text(leftStr + rightStr);
-  if (w !== 1 || h !== 1) resetTextSize(printer);
+  const gap = lineWidth - half - half;
+  printer.align('lt').text(leftStr + ' '.repeat(Math.max(0, gap)) + rightStr);
+  hardResetLayout(printer);
 }
 
 function printAlignedText(printer, text, align, opts) {
-  const style = opts && opts.style;
-  const size = opts && opts.size;
-  if (size) applyTextSize(printer, size);
-  if (style === 'bold') printer.style('b');
-  else if (style === 'bold-underline') printer.style('bu');
-  printer.align('lt').text(padAlign(text, align || 'center'));
-  resetTextSize(printer);
+  const options = opts || {};
+  const resolvedAlign = align || 'center';
+  if (resolvedAlign === 'left') {
+    printFixedLine(printer, text, {
+      align: 'left',
+      size: options.size || 'normal',
+      style: options.style,
+    });
+    return;
+  }
+  printHardwareAlignedLine(printer, text, {
+    align: resolvedAlign,
+    size: options.size || 'normal',
+    style: options.style,
+  });
 }
 
 function printCenteredText(printer, text, opts) {
@@ -193,10 +260,40 @@ function printCenteredText(printer, text, opts) {
 function applyMargins(printer, config) {
   const top = Math.max(0, config.topMargin || 0);
   if (top > 0) printer.feed(top);
-  const left = Math.max(0, config.leftMargin || 0);
-  if (left > 0) printer.marginLeft(Math.min(255, left));
-  const right = Math.max(0, config.rightMargin || 0);
-  if (right > 0) printer.marginRight(Math.min(255, right));
+  // Do not use GS L margin commands — they shift centered vs left-aligned
+  // content differently across printer firmware. Horizontal inset is handled
+  // via fixed-width padding on each line instead.
+  hardResetLayout(printer);
+}
+
+/**
+ * Scale logo down to fit thermal width while preserving aspect ratio.
+ * @param {Buffer} buf
+ * @param {string} mime
+ * @returns {Promise<{ buf: Buffer, mime: string }>}
+ */
+function resizeLogoBuffer(buf, mime) {
+  return new Promise((resolve) => {
+    try {
+      const { loadImage, createCanvas } = require('canvas');
+      loadImage(buf).then((img) => {
+        if (!img || img.width <= MAX_LOGO_WIDTH_PX) {
+          return resolve({ buf, mime });
+        }
+        const scale = MAX_LOGO_WIDTH_PX / img.width;
+        const w = MAX_LOGO_WIDTH_PX;
+        const h = Math.max(1, Math.round(img.height * scale));
+        const canvas = createCanvas(w, h);
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve({ buf: canvas.toBuffer('image/png'), mime: 'image/png' });
+      }).catch(() => resolve({ buf, mime }));
+    } catch (e) {
+      resolve({ buf, mime });
+    }
+  });
 }
 
 /**
@@ -230,21 +327,24 @@ function printLogo(printer, logo, opts) {
     }
     if (buf.length === 0) return resolve();
 
-    Image.load(buf, mime, (...cbArgs) => {
-      const hasErrStyle = cbArgs.length >= 2;
-      const loadErr = hasErrStyle ? cbArgs[0] : null;
-      const img = hasErrStyle ? cbArgs[1] : cbArgs[0];
-      if (loadErr || !img) return resolve();
-      (async () => {
-        try {
-          printer.align(escposAlign(align));
-          await printer.image(img, 's24');
-        } catch (e) {
-          // ignore
-        }
-        resetTextSize(printer);
-        resolve();
-      })();
+    resizeLogoBuffer(buf, mime).then(({ buf: resizedBuf, mime: resizedMime }) => {
+      Image.load(resizedBuf, resizedMime, (...cbArgs) => {
+        const hasErrStyle = cbArgs.length >= 2;
+        const loadErr = hasErrStyle ? cbArgs[0] : null;
+        const img = hasErrStyle ? cbArgs[1] : cbArgs[0];
+        if (loadErr || !img) return resolve();
+        (async () => {
+          try {
+            hardResetLayout(printer);
+            printer.align(escposAlign(align));
+            await printer.image(img, 's24');
+          } catch (e) {
+            // ignore
+          }
+          hardResetLayout(printer);
+          resolve();
+        })();
+      });
     });
   });
 }
@@ -285,10 +385,9 @@ function printSections(printer, sections) {
         return printLogo(printer, section.content, { align: section.align });
       }
       if (section.type === 'text' && section.content) {
-        resetTextSize(printer);
-        applyTextSize(printer, section.size);
-        printer.align('lt').text(padAlign(section.content, section.align));
-        resetTextSize(printer);
+        printAlignedText(printer, section.content, section.align, {
+          size: section.size,
+        });
       }
       return Promise.resolve();
     });
@@ -305,11 +404,13 @@ function printSections(printer, sections) {
  */
 function printReceiptHeader(printer, config) {
   applyMargins(printer, config);
-  resetTextSize(printer);
+  hardResetLayout(printer);
   const logoPromise = config.showLogo && config.logo
     ? printLogo(printer, config.logo, { align: 'center' })
     : Promise.resolve();
-  return logoPromise.then(() => printSections(printer, config.headerSections || []));
+  return logoPromise
+    .then(() => printSections(printer, config.headerSections || []))
+    .then(() => hardResetLayout(printer));
 }
 
 /**
@@ -319,7 +420,10 @@ function printReceiptHeader(printer, config) {
  * @returns {Promise<void>}
  */
 function printFooterSections(printer, config) {
-  return printSections(printer, config.footerSections || []);
+  hardResetLayout(printer);
+  return printSections(printer, config.footerSections || []).then(() => {
+    hardResetLayout(printer);
+  });
 }
 
 /**
@@ -416,12 +520,11 @@ function buildItemHeaderString(config) {
  */
 function printModifierLines(printer, modifierLines) {
   if (!Array.isArray(modifierLines) || modifierLines.length === 0) return;
-  printer.align('lt');
   modifierLines.forEach((line) => {
     if (!line || line.name == null) return;
     const depth = typeof line.depth === 'number' ? line.depth : 0;
     const indent = '  '.repeat(1 + Math.max(0, depth));
-    printer.text(indent + String(line.name).trim());
+    printFixedLine(printer, indent + String(line.name).trim(), { align: 'left' });
   });
 }
 
@@ -461,6 +564,10 @@ module.exports = {
   printAlignedText,
   padAlign,
   resetTextSize,
+  hardResetLayout,
+  printFixedLine,
+  printDivider,
+  getEffectiveLineWidth,
   formatItemLine,
   getItemLineLeftRight,
   printBillItemLine,

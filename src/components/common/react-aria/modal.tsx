@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils.ts";
 import {createPortal} from "react-dom";
 
 const isReactAriaTopLayer = (element: Element) =>
-  !!element.closest('[data-react-aria-top-layer], .rs__menu-portal, .rs__menu');
+  !!element.closest('[data-react-aria-top-layer], .rs__menu-portal, .rs__menu, .delete-confirm-overlay');
 
 interface ModalProps extends PropsWithChildren {
   open?: boolean;

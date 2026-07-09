@@ -10,8 +10,9 @@ const {
   buildItemHeaderString,
   printModifierLines,
   printCenteredText,
-  resetTextSize,
-  padAlign,
+  hardResetLayout,
+  printFixedLine,
+  printDivider,
 } = require('./receipt-helpers');
 
 /**
@@ -40,28 +41,27 @@ function printBillLayout(printer, bill, config, opts) {
     isFinal = false,
   } = opts || {};
 
-  resetTextSize(printer);
+  hardResetLayout(printer);
   printCenteredText(printer, title || 'Bill', { style: 'bold-underline' });
+  printer.feed(1);
   printVatLine(printer, cfg);
-  resetTextSize(printer);
+  hardResetLayout(printer);
 
   printLineLeftRight(printer, `Invoice# ${bill.orderId || ''}`, bill.date || '');
   printLineLeftRight(printer, `Table: ${bill.table || '-'}`, `Order Type: ${bill.orderType || '-'}`);
   printLineLeftRight(printer, `Cashier: ${bill.userName || '-'}`, '');
-  if (customerName) printer.align('lt').text(padAlign(`Customer: ${String(customerName)}`, 'left'));
-  if (phone) printer.align('lt').text(padAlign(`Phone: ${String(phone)}`, 'left'));
-  if (address) printer.align('lt').text(padAlign(`Address: ${String(address).slice(0, 40)}`, 'left'));
-  if (deliveryTime) printer.align('lt').text(padAlign(`Delivery Time: ${String(deliveryTime)}`, 'left'));
-  printer.drawLine();
+  if (customerName) printFixedLine(printer, `Customer: ${String(customerName)}`, { align: 'left' });
+  if (phone) printFixedLine(printer, `Phone: ${String(phone)}`, { align: 'left' });
+  if (address) printFixedLine(printer, `Address: ${String(address).slice(0, 40)}`, { align: 'left' });
+  if (deliveryTime) printFixedLine(printer, `Delivery Time: ${String(deliveryTime)}`, { align: 'left' });
+  printDivider(printer);
 
-  printer.align('lt');
-  printer.style('b').text(buildItemHeaderString(cfg));
-  resetTextSize(printer);
+  printFixedLine(printer, buildItemHeaderString(cfg), { align: 'left', style: 'bold' });
   (bill.items || []).forEach((it) => {
-    printer.text(buildItemRowString(it, cfg));
+    printFixedLine(printer, buildItemRowString(it, cfg), { align: 'left' });
     printModifierLines(printer, it.modifierLines);
   });
-  printer.drawLine();
+  printDivider(printer);
 
   printLineLeftRight(printer, `Items (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, sym));
   if (bill.tax != null && Number(bill.tax) !== 0) {
@@ -91,34 +91,31 @@ function printBillLayout(printer, bill, config, opts) {
   if (showDeliveryLine && bill.deliveryCharges != null && Number(bill.deliveryCharges) !== 0) {
     printLineLeftRight(printer, 'Delivery Charges', formatMoney(bill.deliveryCharges, sym));
   }
-  printer.drawLine();
+  printDivider(printer);
 
   if (Array.isArray(bill.totalRows) && bill.totalRows.length > 0) {
     bill.totalRows.forEach((row) => {
       printLineLeftRight(printer, row.label || 'Total', formatMoney(row.amount, sym));
     });
   } else {
-    printer.style('bu');
-    printLineLeftRight(printer, 'Total', formatMoney(bill.total, sym));
-    resetTextSize(printer);
+    printLineLeftRight(printer, 'Total', formatMoney(bill.total, sym), { style: 'bold' });
+    hardResetLayout(printer);
   }
 
   if (showPayments && Array.isArray(bill.payments) && bill.payments.length > 0) {
-    printer.drawLine();
+    printDivider(printer);
     bill.payments.forEach((p) => {
       printLineLeftRight(printer, p.method || 'Payment', formatMoney(p.amount, sym));
     });
   }
-  if (showChange) {
-    printer.drawLine();
-    printer.style('bu');
-    printLineLeftRight(printer, 'Change', formatMoney(bill.change, sym));
-    resetTextSize(printer);
+  if (showChange && bill.change != null && Number(bill.change) !== 0) {
+    printDivider(printer);
+    printLineLeftRight(printer, 'Change', formatMoney(bill.change, sym), { style: 'bold' });
   }
 
   if (notes) {
-    printer.drawLine();
-    printer.align('lt').text(padAlign(`Notes: ${String(notes).slice(0, 48)}`, 'left'));
+    printDivider(printer);
+    printFixedLine(printer, `Notes: ${String(notes).slice(0, 48)}`, { align: 'left' });
   }
   if (thankYou) {
     printer.feed(1);
@@ -131,7 +128,7 @@ function printBillLayout(printer, bill, config, opts) {
     feedBottomMargin(printer, cfg);
 
     if (isFinal) {
-      printer.drawLine();
+      printDivider(printer);
       printCenteredText(printer, 'Check Closed', { style: 'bold' });
     }
 
@@ -145,8 +142,10 @@ function printBillLayout(printer, bill, config, opts) {
         minute: '2-digit',
         hour12: true,
       });
+      printer.feed(2);
       printCenteredText(printer, ts);
-      printer.feed(1).cut();
+      printer.feed(2);
+      printer.cut();
     });
   });
 }
@@ -159,7 +158,7 @@ function printQrCode(printer, value) {
     const done = () => {
       if (settled) return;
       settled = true;
-      resetTextSize(printer);
+      hardResetLayout(printer);
       resolve();
     };
 
@@ -173,8 +172,9 @@ function printQrCode(printer, value) {
     };
 
     try {
+      hardResetLayout(printer);
       if (typeof printer.qrimage === 'function') {
-        printer.align('ct').qrimage(value, { type: 'png', mode: 'dhdw' }, () => finalize());
+        printer.align('lt').qrimage(value, { type: 'png', mode: 'dhdw' }, () => finalize());
         setTimeout(finalize, 2000);
         return;
       }
@@ -183,7 +183,8 @@ function printQrCode(printer, value) {
     }
 
     try {
-      printer.align('ct').qrcode(value);
+      hardResetLayout(printer);
+      printer.align('lt').qrcode(value);
     } catch (e) {
       // ignore
     }

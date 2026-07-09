@@ -48,6 +48,8 @@ const receiptPreviewStyles = `
     .left { text-align: left; }
     .right { text-align: right; }
     .title { font-weight: bold; margin-bottom: 8px; }
+    .title.size-medium { font-size: 14px; text-decoration: underline; }
+    .feed-spacer { height: 8px; }
     .row { display: flex; justify-content: space-between; gap: 12px; }
     .row span:last-child { text-align: right; }
     .bold { font-weight: bold; }
@@ -93,7 +95,8 @@ function renderBillToHtml(bill, config, opts) {
   const brandingHeader = renderBrandingHeader(cfg);
   if (brandingHeader) parts.push(brandingHeader);
 
-  parts.push(`<div class="title">${escapeHtml(title)}</div>`);
+  parts.push(`<div class="title size-medium">${escapeHtml(title)}</div>`);
+  parts.push('<div class="feed-spacer"></div>');
   if (cfg.showVatNumber && cfg.vatNumber) {
     parts.push(`<div class="center">${escapeHtml(cfg.vatName + ': ' + cfg.vatNumber)}</div>`);
   }
@@ -143,7 +146,7 @@ function renderBillToHtml(bill, config, opts) {
       parts.push(row(p.method || 'Payment', formatMoney(p.amount, sym)));
     });
   }
-  if (showChange) {
+  if (showChange && bill.change != null && Number(bill.change) !== 0) {
     parts.push('<hr/>');
     parts.push(`<div class="row bold"><span>Change</span><span>${escapeHtml(formatMoney(bill.change, sym))}</span></div>`);
   }
@@ -350,22 +353,37 @@ function renderSummaryToHtml(data, config) {
  */
 function renderKitchenToHtml(data, config) {
   const cfg = normalizeConfig(config || {});
-  const { mapOrderToKitchen } = require('./order-mapping');
   const order = data && data.order;
   if (!order) return `<html><body><p>data.order required for kitchen preview</p></body></html>`;
-  const k = mapOrderToKitchen(order);
+  const { getOrderId, getOrderCreatedAt, getOrderUserName, getOrderType } = require('./order-mapping');
+  const kitchenName = data.kitchenName || 'KOT';
+  const isAddOn = !!data.isAddOn;
+  const orderId = getOrderId(order);
+  const createdAt = getOrderCreatedAt(order);
+  const orderTaker = getOrderUserName(order);
+  const orderType = getOrderType(order);
+  const table = data.table
+    ? String(data.table.name || '') + String(data.table.number || '')
+    : '';
+  const items = Array.isArray(data.items) ? data.items : [];
   const parts = [];
-  parts.push(`<div class="title">*** KITCHEN ***</div>`);
-  parts.push(`<div class="row"><span>Order</span><span>${escapeHtml(k.orderId)}</span></div>`);
-  parts.push(`<div class="row"><span>Table</span><span>${escapeHtml(k.table)}</span></div>`);
-  parts.push(`<div class="row"><span>Time</span><span>${escapeHtml(k.createdAt)}</span></div>`);
-  if (k.priority) parts.push(`<div class="row bold"><span>PRIORITY</span><span>${escapeHtml(k.priority)}</span></div>`);
+  const brandingHeader = renderBrandingHeader(cfg);
+  if (brandingHeader) parts.push(brandingHeader);
+  parts.push(`<div class="title size-medium">${escapeHtml(kitchenName)}</div>`);
   parts.push('<hr/>');
-  (k.items || []).forEach((it) => {
-    const name = (it.name || '').slice(0, 28);
-    const qty = it.qty != null ? it.qty : 1;
+  parts.push(`<div class="center size-medium bold">${escapeHtml(isAddOn ? 'ADDON' : 'New Order')}</div>`);
+  if (orderId) parts.push(`<div class="center size-medium bold">Order# ${escapeHtml(orderId)}</div>`);
+  if (table) parts.push(`<div class="row"><span>Table:</span><span>${escapeHtml(table)}</span></div>`);
+  if (orderType) parts.push(`<div class="row"><span>Order Type:</span><span>${escapeHtml(orderType)}</span></div>`);
+  if (orderTaker) parts.push(`<div class="row"><span>Order Taker:</span><span>${escapeHtml(orderTaker)}</span></div>`);
+  parts.push(`<div class="row"><span>Time:</span><span>${escapeHtml(createdAt)}</span></div>`);
+  parts.push('<hr/>');
+  items.forEach((it) => {
+    const dish = it.item || it.dish || {};
+    const name = (dish.name || dish.title || '').slice(0, 28);
+    const qty = it.quantity != null ? it.quantity : 1;
     parts.push(`<div class="row"><span>${escapeHtml(name)} x${qty}</span></div>`);
-    if (it.notes) parts.push(`<div class="indent">>> ${escapeHtml((it.notes || '').slice(0, 26))}</div>`);
+    if (it.comments) parts.push(`<div class="indent">>> ${escapeHtml(String(it.comments).slice(0, 26))}</div>`);
   });
   return `<!DOCTYPE html>
 <html>
