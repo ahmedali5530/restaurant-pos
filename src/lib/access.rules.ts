@@ -75,7 +75,7 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
   },
   'Settings': {
     label: 'Settings',
-    children: ['Settings', 'Printers', 'Service charges', 'Auto check close', 'Closing cycle']
+    children: ['Settings', 'Printers', 'Service charges', 'Auto check close', 'Closing cycle', 'Access control']
   },
   'Accounts': {
     label: 'Accounts',
