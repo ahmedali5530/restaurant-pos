@@ -1341,6 +1341,30 @@ DEFINE INDEX order_tax_unique ON order_tax FIELDS order, tax UNIQUE;
 
 
 -- ------------------------------
+-- TABLE: integration_order_fiscal
+-- ------------------------------
+
+DEFINE TABLE integration_order_fiscal TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD order ON integration_order_fiscal TYPE record<order> PERMISSIONS FULL;
+DEFINE FIELD provider_id ON integration_order_fiscal TYPE string PERMISSIONS FULL;
+DEFINE FIELD invoice_number ON integration_order_fiscal TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD qrcode ON integration_order_fiscal TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD status ON integration_order_fiscal TYPE string PERMISSIONS FULL;
+DEFINE FIELD code ON integration_order_fiscal TYPE any PERMISSIONS FULL;
+DEFINE FIELD error ON integration_order_fiscal TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD selected_for_print ON integration_order_fiscal TYPE bool DEFAULT false PERMISSIONS FULL;
+DEFINE FIELD qr_priority ON integration_order_fiscal TYPE number DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD request_payload ON integration_order_fiscal TYPE any PERMISSIONS FULL;
+DEFINE FIELD response_payload ON integration_order_fiscal TYPE any PERMISSIONS FULL;
+DEFINE FIELD submitted_at ON integration_order_fiscal TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD created_at ON integration_order_fiscal TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+
+DEFINE INDEX idx_integration_order_fiscal_order ON integration_order_fiscal FIELDS order;
+DEFINE INDEX idx_integration_order_fiscal_order_provider ON integration_order_fiscal FIELDS order, provider_id;
+
+
+-- ------------------------------
 -- TABLE: order_type
 -- ------------------------------
 

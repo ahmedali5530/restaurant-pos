@@ -15,6 +15,7 @@ import {
 } from "@/lib/auto-check-close.service.ts";
 import { AutoCloseCycleState} from "@/lib/closing-cycle.ts";
 import {useTranslation} from "react-i18next";
+import { useIntegrationManager } from "@/providers/integration.provider.tsx";
 
 const CHECK_INTERVAL_MS = 30_000;
 
@@ -28,14 +29,17 @@ export const AutoCheckCloseProvider: React.FC<AutoCheckCloseProviderProps> = ({
   const {t} = useTranslation(["closing", "toast"]);
   const db = useDB();
   const [page] = useAtom(appPage);
+  const { manager: integrationManager } = useIntegrationManager();
   const dbRef = useRef(db);
   const pageRef = useRef(page);
+  const integrationManagerRef = useRef(integrationManager);
   const inFlightRef = useRef(false);
   const warningActiveRef = useRef(false);
   const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   dbRef.current = db;
   pageRef.current = page;
+  integrationManagerRef.current = integrationManager;
 
   const dismissWarningToast = useCallback(() => {
     warningActiveRef.current = false;
@@ -85,6 +89,7 @@ export const AutoCheckCloseProvider: React.FC<AutoCheckCloseProviderProps> = ({
         printOnClose: values.print_on_close,
         userId,
         window: state.window,
+        integrationManager: integrationManagerRef.current,
       });
 
       const shouldMarkCycle = closed > 0 || (candidates === 0 && failed === 0);

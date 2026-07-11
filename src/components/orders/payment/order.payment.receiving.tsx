@@ -36,6 +36,13 @@ import {computeScopedDiscount} from "@/lib/discount-engine/calculator.ts";
 import {orderItemToEvaluable} from "@/lib/discount-engine/context.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import {useTranslation} from "react-i18next";
+import {useIntegrationManager} from "@/providers/integration.provider.tsx";
+import {
+  fiscalShouldBlockBeforePaid,
+  loadOrderForFiscal,
+  runFiscalSettlementForOrder,
+} from "@/integrations/providers/fiscal/settlement.ts";
+import {toast} from "sonner";
 
 interface Props {
   order: Order
@@ -127,6 +134,7 @@ const OrderPaymentReceivingContent = ({
   const remote = useRemotePayment();
   const db = useDB();
   const {protectAction} = useSecurity();
+  const { manager: integrationManager } = useIntegrationManager();
 
   const [, setAlert] = useAtom(appAlert);
 
@@ -174,6 +182,39 @@ const OrderPaymentReceivingContent = ({
     setClosing(true);
 
     try {
+      const blockBeforePaid = await fiscalShouldBlockBeforePaid(integrationManager, db);
+      let fiscalOrderSnapshot: Order | undefined;
+
+      if (blockBeforePaid) {
+        fiscalOrderSnapshot = await loadOrderForFiscal(db, String(order.id));
+        if (fiscalOrderSnapshot) {
+          const preResult = await runFiscalSettlementForOrder(
+            integrationManager,
+            db,
+            {
+              ...fiscalOrderSnapshot,
+              tax: tax ?? fiscalOrderSnapshot.tax,
+              tax_amount: taxAmount ?? fiscalOrderSnapshot.tax_amount,
+              discount_amount: discountAmount ?? fiscalOrderSnapshot.discount_amount,
+              tip,
+              tip_amount: tipAmount,
+              tip_type: tipType,
+              service_charge: serviceCharge,
+              service_charge_amount: serviceChargeAmount,
+              service_charge_type: serviceChargeType,
+              payments: payments.length > 0 ? payments : fiscalOrderSnapshot.payments,
+            }
+          );
+          if (preResult.blocked) {
+            toast.error(preResult.blockedError ?? 'Fiscal submission failed');
+            return;
+          }
+          if (Object.values(preResult.resultsByProvider).some((row) => row.status === 'failed')) {
+            toast.warning('Some fiscal providers failed; check Integrations queue');
+          }
+        }
+      }
+
       // create payment
       const orderPayments = [];
       for (const payment of payments) {
@@ -262,6 +303,20 @@ const OrderPaymentReceivingContent = ({
           discount_amount: couponAmount,
           redeemed_at: nowSurrealDateTime(),
         });
+      }
+
+      if (!blockBeforePaid) {
+        const settledOrder = await loadOrderForFiscal(db, String(order.id));
+        if (settledOrder) {
+          const fiscalResult = await runFiscalSettlementForOrder(
+            integrationManager,
+            db,
+            settledOrder
+          );
+          if (Object.values(fiscalResult.resultsByProvider).some((row) => row.status === 'failed')) {
+            toast.warning('Some fiscal providers failed; check Integrations queue');
+          }
+        }
       }
 
       postOrderTracking({

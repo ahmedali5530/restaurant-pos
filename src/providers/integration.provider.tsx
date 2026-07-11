@@ -1,4 +1,5 @@
-import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useDB } from '@/api/db/db.ts';
 import { IntegrationManager } from '@/integrations/core/integration-manager.ts';
 import { ProviderRegistry } from '@/integrations/registry/provider-registry.ts';
 import { IntegrationEventBus } from '@/integrations/events/event-bus.ts';
@@ -10,6 +11,7 @@ import { IntegrationAuditLogger } from '@/integrations/audit/audit-logger.ts';
 import { BundledProviderDiscovery } from '@/integrations/registry/discovery.ts';
 import { useIntegrationRepositories } from '@/integrations/storage/integration-repositories.ts';
 import { AvailableProviderEntry } from '@/integrations/core/integration-manager.ts';
+import { getIntegrationProviderConfig } from '@/integrations/configuration/configuration-store.ts';
 
 interface IntegrationContextValue {
   manager: IntegrationManager;
@@ -27,6 +29,9 @@ export const IntegrationProvider = ({ children }: PropsWithChildren) => {
   const [initialized, setInitialized] = useState(false);
   const [providers, setProviders] = useState<AvailableProviderEntry[]>([]);
   const repositories = useIntegrationRepositories();
+  const db = useDB();
+  const dbRef = useRef(db);
+  dbRef.current = db;
 
   const manager = useMemo(() => {
     const registry = new ProviderRegistry(FRAMEWORK_VERSION);
@@ -37,7 +42,9 @@ export const IntegrationProvider = ({ children }: PropsWithChildren) => {
     const healthMonitor = new HealthMonitor();
     const auditLogger = new IntegrationAuditLogger();
 
-    return new IntegrationManager(registry, eventBus, queueEngine, scheduler, healthMonitor, auditLogger);
+    const next = new IntegrationManager(registry, eventBus, queueEngine, scheduler, healthMonitor, auditLogger);
+    next.setConfigLoader((providerId) => getIntegrationProviderConfig(dbRef.current, providerId));
+    return next;
   }, []);
 
   useEffect(() => {
@@ -118,8 +125,13 @@ export const IntegrationProvider = ({ children }: PropsWithChildren) => {
   };
 
   const setProviderEnabled = async (providerId: string, enabled: boolean) => {
-    await repositories.setProviderEnabled(providerId, enabled);
-    await manager.setProviderEnabled(providerId, enabled);
+    if (enabled) {
+      await manager.setProviderEnabled(providerId, true);
+      await repositories.setProviderEnabled(providerId, true);
+    } else {
+      await repositories.setProviderEnabled(providerId, false);
+      await manager.setProviderEnabled(providerId, false);
+    }
     await refreshProviderStates();
     await manager.refreshHealth();
   };

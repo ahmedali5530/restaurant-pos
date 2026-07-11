@@ -8,6 +8,12 @@ import {
   ProviderManifest,
 } from '@/integrations/core/types.ts';
 import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from '@/lib/datetime.ts';
+import { TransportRouter } from '@/integrations/transport/router.ts';
+import {
+  FiscalConfigLoader,
+  parsePkFiscalProviderConfig,
+  submitPkFiscalInvoiceRequest,
+} from '@/integrations/providers/fiscal/pk-fbr-pra/index.ts';
 
 const schema: ProviderConfigurationSchema = {
   sections: [
@@ -16,15 +22,50 @@ const schema: ProviderConfigurationSchema = {
       title: 'Credentials',
       fields: [
         { key: 'apiBaseUrl', label: 'API Base URL', type: 'text', required: true },
-        { key: 'username', label: 'Username', type: 'text', required: true },
-        { key: 'password', label: 'Password', type: 'password', required: true, encrypted: true },
+        { key: 'bearerToken', label: 'Bearer Token', type: 'password', required: true, encrypted: true },
+        { key: 'posId', label: 'POS ID', type: 'text', required: true },
+      ],
+    },
+    {
+      id: 'fiscal',
+      title: 'Fiscal',
+      fields: [
+        { key: 'defaultPctCode', label: 'Default PCT Code', type: 'text', required: true },
+        { key: 'invoiceType', label: 'Invoice Type', type: 'number', defaultValue: 1 },
       ],
     },
     {
       id: 'certificates',
       title: 'Certificates',
       fields: [
-        { key: 'clientCertificate', label: 'Client Certificate', type: 'certificate', required: false },
+        {
+          key: 'clientCertificate',
+          label: 'Client Certificate',
+          type: 'certificate',
+          required: false,
+          helpText: 'Optional; reserved for future mTLS. Auth uses Bearer token.',
+        },
+      ],
+    },
+    {
+      id: 'runtime',
+      title: 'Runtime',
+      fields: [
+        { key: 'offlineBuffering', label: 'Offline Buffering', type: 'switch', defaultValue: true },
+        { key: 'requestTimeoutSeconds', label: 'Request Timeout (seconds)', type: 'number', defaultValue: 30 },
+        {
+          key: 'blockSettlementOnFailure',
+          label: 'Block Settlement On Failure',
+          type: 'switch',
+          defaultValue: false,
+        },
+        {
+          key: 'qrPriority',
+          label: 'QR Print Priority',
+          type: 'number',
+          defaultValue: 100,
+          helpText: 'Higher priority wins when multiple fiscal providers return a QR. Default 100 so PRA beats FBR (50).',
+        },
       ],
     },
   ],
@@ -45,7 +86,7 @@ const manifest: ProviderManifest = {
   offlineSupport: true,
   requiresInternet: true,
   requiresAuthentication: true,
-  authenticationType: 'jwt',
+  authenticationType: 'bearer',
   supportsQueue: true,
   supportsRetry: true,
   supportsWebhooks: false,
@@ -55,6 +96,17 @@ const manifest: ProviderManifest = {
 };
 
 export class PraProvider implements IntegrationProvider {
+  private getConfig: FiscalConfigLoader = async () => ({});
+  private transport = new TransportRouter();
+
+  setConfigLoader(loader: FiscalConfigLoader) {
+    this.getConfig = loader;
+  }
+
+  setTransport(router: TransportRouter) {
+    this.transport = router;
+  }
+
   async initialize() {}
   async shutdown() {}
   getManifest() {
@@ -70,13 +122,19 @@ export class PraProvider implements IntegrationProvider {
     return this.getCapabilities().includes(capability);
   }
   async validate() {
+    const config = await this.getConfig();
+    const parsed = parsePkFiscalProviderConfig(config);
+    if ('error' in parsed) {
+      return { valid: false, errors: [parsed.error] };
+    }
     return { valid: true };
   }
   async healthCheck(): Promise<IntegrationHealthSnapshot> {
+    const validation = await this.validate();
     return {
       providerId: manifest.id,
-      status: 'connected',
-      authenticationStatus: 'valid',
+      status: validation.valid ? 'connected' : 'disconnected',
+      authenticationStatus: validation.valid ? 'valid' : 'invalid',
       averageResponseTimeMs: 180,
       pendingJobs: 0,
       failedJobs: 0,
@@ -86,21 +144,13 @@ export class PraProvider implements IntegrationProvider {
       ).toISOString(),
       version: manifest.providerVersion,
       updatedAt: toJsDate(nowSurrealDateTime()).toISOString(),
+      errors: validation.errors,
     };
   }
   async execute(
     request: IntegrationExecutionRequest,
     _context: ProviderExecutionContext
   ): Promise<IntegrationExecutionResponse> {
-    return {
-      success: true,
-      status: 'accepted',
-      providerId: manifest.id,
-      requestId: `${manifest.id}:${request.action}:${Date.now()}`,
-      data: {
-        action: request.action,
-        queuedForSubmission: true,
-      },
-    };
+    return submitPkFiscalInvoiceRequest(manifest.id, 'pra', request, this.getConfig, this.transport);
   }
 }

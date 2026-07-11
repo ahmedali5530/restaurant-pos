@@ -1,0 +1,16 @@
+DEFINE TABLE OVERWRITE integration_order_fiscal SCHEMAFULL;
+DEFINE FIELD order ON integration_order_fiscal TYPE record<order>;
+DEFINE FIELD provider_id ON integration_order_fiscal TYPE string;
+DEFINE FIELD invoice_number ON integration_order_fiscal TYPE option<string>;
+DEFINE FIELD qrcode ON integration_order_fiscal TYPE option<string>;
+DEFINE FIELD status ON integration_order_fiscal TYPE string;
+DEFINE FIELD code ON integration_order_fiscal TYPE any;
+DEFINE FIELD error ON integration_order_fiscal TYPE option<string>;
+DEFINE FIELD selected_for_print ON integration_order_fiscal TYPE bool DEFAULT false;
+DEFINE FIELD qr_priority ON integration_order_fiscal TYPE number DEFAULT 0;
+DEFINE FIELD request_payload ON integration_order_fiscal TYPE any;
+DEFINE FIELD response_payload ON integration_order_fiscal TYPE any;
+DEFINE FIELD submitted_at ON integration_order_fiscal TYPE datetime DEFAULT time::now();
+DEFINE FIELD created_at ON integration_order_fiscal TYPE datetime DEFAULT time::now();
+DEFINE INDEX idx_integration_order_fiscal_order ON integration_order_fiscal FIELDS order;
+DEFINE INDEX idx_integration_order_fiscal_order_provider ON integration_order_fiscal FIELDS order, provider_id;

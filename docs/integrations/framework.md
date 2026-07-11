@@ -199,12 +199,60 @@ Tables:
 
 Both are fiscal providers with manifest-driven configuration and shared framework contracts.
 
+### Provider-specific adapters (important)
+
+Config parsing, invoice serialization, auth headers, and response parsing are **not** generic across authorities.
+
+- Pakistan FBR/PRA share [`src/integrations/providers/fiscal/pk-fbr-pra/`](src/integrations/providers/fiscal/pk-fbr-pra/) (`serializePkFiscalInvoice`, `parsePkFiscalProviderConfig`, `submitPkFiscalInvoiceRequest`).
+- Shared across all fiscal providers: settlement orchestration + junction QR storage + [`parseFiscalRuntimeConfig`](src/integrations/providers/fiscal/shared/runtime-config.ts) (`offlineBuffering`, `blockSettlementOnFailure`, timeout only).
+- Settlement only requires `IntegrationExecutionResponse.data` shaped as `{ invoiceNumber?, qrcode?, code?, request?, response? }`.
+- Future authorities (ZATCA, Kenya KRA/eTIMS) must add their own folder under `providers/fiscal/` with their own config/serialize/submit — do not extend the PK adapter.
+
+### Fiscal settlement and final-print QR
+
+When one or more fiscal providers are **enabled**, order settlement submits invoices before final print:
+
+1. `OrderPaymentReceiving.closeOrder` (and auto-check-close) calls `submitFiscalInvoices`.
+2. Each enabled fiscal provider runs `executeImmediate` with action `invoiceSubmission`.
+3. FBR/PRA serialize the Pakistan JSON payload and POST with `Authorization: Bearer <bearerToken>`.
+4. Success requires authority `Code == 100`; `InvoiceNumber` is stored and used as QR.
+5. Among successful submissions, print QR is chosen by highest shared runtime `qrPriority` (not hardcoded provider ids). PRA defaults to `100`, FBR to `50`, so PRA still wins when both succeed unless config overrides.
+6. Each attempt is stored as a row in `integration_order_fiscal` (junction), including `qr_priority`. One row may be marked `selected_for_print`.
+7. Final bill print resolves QR via `resolveFiscalQrcodeForPrint` (`selected_for_print` → highest `qr_priority` success) and passes it into `dispatchPrint` / `final-print.js`.
+
+Junction table (migration `2026_07_11_order_fiscal_fields.surql`):
+- `integration_order_fiscal`: `order`, `provider_id`, `invoice_number`, `qrcode`, `status`, `code`, `error`, `selected_for_print`, `qr_priority`, `request_payload`, `response_payload`, `submitted_at`
+- Use `setFiscalSubmissionSelectedForPrint(db, orderId, submissionId)` to print a non-default QR on reprints.
+
+### Pakistan FBR/PRA config fields
+
+| Field | Purpose |
+|-------|---------|
+| `apiBaseUrl` | Invoice POST endpoint |
+| `bearerToken` | `Authorization: Bearer …` |
+| `posId` | `POSID` |
+| `defaultPctCode` | Line `PCTCode` for all items (Phase 1; no per-product PCT yet) |
+| `invoiceType` | Default `1` |
+| `offlineBuffering` | Shared runtime: queue failed immediate submits |
+| `blockSettlementOnFailure` | Shared runtime: abort Paid until fiscal succeeds |
+| `qrPriority` | Shared runtime: higher value wins print QR when multiple succeed (PRA default `100`, FBR default `50`) |
+| `punjabMode` (FBR only) | Line `TotalAmount = Quantity × SaleValue` |
+
+FBR also requires `sellerNtn`. USIN uses `order.invoice_number`.
+
+### Manager APIs
+
+- `execute(providerId, request)` — enqueue only (async)
+- `executeImmediate(providerId, request)` — sync execute for settlement/QR; on failure + offline buffering, also enqueues retry
+
 ## Unit Test Strategy
 
 1. Contract validation for provider manifest/capabilities
 2. Queue transitions and retry delay calculations
 3. Registry version compatibility checks
 4. Manager execution path (enqueue + process)
+5. Fiscal serializer (PRA/FBR TotalAmount + Punjab mode) and PRA-preferred QR selection
+6. FBR HTTP execute with Bearer auth and Code 100 parsing
 
 ## Integration Test Strategy
 
@@ -217,6 +265,7 @@ Both are fiscal providers with manifest-driven configuration and shared framewor
 - `PROVIDER_CATALOG` is the code-level provider registry. Adding a new provider here requires a rebuild.
 - `integration_installed_provider` is runtime state. Toggling `enabled` here does not require any rebuild.
 - New catalog providers are synced as `enabled: false` by default until an admin enables them.
+- Configure credentials (including `bearerToken`) before enabling; enable runs `validate()` against saved settings.
 
 ## Provider Migration Guide (Add New Provider)
 

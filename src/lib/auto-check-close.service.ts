@@ -18,6 +18,13 @@ import { PRINT_TYPE } from "@/lib/print.registry.tsx";
 import { nowSurrealDateTime, toSurrealDateTime } from "@/lib/datetime.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import { StringRecordId } from "surrealdb";
+import { IntegrationManager } from "@/integrations/core/integration-manager.ts";
+import {
+  fiscalShouldBlockBeforePaid,
+  getFiscalQrcodeForOrderPrint,
+  loadOrderForFiscal,
+  runFiscalSettlementForOrder,
+} from "@/integrations/providers/fiscal/settlement.ts";
 
 type DBLike = {
   query: (sql: string, params?: Record<string, unknown>) => Promise<unknown[][]>;
@@ -255,7 +262,13 @@ async function printFinalBill(
   ) as unknown as [Order | undefined];
 
   if (order) {
-    void dispatchPrint(db, PRINT_TYPE.final_bill, { order }, { userId });
+    const qrcode = await getFiscalQrcodeForOrderPrint(db, orderId);
+    void dispatchPrint(
+      db,
+      PRINT_TYPE.final_bill,
+      { order, qrcode },
+      { userId }
+    );
   }
 }
 
@@ -265,8 +278,9 @@ export async function closeOpenChecks(options: {
   printOnClose: boolean;
   userId?: string;
   window: ClosingCycleWindow;
+  integrationManager?: IntegrationManager;
 }): Promise<{ closed: number; failed: number; candidates: number; skipped: number }> {
-  const { db, paymentTypeId, printOnClose, userId, window } = options;
+  const { db, paymentTypeId, printOnClose, userId, window, integrationManager } = options;
 
   if (!hasPaymentTypeConfigured(paymentTypeId)) {
     return { closed: 0, failed: 0, candidates: 0, skipped: 0 };
@@ -294,7 +308,31 @@ export async function closeOpenChecks(options: {
 
       const paymentAmount = Math.max(grandTotal, 0);
 
+      if (integrationManager) {
+        const blockBeforePaid = await fiscalShouldBlockBeforePaid(integrationManager, db);
+        if (blockBeforePaid) {
+          const fiscalResult = await runFiscalSettlementForOrder(
+            integrationManager,
+            db,
+            fullOrder
+          );
+          if (fiscalResult.blocked) {
+            throw new Error(fiscalResult.blockedError ?? 'Fiscal submission failed');
+          }
+        }
+      }
+
       await settleOrder(db, fullOrder, paymentTypeId, paymentAmount, userId);
+
+      if (integrationManager) {
+        const blockBeforePaid = await fiscalShouldBlockBeforePaid(integrationManager, db);
+        if (!blockBeforePaid) {
+          const settled = await loadOrderForFiscal(db, String(fullOrder.id));
+          if (settled) {
+            await runFiscalSettlementForOrder(integrationManager, db, settled);
+          }
+        }
+      }
 
       if (printOnClose) {
         await printFinalBill(db, fullOrder.id.toString(), userId);

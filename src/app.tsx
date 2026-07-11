@@ -56,12 +56,12 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ConfigProvider theme={appAntdTheme}>
         <DatabaseProvider>
-          <AutoCheckCloseProvider>
-            <ClosingCycleEnforcementProvider>
-              <DeliveryOrdersProvider>
-                <PrintProvider>
-                  <TableLockProvider>
-                    <IntegrationProvider>
+          <IntegrationProvider>
+            <AutoCheckCloseProvider>
+              <ClosingCycleEnforcementProvider>
+                <DeliveryOrdersProvider>
+                  <PrintProvider>
+                    <TableLockProvider>
                       <SecurityProvider>
                         <BrowserRouter>
                           <I18nProvider>
@@ -71,12 +71,12 @@ function App() {
                         </BrowserRouter>
                         <SecurityModal/>
                       </SecurityProvider>
-                    </IntegrationProvider>
-                  </TableLockProvider>
-                </PrintProvider>
-              </DeliveryOrdersProvider>
-            </ClosingCycleEnforcementProvider>
-          </AutoCheckCloseProvider>
+                    </TableLockProvider>
+                  </PrintProvider>
+                </DeliveryOrdersProvider>
+              </ClosingCycleEnforcementProvider>
+            </AutoCheckCloseProvider>
+          </IntegrationProvider>
 
           <Alert/>
           <Toaster richColors position="top-right" closeButton={true}/>

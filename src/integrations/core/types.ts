@@ -123,7 +123,7 @@ export interface ProviderManifest {
   offlineSupport: boolean;
   requiresInternet: boolean;
   requiresAuthentication: boolean;
-  authenticationType?: 'apiKey' | 'oauth' | 'jwt' | 'certificate' | 'mtls' | 'none';
+  authenticationType?: 'apiKey' | 'oauth' | 'jwt' | 'bearer' | 'certificate' | 'mtls' | 'none';
   supportsQueue: boolean;
   supportsRetry: boolean;
   supportsWebhooks: boolean;

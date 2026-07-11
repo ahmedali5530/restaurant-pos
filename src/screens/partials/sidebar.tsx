@@ -114,7 +114,7 @@ export const Sidebar = () => {
   return (
     <div className="flex flex-col justify-between h-screen items-center sidebar border border-y-0 border-white bg-white/50 backdrop-blur">
       <div className="w-full">
-        <ScrollContainer className="h-[calc(100vh_-_150px)]">
+        <ScrollContainer className="h-[calc(100vh_-_150px)]" hideScrollbars={false}>
           <div className="p-2 flex flex-col">
             {sidebarItems.map(item => (
               <button

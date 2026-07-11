@@ -107,6 +107,7 @@ export enum Tables {
   integration_provider_webhooks = 'integration_provider_webhook',
   integration_schedules = 'integration_schedule',
   integration_execution_history = 'integration_execution_history',
+  integration_order_fiscals = 'integration_order_fiscal',
 
   auth_permission = 'auth_permission',
   tracking = 'tracking',

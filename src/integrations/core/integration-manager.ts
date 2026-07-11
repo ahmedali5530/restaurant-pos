@@ -3,6 +3,7 @@ import {
   IntegrationCategory,
   IntegrationEvent,
   IntegrationExecutionRequest,
+  IntegrationExecutionResponse,
   ProviderManifest,
 } from '@/integrations/core/types.ts';
 import { ProviderNotFoundError } from '@/integrations/core/errors.ts';
@@ -14,15 +15,23 @@ import { SchedulerEngine } from '@/integrations/scheduler/scheduler-engine.ts';
 import { HealthMonitor } from '@/integrations/health/health-monitor.ts';
 import { IntegrationAuditLogger } from '@/integrations/audit/audit-logger.ts';
 import { ProviderCatalog } from '@/integrations/registry/provider-catalog.ts';
+import { parseFiscalRuntimeConfig } from '@/integrations/providers/fiscal/shared/runtime-config.ts';
 
 export interface AvailableProviderEntry {
   manifest: ProviderManifest;
   enabled: boolean;
 }
 
+export type ProviderConfigLoader = (providerId: string) => Promise<Record<string, unknown>>;
+
+type ConfigurableProvider = IntegrationProvider & {
+  setConfigLoader?: (loader: () => Promise<Record<string, unknown>>) => void;
+};
+
 export class IntegrationManager {
   private catalog: ProviderCatalog | null = null;
   private readonly enabledProviderIds = new Set<string>();
+  private configLoader: ProviderConfigLoader = async () => ({});
 
   constructor(
     private readonly registry: ProviderRegistry,
@@ -33,6 +42,18 @@ export class IntegrationManager {
     private readonly auditLogger: IntegrationAuditLogger
   ) {}
 
+  setConfigLoader(loader: ProviderConfigLoader) {
+    this.configLoader = loader;
+  }
+
+  private wireProviderConfig(provider: IntegrationProvider) {
+    const configurable = provider as ConfigurableProvider;
+    if (typeof configurable.setConfigLoader === 'function') {
+      const providerId = provider.getManifest().id;
+      configurable.setConfigLoader(() => this.configLoader(providerId));
+    }
+  }
+
   async bootstrapFromCatalog(catalog: ProviderCatalog, enabledProviderIds: string[]) {
     this.catalog = catalog;
     this.enabledProviderIds.clear();
@@ -41,12 +62,17 @@ export class IntegrationManager {
       if (!catalog.isKnownProvider(providerId)) {
         continue;
       }
-      await this.enableProviderInternal(providerId, false);
+      try {
+        await this.enableProviderInternal(providerId, false);
+      } catch (error) {
+        console.warn(`Failed enabling provider ${providerId} during bootstrap`, error);
+      }
     }
   }
 
   async installProviders(providers: IntegrationProvider[]) {
     for (const provider of providers) {
+      this.wireProviderConfig(provider);
       await provider.initialize();
       this.registry.register(provider);
       this.enabledProviderIds.add(provider.getManifest().id);
@@ -105,6 +131,7 @@ export class IntegrationManager {
     }
 
     const provider = this.catalog.createProvider(providerId);
+    this.wireProviderConfig(provider);
     const validation = await provider.validate();
     if (!validation.valid) {
       const message = validation.errors?.join(', ') || 'Provider validation failed';
@@ -184,6 +211,57 @@ export class IntegrationManager {
     });
 
     return job;
+  }
+
+  async executeImmediate(
+    providerId: string,
+    request: IntegrationExecutionRequest
+  ): Promise<IntegrationExecutionResponse> {
+    if (!this.isProviderEnabled(providerId)) {
+      throw new Error(`Provider "${providerId}" is disabled`);
+    }
+
+    const provider = this.registry.get(providerId);
+    if (!provider) throw new ProviderNotFoundError(providerId);
+    if (!provider.execute) {
+      throw new Error(`Provider "${providerId}" does not support execute capability`);
+    }
+
+    await this.auditLogger.log({
+      action: 'Request',
+      providerId,
+      payload: { request, mode: 'immediate' },
+    });
+
+    const response = await provider.execute(request, {
+      providerId,
+      now: nowSurrealDateTime(),
+    });
+
+    await this.auditLogger.log({
+      action: response.success ? 'Response' : 'Failure',
+      providerId,
+      payload: { response, mode: 'immediate' },
+      severity: response.success ? 'info' : 'error',
+    });
+
+    if (!response.success) {
+      const config = await this.configLoader(providerId);
+      const runtime = parseFiscalRuntimeConfig(config);
+
+      if (runtime.offlineBuffering) {
+        await this.queue.enqueue({
+          providerId,
+          action: request.action,
+          payload: request.payload ?? {},
+          priority: 0,
+          maxRetries: 5,
+          dedupeKey: request.idempotencyKey,
+        });
+      }
+    }
+
+    return response;
   }
 
   async processQueue() {
