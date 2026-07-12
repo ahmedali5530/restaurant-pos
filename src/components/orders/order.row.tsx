@@ -16,7 +16,7 @@ export const OrderRow = ({
 }: Props) => {
   const {t} = useTranslation('orders');
   const itemsTotal = calculateOrderTotal(order);
-  const [payment, setPayment] = useState(false);
+  const [paymentOrder, setPaymentOrder] = useState<OrderModel | null>(null);
 
   const colors = {
     [OrderStatus["In Progress"]]: 'bg-warning-100 text-warning-700',
@@ -34,7 +34,7 @@ export const OrderRow = ({
       <div
         onClick={() => {
           if(order.status === OrderStatus["In Progress"]) {
-            setPayment(true)
+            setPaymentOrder(order);
           }
         }}
         className="flex flex-1 odd:bg-white even:bg-neutral-300 gap-1 select-none">
@@ -99,9 +99,9 @@ export const OrderRow = ({
         </div>
       </div>
 
-      {payment && (
-        <OrderPayment order={order} onClose={() => {
-          setPayment(false)
+      {paymentOrder && (
+        <OrderPayment order={paymentOrder} onClose={() => {
+          setPaymentOrder(null);
         }}/>
       )}
     </>

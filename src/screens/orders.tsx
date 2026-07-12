@@ -2,7 +2,7 @@ import {Layout} from "@/screens/partials/layout.tsx";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Order as OrderModel, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
 import {Tables} from "@/api/db/tables.ts";
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDB} from "@/api/db/db.ts";
 import {OrderBox} from "@/components/orders/order.box.tsx";
 import ScrollContainer from "react-indiana-drag-scroll";
@@ -40,7 +40,9 @@ export const Orders = () => {
   const {t} = useTranslation('orders');
   const db = useDB();
   const {protectAction} = useSecurity();
-  const [liveQuery, setLiveQuery] = useState<LiveSubscription | null>(null);
+  const liveQueryRef = useRef<LiveSubscription | null>(null);
+  const fetchOrdersRef = useRef<() => Promise<void>>(() => Promise.resolve());
+  const fetchOrdersTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [state, setState] = useAtom(appState);
   const [date, setDate] = useState<DateValue>(today(getLocalTimeZone()));
@@ -112,7 +114,7 @@ export const Orders = () => {
     }
 
     if (date) {
-      f.push(`(time::format(created_at, "%Y-%m-%d") = "${date?.toString()}")`);
+      f.push(`(status = "${OrderStatus["In Progress"]}" OR time::format(created_at, "%Y-%m-%d") = "${date.toString()}")`);
     }
 
     return f;
@@ -132,6 +134,18 @@ export const Orders = () => {
 
     setOrders(listQuery as OrderModel[]);
   }, [ordersQb.queryString, ordersQb.parameters]);
+
+  fetchOrdersRef.current = fetchOrders;
+
+  const scheduleFetchOrders = useCallback(() => {
+    if (fetchOrdersTimerRef.current) {
+      clearTimeout(fetchOrdersTimerRef.current);
+    }
+
+    fetchOrdersTimerRef.current = setTimeout(() => {
+      void fetchOrdersRef.current();
+    }, 200);
+  }, []);
 
   useEffect(() => {
     fetchOrders();
@@ -153,26 +167,35 @@ export const Orders = () => {
     data: orderTypes,
   } = useApi<SettingsData<OrderType>>(Tables.order_types, ['deleted_at = none'], [], 0, 99999);
 
-  const runLiveQuery = async () => {
-    const result = await db.live(Tables.orders, function (action,) {
-      // delete or adding new orders will result in new data
-      if (action === 'CREATE' || action === 'DELETE') {
-        fetchOrders();
+  useEffect(() => {
+    let cancelled = false;
+
+    const setup = async () => {
+      const result = await db.live(Tables.orders, (action) => {
+        if (action === 'CREATE' || action === 'UPDATE' || action === 'DELETE') {
+          scheduleFetchOrders();
+        }
+      });
+
+      if (cancelled) {
+        await result.kill().catch(() => undefined);
+        return;
       }
 
-      // TODO: handle order updates smartly, currently it goes into infinite loop
-    });
+      liveQueryRef.current = result;
+    };
 
-    setLiveQuery(result);
-  }
-
-  useEffect(() => {
-    runLiveQuery().then();
+    void setup();
 
     return () => {
-      liveQuery?.kill().then(() => console.log('live query killed')).catch(() => undefined);
-    }
-  }, []);
+      cancelled = true;
+      if (fetchOrdersTimerRef.current) {
+        clearTimeout(fetchOrdersTimerRef.current);
+      }
+      liveQueryRef.current?.kill().catch(() => undefined);
+      liveQueryRef.current = null;
+    };
+  }, [scheduleFetchOrders]);
 
   const selectedTable = useMemo(() => {
     return tables?.data.find(item => item.id.toString() === mergingTable);

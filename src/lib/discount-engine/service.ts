@@ -28,8 +28,8 @@ export const persistOrderDiscounts = async (
   const created: OrderDiscount[] = []
   for (const line of lines) {
     const inserted = await db.create(Tables.order_discounts, {
-      order: orderId,
-      discount: line.discountId,
+      order: toRecordId(orderId),
+      discount: toRecordId(line.discountId),
       name: line.name,
       scope: line.scope,
       value_type: line.valueType,
@@ -38,12 +38,12 @@ export const persistOrderDiscounts = async (
       base_amount: line.appliedAmount,
       tax_treatment: line.taxTreatment,
       application_type: line.applicationType,
-      reason: line.reasonId || null,
+      reason: toRecordId(line.reasonId || null),
       reason_text: line.reasonText || null,
       applied_by: toRecordId(user?.id || null),
-      order_items: line.lineAllocations?.map(l => l.orderItemId) || [],
+      order_items: line.lineAllocations?.map(l => toRecordId(l.orderItemId)) || [],
       line_allocations: line.lineAllocations?.map(l => ({
-        order_item: l.orderItemId,
+        order_item: toRecordId(l.orderItemId),
         amount: l.amount,
       })) || [],
       created_at: nowSurrealDateTime(),

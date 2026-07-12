@@ -53,7 +53,7 @@ export const OrderBox = ({
   const [page] = useAtom(appPage);
   const [enforcement] = useAtom(closingEnforcementAtom);
   const mutationsBlocked = enforcement.orderMutationsBlocked;
-  const [payment, setPayment] = useState(false);
+  const [paymentOrder, setPaymentOrder] = useState<OrderModel | null>(null);
 
   const [splitBySeats, setSplitBySeats] = useState(false);
   const [splitByManually, setSplitByManually] = useState(false);
@@ -285,7 +285,7 @@ export const OrderBox = ({
                       }
                     });
                   }} variant="primary" flat size="lg" className="flex-1" icon={faPrint}></Button>
-                  <Button variant="warning" filled size="lg" className="flex-1" onClick={() => setPayment(true)}
+                  <Button variant="warning" filled size="lg" className="flex-1" onClick={() => setPaymentOrder(order)}
                           icon={faCreditCard}>
                   </Button>
                 </>
@@ -295,9 +295,9 @@ export const OrderBox = ({
         </div>
       </div>
 
-      {payment && (
-        <OrderPayment order={order} onClose={() => {
-          setPayment(false);
+      {paymentOrder && (
+        <OrderPayment order={paymentOrder} onClose={() => {
+          setPaymentOrder(null);
           onAction && onAction();
         }}/>
       )}

@@ -298,7 +298,9 @@ export const OrderPayment = ({
       setCouponAmount(0);
     }
 
-    const orderExtraMap = (order?.extras || []).reduce((acc, item) => {
+    const orderExtraMap = (order?.extras || [])
+      .filter(item => item !== undefined)
+      .reduce((acc, item) => {
       acc[item.name] = Number(item.value || 0);
       return acc;
     }, {} as Record<string, number>);
@@ -548,7 +550,9 @@ export const OrderPayment = ({
 
     // remove previously attached extras from order
     for (const ext of order?.extras ?? []) {
-      await db.delete(ext.id);
+      if(ext !== undefined) {
+        await db.delete(ext.id);
+      }
     }
 
     const extraOptions = [];
