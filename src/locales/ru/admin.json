@@ -300,7 +300,16 @@
     "attachModifierGroupsFirst": "Сначала привяжите группы модификаторов в настройках блюда.",
     "deliveryOnly": "Только доставка",
     "applyToAllSwitch": "Применить ко всем",
-    "showCategoryInMenu": "Показывать эту категорию в меню"
+    "showCategoryInMenu": "Показывать эту категорию в меню",
+    "modifierPrices": "Цены модификаторов",
+    "menuModifierPricesTitle": "Цены модификаторов — {{name}}",
+    "menuModifierPricesHelp": "Переопределите цены модификаторов только для этого меню. Оставьте цену шаблона, чтобы использовать общую цену группы.",
+    "menuNestedModifierPricesTitle": "{{modifier}} — {{group}}",
+    "menuNestedModifierPricesHelp": "Переопределите цены вложенных модификаторов только для этого меню.",
+    "nestedModifierPrices": "Вложенные: {{name}}",
+    "templatePrice": "Цена шаблона",
+    "resetModifierPrices": "Сбросить к шаблону",
+    "reset": "Сбросить"
   },
   "dishView": {
     "detailsTitle": "Детали блюда",

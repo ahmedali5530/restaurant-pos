@@ -7,8 +7,12 @@ import {
   ModifierNextGroupOverrideItem,
 } from "@/api/model/modifier.ts";
 import { ModifierGroup } from "@/api/model/modifier_group.ts";
+import {
+  MenuModifierOverrides,
+  MenuModifierPriceOverride,
+  MenuNestedModifierPriceOverride,
+} from "@/api/model/menu.ts";
 import { toRecordId } from "@/lib/utils.ts";
-import { nanoid } from "nanoid";
 
 type DbClient = {
   query: (sql: string, bindings?: Record<string, unknown>) => Promise<unknown>;
@@ -44,7 +48,7 @@ export async function fetchModifierGroupTemplate(
   groupId: string
 ): Promise<ModifierGroup | null> {
   const result = await db.query(
-    `SELECT * FROM ONLY ${toRecordId(groupId)} FETCH modifiers, modifiers.modifier`
+    `SELECT * FROM ONLY ${toRecordId(groupId)} FETCH modifiers, modifiers.modifier, modifiers.allowed_next_groups`
   );
   const row = Array.isArray(result) ? result[0] : result;
 
@@ -66,6 +70,82 @@ export function normalizeNextGroupOverrides(
       hidden: Boolean(item.hidden),
     })),
   }));
+}
+
+export function normalizeMenuModifierOverrides(
+  raw?: MenuModifierOverrides | null
+): MenuModifierOverrides | null {
+  if (!raw) {
+    return null;
+  }
+
+  const prices: MenuModifierPriceOverride[] = (raw.prices ?? [])
+    .filter((row) => row?.modifier_id != null && row.price != null && Number.isFinite(Number(row.price)))
+    .map((row) => ({
+      modifier_id: toRecordId(row.modifier_id as string).toString(),
+      price: Number(row.price),
+    }));
+
+  const next_group_overrides: MenuNestedModifierPriceOverride[] = (raw.next_group_overrides ?? [])
+    .filter((row) => row?.parent_modifier_id && row?.group_id)
+    .map((row) => ({
+      parent_modifier_id: toRecordId(row.parent_modifier_id as string).toString(),
+      group_id: toRecordId(row.group_id as string).toString(),
+      items: (row.items ?? [])
+        .filter((item) => item?.nested_modifier_id != null && item.price != null && Number.isFinite(Number(item.price)))
+        .map((item) => ({
+          nested_modifier_id: toRecordId(item.nested_modifier_id as string).toString(),
+          price: Number(item.price),
+        })),
+    }))
+    .filter((row) => row.items.length > 0);
+
+  if (prices.length === 0 && next_group_overrides.length === 0) {
+    return null;
+  }
+
+  return {
+    prices: prices.length > 0 ? prices : undefined,
+    next_group_overrides: next_group_overrides.length > 0 ? next_group_overrides : undefined,
+  };
+}
+
+export function isMenuModifierOverridesEmpty(
+  overrides?: MenuModifierOverrides | null
+): boolean {
+  return !normalizeMenuModifierOverrides(overrides);
+}
+
+export function getMenuTopLevelPrice(
+  overrides: MenuModifierOverrides | null | undefined,
+  modifierId: string
+): number | undefined {
+  const normalizedId = toRecordId(modifierId).toString();
+  const match = overrides?.prices?.find(
+    (row) => toRecordId(row.modifier_id as string).toString() === normalizedId
+  );
+
+  return match != null ? Number(match.price) : undefined;
+}
+
+export function getMenuNestedOverrideItems(
+  overrides: MenuModifierOverrides | null | undefined,
+  parentModifierId: string,
+  groupId: string
+): Array<{ nested_modifier_id: string; price: number }> | undefined {
+  if (!overrides?.next_group_overrides?.length) {
+    return undefined;
+  }
+
+  const parentId = toRecordId(parentModifierId).toString();
+  const normalizedGroupId = toRecordId(groupId).toString();
+  const match = overrides.next_group_overrides.find(
+    (row) =>
+      toRecordId(row.parent_modifier_id as string).toString() === parentId &&
+      toRecordId(row.group_id as string).toString() === normalizedGroupId
+  );
+
+  return match?.items;
 }
 
 export function getOverrideItemsForGroup(
@@ -98,14 +178,17 @@ export function mergeNextGroupOverrides(
 
 export function applyOverrideToTemplateModifier(
   templateRow: Modifier,
-  overrideItems?: ModifierNextGroupOverrideItem[]
+  overrideItems?: ModifierNextGroupOverrideItem[],
+  menuPrice?: number
 ): { price: number; hidden: boolean } {
   const override = overrideItems?.find(
     (item) => item.nested_modifier_id === templateRow.id.toString()
   );
 
+  const basePrice = override?.price ?? Number(templateRow.price);
+
   return {
-    price: override?.price ?? Number(templateRow.price),
+    price: menuPrice != null && Number.isFinite(menuPrice) ? menuPrice : basePrice,
     hidden: override?.hidden ?? false,
   };
 }
@@ -114,9 +197,14 @@ export function buildCatalogMenuItem(
   templateRow: Modifier,
   level: number,
   category: string,
-  overrideItems?: ModifierNextGroupOverrideItem[]
+  overrideItems?: ModifierNextGroupOverrideItem[],
+  menuPrice?: number
 ): MenuItem {
-  const { price, hidden } = applyOverrideToTemplateModifier(templateRow, overrideItems);
+  const { price, hidden } = applyOverrideToTemplateModifier(
+    templateRow,
+    overrideItems,
+    menuPrice
+  );
 
   const modifierRecordId = templateRow.id.toString();
 
@@ -151,7 +239,8 @@ export function buildCartModifierGroups(
   dishGroups: DishModifierGroup[],
   level: number,
   categoryForGroup: (grp: DishModifierGroup) => string,
-  parentModifier?: Modifier
+  parentModifier?: Modifier,
+  menuOverrides?: MenuModifierOverrides | null
 ): CartModifierGroup[] {
   return dishGroups.map((grp) => {
     const groupId = grp.out.id.toString();
@@ -159,14 +248,40 @@ export function buildCartModifierGroups(
       parentModifier?.next_group_overrides,
       groupId
     );
+    const menuNestedItems = parentModifier
+      ? getMenuNestedOverrideItems(
+          menuOverrides,
+          parentModifier.id.toString(),
+          groupId
+        )
+      : undefined;
+
+    const hasMenuPrices = parentModifier
+      ? Boolean(menuNestedItems?.length)
+      : Boolean(menuOverrides?.prices?.length);
 
     return {
       ...grp,
       selectedModifiers: [],
-      catalogCustomized: Boolean(overrideItems?.length),
-      modifiers: (grp.out.modifiers ?? []).map((row) =>
-        buildCatalogMenuItem(row, level, categoryForGroup(grp), overrideItems)
-      ),
+      catalogCustomized: Boolean(overrideItems?.length) || hasMenuPrices,
+      modifiers: (grp.out.modifiers ?? []).map((row) => {
+        const modifierId = row.id.toString();
+        const menuPrice = parentModifier
+          ? menuNestedItems?.find(
+              (item) =>
+                toRecordId(item.nested_modifier_id as string).toString() ===
+                modifierId
+            )?.price
+          : getMenuTopLevelPrice(menuOverrides, modifierId);
+
+        return buildCatalogMenuItem(
+          row,
+          level,
+          categoryForGroup(grp),
+          overrideItems,
+          menuPrice
+        );
+      }),
     };
   });
 }
@@ -175,9 +290,16 @@ export function buildCartModifierGroupsWithOverrides(
   dishGroups: DishModifierGroup[],
   parentModifier: Modifier | undefined,
   level: number,
-  categoryForGroup: (grp: DishModifierGroup) => string
+  categoryForGroup: (grp: DishModifierGroup) => string,
+  menuOverrides?: MenuModifierOverrides | null
 ): CartModifierGroup[] {
-  return buildCartModifierGroups(dishGroups, level, categoryForGroup, parentModifier);
+  return buildCartModifierGroups(
+    dishGroups,
+    level,
+    categoryForGroup,
+    parentModifier,
+    menuOverrides
+  );
 }
 
 export function buildNestedGroupsForModifier(
@@ -186,7 +308,8 @@ export function buildNestedGroupsForModifier(
   groupsDishes: DishModifierGroup[],
   level: number,
   categoryForGroup: (grp: DishModifierGroup) => string,
-  parentModifier?: Modifier
+  parentModifier?: Modifier,
+  menuOverrides?: MenuModifierOverrides | null
 ): CartModifierGroup[] {
   const allGroups = groupsDishes.filter(
     (row) => row.in.id.toString() === modifierDishId.toString()
@@ -199,7 +322,13 @@ export function buildNestedGroupsForModifier(
           allowedNextGroupIds.includes(g.out.id.toString())
         );
 
-  return buildCartModifierGroups(filtered, level, categoryForGroup, parentModifier);
+  return buildCartModifierGroups(
+    filtered,
+    level,
+    categoryForGroup,
+    parentModifier,
+    menuOverrides
+  );
 }
 
 export function cloneCartModifierGroups(

@@ -119,6 +119,7 @@ const resolveMenuDish = (baseDish: Dish | undefined, menuItem: MenuMenuItem, men
     tax_mode: menuItem.tax_mode ?? 'exclusive',
     taxes,
     tax: taxes?.[0],
+    menu_modifier_overrides: menuItem.modifier_overrides ?? null,
   };
 };
 

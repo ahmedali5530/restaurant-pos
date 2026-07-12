@@ -1,7 +1,7 @@
 import { Category } from "@/api/model/category.ts";
 import { ID, Name, Priority } from "@/api/model/common.ts";
 import { Tax } from "@/api/model/tax.ts";
-import { TaxMode } from "@/api/model/menu.ts";
+import { MenuModifierOverrides, TaxMode } from "@/api/model/menu.ts";
 import { DishModifierGroup } from "@/api/model/dish_modifier_group.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import { DateTime } from "surrealdb";
@@ -25,6 +25,8 @@ export interface Dish extends ID, Name, Priority {
   taxes?: Tax[]
   tax_mode?: TaxMode
   menu_name?: string
+  /** Per-menu modifier price overrides from the active menu_menu_item */
+  menu_modifier_overrides?: MenuModifierOverrides | null
 
   workflow?: Workflow
   stage_overrides?: Record<string, string>

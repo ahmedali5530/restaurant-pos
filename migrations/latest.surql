@@ -1038,6 +1038,7 @@ DEFINE TABLE menu_menu_item TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 DEFINE FIELD active ON menu_menu_item TYPE none | bool | null PERMISSIONS FULL;
 DEFINE FIELD base_price ON menu_menu_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD menu_item ON menu_menu_item TYPE record<menu_item> PERMISSIONS FULL;
+DEFINE FIELD OVERWRITE modifier_overrides ON TABLE menu_menu_item TYPE any PERMISSIONS FULL;
 DEFINE FIELD price ON menu_menu_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD tax ON menu_menu_item TYPE none | record<tax> | null PERMISSIONS FULL;
 DEFINE FIELD tax_mode ON menu_menu_item TYPE string DEFAULT 'exclusive' ASSERT $value INSIDE ['exclusive', 'inclusive'] PERMISSIONS FULL;

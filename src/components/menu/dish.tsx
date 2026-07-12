@@ -16,6 +16,7 @@ import {
 } from "@/lib/modifier-groups.ts";
 import {Modifier} from "@/api/model/modifier.ts";
 import {DishModifierGroup} from "@/api/model/dish_modifier_group.ts";
+import {MenuModifierOverrides} from "@/api/model/menu.ts";
 import {get} from 'idb-keyval'
 import {Tables} from "@/api/db/tables.ts";
 
@@ -29,6 +30,8 @@ interface Props {
   price: number
   allowedNextGroupIds?: string[]
   parentModifier?: Modifier
+  /** Root dish menu overrides (needed when item is a nested modifier dish) */
+  menuModifierOverrides?: MenuModifierOverrides | null
 }
 
 export const MenuDish = ({
@@ -39,6 +42,7 @@ export const MenuDish = ({
   price,
   allowedNextGroupIds,
   parentModifier,
+  menuModifierOverrides,
 }: Props) => {
   const [state] = useAtom(appState);
   const [{groups_dishes}] = useAtom(appSettings);
@@ -46,6 +50,8 @@ export const MenuDish = ({
 
   const [modifiersModal, setModifiersModal] = useState(false);
   const [imageSrc, setImageSrc] = useState(defaultImage);
+
+  const resolvedMenuOverrides = menuModifierOverrides ?? item.menu_modifier_overrides ?? null;
 
   const categoryForGroup = useCallback((grp: DishModifierGroup) => {
     return state.category
@@ -71,11 +77,18 @@ export const MenuDish = ({
         groups_dishes,
         level,
         categoryForGroup,
-        parentModifier
+        parentModifier,
+        resolvedMenuOverrides
       );
     }
 
-    return buildCartModifierGroups(modifierGroups, level, categoryForGroup, parentModifier);
+    return buildCartModifierGroups(
+      modifierGroups,
+      level,
+      categoryForGroup,
+      parentModifier,
+      resolvedMenuOverrides
+    );
   }, [
     allowedNextGroupIds,
     item.id,
@@ -84,6 +97,7 @@ export const MenuDish = ({
     categoryForGroup,
     parentModifier,
     modifierGroups,
+    resolvedMenuOverrides,
   ]);
 
   const hasAutoOpen = useMemo(() => {
@@ -213,7 +227,10 @@ export const MenuDish = ({
 
       {modifierGroups.length > 0 && modifiersModal && (
         <MenuDishModifiers
-          dish={item}
+          dish={{
+            ...item,
+            menu_modifier_overrides: resolvedMenuOverrides,
+          }}
           isOpen={modifiersModal}
           groups={cartModifierGroups}
           onClose={(payload) => {

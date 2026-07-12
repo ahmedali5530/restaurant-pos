@@ -300,7 +300,16 @@
     "attachModifierGroupsFirst": "Vincule grupos de modificadores nas configurações do prato primeiro.",
     "deliveryOnly": "Somente delivery",
     "applyToAllSwitch": "Aplicar a todos",
-    "showCategoryInMenu": "Exibir esta categoria no cardápio"
+    "showCategoryInMenu": "Exibir esta categoria no cardápio",
+    "modifierPrices": "Preços dos modificadores",
+    "menuModifierPricesTitle": "Preços dos modificadores — {{name}}",
+    "menuModifierPricesHelp": "Substitua os preços dos modificadores apenas para este menu. Mantenha o preço do modelo para usar o preço compartilhado do grupo.",
+    "menuNestedModifierPricesTitle": "{{modifier}} — {{group}}",
+    "menuNestedModifierPricesHelp": "Substitua os preços dos modificadores aninhados apenas para este menu.",
+    "nestedModifierPrices": "Aninhado: {{name}}",
+    "templatePrice": "Preço do modelo",
+    "resetModifierPrices": "Redefinir para o modelo",
+    "reset": "Redefinir"
   },
   "dishView": {
     "detailsTitle": "Detalhes do prato",

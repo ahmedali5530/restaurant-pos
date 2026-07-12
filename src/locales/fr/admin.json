@@ -300,7 +300,16 @@
     "attachModifierGroupsFirst": "Associez d'abord les groupes de modificateurs dans les paramètres du plat.",
     "deliveryOnly": "Livraison uniquement",
     "applyToAllSwitch": "Appliquer à tous",
-    "showCategoryInMenu": "Afficher cette catégorie dans le menu"
+    "showCategoryInMenu": "Afficher cette catégorie dans le menu",
+    "modifierPrices": "Prix des modificateurs",
+    "menuModifierPricesTitle": "Prix des modificateurs — {{name}}",
+    "menuModifierPricesHelp": "Remplacez les prix des modificateurs pour ce menu uniquement. Conservez le prix du modèle pour utiliser le prix partagé du groupe.",
+    "menuNestedModifierPricesTitle": "{{modifier}} — {{group}}",
+    "menuNestedModifierPricesHelp": "Remplacez les prix des modificateurs imbriqués pour ce menu uniquement.",
+    "nestedModifierPrices": "Imbriqué : {{name}}",
+    "templatePrice": "Prix du modèle",
+    "resetModifierPrices": "Réinitialiser au modèle",
+    "reset": "Réinitialiser"
   },
   "dishView": {
     "detailsTitle": "Détails du plat",

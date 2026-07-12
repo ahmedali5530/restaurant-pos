@@ -4,7 +4,7 @@ import {Button} from "@/components/common/input/button.tsx";
 import {Controller, useForm, useWatch} from "react-hook-form";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {Menu, MenuMenuItem, TaxMode} from "@/api/model/menu.ts";
+import {Menu, MenuMenuItem, MenuModifierOverrides, TaxMode} from "@/api/model/menu.ts";
 import {toast} from 'sonner';
 import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
@@ -18,10 +18,15 @@ import _ from "lodash";
 import {Switch} from "@/components/common/input/switch.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useTranslation} from 'react-i18next';
-import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";
+import {faArrowLeft, faPencil} from "@fortawesome/free-solid-svg-icons";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {calculateInclusiveBasePrice} from "@/lib/tax-calculator.ts";
 import {Radio} from "@/components/common/input/radio.tsx";
+import {MenuItemModifierOverridesEditor} from "@/components/settings/menu/menu.item.modifier.overrides.tsx";
+import {
+  isMenuModifierOverridesEmpty,
+  normalizeMenuModifierOverrides,
+} from "@/lib/modifier-groups.ts";
 
 interface Props {
   open: boolean
@@ -41,6 +46,7 @@ interface MenuItemFormValue {
   tax_mode?: TaxMode;
   active?: boolean;
   menu_menu_item_id?: string; // ID of the menu_item_item record if it exists
+  modifier_overrides?: MenuModifierOverrides | null;
 }
 
 type PriceAdjustmentMode = 'percent' | 'fixed';
@@ -71,6 +77,31 @@ function adjustPrice(current: number, factor: number, mode: PriceAdjustmentMode)
   return Math.max(0, Math.round(raw * 100) / 100);
 }
 
+function scaleModifierOverrides(
+  overrides: MenuModifierOverrides | null | undefined,
+  factor: number,
+  mode: PriceAdjustmentMode
+): MenuModifierOverrides | null {
+  const normalized = normalizeMenuModifierOverrides(overrides);
+  if (!normalized) {
+    return null;
+  }
+
+  return normalizeMenuModifierOverrides({
+    prices: normalized.prices?.map((row) => ({
+      ...row,
+      price: adjustPrice(row.price, factor, mode),
+    })),
+    next_group_overrides: normalized.next_group_overrides?.map((row) => ({
+      ...row,
+      items: row.items.map((item) => ({
+        ...item,
+        price: adjustPrice(item.price, factor, mode),
+      })),
+    })),
+  });
+}
+
 const validationSchema = yup.object({
   items: yup.array().of(
     yup.object({
@@ -82,7 +113,8 @@ const validationSchema = yup.object({
       taxes: yup.array().nullable(),
       tax_mode: yup.string().oneOf(['exclusive', 'inclusive']).nullable(),
       active: yup.boolean(),
-      menu_menu_item_id: yup.string().nullable()
+      menu_menu_item_id: yup.string().nullable(),
+      modifier_overrides: yup.mixed().nullable(),
     })
   )
 });
@@ -95,6 +127,7 @@ export const MenuItems = ({
   const db = useDB();
   const [loading, setLoading] = useState(false);
   const [bulkSettings, setBulkSettings] = useState<BulkSettings>(DEFAULT_BULK_SETTINGS);
+  const [modifierEditorIndex, setModifierEditorIndex] = useState<number | null>(null);
 
   const {
     data: dishes,
@@ -209,7 +242,8 @@ export const MenuItems = ({
           } : null),
           taxes: taxes,
           tax_mode: taxMode,
-          active: existingItem?.active !== undefined ? existingItem.active : true
+          active: existingItem?.active !== undefined ? existingItem.active : true,
+          modifier_overrides: normalizeMenuModifierOverrides(existingItem?.modifier_overrides),
         };
       });
       reset({items});
@@ -220,6 +254,7 @@ export const MenuItems = ({
     onClose();
     reset({items: []});
     setBulkSettings(DEFAULT_BULK_SETTINGS);
+    setModifierEditorIndex(null);
   }
 
   const updateBulkSettings = (partial: Partial<BulkSettings>) => {
@@ -286,6 +321,16 @@ export const MenuItems = ({
       if (applyPriceAdjustment) {
         price = adjustPrice(price, priceFactorParsed, bulkSettings.priceMode);
         setValue(`items.${index}.price`, price, {shouldDirty: true, shouldValidate: true});
+
+        const scaledOverrides = scaleModifierOverrides(
+          formItems[index]?.modifier_overrides,
+          priceFactorParsed,
+          bulkSettings.priceMode
+        );
+        setValue(`items.${index}.modifier_overrides`, scaledOverrides, {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
       }
 
       if (bulkSettings.tax_mode === 'inclusive' && taxObjects.length > 0) {
@@ -350,6 +395,11 @@ export const MenuItems = ({
           menuMenuItemData.active = item.active;
         } else {
           menuMenuItemData.active = true; // Default to active if not specified
+        }
+
+        const modifierOverrides = normalizeMenuModifierOverrides(item.modifier_overrides);
+        if (modifierOverrides) {
+          menuMenuItemData.modifier_overrides = modifierOverrides;
         }
 
         const [created] = await db.create(Tables.menu_menu_items, menuMenuItemData);
@@ -706,6 +756,22 @@ export const MenuItems = ({
                                   )}
                                 />
                               </div>
+                              <div className="pt-6">
+                                <Button
+                                  type="button"
+                                  variant={
+                                    !isMenuModifierOverridesEmpty(item.modifier_overrides)
+                                      ? "warning"
+                                      : "secondary"
+                                  }
+                                  flat
+                                  filled
+                                  icon={faPencil}
+                                  onClick={() => setModifierEditorIndex(index)}
+                                >
+                                  {t("forms.modifierPrices")}
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         );
@@ -725,6 +791,23 @@ export const MenuItems = ({
           </div>
         </form>
       </Modal>
+
+      {modifierEditorIndex !== null && formItems[modifierEditorIndex] && (
+        <MenuItemModifierOverridesEditor
+          open={modifierEditorIndex !== null}
+          dishId={formItems[modifierEditorIndex].dish_id}
+          dishName={formItems[modifierEditorIndex].item_name}
+          value={formItems[modifierEditorIndex].modifier_overrides}
+          onClose={() => setModifierEditorIndex(null)}
+          onSave={(overrides) => {
+            setValue(`items.${modifierEditorIndex}.modifier_overrides`, overrides, {
+              shouldDirty: true,
+              shouldValidate: true,
+            });
+            setModifierEditorIndex(null);
+          }}
+        />
+      )}
     </>
   )
 }

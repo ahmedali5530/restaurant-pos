@@ -300,7 +300,16 @@
     "attachModifierGroupsFirst": "Koppel eerst modifiergroepen in de gerechtinstellingen.",
     "deliveryOnly": "Alleen bezorging",
     "applyToAllSwitch": "Toepassen op alles",
-    "showCategoryInMenu": "Deze categorie tonen in menu"
+    "showCategoryInMenu": "Deze categorie tonen in menu",
+    "modifierPrices": "Modifierprijzen",
+    "menuModifierPricesTitle": "Modifierprijzen — {{name}}",
+    "menuModifierPricesHelp": "Overschrijf modifierprijzen alleen voor dit menu. Laat de sjabloonprijs staan om de gedeelde groeps prijs te gebruiken.",
+    "menuNestedModifierPricesTitle": "{{modifier}} — {{group}}",
+    "menuNestedModifierPricesHelp": "Overschrijf geneste modifierprijzen alleen voor dit menu.",
+    "nestedModifierPrices": "Genest: {{name}}",
+    "templatePrice": "Sjabloonprijs",
+    "resetModifierPrices": "Terugzetten naar sjabloon",
+    "reset": "Reset"
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",

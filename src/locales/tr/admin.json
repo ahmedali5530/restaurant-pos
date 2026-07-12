@@ -300,7 +300,16 @@
     "attachModifierGroupsFirst": "Önce yemek ayarlarından değiştirici grupları ekleyin.",
     "deliveryOnly": "Yalnızca teslimat",
     "applyToAllSwitch": "Tümüne uygula",
-    "showCategoryInMenu": "Bu kategoriyi menüde göster"
+    "showCategoryInMenu": "Bu kategoriyi menüde göster",
+    "modifierPrices": "Değiştirici fiyatları",
+    "menuModifierPricesTitle": "Değiştirici fiyatları — {{name}}",
+    "menuModifierPricesHelp": "Değiştirici fiyatlarını yalnızca bu menü için geçersiz kılın. Paylaşılan grup fiyatını kullanmak için şablon fiyatını bırakın.",
+    "menuNestedModifierPricesTitle": "{{modifier}} — {{group}}",
+    "menuNestedModifierPricesHelp": "İç içe değiştirici fiyatlarını yalnızca bu menü için geçersiz kılın.",
+    "nestedModifierPrices": "İç içe: {{name}}",
+    "templatePrice": "Şablon fiyatı",
+    "resetModifierPrices": "Şablona sıfırla",
+    "reset": "Sıfırla"
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",

@@ -4,6 +4,27 @@ import { DateTime } from "surrealdb";
 
 export type TaxMode = 'exclusive' | 'inclusive';
 
+export interface MenuModifierPriceOverride {
+  modifier_id: string
+  price: number
+}
+
+export interface MenuNestedModifierPriceOverrideItem {
+  nested_modifier_id: string
+  price: number
+}
+
+export interface MenuNestedModifierPriceOverride {
+  parent_modifier_id: string
+  group_id: string
+  items: MenuNestedModifierPriceOverrideItem[]
+}
+
+export interface MenuModifierOverrides {
+  prices?: MenuModifierPriceOverride[]
+  next_group_overrides?: MenuNestedModifierPriceOverride[]
+}
+
 export interface Menu {
   id: string
   name: string
@@ -25,4 +46,5 @@ export interface MenuMenuItem {
   taxes?: Tax[]
   tax_mode?: TaxMode
   active?: boolean
+  modifier_overrides?: MenuModifierOverrides | null
 }

@@ -300,7 +300,16 @@
     "attachModifierGroupsFirst": "أرفق مجموعات الإضافات من إعدادات الطبق أولاً.",
     "deliveryOnly": "التوصيل فقط",
     "applyToAllSwitch": "تطبيق على الكل",
-    "showCategoryInMenu": "إظهار هذه الفئة في القائمة"
+    "showCategoryInMenu": "إظهار هذه الفئة في القائمة",
+    "modifierPrices": "أسعار الإضافات",
+    "menuModifierPricesTitle": "أسعار الإضافات — {{name}}",
+    "menuModifierPricesHelp": "تجاوز أسعار الإضافات لهذه القائمة فقط. اترك السعر عند قيمة القالب لاستخدام سعر مجموعة الإضافات المشتركة.",
+    "menuNestedModifierPricesTitle": "{{modifier}} — {{group}}",
+    "menuNestedModifierPricesHelp": "تجاوز أسعار الإضافات المتداخلة لهذه القائمة فقط.",
+    "nestedModifierPrices": "متداخل: {{name}}",
+    "templatePrice": "سعر القالب",
+    "resetModifierPrices": "إعادة إلى القالب",
+    "reset": "إعادة"
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",

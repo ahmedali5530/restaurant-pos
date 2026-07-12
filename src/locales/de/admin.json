@@ -300,7 +300,16 @@
     "attachModifierGroupsFirst": "Zuerst Modifikatorgruppen in den Gerichteinstellungen zuweisen.",
     "deliveryOnly": "Nur Lieferung",
     "applyToAllSwitch": "Auf alle anwenden",
-    "showCategoryInMenu": "Diese Kategorie in Speisekarte anzeigen"
+    "showCategoryInMenu": "Diese Kategorie in Speisekarte anzeigen",
+    "modifierPrices": "Modifikatorpreise",
+    "menuModifierPricesTitle": "Modifikatorpreise — {{name}}",
+    "menuModifierPricesHelp": "Modifikatorpreise nur für dieses Menü überschreiben. Belassen Sie den Vorlagenpreis, um den gemeinsamen Gruppenpreis zu nutzen.",
+    "menuNestedModifierPricesTitle": "{{modifier}} — {{group}}",
+    "menuNestedModifierPricesHelp": "Verschachtelte Modifikatorpreise nur für dieses Menü überschreiben.",
+    "nestedModifierPrices": "Verschachtelt: {{name}}",
+    "templatePrice": "Vorlagenpreis",
+    "resetModifierPrices": "Auf Vorlage zurücksetzen",
+    "reset": "Zurücksetzen"
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",
