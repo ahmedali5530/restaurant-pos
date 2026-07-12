@@ -258,7 +258,9 @@
       "endTime": "Eindtijd",
       "effectType": "Effecttype",
       "effectValue": "Effectwaarde",
-      "appliesTo": "Van toepassing op"
+      "appliesTo": "Van toepassing op",
+      "addEffect": "Effect toevoegen",
+      "months": "Maanden"
     },
     "schedule": {
       "create": "Rooster aanmaken",
@@ -325,7 +327,8 @@
       "amount": "Bedrag",
       "currency": "Valuta",
       "description": "Beschrijving",
-      "effectiveDate": "Ingangsdatum"
+      "effectiveDate": "Ingangsdatum",
+      "signHint": "Boetes, inhoudingen, voorschotten en leningen verlagen het nettoloon. Voer bedragen in als positieve getallen."
     },
     "document": {
       "create": "Document uploaden",
@@ -615,7 +618,8 @@
     "scheduleDeleted": "Rooster verwijderd.",
     "swapRequested": "Ruilaanvraag verzonden.",
     "swapApproved": "Ruil goedgekeurd.",
-    "swapRejected": "Ruil afgewezen."
+    "swapRejected": "Ruil afgewezen.",
+    "payrollRefreshed": "Salarisrun vernieuwd."
   },
   "policyTypes": {
     "overtime": "Overuren",
@@ -631,7 +635,8 @@
     "reimbursement": "Vergoeding",
     "advance": "Voorschot",
     "loan": "Lening",
-    "correction": "Correctie"
+    "correction": "Correctie",
+    "deduction": "Aftrek"
   },
   "documentCategories": {
     "contract": "Contract",
@@ -665,5 +670,31 @@
     "biweekly": "Tweewekelijks",
     "monthly": "Maandelijks",
     "custom": "Aangepast"
+  },
+  "effectTypes": {
+    "multiplier": "Vermenigvuldiger",
+    "fixedBonus": "Vaste bonus",
+    "fixedDeduction": "Vaste aftrek",
+    "percentBonus": "Procentuele bonus",
+    "percentDeduction": "Procentuele aftrek"
+  },
+  "appliesTo": {
+    "regular": "Reguliere uren",
+    "overtime": "Overuren",
+    "allHours": "Alle uren"
+  },
+  "months": {
+    "1": "Januari",
+    "2": "Februari",
+    "3": "Maart",
+    "4": "April",
+    "5": "Mei",
+    "6": "Juni",
+    "7": "Juli",
+    "8": "Augustus",
+    "9": "September",
+    "10": "Oktober",
+    "11": "November",
+    "12": "December"
   }
 }

@@ -258,7 +258,9 @@
       "endTime": "وقت النهاية",
       "effectType": "نوع التأثير",
       "effectValue": "قيمة التأثير",
-      "appliesTo": "ينطبق على"
+      "appliesTo": "ينطبق على",
+      "addEffect": "إضافة تأثير",
+      "months": "الأشهر"
     },
     "schedule": {
       "create": "إنشاء جدول",
@@ -325,7 +327,8 @@
       "amount": "المبلغ",
       "currency": "العملة",
       "description": "الوصف",
-      "effectiveDate": "تاريخ السريان"
+      "effectiveDate": "تاريخ السريان",
+      "signHint": "الغرامات والخصومات والسلف والقروض تقلل صافي الأجر. أدخل المبالغ كأرقام موجبة."
     },
     "document": {
       "create": "رفع مستند",
@@ -615,7 +618,8 @@
     "scheduleDeleted": "تم حذف الجدول.",
     "swapRequested": "تم إرسال طلب التبديل.",
     "swapApproved": "تمت الموافقة على التبديل.",
-    "swapRejected": "تم رفض التبديل."
+    "swapRejected": "تم رفض التبديل.",
+    "payrollRefreshed": "تم تحديث تشغيل الرواتب."
   },
   "policyTypes": {
     "overtime": "عمل إضافي",
@@ -631,7 +635,8 @@
     "reimbursement": "استرداد",
     "advance": "سلفة",
     "loan": "قرض",
-    "correction": "تصحيح"
+    "correction": "تصحيح",
+    "deduction": "خصم"
   },
   "documentCategories": {
     "contract": "عقد",
@@ -665,5 +670,31 @@
     "biweekly": "كل أسبوعين",
     "monthly": "شهري",
     "custom": "مخصص"
+  },
+  "effectTypes": {
+    "multiplier": "مضاعف",
+    "fixedBonus": "مكافأة ثابتة",
+    "fixedDeduction": "خصم ثابت",
+    "percentBonus": "مكافأة بنسبة",
+    "percentDeduction": "خصم بنسبة"
+  },
+  "appliesTo": {
+    "regular": "ساعات عادية",
+    "overtime": "ساعات إضافية",
+    "allHours": "جميع الساعات"
+  },
+  "months": {
+    "1": "يناير",
+    "2": "فبراير",
+    "3": "مارس",
+    "4": "أبريل",
+    "5": "مايو",
+    "6": "يونيو",
+    "7": "يوليو",
+    "8": "أغسطس",
+    "9": "سبتمبر",
+    "10": "أكتوبر",
+    "11": "نوفمبر",
+    "12": "ديسمبر"
   }
 }

@@ -137,6 +137,7 @@ export const MenuHeader = () => {
           category: item.category,
           category_id: item.category_id,
           comments: item.comments,
+          isHold: item.is_suspended
         })) ?? [],
         seats: seatsArray,
         seat: noSeat ? undefined : (seatsArray.length > 0 ? seatsArray[0] : undefined),

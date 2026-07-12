@@ -9,6 +9,7 @@ import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPencil, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {PayRuleForm} from "@/components/hr/pay_rules/form.tsx";
+import {enumLocaleKey} from "@/components/hr/shared/form.utils.ts";
 
 export const HrPayRules = () => {
   const {t} = useTranslation("hr");
@@ -23,6 +24,19 @@ export const HrPayRules = () => {
     columnHelper.accessor("code", {header: t("columns.code")}),
     columnHelper.accessor("name", {header: t("columns.name")}),
     columnHelper.accessor("priority", {header: t("columns.priority")}),
+    columnHelper.accessor((row) => row.effects?.length ?? 0, {
+      id: "effects",
+      header: t("forms.payRule.effects"),
+      cell: (info) => {
+        const count = info.getValue() as number;
+        const first = info.row.original.effects?.[0];
+        if (!count) return "—";
+        const typeLabel = first
+          ? t(`effectTypes.${enumLocaleKey(first.type)}`, {defaultValue: first.type})
+          : "";
+        return count === 1 ? typeLabel : `${count} · ${typeLabel}`;
+      },
+    }),
     columnHelper.accessor("stacking_mode", {header: t("columns.stackingMode")}),
     columnHelper.accessor("exclusive", {
       header: t("columns.exclusive"),

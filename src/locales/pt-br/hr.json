@@ -258,7 +258,9 @@
       "endTime": "Hora de fim",
       "effectType": "Tipo de efeito",
       "effectValue": "Valor do efeito",
-      "appliesTo": "Aplica-se a"
+      "appliesTo": "Aplica-se a",
+      "addEffect": "Adicionar efeito",
+      "months": "Meses"
     },
     "schedule": {
       "create": "Criar escala",
@@ -325,7 +327,8 @@
       "amount": "Valor",
       "currency": "Moeda",
       "description": "Descrição",
-      "effectiveDate": "Data efetiva"
+      "effectiveDate": "Data efetiva",
+      "signHint": "Penalidades, deduções, adiantamentos e empréstimos reduzem o pagamento líquido. Informe valores como números positivos."
     },
     "document": {
       "create": "Enviar documento",
@@ -615,7 +618,8 @@
     "scheduleDeleted": "Escala excluída.",
     "swapRequested": "Solicitação de troca enviada.",
     "swapApproved": "Troca aprovada.",
-    "swapRejected": "Troca rejeitada."
+    "swapRejected": "Troca rejeitada.",
+    "payrollRefreshed": "Execução de folha atualizada."
   },
   "policyTypes": {
     "overtime": "Horas extras",
@@ -631,7 +635,8 @@
     "reimbursement": "Reembolso",
     "advance": "Adiantamento",
     "loan": "Empréstimo",
-    "correction": "Correção"
+    "correction": "Correção",
+    "deduction": "Dedução"
   },
   "documentCategories": {
     "contract": "Contrato",
@@ -665,5 +670,31 @@
     "biweekly": "Quinzenal",
     "monthly": "Mensal",
     "custom": "Personalizado"
+  },
+  "effectTypes": {
+    "multiplier": "Multiplicador",
+    "fixedBonus": "Bônus fixo",
+    "fixedDeduction": "Dedução fixa",
+    "percentBonus": "Bônus percentual",
+    "percentDeduction": "Dedução percentual"
+  },
+  "appliesTo": {
+    "regular": "Horas regulares",
+    "overtime": "Horas extras",
+    "allHours": "Todas as horas"
+  },
+  "months": {
+    "1": "Janeiro",
+    "2": "Fevereiro",
+    "3": "Março",
+    "4": "Abril",
+    "5": "Maio",
+    "6": "Junho",
+    "7": "Julho",
+    "8": "Agosto",
+    "9": "Setembro",
+    "10": "Outubro",
+    "11": "Novembro",
+    "12": "Dezembro"
   }
 }

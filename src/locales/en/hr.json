@@ -258,7 +258,9 @@
       "endTime": "End time",
       "effectType": "Effect type",
       "effectValue": "Effect value",
-      "appliesTo": "Applies to"
+      "appliesTo": "Applies to",
+      "addEffect": "Add effect",
+      "months": "Months"
     },
     "schedule": {
       "create": "Create schedule",
@@ -347,7 +349,8 @@
       "amount": "Amount",
       "currency": "Currency",
       "description": "Description",
-      "effectiveDate": "Effective date"
+      "effectiveDate": "Effective date",
+      "signHint": "Penalties, deductions, advances, and loans reduce net pay. Enter amounts as positive numbers."
     },
     "document": {
       "create": "Upload document",
@@ -613,6 +616,7 @@
     "swapApproved": "Swap request approved.",
     "swapRejected": "Swap request rejected.",
     "payrollGenerated": "Payroll run generated successfully.",
+    "payrollRefreshed": "Payroll run refreshed.",
     "leaveSubmitted": "Leave request submitted.",
     "leaveApproved": "Leave request approved.",
     "leaveRejected": "Leave request rejected."
@@ -631,7 +635,8 @@
     "reimbursement": "Reimbursement",
     "advance": "Advance",
     "loan": "Loan",
-    "correction": "Correction"
+    "correction": "Correction",
+    "deduction": "Deduction"
   },
   "documentCategories": {
     "contract": "Contract",
@@ -659,6 +664,32 @@
     "prevent": "Prevent stacking",
     "highestWins": "Highest wins",
     "priority": "By priority"
+  },
+  "effectTypes": {
+    "multiplier": "Multiplier",
+    "fixedBonus": "Fixed bonus",
+    "fixedDeduction": "Fixed deduction",
+    "percentBonus": "Percent bonus",
+    "percentDeduction": "Percent deduction"
+  },
+  "appliesTo": {
+    "regular": "Regular hours",
+    "overtime": "Overtime hours",
+    "allHours": "All hours"
+  },
+  "months": {
+    "1": "January",
+    "2": "February",
+    "3": "March",
+    "4": "April",
+    "5": "May",
+    "6": "June",
+    "7": "July",
+    "8": "August",
+    "9": "September",
+    "10": "October",
+    "11": "November",
+    "12": "December"
   },
   "periodTypes": {
     "weekly": "Weekly",

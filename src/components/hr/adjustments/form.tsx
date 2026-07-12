@@ -28,7 +28,7 @@ import {
 import {LaborAdjustmentType} from "@/api/model/hr.types.ts";
 
 const ADJUSTMENT_TYPES: LaborAdjustmentType[] = [
-  "bonus", "penalty", "allowance", "reimbursement", "advance", "loan", "correction",
+  "bonus", "penalty", "allowance", "reimbursement", "advance", "loan", "correction", "deduction",
 ];
 
 interface FormValues {
@@ -141,10 +141,11 @@ export const AdjustmentForm = ({open, onClose, data}: Props) => {
         currency: values.currency?.trim() || "USD",
         description: values.description?.trim() || undefined,
         effective_date: calendarDateToSurreal(values.effective_date),
+        status: "approved",
       };
 
-      if (data?.id) {
-        await db.update(data.id, payload);
+      if (values.id) {
+        await db.merge(values.id, payload);
       } else {
         await db.create(Tables.labor_adjustments, payload);
       }
@@ -162,7 +163,7 @@ export const AdjustmentForm = ({open, onClose, data}: Props) => {
         const message = firstFormError(errs);
         if (message) toast.error(message);
       })}>
-        {/*<input type="hidden" {...register("id")} />*/}
+        <input type="hidden" {...register("id")} />
         <div className="flex flex-col gap-3 mb-3">
           <HrSelectField
             label={t("forms.adjustment.employee")}
@@ -186,6 +187,7 @@ export const AdjustmentForm = ({open, onClose, data}: Props) => {
             options={adjustmentTypeOptions}
             error={errors.type?.message}
           />
+          <p className="text-sm text-neutral-600">{t("forms.adjustment.signHint")}</p>
           <div>
             <Input type="number" step="0.01" label={t("forms.adjustment.amount")} {...register("amount", {valueAsNumber: true})} error={errors.amount?.message}/>
           </div>

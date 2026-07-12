@@ -1,6 +1,8 @@
 import { Tables } from '@/api/db/tables.ts'
 import type { Employee } from '@/api/model/employee.ts'
 import type { EmployeePayProfile } from '@/api/model/employee_pay_profile.ts'
+import type { LaborAdjustment } from '@/api/model/labor_adjustment.ts'
+import type { LaborAdjustmentType } from '@/api/model/hr.types.ts'
 import type { LaborPayRule } from '@/api/model/labor_pay_rule.ts'
 import type { PayrollPeriod } from '@/api/model/payroll_period.ts'
 import type { PayrollRun } from '@/api/model/payroll_run.ts'
@@ -11,13 +13,45 @@ import type { DbClient, LaborCalculationResult } from '@/lib/labor-engine/types.
 import { calculateEmployeeLabor } from '@/lib/labor-engine/calculator.ts'
 import { resolveEffectivePayProfile } from '@/lib/labor-engine/pay-profile.resolver.ts'
 import { createSnapshots } from '@/lib/labor-engine/payroll/snapshot.service.ts'
+import { closePeriod, lockPeriod } from '@/lib/labor-engine/payroll/period.service.ts'
 import { emitLaborCostEvent } from '@/lib/labor-engine/events/labor-cost.events.ts'
 import { logLaborChange } from '@/lib/labor-engine/audit/labor-audit.service.ts'
 import { toEntityRecordId, toUserRecordId } from '@/lib/labor-engine/record-id.ts'
-import { nowSurrealDateTime, toSurrealDateTime } from '@/lib/datetime.ts'
+import { nowSurrealDateTime } from '@/lib/datetime.ts'
+import { safeNumber } from '@/lib/utils.ts'
+
+const DEDUCTION_ADJUSTMENT_TYPES = new Set<LaborAdjustmentType>([
+  'penalty',
+  'advance',
+  'loan',
+  'deduction',
+])
+
+const normalizeAdjustmentForPayroll = (adjustment: LaborAdjustment): LaborAdjustment => {
+  if (!DEDUCTION_ADJUSTMENT_TYPES.has(adjustment.type)) {
+    return adjustment
+  }
+  return {
+    ...adjustment,
+    amount: -Math.abs(safeNumber(adjustment.amount)),
+  }
+}
 
 const unwrapRecord = <T>(result: unknown): T => {
   return (Array.isArray(result) ? result[0] : result) as T
+}
+
+const periodIdFromRun = (run: PayrollRun): string | undefined => {
+  const period = run.payroll_period
+  if (!period) return undefined
+  if (typeof period === 'object' && period.id) return String(period.id)
+  return String(period)
+}
+
+const periodStatusFromRun = (run: PayrollRun): string | undefined => {
+  const period = run.payroll_period
+  if (period && typeof period === 'object') return period.status
+  return undefined
 }
 
 export interface GeneratePreviewParams {
@@ -47,11 +81,11 @@ export interface ExportRunParams {
 }
 
 const loadPeriod = async (db: DbClient, periodId: string): Promise<PayrollPeriod> => {
-  const result = await db.query<[PayrollPeriod[]]>(
-    `SELECT * FROM ${Tables.payroll_periods} WHERE id = $id LIMIT 1`,
+  const [result] = await db.query<[PayrollPeriod]>(
+    `SELECT * FROM ONLY $id`,
     { id: periodId }
   )
-  const period = result?.[0]?.[0]
+  const period = result
   if (!period) throw new Error('Payroll period not found')
   return period
 }
@@ -59,7 +93,8 @@ const loadPeriod = async (db: DbClient, periodId: string): Promise<PayrollPeriod
 const loadActiveEmployees = async (db: DbClient): Promise<Employee[]> => {
   const result = await db.query<[Employee[]]>(
     `SELECT * FROM ${Tables.employees}
-     WHERE deleted_at = none AND employment_status = 'active'`
+     WHERE deleted_at = none AND employment_status = 'active'
+     FETCH department, position, cost_center`
   )
   return result?.[0] ?? []
 }
@@ -117,6 +152,42 @@ const loadTimeEntriesForEmployee = async (
   return result?.[0] ?? []
 }
 
+const loadApprovedAdjustments = async (
+  db: DbClient,
+  period: PayrollPeriod
+): Promise<LaborAdjustment[]> => {
+  const result = await db.query<[LaborAdjustment[]]>(
+    `SELECT * FROM ${Tables.labor_adjustments}
+     WHERE status = 'approved'
+       AND (
+         payroll_period = $periodId
+         OR (
+           payroll_period = none
+           AND effective_date >= $start
+           AND effective_date <= $end
+         )
+       )`,
+    {
+      periodId: period.id,
+      start: period.start_date,
+      end: period.end_date,
+    }
+  )
+  return (result?.[0] ?? []).map(normalizeAdjustmentForPayroll)
+}
+
+const adjustmentsForEmployee = (
+  adjustments: LaborAdjustment[],
+  employeeId: string
+): LaborAdjustment[] =>
+  adjustments.filter(adjustment => {
+    const id =
+      typeof adjustment.employee === 'object'
+        ? adjustment.employee.id
+        : String(adjustment.employee)
+    return id === employeeId
+  })
+
 const computeRunResults = async (
   db: DbClient,
   period: PayrollPeriod
@@ -125,6 +196,7 @@ const computeRunResults = async (
   const profiles = await loadPayProfiles(db)
   const rules = await loadPayRules(db)
   const holidays = await loadHolidays(db, period)
+  const adjustments = await loadApprovedAdjustments(db, period)
   const results: LaborCalculationResult[] = []
 
   for (const employee of employees) {
@@ -146,6 +218,7 @@ const computeRunResults = async (
         holidays,
         periodStart: period.start_date,
         periodEnd: period.end_date,
+        adjustments: adjustmentsForEmployee(adjustments, employee.id),
       })
     )
   }
@@ -158,6 +231,9 @@ export const generatePreview = async (
   params: GeneratePreviewParams
 ): Promise<{ run: PayrollRun; results: LaborCalculationResult[] }> => {
   const period = await loadPeriod(db, params.payrollPeriodId)
+  if (period.status !== 'open') {
+    throw new Error('Payroll period must be open to generate a run')
+  }
   const results = await computeRunResults(db, period)
 
   const inserted = await db.create(Tables.payroll_runs, {
@@ -187,13 +263,13 @@ export const recalculateRun = async (
   params: RecalculateRunParams
 ): Promise<{ run: PayrollRun; results: LaborCalculationResult[] }> => {
   const runResult = await db.query<[PayrollRun[]]>(
-    `SELECT * FROM ${Tables.payroll_runs} WHERE id = $id FETCH payroll_period LIMIT 1`,
+    `SELECT * FROM ${Tables.payroll_runs} WHERE id = $id LIMIT 1 FETCH payroll_period `,
     { id: params.runId }
   )
   const run = runResult?.[0]?.[0]
   if (!run) throw new Error('Payroll run not found')
-  if (run.status === 'locked' || run.status === 'approved') {
-    throw new Error('Cannot recalculate a locked or approved run')
+  if (run.status === 'locked' || run.status === 'approved' || run.status === 'exported') {
+    throw new Error('Cannot recalculate a locked, approved, or exported run')
   }
 
   const period =
@@ -233,10 +309,14 @@ export const lockRun = async (
   params: LockRunParams
 ): Promise<PayrollRun> => {
   const existing = await db.query<[PayrollRun[]]>(
-    `SELECT * FROM ${Tables.payroll_runs} WHERE id = $id FETCH payroll_period LIMIT 1`,
+    `SELECT * FROM ${Tables.payroll_runs} WHERE id = $id LIMIT 1 FETCH payroll_period`,
     { id: params.runId }
   )
   const before = existing?.[0]?.[0]
+  if (!before) throw new Error('Payroll run not found')
+  if (before.status !== 'preview') {
+    throw new Error('Only preview runs can be locked')
+  }
 
   const merged = await db.merge(params.runId, {
     status: 'locked',
@@ -244,6 +324,17 @@ export const lockRun = async (
 
   const run = unwrapRecord<PayrollRun>(merged)
   const period = before?.payroll_period
+  const periodId = periodIdFromRun(before)
+
+  if (periodId) {
+    let status = periodStatusFromRun(before)
+    if (status === undefined) {
+      status = (await loadPeriod(db, periodId)).status
+    }
+    if (status === 'open') {
+      await lockPeriod(db, {periodId, lockedBy: params.lockedBy})
+    }
+  }
 
   await emitLaborCostEvent(db, {
     eventType: 'payroll_locked',
@@ -274,6 +365,10 @@ export const approveRun = async (
     { id: params.runId }
   )
   const before = existing?.[0]?.[0]
+  if (!before) throw new Error('Payroll run not found')
+  if (before.status !== 'locked') {
+    throw new Error('Only locked runs can be approved')
+  }
 
   const merged = await db.merge(params.runId, {
     status: 'approved',
@@ -296,11 +391,14 @@ export const approveRun = async (
 }
 
 export interface PayrollExportRow {
-  employeeId: string
-  grossPay: number
-  netPay: number
+  employeeNumber: string
+  employeeName: string
   regularHours: number
   overtimeHours: number
+  grossPay: number
+  deductions: number
+  adjustments: number
+  netPay: number
 }
 
 export const exportRun = async (
@@ -308,42 +406,70 @@ export const exportRun = async (
   params: ExportRunParams
 ): Promise<{ run: PayrollRun; rows: PayrollExportRow[] }> => {
   const runResult = await db.query<[PayrollRun[]]>(
-    `SELECT * FROM ${Tables.payroll_runs} WHERE id = $id LIMIT 1`,
+    `SELECT * FROM ${Tables.payroll_runs} WHERE id = $id LIMIT 1 FETCH payroll_period`,
     { id: params.runId }
   )
   const before = runResult?.[0]?.[0]
   if (!before) throw new Error('Payroll run not found')
+  if (before.status !== 'approved') {
+    throw new Error('Only approved runs can be exported')
+  }
 
   const snapshots = await db.query<
     [{
-      employee: { id: string }
+      employee: {
+        id: string
+        employee_number?: string
+        first_name?: string
+        last_name?: string
+      }
       gross_pay: number
       net_pay: number
+      deductions: number
+      adjustments: number
       regular_hours: number
       overtime_hours: number
     }[]]
   >(
-    `SELECT employee, gross_pay, net_pay, regular_hours, overtime_hours
+    `SELECT employee, gross_pay, net_pay, deductions, adjustments, regular_hours, overtime_hours
      FROM ${Tables.payroll_snapshots}
      WHERE payroll_run = $runId
      FETCH employee`,
     { runId: params.runId }
   )
 
-  const rows: PayrollExportRow[] = (snapshots?.[0] ?? []).map(s => ({
-    employeeId:
-      typeof s.employee === 'object' ? s.employee.id : String(s.employee),
-    grossPay: s.gross_pay ?? 0,
-    netPay: s.net_pay ?? 0,
-    regularHours: s.regular_hours ?? 0,
-    overtimeHours: s.overtime_hours ?? 0,
-  }))
+  const rows: PayrollExportRow[] = (snapshots?.[0] ?? []).map(s => {
+    const employee = typeof s.employee === 'object' ? s.employee : null
+    return {
+      employeeNumber: employee?.employee_number ?? '',
+      employeeName: employee
+        ? `${employee.first_name ?? ''} ${employee.last_name ?? ''}`.trim()
+        : String(s.employee ?? ''),
+      regularHours: s.regular_hours ?? 0,
+      overtimeHours: s.overtime_hours ?? 0,
+      grossPay: s.gross_pay ?? 0,
+      deductions: s.deductions ?? 0,
+      adjustments: s.adjustments ?? 0,
+      netPay: s.net_pay ?? 0,
+    }
+  })
 
   const merged = await db.merge(params.runId, {
     status: 'exported',
   })
 
   const run = unwrapRecord<PayrollRun>(merged)
+
+  const periodId = periodIdFromRun(before)
+  if (periodId) {
+    let status = periodStatusFromRun(before)
+    if (status === undefined) {
+      status = (await loadPeriod(db, periodId)).status
+    }
+    if (status !== 'closed' && status !== 'paid') {
+      await closePeriod(db, {periodId, closedBy: params.exportedBy})
+    }
+  }
 
   await logLaborChange(db, {
     entityType: 'payroll_run',

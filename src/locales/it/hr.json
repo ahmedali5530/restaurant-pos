@@ -258,7 +258,9 @@
       "endTime": "Ora fine",
       "effectType": "Tipo effetto",
       "effectValue": "Valore effetto",
-      "appliesTo": "Si applica a"
+      "appliesTo": "Si applica a",
+      "addEffect": "Aggiungi effetto",
+      "months": "Mesi"
     },
     "schedule": {
       "create": "Crea orario",
@@ -325,7 +327,8 @@
       "amount": "Importo",
       "currency": "Valuta",
       "description": "Descrizione",
-      "effectiveDate": "Data effettiva"
+      "effectiveDate": "Data effettiva",
+      "signHint": "Penalità, detrazioni, anticipi e prestiti riducono lo stipendio netto. Inserire gli importi come numeri positivi."
     },
     "document": {
       "create": "Carica documento",
@@ -615,7 +618,8 @@
     "scheduleDeleted": "Piano eliminato.",
     "swapRequested": "Richiesta di scambio inviata.",
     "swapApproved": "Scambio approvato.",
-    "swapRejected": "Scambio rifiutato."
+    "swapRejected": "Scambio rifiutato.",
+    "payrollRefreshed": "Elaborazione paghe aggiornata."
   },
   "policyTypes": {
     "overtime": "Straordinario",
@@ -631,7 +635,8 @@
     "reimbursement": "Rimborso",
     "advance": "Anticipo",
     "loan": "Prestito",
-    "correction": "Correzione"
+    "correction": "Correzione",
+    "deduction": "Deduzione"
   },
   "documentCategories": {
     "contract": "Contratto",
@@ -665,5 +670,31 @@
     "biweekly": "Bisettimanale",
     "monthly": "Mensile",
     "custom": "Personalizzato"
+  },
+  "effectTypes": {
+    "multiplier": "Moltiplicatore",
+    "fixedBonus": "Bonus fisso",
+    "fixedDeduction": "Detrazione fissa",
+    "percentBonus": "Bonus percentuale",
+    "percentDeduction": "Detrazione percentuale"
+  },
+  "appliesTo": {
+    "regular": "Ore regolari",
+    "overtime": "Straordinari",
+    "allHours": "Tutte le ore"
+  },
+  "months": {
+    "1": "Gennaio",
+    "2": "Febbraio",
+    "3": "Marzo",
+    "4": "Aprile",
+    "5": "Maggio",
+    "6": "Giugno",
+    "7": "Luglio",
+    "8": "Agosto",
+    "9": "Settembre",
+    "10": "Ottobre",
+    "11": "Novembre",
+    "12": "Dicembre"
   }
 }

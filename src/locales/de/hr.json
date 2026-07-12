@@ -258,7 +258,9 @@
       "endTime": "Endzeit",
       "effectType": "Effekttyp",
       "effectValue": "Effektwert",
-      "appliesTo": "Gilt für"
+      "appliesTo": "Gilt für",
+      "addEffect": "Effekt hinzufügen",
+      "months": "Monate"
     },
     "schedule": {
       "create": "Dienstplan erstellen",
@@ -325,7 +327,8 @@
       "amount": "Betrag",
       "currency": "Währung",
       "description": "Beschreibung",
-      "effectiveDate": "Wirksamkeitsdatum"
+      "effectiveDate": "Wirksamkeitsdatum",
+      "signHint": "Strafen, Abzüge, Vorschüsse und Darlehen reduzieren das Nettogehalt. Beträge als positive Zahlen eingeben."
     },
     "document": {
       "create": "Dokument hochladen",
@@ -615,7 +618,8 @@
     "scheduleDeleted": "Dienstplan gelöscht.",
     "swapRequested": "Tauschanfrage gesendet.",
     "swapApproved": "Tausch genehmigt.",
-    "swapRejected": "Tausch abgelehnt."
+    "swapRejected": "Tausch abgelehnt.",
+    "payrollRefreshed": "Lohnlauf aktualisiert."
   },
   "policyTypes": {
     "overtime": "Überstunden",
@@ -631,7 +635,8 @@
     "reimbursement": "Erstattung",
     "advance": "Vorschuss",
     "loan": "Darlehen",
-    "correction": "Korrektur"
+    "correction": "Korrektur",
+    "deduction": "Abzug"
   },
   "documentCategories": {
     "contract": "Vertrag",
@@ -665,5 +670,31 @@
     "biweekly": "Zweiwöchentlich",
     "monthly": "Monatlich",
     "custom": "Benutzerdefiniert"
+  },
+  "effectTypes": {
+    "multiplier": "Multiplikator",
+    "fixedBonus": "Feste Prämie",
+    "fixedDeduction": "Fester Abzug",
+    "percentBonus": "Prozentuale Prämie",
+    "percentDeduction": "Prozentualer Abzug"
+  },
+  "appliesTo": {
+    "regular": "Reguläre Stunden",
+    "overtime": "Überstunden",
+    "allHours": "Alle Stunden"
+  },
+  "months": {
+    "1": "Januar",
+    "2": "Februar",
+    "3": "März",
+    "4": "April",
+    "5": "Mai",
+    "6": "Juni",
+    "7": "Juli",
+    "8": "August",
+    "9": "September",
+    "10": "Oktober",
+    "11": "November",
+    "12": "Dezember"
   }
 }

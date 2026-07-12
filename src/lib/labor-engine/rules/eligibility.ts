@@ -39,7 +39,8 @@ const matchesDateRange = (
     if (!conditions.months.includes(month)) return false
   }
   if (conditions.days_of_week?.length) {
-    if (!conditions.days_of_week.includes(date.getDay())) return false
+    const weekday = toLuxonDateTime(date).weekday // 1=Mon … 7=Sun
+    if (!conditions.days_of_week.includes(weekday)) return false
   }
   return true
 }

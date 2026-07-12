@@ -160,7 +160,7 @@ export const Orders = () => {
         fetchOrders();
       }
 
-      // TODO: handle order updates smartly
+      // TODO: handle order updates smartly, currently it goes into infinite loop
     });
 
     setLiveQuery(result);
