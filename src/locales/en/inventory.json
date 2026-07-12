@@ -29,7 +29,7 @@
     "category": "Category",
     "uom": "Unit of measurement",
     "baseQuantity": "Base quantity",
-    "price": "Price",
+    "price": "Unit price",
     "averagePrice": "Average price",
     "avgPrice": "Avg Price",
     "reorderLevel": "Reorder level",

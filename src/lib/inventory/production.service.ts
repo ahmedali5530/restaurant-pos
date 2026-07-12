@@ -6,7 +6,7 @@ import {
   OutputDisposition,
   Recipe,
 } from "@/api/model/recipe.ts";
-import {recordToString} from "@/api/reports/shared/records.ts";
+import {recordIdToString, recordToString} from "@/api/reports/shared/records.ts";
 import {
   scaleRecipe,
   validateRecipe,
@@ -63,27 +63,32 @@ export type ProductionBatchListFilters = {
 };
 
 const toItemRecordId = (itemId: string) => {
-  const normalized = itemId.includes(":") ? itemId : `${Tables.inventory_items}:${itemId}`;
+  const key = recordIdToString(itemId) || String(itemId);
+  const normalized = key.includes(":") ? key : `${Tables.inventory_items}:${key}`;
   return toRecordId(normalized);
 };
 
 const toOutputRecordId = (id: string) => {
-  const normalized = id.includes(":") ? id : `${Tables.recipe_outputs}:${id}`;
+  const key = recordIdToString(id) || String(id);
+  const normalized = key.includes(":") ? key : `${Tables.recipe_outputs}:${key}`;
   return toRecordId(normalized);
 };
 
 const toRecipeRecordId = (id: string) => {
-  const normalized = id.includes(":") ? id : `${Tables.recipes}:${id}`;
+  const key = recordIdToString(id) || String(id);
+  const normalized = key.includes(":") ? key : `${Tables.recipes}:${key}`;
   return toRecordId(normalized);
 };
 
 const toBatchRecordId = (id: string) => {
-  const normalized = id.includes(":") ? id : `${Tables.production_batches}:${id}`;
+  const key = recordIdToString(id) || String(id);
+  const normalized = key.includes(":") ? key : `${Tables.production_batches}:${key}`;
   return toRecordId(normalized);
 };
 
 const toUserRecordId = (userId: string) => {
-  const normalized = userId.includes(":") ? userId : `${Tables.users}:${userId}`;
+  const key = recordIdToString(userId) || String(userId);
+  const normalized = key.includes(":") ? key : `${Tables.users}:${key}`;
   return toRecordId(normalized);
 };
 

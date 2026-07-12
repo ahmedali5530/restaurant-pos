@@ -10,7 +10,7 @@ import {
 } from "@/lib/inventory/stock_transfer.service.ts";
 import {fetchBuffetConsumptionTotals} from "@/lib/inventory/buffet.service.ts";
 import {toStoreRecordId} from "@/lib/inventory/stock_transfer.service.ts";
-import {recordToString} from "@/api/reports/shared/records.ts";
+import {recordIdToString, recordToString} from "@/api/reports/shared/records.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import type {InventoryItem} from "@/api/model/inventory_item.ts";
 
@@ -57,15 +57,15 @@ export const computeStoreNet = (breakdown: Omit<StoreInventoryBreakdown, "net">)
   );
 };
 
-const toItemRecordIdForQuery = (itemId: string) => {
-  const key = recordToString(itemId) || itemId;
+const toItemRecordIdForQuery = (itemId: unknown) => {
+  const key = recordIdToString(itemId);
   const normalized = key.includes(":") ? key : `${Tables.inventory_items}:${key}`;
   return toRecordId(normalized);
 };
 
-const normalizeRecordParams = (itemId: string, storeId: string) => ({
+const normalizeRecordParams = (itemId: unknown, storeId: unknown) => ({
   item: toItemRecordIdForQuery(itemId),
-  store: toStoreRecordId(recordToString(storeId) || storeId),
+  store: toStoreRecordId(recordIdToString(storeId) || String(storeId)),
 });
 
 export const fetchStoreInventoryBreakdown = async (
@@ -73,7 +73,9 @@ export const fetchStoreInventoryBreakdown = async (
   itemId: string,
   storeId: string
 ): Promise<StoreInventoryBreakdown> => {
-  const params = normalizeRecordParams(itemId, storeId);
+  const itemKey = recordIdToString(itemId) || String(itemId);
+  const storeKey = recordIdToString(storeId) || String(storeId);
+  const params = normalizeRecordParams(itemKey, storeKey);
 
   const [
     [purchaseRows],
@@ -106,10 +108,10 @@ export const fetchStoreInventoryBreakdown = async (
       `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_waste_items} WHERE item = $item AND purchase_item != null AND purchase_item.store = $store GROUP ALL`,
       params
     ),
-    fetchStoreTransferTotals(db, itemId, storeId),
-    fetchProductionInputTotals(db, itemId, storeId),
-    fetchProductionOutputTotals(db, itemId, storeId),
-    fetchBuffetConsumptionTotals(db, itemId, storeId),
+    fetchStoreTransferTotals(db, itemKey, storeKey),
+    fetchProductionInputTotals(db, itemKey, storeKey),
+    fetchProductionOutputTotals(db, itemKey, storeKey),
+    fetchBuffetConsumptionTotals(db, itemKey, storeKey),
   ]);
 
   const breakdown = {

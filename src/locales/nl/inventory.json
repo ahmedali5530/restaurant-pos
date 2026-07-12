@@ -29,7 +29,7 @@
     "category": "Categorie",
     "uom": "Maateenheid",
     "baseQuantity": "Basishoeveelheid",
-    "price": "Prijs",
+    "price": "Eenheidsprijs",
     "averagePrice": "Gemiddelde prijs",
     "avgPrice": "Gem. prijs",
     "reorderLevel": "Herbestelniveau",

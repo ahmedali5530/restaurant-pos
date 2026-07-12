@@ -171,6 +171,9 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
               onClick={() => setDisplay('split')}
             >Split</Button>
           </div>
+
+          <div className="text-center text-2xl p-5 bg-gray-200 my-5">Current Quantity: {netQuantity}{item.uom}</div>
+
           {display === 'unified' && (
             <table className="table table-hover table-sm mt-3 bg-white">
               <thead>
@@ -215,7 +218,6 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
 
           {display === 'split' && (
             <>
-              <div className="text-center text-2xl p-5 bg-gray-200 my-5">Current Quantity: {netQuantity}</div>
               <div className="overflow-x-auto">
                 <div className="grid grid-cols-[repeat(10,_300px)] gap-3 mt-3">
                   {Object.entries(split).map(([type, rows]) => {

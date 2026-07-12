@@ -29,7 +29,7 @@
     "category": "Kategori",
     "uom": "Ölçü birimi",
     "baseQuantity": "Temel miktar",
-    "price": "Fiyat",
+    "price": "Birim fiyat",
     "averagePrice": "Ortalama fiyat",
     "avgPrice": "Ort. Fiyat",
     "reorderLevel": "Yeniden sipariş seviyesi",

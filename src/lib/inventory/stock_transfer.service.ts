@@ -1,7 +1,7 @@
 import type {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {StockTransfer} from "@/api/model/stock_transfer.ts";
-import {recordToString} from "@/api/reports/shared/records.ts";
+import {recordIdToString, recordToString} from "@/api/reports/shared/records.ts";
 import {nowSurrealDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
 import {toRecordId} from "@/lib/utils.ts";
 
@@ -31,27 +31,32 @@ export type StockTransferListFilters = {
 };
 
 const toKitchenRecordId = (kitchenId: string) => {
-  const normalized = kitchenId.includes(":") ? kitchenId : `${Tables.kitchens}:${kitchenId}`;
+  const key = recordIdToString(kitchenId) || String(kitchenId);
+  const normalized = key.includes(":") ? key : `${Tables.kitchens}:${key}`;
   return toRecordId(normalized);
 };
 
 export const toStoreRecordId = (storeId: string) => {
-  const normalized = storeId.includes(":") ? storeId : `${Tables.inventory_stores}:${storeId}`;
+  const key = recordIdToString(storeId) || String(storeId);
+  const normalized = key.includes(":") ? key : `${Tables.inventory_stores}:${key}`;
   return toRecordId(normalized);
 };
 
 const toItemRecordId = (itemId: string) => {
-  const normalized = itemId.includes(":") ? itemId : `${Tables.inventory_items}:${itemId}`;
+  const key = recordIdToString(itemId) || String(itemId);
+  const normalized = key.includes(":") ? key : `${Tables.inventory_items}:${key}`;
   return toRecordId(normalized);
 };
 
 const toTransferRecordId = (id: string) => {
-  const normalized = id.includes(":") ? id : `${Tables.stock_transfers}:${id}`;
+  const key = recordIdToString(id) || String(id);
+  const normalized = key.includes(":") ? key : `${Tables.stock_transfers}:${key}`;
   return toRecordId(normalized);
 };
 
 const toUserRecordId = (userId: string) => {
-  const normalized = userId.includes(":") ? userId : `${Tables.users}:${userId}`;
+  const key = recordIdToString(userId) || String(userId);
+  const normalized = key.includes(":") ? key : `${Tables.users}:${key}`;
   return toRecordId(normalized);
 };
 

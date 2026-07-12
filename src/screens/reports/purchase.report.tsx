@@ -149,8 +149,10 @@ export const PurchaseReport = () => {
 
     purchases.forEach(purchase => {
       purchase.items?.forEach(item => {
-        totalQuantity += safeNumber(item.quantity);
-        totalAmount += safeNumber(item.price) * safeNumber(item.quantity);
+        const qty = safeNumber(item.quantity);
+        const base = safeNumber(item.base_quantity) || 1;
+        totalQuantity += qty * base;
+        totalAmount += safeNumber(item.price) * qty;
         totalItems += 1;
       });
     });
@@ -235,6 +237,8 @@ export const PurchaseReport = () => {
                     return purchase.items?.map((item, index) => {
                       const itemName = item.item?.name || 'Unknown';
                       const quantity = safeNumber(item.quantity);
+                      const base = safeNumber(item.base_quantity) || 1;
+                      const effectiveQty = quantity * base;
                       const price = safeNumber(item.price);
                       const amount = quantity * price;
 
@@ -245,7 +249,7 @@ export const PurchaseReport = () => {
                           <td className="py-3 px-3 text-sm text-neutral-700">{supplierName}</td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{storeName}</td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{itemName}</td>
-                          <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(quantity)}</td>
+                          <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(effectiveQty)}</td>
                           <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(price)}</td>
                           <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">{withCurrency(amount)}</td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{createdByName}</td>

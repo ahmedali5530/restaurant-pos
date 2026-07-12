@@ -29,7 +29,7 @@
     "category": "الفئة",
     "uom": "وحدة القياس",
     "baseQuantity": "الكمية الأساسية",
-    "price": "السعر",
+    "price": "سعر الوحدة",
     "averagePrice": "متوسط السعر",
     "avgPrice": "متوسط السعر",
     "reorderLevel": "حد إعادة الطلب",

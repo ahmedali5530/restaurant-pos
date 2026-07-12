@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from "react";
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 import * as yup from "yup";
 import {Controller, useFieldArray, useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
@@ -29,9 +29,7 @@ import {DatePicker} from "@/components/common/antd/datepicker.tsx";
 import {DateValue} from "react-aria-components";
 import {calendarDateToDate, dateToCalendarDate, getToday} from "@/utils/date.ts";
 import {Switch} from "@/components/common/input/switch.tsx";
-import {OrderStatus} from "@/api/model/order.ts";
-import {DateTime} from "luxon";
-import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
+import {nowSurrealDateTime, toJsDate, toSurrealDateTime} from "@/lib/datetime.ts";
 
 type PurchaseMethod = "manual" | "csv" | "purchase_order";
 
@@ -133,7 +131,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
 }).required();
 
 export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
-  const { t } = useTranslation('inventory');
+  const {t} = useTranslation('inventory');
   const db = useDB();
   const [purchaseOrderModal, setPurchaseOrderModal] = useState(false);
   const [state,] = useAtom(appPage);
@@ -486,8 +484,9 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
           status: PurchaseOrderStatus.fulfilled
         });
 
-        const [purchaseOrder] = await db.query(`SELECT * FROM ONLY ${toRecordId(selectedPurchaseOrderId)} fetch supplier`);
-        if(data === undefined && purchaseOrder.supplier){
+        const [purchaseOrder] = await db.query(`SELECT *
+                                                FROM ONLY ${toRecordId(selectedPurchaseOrderId)} fetch supplier`);
+        if (data === undefined && purchaseOrder.supplier) {
           await db.merge(toRecordId(purchaseOrder.supplier.id), {
             purchases: Array.from(new Set([...(purchaseOrder.supplier.purchases || []), purchaseIdString])),
           });

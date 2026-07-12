@@ -29,7 +29,7 @@
     "category": "Catégorie",
     "uom": "Unité de mesure",
     "baseQuantity": "Quantité de base",
-    "price": "Prix",
+    "price": "Prix unitaire",
     "averagePrice": "Prix moyen",
     "avgPrice": "Prix moy.",
     "reorderLevel": "Niveau de réapprovisionnement",

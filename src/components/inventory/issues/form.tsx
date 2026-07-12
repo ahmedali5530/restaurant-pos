@@ -228,11 +228,11 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
         items: data.items?.map(item => ({
           store: item.store ? {
             label: item.store.name,
-            value: item.store.id
+            value: item.store.id.toString()
           } : null,
           item: item.item ? {
             label: `${item.item.name}-${item.item.code}`,
-            value: item.item.id
+            value: item.item.id.toString()
           } : null,
           requested: item.requested ?? 1,
           quantity: item.quantity ?? 1,
@@ -493,7 +493,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
   const itemsList = (items?.data ?? []) as (InventoryItem & { stores?: InventoryStore[] })[];
   const storeOptions = stores?.data?.map(store => ({
     label: store.name,
-    value: store.id
+    value: store.id.toString()
   })) ?? [];
   
   const getItemOptionsForStore = useCallback((storeId?: string) => {
@@ -504,7 +504,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
       .filter(item => item.stores?.some(store => store.id.toString() === storeId.toString()))
       .map(item => ({
         label: item.code ? `${item.name}-${item.code}` : item.name,
-        value: item.id
+        value: item.id.toString()
       }));
   }, [itemsList]);
 

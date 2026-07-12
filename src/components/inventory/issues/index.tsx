@@ -20,7 +20,7 @@ export const InventoryIssues = () => {
     ["created_at DESC"],
     0,
     10,
-    ["issued_to", "created_by", "kitchen", "items", "items.item"]
+    ["issued_to", "created_by", "kitchen", "items", "items.item", "items.store"]
   );
 
   const [data, setData] = useState<InventoryIssue>();

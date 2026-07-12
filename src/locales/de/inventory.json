@@ -29,7 +29,7 @@
     "category": "Kategorie",
     "uom": "Maßeinheit",
     "baseQuantity": "Basismenge",
-    "price": "Preis",
+    "price": "Stückpreis",
     "averagePrice": "Durchschnittspreis",
     "avgPrice": "Ø Preis",
     "reorderLevel": "Meldebestand",
