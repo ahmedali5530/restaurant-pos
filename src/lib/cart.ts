@@ -156,7 +156,7 @@ export const calculateOrderTotalsPreview = (order: Order, cart?: MenuItem[]) => 
       : Number(order.tip_amount ?? 0)
     : 0;
 
-  const extrasTotal = order?.extras?.reduce((prev, item) => prev + item.value, 0) ?? 0;
+  const extrasTotal = order?.extras?.filter(item => item !== undefined)?.reduce((prev, item) => prev + item.value, 0) ?? 0;
 
   const total = calculateOrderGrandTotal({
     itemsTotal,

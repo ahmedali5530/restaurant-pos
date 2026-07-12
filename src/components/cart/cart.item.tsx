@@ -77,7 +77,7 @@ export const CartItem = ({ item, index }: Props) => {
           ),
         )}
         onClick={() => {
-          if(item.deleted_at === undefined && item.newOrOld === 'new') {
+          if(item.deleted_at === undefined && (item.newOrOld === 'new' || item.isHold)) {
             setState(prev => ({
               ...prev,
               cart: prev.cart.map(ci => {

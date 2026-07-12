@@ -110,13 +110,25 @@ export const Payment = () => {
     };
   }, [state?.order?.id, paymentOpen]);
 
+  const hasNewCartItems = () =>
+    state.cart.some((item) => item.newOrOld === MenuItemType.new);
+
+  const isPersistedCartItem = (item: { id?: unknown; newOrOld?: MenuItemType }) =>
+    item.newOrOld === MenuItemType.old || item.id?.toString().includes('order_item:');
+
   const createOrder = async () => {
+    const isNewOrder = state?.order?.id === 'new';
+    const hasNewItems = hasNewCartItems();
+
+    // Existing order with only old lines: nothing to persist.
+    if (!isNewOrder && !hasNewItems) {
+      return state?.order?.order ?? { id: state?.order?.id };
+    }
+
     await assertOrderTakingAllowed(db);
 
     setLoading(true);
     const date = DateTime.now().toJSDate();
-
-    const isNewOrder = state?.order?.id === 'new';
 
     let invoiceNumber = 1;
 
@@ -126,11 +138,16 @@ export const Payment = () => {
       invoiceNumber = state?.order?.order?.invoice_number;
     }
 
-    const kitchenItems = {};
+    const kitchenItems: Record<string, any[]> = {};
+    const items: any[] = [];
+    const newItemIds: any[] = [];
 
-    // create items and store their ids
-    const items = [];
     for (const item of state.cart) {
+      if (isPersistedCartItem(item)) {
+        items.push(toRecordId(item.id));
+        continue;
+      }
+
       const pricing = buildOrderItemPayload(item);
       const itemData: any = {
         tax: pricing.tax,
@@ -147,9 +164,11 @@ export const Payment = () => {
         level: item.level,
         category: item.category,
         category_id: item.category_id ? toRecordId(item.category_id) : null,
-        is_addition: false,
+        is_addition: !isNewOrder,
         menu: item.menu_name,
         tax_mode: pricing.tax_mode,
+        created_at: date,
+        created_by: toRecordId(page?.user?.id),
       };
 
       if (pricing.original_price !== undefined) {
@@ -160,23 +179,12 @@ export const Payment = () => {
         itemData.taxes = pricing.taxes.map(t => toRecordId(t.id));
       }
 
-      if (!isNewOrder && typeof item.id === 'string') {
-        itemData.is_addition = true
-      }
+      const record = await db.create(Tables.order_items, itemData);
+      items.push(record[0].id);
+      newItemIds.push(record[0].id);
 
-      if (item.id.toString().includes('order_item:')) {
-        itemData.updated_at = date;
-
-        await db.merge(item.id, itemData);
-        items.push(new StringRecordId(item.id.toString()));
-      } else {
-        itemData.created_at = date;
-        itemData.created_by = toRecordId(page?.user?.id);
-
-        const record = await db.create(Tables.order_items, itemData);
-        items.push(record[0].id);
-
-        // Route the item through its production workflow (or legacy parallel kitchens).
+      // Held items stay off kitchen until Fire; route everything else now.
+      if (!item.isHold) {
         await createStageRows(db, {
           orderItem: record[0],
           dish: item.dish,
@@ -249,8 +257,7 @@ export const Payment = () => {
         data.created_at = date;
         orderObj = await db.create(Tables.orders, data);
 
-        // add order back in items
-        for (const item of items) {
+        for (const item of newItemIds) {
           await db.merge(item, {
             order: orderObj[0].id
           });
@@ -260,8 +267,7 @@ export const Payment = () => {
 
         orderObj = await db.merge(toRecordId(state?.order?.id), data);
 
-        // add order back in items
-        for (const item of items) {
+        for (const item of newItemIds) {
           await db.merge(item, {
             order: orderObj.id
           });
@@ -283,30 +289,33 @@ export const Payment = () => {
         user: page?.user,
       });
 
-      const [kitchens]: any = await db.query(`SELECT *
-                                              from ${Tables.kitchens}
-                                              where deleted_at = none FETCH printers`);
-      if (kitchens.length > 0) {
-        for (const k of kitchens) {
-          if (kitchenItems[k.id.toString()]) {
-            void dispatchPrint(db, 'kitchen', {
-              items: kitchenItems[k.id.toString()],
-              order: {
-                ...normalizedOrder,
-                order_type: state?.orderType ?? normalizedOrder.order_type,
-                user: page?.user ?? normalizedOrder.user,
-              },
-              kitchenName: k.name,
-              table: state?.table,
-              isAddOn: !isNewOrder,
-            }, {
-              title: t("payment:print.kitchenTitle"),
-              copies: 1,
-              userId: page?.user?.id,
-              printers: k.printers
-            }).catch((error) => {
-              console.error('Kitchen print dispatch failed', error);
-            });
+      const hasKitchenPrintItems = Object.keys(kitchenItems).length > 0;
+      if (hasKitchenPrintItems) {
+        const [kitchens]: any = await db.query(`SELECT *
+                                                from ${Tables.kitchens}
+                                                where deleted_at = none FETCH printers`);
+        if (kitchens.length > 0) {
+          for (const k of kitchens) {
+            if (kitchenItems[k.id.toString()]) {
+              void dispatchPrint(db, 'kitchen', {
+                items: kitchenItems[k.id.toString()],
+                order: {
+                  ...normalizedOrder,
+                  order_type: state?.orderType ?? normalizedOrder.order_type,
+                  user: page?.user ?? normalizedOrder.user,
+                },
+                kitchenName: k.name,
+                table: state?.table,
+                isAddOn: !isNewOrder,
+              }, {
+                title: t("payment:print.kitchenTitle"),
+                copies: 1,
+                userId: page?.user?.id,
+                printers: k.printers
+              }).catch((error) => {
+                console.error('Kitchen print dispatch failed', error);
+              });
+            }
           }
         }
       }
@@ -322,7 +331,9 @@ export const Payment = () => {
 
   const createOrderAndBack = async () => {
     try {
-      await createOrder();
+      if (hasNewCartItems()) {
+        await createOrder();
+      }
       await reset();
     } catch (error) {
       const message = error instanceof Error ? error.message : t("payment:errors.createOrder");
@@ -359,22 +370,29 @@ export const Payment = () => {
 
   const openPayment = async () => {
     try {
-      const result = await createOrder();
-      if (result) {
-        let orderId = result?.id;
+      const isExistingOrderOnly =
+        state?.order?.id !== 'new' && !hasNewCartItems();
+
+      let orderId: unknown = state?.order?.id;
+      if (!isExistingOrderOnly) {
+        const result = await createOrder();
+        if (!result) {
+          return;
+        }
+        orderId = result?.id;
         if (result[0]?.id) {
           orderId = result[0].id;
         }
-
-        const freshOrder = await fetchOrderForPayment(orderId);
-        if (!freshOrder?.items?.length) {
-          throw new Error(t("payment:errors.openPayment"));
-        }
-
-        setPaymentOrder(freshOrder);
-        setOrder(freshOrder);
-        setPaymentOpen(true);
       }
+
+      const freshOrder = await fetchOrderForPayment(orderId);
+      if (!freshOrder?.items?.length) {
+        throw new Error(t("payment:errors.openPayment"));
+      }
+
+      setPaymentOrder(freshOrder);
+      setOrder(freshOrder);
+      setPaymentOpen(true);
     } catch (error) {
       const message = error instanceof Error ? error.message : t("payment:errors.openPayment");
       console.error(error);
