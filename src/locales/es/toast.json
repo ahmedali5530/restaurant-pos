@@ -119,7 +119,17 @@
     "selectCategoriesRequired": "Seleccione al menos una categoría",
     "menuItemsUpdated": "{{count}} artículo(s) actualizado(s)",
     "invalidCategories": "Las categorías no son válidas",
-    "passwordRequired": "La contraseña es obligatoria para un usuario nuevo"
+    "passwordRequired": "La contraseña es obligatoria para un usuario nuevo",
+    "invalidDishNumber": "El número del plato no es válido",
+    "invalidIngredient": "El ingrediente no es válido",
+    "invalidIngredientType": "Este tipo de ingrediente no se puede usar en recetas",
+    "duplicateDishIngredient": "El ingrediente ya está vinculado a este plato",
+    "invalidQuantity": "La cantidad no es válida",
+    "invalidCost": "El costo no es válido",
+    "invalidModifierGroup": "El grupo de modificadores no es válido",
+    "duplicateDishModifierGroup": "El grupo de modificadores ya está vinculado a este plato",
+    "invalidPriority": "La prioridad no es válida",
+    "invalidRequiredModifiers": "El valor de modificadores requeridos no es válido"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} está en uso y fue desactivado.",

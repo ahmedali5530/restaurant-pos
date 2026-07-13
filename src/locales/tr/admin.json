@@ -83,7 +83,12 @@
     "tables": "Masalar",
     "printers": "Yazıcılar",
     "yes": "Evet",
-    "no": "Hayır"
+    "no": "Hayır",
+    "ingredient": "Malzeme",
+    "isPriceLocked": "Fiyat kilitli",
+    "hasRequiredModifiers": "Zorunlu modifikatörler var",
+    "shouldAutoOpen": "Otomatik aç",
+    "shouldAutoSelect": "Otomatik seç"
   },
   "entities": {
     "dish": "Yemek",
@@ -133,7 +138,9 @@
     "zoomOut": "Uzaklaştır",
     "resetZoom": "Yakınlaştırmayı sıfırla",
     "arrangeTables": "Masaları düzenle",
-    "updateSelected": "Seçilenleri güncelle"
+    "updateSelected": "Seçilenleri güncelle",
+    "importIngredients": "Malzemeleri İçe Aktar",
+    "importModifierGroups": "Modifikatör Gruplarını İçe Aktar"
   },
   "delete": {
     "dish": "{{name}} ürününü sil",
@@ -309,7 +316,10 @@
     "nestedModifierPrices": "İç içe: {{name}}",
     "templatePrice": "Şablon fiyatı",
     "resetModifierPrices": "Şablona sıfırla",
-    "reset": "Sıfırla"
+    "reset": "Sıfırla",
+    "importDishesTitle": "CSV ile yemekleri içe aktar",
+    "importIngredientsTitle": "CSV ile yemek malzemelerini içe aktar",
+    "importModifierGroupsTitle": "CSV ile yemek modifikatör gruplarını içe aktar"
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",

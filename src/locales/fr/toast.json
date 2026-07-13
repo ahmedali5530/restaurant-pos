@@ -119,7 +119,17 @@
     "selectCategoriesRequired": "Sélectionnez au moins une catégorie",
     "menuItemsUpdated": "{{count}} article(s) mis à jour",
     "invalidCategories": "Les catégories sont invalides",
-    "passwordRequired": "Le mot de passe est requis pour un nouvel utilisateur"
+    "passwordRequired": "Le mot de passe est requis pour un nouvel utilisateur",
+    "invalidDishNumber": "Le numéro du plat est invalide",
+    "invalidIngredient": "L'ingrédient est invalide",
+    "invalidIngredientType": "Ce type d'ingrédient ne peut pas être utilisé dans les recettes",
+    "duplicateDishIngredient": "L'ingrédient est déjà associé à ce plat",
+    "invalidQuantity": "La quantité est invalide",
+    "invalidCost": "Le coût est invalide",
+    "invalidModifierGroup": "Le groupe de modificateurs est invalide",
+    "duplicateDishModifierGroup": "Le groupe de modificateurs est déjà associé à ce plat",
+    "invalidPriority": "La priorité est invalide",
+    "invalidRequiredModifiers": "La valeur des modificateurs requis est invalide"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} est utilisé et a été désactivé.",

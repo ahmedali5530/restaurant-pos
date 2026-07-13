@@ -119,7 +119,17 @@
     "selectCategoriesRequired": "En az bir kategori seçin",
     "menuItemsUpdated": "{{count}} öğe güncellendi",
     "invalidCategories": "Kategoriler geçersiz",
-    "passwordRequired": "Yeni kullanıcı için şifre gerekli"
+    "passwordRequired": "Yeni kullanıcı için şifre gerekli",
+    "invalidDishNumber": "Yemek numarası geçersiz",
+    "invalidIngredient": "Malzeme geçersiz",
+    "invalidIngredientType": "Bu malzeme türü yemek tariflerinde kullanılamaz",
+    "duplicateDishIngredient": "Malzeme bu yemeğe zaten eklenmiş",
+    "invalidQuantity": "Miktar geçersiz",
+    "invalidCost": "Maliyet geçersiz",
+    "invalidModifierGroup": "Modifikatör grubu geçersiz",
+    "duplicateDishModifierGroup": "Modifikatör grubu bu yemeğe zaten eklenmiş",
+    "invalidPriority": "Öncelik geçersiz",
+    "invalidRequiredModifiers": "Zorunlu modifikatör değeri geçersiz"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} kullanımda olduğu için devre dışı bırakıldı.",

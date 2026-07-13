@@ -83,7 +83,12 @@
     "tables": "Tafels",
     "printers": "Printers",
     "yes": "Ja",
-    "no": "Nee"
+    "no": "Nee",
+    "ingredient": "Ingrediënt",
+    "isPriceLocked": "Prijs vergrendeld",
+    "hasRequiredModifiers": "Heeft verplichte modifiers",
+    "shouldAutoOpen": "Automatisch openen",
+    "shouldAutoSelect": "Automatisch selecteren"
   },
   "entities": {
     "dish": "Gerecht",
@@ -133,7 +138,9 @@
     "zoomOut": "Uitzoomen",
     "resetZoom": "Zoom resetten",
     "arrangeTables": "Tafels rangschikken",
-    "updateSelected": "Geselecteerde bijwerken"
+    "updateSelected": "Geselecteerde bijwerken",
+    "importIngredients": "Ingrediënten importeren",
+    "importModifierGroups": "Modifiergroepen importeren"
   },
   "delete": {
     "dish": "Artikel {{name}} verwijderen",
@@ -309,7 +316,10 @@
     "nestedModifierPrices": "Genest: {{name}}",
     "templatePrice": "Sjabloonprijs",
     "resetModifierPrices": "Terugzetten naar sjabloon",
-    "reset": "Reset"
+    "reset": "Reset",
+    "importDishesTitle": "Gerechten importeren via CSV",
+    "importIngredientsTitle": "Gerechtingrediënten importeren via CSV",
+    "importModifierGroupsTitle": "Modifiergroepen van gerechten importeren via CSV"
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",

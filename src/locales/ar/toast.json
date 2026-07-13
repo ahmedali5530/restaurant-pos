@@ -119,7 +119,17 @@
     "selectCategoriesRequired": "اختر فئة واحدة على الأقل",
     "menuItemsUpdated": "تم تحديث {{count}} عنصر",
     "invalidCategories": "الفئات غير صالحة",
-    "passwordRequired": "كلمة المرور مطلوبة للمستخدم الجديد"
+    "passwordRequired": "كلمة المرور مطلوبة للمستخدم الجديد",
+    "invalidDishNumber": "رقم الطبق غير صالح",
+    "invalidIngredient": "المكون غير صالح",
+    "invalidIngredientType": "لا يمكن استخدام نوع المكون هذا في وصفات الأطباق",
+    "duplicateDishIngredient": "المكون مرتبط بالفعل بهذا الطبق",
+    "invalidQuantity": "الكمية غير صالحة",
+    "invalidCost": "التكلفة غير صالحة",
+    "invalidModifierGroup": "مجموعة المعدّلات غير صالحة",
+    "duplicateDishModifierGroup": "مجموعة المعدّلات مرتبطة بالفعل بهذا الطبق",
+    "invalidPriority": "الأولوية غير صالحة",
+    "invalidRequiredModifiers": "قيمة المعدّلات المطلوبة غير صالحة"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} قيد الاستخدام وتم تعطيله.",

@@ -83,7 +83,12 @@
     "tables": "Mesas",
     "printers": "Impresoras",
     "yes": "Sí",
-    "no": "No"
+    "no": "No",
+    "ingredient": "Ingrediente",
+    "isPriceLocked": "Precio bloqueado",
+    "hasRequiredModifiers": "Tiene modificadores requeridos",
+    "shouldAutoOpen": "Abrir automáticamente",
+    "shouldAutoSelect": "Seleccionar automáticamente"
   },
   "entities": {
     "dish": "Plato",
@@ -133,7 +138,9 @@
     "zoomOut": "Alejar",
     "resetZoom": "Restablecer zoom",
     "arrangeTables": "Organizar mesas",
-    "updateSelected": "Actualizar seleccionados"
+    "updateSelected": "Actualizar seleccionados",
+    "importIngredients": "Importar ingredientes",
+    "importModifierGroups": "Importar grupos de modificadores"
   },
   "delete": {
     "dish": "Eliminar artículo {{name}}",
@@ -309,7 +316,10 @@
     "nestedModifierPrices": "Anidado: {{name}}",
     "templatePrice": "Precio de plantilla",
     "resetModifierPrices": "Restablecer a plantilla",
-    "reset": "Restablecer"
+    "reset": "Restablecer",
+    "importDishesTitle": "Importar platos desde CSV",
+    "importIngredientsTitle": "Importar ingredientes de platos desde CSV",
+    "importModifierGroupsTitle": "Importar grupos de modificadores de platos desde CSV"
   },
   "dishView": {
     "detailsTitle": "Detalles del plato",

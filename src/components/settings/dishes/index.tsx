@@ -10,13 +10,18 @@ import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {CsvUploadModal} from "@/components/common/table/csv.uploader.tsx";
 import {useDB} from "@/api/db/db.ts";
-import {cn, toRecordId} from "@/lib/utils.ts";
+import {toRecordId} from "@/lib/utils.ts";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {DishView} from "@/components/settings/dishes/dish.view.tsx";
 import {DishBulkForm} from "@/components/settings/dishes/dish.bulk.form.tsx";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
+import {canUseInDishRecipe} from "@/utils/inventoryItemTypes.ts";
+import {StringRecordId} from "surrealdb";
+
+const parseCsvBool = (value?: string) =>
+  ['true', '1', 'yes'].includes((value ?? '').trim().toLowerCase());
 
 export const AdminDishes = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
@@ -34,11 +39,26 @@ export const AdminDishes = () => {
   const [formModal, setFormModal] = useState(false);
   const [viewModal, setViewModal] = useState(false);
   const [dishImportModal, setImportModal] = useState(false);
+  const [ingredientsImportModal, setIngredientsImportModal] = useState(false);
+  const [modifierGroupsImportModal, setModifierGroupsImportModal] = useState(false);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [bulkEdit, setBulkEdit] = useState({
     state: false,
     data: [] as Dish[]
   });
+
+  const resolveDishByNumber = async (dishNumber: string) => {
+    const [dishes] = await db.query(
+      `SELECT id, items FROM ${Tables.dishes} WHERE number = $number AND deleted_at = none`,
+      {number: dishNumber.trim()}
+    );
+
+    if (!dishes?.length) {
+      throw new Error(t('toast:admin.invalidDishNumber'));
+    }
+
+    return dishes[0];
+  };
 
   const columnHelper = createColumnHelper<Dish & {
     modifiers: [{ out: { name: string} }],
@@ -203,6 +223,12 @@ export const AdminDishes = () => {
             setImportModal(true);
           }} icon={faUpload}>{t('buttons.importDishes')}</Button>,
           <Button variant="primary" onClick={() => {
+            setIngredientsImportModal(true);
+          }} icon={faUpload}>{t('buttons.importIngredients')}</Button>,
+          <Button variant="primary" onClick={() => {
+            setModifierGroupsImportModal(true);
+          }} icon={faUpload}>{t('buttons.importModifierGroups')}</Button>,
+          <Button variant="primary" onClick={() => {
             setFormModal(true);
           }} icon={faPlus}>{t('buttons.dish')}</Button>
         ]}
@@ -253,6 +279,7 @@ export const AdminDishes = () => {
         <CsvUploadModal
           isOpen={true}
           onClose={() => setImportModal(false)}
+          title={t('forms.importDishesTitle')}
           fields={[{
             name: 'name',
             label: t('columns.name')
@@ -299,6 +326,188 @@ export const AdminDishes = () => {
             } catch (e) {
               throw new Error(e)
             }
+          }}
+          onDone={() => loadHook.fetchData()}
+        />
+      )}
+
+      {ingredientsImportModal && (
+        <CsvUploadModal
+          isOpen={true}
+          onClose={() => setIngredientsImportModal(false)}
+          title={t('forms.importIngredientsTitle')}
+          fields={[{
+            name: 'dish_number',
+            label: `${t('buttons.dish')} ${t('columns.number')}`
+          }, {
+            name: 'ingredient',
+            label: t('columns.ingredient')
+          }, {
+            name: 'quantity',
+            label: t('forms.quantity')
+          }, {
+            name: 'cost',
+            label: t('columns.costPrice')
+          }, {
+            name: 'is_price_locked',
+            label: t('columns.isPriceLocked')
+          }]}
+          onCreateRow={async (rowData) => {
+            const dish = await resolveDishByNumber(rowData.dish_number);
+            const dishId = toRecordId(dish.id);
+            const ingredientKey = rowData.ingredient?.trim();
+
+            if (!ingredientKey) {
+              throw new Error(t('toast:admin.invalidIngredient'));
+            }
+
+            const [byCode] = await db.query(
+              `SELECT id, name, code, price, item_types, item_type FROM ${Tables.inventory_items} WHERE code = $key`,
+              {key: ingredientKey}
+            );
+            let inventoryItem = byCode?.[0];
+
+            if (!inventoryItem) {
+              const [byName] = await db.query(
+                `SELECT id, name, code, price, item_types, item_type FROM ${Tables.inventory_items} WHERE name = $key`,
+                {key: ingredientKey}
+              );
+              inventoryItem = byName?.[0];
+            }
+
+            if (!inventoryItem) {
+              throw new Error(t('toast:admin.invalidIngredient'));
+            }
+
+            if (!canUseInDishRecipe(inventoryItem)) {
+              throw new Error(t('toast:admin.invalidIngredientType'));
+            }
+
+            const itemId = toRecordId(inventoryItem.id);
+            const [existing] = await db.query(
+              `SELECT count() AS count FROM ${Tables.dishes_recipes} WHERE menu_item = $dish AND item = $item GROUP ALL`,
+              {dish: dishId, item: itemId}
+            );
+
+            if ((existing?.[0]?.count ?? 0) > 0) {
+              throw new Error(t('toast:admin.duplicateDishIngredient'));
+            }
+
+            const quantity = Number(rowData.quantity);
+            if (!Number.isFinite(quantity) || quantity <= 0) {
+              throw new Error(t('toast:admin.invalidQuantity'));
+            }
+
+            const costValue = rowData.cost?.trim()
+              ? Number(rowData.cost)
+              : Number(inventoryItem.price ?? 0);
+            if (!Number.isFinite(costValue) || costValue < 0) {
+              throw new Error(t('toast:admin.invalidCost'));
+            }
+
+            const [recipeRecord] = await db.create(Tables.dishes_recipes, {
+              menu_item: dishId,
+              item: new StringRecordId(itemId.toString()),
+              quantity,
+              cost: costValue,
+              is_price_locked: parseCsvBool(rowData.is_price_locked),
+            });
+
+            const existingItems = Array.isArray(dish.items) ? dish.items : [];
+            await db.merge(dishId, {
+              items: [...existingItems.map((id: any) => toRecordId(id)), toRecordId(recipeRecord.id)],
+            });
+          }}
+          onDone={() => loadHook.fetchData()}
+        />
+      )}
+
+      {modifierGroupsImportModal && (
+        <CsvUploadModal
+          isOpen={true}
+          onClose={() => setModifierGroupsImportModal(false)}
+          title={t('forms.importModifierGroupsTitle')}
+          fields={[{
+            name: 'dish_number',
+            label: `${t('buttons.dish')} ${t('columns.number')}`
+          }, {
+            name: 'modifier_group',
+            label: t('columns.modifierGroups')
+          }, {
+            name: 'priority',
+            label: t('columns.priority')
+          }, {
+            name: 'has_required_modifiers',
+            label: t('columns.hasRequiredModifiers')
+          }, {
+            name: 'required_modifiers',
+            label: t('forms.requiredModifiers')
+          }, {
+            name: 'should_auto_open',
+            label: t('columns.shouldAutoOpen')
+          }, {
+            name: 'should_auto_select',
+            label: t('columns.shouldAutoSelect')
+          }]}
+          onCreateRow={async (rowData) => {
+            const dish = await resolveDishByNumber(rowData.dish_number);
+            const dishId = toRecordId(dish.id);
+            const groupName = rowData.modifier_group?.trim();
+
+            if (!groupName) {
+              throw new Error(t('toast:admin.invalidModifierGroup'));
+            }
+
+            const [groups] = await db.query(
+              `SELECT id FROM ${Tables.modifier_groups} WHERE name = $name AND deleted_at = none`,
+              {name: groupName}
+            );
+
+            if (!groups?.length) {
+              throw new Error(t('toast:admin.invalidModifierGroup'));
+            }
+
+            const groupId = toRecordId(groups[0].id);
+            const [existing] = await db.query(
+              `SELECT count() AS count FROM ${Tables.dish_modifier_groups} WHERE in = $dish AND out = $group GROUP ALL`,
+              {dish: dishId, group: groupId}
+            );
+
+            if ((existing?.[0]?.count ?? 0) > 0) {
+              throw new Error(t('toast:admin.duplicateDishModifierGroup'));
+            }
+
+            const priority = Number(rowData.priority);
+            if (!Number.isFinite(priority)) {
+              throw new Error(t('toast:admin.invalidPriority'));
+            }
+
+            const hasRequiredModifiers = parseCsvBool(rowData.has_required_modifiers);
+            const requiredModifiers = rowData.required_modifiers?.trim()
+              ? Number(rowData.required_modifiers)
+              : 0;
+
+            if (!Number.isFinite(requiredModifiers) || requiredModifiers < 0) {
+              throw new Error(t('toast:admin.invalidRequiredModifiers'));
+            }
+
+            await db.query(
+              `RELATE $dish->${Tables.dish_modifier_groups}->$group
+               SET has_required_modifiers = $has_required_modifiers,
+                   should_auto_open = $should_auto_open,
+                   required_modifiers = $required_modifiers,
+                   should_auto_select = $should_auto_select,
+                   priority = $priority`,
+              {
+                dish: dishId,
+                group: groupId,
+                has_required_modifiers: hasRequiredModifiers,
+                should_auto_open: parseCsvBool(rowData.should_auto_open),
+                required_modifiers: requiredModifiers,
+                should_auto_select: parseCsvBool(rowData.should_auto_select),
+                priority,
+              }
+            );
           }}
           onDone={() => loadHook.fetchData()}
         />

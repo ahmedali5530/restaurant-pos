@@ -83,7 +83,12 @@
     "tables": "Tische",
     "printers": "Drucker",
     "yes": "Ja",
-    "no": "Nein"
+    "no": "Nein",
+    "ingredient": "Zutat",
+    "isPriceLocked": "Preis gesperrt",
+    "hasRequiredModifiers": "Erforderliche Modifier",
+    "shouldAutoOpen": "Automatisch öffnen",
+    "shouldAutoSelect": "Automatisch auswählen"
   },
   "entities": {
     "dish": "Gericht",
@@ -133,7 +138,9 @@
     "zoomOut": "Verkleinern",
     "resetZoom": "Zoom zurücksetzen",
     "arrangeTables": "Tische anordnen",
-    "updateSelected": "Ausgewählte aktualisieren"
+    "updateSelected": "Ausgewählte aktualisieren",
+    "importIngredients": "Zutaten importieren",
+    "importModifierGroups": "Modifier-Gruppen importieren"
   },
   "delete": {
     "dish": "Artikel {{name}} löschen",
@@ -309,7 +316,10 @@
     "nestedModifierPrices": "Verschachtelt: {{name}}",
     "templatePrice": "Vorlagenpreis",
     "resetModifierPrices": "Auf Vorlage zurücksetzen",
-    "reset": "Zurücksetzen"
+    "reset": "Zurücksetzen",
+    "importDishesTitle": "Gerichte per CSV importieren",
+    "importIngredientsTitle": "Gerichtszutaten per CSV importieren",
+    "importModifierGroupsTitle": "Modifier-Gruppen für Gerichte per CSV importieren"
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",

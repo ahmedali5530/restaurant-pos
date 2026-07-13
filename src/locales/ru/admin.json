@@ -83,7 +83,12 @@
     "tables": "Столы",
     "printers": "Принтеры",
     "yes": "Да",
-    "no": "Нет"
+    "no": "Нет",
+    "ingredient": "Ингредиент",
+    "isPriceLocked": "Цена зафиксирована",
+    "hasRequiredModifiers": "Есть обязательные модификаторы",
+    "shouldAutoOpen": "Автооткрытие",
+    "shouldAutoSelect": "Автовыбор"
   },
   "entities": {
     "dish": "Блюдо",
@@ -133,7 +138,9 @@
     "zoomOut": "Уменьшить",
     "resetZoom": "Сбросить масштаб",
     "arrangeTables": "Расставить столы",
-    "updateSelected": "Обновить выбранные"
+    "updateSelected": "Обновить выбранные",
+    "importIngredients": "Импорт ингредиентов",
+    "importModifierGroups": "Импорт групп модификаторов"
   },
   "delete": {
     "dish": "Удалить позицию {{name}}",
@@ -309,7 +316,10 @@
     "nestedModifierPrices": "Вложенные: {{name}}",
     "templatePrice": "Цена шаблона",
     "resetModifierPrices": "Сбросить к шаблону",
-    "reset": "Сбросить"
+    "reset": "Сбросить",
+    "importDishesTitle": "Импорт блюд из CSV",
+    "importIngredientsTitle": "Импорт ингредиентов блюд из CSV",
+    "importModifierGroupsTitle": "Импорт групп модификаторов блюд из CSV"
   },
   "dishView": {
     "detailsTitle": "Детали блюда",

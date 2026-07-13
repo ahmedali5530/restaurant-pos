@@ -83,7 +83,12 @@
     "tables": "Tables",
     "printers": "Printers",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "ingredient": "Ingredient",
+    "isPriceLocked": "Price locked",
+    "hasRequiredModifiers": "Has required modifiers",
+    "shouldAutoOpen": "Auto open",
+    "shouldAutoSelect": "Auto select"
   },
   "entities": {
     "dish": "Dish",
@@ -133,7 +138,9 @@
     "zoomOut": "Zoom out",
     "resetZoom": "Reset zoom",
     "arrangeTables": "Arrange tables",
-    "updateSelected": "Update selected"
+    "updateSelected": "Update selected",
+    "importIngredients": "Import Ingredients",
+    "importModifierGroups": "Import Modifier Groups"
   },
   "delete": {
     "dish": "Delete item {{name}}",
@@ -329,7 +336,10 @@
     "reset": "Reset",
     "deliveryOnly": "Delivery only",
     "applyToAllSwitch": "Apply to all",
-    "showCategoryInMenu": "Show this category in menu"
+    "showCategoryInMenu": "Show this category in menu",
+    "importDishesTitle": "Import dishes from CSV",
+    "importIngredientsTitle": "Import dish ingredients from CSV",
+    "importModifierGroupsTitle": "Import dish modifier groups from CSV"
   },
   "dishView": {
     "detailsTitle": "Dish details",

@@ -119,7 +119,17 @@
     "selectCategoriesRequired": "Select at least one category",
     "menuItemsUpdated": "Updated {{count}} item(s)",
     "invalidCategories": "Categories are invalid",
-    "passwordRequired": "Password is required for new user"
+    "passwordRequired": "Password is required for new user",
+    "invalidDishNumber": "Dish number is invalid",
+    "invalidIngredient": "Ingredient is invalid",
+    "invalidIngredientType": "Ingredient type cannot be used in dish recipes",
+    "duplicateDishIngredient": "Ingredient is already attached to this dish",
+    "invalidQuantity": "Quantity is invalid",
+    "invalidCost": "Cost is invalid",
+    "invalidModifierGroup": "Modifier group is invalid",
+    "duplicateDishModifierGroup": "Modifier group is already attached to this dish",
+    "invalidPriority": "Priority is invalid",
+    "invalidRequiredModifiers": "Required modifiers value is invalid"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} is in use and was deactivated.",

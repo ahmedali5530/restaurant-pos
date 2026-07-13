@@ -119,7 +119,17 @@
     "selectCategoriesRequired": "Selecteer minstens één categorie",
     "menuItemsUpdated": "{{count}} item(s) bijgewerkt",
     "invalidCategories": "Categorieën zijn ongeldig",
-    "passwordRequired": "Wachtwoord is verplicht voor nieuwe gebruiker"
+    "passwordRequired": "Wachtwoord is verplicht voor nieuwe gebruiker",
+    "invalidDishNumber": "Gerechtnummer is ongeldig",
+    "invalidIngredient": "Ingrediënt is ongeldig",
+    "invalidIngredientType": "Dit ingrediënttype kan niet in recepten worden gebruikt",
+    "duplicateDishIngredient": "Ingrediënt is al gekoppeld aan dit gerecht",
+    "invalidQuantity": "Hoeveelheid is ongeldig",
+    "invalidCost": "Kostprijs is ongeldig",
+    "invalidModifierGroup": "Modifiergroep is ongeldig",
+    "duplicateDishModifierGroup": "Modifiergroep is al gekoppeld aan dit gerecht",
+    "invalidPriority": "Prioriteit is ongeldig",
+    "invalidRequiredModifiers": "Waarde voor verplichte modifiers is ongeldig"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} is in gebruik en is gedeactiveerd.",

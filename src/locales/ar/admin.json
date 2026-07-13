@@ -83,7 +83,12 @@
     "tables": "الطاولات",
     "printers": "الطابعات",
     "yes": "نعم",
-    "no": "لا"
+    "no": "لا",
+    "ingredient": "مكون",
+    "isPriceLocked": "السعر مقفل",
+    "hasRequiredModifiers": "يحتوي على معدّلات مطلوبة",
+    "shouldAutoOpen": "فتح تلقائي",
+    "shouldAutoSelect": "اختيار تلقائي"
   },
   "entities": {
     "dish": "طبق",
@@ -133,7 +138,9 @@
     "zoomOut": "تصغير",
     "resetZoom": "إعادة تعيين التكبير",
     "arrangeTables": "ترتيب الطاولات",
-    "updateSelected": "تحديث المحدد"
+    "updateSelected": "تحديث المحدد",
+    "importIngredients": "استيراد المكونات",
+    "importModifierGroups": "استيراد مجموعات المعدّلات"
   },
   "delete": {
     "dish": "حذف الصنف {{name}}",
@@ -309,7 +316,10 @@
     "nestedModifierPrices": "متداخل: {{name}}",
     "templatePrice": "سعر القالب",
     "resetModifierPrices": "إعادة إلى القالب",
-    "reset": "إعادة"
+    "reset": "إعادة",
+    "importDishesTitle": "استيراد الأطباق من CSV",
+    "importIngredientsTitle": "استيراد مكونات الأطباق من CSV",
+    "importModifierGroupsTitle": "استيراد مجموعات معدّلات الأطباق من CSV"
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",

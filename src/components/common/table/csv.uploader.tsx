@@ -43,6 +43,9 @@ type CsvUploadModalProps = {
   /** Close handler */
   onClose: () => void;
 
+  /** Modal title describing what is being imported */
+  title?: string;
+
   /** Fields you want to create per row (these become object keys) */
   fields: CsvFieldConfig[];
 
@@ -61,6 +64,7 @@ type CsvUploadModalProps = {
 export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
   isOpen,
   onClose,
+  title = "Upload records using CSV",
   fields,
   onCreateRow,
   onDone
@@ -225,7 +229,7 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
       open={true}
       onClose={handleClose}
       size="xl"
-      title="Upload records using CSV"
+      title={title}
     >
       <div className="space-y-4 px-6 py-4">
         {/* File input */}

@@ -119,7 +119,17 @@
     "selectCategoriesRequired": "Выберите хотя бы одну категорию",
     "menuItemsUpdated": "Обновлено позиций: {{count}}",
     "invalidCategories": "Категории недействительны",
-    "passwordRequired": "Для нового пользователя требуется пароль"
+    "passwordRequired": "Для нового пользователя требуется пароль",
+    "invalidDishNumber": "Номер блюда недействителен",
+    "invalidIngredient": "Ингредиент недействителен",
+    "invalidIngredientType": "Этот тип ингредиента нельзя использовать в рецептах",
+    "duplicateDishIngredient": "Ингредиент уже привязан к этому блюду",
+    "invalidQuantity": "Количество недействительно",
+    "invalidCost": "Себестоимость недействительна",
+    "invalidModifierGroup": "Группа модификаторов недействительна",
+    "duplicateDishModifierGroup": "Группа модификаторов уже привязана к этому блюду",
+    "invalidPriority": "Приоритет недействителен",
+    "invalidRequiredModifiers": "Значение обязательных модификаторов недействительно"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} используется и был деактивирован.",
