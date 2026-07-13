@@ -21,6 +21,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {CategoryForm} from "@/components/settings/categories/category.form.tsx";
 import {ModifierGroupForm} from "@/components/settings/modifier_groups/modifier_group.form.tsx";
+import {WorkflowForm} from "@/components/settings/workflows/workflow.form.tsx";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {canUseInDishRecipe} from "@/utils/inventoryItemTypes.ts";
 import {StringRecordId, type RecordId} from "surrealdb";
@@ -100,6 +101,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
   };
   const [categoriesModal, setCategoriesModal] = useState(false);
   const [modifierGroupsModal, setModifierGroupsModal] = useState(false);
+  const [workflowModal, setWorkflowModal] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoData, setPhotoData] = useState<ArrayBuffer | null>(null);
 
@@ -351,25 +353,36 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                   )}
                 />
               </div>
-              <div className="flex-1">
-                <label>Workflow (clear the selection to remove the workflow / use legacy routing)</label>
-                <Controller
-                  name="workflow"
-                  control={control}
-                  render={({field}) => (
-                    <ReactSelect
-                      isClearable
-                      value={field.value}
-                      onChange={field.onChange}
-                      isLoading={loadingWorkflows}
-                      isDisabled={!replaceWorkflow}
-                      options={workflows?.data?.map((item) => ({
-                        label: item.name,
-                        value: item.id.toString()
-                      }))}
-                    />
-                  )}
-                />
+              <div className="flex gap-2 items-end">
+                <div className="flex-1">
+                  <label>Workflow (clear the selection to remove the workflow / use legacy routing)</label>
+                  <Controller
+                    name="workflow"
+                    control={control}
+                    render={({field}) => (
+                      <ReactSelect
+                        isClearable
+                        value={field.value}
+                        onChange={field.onChange}
+                        isLoading={loadingWorkflows}
+                        isDisabled={!replaceWorkflow}
+                        options={workflows?.data?.map((item) => ({
+                          label: item.name,
+                          value: item.id.toString()
+                        }))}
+                      />
+                    )}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="primary"
+                  iconButton
+                  disabled={!replaceWorkflow}
+                  onClick={() => setWorkflowModal(true)}
+                >
+                  <FontAwesomeIcon icon={faPlus}/>
+                </Button>
               </div>
             </fieldset>
           </div>
@@ -721,6 +734,16 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
           onClose={() => {
             setModifierGroupsModal(false);
             fetchModifierGroups();
+          }}
+        />
+      )}
+
+      {workflowModal && (
+        <WorkflowForm
+          open={true}
+          onClose={() => {
+            fetchWorkflows();
+            setWorkflowModal(false);
           }}
         />
       )}

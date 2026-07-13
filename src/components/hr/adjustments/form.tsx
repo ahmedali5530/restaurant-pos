@@ -1,4 +1,4 @@
-import {useEffect, useMemo} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {useForm} from "react-hook-form";
 import {useTranslation} from "react-i18next";
 import * as yup from "yup";
@@ -26,6 +26,7 @@ import {
   toSelectOption,
 } from "@/components/hr/shared/form.utils.ts";
 import {LaborAdjustmentType} from "@/api/model/hr.types.ts";
+import {PayrollPeriodForm} from "@/components/hr/payroll_periods/form.tsx";
 
 const ADJUSTMENT_TYPES: LaborAdjustmentType[] = [
   "bonus", "penalty", "allowance", "reimbursement", "advance", "loan", "correction", "deduction",
@@ -157,55 +158,70 @@ export const AdjustmentForm = ({open, onClose, data}: Props) => {
     }
   };
 
+  const [payrollPeriodModal, setPayrollPeriodModal] = useState(false);
+
   return (
-    <Modal title={data ? t("forms.adjustment.update") : t("forms.adjustment.create")} open={open} onClose={closeModal} size="lg">
-      <form onSubmit={handleSubmit(onSubmit, (errs) => {
-        const message = firstFormError(errs);
-        if (message) toast.error(message);
-      })}>
-        <input type="hidden" {...register("id")} />
-        <div className="flex flex-col gap-3 mb-3">
-          <HrSelectField
-            label={t("forms.adjustment.employee")}
-            name="employee"
-            control={control}
-            options={employeeOptions}
-            isClearable={false}
-            error={errors.employee?.message}
-          />
-          <HrSelectField
-            label={t("forms.adjustment.payrollPeriod")}
-            name="payroll_period"
-            control={control}
-            options={periodOptions}
-            error={errors.payroll_period?.message}
-          />
-          <HrStringSelectField
-            label={t("forms.adjustment.type")}
-            name="type"
-            control={control}
-            options={adjustmentTypeOptions}
-            error={errors.type?.message}
-          />
-          <p className="text-sm text-neutral-600">{t("forms.adjustment.signHint")}</p>
-          <div>
-            <Input type="number" step="0.01" label={t("forms.adjustment.amount")} {...register("amount", {valueAsNumber: true})} error={errors.amount?.message}/>
+    <>
+      <Modal title={data ? t("forms.adjustment.update") : t("forms.adjustment.create")} open={open} onClose={closeModal} size="lg">
+        <form onSubmit={handleSubmit(onSubmit, (errs) => {
+          const message = firstFormError(errs);
+          if (message) toast.error(message);
+        })}>
+          <input type="hidden" {...register("id")} />
+          <div className="flex flex-col gap-3 mb-3">
+            <HrSelectField
+              label={t("forms.adjustment.employee")}
+              name="employee"
+              control={control}
+              options={employeeOptions}
+              isClearable={false}
+              error={errors.employee?.message}
+            />
+            <HrSelectField
+              label={t("forms.adjustment.payrollPeriod")}
+              name="payroll_period"
+              control={control}
+              options={periodOptions}
+              error={errors.payroll_period?.message}
+              onAdd={() => setPayrollPeriodModal(true)}
+            />
+            <HrStringSelectField
+              label={t("forms.adjustment.type")}
+              name="type"
+              control={control}
+              options={adjustmentTypeOptions}
+              error={errors.type?.message}
+            />
+            <p className="text-sm text-neutral-600">{t("forms.adjustment.signHint")}</p>
+            <div>
+              <Input type="number" step="0.01" label={t("forms.adjustment.amount")} {...register("amount", {valueAsNumber: true})} error={errors.amount?.message}/>
+            </div>
+            <div>
+              <Input label={t("forms.adjustment.currency")} {...register("currency")}/>
+            </div>
+            <HrDateField
+              label={t("forms.adjustment.effectiveDate")}
+              name="effective_date"
+              control={control}
+              error={errors.effective_date?.message}
+            />
+            <div>
+              <Input label={t("forms.adjustment.description")} {...register("description")}/>
+            </div>
           </div>
-          <div>
-            <Input label={t("forms.adjustment.currency")} {...register("currency")}/>
-          </div>
-          <HrDateField
-            label={t("forms.adjustment.effectiveDate")}
-            name="effective_date"
-            control={control}
-            error={errors.effective_date?.message}
-          />
-          <div>
-            <Input label={t("forms.adjustment.description")} {...register("description")}/>
-          </div>
-        </div>
-        <Button type="submit" variant="primary">{t("buttons.save")}</Button>
-      </form>
-    </Modal>
+          <Button type="submit" variant="primary">{t("buttons.save")}</Button>
+        </form>
+      </Modal>
+
+      {payrollPeriodModal && (
+        <PayrollPeriodForm
+          open
+          onClose={() => {
+            periodsHook.fetchData();
+            setPayrollPeriodModal(false);
+          }}
+        />
+      )}
+    </>
   );
 };

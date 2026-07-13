@@ -7,7 +7,7 @@ import { Tables } from "@/api/db/tables.ts";
 import { toast } from 'sonner';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useMemo,  useEffect  } from "react";
+import { useEffect, useState } from "react";
 import { Table } from "@/api/model/table.ts";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
@@ -19,6 +19,12 @@ import { Switch } from "@/components/common/input/switch.tsx";
 import {useTranslation} from 'react-i18next';
 import i18n from '@/lib/i18n.ts';
 import { StringRecordId } from "surrealdb";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { FloorForm } from "@/components/settings/floors/floor.form.tsx";
+import { CategoryForm } from "@/components/settings/categories/category.form.tsx";
+import { OrderTypeForm } from "@/components/settings/order_types/order_type.form.tsx";
+import { PaymentTypeForm } from "@/components/settings/payment_types/payment_type.form.tsx";
 
 interface Props {
   open: boolean
@@ -140,6 +146,11 @@ export const TableBulkForm = ({
     }
   }
 
+  const [floorModal, setFloorModal] = useState(false);
+  const [categoriesModal, setCategoriesModal] = useState(false);
+  const [orderTypesModal, setOrderTypesModal] = useState(false);
+  const [paymentTypesModal, setPaymentTypesModal] = useState(false);
+
   useEffect(() => {
     if(open){
       fetchFloors();
@@ -181,7 +192,7 @@ export const TableBulkForm = ({
             </div>
           </div>
 
-          <div className="flex gap-3 mb-3">
+          <div className="flex gap-3 mb-3 items-end">
             <div className="flex-1">
               <label htmlFor="">{t('columns.floor')}</label>
               <Controller
@@ -201,9 +212,12 @@ export const TableBulkForm = ({
               />
               <InputError error={errors?.floor?.message} />
             </div>
+            <Button type="button" variant="primary" iconButton onClick={() => setFloorModal(true)}>
+              <FontAwesomeIcon icon={faPlus}/>
+            </Button>
           </div>
 
-          <div className="flex gap-3 mb-3">
+          <div className="flex gap-3 mb-3 items-end">
             <div className="flex-1">
               <label htmlFor="">{t('columns.categories')}</label>
               <Controller
@@ -223,8 +237,11 @@ export const TableBulkForm = ({
                 control={control}
               />
             </div>
+            <Button type="button" variant="primary" iconButton onClick={() => setCategoriesModal(true)}>
+              <FontAwesomeIcon icon={faPlus}/>
+            </Button>
           </div>
-          <div className="flex gap-3 mb-3">
+          <div className="flex gap-3 mb-3 items-end">
             <div className="flex-1">
               <label htmlFor="">{t('columns.orderTypes')}</label>
               <Controller
@@ -244,8 +261,11 @@ export const TableBulkForm = ({
                 control={control}
               />
             </div>
+            <Button type="button" variant="primary" iconButton onClick={() => setOrderTypesModal(true)}>
+              <FontAwesomeIcon icon={faPlus}/>
+            </Button>
           </div>
-          <div className="flex gap-3 mb-3">
+          <div className="flex gap-3 mb-3 items-end">
             <div className="flex-1">
               <label htmlFor="">{t('columns.paymentTypes')}</label>
               <Controller
@@ -265,6 +285,9 @@ export const TableBulkForm = ({
                 control={control}
               />
             </div>
+            <Button type="button" variant="primary" iconButton onClick={() => setPaymentTypesModal(true)}>
+              <FontAwesomeIcon icon={faPlus}/>
+            </Button>
           </div>
 
           <div>
@@ -272,6 +295,43 @@ export const TableBulkForm = ({
           </div>
         </form>
       </Modal>
+
+      {floorModal && (
+        <FloorForm
+          open={true}
+          onClose={() => {
+            fetchFloors();
+            setFloorModal(false);
+          }}
+        />
+      )}
+      {categoriesModal && (
+        <CategoryForm
+          open={true}
+          onClose={() => {
+            fetchCategories();
+            setCategoriesModal(false);
+          }}
+        />
+      )}
+      {orderTypesModal && (
+        <OrderTypeForm
+          open={true}
+          onClose={() => {
+            fetchOrderTypes();
+            setOrderTypesModal(false);
+          }}
+        />
+      )}
+      {paymentTypesModal && (
+        <PaymentTypeForm
+          open={true}
+          onClose={() => {
+            fetchPaymentTypes();
+            setPaymentTypesModal(false);
+          }}
+        />
+      )}
     </>
   )
 }

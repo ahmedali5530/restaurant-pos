@@ -1,4 +1,4 @@
-import {useEffect, useMemo} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {useForm} from "react-hook-form";
 import {useTranslation} from "react-i18next";
 import * as yup from "yup";
@@ -22,6 +22,7 @@ import {
 import {generatePreview} from "@/lib/labor-engine/payroll/run.service.ts";
 import {appPage} from "@/store/jotai.ts";
 import {toRecordId} from "@/lib/utils.ts";
+import {PayrollPeriodForm} from "@/components/hr/payroll_periods/form.tsx";
 
 interface FormValues {
   payroll_period: SelectOption | null;
@@ -118,34 +119,49 @@ export const PayrollRunForm = ({open, onClose, onSuccess}: Props) => {
     }
   };
 
+  const [payrollPeriodModal, setPayrollPeriodModal] = useState(false);
+
   return (
-    <Modal title={t("buttons.runPayroll")} open={open} onClose={closeModal}>
-      <form
-        onSubmit={handleSubmit(onSubmit, (errs) => {
-          const message = firstFormError(errs);
-          if (message) toast.error(message);
-        })}
-      >
-        <div className="flex flex-col gap-3 mb-3">
-          <HrSelectField
-            label={t("tabs.payrollPeriods")}
-            name="payroll_period"
-            control={control}
-            options={periodOptions}
-            isClearable={false}
-            error={errors.payroll_period?.message}
-          />
-          <div>
-            <Input
-              type="number"
-              label={t("columns.runNumber")}
-              {...register("run_number", {valueAsNumber: true})}
-              error={errors.run_number?.message}
+    <>
+      <Modal title={t("buttons.runPayroll")} open={open} onClose={closeModal}>
+        <form
+          onSubmit={handleSubmit(onSubmit, (errs) => {
+            const message = firstFormError(errs);
+            if (message) toast.error(message);
+          })}
+        >
+          <div className="flex flex-col gap-3 mb-3">
+            <HrSelectField
+              label={t("tabs.payrollPeriods")}
+              name="payroll_period"
+              control={control}
+              options={periodOptions}
+              isClearable={false}
+              error={errors.payroll_period?.message}
+              onAdd={() => setPayrollPeriodModal(true)}
             />
+            <div>
+              <Input
+                type="number"
+                label={t("columns.runNumber")}
+                {...register("run_number", {valueAsNumber: true})}
+                error={errors.run_number?.message}
+              />
+            </div>
           </div>
-        </div>
-        <Button type="submit" variant="primary">{t("payroll.generate")}</Button>
-      </form>
-    </Modal>
+          <Button type="submit" variant="primary">{t("payroll.generate")}</Button>
+        </form>
+      </Modal>
+
+      {payrollPeriodModal && (
+        <PayrollPeriodForm
+          open
+          onClose={() => {
+            periodsHook.fetchData();
+            setPayrollPeriodModal(false);
+          }}
+        />
+      )}
+    </>
   );
 };

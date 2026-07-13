@@ -1,4 +1,4 @@
-import {useEffect, useMemo} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {useForm} from "react-hook-form";
 import {useTranslation} from "react-i18next";
 import * as yup from "yup";
@@ -30,6 +30,11 @@ import {
   createScheduledShift,
   updateScheduledShift,
 } from "@/lib/labor-engine/scheduling/schedule.service.ts";
+import {ScheduleForm} from "@/components/hr/scheduling/schedule.form.tsx";
+import {ShiftForm} from "@/components/settings/users/shifts/shift.form.tsx";
+import {DepartmentForm} from "@/components/hr/departments/form.tsx";
+import {PositionForm} from "@/components/hr/positions/form.tsx";
+import {CostCenterForm} from "@/components/hr/cost_centers/form.tsx";
 
 interface FormValues {
   id?: string;
@@ -226,88 +231,147 @@ export const ScheduledShiftForm = ({open, onClose, data, defaultSchedule}: Props
     }
   };
 
+  const [scheduleModal, setScheduleModal] = useState(false);
+  const [shiftTemplateModal, setShiftTemplateModal] = useState(false);
+  const [departmentModal, setDepartmentModal] = useState(false);
+  const [positionModal, setPositionModal] = useState(false);
+  const [costCenterModal, setCostCenterModal] = useState(false);
+
   return (
-    <Modal
-      title={data ? t("buttons.update") : t("scheduling.addShift")}
-      open={open}
-      onClose={closeModal}
-      size="lg"
-    >
-      <form onSubmit={handleSubmit(onSubmit, (errs) => {
-        const message = firstFormError(errs);
-        if (message) toast.error(message);
-      })}>
-        <input type="hidden" {...register("id")} />
-        <div className="flex flex-col gap-3 mb-3">
-          <HrSelectField
-            label={t("forms.schedule.workSchedule")}
-            name="work_schedule"
-            control={control}
-            options={scheduleOptions}
-            isClearable={false}
-            isLoading={schedulesHook.isLoading}
-            error={errors.work_schedule?.message}
-          />
-          <HrSelectField
-            label={t("forms.schedule.employee")}
-            name="employee"
-            control={control}
-            options={employeeOptions}
-            isClearable={false}
-            error={errors.employee?.message}
-          />
-          <HrSelectField
-            label={t("forms.schedule.shiftTemplate")}
-            name="shift_template"
-            control={control}
-            options={shiftTemplateOptions}
-            error={errors.shift_template?.message}
-          />
-          <HrSelectField
-            label={t("forms.schedule.department")}
-            name="department"
-            control={control}
-            options={departmentOptions}
-            error={errors.department?.message}
-          />
-          <HrSelectField
-            label={t("forms.schedule.position")}
-            name="position"
-            control={control}
-            options={positionOptions}
-            error={errors.position?.message}
-          />
-          <HrSelectField
-            label={t("forms.schedule.costCenter")}
-            name="cost_center"
-            control={control}
-            options={costCenterOptions}
-            error={errors.cost_center?.message}
-          />
-          <div className="flex gap-3">
-            <div className="flex-1">
-              <HrDateTimeField
-                label={t("forms.schedule.startAt")}
-                name="start_at"
-                control={control}
-                error={errors.start_at?.message}
-              />
+    <>
+      <Modal
+        title={data ? t("buttons.update") : t("scheduling.addShift")}
+        open={open}
+        onClose={closeModal}
+        size="lg"
+      >
+        <form onSubmit={handleSubmit(onSubmit, (errs) => {
+          const message = firstFormError(errs);
+          if (message) toast.error(message);
+        })}>
+          <input type="hidden" {...register("id")} />
+          <div className="flex flex-col gap-3 mb-3">
+            <HrSelectField
+              label={t("forms.schedule.workSchedule")}
+              name="work_schedule"
+              control={control}
+              options={scheduleOptions}
+              isClearable={false}
+              isLoading={schedulesHook.isLoading}
+              error={errors.work_schedule?.message}
+              onAdd={() => setScheduleModal(true)}
+            />
+            <HrSelectField
+              label={t("forms.schedule.employee")}
+              name="employee"
+              control={control}
+              options={employeeOptions}
+              isClearable={false}
+              error={errors.employee?.message}
+            />
+            <HrSelectField
+              label={t("forms.schedule.shiftTemplate")}
+              name="shift_template"
+              control={control}
+              options={shiftTemplateOptions}
+              error={errors.shift_template?.message}
+              onAdd={() => setShiftTemplateModal(true)}
+            />
+            <HrSelectField
+              label={t("forms.schedule.department")}
+              name="department"
+              control={control}
+              options={departmentOptions}
+              error={errors.department?.message}
+              onAdd={() => setDepartmentModal(true)}
+            />
+            <HrSelectField
+              label={t("forms.schedule.position")}
+              name="position"
+              control={control}
+              options={positionOptions}
+              error={errors.position?.message}
+              onAdd={() => setPositionModal(true)}
+            />
+            <HrSelectField
+              label={t("forms.schedule.costCenter")}
+              name="cost_center"
+              control={control}
+              options={costCenterOptions}
+              error={errors.cost_center?.message}
+              onAdd={() => setCostCenterModal(true)}
+            />
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <HrDateTimeField
+                  label={t("forms.schedule.startAt")}
+                  name="start_at"
+                  control={control}
+                  error={errors.start_at?.message}
+                />
+              </div>
+              <div className="flex-1">
+                <HrDateTimeField
+                  label={t("forms.schedule.endAt")}
+                  name="end_at"
+                  control={control}
+                  error={errors.end_at?.message}
+                />
+              </div>
             </div>
-            <div className="flex-1">
-              <HrDateTimeField
-                label={t("forms.schedule.endAt")}
-                name="end_at"
-                control={control}
-                error={errors.end_at?.message}
-              />
+            <div>
+              <Input label={t("forms.schedule.notes")} {...register("notes")}/>
             </div>
           </div>
-          <div>
-            <Input label={t("forms.schedule.notes")} {...register("notes")}/>
-          </div>
-        </div>
-        <Button type="submit" variant="primary">{t("buttons.save")}</Button>
-      </form>
-    </Modal>
+          <Button type="submit" variant="primary">{t("buttons.save")}</Button>
+        </form>
+      </Modal>
+
+      {scheduleModal && (
+        <ScheduleForm
+          open
+          onClose={() => {
+            schedulesHook.fetchData();
+            setScheduleModal(false);
+          }}
+        />
+      )}
+      {shiftTemplateModal && (
+        <ShiftForm
+          open
+          onClose={() => {
+            shiftsHook.fetchData();
+            setShiftTemplateModal(false);
+          }}
+        />
+      )}
+      {departmentModal && (
+        <DepartmentForm
+          open
+          onClose={() => {
+            departmentsHook.fetchData();
+            setDepartmentModal(false);
+          }}
+        />
+      )}
+      {positionModal && (
+        <PositionForm
+          open
+          onClose={() => {
+            positionsHook.fetchData();
+            setPositionModal(false);
+          }}
+        />
+      )}
+      {costCenterModal && (
+        <CostCenterForm
+          open
+          onClose={() => {
+            costCentersHook.fetchData();
+            setCostCenterModal(false);
+          }}
+        />
+      )}
+    </>
   );
 };

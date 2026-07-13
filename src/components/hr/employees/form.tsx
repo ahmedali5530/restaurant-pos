@@ -1,4 +1,4 @@
-import {useEffect, useMemo} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {useForm, Controller} from "react-hook-form";
 import {useTranslation} from "react-i18next";
 import * as yup from "yup";
@@ -27,6 +27,9 @@ import {
   toSelectOption,
 } from "@/components/hr/shared/form.utils.ts";
 import {EmploymentStatus, EmploymentType} from "@/api/model/hr.types.ts";
+import {DepartmentForm} from "@/components/hr/departments/form.tsx";
+import {PositionForm} from "@/components/hr/positions/form.tsx";
+import {CostCenterForm} from "@/components/hr/cost_centers/form.tsx";
 
 interface FormValues {
   id?: string;
@@ -234,108 +237,145 @@ export const EmployeeForm = ({open, onClose, data}: Props) => {
     }
   };
 
+  const [departmentModal, setDepartmentModal] = useState(false);
+  const [positionModal, setPositionModal] = useState(false);
+  const [costCenterModal, setCostCenterModal] = useState(false);
+
   return (
-    <Modal title={data ? t("forms.employee.update") : t("forms.employee.create")} open={open} onClose={closeModal} size="lg">
-      <form onSubmit={handleSubmit(onSubmit, (errs) => {
-        const message = firstFormError(errs);
-        if (message) toast.error(message);
-      })}>
-        {/*<input type="hidden" {...register("id")} />*/}
-        <div className="flex flex-col gap-3 mb-3">
-          <Input label={t("forms.employee.employeeNumber")} {...register("employee_number")} autoFocus error={errors.employee_number?.message}/>
-          <div className="flex gap-3">
-            <div className="flex-1">
-              <Input label={t("forms.employee.firstName")} {...register("first_name")} error={errors.first_name?.message}/>
+    <>
+      <Modal title={data ? t("forms.employee.update") : t("forms.employee.create")} open={open} onClose={closeModal} size="lg">
+        <form onSubmit={handleSubmit(onSubmit, (errs) => {
+          const message = firstFormError(errs);
+          if (message) toast.error(message);
+        })}>
+          {/*<input type="hidden" {...register("id")} />*/}
+          <div className="flex flex-col gap-3 mb-3">
+            <Input label={t("forms.employee.employeeNumber")} {...register("employee_number")} autoFocus error={errors.employee_number?.message}/>
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <Input label={t("forms.employee.firstName")} {...register("first_name")} error={errors.first_name?.message}/>
+              </div>
+              <div className="flex-1">
+                <Input label={t("forms.employee.lastName")} {...register("last_name")} error={errors.last_name?.message}/>
+              </div>
             </div>
-            <div className="flex-1">
-              <Input label={t("forms.employee.lastName")} {...register("last_name")} error={errors.last_name?.message}/>
-            </div>
-          </div>
-          <HrSelectField
-            label={t("forms.employee.linkedUser")}
-            name="user"
-            control={control}
-            options={userOptions}
-            error={errors.user?.message}
-          />
-          <HrSelectField
-            label={t("forms.employee.department")}
-            name="department"
-            control={control}
-            options={departmentOptions}
-            error={errors.department?.message}
-          />
-          <HrSelectField
-            label={t("forms.employee.position")}
-            name="position"
-            control={control}
-            options={positionOptions}
-            error={errors.position?.message}
-          />
-          <HrSelectField
-            label={t("forms.employee.costCenter")}
-            name="cost_center"
-            control={control}
-            options={costCenterOptions}
-            error={errors.cost_center?.message}
-          />
-          <HrSelectField
-            label={t("forms.employee.manager")}
-            name="manager"
-            control={control}
-            options={managerOptions}
-            error={errors.manager?.message}
-          />
-          <HrFormField label={t("forms.employee.employmentStatus")} error={errors.employment_status?.message}>
-            <Controller
+            <HrSelectField
+              label={t("forms.employee.linkedUser")}
+              name="user"
               control={control}
-              name="employment_status"
-              render={({field}) => (
-                <ReactSelect
-                  options={statusOptions}
-                  value={statusOptions.find((o) => o.value === field.value) ?? null}
-                  onChange={(opt) => field.onChange((opt as SelectOption | null)?.value)}
-                  isClearable={false}
-                />
-              )}
+              options={userOptions}
+              error={errors.user?.message}
             />
-          </HrFormField>
-          <HrFormField label={t("forms.employee.employmentType")} error={errors.employment_type?.message}>
-            <Controller
+            <HrSelectField
+              label={t("forms.employee.department")}
+              name="department"
               control={control}
-              name="employment_type"
-              render={({field}) => (
-                <ReactSelect
-                  options={typeOptions}
-                  value={typeOptions.find((o) => o.value === field.value) ?? null}
-                  onChange={(opt) => field.onChange((opt as SelectOption | null)?.value)}
-                  isClearable={false}
-                />
-              )}
+              options={departmentOptions}
+              error={errors.department?.message}
+              onAdd={() => setDepartmentModal(true)}
             />
-          </HrFormField>
-          <div className="flex gap-3">
-            <div className="flex-1">
-              <HrDateField
-                label={t("forms.employee.hireDate")}
-                name="hire_date"
+            <HrSelectField
+              label={t("forms.employee.position")}
+              name="position"
+              control={control}
+              options={positionOptions}
+              error={errors.position?.message}
+              onAdd={() => setPositionModal(true)}
+            />
+            <HrSelectField
+              label={t("forms.employee.costCenter")}
+              name="cost_center"
+              control={control}
+              options={costCenterOptions}
+              error={errors.cost_center?.message}
+              onAdd={() => setCostCenterModal(true)}
+            />
+            <HrSelectField
+              label={t("forms.employee.manager")}
+              name="manager"
+              control={control}
+              options={managerOptions}
+              error={errors.manager?.message}
+            />
+            <HrFormField label={t("forms.employee.employmentStatus")} error={errors.employment_status?.message}>
+              <Controller
                 control={control}
-                error={errors.hire_date?.message}
+                name="employment_status"
+                render={({field}) => (
+                  <ReactSelect
+                    options={statusOptions}
+                    value={statusOptions.find((o) => o.value === field.value) ?? null}
+                    onChange={(opt) => field.onChange((opt as SelectOption | null)?.value)}
+                    isClearable={false}
+                  />
+                )}
               />
-            </div>
-            <div className="flex-1">
-              <HrDateField
-                label={t("forms.employee.terminationDate")}
-                name="termination_date"
+            </HrFormField>
+            <HrFormField label={t("forms.employee.employmentType")} error={errors.employment_type?.message}>
+              <Controller
                 control={control}
-                error={errors.termination_date?.message}
+                name="employment_type"
+                render={({field}) => (
+                  <ReactSelect
+                    options={typeOptions}
+                    value={typeOptions.find((o) => o.value === field.value) ?? null}
+                    onChange={(opt) => field.onChange((opt as SelectOption | null)?.value)}
+                    isClearable={false}
+                  />
+                )}
               />
+            </HrFormField>
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <HrDateField
+                  label={t("forms.employee.hireDate")}
+                  name="hire_date"
+                  control={control}
+                  error={errors.hire_date?.message}
+                />
+              </div>
+              <div className="flex-1">
+                <HrDateField
+                  label={t("forms.employee.terminationDate")}
+                  name="termination_date"
+                  control={control}
+                  error={errors.termination_date?.message}
+                />
+              </div>
             </div>
+            <Input label={t("forms.employee.notes")} {...register("notes")}/>
           </div>
-          <Input label={t("forms.employee.notes")} {...register("notes")}/>
-        </div>
-        <Button type="submit" variant="primary">{t("buttons.save")}</Button>
-      </form>
-    </Modal>
+          <Button type="submit" variant="primary">{t("buttons.save")}</Button>
+        </form>
+      </Modal>
+
+      {departmentModal && (
+        <DepartmentForm
+          open={true}
+          onClose={() => {
+            departmentsHook.fetchData();
+            setDepartmentModal(false);
+          }}
+        />
+      )}
+      {positionModal && (
+        <PositionForm
+          open={true}
+          onClose={() => {
+            positionsHook.fetchData();
+            setPositionModal(false);
+          }}
+        />
+      )}
+      {costCenterModal && (
+        <CostCenterForm
+          open={true}
+          onClose={() => {
+            costCentersHook.fetchData();
+            setCostCenterModal(false);
+          }}
+        />
+      )}
+    </>
   );
 };

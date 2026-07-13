@@ -18,6 +18,9 @@ import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { Dish } from "@/api/model/dish.ts";
 import { StringRecordId } from "surrealdb";
 import { Checkbox } from "@/components/common/input/checkbox.tsx";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { PrinterForm } from "@/components/settings/printers/printer.form.tsx";
 
 interface Props {
   open: boolean
@@ -133,6 +136,8 @@ export const KitchenForm = ({
       fetchDishes();
     }
   }, [open]);
+
+  const [printersModal, setPrintersModal] = useState(false);
 
   return (
     <>
@@ -297,23 +302,28 @@ export const KitchenForm = ({
               />
             </div>
 
-            <div className="flex-1">
-              <label htmlFor="">Printers</label>
-              <Controller
-                render={({ field }) => (
-                  <ReactSelect
-                    value={field.value}
-                    onChange={field.onChange}
-                    options={printers?.data?.map(item => ({
-                      label: item.name,
-                      value: item.id.toString()
-                    }))}
-                    isMulti
-                  />
-                )}
-                name="printers"
-                control={control}
-              />
+            <div className="flex gap-2 items-end">
+              <div className="flex-1">
+                <label htmlFor="">Printers</label>
+                <Controller
+                  render={({ field }) => (
+                    <ReactSelect
+                      value={field.value}
+                      onChange={field.onChange}
+                      options={printers?.data?.map(item => ({
+                        label: item.name,
+                        value: item.id.toString()
+                      }))}
+                      isMulti
+                    />
+                  )}
+                  name="printers"
+                  control={control}
+                />
+              </div>
+              <Button type="button" variant="primary" iconButton onClick={() => setPrintersModal(true)}>
+                <FontAwesomeIcon icon={faPlus}/>
+              </Button>
             </div>
             <div className="flex-1">
               <Controller
@@ -336,6 +346,16 @@ export const KitchenForm = ({
           </div>
         </form>
       </Modal>
+
+      {printersModal && (
+        <PrinterForm
+          open={true}
+          onClose={() => {
+            fetchPrinters();
+            setPrintersModal(false);
+          }}
+        />
+      )}
     </>
   )
 }

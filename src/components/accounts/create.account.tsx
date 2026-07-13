@@ -17,6 +17,9 @@ import {LabelValue} from "@/api/model/common.ts";
 import {AccountGroup} from "@/api/model/account.group.ts";
 import {NORMAL_BALANCE_OPTIONS} from "@/components/accounts/account.constants.ts";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faPlus} from "@fortawesome/free-solid-svg-icons";
+import {CreateAccountGroup} from "@/components/accounts/create.account.group.tsx";
 
 interface CreateAccountProps {
   addModal: boolean;
@@ -170,84 +173,105 @@ export const CreateAccount: FC<CreateAccountProps> = ({
     }
   };
 
+  const [groupModal, setGroupModal] = useState(false);
+
   return (
-    <Modal
-      open={modal}
-      onClose={onModalClose}
-      size="sm"
-      title={operation === "update" ? t('forms.updateAccount') : t('forms.createAccount')}
-    >
-      <form onSubmit={handleSubmit(saveAccount)} className="mb-5">
-        <div className="grid grid-cols-1 gap-4 mb-3">
-          <div>
-            <Input {...register("code")} id="account_code" className="w-full" label={t('columns.code')} error={errors.code?.message}/>
-          </div>
-          <div>
-            <Input {...register("name")} id="account_name" className="w-full" label={t('columns.name')} error={errors.name?.message}/>
-          </div>
-          <div>
-            <label htmlFor="account_group">{t('columns.group')}</label>
-            <Controller
-              name="group"
-              control={control}
-              render={({field}) => (
-                <ReactSelect
-                  {...field}
-                  options={groupOptions}
-                  className={errors.group ? "rs-__error" : ""}
-                  placeholder={groupOptions.length ? t('forms.selectGroup') : t('forms.createGroupFirst')}
-                />
+    <>
+      <Modal
+        open={modal}
+        onClose={onModalClose}
+        size="sm"
+        title={operation === "update" ? t('forms.updateAccount') : t('forms.createAccount')}
+      >
+        <form onSubmit={handleSubmit(saveAccount)} className="mb-5">
+          <div className="grid grid-cols-1 gap-4 mb-3">
+            <div>
+              <Input {...register("code")} id="account_code" className="w-full" label={t('columns.code')} error={errors.code?.message}/>
+            </div>
+            <div>
+              <Input {...register("name")} id="account_name" className="w-full" label={t('columns.name')} error={errors.name?.message}/>
+            </div>
+            <div>
+              <div className="flex gap-2 items-end">
+                <div className="flex-1">
+                  <label htmlFor="account_group">{t('columns.group')}</label>
+                  <Controller
+                    name="group"
+                    control={control}
+                    render={({field}) => (
+                      <ReactSelect
+                        {...field}
+                        options={groupOptions}
+                        className={errors.group ? "rs-__error" : ""}
+                        placeholder={groupOptions.length ? t('forms.selectGroup') : t('forms.createGroupFirst')}
+                      />
+                    )}
+                  />
+                </div>
+                <Button type="button" variant="primary" iconButton onClick={() => setGroupModal(true)}>
+                  <FontAwesomeIcon icon={faPlus}/>
+                </Button>
+              </div>
+              {errors.group && (
+                <div className="text-danger-500 text-sm">{errors.group.message as string}</div>
               )}
-            />
-            {errors.group && (
-              <div className="text-danger-500 text-sm">{errors.group.message as string}</div>
-            )}
-            {groupOptions.length === 0 && (
-              <p className="text-warning-700 text-sm mt-1">{t('forms.createGroupsBeforeAccounts')}</p>
-            )}
-          </div>
-          <div>
-            <label htmlFor="normal_balance">{t('forms.normalBalance')}</label>
-            <Controller
-              name="normal_balance"
-              control={control}
-              render={({field}) => (
-                <ReactSelect
-                  {...field}
-                  options={NORMAL_BALANCE_OPTIONS}
-                  className={errors.normal_balance ? "rs-__error" : ""}
-                />
+              {groupOptions.length === 0 && (
+                <p className="text-warning-700 text-sm mt-1">{t('forms.createGroupsBeforeAccounts')}</p>
               )}
-            />
-            {errors.normal_balance && (
-              <div className="text-danger-500 text-sm">{errors.normal_balance.message as string}</div>
-            )}
-          </div>
-          <div>
-            <label htmlFor="parent_account">{t('forms.parentAccount')}</label>
-            <Controller
-              name="parent"
-              control={control}
-              render={({field}) => (
-                <ReactSelect
-                  {...field}
-                  isClearable={true}
-                  options={parentOptions}
-                  className={errors.parent ? "rs-__error" : ""}
-                />
+            </div>
+            <div>
+              <label htmlFor="normal_balance">{t('forms.normalBalance')}</label>
+              <Controller
+                name="normal_balance"
+                control={control}
+                render={({field}) => (
+                  <ReactSelect
+                    {...field}
+                    options={NORMAL_BALANCE_OPTIONS}
+                    className={errors.normal_balance ? "rs-__error" : ""}
+                  />
+                )}
+              />
+              {errors.normal_balance && (
+                <div className="text-danger-500 text-sm">{errors.normal_balance.message as string}</div>
               )}
-            />
+            </div>
+            <div>
+              <label htmlFor="parent_account">{t('forms.parentAccount')}</label>
+              <Controller
+                name="parent"
+                control={control}
+                render={({field}) => (
+                  <ReactSelect
+                    {...field}
+                    isClearable={true}
+                    options={parentOptions}
+                    className={errors.parent ? "rs-__error" : ""}
+                  />
+                )}
+              />
+            </div>
+            <div>
+              <Input {...register("notes")} id="account_notes" className="w-full" label={t('forms.notes')}/>
+            </div>
+            <div>
+              <Button variant="primary" type="submit" disabled={saving || groupOptions.length === 0}>
+                {saving ? t('forms.saving') : operation === "update" ? t('forms.updateAccountBtn') : t('forms.createAccountBtn')}
+              </Button>
+            </div>
           </div>
-          <div>
-            <Input {...register("notes")} id="account_notes" className="w-full" label={t('forms.notes')}/>
-          </div>
-          <div>
-            <Button variant="primary" type="submit" disabled={saving || groupOptions.length === 0}>
-              {saving ? t('forms.saving') : operation === "update" ? t('forms.updateAccountBtn') : t('forms.createAccountBtn')}
-            </Button>
-          </div>
-        </div>
-      </form>
-    </Modal>
+        </form>
+      </Modal>
+
+      {groupModal && (
+        <CreateAccountGroup
+          addModal={true}
+          onClose={() => {
+            groupsHook.fetchData();
+            setGroupModal(false);
+          }}
+        />
+      )}
+    </>
   );
 };

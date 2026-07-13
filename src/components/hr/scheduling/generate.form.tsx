@@ -1,4 +1,4 @@
-import {useEffect, useMemo} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {useForm} from "react-hook-form";
 import {useTranslation} from "react-i18next";
 import * as yup from "yup";
@@ -17,6 +17,8 @@ import {Controller} from "react-hook-form";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {SelectOption, firstFormError, toSelectOption} from "@/components/hr/shared/form.utils.ts";
 import {generateShiftsFromTemplate} from "@/lib/labor-engine/scheduling/template.service.ts";
+import {ScheduleForm} from "@/components/hr/scheduling/schedule.form.tsx";
+import {ScheduleTemplateForm} from "@/components/hr/scheduling/template.form.tsx";
 
 interface FormValues {
   work_schedule: SelectOption | null;
@@ -118,46 +120,72 @@ export const GenerateScheduleForm = ({open, onClose}: Props) => {
     }
   };
 
+  const [scheduleModal, setScheduleModal] = useState(false);
+  const [templateModal, setTemplateModal] = useState(false);
+
   return (
-    <Modal title={t("forms.generateSchedule.title")} open={open} onClose={closeModal} size="lg">
-      <form onSubmit={handleSubmit(onSubmit, (errs) => {
-        const message = firstFormError(errs);
-        if (message) toast.error(message);
-      })}>
-        <div className="flex flex-col gap-3 mb-3">
-          <HrSelectField
-            label={t("forms.generateSchedule.schedule")}
-            name="work_schedule"
-            control={control}
-            options={scheduleOptions}
-            isClearable={false}
-            error={errors.work_schedule?.message}
-          />
-          <HrSelectField
-            label={t("forms.generateSchedule.template")}
-            name="template"
-            control={control}
-            options={templateOptions}
-            isClearable={false}
-            error={errors.template?.message}
-          />
-          <HrFormField label={t("forms.generateSchedule.employees")} error={errors.employees?.message as string | undefined}>
-            <Controller
+    <>
+      <Modal title={t("forms.generateSchedule.title")} open={open} onClose={closeModal} size="lg">
+        <form onSubmit={handleSubmit(onSubmit, (errs) => {
+          const message = firstFormError(errs);
+          if (message) toast.error(message);
+        })}>
+          <div className="flex flex-col gap-3 mb-3">
+            <HrSelectField
+              label={t("forms.generateSchedule.schedule")}
+              name="work_schedule"
               control={control}
-              name="employees"
-              render={({field}) => (
-                <ReactSelect
-                  isMulti
-                  options={employeeOptions as never}
-                  value={field.value as never}
-                  onChange={(opts) => field.onChange((opts as SelectOption[] | null) ?? [])}
-                />
-              )}
+              options={scheduleOptions}
+              isClearable={false}
+              error={errors.work_schedule?.message}
+              onAdd={() => setScheduleModal(true)}
             />
-          </HrFormField>
-        </div>
-        <Button type="submit" variant="primary">{t("buttons.generate")}</Button>
-      </form>
-    </Modal>
+            <HrSelectField
+              label={t("forms.generateSchedule.template")}
+              name="template"
+              control={control}
+              options={templateOptions}
+              isClearable={false}
+              error={errors.template?.message}
+              onAdd={() => setTemplateModal(true)}
+            />
+            <HrFormField label={t("forms.generateSchedule.employees")} error={errors.employees?.message as string | undefined}>
+              <Controller
+                control={control}
+                name="employees"
+                render={({field}) => (
+                  <ReactSelect
+                    isMulti
+                    options={employeeOptions as never}
+                    value={field.value as never}
+                    onChange={(opts) => field.onChange((opts as SelectOption[] | null) ?? [])}
+                  />
+                )}
+              />
+            </HrFormField>
+          </div>
+          <Button type="submit" variant="primary">{t("buttons.generate")}</Button>
+        </form>
+      </Modal>
+
+      {scheduleModal && (
+        <ScheduleForm
+          open
+          onClose={() => {
+            schedulesHook.fetchData();
+            setScheduleModal(false);
+          }}
+        />
+      )}
+      {templateModal && (
+        <ScheduleTemplateForm
+          open
+          onClose={() => {
+            templatesHook.fetchData();
+            setTemplateModal(false);
+          }}
+        />
+      )}
+    </>
   );
 };

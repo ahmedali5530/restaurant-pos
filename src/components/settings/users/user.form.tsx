@@ -8,7 +8,7 @@ import { Tables } from "@/api/db/tables.ts";
 import { toast } from 'sonner';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { User } from "@/api/model/user.ts";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
@@ -24,6 +24,10 @@ import {
   generateEmployeeNumber,
 } from "@/lib/labor-engine/employee.resolver.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { UserRoleForm } from "@/components/settings/users/roles/role.form.tsx";
+import { ShiftForm } from "@/components/settings/users/shifts/shift.form.tsx";
 
 interface Props {
   open: boolean
@@ -260,6 +264,9 @@ export const UserForm = ({
     }
   }, [open, fetchRoles, fetchShifts]);
 
+  const [roleModal, setRoleModal] = useState(false);
+  const [shiftModal, setShiftModal] = useState(false);
+
   return (
     <>
       <Modal
@@ -300,41 +307,51 @@ export const UserForm = ({
                 <Input type="password" label={t('forms.password')} {...register('password')} error={errors?.password?.message}/>
               </div>
             )}
-            <div className="flex-1">
-              <label htmlFor="user_role">Role</label>
-              <Controller
-                name="user_role"
-                control={control}
-                render={({field}) => (
-                  <ReactSelect
-                    value={field.value}
-                    onChange={field.onChange}
-                    options={(roleData?.data || []).map(item => ({
-                      label: item.name,
-                      value: item.id
-                    }))}
-                  />
-                )}
-              />
-              <span className="text-danger-600 text-sm">{errors?.user_role?.message as string}</span>
+            <div className="flex gap-2 items-end">
+              <div className="flex-1">
+                <label htmlFor="user_role">Role</label>
+                <Controller
+                  name="user_role"
+                  control={control}
+                  render={({field}) => (
+                    <ReactSelect
+                      value={field.value}
+                      onChange={field.onChange}
+                      options={(roleData?.data || []).map(item => ({
+                        label: item.name,
+                        value: item.id
+                      }))}
+                    />
+                  )}
+                />
+                <span className="text-danger-600 text-sm">{errors?.user_role?.message as string}</span>
+              </div>
+              <Button type="button" variant="primary" iconButton onClick={() => setRoleModal(true)}>
+                <FontAwesomeIcon icon={faPlus}/>
+              </Button>
             </div>
-            <div className="flex-1">
-              <label htmlFor="user_shift">Shift</label>
-              <Controller
-                name="user_shift"
-                control={control}
-                render={({field}) => (
-                  <ReactSelect
-                    value={field.value}
-                    onChange={field.onChange}
-                    options={(shiftData?.data || []).map(item => ({
-                      label: item.name,
-                      value: item.id
-                    }))}
-                    isClearable
-                  />
-                )}
-              />
+            <div className="flex gap-2 items-end">
+              <div className="flex-1">
+                <label htmlFor="user_shift">Shift</label>
+                <Controller
+                  name="user_shift"
+                  control={control}
+                  render={({field}) => (
+                    <ReactSelect
+                      value={field.value}
+                      onChange={field.onChange}
+                      options={(shiftData?.data || []).map(item => ({
+                        label: item.name,
+                        value: item.id
+                      }))}
+                      isClearable
+                    />
+                  )}
+                />
+              </div>
+              <Button type="button" variant="primary" iconButton onClick={() => setShiftModal(true)}>
+                <FontAwesomeIcon icon={faPlus}/>
+              </Button>
             </div>
 
             {isCreateMode && (
@@ -369,6 +386,25 @@ export const UserForm = ({
           </div>
         </form>
       </Modal>
+
+      {roleModal && (
+        <UserRoleForm
+          open={true}
+          onClose={() => {
+            fetchRoles();
+            setRoleModal(false);
+          }}
+        />
+      )}
+      {shiftModal && (
+        <ShiftForm
+          open={true}
+          onClose={() => {
+            fetchShifts();
+            setShiftModal(false);
+          }}
+        />
+      )}
     </>
   )
 }

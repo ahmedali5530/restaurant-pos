@@ -1,4 +1,4 @@
-import {ChangeEvent, useEffect, useMemo} from "react";
+import {ChangeEvent, useEffect, useMemo, useState} from "react";
 import {Controller, useFieldArray, useForm} from "react-hook-form";
 import {useTranslation} from "react-i18next";
 import * as yup from "yup";
@@ -41,6 +41,10 @@ import {
 } from "@/api/model/hr.types.ts";
 import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {DepartmentForm} from "@/components/hr/departments/form.tsx";
+import {PositionForm} from "@/components/hr/positions/form.tsx";
+import {CostCenterForm} from "@/components/hr/cost_centers/form.tsx";
+import {HolidayForm} from "@/components/hr/holidays/form.tsx";
 
 const STACKING_MODES: StackingMode[] = ["allow", "prevent", "highest_wins", "priority"];
 const EFFECT_TYPES: RuleEffectType[] = [
@@ -364,7 +368,13 @@ export const PayRuleForm = ({open, onClose, data}: Props) => {
     }
   };
 
+  const [departmentModal, setDepartmentModal] = useState(false);
+  const [positionModal, setPositionModal] = useState(false);
+  const [costCenterModal, setCostCenterModal] = useState(false);
+  const [holidayModal, setHolidayModal] = useState(false);
+
   return (
+    <>
     <Modal
       title={data ? t("forms.payRule.update") : t("forms.payRule.create")}
       open={open}
@@ -471,49 +481,70 @@ export const PayRuleForm = ({open, onClose, data}: Props) => {
           <legend className="px-1 text-sm font-semibold">{t("forms.payRule.conditions")}</legend>
 
           <HrFormField label={t("forms.schedule.department")}>
-            <Controller
-              control={control}
-              name="department_ids"
-              render={({field}) => (
-                <ReactSelect
-                  isMulti
-                  options={departmentOptions as never}
-                  value={field.value}
-                  onChange={field.onChange}
-                  isClearable
+            <div className="flex gap-2 items-end">
+              <div className="flex-1">
+                <Controller
+                  control={control}
+                  name="department_ids"
+                  render={({field}) => (
+                    <ReactSelect
+                      isMulti
+                      options={departmentOptions as never}
+                      value={field.value}
+                      onChange={field.onChange}
+                      isClearable
+                    />
+                  )}
                 />
-              )}
-            />
+              </div>
+              <Button type="button" variant="primary" iconButton onClick={() => setDepartmentModal(true)}>
+                <FontAwesomeIcon icon={faPlus}/>
+              </Button>
+            </div>
           </HrFormField>
           <HrFormField label={t("forms.schedule.position")}>
-            <Controller
-              control={control}
-              name="position_ids"
-              render={({field}) => (
-                <ReactSelect
-                  isMulti
-                  options={positionOptions as never}
-                  value={field.value}
-                  onChange={field.onChange}
-                  isClearable
+            <div className="flex gap-2 items-end">
+              <div className="flex-1">
+                <Controller
+                  control={control}
+                  name="position_ids"
+                  render={({field}) => (
+                    <ReactSelect
+                      isMulti
+                      options={positionOptions as never}
+                      value={field.value}
+                      onChange={field.onChange}
+                      isClearable
+                    />
+                  )}
                 />
-              )}
-            />
+              </div>
+              <Button type="button" variant="primary" iconButton onClick={() => setPositionModal(true)}>
+                <FontAwesomeIcon icon={faPlus}/>
+              </Button>
+            </div>
           </HrFormField>
           <HrFormField label={t("forms.schedule.costCenter")}>
-            <Controller
-              control={control}
-              name="cost_center_ids"
-              render={({field}) => (
-                <ReactSelect
-                  isMulti
-                  options={costCenterOptions as never}
-                  value={field.value}
-                  onChange={field.onChange}
-                  isClearable
+            <div className="flex gap-2 items-end">
+              <div className="flex-1">
+                <Controller
+                  control={control}
+                  name="cost_center_ids"
+                  render={({field}) => (
+                    <ReactSelect
+                      isMulti
+                      options={costCenterOptions as never}
+                      value={field.value}
+                      onChange={field.onChange}
+                      isClearable
+                    />
+                  )}
                 />
-              )}
-            />
+              </div>
+              <Button type="button" variant="primary" iconButton onClick={() => setCostCenterModal(true)}>
+                <FontAwesomeIcon icon={faPlus}/>
+              </Button>
+            </div>
           </HrFormField>
           <HrFormField label={t("forms.adjustment.employee")}>
             <Controller
@@ -531,19 +562,26 @@ export const PayRuleForm = ({open, onClose, data}: Props) => {
             />
           </HrFormField>
           <HrFormField label={t("tabs.holidays")}>
-            <Controller
-              control={control}
-              name="holiday_ids"
-              render={({field}) => (
-                <ReactSelect
-                  isMulti
-                  options={holidayOptions as never}
-                  value={field.value}
-                  onChange={field.onChange}
-                  isClearable
+            <div className="flex gap-2 items-end">
+              <div className="flex-1">
+                <Controller
+                  control={control}
+                  name="holiday_ids"
+                  render={({field}) => (
+                    <ReactSelect
+                      isMulti
+                      options={holidayOptions as never}
+                      value={field.value}
+                      onChange={field.onChange}
+                      isClearable
+                    />
+                  )}
                 />
-              )}
-            />
+              </div>
+              <Button type="button" variant="primary" iconButton onClick={() => setHolidayModal(true)}>
+                <FontAwesomeIcon icon={faPlus}/>
+              </Button>
+            </div>
           </HrFormField>
 
           <div className="flex gap-3">
@@ -632,5 +670,43 @@ export const PayRuleForm = ({open, onClose, data}: Props) => {
         <Button type="submit" variant="primary">{t("buttons.save")}</Button>
       </form>
     </Modal>
+
+      {departmentModal && (
+        <DepartmentForm
+          open={true}
+          onClose={() => {
+            departmentsHook.fetchData();
+            setDepartmentModal(false);
+          }}
+        />
+      )}
+      {positionModal && (
+        <PositionForm
+          open={true}
+          onClose={() => {
+            positionsHook.fetchData();
+            setPositionModal(false);
+          }}
+        />
+      )}
+      {costCenterModal && (
+        <CostCenterForm
+          open={true}
+          onClose={() => {
+            costCentersHook.fetchData();
+            setCostCenterModal(false);
+          }}
+        />
+      )}
+      {holidayModal && (
+        <HolidayForm
+          open={true}
+          onClose={() => {
+            holidaysHook.fetchData();
+            setHolidayModal(false);
+          }}
+        />
+      )}
+    </>
   );
 };

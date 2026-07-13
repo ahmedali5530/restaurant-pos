@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -6,6 +6,8 @@ import { StringRecordId } from "surrealdb";
 import { toast } from "sonner";
 import {useTranslation} from 'react-i18next';
 import i18n from '@/lib/i18n.ts';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input } from "@/components/common/input/input.tsx";
 import { Button } from "@/components/common/input/button.tsx";
@@ -18,6 +20,9 @@ import { Extra } from "@/api/model/extra.ts";
 import { PaymentType } from "@/api/model/payment_type.ts";
 import { OrderType } from "@/api/model/order_type.ts";
 import { Table } from "@/api/model/table.ts";
+import { PaymentTypeForm } from "@/components/settings/payment_types/payment_type.form.tsx";
+import { OrderTypeForm } from "@/components/settings/order_types/order_type.form.tsx";
+import { TableForm } from "@/components/settings/tables/table.form.tsx";
 
 interface Props {
   open: boolean
@@ -118,6 +123,10 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
     }
   }, [open, fetchPaymentTypes, fetchOrderTypes, fetchTables]);
 
+  const [paymentTypesModal, setPaymentTypesModal] = useState(false);
+  const [orderTypesModal, setOrderTypesModal] = useState(false);
+  const [tablesModal, setTablesModal] = useState(false);
+
   const onSubmit = async (values: any) => {
     const val = { ...values };
     val.value = Number(values.value);
@@ -148,115 +157,160 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
   };
 
   return (
-    <Modal
-      title={data ? t('forms.updateExtra', { name: data?.name }) : t('forms.createExtra')}
-      open={open}
-      onClose={closeModal}
-    >
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="flex gap-3 mb-3">
-          <div className="flex-1">
-            <Input label={t('columns.name')} {...register("name")} autoFocus error={errors?.name?.message} />
+    <>
+      <Modal
+        title={data ? t('forms.updateExtra', { name: data?.name }) : t('forms.createExtra')}
+        open={open}
+        onClose={closeModal}
+      >
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="flex gap-3 mb-3">
+            <div className="flex-1">
+              <Input label={t('columns.name')} {...register("name")} autoFocus error={errors?.name?.message} />
+            </div>
+            <div className="flex-1">
+              <Controller
+                render={({ field }) => (
+                  <Input
+                    type="number"
+                    label={t('columns.value')}
+                    value={field.value}
+                    onChange={field.onChange}
+                    error={errors?.value?.message}
+                  />
+                )}
+                name="value"
+                control={control}
+              />
+            </div>
           </div>
-          <div className="flex-1">
-            <Controller
-              render={({ field }) => (
-                <Input
-                  type="number"
-                  label={t('columns.value')}
-                  value={field.value}
-                  onChange={field.onChange}
-                  error={errors?.value?.message}
-                />
-              )}
-              name="value"
-              control={control}
-            />
-          </div>
-        </div>
 
-        <div className="flex flex-col gap-3 mb-3">
-          <div className="flex-1">
-            <label>{t('columns.paymentTypes')}</label>
-            <Controller
-              render={({ field }) => (
-                <ReactSelect
-                  value={field.value}
-                  onChange={field.onChange}
-                  options={paymentTypes?.data?.map(item => ({
-                    label: item.name,
-                    value: item.id.toString(),
-                  }))}
-                  isMulti
+          <div className="flex flex-col gap-3 mb-3">
+            <div className="flex gap-2 items-end">
+              <div className="flex-1">
+                <label>{t('columns.paymentTypes')}</label>
+                <Controller
+                  render={({ field }) => (
+                    <ReactSelect
+                      value={field.value}
+                      onChange={field.onChange}
+                      options={paymentTypes?.data?.map(item => ({
+                        label: item.name,
+                        value: item.id.toString(),
+                      }))}
+                      isMulti
+                    />
+                  )}
+                  name="payment_types"
+                  control={control}
                 />
-              )}
-              name="payment_types"
-              control={control}
-            />
-          </div>
-          <div className="flex-1">
-            <label>{t('columns.orderTypes')}</label>
-            <Controller
-              render={({ field }) => (
-                <ReactSelect
-                  value={field.value}
-                  onChange={field.onChange}
-                  options={orderTypes?.data?.map(item => ({
-                    label: item.name,
-                    value: item.id.toString(),
-                  }))}
-                  isMulti
+              </div>
+              <Button type="button" variant="primary" iconButton onClick={() => setPaymentTypesModal(true)}>
+                <FontAwesomeIcon icon={faPlus}/>
+              </Button>
+            </div>
+            <div className="flex gap-2 items-end">
+              <div className="flex-1">
+                <label>{t('columns.orderTypes')}</label>
+                <Controller
+                  render={({ field }) => (
+                    <ReactSelect
+                      value={field.value}
+                      onChange={field.onChange}
+                      options={orderTypes?.data?.map(item => ({
+                        label: item.name,
+                        value: item.id.toString(),
+                      }))}
+                      isMulti
+                    />
+                  )}
+                  name="order_types"
+                  control={control}
                 />
-              )}
-              name="order_types"
-              control={control}
-            />
-          </div>
-          <div className="flex-1">
-            <label>{t('columns.tables')}</label>
-            <Controller
-              render={({ field }) => (
-                <ReactSelect
-                  value={field.value}
-                  onChange={field.onChange}
-                  options={tables?.data?.map(item => ({
-                    label: `${item.name}${item.number}`,
-                    value: item.id.toString(),
-                  }))}
-                  isMulti
+              </div>
+              <Button type="button" variant="primary" iconButton onClick={() => setOrderTypesModal(true)}>
+                <FontAwesomeIcon icon={faPlus}/>
+              </Button>
+            </div>
+            <div className="flex gap-2 items-end">
+              <div className="flex-1">
+                <label>{t('columns.tables')}</label>
+                <Controller
+                  render={({ field }) => (
+                    <ReactSelect
+                      value={field.value}
+                      onChange={field.onChange}
+                      options={tables?.data?.map(item => ({
+                        label: `${item.name}${item.number}`,
+                        value: item.id.toString(),
+                      }))}
+                      isMulti
+                    />
+                  )}
+                  name="tables"
+                  control={control}
                 />
-              )}
-              name="tables"
-              control={control}
-            />
+              </div>
+              <Button type="button" variant="primary" iconButton onClick={() => setTablesModal(true)}>
+                <FontAwesomeIcon icon={faPlus}/>
+              </Button>
+            </div>
           </div>
-        </div>
 
-        <div className="flex flex-col gap-3 mb-5">
-          <Controller
-            name="delivery"
-            control={control}
-            render={({ field }) => (
-              <Switch checked={field.value} onChange={field.onChange}>
-                {t('forms.deliveryOnly')}
-              </Switch>
-            )}
-          />
-          <Controller
-            name="apply_to_all"
-            control={control}
-            render={({ field }) => (
-              <Switch checked={field.value} onChange={field.onChange}>
-                {t('forms.applyToAllSwitch')}
-              </Switch>
-            )}
-          />
-        </div>
+          <div className="flex flex-col gap-3 mb-5">
+            <Controller
+              name="delivery"
+              control={control}
+              render={({ field }) => (
+                <Switch checked={field.value} onChange={field.onChange}>
+                  {t('forms.deliveryOnly')}
+                </Switch>
+              )}
+            />
+            <Controller
+              name="apply_to_all"
+              control={control}
+              render={({ field }) => (
+                <Switch checked={field.value} onChange={field.onChange}>
+                  {t('forms.applyToAllSwitch')}
+                </Switch>
+              )}
+            />
+          </div>
 
-        <div>
-          <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
-        </div>
-      </form>
-    </Modal>
+          <div>
+            <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
+          </div>
+        </form>
+      </Modal>
+
+      {paymentTypesModal && (
+        <PaymentTypeForm
+          open={true}
+          onClose={() => {
+            fetchPaymentTypes();
+            setPaymentTypesModal(false);
+          }}
+        />
+      )}
+      {orderTypesModal && (
+        <OrderTypeForm
+          open={true}
+          onClose={() => {
+            fetchOrderTypes();
+            setOrderTypesModal(false);
+          }}
+        />
+      )}
+      {tablesModal && (
+        <TableForm
+          open={true}
+          onClose={() => {
+            fetchTables();
+            setTablesModal(false);
+          }}
+        />
+      )}
+    </>
   );
 };

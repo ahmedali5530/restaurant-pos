@@ -27,6 +27,7 @@ import {canUseInDishRecipe} from "@/utils/inventoryItemTypes.ts";
 import {detectMimeType} from "@/utils/files";
 import {Workflow} from "@/api/model/workflow.ts";
 import {Kitchen} from "@/api/model/kitchen.ts";
+import {WorkflowForm} from "@/components/settings/workflows/workflow.form.tsx";
 
 interface Props {
   open: boolean
@@ -230,6 +231,7 @@ export const DishForm = ({
 
   const [categoriesModal, setCategoriesModal] = useState(false);
   const [modifierGroupsModal, setModifierGroupsModal] = useState(false);
+  const [workflowModal, setWorkflowModal] = useState(false);
 
   const db = useDB();
 
@@ -581,17 +583,22 @@ export const DishForm = ({
           <div className="flex mb-3">
             <fieldset className="border-2 border-neutral-900 rounded-lg p-3 flex-1">
               <legend>Production workflow</legend>
-              <div className="flex-1 mb-3">
-                <label>Workflow (leave empty to use legacy kitchen routing)</label>
-                <ReactSelect
-                  isClearable
-                  value={workflowOption}
-                  onChange={(option: any) => onWorkflowChange(option ?? null)}
-                  options={workflows?.data?.map(item => ({
-                    label: item.name,
-                    value: item.id.toString()
-                  }))}
-                />
+              <div className="flex gap-2 items-end mb-3">
+                <div className="flex-1">
+                  <label>Workflow (leave empty to use legacy kitchen routing)</label>
+                  <ReactSelect
+                    isClearable
+                    value={workflowOption}
+                    onChange={(option: any) => onWorkflowChange(option ?? null)}
+                    options={workflows?.data?.map(item => ({
+                      label: item.name,
+                      value: item.id.toString()
+                    }))}
+                  />
+                </div>
+                <Button type="button" variant="primary" iconButton onClick={() => setWorkflowModal(true)}>
+                  <FontAwesomeIcon icon={faPlus}/>
+                </Button>
               </div>
 
               {workflowOption && workflowStages.length > 0 && (
@@ -915,6 +922,16 @@ export const DishForm = ({
           onClose={() => {
             setModifierGroupsModal(false);
             fetchModifierGroups();
+          }}
+        />
+      )}
+
+      {workflowModal && (
+        <WorkflowForm
+          open={true}
+          onClose={() => {
+            fetchWorkflows();
+            setWorkflowModal(false);
           }}
         />
       )}

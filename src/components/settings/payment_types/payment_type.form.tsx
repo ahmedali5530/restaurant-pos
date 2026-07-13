@@ -7,7 +7,7 @@ import { Tables } from "@/api/db/tables.ts";
 import { toast } from 'sonner';
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { PaymentType, PaymentTypeGatewayConfig } from "@/api/model/payment_type.ts";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
@@ -18,6 +18,10 @@ import {toRecordId} from "@/lib/utils.ts";
 import {useTranslation} from 'react-i18next';
 import i18n from '@/lib/i18n.ts';
 import {GATEWAY_CATALOG, getGatewayDescriptor} from "@/lib/payment/gateway-catalog.ts";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { TaxForm } from "@/components/settings/taxes/tax.form.tsx";
+import { DiscountForm } from "@/components/settings/discounts/discount.form.tsx";
 
 interface Props {
   open: boolean
@@ -243,6 +247,9 @@ export const PaymentTypeForm = ({
     }
   }, [open]);
 
+  const [taxModal, setTaxModal] = useState(false);
+  const [discountsModal, setDiscountsModal] = useState(false);
+
   console.log(errors);
 
   return (
@@ -360,7 +367,7 @@ export const PaymentTypeForm = ({
             </div>
           )}
 
-          <div className="flex gap-3 mb-3">
+          <div className="flex gap-3 mb-3 items-end">
             <div className="flex-1">
               <label htmlFor="">Tax</label>
               <Controller
@@ -379,26 +386,34 @@ export const PaymentTypeForm = ({
                 control={control}
               />
             </div>
+            <Button type="button" variant="primary" iconButton onClick={() => setTaxModal(true)}>
+              <FontAwesomeIcon icon={faPlus}/>
+            </Button>
           </div>
 
-          <div className="flex-1 mb-3">
-            <label htmlFor="">Discounts</label>
-            <Controller
-              render={({ field }) => (
-                <ReactSelect
-                  value={field.value}
-                  onChange={field.onChange}
-                  options={discounts?.data?.map(item => ({
-                    label: item.name,
-                    value: item.id.toString()
-                  }))}
-                  isMulti
-                />
-              )}
-              name="discounts"
-              control={control}
-            />
-            <span className="text-sm text-neutral-500">Only fixed amount discounts can be applied</span>
+          <div className="flex gap-2 items-end mb-3">
+            <div className="flex-1">
+              <label htmlFor="">Discounts</label>
+              <Controller
+                render={({ field }) => (
+                  <ReactSelect
+                    value={field.value}
+                    onChange={field.onChange}
+                    options={discounts?.data?.map(item => ({
+                      label: item.name,
+                      value: item.id.toString()
+                    }))}
+                    isMulti
+                  />
+                )}
+                name="discounts"
+                control={control}
+              />
+              <span className="text-sm text-neutral-500">Only fixed amount discounts can be applied</span>
+            </div>
+            <Button type="button" variant="primary" iconButton onClick={() => setDiscountsModal(true)}>
+              <FontAwesomeIcon icon={faPlus}/>
+            </Button>
           </div>
 
           <div>
@@ -406,6 +421,25 @@ export const PaymentTypeForm = ({
           </div>
         </form>
       </Modal>
+
+      {taxModal && (
+        <TaxForm
+          open={true}
+          onClose={() => {
+            fetchTaxes();
+            setTaxModal(false);
+          }}
+        />
+      )}
+      {discountsModal && (
+        <DiscountForm
+          open={true}
+          onClose={() => {
+            fetchDiscounts();
+            setDiscountsModal(false);
+          }}
+        />
+      )}
     </>
   )
 }

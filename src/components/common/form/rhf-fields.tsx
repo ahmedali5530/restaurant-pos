@@ -7,6 +7,9 @@ import {Checkbox} from '@/components/common/input/checkbox.tsx';
 import {DatePicker} from '@/components/common/antd/datepicker.tsx';
 import {DateTimePicker} from '@/components/common/antd/datetime.picker.tsx';
 import {TimePicker} from '@/components/common/antd/time.picker.tsx';
+import {Button} from '@/components/common/input/button.tsx';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faPlus} from '@fortawesome/free-solid-svg-icons';
 import type {Dayjs} from 'dayjs';
 import type {SelectOption} from '@/components/common/form/types.ts';
 
@@ -35,6 +38,8 @@ interface SelectFieldProps<T extends FieldValues = FieldValues> {
   isLoading?: boolean;
   className?: string;
   stringValue?: boolean;
+  onAdd?: () => void;
+  isMulti?: boolean;
 }
 
 export const SelectField = <T extends FieldValues = FieldValues>({
@@ -47,21 +52,33 @@ export const SelectField = <T extends FieldValues = FieldValues>({
   isLoading,
   className,
   stringValue = false,
+  onAdd,
+  isMulti,
 }: SelectFieldProps<T>) => (
   <FormField label={label} error={error} className={className}>
-    <Controller
-      control={control}
-      name={name}
-      render={({field}) => (
-        <ReactSelect
-          options={options as never}
-          value={stringValue ? options.find((o) => o.value === field.value) ?? null : field.value}
-          onChange={(opt) => field.onChange(stringValue ? (opt as SelectOption | null)?.value : opt)}
-          isClearable={isClearable ?? !stringValue}
-          isLoading={isLoading}
+    <div className={onAdd ? 'flex gap-2 items-end' : undefined}>
+      <div className={onAdd ? 'flex-1' : undefined}>
+        <Controller
+          control={control}
+          name={name}
+          render={({field}) => (
+            <ReactSelect
+              options={options as never}
+              value={stringValue ? options.find((o) => o.value === field.value) ?? null : field.value}
+              onChange={(opt) => field.onChange(stringValue ? (opt as SelectOption | null)?.value : opt)}
+              isClearable={isClearable ?? !stringValue}
+              isLoading={isLoading}
+              isMulti={isMulti}
+            />
+          )}
         />
+      </div>
+      {onAdd && (
+        <Button type="button" variant="primary" iconButton onClick={onAdd}>
+          <FontAwesomeIcon icon={faPlus}/>
+        </Button>
       )}
-    />
+    </div>
   </FormField>
 );
 

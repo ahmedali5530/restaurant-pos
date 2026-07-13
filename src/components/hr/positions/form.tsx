@@ -1,4 +1,4 @@
-import {useEffect, useMemo} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {useForm} from "react-hook-form";
 import {useTranslation} from "react-i18next";
 import * as yup from "yup";
@@ -15,6 +15,8 @@ import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {HrCheckboxField, HrSelectField} from "@/components/hr/shared/form-field.tsx";
 import {SelectOption, toRecordId, toSelectOption} from "@/components/hr/shared/form.utils.ts";
+import {DepartmentForm} from "@/components/hr/departments/form.tsx";
+import {CostCenterForm} from "@/components/hr/cost_centers/form.tsx";
 
 interface FormValues {
   id?: string;
@@ -102,39 +104,65 @@ export const PositionForm = ({open, onClose, data}: Props) => {
     }
   };
 
+  const [departmentModal, setDepartmentModal] = useState(false);
+  const [costCenterModal, setCostCenterModal] = useState(false);
+
   return (
-    <Modal title={data ? t("forms.position.update") : t("forms.position.create")} open={open} onClose={closeModal} size="lg">
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {/*<input type="hidden" {...register("id")} />*/}
-        <div className="flex flex-col gap-3 mb-3">
-          <div>
-            <Input label={t("forms.position.code")} {...register("code")} autoFocus error={errors.code?.message}/>
+    <>
+      <Modal title={data ? t("forms.position.update") : t("forms.position.create")} open={open} onClose={closeModal} size="lg">
+        <form onSubmit={handleSubmit(onSubmit)}>
+          {/*<input type="hidden" {...register("id")} />*/}
+          <div className="flex flex-col gap-3 mb-3">
+            <div>
+              <Input label={t("forms.position.code")} {...register("code")} autoFocus error={errors.code?.message}/>
+            </div>
+            <div>
+              <Input label={t("forms.position.name")} {...register("name")} error={errors.name?.message}/>
+            </div>
+            <HrSelectField
+              label={t("forms.position.department")}
+              name="department"
+              control={control}
+              options={departmentOptions}
+              error={errors.department?.message}
+              onAdd={() => setDepartmentModal(true)}
+            />
+            <HrSelectField
+              label={t("forms.position.defaultCostCenter")}
+              name="default_cost_center"
+              control={control}
+              options={costCenterOptions}
+              error={errors.default_cost_center?.message}
+              onAdd={() => setCostCenterModal(true)}
+            />
+            <HrCheckboxField
+              label={t("forms.position.isActive")}
+              name="is_active"
+              control={control}
+            />
           </div>
-          <div>
-            <Input label={t("forms.position.name")} {...register("name")} error={errors.name?.message}/>
-          </div>
-          <HrSelectField
-            label={t("forms.position.department")}
-            name="department"
-            control={control}
-            options={departmentOptions}
-            error={errors.department?.message}
-          />
-          <HrSelectField
-            label={t("forms.position.defaultCostCenter")}
-            name="default_cost_center"
-            control={control}
-            options={costCenterOptions}
-            error={errors.default_cost_center?.message}
-          />
-          <HrCheckboxField
-            label={t("forms.position.isActive")}
-            name="is_active"
-            control={control}
-          />
-        </div>
-        <Button type="submit" variant="primary">{t("buttons.save")}</Button>
-      </form>
-    </Modal>
+          <Button type="submit" variant="primary">{t("buttons.save")}</Button>
+        </form>
+      </Modal>
+
+      {departmentModal && (
+        <DepartmentForm
+          open={true}
+          onClose={() => {
+            departmentsHook.fetchData();
+            setDepartmentModal(false);
+          }}
+        />
+      )}
+      {costCenterModal && (
+        <CostCenterForm
+          open={true}
+          onClose={() => {
+            costCentersHook.fetchData();
+            setCostCenterModal(false);
+          }}
+        />
+      )}
+    </>
   );
 };

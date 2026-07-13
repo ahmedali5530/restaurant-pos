@@ -1,4 +1,4 @@
-import {useEffect, useMemo} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {useForm} from "react-hook-form";
 import {useTranslation} from "react-i18next";
 import * as yup from "yup";
@@ -243,53 +243,68 @@ export const LeaveRequestForm = ({open, onClose, data}: LeaveRequestFormProps) =
     }
   };
 
+  const [leaveTypeModal, setLeaveTypeModal] = useState(false);
+
   return (
-    <Modal title={data ? t("forms.leave.update") : t("forms.leave.create")} open={open} onClose={closeModal} size="lg">
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="flex flex-col gap-3 mb-3">
-          <HrSelectField
-            label={t("forms.leave.employee")}
-            name="employee"
-            control={control}
-            options={employeeOptions}
-            isClearable={false}
-            error={errors.employee?.message}
-          />
-          <HrSelectField
-            label={t("forms.leave.leaveType")}
-            name="leave_type"
-            control={control}
-            options={leaveTypeOptions}
-            isClearable={false}
-            error={errors.leave_type?.message}
-          />
-          <div className="flex gap-3">
-            <div className="flex-1">
-              <HrDateField
-                label={t("forms.leave.startDate")}
-                name="start_date"
-                control={control}
-                error={errors.start_date?.message}
-              />
+    <>
+      <Modal title={data ? t("forms.leave.update") : t("forms.leave.create")} open={open} onClose={closeModal} size="lg">
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="flex flex-col gap-3 mb-3">
+            <HrSelectField
+              label={t("forms.leave.employee")}
+              name="employee"
+              control={control}
+              options={employeeOptions}
+              isClearable={false}
+              error={errors.employee?.message}
+            />
+            <HrSelectField
+              label={t("forms.leave.leaveType")}
+              name="leave_type"
+              control={control}
+              options={leaveTypeOptions}
+              isClearable={false}
+              error={errors.leave_type?.message}
+              onAdd={() => setLeaveTypeModal(true)}
+            />
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <HrDateField
+                  label={t("forms.leave.startDate")}
+                  name="start_date"
+                  control={control}
+                  error={errors.start_date?.message}
+                />
+              </div>
+              <div className="flex-1">
+                <HrDateField
+                  label={t("forms.leave.endDate")}
+                  name="end_date"
+                  control={control}
+                  error={errors.end_date?.message}
+                />
+              </div>
             </div>
-            <div className="flex-1">
-              <HrDateField
-                label={t("forms.leave.endDate")}
-                name="end_date"
-                control={control}
-                error={errors.end_date?.message}
-              />
+            <div>
+              <Input type="number" label={t("forms.leave.days")} {...register("days", {valueAsNumber: true})} error={errors.days?.message}/>
+            </div>
+            <div>
+              <Input label={t("forms.leave.reason")} {...register("reason")}/>
             </div>
           </div>
-          <div>
-            <Input type="number" label={t("forms.leave.days")} {...register("days", {valueAsNumber: true})} error={errors.days?.message}/>
-          </div>
-          <div>
-            <Input label={t("forms.leave.reason")} {...register("reason")}/>
-          </div>
-        </div>
-        <Button type="submit" variant="primary">{t("buttons.save")}</Button>
-      </form>
-    </Modal>
+          <Button type="submit" variant="primary">{t("buttons.save")}</Button>
+        </form>
+      </Modal>
+
+      {leaveTypeModal && (
+        <LeaveTypeForm
+          open
+          onClose={() => {
+            typesHook.fetchData();
+            setLeaveTypeModal(false);
+          }}
+        />
+      )}
+    </>
   );
 };
