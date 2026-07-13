@@ -201,7 +201,14 @@ async function settleOrder(
   userId?: string
 ): Promise<void> {
   for (const payment of order.payments ?? []) {
-    await db.delete(payment.id);
+    if (!payment?.id) {
+      continue;
+    }
+    try {
+      await db.delete(payment.id);
+    } catch {
+      // Stale or already deleted
+    }
   }
 
   const orderPaymentResult = await db.create(Tables.order_payment, {

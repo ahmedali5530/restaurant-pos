@@ -61,6 +61,8 @@ export const getProductMix = async (
     ...dateRange,
     fetches: PRODUCT_MIX_FETCHES,
     paidOnly: true,
+    categoryIds,
+    menuItemIds,
   });
 
   const categoryGroups = aggregateProductMixByCategory(orders, {categoryIds, menuItemIds});

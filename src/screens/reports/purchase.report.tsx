@@ -6,23 +6,14 @@ import {Tables} from "@/api/db/tables.ts";
 import {InventoryPurchase} from "@/api/model/inventory_purchase.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
+import {
+  buildNestedRecordAnyCondition,
+  buildRecordInsideCondition,
+} from "@/api/reports/shared/query.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
-};
-
-const recordToString = (value: any): string => {
-  if (!value) {
-    return '';
-  }
-  if (typeof value === 'string') {
-    return value;
-  }
-  if (typeof value === 'object' && 'toString' in value) {
-    return value.toString();
-  }
-  return String(value);
 };
 
 interface ReportFilters {
@@ -76,7 +67,7 @@ export const PurchaseReport = () => {
         setError(null);
 
         const conditions: string[] = [];
-        const params: Record<string, string | string[]> = {};
+        const params: Record<string, any> = {};
 
         if (filters.startDate) {
           conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
@@ -88,6 +79,30 @@ export const PurchaseReport = () => {
           params.endDate = filters.endDate;
         }
 
+        const supplierFilter = buildRecordInsideCondition('supplier', filters.supplierIds, 'supplierIds');
+        if (supplierFilter.condition) {
+          conditions.push(supplierFilter.condition);
+          Object.assign(params, supplierFilter.params);
+        }
+
+        const storeFilter = buildRecordInsideCondition('store', filters.storeIds, 'storeIds');
+        if (storeFilter.condition) {
+          conditions.push(storeFilter.condition);
+          Object.assign(params, storeFilter.params);
+        }
+
+        const userFilter = buildRecordInsideCondition('created_by', filters.userIds, 'userIds');
+        if (userFilter.condition) {
+          conditions.push(userFilter.condition);
+          Object.assign(params, userFilter.params);
+        }
+
+        const itemFilter = buildNestedRecordAnyCondition('items.item', filters.itemIds, 'item');
+        if (itemFilter.condition) {
+          conditions.push(itemFilter.condition);
+          Object.assign(params, itemFilter.params);
+        }
+
         const query = `
           SELECT * FROM ${Tables.inventory_purchases}
           ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
@@ -96,40 +111,7 @@ export const PurchaseReport = () => {
         `;
 
         const result: any = await queryRef.current(query, params);
-        let allPurchases = (result?.[0]?.result ?? result?.[0] ?? []) as InventoryPurchase[];
-
-        // Apply client-side filters
-        if (filters.supplierIds.length > 0) {
-          allPurchases = allPurchases.filter(purchase => {
-            const supplierId = recordToString(purchase.supplier?.id ?? purchase.supplier);
-            return filters.supplierIds.includes(supplierId);
-          });
-        }
-
-        if (filters.storeIds.length > 0) {
-          allPurchases = allPurchases.filter(purchase => {
-            const storeId = recordToString(purchase.store?.id ?? purchase.store);
-            return filters.storeIds.includes(storeId);
-          });
-        }
-
-        if (filters.itemIds.length > 0) {
-          allPurchases = allPurchases.filter(purchase => {
-            return purchase.items?.some(item => {
-              const itemId = recordToString(item.item?.id ?? item.item);
-              return filters.itemIds.includes(itemId);
-            });
-          });
-        }
-
-        if (filters.userIds.length > 0) {
-          allPurchases = allPurchases.filter(purchase => {
-            const userId = recordToString(purchase.created_by?.id ?? purchase.created_by);
-            return filters.userIds.includes(userId);
-          });
-        }
-
-        setPurchases(allPurchases);
+        setPurchases((result?.[0]?.result ?? result?.[0] ?? []) as InventoryPurchase[]);
       } catch (err) {
         console.error('Failed to load purchase report:', err);
         setError(err instanceof Error ? err.message : t('errors.unableToLoad'));

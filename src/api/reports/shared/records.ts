@@ -1,5 +1,10 @@
 import {RecordId, StringRecordId} from "surrealdb";
 
+/**
+ * Prefer recordIdToString for filter equality against URL select values
+ * (full "table:id"). Passing RecordId into this helper via `.id` drops the
+ * table prefix and breaks comparisons.
+ */
 export const recordToString = (value: unknown): string => {
   if (!value) {
     return "";

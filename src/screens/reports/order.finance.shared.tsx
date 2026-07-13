@@ -5,10 +5,14 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order} from "@/api/model/order.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
-import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {formatNumber, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
-import {getOrderFilteredItems, getOrderDiscountTotal, orderHasDiscount, orderMatchesDiscountId} from "@/lib/order.ts";
+import {getOrderFilteredItems, getOrderDiscountTotal} from "@/lib/order.ts";
+import {
+  buildNestedRecordAnyCondition,
+  buildRecordInsideCondition,
+} from "@/api/reports/shared/query.ts";
 
 type MetricKey = "discount_amount" | "tax_amount" | "coupon_discount";
 
@@ -44,14 +48,6 @@ const calculateGross = (order: Order) => {
   return getOrderFilteredItems(order).reduce((sum, item) => sum + safeNumber(calculateOrderItemPrice(item)), 0);
 };
 
-const normalizeRecordSuffix = (value: string) => {
-  if (!value) return "";
-  if (value.includes(":")) {
-    return value.split(":").slice(1).join(":");
-  }
-  return value;
-};
-
 interface Props {
   title: string;
   metric: MetricKey;
@@ -79,7 +75,7 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
         setError(null);
 
         const conditions = [`status = 'Paid'`];
-        const params: Record<string, string> = {};
+        const params: Record<string, any> = {};
 
         if (filters.startDate) {
           conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
@@ -92,18 +88,31 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
 
         if (metric === "coupon_discount") {
           conditions.push(`coupon != NONE`);
-        } else if (metric !== "discount_amount") {
+        } else if (metric === "discount_amount") {
+          conditions.push(`(discount != NONE OR array::len(order_discounts) > 0 OR coupon != NONE)`);
+        } else {
           conditions.push(`${metric} > 0`);
         }
 
         if (metric === "tax_amount" && filters.taxId) {
-          conditions.push(`tax = type::record('${Tables.taxes}', $taxId)`);
-          params.taxId = normalizeRecordSuffix(filters.taxId);
+          conditions.push(`tax = $taxId`);
+          params.taxId = toRecordId(filters.taxId.includes(":") ? filters.taxId : `${Tables.taxes}:${filters.taxId}`);
         }
 
         if (metric === "coupon_discount" && filters.couponId) {
-          conditions.push(`coupon.coupon = type::record('${Tables.coupons}', $couponId)`);
-          params.couponId = normalizeRecordSuffix(filters.couponId);
+          conditions.push(`coupon.coupon = $couponId`);
+          params.couponId = toRecordId(filters.couponId.includes(":") ? filters.couponId : `${Tables.coupons}:${filters.couponId}`);
+        }
+
+        if (metric === "discount_amount" && filters.discountId) {
+          const discountIds = [filters.discountId];
+          const discountInside = buildRecordInsideCondition("discount", discountIds, "discountIds");
+          const discountLines = buildNestedRecordAnyCondition("order_discounts.discount", discountIds, "orderDiscount");
+          const parts = [discountInside.condition, discountLines.condition].filter(Boolean);
+          Object.assign(params, discountInside.params, discountLines.params);
+          if (parts.length > 0) {
+            conditions.push(`(${parts.join(" OR ")})`);
+          }
         }
 
         const query = `
@@ -114,18 +123,7 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
         `;
 
         const [result] = await queryRef.current(query, params);
-        let fetchedOrders = (result || []) as Order[];
-
-        if (metric === "discount_amount") {
-          fetchedOrders = fetchedOrders.filter(orderHasDiscount);
-          if (filters.discountId) {
-            fetchedOrders = fetchedOrders.filter(order =>
-              orderMatchesDiscountId(order, filters.discountId),
-            );
-          }
-        }
-
-        setOrders(fetchedOrders);
+        setOrders((result || []) as Order[]);
       } catch (err) {
         console.error(`Failed to load ${title}`, err);
         setError(err instanceof Error ? err.message : t('errors.unableToLoad'));

@@ -23,6 +23,7 @@ import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {StringRecordId} from "surrealdb";
 import {calculateChangeDue} from "@/lib/cart.ts";
 import {syncOrderTaxes} from "@/lib/order-tax.service.ts";
+import {syncOrderPayments} from "@/lib/order-payment-sync.ts";
 import {
   isRemotePaymentType,
   RemotePaymentPendingSlot,
@@ -215,19 +216,14 @@ const OrderPaymentReceivingContent = ({
         }
       }
 
-      // create payment
-      const orderPayments = [];
-      for (const payment of payments) {
-        const orderPayment = await db.create(Tables.order_payment, {
-          amount: payment.amount,
-          payment_type: payment.payment_type.id,
-          comments: payment.comments || '',
-          payable: payment.payable ?? total,
-        });
-
-        orderPayments.push(orderPayment[0].id);
-      }
-
+      // Sync payments incrementally — reuse existing order_payment rows when present
+      const {paymentIds: orderPayments, payments: syncedPayments} = await syncOrderPayments(
+        db,
+        payments,
+        order?.payments,
+        total,
+      );
+      setPayments(syncedPayments);
 
       const extraOptions = [];
       for (const extra of Object.keys(extras)) {

@@ -266,7 +266,7 @@ export interface OrderPaymentTotals {
 }
 
 export const getOrderPaymentTotals = (order: Pick<OrderModel, 'payments'>): OrderPaymentTotals => {
-  const payments = order.payments ?? [];
+  const payments = (order.payments ?? []).filter((payment) => payment != null);
 
   const nonCashBreakdown = payments.reduce((acc, payment) => {
     if (isCashPayment(payment)) {
@@ -352,7 +352,7 @@ export const getOrderSettlementFigures = (order: OrderModel): OrderSettlementFig
 
 /** Amount due at checkout: max payment payable when recorded, else reconstructed settlement. */
 export const getOrderAmountDueFromPayments = (order: OrderModel): number => {
-  const payments = order.payments ?? [];
+  const payments = (order.payments ?? []).filter((payment) => payment != null);
   const payables = payments
     .map((payment) => safeNumber(payment?.payable))
     .filter((payable) => payable > 0);

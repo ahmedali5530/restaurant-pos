@@ -7,6 +7,7 @@ import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {InventoryStore} from "@/api/model/inventory_store.ts";
 import {formatNumber} from "@/lib/utils.ts";
 import {fetchStoreInventoryBreakdown, getReorderLevelForStore, isBelowReorderLevel} from "@/utils/inventory.ts";
+import {buildRecordInsideCondition} from "@/api/reports/shared/query.ts";
 
 type InventoryBalance = {
   itemId: string;
@@ -49,25 +50,17 @@ export const CurrentInventoryReport = () => {
 
         // Fetch all items (or filtered items)
         let itemsQuery = `SELECT * FROM ${Tables.inventory_items} FETCH category`;
+        const itemsParams: Record<string, any> = {};
         if (filters.itemIds.length > 0) {
-          // Build OR conditions for each item ID
-          const itemConditions = filters.itemIds.map((_id, index) => {
-            const paramName = `itemId${index}`;
-            return `id = $${paramName}`;
-          }).join(" OR ");
-          itemsQuery = `SELECT * FROM ${Tables.inventory_items} WHERE ${itemConditions} FETCH category`;
+          const itemFilter = buildRecordInsideCondition('id', filters.itemIds, 'itemIds');
+          if (itemFilter.condition) {
+            itemsQuery = `SELECT * FROM ${Tables.inventory_items} WHERE ${itemFilter.condition} FETCH category`;
+            Object.assign(itemsParams, itemFilter.params);
+          }
         }
 
         // Fetch all stores
         const storesQuery = `SELECT * FROM ${Tables.inventory_stores}`;
-
-        // Build params for items query if filtering
-        const itemsParams: Record<string, string> = {};
-        if (filters.itemIds.length > 0) {
-          filters.itemIds.forEach((id, index) => {
-            itemsParams[`itemId${index}`] = id;
-          });
-        }
 
         const [itemsResult, storesResult] = await Promise.all([
           queryRef.current(itemsQuery, itemsParams),

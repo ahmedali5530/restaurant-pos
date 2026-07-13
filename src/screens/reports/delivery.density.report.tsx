@@ -239,6 +239,22 @@ export const DeliveryDensityReport = () => {
           conditions.push(`(${paymentFilter.join(" OR ")})`);
         }
 
+        if (filters.couponIds.length > 0) {
+          const couponParts = filters.couponIds.map((id, index) => {
+            params[`coupon${index}`] = toRecordId(id);
+            return `coupon.coupon = $coupon${index}`;
+          });
+          conditions.push(`(${couponParts.join(" OR ")})`);
+        }
+
+        if (filters.menuItemIds.length > 0) {
+          const itemParts = filters.menuItemIds.map((id, index) => {
+            params[`menuItem${index}`] = toRecordId(id);
+            return `array::any(items.item, $menuItem${index})`;
+          });
+          conditions.push(`(${itemParts.join(" OR ")})`);
+        }
+
         const ordersQuery = `
           SELECT *
           FROM ${Tables.orders}
@@ -260,24 +276,6 @@ export const DeliveryDensityReport = () => {
 
   const filteredOrders = useMemo(() => {
     let next = [...orders];
-
-    if (filters.couponIds.length > 0) {
-      const couponSet = new Set(filters.couponIds);
-      next = next.filter(order => {
-        const couponId = order?.coupon?.coupon?.id?.toString?.() ?? order?.coupon?.coupon?.toString?.();
-        return Boolean(couponId && couponSet.has(couponId));
-      });
-    }
-
-    if (filters.menuItemIds.length > 0) {
-      const itemSet = new Set(filters.menuItemIds);
-      next = next.filter(order =>
-        (order.items ?? []).some(item => {
-          const id = item.item?.id?.toString?.() ?? item.item?.toString?.();
-          return Boolean(id && itemSet.has(id));
-        })
-      );
-    }
 
     if (filters.areaNames.length > 0) {
       const areaSet = new Set(filters.areaNames.map(item => item.toLowerCase()));

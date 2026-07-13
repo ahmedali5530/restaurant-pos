@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ReportsLayout } from "@/screens/partials/reports.layout.tsx";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
-import { withCurrency } from "@/lib/utils.ts";
+import { withCurrency, toRecordId } from "@/lib/utils.ts";
 
 const normalizeId = (value: any): string => {
   if (!value) return "";
@@ -53,7 +53,7 @@ export const TipsReport = () => {
         setError(null);
 
         if (filters.shiftId) {
-          const [shiftRows] = await queryRef.current(`SELECT name FROM ${Tables.shifts} WHERE id = $id LIMIT 1`, { id: filters.shiftId });
+          const [shiftRows] = await queryRef.current(`SELECT name FROM ${Tables.shifts} WHERE id = $id LIMIT 1`, { id: toRecordId(filters.shiftId) });
           setShiftName(shiftRows?.[0]?.name || "Selected shift");
         } else {
           setShiftName("All shifts");
@@ -72,7 +72,7 @@ export const TipsReport = () => {
         }
         if (filters.shiftId) {
           conditions.push(`shift = $shiftId`);
-          params.shiftId = filters.shiftId;
+          params.shiftId = toRecordId(filters.shiftId);
         }
 
         const query = `

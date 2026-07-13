@@ -6,23 +6,14 @@ import {Tables} from "@/api/db/tables.ts";
 import {InventoryIssue} from "@/api/model/inventory_issue.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
+import {
+  buildNestedRecordAnyCondition,
+  buildRecordInsideCondition,
+} from "@/api/reports/shared/query.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
-};
-
-const recordToString = (value: any): string => {
-  if (!value) {
-    return '';
-  }
-  if (typeof value === 'string') {
-    return value;
-  }
-  if (typeof value === 'object' && 'toString' in value) {
-    return value.toString();
-  }
-  return String(value);
 };
 
 interface ReportFilters {
@@ -76,7 +67,7 @@ export const IssueReport = () => {
         setError(null);
 
         const conditions: string[] = [];
-        const params: Record<string, string | string[]> = {};
+        const params: Record<string, any> = {};
 
         if (filters.startDate) {
           conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
@@ -88,6 +79,30 @@ export const IssueReport = () => {
           params.endDate = filters.endDate;
         }
 
+        const storeFilter = buildRecordInsideCondition('store', filters.storeIds, 'storeIds');
+        if (storeFilter.condition) {
+          conditions.push(storeFilter.condition);
+          Object.assign(params, storeFilter.params);
+        }
+
+        const kitchenFilter = buildRecordInsideCondition('kitchen', filters.kitchenIds, 'kitchenIds');
+        if (kitchenFilter.condition) {
+          conditions.push(kitchenFilter.condition);
+          Object.assign(params, kitchenFilter.params);
+        }
+
+        const userFilter = buildRecordInsideCondition('created_by', filters.userIds, 'userIds');
+        if (userFilter.condition) {
+          conditions.push(userFilter.condition);
+          Object.assign(params, userFilter.params);
+        }
+
+        const itemFilter = buildNestedRecordAnyCondition('items.item', filters.itemIds, 'item');
+        if (itemFilter.condition) {
+          conditions.push(itemFilter.condition);
+          Object.assign(params, itemFilter.params);
+        }
+
         const query = `
           SELECT * FROM ${Tables.inventory_issues}
           ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
@@ -96,40 +111,7 @@ export const IssueReport = () => {
         `;
 
         const result: any = await queryRef.current(query, params);
-        let allIssues = (result?.[0]?.result ?? result?.[0] ?? []) as InventoryIssue[];
-
-        // Apply client-side filters
-        if (filters.storeIds.length > 0) {
-          allIssues = allIssues.filter(issue => {
-            const storeId = recordToString(issue.store?.id ?? issue.store);
-            return filters.storeIds.includes(storeId);
-          });
-        }
-
-        if (filters.itemIds.length > 0) {
-          allIssues = allIssues.filter(issue => {
-            return issue.items?.some(item => {
-              const itemId = recordToString(item.item?.id ?? item.item);
-              return filters.itemIds.includes(itemId);
-            });
-          });
-        }
-
-        if (filters.kitchenIds.length > 0) {
-          allIssues = allIssues.filter(issue => {
-            const kitchenId = recordToString(issue.kitchen?.id ?? issue.kitchen);
-            return filters.kitchenIds.includes(kitchenId);
-          });
-        }
-
-        if (filters.userIds.length > 0) {
-          allIssues = allIssues.filter(issue => {
-            const userId = recordToString(issue.created_by?.id ?? issue.created_by);
-            return filters.userIds.includes(userId);
-          });
-        }
-
-        setIssues(allIssues);
+        setIssues((result?.[0]?.result ?? result?.[0] ?? []) as InventoryIssue[]);
       } catch (err) {
         console.error('Failed to load issue report:', err);
         setError(err instanceof Error ? err.message : t('errors.unableToLoad'));

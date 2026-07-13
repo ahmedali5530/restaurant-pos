@@ -8,7 +8,7 @@ import type {ScheduledShift} from '@/api/model/scheduled_shift.ts';
 import type {TimeEntry} from '@/api/model/time_entry.ts';
 import type {LaborAdjustment} from '@/api/model/labor_adjustment.ts';
 import type {LaborPayRule} from '@/api/model/labor_pay_rule.ts';
-import {buildCreatedAtDateConditions, buildOrConditions, unwrapQueryResult} from '@/api/reports/shared/query.ts';
+import {buildCreatedAtDateConditions, buildOrConditions, buildStringInsideCondition, unwrapQueryResult} from '@/api/reports/shared/query.ts';
 import type {DateRangeFilter, DbClient} from '@/api/reports/shared/types.ts';
 
 const TIME_ENTRY_FETCHES = [
@@ -289,7 +289,7 @@ export const fetchLeaveRequests = async (
   }
 
   if (statuses.length > 0) {
-    const statusFilter = buildOrConditions('status', statuses, 'status');
+    const statusFilter = buildStringInsideCondition('status', statuses, 'statuses');
     if (statusFilter.condition) {
       conditions.push(statusFilter.condition);
       Object.assign(params, statusFilter.params);

@@ -11,6 +11,11 @@ import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import {OrderItem} from "@/api/model/order_item.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 import {DAY_PART_LABELS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
+import {
+  buildNestedRecordAnyCondition,
+  buildRecordInsideCondition,
+} from "@/api/reports/shared/query.ts";
+import {recordIdToString} from "@/api/reports/shared/records.ts";
 
 interface CategoryAggregate {
   id: string;
@@ -61,18 +66,7 @@ const safeNumber = (value: any): number => {
   return Number.isFinite(num) ? num : 0;
 };
 
-const recordToString = (value: any): string => {
-  if (!value) {
-    return '';
-  }
-  if (typeof value === 'string') {
-    return value;
-  }
-  if (typeof value === 'object' && 'toString' in value) {
-    return value.toString();
-  }
-  return String(value);
-};
+const recordToString = (value: any): string => recordIdToString(value);
 
 const collectCategories = (item: OrderItem | undefined) => {
   if (!item) {
@@ -272,7 +266,7 @@ export const SalesServerReport = () => {
         setError(null);
 
         const conditions = [`status = 'Paid'`];
-        const params: Record<string, string> = {};
+        const params: Record<string, any> = {};
 
         if (filters.startDate) {
           conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
@@ -282,6 +276,42 @@ export const SalesServerReport = () => {
         if (filters.endDate) {
           conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
           params.endDate = filters.endDate;
+        }
+
+        const userFilter = buildRecordInsideCondition('user', filters.userIds, 'userIds');
+        if (userFilter.condition) {
+          conditions.push(userFilter.condition);
+          Object.assign(params, userFilter.params);
+        }
+
+        const orderTypeFilter = buildRecordInsideCondition('order_type', filters.orderTypeIds, 'orderTypeIds');
+        if (orderTypeFilter.condition) {
+          conditions.push(orderTypeFilter.condition);
+          Object.assign(params, orderTypeFilter.params);
+        }
+
+        const floorFilter = buildRecordInsideCondition('floor', filters.floorIds, 'floorIds');
+        if (floorFilter.condition) {
+          conditions.push(floorFilter.condition);
+          Object.assign(params, floorFilter.params);
+        }
+
+        const tableFilter = buildRecordInsideCondition('table', filters.tableIds, 'tableIds');
+        if (tableFilter.condition) {
+          conditions.push(tableFilter.condition);
+          Object.assign(params, tableFilter.params);
+        }
+
+        const dishFilter = buildNestedRecordAnyCondition('items.item', filters.dishIds, 'dish');
+        if (dishFilter.condition) {
+          conditions.push(dishFilter.condition);
+          Object.assign(params, dishFilter.params);
+        }
+
+        const categoryFilter = buildNestedRecordAnyCondition('items.item.categories', filters.categoryIds, 'category');
+        if (categoryFilter.condition) {
+          conditions.push(categoryFilter.condition);
+          Object.assign(params, categoryFilter.params);
         }
 
         const query = `
@@ -316,53 +346,9 @@ export const SalesServerReport = () => {
     };
 
     fetchOrders();
-  }, [filters.startDate, filters.endDate]);
+  }, [filters.startDate, filters.endDate, filters.userIds, filters.orderTypeIds, filters.floorIds, filters.tableIds, filters.dishIds, filters.categoryIds]);
 
-  const filteredOrders = useMemo(() => {
-    return orders.filter(order => {
-      const userId = recordToString(order.user?.id ?? order.user);
-      if (filters.userIds.length && !filters.userIds.includes(userId)) {
-        return false;
-      }
-
-      const orderTypeId = recordToString(order.order_type?.id ?? order.order_type);
-      if (filters.orderTypeIds.length && !filters.orderTypeIds.includes(orderTypeId)) {
-        return false;
-      }
-
-      const floorId = recordToString(order.floor?.id ?? order.floor);
-      if (filters.floorIds.length && !filters.floorIds.includes(floorId)) {
-        return false;
-      }
-
-      const tableId = recordToString(order.table?.id ?? order.table);
-      if (filters.tableIds.length && !filters.tableIds.includes(tableId)) {
-        return false;
-      }
-
-      if (filters.dishIds.length) {
-        const hasDish = order.items?.some(item =>
-          filters.dishIds.includes(recordToString(item?.item?.id ?? item?.item))
-        );
-        if (!hasDish) {
-          return false;
-        }
-      }
-
-      if (filters.categoryIds.length) {
-        const hasCategory = order.items?.some(item => {
-          const categories = collectCategories(item);
-          return categories.some(category => filters.categoryIds.includes(category.id));
-        });
-        if (!hasCategory) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }, [orders, filters]);
-
+  const filteredOrders = orders;
   const sections: UserReportSection[] = useMemo(() => {
     if (!filteredOrders.length) {
       return [];

@@ -8,24 +8,18 @@ import {Menu} from "@/api/model/menu.ts";
 import {OrderVoid} from "@/api/model/order_void.ts";
 import {formatNumber, safeNumber, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
-import {getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures, orderHasDiscount, orderMatchesDiscountId, type OrderPaymentTotals} from "@/lib/order.ts";
+import {getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures, type OrderPaymentTotals} from "@/lib/order.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {OrderItemName} from "@/components/common/order/order.item.tsx";
 import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
 import { getOrderItemDisplayLineTotal } from "@/lib/order-item-display.ts";
+import {
+  buildNestedRecordAnyCondition,
+  buildRecordInsideCondition,
+} from "@/api/reports/shared/query.ts";
+import {recordIdToString} from "@/api/reports/shared/records.ts";
 
-const recordToString = (value: any): string => {
-  if (!value) {
-    return '';
-  }
-  if (typeof value === 'string') {
-    return value;
-  }
-  if (typeof value === 'object' && 'toString' in value) {
-    return value.toString();
-  }
-  return String(value);
-};
+const recordToString = (value: any): string => recordIdToString(value);
 
 const collectMenuDishIds = (menus: Menu[]): Set<string> => {
   const dishIds = new Set<string>();
@@ -130,7 +124,6 @@ export const SalesAdvancedReport = () => {
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
   const [orderVoids, setOrderVoids] = useState<OrderVoid[]>([]);
-  const [menuDishIds, setMenuDishIds] = useState<Set<string>>(new Set());
   const [expandedOrderIds, setExpandedOrderIds] = useState<Set<string>>(new Set());
 
   const [loading, setLoading] = useState(true);
@@ -150,7 +143,7 @@ export const SalesAdvancedReport = () => {
         setError(null);
 
         const orderConditions: string[] = [];
-        const params: Record<string, string | string[] | number | number[]> = {};
+        const params: Record<string, any> = {};
 
         if (filters.startDate) {
           orderConditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
@@ -231,6 +224,24 @@ export const SalesAdvancedReport = () => {
           orderConditions.push(`(${paymentFilter.join(' or ')})`);
         }
 
+        if (filters.withDiscount) {
+          orderConditions.push(`(discount != NONE OR array::len(order_discounts) > 0 OR coupon != NONE)`);
+        }
+
+        if (filters.withoutDiscount) {
+          orderConditions.push(`(discount = NONE AND (order_discounts = NONE OR array::len(order_discounts) = 0) AND coupon = NONE)`);
+        }
+
+        if (filters.discountIds.length > 0) {
+          const discountInside = buildRecordInsideCondition('discount', filters.discountIds, 'discountIds');
+          const discountLines = buildNestedRecordAnyCondition('order_discounts.discount', filters.discountIds, 'orderDiscount');
+          const parts = [discountInside.condition, discountLines.condition].filter(Boolean);
+          Object.assign(params, discountInside.params, discountLines.params);
+          if (parts.length > 0) {
+            orderConditions.push(`(${parts.join(' OR ')})`);
+          }
+        }
+
         if (filters.menuIds.length > 0) {
           const menusQuery = `
             SELECT * FROM ${Tables.menus}
@@ -240,9 +251,34 @@ export const SalesAdvancedReport = () => {
           const menusResult: any = await queryRef.current(menusQuery, {
             menuIds: filters.menuIds.map(item => toRecordId(item)),
           });
-          setMenuDishIds(collectMenuDishIds((menusResult?.[0] ?? []) as Menu[]));
-        } else {
-          setMenuDishIds(new Set());
+          const menuDishIdList = Array.from(collectMenuDishIds((menusResult?.[0] ?? []) as Menu[]));
+          if (menuDishIdList.length === 0) {
+            setOrders([]);
+            setOrderVoids([]);
+            setLoading(false);
+            return;
+          }
+          const menuDishFilter = buildNestedRecordAnyCondition('items.item', menuDishIdList, 'menuDish');
+          if (menuDishFilter.condition) {
+            orderConditions.push(menuDishFilter.condition);
+            Object.assign(params, menuDishFilter.params);
+          }
+        }
+
+        if (filters.menuItemIds.length > 0) {
+          if (filters.menuItemsMatch === 'all') {
+            filters.menuItemIds.forEach((id, index) => {
+              const paramName = `requiredMenuItem${index}`;
+              params[paramName] = toRecordId(id);
+              orderConditions.push(`array::any(items.item, $${paramName})`);
+            });
+          } else {
+            const menuItemFilter = buildNestedRecordAnyCondition('items.item', filters.menuItemIds, 'menuItem');
+            if (menuItemFilter.condition) {
+              orderConditions.push(menuItemFilter.condition);
+              Object.assign(params, menuItemFilter.params);
+            }
+          }
         }
 
 
@@ -329,72 +365,13 @@ export const SalesAdvancedReport = () => {
     filters.discountIds, filters.withDiscount, filters.withoutDiscount,
     filters.paymentTypeIds,
     filters.menuIds,
+    filters.menuItemIds,
+    filters.menuItemsMatch,
     filters.withTax, filters.withoutTax,
     filters.sortBy, filters.sortDirection
   ]);
 
-  const filteredOrders = useMemo(() => {
-    let result = orders;
-
-    if (filters.discountIds.length > 0) {
-      result = result.filter(order =>
-        filters.discountIds.some(discountId => orderMatchesDiscountId(order, discountId)),
-      );
-    }
-
-    if (filters.withDiscount) {
-      result = result.filter(orderHasDiscount);
-    }
-
-    if (filters.withoutDiscount) {
-      result = result.filter(order => !orderHasDiscount(order));
-    }
-
-    if (filters.menuIds.length > 0) {
-      if (menuDishIds.size === 0) {
-        return [];
-      }
-
-      result = result.filter(order => {
-        const orderItemIds = new Set(
-          (order.items ?? [])
-            .map(item => recordToString(item.item?.id ?? item.item))
-            .filter(Boolean),
-        );
-
-        if (orderItemIds.size === 0) {
-          return false;
-        }
-
-        return Array.from(menuDishIds).some(dishId => orderItemIds.has(dishId));
-      });
-    }
-
-    if (filters.menuItemIds.length === 0) {
-      return result;
-    }
-
-    const selectedItemIds = new Set(filters.menuItemIds);
-
-    return result.filter(order => {
-      const orderItemIds = new Set(
-        (order.items ?? [])
-          .map(item => recordToString(item.item?.id ?? item.item))
-          .filter(Boolean),
-      );
-
-      if (orderItemIds.size === 0) {
-        return false;
-      }
-
-      if (filters.menuItemsMatch === 'all') {
-        return Array.from(selectedItemIds).every(itemId => orderItemIds.has(itemId));
-      }
-
-      return Array.from(selectedItemIds).some(itemId => orderItemIds.has(itemId));
-    });
-  }, [orders, filters, menuDishIds]);
-
+  const filteredOrders = orders;
   const baseColumns = 10;
   const detailsColumns = filters.showDetails ? 14 : 1;
   const tableColSpan = baseColumns + detailsColumns + (filters.showMenuItems ? 1 : 0);

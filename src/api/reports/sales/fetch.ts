@@ -3,7 +3,7 @@ import {ORDER_FETCHES} from "@/api/model/order.ts";
 import {MODIFIER_FETCH_DEPTH, buildModifierFetches} from "@/api/model/order_fetches.ts";
 import type {Order} from "@/api/model/order.ts";
 import type {OrderVoid} from "@/api/model/order_void.ts";
-import {buildCreatedAtDateConditions, buildOrConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
+import {buildCreatedAtDateConditions, buildNestedRecordAnyCondition, buildOrConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 
 export const SALES_SUMMARY_FETCHES = [
@@ -42,6 +42,8 @@ export interface FetchOrdersOptions extends DateRangeFilter {
   paidOnly?: boolean;
   orderTakerIds?: string[];
   orderTypeIds?: string[];
+  categoryIds?: string[];
+  menuItemIds?: string[];
 }
 
 export const fetchOrders = async (
@@ -55,10 +57,12 @@ export const fetchOrders = async (
     paidOnly = false,
     orderTakerIds = [],
     orderTypeIds = [],
+    categoryIds = [],
+    menuItemIds = [],
   } = options;
 
   const conditions: string[] = [];
-  const params: Record<string, string> = {};
+  const params: Record<string, any> = {};
 
   if (paidOnly) {
     conditions.push("status = 'Paid'");
@@ -68,16 +72,28 @@ export const fetchOrders = async (
   conditions.push(...dateFilter.conditions);
   Object.assign(params, dateFilter.params);
 
-  const userFilter = buildOrConditions("user", orderTakerIds, "user");
+  const userFilter = buildOrConditions("user", orderTakerIds, "userIds");
   if (userFilter.condition) {
     conditions.push(userFilter.condition);
     Object.assign(params, userFilter.params);
   }
 
-  const orderTypeFilter = buildOrConditions("order_type", orderTypeIds, "orderType");
+  const orderTypeFilter = buildOrConditions("order_type", orderTypeIds, "orderTypeIds");
   if (orderTypeFilter.condition) {
     conditions.push(orderTypeFilter.condition);
     Object.assign(params, orderTypeFilter.params);
+  }
+
+  const menuItemFilter = buildNestedRecordAnyCondition("items.item", menuItemIds, "menuItem");
+  if (menuItemFilter.condition) {
+    conditions.push(menuItemFilter.condition);
+    Object.assign(params, menuItemFilter.params);
+  }
+
+  const categoryFilter = buildNestedRecordAnyCondition("items.item.categories", categoryIds, "category");
+  if (categoryFilter.condition) {
+    conditions.push(categoryFilter.condition);
+    Object.assign(params, categoryFilter.params);
   }
 
   const query = `

@@ -44,6 +44,7 @@ import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
 import { getFiscalQrcodeForOrderPrint } from "@/integrations/providers/fiscal/settlement.ts";
 import {OrderItemName} from "@/components/common/order/order.item.tsx";
+import {syncOrderPayments} from "@/lib/order-payment-sync.ts";
 
 interface Props {
   order: Order
@@ -249,7 +250,7 @@ export const OrderPayment = ({
       return;
     }
 
-    setPaymentTypes(order?.payments ?? []);
+    setPaymentTypes((order?.payments ?? []).filter((payment) => payment != null));
     setTax(order?.tax);
     setTaxAmount(order?.tax_amount ?? 0);
 
@@ -531,21 +532,18 @@ export const OrderPayment = ({
       return;
     }
 
-    // remove previously attached payments
-    for (const payment of order?.payments ?? []) {
-      await db.delete(payment.id);
-    }
+    const {paymentIds: orderPayments, payments: syncedPayments} = await syncOrderPayments(
+      db,
+      paymentTypes,
+      order?.payments,
+      total,
+    );
 
-    const orderPayments = [];
-    for (const payment of paymentTypes) {
-      const [orderPayment] = await db.create(Tables.order_payment, {
-        amount: payment.amount,
-        payment_type: payment.payment_type.id,
-        comments: '',
-        payable: payment.payable ?? total,
-      });
-
-      orderPayments.push(orderPayment.id);
+    const paymentIdsChanged =
+      syncedPayments.length !== paymentTypes.length ||
+      syncedPayments.some((payment, index) => String(payment.id) !== String(paymentTypes[index]?.id));
+    if (paymentIdsChanged) {
+      setPaymentTypes(syncedPayments);
     }
 
     // remove previously attached extras from order

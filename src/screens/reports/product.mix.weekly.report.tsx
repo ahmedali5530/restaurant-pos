@@ -9,6 +9,11 @@ import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import {DateTime} from "luxon";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
+import {
+  buildNestedRecordAnyCondition,
+  buildRecordInsideCondition,
+} from "@/api/reports/shared/query.ts";
+import {recordIdToString} from "@/api/reports/shared/records.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -104,24 +109,28 @@ export const ProductMixWeeklyReport = () => {
         conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $start`);
         conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $end`);
 
-        // Order takers filter
-        if (filters.orderTakerIds.length > 0) {
-          const userIdConditions = filters.orderTakerIds.map((id, index) => {
-            const paramName = `user${index}`;
-            params[paramName] = id;
-            return `user = $${paramName}`;
-          });
-          conditions.push(`(${userIdConditions.join(' OR ')})`);
+        const userFilter = buildRecordInsideCondition('user', filters.orderTakerIds, 'userIds');
+        if (userFilter.condition) {
+          conditions.push(userFilter.condition);
+          Object.assign(params, userFilter.params);
         }
 
-        // Order types filter
-        if (filters.orderTypeIds.length > 0) {
-          const orderTypeConditions = filters.orderTypeIds.map((id, index) => {
-            const paramName = `orderType${index}`;
-            params[paramName] = id;
-            return `order_type = $${paramName}`;
-          });
-          conditions.push(`(${orderTypeConditions.join(' OR ')})`);
+        const orderTypeFilter = buildRecordInsideCondition('order_type', filters.orderTypeIds, 'orderTypeIds');
+        if (orderTypeFilter.condition) {
+          conditions.push(orderTypeFilter.condition);
+          Object.assign(params, orderTypeFilter.params);
+        }
+
+        const categoryFilter = buildNestedRecordAnyCondition('items.item.categories', filters.categoryIds, 'category');
+        if (categoryFilter.condition) {
+          conditions.push(categoryFilter.condition);
+          Object.assign(params, categoryFilter.params);
+        }
+
+        const menuItemFilter = buildNestedRecordAnyCondition('items.item', filters.menuItemIds, 'menuItem');
+        if (menuItemFilter.condition) {
+          conditions.push(menuItemFilter.condition);
+          Object.assign(params, menuItemFilter.params);
         }
 
         const ordersQuery = `
@@ -141,55 +150,19 @@ export const ProductMixWeeklyReport = () => {
     };
 
     fetchData();
-  }, [weekStartISO, weekEndISO, filters.orderTakerIds.join(','), filters.orderTypeIds.join(',')]);
+  }, [weekStartISO, weekEndISO, filters.orderTakerIds, filters.orderTypeIds, filters.categoryIds, filters.menuItemIds]);
 
-  // Filter orders by category and menu item
-  const filteredOrders = useMemo(() => {
-    return orders.filter(order => {
-      const validItems = getOrderFilteredItems(order);
-
-      // Check if order has items matching category filter
-      if (filters.categoryIds.length > 0) {
-        const hasMatchingCategory = validItems.some(item => {
-          const itemCategories = item.item?.categories || [];
-          if (Array.isArray(itemCategories)) {
-            return itemCategories.some((cat: any) => {
-              const catId = typeof cat === 'string' ? cat : cat?.id?.toString();
-              return catId && filters.categoryIds.includes(catId);
-            });
-          }
-          return false;
-        });
-        if (!hasMatchingCategory) {
-          return false;
-        }
-      }
-
-      // Check if order has items matching menu item filter
-      if (filters.menuItemIds.length > 0) {
-        const hasMatchingMenuItem = validItems.some(item => {
-          const itemId = item.item?.id?.toString();
-          return itemId && filters.menuItemIds.includes(itemId);
-        });
-        if (!hasMatchingMenuItem) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }, [orders, filters.categoryIds, filters.menuItemIds]);
-
+  // Orders already filtered in SurrealQL; keep item-level filtering for aggregation
+  const filteredOrders = orders;
   // Filter items within orders by category and menu item
   const getFilteredOrderItems = (order: Order) => {
     const validItems = getOrderFilteredItems(order);
     return validItems.filter(item => {
-      // Filter by category
       if (filters.categoryIds.length > 0) {
         const itemCategories = item.item?.categories || [];
         const hasMatchingCategory = Array.isArray(itemCategories)
           ? itemCategories.some((cat: any) => {
-              const catId = typeof cat === 'string' ? cat : cat?.id?.toString();
+              const catId = recordIdToString(cat);
               return catId && filters.categoryIds.includes(catId);
             })
           : false;
@@ -198,9 +171,8 @@ export const ProductMixWeeklyReport = () => {
         }
       }
 
-      // Filter by menu item
       if (filters.menuItemIds.length > 0) {
-        const itemId = item.item?.id?.toString();
+        const itemId = recordIdToString(item.item);
         if (!itemId || !filters.menuItemIds.includes(itemId)) {
           return false;
         }

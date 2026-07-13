@@ -72,7 +72,9 @@ export const OrderTotals = ({order, cart, className}: Props) => {
   }, [order, cart]);
 
   const changeDue = useMemo(() => {
-    return order?.payments?.reduce((prev, item) => Number(prev) + Number(item.payable ?? 0) - Number(item.amount ?? 0), 0)
+    return order?.payments
+      ?.filter(item => item !== null)
+      ?.reduce((prev, item) => Number(prev) + Number(item.payable ?? 0) - Number(item.amount ?? 0), 0)
   }, [order?.payments]);
 
   return (

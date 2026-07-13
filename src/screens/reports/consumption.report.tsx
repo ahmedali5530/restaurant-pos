@@ -8,24 +8,15 @@ import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import {StringRecordId} from "surrealdb";
 import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
 import { getOrderItemDisplayUnitPrice } from "@/lib/order-item-display.ts";
+import {buildNestedRecordAnyCondition} from "@/api/reports/shared/query.ts";
+import {recordIdToString} from "@/api/reports/shared/records.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-const recordToString = (value: any): string => {
-  if (!value) {
-    return '';
-  }
-  if (typeof value === 'string') {
-    return value;
-  }
-  if (typeof value === 'object' && 'toString' in value) {
-    return value.toString();
-  }
-  return String(value);
-};
+const recordToString = (value: any): string => recordIdToString(value);
 
 interface ReportFilters {
   startDate?: string | null;
@@ -88,7 +79,7 @@ export const ConsumptionReport = () => {
         setError(null);
 
         const conditions: string[] = [];
-        const params: Record<string, string | string[]> = {};
+        const params: Record<string, any> = {};
 
         if (filters.startDate) {
           conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
@@ -98,6 +89,12 @@ export const ConsumptionReport = () => {
         if (filters.endDate) {
           conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
           params.endDate = filters.endDate;
+        }
+
+        const dishFilter = buildNestedRecordAnyCondition('items.item', filters.dishIds, 'dish');
+        if (dishFilter.condition) {
+          conditions.push(dishFilter.condition);
+          Object.assign(params, dishFilter.params);
         }
 
         // Fetch orders with items and dishes
@@ -116,7 +113,7 @@ export const ConsumptionReport = () => {
         orders.forEach(order => {
           order.items?.forEach(orderItem => {
             if (orderItem.item?.id) {
-              const dishId = recordToString(orderItem.item.id);
+              const dishId = recordToString(orderItem.item);
               dishIds.add(dishId);
             }
           });
@@ -143,16 +140,7 @@ export const ConsumptionReport = () => {
           }
         }
 
-        // Filter orders by dishes if filter is set
-        let filteredOrders = orders;
-        if (filters.dishIds.length > 0) {
-          filteredOrders = orders.filter(order => {
-            return order.items?.some(orderItem => {
-              const dishId = recordToString(orderItem.item?.id ?? orderItem.item);
-              return filters.dishIds.includes(dishId);
-            });
-          });
-        }
+        const filteredOrders = orders;
 
         // Calculate consumption
         const consumptionMap = new Map<string, ConsumptionItem>();
@@ -164,7 +152,7 @@ export const ConsumptionReport = () => {
 
             // Filter by dish if filter is set
             if (filters.dishIds.length > 0) {
-              const dishId = recordToString(dish.id);
+              const dishId = recordToString(dish);
               if (!filters.dishIds.includes(dishId)) {
                 return;
               }
@@ -175,7 +163,7 @@ export const ConsumptionReport = () => {
             const orderItemSalePrice = orderItemQuantity * orderItemPrice;
 
             // Get recipes for this dish
-            const dishId = recordToString(dish.id);
+            const dishId = recordToString(dish);
             const recipes = recipesMap.get(dishId) || [];
             
             // Calculate total recipe cost for proportional allocation
@@ -186,7 +174,7 @@ export const ConsumptionReport = () => {
               const inventoryItem = recipe.item;
               if (!inventoryItem) return;
               
-              const itemId = recordToString(inventoryItem.id);
+              const itemId = recordToString(inventoryItem);
               const recipeQuantity = safeNumber(recipe.quantity);
               const recipeCost = safeNumber(recipe.cost);
               const itemCost = recipeQuantity * recipeCost;
@@ -200,7 +188,7 @@ export const ConsumptionReport = () => {
               const inventoryItem = recipe.item;
               if (!inventoryItem) return;
 
-              const itemId = recordToString(inventoryItem.id);
+              const itemId = recordToString(inventoryItem);
               
               // Filter by inventory item if filter is set
               if (filters.itemIds.length > 0 && !filters.itemIds.includes(itemId)) {

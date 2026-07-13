@@ -6,23 +6,14 @@ import {Tables} from "@/api/db/tables.ts";
 import {InventoryWaste} from "@/api/model/inventory_waste.ts";
 import {formatNumber} from "@/lib/utils.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
+import {
+  buildNestedRecordAnyCondition,
+  buildRecordInsideCondition,
+} from "@/api/reports/shared/query.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
-};
-
-const recordToString = (value: any): string => {
-  if (!value) {
-    return '';
-  }
-  if (typeof value === 'string') {
-    return value;
-  }
-  if (typeof value === 'object' && 'toString' in value) {
-    return value.toString();
-  }
-  return String(value);
 };
 
 interface ReportFilters {
@@ -72,7 +63,7 @@ export const WasteReport = () => {
         setError(null);
 
         const conditions: string[] = [];
-        const params: Record<string, string | string[]> = {};
+        const params: Record<string, any> = {};
 
         if (filters.startDate) {
           conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
@@ -84,6 +75,18 @@ export const WasteReport = () => {
           params.endDate = filters.endDate;
         }
 
+        const userFilter = buildRecordInsideCondition('created_by', filters.userIds, 'userIds');
+        if (userFilter.condition) {
+          conditions.push(userFilter.condition);
+          Object.assign(params, userFilter.params);
+        }
+
+        const itemFilter = buildNestedRecordAnyCondition('items.item', filters.itemIds, 'item');
+        if (itemFilter.condition) {
+          conditions.push(itemFilter.condition);
+          Object.assign(params, itemFilter.params);
+        }
+
         const query = `
           SELECT * FROM ${Tables.inventory_wastes}
           ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
@@ -92,26 +95,7 @@ export const WasteReport = () => {
         `;
 
         const result: any = await queryRef.current(query, params);
-        let allWastes = (result?.[0]?.result ?? result?.[0] ?? []) as InventoryWaste[];
-
-        // Apply client-side filters
-        if (filters.itemIds.length > 0) {
-          allWastes = allWastes.filter(waste => {
-            return waste.items?.some(item => {
-              const itemId = recordToString(item.item?.id ?? item.item);
-              return filters.itemIds.includes(itemId);
-            });
-          });
-        }
-
-        if (filters.userIds.length > 0) {
-          allWastes = allWastes.filter(waste => {
-            const userId = recordToString(waste.created_by?.id ?? waste.created_by);
-            return filters.userIds.includes(userId);
-          });
-        }
-
-        setWastes(allWastes);
+        setWastes((result?.[0]?.result ?? result?.[0] ?? []) as InventoryWaste[]);
       } catch (err) {
         console.error('Failed to load waste report:', err);
         setError(err instanceof Error ? err.message : t('errors.unableToLoad'));

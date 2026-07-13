@@ -1,3 +1,5 @@
+import {toRecordId} from "@/lib/utils.ts";
+
 const DB_DATE_FORMAT = import.meta.env.VITE_DB_DATABASE_FORMAT as string;
 
 export const unwrapQueryResult = <T>(result: unknown): T[] => {
@@ -35,24 +37,72 @@ export const buildCreatedAtDateConditions = (
   return {conditions, params};
 };
 
-export const buildOrConditions = (
+/** Record-field filter: `field INSIDE $param` with toRecordId-bound values. */
+export const buildRecordInsideCondition = (
   field: string,
   ids: string[],
-  paramPrefix: string,
-): {condition?: string; params: Record<string, string>} => {
+  paramName: string,
+): {condition?: string; params: Record<string, any>} => {
   if (ids.length === 0) {
     return {params: {}};
   }
 
-  const params: Record<string, string> = {};
+  return {
+    condition: `${field} INSIDE $${paramName}`,
+    params: {[paramName]: ids.map(id => toRecordId(id))},
+  };
+};
+
+/**
+ * Nested array record filter, e.g. line items:
+ * `(array::any(items.item, $item0) OR array::any(items.item, $item1))`
+ */
+export const buildNestedRecordAnyCondition = (
+  path: string,
+  ids: string[],
+  paramPrefix: string,
+): {condition?: string; params: Record<string, any>} => {
+  if (ids.length === 0) {
+    return {params: {}};
+  }
+
+  const params: Record<string, any> = {};
   const parts = ids.map((id, index) => {
     const paramName = `${paramPrefix}${index}`;
-    params[paramName] = id;
-    return `${field} = $${paramName}`;
+    params[paramName] = toRecordId(id);
+    return `array::any(${path}, $${paramName})`;
   });
 
   return {
     condition: `(${parts.join(" OR ")})`,
     params,
   };
+};
+
+/** String/enum filter: `field INSIDE $param` (no record coercion). */
+export const buildStringInsideCondition = (
+  field: string,
+  values: string[],
+  paramName: string,
+): {condition?: string; params: Record<string, any>} => {
+  if (values.length === 0) {
+    return {params: {}};
+  }
+
+  return {
+    condition: `${field} INSIDE $${paramName}`,
+    params: {[paramName]: values},
+  };
+};
+
+/**
+ * Record id OR/INSIDE filter. Prefer this for user/store/supplier/etc.
+ * For plain strings (status enums), use buildStringInsideCondition.
+ */
+export const buildOrConditions = (
+  field: string,
+  ids: string[],
+  paramPrefix: string,
+): {condition?: string; params: Record<string, any>} => {
+  return buildRecordInsideCondition(field, ids, paramPrefix);
 };

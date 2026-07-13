@@ -10,6 +10,8 @@ import {getOrderItemTaxAmount} from "@/lib/tax-calculator.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
+import {buildNestedRecordAnyCondition} from "@/api/reports/shared/query.ts";
+import {recordIdToString} from "@/api/reports/shared/records.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -91,6 +93,12 @@ export const ProductHourlyReport = () => {
           params.endDate = filters.endDate;
         }
 
+        const menuItemFilter = buildNestedRecordAnyCondition('items.item', filters.menuItemIds, 'menuItem');
+        if (menuItemFilter.condition) {
+          conditions.push(menuItemFilter.condition);
+          Object.assign(params, menuItemFilter.params);
+        }
+
         const ordersQuery = `
           SELECT * FROM ${Tables.orders}
           WHERE ${conditions.length > 0 ? conditions.join(' AND ') : '1 = 1'}
@@ -108,7 +116,7 @@ export const ProductHourlyReport = () => {
     };
 
     fetchData();
-  }, [filters.startDate, filters.endDate]);
+  }, [filters.startDate, filters.endDate, filters.menuItemIds]);
 
   // Calculate metrics grouped by menu item and hour
   const menuItemMetrics = useMemo(() => {
@@ -131,7 +139,7 @@ export const ProductHourlyReport = () => {
       // Process each item in the order
       getOrderFilteredItems(order)?.forEach((item: OrderItem) => {
         // Filter by menu item if filter is applied
-        const itemId = item.item?.id?.toString();
+        const itemId = recordIdToString(item.item);
         if (filters.menuItemIds.length > 0 && (!itemId || !filters.menuItemIds.includes(itemId))) {
           return;
         }

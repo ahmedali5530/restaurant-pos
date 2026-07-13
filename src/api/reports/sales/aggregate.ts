@@ -2,7 +2,7 @@ import type {Order} from "@/api/model/order.ts";
 import {OrderStatus} from "@/api/model/order.ts";
 import type {OrderItem, OrderItemModifier} from "@/api/model/order_item.ts";
 import type {OrderVoid} from "@/api/model/order_void.ts";
-import {recordToString} from "@/api/reports/shared/records.ts";
+import {recordIdToString} from "@/api/reports/shared/records.ts";
 import type {
   CategoryGroup,
   ModifierDetail,
@@ -91,7 +91,7 @@ const collectCategories = (item: {item?: {categories?: unknown[]; name?: string}
   if (Array.isArray(categories) && categories.length > 0) {
     return categories
       .map((cat: unknown) => ({
-        id: recordToString((cat as {id?: unknown})?.id ?? cat),
+        id: recordIdToString(cat),
         name: (cat as {name?: string})?.name ?? "Uncategorized",
       }))
       .filter(cat => Boolean(cat.id));
@@ -114,7 +114,7 @@ const filterOrdersByProductMix = (orders: Order[], filters: ProductMixFilters = 
         const itemCategories = item.item?.categories || [];
         if (Array.isArray(itemCategories)) {
           return itemCategories.some((cat: unknown) => {
-            const catId = recordToString((cat as {id?: unknown})?.id ?? cat);
+            const catId = recordIdToString(cat);
             return catId && categoryIds.includes(catId);
           });
         }
@@ -125,7 +125,7 @@ const filterOrdersByProductMix = (orders: Order[], filters: ProductMixFilters = 
 
     if (menuItemIds.length > 0) {
       const hasMatchingMenuItem = order.items?.some(item => {
-        const itemId = recordToString(item.item?.id);
+        const itemId = recordIdToString(item.item);
         return itemId && menuItemIds.includes(itemId);
       });
       if (!hasMatchingMenuItem) return false;
@@ -144,7 +144,7 @@ const getFilteredOrderItems = (order: Order, filters: ProductMixFilters = {}) =>
       const itemCategories = item.item?.categories || [];
       const hasMatchingCategory = Array.isArray(itemCategories)
         ? itemCategories.some((cat: unknown) => {
-          const catId = recordToString((cat as {id?: unknown})?.id ?? cat);
+          const catId = recordIdToString(cat);
           return catId && categoryIds.includes(catId);
         })
         : false;
@@ -152,7 +152,7 @@ const getFilteredOrderItems = (order: Order, filters: ProductMixFilters = {}) =>
     }
 
     if (menuItemIds.length > 0) {
-      const itemId = recordToString(item.item?.id);
+      const itemId = recordIdToString(item.item);
       if (!itemId || !menuItemIds.includes(itemId)) return false;
     }
 
@@ -169,7 +169,7 @@ export const aggregateTopSellingDishes = (
 
   orders.forEach(order => {
     getOrderFilteredItems(order).forEach(item => {
-      const dishId = recordToString(item.item?.id);
+      const dishId = recordIdToString(item.item?.id);
       const name = item.item?.name || "Unknown";
       const key = dishId || name;
       const current = map.get(key) || {dishId: dishId || undefined, name, quantity: 0, revenue: 0};
@@ -313,9 +313,9 @@ const walkSelectedModifiers = (
       if (!selectedModifier) return;
 
       // Pass the whole dish (not dish.id) so RecordId values resolve to the full
-      // "table:id" string. recordToString(dish.id) would drop the table prefix,
+      // "table:id" string. recordIdToString(dish.id) would drop the table prefix,
       // breaking equality with the modifier filter values (full record ids).
-      const modifierId = recordToString(selectedModifier.dish);
+      const modifierId = recordIdToString(selectedModifier.dish);
       const modifierName = selectedModifier.dish?.name
         || (selectedModifier as {name?: string}).name
         || "Unknown";
@@ -365,7 +365,7 @@ export const aggregateProductMixByCategory = (
     getFilteredOrderItems(order, filters).forEach(item => {
       if (!item.item) return;
 
-      const dishId = recordToString(item.item.id);
+      const dishId = recordIdToString(item.item.id);
       const itemNumber = item.item.number || "";
       const name = item.item.name || "Unknown";
       const categories = collectCategories(item);

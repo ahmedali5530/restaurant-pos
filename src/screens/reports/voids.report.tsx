@@ -13,6 +13,12 @@ import {
 } from "@/lib/order-item-display.ts";
 import type { OrderItem } from "@/api/model/order_item.ts";
 import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
+import {
+  buildNestedRecordAnyCondition,
+  buildRecordInsideCondition,
+  buildStringInsideCondition,
+} from "@/api/reports/shared/query.ts";
+import {recordIdToString} from "@/api/reports/shared/records.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -78,18 +84,7 @@ const getVoidItemModifiers = (
   return rows;
 };
 
-const recordToString = (value: any): string => {
-  if (!value) {
-    return '';
-  }
-  if (typeof value === 'string') {
-    return value;
-  }
-  if (typeof value === 'object' && 'toString' in value) {
-    return value.toString();
-  }
-  return String(value);
-};
+const recordToString = (value: any): string => recordIdToString(value);
 
 interface ReportFilters {
   startDate?: string | null;
@@ -143,7 +138,7 @@ export const VoidsReport = () => {
         setError(null);
 
         const conditions: string[] = [];
-        const params: Record<string, string | string[]> = {};
+        const params: Record<string, any> = {};
 
         if (filters.startDate) {
           conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
@@ -155,6 +150,30 @@ export const VoidsReport = () => {
           params.endDate = filters.endDate;
         }
 
+        const reasonFilter = buildStringInsideCondition('reason', filters.reasonIds, 'reasonIds');
+        if (reasonFilter.condition) {
+          conditions.push(reasonFilter.condition);
+          Object.assign(params, reasonFilter.params);
+        }
+
+        const managerFilter = buildRecordInsideCondition('deleted_by', filters.managerIds, 'managerIds');
+        if (managerFilter.condition) {
+          conditions.push(managerFilter.condition);
+          Object.assign(params, managerFilter.params);
+        }
+
+        const cashierFilter = buildRecordInsideCondition('order.cashier', filters.cashierIds, 'cashierIds');
+        if (cashierFilter.condition) {
+          conditions.push(cashierFilter.condition);
+          Object.assign(params, cashierFilter.params);
+        }
+
+        const menuItemFilter = buildNestedRecordAnyCondition('items.item', filters.menuItemIds, 'menuItem');
+        if (menuItemFilter.condition) {
+          conditions.push(menuItemFilter.condition);
+          Object.assign(params, menuItemFilter.params);
+        }
+
         const query = `
           SELECT * FROM ${Tables.order_voids}
           ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
@@ -163,37 +182,7 @@ export const VoidsReport = () => {
         `;
 
         const result: any = await queryRef.current(query, params);
-        let voids = (result?.[0] ?? []) as OrderVoid[];
-
-        // Apply client-side filters
-        if (filters.reasonIds.length > 0) {
-          voids = voids.filter(voidItem => 
-            filters.reasonIds.includes(voidItem.reason)
-          );
-        }
-
-        if (filters.managerIds.length > 0) {
-          voids = voids.filter(voidItem => {
-            const managerId = recordToString(voidItem.deleted_by?.id ?? voidItem.deleted_by);
-            return filters.managerIds.includes(managerId);
-          });
-        }
-
-        if (filters.cashierIds.length > 0) {
-          voids = voids.filter(voidItem => {
-            const cashierId = recordToString(voidItem.order?.cashier?.id ?? voidItem.order?.cashier);
-            return filters.cashierIds.includes(cashierId);
-          });
-        }
-
-        if (filters.menuItemIds.length > 0) {
-          voids = voids.filter(voidItem => {
-            const menuItemIds = getVoidItems(voidItem).map(item => recordToString(item?.item?.id ?? item?.item));
-            return menuItemIds.some(menuItemId => filters.menuItemIds.includes(menuItemId));
-          });
-        }
-
-        setOrderVoids(voids);
+        setOrderVoids((result?.[0] ?? []) as OrderVoid[]);
       } catch (err) {
         console.error('Failed to load voids report:', err);
         setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
