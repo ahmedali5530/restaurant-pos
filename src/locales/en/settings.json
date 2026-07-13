@@ -88,6 +88,12 @@
     "updated": "Closing cycle settings updated",
     "saveDescription": "Save closing cycle settings"
   },
+  "showInclusivePrices": {
+    "title": "Show inclusive prices",
+    "description": "When enabled, line item amounts on the payment screen, receipts, and item-level reports show the tax-included (gross) price for menu items configured with inclusive tax. The Items/subtotal row stays tax-exclusive, tax is still shown as its own row, and the grand total is unchanged. Exclusive-tax items are not affected. This is display-only and does not change how prices are stored or how tax is calculated.",
+    "updated": "Show inclusive prices settings updated",
+    "saveDescription": "Save show inclusive prices settings"
+  },
   "visibilityConfig": {
     "title": "Items visibility config",
     "description": "Update config for this device for which columns for items you want to show or hide. Only applies to this device.",

@@ -15,7 +15,7 @@ function build(printer, data = {}, config = {}) {
   }
 
   const cfg = normalizeConfig(config);
-  const bill = mapOrderToTemp(order);
+  const bill = mapOrderToTemp(order, { showInclusivePrices: !!cfg.showInclusivePrices });
 
   // If order has no tax but data.taxes is provided (array of Tax), compute per-tax rows
   // and replace the single Total line with per-tax totals (temp print only).

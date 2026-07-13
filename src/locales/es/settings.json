@@ -88,6 +88,12 @@
     "updated": "Configuración del ciclo de cierre actualizada",
     "saveDescription": "Guardar configuración del ciclo de cierre"
   },
+  "showInclusivePrices": {
+    "title": "Mostrar precios inclusivos",
+    "description": "Cuando está activado, los importes de línea en la pantalla de pago, los recibos y los informes por artículo muestran el precio con impuestos incluidos (bruto) para los artículos del menú configurados con impuesto inclusivo. La fila de Artículos/subtotal permanece sin impuestos, el impuesto sigue mostrándose en su propia fila y el total general no cambia. Los artículos con impuesto exclusivo no se ven afectados. Esto es solo de visualización y no cambia cómo se almacenan los precios ni cómo se calcula el impuesto.",
+    "updated": "Configuración de precios inclusivos actualizada",
+    "saveDescription": "Guardar configuración de precios inclusivos"
+  },
   "visibilityConfig": {
     "title": "Configuración de visibilidad de artículos",
     "description": "Actualice la configuración de este dispositivo para mostrar u ocultar las columnas de los artículos. Solo se aplica a este dispositivo.",

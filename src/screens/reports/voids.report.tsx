@@ -7,6 +7,12 @@ import {OrderVoid} from "@/api/model/order_void.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
+import {
+  getOrderItemDisplayLineTotal,
+  getOrderItemModifierDisplayPrice,
+} from "@/lib/order-item-display.ts";
+import type { OrderItem } from "@/api/model/order_item.ts";
+import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -15,13 +21,16 @@ const safeNumber = (value: unknown) => {
 
 const getVoidItems = (voidItem: OrderVoid) => (voidItem.items ?? []).filter(Boolean);
 
-const getVoidLineAmount = (voidItem: OrderVoid, item: any) => {
+const getVoidLineAmount = (voidItem: OrderVoid, item: any, showInclusive = false) => {
   const quantity = safeNumber(voidItem.quantity ?? 1);
+  const orderItem = {
+    ...(item ?? {}),
+    quantity,
+  } as OrderItem;
   return safeNumber(
-    calculateOrderItemPrice({
-      ...(item ?? {}),
-      quantity,
-    } as any),
+    showInclusive
+      ? getOrderItemDisplayLineTotal(orderItem, true)
+      : calculateOrderItemPrice(orderItem),
   );
 };
 
@@ -32,8 +41,16 @@ interface VoidModifierDetail {
   depth: number;
 }
 
-const getVoidItemModifiers = (voidItem: OrderVoid, item: any): VoidModifierDetail[] => {
+const getVoidItemModifiers = (
+  voidItem: OrderVoid,
+  item: any,
+  showInclusive = false,
+): VoidModifierDetail[] => {
   const parentQuantity = safeNumber(voidItem.quantity ?? 1);
+  const parentItem = {
+    ...(item ?? {}),
+    quantity: parentQuantity,
+  } as OrderItem;
   const rows: VoidModifierDetail[] = [];
 
   const walkGroups = (groups: any[] = [], depth = 1) => {
@@ -41,7 +58,11 @@ const getVoidItemModifiers = (voidItem: OrderVoid, item: any): VoidModifierDetai
       (group?.selectedModifiers ?? []).forEach((selected: any) => {
         const name = selected?.dish?.name || selected?.name || 'Modifier';
         const quantity = safeNumber(selected?.quantity || 1) * parentQuantity;
-        const price = safeNumber(selected?.price);
+        const price = getOrderItemModifierDisplayPrice(
+          safeNumber(selected?.price),
+          parentItem,
+          showInclusive,
+        );
         rows.push({
           name,
           quantity,
@@ -102,6 +123,7 @@ const parseFilters = (): ReportFilters => {
 export const VoidsReport = () => {
   const { t } = useTranslation('reports');
   const db = useDB();
+  const { enabled: showInclusive } = useShowInclusivePrices();
   const queryRef = useRef(db.query);
   const [orderVoids, setOrderVoids] = useState<OrderVoid[]>([]);
   const [loading, setLoading] = useState(true);
@@ -137,7 +159,7 @@ export const VoidsReport = () => {
           SELECT * FROM ${Tables.order_voids}
           ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
           order by created_at ASC
-          FETCH deleted_by, order, order.cashier, items, items.item
+          FETCH deleted_by, order, order.cashier, items, items.item, items.taxes, items.tax_mode, items.modifiers
         `;
 
         const result: any = await queryRef.current(query, params);
@@ -426,7 +448,7 @@ export const VoidsReport = () => {
                       ? `${voidItem.order.cashier.first_name ?? ''} ${voidItem.order.cashier.last_name ?? ''}`.trim() || voidItem.order.cashier.login || 'Unknown'
                       : 'N/A';
                     const voidItems = getVoidItems(voidItem);
-                    const lineTotal = getVoidItems(voidItem).reduce((sum, item) => sum + getVoidLineAmount(voidItem, item), 0);
+                    const lineTotal = getVoidItems(voidItem).reduce((sum, item) => sum + getVoidLineAmount(voidItem, item, showInclusive), 0);
                     const orderNumber = voidItem.order?.invoice_number || 'N/A';
 
                     return (
@@ -440,7 +462,7 @@ export const VoidsReport = () => {
                               <div>{t('common:actions.unknown')}</div>
                             ) : (
                               voidItems.map((item, itemIndex) => {
-                                const modifiers = getVoidItemModifiers(voidItem, item);
+                                const modifiers = getVoidItemModifiers(voidItem, item, showInclusive);
                                 return (
                                   <div
                                     key={`${recordToString(voidItem.id)}-item-${itemIndex}`}

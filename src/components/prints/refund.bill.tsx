@@ -1,7 +1,9 @@
 import React, {useMemo} from "react";
 import {Order} from "@/api/model/order.ts";
 import {withCurrency} from "@/lib/utils.ts";
-import {calculateOrderTotal, calculateOrderItemPrice} from "@/lib/cart.ts";
+import {calculateOrderTotal} from "@/lib/cart.ts";
+import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
+import { getOrderItemDisplayLineTotal } from "@/lib/order-item-display.ts";
 
 type Props = {
   order: Order
@@ -10,6 +12,7 @@ type Props = {
 
 export const PrintRefundBill: React.FC<Props> = ({order, originalOrder}) => {
   const itemsTotal = calculateOrderTotal(order);
+  const { enabled: showInclusive } = useShowInclusivePrices();
 
   const total = useMemo(() => {
     // Items are positive, all charges (tax, service charge, tip, extras) are negative
@@ -41,7 +44,7 @@ export const PrintRefundBill: React.FC<Props> = ({order, originalOrder}) => {
         {order.items?.map((it, idx: number) => (
           <div key={idx} style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span>{it.item.name} x{it.quantity}</span>
-            <span>{withCurrency(calculateOrderItemPrice(it))}</span>
+            <span>{withCurrency(getOrderItemDisplayLineTotal(it, showInclusive))}</span>
           </div>
         ))}
       </div>

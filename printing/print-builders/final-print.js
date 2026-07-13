@@ -15,7 +15,10 @@ function build(printer, data = {}, config = {}) {
   }
 
   const cfg = normalizeConfig(config);
-  const bill = mapOrderToFinal(order, { duplicate: !!data.duplicate });
+  const bill = mapOrderToFinal(order, {
+    duplicate: !!data.duplicate,
+    showInclusivePrices: !!cfg.showInclusivePrices,
+  });
 
   return printReceiptHeader(printer, cfg).then(() => {
     return printBillLayout(printer, bill, cfg, {

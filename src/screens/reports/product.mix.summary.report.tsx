@@ -8,6 +8,7 @@ import {aggregateAccumulatedModifiersSummary, aggregateModifiersSummary, aggrega
 import {withCurrency, formatNumber} from "@/lib/utils.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faMinus} from "@fortawesome/free-solid-svg-icons";
+import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
 
 const COLUMN_COUNT = 15;
 
@@ -109,6 +110,7 @@ const parseFilters = (): ReportFilters => {
 export const ProductMixSummaryReport = () => {
   const { t } = useTranslation('reports');
   const db = useDB();
+  const { enabled: showInclusive } = useShowInclusivePrices();
   const [categoryGroups, setCategoryGroups] = useState<CategoryGroup[]>([]);
   const [modifiersSummary, setModifiersSummary] = useState<ModifierSummaryMetrics[]>([]);
   const [accumulatedModifiersSummary, setAccumulatedModifiersSummary] = useState<ModifierSummaryMetrics[]>([]);
@@ -138,6 +140,7 @@ export const ProductMixSummaryReport = () => {
         categoryIds: filters.categoryIds,
         menuItemIds: filters.menuItemIds,
         modifierIds: filters.modifierIds,
+        showInclusivePrices: showInclusive,
       };
 
       setCategoryGroups(aggregateProductMixByCategory(orders, productMixFilters));
@@ -161,6 +164,7 @@ export const ProductMixSummaryReport = () => {
     filters.categoryIds.join(','),
     filters.menuItemIds.join(','),
     filters.modifierIds.join(','),
+    showInclusive,
   ]);
 
   const toggleExpand = (dishKey: string) => {

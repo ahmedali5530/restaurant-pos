@@ -23,7 +23,9 @@ function build(printer, data = {}, config = {}) {
   }
 
   const cfg = normalizeConfig(config);
-  const bill = mapOrderToRefund(refundOrder, originalOrder);
+  const bill = mapOrderToRefund(refundOrder, originalOrder, {
+    showInclusivePrices: !!cfg.showInclusivePrices,
+  });
 
   return printReceiptHeader(printer, cfg).then(() => {
     // --- REFUND RECEIPT header ---

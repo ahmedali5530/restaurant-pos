@@ -88,6 +88,12 @@
     "updated": "Impostazioni ciclo di chiusura aggiornate",
     "saveDescription": "Salva impostazioni ciclo di chiusura"
   },
+  "showInclusivePrices": {
+    "title": "Mostra prezzi inclusivi",
+    "description": "Se abilitato, gli importi delle righe nella schermata di pagamento, nelle ricevute e nei report per articolo mostrano il prezzo IVA inclusa (lordo) per gli articoli del menu configurati con tassa inclusiva. La riga Articoli/subtotale resta IVA esclusa, l'imposta resta in una riga separata e il totale generale non cambia. Gli articoli con tassa esclusiva non sono interessati. È solo visualizzazione e non modifica come vengono memorizzati i prezzi né come viene calcolata l'imposta.",
+    "updated": "Impostazioni prezzi inclusivi aggiornate",
+    "saveDescription": "Salva impostazioni prezzi inclusivi"
+  },
   "visibilityConfig": {
     "title": "Configurazione visibilità articoli",
     "description": "Aggiorna la configurazione di questo dispositivo per mostrare o nascondere le colonne degli articoli. Si applica solo a questo dispositivo.",

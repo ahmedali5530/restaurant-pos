@@ -9,6 +9,7 @@ import {AutoCheckCloseSettingsCard} from "@/components/user_settings/auto_check_
 import {ClosingCycleSettingsCard} from "@/components/user_settings/closing_cycle.tsx";
 import {LanguageSettings} from "@/components/user_settings/language.tsx";
 import {ItemsVisibilityConfig} from "@/components/user_settings/items_visibility_config.tsx";
+import {ShowInclusivePricesSettingsCard} from "@/components/user_settings/show_inclusive_prices.tsx";
 export const Settings = () => {
 
   return (
@@ -20,6 +21,7 @@ export const Settings = () => {
       <ServiceChargesSettings />
       <ClosingCycleSettingsCard />
       <AutoCheckCloseSettingsCard />
+      <ShowInclusivePricesSettingsCard />
       <TouchSettings />
       <TableSelectionSettings />
       <ItemsVisibilityConfig />

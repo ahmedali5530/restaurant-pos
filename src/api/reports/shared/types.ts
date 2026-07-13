@@ -117,4 +117,5 @@ export interface ProductMixFilters {
   categoryIds?: string[];
   menuItemIds?: string[];
   modifierIds?: string[];
+  showInclusivePrices?: boolean;
 }

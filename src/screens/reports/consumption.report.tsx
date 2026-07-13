@@ -6,6 +6,8 @@ import {Tables} from "@/api/db/tables.ts";
 import {Order} from "@/api/model/order.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import {StringRecordId} from "surrealdb";
+import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
+import { getOrderItemDisplayUnitPrice } from "@/lib/order-item-display.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -66,6 +68,7 @@ interface ConsumptionItem {
 export const ConsumptionReport = () => {
   const { t } = useTranslation('reports');
   const db = useDB();
+  const { enabled: showInclusive } = useShowInclusivePrices();
   const queryRef = useRef(db.query);
   const [consumptionData, setConsumptionData] = useState<ConsumptionItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -102,7 +105,7 @@ export const ConsumptionReport = () => {
           SELECT * FROM ${Tables.orders}
           ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
           ORDER BY created_at ASC
-          FETCH items, items.item
+          FETCH items, items.item, items.taxes, items.tax_mode
         `;
 
         const ordersResult: any = await queryRef.current(ordersQuery, params);
@@ -168,7 +171,7 @@ export const ConsumptionReport = () => {
             }
 
             const orderItemQuantity = safeNumber(orderItem.quantity);
-            const orderItemPrice = safeNumber(orderItem.price);
+            const orderItemPrice = getOrderItemDisplayUnitPrice(orderItem, showInclusive);
             const orderItemSalePrice = orderItemQuantity * orderItemPrice;
 
             // Get recipes for this dish
@@ -266,7 +269,7 @@ export const ConsumptionReport = () => {
     };
 
     fetchData();
-  }, [filters.startDate, filters.endDate, filters.itemIds.join(','), filters.dishIds.join(',')]);
+  }, [filters.startDate, filters.endDate, filters.itemIds.join(','), filters.dishIds.join(','), showInclusive]);
 
   // Calculate totals
   const totals = useMemo(() => {

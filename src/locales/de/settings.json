@@ -88,6 +88,12 @@
     "updated": "Abschlusszyklus-Einstellungen aktualisiert",
     "saveDescription": "Abschlusszyklus-Einstellungen speichern"
   },
+  "showInclusivePrices": {
+    "title": "Inklusive Preise anzeigen",
+    "description": "Wenn aktiviert, werden Positionsbeträge auf dem Zahlungsbildschirm, auf Belegen und in artikelbezogenen Berichten als brutto (steuerinklusive) Preis für Menüartikel mit inklusiver Steuer angezeigt. Die Zeile Artikel/Zwischensumme bleibt netto (ohne Steuer), die Steuer wird weiterhin separat ausgewiesen und die Gesamtsumme bleibt unverändert. Artikel mit exklusiver Steuer sind nicht betroffen. Dies betrifft nur die Anzeige und ändert weder gespeicherte Preise noch die Steuerberechnung.",
+    "updated": "Einstellungen für inklusive Preise aktualisiert",
+    "saveDescription": "Einstellungen für inklusive Preise speichern"
+  },
   "visibilityConfig": {
     "title": "Konfiguration der Artikelsichtbarkeit",
     "description": "Konfiguration für dieses Gerät aktualisieren, welche Spalten für Artikel angezeigt oder ausgeblendet werden sollen. Gilt nur für dieses Gerät.",

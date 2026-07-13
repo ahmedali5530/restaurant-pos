@@ -1,11 +1,12 @@
 import {Order} from "@/api/model/order.ts";
 import {withCurrency} from "@/lib/utils.ts";
 import React from "react";
-import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {DiscountType} from "@/api/model/discount.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {getOrderTaxBreakdown} from "@/lib/tax-calculator.ts";
+import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
+import { getOrderItemDisplayLineTotal } from "@/lib/order-item-display.ts";
 
 interface Props {
   order: Order
@@ -17,6 +18,7 @@ export const CommonBillParts = ({
   order, itemsTotal, total
 }: Props) => {
   const taxes = getOrderTaxBreakdown(order);
+  const { enabled: showInclusive } = useShowInclusivePrices();
   
   return (
     <>
@@ -33,7 +35,7 @@ export const CommonBillParts = ({
         {getOrderFilteredItems(order)?.map((it, idx: number) => (
           <div key={idx} style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span>{it.item.name} x{it.quantity}</span>
-            <span>{withCurrency(calculateOrderItemPrice(it))}</span>
+            <span>{withCurrency(getOrderItemDisplayLineTotal(it, showInclusive))}</span>
           </div>
         ))}
       </div>

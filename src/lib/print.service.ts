@@ -4,6 +4,7 @@ import i18n from "@/lib/i18n.ts";
 import { Tables } from "@/api/db/tables.ts";
 import type { Printer } from "@/api/model/printer.ts";
 import {RecordId, StringRecordId} from "surrealdb";
+import { fetchShowInclusivePricesEnabled } from "@/hooks/useShowInclusivePrices.ts";
 
 export const PRINT_EVENT = 'posr:print';
 
@@ -222,9 +223,10 @@ export async function dispatchPrint<Payload = any>(
   const explicitPrinters = options?.printers?.length > 0 ? options.printers : null;
 
   // eslint-disable-next-line prefer-const
-  let [config, settingsPrinters] = await Promise.all([
+  let [config, settingsPrinters, showInclusivePrices] = await Promise.all([
     getPrintConfig(db, template),
     explicitPrinters ? Promise.resolve([]) : getPrintersForType(db, template, uid),
+    fetchShowInclusivePricesEnabled(db).catch(() => false),
   ]);
 
   const printers = explicitPrinters || (settingsPrinters.length > 0 ? settingsPrinters : null);
@@ -244,7 +246,8 @@ export async function dispatchPrint<Payload = any>(
     data: { printType: template, ...printPayload },
     config : {
       ...config,
-      decimal_place: import.meta.env.VITE_DECIMAL_PLACES
+      decimal_place: import.meta.env.VITE_DECIMAL_PLACES,
+      showInclusivePrices,
     },
     printers: driverPrinters,
   };

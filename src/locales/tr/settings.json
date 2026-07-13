@@ -88,6 +88,12 @@
     "updated": "Kapanış döngüsü ayarları güncellendi",
     "saveDescription": "Kapanış döngüsü ayarlarını kaydet"
   },
+  "showInclusivePrices": {
+    "title": "Dahil fiyatları göster",
+    "description": "Etkinleştirildiğinde, ödeme ekranı, fişler ve kalem düzeyindeki raporlardaki satır tutarları, dahil vergi ile yapılandırılmış menü ürünleri için vergi dahil (brüt) fiyatı gösterir. Ürünler/ara toplam satırı vergiden hariç kalır, vergi kendi satırında gösterilmeye devam eder ve genel toplam değişmez. Hariç vergili ürünler etkilenmez. Bu yalnızca görüntüleme içindir; fiyatların nasıl saklandığını veya verginin nasıl hesaplandığını değiştirmez.",
+    "updated": "Dahil fiyat ayarları güncellendi",
+    "saveDescription": "Dahil fiyat ayarlarını kaydet"
+  },
   "visibilityConfig": {
     "title": "Ürün görünürlük ayarları",
     "description": "Bu cihaz için hangi ürün sütunlarının gösterileceğini veya gizleneceğini ayarlayın. Yalnızca bu cihaza uygulanır.",

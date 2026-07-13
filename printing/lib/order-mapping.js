@@ -107,11 +107,33 @@ function getOrderId(order) {
 }
 
 /**
+ * Inflate net amount to gross for inclusive-tax lines (display only).
+ * @param {number} net
+ * @param {Array<{ rate?: number }>|undefined|null} taxes
+ * @param {number|undefined|null} originalPrice - unit gross for the main dish only
+ * @param {number|undefined|null} dishNet - unit net for the main dish only
+ * @returns {number}
+ */
+function inflateInclusiveAmount(net, taxes, originalPrice, dishNet) {
+  const netAmount = Number(net || 0);
+  if (Array.isArray(taxes) && taxes.length > 0) {
+    const rateSum = taxes.reduce((sum, tax) => sum + Number(tax.rate || 0), 0);
+    return Math.round(netAmount * (1 + rateSum / 100) * 100) / 100;
+  }
+  if (originalPrice != null && dishNet != null) {
+    const modifiersNet = netAmount - Number(dishNet || 0);
+    return Math.round((Number(originalPrice) + modifiersNet) * 100) / 100;
+  }
+  return netAmount;
+}
+
+/**
  * Filter order items: exclude deleted, refunded, suspended.
  * @param {Object} order
+ * @param {boolean} [showInclusivePrices=false]
  * @returns {Array<{ name, qty, price, total, notes, modifierLines }>}
  */
-function getOrderItems(order) {
+function getOrderItems(order, showInclusivePrices) {
   if (!order || !Array.isArray(order.items)) return [];
   return order.items
     .filter((it) => !it.deleted_at && it.is_refunded !== true && it.is_suspended !== true)
@@ -119,7 +141,14 @@ function getOrderItems(order) {
       const dish = it.item || it.dish;
       const name = (dish && (dish.name || dish.title)) || '';
       const qty = it.quantity != null ? it.quantity : 1;
-      const lineTotal = calculateOrderItemPricePrint(it);
+      const netLineTotal = calculateOrderItemPricePrint(it);
+      let lineTotal = netLineTotal;
+      if (showInclusivePrices && (it.tax_mode || 'exclusive') === 'inclusive') {
+        const unitNet = qty > 0 ? netLineTotal / qty : netLineTotal;
+        const dishNet = Number(it.price || 0);
+        const unitGross = inflateInclusiveAmount(unitNet, it.taxes, it.original_price, dishNet);
+        lineTotal = Math.round(unitGross * qty * 100) / 100;
+      }
       const price = qty > 0 ? lineTotal / qty : 0;
       const total = lineTotal;
       const notes = it.comments || '';
@@ -214,10 +243,13 @@ function getOrderPaymentSummary(order, total) {
  * Totals to match final.bill / _common.bill:
  * total = itemsTotal + extrasTotal - discount_amount + tax_amount + service_charge_amount + tip_amount.
  * totalWithDelivery = total + deliveryCharges (for delivery slip).
+ * itemsTotal is always net (exclusive), even when display line amounts are gross.
  */
 function getOrderTotals(order) {
-  const items = getOrderItems(order);
-  const itemsTotal = items.reduce((s, it) => s + Number(it.total != null ? it.total : it.price * it.qty), 0);
+  const filteredItems = !order || !Array.isArray(order.items)
+    ? []
+    : order.items.filter((it) => !it.deleted_at && it.is_refunded !== true && it.is_suspended !== true);
+  const itemsTotal = filteredItems.reduce((s, it) => s + calculateOrderItemPricePrint(it), 0);
   const discountAmount = Number(order.discount_amount || 0);
   const extrasTotal = (order.extras || []).reduce((s, e) => s + Number(e.value || 0), 0);
   
@@ -384,14 +416,15 @@ function getOrderPriority(order) {
 /**
  * Common bill shape aligned with _common.bill.tsx and final.bill.tsx.
  * @param {Object} order
- * @param {{ forDelivery?: boolean }} opts - forDelivery: use totalWithDelivery and include deliveryCharges in total
+ * @param {{ forDelivery?: boolean, showInclusivePrices?: boolean }} opts - forDelivery: use totalWithDelivery and include deliveryCharges in total
  */
 function mapOrderToBill(order, opts) {
   const tot = getOrderTotals(order);
   const forDelivery = opts && opts.forDelivery;
+  const showInclusivePrices = !!(opts && opts.showInclusivePrices);
   const total = forDelivery ? tot.totalWithDelivery : tot.total;
   const pay = getOrderPaymentSummary(order, total);
-  const items = getOrderItems(order);
+  const items = getOrderItems(order, showInclusivePrices);
   const tipLabel = order && order.tip_type === 'Percent' ? 'Tip %' : 'Tip';
   const discountLines = (order.order_discounts || [])
     .filter((od) => !od.removed_at)
@@ -425,8 +458,15 @@ function mapOrderToBill(order, opts) {
 /**
  * Temp: Pre-Sale Bill style (CommonBillParts only, no payments/change). Matches presale.bill.tsx.
  */
-function mapOrderToTemp(order) {
-  return { ...mapOrderToBill(order, { forDelivery: false }), title: 'Pre-Sale Bill', note: '' };
+function mapOrderToTemp(order, options) {
+  return {
+    ...mapOrderToBill(order, {
+      forDelivery: false,
+      showInclusivePrices: !!(options && options.showInclusivePrices),
+    }),
+    title: 'Pre-Sale Bill',
+    note: '',
+  };
 }
 
 /**
@@ -435,7 +475,10 @@ function mapOrderToTemp(order) {
 function mapOrderToFinal(order, options) {
   const dup = options && options.duplicate;
   return {
-    ...mapOrderToBill(order, { forDelivery: false }),
+    ...mapOrderToBill(order, {
+      forDelivery: false,
+      showInclusivePrices: !!(options && options.showInclusivePrices),
+    }),
     title: dup ? 'Duplicate Final Bill' : 'Final Bill',
     thankYou: 'Thank you!',
   };
@@ -444,9 +487,12 @@ function mapOrderToFinal(order, options) {
 /**
  * Delivery: CommonBillParts + Delivery line + address/phone/notes + payments + Change.
  */
-function mapOrderToDelivery(order) {
+function mapOrderToDelivery(order, options) {
   return {
-    ...mapOrderToBill(order, { forDelivery: true }),
+    ...mapOrderToBill(order, {
+      forDelivery: true,
+      showInclusivePrices: !!(options && options.showInclusivePrices),
+    }),
     title: 'DELIVERY',
     address: getOrderDeliveryAddress(order),
     phone: getOrderPhone(order),
@@ -472,15 +518,23 @@ function mapOrderToKitchen(order) {
 /**
  * Items from a refund order (selected items only, no filtering). Matches refund.bill.tsx.
  * @param {Object} order - refund order with items, tax_amount, discount_amount, etc.
+ * @param {boolean} [showInclusivePrices=false]
  * @returns {Array<{ name, qty, price, total }>}
  */
-function getRefundOrderItems(order) {
+function getRefundOrderItems(order, showInclusivePrices) {
   if (!order || !Array.isArray(order.items)) return [];
   return order.items.map((it) => {
     const dish = it.item || it.dish;
     const name = (dish && (dish.name || dish.title)) || '';
     const qty = it.quantity != null ? it.quantity : 1;
-    const lineTotal = calculateOrderItemPricePrint(it);
+    const netLineTotal = calculateOrderItemPricePrint(it);
+    let lineTotal = netLineTotal;
+    if (showInclusivePrices && (it.tax_mode || 'exclusive') === 'inclusive') {
+      const unitNet = qty > 0 ? netLineTotal / qty : netLineTotal;
+      const dishNet = Number(it.price || 0);
+      const unitGross = inflateInclusiveAmount(unitNet, it.taxes, it.original_price, dishNet);
+      lineTotal = Math.round(unitGross * qty * 100) / 100;
+    }
     const price = qty > 0 ? lineTotal / qty : 0;
     const total = lineTotal;
     return { name, qty, price, total };
@@ -492,9 +546,11 @@ function getRefundOrderItems(order) {
  * data: { order: refundOrder, originalOrder }
  * refundOrder has: items (selected), tax_amount, discount_amount, service_charge_amount, tip_amount, extras.
  */
-function mapOrderToRefund(refundOrder, originalOrder) {
-  const items = getRefundOrderItems(refundOrder);
-  const itemsTotal = items.reduce((s, it) => s + (it.price * it.qty), 0);
+function mapOrderToRefund(refundOrder, originalOrder, options) {
+  const showInclusivePrices = !!(options && options.showInclusivePrices);
+  const items = getRefundOrderItems(refundOrder, showInclusivePrices);
+  const filteredForNet = !refundOrder || !Array.isArray(refundOrder.items) ? [] : refundOrder.items;
+  const itemsTotal = filteredForNet.reduce((s, it) => s + calculateOrderItemPricePrint(it), 0);
   const taxAmount = Number(refundOrder.tax_amount ?? 0);
   const discountAmount = Number(refundOrder.discount_amount ?? 0);
   const serviceChargeAmount = Number(refundOrder.service_charge_amount ?? 0);

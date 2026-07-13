@@ -11,6 +11,8 @@ import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures, orderHasDiscount, orderMatchesDiscountId, type OrderPaymentTotals} from "@/lib/order.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {OrderItemName} from "@/components/common/order/order.item.tsx";
+import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
+import { getOrderItemDisplayLineTotal } from "@/lib/order-item-display.ts";
 
 const recordToString = (value: any): string => {
   if (!value) {
@@ -124,6 +126,7 @@ const parseFilters = (): ReportFilters => {
 export const SalesAdvancedReport = () => {
   const { t } = useTranslation('reports');
   const db = useDB();
+  const { enabled: showInclusive } = useShowInclusivePrices();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
   const [orderVoids, setOrderVoids] = useState<OrderVoid[]>([]);
@@ -765,7 +768,7 @@ export const SalesAdvancedReport = () => {
                               </thead>
                               <tbody className="divide-y divide-neutral-100">
                               {order.items.map((item, idx) => {
-                                const itemPrice = calculateOrderItemPrice(item);
+                                const itemPrice = getOrderItemDisplayLineTotal(item, showInclusive);
                                 const itemDiscount = safeNumber(item.discount);
                                 const itemTotal = safeNumber(itemPrice) - itemDiscount;
 

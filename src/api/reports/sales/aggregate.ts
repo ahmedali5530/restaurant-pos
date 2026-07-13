@@ -1,6 +1,6 @@
 import type {Order} from "@/api/model/order.ts";
 import {OrderStatus} from "@/api/model/order.ts";
-import type {OrderItemModifier} from "@/api/model/order_item.ts";
+import type {OrderItem, OrderItemModifier} from "@/api/model/order_item.ts";
 import type {OrderVoid} from "@/api/model/order_void.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
 import type {
@@ -14,6 +14,7 @@ import type {
 } from "@/api/reports/shared/types.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderItemTaxAmount, getOrderTaxAmount} from "@/lib/tax-calculator.ts";
+import {getOrderItemDisplayLineTotal, getOrderItemModifierDisplayPrice} from "@/lib/order-item-display.ts";
 import {toJsDate} from "@/lib/datetime.ts";
 import {getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderCartDiscountAmount, getOrderLineDiscountTotal, calculateOrderNetSales, aggregateOrderDiscountBreakdown} from "@/lib/order.ts";
 import {safeNumber} from "@/lib/utils.ts";
@@ -295,6 +296,8 @@ interface WalkedModifier {
 const walkSelectedModifiers = (
   modifierGroups: OrderItemModifier[] | undefined,
   depth = 1,
+  parentItem?: OrderItem,
+  showInclusivePrices = false,
 ): WalkedModifier[] => {
   const results: WalkedModifier[] = [];
 
@@ -317,10 +320,18 @@ const walkSelectedModifiers = (
         || (selectedModifier as {name?: string}).name
         || "Unknown";
       const quantity = safeNumber(selectedModifier.quantity || 1);
-      const price = safeNumber(selectedModifier.price || 0);
+      const rawPrice = safeNumber(selectedModifier.price || 0);
+      const price = parentItem
+        ? getOrderItemModifierDisplayPrice(rawPrice, parentItem, showInclusivePrices)
+        : rawPrice;
 
       results.push({modifierId, modifierName, depth, quantity, price});
-      results.push(...walkSelectedModifiers(selectedModifier.selectedGroups, depth + 1));
+      results.push(...walkSelectedModifiers(
+        selectedModifier.selectedGroups,
+        depth + 1,
+        parentItem,
+        showInclusivePrices,
+      ));
     });
   });
 
@@ -359,7 +370,10 @@ export const aggregateProductMixByCategory = (
       const name = item.item.name || "Unknown";
       const categories = collectCategories(item);
       const quantity = safeNumber(item.quantity);
-      const amount = safeNumber(calculateOrderItemPrice(item));
+      const netAmount = safeNumber(calculateOrderItemPrice(item));
+      const amount = filters.showInclusivePrices
+        ? safeNumber(getOrderItemDisplayLineTotal(item, true))
+        : netAmount;
       const cost = safeNumber(item.item.cost || 0);
       const totalCost = cost * quantity;
 
@@ -367,10 +381,15 @@ export const aggregateProductMixByCategory = (
       const tax = getOrderItemTaxAmount(item, order);
       const serviceCharges = safeNumber(item.service_charges || 0);
       const baseDishPrice = safeNumber(item.price || 0) * quantity;
-      const total = safeNumber(amount + tax + serviceCharges - discount);
+      const total = safeNumber(netAmount + tax + serviceCharges - discount);
       const baseDishTotal = safeNumber(baseDishPrice + tax + serviceCharges - discount);
 
-      const walkedModifiers = walkSelectedModifiers(item.modifiers);
+      const walkedModifiers = walkSelectedModifiers(
+        item.modifiers,
+        1,
+        item,
+        !!filters.showInclusivePrices,
+      );
       const modifierTotal = walkedModifiers
         .filter(modifier => modifier.depth === 1)
         .reduce((sum, modifier) => sum + modifier.price, 0);
@@ -573,7 +592,7 @@ export const aggregateModifiersSummary = (
     getFilteredOrderItems(order, filters).forEach(item => {
       if (!item.item) return;
 
-      walkSelectedModifiers(item.modifiers).forEach(modifier => {
+      walkSelectedModifiers(item.modifiers, 1, item, !!filters.showInclusivePrices).forEach(modifier => {
         if (selectedModifierIds.size > 0 && !selectedModifierIds.has(modifier.modifierId)) {
           return;
         }
@@ -622,7 +641,7 @@ export const aggregateAccumulatedModifiersSummary = (
     getFilteredOrderItems(order, filters).forEach(item => {
       if (!item.item) return;
 
-      walkSelectedModifiers(item.modifiers).forEach(modifier => {
+      walkSelectedModifiers(item.modifiers, 1, item, !!filters.showInclusivePrices).forEach(modifier => {
         if (selectedModifierIds.size > 0 && !selectedModifierIds.has(modifier.modifierId)) {
           return;
         }

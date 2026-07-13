@@ -100,6 +100,8 @@ function normalizeConfig(c = {}) {
     currencySymbol: String(n(c.currencySymbol, DEFAULTS.currencySymbol) || '$'),
     headerSections: normalizeSections(c.headerSections),
     footerSections: normalizeSections(c.footerSections),
+    showInclusivePrices: Boolean(c.showInclusivePrices),
+    decimal_place: c.decimal_place,
   };
 }
 

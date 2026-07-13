@@ -88,6 +88,12 @@
     "updated": "Paramètres du cycle de clôture mis à jour",
     "saveDescription": "Enregistrer les paramètres du cycle de clôture"
   },
+  "showInclusivePrices": {
+    "title": "Afficher les prix TTC",
+    "description": "Lorsqu'il est activé, les montants des lignes sur l'écran de paiement, les reçus et les rapports par article affichent le prix TTC (brut) pour les articles du menu configurés avec une taxe inclusive. La ligne Articles/sous-total reste hors taxe, la taxe reste affichée séparément et le total général est inchangé. Les articles à taxe exclusive ne sont pas concernés. Ceci est uniquement d'affichage et ne modifie ni le stockage des prix ni le calcul de la taxe.",
+    "updated": "Paramètres d'affichage des prix TTC mis à jour",
+    "saveDescription": "Enregistrer les paramètres d'affichage des prix TTC"
+  },
   "visibilityConfig": {
     "title": "Configuration de visibilité des articles",
     "description": "Mettez à jour la configuration de cet appareil pour afficher ou masquer les colonnes des articles. S'applique uniquement à cet appareil.",

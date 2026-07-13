@@ -88,6 +88,12 @@
     "updated": "Configurações do ciclo de fechamento atualizadas",
     "saveDescription": "Salvar configurações do ciclo de fechamento"
   },
+  "showInclusivePrices": {
+    "title": "Mostrar preços inclusivos",
+    "description": "Quando ativado, os valores das linhas na tela de pagamento, recibos e relatórios por item mostram o preço com imposto incluído (bruto) para itens de menu configurados com imposto inclusivo. A linha Itens/subtotal permanece sem imposto, o imposto continua em sua própria linha e o total geral não muda. Itens com imposto exclusivo não são afetados. Isto é apenas exibição e não altera como os preços são armazenados nem como o imposto é calculado.",
+    "updated": "Configurações de preços inclusivos atualizadas",
+    "saveDescription": "Salvar configurações de preços inclusivos"
+  },
   "visibilityConfig": {
     "title": "Configuração de visibilidade dos itens",
     "description": "Atualize a configuração deste dispositivo para exibir ou ocultar colunas dos itens. Aplica-se somente a este dispositivo.",

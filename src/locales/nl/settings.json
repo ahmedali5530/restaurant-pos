@@ -88,6 +88,12 @@
     "updated": "Afsluitingscyclus bijgewerkt",
     "saveDescription": "Afsluitingscyclus opslaan"
   },
+  "showInclusivePrices": {
+    "title": "Inclusieve prijzen tonen",
+    "description": "Indien ingeschakeld tonen regelbedragen op het betalingsscherm, bonnen en artikelrapporten de prijs inclusief belasting (bruto) voor menu-items met inclusieve belasting. De regel Artikelen/subtotaal blijft exclusief belasting, belasting blijft als aparte regel staan en het eindtotaal verandert niet. Items met exclusieve belasting worden niet beïnvloed. Dit is alleen weergave en verandert niet hoe prijzen worden opgeslagen of hoe belasting wordt berekend.",
+    "updated": "Instellingen voor inclusieve prijzen bijgewerkt",
+    "saveDescription": "Instellingen voor inclusieve prijzen opslaan"
+  },
   "visibilityConfig": {
     "title": "Zichtbaarheid artikelen configureren",
     "description": "Werk de configuratie voor dit apparaat bij om te bepalen welke kolommen voor artikelen worden weergegeven of verborgen. Geldt alleen voor dit apparaat.",
