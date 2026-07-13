@@ -53,7 +53,8 @@ export const hasItemType = (
 ): boolean => getItemTypesFromRecord(item).includes(type);
 
 export const canUseInDishRecipe = (item: ItemTypeSource | null | undefined): boolean =>
-  hasItemType(item, "semi_finished") || hasItemType(item, "finished");
+  true;
+  // hasItemType(item, "semi_finished") || hasItemType(item, "finished");
 
 export const getItemTypeOptions = (
   t: (key: string) => string

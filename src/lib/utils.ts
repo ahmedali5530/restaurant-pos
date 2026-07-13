@@ -21,7 +21,7 @@ export function cn(...inputs: ClassValue[]) {
 export const DENOMINATION_NOTES = [10, 20, 50, 100, 500, 1000, 5000];
 export const DENOMINATION_COINS = [1, 2, 5];
 
-export const withCurrency = (amount: string | number | undefined) => {
+export const withCurrency = (amount: string | number | undefined, decimalPlaces = DECIMAL_PLACES) => {
   if (amount === undefined) {
     //just return currency symbol
     return (0)
@@ -38,13 +38,13 @@ export const withCurrency = (amount: string | number | undefined) => {
   return new Intl.NumberFormat(import.meta.env.VITE_LOCALE, {
     style: "currency",
     currency: import.meta.env.VITE_CURRENCY,
-    maximumFractionDigits: DECIMAL_PLACES,
+    maximumFractionDigits: decimalPlaces,
   }).format(Number(amount));
 };
 
-export const formatNumber = (amount: string | number) => {
+export const formatNumber = (amount: string | number, decimalPlaces = DECIMAL_PLACES) => {
   return new Intl.NumberFormat(import.meta.env.VITE_LOCALE, {
-    maximumFractionDigits: DECIMAL_PLACES,
+    maximumFractionDigits: decimalPlaces,
     useGrouping: false
   }).format(Number(amount));
 }

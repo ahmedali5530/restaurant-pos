@@ -356,7 +356,7 @@ export const ConsumptionReport = () => {
                     <tr key={item.itemId}>
                       <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{item.itemName}</td>
                       <td className="py-3 px-3 text-sm text-neutral-700">{item.itemCode || '-'}</td>
-                      <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.totalQuantity)}</td>
+                      <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.totalQuantity, 4)}</td>
                       <td className="py-3 px-3 text-sm text-neutral-700">{item.uom || '-'}</td>
                       <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(item.totalSalePrice)}</td>
                       <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(item.totalCostAverage)}</td>
@@ -376,7 +376,7 @@ export const ConsumptionReport = () => {
                   <tr>
                     <td colSpan={2} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">{t('columns.total')}</td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
-                      {formatNumber(totals.totalQuantity)}
+                      {formatNumber(totals.totalQuantity, 4)}
                     </td>
                     <td colSpan={1}></td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
