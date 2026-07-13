@@ -203,7 +203,7 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
             params
           ),
           queryRef.current(
-            `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_issue_return_items} WHERE item = $item AND store = $store GROUP ALL`,
+            `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_issue_return_items} WHERE item = $item AND (store = $store OR issued_item.store = $store OR issue_return.store = $store) GROUP ALL`,
             params
           ),
           queryRef.current(
@@ -224,7 +224,7 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
             params
           ),
           queryRef.current(
-            `SELECT *, issue_return.created_at as created_at, issue_return.invoice_number as invoice_number FROM ${Tables.inventory_issue_return_items} WHERE item = $item AND store = $store order by issue_return.created_at DESC FETCH item`,
+            `SELECT *, issue_return.created_at as created_at, issue_return.invoice_number as invoice_number FROM ${Tables.inventory_issue_return_items} WHERE item = $item AND (store = $store OR issued_item.store = $store OR issue_return.store = $store) order by issue_return.created_at DESC FETCH item`,
             params
           ),
           queryRef.current(

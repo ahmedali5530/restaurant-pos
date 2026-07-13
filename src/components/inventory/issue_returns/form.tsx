@@ -31,6 +31,7 @@ import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.
 interface InventoryIssueReturnItemFormValue {
   item: { label: string; value: string } | null;
   issued_item?: { label: string; value: string } | null;
+  store?: { label: string; value: string } | null;
   issued?: number | string;
   quantity: number | string;
   comments?: string;
@@ -102,6 +103,10 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
         label: yup.string(),
         value: yup.string()
       }).nullable().optional(),
+      store: yup.object({
+        label: yup.string(),
+        value: yup.string()
+      }).nullable().optional(),
       issued: yup.number().typeError("This should be a number").nullable().optional(),
       quantity: yup.number().typeError("This should be a number").required("This is required"),
       comments: yup.string().nullable().optional(),
@@ -119,7 +124,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
     data: issues,
     fetchData: fetchIssues,
     isFetching: loadingIssues
-  } = useApi<SettingsData<InventoryIssue>>(Tables.inventory_issues, [], [], 0, 9999, ["issued_to", "kitchen", "items", "items.item"], {
+  } = useApi<SettingsData<InventoryIssue>>(Tables.inventory_issues, [], [], 0, 9999, ["issued_to", "kitchen", "items", "items.item", "items.store"], {
     enabled: false
   });
 
@@ -174,6 +179,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
       items: [{
         item: null,
         issued_item: null,
+        store: null,
         issued: undefined,
         quantity: 1,
         comments: ""
@@ -223,6 +229,10 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
             label: item.issued_item.item?.name ? `${item.issued_item.item.name} (${item.issued_item.quantity})` : item.issued_item.id,
             value: item.issued_item.id
           } : null,
+          store: (item.store || item.issued_item?.store) ? {
+            label: (item.store || item.issued_item?.store)?.name,
+            value: (item.store || item.issued_item?.store)?.id
+          } : null,
           issued: item.issued ?? undefined,
           quantity: item.quantity ?? 1,
           comments: item.comments ?? "",
@@ -239,6 +249,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
         items: [{
           item: null,
           issued_item: null,
+          store: null,
           issued: undefined,
           quantity: 1,
           comments: "",
@@ -304,6 +315,10 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
             label: issueItem.item?.name ? `${issueItem.item.name} (${issueItem.quantity})` : issueItem.id,
             value: issueItem.id
           },
+          store: issueItem.store ? {
+            label: issueItem.store.name,
+            value: issueItem.store.id
+          } : null,
           issued: issueItem.quantity ?? undefined,
           quantity: issueItem.quantity ?? 1,
           comments: "",
@@ -333,6 +348,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
       items: [{
         item: null,
         issued_item: null,
+        store: null,
         issued: undefined,
         quantity: 1,
         comments: "",
@@ -381,7 +397,6 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
         issuance: values.issuance ? toRecordId(values.issuance.value) : undefined,
         issued_to: values.issued_to ? toRecordId(values.issued_to.value) : undefined,
         kitchen: values.kitchen ? toRecordId(values.kitchen.value) : undefined,
-        store: values.store ? toRecordId(values.store.value) : undefined,
         items: [],
         documents: documentRefs.length > 0 ? documentRefs : undefined,
         created_at: values.date ? toSurrealDateTime(calendarDateToDate(values.date) || undefined) : nowSurrealDateTime(),
@@ -417,10 +432,20 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
       const itemRefs: StringRecordId[] = [];
       await Promise.all(
         values.items.map(async (item) => {
+          const issuedIssueItem = selectedIssuance?.items?.find((issueItem) => {
+            const issuedId = item.issued_item?.value;
+            if (!issuedId || !issueItem.id) return false;
+            return String(issueItem.id) === String(issuedId);
+          });
+          const storeValue = item.store?.value
+            ?? issuedIssueItem?.store?.id
+            ?? issuedIssueItem?.store;
+
           const [created] = await db.create(Tables.inventory_issue_return_items, {
             issue_return: toRecordId(issueReturnIdString),
             item: item.item ? toRecordId(item.item.value) : undefined,
             issued_item: item.issued_item ? toRecordId(item.issued_item.value) : undefined,
+            store: storeValue ? toRecordId(storeValue) : undefined,
             issued: item.issued !== undefined && item.issued !== "" ? Number(item.issued) : undefined,
             quantity: Number(item.quantity),
             comments: item.comments?.trim() ? item.comments.trim() : undefined,

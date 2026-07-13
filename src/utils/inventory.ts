@@ -101,7 +101,7 @@ export const fetchStoreInventoryBreakdown = async (
       params
     ),
     db.query(
-      `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_issue_return_items} WHERE item = $item AND store = $store GROUP ALL`,
+      `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_issue_return_items} WHERE item = $item AND (store = $store OR issued_item.store = $store OR issue_return.store = $store) GROUP ALL`,
       params
     ),
     db.query(

@@ -20,7 +20,7 @@ export const InventoryIssueReturns = () => {
     ["created_at DESC"],
     0,
     10,
-    ["issuance", "issuance.items", "issuance.items.item", "issued_to", "kitchen", "items", "items.item", "items.issued_item"]
+    ["issuance", "issuance.items", "issuance.items.item", "issuance.items.store", "issued_to", "kitchen", "items", "items.item", "items.issued_item", "items.issued_item.store", "items.store"]
   );
 
   const [data, setData] = useState<InventoryIssueReturn>();

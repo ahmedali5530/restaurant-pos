@@ -404,7 +404,7 @@ export const InventoryDashboardReport = () => {
           queryRef.current(`SELECT items.item, items.store, math::sum(math::sum(items.quantity)) AS quantity FROM ${Tables.inventory_purchases} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} group by items.store, items.item fetch items, items.item, items.store`, whereParams),
           queryRef.current(`SELECT items.item, items.store, math::sum(math::sum(items.quantity)) AS quantity FROM ${Tables.inventory_purchase_returns} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} group by items.store, items.item fetch items, items.item, items.store`, whereParams),
           queryRef.current(`SELECT items.item, items.store, math::sum(math::sum(items.quantity)) AS quantity FROM ${Tables.inventory_issues} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} group by items.store, items.item fetch items, items.item, items.store`, whereParams),
-          queryRef.current(`SELECT items.item, math::sum(math::sum(items.quantity)) AS quantity FROM ${Tables.inventory_issue_returns} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} group by items.item fetch items, items.item`, whereParams),
+          queryRef.current(`SELECT items.item, items.store, items.issued_item.store, math::sum(math::sum(items.quantity)) AS quantity FROM ${Tables.inventory_issue_returns} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} group by items.store, items.issued_item.store, items.item fetch items, items.item, items.store, items.issued_item, items.issued_item.store`, whereParams),
           queryRef.current(`SELECT items.item, items.issue_item.store, items.purchase_item.store, math::sum(math::sum(items.quantity)) AS quantity FROM ${Tables.inventory_wastes} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} group by items.item, items.issue_item.store, items.purchase_item.store fetch items, items.item, items.issue_item.store, items.purchase_item.store`, whereParams),
         ]);
 
@@ -464,7 +464,8 @@ export const InventoryDashboardReport = () => {
         // Process issue returns (adds back to stock)
         issueReturnItems.forEach((item: any) => {
           const itemId = item.items.item[0]?.id?.toString();
-          const storeId = item.items.issued_item?.store[0]?.id?.toString();
+          const storeId = item.items.store?.[0]?.id?.toString()
+            || item.items.issued_item?.store?.[0]?.id?.toString();
 
           if (storeId && itemId) {
             addToStock(storeId.toString(), itemId.toString(), safeNumber(item.quantity));
