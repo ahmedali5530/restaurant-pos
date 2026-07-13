@@ -29,6 +29,7 @@ import {dateToCalendarDate, calendarDateToDate, getToday} from "@/utils/date.ts"
 import {Switch} from "@/components/common/input/switch.tsx";
 import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
 import {fetchNetQuantity} from "@/utils/inventory.ts";
+import {syncDishRecipeCostsForItems} from "@/lib/inventory/dish.recipe.cost.ts";
 
 interface InventoryIssueItemFormValue {
   store: { label: string; value: string } | null;
@@ -46,6 +47,7 @@ interface InventoryIssueFormValues {
   date?: DateValue | null;
   documents?: FileList;
   update_item_cost?: boolean;
+  update_recipe_cost?: boolean;
   items: InventoryIssueItemFormValue[];
 }
 
@@ -99,6 +101,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
   date: yup.mixed().nullable().optional(),
   documents: yup.mixed().optional(),
   update_item_cost: yup.boolean().optional(),
+  update_recipe_cost: yup.boolean().optional(),
   items: yup.array().of(
     yup.object({
       store: yup.object({
@@ -225,6 +228,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
         date: data.created_at ? dateToCalendarDate(toJsDate(data.created_at)) : getToday(),
         documents: undefined,
         update_item_cost: false,
+        update_recipe_cost: false,
         items: data.items?.map(item => ({
           store: item.store ? {
             label: item.store.name,
@@ -249,6 +253,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
         date: getToday(),
         documents: undefined,
         update_item_cost: false,
+        update_recipe_cost: false,
         items: [createEmptyItem()]
       });
     }
@@ -372,6 +377,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
       date: getToday(),
       documents: undefined,
       update_item_cost: false,
+      update_recipe_cost: false,
       items: [createEmptyItem()]
     });
   };
@@ -481,6 +487,13 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
       await db.merge(issueIdString, {
         items: itemRefs,
       });
+
+      if (values.update_recipe_cost) {
+        const issuedItemIds = values.items
+          .map((item) => item.item?.value)
+          .filter((id): id is string => Boolean(id));
+        await syncDishRecipeCostsForItems(db, issuedItemIds);
+      }
 
       toast.success(t('toast:inventory.issueSaved'));
       closeModal();
@@ -610,6 +623,17 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                 render={({field}) => (
                   <Switch checked={field.value || false} onChange={field.onChange}>
                     Update cost of item itself
+                  </Switch>
+                )}
+              />
+            </div>
+            <div className="flex-1">
+              <Controller
+                name="update_recipe_cost"
+                control={control}
+                render={({field}) => (
+                  <Switch checked={field.value || false} onChange={field.onChange}>
+                    Update recipe cost
                   </Switch>
                 )}
               />
