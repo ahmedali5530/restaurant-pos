@@ -6,6 +6,8 @@ import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import { toLuxonDateTime } from "@/lib/datetime";
 import {getReorderLevelForStore, isBelowReorderLevel} from "@/utils/inventory.ts";
+import {lineAmount, resolveCatalogUnitCost} from "@/lib/inventory/line.cost.ts";
+import {formatNumber, withCurrency} from "@/lib/utils.ts";
 
 const isDebitType = (type: string) =>
   type === "issue" || type === "return" || type === "waste" || type === "transfer_out"
@@ -16,6 +18,9 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
   const {netQuantity, loading, records} = useStoreInventory(item?.id, storeId);
   const [modal, setModal] = useState(false);
   const [display, setDisplay] = useState<"unified"|"split">("unified");
+
+  const unitCost = resolveCatalogUnitCost(item);
+  const stockValue = lineAmount(unitCost, netQuantity);
 
   const unified = useMemo(() => {
     const list: Array<{
@@ -145,10 +150,17 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
     <>
       <span
         onClick={() => setModal(true)}
-        className={`underline cursor-pointer ${belowReorder ? 'text-danger-600 font-medium' : ''}`}>
-        {netQuantity > 0 ? netQuantity : '-'} {item?.uom}
-        {reorderLevel > 0 && (
-          <span className="text-neutral-500 font-normal"> / {reorderLevel}</span>
+        className={`underline cursor-pointer inline-flex flex-col leading-tight ${belowReorder ? 'text-danger-600 font-medium' : ''}`}>
+        <span>
+          {netQuantity > 0 ? formatNumber(netQuantity) : '-'} {item?.uom}
+          {reorderLevel > 0 && (
+            <span className="text-neutral-500 font-normal"> / {reorderLevel}</span>
+          )}
+        </span>
+        {netQuantity > 0 && (
+          <span className="text-xs text-neutral-500 font-normal no-underline">
+            {withCurrency(stockValue)}
+          </span>
         )}
       </span>
 
@@ -172,7 +184,13 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
             >Split</Button>
           </div>
 
-          <div className="text-center text-2xl p-5 bg-gray-200 my-5">Current Quantity: {netQuantity}{item.uom}</div>
+          <div className="text-center text-2xl p-5 bg-gray-200 my-5">
+            Current Quantity: {formatNumber(netQuantity)}{item?.uom}
+            <div className="text-base text-neutral-600 mt-1">
+              {t('columns.stockValue')}: {withCurrency(stockValue)}
+              <span className="text-neutral-500"> ({withCurrency(unitCost)} / {item?.uom || 'unit'})</span>
+            </div>
+          </div>
 
           {display === 'unified' && (
             <table className="table table-hover table-sm mt-3 bg-white">

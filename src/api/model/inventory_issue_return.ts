@@ -25,6 +25,7 @@ export interface InventoryIssueReturnItem {
   issued_item?: InventoryIssueItem
   issued?: number
   quantity: number
+  price?: number
   comments?: string
   store?: InventoryStore
   issue_return?: InventoryIssueReturn

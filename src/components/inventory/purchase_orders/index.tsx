@@ -14,6 +14,7 @@ import {useDB} from "@/api/db/db.ts";
 import {InventoryPurchaseOrderViewModal} from "@/components/inventory/purchase_orders/view.modal.tsx";
 import {InventoryDocumentPrintModal} from "@/components/inventory/common/document.print.modal.tsx";
 import {InventoryInvoiceDoc, mapPurchaseOrderToInvoice} from "@/lib/inventory/invoice.mapper.ts";
+import {useSecurity} from "@/hooks/useSecurity.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 
 export const InventoryPurchaseOrders = () => {
@@ -27,6 +28,7 @@ export const InventoryPurchaseOrders = () => {
     ["supplier", "items", "items.item", "items.supplier", "items.store"]
   );
   const db = useDB();
+  const { protectAction } = useSecurity();
 
   const [data, setData] = useState<InventoryPurchaseOrder>();
   const [formModal, setFormModal] = useState(false);
@@ -96,17 +98,34 @@ export const InventoryPurchaseOrders = () => {
                 <Button
                   variant="primary"
                   onClick={() => {
-                    setData(row);
-                    setFormModal(true);
+                    protectAction(() => {
+                      setData(row);
+                      setFormModal(true);
+                    }, {
+                      module: 'Edit Purchase Orders',
+                      description: t('security.editPurchaseOrders'),
+                    });
                   }}
                 >
                   <FontAwesomeIcon icon={faPencil}/>
                 </Button>
 
-                <DeleteConfirm onConfirm={async () => {
-                  await db.delete(row.id);
-                  loadHook.fetchData();
-                }} message={`Do you want to delete purchase order# ${row.po_number}`} />
+                <DeleteConfirm
+                  message={`Do you want to delete purchase order# ${row.po_number}`}
+                  onConfirm={() =>
+                    protectAction(async () => {
+                      await db.delete(row.id);
+                      await db.query(
+                        `DELETE FROM ${Tables.inventory_purchase_order_items} WHERE purchase_order = $id`,
+                        {id: row.id},
+                      );
+                      loadHook.fetchData();
+                    }, {
+                      module: 'Delete Purchase Orders',
+                      description: t('security.deletePurchaseOrders'),
+                    })
+                  }
+                />
               </>
             )}
 

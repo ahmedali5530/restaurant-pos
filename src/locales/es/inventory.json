@@ -21,7 +21,20 @@
     "buffetSessions": "Sesiones de buffet"
   },
   "security": {
-    "accessTab": "Acceder a {{module}}"
+    "accessTab": "Access {{module}}",
+    "editPurchases": "Edit purchase",
+    "deletePurchases": "Delete purchase",
+    "editPurchaseOrders": "Edit purchase order",
+    "deletePurchaseOrders": "Delete purchase order",
+    "editPurchaseReturns": "Edit purchase return",
+    "deletePurchaseReturns": "Delete purchase return",
+    "editIssues": "Edit issue",
+    "deleteIssues": "Delete issue",
+    "editIssueReturns": "Edit issue return",
+    "deleteIssueReturns": "Delete issue return",
+    "editWastes": "Edit waste",
+    "deleteWastes": "Delete waste",
+    "editStockTransfers": "Edit stock transfer"
   },
   "columns": {
     "name": "Nombre",
@@ -56,7 +69,10 @@
     "kitchen": "Cocina",
     "createdBy": "Creado por",
     "source": "Origen",
-    "store": "Almacén"
+    "store": "Almacén",
+    "unitCost": "Unit cost",
+    "amount": "Amount",
+    "stockValue": "Value"
   },
   "buttons": {
     "item": "Artículo",

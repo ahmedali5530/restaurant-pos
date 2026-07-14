@@ -14,6 +14,7 @@ import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {InventoryWasteViewModal} from "@/components/inventory/wastes/view.modal.tsx";
 import {InventoryDocumentPrintModal} from "@/components/inventory/common/document.print.modal.tsx";
 import {InventoryInvoiceDoc, mapWasteToInvoice} from "@/lib/inventory/invoice.mapper.ts";
+import {useSecurity} from "@/hooks/useSecurity.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 
 export const InventoryWastes = () => {
@@ -27,6 +28,7 @@ export const InventoryWastes = () => {
     ["purchase", "purchase.items", "purchase.items.item", "issue", "issue.items", "issue.items.item", "items", "items.item", "items.purchase_item", "items.issue_item", "created_by"]
   );
   const db = useDB();
+  const { protectAction } = useSecurity();
 
   const [data, setData] = useState<InventoryWaste>();
   const [formModal, setFormModal] = useState(false);
@@ -99,23 +101,33 @@ export const InventoryWastes = () => {
             <Button
               variant="primary"
               onClick={() => {
-                setData(info.row.original);
-                setFormModal(true);
+                protectAction(() => {
+                  setData(info.row.original);
+                  setFormModal(true);
+                }, {
+                  module: 'Edit Wastes',
+                  description: t('security.editWastes'),
+                });
               }}
             >
               <FontAwesomeIcon icon={faPencil}/>
             </Button>
 
-            <DeleteConfirm onConfirm={async () => {
-              await db.delete(info.getValue());
-              await db.query(`DELETE
-                              FROM ${Tables.inventory_waste_items}
-                              where waste = $waste`, {
-                waste: info.getValue()
-              });
+            <DeleteConfirm onConfirm={() =>
+              protectAction(async () => {
+                await db.delete(info.getValue());
+                await db.query(`DELETE
+                                FROM ${Tables.inventory_waste_items}
+                                where waste = $waste`, {
+                  waste: info.getValue()
+                });
 
-              loadHook.fetchData();
-            }}/>
+                loadHook.fetchData();
+              }, {
+                module: 'Delete Wastes',
+                description: t('security.deleteWastes'),
+              })
+            }/>
           </div>
         );
       },

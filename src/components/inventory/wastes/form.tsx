@@ -266,11 +266,24 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
       const itemsRefs = [];
       await Promise.all(
         values.items.map(async (item: any) => {
+          const sourcePurchaseItem = item.purchase_item_id
+            ? purchases?.data
+              ?.flatMap((p: any) => p.items ?? [])
+              ?.find((pi: any) => String(pi.id) === String(item.purchase_item_id))
+            : undefined;
+          const sourceIssueItem = item.issue_item_id
+            ? issues?.data
+              ?.flatMap((i: any) => i.items ?? [])
+              ?.find((ii: any) => String(ii.id) === String(item.issue_item_id))
+            : undefined;
+          const snapshotPrice = sourcePurchaseItem?.price ?? sourceIssueItem?.price;
+
           const [created] = await db.create(Tables.inventory_waste_items, {
             item: item.item ? toRecordId(item.item.value) : undefined,
             purchase_item: item.purchase_item_id ? toRecordId(item.purchase_item_id) : undefined,
             issue_item: item.issue_item_id ? toRecordId(item.issue_item_id) : undefined,
             quantity: Number(item.quantity),
+            price: snapshotPrice != null ? Number(snapshotPrice) : undefined,
             comments: item.comments?.trim() ? item.comments.trim() : undefined,
             waste: toRecordId(wasteId)
           });

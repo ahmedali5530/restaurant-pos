@@ -5,6 +5,7 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {InventoryIssueReturn} from "@/api/model/inventory_issue_return.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {lineAmount, resolveInventoryLineUnitCost} from "@/lib/inventory/line.cost.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {
   buildNestedRecordAnyCondition,
@@ -107,7 +108,7 @@ export const IssueReturnReport = () => {
           SELECT * FROM ${Tables.inventory_issue_returns}
           ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
           ORDER BY created_at ASC
-          FETCH items, items.item, items.item.category, created_by, kitchen, issued_to, store, issuance
+          FETCH items, items.item, items.item.category, items.issued_item, created_by, kitchen, issued_to, store, issuance
         `;
 
         const result: any = await queryRef.current(query, params);
@@ -126,16 +127,24 @@ export const IssueReturnReport = () => {
   // Calculate totals
   const totals = useMemo(() => {
     let totalQuantity = 0;
+    let totalAmount = 0;
     let totalItems = 0;
 
     issueReturns.forEach(issueReturn => {
       issueReturn.items?.forEach(item => {
-        totalQuantity += safeNumber(item.quantity);
+        const qty = safeNumber(item.quantity);
+        const unitCost = resolveInventoryLineUnitCost({
+          price: item.price,
+          issuedItem: item.issued_item,
+          item: item.item,
+        });
+        totalQuantity += qty;
+        totalAmount += lineAmount(unitCost, qty);
         totalItems += 1;
       });
     });
 
-    return { totalQuantity, totalItems };
+    return { totalQuantity, totalAmount, totalItems };
   }, [issueReturns]);
 
   if (loading) {
@@ -161,7 +170,7 @@ export const IssueReturnReport = () => {
     >
       <div className="space-y-8">
         {/* Summary */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <div className="bg-neutral-50 p-4 rounded-lg">
             <p className="text-sm text-neutral-600">Total Returns</p>
             <p className="text-2xl font-bold text-neutral-900">{formatNumber(issueReturns.length)}</p>
@@ -169,6 +178,10 @@ export const IssueReturnReport = () => {
           <div className="bg-neutral-50 p-4 rounded-lg">
             <p className="text-sm text-neutral-600">Total Items</p>
             <p className="text-2xl font-bold text-neutral-900">{formatNumber(totals.totalItems)}</p>
+          </div>
+          <div className="bg-neutral-50 p-4 rounded-lg">
+            <p className="text-sm text-neutral-600">Total Amount</p>
+            <p className="text-2xl font-bold text-neutral-900">{withCurrency(totals.totalAmount)}</p>
           </div>
         </div>
 
@@ -185,6 +198,8 @@ export const IssueReturnReport = () => {
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.store')}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.item')}</th>
                   <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.price')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.issuedTo')}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.createdBy')}</th>
                   <th className="py-3 pr-6 text-left text-xs font-semibold text-neutral-700">{t('columns.comments')}</th>
@@ -193,7 +208,7 @@ export const IssueReturnReport = () => {
               <tbody className="divide-y divide-neutral-100 bg-white">
                 {issueReturns.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="py-6 text-center text-sm text-neutral-500">
+                    <td colSpan={11} className="py-6 text-center text-sm text-neutral-500">
                       No issue returns found for the selected filters
                     </td>
                   </tr>
@@ -213,6 +228,12 @@ export const IssueReturnReport = () => {
                     return issueReturn.items?.map((item, index) => {
                       const itemName = item.item?.name || 'Unknown';
                       const quantity = safeNumber(item.quantity);
+                      const price = resolveInventoryLineUnitCost({
+                        price: item.price,
+                        issuedItem: item.issued_item,
+                        item: item.item,
+                      });
+                      const amount = lineAmount(price, quantity);
 
                       return (
                         <tr key={`${issueReturn.id}-${index}`}>
@@ -222,6 +243,8 @@ export const IssueReturnReport = () => {
                           <td className="py-3 px-3 text-sm text-neutral-700">{storeName}</td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{itemName}</td>
                           <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(quantity)}</td>
+                          <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(price)}</td>
+                          <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">{withCurrency(amount)}</td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{issuedToName}</td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{createdByName}</td>
                           <td className="py-3 pr-6 text-sm text-neutral-700">{item.comments || '-'}</td>
@@ -237,6 +260,10 @@ export const IssueReturnReport = () => {
                     <td colSpan={5} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">{t('columns.total')}</td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
                       {formatNumber(totals.totalQuantity)}
+                    </td>
+                    <td colSpan={1}></td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
+                      {withCurrency(totals.totalAmount)}
                     </td>
                     <td colSpan={3}></td>
                   </tr>

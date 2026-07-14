@@ -448,6 +448,9 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
             store: storeValue ? toRecordId(storeValue) : undefined,
             issued: item.issued !== undefined && item.issued !== "" ? Number(item.issued) : undefined,
             quantity: Number(item.quantity),
+            price: issuedIssueItem?.price != null
+              ? Number(issuedIssueItem.price)
+              : (item.price != null && item.price !== "" ? Number(item.price) : undefined),
             comments: item.comments?.trim() ? item.comments.trim() : undefined,
           });
 

@@ -4,7 +4,8 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {InventoryWaste} from "@/api/model/inventory_waste.ts";
-import {formatNumber} from "@/lib/utils.ts";
+import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {lineAmount, resolveInventoryLineUnitCost} from "@/lib/inventory/line.cost.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {
   buildNestedRecordAnyCondition,
@@ -91,7 +92,7 @@ export const WasteReport = () => {
           SELECT * FROM ${Tables.inventory_wastes}
           ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
           ORDER BY created_at ASC
-          FETCH items, items.item, items.item.category, created_by, purchase, issue
+          FETCH items, items.item, items.item.category, items.purchase_item, items.issue_item, created_by, purchase, issue
         `;
 
         const result: any = await queryRef.current(query, params);
@@ -110,16 +111,25 @@ export const WasteReport = () => {
   // Calculate totals
   const totals = useMemo(() => {
     let totalQuantity = 0;
+    let totalAmount = 0;
     let totalItems = 0;
 
     wastes.forEach(waste => {
       waste.items?.forEach(item => {
-        totalQuantity += safeNumber(item.quantity);
+        const qty = safeNumber(item.quantity);
+        const unitCost = resolveInventoryLineUnitCost({
+          price: item.price,
+          purchaseItem: item.purchase_item,
+          issueItem: item.issue_item,
+          item: item.item,
+        });
+        totalQuantity += qty;
+        totalAmount += lineAmount(unitCost, qty);
         totalItems += 1;
       });
     });
 
-    return { totalQuantity, totalItems };
+    return { totalQuantity, totalAmount, totalItems };
   }, [wastes]);
 
   if (loading) {
@@ -145,7 +155,7 @@ export const WasteReport = () => {
     >
       <div className="space-y-8">
         {/* Summary */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <div className="bg-neutral-50 p-4 rounded-lg">
             <p className="text-sm text-neutral-600">Total Waste Records</p>
             <p className="text-2xl font-bold text-neutral-900">{formatNumber(wastes.length)}</p>
@@ -153,6 +163,10 @@ export const WasteReport = () => {
           <div className="bg-neutral-50 p-4 rounded-lg">
             <p className="text-sm text-neutral-600">Total Items</p>
             <p className="text-2xl font-bold text-neutral-900">{formatNumber(totals.totalItems)}</p>
+          </div>
+          <div className="bg-neutral-50 p-4 rounded-lg">
+            <p className="text-sm text-neutral-600">Total Amount</p>
+            <p className="text-2xl font-bold text-neutral-900">{withCurrency(totals.totalAmount)}</p>
           </div>
         </div>
 
@@ -167,6 +181,8 @@ export const WasteReport = () => {
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.invoice')}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.item')}</th>
                   <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.price')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Source</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.createdBy')}</th>
                   <th className="py-3 pr-6 text-left text-xs font-semibold text-neutral-700">{t('columns.comments')}</th>
@@ -175,7 +191,7 @@ export const WasteReport = () => {
               <tbody className="divide-y divide-neutral-100 bg-white">
                 {wastes.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-6 text-center text-sm text-neutral-500">
+                    <td colSpan={9} className="py-6 text-center text-sm text-neutral-500">
                       No waste records found for the selected filters
                     </td>
                   </tr>
@@ -191,6 +207,13 @@ export const WasteReport = () => {
                     return waste.items?.map((item, index) => {
                       const itemName = item.item?.name || 'Unknown';
                       const quantity = safeNumber(item.quantity);
+                      const price = resolveInventoryLineUnitCost({
+                        price: item.price,
+                        purchaseItem: item.purchase_item,
+                        issueItem: item.issue_item,
+                        item: item.item,
+                      });
+                      const amount = lineAmount(price, quantity);
 
                       return (
                         <tr key={`${waste.id}-${index}`}>
@@ -198,6 +221,8 @@ export const WasteReport = () => {
                           <td className="py-3 px-3 text-sm text-neutral-700">{waste.invoice_number || 'N/A'}</td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{itemName}</td>
                           <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(quantity)}</td>
+                          <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(price)}</td>
+                          <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">{withCurrency(amount)}</td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{source}</td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{createdByName}</td>
                           <td className="py-3 pr-6 text-sm text-neutral-700">{item.comments || '-'}</td>
@@ -213,6 +238,10 @@ export const WasteReport = () => {
                     <td colSpan={3} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">{t('columns.total')}</td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
                       {formatNumber(totals.totalQuantity)}
+                    </td>
+                    <td colSpan={1}></td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
+                      {withCurrency(totals.totalAmount)}
                     </td>
                     <td colSpan={3}></td>
                   </tr>

@@ -16,6 +16,7 @@ import {InventoryDocumentPrintModal} from "@/components/inventory/common/documen
 import {InventoryInvoiceDoc, mapStockTransferToInvoice} from "@/lib/inventory/invoice.mapper.ts";
 import {useStockTransferList} from "@/hooks/useStockTransferList.ts";
 import {inferTransferType} from "@/lib/inventory/stock_transfer.service.ts";
+import {useSecurity} from "@/hooks/useSecurity.ts";
 import {toJsDate} from "@/lib/datetime.ts";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import classNames from "classnames";
@@ -31,6 +32,7 @@ const toRecordIdString = (id: unknown): string => {
 
 export const InventoryStockTransfers = () => {
   const {t} = useTranslation("inventory");
+  const {protectAction} = useSecurity();
   const loadHook = useStockTransferList(0, 10);
 
   const {data: kitchens, fetchData: fetchKitchens} = useApi<SettingsData<Kitchen>>(
@@ -188,8 +190,13 @@ export const InventoryStockTransfers = () => {
           <Button
             variant="primary"
             onClick={() => {
-              setData(info.row.original);
-              setFormModal(true);
+              protectAction(() => {
+                setData(info.row.original);
+                setFormModal(true);
+              }, {
+                module: "Edit Stock Transfers",
+                description: t("security.editStockTransfers"),
+              });
             }}
           >
             <FontAwesomeIcon icon={faPencil} />

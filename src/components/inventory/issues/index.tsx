@@ -12,10 +12,15 @@ import {InventoryIssueForm} from "@/components/inventory/issues/form.tsx";
 import {InventoryIssueViewModal} from "@/components/inventory/issues/view.modal.tsx";
 import {InventoryDocumentPrintModal} from "@/components/inventory/common/document.print.modal.tsx";
 import {InventoryInvoiceDoc, mapIssueToInvoice} from "@/lib/inventory/invoice.mapper.ts";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import {useDB} from "@/api/db/db.ts";
+import {useSecurity} from "@/hooks/useSecurity.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 
 export const InventoryIssues = () => {
   const { t } = useTranslation('inventory');
+  const db = useDB();
+  const { protectAction } = useSecurity();
   const loadHook = useApi<SettingsData<InventoryIssue>>(
     Tables.inventory_issues,
     [],
@@ -71,13 +76,14 @@ export const InventoryIssues = () => {
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {
+        const row = info.row.original;
         return (
           <div className="flex gap-2">
             <Button
               variant="secondary"
               iconButton
               onClick={() => {
-                setViewIssue(info.row.original);
+                setViewIssue(row);
                 setViewModalOpen(true);
               }}
             >
@@ -87,19 +93,40 @@ export const InventoryIssues = () => {
               variant="secondary"
               iconButton
               title={t('print.printReceipt')}
-              onClick={() => setPrintDoc(mapIssueToInvoice(info.row.original))}
+              onClick={() => setPrintDoc(mapIssueToInvoice(row))}
             >
               <FontAwesomeIcon icon={faPrint}/>
             </Button>
             <Button
               variant="primary"
               onClick={() => {
-                setData(info.row.original);
-                setFormModal(true);
+                protectAction(() => {
+                  setData(row);
+                  setFormModal(true);
+                }, {
+                  module: 'Edit Issues',
+                  description: t('security.editIssues'),
+                });
               }}
             >
               <FontAwesomeIcon icon={faPencil}/>
             </Button>
+            <DeleteConfirm
+              message={`Do you want to delete issue #${row.invoice_number}?`}
+              onConfirm={() =>
+                protectAction(async () => {
+                  await db.delete(row.id);
+                  await db.query(
+                    `DELETE FROM ${Tables.inventory_issue_items} WHERE issue = $issue`,
+                    {issue: row.id},
+                  );
+                  loadHook.fetchData();
+                }, {
+                  module: 'Delete Issues',
+                  description: t('security.deleteIssues'),
+                })
+              }
+            />
           </div>
         );
       },
@@ -157,4 +184,3 @@ export const InventoryIssues = () => {
     </>
   );
 };
-

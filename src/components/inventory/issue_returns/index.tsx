@@ -12,17 +12,22 @@ import {InventoryIssueReturnForm} from "@/components/inventory/issue_returns/for
 import {InventoryIssueReturnViewModal} from "@/components/inventory/issue_returns/view.modal.tsx";
 import {InventoryDocumentPrintModal} from "@/components/inventory/common/document.print.modal.tsx";
 import {InventoryInvoiceDoc, mapIssueReturnToInvoice} from "@/lib/inventory/invoice.mapper.ts";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import {useDB} from "@/api/db/db.ts";
+import {useSecurity} from "@/hooks/useSecurity.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 
 export const InventoryIssueReturns = () => {
   const { t } = useTranslation('inventory');
+  const db = useDB();
+  const { protectAction } = useSecurity();
   const loadHook = useApi<SettingsData<InventoryIssueReturn>>(
     Tables.inventory_issue_returns,
     [],
     ["created_at DESC"],
     0,
     10,
-    ["issuance", "issuance.items", "issuance.items.item", "issuance.items.store", "issued_to", "kitchen", "items", "items.item", "items.issued_item", "items.issued_item.store", "items.store"]
+    ["issuance", "issuance.items", "issuance.items.item", "issuance.items.store", "issued_to", "kitchen", "created_by", "items", "items.item", "items.issued_item", "items.issued_item.store", "items.store"]
   );
 
   const [data, setData] = useState<InventoryIssueReturn>();
@@ -73,13 +78,14 @@ export const InventoryIssueReturns = () => {
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {
+        const row = info.row.original;
         return (
           <div className="flex gap-2">
             <Button
               variant="secondary"
               iconButton
               onClick={() => {
-                setViewIssueReturn(info.row.original);
+                setViewIssueReturn(row);
                 setViewModalOpen(true);
               }}
             >
@@ -89,19 +95,40 @@ export const InventoryIssueReturns = () => {
               variant="secondary"
               iconButton
               title={t('print.printReceipt')}
-              onClick={() => setPrintDoc(mapIssueReturnToInvoice(info.row.original))}
+              onClick={() => setPrintDoc(mapIssueReturnToInvoice(row))}
             >
               <FontAwesomeIcon icon={faPrint}/>
             </Button>
             <Button
               variant="primary"
               onClick={() => {
-                setData(info.row.original);
-                setFormModal(true);
+                protectAction(() => {
+                  setData(row);
+                  setFormModal(true);
+                }, {
+                  module: 'Edit Issue Returns',
+                  description: t('security.editIssueReturns'),
+                });
               }}
             >
               <FontAwesomeIcon icon={faPencil}/>
             </Button>
+            <DeleteConfirm
+              message={`Do you want to delete issue return #${row.invoice_number}?`}
+              onConfirm={() =>
+                protectAction(async () => {
+                  await db.delete(row.id);
+                  await db.query(
+                    `DELETE FROM ${Tables.inventory_issue_return_items} WHERE issue_return = $id`,
+                    {id: row.id},
+                  );
+                  loadHook.fetchData();
+                }, {
+                  module: 'Delete Issue Returns',
+                  description: t('security.deleteIssueReturns'),
+                })
+              }
+            />
           </div>
         );
       },

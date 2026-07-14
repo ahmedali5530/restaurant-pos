@@ -321,8 +321,19 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
       }
 
       const itemsRefs = [];
+      const selectedPurchase = purchases?.data?.find(
+        (p) => String(p.id) === String(values.purchase?.value ?? values.purchase),
+      );
       await Promise.all(
         values.items.map(async (item) => {
+          const matchedPurchaseItem = selectedPurchase?.items?.find((pi) =>
+            String(pi.id) === String(item.purchase_item_id)
+            || String(pi.item?.id) === String(item.item?.value),
+          );
+          const snapshotPrice = item.price != null && item.price !== ""
+            ? Number(item.price)
+            : matchedPurchaseItem?.price;
+
           const [created] = await db.create(Tables.inventory_purchase_return_items, {
             purchase_return: toRecordId(purchaseReturnId),
             item: item.item ? toRecordId(item.item.value) : undefined,
@@ -330,6 +341,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
             supplier: item.supplier ? toRecordId(item.supplier.value) : undefined,
             purchase_item: item.purchase_item_id ? toRecordId(item.purchase_item_id) : undefined,
             quantity: Number(item.quantity),
+            price: snapshotPrice != null ? Number(snapshotPrice) : undefined,
             comments: item.comments?.trim() ? item.comments.trim() : undefined,
           });
 

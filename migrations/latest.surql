@@ -580,6 +580,7 @@ DEFINE FIELD issue_return ON inventory_issue_return_item TYPE none | record<inve
 DEFINE FIELD issued ON inventory_issue_return_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD issued_item ON inventory_issue_return_item TYPE none | record<inventory_issue_item> | null PERMISSIONS FULL;
 DEFINE FIELD item ON inventory_issue_return_item TYPE record<inventory_item> PERMISSIONS FULL;
+DEFINE FIELD price ON inventory_issue_return_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD quantity ON inventory_issue_return_item TYPE float PERMISSIONS FULL;
 DEFINE FIELD store ON inventory_issue_return_item TYPE none | record<inventory_store> | null PERMISSIONS FULL;
 
@@ -655,6 +656,7 @@ DEFINE FIELD comments ON inventory_item_waste_item TYPE none | string | null PER
 DEFINE FIELD documents ON inventory_item_waste_item TYPE none | array<string> | null PERMISSIONS FULL;
 DEFINE FIELD issue_item ON inventory_item_waste_item TYPE none | record<inventory_issue_item> | null PERMISSIONS FULL;
 DEFINE FIELD item ON inventory_item_waste_item TYPE record<inventory_item> PERMISSIONS FULL;
+DEFINE FIELD price ON inventory_item_waste_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD purchase_item ON inventory_item_waste_item TYPE none | record<inventory_purchase_item> | null PERMISSIONS FULL;
 DEFINE FIELD quantity ON inventory_item_waste_item TYPE float PERMISSIONS FULL;
 DEFINE FIELD source ON inventory_item_waste_item TYPE none | string | null PERMISSIONS FULL;

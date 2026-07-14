@@ -21,7 +21,20 @@
     "buffetSessions": "Büfe Oturumları"
   },
   "security": {
-    "accessTab": "{{module}} modülüne eriş"
+    "accessTab": "Access {{module}}",
+    "editPurchases": "Edit purchase",
+    "deletePurchases": "Delete purchase",
+    "editPurchaseOrders": "Edit purchase order",
+    "deletePurchaseOrders": "Delete purchase order",
+    "editPurchaseReturns": "Edit purchase return",
+    "deletePurchaseReturns": "Delete purchase return",
+    "editIssues": "Edit issue",
+    "deleteIssues": "Delete issue",
+    "editIssueReturns": "Edit issue return",
+    "deleteIssueReturns": "Delete issue return",
+    "editWastes": "Edit waste",
+    "deleteWastes": "Delete waste",
+    "editStockTransfers": "Edit stock transfer"
   },
   "columns": {
     "name": "Ad",
@@ -56,7 +69,10 @@
     "kitchen": "Mutfak",
     "createdBy": "Oluşturan",
     "source": "Kaynak",
-    "store": "Depo"
+    "store": "Depo",
+    "unitCost": "Unit cost",
+    "amount": "Amount",
+    "stockValue": "Value"
   },
   "buttons": {
     "item": "Ürün",

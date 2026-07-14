@@ -12,10 +12,15 @@ import {InventoryPurchaseReturnForm} from "@/components/inventory/purchase_retur
 import {InventoryPurchaseReturnViewModal} from "@/components/inventory/purchase_returns/view.modal.tsx";
 import {InventoryDocumentPrintModal} from "@/components/inventory/common/document.print.modal.tsx";
 import {InventoryInvoiceDoc, mapPurchaseReturnToInvoice} from "@/lib/inventory/invoice.mapper.ts";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import {useDB} from "@/api/db/db.ts";
+import {useSecurity} from "@/hooks/useSecurity.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 
 export const InventoryPurchaseReturns = () => {
   const { t } = useTranslation('inventory');
+  const db = useDB();
+  const { protectAction } = useSecurity();
   const loadHook = useApi<SettingsData<InventoryPurchaseReturn>>(
     Tables.inventory_purchase_returns,
     [],
@@ -63,13 +68,14 @@ export const InventoryPurchaseReturns = () => {
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {
+        const row = info.row.original;
         return (
           <div className="flex gap-2">
             <Button
               variant="secondary"
               iconButton
               onClick={() => {
-                setViewReturn(info.row.original);
+                setViewReturn(row);
                 setViewModalOpen(true);
               }}
             >
@@ -79,19 +85,40 @@ export const InventoryPurchaseReturns = () => {
               variant="secondary"
               iconButton
               title={t('print.printReceipt')}
-              onClick={() => setPrintDoc(mapPurchaseReturnToInvoice(info.row.original))}
+              onClick={() => setPrintDoc(mapPurchaseReturnToInvoice(row))}
             >
               <FontAwesomeIcon icon={faPrint}/>
             </Button>
             <Button
               variant="primary"
               onClick={() => {
-                setData(info.row.original);
-                setFormModal(true);
+                protectAction(() => {
+                  setData(row);
+                  setFormModal(true);
+                }, {
+                  module: 'Edit Purchase Returns',
+                  description: t('security.editPurchaseReturns'),
+                });
               }}
             >
               <FontAwesomeIcon icon={faPencil}/>
             </Button>
+            <DeleteConfirm
+              message={`Do you want to delete purchase return #${row.invoice_number}?`}
+              onConfirm={() =>
+                protectAction(async () => {
+                  await db.delete(row.id);
+                  await db.query(
+                    `DELETE FROM ${Tables.inventory_purchase_return_items} WHERE purchase_return = $id`,
+                    {id: row.id},
+                  );
+                  loadHook.fetchData();
+                }, {
+                  module: 'Delete Purchase Returns',
+                  description: t('security.deletePurchaseReturns'),
+                })
+              }
+            />
           </div>
         );
       },

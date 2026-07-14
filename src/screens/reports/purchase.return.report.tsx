@@ -5,6 +5,7 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {InventoryPurchaseReturn} from "@/api/model/inventory_purchase_return.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {lineAmount, resolveInventoryLineUnitCost} from "@/lib/inventory/line.cost.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {
   buildNestedRecordAnyCondition,
@@ -107,7 +108,7 @@ export const PurchaseReturnReport = () => {
           SELECT * FROM ${Tables.inventory_purchase_returns}
           ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
           ORDER BY created_at ASC
-          FETCH items, items.item, items.item.category, created_by, store, items.supplier, purchase
+          FETCH items, items.item, items.item.category, items.purchase_item, created_by, store, items.supplier, purchase
         `;
 
         const result: any = await queryRef.current(query, params);
@@ -131,8 +132,14 @@ export const PurchaseReturnReport = () => {
 
     purchaseReturns.forEach(purchaseReturn => {
       purchaseReturn.items?.forEach(item => {
-        totalQuantity += safeNumber(item.quantity);
-        totalAmount += safeNumber(item.price || 0) * safeNumber(item.quantity);
+        const qty = safeNumber(item.quantity);
+        const unitCost = resolveInventoryLineUnitCost({
+          price: item.price,
+          purchaseItem: item.purchase_item,
+          item: item.item,
+        });
+        totalQuantity += qty;
+        totalAmount += lineAmount(unitCost, qty);
         totalItems += 1;
       });
     });
@@ -217,8 +224,12 @@ export const PurchaseReturnReport = () => {
                       const itemName = item.item?.name || 'Unknown';
                       const supplierName = item.supplier?.name || 'N/A';
                       const quantity = safeNumber(item.quantity);
-                      const price = safeNumber(item.price || 0);
-                      const amount = quantity * price;
+                      const price = resolveInventoryLineUnitCost({
+                        price: item.price,
+                        purchaseItem: item.purchase_item,
+                        item: item.item,
+                      });
+                      const amount = lineAmount(price, quantity);
 
                       return (
                         <tr key={`${purchaseReturn.id}-${index}`}>

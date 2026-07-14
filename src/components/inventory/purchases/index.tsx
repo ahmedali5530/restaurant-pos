@@ -7,16 +7,21 @@ import {InventoryPurchase} from "@/api/model/inventory_purchase.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faFile, faPencil, faPlus, faPrint, faUpload} from "@fortawesome/free-solid-svg-icons";
+import {faFile, faPencil, faPlus, faPrint} from "@fortawesome/free-solid-svg-icons";
 import {InventoryPurchaseForm} from "@/components/inventory/purchases/form.tsx";
 import {InventoryPurchaseUpload} from "@/components/inventory/purchases/upload.tsx";
 import {InventoryPurchaseViewModal} from "@/components/inventory/purchases/view.modal.tsx";
 import {InventoryDocumentPrintModal} from "@/components/inventory/common/document.print.modal.tsx";
 import {InventoryInvoiceDoc, mapPurchaseToInvoice} from "@/lib/inventory/invoice.mapper.ts";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import {useDB} from "@/api/db/db.ts";
+import {useSecurity} from "@/hooks/useSecurity.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 
 export const InventoryPurchases = () => {
   const { t } = useTranslation('inventory');
+  const db = useDB();
+  const { protectAction } = useSecurity();
   const loadHook = useApi<SettingsData<InventoryPurchase>>(
     Tables.inventory_purchases,
     [],
@@ -93,12 +98,33 @@ export const InventoryPurchases = () => {
             <Button
               variant="primary"
               onClick={() => {
-                setData(row);
-                setFormModal(true);
+                protectAction(() => {
+                  setData(row);
+                  setFormModal(true);
+                }, {
+                  module: 'Edit Purchases',
+                  description: t('security.editPurchases'),
+                });
               }}
             >
               <FontAwesomeIcon icon={faPencil}/>
             </Button>
+            <DeleteConfirm
+              message={`Do you want to delete purchase #${row.invoice_number}?`}
+              onConfirm={() =>
+                protectAction(async () => {
+                  await db.delete(row.id);
+                  await db.query(
+                    `DELETE FROM ${Tables.inventory_purchase_items} WHERE purchase = $purchase`,
+                    {purchase: row.id},
+                  );
+                  loadHook.fetchData();
+                }, {
+                  module: 'Delete Purchases',
+                  description: t('security.deletePurchases'),
+                })
+              }
+            />
           </div>
         );
       },
@@ -166,4 +192,3 @@ export const InventoryPurchases = () => {
     </>
   );
 };
-

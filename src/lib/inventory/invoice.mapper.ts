@@ -8,7 +8,13 @@ import {InventoryWaste} from "@/api/model/inventory_waste.ts";
 import {StockTransfer} from "@/api/model/stock_transfer.ts";
 import {toJsDate} from "@/lib/datetime.ts";
 import {inferTransferType} from "@/lib/inventory/stock_transfer.service.ts";
+import {
+  lineAmount,
+  resolveCatalogUnitCost,
+  resolveInventoryLineUnitCost,
+} from "@/lib/inventory/line.cost.ts";
 import {safeNumber, withCurrency} from "@/lib/utils.ts";
+
 export type InventoryInvoiceMeta = {
   label: string;
   value: string;
@@ -84,14 +90,17 @@ const withMoneyTotals = (
 export const mapIssueToInvoice = (issue: InventoryIssue): InventoryInvoiceDoc => {
   const lines: InventoryInvoiceLine[] = (issue.items ?? []).map((item) => {
     const qty = safeNumber(item.quantity);
-    const unitCost = safeNumber(item.price);
+    const unitCost = resolveInventoryLineUnitCost({
+      price: item.price,
+      item: item.item,
+    });
     return {
       name: item.item?.name ?? "Item",
       sku: item.item?.code || item.code,
       qty,
       unit: item.item?.uom,
       unitCost,
-      total: qty * unitCost,
+      total: lineAmount(unitCost, qty),
       store: item.store?.name,
       note: item.comments,
     };
@@ -115,21 +124,31 @@ export const mapIssueToInvoice = (issue: InventoryIssue): InventoryInvoiceDoc =>
 };
 
 export const mapIssueReturnToInvoice = (doc: InventoryIssueReturn): InventoryInvoiceDoc => {
-  const lines: InventoryInvoiceLine[] = (doc.items ?? []).map((item) => ({
-    name: item.item?.name ?? "Item",
-    sku: item.item?.code,
-    qty: safeNumber(item.quantity),
-    unit: item.item?.uom,
-    store: item.store?.name,
-    note: item.comments,
-  }));
+  const lines: InventoryInvoiceLine[] = (doc.items ?? []).map((item) => {
+    const qty = safeNumber(item.quantity);
+    const unitCost = resolveInventoryLineUnitCost({
+      price: (item as any).price,
+      issuedItem: item.issued_item,
+      item: item.item,
+    });
+    return {
+      name: item.item?.name ?? "Item",
+      sku: item.item?.code,
+      qty,
+      unit: item.item?.uom,
+      unitCost,
+      total: lineAmount(unitCost, qty),
+      store: item.store?.name,
+      note: item.comments,
+    };
+  });
 
-  return {
+  return withMoneyTotals({
     ...restaurantDefaults(),
     docType: "Issue Return",
     invoiceNumber: String(doc.invoice_number ?? "—"),
     date: formatDate(doc.created_at),
-    showCostColumns: false,
+    showCostColumns: true,
     fileBaseName: `issue-return-${doc.invoice_number ?? "receipt"}`,
     meta: [
       {
@@ -143,20 +162,23 @@ export const mapIssueReturnToInvoice = (doc: InventoryIssueReturn): InventoryInv
       {label: "Created by", value: personName(doc.created_by)},
     ],
     lines,
-  };
+  });
 };
 
 export const mapPurchaseToInvoice = (purchase: InventoryPurchase): InventoryInvoiceDoc => {
   const lines: InventoryInvoiceLine[] = (purchase.items ?? []).map((item) => {
     const qty = safeNumber(item.quantity);
-    const unitCost = safeNumber(item.price);
+    const unitCost = resolveInventoryLineUnitCost({
+      price: item.price,
+      item: item.item,
+    });
     return {
       name: item.item?.name ?? "Item",
       sku: item.item?.code || item.code,
       qty,
       unit: item.item?.uom,
       unitCost,
-      total: qty * unitCost,
+      total: lineAmount(unitCost, qty),
       store: item.store?.name,
       note: item.comments,
     };
@@ -192,28 +214,29 @@ export const mapPurchaseReturnToInvoice = (
 ): InventoryInvoiceDoc => {
   const lines: InventoryInvoiceLine[] = (doc.items ?? []).map((item) => {
     const qty = safeNumber(item.quantity);
-    const unitCost = safeNumber(item.price);
-    const hasCost = item.price != null;
+    const unitCost = resolveInventoryLineUnitCost({
+      price: item.price,
+      purchaseItem: item.purchase_item,
+      item: item.item,
+    });
     return {
       name: item.item?.name ?? "Item",
       sku: item.item?.code,
       qty,
       unit: item.item?.uom,
-      unitCost: hasCost ? unitCost : undefined,
-      total: hasCost ? qty * unitCost : undefined,
+      unitCost,
+      total: lineAmount(unitCost, qty),
       store: item.store?.name,
       note: item.comments,
     };
   });
-
-  const showCostColumns = lines.some((line) => line.unitCost != null);
 
   return withMoneyTotals({
     ...restaurantDefaults(),
     docType: "Purchase Return",
     invoiceNumber: String(doc.invoice_number ?? "—"),
     date: formatDate(doc.created_at),
-    showCostColumns,
+    showCostColumns: true,
     fileBaseName: `purchase-return-${doc.invoice_number ?? "receipt"}`,
     meta: [
       {
@@ -235,27 +258,27 @@ export const mapPurchaseOrderToInvoice = (
 ): InventoryInvoiceDoc => {
   const lines: InventoryInvoiceLine[] = (order.items ?? []).map((item) => {
     const qty = safeNumber(item.quantity);
-    const unitCost = safeNumber(item.price);
-    const hasCost = item.price != null;
+    const unitCost = resolveInventoryLineUnitCost({
+      price: item.price,
+      item: item.item,
+    });
     return {
       name: item.item?.name ?? "Item",
       sku: item.item?.code,
       qty,
       unit: item.item?.uom,
-      unitCost: hasCost ? unitCost : undefined,
-      total: hasCost ? qty * unitCost : undefined,
+      unitCost,
+      total: lineAmount(unitCost, qty),
       store: item.store?.name,
     };
   });
-
-  const showCostColumns = lines.some((line) => line.unitCost != null);
 
   return withMoneyTotals({
     ...restaurantDefaults(),
     docType: "Purchase Order",
     invoiceNumber: String(order.po_number ?? "—"),
     date: formatDate(order.created_at),
-    showCostColumns,
+    showCostColumns: true,
     fileBaseName: `purchase-order-${order.po_number ?? "receipt"}`,
     meta: [
       {label: "Supplier", value: order.supplier?.name ?? "—"},
@@ -266,21 +289,32 @@ export const mapPurchaseOrderToInvoice = (
 };
 
 export const mapWasteToInvoice = (waste: InventoryWaste): InventoryInvoiceDoc => {
-  const lines: InventoryInvoiceLine[] = (waste.items ?? []).map((item) => ({
-    name: item.item?.name ?? "Item",
-    sku: item.item?.code,
-    qty: safeNumber(item.quantity),
-    unit: item.item?.uom,
-    store: item.store?.name,
-    note: item.comments,
-  }));
+  const lines: InventoryInvoiceLine[] = (waste.items ?? []).map((item) => {
+    const qty = safeNumber(item.quantity);
+    const unitCost = resolveInventoryLineUnitCost({
+      price: (item as any).price,
+      purchaseItem: item.purchase_item,
+      issueItem: item.issue_item,
+      item: item.item,
+    });
+    return {
+      name: item.item?.name ?? "Item",
+      sku: item.item?.code,
+      qty,
+      unit: item.item?.uom,
+      unitCost,
+      total: lineAmount(unitCost, qty),
+      store: item.store?.name,
+      note: item.comments,
+    };
+  });
 
-  return {
+  return withMoneyTotals({
     ...restaurantDefaults(),
     docType: "Waste",
     invoiceNumber: String(waste.invoice_number ?? "—"),
     date: formatDate(waste.created_at),
-    showCostColumns: false,
+    showCostColumns: true,
     fileBaseName: `waste-${waste.invoice_number ?? "receipt"}`,
     meta: [
       {
@@ -294,31 +328,37 @@ export const mapWasteToInvoice = (waste: InventoryWaste): InventoryInvoiceDoc =>
       {label: "Created by", value: personName(waste.created_by)},
     ],
     lines,
-  };
+  });
 };
 
 export const mapStockTransferToInvoice = (
   transfer: StockTransfer,
 ): InventoryInvoiceDoc => {
   const type = inferTransferType(transfer);
-  const lines: InventoryInvoiceLine[] = (transfer.items ?? []).map((item) => ({
-    name: item.item?.name ?? "Item",
-    sku: item.item?.code,
-    qty: safeNumber(item.quantity),
-    unit: item.item?.uom,
-  }));
+  const lines: InventoryInvoiceLine[] = (transfer.items ?? []).map((item) => {
+    const qty = safeNumber(item.quantity);
+    const unitCost = resolveCatalogUnitCost(item.item);
+    return {
+      name: item.item?.name ?? "Item",
+      sku: item.item?.code,
+      qty,
+      unit: item.item?.uom,
+      unitCost,
+      total: lineAmount(unitCost, qty),
+    };
+  });
 
   const idStr = typeof transfer.id === "string"
     ? transfer.id
     : String(transfer.id ?? "");
   const shortId = idStr.includes(":") ? idStr.split(":").pop() : idStr.slice(-8);
 
-  return {
+  return withMoneyTotals({
     ...restaurantDefaults(),
     docType: "Stock Transfer",
     invoiceNumber: shortId || "—",
     date: formatDate(transfer.created_at),
-    showCostColumns: false,
+    showCostColumns: true,
     fileBaseName: `stock-transfer-${shortId || "receipt"}`,
     notes: transfer.notes,
     meta: [
@@ -341,5 +381,5 @@ export const mapStockTransferToInvoice = (
       {label: "Created by", value: personName(transfer.created_by)},
     ],
     lines,
-  };
+  });
 };

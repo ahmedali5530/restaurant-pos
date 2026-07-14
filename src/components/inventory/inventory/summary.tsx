@@ -1,13 +1,14 @@
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {useMemo, useState} from "react";
+import {useMemo} from "react";
 import { useTranslation } from 'react-i18next';
 import {createColumnHelper} from "@tanstack/react-table";
 import {TableComponent} from "@/components/common/table/table.tsx";
-import {InventoryItemForm} from "@/components/inventory/items/form.tsx";
 import {InventoryStore} from "@/api/model/inventory_store.ts";
 import {StoreInventoryCell} from "@/components/inventory/inventory/store.inventory.cell.tsx";
+import {resolveCatalogUnitCost} from "@/lib/inventory/line.cost.ts";
+import {withCurrency} from "@/lib/utils.ts";
 
 
 export const InventorySummary = () => {
@@ -16,8 +17,6 @@ export const InventorySummary = () => {
   const {
     data: stores
   } = useApi<SettingsData<InventoryStore>>(Tables.inventory_stores, [], [], 0, 99999);
-
-  const [data, setData] = useState<InventoryItem>();
 
   const columnHelper = createColumnHelper<InventoryItem>();
 
@@ -42,7 +41,12 @@ export const InventorySummary = () => {
             ))}
           </div>
         )
-      })
+      }),
+      columnHelper.accessor(row => resolveCatalogUnitCost(row), {
+        id: "unit_cost",
+        header: t('columns.unitCost'),
+        cell: info => withCurrency(info.getValue()),
+      }),
     ];
 
     if (stores?.data && stores?.data?.length > 0) {
@@ -59,7 +63,7 @@ export const InventorySummary = () => {
     }
 
     return c;
-  }, [columnHelper, stores?.data])
+  }, [columnHelper, stores?.data, t])
 
   return (
     <>

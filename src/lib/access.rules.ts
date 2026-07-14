@@ -49,7 +49,17 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
   },
   'Inventory': {
     label: 'Inventory',
-    children: ['Inventory', 'Current Inventory', 'Items', 'Suppliers', 'Item Categories', 'Stores', 'Item Groups', 'Purchase Orders', 'Purchases', 'Purchase Returns', 'Issues', 'Issue Returns', 'Wastes', 'Stock Transfers', 'Kitchen Reconciliation', 'Production Recipes', 'Production', 'Production History', 'Buffet Menus', 'Buffet Sessions'] as string[]
+    children: [
+      'Inventory', 'Current Inventory', 'Items', 'Suppliers', 'Item Categories', 'Stores', 'Item Groups',
+      'Purchase Orders', 'Edit Purchase Orders', 'Delete Purchase Orders',
+      'Purchases', 'Edit Purchases', 'Delete Purchases',
+      'Purchase Returns', 'Edit Purchase Returns', 'Delete Purchase Returns',
+      'Issues', 'Edit Issues', 'Delete Issues',
+      'Issue Returns', 'Edit Issue Returns', 'Delete Issue Returns',
+      'Wastes', 'Edit Wastes', 'Delete Wastes',
+      'Stock Transfers', 'Edit Stock Transfers',
+      'Kitchen Reconciliation', 'Production Recipes', 'Production', 'Production History', 'Buffet Menus', 'Buffet Sessions',
+    ] as string[]
   },
   'HR': {
     label: 'HR',

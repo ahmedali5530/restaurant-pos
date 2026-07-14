@@ -24,6 +24,7 @@ export interface InventoryWasteItem {
   issue_item?: InventoryIssueItem
   store?: InventoryStore
   quantity: number
+  price?: number
   comments?: string
   documents?: string[]
   source?: string
