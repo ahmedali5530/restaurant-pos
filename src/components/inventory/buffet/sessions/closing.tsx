@@ -6,6 +6,7 @@ import {useDB} from "@/api/db/db.ts";
 import {appPage} from "@/store/jotai.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {Input} from "@/components/common/input/input.tsx";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useBuffetSession} from "@/hooks/useBuffetSession.ts";
 import {
   closeBuffetSession,
@@ -97,7 +98,6 @@ export const BuffetSessionClosing = ({sessionId, onBack, onClosed}: Props) => {
 
   const handleClose = async () => {
     if (!userId) return;
-    if (!confirm(t("buffet.confirmClose"))) return;
 
     setBusy(true);
     try {
@@ -142,9 +142,15 @@ export const BuffetSessionClosing = ({sessionId, onBack, onClosed}: Props) => {
           <Button variant="secondary" isLoading={busy} onClick={handleSave}>
             {t("buffet.saveClosing")}
           </Button>
-          <Button variant="primary" isLoading={busy} onClick={handleClose}>
-            {t("buffet.closeSession")}
-          </Button>
+          <DeleteConfirm
+            title={t("buffet.confirmCloseTitle")}
+            message={t("buffet.confirmClose")}
+            onConfirm={handleClose}
+          >
+            <Button variant="primary" isLoading={busy}>
+              {t("buffet.closeSession")}
+            </Button>
+          </DeleteConfirm>
         </div>
       </div>
 

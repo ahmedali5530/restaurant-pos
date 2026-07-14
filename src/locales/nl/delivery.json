@@ -86,6 +86,8 @@
     "selectRider": "Selecteer een bezorger",
     "accept": "Accepteren",
     "reject": "Afwijzen",
+    "confirmRejectTitle": "Afwijzing bevestigen",
+    "confirmReject": "Weet u zeker dat u deze bestelling wilt afwijzen?",
     "sendForDelivery": "Verzenden voor bezorging",
     "attachRider": "Bezorger koppelen",
     "payment": "Betaling",

@@ -26,6 +26,7 @@ import {User} from "@/api/model/user.ts";
 import {Tables} from "@/api/db/tables.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {assertOrderTakingAllowed} from "@/lib/closing.guard.ts";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 
 interface DeliveryOrderPopupProps {
   order: Order;
@@ -253,14 +254,19 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
           <div className="flex gap-3 justify-end pb-4 border-b border-neutral-200">
             {order.status === OrderStatus.Pending && (
               <>
-                <Button
-                  variant="danger"
-                  onClick={handleReject}
-                  icon={faTimes}
-                  size="lg"
+                <DeleteConfirm
+                  title={t('order.confirmRejectTitle')}
+                  message={t('order.confirmReject')}
+                  onConfirm={handleReject}
                 >
-                  Reject
-                </Button>
+                  <Button
+                    variant="danger"
+                    icon={faTimes}
+                    size="lg"
+                  >
+                    {t('order.reject')}
+                  </Button>
+                </DeleteConfirm>
                 <Button
                   variant="success"
                   onClick={handleAccept}

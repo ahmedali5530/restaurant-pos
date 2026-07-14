@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { StringRecordId } from "surrealdb";
 import { appPage } from "@/store/jotai.ts";
 import { useAtom } from "jotai";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 
 export const JournalEntries = () => {
   const { t } = useTranslation('accounts');
@@ -43,9 +44,6 @@ export const JournalEntries = () => {
   );
 
   const handleReverse = async (entry: AccountJournalEntry) => {
-    if (!window.confirm(t('messages.confirmReverse', 'Are you sure you want to reverse this journal entry?'))) {
-      return;
-    }
     try {
       const [fullEntry] = await db.query(`SELECT * FROM ONLY ${entry.id} FETCH lines`);
       if (!fullEntry) {
@@ -177,12 +175,15 @@ export const JournalEntries = () => {
             <FontAwesomeIcon icon={faEye} />
           </Button>
           {info.row.original.status === 'posted' && (
-            <Button
-              variant="warning"
-              onClick={() => handleReverse(info.row.original)}
+            <DeleteConfirm
+              title={t('confirm.title')}
+              message={t('messages.confirmReverse')}
+              onConfirm={() => handleReverse(info.row.original)}
             >
-              <FontAwesomeIcon icon={faUndo} />
-            </Button>
+              <Button variant="warning">
+                <FontAwesomeIcon icon={faUndo} />
+              </Button>
+            </DeleteConfirm>
           )}
         </div>
       ),

@@ -378,6 +378,7 @@
     "closingTitle": "Cierre de buffet",
     "saveClosing": "Guardar datos de cierre",
     "closeSession": "Cerrar sesión y registrar en libro mayor",
+    "confirmCloseTitle": "Confirmar cierre",
     "confirmClose": "¿Cerrar esta sesión de buffet y registrar el consumo en el libro mayor de inventario?",
     "closingSaved": "Datos de cierre guardados",
     "sessionClosed": "Sesión de buffet cerrada",

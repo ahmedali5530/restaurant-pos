@@ -27,6 +27,7 @@ import {ScheduledShiftForm} from "@/components/hr/scheduling/shift.form.tsx";
 import {ScheduleTemplateForm} from "@/components/hr/scheduling/template.form.tsx";
 import {GenerateScheduleForm} from "@/components/hr/scheduling/generate.form.tsx";
 import {SwapRequestForm} from "@/components/hr/scheduling/swap.form.tsx";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 
 type SubTab = "schedules" | "shifts" | "templates" | "swaps";
 
@@ -106,7 +107,6 @@ export const HrScheduling = () => {
   };
 
   const handleDeleteSchedule = async (row: WorkSchedule) => {
-    if (!window.confirm(t("messages.deleteSchedule"))) return;
     setActionId(row.id);
     try {
       await deleteSchedule(db, row.id, page.user);
@@ -121,7 +121,6 @@ export const HrScheduling = () => {
   };
 
   const handleCancelShift = async (row: ScheduledShift) => {
-    if (!window.confirm(t("messages.deleteShift"))) return;
     setActionId(row.id);
     try {
       await cancelScheduledShift(db, row.id);
@@ -202,13 +201,14 @@ export const HrScheduling = () => {
                 >
                   {t("buttons.publish")}
                 </Button>
-                <Button
-                  variant="danger"
-                  disabled={actionId === row.id}
-                  onClick={() => void handleDeleteSchedule(row)}
+                <DeleteConfirm
+                  message={t("confirm.deleteSchedule")}
+                  onConfirm={() => handleDeleteSchedule(row)}
                 >
-                  <FontAwesomeIcon icon={faTrash}/>
-                </Button>
+                  <Button variant="danger" disabled={actionId === row.id}>
+                    <FontAwesomeIcon icon={faTrash}/>
+                  </Button>
+                </DeleteConfirm>
                 <Button
                   variant="neutral"
                   onClick={() => { setSchedule(row); setShiftModal(true); }}
@@ -259,13 +259,14 @@ export const HrScheduling = () => {
                 <FontAwesomeIcon icon={faPencil}/>
               </Button>
             )}
-            <Button
-              variant="danger"
-              disabled={actionId === row.id}
-              onClick={() => void handleCancelShift(row)}
+            <DeleteConfirm
+              message={t("confirm.deleteShift")}
+              onConfirm={() => handleCancelShift(row)}
             >
-              <FontAwesomeIcon icon={faTrash}/>
-            </Button>
+              <Button variant="danger" disabled={actionId === row.id}>
+                <FontAwesomeIcon icon={faTrash}/>
+              </Button>
+            </DeleteConfirm>
           </div>
         );
       },
@@ -318,9 +319,15 @@ export const HrScheduling = () => {
             <Button variant="success" disabled={actionId === row.id} onClick={() => void handleApproveSwap(row)}>
               <FontAwesomeIcon icon={faCheck}/>
             </Button>
-            <Button variant="danger" disabled={actionId === row.id} onClick={() => void handleRejectSwap(row)}>
-              <FontAwesomeIcon icon={faXmark}/>
-            </Button>
+            <DeleteConfirm
+              title={t("confirm.title")}
+              message={t("confirm.rejectSwap")}
+              onConfirm={() => handleRejectSwap(row)}
+            >
+              <Button variant="danger" disabled={actionId === row.id}>
+                <FontAwesomeIcon icon={faXmark}/>
+              </Button>
+            </DeleteConfirm>
           </div>
         );
       },

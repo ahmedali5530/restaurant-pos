@@ -86,6 +86,8 @@
     "selectRider": "Sélectionner un livreur",
     "accept": "Accepter",
     "reject": "Refuser",
+    "confirmRejectTitle": "Confirmer le refus",
+    "confirmReject": "Êtes-vous sûr de vouloir refuser cette commande ?",
     "sendForDelivery": "Envoyer en livraison",
     "attachRider": "Affecter un livreur",
     "payment": "Paiement",

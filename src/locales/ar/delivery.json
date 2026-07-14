@@ -86,6 +86,8 @@
     "selectRider": "اختر سائقاً",
     "accept": "قبول",
     "reject": "رفض",
+    "confirmRejectTitle": "تأكيد الرفض",
+    "confirmReject": "هل أنت متأكد من رفض هذا الطلب؟",
     "sendForDelivery": "إرسال للتوصيل",
     "attachRider": "ربط سائق",
     "payment": "الدفع",

@@ -86,6 +86,8 @@
     "selectRider": "Kurye seçin",
     "accept": "Kabul Et",
     "reject": "Reddet",
+    "confirmRejectTitle": "Reddi onayla",
+    "confirmReject": "Bu siparişi reddetmek istediğinizden emin misiniz?",
     "sendForDelivery": "Teslimata gönder",
     "attachRider": "Kurye ata",
     "payment": "Ödeme",

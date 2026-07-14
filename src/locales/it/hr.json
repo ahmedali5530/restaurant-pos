@@ -597,7 +597,9 @@
     "lockPayrollPeriod": "Sei sicuro di voler bloccare questo periodo buste paga? Non saranno consentite ulteriori modifiche.",
     "approvePayrollRun": "Sei sicuro di voler approvare questa esecuzione buste paga?",
     "approveTimeEntry": "Sei sicuro di voler approvare questa registrazione orario?",
-    "rejectTimeEntry": "Sei sicuro di voler rifiutare questa registrazione orario?"
+    "rejectTimeEntry": "Sei sicuro di voler rifiutare questa registrazione orario?",
+    "rejectLeave": "Sei sicuro di voler rifiutare questa richiesta di permesso?",
+    "rejectSwap": "Sei sicuro di voler rifiutare questa richiesta di scambio?"
   },
   "messages": {
     "saveFailed": "Salvataggio non riuscito. Riprova.",

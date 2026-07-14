@@ -18,6 +18,7 @@
     "noCompletedOrders": "Nenhum pedido concluído encontrado para hoje."
   },
   "confirm": {
+    "title": "Confirmar",
     "completeAll": "Concluir todos os pedidos abertos nesta cozinha?"
   }
 }

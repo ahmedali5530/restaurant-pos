@@ -2,21 +2,41 @@ import {Button} from "@/components/common/input/button.tsx";
 import {faTrash} from "@fortawesome/free-solid-svg-icons";
 import {Dialog, Heading, Modal, ModalOverlay} from 'react-aria-components';
 import {AlertTriangle} from 'lucide-react';
-import {useState} from "react";
+import {cloneElement, isValidElement, ReactElement, ReactNode, useState} from "react";
 import {createPortal} from "react-dom";
 import {cn} from "@/lib/utils.ts";
 
 
 interface Props {
   onConfirm: () => void | Promise<void>;
-  message?: string
+  message?: string;
+  title?: string;
+  children?: ReactNode;
+  /** When set, dialog open state is controlled by the parent (e.g. Switch toggles). */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export const DeleteConfirm = ({
-  onConfirm, message
+  onConfirm,
+  message,
+  title = 'Confirm deletion',
+  children,
+  open: openProp,
+  onOpenChange,
 }: Props) => {
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const isControlled = openProp !== undefined;
+  const open = isControlled ? openProp : uncontrolledOpen;
+
+  const setOpen = (next: boolean) => {
+    if (!isControlled) {
+      setUncontrolledOpen(next);
+    }
+    onOpenChange?.(next);
+  };
 
   const close = () => {
     setOpen(false);
@@ -43,9 +63,28 @@ export const DeleteConfirm = ({
     }
   }
 
+  const openDialog = () => setOpen(true);
+
+  const hasCustomTrigger = children != null;
+  const trigger = !hasCustomTrigger && !isControlled
+    ? <Button onClick={openDialog} icon={faTrash} variant="danger"/>
+    : hasCustomTrigger && isValidElement(children)
+      ? cloneElement(children as ReactElement<any>, {
+          onClick: (event: any) => {
+            (children as ReactElement<any>).props?.onClick?.(event);
+            if (event?.defaultPrevented) {
+              return;
+            }
+            openDialog();
+          },
+        })
+      : hasCustomTrigger
+        ? <span onClick={openDialog}>{children}</span>
+        : null;
+
   return (
     <>
-      <Button onClick={() => setOpen(true)} icon={faTrash} variant="danger"/>
+      {trigger}
       {open && createPortal(
         <ModalOverlay
           isDismissable={!loading}
@@ -71,7 +110,7 @@ export const DeleteConfirm = ({
                 slot="title"
                 className="text-2xl font-semibold leading-6 my-0 text-neutral-700"
               >
-                Confirm deletion
+                {title}
               </Heading>
               <div className="w-6 h-6 text-danger-500 absolute right-6 top-6 stroke-2">
                 <AlertTriangle className="w-6 h-6"/>

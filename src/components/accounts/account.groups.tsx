@@ -12,6 +12,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {useDB} from "@/api/db/db.ts";
 import {AccountGroup} from "@/api/model/account.group.ts";
 import {CreateAccountGroup} from "@/components/accounts/create.account.group.tsx";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 
 export const AccountGroups = () => {
   const {t} = useTranslation('accounts');
@@ -19,6 +20,7 @@ export const AccountGroups = () => {
   const [modal, setModal] = useState(false);
   const [operation, setOperation] = useState<"create" | "update">("create");
   const [group, setGroup] = useState<AccountGroup>();
+  const [activateConfirm, setActivateConfirm] = useState<AccountGroup | null>(null);
 
   const groupListHook = useApi<SettingsData<AccountGroup>>(
     Tables.account_groups,
@@ -73,22 +75,13 @@ export const AccountGroups = () => {
             <span className="mx-2 text-gray-300">|</span>
             <Switch
               checked={current.is_active}
-              onChange={async () => {
-                const message = t('confirm.activateGroup', {action: current.is_active ? 'de-' : ''});
-                if (!window.confirm(message)) {
-                  return;
-                }
-                await db.merge(new StringRecordId(current.id.toString()), {
-                  is_active: !current.is_active,
-                });
-                await groupListHook.fetchData();
-              }}
+              onChange={() => setActivateConfirm(current)}
             />
           </>
         );
       },
     }),
-  ], [columnHelper, db, groupListHook, t]);
+  ], [columnHelper, t]);
 
   return (
     <>
@@ -109,6 +102,24 @@ export const AccountGroups = () => {
             <FontAwesomeIcon icon={faPlus} className="mr-2"/> {t('actions.group')}
           </Button>,
         ]}
+      />
+
+      <DeleteConfirm
+        open={activateConfirm != null}
+        onOpenChange={(next) => {
+          if (!next) setActivateConfirm(null);
+        }}
+        title={t('confirm.title')}
+        message={activateConfirm
+          ? t('confirm.activateGroup', {action: activateConfirm.is_active ? 'de-' : ''})
+          : undefined}
+        onConfirm={async () => {
+          if (!activateConfirm) return;
+          await db.merge(new StringRecordId(activateConfirm.id.toString()), {
+            is_active: !activateConfirm.is_active,
+          });
+          await groupListHook.fetchData();
+        }}
       />
 
       {modal && (

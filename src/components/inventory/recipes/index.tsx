@@ -5,7 +5,7 @@ import {Recipe} from "@/api/model/recipe.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faPencil, faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faPencil, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {RecipeForm} from "@/components/inventory/recipes/form.tsx";
 import {useRecipeList} from "@/hooks/useRecipeList.ts";
 import {useDB} from "@/api/db/db.ts";
@@ -13,6 +13,7 @@ import {deleteRecipe} from "@/lib/inventory/production.service.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
 import {toast} from "sonner";
 import classNames from "classnames";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 
 export const InventoryRecipes = () => {
   const {t} = useTranslation("inventory");
@@ -65,11 +66,9 @@ export const InventoryRecipes = () => {
           >
             <FontAwesomeIcon icon={faPencil} />
           </Button>
-          <Button
-            variant="danger"
-            iconButton
-            onClick={async () => {
-              if (!confirm(t("production.confirmDeleteRecipe"))) return;
+          <DeleteConfirm
+            message={t("production.confirmDeleteRecipe")}
+            onConfirm={async () => {
               try {
                 await deleteRecipe(db, recordToString(info.getValue())!);
                 toast.success(t("production.recipeDeleted"));
@@ -78,9 +77,7 @@ export const InventoryRecipes = () => {
                 toast.error(err instanceof Error ? err.message : t("production.recipeDeleteFailed"));
               }
             }}
-          >
-            <FontAwesomeIcon icon={faTrash} />
-          </Button>
+          />
         </div>
       ),
     }),

@@ -18,6 +18,7 @@
     "noCompletedOrders": "Geen voltooide bestellingen gevonden voor vandaag."
   },
   "confirm": {
+    "title": "Bevestigen",
     "completeAll": "Alle open bestellingen in deze keuken voltooien?"
   }
 }

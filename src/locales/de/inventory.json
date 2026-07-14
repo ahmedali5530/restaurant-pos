@@ -378,6 +378,7 @@
     "closingTitle": "Buffet-Abschluss",
     "saveClosing": "Abschlussdaten speichern",
     "closeSession": "Sitzung schließen & im Hauptbuch buchen",
+    "confirmCloseTitle": "Schließen bestätigen",
     "confirmClose": "Diese Buffet-Sitzung schließen und Verbrauch im Lagerhauptbuch buchen?",
     "closingSaved": "Abschlussdaten gespeichert",
     "sessionClosed": "Buffet-Sitzung geschlossen",

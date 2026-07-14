@@ -597,7 +597,9 @@
     "lockPayrollPeriod": "Bu bordro dönemini kilitlemek istediğinizden emin misiniz? Daha fazla düzenleme yapılamaz.",
     "approvePayrollRun": "Bu bordro çalıştırmasını onaylamak istediğinizden emin misiniz?",
     "approveTimeEntry": "Bu zaman kaydını onaylamak istediğinizden emin misiniz?",
-    "rejectTimeEntry": "Bu zaman kaydını reddetmek istediğinizden emin misiniz?"
+    "rejectTimeEntry": "Bu zaman kaydını reddetmek istediğinizden emin misiniz?",
+    "rejectLeave": "Bu izin talebini reddetmek istediğinizden emin misiniz?",
+    "rejectSwap": "Bu değişim talebini reddetmek istediğinizden emin misiniz?"
   },
   "messages": {
     "saveFailed": "Kaydetme başarısız. Lütfen tekrar deneyin.",

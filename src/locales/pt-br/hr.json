@@ -597,7 +597,9 @@
     "lockPayrollPeriod": "Tem certeza de que deseja bloquear este período de folha? Não serão permitidas mais edições.",
     "approvePayrollRun": "Tem certeza de que deseja aprovar esta execução de folha?",
     "approveTimeEntry": "Tem certeza de que deseja aprovar este registro de ponto?",
-    "rejectTimeEntry": "Tem certeza de que deseja rejeitar este registro de ponto?"
+    "rejectTimeEntry": "Tem certeza de que deseja rejeitar este registro de ponto?",
+    "rejectLeave": "Tem certeza de que deseja rejeitar esta solicitação de licença?",
+    "rejectSwap": "Tem certeza de que deseja rejeitar esta solicitação de troca?"
   },
   "messages": {
     "saveFailed": "Falha ao salvar. Tente novamente.",

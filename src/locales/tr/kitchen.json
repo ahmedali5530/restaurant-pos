@@ -18,6 +18,7 @@
     "noCompletedOrders": "Bugün için tamamlanan sipariş bulunamadı."
   },
   "confirm": {
+    "title": "Onayla",
     "completeAll": "Bu mutfaktaki tüm açık siparişler tamamlansın mı?"
   }
 }

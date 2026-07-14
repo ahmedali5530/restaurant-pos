@@ -378,6 +378,7 @@
     "closingTitle": "Chiusura buffet",
     "saveClosing": "Salva dati di chiusura",
     "closeSession": "Chiudi sessione e registra nel libro mastro",
+    "confirmCloseTitle": "Conferma chiusura",
     "confirmClose": "Chiudere questa sessione buffet e registrare il consumo nel libro mastro inventario?",
     "closingSaved": "Dati di chiusura salvati",
     "sessionClosed": "Sessione buffet chiusa",

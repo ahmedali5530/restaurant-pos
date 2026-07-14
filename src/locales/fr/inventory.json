@@ -378,6 +378,7 @@
     "closingTitle": "Clôture buffet",
     "saveClosing": "Enregistrer les données de clôture",
     "closeSession": "Fermer la session et enregistrer au grand livre",
+    "confirmCloseTitle": "Confirmer la fermeture",
     "confirmClose": "Fermer cette session buffet et enregistrer la consommation au grand livre d'inventaire ?",
     "closingSaved": "Données de clôture enregistrées",
     "sessionClosed": "Session buffet fermée",

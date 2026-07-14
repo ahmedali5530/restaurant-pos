@@ -597,7 +597,9 @@
     "lockPayrollPeriod": "Are you sure you want to lock this payroll period? No further edits will be allowed.",
     "approvePayrollRun": "Are you sure you want to approve this payroll run?",
     "approveTimeEntry": "Are you sure you want to approve this time entry?",
-    "rejectTimeEntry": "Are you sure you want to reject this time entry?"
+    "rejectTimeEntry": "Are you sure you want to reject this time entry?",
+    "rejectLeave": "Are you sure you want to reject this leave request?",
+    "rejectSwap": "Are you sure you want to reject this swap request?"
   },
   "messages": {
     "saveFailed": "Failed to save. Please try again.",

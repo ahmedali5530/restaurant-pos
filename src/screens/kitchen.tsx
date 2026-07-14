@@ -22,6 +22,7 @@ import {useAtom} from "jotai";
 import {appPage, closingEnforcementAtom} from "@/store/jotai.ts";
 import {completeStages, recallStage} from "@/lib/kitchen/workflow.service.ts";
 import {useTranslation} from "react-i18next";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 
 
 export const KitchenScreen = () => {
@@ -299,18 +300,16 @@ export const KitchenScreen = () => {
   }, [t]);
 
   const completeAllOrders = async () => {
-    if (confirm(t("kitchen:confirm.completeAll"))) {
-      const userId = page?.user?.id;
-      const ids = orders.flatMap((group) =>
-        group.items
-          .filter((item) => !item.order_item?.deleted_at)
-          .map((item) => item.id.toString())
-      );
-      await completeStages(db, ids, userId);
+    const userId = page?.user?.id;
+    const ids = orders.flatMap((group) =>
+      group.items
+        .filter((item) => !item.order_item?.deleted_at)
+        .map((item) => item.id.toString())
+    );
+    await completeStages(db, ids, userId);
 
-      if (kitchen?.id) {
-        await loadOrders(kitchen.id);
-      }
+    if (kitchen?.id) {
+      await loadOrders(kitchen.id);
     }
   }
 
@@ -347,8 +346,15 @@ export const KitchenScreen = () => {
             ))}
           </div>
           <div className="flex gap-3">
-            <Button variant="success" size="lg"
-                    onClick={completeAllOrders}>{t("kitchen:actions.completeAllOpen")}</Button>
+            <DeleteConfirm
+              title={t("kitchen:confirm.title")}
+              message={t("kitchen:confirm.completeAll")}
+              onConfirm={completeAllOrders}
+            >
+              <Button variant="success" size="lg">
+                {t("kitchen:actions.completeAllOpen")}
+              </Button>
+            </DeleteConfirm>
             <Button variant="secondary" size="lg"
                     onClick={openCompletedOrdersModal}>{t("kitchen:actions.completedOrders")}</Button>
             <Button variant="secondary" size="lg"

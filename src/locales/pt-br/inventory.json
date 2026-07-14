@@ -378,6 +378,7 @@
     "closingTitle": "Fechamento de buffet",
     "saveClosing": "Salvar dados de fechamento",
     "closeSession": "Fechar sessão e lançar no razão",
+    "confirmCloseTitle": "Confirmar fechamento",
     "confirmClose": "Fechar esta sessão de buffet e lançar o consumo no razão de estoque?",
     "closingSaved": "Dados de fechamento salvos",
     "sessionClosed": "Sessão de buffet fechada",

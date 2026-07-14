@@ -15,6 +15,7 @@ import {TableComponent} from "@/components/common/table/table.tsx";
 import {CreateAccount} from "@/components/accounts/create.account.tsx";
 import {CsvUploadModal} from "@/components/common/table/csv.uploader.tsx";
 import {toRecordId} from "@/lib/utils.ts";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 
 export const ChartOfAccounts = () => {
   const {t} = useTranslation('accounts');
@@ -23,6 +24,7 @@ export const ChartOfAccounts = () => {
   const [csvUploader, setCsvUploader] = useState(false);
   const [operation, setOperation] = useState<"create" | "update">("create");
   const [account, setAccount] = useState<Account>();
+  const [activateConfirm, setActivateConfirm] = useState<Account | null>(null);
   const [importSummary, setImportSummary] = useState<{
     total: number;
     created: number;
@@ -135,23 +137,13 @@ export const ChartOfAccounts = () => {
             <span className="mx-2 text-gray-300">|</span>
             <Switch
               checked={current.is_active}
-              onChange={async () => {
-                const message = t('confirm.activateAccount', {action: current.is_active ? 'de-' : ''});
-                if (!window.confirm(message)) {
-                  return;
-                }
-                await db.merge(new StringRecordId(current.id.toString()), {
-                  is_active: !current.is_active
-                });
-                await accountListHook.fetchData();
-                await allAccountsHook.fetchData();
-              }}
+              onChange={() => setActivateConfirm(current)}
             />
           </>
         );
       }
     })
-  ], [columnHelper, db, accountListHook, allAccountsHook, t]);
+  ], [columnHelper, t]);
 
   return (
     <>
@@ -183,6 +175,25 @@ export const ChartOfAccounts = () => {
             <FontAwesomeIcon icon={faPlus} className="mr-2"/> {t('actions.account')}
           </Button>
         ]}
+      />
+
+      <DeleteConfirm
+        open={activateConfirm != null}
+        onOpenChange={(next) => {
+          if (!next) setActivateConfirm(null);
+        }}
+        title={t('confirm.title')}
+        message={activateConfirm
+          ? t('confirm.activateAccount', {action: activateConfirm.is_active ? 'de-' : ''})
+          : undefined}
+        onConfirm={async () => {
+          if (!activateConfirm) return;
+          await db.merge(new StringRecordId(activateConfirm.id.toString()), {
+            is_active: !activateConfirm.is_active,
+          });
+          await accountListHook.fetchData();
+          await allAccountsHook.fetchData();
+        }}
       />
 
       {importSummary && (

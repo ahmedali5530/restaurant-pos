@@ -86,6 +86,8 @@
     "selectRider": "Fahrer auswählen",
     "accept": "Annehmen",
     "reject": "Ablehnen",
+    "confirmRejectTitle": "Ablehnung bestätigen",
+    "confirmReject": "Möchten Sie diese Bestellung wirklich ablehnen?",
     "sendForDelivery": "Zur Lieferung senden",
     "attachRider": "Fahrer zuweisen",
     "payment": "Zahlung",

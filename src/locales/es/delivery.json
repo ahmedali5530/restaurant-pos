@@ -86,6 +86,8 @@
     "selectRider": "Seleccionar un repartidor",
     "accept": "Aceptar",
     "reject": "Rechazar",
+    "confirmRejectTitle": "Confirmar rechazo",
+    "confirmReject": "¿Está seguro de que desea rechazar este pedido?",
     "sendForDelivery": "Enviar para entrega",
     "attachRider": "Asignar repartidor",
     "payment": "Pago",

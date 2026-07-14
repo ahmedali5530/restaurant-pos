@@ -18,6 +18,7 @@
     "noCompletedOrders": "No completed orders found for today."
   },
   "confirm": {
+    "title": "Confirm",
     "completeAll": "Complete all open orders in this kitchen?"
   }
 }

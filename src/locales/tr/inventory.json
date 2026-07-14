@@ -378,6 +378,7 @@
     "closingTitle": "Büfe kapanışı",
     "saveClosing": "Kapanış verilerini kaydet",
     "closeSession": "Oturumu kapat ve deftere kaydet",
+    "confirmCloseTitle": "Kapatmayı onayla",
     "confirmClose": "Bu büfe oturumu kapatılsın ve tüketim envanter defterine kaydedilsin mi?",
     "closingSaved": "Kapanış verileri kaydedildi",
     "sessionClosed": "Büfe oturumu kapatıldı",

@@ -597,7 +597,9 @@
     "lockPayrollPeriod": "Weet u zeker dat u deze salarisperiode wilt vergrendelen? Verdere bewerkingen zijn niet meer mogelijk.",
     "approvePayrollRun": "Weet u zeker dat u deze salarisrun wilt goedkeuren?",
     "approveTimeEntry": "Weet u zeker dat u deze tijdregistratie wilt goedkeuren?",
-    "rejectTimeEntry": "Weet u zeker dat u deze tijdregistratie wilt afwijzen?"
+    "rejectTimeEntry": "Weet u zeker dat u deze tijdregistratie wilt afwijzen?",
+    "rejectLeave": "Weet u zeker dat u dit verlofverzoek wilt afwijzen?",
+    "rejectSwap": "Weet u zeker dat u dit ruilverzoek wilt afwijzen?"
   },
   "messages": {
     "saveFailed": "Opslaan mislukt. Probeer het opnieuw.",

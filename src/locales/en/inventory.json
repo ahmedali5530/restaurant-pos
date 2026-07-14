@@ -378,6 +378,7 @@
     "closingTitle": "Buffet closing",
     "saveClosing": "Save closing data",
     "closeSession": "Close session & post ledger",
+    "confirmCloseTitle": "Confirm close",
     "confirmClose": "Close this buffet session and post consumption to inventory ledger?",
     "closingSaved": "Closing data saved",
     "sessionClosed": "Buffet session closed",

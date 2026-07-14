@@ -597,7 +597,9 @@
     "lockPayrollPeriod": "¿Está seguro de que desea bloquear este período de nómina? No se permitirán más ediciones.",
     "approvePayrollRun": "¿Está seguro de que desea aprobar esta ejecución de nómina?",
     "approveTimeEntry": "¿Está seguro de que desea aprobar este registro de tiempo?",
-    "rejectTimeEntry": "¿Está seguro de que desea rechazar este registro de tiempo?"
+    "rejectTimeEntry": "¿Está seguro de que desea rechazar este registro de tiempo?",
+    "rejectLeave": "¿Está seguro de que desea rechazar esta solicitud de permiso?",
+    "rejectSwap": "¿Está seguro de que desea rechazar esta solicitud de intercambio?"
   },
   "messages": {
     "saveFailed": "Error al guardar. Inténtelo de nuevo.",

@@ -5,7 +5,7 @@ import {BuffetMenu} from "@/api/model/buffet_menu.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faPencil, faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faPencil, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {BuffetMenuForm} from "@/components/inventory/buffet/menus/form.tsx";
 import {useBuffetMenuList} from "@/hooks/useBuffetMenuList.ts";
 import {useDB} from "@/api/db/db.ts";
@@ -13,6 +13,7 @@ import {deleteBuffetMenu} from "@/lib/inventory/buffet.service.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
 import {toast} from "sonner";
 import classNames from "classnames";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 
 export const BuffetMenus = () => {
   const {t} = useTranslation("inventory");
@@ -63,11 +64,9 @@ export const BuffetMenus = () => {
           >
             <FontAwesomeIcon icon={faPencil} />
           </Button>
-          <Button
-            variant="danger"
-            iconButton
-            onClick={async () => {
-              if (!confirm(t("buffet.confirmDeleteMenu"))) return;
+          <DeleteConfirm
+            message={t("buffet.confirmDeleteMenu")}
+            onConfirm={async () => {
               try {
                 await deleteBuffetMenu(db, recordToString(info.getValue())!);
                 toast.success(t("buffet.menuDeleted"));
@@ -76,9 +75,7 @@ export const BuffetMenus = () => {
                 toast.error(err instanceof Error ? err.message : t("buffet.menuDeleteFailed"));
               }
             }}
-          >
-            <FontAwesomeIcon icon={faTrash} />
-          </Button>
+          />
         </div>
       ),
     }),

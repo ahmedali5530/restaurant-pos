@@ -597,7 +597,9 @@
     "lockPayrollPeriod": "Êtes-vous sûr de vouloir verrouiller cette période de paie ? Aucune modification ne sera plus possible.",
     "approvePayrollRun": "Êtes-vous sûr de vouloir approuver cette exécution de paie ?",
     "approveTimeEntry": "Êtes-vous sûr de vouloir approuver ce pointage ?",
-    "rejectTimeEntry": "Êtes-vous sûr de vouloir rejeter ce pointage ?"
+    "rejectTimeEntry": "Êtes-vous sûr de vouloir rejeter ce pointage ?",
+    "rejectLeave": "Êtes-vous sûr de vouloir rejeter cette demande de congé ?",
+    "rejectSwap": "Êtes-vous sûr de vouloir rejeter cette demande d'échange ?"
   },
   "messages": {
     "saveFailed": "Échec de l'enregistrement. Veuillez réessayer.",

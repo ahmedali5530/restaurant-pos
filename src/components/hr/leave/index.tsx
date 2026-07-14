@@ -16,6 +16,7 @@ import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
 import {toast} from "sonner";
 import {approveRequest, rejectRequest} from "@/lib/labor-engine/leave/leave.service.ts";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 
 export const HrLeave = () => {
   const {t} = useTranslation("hr");
@@ -129,9 +130,15 @@ export const HrLeave = () => {
             <Button variant="success" disabled={actionId === row.id} onClick={() => void handleApprove(row)}>
               <FontAwesomeIcon icon={faCheck}/>
             </Button>
-            <Button variant="danger" disabled={actionId === row.id} onClick={() => void handleReject(row)}>
-              <FontAwesomeIcon icon={faXmark}/>
-            </Button>
+            <DeleteConfirm
+              title={t("confirm.title")}
+              message={t("confirm.rejectLeave")}
+              onConfirm={() => handleReject(row)}
+            >
+              <Button variant="danger" disabled={actionId === row.id}>
+                <FontAwesomeIcon icon={faXmark}/>
+              </Button>
+            </DeleteConfirm>
           </div>
         );
       },

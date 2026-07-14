@@ -597,7 +597,9 @@
     "lockPayrollPeriod": "Möchten Sie diesen Abrechnungszeitraum wirklich sperren? Weitere Bearbeitungen sind nicht mehr möglich.",
     "approvePayrollRun": "Möchten Sie diesen Abrechnungslauf wirklich genehmigen?",
     "approveTimeEntry": "Möchten Sie diesen Zeiteintrag wirklich genehmigen?",
-    "rejectTimeEntry": "Möchten Sie diesen Zeiteintrag wirklich ablehnen?"
+    "rejectTimeEntry": "Möchten Sie diesen Zeiteintrag wirklich ablehnen?",
+    "rejectLeave": "Möchten Sie diesen Urlaubsantrag wirklich ablehnen?",
+    "rejectSwap": "Möchten Sie diese Tauschanfrage wirklich ablehnen?"
   },
   "messages": {
     "saveFailed": "Speichern fehlgeschlagen. Bitte versuchen Sie es erneut.",

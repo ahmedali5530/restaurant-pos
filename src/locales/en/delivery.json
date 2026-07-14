@@ -86,6 +86,8 @@
     "selectRider": "Select a rider",
     "accept": "Accept",
     "reject": "Reject",
+    "confirmRejectTitle": "Confirm rejection",
+    "confirmReject": "Are you sure you want to reject this order?",
     "sendForDelivery": "Send for delivery",
     "attachRider": "Attach rider",
     "payment": "Payment",

@@ -86,6 +86,8 @@
     "selectRider": "Выберите курьера",
     "accept": "Принять",
     "reject": "Отклонить",
+    "confirmRejectTitle": "Подтвердить отклонение",
+    "confirmReject": "Вы уверены, что хотите отклонить этот заказ?",
     "sendForDelivery": "Отправить на доставку",
     "attachRider": "Назначить курьера",
     "payment": "Оплата",
