@@ -15,7 +15,7 @@ A high-performance, scalable, and resilient Point of Sale (POS) system designed 
 ## 🎬 See it in Action
 
 ![Restaurant POS system demo](docs/demo.gif)
-▶ [Watch full video](https://ahmedali5530.xyz/assets/posr/demo-video.mp4)
+▶ [Watch full video](https://ahmedali5530.xyz/assets/posr/demo.mp4)
 
 
 ---
