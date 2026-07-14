@@ -44,17 +44,18 @@ export const createOrderFiscalSubmission = async (
   db: FiscalSubmissionDbClient,
   input: CreateOrderFiscalSubmissionInput
 ): Promise<OrderFiscalSubmission | undefined> => {
+  const qrcode = input.qrcode ?? input.invoiceNumber;
   const created = await db.create(Tables.integration_order_fiscals, {
     order: toRecordId(input.orderId),
     provider_id: input.providerId,
-    invoice_number: input.invoiceNumber ?? null,
-    qrcode: input.qrcode ?? input.invoiceNumber ?? null,
+    ...(input.invoiceNumber != null ? { invoice_number: input.invoiceNumber } : {}),
+    ...(qrcode != null ? { qrcode } : {}),
     status: input.status,
-    code: input.code ?? null,
-    error: input.error ?? null,
+    ...(input.code != null ? { code: input.code } : {}),
+    ...(input.error != null ? { error: input.error } : {}),
     selected_for_print: Boolean(input.selectedForPrint),
-    request_payload: input.requestPayload ?? null,
-    response_payload: input.responsePayload ?? null,
+    ...(input.requestPayload !== undefined ? { request_payload: input.requestPayload } : {}),
+    ...(input.responsePayload !== undefined ? { response_payload: input.responsePayload } : {}),
     qr_priority: input.qrPriority ?? 0,
     submitted_at: nowSurrealDateTime(),
     created_at: nowSurrealDateTime(),
