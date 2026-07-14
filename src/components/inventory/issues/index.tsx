@@ -7,9 +7,11 @@ import {InventoryIssue} from "@/api/model/inventory_issue.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faFile, faPencil, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faFile, faPencil, faPlus, faPrint} from "@fortawesome/free-solid-svg-icons";
 import {InventoryIssueForm} from "@/components/inventory/issues/form.tsx";
 import {InventoryIssueViewModal} from "@/components/inventory/issues/view.modal.tsx";
+import {InventoryDocumentPrintModal} from "@/components/inventory/common/document.print.modal.tsx";
+import {InventoryInvoiceDoc, mapIssueToInvoice} from "@/lib/inventory/invoice.mapper.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 
 export const InventoryIssues = () => {
@@ -27,6 +29,7 @@ export const InventoryIssues = () => {
   const [formModal, setFormModal] = useState(false);
   const [viewIssue, setViewIssue] = useState<InventoryIssue | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [printDoc, setPrintDoc] = useState<InventoryInvoiceDoc | null>(null);
 
   const columnHelper = createColumnHelper<InventoryIssue>();
 
@@ -79,6 +82,14 @@ export const InventoryIssues = () => {
               }}
             >
               <FontAwesomeIcon icon={faFile}/>
+            </Button>
+            <Button
+              variant="secondary"
+              iconButton
+              title={t('print.printReceipt')}
+              onClick={() => setPrintDoc(mapIssueToInvoice(info.row.original))}
+            >
+              <FontAwesomeIcon icon={faPrint}/>
             </Button>
             <Button
               variant="primary"
@@ -137,6 +148,12 @@ export const InventoryIssues = () => {
           }}
         />
       )}
+
+      <InventoryDocumentPrintModal
+        open={!!printDoc}
+        doc={printDoc}
+        onClose={() => setPrintDoc(null)}
+      />
     </>
   );
 };

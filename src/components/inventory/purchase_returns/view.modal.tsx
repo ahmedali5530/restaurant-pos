@@ -176,6 +176,7 @@ export const InventoryPurchaseReturnViewModal = ({open, purchaseReturn, onClose}
           </div>
         </div>
       )}
+
     </Modal>
   );
 };

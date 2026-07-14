@@ -7,9 +7,11 @@ import {InventoryIssueReturn} from "@/api/model/inventory_issue_return.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faFile, faPencil, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faFile, faPencil, faPlus, faPrint} from "@fortawesome/free-solid-svg-icons";
 import {InventoryIssueReturnForm} from "@/components/inventory/issue_returns/form.tsx";
 import {InventoryIssueReturnViewModal} from "@/components/inventory/issue_returns/view.modal.tsx";
+import {InventoryDocumentPrintModal} from "@/components/inventory/common/document.print.modal.tsx";
+import {InventoryInvoiceDoc, mapIssueReturnToInvoice} from "@/lib/inventory/invoice.mapper.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 
 export const InventoryIssueReturns = () => {
@@ -27,6 +29,7 @@ export const InventoryIssueReturns = () => {
   const [formModal, setFormModal] = useState(false);
   const [viewIssueReturn, setViewIssueReturn] = useState<InventoryIssueReturn | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [printDoc, setPrintDoc] = useState<InventoryInvoiceDoc | null>(null);
 
   const columnHelper = createColumnHelper<InventoryIssueReturn>();
 
@@ -81,6 +84,14 @@ export const InventoryIssueReturns = () => {
               }}
             >
               <FontAwesomeIcon icon={faFile}/>
+            </Button>
+            <Button
+              variant="secondary"
+              iconButton
+              title={t('print.printReceipt')}
+              onClick={() => setPrintDoc(mapIssueReturnToInvoice(info.row.original))}
+            >
+              <FontAwesomeIcon icon={faPrint}/>
             </Button>
             <Button
               variant="primary"
@@ -139,6 +150,12 @@ export const InventoryIssueReturns = () => {
           }}
         />
       )}
+
+      <InventoryDocumentPrintModal
+        open={!!printDoc}
+        doc={printDoc}
+        onClose={() => setPrintDoc(null)}
+      />
     </>
   );
 };

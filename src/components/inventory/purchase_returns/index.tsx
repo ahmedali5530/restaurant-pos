@@ -7,9 +7,11 @@ import {InventoryPurchaseReturn} from "@/api/model/inventory_purchase_return.ts"
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faFile, faPencil, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faFile, faPencil, faPlus, faPrint} from "@fortawesome/free-solid-svg-icons";
 import {InventoryPurchaseReturnForm} from "@/components/inventory/purchase_returns/form.tsx";
 import {InventoryPurchaseReturnViewModal} from "@/components/inventory/purchase_returns/view.modal.tsx";
+import {InventoryDocumentPrintModal} from "@/components/inventory/common/document.print.modal.tsx";
+import {InventoryInvoiceDoc, mapPurchaseReturnToInvoice} from "@/lib/inventory/invoice.mapper.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 
 export const InventoryPurchaseReturns = () => {
@@ -20,13 +22,14 @@ export const InventoryPurchaseReturns = () => {
     ["created_at DESC"],
     0,
     10,
-    ["purchase", "purchase.items", "purchase.items.item", "items", "items.item", "items.purchase_item", "items.purchase_item.store", "items.purchase_item.supplier", "items.store", "items.supplier", "created_by"]
+    ["purchase", "purchase.supplier", "purchase.items", "purchase.items.item", "items", "items.item", "items.purchase_item", "items.purchase_item.store", "items.purchase_item.supplier", "items.store", "items.supplier", "created_by"]
   );
 
   const [data, setData] = useState<InventoryPurchaseReturn>();
   const [formModal, setFormModal] = useState(false);
   const [viewReturn, setViewReturn] = useState<InventoryPurchaseReturn | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [printDoc, setPrintDoc] = useState<InventoryInvoiceDoc | null>(null);
 
   const columnHelper = createColumnHelper<InventoryPurchaseReturn>();
 
@@ -71,6 +74,14 @@ export const InventoryPurchaseReturns = () => {
               }}
             >
               <FontAwesomeIcon icon={faFile}/>
+            </Button>
+            <Button
+              variant="secondary"
+              iconButton
+              title={t('print.printReceipt')}
+              onClick={() => setPrintDoc(mapPurchaseReturnToInvoice(info.row.original))}
+            >
+              <FontAwesomeIcon icon={faPrint}/>
             </Button>
             <Button
               variant="primary"
@@ -129,6 +140,12 @@ export const InventoryPurchaseReturns = () => {
           }}
         />
       )}
+
+      <InventoryDocumentPrintModal
+        open={!!printDoc}
+        doc={printDoc}
+        onClose={() => setPrintDoc(null)}
+      />
     </>
   );
 };

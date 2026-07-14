@@ -387,5 +387,12 @@
       "sessionTypeMenu": "Periodo pasto tipico quando questo menu è usato per sessioni buffet.",
       "recipe": "Ricetta di produzione il cui output principale è preparato e tracciato sulla linea buffet."
     }
+  },
+  "print": {
+    "printReceipt": "Print receipt",
+    "print": "Print",
+    "exportPdf": "Export as PDF",
+    "exportImage": "Export as Image",
+    "previewTitle": "{{docType}} #{{number}}"
   }
 }

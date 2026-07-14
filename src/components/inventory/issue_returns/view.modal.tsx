@@ -181,6 +181,7 @@ export const InventoryIssueReturnViewModal = ({open, issueReturn, onClose}: Prop
           </div>
         </div>
       )}
+
     </Modal>
   );
 };

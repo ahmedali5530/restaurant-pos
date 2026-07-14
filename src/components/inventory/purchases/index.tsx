@@ -7,10 +7,12 @@ import {InventoryPurchase} from "@/api/model/inventory_purchase.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faFile, faPencil, faPlus, faUpload} from "@fortawesome/free-solid-svg-icons";
+import {faFile, faPencil, faPlus, faPrint, faUpload} from "@fortawesome/free-solid-svg-icons";
 import {InventoryPurchaseForm} from "@/components/inventory/purchases/form.tsx";
 import {InventoryPurchaseUpload} from "@/components/inventory/purchases/upload.tsx";
 import {InventoryPurchaseViewModal} from "@/components/inventory/purchases/view.modal.tsx";
+import {InventoryDocumentPrintModal} from "@/components/inventory/common/document.print.modal.tsx";
+import {InventoryInvoiceDoc, mapPurchaseToInvoice} from "@/lib/inventory/invoice.mapper.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 
 export const InventoryPurchases = () => {
@@ -29,6 +31,7 @@ export const InventoryPurchases = () => {
   const [uploadModal, setUploadModal] = useState(false);
   const [viewPurchase, setViewPurchase] = useState<InventoryPurchase | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [printDoc, setPrintDoc] = useState<InventoryInvoiceDoc | null>(null);
 
   const columnHelper = createColumnHelper<InventoryPurchase>();
 
@@ -78,6 +81,14 @@ export const InventoryPurchases = () => {
               }}
             >
               <FontAwesomeIcon icon={faFile}/>
+            </Button>
+            <Button
+              variant="secondary"
+              iconButton
+              title={t('print.printReceipt')}
+              onClick={() => setPrintDoc(mapPurchaseToInvoice(row))}
+            >
+              <FontAwesomeIcon icon={faPrint}/>
             </Button>
             <Button
               variant="primary"
@@ -146,6 +157,12 @@ export const InventoryPurchases = () => {
           }}
         />
       )}
+
+      <InventoryDocumentPrintModal
+        open={!!printDoc}
+        doc={printDoc}
+        onClose={() => setPrintDoc(null)}
+      />
     </>
   );
 };

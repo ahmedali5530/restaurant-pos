@@ -387,5 +387,12 @@
       "sessionTypeMenu": "Bu menünün büfe oturumlarında kullanıldığı tipik öğün dönemi.",
       "recipe": "Birincil çıktısı büfe hattında üretilen ve izlenen üretim tarifi."
     }
+  },
+  "print": {
+    "printReceipt": "Print receipt",
+    "print": "Print",
+    "exportPdf": "Export as PDF",
+    "exportImage": "Export as Image",
+    "previewTitle": "{{docType}} #{{number}}"
   }
 }

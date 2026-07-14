@@ -387,5 +387,12 @@
       "sessionTypeMenu": "فترة الوجبة المعتادة عند استخدام هذه القائمة لجلسات البوفيه.",
       "recipe": "وصفة الإنتاج التي يُصنع مخرجها الرئيسي ويُتتبع على خط البوفيه."
     }
+  },
+  "print": {
+    "printReceipt": "Print receipt",
+    "print": "Print",
+    "exportPdf": "Export as PDF",
+    "exportImage": "Export as Image",
+    "previewTitle": "{{docType}} #{{number}}"
   }
 }

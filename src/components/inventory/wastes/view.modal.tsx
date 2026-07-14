@@ -174,6 +174,7 @@ export const InventoryWasteViewModal = ({open, waste, onClose}: Props) => {
           </div>
         </div>
       )}
+
     </Modal>
   );
 };

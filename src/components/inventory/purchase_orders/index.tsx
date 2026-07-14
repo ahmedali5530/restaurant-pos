@@ -7,11 +7,13 @@ import {InventoryPurchaseOrder, PurchaseOrderStatus} from "@/api/model/inventory
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faFile, faPencil, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faFile, faPencil, faPlus, faPrint} from "@fortawesome/free-solid-svg-icons";
 import {InventoryPurchaseOrderForm} from "@/components/inventory/purchase_orders/form.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {InventoryPurchaseOrderViewModal} from "@/components/inventory/purchase_orders/view.modal.tsx";
+import {InventoryDocumentPrintModal} from "@/components/inventory/common/document.print.modal.tsx";
+import {InventoryInvoiceDoc, mapPurchaseOrderToInvoice} from "@/lib/inventory/invoice.mapper.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 
 export const InventoryPurchaseOrders = () => {
@@ -22,7 +24,7 @@ export const InventoryPurchaseOrders = () => {
     ["created_at DESC"],
     0,
     10,
-    ["supplier", "items", "items.item", "items.supplier"]
+    ["supplier", "items", "items.item", "items.supplier", "items.store"]
   );
   const db = useDB();
 
@@ -30,6 +32,7 @@ export const InventoryPurchaseOrders = () => {
   const [formModal, setFormModal] = useState(false);
   const [viewOrder, setViewOrder] = useState<InventoryPurchaseOrder | null>(null);
   const [viewModal, setViewModal] = useState(false);
+  const [printDoc, setPrintDoc] = useState<InventoryInvoiceDoc | null>(null);
 
   const columnHelper = createColumnHelper<InventoryPurchaseOrder>();
 
@@ -79,6 +82,14 @@ export const InventoryPurchaseOrders = () => {
               }}
             >
               <FontAwesomeIcon icon={faFile}/>
+            </Button>
+            <Button
+              variant="secondary"
+              iconButton
+              title={t('print.printReceipt')}
+              onClick={() => setPrintDoc(mapPurchaseOrderToInvoice(row))}
+            >
+              <FontAwesomeIcon icon={faPrint}/>
             </Button>
             {row.status === PurchaseOrderStatus.pending && (
               <>
@@ -147,6 +158,12 @@ export const InventoryPurchaseOrders = () => {
           }}
         />
       )}
+
+      <InventoryDocumentPrintModal
+        open={!!printDoc}
+        doc={printDoc}
+        onClose={() => setPrintDoc(null)}
+      />
     </>
   );
 };

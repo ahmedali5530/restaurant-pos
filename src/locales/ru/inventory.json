@@ -387,5 +387,12 @@
       "sessionTypeMenu": "Типичный период приёма пищи, когда это меню используется для сессий шведского стола.",
       "recipe": "Производственный рецепт, основной выход которого готовится и отслеживается на линии шведского стола."
     }
+  },
+  "print": {
+    "printReceipt": "Print receipt",
+    "print": "Print",
+    "exportPdf": "Export as PDF",
+    "exportImage": "Export as Image",
+    "previewTitle": "{{docType}} #{{number}}"
   }
 }

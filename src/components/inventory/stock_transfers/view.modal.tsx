@@ -4,7 +4,7 @@ import {StockTransfer} from "@/api/model/stock_transfer.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {getStockTransfer, inferTransferType} from "@/lib/inventory/stock_transfer.service.ts";
-import {toJsDate, toLuxonDateTime} from "@/lib/datetime.ts";
+import {toLuxonDateTime} from "@/lib/datetime.ts";
 import classNames from "classnames";
 
 interface Props {
@@ -172,6 +172,7 @@ export const StockTransferViewModal = ({open, transfer, onClose}: Props) => {
           </div>
         </div>
       )}
+
     </Modal>
   );
 };

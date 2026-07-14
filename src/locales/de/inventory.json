@@ -387,5 +387,12 @@
       "sessionTypeMenu": "Typische Mahlzeit, wenn dieses Menü für Buffet-Sitzungen verwendet wird.",
       "recipe": "Produktionsrezept, dessen Hauptausgabe an der Buffet-Linie hergestellt und verfolgt wird."
     }
+  },
+  "print": {
+    "printReceipt": "Print receipt",
+    "print": "Print",
+    "exportPdf": "Export as PDF",
+    "exportImage": "Export as Image",
+    "previewTitle": "{{docType}} #{{number}}"
   }
 }

@@ -387,5 +387,12 @@
       "sessionTypeMenu": "Typische maaltijdperiode wanneer dit menu wordt gebruikt voor buffetsessies.",
       "recipe": "Productierecept waarvan de primaire output wordt gemaakt en gevolgd op de buffetlijn."
     }
+  },
+  "print": {
+    "printReceipt": "Print receipt",
+    "print": "Print",
+    "exportPdf": "Export as PDF",
+    "exportImage": "Export as Image",
+    "previewTitle": "{{docType}} #{{number}}"
   }
 }

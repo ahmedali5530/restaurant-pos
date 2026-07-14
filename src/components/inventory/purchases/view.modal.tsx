@@ -192,6 +192,7 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
           </div>
         </div>
       )}
+
     </Modal>
   );
 };

@@ -9,9 +9,11 @@ import {InventoryStore} from "@/api/model/inventory_store.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faFile, faPencil, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faFile, faPencil, faPlus, faPrint} from "@fortawesome/free-solid-svg-icons";
 import {StockTransferForm} from "@/components/inventory/stock_transfers/form.tsx";
 import {StockTransferViewModal} from "@/components/inventory/stock_transfers/view.modal.tsx";
+import {InventoryDocumentPrintModal} from "@/components/inventory/common/document.print.modal.tsx";
+import {InventoryInvoiceDoc, mapStockTransferToInvoice} from "@/lib/inventory/invoice.mapper.ts";
 import {useStockTransferList} from "@/hooks/useStockTransferList.ts";
 import {inferTransferType} from "@/lib/inventory/stock_transfer.service.ts";
 import {toJsDate} from "@/lib/datetime.ts";
@@ -55,6 +57,7 @@ export const InventoryStockTransfers = () => {
   const [formModal, setFormModal] = useState(false);
   const [viewTransfer, setViewTransfer] = useState<StockTransfer | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [printDoc, setPrintDoc] = useState<InventoryInvoiceDoc | null>(null);
   const [filterKitchen, setFilterKitchen] = useState<{label: string; value: string} | null>(null);
   const [filterStore, setFilterStore] = useState<{label: string; value: string} | null>(null);
 
@@ -175,6 +178,14 @@ export const InventoryStockTransfers = () => {
             <FontAwesomeIcon icon={faFile} />
           </Button>
           <Button
+            variant="secondary"
+            iconButton
+            title={t("print.printReceipt")}
+            onClick={() => setPrintDoc(mapStockTransferToInvoice(info.row.original))}
+          >
+            <FontAwesomeIcon icon={faPrint} />
+          </Button>
+          <Button
             variant="primary"
             onClick={() => {
               setData(info.row.original);
@@ -259,6 +270,12 @@ export const InventoryStockTransfers = () => {
           }}
         />
       )}
+
+      <InventoryDocumentPrintModal
+        open={!!printDoc}
+        doc={printDoc}
+        onClose={() => setPrintDoc(null)}
+      />
     </>
   );
 };

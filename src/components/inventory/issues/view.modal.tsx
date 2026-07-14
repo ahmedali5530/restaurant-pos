@@ -180,6 +180,7 @@ export const InventoryIssueViewModal = ({open, issue, onClose}: Props) => {
           </div>
         </div>
       )}
+
     </Modal>
   );
 };
