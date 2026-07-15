@@ -26,6 +26,8 @@ export type ProviderConfigLoader = (providerId: string) => Promise<Record<string
 
 type ConfigurableProvider = IntegrationProvider & {
   setConfigLoader?: (loader: () => Promise<Record<string, unknown>>) => void;
+  setDbLoader?: (loader: () => any) => void;
+  setJobEnqueuer?: (enqueuer: (request: IntegrationExecutionRequest) => Promise<unknown>) => void;
 };
 
 export class IntegrationManager {
@@ -46,11 +48,23 @@ export class IntegrationManager {
     this.configLoader = loader;
   }
 
+  private dbLoader: (() => any) | null = null;
+
+  setDbLoader(loader: () => any) {
+    this.dbLoader = loader;
+  }
+
   private wireProviderConfig(provider: IntegrationProvider) {
     const configurable = provider as ConfigurableProvider;
+    const providerId = provider.getManifest().id;
     if (typeof configurable.setConfigLoader === 'function') {
-      const providerId = provider.getManifest().id;
       configurable.setConfigLoader(() => this.configLoader(providerId));
+    }
+    if (typeof configurable.setDbLoader === 'function' && this.dbLoader) {
+      configurable.setDbLoader(this.dbLoader);
+    }
+    if (typeof configurable.setJobEnqueuer === 'function') {
+      configurable.setJobEnqueuer((request) => this.execute(providerId, request));
     }
   }
 
@@ -302,7 +316,7 @@ export class IntegrationManager {
     });
   }
 
-  async publish(event: IntegrationEvent) {
+  async publish(event: IntegrationEvent<any>) {
     await this.eventBus.publish(event);
     for (const provider of this.registry.getAll()) {
       if (!provider.handleEvent) continue;

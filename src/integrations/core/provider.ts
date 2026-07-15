@@ -35,5 +35,5 @@ export interface IntegrationProvider {
   sync?(): Promise<void>;
   retry?(requestId: string): Promise<IntegrationExecutionResponse>;
   subscribeEvents?(): Promise<string[]>;
-  handleEvent?(event: IntegrationEvent): Promise<void>;
+  handleEvent?(event: IntegrationEvent<any>): Promise<void>;
 }

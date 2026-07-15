@@ -43,6 +43,7 @@ import {
   loadOrderForFiscal,
   runFiscalSettlementForOrder,
 } from "@/integrations/providers/fiscal/settlement.ts";
+import { publishSaleCompleted } from "@/integrations/accounting/events/publish.ts";
 import {toast} from "sonner";
 
 interface Props {
@@ -312,6 +313,15 @@ const OrderPaymentReceivingContent = ({
           if (Object.values(fiscalResult.resultsByProvider).some((row) => row.status === 'failed')) {
             toast.warning('Some fiscal providers failed; check Integrations queue');
           }
+        }
+      }
+
+      const saleOrder = await loadOrderForFiscal(db, String(order.id));
+      if (saleOrder && integrationManager) {
+        try {
+          await publishSaleCompleted(integrationManager, saleOrder);
+        } catch (publishError) {
+          console.warn('Failed publishing SaleCompleted event', publishError);
         }
       }
 

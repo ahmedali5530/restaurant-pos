@@ -1,14 +1,15 @@
 import { nanoid } from 'nanoid';
 import { nowSurrealDateTime, toJsDate } from '@/lib/datetime.ts';
-import { IntegrationEvent } from '@/integrations/core/types.ts';
+import { IntegrationEvent, IntegrationEventName } from '@/integrations/core/types.ts';
 
 export const createPosEvent = <TPayload = Record<string, unknown>>(
-  name: string,
+  name: IntegrationEventName,
   payload: TPayload,
-  source = 'pos-core'
+  source = 'pos-core',
+  id?: string
 ): IntegrationEvent<TPayload> => {
   return {
-    id: `integration_event:${nanoid()}`,
+    id: id ?? `integration_event:${nanoid()}`,
     name,
     source,
     payload,

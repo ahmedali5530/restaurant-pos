@@ -70,6 +70,7 @@
   },
   "confirm": {
     "title": "Confirmation",
+    "publishTitle": "Publish journal entry",
     "yes": "Yes, please",
     "no": "No, wait",
     "activateGroup": "Are you sure to {{action}}activate this group?",
@@ -140,8 +141,12 @@
     "needValidLines": "Add at least two valid lines with account and amount.",
     "mustBeBalanced": "Journal entry must be balanced (debit = credit).",
     "confirmReverse": "Are you sure you want to reverse this journal entry?",
+    "confirmPublish": "Publish this draft so it appears on the general ledger and reports?",
     "reverseSuccess": "Journal entry reversed successfully",
-    "cannotReverse": "Only posted entries can be reversed"
+    "publishSuccess": "Journal entry published",
+    "publishFailed": "Failed to publish entry",
+    "cannotReverse": "Only posted entries can be reversed",
+    "cannotPublish": "Only draft entries can be published"
   },
   "upload": {
     "attachDocuments": "Attach Documents",

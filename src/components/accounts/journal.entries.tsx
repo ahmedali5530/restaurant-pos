@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faPlus, faUndo } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faEye, faPlus, faUndo } from "@fortawesome/free-solid-svg-icons";
 import { DateTime } from "luxon";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/common/input/button.tsx";
@@ -19,6 +19,7 @@ import { StringRecordId } from "surrealdb";
 import { appPage } from "@/store/jotai.ts";
 import { useAtom } from "jotai";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import { publishJournalEntry } from "@/integrations/storage/account-journal-repository.ts";
 
 export const JournalEntries = () => {
   const { t } = useTranslation('accounts');
@@ -42,6 +43,20 @@ export const JournalEntries = () => {
     25,
     ["lines", "lines.account", "lines.account.group", "created_by"],
   );
+
+  const handlePublish = async (entry: AccountJournalEntry) => {
+    try {
+      if (entry.status !== 'draft') {
+        toast.error(t('messages.cannotPublish', 'Only draft entries can be published'));
+        return;
+      }
+      await publishJournalEntry(db, String(entry.id));
+      toast.success(t('messages.publishSuccess', 'Journal entry published'));
+      await journalHook.fetchData();
+    } catch (e: any) {
+      toast.error(e.message || t('messages.publishFailed', 'Failed to publish entry'));
+    }
+  };
 
   const handleReverse = async (entry: AccountJournalEntry) => {
     try {
@@ -174,6 +189,20 @@ export const JournalEntries = () => {
           >
             <FontAwesomeIcon icon={faEye} />
           </Button>
+          {info.row.original.status === 'draft' && (
+            <DeleteConfirm
+              title={t('confirm.publishTitle', 'Publish journal entry')}
+              message={t(
+                'messages.confirmPublish',
+                'Publish this draft so it appears on the general ledger and reports?'
+              )}
+              onConfirm={() => handlePublish(info.row.original)}
+            >
+              <Button variant="success">
+                <FontAwesomeIcon icon={faCheck} />
+              </Button>
+            </DeleteConfirm>
+          )}
           {info.row.original.status === 'posted' && (
             <DeleteConfirm
               title={t('confirm.title')}

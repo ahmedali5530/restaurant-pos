@@ -27,11 +27,11 @@
   will-change: transform, clip-path, opacity;
 
   &[data-entering] {
-    animation: genieIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    //animation: genieIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
 
   &[data-exiting] {
-    animation: genieOut 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    //animation: genieOut 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
 }
 

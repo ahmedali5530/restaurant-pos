@@ -27,10 +27,13 @@ src/integrations/
   audit/
   transport/
   storage/
+  accounting/          # posting engine (rules, templates, mapping) — not a provider
   providers/
     fiscal/
       fbr/
       pra/
+    accounting/
+      internal/        # thin InternalAccountingProvider
 ```
 
 ## Provider Lifecycle
@@ -128,8 +131,33 @@ sequenceDiagram
 ## Event Model
 
 - Framework supports normalized events (`IntegrationEvent`) and provider subscriptions.
-- POS can publish events such as `InvoiceCreated`, `InvoicePaid`, `OrderCreated`, `ShiftClosed`, `InternetDisconnected`.
+- POS publishes business events via `createPosEvent` + `IntegrationManager.publish` (optionally with a **stable event id** for idempotency).
 - Providers handle only events they declare in `manifest.supportedEvents`.
+- Accounting: POS must **never** create journal entries directly. Use `publishSaleCompleted(manager, order)` after payment settlement.
+
+## Accounting integration (draft-first)
+
+```mermaid
+flowchart TD
+  POS[POS SaleCompleted] --> Publish[manager.publish]
+  Publish --> Provider[InternalAccountingProvider.handleEvent]
+  Provider --> Engine[AccountingPostingEngine]
+  Engine --> Rules[Posting Rules]
+  Engine --> Templates[Journal Templates]
+  Engine --> Mapping[Logical Account Mapping]
+  Engine -->|enqueue postJournal| Queue[Integration Queue]
+  Queue --> Persist[Provider.execute postJournal]
+  Persist --> Draft[account_journal_entry status draft]
+  Accountant[Accountant Publish] --> Draft
+  Draft -->|posted| GL[GL Reports]
+```
+
+- Provider id: `provider:internal-accounting` (`category: accounting`)
+- Posting logic lives in `src/integrations/accounting/` (engine, rules, templates, mapping) — **outside** the provider.
+- Provider only validates config, receives `postJournal`, and persists draft journals.
+- Idempotency: event id `SaleCompleted:{orderId}` → key `accounting:SaleCompleted:{orderId}`; duplicates return the existing entry.
+- Default `autoPublish` is **off**; GL reports only include `status = 'posted'`.
+- Configure account mappings (logical codes → COA) in Integrations → Configuration (`account` field type).
 
 ## Queue and Retry
 
@@ -171,6 +199,7 @@ sequenceDiagram
   - text, number, password
   - checkbox/switch
   - dropdown
+  - account (chart of accounts picker)
   - certificate
   - json
   - dynamic (custom fallback)
@@ -196,6 +225,7 @@ Tables:
 
 - `provider:fbr`
 - `provider:pra`
+- `provider:internal-accounting`
 
 Both are fiscal providers with manifest-driven configuration and shared framework contracts.
 

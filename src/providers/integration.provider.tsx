@@ -44,6 +44,7 @@ export const IntegrationProvider = ({ children }: PropsWithChildren) => {
 
     const next = new IntegrationManager(registry, eventBus, queueEngine, scheduler, healthMonitor, auditLogger);
     next.setConfigLoader((providerId) => getIntegrationProviderConfig(dbRef.current, providerId));
+    next.setDbLoader(() => dbRef.current);
     return next;
   }, []);
 

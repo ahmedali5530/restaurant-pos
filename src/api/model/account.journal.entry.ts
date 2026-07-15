@@ -18,4 +18,13 @@ export interface AccountJournalEntry {
   documents?: Document[];
   created_at?: Date;
   updated_at?: Date;
+  origin_event?: string;
+  origin_module?: string;
+  origin_record_id?: string;
+  integration_provider_id?: string;
+  posting_rule_id?: string;
+  journal_template_id?: string;
+  idempotency_key?: string;
+  generated_at?: Date | string;
+  generated_by?: string;
 }

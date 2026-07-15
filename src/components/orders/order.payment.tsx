@@ -682,6 +682,7 @@ export const OrderPayment = ({
               <div className="overflow-ellipsis max-h-[170px]">
                 {getOrderFilteredItems(order).map(item => (
                   <OrderItemName
+                    key={item.id}
                     item={item}
                     showPrice={showPriceInOrderCard}
                     showModifierPrice={showModifierPriceInOrderCard}

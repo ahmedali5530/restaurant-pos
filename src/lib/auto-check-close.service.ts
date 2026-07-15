@@ -25,6 +25,7 @@ import {
   loadOrderForFiscal,
   runFiscalSettlementForOrder,
 } from "@/integrations/providers/fiscal/settlement.ts";
+import { publishSaleCompleted } from "@/integrations/accounting/events/publish.ts";
 
 type DBLike = {
   query: (sql: string, params?: Record<string, unknown>) => Promise<unknown[][]>;
@@ -337,6 +338,15 @@ export async function closeOpenChecks(options: {
           const settled = await loadOrderForFiscal(db, String(fullOrder.id));
           if (settled) {
             await runFiscalSettlementForOrder(integrationManager, db, settled);
+          }
+        }
+
+        const saleOrder = await loadOrderForFiscal(db, String(fullOrder.id));
+        if (saleOrder) {
+          try {
+            await publishSaleCompleted(integrationManager, saleOrder);
+          } catch (publishError) {
+            console.warn('Failed publishing SaleCompleted event', publishError);
           }
         }
       }

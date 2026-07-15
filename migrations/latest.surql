@@ -59,8 +59,18 @@ DEFINE FIELD source_id ON account_journal_entry TYPE none | string | null PERMIS
 DEFINE FIELD source_module ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD status ON account_journal_entry TYPE string DEFAULT 'draft' ASSERT $value INSIDE ['draft', 'posted', 'reversed'] PERMISSIONS FULL;
 DEFINE FIELD updated_at ON account_journal_entry TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD origin_event ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD origin_module ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD origin_record_id ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD integration_provider_id ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD posting_rule_id ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD journal_template_id ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD idempotency_key ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD generated_at ON account_journal_entry TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD generated_by ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
 
 DEFINE INDEX account_journal_entry_number_unique ON account_journal_entry FIELDS entry_number UNIQUE;
+DEFINE INDEX account_journal_entry_idempotency_key ON account_journal_entry FIELDS idempotency_key;
 
 
 -- ------------------------------
