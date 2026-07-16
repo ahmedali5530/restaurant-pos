@@ -1,6 +1,35 @@
 'use strict';
 
 const os = require('os');
+
+/**
+ * Modern node-usb exports EventEmitter on `usb.usb`, while escpos-usb calls `usb.on`.
+ * patch-package fixes that, but often fails to apply on Windows — shim the root export too.
+ */
+function ensureUsbEventEmitterApi() {
+  const usbPkg = require('usb');
+  const ee = usbPkg.usb && typeof usbPkg.usb.on === 'function' ? usbPkg.usb : usbPkg;
+  if (typeof usbPkg.on !== 'function' && typeof ee.on === 'function') {
+    for (const method of [
+      'on',
+      'once',
+      'off',
+      'addListener',
+      'removeListener',
+      'removeAllListeners',
+      'emit',
+      'listenerCount',
+    ]) {
+      if (typeof ee[method] === 'function' && typeof usbPkg[method] !== 'function') {
+        usbPkg[method] = ee[method].bind(ee);
+      }
+    }
+  }
+  return usbPkg;
+}
+
+ensureUsbEventEmitterApi();
+
 const USB = require('escpos-usb');
 
 /**
