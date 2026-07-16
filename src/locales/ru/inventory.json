@@ -107,7 +107,8 @@
     "expiryDate": "Срок годности",
     "manufacturingDate": "Дата производства",
     "storeInventory": "Склад {{name}}",
-    "reorderLevelHint": "Необязательный минимальный запас для каждого склада"
+    "reorderLevelHint": "Необязательный минимальный запас для каждого склада",
+    "taxable": "Облагается налогом"
   },
   "validation": {
     "required": "Обязательное поле",
@@ -411,5 +412,18 @@
     "exportPdf": "Export as PDF",
     "exportImage": "Export as Image",
     "previewTitle": "{{docType}} #{{number}}"
+  },
+  "totals": {
+    "lineTotal": "Итого по позициям",
+    "subtotal": "Промежуточный итог",
+    "tax": "Налог",
+    "taxRate": "Ставка налога (%)",
+    "taxAmount": "Сумма налога",
+    "extras": "Дополнительно",
+    "extrasTotal": "Итого дополнений",
+    "grandTotal": "Общий итог",
+    "addExtra": "Добавить дополнение",
+    "extraName": "Название",
+    "extraAmount": "Сумма"
   }
 }

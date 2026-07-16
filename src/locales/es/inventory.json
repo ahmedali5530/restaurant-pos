@@ -107,7 +107,8 @@
     "expiryDate": "Fecha de vencimiento",
     "manufacturingDate": "Fecha de fabricación",
     "storeInventory": "Almacén {{name}}",
-    "reorderLevelHint": "Cantidad mínima opcional por almacén antes de la alerta de reorden"
+    "reorderLevelHint": "Cantidad mínima opcional por almacén antes de la alerta de reorden",
+    "taxable": "Gravable"
   },
   "validation": {
     "required": "Este campo es obligatorio",
@@ -411,5 +412,18 @@
     "exportPdf": "Export as PDF",
     "exportImage": "Export as Image",
     "previewTitle": "{{docType}} #{{number}}"
+  },
+  "totals": {
+    "lineTotal": "Total de artículos",
+    "subtotal": "Subtotal",
+    "tax": "Impuesto",
+    "taxRate": "Tasa de impuesto (%)",
+    "taxAmount": "Monto de impuesto",
+    "extras": "Extras",
+    "extrasTotal": "Total de extras",
+    "grandTotal": "Total general",
+    "addExtra": "Agregar extra",
+    "extraName": "Nombre",
+    "extraAmount": "Monto"
   }
 }

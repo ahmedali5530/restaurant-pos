@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo} from "react";
 import { useTranslation } from 'react-i18next';
 import * as yup from "yup";
-import {Controller, useFieldArray, useForm} from "react-hook-form";
+import {Controller, useFieldArray, useForm, useWatch} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import {toast} from "sonner";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
@@ -27,6 +27,7 @@ import {DatePicker} from "@/components/common/antd/datepicker.tsx";
 import {DateValue} from "react-aria-components";
 import {dateToCalendarDate, calendarDateToDate, getToday} from "@/utils/date.ts";
 import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
+import {InventoryFormPricedLineTotal} from "@/components/inventory/common/form.line.total.tsx";
 
 interface InventoryIssueReturnItemFormValue {
   item: { label: string; value: string } | null;
@@ -281,11 +282,25 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
     };
   }, [open, data?.id, db, setValue]);
 
-  const issuanceSelection = watch("issuance");
+  const issuanceSelection = useWatch({control, name: "issuance"});
+  const watchedItems = useWatch({control, name: "items"});
   const selectedIssuance = useMemo(() => {
     if (!issuanceSelection?.value) return undefined;
     return issues?.data?.find(issue => issue.id === issuanceSelection.value);
   }, [issuanceSelection, issues?.data]);
+  const pricedLines = useMemo(
+    () =>
+      (watchedItems ?? []).map((line) => {
+        const issued =
+          selectedIssuance?.items?.find((issueItem) => issueItem.id === line.issued_item?.value) ||
+          data?.items?.find((ri) => ri.issued_item?.id === line.issued_item?.value)?.issued_item;
+        return {
+          quantity: line.quantity,
+          price: issued?.price ?? 0,
+        };
+      }),
+    [watchedItems, selectedIssuance, data?.items],
+  );
 
   // Load items and populate fields when issuance is selected
   useEffect(() => {
@@ -691,6 +706,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
                 </div>
               </div>
             ))}
+            <InventoryFormPricedLineTotal lines={pricedLines} />
           </fieldset>
         </div>
 

@@ -29,6 +29,7 @@ import {
 } from "@/utils/inventoryItemTypes.ts";
 import {InventoryItemType} from "@/api/model/inventory_item.ts";
 import {getReorderLevelForStore} from "@/utils/inventory.ts";
+import {Switch} from "@/components/common/input/switch.tsx";
 
 interface Props {
   open: boolean
@@ -64,6 +65,7 @@ const validationSchema = yup.object({
       value: yup.string().oneOf(['raw', 'semi_finished', 'finished']),
     })
   ).min(1, 'Select at least one item type'),
+  taxable: yup.boolean().optional(),
 });
 
 export const InventoryItemForm = ({
@@ -83,6 +85,7 @@ export const InventoryItemForm = ({
       average_price: undefined,
       uom: null,
       item_types: [{label: t('itemType.raw'), value: 'raw'}],
+      taxable: false,
     });
     setReorderLevels({});
   }
@@ -182,6 +185,7 @@ export const InventoryItemForm = ({
           label: store.name,
           value: store.id
         })) ?? [],
+        taxable: !!data.taxable,
       });
     }
   }, [data, itemTypeOptions, reset]);
@@ -227,6 +231,7 @@ export const InventoryItemForm = ({
         average_price: datum.average_price,
         item_types: datum.item_types,
         reorder_levels: reorderLevelsPayload,
+        taxable: !!values.taxable,
       };
 
       if( data?.id ) {
@@ -366,6 +371,18 @@ export const InventoryItemForm = ({
                 )}
               />
             </div>
+          </div>
+
+          <div className="mb-3">
+            <Controller
+              name="taxable"
+              control={control}
+              render={({field}) => (
+                <Switch checked={!!field.value} onChange={field.onChange}>
+                  {t('forms.taxable')}
+                </Switch>
+              )}
+            />
           </div>
 
           <div className="flex gap-3 mb-3 items-end">

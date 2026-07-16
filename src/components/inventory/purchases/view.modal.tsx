@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import {InventoryPurchase} from "@/api/model/inventory_purchase.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
@@ -8,6 +8,9 @@ import {faDownload, faFile} from "@fortawesome/free-solid-svg-icons";
 import {downloadArrayBuffer} from "@/utils/files.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import { toJsDate } from "@/lib/datetime.ts";
+import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {computePurchaseTotals} from "@/lib/inventory/purchase.totals.ts";
+import {lineAmount} from "@/lib/inventory/line.cost.ts";
 
 interface Props {
   open: boolean;
@@ -45,6 +48,15 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
     fetchDetails();
   }, [open, purchase?.id]);
 
+  const totals = useMemo(() => {
+    if (!viewPurchase) return null;
+    return computePurchaseTotals(
+      viewPurchase.items,
+      viewPurchase.tax_rate,
+      viewPurchase.extras,
+    );
+  }, [viewPurchase]);
+
   if (!open) {
     return null;
   }
@@ -75,10 +87,6 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-neutral-700">
               <div>
-                <div className="text-neutral-500 text-xs uppercase">Supplier</div>
-                <div>{viewPurchase.supplier?.name ?? "—"}</div>
-              </div>
-              <div>
                 <div className="text-neutral-500 text-xs uppercase">Purchase order</div>
                 <div>{viewPurchase.purchase_order ? `PO #${viewPurchase.purchase_order.po_number}` : "—"}</div>
               </div>
@@ -90,6 +98,10 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
                 <div className="text-neutral-500 text-xs uppercase">Method</div>
                 <div>{viewPurchase.method ?? "Manual"}</div>
               </div>
+              <div>
+                <div className="text-neutral-500 text-xs uppercase">{t('totals.taxRate')}</div>
+                <div>{viewPurchase.tax_rate ?? 0}%</div>
+              </div>
               <div className="md:col-span-2">
                 <div className="text-neutral-500 text-xs uppercase">{t('forms.comments')}</div>
                 <div>{viewPurchase.comments || "—"}</div>
@@ -99,39 +111,66 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
 
           <div className="bg-white rounded-xl shadow border border-neutral-200 p-4">
             <div className="text-sm font-semibold text-neutral-800 mb-3">
-              Items
+              {t('tabs.items')}
             </div>
             {viewPurchase.items && viewPurchase.items.length > 0 ? (
-              <div className="max-h-64 overflow-auto divide-y divide-neutral-200">
-                {viewPurchase.items.map((item) => (
-                  <div key={item.id} className="py-2 flex flex-wrap gap-2 text-sm">
-                    <div className="flex-1 min-w-[160px]">
-                      <div className="font-medium">
-                        {item.item?.name ?? "Item"}{item.item?.code ? ` - ${item.item.code}` : ""}
-                      </div>
-                      <div className="text-xs text-neutral-500">
-                        {item.store?.name ? `Store: ${item.store.name}` : ""}
-                      </div>
-                    </div>
-                    <div className="w-24 text-right">
-                      <div className="text-neutral-700">
-                        Qty: {item.quantity}
-                      </div>
-                      <div className="text-xs text-neutral-500">
-                        Base: {item.base_quantity}
-                      </div>
-                    </div>
-                    <div className="w-24 text-right">
-                      <div className="text-neutral-700">
-                        Price: {item.price}
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-[120px] text-xs text-neutral-500">
-                      {item.supplier?.name && <div>Supplier: {item.supplier.name}</div>}
-                      {item.comments && <div className="truncate">Note: {item.comments}</div>}
-                    </div>
-                  </div>
-                ))}
+              <div className="overflow-x-auto max-h-80 overflow-y-auto rounded-lg border border-neutral-200">
+                <table className="min-w-full divide-y divide-neutral-200 text-sm">
+                  <thead className="bg-neutral-50 sticky top-0">
+                    <tr>
+                      <th className="py-2 pl-3 pr-2 text-left text-xs font-semibold text-neutral-600">{t('columns.name')}</th>
+                      <th className="py-2 px-2 text-left text-xs font-semibold text-neutral-600">{t('columns.suppliers')}</th>
+                      <th className="py-2 px-2 text-left text-xs font-semibold text-neutral-600">{t('columns.store')}</th>
+                      <th className="py-2 px-2 text-right text-xs font-semibold text-neutral-600">{t('forms.quantity')}</th>
+                      <th className="py-2 px-2 text-right text-xs font-semibold text-neutral-600">{t('columns.baseQuantity')}</th>
+                      <th className="py-2 px-2 text-right text-xs font-semibold text-neutral-600">{t('columns.price')}</th>
+                      <th className="py-2 px-2 text-right text-xs font-semibold text-neutral-600">{t('columns.amount')}</th>
+                      <th className="py-2 px-2 text-center text-xs font-semibold text-neutral-600">{t('forms.taxable')}</th>
+                      <th className="py-2 pl-2 pr-3 text-left text-xs font-semibold text-neutral-600">{t('forms.comments')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-100 bg-white">
+                    {viewPurchase.items.map((item) => {
+                      const amount = lineAmount(item.price, item.quantity);
+                      return (
+                        <tr key={item.id}>
+                          <td className="py-2 pl-3 pr-2 align-top">
+                            <div className="font-medium text-neutral-900">
+                              {item.item?.name ?? "Item"}
+                            </div>
+                            {item.item?.code && (
+                              <div className="text-xs text-neutral-500">{item.item.code}</div>
+                            )}
+                          </td>
+                          <td className="py-2 px-2 align-top text-neutral-700">
+                            {item.supplier?.name ?? "—"}
+                          </td>
+                          <td className="py-2 px-2 align-top text-neutral-700">
+                            {item.store?.name ?? "—"}
+                          </td>
+                          <td className="py-2 px-2 align-top text-right tabular-nums text-neutral-700">
+                            {formatNumber(item.quantity)}
+                          </td>
+                          <td className="py-2 px-2 align-top text-right tabular-nums text-neutral-700">
+                            {formatNumber(item.base_quantity)}
+                          </td>
+                          <td className="py-2 px-2 align-top text-right tabular-nums text-neutral-700">
+                            {withCurrency(item.price)}
+                          </td>
+                          <td className="py-2 px-2 align-top text-right tabular-nums font-medium text-neutral-900">
+                            {withCurrency(amount)}
+                          </td>
+                          <td className="py-2 px-2 align-top text-center text-neutral-700">
+                            {item.taxable ? "Yes" : "No"}
+                          </td>
+                          <td className="py-2 pl-2 pr-3 align-top text-neutral-600 max-w-[160px] truncate" title={item.comments ?? undefined}>
+                            {item.comments || "—"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             ) : (
               <div className="text-sm text-neutral-500">
@@ -139,6 +178,49 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
               </div>
             )}
           </div>
+
+          {viewPurchase.extras && viewPurchase.extras.length > 0 && (
+            <div className="bg-white rounded-xl shadow border border-neutral-200 p-4">
+              <div className="text-sm font-semibold text-neutral-800 mb-3">{t('totals.extras')}</div>
+              <div className="divide-y divide-neutral-200">
+                {viewPurchase.extras.map((extra, index) => (
+                  <div key={`${extra.name}-${index}`} className="py-2 flex justify-between text-sm">
+                    <span>{extra.name}</span>
+                    <span className="font-medium">{withCurrency(extra.amount)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {totals && (
+            <div className="bg-white rounded-xl shadow border border-neutral-200 p-4 text-sm space-y-1">
+              <div className="flex justify-between">
+                <span className="text-neutral-600">{t('totals.subtotal')}</span>
+                <span className="font-medium">{withCurrency(totals.subtotal)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-neutral-600">{t('totals.tax')}</span>
+                <span className="font-medium">
+                  {withCurrency(viewPurchase.tax_amount ?? totals.taxAmount)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-neutral-600">{t('totals.extras')}</span>
+                <span className="font-medium">{withCurrency(totals.extrasTotal)}</span>
+              </div>
+              <div className="flex justify-between border-t border-neutral-200 pt-1 font-semibold">
+                <span>{t('totals.grandTotal')}</span>
+                <span>
+                  {withCurrency(
+                    totals.subtotal +
+                      (viewPurchase.tax_amount ?? totals.taxAmount) +
+                      totals.extrasTotal
+                  )}
+                </span>
+              </div>
+            </div>
+          )}
 
           <div className="bg-white rounded-xl shadow border border-neutral-200 p-4">
             <div className="flex items-center justify-between mb-3">
@@ -196,4 +278,3 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
     </Modal>
   );
 };
-

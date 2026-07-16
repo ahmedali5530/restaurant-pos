@@ -13,6 +13,7 @@ import {
   resolveCatalogUnitCost,
   resolveInventoryLineUnitCost,
 } from "@/lib/inventory/line.cost.ts";
+import {computePurchaseTotals} from "@/lib/inventory/purchase.totals.ts";
 import {safeNumber, withCurrency} from "@/lib/utils.ts";
 
 export type InventoryInvoiceMeta = {
@@ -180,8 +181,40 @@ export const mapPurchaseToInvoice = (purchase: InventoryPurchase): InventoryInvo
       unitCost,
       total: lineAmount(unitCost, qty),
       store: item.store?.name,
-      note: item.comments,
+      note: [
+        item.taxable ? "Taxable" : null,
+        item.comments,
+      ].filter(Boolean).join(" · ") || undefined,
     };
+  });
+
+  const totalsCalc = computePurchaseTotals(
+    purchase.items,
+    purchase.tax_rate,
+    purchase.extras,
+  );
+  const tax = purchase.tax_amount ?? totalsCalc.taxAmount;
+  const totals: InventoryInvoiceTotal[] = [
+    {label: "Subtotal", value: withCurrency(totalsCalc.subtotal)},
+  ];
+  for (const extra of purchase.extras ?? []) {
+    if (!extra?.name) continue;
+    totals.push({
+      label: extra.name,
+      value: withCurrency(safeNumber(extra.amount)),
+    });
+  }
+  if (safeNumber(purchase.tax_rate) > 0 || tax > 0) {
+    totals.push({
+      label: safeNumber(purchase.tax_rate) > 0
+        ? `Tax (${safeNumber(purchase.tax_rate)}%)`
+        : "Tax",
+      value: withCurrency(tax),
+    });
+  }
+  totals.push({
+    label: "Grand total",
+    value: withCurrency(totalsCalc.subtotal + tax + totalsCalc.extrasTotal),
   });
 
   return withMoneyTotals({
@@ -206,6 +239,7 @@ export const mapPurchaseToInvoice = (purchase: InventoryPurchase): InventoryInvo
       {label: "Store", value: purchase.store?.name ?? "—"},
     ],
     lines,
+    totals,
   });
 };
 

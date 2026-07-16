@@ -107,7 +107,8 @@
     "expiryDate": "Data scadenza",
     "manufacturingDate": "Data produzione",
     "storeInventory": "Magazzino {{name}}",
-    "reorderLevelHint": "Quantità minima opzionale per magazzino prima dell'avviso di riordino"
+    "reorderLevelHint": "Quantità minima opzionale per magazzino prima dell'avviso di riordino",
+    "taxable": "Imponibile"
   },
   "validation": {
     "required": "Campo obbligatorio",
@@ -411,5 +412,18 @@
     "exportPdf": "Export as PDF",
     "exportImage": "Export as Image",
     "previewTitle": "{{docType}} #{{number}}"
+  },
+  "totals": {
+    "lineTotal": "Totale articoli",
+    "subtotal": "Subtotale",
+    "tax": "IVA",
+    "taxRate": "Aliquota IVA (%)",
+    "taxAmount": "Importo IVA",
+    "extras": "Extra",
+    "extrasTotal": "Totale extra",
+    "grandTotal": "Totale generale",
+    "addExtra": "Aggiungi extra",
+    "extraName": "Nome",
+    "extraAmount": "Importo"
   }
 }

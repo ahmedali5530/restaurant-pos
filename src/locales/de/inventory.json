@@ -107,7 +107,8 @@
     "expiryDate": "Ablaufdatum",
     "manufacturingDate": "Herstellungsdatum",
     "storeInventory": "Lager {{name}}",
-    "reorderLevelHint": "Optionale Mindestmenge pro Lager vor Nachbestellwarnung"
+    "reorderLevelHint": "Optionale Mindestmenge pro Lager vor Nachbestellwarnung",
+    "taxable": "Steuerpflichtig"
   },
   "validation": {
     "required": "Pflichtfeld",
@@ -411,5 +412,18 @@
     "exportPdf": "Export as PDF",
     "exportImage": "Export as Image",
     "previewTitle": "{{docType}} #{{number}}"
+  },
+  "totals": {
+    "lineTotal": "Artikelsumme",
+    "subtotal": "Zwischensumme",
+    "tax": "Steuer",
+    "taxRate": "Steuersatz (%)",
+    "taxAmount": "Steuerbetrag",
+    "extras": "Zuschläge",
+    "extrasTotal": "Zuschläge gesamt",
+    "grandTotal": "Gesamtsumme",
+    "addExtra": "Zuschlag hinzufügen",
+    "extraName": "Name",
+    "extraAmount": "Betrag"
   }
 }

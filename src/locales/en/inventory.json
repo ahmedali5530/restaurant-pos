@@ -107,7 +107,8 @@
     "expiryDate": "Expiry date",
     "manufacturingDate": "Manufacturing date",
     "storeInventory": "{{name}} store",
-    "reorderLevelHint": "Optional minimum quantity per store before reorder alert"
+    "reorderLevelHint": "Optional minimum quantity per store before reorder alert",
+    "taxable": "Taxable"
   },
   "validation": {
     "required": "This is required",
@@ -411,5 +412,18 @@
     "exportPdf": "Export as PDF",
     "exportImage": "Export as Image",
     "previewTitle": "{{docType}} #{{number}}"
+  },
+  "totals": {
+    "lineTotal": "Items total",
+    "subtotal": "Subtotal",
+    "tax": "Tax",
+    "taxRate": "Tax rate (%)",
+    "taxAmount": "Tax amount",
+    "extras": "Extras",
+    "extrasTotal": "Extras total",
+    "grandTotal": "Grand total",
+    "addExtra": "Add extra",
+    "extraName": "Name",
+    "extraAmount": "Amount"
   }
 }

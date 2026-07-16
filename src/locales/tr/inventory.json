@@ -107,7 +107,8 @@
     "expiryDate": "Son kullanma tarihi",
     "manufacturingDate": "Üretim tarihi",
     "storeInventory": "{{name}} deposu",
-    "reorderLevelHint": "Yeniden sipariş uyarısı için depo başına isteğe bağlı minimum miktar"
+    "reorderLevelHint": "Yeniden sipariş uyarısı için depo başına isteğe bağlı minimum miktar",
+    "taxable": "Vergiye tabi"
   },
   "validation": {
     "required": "Bu alan zorunludur",
@@ -411,5 +412,18 @@
     "exportPdf": "Export as PDF",
     "exportImage": "Export as Image",
     "previewTitle": "{{docType}} #{{number}}"
+  },
+  "totals": {
+    "lineTotal": "Ürün toplamı",
+    "subtotal": "Ara toplam",
+    "tax": "Vergi",
+    "taxRate": "Vergi oranı (%)",
+    "taxAmount": "Vergi tutarı",
+    "extras": "Ekstralar",
+    "extrasTotal": "Ekstra toplamı",
+    "grandTotal": "Genel toplam",
+    "addExtra": "Ekstra ekle",
+    "extraName": "Ad",
+    "extraAmount": "Tutar"
   }
 }

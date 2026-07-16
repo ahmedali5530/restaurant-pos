@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import {InventoryPurchaseOrder} from "@/api/model/inventory_purchase_order.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
@@ -8,6 +8,9 @@ import {faDownload, faFile} from "@fortawesome/free-solid-svg-icons";
 import {downloadArrayBuffer} from "@/utils/files.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import { toJsDate } from "@/lib/datetime.ts";
+import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {itemsSubtotal} from "@/lib/inventory/purchase.totals.ts";
+import {lineAmount} from "@/lib/inventory/line.cost.ts";
 
 interface Props {
   open: boolean;
@@ -47,6 +50,11 @@ export const InventoryPurchaseOrderViewModal = ({open, order, onClose}: Props) =
     fetchDetails();
   }, [open, order?.id]);
 
+  const itemsTotal = useMemo(
+    () => itemsSubtotal(viewOrder?.items),
+    [viewOrder?.items],
+  );
+
   if (!open) {
     return null;
   }
@@ -56,7 +64,7 @@ export const InventoryPurchaseOrderViewModal = ({open, order, onClose}: Props) =
       title={viewOrder ? `Purchase order #${viewOrder.po_number}` : "Purchase order"}
       open={open}
       onClose={onClose}
-      size="lg"
+      size="xl"
     >
       {loading && (
         <div className="flex items-center justify-center py-10">
@@ -77,7 +85,7 @@ export const InventoryPurchaseOrderViewModal = ({open, order, onClose}: Props) =
             </div>
             <div className="grid grid-cols-2 gap-3 text-sm text-neutral-700">
               <div>
-                <div className="text-neutral-500 text-xs uppercase">Supplier</div>
+                <div className="text-neutral-500 text-xs uppercase">{t('columns.suppliers')}</div>
                 <div>{viewOrder.supplier?.name ?? "—"}</div>
               </div>
               <div>
@@ -85,6 +93,67 @@ export const InventoryPurchaseOrderViewModal = ({open, order, onClose}: Props) =
                 <div>{viewOrder.created_at ? toJsDate(viewOrder.created_at).toLocaleString() : "—"}</div>
               </div>
             </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow border border-neutral-200 p-4">
+            <div className="text-sm font-semibold text-neutral-800 mb-3">
+              {t('tabs.items')}
+            </div>
+            {viewOrder.items && viewOrder.items.length > 0 ? (
+              <>
+                <div className="overflow-x-auto max-h-80 overflow-y-auto rounded-lg border border-neutral-200">
+                  <table className="min-w-full divide-y divide-neutral-200 text-sm">
+                    <thead className="bg-neutral-50 sticky top-0">
+                      <tr>
+                        <th className="py-2 pl-3 pr-2 text-left text-xs font-semibold text-neutral-600">{t('columns.name')}</th>
+                        <th className="py-2 px-2 text-left text-xs font-semibold text-neutral-600">{t('columns.suppliers')}</th>
+                        <th className="py-2 px-2 text-right text-xs font-semibold text-neutral-600">{t('forms.quantity')}</th>
+                        <th className="py-2 px-2 text-right text-xs font-semibold text-neutral-600">{t('columns.price')}</th>
+                        <th className="py-2 pl-2 pr-3 text-right text-xs font-semibold text-neutral-600">{t('columns.amount')}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-neutral-100 bg-white">
+                      {viewOrder.items.map((item) => {
+                        const price = item.price ?? 0;
+                        const amount = lineAmount(price, item.quantity);
+                        return (
+                          <tr key={item.id}>
+                            <td className="py-2 pl-3 pr-2 align-top">
+                              <div className="font-medium text-neutral-900">
+                                {item.item?.name ?? "Item"}
+                              </div>
+                              {item.item?.code && (
+                                <div className="text-xs text-neutral-500">{item.item.code}</div>
+                              )}
+                            </td>
+                            <td className="py-2 px-2 align-top text-neutral-700">
+                              {item.supplier?.name ?? viewOrder.supplier?.name ?? "—"}
+                            </td>
+                            <td className="py-2 px-2 align-top text-right tabular-nums text-neutral-700">
+                              {formatNumber(item.quantity)}
+                            </td>
+                            <td className="py-2 px-2 align-top text-right tabular-nums text-neutral-700">
+                              {withCurrency(price)}
+                            </td>
+                            <td className="py-2 pl-2 pr-3 align-top text-right tabular-nums font-medium text-neutral-900">
+                              {withCurrency(amount)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="mt-3 flex justify-end text-sm">
+                  <span className="text-neutral-600 mr-2">{t('totals.lineTotal')}</span>
+                  <span className="font-semibold text-neutral-900">{withCurrency(itemsTotal)}</span>
+                </div>
+              </>
+            ) : (
+              <div className="text-sm text-neutral-500">
+                No items found for this purchase order.
+              </div>
+            )}
           </div>
 
           <div className="bg-white rounded-xl shadow border border-neutral-200 p-4">
@@ -143,4 +212,3 @@ export const InventoryPurchaseOrderViewModal = ({open, order, onClose}: Props) =
     </Modal>
   );
 };
-

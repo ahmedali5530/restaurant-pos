@@ -17,4 +17,5 @@ export interface InventoryItem{
   price: number
   average_price: number
   reorder_levels?: Record<string, number>
+  taxable?: boolean
 }

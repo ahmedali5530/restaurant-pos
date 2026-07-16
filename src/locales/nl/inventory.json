@@ -107,7 +107,8 @@
     "expiryDate": "Vervaldatum",
     "manufacturingDate": "Productiedatum",
     "storeInventory": "{{name}} magazijn",
-    "reorderLevelHint": "Optionele minimale hoeveelheid per magazijn voor herbestelwaarschuwing"
+    "reorderLevelHint": "Optionele minimale hoeveelheid per magazijn voor herbestelwaarschuwing",
+    "taxable": "Belastbaar"
   },
   "validation": {
     "required": "Dit is verplicht",
@@ -411,5 +412,18 @@
     "exportPdf": "Export as PDF",
     "exportImage": "Export as Image",
     "previewTitle": "{{docType}} #{{number}}"
+  },
+  "totals": {
+    "lineTotal": "Totaal artikelen",
+    "subtotal": "Subtotaal",
+    "tax": "Belasting",
+    "taxRate": "Belastingtarief (%)",
+    "taxAmount": "Belastingbedrag",
+    "extras": "Extra's",
+    "extrasTotal": "Totaal extra's",
+    "grandTotal": "Totaalbedrag",
+    "addExtra": "Extra toevoegen",
+    "extraName": "Naam",
+    "extraAmount": "Bedrag"
   }
 }

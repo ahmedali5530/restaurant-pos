@@ -26,6 +26,7 @@ import {DatePicker} from "@/components/common/antd/datepicker.tsx";
 import {DateValue} from "react-aria-components";
 import {dateToCalendarDate, calendarDateToDate, getToday} from "@/utils/date.ts";
 import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
+import {InventoryFormLineTotal} from "@/components/inventory/common/form.line.total.tsx";
 
 interface PurchaseOrderItemFormValue {
   item: { label: string; value: string } | null;
@@ -541,6 +542,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                   </div>
                 );
               })}
+              <InventoryFormLineTotal control={control} name="items" />
             </fieldset>
           </div>
 

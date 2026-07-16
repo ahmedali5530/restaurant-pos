@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useState, useCallback, useRef} from "react";
 import { useTranslation } from 'react-i18next';
 import * as yup from "yup";
-import {Controller, useFieldArray, useForm} from "react-hook-form";
+import {Controller, useFieldArray, useForm, useWatch} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import {toast} from "sonner";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
@@ -27,6 +27,7 @@ import {DatePicker} from "@/components/common/antd/datepicker.tsx";
 import {DateValue} from "react-aria-components";
 import {dateToCalendarDate, calendarDateToDate, getToday} from "@/utils/date.ts";
 import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
+import {InventoryFormPricedLineTotal} from "@/components/inventory/common/form.line.total.tsx";
 
 
 interface Props {
@@ -148,7 +149,32 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
   const [syncedPurchaseId, setSyncedPurchaseId] = useState<string | undefined>();
   const [rowNetQuantities, setRowNetQuantities] = useState<Record<number, number>>({});
   const netQuantityCacheRef = useRef<Record<string, number>>({});
-  const watchedItems = watch("items");
+  const watchedItems = useWatch({control, name: "items"});
+  const selectedPurchaseId = useWatch({control, name: "purchase"})?.value;
+  const selectedPurchase = useMemo(
+    () => purchases?.data?.find((p) => p.id === selectedPurchaseId),
+    [purchases?.data, selectedPurchaseId],
+  );
+  const pricedLines = useMemo(
+    () =>
+      (watchedItems ?? []).map((line: any) => {
+        const matchedPurchaseItem =
+          selectedPurchase?.items?.find((pi) => pi.id === line.purchase_item_id) ||
+          selectedPurchase?.items?.find((pi) => pi.item?.id === line.item?.value);
+        const matchedReturnItem = data?.items?.find(
+          (ri) => ri.purchase_item?.id === line.purchase_item_id,
+        );
+        return {
+          quantity: line.quantity,
+          price:
+            matchedPurchaseItem?.price ??
+            matchedReturnItem?.price ??
+            matchedReturnItem?.purchase_item?.price ??
+            0,
+        };
+      }),
+    [watchedItems, selectedPurchase, data?.items],
+  );
 
   useEffect(() => {
     if (open) {
@@ -683,6 +709,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
                 </div>
               );
             })}
+            <InventoryFormPricedLineTotal lines={pricedLines} />
           </fieldset>
         </div>
 

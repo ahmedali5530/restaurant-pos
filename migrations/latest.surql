@@ -612,6 +612,7 @@ DEFINE FIELD price ON inventory_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD reorder_levels ON inventory_item TYPE any DEFAULT {} PERMISSIONS FULL;
 DEFINE FIELD stores ON inventory_item TYPE array<record<inventory_store>> PERMISSIONS FULL;
 DEFINE FIELD suppliers ON inventory_item TYPE array<record<inventory_supplier>> PERMISSIONS FULL;
+DEFINE FIELD taxable ON inventory_item TYPE none | bool | null PERMISSIONS FULL;
 DEFINE FIELD uom ON inventory_item TYPE none | string | null PERMISSIONS FULL;
 
 
@@ -692,6 +693,9 @@ DEFINE FIELD payment_method ON inventory_purchase TYPE none | record<payment_typ
 DEFINE FIELD purchase_order ON inventory_purchase TYPE none | record<inventory_purchase_order> | null PERMISSIONS FULL;
 DEFINE FIELD store ON inventory_purchase TYPE none | record<inventory_store> | null PERMISSIONS FULL;
 DEFINE FIELD supplier ON inventory_purchase TYPE none | record<inventory_supplier> PERMISSIONS FULL;
+DEFINE FIELD tax_rate ON inventory_purchase TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD tax_amount ON inventory_purchase TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD extras ON inventory_purchase TYPE none | array | null PERMISSIONS FULL;
 
 DEFINE INDEX invoice_number ON inventory_purchase FIELDS invoice_number UNIQUE;
 
@@ -715,6 +719,7 @@ DEFINE FIELD quantity ON inventory_purchase_item TYPE float PERMISSIONS FULL;
 DEFINE FIELD requested ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD store ON inventory_purchase_item TYPE none | record<inventory_store> | null PERMISSIONS FULL;
 DEFINE FIELD supplier ON inventory_purchase_item TYPE none | record<inventory_supplier> | null PERMISSIONS FULL;
+DEFINE FIELD taxable ON inventory_purchase_item TYPE none | bool | null PERMISSIONS FULL;
 
 
 

@@ -107,7 +107,8 @@
     "expiryDate": "Data de validade",
     "manufacturingDate": "Data de fabricação",
     "storeInventory": "Depósito {{name}}",
-    "reorderLevelHint": "Quantidade mínima opcional por depósito antes do alerta de reabastecimento"
+    "reorderLevelHint": "Quantidade mínima opcional por depósito antes do alerta de reabastecimento",
+    "taxable": "Tributável"
   },
   "validation": {
     "required": "Este campo é obrigatório",
@@ -411,5 +412,18 @@
     "exportPdf": "Export as PDF",
     "exportImage": "Export as Image",
     "previewTitle": "{{docType}} #{{number}}"
+  },
+  "totals": {
+    "lineTotal": "Total de itens",
+    "subtotal": "Subtotal",
+    "tax": "Imposto",
+    "taxRate": "Alíquota de imposto (%)",
+    "taxAmount": "Valor do imposto",
+    "extras": "Extras",
+    "extrasTotal": "Total de extras",
+    "grandTotal": "Total geral",
+    "addExtra": "Adicionar extra",
+    "extraName": "Nome",
+    "extraAmount": "Valor"
   }
 }

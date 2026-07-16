@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useState} from "react";
 import {useTranslation} from 'react-i18next';
 import * as yup from "yup";
-import {Controller, useFieldArray, useForm} from "react-hook-form";
+import {Controller, useFieldArray, useForm, useWatch} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import {toast} from "sonner";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
@@ -30,6 +30,10 @@ import {DateValue} from "react-aria-components";
 import {calendarDateToDate, dateToCalendarDate, getToday} from "@/utils/date.ts";
 import {Switch} from "@/components/common/input/switch.tsx";
 import {nowSurrealDateTime, toJsDate, toSurrealDateTime} from "@/lib/datetime.ts";
+import {withCurrency} from "@/lib/utils.ts";
+import {computePurchaseTotals} from "@/lib/inventory/purchase.totals.ts";
+import {InventoryFormLineTotal} from "@/components/inventory/common/form.line.total.tsx";
+import {Checkbox} from "@/components/common/input/checkbox.tsx";
 
 type PurchaseMethod = "manual" | "csv" | "purchase_order";
 
@@ -45,6 +49,12 @@ interface PurchaseItemFormValue {
   supplier?: { label: string; value: string } | null;
   store?: { label: string; value: string } | null;
   code?: string;
+  taxable?: boolean;
+}
+
+interface PurchaseExtraFormValue {
+  name: string;
+  amount: number | string;
 }
 
 interface InventoryPurchaseFormValues {
@@ -56,6 +66,8 @@ interface InventoryPurchaseFormValues {
   documents?: FileList;
   date?: DateValue | null;
   update_item_cost?: boolean;
+  tax_rate?: number | string;
+  extras: PurchaseExtraFormValue[];
   items: PurchaseItemFormValue[];
 }
 
@@ -104,6 +116,13 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
   documents: yup.mixed().optional(),
   date: yup.mixed().nullable().optional(),
   update_item_cost: yup.boolean().optional(),
+  tax_rate: yup.number().typeError("This should be a number").min(0).nullable().optional(),
+  extras: yup.array().of(
+    yup.object({
+      name: yup.string().required("This is required"),
+      amount: yup.number().typeError("This should be a number").required("This is required"),
+    })
+  ).optional(),
   items: yup.array().of(
     yup.object({
       item: yup.object({
@@ -126,6 +145,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
         value: yup.string()
       }).required('Store is required'),
       code: yup.string().nullable().optional(),
+      taxable: yup.boolean().optional(),
     })
   ).min(1, "Add at least one item"),
 }).required();
@@ -177,7 +197,6 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
     reset,
     watch,
     setValue,
-    getValues
   } = useForm({
     resolver,
   });
@@ -186,10 +205,21 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
     control,
     name: "items"
   });
+  const {
+    fields: extraFields,
+    append: appendExtra,
+    remove: removeExtra,
+  } = useFieldArray({
+    control,
+    name: "extras"
+  });
   const [syncedPurchaseOrderId, setSyncedPurchaseOrderId] = useState<string | undefined>();
   const selectedPurchaseOrder = watch("purchase_order");
   const method = watch("method");
-  const itemsValues = watch("items");
+  const itemsValues = useWatch({control, name: "items"});
+  const taxRateValue = useWatch({control, name: "tax_rate"});
+  const extrasValues = useWatch({control, name: "extras"});
+  const purchaseTotals = computePurchaseTotals(itemsValues, taxRateValue, extrasValues);
   const selectedPurchaseOrderId = selectedPurchaseOrder?.value;
   const isPurchaseOrderSelected = Boolean(selectedPurchaseOrderId);
   const isManualMethod = method?.value === "manual";
@@ -270,7 +300,8 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
           value: orderItem.item.stores[0].id
         }
         : null,
-      code: orderItem.item?.code ?? ""
+      code: orderItem.item?.code ?? "",
+      taxable: !!orderItem.item?.taxable,
     }));
 
     replace(mappedItems);
@@ -316,6 +347,11 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
         documents: undefined,
         date: data.created_at ? dateToCalendarDate(toJsDate(data.created_at)) : getToday(),
         update_item_cost: false,
+        tax_rate: data.tax_rate ?? 0,
+        extras: (data.extras ?? []).map((extra) => ({
+          name: extra.name ?? "",
+          amount: extra.amount ?? 0,
+        })),
         items: data.items?.map(item => ({
           item: item.item ? {
             label: `${item.item.name}-${item.item.code}`,
@@ -336,7 +372,8 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
             label: item.store.name,
             value: item.store.id.toString()
           } : null,
-          code: item.code ?? ""
+          code: item.code ?? "",
+          taxable: !!item.taxable,
         }))
       });
     } else if (open) {
@@ -348,6 +385,8 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
         documents: undefined,
         date: getToday(),
         update_item_cost: false,
+        tax_rate: 0,
+        extras: [],
         items: []
       });
     }
@@ -364,6 +403,8 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
       documents: undefined,
       date: getToday(),
       update_item_cost: false,
+      tax_rate: 0,
+      extras: [],
       items: []
     });
   };
@@ -399,9 +440,15 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
   };
 
   const onSubmit = async (values: any) => {
-    console.log(values.items)
     try {
       const documentRefs = await convertFilesToDocuments(values.documents);
+      const totals = computePurchaseTotals(values.items, values.tax_rate, values.extras);
+      const extrasPayload = (values.extras ?? [])
+        .filter((extra: PurchaseExtraFormValue) => extra.name?.trim())
+        .map((extra: PurchaseExtraFormValue) => ({
+          name: extra.name.trim(),
+          amount: Number(extra.amount) || 0,
+        }));
 
       const payload = {
         invoice_number: Number(values.invoice_number),
@@ -409,13 +456,15 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
         method: values.method ? values.method.value : 'manual',
         comments: values.comments?.trim() ? values.comments.trim() : undefined,
         documents: documentRefs.length > 0 ? documentRefs : undefined,
+        tax_rate: Number(values.tax_rate) || 0,
+        tax_amount: totals.taxAmount,
+        extras: extrasPayload.length > 0 ? extrasPayload : null,
         items: [],
         created_at: values.date ? toSurrealDateTime(calendarDateToDate(values.date) || undefined) : nowSurrealDateTime(),
         created_by: toRecordId(state.user.id)
       };
 
       let purchaseId: any = data?.id;
-      const previousPurchaseOrderId = data?.purchase_order?.id;
       const selectedPurchaseOrderId = isPurchaseOrderMethod ? values.purchase_order?.value : undefined;
 
       if (purchaseId) {
@@ -442,8 +491,6 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
         throw new Error("Failed to resolve purchase identifier");
       }
 
-      console.log(values.items)
-
       const itemsRefs = [];
       await Promise.all(
         values.items.map(async (item) => {
@@ -459,6 +506,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
             supplier: item.supplier ? toRecordId(item.supplier.value) : undefined,
             store: item.store ? toRecordId(item.store.value) : undefined,
             code: item.code?.trim() || undefined,
+            taxable: !!item.taxable,
             purchase: toRecordId(purchaseIdString)
           });
 
@@ -705,7 +753,8 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                     comments: "",
                     supplier: null,
                     code: "",
-                    store: null
+                    store: null,
+                    taxable: false,
                   })}
                 >
                   Add item
@@ -737,6 +786,14 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                               value={field.value}
                               onChange={(option) => {
                                 field.onChange(option);
+                                const catalog = itemsList.find((it) => it.id === option?.value);
+                                setValue(`items.${index}.taxable`, !!catalog?.taxable);
+                                if (catalog?.price != null) {
+                                  setValue(`items.${index}.price`, catalog.price);
+                                }
+                                if (catalog?.base_quantity != null) {
+                                  setValue(`items.${index}.base_quantity`, catalog.base_quantity);
+                                }
                               }}
                               options={itemOptions}
                               isLoading={loadingItems}
@@ -804,6 +861,19 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                               value={field.value as number | string}
                               onChange={field.onChange}
                               error={_.get(errors, ["items", index, "price", "message"])}
+                            />
+                          )}
+                        />
+                      </div>
+                      <div className="flex-0 self-end pb-1">
+                        <Controller
+                          name={`items.${index}.taxable`}
+                          control={control}
+                          render={({field}) => (
+                            <Checkbox
+                              label={t('forms.taxable')}
+                              checked={!!field.value}
+                              onChange={(e) => field.onChange((e.target as HTMLInputElement).checked)}
                             />
                           )}
                         />
@@ -895,7 +965,97 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                   </div>
                 );
               })}
+              <InventoryFormLineTotal control={control} name="items" />
             </fieldset>
+
+            <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
+              <legend>{t('totals.extras')}</legend>
+              <div className="mb-3">
+                <Button
+                  type="button"
+                  icon={faPlus}
+                  variant="primary"
+                  onClick={() => appendExtra({name: "", amount: 0})}
+                >
+                  {t('totals.addExtra')}
+                </Button>
+              </div>
+              {extraFields.map((field, index) => (
+                <div className="flex gap-3 mb-3 items-end" key={field.id}>
+                  <div className="flex-1">
+                    <Input
+                      label={t('totals.extraName')}
+                      {...register(`extras.${index}.name` as const)}
+                      error={_.get(errors, ["extras", index, "name", "message"])}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <Controller
+                      name={`extras.${index}.amount`}
+                      control={control}
+                      render={({field: amountField}) => (
+                        <Input
+                          label={t('totals.extraAmount')}
+                          type="number"
+                          value={amountField.value as number | string}
+                          onChange={amountField.onChange}
+                          error={_.get(errors, ["extras", index, "amount", "message"])}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div className="flex-0">
+                    <Button
+                      type="button"
+                      variant="danger"
+                      iconButton
+                      onClick={() => removeExtra(index)}
+                    >
+                      <FontAwesomeIcon icon={faTrash}/>
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </fieldset>
+
+            <div className="flex flex-wrap gap-3 items-end">
+              <div className="w-40">
+                <Controller
+                  name="tax_rate"
+                  control={control}
+                  render={({field}) => (
+                    <Input
+                      label={t('totals.taxRate')}
+                      type="number"
+                      value={field.value ?? 0}
+                      onChange={field.onChange}
+                      error={_.get(errors, ["tax_rate", "message"])}
+                    />
+                  )}
+                />
+              </div>
+              <div className="ml-auto rounded-lg border border-neutral-300 bg-neutral-50 px-4 py-3 text-sm space-y-1 min-w-[220px]">
+                <div className="flex justify-between gap-4">
+                  <span className="text-neutral-600">{t('totals.subtotal')}</span>
+                  <span className="font-medium">{withCurrency(purchaseTotals.subtotal)}</span>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <span className="text-neutral-600">
+                    {t('totals.tax')}
+                    {Number(taxRateValue) > 0 ? ` (${taxRateValue}%)` : ""}
+                  </span>
+                  <span className="font-medium">{withCurrency(purchaseTotals.taxAmount)}</span>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <span className="text-neutral-600">{t('totals.extras')}</span>
+                  <span className="font-medium">{withCurrency(purchaseTotals.extrasTotal)}</span>
+                </div>
+                <div className="flex justify-between gap-4 border-t border-neutral-300 pt-1 font-semibold">
+                  <span>{t('totals.grandTotal')}</span>
+                  <span>{withCurrency(purchaseTotals.grandTotal)}</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div>
@@ -997,7 +1157,8 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                 store: {
                   label: store.name,
                   value: store.id
-                }
+                },
+                taxable: !!item[0].taxable,
               });
             } catch (e) {
               throw e;

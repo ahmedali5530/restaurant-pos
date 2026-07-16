@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import * as yup from "yup";
-import {Controller, useFieldArray, useForm} from "react-hook-form";
+import {Controller, useFieldArray, useForm, useWatch} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import {toast} from "sonner";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
@@ -26,6 +26,7 @@ import {DatePicker} from "@/components/common/antd/datepicker.tsx";
 import {DateValue} from "react-aria-components";
 import {dateToCalendarDate, calendarDateToDate, getToday} from "@/utils/date.ts";
 import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
+import {InventoryFormPricedLineTotal} from "@/components/inventory/common/form.line.total.tsx";
 
 type SourceType = "purchase" | "issue";
 
@@ -127,6 +128,31 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
     control,
     name: "items"
   });
+  const watchedItems = useWatch({control, name: "items"});
+  const pricedLines = useMemo(
+    () =>
+      (watchedItems ?? []).map((line: any) => {
+        let price = 0;
+        if (line.source_type === "purchase" && line.purchase_item_id) {
+          const purchase = purchases?.data?.find((p) => p.id === line.source_id);
+          const purchaseItem = purchase?.items?.find((pi) => pi.id === line.purchase_item_id);
+          price = purchaseItem?.price ?? 0;
+        } else if (line.source_type === "issue" && line.issue_item_id) {
+          const issue = issues?.data?.find((i) => i.id === line.source_id);
+          const issueItem = issue?.items?.find((ii) => ii.id === line.issue_item_id);
+          price = issueItem?.price ?? 0;
+        } else if (data?.items) {
+          const existing = data.items.find(
+            (wi) =>
+              wi.purchase_item?.id === line.purchase_item_id ||
+              wi.issue_item?.id === line.issue_item_id,
+          );
+          price = existing?.price ?? existing?.purchase_item?.price ?? existing?.issue_item?.price ?? 0;
+        }
+        return {quantity: line.quantity, price};
+      }),
+    [watchedItems, purchases?.data, issues?.data, data?.items],
+  );
 
   useEffect(() => {
     if (open) {
@@ -537,6 +563,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                 </div>
               );
             })}
+            <InventoryFormPricedLineTotal lines={pricedLines} />
           </fieldset>
         </div>
 

@@ -549,7 +549,15 @@ export const InventoryDashboardReport = () => {
   // ==================== Data Processing ====================
   const kpis = useMemo(() => {
     const totalPurchases = purchases.reduce((sum, p) => {
-      return sum + p.items.reduce((itemSum: number, item: any) => itemSum + (safeNumber(item.quantity) * safeNumber(item.price)), 0);
+      const itemsTotal = (p.items ?? []).reduce(
+        (itemSum: number, item: any) => itemSum + (safeNumber(item.quantity) * safeNumber(item.price)),
+        0,
+      );
+      const extras = (p.extras ?? []).reduce(
+        (extraSum: number, extra: any) => extraSum + safeNumber(extra.amount),
+        0,
+      );
+      return sum + itemsTotal + safeNumber(p.tax_amount) + extras;
     }, 0);
 
     const totalPurchaseReturns = purchaseReturns.reduce((sum, pr) => {
@@ -608,9 +616,14 @@ export const InventoryDashboardReport = () => {
       const date = DateTime.fromJSDate(p.created_at);
       const key = date.toFormat(import.meta.env.VITE_DATE_FORMAT);
       allDates.add(key);
-      const totalValue = p.items.reduce((sum: number, item: any) => {
+      const itemsTotal = (p.items ?? []).reduce((sum: number, item: any) => {
         return sum + (safeNumber(item.quantity) * safeNumber(item.price));
       }, 0);
+      const extras = (p.extras ?? []).reduce(
+        (sum: number, extra: any) => sum + safeNumber(extra.amount),
+        0,
+      );
+      const totalValue = itemsTotal + safeNumber(p.tax_amount) + extras;
       purchasesByDate.set(key, (purchasesByDate.get(key) || 0) + totalValue);
     });
 
@@ -705,15 +718,25 @@ export const InventoryDashboardReport = () => {
   }, [purchases, purchaseReturns, issues, issueReturns, wastes, reconciliations]);
 
   const purchasesTableData = useMemo(() => {
-    return purchases.slice(0, 20).map(p => ({
-      invoice: `#${p.invoice_number || '-'}`,
-      date: DateTime.fromJSDate(p.created_at).toFormat(import.meta.env.VITE_DATE_HUMAN_FORMAT),
-      supplier: p.supplier?.name || '-',
-      store: p.store?.name || '-',
-      createdBy: `${p.created_by?.first_name || ''} ${p.created_by?.last_name || ''}`.trim() || '-',
-      items: p.items?.length || 0,
-      total: withCurrency(p.items.reduce((sum: number, item: any) => sum + (safeNumber(item.quantity) * safeNumber(item.price)), 0)),
-    }));
+    return purchases.slice(0, 20).map(p => {
+      const itemsTotal = (p.items ?? []).reduce(
+        (sum: number, item: any) => sum + (safeNumber(item.quantity) * safeNumber(item.price)),
+        0,
+      );
+      const extras = (p.extras ?? []).reduce(
+        (sum: number, extra: any) => sum + safeNumber(extra.amount),
+        0,
+      );
+      return {
+        invoice: `#${p.invoice_number || '-'}`,
+        date: DateTime.fromJSDate(p.created_at).toFormat(import.meta.env.VITE_DATE_HUMAN_FORMAT),
+        supplier: p.supplier?.name || '-',
+        store: p.store?.name || '-',
+        createdBy: `${p.created_by?.first_name || ''} ${p.created_by?.last_name || ''}`.trim() || '-',
+        items: p.items?.length || 0,
+        total: withCurrency(itemsTotal + safeNumber(p.tax_amount) + extras),
+      };
+    });
   }, [purchases]);
 
   const purchaseReturnsTableData = useMemo(() => {

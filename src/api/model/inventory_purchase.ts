@@ -6,6 +6,11 @@ import {InventoryStore} from "@/api/model/inventory_store.ts";
 import {Document} from '@/api/model/document.ts';
 import { DateTime } from "surrealdb";
 
+export interface InventoryPurchaseExtra {
+  name: string
+  amount: number
+}
+
 export interface InventoryPurchase {
   id: string
   created_at: DateTime
@@ -19,6 +24,9 @@ export interface InventoryPurchase {
   method?: string
   payment_method?: string
   store?: InventoryStore
+  tax_rate?: number
+  tax_amount?: number
+  extras?: InventoryPurchaseExtra[]
 }
 
 export interface InventoryPurchaseItem {
@@ -36,4 +44,5 @@ export interface InventoryPurchaseItem {
   store?: InventoryStore
   is_done?: boolean
   purchase?: InventoryPurchase
+  taxable?: boolean
 }

@@ -132,12 +132,30 @@ export const InventoryInvoice = ({doc}: Props) => {
               {doc.totals.map((total) => (
                 <div
                   key={total.label}
-                  className="flex items-center justify-between border-t border-neutral-800 pt-3"
+                  className={
+                    total.label === "Grand total" || total.label === "Total"
+                      ? "flex items-center justify-between border-t border-neutral-800 pt-3"
+                      : "flex items-center justify-between border-t border-neutral-200 pt-2"
+                  }
                 >
-                  <span className="text-sm font-semibold uppercase tracking-wide">
+                  <span
+                    className={
+                      total.label === "Grand total" || total.label === "Total"
+                        ? "text-sm font-semibold uppercase tracking-wide"
+                        : "text-sm text-neutral-600"
+                    }
+                  >
                     {total.label}
                   </span>
-                  <span className="text-lg font-semibold tabular-nums">{total.value}</span>
+                  <span
+                    className={
+                      total.label === "Grand total" || total.label === "Total"
+                        ? "text-lg font-semibold tabular-nums"
+                        : "text-sm font-medium tabular-nums"
+                    }
+                  >
+                    {total.value}
+                  </span>
                 </div>
               ))}
             </div>

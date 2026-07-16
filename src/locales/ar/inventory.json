@@ -107,7 +107,8 @@
     "expiryDate": "تاريخ الانتهاء",
     "manufacturingDate": "تاريخ التصنيع",
     "storeInventory": "مخزن {{name}}",
-    "reorderLevelHint": "الحد الأدنى الاختياري لكل مخزن قبل تنبيه إعادة الطلب"
+    "reorderLevelHint": "الحد الأدنى الاختياري لكل مخزن قبل تنبيه إعادة الطلب",
+    "taxable": "خاضع للضريبة"
   },
   "validation": {
     "required": "هذا الحقل مطلوب",
@@ -411,5 +412,18 @@
     "exportPdf": "Export as PDF",
     "exportImage": "Export as Image",
     "previewTitle": "{{docType}} #{{number}}"
+  },
+  "totals": {
+    "lineTotal": "إجمالي الأصناف",
+    "subtotal": "المجموع الفرعي",
+    "tax": "الضريبة",
+    "taxRate": "معدل الضريبة (%)",
+    "taxAmount": "مبلغ الضريبة",
+    "extras": "إضافات",
+    "extrasTotal": "إجمالي الإضافات",
+    "grandTotal": "الإجمالي الكلي",
+    "addExtra": "إضافة إضافة",
+    "extraName": "الاسم",
+    "extraAmount": "المبلغ"
   }
 }

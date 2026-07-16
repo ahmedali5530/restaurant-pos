@@ -30,6 +30,7 @@ import {Switch} from "@/components/common/input/switch.tsx";
 import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
 import {fetchNetQuantity} from "@/utils/inventory.ts";
 import {syncDishRecipeCostsForItems} from "@/lib/inventory/dish.recipe.cost.ts";
+import {InventoryFormLineTotal} from "@/components/inventory/common/form.line.total.tsx";
 
 interface InventoryIssueItemFormValue {
   store: { label: string; value: string } | null;
@@ -769,6 +770,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
               </div>
               );
             })}
+            <InventoryFormLineTotal control={control} name="items" />
           </fieldset>
         </div>
 
