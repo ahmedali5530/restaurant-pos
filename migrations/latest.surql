@@ -21,7 +21,6 @@ DEFINE FIELD notes ON account TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD parent ON account TYPE none | record<account> | null PERMISSIONS FULL;
 DEFINE FIELD updated_at ON account TYPE none | datetime | null PERMISSIONS FULL;
 
-DEFINE INDEX account_code_unique ON account FIELDS code UNIQUE;
 
 
 -- ------------------------------
@@ -39,7 +38,7 @@ DEFINE FIELD normal_balance ON account_group TYPE string PERMISSIONS FULL;
 DEFINE FIELD notes ON account_group TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD updated_at ON account_group TYPE none | datetime | null PERMISSIONS FULL;
 
-DEFINE INDEX account_group_code_unique ON account_group FIELDS code UNIQUE;
+DEFINE INDEX account_group_code_store_unique ON account_group FIELDS code, store UNIQUE;
 
 
 -- ------------------------------
@@ -53,23 +52,22 @@ DEFINE FIELD created_by ON account_journal_entry TYPE none | record<user> | null
 DEFINE FIELD date ON account_journal_entry TYPE datetime PERMISSIONS FULL;
 DEFINE FIELD documents ON account_journal_entry TYPE none | array<record<document>> | null PERMISSIONS FULL;
 DEFINE FIELD entry_number ON account_journal_entry TYPE int PERMISSIONS FULL;
+DEFINE FIELD generated_at ON account_journal_entry TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD generated_by ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD idempotency_key ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD integration_provider_id ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD journal_template_id ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD lines ON account_journal_entry TYPE none | array<record<account_journal_line>> | null PERMISSIONS FULL;
 DEFINE FIELD memo ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD origin_event ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD origin_module ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD origin_record_id ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD posting_rule_id ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD source_id ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD source_module ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD status ON account_journal_entry TYPE string DEFAULT 'draft' ASSERT $value INSIDE ['draft', 'posted', 'reversed'] PERMISSIONS FULL;
 DEFINE FIELD updated_at ON account_journal_entry TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD origin_event ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD origin_module ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD origin_record_id ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD integration_provider_id ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD posting_rule_id ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD journal_template_id ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD idempotency_key ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD generated_at ON account_journal_entry TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD generated_by ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
 
-DEFINE INDEX account_journal_entry_number_unique ON account_journal_entry FIELDS entry_number UNIQUE;
 DEFINE INDEX account_journal_entry_idempotency_key ON account_journal_entry FIELDS idempotency_key;
 
 
@@ -261,6 +259,21 @@ DEFINE FIELD show_in_menu ON category TYPE none | bool | null PERMISSIONS FULL;
 
 
 -- ------------------------------
+-- TABLE: cost_center
+-- ------------------------------
+
+DEFINE TABLE cost_center TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD code ON cost_center TYPE string PERMISSIONS FULL;
+DEFINE FIELD deleted_at ON cost_center TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD description ON cost_center TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD is_active ON cost_center TYPE bool DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD name ON cost_center TYPE string PERMISSIONS FULL;
+
+DEFINE INDEX cc_code ON cost_center FIELDS code UNIQUE;
+
+
+-- ------------------------------
 -- TABLE: coupon
 -- ------------------------------
 
@@ -375,6 +388,21 @@ DEFINE FIELD total_other_payments ON day_closing TYPE none | float | null PERMIS
 
 
 -- ------------------------------
+-- TABLE: department
+-- ------------------------------
+
+DEFINE TABLE department TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD code ON department TYPE string PERMISSIONS FULL;
+DEFINE FIELD deleted_at ON department TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD description ON department TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD is_active ON department TYPE bool DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD name ON department TYPE string PERMISSIONS FULL;
+
+DEFINE INDEX dept_code ON department FIELDS code UNIQUE;
+
+
+-- ------------------------------
 -- TABLE: discount
 -- ------------------------------
 
@@ -444,6 +472,116 @@ DEFINE FIELD type ON document TYPE none | string | null PERMISSIONS FULL;
 
 
 -- ------------------------------
+-- TABLE: employee
+-- ------------------------------
+
+DEFINE TABLE employee TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD cost_center ON employee TYPE none | record<cost_center> | null PERMISSIONS FULL;
+DEFINE FIELD deleted_at ON employee TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD department ON employee TYPE none | record<department> | null PERMISSIONS FULL;
+DEFINE FIELD emergency_contact ON employee TYPE any PERMISSIONS FULL;
+DEFINE FIELD employee_number ON employee TYPE string PERMISSIONS FULL;
+DEFINE FIELD employment_status ON employee TYPE string DEFAULT 'active' PERMISSIONS FULL;
+DEFINE FIELD employment_type ON employee TYPE string DEFAULT 'hourly' PERMISSIONS FULL;
+DEFINE FIELD first_name ON employee TYPE string PERMISSIONS FULL;
+DEFINE FIELD hire_date ON employee TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD is_rehire ON employee TYPE bool DEFAULT false PERMISSIONS FULL;
+DEFINE FIELD last_name ON employee TYPE string PERMISSIONS FULL;
+DEFINE FIELD manager ON employee TYPE none | record<employee> | null PERMISSIONS FULL;
+DEFINE FIELD notes ON employee TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD position ON employee TYPE none | record<position> | null PERMISSIONS FULL;
+DEFINE FIELD rehire_date ON employee TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD termination_date ON employee TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD user ON employee TYPE none | record<user> | null PERMISSIONS FULL;
+
+DEFINE INDEX emp_number ON employee FIELDS employee_number UNIQUE;
+DEFINE INDEX emp_status ON employee FIELDS employment_status;
+DEFINE INDEX emp_user ON employee FIELDS user;
+
+
+-- ------------------------------
+-- TABLE: employee_assignment_history
+-- ------------------------------
+
+DEFINE TABLE employee_assignment_history TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD changed_by ON employee_assignment_history TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD cost_center ON employee_assignment_history TYPE none | record<cost_center> | null PERMISSIONS FULL;
+DEFINE FIELD created_at ON employee_assignment_history TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD department ON employee_assignment_history TYPE none | record<department> | null PERMISSIONS FULL;
+DEFINE FIELD effective_from ON employee_assignment_history TYPE datetime PERMISSIONS FULL;
+DEFINE FIELD effective_to ON employee_assignment_history TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD employee ON employee_assignment_history TYPE record<employee> PERMISSIONS FULL;
+DEFINE FIELD manager ON employee_assignment_history TYPE none | record<employee> | null PERMISSIONS FULL;
+DEFINE FIELD position ON employee_assignment_history TYPE none | record<position> | null PERMISSIONS FULL;
+DEFINE FIELD reason ON employee_assignment_history TYPE none | string | null PERMISSIONS FULL;
+
+DEFINE INDEX eah_employee ON employee_assignment_history FIELDS employee;
+
+
+-- ------------------------------
+-- TABLE: employee_document
+-- ------------------------------
+
+DEFINE TABLE employee_document TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD category ON employee_document TYPE string DEFAULT 'other' PERMISSIONS FULL;
+DEFINE FIELD document ON employee_document TYPE record<document> PERMISSIONS FULL;
+DEFINE FIELD employee ON employee_document TYPE record<employee> PERMISSIONS FULL;
+DEFINE FIELD expires_at ON employee_document TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD title ON employee_document TYPE string PERMISSIONS FULL;
+DEFINE FIELD uploaded_at ON employee_document TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD uploaded_by ON employee_document TYPE none | record<user> | null PERMISSIONS FULL;
+
+DEFINE INDEX ed_employee ON employee_document FIELDS employee;
+
+
+-- ------------------------------
+-- TABLE: employee_pay_profile
+-- ------------------------------
+
+DEFINE TABLE employee_pay_profile TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD base_rate ON employee_pay_profile TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD break_rules ON employee_pay_profile TYPE any DEFAULT [] PERMISSIONS FULL;
+DEFINE FIELD created_at ON employee_pay_profile TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD created_by ON employee_pay_profile TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD currency ON employee_pay_profile TYPE string DEFAULT 'USD' PERMISSIONS FULL;
+DEFINE FIELD effective_from ON employee_pay_profile TYPE datetime PERMISSIONS FULL;
+DEFINE FIELD effective_to ON employee_pay_profile TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD employee ON employee_pay_profile TYPE record<employee> PERMISSIONS FULL;
+DEFINE FIELD holiday_policy ON employee_pay_profile TYPE none | record<labor_policy> | null PERMISSIONS FULL;
+DEFINE FIELD maximum_hours_per_day ON employee_pay_profile TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD maximum_hours_per_week ON employee_pay_profile TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD night_policy ON employee_pay_profile TYPE none | record<labor_policy> | null PERMISSIONS FULL;
+DEFINE FIELD notes ON employee_pay_profile TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD overtime_policy ON employee_pay_profile TYPE none | record<labor_policy> | null PERMISSIONS FULL;
+DEFINE FIELD pay_type ON employee_pay_profile TYPE string PERMISSIONS FULL;
+DEFINE FIELD weekend_policy ON employee_pay_profile TYPE none | record<labor_policy> | null PERMISSIONS FULL;
+
+DEFINE INDEX epp_employee_dates ON employee_pay_profile FIELDS employee, effective_from;
+
+
+-- ------------------------------
+-- TABLE: employee_performance_note
+-- ------------------------------
+
+DEFINE TABLE employee_performance_note TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD content ON employee_performance_note TYPE string PERMISSIONS FULL;
+DEFINE FIELD created_at ON employee_performance_note TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD created_by ON employee_performance_note TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD employee ON employee_performance_note TYPE record<employee> PERMISSIONS FULL;
+DEFINE FIELD severity ON employee_performance_note TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD title ON employee_performance_note TYPE string PERMISSIONS FULL;
+DEFINE FIELD type ON employee_performance_note TYPE string PERMISSIONS FULL;
+DEFINE FIELD visible_to_employee ON employee_performance_note TYPE bool DEFAULT false PERMISSIONS FULL;
+
+DEFINE INDEX epn_employee ON employee_performance_note FIELDS employee;
+
+
+-- ------------------------------
 -- TABLE: extra
 -- ------------------------------
 
@@ -510,6 +648,189 @@ DEFINE FIELD rounded ON floor_table TYPE none | string PERMISSIONS FULL;
 DEFINE FIELD width ON floor_table TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD x ON floor_table TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD y ON floor_table TYPE none | float | null PERMISSIONS FULL;
+
+
+
+-- ------------------------------
+-- TABLE: integration_execution_history
+-- ------------------------------
+
+DEFINE TABLE integration_execution_history TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD action ON integration_execution_history TYPE string PERMISSIONS FULL;
+DEFINE FIELD created_at ON integration_execution_history TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD error ON integration_execution_history TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD provider_id ON integration_execution_history TYPE string PERMISSIONS FULL;
+DEFINE FIELD request_payload ON integration_execution_history TYPE any DEFAULT {  } PERMISSIONS FULL;
+DEFINE FIELD response_payload ON integration_execution_history TYPE any DEFAULT {  } PERMISSIONS FULL;
+DEFINE FIELD status ON integration_execution_history TYPE string PERMISSIONS FULL;
+
+
+
+-- ------------------------------
+-- TABLE: integration_installed_provider
+-- ------------------------------
+
+DEFINE TABLE integration_installed_provider TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD enabled ON integration_installed_provider TYPE bool DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD provider_id ON integration_installed_provider TYPE string PERMISSIONS FULL;
+DEFINE FIELD updated_at ON integration_installed_provider TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+
+
+
+-- ------------------------------
+-- TABLE: integration_order_fiscal
+-- ------------------------------
+
+DEFINE TABLE integration_order_fiscal TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD code ON integration_order_fiscal TYPE any PERMISSIONS FULL;
+DEFINE FIELD created_at ON integration_order_fiscal TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD error ON integration_order_fiscal TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD invoice_number ON integration_order_fiscal TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD order ON integration_order_fiscal TYPE record<order> PERMISSIONS FULL;
+DEFINE FIELD provider_id ON integration_order_fiscal TYPE string PERMISSIONS FULL;
+DEFINE FIELD qr_priority ON integration_order_fiscal TYPE number DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD qrcode ON integration_order_fiscal TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD request_payload ON integration_order_fiscal TYPE any PERMISSIONS FULL;
+DEFINE FIELD response_payload ON integration_order_fiscal TYPE any PERMISSIONS FULL;
+DEFINE FIELD selected_for_print ON integration_order_fiscal TYPE bool DEFAULT false PERMISSIONS FULL;
+DEFINE FIELD status ON integration_order_fiscal TYPE string PERMISSIONS FULL;
+DEFINE FIELD submitted_at ON integration_order_fiscal TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+
+DEFINE INDEX idx_integration_order_fiscal_order ON integration_order_fiscal FIELDS order;
+DEFINE INDEX idx_integration_order_fiscal_order_provider ON integration_order_fiscal FIELDS order, provider_id;
+
+
+-- ------------------------------
+-- TABLE: integration_provider
+-- ------------------------------
+
+DEFINE TABLE integration_provider TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD created_at ON integration_provider TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD enabled ON integration_provider TYPE bool DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD id ON integration_provider TYPE string PERMISSIONS FULL;
+DEFINE FIELD manifest ON integration_provider TYPE any PERMISSIONS FULL;
+DEFINE FIELD updated_at ON integration_provider TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+
+
+
+-- ------------------------------
+-- TABLE: integration_provider_certificate
+-- ------------------------------
+
+DEFINE TABLE integration_provider_certificate TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD created_at ON integration_provider_certificate TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD expires_at ON integration_provider_certificate TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD name ON integration_provider_certificate TYPE string PERMISSIONS FULL;
+DEFINE FIELD provider_id ON integration_provider_certificate TYPE string PERMISSIONS FULL;
+
+
+
+-- ------------------------------
+-- TABLE: integration_provider_config
+-- ------------------------------
+
+DEFINE TABLE integration_provider_config TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD provider_id ON integration_provider_config TYPE string PERMISSIONS FULL;
+DEFINE FIELD updated_at ON integration_provider_config TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD values ON integration_provider_config TYPE any DEFAULT {  } PERMISSIONS FULL;
+
+
+
+-- ------------------------------
+-- TABLE: integration_provider_health
+-- ------------------------------
+
+DEFINE TABLE integration_provider_health TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD authentication_status ON integration_provider_health TYPE string PERMISSIONS FULL;
+DEFINE FIELD average_response_time_ms ON integration_provider_health TYPE none | number PERMISSIONS FULL;
+DEFINE FIELD certificate_expiry ON integration_provider_health TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD errors ON integration_provider_health TYPE any DEFAULT [] PERMISSIONS FULL;
+DEFINE FIELD failed_jobs ON integration_provider_health TYPE int DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD last_synchronization ON integration_provider_health TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD pending_jobs ON integration_provider_health TYPE int DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD provider_id ON integration_provider_health TYPE string PERMISSIONS FULL;
+DEFINE FIELD status ON integration_provider_health TYPE string PERMISSIONS FULL;
+DEFINE FIELD updated_at ON integration_provider_health TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD version ON integration_provider_health TYPE string PERMISSIONS FULL;
+
+
+
+-- ------------------------------
+-- TABLE: integration_provider_secret
+-- ------------------------------
+
+DEFINE TABLE integration_provider_secret TYPE ANY SCHEMALESS PERMISSIONS NONE;
+
+
+
+
+-- ------------------------------
+-- TABLE: integration_provider_webhook
+-- ------------------------------
+
+DEFINE TABLE integration_provider_webhook TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD event_name ON integration_provider_webhook TYPE string PERMISSIONS FULL;
+DEFINE FIELD payload ON integration_provider_webhook TYPE any DEFAULT {  } PERMISSIONS FULL;
+DEFINE FIELD provider_id ON integration_provider_webhook TYPE string PERMISSIONS FULL;
+DEFINE FIELD received_at ON integration_provider_webhook TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+
+
+
+-- ------------------------------
+-- TABLE: integration_queue
+-- ------------------------------
+
+DEFINE TABLE integration_queue TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD action ON integration_queue TYPE string PERMISSIONS FULL;
+DEFINE FIELD attempts ON integration_queue TYPE int DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD created_at ON integration_queue TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD dedupe_key ON integration_queue TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD max_retries ON integration_queue TYPE int DEFAULT 5 PERMISSIONS FULL;
+DEFINE FIELD next_run_at ON integration_queue TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD partition_key ON integration_queue TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD payload ON integration_queue TYPE any DEFAULT {  } PERMISSIONS FULL;
+DEFINE FIELD provider_id ON integration_queue TYPE string PERMISSIONS FULL;
+DEFINE FIELD status ON integration_queue TYPE string PERMISSIONS FULL;
+DEFINE FIELD updated_at ON integration_queue TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+
+
+
+-- ------------------------------
+-- TABLE: integration_queue_attempt
+-- ------------------------------
+
+DEFINE TABLE integration_queue_attempt TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD attempts ON integration_queue_attempt TYPE int PERMISSIONS FULL;
+DEFINE FIELD created_at ON integration_queue_attempt TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD error ON integration_queue_attempt TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD job_id ON integration_queue_attempt TYPE string PERMISSIONS FULL;
+DEFINE FIELD provider_id ON integration_queue_attempt TYPE string PERMISSIONS FULL;
+DEFINE FIELD status ON integration_queue_attempt TYPE string PERMISSIONS FULL;
+
+
+
+-- ------------------------------
+-- TABLE: integration_schedule
+-- ------------------------------
+
+DEFINE TABLE integration_schedule TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD enabled ON integration_schedule TYPE bool DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD interval_ms ON integration_schedule TYPE int PERMISSIONS FULL;
+DEFINE FIELD name ON integration_schedule TYPE string PERMISSIONS FULL;
+DEFINE FIELD next_run_at ON integration_schedule TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD provider_id ON integration_schedule TYPE string PERMISSIONS FULL;
+DEFINE FIELD updated_at ON integration_schedule TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
 
 
 
@@ -609,10 +930,9 @@ DEFINE FIELD code ON inventory_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD item_types ON inventory_item TYPE array<string> DEFAULT ['raw'] ASSERT array::len($value) > 0 PERMISSIONS FULL;
 DEFINE FIELD name ON inventory_item TYPE string PERMISSIONS FULL;
 DEFINE FIELD price ON inventory_item TYPE none | float | null PERMISSIONS FULL;
-DEFINE FIELD reorder_levels ON inventory_item TYPE any DEFAULT {} PERMISSIONS FULL;
+DEFINE FIELD reorder_levels ON inventory_item TYPE any DEFAULT {  } PERMISSIONS FULL;
 DEFINE FIELD stores ON inventory_item TYPE array<record<inventory_store>> PERMISSIONS FULL;
 DEFINE FIELD suppliers ON inventory_item TYPE array<record<inventory_supplier>> PERMISSIONS FULL;
-DEFINE FIELD taxable ON inventory_item TYPE none | bool | null PERMISSIONS FULL;
 DEFINE FIELD uom ON inventory_item TYPE none | string | null PERMISSIONS FULL;
 
 
@@ -693,9 +1013,6 @@ DEFINE FIELD payment_method ON inventory_purchase TYPE none | record<payment_typ
 DEFINE FIELD purchase_order ON inventory_purchase TYPE none | record<inventory_purchase_order> | null PERMISSIONS FULL;
 DEFINE FIELD store ON inventory_purchase TYPE none | record<inventory_store> | null PERMISSIONS FULL;
 DEFINE FIELD supplier ON inventory_purchase TYPE none | record<inventory_supplier> PERMISSIONS FULL;
-DEFINE FIELD tax_rate ON inventory_purchase TYPE none | float | null PERMISSIONS FULL;
-DEFINE FIELD tax_amount ON inventory_purchase TYPE none | float | null PERMISSIONS FULL;
-DEFINE FIELD extras ON inventory_purchase TYPE none | array | null PERMISSIONS FULL;
 
 DEFINE INDEX invoice_number ON inventory_purchase FIELDS invoice_number UNIQUE;
 
@@ -719,7 +1036,6 @@ DEFINE FIELD quantity ON inventory_purchase_item TYPE float PERMISSIONS FULL;
 DEFINE FIELD requested ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD store ON inventory_purchase_item TYPE none | record<inventory_store> | null PERMISSIONS FULL;
 DEFINE FIELD supplier ON inventory_purchase_item TYPE none | record<inventory_supplier> | null PERMISSIONS FULL;
-DEFINE FIELD taxable ON inventory_purchase_item TYPE none | bool | null PERMISSIONS FULL;
 
 
 
@@ -973,6 +1289,154 @@ DEFINE FIELD reconciliation ON kitchen_waste TYPE record<kitchen_reconciliation>
 
 
 -- ------------------------------
+-- TABLE: labor_adjustment
+-- ------------------------------
+
+DEFINE TABLE labor_adjustment TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD amount ON labor_adjustment TYPE float PERMISSIONS FULL;
+DEFINE FIELD approved_by ON labor_adjustment TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD created_at ON labor_adjustment TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD created_by ON labor_adjustment TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD currency ON labor_adjustment TYPE string DEFAULT 'USD' PERMISSIONS FULL;
+DEFINE FIELD description ON labor_adjustment TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD effective_date ON labor_adjustment TYPE datetime PERMISSIONS FULL;
+DEFINE FIELD employee ON labor_adjustment TYPE record<employee> PERMISSIONS FULL;
+DEFINE FIELD payroll_period ON labor_adjustment TYPE none | record<payroll_period> | null PERMISSIONS FULL;
+DEFINE FIELD status ON labor_adjustment TYPE string DEFAULT 'pending' PERMISSIONS FULL;
+DEFINE FIELD type ON labor_adjustment TYPE string PERMISSIONS FULL;
+
+DEFINE INDEX la_employee ON labor_adjustment FIELDS employee;
+
+
+-- ------------------------------
+-- TABLE: labor_audit_log
+-- ------------------------------
+
+DEFINE TABLE labor_audit_log TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD action ON labor_audit_log TYPE string PERMISSIONS FULL;
+DEFINE FIELD `after` ON labor_audit_log TYPE any PERMISSIONS FULL;
+DEFINE FIELD `before` ON labor_audit_log TYPE any PERMISSIONS FULL;
+DEFINE FIELD changed_at ON labor_audit_log TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD changed_by ON labor_audit_log TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD entity_id ON labor_audit_log TYPE string PERMISSIONS FULL;
+DEFINE FIELD entity_type ON labor_audit_log TYPE string PERMISSIONS FULL;
+
+DEFINE INDEX lal_entity ON labor_audit_log FIELDS entity_type, entity_id;
+
+
+-- ------------------------------
+-- TABLE: labor_cost_event
+-- ------------------------------
+
+DEFINE TABLE labor_cost_event TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD consumed_at ON labor_cost_event TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD emitted_at ON labor_cost_event TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD event_type ON labor_cost_event TYPE string PERMISSIONS FULL;
+DEFINE FIELD payload ON labor_cost_event TYPE any DEFAULT {  } PERMISSIONS FULL;
+DEFINE FIELD payroll_run ON labor_cost_event TYPE none | record<payroll_run> | null PERMISSIONS FULL;
+DEFINE FIELD period_end ON labor_cost_event TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD period_start ON labor_cost_event TYPE none | datetime | null PERMISSIONS FULL;
+
+DEFINE INDEX lce_type ON labor_cost_event FIELDS event_type;
+
+
+-- ------------------------------
+-- TABLE: labor_pay_rule
+-- ------------------------------
+
+DEFINE TABLE labor_pay_rule TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD code ON labor_pay_rule TYPE string PERMISSIONS FULL;
+DEFINE FIELD conditions ON labor_pay_rule TYPE any DEFAULT {  } PERMISSIONS FULL;
+DEFINE FIELD deleted_at ON labor_pay_rule TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD effects ON labor_pay_rule TYPE any DEFAULT [] PERMISSIONS FULL;
+DEFINE FIELD exclusive ON labor_pay_rule TYPE bool DEFAULT false PERMISSIONS FULL;
+DEFINE FIELD is_active ON labor_pay_rule TYPE bool DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD name ON labor_pay_rule TYPE string PERMISSIONS FULL;
+DEFINE FIELD priority ON labor_pay_rule TYPE int DEFAULT 100 PERMISSIONS FULL;
+DEFINE FIELD stacking_mode ON labor_pay_rule TYPE string DEFAULT 'allow' PERMISSIONS FULL;
+
+DEFINE INDEX lpr_active_priority ON labor_pay_rule FIELDS is_active, priority;
+DEFINE INDEX lpr_code ON labor_pay_rule FIELDS code UNIQUE;
+
+
+-- ------------------------------
+-- TABLE: labor_policy
+-- ------------------------------
+
+DEFINE TABLE labor_policy TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD code ON labor_policy TYPE string PERMISSIONS FULL;
+DEFINE FIELD config ON labor_policy TYPE any DEFAULT {  } PERMISSIONS FULL;
+DEFINE FIELD deleted_at ON labor_policy TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD is_active ON labor_policy TYPE bool DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD name ON labor_policy TYPE string PERMISSIONS FULL;
+DEFINE FIELD policy_type ON labor_policy TYPE string PERMISSIONS FULL;
+
+DEFINE INDEX lp_code ON labor_policy FIELDS code UNIQUE;
+
+
+-- ------------------------------
+-- TABLE: leave_balance
+-- ------------------------------
+
+DEFINE TABLE leave_balance TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD accrued ON leave_balance TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD carried_over ON leave_balance TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD employee ON leave_balance TYPE record<employee> PERMISSIONS FULL;
+DEFINE FIELD leave_type ON leave_balance TYPE record<leave_type> PERMISSIONS FULL;
+DEFINE FIELD pending ON leave_balance TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD used ON leave_balance TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD year ON leave_balance TYPE int PERMISSIONS FULL;
+
+DEFINE INDEX lb_employee_type_year ON leave_balance FIELDS employee, leave_type, year UNIQUE;
+
+
+-- ------------------------------
+-- TABLE: leave_request
+-- ------------------------------
+
+DEFINE TABLE leave_request TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD approved_at ON leave_request TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD approved_by ON leave_request TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD auth_permission ON leave_request TYPE none | record<auth_permission> | null PERMISSIONS FULL;
+DEFINE FIELD created_at ON leave_request TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD created_by ON leave_request TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD days ON leave_request TYPE float PERMISSIONS FULL;
+DEFINE FIELD employee ON leave_request TYPE record<employee> PERMISSIONS FULL;
+DEFINE FIELD end_date ON leave_request TYPE datetime PERMISSIONS FULL;
+DEFINE FIELD leave_type ON leave_request TYPE record<leave_type> PERMISSIONS FULL;
+DEFINE FIELD reason ON leave_request TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD start_date ON leave_request TYPE datetime PERMISSIONS FULL;
+DEFINE FIELD status ON leave_request TYPE string DEFAULT 'pending' PERMISSIONS FULL;
+
+DEFINE INDEX lr_employee ON leave_request FIELDS employee;
+
+
+-- ------------------------------
+-- TABLE: leave_type
+-- ------------------------------
+
+DEFINE TABLE leave_type TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD accrual_rate ON leave_type TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD code ON leave_type TYPE string PERMISSIONS FULL;
+DEFINE FIELD deleted_at ON leave_type TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD is_active ON leave_type TYPE bool DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD max_days_per_year ON leave_type TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD name ON leave_type TYPE string PERMISSIONS FULL;
+DEFINE FIELD paid ON leave_type TYPE bool DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD requires_approval ON leave_type TYPE bool DEFAULT true PERMISSIONS FULL;
+
+DEFINE INDEX lt_code ON leave_type FIELDS code UNIQUE;
+
+
+-- ------------------------------
 -- TABLE: menu
 -- ------------------------------
 
@@ -1055,7 +1519,7 @@ DEFINE TABLE menu_menu_item TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 DEFINE FIELD active ON menu_menu_item TYPE none | bool | null PERMISSIONS FULL;
 DEFINE FIELD base_price ON menu_menu_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD menu_item ON menu_menu_item TYPE record<menu_item> PERMISSIONS FULL;
-DEFINE FIELD OVERWRITE modifier_overrides ON TABLE menu_menu_item TYPE any PERMISSIONS FULL;
+DEFINE FIELD modifier_overrides ON menu_menu_item TYPE any PERMISSIONS FULL;
 DEFINE FIELD price ON menu_menu_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD tax ON menu_menu_item TYPE none | record<tax> | null PERMISSIONS FULL;
 DEFINE FIELD tax_mode ON menu_menu_item TYPE string DEFAULT 'exclusive' ASSERT $value INSIDE ['exclusive', 'inclusive'] PERMISSIONS FULL;
@@ -1220,7 +1684,7 @@ DEFINE FIELD `value` ON order_extras TYPE float PERMISSIONS FULL;
 DEFINE TABLE order_item TYPE ANY SCHEMAFULL PERMISSIONS NONE;
 
 DEFINE FIELD category ON order_item TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD category_id ON order_item TYPE none | record<category> | null | string PERMISSIONS FULL;
+DEFINE FIELD category_id ON order_item TYPE none | record<category> | string | null PERMISSIONS FULL;
 DEFINE FIELD comments ON order_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD cost ON order_item TYPE none | float PERMISSIONS FULL;
 DEFINE FIELD created_at ON order_item TYPE datetime PERMISSIONS FULL;
@@ -1359,30 +1823,6 @@ DEFINE INDEX order_tax_unique ON order_tax FIELDS order, tax UNIQUE;
 
 
 -- ------------------------------
--- TABLE: integration_order_fiscal
--- ------------------------------
-
-DEFINE TABLE integration_order_fiscal TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
-
-DEFINE FIELD order ON integration_order_fiscal TYPE record<order> PERMISSIONS FULL;
-DEFINE FIELD provider_id ON integration_order_fiscal TYPE string PERMISSIONS FULL;
-DEFINE FIELD invoice_number ON integration_order_fiscal TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD qrcode ON integration_order_fiscal TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD status ON integration_order_fiscal TYPE string PERMISSIONS FULL;
-DEFINE FIELD code ON integration_order_fiscal TYPE any PERMISSIONS FULL;
-DEFINE FIELD error ON integration_order_fiscal TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD selected_for_print ON integration_order_fiscal TYPE bool DEFAULT false PERMISSIONS FULL;
-DEFINE FIELD qr_priority ON integration_order_fiscal TYPE number DEFAULT 0 PERMISSIONS FULL;
-DEFINE FIELD request_payload ON integration_order_fiscal TYPE any PERMISSIONS FULL;
-DEFINE FIELD response_payload ON integration_order_fiscal TYPE any PERMISSIONS FULL;
-DEFINE FIELD submitted_at ON integration_order_fiscal TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
-DEFINE FIELD created_at ON integration_order_fiscal TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
-
-DEFINE INDEX idx_integration_order_fiscal_order ON integration_order_fiscal FIELDS order;
-DEFINE INDEX idx_integration_order_fiscal_order_provider ON integration_order_fiscal FIELDS order, provider_id;
-
-
--- ------------------------------
 -- TABLE: order_type
 -- ------------------------------
 
@@ -1462,13 +1902,98 @@ DEFINE INDEX payment_webhook_key_gateway ON payment_webhook FIELDS key, gateway 
 
 
 -- ------------------------------
+-- TABLE: payroll_period
+-- ------------------------------
+
+DEFINE TABLE payroll_period TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD closed_at ON payroll_period TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD end_date ON payroll_period TYPE datetime PERMISSIONS FULL;
+DEFINE FIELD locked_at ON payroll_period TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD locked_by ON payroll_period TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD name ON payroll_period TYPE string PERMISSIONS FULL;
+DEFINE FIELD paid_at ON payroll_period TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD period_type ON payroll_period TYPE string DEFAULT 'weekly' PERMISSIONS FULL;
+DEFINE FIELD start_date ON payroll_period TYPE datetime PERMISSIONS FULL;
+DEFINE FIELD status ON payroll_period TYPE string DEFAULT 'open' PERMISSIONS FULL;
+
+DEFINE INDEX pp_dates ON payroll_period FIELDS start_date, end_date;
+
+
+-- ------------------------------
+-- TABLE: payroll_run
+-- ------------------------------
+
+DEFINE TABLE payroll_run TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD approved_at ON payroll_run TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD approved_by ON payroll_run TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD generated_at ON payroll_run TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD generated_by ON payroll_run TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD notes ON payroll_run TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD payroll_period ON payroll_run TYPE record<payroll_period> PERMISSIONS FULL;
+DEFINE FIELD run_number ON payroll_run TYPE int DEFAULT 1 PERMISSIONS FULL;
+DEFINE FIELD status ON payroll_run TYPE string DEFAULT 'draft' PERMISSIONS FULL;
+
+DEFINE INDEX pr_period ON payroll_run FIELDS payroll_period;
+
+
+-- ------------------------------
+-- TABLE: payroll_snapshot
+-- ------------------------------
+
+DEFINE TABLE payroll_snapshot TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD adjustments ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD bonuses ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD calculated_at ON payroll_snapshot TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD calculation_version ON payroll_snapshot TYPE string DEFAULT '1.0.0' PERMISSIONS FULL;
+DEFINE FIELD deductions ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD double_time_hours ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD employee ON payroll_snapshot TYPE record<employee> PERMISSIONS FULL;
+DEFINE FIELD gross_pay ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD holiday_premium_hours ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD net_pay ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD night_premium_hours ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD overtime_hours ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD overtime_pay ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD pay_profile_id ON payroll_snapshot TYPE none | record<employee_pay_profile> | null PERMISSIONS FULL;
+DEFINE FIELD payroll_run ON payroll_snapshot TYPE record<payroll_run> PERMISSIONS FULL;
+DEFINE FIELD premium_pay ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD regular_hours ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD regular_pay ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD rule_applications ON payroll_snapshot TYPE any DEFAULT [] PERMISSIONS FULL;
+DEFINE FIELD tips ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD weekend_premium_hours ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
+
+DEFINE INDEX ps_employee ON payroll_snapshot FIELDS employee;
+DEFINE INDEX ps_run ON payroll_snapshot FIELDS payroll_run;
+
+
+-- ------------------------------
+-- TABLE: position
+-- ------------------------------
+
+DEFINE TABLE position TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD code ON position TYPE string PERMISSIONS FULL;
+DEFINE FIELD default_cost_center ON position TYPE none | record<cost_center> | null PERMISSIONS FULL;
+DEFINE FIELD deleted_at ON position TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD department ON position TYPE none | record<department> | null PERMISSIONS FULL;
+DEFINE FIELD is_active ON position TYPE bool DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD name ON position TYPE string PERMISSIONS FULL;
+
+DEFINE INDEX pos_code ON position FIELDS code UNIQUE;
+
+
+-- ------------------------------
 -- TABLE: printer
 -- ------------------------------
 
 DEFINE TABLE printer TYPE ANY SCHEMAFULL PERMISSIONS NONE;
 
 DEFINE FIELD deleted_at ON printer TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD ip_address ON printer TYPE string PERMISSIONS FULL;
+DEFINE FIELD ip_address ON printer TYPE string | none | null PERMISSIONS FULL;
 DEFINE FIELD name ON printer TYPE string PERMISSIONS FULL;
 DEFINE FIELD pid ON printer TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD port ON printer TYPE none | int | null PERMISSIONS FULL;
@@ -1539,6 +2064,24 @@ DEFINE INDEX pbo_item_store ON production_batch_output FIELDS item, store;
 
 
 -- ------------------------------
+-- TABLE: public_holiday
+-- ------------------------------
+
+DEFINE TABLE public_holiday TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD country_code ON public_holiday TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD date ON public_holiday TYPE datetime PERMISSIONS FULL;
+DEFINE FIELD deleted_at ON public_holiday TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD is_active ON public_holiday TYPE bool DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD is_recurring ON public_holiday TYPE bool DEFAULT false PERMISSIONS FULL;
+DEFINE FIELD labor_policy ON public_holiday TYPE none | record<labor_policy> | null PERMISSIONS FULL;
+DEFINE FIELD name ON public_holiday TYPE string PERMISSIONS FULL;
+DEFINE FIELD recurrence_rule ON public_holiday TYPE any PERMISSIONS FULL;
+
+DEFINE INDEX ph_date ON public_holiday FIELDS date;
+
+
+-- ------------------------------
 -- TABLE: recipe
 -- ------------------------------
 
@@ -1601,6 +2144,47 @@ DEFINE FIELD user_role ON role_discount_policy TYPE record<user_role> PERMISSION
 
 
 -- ------------------------------
+-- TABLE: schedule_template
+-- ------------------------------
+
+DEFINE TABLE schedule_template TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD break_minutes ON schedule_template TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD cost_center ON schedule_template TYPE none | record<cost_center> | null PERMISSIONS FULL;
+DEFINE FIELD days_of_week ON schedule_template TYPE array<int> DEFAULT [] PERMISSIONS FULL;
+DEFINE FIELD deleted_at ON schedule_template TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD department ON schedule_template TYPE none | record<department> | null PERMISSIONS FULL;
+DEFINE FIELD end_time ON schedule_template TYPE string PERMISSIONS FULL;
+DEFINE FIELD is_active ON schedule_template TYPE bool DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD name ON schedule_template TYPE string PERMISSIONS FULL;
+DEFINE FIELD position ON schedule_template TYPE none | record<position> | null PERMISSIONS FULL;
+DEFINE FIELD shift_template ON schedule_template TYPE none | record<shift> | null PERMISSIONS FULL;
+DEFINE FIELD start_time ON schedule_template TYPE string PERMISSIONS FULL;
+
+
+
+-- ------------------------------
+-- TABLE: scheduled_shift
+-- ------------------------------
+
+DEFINE TABLE scheduled_shift TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD cost_center ON scheduled_shift TYPE none | record<cost_center> | null PERMISSIONS FULL;
+DEFINE FIELD department ON scheduled_shift TYPE none | record<department> | null PERMISSIONS FULL;
+DEFINE FIELD employee ON scheduled_shift TYPE record<employee> PERMISSIONS FULL;
+DEFINE FIELD end_at ON scheduled_shift TYPE datetime PERMISSIONS FULL;
+DEFINE FIELD notes ON scheduled_shift TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD position ON scheduled_shift TYPE none | record<position> | null PERMISSIONS FULL;
+DEFINE FIELD shift_template ON scheduled_shift TYPE none | record<shift> | null PERMISSIONS FULL;
+DEFINE FIELD start_at ON scheduled_shift TYPE datetime PERMISSIONS FULL;
+DEFINE FIELD status ON scheduled_shift TYPE string DEFAULT 'scheduled' PERMISSIONS FULL;
+DEFINE FIELD work_schedule ON scheduled_shift TYPE none | record<work_schedule> | null PERMISSIONS FULL;
+
+DEFINE INDEX ss_employee_start ON scheduled_shift FIELDS employee, start_at;
+DEFINE INDEX ss_schedule ON scheduled_shift FIELDS work_schedule;
+
+
+-- ------------------------------
 -- TABLE: setting
 -- ------------------------------
 
@@ -1624,6 +2208,23 @@ DEFINE FIELD end_time ON shift TYPE string PERMISSIONS FULL;
 DEFINE FIELD ends_next_day ON shift TYPE bool DEFAULT false PERMISSIONS FULL;
 DEFINE FIELD name ON shift TYPE string PERMISSIONS FULL;
 DEFINE FIELD start_time ON shift TYPE string PERMISSIONS FULL;
+
+
+
+-- ------------------------------
+-- TABLE: shift_swap_request
+-- ------------------------------
+
+DEFINE TABLE shift_swap_request TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD approved_at ON shift_swap_request TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD approved_by ON shift_swap_request TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD auth_permission ON shift_swap_request TYPE none | record<auth_permission> | null PERMISSIONS FULL;
+DEFINE FIELD proposed_shift ON shift_swap_request TYPE none | record<scheduled_shift> | null PERMISSIONS FULL;
+DEFINE FIELD requesting_employee ON shift_swap_request TYPE record<employee> PERMISSIONS FULL;
+DEFINE FIELD scheduled_shift ON shift_swap_request TYPE record<scheduled_shift> PERMISSIONS FULL;
+DEFINE FIELD status ON shift_swap_request TYPE string DEFAULT 'pending' PERMISSIONS FULL;
+DEFINE FIELD target_employee ON shift_swap_request TYPE none | record<employee> | null PERMISSIONS FULL;
 
 
 
@@ -1674,12 +2275,41 @@ DEFINE FIELD rate ON tax TYPE float PERMISSIONS FULL;
 
 DEFINE TABLE time_entry TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
+DEFINE FIELD approval_status ON time_entry TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD approved_at ON time_entry TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD approved_by ON time_entry TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD attendance_status ON time_entry TYPE string DEFAULT 'present' PERMISSIONS FULL;
 DEFINE FIELD clock_in ON time_entry TYPE datetime PERMISSIONS FULL;
 DEFINE FIELD clock_out ON time_entry TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD duration_seconds ON time_entry VALUE (IF $after.clock_out != NONE { time::unix($after.clock_out) - time::unix($after.clock_in) } ELSE { NONE }) PERMISSIONS FULL;
+DEFINE FIELD early_leave_minutes ON time_entry TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD employee ON time_entry TYPE none | record<employee> | null PERMISSIONS FULL;
+DEFINE FIELD late_minutes ON time_entry TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD notes ON time_entry TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD original_time_entry ON time_entry TYPE none | record<time_entry> | null PERMISSIONS FULL;
 DEFINE FIELD platform ON time_entry TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD scheduled_shift ON time_entry TYPE none | record<scheduled_shift> | null PERMISSIONS FULL;
+DEFINE FIELD shift_template ON time_entry TYPE none | record<shift> | null PERMISSIONS FULL;
+DEFINE FIELD source ON time_entry TYPE string DEFAULT 'clock' PERMISSIONS FULL;
 DEFINE FIELD user ON time_entry TYPE record<user> PERMISSIONS FULL;
 
+
+
+-- ------------------------------
+-- TABLE: time_entry_break
+-- ------------------------------
+
+DEFINE TABLE time_entry_break TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD approved_by ON time_entry_break TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD break_type ON time_entry_break TYPE string DEFAULT 'unpaid' PERMISSIONS FULL;
+DEFINE FIELD duration_seconds ON time_entry_break VALUE (IF $after.end_at != NONE { time::unix($after.end_at) - time::unix($after.start_at) } ELSE { NONE }) PERMISSIONS FULL;
+DEFINE FIELD end_at ON time_entry_break TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD missed ON time_entry_break TYPE bool DEFAULT false PERMISSIONS FULL;
+DEFINE FIELD start_at ON time_entry_break TYPE datetime PERMISSIONS FULL;
+DEFINE FIELD time_entry ON time_entry_break TYPE record<time_entry> PERMISSIONS FULL;
+
+DEFINE INDEX teb_time_entry ON time_entry_break FIELDS time_entry;
 
 
 -- ------------------------------
@@ -1760,6 +2390,22 @@ DEFINE FIELD deleted_at ON user_role TYPE none | datetime | null PERMISSIONS FUL
 DEFINE FIELD name ON user_role TYPE string PERMISSIONS FULL;
 DEFINE FIELD roles ON user_role TYPE array<string> PERMISSIONS FULL;
 
+
+
+-- ------------------------------
+-- TABLE: work_schedule
+-- ------------------------------
+
+DEFINE TABLE work_schedule TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD name ON work_schedule TYPE string PERMISSIONS FULL;
+DEFINE FIELD period_end ON work_schedule TYPE datetime PERMISSIONS FULL;
+DEFINE FIELD period_start ON work_schedule TYPE datetime PERMISSIONS FULL;
+DEFINE FIELD published_at ON work_schedule TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD published_by ON work_schedule TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD status ON work_schedule TYPE string DEFAULT 'draft' PERMISSIONS FULL;
+
+DEFINE INDEX ws_period ON work_schedule FIELDS period_start, period_end;
 
 
 -- ------------------------------
