@@ -90,12 +90,14 @@ function normalizeReceiptSections(sections: unknown): unknown[] {
   });
 }
 
-function printerToDriverConfig(p: Printer): { type: string; ip?: string; port?: number } {
+function printerToDriverConfig(p: Printer): { type: string; ip?: string; port?: number, vid?: string, pid?: string } {
   const type = String(p.type || 'network').toLowerCase();
   return {
     type,
     ip: p.ip_address,
     port: p.port,
+    vid: p?.vid,
+    pid: p?.pid
   };
 }
 

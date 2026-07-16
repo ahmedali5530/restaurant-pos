@@ -8,4 +8,6 @@ export interface Printer extends ID, Name, Priority{
   type: string
 
   deleted_at?: DateTime
+  vid?: string
+  pid?: string
 }
