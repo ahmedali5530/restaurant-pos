@@ -80,7 +80,15 @@ export const OrderBox = ({
 
   const {protectAction} = useSecurity();
 
-  const [{menuConfig: {showTotalInOrderCard, showModifierPriceInOrderCard, showModifiersInOrderCard, showQuantityInOrderCard, showPriceInOrderCard, showGroupsInOrderCard}}] = useAtom(appPage);
+  const [pageState] = useAtom(appPage);
+  const {
+    showTotalInOrderCard = false,
+    showModifierPriceInOrderCard = false,
+    showModifiersInOrderCard = false,
+    showQuantityInOrderCard = false,
+    showPriceInOrderCard = false,
+    showGroupsInOrderCard = false,
+  } = pageState.menuConfig ?? {};
 
   return (
     <>

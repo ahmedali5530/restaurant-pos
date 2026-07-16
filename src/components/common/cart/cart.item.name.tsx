@@ -11,7 +11,8 @@ interface Props {
 }
 
 export const CartItemName = ({ item, mainItem }: Omit<Props, "index">) => {
-  const [{menuConfig: {showTotalInCart}}] = useAtom(appPage);
+  const [pageState] = useAtom(appPage);
+  const { showTotalInCart = false } = pageState.menuConfig ?? {};
 
   return (
     <>
