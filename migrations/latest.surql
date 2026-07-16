@@ -332,7 +332,7 @@ DEFINE FIELD lat ON customer TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD lng ON customer TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD name ON customer TYPE string PERMISSIONS FULL;
 DEFINE FIELD number ON customer TYPE none | int PERMISSIONS FULL;
-DEFINE FIELD phone ON customer TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD phone ON customer TYPE none | string | null | int PERMISSIONS FULL;
 DEFINE FIELD points ON customer TYPE none | float PERMISSIONS FULL;
 DEFINE FIELD postal_code ON customer TYPE none | int | null PERMISSIONS FULL;
 DEFINE FIELD secondary_address ON customer TYPE none | string | null PERMISSIONS FULL;
