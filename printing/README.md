@@ -180,6 +180,15 @@ docker compose -f docker-compose.standalone.yml up -d --build
 
 **Windows:** Do not add `/dev/bus/usb` device mapping — that path is Linux-only and will fail on Docker Desktop for Windows. Use **network** or **serial** printers from the container, or run the print server on the host with `npm start` for direct USB access.
 
+### Windows USB printers (`Can not find printer`)
+
+USB via `escpos-usb` / `node-usb` works differently on Windows than on Linux:
+
+1. **Run the print server on the host** (`cd printing && npm start`), not in Docker. Docker Desktop on Windows cannot pass through USB the same way Linux does.
+2. **Set VID and PID** on the printer in POS settings (Device Manager → printer → Details → Hardware Ids, e.g. `USB\VID_04B8&PID_0E15` → VID `04b8`, PID `0e15`). Hex values like `04b8` / `0e15` are accepted.
+3. **Install WinUSB with [Zadig](https://zadig.akeo.ie/)** for that USB device (Options → List All Devices → select the printer → WinUSB → Replace Driver). Without this, libusb cannot open the device (`LIBUSB_ERROR_NOT_SUPPORTED` / not found). Note: WinUSB replaces the Windows printer driver for that device — use this PC for the POS print server, not for normal Windows “Devices and Printers” printing to the same USB printer.
+4. Alternative: install [UsbDK](https://github.com/daynix/UsbDk) and enable the UsbDK backend in your host Node process if you prefer that over WinUSB.
+
 **Linux USB printers** (optional): use the USB override compose file:
 
 ```bash
