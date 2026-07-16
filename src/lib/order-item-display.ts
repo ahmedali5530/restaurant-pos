@@ -1,8 +1,10 @@
 import { OrderItem } from "@/api/model/order_item.ts";
+import { Order } from "@/api/model/order.ts";
 import { Tax } from "@/api/model/tax.ts";
 import { TaxMode } from "@/api/model/menu.ts";
 import { calculateOrderItemPrice, getOrderItemTaxableUnitBase } from "@/lib/cart.ts";
 import { calculateItemTax } from "@/lib/tax-calculator.ts";
+import { getOrderFilteredItems } from "@/lib/order.ts";
 import { safeNumber } from "@/lib/utils.ts";
 
 export const inflateInclusiveUnitPrice = (
@@ -77,4 +79,18 @@ export const getOrderItemModifierDisplayPrice = (
     return net;
   }
   return inflateInclusiveUnitPrice(net, parentItem.taxes);
+};
+
+export const getOrderDisplayItemsTotal = (
+  order: Order | undefined | null,
+  showInclusive: boolean,
+): number => {
+  if (!order) {
+    return 0;
+  }
+
+  return getOrderFilteredItems(order).reduce(
+    (sum, item) => sum + getOrderItemDisplayLineTotal(item, showInclusive),
+    0,
+  );
 };

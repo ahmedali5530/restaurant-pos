@@ -35,7 +35,9 @@ export const calculateItemTax = (
   taxes: Tax[],
   tax_mode: TaxMode
 ): TaxCalculationResult => {
-  if (!taxes || taxes.length === 0) {
+  const validTaxes = (taxes ?? []).filter((tax): tax is Tax => Boolean(tax));
+
+  if (validTaxes.length === 0) {
     return {
       net_price: base_price,
       tax_amounts: [],
@@ -44,7 +46,7 @@ export const calculateItemTax = (
     };
   }
 
-  const tax_amounts: TaxAmount[] = taxes.map((tax) => {
+  const tax_amounts: TaxAmount[] = validTaxes.map((tax) => {
     const rate = tax.rate || 0;
     const amount = (base_price * rate) / 100;
     return {
@@ -77,11 +79,13 @@ export const calculateInclusiveBasePrice = (
   display_price: number,
   taxes: Tax[]
 ): number => {
-  if (!taxes || taxes.length === 0) {
+  const validTaxes = (taxes ?? []).filter((tax): tax is Tax => Boolean(tax));
+
+  if (validTaxes.length === 0) {
     return display_price;
   }
 
-  const total_tax_rate = taxes.reduce((sum, tax) => sum + (tax.rate || 0), 0);
+  const total_tax_rate = validTaxes.reduce((sum, tax) => sum + (tax.rate || 0), 0);
   const divisor = 1 + total_tax_rate / 100;
   const base_price = display_price / divisor;
 
@@ -108,10 +112,12 @@ export const formatTaxBreakdown = (tax_amounts: TaxAmount[]): string => {
 };
 
 export const getTotalTaxRate = (taxes: Tax[]): number => {
-  if (!taxes || taxes.length === 0) {
+  const validTaxes = (taxes ?? []).filter((tax): tax is Tax => Boolean(tax));
+
+  if (validTaxes.length === 0) {
     return 0;
   }
-  return taxes.reduce((sum, tax) => sum + (tax.rate || 0), 0);
+  return validTaxes.reduce((sum, tax) => sum + (tax.rate || 0), 0);
 };
 
 export const calculateSingleTax = (

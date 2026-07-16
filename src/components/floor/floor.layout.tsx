@@ -62,7 +62,7 @@ export const FloorLayout = () => {
     data: orders,
     fetchData: fetchOrders
   } = useApi<SettingsData<Order>>(Tables.orders, [`status = "${OrderStatus["In Progress"]}"`], ['created_at asc'],
-    undefined, undefined, ['customer', 'items', 'items.item', 'order_type', 'table', 'user'], {}, [
+    undefined, undefined, ['customer', 'items', 'items.item', 'items.taxes', 'items.tax_mode', 'items.modifiers', 'order_type', 'table', 'user'], {}, [
       'covers', 'created_at', 'floor', 'id', 'invoice_number', 'order_type', 'status', 'table', 'tags', 'user', 'items.*', 'customer'
     ]);
 
