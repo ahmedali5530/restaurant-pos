@@ -28,6 +28,18 @@ function parseUsbId(value) {
   return Number.isFinite(n) ? n : null;
 }
 
+function listVisibleUsbIds() {
+  try {
+    const usb = require('usb');
+    return usb.getDeviceList().map((d) => {
+      const desc = d.deviceDescriptor;
+      return `0x${desc.idVendor.toString(16)}:0x${desc.idProduct.toString(16)}`;
+    });
+  } catch (_) {
+    return [];
+  }
+}
+
 /**
  * USB printer driver using escpos-usb adapter.
  * @param {Object} config - { vid?: number|string, pid?: number|string }
@@ -49,10 +61,14 @@ function createDevice(config = {}) {
         vid != null && pid != null
           ? ` (vid=0x${vid.toString(16)}, pid=0x${pid.toString(16)})`
           : ' (auto-detect; set VID/PID in printer settings)';
+      const seen = listVisibleUsbIds();
+      const seenHint = seen.length
+        ? ` libusb can see: ${seen.join(', ')}.`
+        : ' libusb sees no USB devices.';
       const hint =
         os.platform() === 'win32'
-          ? ' On Windows: run the print server on the host (not Docker for USB), enter VID/PID from Device Manager (hex, e.g. 04b8 / 0e15), and install WinUSB for the printer with Zadig — or install UsbDK and call usb.useUsbDkBackend().'
-          : ' Check the USB printer is connected and powered; set VID/PID if auto-detect fails.';
+          ? `${seenHint} On Windows, WinUSB (Zadig) or UsbDK is required for USB ESC/POS — the normal Windows printer driver is not enough. Set VID/PID, then install WinUSB for that device.`
+          : `${seenHint} Check the USB printer is connected and powered; set VID/PID if auto-detect fails.`;
       throw new Error(`Can not find printer${ids}.${hint}`);
     }
     throw err;

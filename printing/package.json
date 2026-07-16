@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
+    "usb:list": "node scripts/list-usb-devices.js",
     "postinstall": "patch-package"
   },
   "dependencies": {
