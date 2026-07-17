@@ -148,10 +148,10 @@ export const HrLeave = () => {
   return (
     <div className="p-2 space-y-4">
       <div className="flex gap-2 px-2">
-        <Button variant={subTab === "requests" ? "primary" : "neutral"} onClick={() => setSubTab("requests")}>
+        <Button variant="primary" active={subTab === "requests"} onClick={() => setSubTab("requests")}>
           {t("buttons.leaveRequest")}
         </Button>
-        <Button variant={subTab === "types" ? "primary" : "neutral"} onClick={() => setSubTab("types")}>
+        <Button variant="primary" active={subTab === "types"} onClick={() => setSubTab("types")}>
           {t("buttons.leaveType")}
         </Button>
       </div>
