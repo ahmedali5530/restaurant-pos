@@ -19,7 +19,8 @@
     "backfill:order-discounts": "node scripts/backfill-order-discounts.mjs",
     "print-server": "cd printing && npm start",
     "payment-server": "cd payments && npm start",
-    "tracking-server": "cd tracking-api && npm start"
+    "tracking-server": "cd tracking-api && npm start",
+    "api-server": "cd api && npm start"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.1.2",

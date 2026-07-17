@@ -1,11 +1,8 @@
-const apiUrl = import.meta.env.VITE_OPENAI_API_URL as string | undefined;
-const proxyUrl = import.meta.env.VITE_OPENAI_PROXY_URL as string | undefined;
-const apiKey = import.meta.env.VITE_OPENAI_API_KEY as string | undefined;
-const model = (import.meta.env.VITE_OPENAI_MODEL as string | undefined) || "gpt-4o-mini";
+import {apiUrl} from "@/lib/api.service.ts";
 
-const resolveApiUrl = () => proxyUrl || apiUrl;
-
-const isAzureUrl = (url: string) => url.includes("openai.azure.com");
+// Chat completions are proxied through the backend `api` service so the OpenAI
+// key, URL, and model never ship in the client bundle. See `api/src/modules/ai`.
+const CHAT_COMPLETIONS_PATH = "/ai/chat/completions";
 
 export interface OpenAIToolDefinition {
   type: "function";
@@ -39,19 +36,6 @@ export interface OpenAIChatResponse {
   }[];
 }
 
-const getHeaders = (url: string) => {
-  if (!apiKey) {
-    throw new Error("OpenAI API key is not configured. Set VITE_OPENAI_API_KEY in your environment.");
-  }
-
-  return {
-    "Content-Type": "application/json",
-    ...(isAzureUrl(url)
-      ? {"api-key": apiKey}
-      : {Authorization: `Bearer ${apiKey}`}),
-  };
-};
-
 export const callOpenAIChat = async ({
   messages,
   tools,
@@ -59,26 +43,24 @@ export const callOpenAIChat = async ({
   messages: OpenAIChatMessage[];
   tools?: OpenAIToolDefinition[];
 }): Promise<OpenAIChatResponse> => {
-  const resolvedUrl = resolveApiUrl();
-  if (!resolvedUrl) {
-    throw new Error("OpenAI API URL is not configured. Set VITE_OPENAI_API_URL or VITE_OPENAI_PROXY_URL in your environment.");
-  }
-
-  const body: Record<string, unknown> = {model, messages};
-  if (tools?.length) {
-    body.tools = tools;
-    body.tool_choice = "auto";
-  }
-
-  const response = await fetch(resolvedUrl, {
+  const response = await fetch(apiUrl(CHAT_COMPLETIONS_PATH), {
     method: "POST",
-    headers: getHeaders(resolvedUrl),
-    body: JSON.stringify(body),
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({messages, tools}),
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(errorText || `OpenAI request failed with status ${response.status}`);
+    let message = errorText;
+    try {
+      const parsed = JSON.parse(errorText) as {error?: string};
+      if (parsed?.error) {
+        message = parsed.error;
+      }
+    } catch {
+      // Non-JSON error body; use raw text.
+    }
+    throw new Error(message || `AI request failed with status ${response.status}`);
   }
 
   return response.json() as Promise<OpenAIChatResponse>;

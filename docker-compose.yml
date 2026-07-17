@@ -19,6 +19,7 @@ services:
       - payment
       - sync
       - tracking
+      - api
 
   surrealdb:
     image: surrealdb/surrealdb:v3.0.5
@@ -126,6 +127,24 @@ services:
     depends_on:
       - surrealdb
 
+  api:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./api:/app
+      - api-node_modules:/app/node_modules
+    env_file:
+      - ./api/.env
+    environment:
+      - API_PORT=3140
+      - API_HOST=0.0.0.0
+      - API_LOG_LEVEL=info
+      - API_ALLOWED_ORIGINS=${API_ALLOWED_ORIGINS:-http://localhost:5173}
+    command: sh -c "npm install && node server.js"
+    ports:
+      - "3140:3140"
+    restart: unless-stopped
+
   backup:
     image: docker:27-cli
     working_dir: /backup
@@ -178,4 +197,5 @@ volumes:
   payment-node_modules:
   sync-node_modules:
   tracking-api-node_modules:
+  api-node_modules:
 
