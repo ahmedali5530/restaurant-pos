@@ -1,106 +1,233 @@
-Restaurant POS Community License
+POSR Source Available License (PSAL)
 Version 1.0
-
 Copyright (c) 2026 Ahmed Ali
 
-This license governs use of the Restaurant POS software, also known as POSR
-(the "Software"), including its source code, documentation, and all companion
-services distributed with this repository—including without limitation the
-print server, payment server, sync service, and tracking API.
+The POSR Source Available License ("License") governs the use of the POSR
+software ("Software"), including its source code, documentation, configuration
+files, APIs, example code, companion services, and any software distributed as
+part of this repository, including but not limited to:
 
-1. Purpose
+  * POSR Restaurant POS
+  * Print Server
+  * Payment Server
+  * Synchronization Services
+  * Tracking APIs
+  * Supporting utilities
+  * Documentation
 
-This license permits developers, students, and businesses to view, study,
-modify, evaluate, and operate the Software while protecting the commercial
-interests of the copyright holder with respect to redistribution, resale,
-hosted offerings, and competing products.
+By copying, using, modifying, or distributing the Software, you agree to the
+terms of this License.
 
-2. Permissions
+--------------------------------------------------------------------------------
 
-Subject to this license, you may:
+1. Definitions
 
-  a. View, study, and modify the Software;
-  b. Fork the repository on GitHub or equivalent hosting platforms;
-  c. Build plugins, integrations, and extensions that interoperate with the
-     Software;
-  d. Use the Software for personal, educational, research, or evaluation
-     purposes;
-  e. Deploy the Software for internal testing; and
-  f. Use the unmodified Software commercially to operate your own business
-     (for example, running Restaurant POS at a restaurant or for a single
-     company), provided you do not violate Section 3 or Section 4.
+For the purposes of this License:
 
-3. Commercial Redistribution and Resale
+  * "Software" means all source code, compiled binaries, documentation, assets,
+    scripts, configuration files, APIs, examples, and companion services
+    distributed with or within this repository.
+  * "Internal Use" means use solely within an organization or by a single legal
+    entity and its wholly owned subsidiaries.
+  * "Commercial Use" means using the Software in the day-to-day operation of a
+    business that is not itself selling, licensing, hosting, or redistributing
+    the Software. Examples include operating restaurants, cafes, hotels, food
+    trucks, or bakeries.
+  * "Derivative Work" means any modified version of the Software based upon or
+    incorporating substantial portions of the Software.
 
-Commercial use of the unmodified Software to operate your own business is
-permitted under Section 2(f).
+--------------------------------------------------------------------------------
 
-Without a separate written commercial license from the copyright holder,
-you may not:
+2. Rights Granted
 
-  a. Sell the Software;
-  b. Resell deployments or installation services as a productized offering
-     of the Software itself;
-  c. Offer the Software as a hosted or multi-tenant SaaS;
-  d. White-label the Software;
-  e. Create a competing commercial point-of-sale product based on the
-     Software;
-  f. Redistribute modified versions of the Software commercially; or
-  g. Bundle the Software into another commercial product for sale or
-     distribution.
+Subject to the terms of this License, you are granted a worldwide,
+non-exclusive, royalty-free, non-transferable right to:
 
-4. Private Modifications
+  * View, study, and clone the source code.
+  * Create and maintain public or private forks (provided public forks are
+    distributed under this identical License).
+  * Modify the Software for Internal Use or private Commercial Use.
+  * Build plugins, extensions, themes, integrations, fiscal connectors, payment
+    integrations, printer drivers, and APIs that communicate with the Software.
+  * Use the Software for educational, research, testing, demonstration,
+    development, and evaluation purposes.
+  * Use the Software, including privately modified versions, to operate your own
+    business (pursuant to Section 3).
 
-You may create private modifications for internal use within your
-organization.
+Private modifications are permitted. Nothing in this License requires you to
+publish or upstream your internal modifications.
 
-You may not distribute, publish, or sell closed-source derivatives of the
-Software without obtaining a commercial license from the copyright holder.
+--------------------------------------------------------------------------------
 
-5. Attribution
+3. Commercial Operation
 
-You must retain all copyright notices, license notices, and attribution
-present in the Software and its documentation. Do not remove or obscure
-existing copyright notices.
+You may use the Software commercially to operate your own business (e.g.,
+restaurants, restaurant chains, cafes, bakeries, hotels, resorts, catering
+companies, food courts) across any number of physical locations owned or
+controlled by the same legal entity. No additional commercial license fees are
+required for this self-hosted operational usage.
 
-6. Contributions
+Contractor/Consultant Exception: You may hire third-party contractors or IT
+consultants to install, configure, customize, or maintain the Software solely on
+your behalf for your own business operations, provided they do not resell the
+Software to other parties.
 
-By submitting a contribution to this project (including pull requests,
-patches, and other submissions), you license that contribution to the
-project owner under terms that allow its inclusion in the Software under
-this license or under any subsequent license chosen by the copyright
-holder. Copyright in the Software remains with Ahmed Ali, except for
-third-party components distributed under their own licenses.
+--------------------------------------------------------------------------------
 
-7. Third-Party Components
+4. Restrictions
 
-The Software may include third-party libraries and components. Those
-components remain subject to their own licenses. Nothing in this license
-grants rights to third-party intellectual property beyond what those
-licenses allow.
+Unless you have obtained a separate written Commercial License from the
+copyright holder, you may NOT:
 
-8. Commercial Licensing
+4.1 Redistribution
+  * Sell, rent, lease, sublicense, or redistribute the Software or its
+    derivatives as a standalone product.
+  * Package the Software (or its derivatives) into installation packages,
+    container images, or binaries for commercial sale or redistribution to
+    third parties.
 
-Organizations that wish to white-label, resell, host as SaaS, build
-commercial products based on the Software, or redistribute modified
-versions must obtain a separate commercial license from the copyright
-holder.
+4.2 White-labeling
+  * Remove, alter, or obscure POSR branding, logos, copyright headers, or UI
+    attribution notices.
+  * Replace branding to market the Software under another name for commercial
+    redistribution.
 
-Contact: ahmedali5530@gmail.com
+4.3 SaaS, Hosting, and Cloud Services
+  * Offer the Software, or any derivative of it, as a Software-as-a-Service
+    (SaaS), Platform-as-a-Service (PaaS), or hosted multi-tenant platform.
+  * Rent or lease access to hosted instances of the Software to third parties.
+  * Offer commercial managed hosting services of the Software to third-party
+    organizations.
 
-9. No Warranty
+4.4 Competing Commercial Products
+  * Use the Software, or substantial portions of its code/architecture, to
+    design, develop, market, sell, or distribute a competing commercial
+    point-of-sale, restaurant management, or hospitality software product.
+
+4.5 Commercial Services
+  * Provide commercial deployments, OEM software integration, or pre-configured
+    hardware appliances containing the Software to third parties as a commercial
+    service.
+
+--------------------------------------------------------------------------------
+
+5. Private Modifications
+
+You may modify the Software for your own organization without limitation.
+However, you may not distribute these modified versions outside your
+organization (except to your legal subsidiaries or through public repository
+forks under this same License) without a separate Commercial License.
+
+--------------------------------------------------------------------------------
+
+6. Plugins and Integrations
+
+Independent works such as plugins, integrations, drivers, APIs, payment
+gateways, tax authority connectors, printer drivers, themes, and extensions that
+merely communicate with the Software through documented interfaces are not
+considered "Derivative Works" solely because they interface with the Software.
+Ownership of those independent works remains with their respective authors.
+
+--------------------------------------------------------------------------------
+
+7. Attribution
+
+You must retain all original copyright notices, license texts, and attribution
+notices in all copies or substantial portions of the Software. You may not
+remove or obscure copyright information contained within the user interface or
+source files.
+
+--------------------------------------------------------------------------------
+
+8. Trademarks
+
+This License grants no trademark rights. You may not use the names POSR, POSR
+Restaurant POS, or any associated logos, icons, branding, or marketing materials
+to imply endorsement, sponsorship, or affiliation without explicit written
+permission. You may, however, accurately state that your independent software
+"integrates with" or "is designed for" POSR.
+
+--------------------------------------------------------------------------------
+
+9. Contributions
+
+Unless otherwise agreed in writing, any contribution submitted by you to the
+project (including pull requests, patches, issues, code, documentation, bug
+fixes, or translations) grants the copyright holder a perpetual, worldwide,
+non-exclusive, royalty-free, sublicensable, and transferable license to use,
+modify, distribute, and license that contribution under this License or any
+future versions of this License. Contributors retain copyright to their original
+contributions.
+
+--------------------------------------------------------------------------------
+
+10. Third-Party Components
+
+The Software may contain or bundle third-party libraries, dependencies, or
+components governed by open-source licenses. Nothing in this License overrides,
+modifies, or replaces your rights and obligations under those respective
+third-party licenses.
+
+--------------------------------------------------------------------------------
+
+11. Commercial Licensing
+
+Organizations requiring rights outside the scope of this License (such as
+white-labeling, SaaS hosting, managed multi-tenant hosting, OEM distribution,
+pre-installed hardware appliances, or enterprise support) may purchase a
+Commercial License.
+
+For licensing inquiries, contact:
+
+  * Email: ahmedali5530@gmail.com
+
+--------------------------------------------------------------------------------
+
+12. Warranty Disclaimer
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL
-THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF,
-OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-10. Termination
+--------------------------------------------------------------------------------
 
-Any violation of this license immediately terminates the rights granted
-herein. Upon termination, you must cease use and distribution of the
-Software that depends on those rights, except as permitted by applicable
-law.
+13. Limitation of Liability
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY INDIRECT, SPECIAL, INCIDENTAL, CONSEQUENTIAL,
+OR PUNITIVE DAMAGES (INCLUDING, BUT NOT LIMITED TO, LOSS OF PROFITS, BUSINESS
+INTERRUPTION, LOSS OF DATA, OR LOSS OF BUSINESS REPUTATION) ARISING OUT OF THE
+USE OR INABILITY TO USE THE SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+DAMAGE.
+
+--------------------------------------------------------------------------------
+
+14. Termination
+
+Any breach of this License automatically and immediately terminates all rights
+granted to you hereunder. Upon termination, you must immediately cease all use,
+deployment, modification, and distribution of the Software and destroy all copies
+of the Software in your possession.
+
+--------------------------------------------------------------------------------
+
+15. Governing Law
+
+This License shall be governed by, construed, and enforced in accordance with
+the laws of the Islamic Republic of Pakistan, without regard to conflict of laws
+principles. Any legal action or dispute arising under this License shall be
+subject to the exclusive jurisdiction of the competent courts located in
+Pakistan.
+
+--------------------------------------------------------------------------------
+
+16. Entire Agreement
+
+This License constitutes the entire agreement between you and the copyright
+holder regarding the use of the Software and supersedes any prior or
+contemporaneous oral or written understandings or agreements, unless explicitly
+superseded by a separate written agreement signed by the copyright holder.

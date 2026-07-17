@@ -343,3 +343,21 @@ Submit a PR 🚀
 If this project helps you, please consider giving it a ⭐ on GitHub.
 
 It helps increase visibility and motivates continued development.
+
+---
+
+## 📜 License
+
+POSR is distributed under the **POSR Source Available License (PSAL) v1.0**. See the [LICENSE](LICENSE) file for the full text.
+
+In short:
+
+- ✅ View, study, clone, fork, and modify the source code.
+- ✅ Build plugins, integrations, drivers, and payment/fiscal connectors.
+- ✅ Use it to run your own business (restaurants, cafes, hotels, etc.) across any number of locations — no fees.
+- ✅ Hire contractors to install, configure, and maintain it for you.
+- ❌ No selling, reselling, or redistributing the Software as a product.
+- ❌ No offering it as a hosted/multi-tenant SaaS.
+- ❌ No white-labeling or building a competing commercial POS from it.
+
+Need white-labeling, SaaS hosting, OEM distribution, or enterprise support? A separate **Commercial License** is available — contact **ahmedali5530@gmail.com**.
