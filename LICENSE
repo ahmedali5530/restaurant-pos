@@ -1,0 +1,106 @@
+Restaurant POS Community License
+Version 1.0
+
+Copyright (c) 2026 Ahmed Ali
+
+This license governs use of the Restaurant POS software, also known as POSR
+(the "Software"), including its source code, documentation, and all companion
+services distributed with this repository—including without limitation the
+print server, payment server, sync service, and tracking API.
+
+1. Purpose
+
+This license permits developers, students, and businesses to view, study,
+modify, evaluate, and operate the Software while protecting the commercial
+interests of the copyright holder with respect to redistribution, resale,
+hosted offerings, and competing products.
+
+2. Permissions
+
+Subject to this license, you may:
+
+  a. View, study, and modify the Software;
+  b. Fork the repository on GitHub or equivalent hosting platforms;
+  c. Build plugins, integrations, and extensions that interoperate with the
+     Software;
+  d. Use the Software for personal, educational, research, or evaluation
+     purposes;
+  e. Deploy the Software for internal testing; and
+  f. Use the unmodified Software commercially to operate your own business
+     (for example, running Restaurant POS at a restaurant or for a single
+     company), provided you do not violate Section 3 or Section 4.
+
+3. Commercial Redistribution and Resale
+
+Commercial use of the unmodified Software to operate your own business is
+permitted under Section 2(f).
+
+Without a separate written commercial license from the copyright holder,
+you may not:
+
+  a. Sell the Software;
+  b. Resell deployments or installation services as a productized offering
+     of the Software itself;
+  c. Offer the Software as a hosted or multi-tenant SaaS;
+  d. White-label the Software;
+  e. Create a competing commercial point-of-sale product based on the
+     Software;
+  f. Redistribute modified versions of the Software commercially; or
+  g. Bundle the Software into another commercial product for sale or
+     distribution.
+
+4. Private Modifications
+
+You may create private modifications for internal use within your
+organization.
+
+You may not distribute, publish, or sell closed-source derivatives of the
+Software without obtaining a commercial license from the copyright holder.
+
+5. Attribution
+
+You must retain all copyright notices, license notices, and attribution
+present in the Software and its documentation. Do not remove or obscure
+existing copyright notices.
+
+6. Contributions
+
+By submitting a contribution to this project (including pull requests,
+patches, and other submissions), you license that contribution to the
+project owner under terms that allow its inclusion in the Software under
+this license or under any subsequent license chosen by the copyright
+holder. Copyright in the Software remains with Ahmed Ali, except for
+third-party components distributed under their own licenses.
+
+7. Third-Party Components
+
+The Software may include third-party libraries and components. Those
+components remain subject to their own licenses. Nothing in this license
+grants rights to third-party intellectual property beyond what those
+licenses allow.
+
+8. Commercial Licensing
+
+Organizations that wish to white-label, resell, host as SaaS, build
+commercial products based on the Software, or redistribute modified
+versions must obtain a separate commercial license from the copyright
+holder.
+
+Contact: ahmedali5530@gmail.com
+
+9. No Warranty
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF,
+OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+10. Termination
+
+Any violation of this license immediately terminates the rights granted
+herein. Upon termination, you must cease use and distribution of the
+Software that depends on those rights, except as permitted by applicable
+law.

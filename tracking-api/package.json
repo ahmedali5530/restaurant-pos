@@ -2,6 +2,7 @@
   "name": "posr-tracking-api",
   "version": "1.0.0",
   "private": true,
+  "license": "SEE LICENSE IN LICENSE",
   "description": "Tracking ingestion API for POSR",
   "main": "server.js",
   "scripts": {

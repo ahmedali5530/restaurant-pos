@@ -1,6 +1,7 @@
 {
   "name": "posr-print-server",
   "version": "1.0.0",
+  "license": "SEE LICENSE IN LICENSE",
   "description": "POS print server with escpos drivers and print builders",
   "main": "server.js",
   "scripts": {
