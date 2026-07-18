@@ -107,5 +107,24 @@
     "showModifiersInOrderCard": "Mostrar modificadores de artículos en la tarjeta de pedido",
     "showModifierPriceInOrderCard": "Mostrar precio de modificadores en la tarjeta de pedido",
     "showTotalInPaymentCard": "Mostrar totales de artículos en el cuadro de pago"
+  },
+  "inventory": {
+    "title": "Inventario",
+    "description": "Cambio al libro mayor y seguimiento avanzado opcional. Mantenga lote/caducidad desactivados salvo que los necesite.",
+    "ledgerEnabled": "Usar libro de inventario (única fuente de verdad)",
+    "ledgerHint": "Active solo después del backfill y la conciliación.",
+    "costingMethod": "Método de costeo",
+    "costing": {
+      "average": "Promedio ponderado",
+      "fifo": "FIFO",
+      "fefo": "FEFO"
+    },
+    "enableBatchTracking": "Activar seguimiento de lotes",
+    "enableExpiryTracking": "Activar seguimiento de caducidad",
+    "enableManufacturingDate": "Activar fechas de fabricación",
+    "requireBatchSelection": "Requerir selección de lote en salidas",
+    "updated": "Ajustes de inventario actualizados",
+    "save": "Guardar",
+    "saveDescription": "Guardar ajustes de inventario"
   }
 }

@@ -4,22 +4,30 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
-import {InventoryStore} from "@/api/model/inventory_store.ts";
+import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {formatNumber} from "@/lib/utils.ts";
-import {fetchStoreInventoryBreakdown, getReorderLevelForStore, isBelowReorderLevel} from "@/utils/inventory.ts";
+import {getReorderLevelForStore, isBelowReorderLevel} from "@/utils/inventory.ts";
 import {buildRecordInsideCondition} from "@/api/reports/shared/query.ts";
+import {recordIdToString, recordToString} from "@/api/reports/shared/records.ts";
+import {fetchLedgerNetsByStore} from "@/lib/inventory/ledger.service.ts";
 
 type InventoryBalance = {
   itemId: string;
   itemName: string;
   itemCode?: string;
   category: string;
-  storeId: string;
-  storeName: string;
+  locationId: string;
+  locationName: string;
   quantity: number;
   unit: string;
   reorderLevel: number;
   belowReorder: boolean;
+};
+
+const normalizeKey = (id: unknown): string => {
+  const str = recordIdToString(id) || String(id ?? "");
+  const colon = str.lastIndexOf(":");
+  return colon >= 0 ? str.slice(colon + 1) : str;
 };
 
 const parseFilters = () => {
@@ -48,7 +56,6 @@ export const CurrentInventoryReport = () => {
         setLoading(true);
         setError(null);
 
-        // Fetch all items (or filtered items)
         let itemsQuery = `SELECT * FROM ${Tables.inventory_items} FETCH category`;
         const itemsParams: Record<string, any> = {};
         if (filters.itemIds.length > 0) {
@@ -59,67 +66,112 @@ export const CurrentInventoryReport = () => {
           }
         }
 
-        // Fetch all stores
-        const storesQuery = `SELECT * FROM ${Tables.inventory_stores}`;
+        const locationsQuery = `SELECT * FROM ${Tables.inventory_locations} WHERE is_active = true`;
 
-        const [itemsResult, storesResult] = await Promise.all([
+        const [itemsResult, locationsResult, ledgerNets] = await Promise.all([
           queryRef.current(itemsQuery, itemsParams),
-          queryRef.current(storesQuery),
+          queryRef.current(locationsQuery),
+          fetchLedgerNetsByStore(db),
         ]);
 
-        // SurrealDB returns ActionResult[] - handle both result[0] and result[0].result structures
         const items = (itemsResult?.[0]?.result ?? itemsResult?.[0] ?? []) as InventoryItem[];
-        const stores = (storesResult?.[0]?.result ?? storesResult?.[0] ?? []) as InventoryStore[];
+        const locations = (locationsResult?.[0]?.result ?? locationsResult?.[0] ?? []) as InventoryLocation[];
 
         if (import.meta.env.DEV) {
-          console.log('Current Inventory Report - Items:', items.length, 'Stores:', stores.length);
+          console.log('Current Inventory Report - Items:', items.length, 'Locations:', locations.length, 'Ledger nets:', ledgerNets.length);
         }
 
-        if (items.length === 0) {
+        if (items.length === 0 || locations.length === 0) {
           setBalances([]);
           setLoading(false);
           return;
         }
 
-        if (stores.length === 0) {
-          setBalances([]);
-          setLoading(false);
-          return;
-        }
-
-        // Calculate balance for each item-store combination
-        const balancePromises: Promise<InventoryBalance>[] = [];
-
+        const itemByKey = new Map<string, InventoryItem>();
+        const allowedItemKeys = new Set<string>();
         for (const item of items) {
-          for (const store of stores) {
-            balancePromises.push(
-              (async () => {
-                const itemId = String(item.id);
-                const storeId = String(store.id);
-                const breakdown = await fetchStoreInventoryBreakdown(db, itemId, storeId);
-                const reorderLevel = getReorderLevelForStore(item, storeId);
+          const full = recordToString(item.id);
+          itemByKey.set(full, item);
+          itemByKey.set(normalizeKey(full), item);
+          allowedItemKeys.add(normalizeKey(full));
+          allowedItemKeys.add(full);
+        }
 
-                return {
-                  itemId: item.id,
-                  itemName: item.name || "",
-                  itemCode: item.code,
-                  category: item.category?.name || "",
-                  storeId: store.id,
-                  storeName: store.name || "",
-                  quantity: breakdown.net,
-                  unit: item.uom || "",
-                  reorderLevel,
-                  belowReorder: isBelowReorderLevel(item, storeId, breakdown.net),
-                };
-              })()
-            );
+        const locationByKey = new Map<string, InventoryLocation>();
+        for (const location of locations) {
+          const full = recordToString(location.id);
+          locationByKey.set(full, location);
+          locationByKey.set(normalizeKey(full), location);
+        }
+
+        const allBalances: InventoryBalance[] = [];
+        const seenPairs = new Set<string>();
+
+        for (const row of ledgerNets) {
+          const itemKey = normalizeKey(row.itemId);
+          if (
+            filters.itemIds.length > 0
+            && !allowedItemKeys.has(itemKey)
+            && !allowedItemKeys.has(row.itemId)
+          ) {
+            continue;
+          }
+
+          const item = itemByKey.get(row.itemId) || itemByKey.get(itemKey);
+          if (!item) continue;
+
+          const location =
+            locationByKey.get(row.locationId) || locationByKey.get(normalizeKey(row.locationId));
+          if (!location) continue;
+
+          const itemId = recordToString(item.id);
+          const locationId = recordToString(location.id);
+          const pairKey = `${normalizeKey(itemId)}:${normalizeKey(locationId)}`;
+          if (seenPairs.has(pairKey)) continue;
+          seenPairs.add(pairKey);
+
+          const reorderLevel = getReorderLevelForStore(item, locationId);
+          allBalances.push({
+            itemId,
+            itemName: item.name || "",
+            itemCode: item.code,
+            category: item.category?.name || "",
+            locationId,
+            locationName: location.name || "",
+            quantity: row.net,
+            unit: item.uom || "",
+            reorderLevel,
+            belowReorder: isBelowReorderLevel(item, locationId, row.net),
+          });
+        }
+
+        // Zero-stock rows only where reorder is configured and pair is missing
+        for (const item of items) {
+          const itemId = recordToString(item.id);
+          for (const location of locations) {
+            const locationId = recordToString(location.id);
+            const pairKey = `${normalizeKey(itemId)}:${normalizeKey(locationId)}`;
+            if (seenPairs.has(pairKey)) continue;
+
+            const reorderLevel = getReorderLevelForStore(item, locationId);
+            if (reorderLevel <= 0) continue;
+
+            seenPairs.add(pairKey);
+            allBalances.push({
+              itemId,
+              itemName: item.name || "",
+              itemCode: item.code,
+              category: item.category?.name || "",
+              locationId,
+              locationName: location.name || "",
+              quantity: 0,
+              unit: item.uom || "",
+              reorderLevel,
+              belowReorder: true,
+            });
           }
         }
 
-        const allBalances = await Promise.all(balancePromises);
-        
-        // Filter out items with zero or negative balance, or show all if needed
-        // For now, show all balances including zero
         setBalances(allBalances);
       } catch (err) {
         console.error("Failed to load current inventory report", err);
@@ -148,11 +200,11 @@ export const CurrentInventoryReport = () => {
     );
   }
 
-  // Sort balances by item name, then store name
+  // Sort balances by item name, then location name
   const sortedBalances = [...balances].sort((a, b) => {
     const itemCompare = a.itemName.localeCompare(b.itemName);
     if (itemCompare !== 0) return itemCompare;
-    return a.storeName.localeCompare(b.storeName);
+    return a.locationName.localeCompare(b.locationName);
   });
 
   return (
@@ -169,7 +221,7 @@ export const CurrentInventoryReport = () => {
                 Category
               </th>
               <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-neutral-700">
-                Store
+                {t('inventory:columns.location')}
               </th>
               <th scope="col" className="py-3.5 px-3 text-right text-sm font-semibold text-neutral-700">
                 Current Balance
@@ -185,7 +237,7 @@ export const CurrentInventoryReport = () => {
             <tbody className="divide-y divide-neutral-100 bg-white">
             {sortedBalances.length > 0 ? (
               sortedBalances.map((balance, index) => (
-                <tr key={`${balance.itemId}-${balance.storeId}-${index}`}>
+                <tr key={`${balance.itemId}-${balance.locationId}-${index}`}>
                   <td className="py-4 pl-6 pr-3 text-sm font-medium text-neutral-800">
                     {balance.itemName}{balance.itemCode ? ` (${balance.itemCode})` : ""}
                   </td>
@@ -193,7 +245,7 @@ export const CurrentInventoryReport = () => {
                     {balance.category}
                   </td>
                   <td className="py-4 px-3 text-sm text-neutral-700">
-                    {balance.storeName}
+                    {balance.locationName}
                   </td>
                   <td className={`py-4 px-3 text-sm text-right ${balance.belowReorder ? 'text-danger-600 font-medium' : 'text-neutral-700'}`}>
                     {formatNumber(balance.quantity)} {balance.unit}
@@ -220,4 +272,3 @@ export const CurrentInventoryReport = () => {
     </ReportsLayout>
   );
 };
-

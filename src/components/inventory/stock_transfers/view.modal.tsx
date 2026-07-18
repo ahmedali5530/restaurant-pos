@@ -3,7 +3,7 @@ import {useTranslation} from "react-i18next";
 import {StockTransfer} from "@/api/model/stock_transfer.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {useDB} from "@/api/db/db.ts";
-import {getStockTransfer, inferTransferType} from "@/lib/inventory/stock_transfer.service.ts";
+import {getStockTransfer} from "@/lib/inventory/stock_transfer.service.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 import classNames from "classnames";
 
@@ -54,8 +54,6 @@ export const StockTransferViewModal = ({open, transfer, onClose}: Props) => {
     return null;
   }
 
-  const type = viewTransfer ? inferTransferType(viewTransfer) : "kitchen";
-
   return (
     <Modal
       title={t("stockTransfer.viewTitle")}
@@ -74,17 +72,8 @@ export const StockTransferViewModal = ({open, transfer, onClose}: Props) => {
           <div className="bg-white rounded-xl shadow border border-neutral-200 p-4 flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span
-                  className={classNames(
-                    "tag",
-                    type === "kitchen"
-                      ? "bg-info-100 text-info-800"
-                      : "bg-neutral-100 text-neutral-800"
-                  )}
-                >
-                  {type === "kitchen"
-                    ? t("stockTransfer.typeKitchen")
-                    : t("stockTransfer.typeStore")}
+                <span className={classNames("tag", "bg-neutral-100 text-neutral-800")}>
+                  {t("stockTransfer.typeStore")}
                 </span>
                 <div className="text-lg font-semibold">{t("stockTransfer.viewTitle")}</div>
               </div>
@@ -98,26 +87,18 @@ export const StockTransferViewModal = ({open, transfer, onClose}: Props) => {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-neutral-700">
               <div>
                 <div className="text-neutral-500 text-xs uppercase">
-                  {type === "kitchen"
-                    ? t("stockTransfer.fromKitchen")
-                    : t("stockTransfer.fromStore")}
+                  {t("stockTransfer.fromStore")}
                 </div>
                 <div>
-                  {type === "kitchen"
-                    ? viewTransfer.from_kitchen?.name ?? "—"
-                    : viewTransfer.from_store?.name ?? "—"}
+                  {viewTransfer.from_location?.name ?? viewTransfer.from_store?.name ?? "—"}
                 </div>
               </div>
               <div>
                 <div className="text-neutral-500 text-xs uppercase">
-                  {type === "kitchen"
-                    ? t("stockTransfer.toKitchen")
-                    : t("stockTransfer.toStore")}
+                  {t("stockTransfer.toStore")}
                 </div>
                 <div>
-                  {type === "kitchen"
-                    ? viewTransfer.to_kitchen?.name ?? "—"
-                    : viewTransfer.to_store?.name ?? "—"}
+                  {viewTransfer.to_location?.name ?? viewTransfer.to_store?.name ?? "—"}
                 </div>
               </div>
               <div>

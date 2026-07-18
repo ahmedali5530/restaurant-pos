@@ -511,7 +511,12 @@
       "Integration providers": "Entegrasyon sağlayıcıları",
       "Integration configuration": "Entegrasyon yapılandırması",
       "Integration health": "Entegrasyon durumu",
-      "Integration queue": "Entegrasyon kuyruğu"
+      "Integration queue": "Entegrasyon kuyruğu",
+      "Adjustments": "Adjustments",
+      "Edit Adjustments": "Edit Adjustments",
+      "Delete Adjustments": "Delete Adjustments",
+      "Inventory Settings": "Inventory Settings",
+      "Locations": "Locations"
     }
   },
   "discountEngine": {

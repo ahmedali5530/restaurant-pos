@@ -32,7 +32,7 @@ import {InventoryFormPricedLineTotal} from "@/components/inventory/common/form.l
 interface InventoryIssueReturnItemFormValue {
   item: { label: string; value: string } | null;
   issued_item?: { label: string; value: string } | null;
-  store?: { label: string; value: string } | null;
+  location?: { label: string; value: string } | null;
   issued?: number | string;
   quantity: number | string;
   comments?: string;
@@ -104,7 +104,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
         label: yup.string(),
         value: yup.string()
       }).nullable().optional(),
-      store: yup.object({
+      location: yup.object({
         label: yup.string(),
         value: yup.string()
       }).nullable().optional(),
@@ -125,7 +125,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
     data: issues,
     fetchData: fetchIssues,
     isFetching: loadingIssues
-  } = useApi<SettingsData<InventoryIssue>>(Tables.inventory_issues, [], [], 0, 9999, ["issued_to", "kitchen", "items", "items.item", "items.store"], {
+  } = useApi<SettingsData<InventoryIssue>>(Tables.inventory_issues, [], [], 0, 9999, ["issued_to", "kitchen", "items", "items.item", "items.location", "items.store"], {
     enabled: false
   });
 
@@ -134,14 +134,6 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
     fetchData: fetchItems,
     isFetching: loadingItems
   } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 9999, [], {
-    enabled: false
-  });
-
-  const {
-    data: stores,
-    fetchData: fetchStores,
-    isFetching: loadingStores
-  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_stores, [], [], 0, 9999, [], {
     enabled: false
   });
 
@@ -180,7 +172,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
       items: [{
         item: null,
         issued_item: null,
-        store: null,
+        location: null,
         issued: undefined,
         quantity: 1,
         comments: ""
@@ -199,9 +191,8 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
       fetchItems();
       fetchUsers();
       fetchKitchens();
-      fetchStores();
     }
-  }, [open, fetchIssues, fetchItems, fetchUsers, fetchKitchens, fetchStores]);
+  }, [open, fetchIssues, fetchItems, fetchUsers, fetchKitchens]);
 
   useEffect(() => {
     if (data) {
@@ -221,23 +212,30 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
         } : null,
         date: data.created_at ? dateToCalendarDate(toJsDate(data.created_at)) : getToday(),
         documents: undefined,
-        items: data.items?.map(item => ({
-          item: item.item ? {
-            label: item.item.name,
-            value: item.item.id
-          } : null,
-          issued_item: item.issued_item ? {
-            label: item.issued_item.item?.name ? `${item.issued_item.item.name} (${item.issued_item.quantity})` : item.issued_item.id,
-            value: item.issued_item.id
-          } : null,
-          store: (item.store || item.issued_item?.store) ? {
-            label: (item.store || item.issued_item?.store)?.name,
-            value: (item.store || item.issued_item?.store)?.id
-          } : null,
-          issued: item.issued ?? undefined,
-          quantity: item.quantity ?? 1,
-          comments: item.comments ?? "",
-        }))
+        items: data.items?.map(item => {
+          const loc =
+            (item as any).location ||
+            (item.issued_item as any)?.location ||
+            item.store ||
+            item.issued_item?.store;
+          return {
+            item: item.item ? {
+              label: item.item.name,
+              value: item.item.id
+            } : null,
+            issued_item: item.issued_item ? {
+              label: item.issued_item.item?.name ? `${item.issued_item.item.name} (${item.issued_item.quantity})` : item.issued_item.id,
+              value: item.issued_item.id
+            } : null,
+            location: loc ? {
+              label: loc?.name,
+              value: loc?.id
+            } : null,
+            issued: item.issued ?? undefined,
+            quantity: item.quantity ?? 1,
+            comments: item.comments ?? "",
+          };
+        })
       });
     } else if (open) {
       reset({
@@ -250,7 +248,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
         items: [{
           item: null,
           issued_item: null,
-          store: null,
+          location: null,
           issued: undefined,
           quantity: 1,
           comments: "",
@@ -321,23 +319,26 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
 
       // Load items from the issuance
       if (selectedIssuance.items && selectedIssuance.items.length > 0) {
-        const newItems = selectedIssuance.items.map((issueItem) => ({
-          item: issueItem.item ? {
-            label: `${issueItem.item.name}-${issueItem.item.code}`,
-            value: issueItem.item.id
-          } : null,
-          issued_item: {
-            label: issueItem.item?.name ? `${issueItem.item.name} (${issueItem.quantity})` : issueItem.id,
-            value: issueItem.id
-          },
-          store: issueItem.store ? {
-            label: issueItem.store.name,
-            value: issueItem.store.id
-          } : null,
-          issued: issueItem.quantity ?? undefined,
-          quantity: issueItem.quantity ?? 1,
-          comments: "",
-        }));
+        const newItems = selectedIssuance.items.map((issueItem) => {
+          const loc = (issueItem as any).location ?? issueItem.store;
+          return {
+            item: issueItem.item ? {
+              label: `${issueItem.item.name}-${issueItem.item.code}`,
+              value: issueItem.item.id
+            } : null,
+            issued_item: {
+              label: issueItem.item?.name ? `${issueItem.item.name} (${issueItem.quantity})` : issueItem.id,
+              value: issueItem.id
+            },
+            location: loc ? {
+              label: loc.name,
+              value: loc.id
+            } : null,
+            issued: issueItem.quantity ?? undefined,
+            quantity: issueItem.quantity ?? 1,
+            comments: "",
+          };
+        });
         replace(newItems);
       } else {
         replace([]);
@@ -363,7 +364,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
       items: [{
         item: null,
         issued_item: null,
-        store: null,
+        location: null,
         issued: undefined,
         quantity: 1,
         comments: "",
@@ -452,7 +453,9 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
             if (!issuedId || !issueItem.id) return false;
             return String(issueItem.id) === String(issuedId);
           });
-          const storeValue = item.store?.value
+          const locationValue = item.location?.value
+            ?? (issuedIssueItem as any)?.location?.id
+            ?? (issuedIssueItem as any)?.location
             ?? issuedIssueItem?.store?.id
             ?? issuedIssueItem?.store;
 
@@ -460,7 +463,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
             issue_return: toRecordId(issueReturnIdString),
             item: item.item ? toRecordId(item.item.value) : undefined,
             issued_item: item.issued_item ? toRecordId(item.issued_item.value) : undefined,
-            store: storeValue ? toRecordId(storeValue) : undefined,
+            location: locationValue ? toRecordId(locationValue) : undefined,
             issued: item.issued !== undefined && item.issued !== "" ? Number(item.issued) : undefined,
             quantity: Number(item.quantity),
             price: issuedIssueItem?.price != null

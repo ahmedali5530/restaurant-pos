@@ -107,5 +107,24 @@
     "showModifiersInOrderCard": "Afficher les modificateurs des articles dans la fiche commande",
     "showModifierPriceInOrderCard": "Afficher le prix des modificateurs dans la fiche commande",
     "showTotalInPaymentCard": "Afficher les totaux des articles dans l'encadré de paiement"
+  },
+  "inventory": {
+    "title": "Inventaire",
+    "description": "Basculement vers le grand livre et suivi avancé optionnel. Gardez lot/péremption désactivés sauf besoin.",
+    "ledgerEnabled": "Utiliser le grand livre d'inventaire (source unique)",
+    "ledgerHint": "Activez uniquement après le backfill et la réconciliation.",
+    "costingMethod": "Méthode de coût",
+    "costing": {
+      "average": "Moyenne pondérée",
+      "fifo": "FIFO",
+      "fefo": "FEFO"
+    },
+    "enableBatchTracking": "Activer le suivi des lots",
+    "enableExpiryTracking": "Activer le suivi des dates de péremption",
+    "enableManufacturingDate": "Activer les dates de fabrication",
+    "requireBatchSelection": "Exiger la sélection du lot sur les sorties",
+    "updated": "Paramètres d'inventaire mis à jour",
+    "save": "Enregistrer",
+    "saveDescription": "Enregistrer les paramètres d'inventaire"
   }
 }

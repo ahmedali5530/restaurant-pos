@@ -9,10 +9,12 @@ import {
   type StockTransferLineInput,
 } from "@/lib/inventory/stock_transfer.service.ts";
 import {fetchBuffetConsumptionTotals} from "@/lib/inventory/buffet.service.ts";
-import {toStoreRecordId} from "@/lib/inventory/stock_transfer.service.ts";
 import {recordIdToString, recordToString} from "@/api/reports/shared/records.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import type {InventoryItem} from "@/api/model/inventory_item.ts";
+import {isInventoryLedgerEnabled} from "@/lib/inventory/settings.ts";
+import {computeBreakdownFromLedger, computeStockFromLedger} from "@/lib/inventory/ledger.service.ts";
+import {toLocationRecordId} from "@/lib/inventory/location.service.ts";
 
 type DatabaseClient = ReturnType<typeof useDB>;
 
@@ -27,6 +29,8 @@ export type StoreInventoryBreakdown = {
   productionInputs: number;
   productionOutputs: number;
   buffetConsumption: number;
+  /** Signed net of adjustment quantity_change (ledger); 0 on legacy path. */
+  adjustments: number;
   net: number;
 };
 
@@ -54,6 +58,7 @@ export const computeStoreNet = (breakdown: Omit<StoreInventoryBreakdown, "net">)
     - breakdown.productionInputs
     + breakdown.productionOutputs
     - breakdown.buffetConsumption
+    + (breakdown.adjustments ?? 0)
   );
 };
 
@@ -63,12 +68,13 @@ const toItemRecordIdForQuery = (itemId: unknown) => {
   return toRecordId(normalized);
 };
 
-const normalizeRecordParams = (itemId: unknown, storeId: unknown) => ({
+const normalizeRecordParams = (itemId: unknown, locationId: unknown) => ({
   item: toItemRecordIdForQuery(itemId),
-  store: toStoreRecordId(recordIdToString(storeId) || String(storeId)),
+  location: toLocationRecordId(recordIdToString(locationId) || String(locationId)),
 });
 
-export const fetchStoreInventoryBreakdown = async (
+/** Legacy movement-table aggregation (pre-ledger). Kept for backfill reconciliation. */
+export const fetchLegacyStoreInventoryBreakdown = async (
   db: DatabaseClient,
   itemId: string,
   storeId: string
@@ -89,23 +95,38 @@ export const fetchStoreInventoryBreakdown = async (
     buffetConsumption,
   ] = await Promise.all([
     db.query(
-      `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_purchase_items} WHERE item = $item AND store = $store GROUP ALL`,
+      `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_purchase_items}
+       WHERE item = $item AND (location = $location OR store = $location)
+         AND (purchase.status = 'posted' OR purchase.status = NONE)
+       GROUP ALL`,
       params
     ),
     db.query(
-      `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_purchase_return_items} WHERE item = $item AND purchase_item.store = $store GROUP ALL`,
+      `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_purchase_return_items}
+       WHERE item = $item AND (location = $location OR purchase_item.location = $location OR purchase_item.store = $location)
+         AND (purchase_return.status = 'posted' OR purchase_return.status = NONE)
+       GROUP ALL`,
       params
     ),
     db.query(
-      `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_issue_items} WHERE item = $item AND store = $store GROUP ALL`,
+      `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_issue_items}
+       WHERE item = $item AND (location = $location OR store = $location)
+         AND (issue.status = 'posted' OR issue.status = NONE)
+       GROUP ALL`,
       params
     ),
     db.query(
-      `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_issue_return_items} WHERE item = $item AND (store = $store OR issued_item.store = $store OR issue_return.store = $store) GROUP ALL`,
+      `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_issue_return_items}
+       WHERE item = $item AND (location = $location OR store = $location OR issued_item.location = $location OR issued_item.store = $location)
+         AND (issue_return.status = 'posted' OR issue_return.status = NONE)
+       GROUP ALL`,
       params
     ),
     db.query(
-      `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_waste_items} WHERE item = $item AND purchase_item != null AND purchase_item.store = $store GROUP ALL`,
+      `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_waste_items}
+       WHERE item = $item AND purchase_item != null AND (purchase_item.location = $location OR purchase_item.store = $location)
+         AND (waste.status = 'posted' OR waste.status = NONE)
+       GROUP ALL`,
       params
     ),
     fetchStoreTransferTotals(db, itemKey, storeKey),
@@ -125,6 +146,7 @@ export const fetchStoreInventoryBreakdown = async (
     productionInputs,
     productionOutputs,
     buffetConsumption,
+    adjustments: 0,
   };
 
   return {
@@ -134,15 +156,34 @@ export const fetchStoreInventoryBreakdown = async (
 };
 
 /**
+ * Fetches inventory breakdown. When inventory_ledger_enabled is on, reads from
+ * the unified ledger; otherwise uses legacy movement-table aggregation.
+ */
+export const fetchStoreInventoryBreakdown = async (
+  db: DatabaseClient,
+  itemId: string,
+  storeId: string
+): Promise<StoreInventoryBreakdown> => {
+  const ledgerEnabled = await isInventoryLedgerEnabled(db);
+  if (ledgerEnabled) {
+    return computeBreakdownFromLedger(db, itemId, storeId);
+  }
+  return fetchLegacyStoreInventoryBreakdown(db, itemId, storeId);
+};
+
+/**
  * Fetches the net available quantity of an item in a specific store.
- * Formula: purchases - returns - issues + issueReturns - waste - transfersOut + transfersIn - productionInputs + productionOutputs
  */
 export const fetchNetQuantity = async (
   db: DatabaseClient,
   itemId: string,
   storeId: string
 ): Promise<number> => {
-  const breakdown = await fetchStoreInventoryBreakdown(db, itemId, storeId);
+  const ledgerEnabled = await isInventoryLedgerEnabled(db);
+  if (ledgerEnabled) {
+    return computeStockFromLedger(db, itemId, storeId);
+  }
+  const breakdown = await fetchLegacyStoreInventoryBreakdown(db, itemId, storeId);
   return breakdown.net;
 };
 

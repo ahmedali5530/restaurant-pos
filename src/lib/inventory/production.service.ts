@@ -12,7 +12,7 @@ import {
   validateRecipe,
   type ScaledRecipeResult,
 } from "@/lib/inventory/production.calculations.ts";
-import {toStoreRecordId} from "@/lib/inventory/stock_transfer.service.ts";
+import {toLocationRecordId} from "@/lib/inventory/location.service.ts";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {validateProductionAvailability} from "@/utils/inventory.ts";
 import {fetchNextSequentialNumber} from "@/utils/recordNumbers.ts";
@@ -48,7 +48,9 @@ export type RecipeInput = {
 
 export type ProductionBatchCompleteInput = {
   recipeId: string;
-  storeId: string;
+  locationId?: string;
+  /** @deprecated use locationId */
+  storeId?: string;
   producedQty: number;
   batchNumber?: string;
   notes?: string;
@@ -56,6 +58,8 @@ export type ProductionBatchCompleteInput = {
 };
 
 export type ProductionBatchListFilters = {
+  locationId?: string;
+  /** @deprecated use locationId */
   storeId?: string;
   recipeId?: string;
   dateFrom?: string;
@@ -395,10 +399,12 @@ export const completeProductionBatch = async (
   if (!recipe.is_active) throw new Error("Recipe is not active");
 
   const scaled = await previewProductionBatch(db, input.recipeId, input.producedQty);
+  const locationId = input.locationId || input.storeId;
+  if (!locationId) throw new Error("Location is required");
 
   const availability = await validateProductionAvailability(
     db,
-    input.storeId,
+    locationId,
     scaled.inputs.map((line) => ({itemId: line.itemId, quantity: line.quantity}))
   );
 
@@ -409,12 +415,12 @@ export const completeProductionBatch = async (
   }
 
   const batchNumber = input.batchNumber?.trim() || (await generateBatchNumber(db));
-  const storeRef = toStoreRecordId(input.storeId);
+  const locationRef = toLocationRecordId(locationId);
   const now = nowSurrealDateTime();
 
   const [batchHeader] = await db.create(Tables.production_batches, {
     recipe: toRecipeRecordId(input.recipeId),
-    store: storeRef,
+    location: locationRef,
     batch_number: batchNumber,
     scale_factor: scaled.scaleFactor,
     produced_qty: Number(input.producedQty),
@@ -439,7 +445,7 @@ export const completeProductionBatch = async (
       db.create(Tables.production_batch_inputs, {
         batch: batchRef,
         item: toItemRecordId(line.itemId),
-        store: storeRef,
+        location: locationRef,
         quantity: line.quantity,
         unit_cost: line.unitCost,
         total_cost: line.totalCost,
@@ -478,7 +484,7 @@ export const completeProductionBatch = async (
       await db.create(Tables.production_batch_outputs, {
         batch: batchRef,
         item: toItemRecordId(line.itemId),
-        store: storeRef,
+        location: locationRef,
         quantity: line.quantity,
         yield_percent: line.yieldPercent,
         disposition: line.disposition,
@@ -501,7 +507,7 @@ export const completeProductionBatch = async (
   return {
     id: batchId,
     recipe: recipe as ProductionBatch["recipe"],
-    store: batchHeader?.store as ProductionBatch["store"],
+    store: (batchHeader as any)?.location ?? (batchHeader as any)?.store,
     batch_number: batchNumber,
     scale_factor: scaled.scaleFactor,
     produced_qty: Number(input.producedQty),
@@ -538,9 +544,10 @@ export const listProductionBatches = async (
   };
   const dbFormat = import.meta.env.VITE_DB_DATABASE_FORMAT as string;
 
-  if (filters.storeId) {
-    where.push("store = $store");
-    params.store = toStoreRecordId(filters.storeId);
+  const locationFilter = filters.locationId || filters.storeId;
+  if (locationFilter) {
+    where.push("(location = $location OR store = $location)");
+    params.location = toLocationRecordId(locationFilter);
   }
   if (filters.recipeId) {
     where.push("recipe = $recipe");
@@ -567,7 +574,7 @@ export const listProductionBatches = async (
       ${whereClause}
       ORDER BY created_at DESC
       LIMIT $limit START $start
-      FETCH recipe, store, created_by`,
+      FETCH recipe, store, location, created_by`,
       params
     ),
   ]);
@@ -586,15 +593,15 @@ export const getProductionBatch = async (
 
   const [[header], [inputs], [outputs]] = await Promise.all([
     db.query(
-      `SELECT * FROM ONLY $id FETCH recipe, store, created_by`,
+      `SELECT * FROM ONLY $id FETCH recipe, store, location, created_by`,
       {id: recId}
     ),
     db.query(
-      `SELECT * FROM ${Tables.production_batch_inputs} WHERE batch = $id FETCH item, store`,
+      `SELECT * FROM ${Tables.production_batch_inputs} WHERE batch = $id FETCH item, store, location`,
       {id: recId}
     ),
     db.query(
-      `SELECT * FROM ${Tables.production_batch_outputs} WHERE batch = $id FETCH item, store, ledger_waste_item`,
+      `SELECT * FROM ${Tables.production_batch_outputs} WHERE batch = $id FETCH item, store, location, ledger_waste_item`,
       {id: recId}
     ),
   ]);
@@ -615,10 +622,10 @@ export const fetchProductionInputTotals = async (
 ): Promise<number> => {
   const [rows] = await db.query(
     `SELECT math::sum(quantity) AS total FROM ${Tables.production_batch_inputs}
-    WHERE item = $item AND store = $store
+    WHERE item = $item AND (location = $location OR store = $location)
     AND batch IN (SELECT VALUE id FROM ${Tables.production_batches} WHERE status = 'completed')
     GROUP ALL`,
-    {item: toItemRecordId(itemId), store: toStoreRecordId(storeId)}
+    {item: toItemRecordId(itemId), location: toLocationRecordId(storeId)}
   );
   return getTotalFromRows(rows);
 };
@@ -630,10 +637,10 @@ export const fetchProductionOutputTotals = async (
 ): Promise<number> => {
   const [rows] = await db.query(
     `SELECT math::sum(quantity) AS total FROM ${Tables.production_batch_outputs}
-    WHERE item = $item AND store = $store AND disposition = 'inventory'
+    WHERE item = $item AND (location = $location OR store = $location) AND disposition = 'inventory'
     AND batch IN (SELECT VALUE id FROM ${Tables.production_batches} WHERE status = 'completed')
     GROUP ALL`,
-    {item: toItemRecordId(itemId), store: toStoreRecordId(storeId)}
+    {item: toItemRecordId(itemId), location: toLocationRecordId(storeId)}
   );
   return getTotalFromRows(rows);
 };
@@ -666,9 +673,10 @@ export const fetchProductionLinesForReport = async (
   const params: Record<string, unknown> = {};
   const dbFormat = import.meta.env.VITE_DB_DATABASE_FORMAT as string;
 
-  if (filters.storeId) {
-    where.push("store = $store");
-    params.store = toStoreRecordId(filters.storeId);
+  const locationFilter = filters.locationId || filters.storeId;
+  if (locationFilter) {
+    where.push("(location = $location OR store = $location)");
+    params.location = toLocationRecordId(locationFilter);
   }
   if (filters.recipeId) {
     where.push("recipe = $recipe");
@@ -692,7 +700,7 @@ export const fetchProductionLinesForReport = async (
     FROM ${Tables.production_batches}
     ${whereClause}
     ORDER BY created_at ASC
-    FETCH recipe, store`,
+    FETCH recipe, store, location`,
     params
   );
 
@@ -702,9 +710,10 @@ export const fetchProductionLinesForReport = async (
     const batchId = recordToString(batch.id) ?? "";
     const recipeName =
       typeof batch.recipe === "object" ? batch.recipe.name : String(batch.recipe);
-    const storeId = recordToString(batch.store?.id ?? batch.store) ?? "";
+    const loc = (batch as any).location ?? batch.store;
+    const storeId = recordToString(loc?.id ?? loc) ?? "";
     const storeName =
-      typeof batch.store === "object" ? batch.store.name : String(batch.store);
+      typeof loc === "object" && loc?.name ? loc.name : String(loc ?? "");
     const createdAt =
       batch.created_at instanceof Date
         ? batch.created_at

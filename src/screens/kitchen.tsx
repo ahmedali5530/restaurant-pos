@@ -330,7 +330,7 @@ export const KitchenScreen = () => {
   return (
     <Layout containerClassName="overflow-hidden">
       <div className="flex gap-5 p-3 flex-col">
-        <div className="h-[60px] flex-0 rounded-xl bg-white flex items-center px-3 gap-3 justify-between">
+        <div className="h-[60px] flex-0 flex items-center gap-3 justify-between">
           <div className="input-group flex-1">
             {kitchens?.data?.map(item => (
               <Button
@@ -362,7 +362,7 @@ export const KitchenScreen = () => {
           </div>
           <div className="input-group flex-1 justify-end flex gap-3 items-center h-full">
             <span
-              className="bg-neutral-900 text-warning-500 text-2xl h-full flex items-center px-3">{t("kitchen:labels.avgTime", {time: avgTime})}</span>
+              className="rounded-xl bg-neutral-900 text-warning-500 text-2xl h-full flex items-center px-3">{t("kitchen:labels.avgTime", {time: avgTime})}</span>
             {/*<span>timer</span>*/}
           </div>
         </div>

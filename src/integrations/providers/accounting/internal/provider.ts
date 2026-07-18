@@ -106,6 +106,8 @@ const manifest: ProviderManifest = {
     'PayrollPosted',
     'WasteRecorded',
     'InventoryAdjusted',
+    'InventoryPosted',
+    'InventoryReversed',
     'StockCountCompleted',
     'InventoryTransferred',
     'ProductionCompleted',

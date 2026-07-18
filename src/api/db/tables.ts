@@ -68,6 +68,10 @@ export enum Tables {
   inventory_item_group_items = 'inventory_item_group_item',
   inventory_wastes = 'inventory_item_waste',
   inventory_waste_items = 'inventory_item_waste_item',
+  inventory_ledger = 'inventory_ledger',
+  inventory_adjustments = 'inventory_adjustment',
+  inventory_adjustment_items = 'inventory_adjustment_item',
+  inventory_locations = 'inventory_location',
 
   kitchen_reconciliations = 'kitchen_reconciliation',
   kitchen_reconciliation_items = 'kitchen_reconciliation_item',

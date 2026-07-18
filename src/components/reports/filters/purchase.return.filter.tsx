@@ -6,7 +6,7 @@ import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {InventorySupplier} from "@/api/model/inventory_supplier.ts";
-import {InventoryStore} from "@/api/model/inventory_store.ts";
+import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {User} from "@/api/model/user.ts";
 
@@ -33,7 +33,7 @@ const notNull = <T,>(value: T | null | undefined): value is T =>
 export const PurchaseReturnFilter = () => {
   const { t } = useTranslation('reports');
   const {data: suppliersData, isLoading: loadingSuppliers} = useApi<SettingsData<InventorySupplier>>(Tables.inventory_suppliers, [], ['name asc'], 0, 9999);
-  const {data: storesData, isLoading: loadingStores} = useApi<SettingsData<InventoryStore>>(Tables.inventory_stores, [], ['name asc'], 0, 9999);
+  const {data: locationsData, isLoading: loadingLocations} = useApi<SettingsData<InventoryLocation>>(Tables.inventory_locations, [], ['name asc'], 0, 9999);
   const {data: itemsData, isLoading: loadingItems} = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], ['name asc'], 0, 9999);
   const {data: usersData, isLoading: loadingUsers} = useApi<SettingsData<User>>(Tables.users, [], ['first_name asc'], 0, 9999);
 
@@ -61,15 +61,15 @@ export const PurchaseReturnFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="purchase-return-stores">Stores</label>
+          <label htmlFor="purchase-return-locations">{t('inventory:columns.location')}</label>
           <ReactSelect
-            id="purchase-return-stores"
+            id="purchase-return-locations"
             name="stores[]"
             isMulti
-            isLoading={loadingStores}
+            isLoading={loadingLocations}
             className="w-full"
-            options={(storesData?.data || [])
-              .map(store => toOption(store, store.name))
+            options={(locationsData?.data || [])
+              .map(location => toOption(location, location.name))
               .filter(notNull)}
           />
         </div>

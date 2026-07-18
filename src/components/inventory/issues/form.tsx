@@ -14,9 +14,8 @@ import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {InventoryIssue} from "@/api/model/inventory_issue.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {User} from "@/api/model/user.ts";
-import {Kitchen} from "@/api/model/kitchen.ts";
-import {InventoryStore} from "@/api/model/inventory_store.ts";
-import {RecordId, StringRecordId} from "surrealdb";
+import {InventoryLocation} from "@/api/model/inventory_location.ts";
+import {RecordId} from "surrealdb";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
 import _ from "lodash";
@@ -31,9 +30,20 @@ import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.
 import {fetchNetQuantity} from "@/utils/inventory.ts";
 import {syncDishRecipeCostsForItems} from "@/lib/inventory/dish.recipe.cost.ts";
 import {InventoryFormLineTotal} from "@/components/inventory/common/form.line.total.tsx";
+import { postDocument } from "@/lib/inventory/posting.service.ts";
+import { useIntegrationManager } from "@/providers/integration.provider.tsx";
+import { canEdit, isLocked } from "@/lib/inventory/lifecycle.ts";
+import {
+  formatDependencyMessage,
+  getDependencies,
+} from "@/lib/inventory/dependency-validator.ts";
+import { recordIdToString } from "@/api/reports/shared/records.ts";
+import { InventoryDocumentStatusBadge } from "@/components/inventory/common/document.status.badge.tsx";
+import { useInventoryLocations } from "@/hooks/useInventoryLocations.ts";
+import { toRecordId } from "@/lib/utils.ts";
 
 interface InventoryIssueItemFormValue {
-  store: { label: string; value: string } | null;
+  location: { label: string; value: string } | null;
   item: { label: string; value: string } | null;
   requested?: number | string;
   quantity: number | string;
@@ -44,7 +54,6 @@ interface InventoryIssueItemFormValue {
 interface InventoryIssueFormValues {
   invoice_number: number | string;
   issued_to?: { label: string; value: string } | null;
-  kitchen?: { label: string; value: string } | null;
   date?: DateValue | null;
   documents?: FileList;
   update_item_cost?: boolean;
@@ -57,12 +66,6 @@ interface Props {
   onClose: () => void;
   data?: InventoryIssue;
 }
-
-const toRecordId = (value?: string | { toString(): string }) => {
-  if (!value) return undefined;
-  const stringValue = typeof value === "string" ? value : value.toString();
-  return new StringRecordId(stringValue);
-};
 
 const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string) => yup.object({
   invoice_number: yup.number().required('This is required').test(
@@ -95,20 +98,16 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
     label: yup.string(),
     value: yup.string()
   }).required('This is required'),
-  kitchen: yup.object({
-    label: yup.string(),
-    value: yup.string()
-  }).required('This is required'),
   date: yup.mixed().nullable().optional(),
   documents: yup.mixed().optional(),
   update_item_cost: yup.boolean().optional(),
   update_recipe_cost: yup.boolean().optional(),
   items: yup.array().of(
     yup.object({
-      store: yup.object({
+      location: yup.object({
         label: yup.string(),
         value: yup.string()
-      }).required("Store is required"),
+      }).required("Location is required"),
       item: yup.object({
         label: yup.string(),
         value: yup.string()
@@ -124,8 +123,11 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
 export const InventoryIssueForm = ({open, onClose, data}: Props) => {
   const { t } = useTranslation('inventory');
   const db = useDB();
+  const { manager } = useIntegrationManager();
   const validationSchema = useMemo(() => createValidationSchema(db, data?.id), [db, data?.id]);
   const resolver = useMemo(() => yupResolver(validationSchema), [validationSchema]);
+  const [postingAfterSave, setPostingAfterSave] = useState(false);
+  const locked = isLocked(data?.status);
 
   const [state, ] = useAtom(appPage);
 
@@ -133,7 +135,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     data: items,
     fetchData: fetchItems,
     isFetching: loadingItems,
-  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 9999, ["stores"], {
+  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 9999, ["locations", "stores"], {
     enabled: false
   });
 
@@ -146,20 +148,9 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
   });
 
   const {
-    data: kitchens,
-    fetchData: fetchKitchens,
-    isFetching: loadingKitchens,
-  } = useApi<SettingsData<Kitchen>>(Tables.kitchens, ['deleted_at = none'], [], 0, 9999, [], {
-    enabled: false
-  });
-
-  const {
-    data: stores,
-    fetchData: fetchStores,
-    isFetching: loadingStores,
-  } = useApi<SettingsData<InventoryStore>>(Tables.inventory_stores, [], [], 0, 9999, [], {
-    enabled: false
-  });
+    options: locationOptions,
+    loading: loadingLocations,
+  } = useInventoryLocations(open);
 
   const {
     control,
@@ -182,7 +173,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
   const [rowNetQuantities, setRowNetQuantities] = useState<Record<number, number | undefined>>({});
   const netQuantityCacheRef = useRef<Record<string, number>>({});
   const createEmptyItem = useCallback(() => ({
-    store: null,
+    location: null,
     item: null,
     requested: 1,
     quantity: 1,
@@ -195,9 +186,9 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     setRowNetQuantities({});
   }, [setRowNetQuantities]);
 
-  const fetchNetQuantityForStore = useCallback(async (itemId: string, storeId: string) => {
-    return fetchNetQuantity(db, itemId, storeId);
-  }, [db]);
+  const fetchNetQuantityForLocation = useCallback(async (itemId: string, locationId: string) => {
+    return fetchNetQuantity(db, itemId, locationId);
+  }, []);
 
   const {fields, append, remove, replace} = useFieldArray({
     control,
@@ -208,10 +199,8 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     if (open) {
       fetchItems();
       fetchUsers();
-      fetchKitchens();
-      fetchStores();
     }
-  }, [open, fetchItems, fetchUsers, fetchKitchens, fetchStores]);
+  }, [open, fetchItems, fetchUsers]);
 
   useEffect(() => {
     if (data) {
@@ -222,35 +211,33 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
           label: `${data.issued_to.first_name} ${data.issued_to.last_name}`,
           value: data.issued_to.id
         } : null,
-        kitchen: data.kitchen ? {
-          label: data.kitchen.name,
-          value: data.kitchen.id
-        } : null,
         date: data.created_at ? dateToCalendarDate(toJsDate(data.created_at)) : getToday(),
         documents: undefined,
         update_item_cost: false,
         update_recipe_cost: false,
-        items: data.items?.map(item => ({
-          store: item.store ? {
-            label: item.store.name,
-            value: item.store.id.toString()
-          } : null,
-          item: item.item ? {
-            label: `${item.item.name}-${item.item.code}`,
-            value: item.item.id.toString()
-          } : null,
-          requested: item.requested ?? 1,
-          quantity: item.quantity ?? 1,
-          price: item.price ?? 0,
-          comments: item.comments ?? "",
-        }))
+        items: data.items?.map(item => {
+          const loc = (item as any).location ?? item.store;
+          return {
+            location: loc ? {
+              label: loc.name,
+              value: loc.id.toString()
+            } : null,
+            item: item.item ? {
+              label: `${item.item.name}-${item.item.code}`,
+              value: item.item.id.toString()
+            } : null,
+            requested: item.requested ?? 1,
+            quantity: item.quantity ?? 1,
+            price: item.price ?? 0,
+            comments: item.comments ?? "",
+          };
+        })
       });
     } else if (open) {
       resetInventoryState();
       reset({
         invoice_number: 1,
         issued_to: null,
-        kitchen: null,
         date: getToday(),
         documents: undefined,
         update_item_cost: false,
@@ -292,9 +279,9 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
   useEffect(() => {
     watchedItems?.forEach((item, index) => {
       const itemId = item?.item?.value;
-      const storeId = item?.store?.value;
+      const locationId = item?.location?.value;
       
-      if (!itemId || !storeId) {
+      if (!itemId || !locationId) {
         setRowNetQuantities(prev => {
           if (prev[index] === undefined) return prev;
           const next = {...prev};
@@ -304,7 +291,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
         return;
       }
 
-      const cacheKey = `${itemId}-${storeId}`;
+      const cacheKey = `${itemId}-${locationId}`;
       const cached = netQuantityCacheRef.current[cacheKey];
       if (cached !== undefined) {
         setRowNetQuantities(prev => {
@@ -314,7 +301,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
         return;
       }
 
-      fetchNetQuantityForStore(itemId, storeId)
+      fetchNetQuantityForLocation(itemId, locationId)
         .then((value) => {
           netQuantityCacheRef.current[cacheKey] = value;
           setRowNetQuantities(prev => ({ ...prev, [index]: value }));
@@ -325,7 +312,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
           setRowNetQuantities(prev => ({ ...prev, [index]: 0 }));
         });
     });
-  }, [watchedItems, fetchNetQuantityForStore]);
+  }, [watchedItems, fetchNetQuantityForLocation]);
 
   const validateAvailableStock = useCallback(async (formValues: InventoryIssueFormValues) => {
     let isValid = true;
@@ -333,19 +320,19 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     for (let index = 0; index < formValues.items.length; index++) {
       const row = formValues.items[index];
       const itemId = row.item?.value;
-      const storeId = row.store?.value;
+      const locationId = row.location?.value;
       
-      if (!itemId || !storeId) continue;
+      if (!itemId || !locationId) continue;
 
       const desiredQuantity = Number(row.quantity) || 0;
       if (desiredQuantity <= 0) continue;
 
-      const cacheKey = `${itemId}-${storeId}`;
+      const cacheKey = `${itemId}-${locationId}`;
       let available = rowNetQuantities[index] ?? netQuantityCacheRef.current[cacheKey];
 
       if (available === undefined) {
         try {
-          available = await fetchNetQuantityForStore(itemId, storeId);
+          available = await fetchNetQuantityForLocation(itemId, locationId);
           netQuantityCacheRef.current[cacheKey] = available;
           setRowNetQuantities(prev => ({ ...prev, [index]: available }));
         } catch (error) {
@@ -366,7 +353,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     }
 
     return isValid;
-  }, [rowNetQuantities, fetchNetQuantityForStore, setError, clearErrors, setRowNetQuantities]);
+  }, [rowNetQuantities, fetchNetQuantityForLocation, setError, clearErrors, setRowNetQuantities]);
 
   const closeModal = () => {
     onClose();
@@ -374,7 +361,6 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     reset({
       invoice_number: 1,
       issued_to: null,
-      kitchen: null,
       date: getToday(),
       documents: undefined,
       update_item_cost: false,
@@ -407,7 +393,19 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     return documentRefs;
   };
 
-  const onSubmit = async (values: any) => {
+  const onSubmit = async (values: any, options?: { postAfterSave?: boolean }) => {
+    if (data?.id) {
+      const deps = await getDependencies(db, "issue", String(data.id));
+      if (deps.length > 0) {
+        toast.error(formatDependencyMessage("issue", deps));
+        return;
+      }
+      if (!canEdit(data.status)) {
+        toast.error("Posted documents cannot be edited");
+        return;
+      }
+    }
+
     try {
       const hasAvailableStock = await validateAvailableStock(values);
       if (!hasAvailableStock) {
@@ -419,10 +417,10 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
 
       const payload: Record<string, unknown> = {
         issued_to: values.issued_to ? toRecordId(values.issued_to.value) : undefined,
-        kitchen: values.kitchen ? toRecordId(values.kitchen.value) : undefined,
         items: [],
         invoice_number: Number(values.invoice_number),
         documents: documentRefs.length > 0 ? documentRefs : undefined,
+        status: data?.id ? (data.status && data.status !== "posted" ? data.status : "draft") : "draft",
       };
 
       if (!data?.id) {
@@ -464,7 +462,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
           const [created] = await db.create(Tables.inventory_issue_items, {
             issue: toRecordId(issueIdString),
             item: item.item ? toRecordId(item.item.value) : undefined,
-            store: item.store ? toRecordId(item.store.value) : undefined,
+            location: item.location ? toRecordId(item.location.value) : undefined,
             requested: item.requested !== undefined && item.requested !== "" ? Number(item.requested) : undefined,
             quantity: Number(item.quantity),
             price: item.price !== undefined && item.price !== "" ? Number(item.price) : undefined,
@@ -496,40 +494,52 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
         await syncDishRecipeCostsForItems(db, issuedItemIds);
       }
 
-      toast.success(t('toast:inventory.issueSaved'));
+      if (options?.postAfterSave) {
+        const userId = state?.user?.id ? recordIdToString(state.user.id) : undefined;
+        const result = await postDocument({
+          db,
+          documentType: "issue",
+          documentId: String(issueIdString),
+          userId,
+          integrationManager: manager,
+        });
+        toast.success(
+          result.skipped
+            ? (result.reason || t('toast:inventory.issueSaved'))
+            : `Issue posted (${result.ledgerEntryCount} ledger entries)`
+        );
+      } else {
+        toast.success(t('toast:inventory.issueSaved'));
+      }
       closeModal();
     } catch (error) {
       console.log(error)
       toast.error(error instanceof Error ? error.message : String(error));
+    } finally {
+      setPostingAfterSave(false);
     }
   };
 
-  const itemsList = (items?.data ?? []) as (InventoryItem & { stores?: InventoryStore[] })[];
-  const storeOptions = stores?.data?.map(store => ({
-    label: store.name,
-    value: store.id.toString()
-  })) ?? [];
-  
-  const getItemOptionsForStore = useCallback((storeId?: string) => {
-    if (!storeId) {
+  const itemsList = (items?.data ?? []) as (InventoryItem & { locations?: InventoryLocation[]; stores?: { id: string }[] })[];
+
+  const getItemOptionsForLocation = useCallback((locationId?: string) => {
+    if (!locationId) {
       return [];
     }
-    return itemsList
-      .filter(item => item.stores?.some(store => store.id.toString() === storeId.toString()))
-      .map(item => ({
-        label: item.code ? `${item.name}-${item.code}` : item.name,
-        value: item.id.toString()
-      }));
+    const filtered = itemsList.filter((item) => {
+      const locs = item.locations ?? item.stores;
+      if (!locs?.length) return true;
+      return locs.some((loc) => loc.id.toString() === locationId.toString());
+    });
+    return filtered.map(item => ({
+      label: item.code ? `${item.name}-${item.code}` : item.name,
+      value: item.id.toString()
+    }));
   }, [itemsList]);
 
   const userOptions = users?.data?.map(user => ({
     label: `${user.first_name} ${user.last_name}`,
     value: user.id
-  })) ?? [];
-
-  const kitchenOptions = kitchens?.data?.map(kitchen => ({
-    label: kitchen.name,
-    value: kitchen.id
   })) ?? [];
 
   return (
@@ -539,7 +549,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
       onClose={closeModal}
       size="xl"
     >
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit((values) => onSubmit(values))}>
         <div className="flex flex-col gap-3 mb-3">
           <div className="flex gap-3">
             <div className="flex-1">
@@ -567,23 +577,6 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                 )}
               />
               <InputError error={_.get(errors, ["issued_to", "message"])}/>
-            </div>
-            <div className="flex-1">
-              <label>{t('columns.kitchen')}</label>
-              <Controller
-                name="kitchen"
-                control={control}
-                render={({field}) => (
-                  <ReactSelect
-                    value={field.value}
-                    onChange={field.onChange}
-                    options={kitchenOptions}
-                    isLoading={loadingKitchens}
-                    isClearable
-                  />
-                )}
-              />
-              <InputError error={_.get(errors, ["kitchen", "message"])}/>
             </div>
             <div className="flex-1">
               <Controller
@@ -656,31 +649,30 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
             </div>
 
             {fields.map((field, index) => {
-              const rowStoreId = watchedItems?.[index]?.store?.value;
-              const rowItemOptions = getItemOptionsForStore(rowStoreId);
+              const rowLocationId = watchedItems?.[index]?.location?.value;
+              const rowItemOptions = getItemOptionsForLocation(rowLocationId);
               
               return (
               <div className="flex flex-col mb-3" key={field.id}>
                 <div className="flex gap-3">
                   <div className="flex-1">
-                    <label>Store</label>
+                    <label>{t('columns.store')}</label>
                     <Controller
-                      name={`items.${index}.store`}
+                      name={`items.${index}.location`}
                       control={control}
                       render={({field}) => (
                         <ReactSelect
                           value={field.value}
                           onChange={(value) => {
                             field.onChange(value);
-                            // Clear item when store changes
                             setValue(`items.${index}.item`, null);
                           }}
-                          options={storeOptions}
-                          isLoading={loadingStores}
+                          options={locationOptions}
+                          isLoading={loadingLocations}
                         />
                       )}
                     />
-                    <InputError error={_.get(errors, ["items", index, "store", "message"])}/>
+                    <InputError error={_.get(errors, ["items", index, "location", "message"])}/>
                   </div>
                   <div className="flex-1">
                     <label>{t('buttons.item')}</label>
@@ -693,7 +685,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                           onChange={field.onChange}
                           options={rowItemOptions}
                           isLoading={loadingItems}
-                          isDisabled={!rowStoreId}
+                          isDisabled={!rowLocationId}
                         />
                       )}
                     />
@@ -740,11 +732,11 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                           value={field.value as number | string}
                           onChange={field.onChange}
                           error={_.get(errors, ["items", index, "quantity", "message"])}
-                          disabled={!rowStoreId}
+                          disabled={!rowLocationId}
                         />
                       )}
                     />
-                    {rowStoreId && (
+                    {rowLocationId && (
                       <p className="text-xs text-neutral-500 mt-1">
                         Available: {rowNetQuantities[index] ?? "—"}
                       </p>
@@ -774,8 +766,27 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
           </fieldset>
         </div>
 
-        <div>
-          <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
+        <div className="flex gap-2 items-center">
+          {data?.status && <InventoryDocumentStatusBadge status={data.status} />}
+          {!locked && (
+            <>
+              <Button type="submit" variant="secondary" disabled={postingAfterSave}>
+                {t('common:actions.save')} (Draft)
+              </Button>
+              <Button
+                type="button"
+                variant="primary"
+                isLoading={postingAfterSave}
+                disabled={postingAfterSave}
+                onClick={() => {
+                  setPostingAfterSave(true);
+                  void handleSubmit((values) => onSubmit(values, { postAfterSave: true }))();
+                }}
+              >
+                Save &amp; Post
+              </Button>
+            </>
+          )}
         </div>
       </form>
     </Modal>

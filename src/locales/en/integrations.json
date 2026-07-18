@@ -28,6 +28,20 @@
     "auth": "Authentication",
     "failedJobs": "Failed jobs",
     "action": "Action",
-    "attempts": "Attempts"
+    "attempts": "Attempts",
+    "created": "Created",
+    "updated": "Updated",
+    "nextRun": "Next run",
+    "error": "Error",
+    "order": "Order"
+  },
+  "status": {
+    "Pending": "Pending",
+    "Running": "Running",
+    "Waiting": "Waiting",
+    "Completed": "Completed",
+    "Failed": "Failed",
+    "Cancelled": "Cancelled",
+    "DeadLetter": "Failed permanently"
   }
 }

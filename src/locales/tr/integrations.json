@@ -21,7 +21,12 @@
     "auth": "Kimlik doğrulama",
     "failedJobs": "Başarısız işler",
     "action": "İşlem",
-    "attempts": "Denemeler"
+    "attempts": "Denemeler",
+    "created": "Oluşturuldu",
+    "updated": "Güncellendi",
+    "nextRun": "Sonraki çalışma",
+    "error": "Hata",
+    "order": "Sipariş"
   },
   "enabled": "Etkin",
   "disabled": "Devre dışı",
@@ -29,5 +34,14 @@
   "disableProvider": "Devre dışı bırak",
   "providerEnabled": "Sağlayıcı etkinleştirildi",
   "providerDisabled": "Sağlayıcı devre dışı bırakıldı",
-  "enableFailed": "Sağlayıcı durumu güncellenemedi"
+  "enableFailed": "Sağlayıcı durumu güncellenemedi",
+  "status": {
+    "Pending": "Beklemede",
+    "Running": "Çalışıyor",
+    "Waiting": "Bekliyor",
+    "Completed": "Tamamlandı",
+    "Failed": "Başarısız",
+    "Cancelled": "İptal",
+    "DeadLetter": "Kalıcı hata"
+  }
 }

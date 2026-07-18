@@ -511,7 +511,12 @@
       "Integration providers": "Провайдеры интеграции",
       "Integration configuration": "Конфигурация интеграции",
       "Integration health": "Состояние интеграции",
-      "Integration queue": "Очередь интеграции"
+      "Integration queue": "Очередь интеграции",
+      "Adjustments": "Adjustments",
+      "Edit Adjustments": "Edit Adjustments",
+      "Delete Adjustments": "Delete Adjustments",
+      "Inventory Settings": "Inventory Settings",
+      "Locations": "Locations"
     }
   },
   "discountEngine": {

@@ -18,7 +18,9 @@
     "production": "Производство",
     "productionHistory": "История производства",
     "buffetMenus": "Меню шведского стола",
-    "buffetSessions": "Сессии шведского стола"
+    "buffetSessions": "Сессии шведского стола",
+    "adjustments": "Adjustments",
+    "locations": "Locations"
   },
   "security": {
     "accessTab": "Access {{module}}",
@@ -34,7 +36,12 @@
     "deleteIssueReturns": "Delete issue return",
     "editWastes": "Edit waste",
     "deleteWastes": "Delete waste",
-    "editStockTransfers": "Edit stock transfer"
+    "editStockTransfers": "Edit stock transfer",
+    "editAdjustments": "Edit adjustment",
+    "deleteAdjustments": "Delete adjustment",
+    "postAdjustments": "Post inventory adjustment",
+    "approveAdjustments": "Approve inventory adjustment",
+    "voidAdjustments": "Void inventory adjustment"
   },
   "columns": {
     "name": "Название",
@@ -72,7 +79,14 @@
     "store": "Склад",
     "unitCost": "Unit cost",
     "amount": "Amount",
-    "stockValue": "Value"
+    "stockValue": "Value",
+    "reason": "Reason",
+    "quantityChange": "Qty (+/-)",
+    "notes": "Notes",
+    "locationType": "Type",
+    "linkedStore": "Linked store",
+    "linkedKitchen": "Linked kitchen",
+    "active": "Active"
   },
   "buttons": {
     "item": "Товар",
@@ -80,7 +94,11 @@
     "view": "Просмотр",
     "upload": "Загрузить",
     "cancel": "Отмена",
-    "save": "Сохранить"
+    "save": "Сохранить",
+    "adjustment": "Adjustment",
+    "line": "Line",
+    "saveDraft": "Save (Draft)",
+    "saveAndPost": "Save & Post"
   },
   "forms": {
     "createItem": "Создать новый товар",
@@ -108,7 +126,12 @@
     "manufacturingDate": "Дата производства",
     "storeInventory": "Склад {{name}}",
     "reorderLevelHint": "Необязательный минимальный запас для каждого склада",
-    "taxable": "Облагается налогом"
+    "taxable": "Облагается налогом",
+    "createAdjustment": "New adjustment",
+    "editAdjustment": "Edit adjustment #{{number}}",
+    "notes": "Notes",
+    "reason": "Reason",
+    "lines": "Lines"
   },
   "validation": {
     "required": "Обязательное поле",
@@ -153,7 +176,9 @@
     "approved": "Утверждено",
     "received": "Получено",
     "cancelled": "Отменено",
-    "belowReorder": "Ниже уровня перезаказа"
+    "belowReorder": "Ниже уровня перезаказа",
+    "posted": "Posted",
+    "voided": "Voided"
   },
   "upload": {
     "attachDocuments": "Прикреплённые документы"
@@ -425,5 +450,49 @@
     "addExtra": "Добавить дополнение",
     "extraName": "Название",
     "extraAmount": "Сумма"
+  },
+  "adjustment": {
+    "reasons": {
+      "audit": "Audit",
+      "correction": "Correction",
+      "lost": "Lost",
+      "damaged": "Damaged",
+      "found": "Found",
+      "opening_balance": "Opening Balance"
+    },
+    "deleteConfirm": "Do you want to delete adjustment #{{number}}?",
+    "saved": "Adjustment saved",
+    "savedAndPosted": "Adjustment saved and posted",
+    "saveFailed": "Failed to save adjustment",
+    "approved": "Adjustment approved",
+    "posted": "Adjustment posted ({{count}} entries)",
+    "voided": "Adjustment voided ({{count}} reversals)",
+    "alreadyPosted": "Already posted",
+    "alreadyVoided": "Already voided",
+    "cannotEditPosted": "Posted documents cannot be edited"
+  },
+  "document": {
+    "revisionCreated": "Revision {{revision}} created as draft",
+    "purchaseVoided": "Purchase voided ({{count}} reversals)",
+    "issueVoided": "Issue voided ({{count}} reversals)",
+    "alreadyVoided": "Already voided",
+    "alreadyPosted": "Already posted"
+  },
+  "location": {
+    "sync": "Sync from stores & kitchens",
+    "syncing": "Syncing…",
+    "synced": "Synced {{stores}} store and {{kitchens}} kitchen locations",
+    "active": "Active",
+    "inactive": "Inactive",
+    "types": {
+      "Warehouse": "Warehouse",
+      "Store": "Store",
+      "Kitchen": "Kitchen",
+      "Bakery": "Bakery",
+      "Bar": "Bar",
+      "Freezer": "Freezer",
+      "Cold Room": "Cold Room",
+      "Production": "Production"
+    }
   }
 }

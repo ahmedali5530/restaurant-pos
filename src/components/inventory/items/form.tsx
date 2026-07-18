@@ -8,7 +8,6 @@ import {InventorySupplier} from "@/api/model/inventory_supplier.ts";
 import {useDB} from "@/api/db/db.ts";
 import {Controller, useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
-import {StringRecordId} from "surrealdb";
 import {toast} from "sonner";
 import {Input, InputError} from "@/components/common/input/input.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
@@ -18,9 +17,8 @@ import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {SupplierForm} from "@/components/inventory/suppliers/form.tsx";
 import {InventoryCategory} from "@/api/model/inventory_category.ts";
-import {InventoryStore} from "@/api/model/inventory_store.ts";
 import {InventoryCategoryForm} from "@/components/inventory/categories/form.tsx";
-import {InventoryStoreForm} from "@/components/inventory/stores/form.tsx";
+import {InventoryLocationForm} from "@/components/inventory/locations/form.tsx";
 import {
   getItemTypeOptions,
   getItemTypesFromRecord,
@@ -30,6 +28,8 @@ import {
 import {InventoryItemType} from "@/api/model/inventory_item.ts";
 import {getReorderLevelForStore} from "@/utils/inventory.ts";
 import {Switch} from "@/components/common/input/switch.tsx";
+import {useInventoryLocations} from "@/hooks/useInventoryLocations.ts";
+import {toRecordId} from "@/lib/utils.ts";
 
 interface Props {
   open: boolean
@@ -53,10 +53,10 @@ const validationSchema = yup.object({
     label: yup.string(),
     value: yup.string()
   })).min(1, 'This is required'),
-  stores: yup.array(yup.object({
+  locations: yup.array(yup.object({
     label: yup.string(),
     value: yup.string()
-  })).min(1, 'Select at least one store'),
+  })).min(1, 'Select at least one location'),
   price: yup.number().typeError("This should be a number").nullable().optional(),
   average_price: yup.number().typeError("This should be a number").nullable().optional(),
   item_types: yup.array().of(
@@ -80,7 +80,7 @@ export const InventoryItemForm = ({
       category: null,
       base_quantity: 0,
       suppliers: [],
-      stores: [],
+      locations: [],
       price: undefined,
       average_price: undefined,
       uom: null,
@@ -107,24 +107,22 @@ export const InventoryItemForm = ({
   });
 
   const {
-    data: stores,
-    fetchData: fetchStores,
-    isFetching: loadingStores,
-  } = useApi<SettingsData<InventoryStore>>(Tables.inventory_stores, [], [], 0, 99999, [], {
-    enabled: false
-  });
+    options: locationOptions,
+    loading: loadingLocations,
+    reload: reloadLocations,
+  } = useInventoryLocations(open);
 
   useEffect(() => {
     if( open ) {
       fetchSuppliers();
       fetchCategories();
-      fetchStores();
+      void reloadLocations();
     }
   }, [open]);
 
   const [suppliersModal, setSuppliersModal] = useState(false);
   const [categoriesModal, setCategoriesModal] = useState(false);
-  const [storesModal, setStoresModal] = useState(false);
+  const [locationsModal, setLocationsModal] = useState(false);
   const [reorderLevels, setReorderLevels] = useState<Record<string, string>>({});
 
   const db = useDB();
@@ -134,31 +132,32 @@ export const InventoryItemForm = ({
   });
 
   const itemTypeOptions = useMemo(() => getItemTypeOptions(t), [t]);
-  const selectedStores = watch('stores') as Array<{label: string; value: string}> | undefined;
+  const selectedLocations = watch('locations') as Array<{label: string; value: string}> | undefined;
 
   useEffect(() => {
-    if (!selectedStores) {
+    if (!selectedLocations) {
       return;
     }
-    const selectedIds = new Set(selectedStores.map(store => store.value));
+    const selectedIds = new Set(selectedLocations.map(loc => loc.value));
     setReorderLevels(prev => {
       const next: Record<string, string> = {};
-      for (const storeId of selectedIds) {
-        if (prev[storeId] !== undefined) {
-          next[storeId] = prev[storeId];
+      for (const locationId of selectedIds) {
+        if (prev[locationId] !== undefined) {
+          next[locationId] = prev[locationId];
         }
       }
       return next;
     });
-  }, [selectedStores]);
+  }, [selectedLocations]);
 
   useEffect(() => {
     if( data ) {
+      const locs = data.locations ?? data.stores ?? [];
       const levels: Record<string, string> = {};
-      for (const store of data.stores ?? []) {
-        const level = getReorderLevelForStore(data, store.id);
+      for (const loc of locs) {
+        const level = getReorderLevelForStore(data, loc.id);
         if (level > 0) {
-          levels[store.id] = String(level);
+          levels[String(loc.id)] = String(level);
         }
       }
       setReorderLevels(levels);
@@ -181,10 +180,10 @@ export const InventoryItemForm = ({
           label: item.name,
           value: item.id
         })),
-        stores: data?.stores?.map(store => ({
-          label: store.name,
-          value: store.id
-        })) ?? [],
+        locations: locs.map(loc => ({
+          label: loc.name,
+          value: String(loc.id)
+        })),
         taxable: !!data.taxable,
       });
     }
@@ -199,9 +198,9 @@ export const InventoryItemForm = ({
       const datum = {
         ...values,
         base_quantity: parseInt(values.base_quantity),
-        suppliers: values?.suppliers?.map(item => new StringRecordId(item.value)),
-        stores: values?.stores?.map(item => new StringRecordId(item.value)),
-        category: values?.category ? new StringRecordId(values.category.value) : undefined,
+        suppliers: values?.suppliers?.map(item => toRecordId(item.value)),
+        locations: values?.locations?.map(item => toRecordId(item.value)),
+        category: values?.category ? toRecordId(values.category.value) : undefined,
         uom: values.uom.value,
         price: values.price !== undefined && values.price !== null && values.price !== '' ? parseFloat(values.price) : undefined,
         average_price: values.average_price !== undefined && values.average_price !== null && values.average_price !== '' ? parseFloat(values.average_price) : undefined,
@@ -209,12 +208,12 @@ export const InventoryItemForm = ({
       };
 
       const reorderLevelsPayload: Record<string, number> = {};
-      for (const store of values.stores ?? []) {
-        const raw = reorderLevels[store.value];
+      for (const loc of values.locations ?? []) {
+        const raw = reorderLevels[loc.value];
         if (raw !== undefined && raw !== '') {
           const parsed = parseFloat(raw);
           if (Number.isFinite(parsed) && parsed > 0) {
-            reorderLevelsPayload[store.value] = parsed;
+            reorderLevelsPayload[loc.value] = parsed;
           }
         }
       }
@@ -226,7 +225,7 @@ export const InventoryItemForm = ({
         category: datum.category,
         base_quantity: datum.base_quantity,
         suppliers: datum.suppliers,
-        stores: datum.stores,
+        locations: datum.locations,
         price: datum.price,
         average_price: datum.average_price,
         item_types: datum.item_types,
@@ -388,52 +387,49 @@ export const InventoryItemForm = ({
           <div className="flex gap-3 mb-3 items-end">
             <div className="flex-1 flex gap-2 items-end">
               <div className="flex-1">
-                <label>{t('tabs.stores')}</label>
+                <label>{t('tabs.locations')}</label>
                 <Controller
-                  name="stores"
+                  name="locations"
                   render={({ field }) => (
                     <ReactSelect
-                      options={stores?.data?.map(store => ({
-                        label: store.name,
-                        value: store.id
-                      }))}
+                      options={locationOptions}
                       isMulti
                       value={field.value}
                       onChange={field.onChange}
-                      isLoading={loadingStores}
+                      isLoading={loadingLocations}
                     />
                   )}
                   control={control}
                 />
-                {errors?.stores?.message && <InputError error={errors?.stores?.message}/>}
+                {errors?.locations?.message && <InputError error={errors?.locations?.message}/>}
               </div>
-              <Button type="button" variant="primary" iconButton onClick={() => setStoresModal(true)}>
+              <Button type="button" variant="primary" iconButton onClick={() => setLocationsModal(true)}>
                 <FontAwesomeIcon icon={faPlus}/>
               </Button>
             </div>
           </div>
 
-          {selectedStores && selectedStores.length > 0 && (
+          {selectedLocations && selectedLocations.length > 0 && (
             <div className="mb-3">
               <label className="block mb-1">{t('columns.reorderLevels')}</label>
               <p className="text-sm text-neutral-600 mb-2">{t('forms.reorderLevelHint')}</p>
               <div className="grid grid-cols-2 gap-3">
-                {selectedStores.map(store => (
+                {selectedLocations.map(loc => (
                   <Input
-                    key={store.value}
+                    key={loc.value}
                     type="number"
                     min={0}
-                    label={store.label}
-                    value={reorderLevels[store.value] ?? ''}
+                    label={loc.label}
+                    value={reorderLevels[loc.value] ?? ''}
                     onChange={(e) => {
                       const value = e.target.value;
                       setReorderLevels(prev => {
                         if (value === '') {
                           const next = {...prev};
-                          delete next[store.value];
+                          delete next[loc.value];
                           return next;
                         }
-                        return {...prev, [store.value]: value};
+                        return {...prev, [loc.value]: value};
                       });
                     }}
                   />
@@ -496,12 +492,12 @@ export const InventoryItemForm = ({
         />
       )}
 
-      {storesModal && (
-        <InventoryStoreForm
+      {locationsModal && (
+        <InventoryLocationForm
           open={true}
           onClose={() => {
-            fetchStores();
-            setStoresModal(false);
+            void reloadLocations();
+            setLocationsModal(false);
           }}
         />
       )}

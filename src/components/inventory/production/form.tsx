@@ -4,15 +4,12 @@ import * as yup from "yup";
 import {Controller, useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import {toast} from "sonner";
-import useApi, {SettingsData} from "@/api/db/use.api.ts";
-import {Tables} from "@/api/db/tables.ts";
 import {useDB} from "@/api/db/db.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input, InputError} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
-import {InventoryStore} from "@/api/model/inventory_store.ts";
 import {Recipe} from "@/api/model/recipe.ts";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
@@ -23,12 +20,13 @@ import {
 } from "@/lib/inventory/production.service.ts";
 import {ScaledRecipeResult} from "@/lib/inventory/production.calculations.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
+import {useInventoryLocations} from "@/hooks/useInventoryLocations.ts";
 
 type SelectOption = {label: string; value: string} | null;
 
 interface ProductionFormValues {
   recipe: SelectOption;
-  store: SelectOption;
+  location: SelectOption;
   producedQty: number | string;
   batchNumber?: string;
   notes?: string;
@@ -47,7 +45,7 @@ const selectOptionSchema = yup.object({
 
 const validationSchema = yup.object({
   recipe: selectOptionSchema.required().nullable(),
-  store: selectOptionSchema.required().nullable(),
+  location: selectOptionSchema.required().nullable(),
   producedQty: yup.number().typeError("Number required").positive().required(),
   batchNumber: yup.string().nullable().optional(),
   notes: yup.string().nullable().optional(),
@@ -68,24 +66,15 @@ export const ProductionForm = ({open, onClose}: Props) => {
     dbRef.current = db;
   }, [db]);
 
-  const {data: stores, fetchData: fetchStores} = useApi<SettingsData<InventoryStore>>(
-    Tables.inventory_stores,
-    [],
-    [],
-    0,
-    9999,
-    [],
-    {enabled: false}
-  );
+  const {options: locationOptions} = useInventoryLocations(open);
 
   useEffect(() => {
     if (open) {
-      fetchStores();
       listRecipes(dbRef.current, {page: 0, pageSize: 9999, activeOnly: true})
         .then((result) => setRecipeList(result.data))
         .catch(() => setRecipeList([]));
     }
-  }, [open, fetchStores]);
+  }, [open]);
 
   const recipeOptions = useMemo(
     () =>
@@ -94,15 +83,6 @@ export const ProductionForm = ({open, onClose}: Props) => {
         value: recordToString(recipe.id) ?? "",
       })),
     [recipeList]
-  );
-
-  const storeOptions = useMemo(
-    () =>
-      stores?.data?.map((store) => ({
-        label: store.name,
-        value: recordToString(store.id) ?? "",
-      })) ?? [],
-    [stores]
   );
 
   const {
@@ -116,7 +96,7 @@ export const ProductionForm = ({open, onClose}: Props) => {
     resolver: yupResolver(validationSchema) as any,
     defaultValues: {
       recipe: null,
-      store: null,
+      location: null,
       producedQty: 1,
       batchNumber: "",
       notes: "",
@@ -152,14 +132,14 @@ export const ProductionForm = ({open, onClose}: Props) => {
   }, [open, loadPreview]);
 
   const onSubmit = async (values: ProductionFormValues) => {
-    if (!state.user?.id || !values.recipe?.value || !values.store?.value) return;
+    if (!state.user?.id || !values.recipe?.value || !values.location?.value) return;
     setSubmitting(true);
     try {
       await completeProductionBatch(
         db,
         {
           recipeId: values.recipe.value,
-          storeId: values.store.value,
+          locationId: values.location.value,
           producedQty: Number(values.producedQty),
           batchNumber: values.batchNumber,
           notes: values.notes,
@@ -194,15 +174,15 @@ export const ProductionForm = ({open, onClose}: Props) => {
             <InputError error={errors.recipe?.message} />
           </div>
           <div>
-            <label className="text-sm">{t("columns.stores")}</label>
+            <label className="text-sm">{t("columns.store")}</label>
             <Controller
               control={control}
-              name="store"
+              name="location"
               render={({field}) => (
-                <ReactSelect value={field.value} onChange={field.onChange} options={storeOptions} />
+                <ReactSelect value={field.value} onChange={field.onChange} options={locationOptions} />
               )}
             />
-            <InputError error={errors.store?.message} />
+            <InputError error={errors.location?.message} />
           </div>
           <div>
             <Input

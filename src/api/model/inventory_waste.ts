@@ -1,12 +1,14 @@
 import {InventoryPurchase, InventoryPurchaseItem} from "@/api/model/inventory_purchase.ts";
 import {InventoryIssue, InventoryIssueItem} from "@/api/model/inventory_issue.ts";
+import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {InventoryStore} from "@/api/model/inventory_store.ts";
 import {User} from "@/api/model/user.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {Document} from '@/api/model/document.ts';
+import { LifecycleFields } from "@/api/model/inventory_document.ts";
 import { DateTime } from "surrealdb";
 
-export interface InventoryWaste {
+export interface InventoryWaste extends LifecycleFields {
   id: string
   purchase?: InventoryPurchase
   issue?: InventoryIssue
@@ -22,6 +24,8 @@ export interface InventoryWasteItem {
   item: InventoryItem
   purchase_item?: InventoryPurchaseItem
   issue_item?: InventoryIssueItem
+  location?: InventoryLocation
+  /** @deprecated use location */
   store?: InventoryStore
   quantity: number
   price?: number

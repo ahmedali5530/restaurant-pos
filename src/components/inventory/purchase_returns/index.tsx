@@ -27,7 +27,7 @@ export const InventoryPurchaseReturns = () => {
     ["created_at DESC"],
     0,
     10,
-    ["purchase", "purchase.supplier", "purchase.items", "purchase.items.item", "items", "items.item", "items.purchase_item", "items.purchase_item.store", "items.purchase_item.supplier", "items.store", "items.supplier", "created_by"]
+    ["purchase", "purchase.supplier", "purchase.items", "purchase.items.item", "items", "items.item", "items.purchase_item", "items.purchase_item.location", "items.purchase_item.store", "items.purchase_item.supplier", "items.location", "items.store", "items.supplier", "created_by"]
   );
 
   const [data, setData] = useState<InventoryPurchaseReturn>();

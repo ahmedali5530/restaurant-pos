@@ -54,6 +54,24 @@ export const buildRecordInsideCondition = (
 };
 
 /**
+ * Prefer location field; also match legacy store for documents not yet cut over.
+ * `(location INSIDE $param OR store INSIDE $param)`
+ */
+export const buildLocationOrStoreInsideCondition = (
+  ids: string[],
+  paramName = "locationIds",
+): {condition?: string; params: Record<string, any>} => {
+  if (ids.length === 0) {
+    return {params: {}};
+  }
+
+  return {
+    condition: `(location INSIDE $${paramName} OR store INSIDE $${paramName})`,
+    params: {[paramName]: ids.map(id => toRecordId(id))},
+  };
+};
+
+/**
  * Nested array record filter, e.g. line items:
  * `(array::any(items.item, $item0) OR array::any(items.item, $item1))`
  */

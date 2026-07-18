@@ -21,7 +21,12 @@
     "auth": "Аутентификация",
     "failedJobs": "Неудачные задачи",
     "action": "Действие",
-    "attempts": "Попытки"
+    "attempts": "Попытки",
+    "created": "Создано",
+    "updated": "Обновлено",
+    "nextRun": "Следующий запуск",
+    "error": "Ошибка",
+    "order": "Заказ"
   },
   "enabled": "Включено",
   "disabled": "Отключено",
@@ -29,5 +34,14 @@
   "disableProvider": "Отключить",
   "providerEnabled": "Провайдер включен",
   "providerDisabled": "Провайдер отключен",
-  "enableFailed": "Не удалось обновить статус провайдера"
+  "enableFailed": "Не удалось обновить статус провайдера",
+  "status": {
+    "Pending": "В очереди",
+    "Running": "Выполняется",
+    "Waiting": "Ожидание",
+    "Completed": "Завершено",
+    "Failed": "Ошибка",
+    "Cancelled": "Отменено",
+    "DeadLetter": "Окончательный сбой"
+  }
 }

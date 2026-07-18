@@ -10,6 +10,7 @@ import {ClosingCycleSettingsCard} from "@/components/user_settings/closing_cycle
 import {LanguageSettings} from "@/components/user_settings/language.tsx";
 import {ItemsVisibilityConfig} from "@/components/user_settings/items_visibility_config.tsx";
 import {ShowInclusivePricesSettingsCard} from "@/components/user_settings/show_inclusive_prices.tsx";
+import {InventorySettingsCard} from "@/components/user_settings/inventory_settings.tsx";
 export const Settings = () => {
 
   return (
@@ -22,6 +23,7 @@ export const Settings = () => {
       <ClosingCycleSettingsCard />
       <AutoCheckCloseSettingsCard />
       <ShowInclusivePricesSettingsCard />
+      <InventorySettingsCard />
       <TouchSettings />
       <TableSelectionSettings />
       <ItemsVisibilityConfig />

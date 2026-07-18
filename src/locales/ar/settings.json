@@ -107,5 +107,24 @@
     "showModifiersInOrderCard": "إظهار الإضافات للأصناف في بطاقة الطلب",
     "showModifierPriceInOrderCard": "إظهار سعر الإضافات في بطاقة الطلب",
     "showTotalInPaymentCard": "إظهار إجماليات الأصناف في مربع الدفع"
+  },
+  "inventory": {
+    "title": "المخزون",
+    "description": "تفعيل دفتر المخزون والتتبع المتقدم الاختياري. اترك الدفعات/الصلاحية متوقفة ما لم تكن مطلوبة.",
+    "ledgerEnabled": "استخدام دفتر المخزون (مصدر الحقيقة الوحيد)",
+    "ledgerHint": "فعّله فقط بعد تشغيل تعبئة الدفتر والتأكد من المطابقة.",
+    "costingMethod": "طريقة التكلفة",
+    "costing": {
+      "average": "متوسط مرجح",
+      "fifo": "FIFO",
+      "fefo": "FEFO"
+    },
+    "enableBatchTracking": "تفعيل تتبع الدفعات",
+    "enableExpiryTracking": "تفعيل تتبع الصلاحية",
+    "enableManufacturingDate": "تفعيل تواريخ التصنيع",
+    "requireBatchSelection": "إلزام اختيار الدفعة عند الصرف",
+    "updated": "تم تحديث إعدادات المخزون",
+    "save": "حفظ",
+    "saveDescription": "حفظ إعدادات المخزون"
   }
 }

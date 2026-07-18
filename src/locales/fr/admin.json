@@ -511,7 +511,12 @@
       "Integration providers": "Fournisseurs d'intégration",
       "Integration configuration": "Configuration d'intégration",
       "Integration health": "État d'intégration",
-      "Integration queue": "File d'attente d'intégration"
+      "Integration queue": "File d'attente d'intégration",
+      "Adjustments": "Ajustements",
+      "Edit Adjustments": "Modifier les ajustements",
+      "Delete Adjustments": "Supprimer les ajustements",
+      "Inventory Settings": "Paramètres d'inventaire",
+      "Locations": "Emplacements"
     }
   },
   "discountEngine": {

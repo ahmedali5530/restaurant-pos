@@ -45,10 +45,12 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
 - Server speed: get_server_ticket_times (ticket time = created to completed). Accountability: get_staff_accountability_metrics.
 - Menu engineering: get_menu_engineering_matrix. MoM trends: get_menu_sales_trends. Price impact: estimate_price_change_impact.
 - Menu catalog: ${Tables.dishes}. Voids: ${Tables.order_voids}.`,
-  inventory: `- Inventory: ${Tables.inventory_items}, stores: ${Tables.inventory_stores}.
-- inventory_item.reorder_levels: map of inventory_store id to minimum quantity before reorder (per store).
-- Purchases: ${Tables.inventory_purchases}, Issues: ${Tables.inventory_issues}, Waste: ${Tables.inventory_wastes}.
-- Reorder levels: get_current_inventory compares per-store stock to reorder_levels. Waste/consumption: get_waste_summary / get_consumption.`,
+  inventory: `- Inventory: ${Tables.inventory_items}, locations: ${Tables.inventory_locations} (stock source of truth for on-hand). Legacy stores table: ${Tables.inventory_stores}.
+- On-hand stock source of truth: ${Tables.inventory_ledger} keyed by inventory_location (SUM quantity_change by item+location). Documents post only when status = 'posted'.
+- inventory_item.reorder_levels: map of inventory_location id to minimum quantity before reorder (per location).
+- Admin kitchens (${Tables.kitchens}) are POS-only (routing/stations), not inventory stock locations.
+- Document types: purchases, purchase returns, issues, issue returns, wastes, adjustments, stock transfers, production, buffet consumption — all reflected in ledger reference_type.
+- Reorder levels: get_current_inventory compares ledger stock to reorder_levels. Movements: get_inventory_movements (includes adjustment). Waste/consumption: get_waste_summary / get_consumption.`,
   operations: `- Orders: ${Tables.orders}. Statuses: In Progress, Paid, Cancelled, Pending, etc.
 - List orders by status: get_orders with statuses. Delivery only when user says "delivery" (deliveryOnly=true).
 - Void/cancel/comp reasons: get_void_and_cancel_summary. Prep delays: get_prep_times_by_order_type, get_kitchen_station_delays.
@@ -80,8 +82,9 @@ const FULL_DATABASE_CONTEXT = `Database context:
 - Menu catalog: ${Tables.dishes} (active items have deleted_at = NONE). Use list_menu_items for the full catalog.
 - For "products that haven't sold" / unsold menu items: use get_unsold_products (compares full menu vs paid sales). Do NOT use get_top_selling_dishes alone — it only returns items that sold.
 - Order voids: ${Tables.order_voids}
-- Inventory items: ${Tables.inventory_items} (reorder_levels: per-store minimum quantity map), stores: ${Tables.inventory_stores}
-- Purchases: ${Tables.inventory_purchases}, Issues: ${Tables.inventory_issues}, Waste: ${Tables.inventory_wastes}
+- Inventory items: ${Tables.inventory_items} (reorder_levels: per-location minimum quantity map), locations: ${Tables.inventory_locations} (stock SoT), legacy stores: ${Tables.inventory_stores}
+- Admin kitchens (${Tables.kitchens}) are POS-only — not stock locations.
+- Stock on-hand: ${Tables.inventory_ledger} keyed by inventory_location (posted documents only). Adjustments: ${Tables.inventory_adjustments}. Purchases/issues/waste remain document history.
 - Day closings: ${Tables.closings}, Activity tracking: ${Tables.tracking}
 - Tip amounts on paid orders: order.tip_amount (use get_tips — matches Advanced Sales tips column)
 - Saved tip distribution records: ${Tables.tip_distributions} (finalized after Tip Distribution screen — may be empty until saved)

@@ -511,7 +511,12 @@
       "Integration providers": "Integrationsanbieter",
       "Integration configuration": "Integrationskonfiguration",
       "Integration health": "Integrationsstatus",
-      "Integration queue": "Integrationswarteschlange"
+      "Integration queue": "Integrationswarteschlange",
+      "Adjustments": "Anpassungen",
+      "Edit Adjustments": "Anpassungen bearbeiten",
+      "Delete Adjustments": "Anpassungen löschen",
+      "Inventory Settings": "Inventareinstellungen",
+      "Locations": "Standorte"
     }
   },
   "discountEngine": {

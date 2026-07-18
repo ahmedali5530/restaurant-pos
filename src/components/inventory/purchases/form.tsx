@@ -14,7 +14,7 @@ import {Button} from "@/components/common/input/button.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {InventoryPurchase} from "@/api/model/inventory_purchase.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
-import {InventoryStore} from "@/api/model/inventory_store.ts";
+import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {InventoryPurchaseOrder, PurchaseOrderStatus} from "@/api/model/inventory_purchase_order.ts";
 import {RecordId, StringRecordId} from "surrealdb";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -34,6 +34,16 @@ import {withCurrency} from "@/lib/utils.ts";
 import {computePurchaseTotals} from "@/lib/inventory/purchase.totals.ts";
 import {InventoryFormLineTotal} from "@/components/inventory/common/form.line.total.tsx";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
+import { postDocument } from "@/lib/inventory/posting.service.ts";
+import { useIntegrationManager } from "@/providers/integration.provider.tsx";
+import { canEdit, isLocked } from "@/lib/inventory/lifecycle.ts";
+import {
+  formatDependencyMessage,
+  getDependencies,
+} from "@/lib/inventory/dependency-validator.ts";
+import { recordIdToString } from "@/api/reports/shared/records.ts";
+import { InventoryDocumentStatusBadge } from "@/components/inventory/common/document.status.badge.tsx";
+import { useInventoryLocations } from "@/hooks/useInventoryLocations.ts";
 
 type PurchaseMethod = "manual" | "csv" | "purchase_order";
 
@@ -47,7 +57,7 @@ interface PurchaseItemFormValue {
   manufacturing_date?: DateValue | null;
   comments?: string;
   supplier?: { label: string; value: string } | null;
-  store?: { label: string; value: string } | null;
+  location?: { label: string; value: string } | null;
   code?: string;
   taxable?: boolean;
 }
@@ -140,10 +150,10 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
         label: yup.string(),
         value: yup.string()
       }).required('Supplier is required'),
-      store: yup.object({
+      location: yup.object({
         label: yup.string(),
         value: yup.string()
-      }).required('Store is required'),
+      }).required('Location is required'),
       code: yup.string().nullable().optional(),
       taxable: yup.boolean().optional(),
     })
@@ -153,10 +163,13 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
 export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
   const {t} = useTranslation('inventory');
   const db = useDB();
+  const { manager } = useIntegrationManager();
   const [purchaseOrderModal, setPurchaseOrderModal] = useState(false);
+  const [postingAfterSave, setPostingAfterSave] = useState(false);
   const [state,] = useAtom(appPage);
   const validationSchema = useMemo(() => createValidationSchema(db, data?.id), [db, data?.id]);
   const resolver = useMemo(() => yupResolver(validationSchema), [validationSchema]);
+  const locked = isLocked(data?.status);
 
   const {
     data: items,
@@ -168,11 +181,16 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
     [],
     0,
     9999,
-    ["suppliers", "stores"],
+    ["suppliers", "locations", "stores"],
     {
       enabled: false
     }
   );
+
+  const {
+    options: globalLocationOptions,
+    loading: loadingLocations,
+  } = useInventoryLocations(open);
 
   const {
     data: purchaseOrders,
@@ -184,7 +202,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
     [],
     0,
     9999,
-    ["supplier", "items", "items.item", "items.supplier", 'items.item.stores'],
+    ["supplier", "items", "items.item", "items.supplier", "items.item.locations", "items.item.stores"],
     {
       enabled: false
     });
@@ -294,12 +312,13 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
           label: order.supplier.name,
           value: order.supplier.id
         } : null),
-      store: orderItem.item?.stores && orderItem.item.stores.length === 1
-        ? {
-          label: orderItem.item.stores[0].name,
-          value: orderItem.item.stores[0].id
+      location: (() => {
+        const locs = (orderItem.item as any)?.locations ?? orderItem.item?.stores;
+        if (locs && locs.length === 1) {
+          return { label: locs[0].name, value: locs[0].id };
         }
-        : null,
+        return null;
+      })(),
       code: orderItem.item?.code ?? "",
       taxable: !!orderItem.item?.taxable,
     }));
@@ -368,10 +387,13 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
             label: item.supplier.name,
             value: item.supplier.id
           } : null,
-          store: item.store ? {
-            label: item.store.name,
-            value: item.store.id.toString()
-          } : null,
+          location: (() => {
+            const loc = (item as any).location ?? item.store;
+            return loc ? {
+              label: loc.name,
+              value: loc.id.toString()
+            } : null;
+          })(),
           code: item.code ?? "",
           taxable: !!item.taxable,
         }))
@@ -439,7 +461,19 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
     return documentRefs;
   };
 
-  const onSubmit = async (values: any) => {
+  const onSubmit = async (values: any, options?: { postAfterSave?: boolean }) => {
+    if (data?.id) {
+      const deps = await getDependencies(db, "purchase", String(data.id));
+      if (deps.length > 0) {
+        toast.error(formatDependencyMessage("purchase", deps));
+        return;
+      }
+      if (!canEdit(data.status)) {
+        toast.error("Posted documents cannot be edited");
+        return;
+      }
+    }
+
     try {
       const documentRefs = await convertFilesToDocuments(values.documents);
       const totals = computePurchaseTotals(values.items, values.tax_rate, values.extras);
@@ -461,7 +495,9 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
         extras: extrasPayload.length > 0 ? extrasPayload : null,
         items: [],
         created_at: values.date ? toSurrealDateTime(calendarDateToDate(values.date) || undefined) : nowSurrealDateTime(),
-        created_by: toRecordId(state.user.id)
+        created_by: toRecordId(state.user.id),
+        // New docs start as draft; edits of draft/approved keep current status
+        status: data?.id ? (data.status && data.status !== "posted" ? data.status : "draft") : "draft",
       };
 
       let purchaseId: any = data?.id;
@@ -504,7 +540,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
             manufacturing_date: item.manufacturing_date ? calendarDateToDate(item.manufacturing_date) : undefined,
             comments: item.comments?.trim() ? item.comments.trim() : undefined,
             supplier: item.supplier ? toRecordId(item.supplier.value) : undefined,
-            store: item.store ? toRecordId(item.store.value) : undefined,
+            location: item.location ? toRecordId(item.location.value) : undefined,
             code: item.code?.trim() || undefined,
             taxable: !!item.taxable,
             purchase: toRecordId(purchaseIdString)
@@ -541,15 +577,36 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
         }
       }
 
-      toast.success(t('toast:inventory.purchaseSaved'));
+      if (options?.postAfterSave) {
+        const userId = state?.user?.id ? recordIdToString(state.user.id) : undefined;
+        const result = await postDocument({
+          db,
+          documentType: "purchase",
+          documentId: String(purchaseIdString),
+          userId,
+          integrationManager: manager,
+        });
+        toast.success(
+          result.skipped
+            ? (result.reason || t('toast:inventory.purchaseSaved'))
+            : `Purchase posted (${result.ledgerEntryCount} ledger entries)`
+        );
+      } else {
+        toast.success(t('toast:inventory.purchaseSaved'));
+      }
       closeModal();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : String(error));
+    } finally {
+      setPostingAfterSave(false);
     }
   };
 
-  const itemsList: (InventoryItem & { suppliers?: { id: string; name: string }[]; stores?: InventoryStore[] })[] =
-    (items?.data as any) ?? [];
+  const itemsList: (InventoryItem & {
+    suppliers?: { id: string; name: string }[];
+    locations?: InventoryLocation[];
+    stores?: { id: string; name: string }[];
+  })[] = (items?.data as any) ?? [];
 
   const itemOptions = itemsList.map(item => ({
     label: `${item.name}-${item.code}`,
@@ -569,14 +626,15 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
     return map;
   }, [itemsList]);
 
-  const itemStoresMap = React.useMemo(() => {
+  const itemLocationsMap = React.useMemo(() => {
     const map: Record<string, { label: string; value: string }[]> = {};
     for (const item of itemsList) {
       const key = item.id?.toString();
       if (!key) continue;
-      map[key] = (item.stores ?? []).map((st: InventoryStore) => ({
-        label: st.name,
-        value: (st as any).id ?? (st as any)?.toString?.() ?? ""
+      const locs = item.locations ?? item.stores ?? [];
+      map[key] = locs.map((loc) => ({
+        label: loc.name,
+        value: String((loc as any).id ?? loc)
       }));
     }
     return map;
@@ -601,7 +659,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
         onClose={closeModal}
         size="xl"
       >
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit((values) => onSubmit(values))}>
           <div className="flex flex-col gap-3 mb-3">
             <div className="flex gap-3">
               <div className="flex-1">
@@ -753,7 +811,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                     comments: "",
                     supplier: null,
                     code: "",
-                    store: null,
+                    location: null,
                     taxable: false,
                   })}
                 >
@@ -768,10 +826,10 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                   selectedItemId && itemSuppliersMap[selectedItemId]
                     ? itemSuppliersMap[selectedItemId]
                     : [];
-                const storeOptionsForItem =
-                  selectedItemId && itemStoresMap[selectedItemId]
-                    ? itemStoresMap[selectedItemId]
-                    : [];
+                const locationOptionsForItem =
+                  selectedItemId && itemLocationsMap[selectedItemId]?.length
+                    ? itemLocationsMap[selectedItemId]
+                    : globalLocationOptions;
 
                 return (
                   <div className="flex flex-col gap-3 mb-4 border border-neutral-400 rounded-lg p-3" key={field.id}>
@@ -928,21 +986,21 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                         <InputError error={_.get(errors, ["items", index, "supplier", "message"])}/>
                       </div>
                       <div className="flex-1">
-                        <label>Store</label>
+                        <label>{t('columns.store')}</label>
                         <Controller
-                          name={`items.${index}.store`}
+                          name={`items.${index}.location`}
                           control={control}
                           render={({field}) => (
                             <ReactSelect
                               value={field.value}
                               onChange={field.onChange}
-                              options={storeOptionsForItem}
-                              isLoading={loadingItems}
+                              options={locationOptionsForItem}
+                              isLoading={loadingItems || loadingLocations}
                               isClearable
                             />
                           )}
                         />
-                        <InputError error={_.get(errors, ["items", index, "store", "message"])}/>
+                        <InputError error={_.get(errors, ["items", index, "location", "message"])}/>
                       </div>
                       <div className="flex-1">
                         <Input
@@ -1058,8 +1116,27 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
             </div>
           </div>
 
-          <div>
-            <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
+          <div className="flex gap-2 items-center">
+            {data?.status && <InventoryDocumentStatusBadge status={data.status} />}
+            {!locked && (
+              <>
+                <Button type="submit" variant="secondary" disabled={postingAfterSave}>
+                  {t('common:actions.save')} (Draft)
+                </Button>
+                <Button
+                  type="button"
+                  variant="primary"
+                  isLoading={postingAfterSave}
+                  disabled={postingAfterSave}
+                  onClick={() => {
+                    setPostingAfterSave(true);
+                    void handleSubmit((values) => onSubmit(values, { postAfterSave: true }))();
+                  }}
+                >
+                  Save &amp; Post
+                </Button>
+              </>
+            )}
           </div>
         </form>
       </Modal>
@@ -1105,20 +1182,19 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
             name: 'supplier',
             label: t('columns.suppliers')
           }, {
-            name: 'store',
-            label: t('columns.stores')
+            name: 'location',
+            label: t('columns.store')
           }, {
             name: 'comments',
             label: t('forms.comments')
           }]}
           onCreateRow={async (rowData) => {
             try {
-              // find item
               const [item] = await db.query(`SELECT *
                                              FROM ${Tables.inventory_items}
                                              where name = $name
                                                and code = $code fetch suppliers
-                                                 , stores`, {
+                                                 , locations, stores`, {
                 name: rowData.name,
                 code: rowData.code,
               });
@@ -1132,9 +1208,10 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                 throw new Error('Supplier not found');
               }
 
-              const store = item[0]?.stores.find(item => item.name === rowData.store);
-              if (store === undefined) {
-                throw new Error('Store not found');
+              const locs = item[0]?.locations ?? item[0]?.stores ?? [];
+              const location = locs.find((loc: any) => loc.name === rowData.location || loc.name === rowData.store);
+              if (location === undefined) {
+                throw new Error('Location not found');
               }
 
               append({
@@ -1154,9 +1231,9 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                   value: supplier.id
                 },
                 code: "",
-                store: {
-                  label: store.name,
-                  value: store.id
+                location: {
+                  label: location.name,
+                  value: location.id
                 },
                 taxable: !!item[0].taxable,
               });

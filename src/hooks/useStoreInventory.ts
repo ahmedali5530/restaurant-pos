@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {StringRecordId} from "surrealdb";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
@@ -7,12 +7,12 @@ import { InventoryPurchaseReturnItem } from "@/api/model/inventory_purchase_retu
 import { InventoryIssueItem } from "@/api/model/inventory_issue.ts";
 import { InventoryIssueReturnItem } from "@/api/model/inventory_issue_return.ts";
 import { InventoryWasteItem } from "@/api/model/inventory_waste.ts";
-import {computeStoreNet} from "@/utils/inventory.ts";
-import {fetchStoreTransferTotals} from "@/lib/inventory/stock_transfer.service.ts";
+import {fetchStoreInventoryBreakdown} from "@/utils/inventory.ts";
 import {
   fetchBuffetConsumptionLinesForStore,
-  fetchBuffetConsumptionTotals,
 } from "@/lib/inventory/buffet.service.ts";
+import { isInventoryLedgerEnabled } from "@/lib/inventory/settings.ts";
+import { fetchLedgerMovements } from "@/lib/inventory/ledger.service.ts";
 
 interface InventoryTotals {
   purchases: number;
@@ -25,6 +25,7 @@ interface InventoryTotals {
   productionInputs: number;
   productionOutputs: number;
   buffetConsumption: number;
+  adjustments: number;
 }
 
 export interface BuffetConsumptionRecord {
@@ -54,6 +55,15 @@ export interface StoreTransferRecord {
   counterparty?: string;
 }
 
+export interface AdjustmentRecord {
+  id: string;
+  quantity: number;
+  created_at: Date;
+  type: "adjustment";
+  item: {name?: string; code?: string; uom?: string};
+  notes?: string;
+}
+
 interface InventoryRecords {
   purchases: InventoryPurchaseItem[];
   returns: InventoryPurchaseReturnItem[];
@@ -65,6 +75,7 @@ interface InventoryRecords {
   productionInputs: ProductionMovementRecord[];
   productionOutputs: ProductionMovementRecord[];
   buffetConsumption: BuffetConsumptionRecord[];
+  adjustments: AdjustmentRecord[];
 }
 
 const initialTotals: InventoryTotals = {
@@ -78,6 +89,7 @@ const initialTotals: InventoryTotals = {
   productionInputs: 0,
   productionOutputs: 0,
   buffetConsumption: 0,
+  adjustments: 0,
 };
 
 const initialRecords: InventoryRecords = {
@@ -91,11 +103,8 @@ const initialRecords: InventoryRecords = {
   productionInputs: [],
   productionOutputs: [],
   buffetConsumption: [],
+  adjustments: [],
 };
-
-type SumQueryResponse = Array<{ total: number | null }>;
-
-const getTotalFromRows = (rows?: SumQueryResponse) => rows?.[0]?.total ?? 0;
 
 type IdentifierValue = string | undefined;
 
@@ -122,6 +131,8 @@ const toJsDate = (value: unknown): Date => {
   return new Date();
 };
 
+const emptyItemMeta = (): {name?: string; code?: string; uom?: string} => ({});
+
 export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreId?: IdentifierValue) => {
   const db = useDB();
   const queryRef = useRef(db.query);
@@ -137,6 +148,7 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
 
   const [totals, setTotals] = useState<InventoryTotals>(initialTotals);
   const [records, setRecords] = useState<InventoryRecords>(initialRecords);
+  const [netQuantity, setNetQuantity] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -155,6 +167,7 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
     if (!itemId || !storeId) {
       setTotals(initialTotals);
       setRecords(initialRecords);
+      setNetQuantity(0);
       setLoading(false);
       setError(null);
       return;
@@ -169,196 +182,258 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
       const params = { item: toRecordId(itemId), store: toRecordId(storeId) };
 
       try {
-        const [
-          [purchaseTotalsResult],
-          [returnTotalsResult],
-          [issueTotalsResult],
-          [issueReturnTotalsResult],
-          [wasteTotalsResult],
-          transferTotals,
-          purchaseRecords,
-          returnRecords,
-          issueRecords,
-          issueReturnRecords,
-          wasteRecords,
-          transferOutRecords,
-          transferInRecords,
-          productionInputTotalsResult,
-          productionOutputTotalsResult,
-          productionInputRecords,
-          productionOutputRecords,
-          buffetConsumptionTotal,
-          buffetConsumptionRecords,
-        ] = await Promise.all([
-          queryRef.current(
-            `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_purchase_items} WHERE item = $item AND store = $store GROUP ALL`,
-            params
-          ),
-          queryRef.current(
-            `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_purchase_return_items} WHERE item = $item AND purchase_item.store = $store GROUP ALL`,
-            params
-          ),
-          queryRef.current(
-            `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_issue_items} WHERE item = $item AND store = $store GROUP ALL`,
-            params
-          ),
-          queryRef.current(
-            `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_issue_return_items} WHERE item = $item AND (store = $store OR issued_item.store = $store OR issue_return.store = $store) GROUP ALL`,
-            params
-          ),
-          queryRef.current(
-            `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_waste_items} WHERE item = $item AND purchase_item != null AND purchase_item.store = $store GROUP ALL`,
-            params
-          ),
-          fetchStoreTransferTotals(db, itemId, storeId),
-          queryRef.current(
-            `SELECT *, purchase.created_at as created_at, purchase.invoice_number as invoice_number FROM ${Tables.inventory_purchase_items} WHERE item = $item AND store = $store order by purchase.created_at DESC FETCH item`,
-            params
-          ),
-          queryRef.current(
-            `SELECT *, purchase_return.created_at as created_at, purchase_return.invoice_number as invoice_number FROM ${Tables.inventory_purchase_return_items} WHERE item = $item AND purchase_item.store = $store order by purchase_return.created_at DESC FETCH item`,
-            params
-          ),
-          queryRef.current(
-            `SELECT *, issue.created_at as created_at, issue.invoice_number as invoice_number FROM ${Tables.inventory_issue_items} WHERE item = $item AND store = $store order by issue.created_at DESC FETCH item`,
-            params
-          ),
-          queryRef.current(
-            `SELECT *, issue_return.created_at as created_at, issue_return.invoice_number as invoice_number FROM ${Tables.inventory_issue_return_items} WHERE item = $item AND (store = $store OR issued_item.store = $store OR issue_return.store = $store) order by issue_return.created_at DESC FETCH item`,
-            params
-          ),
-          queryRef.current(
-            `SELECT *, waste.created_at as created_at, waste.invoice_number as invoice_number FROM ${Tables.inventory_waste_items} WHERE item = $item AND ((purchase_item != none AND purchase_item.store = $store) or (issue_item != none and issue_item.store = $store)) order by waste.created_at DESC FETCH item`,
-            params
-          ),
-          queryRef.current(
-            `SELECT *, transfer.created_at AS created_at, transfer.to_store.name AS counterparty
-            FROM ${Tables.stock_transfer_items}
-            WHERE item = $item AND transfer IN (
-              SELECT VALUE id FROM ${Tables.stock_transfers} WHERE from_store = $store AND to_store != NONE
-            )
-            ORDER BY transfer.created_at DESC
-            FETCH item, transfer, transfer.to_store`,
-            params
-          ),
-          queryRef.current(
-            `SELECT *, transfer.created_at AS created_at, transfer.from_store.name AS counterparty
-            FROM ${Tables.stock_transfer_items}
-            WHERE item = $item AND transfer IN (
-              SELECT VALUE id FROM ${Tables.stock_transfers} WHERE to_store = $store AND from_store != NONE
-            )
-            ORDER BY transfer.created_at DESC
-            FETCH item, transfer, transfer.from_store`,
-            params
-          ),
-          queryRef.current(
-            `SELECT math::sum(quantity) AS total FROM ${Tables.production_batch_inputs}
-            WHERE item = $item AND store = $store
-            AND batch IN (SELECT VALUE id FROM ${Tables.production_batches} WHERE status = 'completed')
-            GROUP ALL`,
-            params
-          ),
-          queryRef.current(
-            `SELECT math::sum(quantity) AS total FROM ${Tables.production_batch_outputs}
-            WHERE item = $item AND store = $store AND disposition = 'inventory'
-            AND batch IN (SELECT VALUE id FROM ${Tables.production_batches} WHERE status = 'completed')
-            GROUP ALL`,
-            params
-          ),
-          queryRef.current(
-            `SELECT *, batch.created_at AS created_at, batch.batch_number AS batch_number
-            FROM ${Tables.production_batch_inputs}
-            WHERE item = $item AND store = $store
-            AND batch IN (SELECT VALUE id FROM ${Tables.production_batches} WHERE status = 'completed')
-            ORDER BY batch.created_at DESC
-            FETCH item, batch`,
-            params
-          ),
-          queryRef.current(
-            `SELECT *, batch.created_at AS created_at, batch.batch_number AS batch_number
-            FROM ${Tables.production_batch_outputs}
-            WHERE item = $item AND store = $store AND disposition = 'inventory'
-            AND batch IN (SELECT VALUE id FROM ${Tables.production_batches} WHERE status = 'completed')
-            ORDER BY batch.created_at DESC
-            FETCH item, batch`,
-            params
-          ),
-          fetchBuffetConsumptionTotals(db, itemId, storeId),
-          fetchBuffetConsumptionLinesForStore(db, itemId, storeId),
-        ]);
+        const breakdown = await fetchStoreInventoryBreakdown(db, itemId, storeId);
+        const ledgerEnabled = await isInventoryLedgerEnabled(db);
 
         if (!cancelled) {
           setTotals({
-            purchases: getTotalFromRows(purchaseTotalsResult as SumQueryResponse),
-            returns: getTotalFromRows(returnTotalsResult as SumQueryResponse),
-            issues: getTotalFromRows(issueTotalsResult as SumQueryResponse),
-            issueReturns: getTotalFromRows(issueReturnTotalsResult as SumQueryResponse),
-            waste: getTotalFromRows(wasteTotalsResult as SumQueryResponse),
-            transfersIn: transferTotals.transfersIn,
-            transfersOut: transferTotals.transfersOut,
-            productionInputs: getTotalFromRows(productionInputTotalsResult as SumQueryResponse),
-            productionOutputs: getTotalFromRows(productionOutputTotalsResult as SumQueryResponse),
-            buffetConsumption: buffetConsumptionTotal,
+            purchases: breakdown.purchases,
+            returns: breakdown.returns,
+            issues: breakdown.issues,
+            issueReturns: breakdown.issueReturns,
+            waste: breakdown.waste,
+            transfersIn: breakdown.transfersIn,
+            transfersOut: breakdown.transfersOut,
+            productionInputs: breakdown.productionInputs,
+            productionOutputs: breakdown.productionOutputs,
+            buffetConsumption: breakdown.buffetConsumption,
+            adjustments: breakdown.adjustments ?? 0,
+          });
+          setNetQuantity(breakdown.net);
+        }
+
+        if (ledgerEnabled) {
+          const movements = await fetchLedgerMovements(db, {
+            itemId,
+            storeId,
+            excludeReversals: true,
           });
 
-          const mapTransferRows = (
-            rows: any[],
-            type: "transfer_in" | "transfer_out"
-          ): StoreTransferRecord[] =>
-            rows.map((row) => ({
-              id: String(row.id),
-              quantity: Number(row.quantity) || 0,
-              created_at: toJsDate(row.created_at),
-              type,
-              item: {
-                name: row.item?.name,
-                code: row.item?.code,
-                uom: row.item?.uom,
-              },
-              counterparty: row.counterparty,
-            }));
+          if (cancelled) return;
+
+          const purchases: InventoryPurchaseItem[] = [];
+          const returns: InventoryPurchaseReturnItem[] = [];
+          const issues: InventoryIssueItem[] = [];
+          const issueReturns: InventoryIssueReturnItem[] = [];
+          const waste: InventoryWasteItem[] = [];
+          const transfersIn: StoreTransferRecord[] = [];
+          const transfersOut: StoreTransferRecord[] = [];
+          const productionInputs: ProductionMovementRecord[] = [];
+          const productionOutputs: ProductionMovementRecord[] = [];
+          const buffetConsumption: BuffetConsumptionRecord[] = [];
+          const adjustments: AdjustmentRecord[] = [];
+
+          for (const row of movements) {
+            const created_at = row.created_at
+              ? toJsDate(row.created_at)
+              : toJsDate(row.business_date);
+            const qty = Math.abs(Number(row.quantity_change) || 0);
+            const base = {
+              id: row.id,
+              quantity: qty,
+              created_at,
+              item: emptyItemMeta(),
+            };
+
+            switch (row.reference_type) {
+              case "purchase":
+                purchases.push(base as unknown as InventoryPurchaseItem);
+                break;
+              case "purchase_return":
+                returns.push(base as unknown as InventoryPurchaseReturnItem);
+                break;
+              case "issue":
+                issues.push(base as unknown as InventoryIssueItem);
+                break;
+              case "issue_return":
+                issueReturns.push(base as unknown as InventoryIssueReturnItem);
+                break;
+              case "waste":
+                waste.push(base as unknown as InventoryWasteItem);
+                break;
+              case "transfer_in":
+                transfersIn.push({ ...base, type: "transfer_in" });
+                break;
+              case "transfer_out":
+                transfersOut.push({ ...base, type: "transfer_out" });
+                break;
+              case "production_input":
+                productionInputs.push({ ...base, type: "production_out" });
+                break;
+              case "production_output":
+                productionOutputs.push({ ...base, type: "production_in" });
+                break;
+              case "buffet_consumption":
+                buffetConsumption.push({
+                  ...base,
+                  type: "buffet_guest",
+                  sessionNumber: row.reference_id,
+                });
+                break;
+              case "adjustment":
+                adjustments.push({
+                  id: row.id,
+                  // Keep signed quantity so UI can show +/–
+                  quantity: Number(row.quantity_change) || 0,
+                  created_at,
+                  type: "adjustment",
+                  item: emptyItemMeta(),
+                  notes: row.notes,
+                });
+                break;
+              default:
+                break;
+            }
+          }
 
           setRecords({
-            purchases: (purchaseRecords[0] || []) as InventoryPurchaseItem[],
-            returns: (returnRecords[0] || []) as InventoryPurchaseReturnItem[],
-            issues: (issueRecords[0] || []) as InventoryIssueItem[],
-            issueReturns: (issueReturnRecords[0] || []) as InventoryIssueReturnItem[],
-            waste: (wasteRecords[0] || []) as InventoryWasteItem[],
-            transfersOut: mapTransferRows((transferOutRecords[0] || []) as any[], "transfer_out"),
-            transfersIn: mapTransferRows((transferInRecords[0] || []) as any[], "transfer_in"),
-            productionInputs: ((productionInputRecords[0] || []) as any[]).map((row) => ({
-              id: String(row.id),
-              quantity: Number(row.quantity) || 0,
-              created_at: toJsDate(row.created_at),
-              type: "production_out" as const,
-              item: {
-                name: row.item?.name,
-                code: row.item?.code,
-                uom: row.item?.uom,
-              },
-              batchNumber: row.batch_number,
-            })),
-            productionOutputs: ((productionOutputRecords[0] || []) as any[]).map((row) => ({
-              id: String(row.id),
-              quantity: Number(row.quantity) || 0,
-              created_at: toJsDate(row.created_at),
-              type: "production_in" as const,
-              item: {
-                name: row.item?.name,
-                code: row.item?.code,
-                uom: row.item?.uom,
-              },
-              batchNumber: row.batch_number,
-            })),
-            buffetConsumption: buffetConsumptionRecords.map((row) => ({
-              id: `${row.id}-${row.source}`,
-              quantity: row.quantity,
-              created_at: toJsDate(row.createdAt),
-              type: row.source as BuffetConsumptionRecord["type"],
-              item: {},
-              sessionNumber: row.sessionNumber,
-            })),
+            purchases,
+            returns,
+            issues,
+            issueReturns,
+            waste,
+            transfersIn,
+            transfersOut,
+            productionInputs,
+            productionOutputs,
+            buffetConsumption,
+            adjustments,
           });
+        } else {
+          const [
+            purchaseRecords,
+            returnRecords,
+            issueRecords,
+            issueReturnRecords,
+            wasteRecords,
+            transferOutRecords,
+            transferInRecords,
+            productionInputRecords,
+            productionOutputRecords,
+            buffetConsumptionRecords,
+          ] = await Promise.all([
+            queryRef.current(
+              `SELECT *, purchase.created_at as created_at, purchase.invoice_number as invoice_number FROM ${Tables.inventory_purchase_items} WHERE item = $item AND store = $store order by purchase.created_at DESC FETCH item`,
+              params
+            ),
+            queryRef.current(
+              `SELECT *, purchase_return.created_at as created_at, purchase_return.invoice_number as invoice_number FROM ${Tables.inventory_purchase_return_items} WHERE item = $item AND purchase_item.store = $store order by purchase_return.created_at DESC FETCH item`,
+              params
+            ),
+            queryRef.current(
+              `SELECT *, issue.created_at as created_at, issue.invoice_number as invoice_number FROM ${Tables.inventory_issue_items} WHERE item = $item AND store = $store order by issue.created_at DESC FETCH item`,
+              params
+            ),
+            queryRef.current(
+              `SELECT *, issue_return.created_at as created_at, issue_return.invoice_number as invoice_number FROM ${Tables.inventory_issue_return_items} WHERE item = $item AND (store = $store OR issued_item.store = $store OR issue_return.store = $store) order by issue_return.created_at DESC FETCH item`,
+              params
+            ),
+            queryRef.current(
+              `SELECT *, waste.created_at as created_at, waste.invoice_number as invoice_number FROM ${Tables.inventory_waste_items} WHERE item = $item AND ((purchase_item != none AND purchase_item.store = $store) or (issue_item != none and issue_item.store = $store)) order by waste.created_at DESC FETCH item`,
+              params
+            ),
+            queryRef.current(
+              `SELECT *, transfer.created_at AS created_at, transfer.to_store.name AS counterparty
+              FROM ${Tables.stock_transfer_items}
+              WHERE item = $item AND transfer IN (
+                SELECT VALUE id FROM ${Tables.stock_transfers} WHERE from_store = $store AND to_store != NONE
+              )
+              ORDER BY transfer.created_at DESC
+              FETCH item, transfer, transfer.to_store`,
+              params
+            ),
+            queryRef.current(
+              `SELECT *, transfer.created_at AS created_at, transfer.from_store.name AS counterparty
+              FROM ${Tables.stock_transfer_items}
+              WHERE item = $item AND transfer IN (
+                SELECT VALUE id FROM ${Tables.stock_transfers} WHERE to_store = $store AND from_store != NONE
+              )
+              ORDER BY transfer.created_at DESC
+              FETCH item, transfer, transfer.from_store`,
+              params
+            ),
+            queryRef.current(
+              `SELECT *, batch.created_at AS created_at, batch.batch_number AS batch_number
+              FROM ${Tables.production_batch_inputs}
+              WHERE item = $item AND store = $store
+              AND batch IN (SELECT VALUE id FROM ${Tables.production_batches} WHERE status = 'completed')
+              ORDER BY batch.created_at DESC
+              FETCH item, batch`,
+              params
+            ),
+            queryRef.current(
+              `SELECT *, batch.created_at AS created_at, batch.batch_number AS batch_number
+              FROM ${Tables.production_batch_outputs}
+              WHERE item = $item AND store = $store AND disposition = 'inventory'
+              AND batch IN (SELECT VALUE id FROM ${Tables.production_batches} WHERE status = 'completed')
+              ORDER BY batch.created_at DESC
+              FETCH item, batch`,
+              params
+            ),
+            fetchBuffetConsumptionLinesForStore(db, itemId, storeId),
+          ]);
+
+          if (!cancelled) {
+            const mapTransferRows = (
+              rows: any[],
+              type: "transfer_in" | "transfer_out"
+            ): StoreTransferRecord[] =>
+              rows.map((row) => ({
+                id: String(row.id),
+                quantity: Number(row.quantity) || 0,
+                created_at: toJsDate(row.created_at),
+                type,
+                item: {
+                  name: row.item?.name,
+                  code: row.item?.code,
+                  uom: row.item?.uom,
+                },
+                counterparty: row.counterparty,
+              }));
+
+            setRecords({
+              purchases: (purchaseRecords[0] || []) as InventoryPurchaseItem[],
+              returns: (returnRecords[0] || []) as InventoryPurchaseReturnItem[],
+              issues: (issueRecords[0] || []) as InventoryIssueItem[],
+              issueReturns: (issueReturnRecords[0] || []) as InventoryIssueReturnItem[],
+              waste: (wasteRecords[0] || []) as InventoryWasteItem[],
+              transfersOut: mapTransferRows((transferOutRecords[0] || []) as any[], "transfer_out"),
+              transfersIn: mapTransferRows((transferInRecords[0] || []) as any[], "transfer_in"),
+              productionInputs: ((productionInputRecords[0] || []) as any[]).map((row) => ({
+                id: String(row.id),
+                quantity: Number(row.quantity) || 0,
+                created_at: toJsDate(row.created_at),
+                type: "production_out" as const,
+                item: {
+                  name: row.item?.name,
+                  code: row.item?.code,
+                  uom: row.item?.uom,
+                },
+                batchNumber: row.batch_number,
+              })),
+              productionOutputs: ((productionOutputRecords[0] || []) as any[]).map((row) => ({
+                id: String(row.id),
+                quantity: Number(row.quantity) || 0,
+                created_at: toJsDate(row.created_at),
+                type: "production_in" as const,
+                item: {
+                  name: row.item?.name,
+                  code: row.item?.code,
+                  uom: row.item?.uom,
+                },
+                batchNumber: row.batch_number,
+              })),
+              buffetConsumption: buffetConsumptionRecords.map((row) => ({
+                id: `${row.id}-${row.source}`,
+                quantity: row.quantity,
+                created_at: toJsDate(row.createdAt),
+                type: row.source as BuffetConsumptionRecord["type"],
+                item: {},
+                sessionNumber: row.sessionNumber,
+              })),
+              adjustments: [],
+            });
+          }
         }
       } catch (err) {
         if (!cancelled) {
@@ -375,8 +450,6 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
       cancelled = true;
     };
   }, [identifiers.itemId, identifiers.storeId]);
-
-  const netQuantity = useMemo(() => computeStoreNet(totals), [totals]);
 
   return { identifiers, setArgs, totals, records, netQuantity, loading, error };
 };

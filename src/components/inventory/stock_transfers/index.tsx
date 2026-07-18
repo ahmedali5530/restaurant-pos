@@ -1,11 +1,7 @@
-import {useEffect, useMemo, useState} from "react";
+import {useState} from "react";
 import {useTranslation} from "react-i18next";
 import {createColumnHelper} from "@tanstack/react-table";
-import useApi, {SettingsData} from "@/api/db/use.api.ts";
-import {Tables} from "@/api/db/tables.ts";
 import {StockTransfer} from "@/api/model/stock_transfer.ts";
-import {Kitchen} from "@/api/model/kitchen.ts";
-import {InventoryStore} from "@/api/model/inventory_store.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -15,89 +11,35 @@ import {StockTransferViewModal} from "@/components/inventory/stock_transfers/vie
 import {InventoryDocumentPrintModal} from "@/components/inventory/common/document.print.modal.tsx";
 import {InventoryInvoiceDoc, mapStockTransferToInvoice} from "@/lib/inventory/invoice.mapper.ts";
 import {useStockTransferList} from "@/hooks/useStockTransferList.ts";
-import {inferTransferType} from "@/lib/inventory/stock_transfer.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {toJsDate} from "@/lib/datetime.ts";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
-import classNames from "classnames";
-
-const toRecordIdString = (id: unknown): string => {
-  if (!id) return "";
-  if (typeof id === "string") return id;
-  if (typeof id === "object" && id !== null && "toString" in id) {
-    return (id as {toString(): string}).toString();
-  }
-  return String(id);
-};
+import {useInventoryLocations} from "@/hooks/useInventoryLocations.ts";
 
 export const InventoryStockTransfers = () => {
   const {t} = useTranslation("inventory");
   const {protectAction} = useSecurity();
   const loadHook = useStockTransferList(0, 10);
 
-  const {data: kitchens, fetchData: fetchKitchens} = useApi<SettingsData<Kitchen>>(
-    Tables.kitchens,
-    ["deleted_at = none"],
-    [],
-    0,
-    9999,
-    [],
-    {enabled: false}
-  );
-
-  const {data: stores, fetchData: fetchStores} = useApi<SettingsData<InventoryStore>>(
-    Tables.inventory_stores,
-    [],
-    [],
-    0,
-    9999,
-    [],
-    {enabled: false}
-  );
+  const {options: locationOptions} = useInventoryLocations(true);
 
   const [data, setData] = useState<StockTransfer>();
   const [formModal, setFormModal] = useState(false);
   const [viewTransfer, setViewTransfer] = useState<StockTransfer | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [printDoc, setPrintDoc] = useState<InventoryInvoiceDoc | null>(null);
-  const [filterKitchen, setFilterKitchen] = useState<{label: string; value: string} | null>(null);
-  const [filterStore, setFilterStore] = useState<{label: string; value: string} | null>(null);
-
-  useEffect(() => {
-    fetchKitchens();
-    fetchStores();
-  }, [fetchKitchens, fetchStores]);
-
-  const kitchenOptions = useMemo(
-    () =>
-      kitchens?.data?.map((kitchen) => ({
-        label: kitchen.name,
-        value: toRecordIdString(kitchen.id),
-      })) ?? [],
-    [kitchens]
-  );
-
-  const storeOptions = useMemo(
-    () =>
-      stores?.data?.map((store) => ({
-        label: store.name,
-        value: toRecordIdString(store.id),
-      })) ?? [],
-    [stores]
-  );
+  const [filterLocation, setFilterLocation] = useState<{label: string; value: string} | null>(null);
 
   const applyFilters = () => {
     loadHook.setListFilters({
-      kitchenId: filterKitchen?.value,
-      storeId: filterStore?.value,
+      locationId: filterLocation?.value,
     });
     loadHook.handlePageChange(0);
     loadHook.fetchData();
   };
 
   const clearFilters = () => {
-    setFilterKitchen(null);
-    setFilterStore(null);
+    setFilterLocation(null);
     loadHook.resetFilters();
     loadHook.fetchData();
   };
@@ -110,32 +52,12 @@ export const InventoryStockTransfers = () => {
       cell: (info) =>
         info.getValue() ? toJsDate(info.getValue() as any).toLocaleString() : "",
     }),
-    columnHelper.accessor((row) => inferTransferType(row), {
-      id: "type",
-      header: t("stockTransfer.type"),
-      cell: (info) => {
-        const type = info.getValue();
-        return (
-          <span
-            className={classNames(
-              "tag",
-              type === "kitchen" ? "bg-info-100 text-info-800" : "bg-neutral-100 text-neutral-800"
-            )}
-          >
-            {type === "kitchen"
-              ? t("stockTransfer.typeKitchen")
-              : t("stockTransfer.typeStore")}
-          </span>
-        );
-      },
-    }),
     columnHelper.accessor(
       (row) => {
-        const type = inferTransferType(row);
-        if (type === "kitchen") {
-          return `${row.from_kitchen?.name ?? "—"} → ${row.to_kitchen?.name ?? "—"}`;
-        }
-        return `${row.from_store?.name ?? "—"} → ${row.to_store?.name ?? "—"}`;
+        const from =
+          row.from_location?.name ?? row.from_store?.name ?? "—";
+        const to = row.to_location?.name ?? row.to_store?.name ?? "—";
+        return `${from} → ${to}`;
       },
       {
         id: "route",
@@ -210,20 +132,11 @@ export const InventoryStockTransfers = () => {
     <>
       <div className="flex flex-wrap gap-3 items-end px-4 py-3 border-b border-neutral-200">
         <div className="w-56">
-          <label className="text-sm text-neutral-600">{t("stockTransfer.filterKitchen")}</label>
-          <ReactSelect
-            value={filterKitchen}
-            onChange={setFilterKitchen}
-            options={kitchenOptions}
-            isClearable
-          />
-        </div>
-        <div className="w-56">
           <label className="text-sm text-neutral-600">{t("stockTransfer.filterStore")}</label>
           <ReactSelect
-            value={filterStore}
-            onChange={setFilterStore}
-            options={storeOptions}
+            value={filterLocation}
+            onChange={setFilterLocation}
+            options={locationOptions}
             isClearable
           />
         </div>

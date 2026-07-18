@@ -7,6 +7,7 @@ import {InventoryPurchase} from "@/api/model/inventory_purchase.ts";
 import {formatNumber, safeNumber, withCurrency} from "@/lib/utils.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {
+  buildLocationOrStoreInsideCondition,
   buildNestedRecordAnyCondition,
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
@@ -81,7 +82,7 @@ export const PurchaseReport = () => {
           Object.assign(params, supplierFilter.params);
         }
 
-        const storeFilter = buildRecordInsideCondition('store', filters.storeIds, 'storeIds');
+        const storeFilter = buildLocationOrStoreInsideCondition(filters.storeIds, 'storeIds');
         if (storeFilter.condition) {
           conditions.push(storeFilter.condition);
           Object.assign(params, storeFilter.params);
@@ -103,7 +104,7 @@ export const PurchaseReport = () => {
           SELECT * FROM ${Tables.inventory_purchases}
           ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
           ORDER BY created_at ASC
-          FETCH items, items.item, items.item.category, created_by, supplier, store
+          FETCH items, items.item, items.item.category, created_by, supplier, location, store
         `;
 
         const result: any = await queryRef.current(query, params);
@@ -233,7 +234,7 @@ export const PurchaseReport = () => {
                     const date = toLuxonDateTime(purchase.created_at);
                     const dateStr = date.toFormat(import.meta.env.VITE_DATE_FORMAT);
                     const supplierName = purchase.supplier?.name || 'N/A';
-                    const storeName = purchase.store?.name || 'N/A';
+                    const storeName = purchase.location?.name || purchase.store?.name || 'N/A';
                     const createdByName = purchase.created_by
                       ? `${purchase.created_by.first_name ?? ''} ${purchase.created_by.last_name ?? ''}`.trim() || purchase.created_by.login || 'Unknown'
                       : 'Unknown';

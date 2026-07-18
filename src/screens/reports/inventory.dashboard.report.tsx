@@ -21,9 +21,9 @@ import {Tab, TabPanel} from "@/components/common/react-aria/tabs.tsx";
 import _ from "lodash";
 import {KitchenReconciliation} from "@/api/model/kitchen_reconciliation.ts";
 import {listKitchenReconciliationsForReport} from "@/lib/kitchen/reconciliation.service.ts";
-import {fetchStoreTransferAggregates} from "@/lib/inventory/stock_transfer.service.ts";
-import {fetchProductionLinesForReport} from "@/lib/inventory/production.service.ts";
 import {computeLine, computeTotals} from "@/lib/kitchen/reconciliation.calculations.ts";
+import {fetchLedgerNetsByStore} from "@/lib/inventory/ledger.service.ts";
+import {recordIdToString} from "@/api/reports/shared/records.ts";
 
 // ==================== Types ====================
 type ChartDataPoint = {
@@ -31,8 +31,8 @@ type ChartDataPoint = {
   y: number;
 };
 
-type InventoryStoreStock = {
-  storeName: string;
+type InventoryLocationStock = {
+  locationName: string;
   items: {
     name: string;
     code: string;
@@ -323,7 +323,7 @@ export const InventoryDashboardReport = () => {
   const [issueReturns, setIssueReturns] = useState<any[]>([]);
   const [wastes, setWastes] = useState<any[]>([]);
   const [reconciliations, setReconciliations] = useState<KitchenReconciliation[]>([]);
-  const [storeStock, setStoreStock] = useState<InventoryStoreStock[]>([]);
+  const [locationStock, setLocationStock] = useState<InventoryLocationStock[]>([]);
 
   // Parse date range from query strings - same pattern as sales.summary.report.tsx
   const filters = useMemo(() => {
@@ -364,15 +364,15 @@ export const InventoryDashboardReport = () => {
           issueReturnsResult,
           wastesResult,
           itemsResult,
-          storesResult,
+          locationsResult,
         ] = await Promise.all([
-          queryRef.current(`SELECT * FROM ${Tables.inventory_purchases} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} ORDER BY created_at DESC FETCH items, items.item, supplier, store, created_by`, whereParams),
-          queryRef.current(`SELECT * FROM ${Tables.inventory_purchase_returns} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} ORDER BY created_at DESC FETCH items, items.item, purchase, store, created_by`, whereParams),
-          queryRef.current(`SELECT * FROM ${Tables.inventory_issues} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} ORDER BY created_at DESC FETCH items, items.item, store, created_by`, whereParams),
-          queryRef.current(`SELECT * FROM ${Tables.inventory_issue_returns} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} ORDER BY created_at DESC FETCH items, items.item, store, created_by`, whereParams),
+          queryRef.current(`SELECT * FROM ${Tables.inventory_purchases} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} ORDER BY created_at DESC FETCH items, items.item, supplier, location, store, created_by`, whereParams),
+          queryRef.current(`SELECT * FROM ${Tables.inventory_purchase_returns} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} ORDER BY created_at DESC FETCH items, items.item, purchase, location, store, created_by`, whereParams),
+          queryRef.current(`SELECT * FROM ${Tables.inventory_issues} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} ORDER BY created_at DESC FETCH items, items.item, location, store, created_by`, whereParams),
+          queryRef.current(`SELECT * FROM ${Tables.inventory_issue_returns} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} ORDER BY created_at DESC FETCH items, items.item, location, store, created_by`, whereParams),
           queryRef.current(`SELECT * FROM ${Tables.inventory_wastes} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} ORDER BY created_at DESC FETCH items, items.item, created_by`, whereParams),
           queryRef.current(`SELECT * FROM ${Tables.inventory_items}`),
-          queryRef.current(`SELECT * FROM ${Tables.inventory_stores}`),
+          queryRef.current(`SELECT * FROM ${Tables.inventory_locations}`),
         ]);
 
         setPurchases((purchasesResult?.[0] as any[]) || []);
@@ -387,153 +387,59 @@ export const InventoryDashboardReport = () => {
         });
         setReconciliations(reconciliationRows);
 
-        // Process store stock - calculate current quantity per store per item
-        // Using the same approach as useStoreInventory but for all items at once
-        const items = itemsResult?.[0] || [];
-        const stores = storesResult?.[0] || [];
+        // On-hand stock from inventory_ledger (source of truth)
+        const items = (itemsResult?.[0] as any[]) || [];
+        const locations = (locationsResult?.[0] as any[]) || [];
 
-        // Fetch all inventory items directly from the item tables
-
-        const [
-          purchaseItemsResult,
-          purchaseReturnItemsResult,
-          issueItemsResult,
-          issueReturnItemsResult,
-          wasteItemsResult,
-        ] = await Promise.all([
-          queryRef.current(`SELECT items.item, items.store, math::sum(math::sum(items.quantity)) AS quantity FROM ${Tables.inventory_purchases} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} group by items.store, items.item fetch items, items.item, items.store`, whereParams),
-          queryRef.current(`SELECT items.item, items.store, math::sum(math::sum(items.quantity)) AS quantity FROM ${Tables.inventory_purchase_returns} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} group by items.store, items.item fetch items, items.item, items.store`, whereParams),
-          queryRef.current(`SELECT items.item, items.store, math::sum(math::sum(items.quantity)) AS quantity FROM ${Tables.inventory_issues} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} group by items.store, items.item fetch items, items.item, items.store`, whereParams),
-          queryRef.current(`SELECT items.item, items.store, items.issued_item.store, math::sum(math::sum(items.quantity)) AS quantity FROM ${Tables.inventory_issue_returns} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} group by items.store, items.issued_item.store, items.item fetch items, items.item, items.store, items.issued_item, items.issued_item.store`, whereParams),
-          queryRef.current(`SELECT items.item, items.issue_item.store, items.purchase_item.store, math::sum(math::sum(items.quantity)) AS quantity FROM ${Tables.inventory_wastes} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} group by items.item, items.issue_item.store, items.purchase_item.store fetch items, items.item, items.issue_item.store, items.purchase_item.store`, whereParams),
-        ]);
-
-        const purchaseItems = purchaseItemsResult?.[0] || [];
-        const purchaseReturnItems = purchaseReturnItemsResult?.[0] || [];
-        const issueItems = issueItemsResult?.[0] || [];
-        const issueReturnItems = issueReturnItemsResult?.[0] || [];
-        const wasteItems = wasteItemsResult?.[0] || [];
-
-        // Initialize stockMap: storeId -> itemId -> quantity
-        const stockMap = new Map<string, Map<string, number>>();
-        stores.forEach((store: any) => {
-          stockMap.set(store.id.toString(), new Map());
-        });
-
-        // Helper to get store ID from item
-        const getStoreId = (item: any) => item.store?.id;
-
-        // Helper to add quantity to stock
-        const addToStock = (storeId: string, itemId: string, quantity: number) => {
-          const storeItemMap = stockMap.get(storeId.toString())!;
-          storeItemMap.set(itemId, (storeItemMap.get(itemId) || 0) + quantity);
-
-          stockMap.set(storeId.toString(), storeItemMap);
+        const normalizeKey = (id: unknown): string => {
+          const str = recordIdToString(id) || String(id ?? "");
+          const colon = str.lastIndexOf(":");
+          return colon >= 0 ? str.slice(colon + 1) : str;
         };
 
-        // Process purchases (adds to stock)
-        purchaseItems.forEach((item: any) => {
-          const itemId = item.items.item[0]?.id?.toString();
-          const storeId = item.items.store[0]?.id?.toString();
-
-          if (storeId && itemId) {
-            addToStock(storeId.toString(), itemId.toString(), safeNumber(item.quantity));
-          }
+        const itemByKey = new Map<string, any>();
+        items.forEach((item: any) => {
+          itemByKey.set(normalizeKey(item.id), item);
+          itemByKey.set(String(item.id), item);
         });
 
-        // Process purchase returns (subtracts from stock)
-        purchaseReturnItems.forEach((item: any) => {
-          const itemId = item.items.item[0]?.id?.toString();
-          const storeId = item.items.store[0]?.id?.toString();
-
-          if (storeId && itemId) {
-            addToStock(storeId.toString(), itemId.toString(), -safeNumber(item.quantity));
-          }
+        const stockMap = new Map<string, Map<string, number>>();
+        locations.forEach((location: any) => {
+          stockMap.set(normalizeKey(location.id), new Map());
         });
 
-        // Process issues (subtracts from stock)
-        issueItems.forEach((item: any) => {
-          const itemId = item.items.item[0]?.id?.toString();
-          const storeId = item.items.store[0]?.id?.toString();
-
-          if (storeId && itemId) {
-            addToStock(storeId.toString(), itemId.toString(), -safeNumber(item.quantity));
-          }
+        const ledgerNets = await fetchLedgerNetsByStore(db);
+        ledgerNets.forEach((row) => {
+          const locationKey = normalizeKey(row.locationId);
+          const itemKey = normalizeKey(row.itemId);
+          const locationItemMap = stockMap.get(locationKey);
+          if (!locationItemMap) return;
+          locationItemMap.set(itemKey, (locationItemMap.get(itemKey) || 0) + row.net);
         });
 
-        // Process issue returns (adds back to stock)
-        issueReturnItems.forEach((item: any) => {
-          const itemId = item.items.item[0]?.id?.toString();
-          const storeId = item.items.store?.[0]?.id?.toString()
-            || item.items.issued_item?.store?.[0]?.id?.toString();
+        const stockData: InventoryLocationStock[] = locations.map((location: any) => {
+          const locationKey = normalizeKey(location.id);
+          const locationItemMap = stockMap.get(locationKey) || new Map();
+          const itemsList = Array.from(locationItemMap.entries())
+            .map(([itemKey, quantity]) => {
+              const item = itemByKey.get(itemKey);
+              return {
+                id: itemKey,
+                name: item?.name || "Unknown Item",
+                code: item?.code || "-",
+                quantity,
+                uom: item?.uom || "",
+              };
+            })
+            .sort((a, b) => a.name.localeCompare(b.name));
 
-          if (storeId && itemId) {
-            addToStock(storeId.toString(), itemId.toString(), safeNumber(item.quantity));
-          }
+          return {
+            locationName: location.name,
+            items: itemsList,
+          };
         });
 
-        // Process wastes (subtracts from stock)
-        wasteItems.forEach((item: any) => {
-          const itemId = item.items.item[0]?.id?.toString();
-          const storeId = item.items?.issue_item?.store[0]?.id?.toString() || item.items?.purchase_item?.store[0]?.id?.toString();
-
-          if (storeId && itemId) {
-            addToStock(storeId.toString(), itemId.toString(), -safeNumber(item.quantity));
-          }
-        });
-
-        const transferRows = await fetchStoreTransferAggregates(
-          db,
-          filters.startDate,
-          filters.endDate
-        );
-
-        transferRows.forEach((row) => {
-          const sign = row.direction === "in" ? 1 : -1;
-          addToStock(row.storeId, row.itemId, sign * row.quantity);
-        });
-
-        const productionLines = await fetchProductionLinesForReport(db, {
-          dateFrom: filters.startDate ?? undefined,
-          dateTo: filters.endDate ?? undefined,
-        });
-
-        productionLines.forEach((line) => {
-          if (!line.storeId || !line.itemId) return;
-          const sign = line.direction === "in" ? 1 : -1;
-          addToStock(line.storeId, line.itemId, sign * line.quantity);
-        });
-
-        // Build final stock data with item details
-        const stockData: InventoryStoreStock[] = stores
-          .map((store: any) => {
-            const storeId = store.id;
-            const storeName = store.name;
-            const storeItemMap = stockMap.get(storeId.toString()) || new Map();
-
-            const itemsList = Array.from(storeItemMap.entries())
-              // .filter(([_, quantity]) => quantity > 0)
-              .map(([itemId, quantity]) => {
-                const item = items.find((i: any) => i.id.toString() === itemId.toString());
-                console.log(item, items)
-                return {
-                  id: itemId,
-                  name: item?.name || 'Unknown Item',
-                  code: item?.code || '-',
-                  quantity,
-                  uom: item?.uom || '',
-                };
-              })
-              .sort((a, b) => a.name.localeCompare(b.name));
-
-            return {
-              storeName,
-              items: itemsList,
-            };
-          })
-          // .filter(store => store.items.length > 0);
-
-        setStoreStock(stockData);
+        setLocationStock(stockData);
 
       } catch (err) {
         console.error("Failed to load inventory dashboard", err);
@@ -584,8 +490,8 @@ export const InventoryDashboardReport = () => {
       0
     );
 
-    const totalStockValue = storeStock.reduce((sum, store) => {
-      return sum + store.items.reduce((itemSum, item) => itemSum + (item.quantity * 0), 0); // Would need price data
+    const totalStockValue = locationStock.reduce((sum, location) => {
+      return sum + location.items.reduce((itemSum, item) => itemSum + (item.quantity * 0), 0); // Would need price data
     }, 0);
 
     return {
@@ -605,7 +511,7 @@ export const InventoryDashboardReport = () => {
       totalKitchenVariance,
       totalStockValue,
     };
-  }, [purchases, purchaseReturns, issues, issueReturns, wastes, reconciliations, storeStock]);
+  }, [purchases, purchaseReturns, issues, issueReturns, wastes, reconciliations, locationStock]);
 
   const chartData = useMemo(() => {
     const allDates = new Set<string>();
@@ -731,7 +637,7 @@ export const InventoryDashboardReport = () => {
         invoice: `#${p.invoice_number || '-'}`,
         date: DateTime.fromJSDate(p.created_at).toFormat(import.meta.env.VITE_DATE_HUMAN_FORMAT),
         supplier: p.supplier?.name || '-',
-        store: p.store?.name || '-',
+        store: p.location?.name || p.store?.name || '-',
         createdBy: `${p.created_by?.first_name || ''} ${p.created_by?.last_name || ''}`.trim() || '-',
         items: p.items?.length || 0,
         total: withCurrency(itemsTotal + safeNumber(p.tax_amount) + extras),
@@ -744,7 +650,7 @@ export const InventoryDashboardReport = () => {
       invoice: `#${pr.invoice_number || '-'}`,
       date: DateTime.fromJSDate(pr.created_at).toFormat(import.meta.env.VITE_DATE_HUMAN_FORMAT),
       purchase: pr.purchase ? `#${pr.purchase.invoice_number || '-'}` : '-',
-      store: pr.store?.name || '-',
+      store: pr.location?.name || pr.store?.name || '-',
       createdBy: `${pr.created_by?.first_name || ''} ${pr.created_by?.last_name || ''}`.trim() || '-',
       items: pr.items?.length || 0,
       total: withCurrency(pr.items.reduce((sum: number, item: any) => sum + (safeNumber(item.quantity) * safeNumber(item.price)), 0)),
@@ -757,7 +663,7 @@ export const InventoryDashboardReport = () => {
       date: DateTime.fromJSDate(i.created_at).toFormat(import.meta.env.VITE_DATE_HUMAN_FORMAT),
       kitchen: i.kitchen?.name || '-',
       issuedTo: i.issued_to ? `${i.issued_to.first_name || ''} ${i.issued_to.last_name || ''}`.trim() : '-',
-      store: i.store?.name || '-',
+      store: i.location?.name || i.store?.name || '-',
       createdBy: `${i.created_by?.first_name || ''} ${i.created_by?.last_name || ''}`.trim() || '-',
       items: i.items?.length || 0,
       total: formatNumber(i.items.reduce((sum: number, item: any) => sum + safeNumber(item.quantity), 0)),
@@ -770,7 +676,7 @@ export const InventoryDashboardReport = () => {
       date: DateTime.fromJSDate(ir.created_at).toFormat(import.meta.env.VITE_DATE_HUMAN_FORMAT),
       issuance: ir.issuance?.invoice_number ? `#${ir.issuance.invoice_number}` : '-',
       kitchen: ir.kitchen?.name || '-',
-      store: ir.store?.name || '-',
+      store: ir.location?.name || ir.store?.name || '-',
       createdBy: `${ir.created_by?.first_name || ''} ${ir.created_by?.last_name || ''}`.trim() || '-',
       items: ir.items?.length || 0,
       total: formatNumber(ir.items.reduce((sum: number, item: any) => sum + safeNumber(item.quantity), 0)),
@@ -923,33 +829,33 @@ export const InventoryDashboardReport = () => {
         {/* Operations Chart */}
         <OperationsLineChart data={chartData} isLoading={loading} />
 
-        {/* Stock by Store - Tabular Format with Tabs */}
+        {/* Stock by Location - Tabular Format with Tabs */}
         <div className="bg-white p-5 rounded-lg shadow-xl border">
           <div className="flex items-center gap-2 mb-4">
             <div className="p-3 rounded-full bg-primary-100">
               <Package className="w-5 h-5 text-primary-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-neutral-700">{t('labels.currentStockByStore')}</h2>
-              <p className="text-xs text-neutral-500">Inventory levels across all stores</p>
+              <h2 className="text-xl font-bold text-neutral-700">{t('inventory:tabs.locations')}</h2>
+              <p className="text-xs text-neutral-500">Inventory levels across all locations</p>
             </div>
           </div>
           <Tabs
             className="w-full"
-            defaultSelectedKey={storeStock[0]?.storeName || ''}
+            defaultSelectedKey={locationStock[0]?.locationName || ''}
           >
-            <TabList aria-label="Store tabs" className="flex flex-row gap-3 mb-4">
-              {storeStock.map(store => (
+            <TabList aria-label="Location tabs" className="flex flex-row gap-3 mb-4">
+              {locationStock.map(location => (
                 <Tab
                   activeClass="bg-neutral-900 text-warning-500"
-                  id={store.storeName} key={store.storeName} className="whitespace-nowrap">
-                  {store.storeName} ({store.items.length} items)
+                  id={location.locationName} key={location.locationName} className="whitespace-nowrap">
+                  {location.locationName} ({location.items.length} items)
                 </Tab>
               ))}
             </TabList>
-            {storeStock.map(store => (
+            {locationStock.map(location => (
               <TabPanel
-                id={store.storeName} key={store.storeName}>
+                id={location.locationName} key={location.locationName}>
                 <div className="">
                   <table className="table">
                     <thead className="bg-neutral-50">
@@ -961,7 +867,7 @@ export const InventoryDashboardReport = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-neutral-100 bg-white">
-                      {store.items.length > 0 ? store.items.map((item) => (
+                      {location.items.length > 0 ? location.items.map((item) => (
                         <tr key={item.id} className="hover:bg-neutral-50 transition-colors">
                           <td className="py-3 pl-4 pr-3 text-sm font-medium text-neutral-900">{item.name}</td>
                           <td className="py-3 px-3 text-sm text-neutral-600 font-mono">{item.code}</td>
@@ -971,7 +877,7 @@ export const InventoryDashboardReport = () => {
                       )) : (
                         <tr>
                           <td colSpan={4} className="py-8 text-center text-sm text-neutral-500">
-                            No stock data for this store
+                            No stock data for this location
                           </td>
                         </tr>
                       )}
@@ -980,9 +886,9 @@ export const InventoryDashboardReport = () => {
                 </div>
               </TabPanel>
             ))}
-            {storeStock.length === 0 && (
+            {locationStock.length === 0 && (
               <div className="py-12 text-center text-sm text-neutral-500">
-                No store stock data available
+                No location stock data available
               </div>
             )}
           </Tabs>
@@ -997,7 +903,7 @@ export const InventoryDashboardReport = () => {
             {key: 'invoice', label: t('columns.invoice')},
             {key: 'date', label: t('columns.date')},
             {key: 'supplier', label: t('filters.supplier')},
-            {key: 'store', label: t('filters.store')},
+            {key: 'store', label: t('inventory:columns.location')},
             {key: 'createdBy', label: t('columns.createdBy')},
             {key: 'items', label: t('columns.items')},
             {key: 'total', label: t('columns.total'), className: 'text-right font-semibold'},
@@ -1015,7 +921,7 @@ export const InventoryDashboardReport = () => {
             {key: 'invoice', label: t('columns.invoice')},
             {key: 'date', label: t('columns.date')},
             {key: 'purchase', label: t('columns.purchase')},
-            {key: 'store', label: t('filters.store')},
+            {key: 'store', label: t('inventory:columns.location')},
             {key: 'createdBy', label: t('columns.createdBy')},
             {key: 'items', label: t('columns.items')},
             {key: 'total', label: t('columns.total'), className: 'text-right font-semibold'},
@@ -1034,7 +940,7 @@ export const InventoryDashboardReport = () => {
             {key: 'date', label: t('columns.date')},
             {key: 'kitchen', label: t('filters.kitchen')},
             {key: 'issuedTo', label: t('columns.issuedTo')},
-            {key: 'store', label: t('filters.store')},
+            {key: 'store', label: t('inventory:columns.location')},
             {key: 'createdBy', label: t('columns.createdBy')},
             {key: 'items', label: t('columns.items')},
             {key: 'total', label: t('columns.totalQty'), className: 'text-right font-semibold'},
@@ -1053,7 +959,7 @@ export const InventoryDashboardReport = () => {
             {key: 'date', label: t('columns.date')},
             {key: 'issuance', label: t('columns.issuance')},
             {key: 'kitchen', label: t('filters.kitchen')},
-            {key: 'store', label: t('filters.store')},
+            {key: 'store', label: t('inventory:columns.location')},
             {key: 'createdBy', label: t('columns.createdBy')},
             {key: 'items', label: t('columns.items')},
             {key: 'total', label: t('columns.totalQty'), className: 'text-right font-semibold'},

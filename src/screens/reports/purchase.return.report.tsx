@@ -8,6 +8,7 @@ import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import {lineAmount, resolveInventoryLineUnitCost} from "@/lib/inventory/line.cost.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {
+  buildLocationOrStoreInsideCondition,
   buildNestedRecordAnyCondition,
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
@@ -80,7 +81,7 @@ export const PurchaseReturnReport = () => {
           params.endDate = filters.endDate;
         }
 
-        const storeFilter = buildRecordInsideCondition('store', filters.storeIds, 'storeIds');
+        const storeFilter = buildLocationOrStoreInsideCondition(filters.storeIds, 'storeIds');
         if (storeFilter.condition) {
           conditions.push(storeFilter.condition);
           Object.assign(params, storeFilter.params);
@@ -108,7 +109,7 @@ export const PurchaseReturnReport = () => {
           SELECT * FROM ${Tables.inventory_purchase_returns}
           ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
           ORDER BY created_at ASC
-          FETCH items, items.item, items.item.category, items.purchase_item, created_by, store, items.supplier, purchase
+          FETCH items, items.item, items.item.category, items.purchase_item, created_by, location, store, items.supplier, purchase
         `;
 
         const result: any = await queryRef.current(query, params);
@@ -215,7 +216,7 @@ export const PurchaseReturnReport = () => {
                   purchaseReturns.flatMap(purchaseReturn => {
                     const date = toLuxonDateTime(purchaseReturn.created_at);
                     const dateStr = date.toFormat(import.meta.env.VITE_DATE_FORMAT);
-                    const storeName = purchaseReturn.store?.name || 'N/A';
+                    const storeName = purchaseReturn.location?.name || purchaseReturn.store?.name || 'N/A';
                     const createdByName = purchaseReturn.created_by
                       ? `${purchaseReturn.created_by.first_name ?? ''} ${purchaseReturn.created_by.last_name ?? ''}`.trim() || purchaseReturn.created_by.login || 'Unknown'
                       : 'Unknown';

@@ -3,11 +3,13 @@ import {Tables} from "@/api/db/tables.ts";
 import {StockTransfer} from "@/api/model/stock_transfer.ts";
 import {recordIdToString, recordToString} from "@/api/reports/shared/records.ts";
 import {nowSurrealDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
+import {toLocationRecordId} from "@/lib/inventory/location.service.ts";
 import {toRecordId} from "@/lib/utils.ts";
 
 type DatabaseClient = ReturnType<typeof useDB>;
 
-export type StockTransferType = "kitchen" | "store";
+/** Location↔location transfers. Legacy "store" means the same. */
+export type StockTransferType = "location" | "store";
 
 export type StockTransferLineInput = {
   itemId: string;
@@ -16,9 +18,11 @@ export type StockTransferLineInput = {
 
 export type StockTransferInput = {
   type: StockTransferType;
-  fromKitchenId?: string;
-  toKitchenId?: string;
+  fromLocationId?: string;
+  toLocationId?: string;
+  /** @deprecated use fromLocationId */
   fromStoreId?: string;
+  /** @deprecated use toLocationId */
   toStoreId?: string;
   createdAt?: Date;
   notes?: string;
@@ -26,18 +30,17 @@ export type StockTransferInput = {
 };
 
 export type StockTransferListFilters = {
-  kitchenId?: string;
+  locationId?: string;
+  /** @deprecated use locationId */
   storeId?: string;
 };
 
-const toKitchenRecordId = (kitchenId: string) => {
-  const key = recordIdToString(kitchenId) || String(kitchenId);
-  const normalized = key.includes(":") ? key : `${Tables.kitchens}:${key}`;
-  return toRecordId(normalized);
-};
-
+/** @deprecated Prefer toLocationRecordId — accepts location or legacy store ids. */
 export const toStoreRecordId = (storeId: string) => {
   const key = recordIdToString(storeId) || String(storeId);
+  if (key.startsWith(`${Tables.inventory_locations}:`) || key.includes("inventory_location")) {
+    return toLocationRecordId(key);
+  }
   const normalized = key.includes(":") ? key : `${Tables.inventory_stores}:${key}`;
   return toRecordId(normalized);
 };
@@ -60,22 +63,22 @@ const toUserRecordId = (userId: string) => {
   return toRecordId(normalized);
 };
 
+const resolveEndpointIds = (input: StockTransferInput) => ({
+  fromId: input.fromLocationId || input.fromStoreId,
+  toId: input.toLocationId || input.toStoreId,
+});
+
 const buildHeaderPayload = (input: StockTransferInput, userId?: string) => {
+  const {fromId, toId} = resolveEndpointIds(input);
   const payload: Record<string, unknown> = {
     notes: input.notes?.trim() || null,
     from_kitchen: null,
     to_kitchen: null,
     from_store: null,
     to_store: null,
+    from_location: fromId ? toLocationRecordId(fromId) : null,
+    to_location: toId ? toLocationRecordId(toId) : null,
   };
-
-  if (input.type === "kitchen") {
-    payload.from_kitchen = toKitchenRecordId(input.fromKitchenId!);
-    payload.to_kitchen = toKitchenRecordId(input.toKitchenId!);
-  } else {
-    payload.from_store = toStoreRecordId(input.fromStoreId!);
-    payload.to_store = toStoreRecordId(input.toStoreId!);
-  }
 
   if (input.createdAt) {
     payload.created_at = toSurrealDateTime(input.createdAt);
@@ -124,14 +127,12 @@ export const listStockTransfers = async (
     start: page * pageSize,
   };
 
-  if (filters.kitchenId) {
-    where.push("(from_kitchen = $kitchen OR to_kitchen = $kitchen)");
-    params.kitchen = toKitchenRecordId(filters.kitchenId);
-  }
-
-  if (filters.storeId) {
-    where.push("(from_store = $store OR to_store = $store)");
-    params.store = toStoreRecordId(filters.storeId);
+  const locationFilter = filters.locationId || filters.storeId;
+  if (locationFilter) {
+    where.push(
+      "(from_location = $location OR to_location = $location OR from_store = $location OR to_store = $location)"
+    );
+    params.location = toLocationRecordId(locationFilter);
   }
 
   const whereClause = where.length > 0 ? `WHERE ${where.join(" AND ")}` : "";
@@ -148,7 +149,7 @@ export const listStockTransfers = async (
       ${whereClause}
       ORDER BY created_at DESC
       LIMIT $limit START $start
-      FETCH from_kitchen, to_kitchen, from_store, to_store, created_by`,
+      FETCH from_kitchen, to_kitchen, from_store, to_store, from_location, to_location, created_by`,
       params
     ),
   ]);
@@ -167,7 +168,7 @@ export const getStockTransfer = async (
 
   const [[header], [items]] = await Promise.all([
     db.query(
-      `SELECT * FROM ONLY $id FETCH from_kitchen, to_kitchen, from_store, to_store, created_by`,
+      `SELECT * FROM ONLY $id FETCH from_kitchen, to_kitchen, from_store, to_store, from_location, to_location, created_by`,
       {id: recId}
     ),
     db.query(
@@ -235,11 +236,8 @@ export const updateStockTransfer = async (
   return result;
 };
 
-export const inferTransferType = (transfer: StockTransfer): StockTransferType => {
-  if (transfer.from_kitchen || transfer.to_kitchen) {
-    return "kitchen";
-  }
-  return "store";
+export const inferTransferType = (_transfer: StockTransfer): StockTransferType => {
+  return "location";
 };
 
 const getTotalFromRows = (rows: unknown): number => {
@@ -256,7 +254,7 @@ export const fetchStoreTransferTotals = async (
 ): Promise<{transfersIn: number; transfersOut: number}> => {
   const params: Record<string, unknown> = {
     item: toItemRecordId(itemId),
-    store: toStoreRecordId(storeId),
+    location: toLocationRecordId(storeId),
   };
 
   const excludeClause = excludeTransferId
@@ -271,7 +269,9 @@ export const fetchStoreTransferTotals = async (
       `SELECT math::sum(quantity) AS total FROM ${Tables.stock_transfer_items}
       WHERE item = $item AND transfer IN (
         SELECT VALUE id FROM ${Tables.stock_transfers}
-        WHERE to_store = $store AND from_store != NONE
+        WHERE (to_location = $location OR to_store = $location)
+          AND (from_location != NONE OR from_store != NONE)
+          AND (status = 'posted' OR status = NONE)
       )${excludeClause}
       GROUP ALL`,
       params
@@ -280,7 +280,9 @@ export const fetchStoreTransferTotals = async (
       `SELECT math::sum(quantity) AS total FROM ${Tables.stock_transfer_items}
       WHERE item = $item AND transfer IN (
         SELECT VALUE id FROM ${Tables.stock_transfers}
-        WHERE from_store = $store AND to_store != NONE
+        WHERE (from_location = $location OR from_store = $location)
+          AND (to_location != NONE OR to_store != NONE)
+          AND (status = 'posted' OR status = NONE)
       )${excludeClause}
       GROUP ALL`,
       params
@@ -309,8 +311,12 @@ export const fetchStoreTransferAggregates = async (
   const rows: StoreTransferAggregateRow[] = [];
 
   for (const transfer of transfers) {
-    const fromId = recordToString(transfer.from_store?.id ?? transfer.from_store);
-    const toId = recordToString(transfer.to_store?.id ?? transfer.to_store);
+    const fromId =
+      recordToString(transfer.from_location?.id ?? transfer.from_location) ||
+      recordToString(transfer.from_store?.id ?? transfer.from_store);
+    const toId =
+      recordToString(transfer.to_location?.id ?? transfer.to_location) ||
+      recordToString(transfer.to_store?.id ?? transfer.to_store);
     if (!fromId || !toId) continue;
 
     for (const line of transfer.items ?? []) {
@@ -340,7 +346,10 @@ export const fetchStoreTransferLinesForReport = async (
   dateFrom?: string | null,
   dateTo?: string | null
 ) => {
-  const where: string[] = ["from_store != NONE", "to_store != NONE"];
+  const where: string[] = [
+    "(from_location != NONE OR from_store != NONE)",
+    "(to_location != NONE OR to_store != NONE)",
+  ];
   const params: Record<string, unknown> = {};
   const dbFormat = import.meta.env.VITE_DB_DATABASE_FORMAT as string;
 
@@ -361,7 +370,7 @@ export const fetchStoreTransferLinesForReport = async (
     FROM ${Tables.stock_transfers}
     ${whereClause}
     ORDER BY created_at ASC
-    FETCH from_store, to_store, created_by`,
+    FETCH from_store, to_store, from_location, to_location, created_by`,
     params
   );
 

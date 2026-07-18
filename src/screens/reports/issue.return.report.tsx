@@ -8,6 +8,7 @@ import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import {lineAmount, resolveInventoryLineUnitCost} from "@/lib/inventory/line.cost.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {
+  buildLocationOrStoreInsideCondition,
   buildNestedRecordAnyCondition,
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
@@ -80,7 +81,7 @@ export const IssueReturnReport = () => {
           params.endDate = filters.endDate;
         }
 
-        const storeFilter = buildRecordInsideCondition('store', filters.storeIds, 'storeIds');
+        const storeFilter = buildLocationOrStoreInsideCondition(filters.storeIds, 'storeIds');
         if (storeFilter.condition) {
           conditions.push(storeFilter.condition);
           Object.assign(params, storeFilter.params);
@@ -108,7 +109,7 @@ export const IssueReturnReport = () => {
           SELECT * FROM ${Tables.inventory_issue_returns}
           ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
           ORDER BY created_at ASC
-          FETCH items, items.item, items.item.category, items.issued_item, created_by, kitchen, issued_to, store, issuance
+          FETCH items, items.item, items.item.category, items.issued_item, created_by, kitchen, issued_to, location, store, issuance
         `;
 
         const result: any = await queryRef.current(query, params);
@@ -217,7 +218,7 @@ export const IssueReturnReport = () => {
                     const date = toLuxonDateTime(issueReturn.created_at);
                     const dateStr = date.toFormat(import.meta.env.VITE_DATE_FORMAT);
                     const kitchenName = issueReturn.kitchen?.name || 'N/A';
-                    const storeName = issueReturn.store?.name || 'N/A';
+                    const storeName = issueReturn.location?.name || issueReturn.store?.name || 'N/A';
                     const issuedToName = issueReturn.issued_to
                       ? `${issueReturn.issued_to.first_name ?? ''} ${issueReturn.issued_to.last_name ?? ''}`.trim() || issueReturn.issued_to.login || 'Unknown'
                       : 'N/A';

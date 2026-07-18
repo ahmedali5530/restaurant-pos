@@ -107,5 +107,24 @@
     "showModifiersInOrderCard": "Modifikatoren für Artikel in der Bestellkarte anzeigen",
     "showModifierPriceInOrderCard": "Modifikatorpreis für Artikel in der Bestellkarte anzeigen",
     "showTotalInPaymentCard": "Summen für Artikel im Zahlungsfeld anzeigen"
+  },
+  "inventory": {
+    "title": "Inventar",
+    "description": "Ledger-Umschaltung und optionales Advanced Tracking. Batch/Ablauf nur bei Bedarf aktivieren.",
+    "ledgerEnabled": "Inventar-Ledger verwenden (Single Source of Truth)",
+    "ledgerHint": "Erst nach Ledger-Backfill und Abgleich aktivieren.",
+    "costingMethod": "Bewertungsmethode",
+    "costing": {
+      "average": "Gewichteter Durchschnitt",
+      "fifo": "FIFO",
+      "fefo": "FEFO"
+    },
+    "enableBatchTracking": "Chargenverfolgung aktivieren",
+    "enableExpiryTracking": "Ablaufverfolgung aktivieren",
+    "enableManufacturingDate": "Herstellungsdaten aktivieren",
+    "requireBatchSelection": "Chargenauswahl bei Ausgaben erforderlich",
+    "updated": "Inventareinstellungen aktualisiert",
+    "save": "Speichern",
+    "saveDescription": "Inventareinstellungen speichern"
   }
 }

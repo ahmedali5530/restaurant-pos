@@ -66,4 +66,33 @@ describe('IntegrationQueueEngine', () => {
     });
     expect(second?.status).toBe('DeadLetter');
   });
+
+  it('re-enqueues after completed/dead-letter for the same dedupe key', async () => {
+    const store = new InMemoryQueueStore();
+    const engine = new IntegrationQueueEngine(store, { jitter: false, baseDelayMs: 0, maxDelayMs: 0 });
+
+    const first = await engine.enqueue({
+      providerId: 'provider:test',
+      action: 'invoiceSubmission',
+      payload: {},
+      priority: 0,
+      maxRetries: 0,
+      dedupeKey: 'fiscal:order:1:provider:test',
+    });
+    await engine.processNext(async () => {
+      throw new Error('fail');
+    });
+
+    const second = await engine.enqueue({
+      providerId: 'provider:test',
+      action: 'invoiceSubmission',
+      payload: {},
+      priority: 0,
+      maxRetries: 0,
+      dedupeKey: 'fiscal:order:1:provider:test',
+    });
+
+    expect(second.id).not.toBe(first.id);
+    expect(second.status).toBe('Pending');
+  });
 });

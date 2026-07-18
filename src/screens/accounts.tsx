@@ -62,7 +62,7 @@ export const AccountsScreen = () => {
           });
         }}
       >
-        <ScrollContainer mouseScroll hideScrollbars={false} className="flex-grow-0 flex-shrink bg-white">
+        <ScrollContainer mouseScroll hideScrollbars={false} className="flex-grow-0 flex-shrink">
           <TabList aria-label="Tabs"
                    className="flex flex-row gap-3 px-1 py-3 flex-nowrap">
             {Object.keys(pages).map(key => (

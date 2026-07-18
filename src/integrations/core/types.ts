@@ -47,6 +47,8 @@ export type IntegrationEventName =
   | 'StockCountCompleted'
   | 'InventoryTransferred'
   | 'ProductionCompleted'
+  | 'InventoryPosted'
+  | 'InventoryReversed'
   | 'GiftCardIssued'
   | 'GiftCardRedeemed'
   | 'LoyaltyRedeemed'

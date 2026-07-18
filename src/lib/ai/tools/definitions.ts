@@ -185,7 +185,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_current_inventory",
-      description: "Get current inventory levels and items below reorder level.",
+      description: "Get current inventory levels from the inventory ledger (source of truth) and items below reorder level.",
       parameters: {
         type: "object",
         properties: {limit: {type: "number", default: 100}},
@@ -196,12 +196,27 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_inventory_movements",
-      description: "Get inventory movements by type: purchase, purchase_return, issue, issue_return, waste.",
+      description: "Get inventory ledger movements by reference type: purchase, purchase_return, issue, issue_return, waste, adjustment, transfer_in, transfer_out, production_input, production_output, buffet_consumption.",
       parameters: {
         type: "object",
         properties: {
           ...dateRangeProps,
-          type: {type: "string", enum: ["purchase", "purchase_return", "issue", "issue_return", "waste"]},
+          type: {
+            type: "string",
+            enum: [
+              "purchase",
+              "purchase_return",
+              "issue",
+              "issue_return",
+              "waste",
+              "adjustment",
+              "transfer_in",
+              "transfer_out",
+              "production_input",
+              "production_output",
+              "buffet_consumption",
+            ],
+          },
           limit: {type: "number", default: 50},
         },
         required: ["type"],
@@ -212,7 +227,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_consumption",
-      description: "Get inventory consumption (issues) summary by item.",
+      description: "Get inventory consumption summary by item from ledger (issues + buffet consumption).",
       parameters: {
         type: "object",
         properties: {...dateRangeProps, limit: {type: "number", default: 50}},
@@ -223,7 +238,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_waste_summary",
-      description: "Get waste summary by inventory item.",
+      description: "Get waste summary by inventory item from the inventory ledger.",
       parameters: {
         type: "object",
         properties: {...dateRangeProps, limit: {type: "number", default: 50}},
@@ -234,7 +249,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_sale_vs_consumption",
-      description: "Compare purchases vs issues (consumption) by item.",
+      description: "Compare purchases vs consumption (issues + buffet) by item using ledger movements.",
       parameters: {type: "object", properties: dateRangeProps},
     },
   },

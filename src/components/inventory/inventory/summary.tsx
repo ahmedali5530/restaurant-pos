@@ -5,7 +5,7 @@ import {useMemo} from "react";
 import { useTranslation } from 'react-i18next';
 import {createColumnHelper} from "@tanstack/react-table";
 import {TableComponent} from "@/components/common/table/table.tsx";
-import {InventoryStore} from "@/api/model/inventory_store.ts";
+import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {StoreInventoryCell} from "@/components/inventory/inventory/store.inventory.cell.tsx";
 import {resolveCatalogUnitCost} from "@/lib/inventory/line.cost.ts";
 import {withCurrency} from "@/lib/utils.ts";
@@ -13,10 +13,16 @@ import {withCurrency} from "@/lib/utils.ts";
 
 export const InventorySummary = () => {
   const { t } = useTranslation('inventory');
-  const loadHook = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 10, ['category', 'suppliers', 'stores']);
+  const loadHook = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 10, ['category', 'suppliers', 'locations', 'stores']);
   const {
-    data: stores
-  } = useApi<SettingsData<InventoryStore>>(Tables.inventory_stores, [], [], 0, 99999);
+    data: locations
+  } = useApi<SettingsData<InventoryLocation>>(
+    Tables.inventory_locations,
+    ['is_active = true'],
+    [],
+    0,
+    99999
+  );
 
   const columnHelper = createColumnHelper<InventoryItem>();
 
@@ -49,21 +55,20 @@ export const InventorySummary = () => {
       }),
     ];
 
-    if (stores?.data && stores?.data?.length > 0) {
-      // eslint-disable-next-line no-unsafe-optional-chaining
-      for (const store of stores?.data) {
+    if (locations?.data && locations?.data?.length > 0) {
+      for (const location of locations.data) {
         c.push(columnHelper.accessor("id", {
-          header: `${store.name} store`,
-          id: `store-${store.id}`,
+          header: location.name,
+          id: `location-${location.id}`,
           cell: (info) => {
-            return <StoreInventoryCell item={info.row.original} storeId={store.id} />;
+            return <StoreInventoryCell item={info.row.original} storeId={String(location.id)} />;
           }
         }));
       }
     }
 
     return c;
-  }, [columnHelper, stores?.data, t])
+  }, [columnHelper, locations?.data, t])
 
   return (
     <>

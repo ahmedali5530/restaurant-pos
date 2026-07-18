@@ -7,7 +7,7 @@ import ScrollContainer from "react-indiana-drag-scroll";
 import {InventoryItems} from "@/components/inventory/items/index.tsx";
 import {InventorySuppliers} from "@/components/inventory/suppliers/index.tsx";
 import {InventoryCategories} from "@/components/inventory/categories/index.tsx";
-import {InventoryStores} from "@/components/inventory/stores/index.tsx";
+import {InventoryLocations} from "@/components/inventory/locations/index.tsx";
 import {InventoryItemGroups} from "@/components/inventory/item_groups/index.tsx";
 import {InventoryPurchaseOrders} from "@/components/inventory/purchase_orders/index.tsx";
 import {InventoryPurchases} from "@/components/inventory/purchases/index.tsx";
@@ -15,6 +15,7 @@ import {InventoryPurchaseReturns} from "@/components/inventory/purchase_returns/
 import {InventoryIssues} from "@/components/inventory/issues/index.tsx";
 import {InventoryIssueReturns} from "@/components/inventory/issue_returns/index.tsx";
 import {InventoryWastes} from "@/components/inventory/wastes/index.tsx";
+import {InventoryAdjustments} from "@/components/inventory/adjustments/index.tsx";
 import {InventorySummary} from "@/components/inventory/inventory/summary.tsx";
 import {KitchenReconciliationScreen} from "@/components/inventory/kitchen_reconciliation/index.tsx";
 import {InventoryStockTransfers} from "@/components/inventory/stock_transfers/index.tsx";
@@ -31,7 +32,7 @@ const INVENTORY_TAB_MODULES: Record<string, string> = {
   items: 'Items',
   suppliers: 'Suppliers',
   categories: 'Item Categories',
-  stores: 'Stores',
+  locations: 'Locations',
   'item-groups': 'Item Groups',
   'purchase-orders': 'Purchase Orders',
   purchases: 'Purchases',
@@ -39,6 +40,7 @@ const INVENTORY_TAB_MODULES: Record<string, string> = {
   issues: 'Issues',
   'issue-returns': 'Issue Returns',
   wastes: 'Wastes',
+  adjustments: 'Adjustments',
   'kitchen-reconciliation': 'Kitchen Reconciliation',
   'stock-transfers': 'Stock Transfers',
   'recipes': 'Production Recipes',
@@ -58,7 +60,7 @@ export const Inventory = () => {
     'items': {component: <InventoryItems/>, title: t('tabs.items')},
     'suppliers': {component: <InventorySuppliers/>, title: t('tabs.suppliers')},
     'categories': {component: <InventoryCategories/>, title: t('tabs.categories')},
-    'stores': {component: <InventoryStores/>, title: t('tabs.stores')},
+    'locations': {component: <InventoryLocations/>, title: t('tabs.locations')},
     'item-groups': {component: <InventoryItemGroups/>, title: t('tabs.itemGroups')},
     'purchase-orders': {component: <InventoryPurchaseOrders/>, title: t('tabs.purchaseOrders')},
     'purchases': {component: <InventoryPurchases/>, title: t('tabs.purchases')},
@@ -66,6 +68,7 @@ export const Inventory = () => {
     'issues': {component: <InventoryIssues/>, title: t('tabs.issues')},
     'issue-returns': {component: <InventoryIssueReturns/>, title: t('tabs.issueReturns')},
     'wastes': {component: <InventoryWastes/>, title: t('tabs.wastes')},
+    'adjustments': {component: <InventoryAdjustments/>, title: t('tabs.adjustments')},
     'kitchen-reconciliation': {component: <KitchenReconciliationScreen/>, title: t('tabs.kitchenReconciliation')},
     'stock-transfers': {component: <InventoryStockTransfers/>, title: t('tabs.stockTransfers')},
     'recipes': {component: <InventoryRecipes/>, title: t('tabs.recipes')},
@@ -91,7 +94,7 @@ export const Inventory = () => {
           });
         }}
       >
-        <ScrollContainer mouseScroll hideScrollbars={false} className="flex-grow-0 flex-shrink bg-white">
+        <ScrollContainer mouseScroll hideScrollbars={false} className="flex-grow-0 flex-shrink">
           <TabList aria-label="Tabs"
                    className="flex flex-row gap-3 px-1 py-3 flex-nowrap">
             {Object.keys(pages).map(key => (

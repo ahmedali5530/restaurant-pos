@@ -12,18 +12,18 @@ import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {BuffetMenu, BuffetSessionType} from "@/api/model/buffet_menu.ts";
-import {InventoryStore} from "@/api/model/inventory_store.ts";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
 import {createBuffetSession} from "@/lib/inventory/buffet.service.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
 import {businessDateFromJsDate} from "@/lib/kitchen/business-date.ts";
+import {useInventoryLocations} from "@/hooks/useInventoryLocations.ts";
 
 type SelectOption = {label: string; value: string} | null;
 
 interface BuffetSessionFormValues {
   menu: SelectOption;
-  store: SelectOption;
+  location: SelectOption;
   businessDate: string;
   sessionType: SelectOption;
   expectedGuests: number | string;
@@ -44,7 +44,7 @@ const selectOptionSchema = yup.object({
 
 const validationSchema = yup.object({
   menu: selectOptionSchema.required().nullable(),
-  store: selectOptionSchema.required().nullable(),
+  location: selectOptionSchema.required().nullable(),
   businessDate: yup.string().required(),
   sessionType: selectOptionSchema.required().nullable(),
   expectedGuests: yup.number().typeError("Number required").min(1).required(),
@@ -74,13 +74,7 @@ export const BuffetSessionForm = ({open, onClose, onCreated}: Props) => {
     9999
   );
 
-  const {data: stores} = useApi<SettingsData<InventoryStore>>(
-    Tables.inventory_stores,
-    [],
-    ["name asc"],
-    0,
-    9999
-  );
+  const {options: locationOptions} = useInventoryLocations(open);
 
   const menuOptions = useMemo(
     () =>
@@ -89,15 +83,6 @@ export const BuffetSessionForm = ({open, onClose, onCreated}: Props) => {
         value: recordToString(menu.id)!,
       })) ?? [],
     [menus]
-  );
-
-  const storeOptions = useMemo(
-    () =>
-      stores?.data?.map((store) => ({
-        label: store.name,
-        value: recordToString(store.id)!,
-      })) ?? [],
-    [stores]
   );
 
   const {
@@ -128,7 +113,7 @@ export const BuffetSessionForm = ({open, onClose, onCreated}: Props) => {
         db,
         {
           menuId: values.menu!.value,
-          storeId: values.store!.value,
+          locationId: values.location!.value,
           businessDate: values.businessDate,
           sessionType: (values.sessionType?.value ?? "lunch") as BuffetSessionType,
           expectedGuests: Number(values.expectedGuests),
@@ -168,10 +153,10 @@ export const BuffetSessionForm = ({open, onClose, onCreated}: Props) => {
           <label>{t("columns.store")}</label>
           <Controller
             control={control}
-            name="store"
+            name="location"
             render={({field}) => (
               <ReactSelect
-                options={storeOptions}
+                options={locationOptions}
                 value={field.value}
                 onChange={field.onChange}
               />

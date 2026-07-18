@@ -212,7 +212,7 @@ export class IntegrationManager {
     const job = await this.queue.enqueue({
       providerId,
       action: request.action,
-      payload: request.payload ?? {},
+      payload: JSON.parse(JSON.stringify(request.payload ?? {})) as Record<string, unknown>,
       priority: 0,
       maxRetries: 5,
       dedupeKey: request.idempotencyKey,
@@ -247,35 +247,50 @@ export class IntegrationManager {
       payload: { request, mode: 'immediate' },
     });
 
-    const response = await provider.execute(request, {
-      providerId,
-      now: nowSurrealDateTime(),
-    });
-
-    await this.auditLogger.log({
-      action: response.success ? 'Response' : 'Failure',
-      providerId,
-      payload: { response, mode: 'immediate' },
-      severity: response.success ? 'info' : 'error',
-    });
-
-    if (!response.success) {
+    const enqueueOfflineRetry = async () => {
       const config = await this.configLoader(providerId);
       const runtime = parseFiscalRuntimeConfig(config);
+      if (!runtime.offlineBuffering) return;
+      // Plain JSON so RecordId/DateTime survive IndexedDB structured clone.
+      const payload = JSON.parse(JSON.stringify(request.payload ?? {})) as Record<string, unknown>;
+      await this.queue.enqueue({
+        providerId,
+        action: request.action,
+        payload,
+        priority: 0,
+        maxRetries: 5,
+        dedupeKey: request.idempotencyKey,
+      });
+    };
 
-      if (runtime.offlineBuffering) {
-        await this.queue.enqueue({
-          providerId,
-          action: request.action,
-          payload: request.payload ?? {},
-          priority: 0,
-          maxRetries: 5,
-          dedupeKey: request.idempotencyKey,
-        });
+    try {
+      const response = await provider.execute(request, {
+        providerId,
+        now: nowSurrealDateTime(),
+      });
+
+      await this.auditLogger.log({
+        action: response.success ? 'Response' : 'Failure',
+        providerId,
+        payload: { response, mode: 'immediate' },
+        severity: response.success ? 'info' : 'error',
+      });
+
+      if (!response.success) {
+        await enqueueOfflineRetry();
       }
-    }
 
-    return response;
+      return response;
+    } catch (error) {
+      await this.auditLogger.log({
+        action: 'Failure',
+        providerId,
+        payload: { error: error instanceof Error ? error.message : String(error), mode: 'immediate' },
+        severity: 'error',
+      });
+      await enqueueOfflineRetry();
+      throw error;
+    }
   }
 
   async processQueue() {

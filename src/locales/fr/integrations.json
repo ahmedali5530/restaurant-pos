@@ -21,7 +21,12 @@
     "auth": "Authentification",
     "failedJobs": "Tâches échouées",
     "action": "Action",
-    "attempts": "Tentatives"
+    "attempts": "Tentatives",
+    "created": "Créé",
+    "updated": "Mis à jour",
+    "nextRun": "Prochaine exécution",
+    "error": "Erreur",
+    "order": "Commande"
   },
   "enabled": "Activé",
   "disabled": "Désactivé",
@@ -29,5 +34,14 @@
   "disableProvider": "Désactiver",
   "providerEnabled": "Fournisseur activé",
   "providerDisabled": "Fournisseur désactivé",
-  "enableFailed": "Impossible de mettre à jour l'état du fournisseur"
+  "enableFailed": "Impossible de mettre à jour l'état du fournisseur",
+  "status": {
+    "Pending": "En attente",
+    "Running": "En cours",
+    "Waiting": "En pause",
+    "Completed": "Terminé",
+    "Failed": "Échoué",
+    "Cancelled": "Annulé",
+    "DeadLetter": "Échec définitif"
+  }
 }

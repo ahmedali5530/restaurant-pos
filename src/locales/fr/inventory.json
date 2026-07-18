@@ -18,7 +18,9 @@
     "production": "Production",
     "productionHistory": "Historique de production",
     "buffetMenus": "Menus buffet",
-    "buffetSessions": "Sessions buffet"
+    "buffetSessions": "Sessions buffet",
+    "adjustments": "Ajustements",
+    "locations": "Emplacements"
   },
   "security": {
     "accessTab": "Access {{module}}",
@@ -34,7 +36,12 @@
     "deleteIssueReturns": "Delete issue return",
     "editWastes": "Edit waste",
     "deleteWastes": "Delete waste",
-    "editStockTransfers": "Edit stock transfer"
+    "editStockTransfers": "Edit stock transfer",
+    "editAdjustments": "Modifier l'ajustement",
+    "deleteAdjustments": "Supprimer l'ajustement",
+    "postAdjustments": "Comptabiliser l'ajustement de stock",
+    "approveAdjustments": "Approuver l'ajustement de stock",
+    "voidAdjustments": "Annuler l'ajustement de stock"
   },
   "columns": {
     "name": "Nom",
@@ -72,7 +79,14 @@
     "store": "Magasin",
     "unitCost": "Unit cost",
     "amount": "Amount",
-    "stockValue": "Value"
+    "stockValue": "Value",
+    "reason": "Motif",
+    "quantityChange": "Qté (+/-)",
+    "notes": "Notes",
+    "locationType": "Type",
+    "linkedStore": "Magasin lié",
+    "linkedKitchen": "Cuisine liée",
+    "active": "Actif"
   },
   "buttons": {
     "item": "Article",
@@ -80,7 +94,11 @@
     "view": "Voir",
     "upload": "Téléverser",
     "cancel": "Annuler",
-    "save": "Enregistrer"
+    "save": "Enregistrer",
+    "adjustment": "Ajustement",
+    "line": "Ligne",
+    "saveDraft": "Enregistrer (brouillon)",
+    "saveAndPost": "Enregistrer et comptabiliser"
   },
   "forms": {
     "createItem": "Créer un nouvel article",
@@ -108,7 +126,12 @@
     "manufacturingDate": "Date de fabrication",
     "storeInventory": "Magasin {{name}}",
     "reorderLevelHint": "Quantité minimale optionnelle par magasin avant alerte de réapprovisionnement",
-    "taxable": "Imposable"
+    "taxable": "Imposable",
+    "createAdjustment": "Nouvel ajustement",
+    "editAdjustment": "Modifier l’ajustement #{{number}}",
+    "notes": "Notes",
+    "reason": "Motif",
+    "lines": "Lignes"
   },
   "validation": {
     "required": "Ce champ est obligatoire",
@@ -153,7 +176,9 @@
     "approved": "Approuvé",
     "received": "Reçu",
     "cancelled": "Annulé",
-    "belowReorder": "Sous le niveau de réapprovisionnement"
+    "belowReorder": "Sous le niveau de réapprovisionnement",
+    "posted": "Comptabilisé",
+    "voided": "Annulé"
   },
   "upload": {
     "attachDocuments": "Documents joints"
@@ -425,5 +450,49 @@
     "addExtra": "Ajouter un extra",
     "extraName": "Nom",
     "extraAmount": "Montant"
+  },
+  "adjustment": {
+    "reasons": {
+      "audit": "Audit",
+      "correction": "Correction",
+      "lost": "Perte",
+      "damaged": "Endommagé",
+      "found": "Trouvé",
+      "opening_balance": "Solde d'ouverture"
+    },
+    "deleteConfirm": "Supprimer l'ajustement #{{number}} ?",
+    "saved": "Ajustement enregistré",
+    "savedAndPosted": "Ajustement enregistré et comptabilisé",
+    "saveFailed": "Échec de l'enregistrement de l'ajustement",
+    "approved": "Ajustement approuvé",
+    "posted": "Ajustement comptabilisé ({{count}} écritures)",
+    "voided": "Ajustement annulé ({{count}} contre-passations)",
+    "alreadyPosted": "Déjà comptabilisé",
+    "alreadyVoided": "Déjà annulé",
+    "cannotEditPosted": "Les documents comptabilisés ne peuvent pas être modifiés"
+  },
+  "document": {
+    "revisionCreated": "Révision {{revision}} créée en brouillon",
+    "purchaseVoided": "Achat annulé ({{count}} contre-passations)",
+    "issueVoided": "Sortie annulée ({{count}} contre-passations)",
+    "alreadyVoided": "Déjà annulé",
+    "alreadyPosted": "Déjà comptabilisé"
+  },
+  "location": {
+    "sync": "Synchroniser depuis magasins et cuisines",
+    "syncing": "Synchronisation…",
+    "synced": "{{stores}} magasins et {{kitchens}} cuisines synchronisés",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "types": {
+      "Warehouse": "Entrepôt",
+      "Store": "Magasin",
+      "Kitchen": "Cuisine",
+      "Bakery": "Boulangerie",
+      "Bar": "Bar",
+      "Freezer": "Congélateur",
+      "Cold Room": "Chambre froide",
+      "Production": "Production"
+    }
   }
 }

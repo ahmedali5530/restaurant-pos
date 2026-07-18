@@ -9,9 +9,11 @@ import {getReorderLevelForStore, isBelowReorderLevel} from "@/utils/inventory.ts
 import {lineAmount, resolveCatalogUnitCost} from "@/lib/inventory/line.cost.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
 
-const isDebitType = (type: string) =>
-  type === "issue" || type === "return" || type === "waste" || type === "transfer_out"
-  || type === "production_out" || type.startsWith("buffet_");
+const isDebitType = (type: string, quantity?: number) => {
+  if (type === "adjustment") return (quantity ?? 0) < 0;
+  return type === "issue" || type === "return" || type === "waste" || type === "transfer_out"
+    || type === "production_out" || type.startsWith("buffet_");
+};
 
 export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: InventoryItem}) => {
   const { t } = useTranslation('inventory');
@@ -117,12 +119,21 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
         item: {...row.item, name: item?.name, code: item?.code, uom: item?.uom},
         counterparty: row.sessionNumber,
       })),
+      ...(records.adjustments ?? []).map((row) => ({
+        id: row.id,
+        type: "adjustment",
+        operator: row.quantity >= 0 ? "+" : "-",
+        quantity: Math.abs(row.quantity),
+        created_at: row.created_at,
+        item: {...row.item, name: item?.name, code: item?.code, uom: item?.uom},
+        counterparty: row.notes,
+      })),
     ];
 
     list.sort((a, b) => a.created_at.getTime() - b.created_at.getTime());
 
     return list;
-  }, [records]);
+  }, [records, item]);
 
   const split = useMemo(() => ({
     Purchase: records.purchases,
@@ -135,6 +146,7 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
     [t("production.productionIn")]: records.productionOutputs,
     [t("production.productionOut")]: records.productionInputs,
     [t("buffet.consumption")]: records.buffetConsumption,
+    [t("tabs.adjustments")]: records.adjustments ?? [],
   }), [records, t]);
 
   if (loading) {
@@ -205,7 +217,7 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
               </thead>
               <tbody>
               {unified.map((unifiedItem) => {
-                if (isDebitType(unifiedItem.type)) {
+                if (isDebitType(unifiedItem.type, unifiedItem.operator === "-" ? -unifiedItem.quantity : unifiedItem.quantity)) {
                   total -= unifiedItem.quantity;
                 } else {
                   total += unifiedItem.quantity;
@@ -237,7 +249,7 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
           {display === 'split' && (
             <>
               <div className="overflow-x-auto">
-                <div className="grid grid-cols-[repeat(10,_300px)] gap-3 mt-3">
+                <div className="grid grid-cols-[repeat(11,_300px)] gap-3 mt-3">
                   {Object.entries(split).map(([type, rows]) => {
                     let sectionTotal = 0;
                     return (
@@ -253,8 +265,13 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
                           <tbody>
                           {rows.map((splitItem: any) => {
                             const rowType = splitItem.type ?? type.toLowerCase().replace(/ /g, "_");
-                            if (isDebitType(rowType) || type.includes(t("stockTransfer.transferOut"))) {
-                              sectionTotal -= splitItem.quantity;
+                            const signedQty = rowType === "adjustment"
+                              ? Number(splitItem.quantity) || 0
+                              : undefined;
+                            if (isDebitType(rowType, signedQty) || type.includes(t("stockTransfer.transferOut"))) {
+                              sectionTotal -= Math.abs(Number(splitItem.quantity) || 0);
+                            } else if (rowType === "adjustment") {
+                              sectionTotal += Number(splitItem.quantity) || 0;
                             } else {
                               sectionTotal += splitItem.quantity;
                             }

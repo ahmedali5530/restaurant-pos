@@ -17,7 +17,7 @@ export const TOOL_PERMISSION_MODULES: Record<string, string | string[]> = {
   get_weekly_sales: "Sales Weekly",
   get_hourly_product_sales: "Products Hourly",
   get_current_inventory: "Current Inventory",
-  get_inventory_movements: "Purchase",
+  get_inventory_movements: ["Purchase", "Issue", "Waste", "Adjustments", "Current Inventory"],
   get_consumption: "Consumption",
   get_waste_summary: "Waste",
   get_sale_vs_consumption: "Sale vs Inventory",

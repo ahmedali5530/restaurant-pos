@@ -15,7 +15,7 @@ import {getReorderLevelForStore} from "@/utils/inventory.ts";
 
 export const InventoryItems = () => {
   const { t } = useTranslation('inventory');
-  const loadHook = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 10, ['category', 'suppliers', 'stores']);
+  const loadHook = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 10, ['category', 'suppliers', 'locations', 'stores']);
   const db = useDB();
 
   const [data, setData] = useState<InventoryItem>();
@@ -51,11 +51,11 @@ export const InventoryItems = () => {
       header: t('columns.reorderLevels'),
       cell: info => {
         const item = info.row.original;
-        const stores = item.stores ?? [];
-        const tags = stores
-          .map(store => {
-            const level = getReorderLevelForStore(item, store.id);
-            return level > 0 ? `${store.name}: ${level}` : null;
+        const locs = item.locations ?? item.stores ?? [];
+        const tags = locs
+          .map(loc => {
+            const level = getReorderLevelForStore(item, loc.id);
+            return level > 0 ? `${loc.name}: ${level}` : null;
           })
           .filter(Boolean);
 
@@ -72,12 +72,13 @@ export const InventoryItems = () => {
         );
       },
     }),
-    columnHelper.accessor("stores", {
-      header: t('tabs.stores'),
+    columnHelper.accessor((row) => row.locations ?? row.stores ?? [], {
+      id: "locations",
+      header: t('tabs.locations'),
       cell: info => (
         <div className="flex flex-wrap gap-2">
-          {info.getValue()?.map((store, index) => (
-            <span className="tag" key={store.id ?? index}>{store.name}</span>
+          {info.getValue()?.map((loc, index) => (
+            <span className="tag" key={loc.id ?? index}>{loc.name}</span>
           ))}
         </div>
       )
@@ -170,8 +171,8 @@ export const InventoryItems = () => {
             name: 'average_price',
             label: t('columns.avgPrice')
           }, {
-            name: 'stores',
-            label: t('tabs.stores')
+            name: 'locations',
+            label: t('tabs.locations')
           }, {
             name: 'suppliers',
             label: t('tabs.suppliers')
@@ -192,17 +193,18 @@ export const InventoryItems = () => {
                 throw new Error(`Invalid category "${data.category}"`);
               }
 
-              const stores: Array<{id: string; name: string}> = [];
-              for(const store of data.stores.split(',')){
-                const [dbStore] = await db.query(`select * from ${Tables.inventory_stores} where name = $name`, {
-                  name: store.trim()
+              const locationNames = (data.locations || data.stores || '').split(',').filter(Boolean);
+              const locations: Array<{id: string; name: string}> = [];
+              for(const locationName of locationNames){
+                const [dbLocation] = await db.query(`select * from ${Tables.inventory_locations} where name = $name`, {
+                  name: locationName.trim()
                 });
 
-                if(dbStore.length === 0){
-                  throw new Error(`Invalid store "${store}"`);
+                if(dbLocation.length === 0){
+                  throw new Error(`Invalid location "${locationName}"`);
                 }
 
-                stores.push({id: dbStore[0].id, name: dbStore[0].name});
+                locations.push({id: dbLocation[0].id, name: dbLocation[0].name});
               }
 
               const suppliers = [];
@@ -221,19 +223,19 @@ export const InventoryItems = () => {
               const reorderLevels: Record<string, number> = {};
               if (data.reorder_levels?.trim()) {
                 for (const entry of data.reorder_levels.split(',')) {
-                  const [storeName, levelStr] = entry.split(':').map(part => part.trim());
-                  if (!storeName || !levelStr) {
+                  const [locationName, levelStr] = entry.split(':').map(part => part.trim());
+                  if (!locationName || !levelStr) {
                     throw new Error(`Invalid reorder level entry "${entry.trim()}"`);
                   }
-                  const store = stores.find(item => item.name === storeName);
-                  if (!store) {
-                    throw new Error(`Invalid store in reorder levels "${storeName}"`);
+                  const location = locations.find(item => item.name === locationName);
+                  if (!location) {
+                    throw new Error(`Invalid location in reorder levels "${locationName}"`);
                   }
                   const level = Number(levelStr);
                   if (!Number.isFinite(level) || level <= 0) {
-                    throw new Error(`Invalid reorder level for "${storeName}"`);
+                    throw new Error(`Invalid reorder level for "${locationName}"`);
                   }
-                  reorderLevels[store.id] = level;
+                  reorderLevels[location.id] = level;
                 }
               }
 
@@ -244,7 +246,7 @@ export const InventoryItems = () => {
                 category: category[0].id,
                 base_quantity: Number(data.base_quantity),
                 suppliers: suppliers,
-                stores: stores.map(store => store.id),
+                locations: locations.map(location => location.id),
                 price: Number(data.price),
                 average_price: Number(data.average_price),
                 reorder_levels: reorderLevels,

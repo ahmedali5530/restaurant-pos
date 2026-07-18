@@ -7,7 +7,6 @@ import {InventoryPurchaseOrder} from "@/api/model/inventory_purchase_order.ts";
 import {InventoryWaste} from "@/api/model/inventory_waste.ts";
 import {StockTransfer} from "@/api/model/stock_transfer.ts";
 import {toJsDate} from "@/lib/datetime.ts";
-import {inferTransferType} from "@/lib/inventory/stock_transfer.service.ts";
 import {
   lineAmount,
   resolveCatalogUnitCost,
@@ -368,7 +367,6 @@ export const mapWasteToInvoice = (waste: InventoryWaste): InventoryInvoiceDoc =>
 export const mapStockTransferToInvoice = (
   transfer: StockTransfer,
 ): InventoryInvoiceDoc => {
-  const type = inferTransferType(transfer);
   const lines: InventoryInvoiceLine[] = (transfer.items ?? []).map((item) => {
     const qty = safeNumber(item.quantity);
     const unitCost = resolveCatalogUnitCost(item.item);
@@ -398,19 +396,21 @@ export const mapStockTransferToInvoice = (
     meta: [
       {
         label: "Type",
-        value: type === "kitchen" ? "Kitchen transfer" : "Store transfer",
+        value: "Location transfer",
       },
       {
-        label: type === "kitchen" ? "From kitchen" : "From store",
-        value: type === "kitchen"
-          ? transfer.from_kitchen?.name ?? "—"
-          : transfer.from_store?.name ?? "—",
+        label: "From location",
+        value:
+          transfer.from_location?.name ??
+          transfer.from_store?.name ??
+          "—",
       },
       {
-        label: type === "kitchen" ? "To kitchen" : "To store",
-        value: type === "kitchen"
-          ? transfer.to_kitchen?.name ?? "—"
-          : transfer.to_store?.name ?? "—",
+        label: "To location",
+        value:
+          transfer.to_location?.name ??
+          transfer.to_store?.name ??
+          "—",
       },
       {label: "Created by", value: personName(transfer.created_by)},
     ],

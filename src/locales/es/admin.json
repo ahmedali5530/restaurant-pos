@@ -511,7 +511,12 @@
       "Integration providers": "Proveedores de integración",
       "Integration configuration": "Configuración de integración",
       "Integration health": "Estado de integración",
-      "Integration queue": "Cola de integración"
+      "Integration queue": "Cola de integración",
+      "Adjustments": "Ajustes",
+      "Edit Adjustments": "Editar ajustes",
+      "Delete Adjustments": "Eliminar ajustes",
+      "Inventory Settings": "Ajustes de inventario",
+      "Locations": "Ubicaciones"
     }
   },
   "discountEngine": {

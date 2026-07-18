@@ -21,7 +21,12 @@
     "auth": "Authentifizierung",
     "failedJobs": "Fehlgeschlagene Aufträge",
     "action": "Aktion",
-    "attempts": "Versuche"
+    "attempts": "Versuche",
+    "created": "Erstellt",
+    "updated": "Aktualisiert",
+    "nextRun": "Nächster Lauf",
+    "error": "Fehler",
+    "order": "Bestellung"
   },
   "enabled": "Aktiviert",
   "disabled": "Deaktiviert",
@@ -29,5 +34,14 @@
   "disableProvider": "Deaktivieren",
   "providerEnabled": "Anbieter aktiviert",
   "providerDisabled": "Anbieter deaktiviert",
-  "enableFailed": "Anbieterstatus konnte nicht aktualisiert werden"
+  "enableFailed": "Anbieterstatus konnte nicht aktualisiert werden",
+  "status": {
+    "Pending": "Ausstehend",
+    "Running": "Läuft",
+    "Waiting": "Wartend",
+    "Completed": "Abgeschlossen",
+    "Failed": "Fehlgeschlagen",
+    "Cancelled": "Abgebrochen",
+    "DeadLetter": "Dauerhaft fehlgeschlagen"
+  }
 }

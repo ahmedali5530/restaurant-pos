@@ -511,7 +511,12 @@
       "Integration providers": "مزودو التكامل",
       "Integration configuration": "إعداد التكامل",
       "Integration health": "حالة التكامل",
-      "Integration queue": "قائمة انتظار التكامل"
+      "Integration queue": "قائمة انتظار التكامل",
+      "Adjustments": "التسويات",
+      "Edit Adjustments": "تعديل التسويات",
+      "Delete Adjustments": "حذف التسويات",
+      "Inventory Settings": "إعدادات المخزون",
+      "Locations": "المواقع"
     }
   },
   "discountEngine": {

@@ -18,7 +18,9 @@
     "production": "Producción",
     "productionHistory": "Historial de producción",
     "buffetMenus": "Menús de buffet",
-    "buffetSessions": "Sesiones de buffet"
+    "buffetSessions": "Sesiones de buffet",
+    "adjustments": "Ajustes",
+    "locations": "Ubicaciones"
   },
   "security": {
     "accessTab": "Access {{module}}",
@@ -34,7 +36,12 @@
     "deleteIssueReturns": "Delete issue return",
     "editWastes": "Edit waste",
     "deleteWastes": "Delete waste",
-    "editStockTransfers": "Edit stock transfer"
+    "editStockTransfers": "Edit stock transfer",
+    "editAdjustments": "Editar ajuste",
+    "deleteAdjustments": "Eliminar ajuste",
+    "postAdjustments": "Contabilizar ajuste de inventario",
+    "approveAdjustments": "Aprobar ajuste de inventario",
+    "voidAdjustments": "Anular ajuste de inventario"
   },
   "columns": {
     "name": "Nombre",
@@ -72,7 +79,14 @@
     "store": "Almacén",
     "unitCost": "Unit cost",
     "amount": "Amount",
-    "stockValue": "Value"
+    "stockValue": "Value",
+    "reason": "Motivo",
+    "quantityChange": "Cant. (+/-)",
+    "notes": "Notas",
+    "locationType": "Tipo",
+    "linkedStore": "Almacén vinculado",
+    "linkedKitchen": "Cocina vinculada",
+    "active": "Activo"
   },
   "buttons": {
     "item": "Artículo",
@@ -80,7 +94,11 @@
     "view": "Ver",
     "upload": "Subir",
     "cancel": "Cancelar",
-    "save": "Guardar"
+    "save": "Guardar",
+    "adjustment": "Ajuste",
+    "line": "Línea",
+    "saveDraft": "Guardar (borrador)",
+    "saveAndPost": "Guardar y contabilizar"
   },
   "forms": {
     "createItem": "Crear nuevo artículo",
@@ -108,7 +126,12 @@
     "manufacturingDate": "Fecha de fabricación",
     "storeInventory": "Almacén {{name}}",
     "reorderLevelHint": "Cantidad mínima opcional por almacén antes de la alerta de reorden",
-    "taxable": "Gravable"
+    "taxable": "Gravable",
+    "createAdjustment": "Nuevo ajuste",
+    "editAdjustment": "Editar ajuste #{{number}}",
+    "notes": "Notas",
+    "reason": "Motivo",
+    "lines": "Líneas"
   },
   "validation": {
     "required": "Este campo es obligatorio",
@@ -153,7 +176,9 @@
     "approved": "Aprobado",
     "received": "Recibido",
     "cancelled": "Cancelado",
-    "belowReorder": "Por debajo del nivel de reorden"
+    "belowReorder": "Por debajo del nivel de reorden",
+    "posted": "Contabilizado",
+    "voided": "Anulado"
   },
   "upload": {
     "attachDocuments": "Documentos adjuntos"
@@ -425,5 +450,49 @@
     "addExtra": "Agregar extra",
     "extraName": "Nombre",
     "extraAmount": "Monto"
+  },
+  "adjustment": {
+    "reasons": {
+      "audit": "Auditoría",
+      "correction": "Corrección",
+      "lost": "Pérdida",
+      "damaged": "Dañado",
+      "found": "Encontrado",
+      "opening_balance": "Saldo inicial"
+    },
+    "deleteConfirm": "¿Eliminar el ajuste #{{number}}?",
+    "saved": "Ajuste guardado",
+    "savedAndPosted": "Ajuste guardado y contabilizado",
+    "saveFailed": "Error al guardar el ajuste",
+    "approved": "Ajuste aprobado",
+    "posted": "Ajuste contabilizado ({{count}} asientos)",
+    "voided": "Ajuste anulado ({{count}} reversos)",
+    "alreadyPosted": "Ya contabilizado",
+    "alreadyVoided": "Ya anulado",
+    "cannotEditPosted": "Los documentos contabilizados no se pueden editar"
+  },
+  "document": {
+    "revisionCreated": "Revisión {{revision}} creada como borrador",
+    "purchaseVoided": "Compra anulada ({{count}} reversos)",
+    "issueVoided": "Salida anulada ({{count}} reversos)",
+    "alreadyVoided": "Ya anulado",
+    "alreadyPosted": "Ya contabilizado"
+  },
+  "location": {
+    "sync": "Sincronizar desde almacenes y cocinas",
+    "syncing": "Sincronizando…",
+    "synced": "Sincronizadas {{stores}} ubicaciones de almacén y {{kitchens}} de cocina",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "types": {
+      "Warehouse": "Almacén",
+      "Store": "Tienda",
+      "Kitchen": "Cocina",
+      "Bakery": "Panadería",
+      "Bar": "Bar",
+      "Freezer": "Congelador",
+      "Cold Room": "Cámara fría",
+      "Production": "Producción"
+    }
   }
 }

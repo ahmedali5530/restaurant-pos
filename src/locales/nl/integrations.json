@@ -21,7 +21,12 @@
     "auth": "Authenticatie",
     "failedJobs": "Mislukte taken",
     "action": "Actie",
-    "attempts": "Pogingen"
+    "attempts": "Pogingen",
+    "created": "Aangemaakt",
+    "updated": "Bijgewerkt",
+    "nextRun": "Volgende run",
+    "error": "Fout",
+    "order": "Bestelling"
   },
   "enabled": "Ingeschakeld",
   "disabled": "Uitgeschakeld",
@@ -29,5 +34,14 @@
   "disableProvider": "Uitschakelen",
   "providerEnabled": "Provider ingeschakeld",
   "providerDisabled": "Provider uitgeschakeld",
-  "enableFailed": "Kan providerstatus niet bijwerken"
+  "enableFailed": "Kan providerstatus niet bijwerken",
+  "status": {
+    "Pending": "In behandeling",
+    "Running": "Bezig",
+    "Waiting": "Wachtend",
+    "Completed": "Voltooid",
+    "Failed": "Mislukt",
+    "Cancelled": "Geannuleerd",
+    "DeadLetter": "Permanent mislukt"
+  }
 }

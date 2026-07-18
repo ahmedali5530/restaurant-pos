@@ -21,7 +21,12 @@
     "auth": "المصادقة",
     "failedJobs": "المهام الفاشلة",
     "action": "الإجراء",
-    "attempts": "المحاولات"
+    "attempts": "المحاولات",
+    "created": "تم الإنشاء",
+    "updated": "تم التحديث",
+    "nextRun": "التشغيل التالي",
+    "error": "خطأ",
+    "order": "الطلب"
   },
   "enabled": "مفعل",
   "disabled": "معطل",
@@ -29,5 +34,14 @@
   "disableProvider": "تعطيل",
   "providerEnabled": "تم تفعيل المزود",
   "providerDisabled": "تم تعطيل المزود",
-  "enableFailed": "تعذر تحديث حالة المزود"
+  "enableFailed": "تعذر تحديث حالة المزود",
+  "status": {
+    "Pending": "قيد الانتظار",
+    "Running": "قيد التشغيل",
+    "Waiting": "منتظر",
+    "Completed": "مكتمل",
+    "Failed": "فشل",
+    "Cancelled": "ملغى",
+    "DeadLetter": "فشل نهائي"
+  }
 }

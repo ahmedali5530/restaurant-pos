@@ -14,7 +14,7 @@ import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {InventoryPurchaseReturn} from "@/api/model/inventory_purchase_return.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {InventoryPurchase} from "@/api/model/inventory_purchase.ts";
-import {InventoryStore} from "@/api/model/inventory_store.ts";
+import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {RecordId, StringRecordId} from "surrealdb";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTrash, faPlus} from "@fortawesome/free-solid-svg-icons";
@@ -28,6 +28,7 @@ import {DateValue} from "react-aria-components";
 import {dateToCalendarDate, calendarDateToDate, getToday} from "@/utils/date.ts";
 import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
 import {InventoryFormPricedLineTotal} from "@/components/inventory/common/form.line.total.tsx";
+import { useInventoryLocations } from "@/hooks/useInventoryLocations.ts";
 
 
 interface Props {
@@ -71,7 +72,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
   documents: yup.mixed().optional(),
   items: yup.array().of(
     yup.object({
-      store: yup.object({
+      location: yup.object({
         label: yup.string(),
         value: yup.string()
       }).required("This is required"),
@@ -101,17 +102,14 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
     data: items,
     fetchData: fetchItems,
     isFetching: loadingItems,
-  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 9999, ['suppliers', 'stores'], {
+  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 9999, ['suppliers', 'locations', 'stores'], {
     enabled: false
   });
 
   const {
-    data: stores,
-    fetchData: fetchStores,
-    isFetching: loadingStores,
-  } = useApi<SettingsData<InventoryStore>>(Tables.inventory_stores, [], [], 0, 9999, [], {
-    enabled: false
-  });
+    options: locationOptions,
+    loading: loadingLocations,
+  } = useInventoryLocations(open);
 
   const {
     data: purchases,
@@ -179,10 +177,9 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
   useEffect(() => {
     if (open) {
       fetchItems();
-      fetchStores();
       fetchPurchases();
     }
-  }, [open, fetchItems, fetchStores, fetchPurchases]);
+  }, [open, fetchItems, fetchPurchases]);
 
 
   useEffect(() => {
@@ -195,23 +192,30 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
         } : null,
         date: data.created_at ? dateToCalendarDate(toJsDate(data.created_at)) : getToday(),
         documents: undefined,
-        items: data.items?.map(item => ({
-          store: (item.store || item.purchase_item?.store) ? {
-            label: (item.store || item.purchase_item?.store)?.name ?? "",
-            value: (item.store || item.purchase_item?.store)?.id ?? ""
-          } : null,
-          item: item.item ? {
-            label: `${item.item.name}-${item.item.code}`,
-            value: item.item.id
-          } : null,
-          purchase_item_id: item.purchase_item?.id,
-          quantity: item.quantity ?? 1,
-          supplier: (item.supplier || item.purchase_item?.supplier) ? {
-            label: (item.supplier || item.purchase_item?.supplier)?.name ?? "",
-            value: (item.supplier || item.purchase_item?.supplier)?.id ?? ""
-          } : null,
-          comments: item.comments ?? "",
-        }))
+        items: data.items?.map(item => {
+          const loc =
+            (item as any).location ||
+            (item.purchase_item as any)?.location ||
+            item.store ||
+            item.purchase_item?.store;
+          return {
+            location: loc ? {
+              label: loc?.name ?? "",
+              value: loc?.id ?? ""
+            } : null,
+            item: item.item ? {
+              label: `${item.item.name}-${item.item.code}`,
+              value: item.item.id
+            } : null,
+            purchase_item_id: item.purchase_item?.id,
+            quantity: item.quantity ?? 1,
+            supplier: (item.supplier || item.purchase_item?.supplier) ? {
+              label: (item.supplier || item.purchase_item?.supplier)?.name ?? "",
+              value: (item.supplier || item.purchase_item?.supplier)?.id ?? ""
+            } : null,
+            comments: item.comments ?? "",
+          };
+        })
       });
 
       setSyncedPurchaseId(data.purchase?.id);
@@ -224,7 +228,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
         items: []
       });
       append({
-        store: null,
+        location: null,
         item: null,
         quantity: 1,
         supplier: null,
@@ -363,7 +367,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
           const [created] = await db.create(Tables.inventory_purchase_return_items, {
             purchase_return: toRecordId(purchaseReturnId),
             item: item.item ? toRecordId(item.item.value) : undefined,
-            store: item.store ? toRecordId(item.store.value) : undefined,
+            location: item.location ? toRecordId(item.location.value) : undefined,
             supplier: item.supplier ? toRecordId(item.supplier.value) : undefined,
             purchase_item: item.purchase_item_id ? toRecordId(item.purchase_item_id) : undefined,
             quantity: Number(item.quantity),
@@ -397,9 +401,9 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
   useEffect(() => {
     watchedItems?.forEach((item, index) => {
       const itemId = item?.item?.value;
-      const storeId = item?.store?.value;
+      const locationId = item?.location?.value;
       
-      if (!itemId || !storeId) {
+      if (!itemId || !locationId) {
         setRowNetQuantities(prev => {
           if (prev[index] === undefined) return prev;
           const next = {...prev};
@@ -409,7 +413,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
         return;
       }
 
-      const cacheKey = `${itemId}-${storeId}`;
+      const cacheKey = `${itemId}-${locationId}`;
       const cached = netQuantityCacheRef.current[cacheKey];
       if (cached !== undefined) {
         setRowNetQuantities(prev => {
@@ -419,7 +423,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
         return;
       }
 
-      fetchNetQuantity(db, itemId, storeId)
+      fetchNetQuantity(db, itemId, locationId)
         .then((value) => {
           netQuantityCacheRef.current[cacheKey] = value;
           setRowNetQuantities(prev => ({ ...prev, [index]: value }));
@@ -430,7 +434,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
           setRowNetQuantities(prev => ({ ...prev, [index]: 0 }));
         });
     });
-  }, [watchedItems, db]);
+  }, [watchedItems]);
 
   const validateAvailableStock = useCallback(async (formValues: any) => {
     let isValid = true;
@@ -438,19 +442,19 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
     for (let index = 0; index < formValues.items.length; index++) {
       const row = formValues.items[index];
       const itemId = row.item?.value;
-      const storeId = row.store?.value;
+      const locationId = row.location?.value;
       
-      if (!itemId || !storeId) continue;
+      if (!itemId || !locationId) continue;
 
       const desiredQuantity = Number(row.quantity) || 0;
       if (desiredQuantity <= 0) continue;
 
-      const cacheKey = `${itemId}-${storeId}`;
+      const cacheKey = `${itemId}-${locationId}`;
       let available = rowNetQuantities[index] ?? netQuantityCacheRef.current[cacheKey];
 
       if (available === undefined) {
         try {
-          available = await fetchNetQuantity(db, itemId, storeId);
+          available = await fetchNetQuantity(db, itemId, locationId);
           netQuantityCacheRef.current[cacheKey] = available;
           setRowNetQuantities(prev => ({ ...prev, [index]: available }));
         } catch (error) {
@@ -471,20 +475,24 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
     }
 
     return isValid;
-  }, [rowNetQuantities, db, setError, clearErrors]);
+  }, [rowNetQuantities, setError, clearErrors]);
 
-  const itemsList = (items?.data ?? []) as (InventoryItem & { stores?: InventoryStore[]; suppliers?: { id: string; name: string }[] })[];
-  const storeOptions = stores?.data?.map(store => ({
-    label: store.name,
-    value: store.id
-  })) ?? [];
+  const itemsList = (items?.data ?? []) as (InventoryItem & {
+    locations?: InventoryLocation[];
+    stores?: { id: string }[];
+    suppliers?: { id: string; name: string }[];
+  })[];
 
-  const getItemOptionsForStore = useCallback((storeId?: string) => {
-    if (!storeId) {
+  const getItemOptionsForLocation = useCallback((locationId?: string) => {
+    if (!locationId) {
       return [];
     }
     return itemsList
-      .filter(item => item.stores?.some(store => store.id.toString() === storeId.toString()))
+      .filter((item) => {
+        const locs = item.locations ?? item.stores;
+        if (!locs?.length) return true;
+        return locs.some((loc) => loc.id.toString() === locationId.toString());
+      })
       .map(item => ({
         label: item.code ? `${item.name}-${item.code}` : item.name,
         value: item.id
@@ -592,7 +600,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
                 icon={faPlus}
                 variant="primary"
                 onClick={() => append({
-                  store: null,
+                  location: null,
                   item: null,
                   quantity: 1,
                   supplier: null,
@@ -605,9 +613,9 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
               <InputError error={_.get(errors, ["items", "message"])}/>
             </div>
             {fields.map((field, index) => {
-              const rowStoreId = watchedItems?.[index]?.store?.value;
+              const rowLocationId = watchedItems?.[index]?.location?.value;
               const rowItemId = watchedItems?.[index]?.item?.value;
-              const rowItemOptions = getItemOptionsForStore(rowStoreId);
+              const rowItemOptions = getItemOptionsForLocation(rowLocationId);
               const supplierOptionsForItem = rowItemId && itemSuppliersMap[rowItemId] ? itemSuppliersMap[rowItemId] : [];
               const availableQuantity = rowNetQuantities[index] ?? 0;
               
@@ -616,9 +624,9 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
                   <input type="hidden" {...register(`items.${index}.purchase_item_id` as const)} />
                   <div className="flex gap-3">
                     <div className="flex-1">
-                      <label>Store</label>
+                      <label>{t('columns.store')}</label>
                       <Controller
-                        name={`items.${index}.store`}
+                        name={`items.${index}.location`}
                         control={control}
                         render={({field}) => (
                           <ReactSelect
@@ -628,12 +636,12 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
                               setValue(`items.${index}.item`, null);
                               setValue(`items.${index}.supplier`, null);
                             }}
-                            options={storeOptions}
-                            isLoading={loadingStores}
+                            options={locationOptions}
+                            isLoading={loadingLocations}
                           />
                         )}
                       />
-                      <InputError error={_.get(errors, ["items", index, "store", "message"])}/>
+                      <InputError error={_.get(errors, ["items", index, "location", "message"])}/>
                     </div>
                     <div className="flex-1">
                       <label>{t('buttons.item')}</label>
@@ -649,7 +657,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
                             }}
                             options={rowItemOptions}
                             isLoading={loadingItems}
-                            isDisabled={!rowStoreId}
+                            isDisabled={!rowLocationId}
                           />
                         )}
                       />

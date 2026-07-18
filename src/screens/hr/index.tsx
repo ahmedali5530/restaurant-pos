@@ -49,6 +49,7 @@ export const HrScreen = () => {
 
   const pages = useMemo(() => ({
     dashboard: {component: <HrDashboard/>, title: t("tabs.dashboard")},
+    attendance: {component: <HrAttendance/>, title: t("tabs.attendance")},
     employees: {component: <HrEmployees/>, title: t("tabs.employees")},
     departments: {component: <HrDepartments/>, title: t("tabs.departments")},
     positions: {component: <HrPositions/>, title: t("tabs.positions")},
@@ -56,7 +57,6 @@ export const HrScreen = () => {
     "pay-profiles": {component: <HrPayProfiles/>, title: t("tabs.payProfiles")},
     "pay-rules": {component: <HrPayRules/>, title: t("tabs.payRules")},
     scheduling: {component: <HrScheduling/>, title: t("tabs.scheduling")},
-    attendance: {component: <HrAttendance/>, title: t("tabs.attendance")},
     leave: {component: <HrLeave/>, title: t("tabs.leave")},
     holidays: {component: <HrHolidays/>, title: t("tabs.holidays")},
     "payroll-periods": {component: <HrPayrollPeriods/>, title: t("tabs.payrollPeriods")},
@@ -80,7 +80,7 @@ export const HrScreen = () => {
           });
         }}
       >
-        <ScrollContainer mouseScroll hideScrollbars={false} className="flex-grow-0 flex-shrink bg-white">
+        <ScrollContainer mouseScroll hideScrollbars={false} className="flex-grow-0 flex-shrink">
           <TabList aria-label="HR Tabs" className="flex flex-row gap-3 px-1 py-3 flex-nowrap">
             {Object.keys(pages).map((key) => (
               <Tab id={key} key={key}>{pages[key].title}</Tab>

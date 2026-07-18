@@ -1,5 +1,6 @@
 import {DateTime} from "surrealdb";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
+import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {InventoryStore} from "@/api/model/inventory_store.ts";
 import {InventoryWasteItem} from "@/api/model/inventory_waste.ts";
 import {CostAllocationMethod, OutputDisposition, Recipe} from "@/api/model/recipe.ts";
@@ -10,6 +11,8 @@ export type ProductionBatchStatus = "completed" | "voided";
 export interface ProductionBatch {
   id: string;
   recipe: Recipe;
+  location?: InventoryLocation;
+  /** @deprecated use location */
   store: InventoryStore;
   batch_number: string;
   scale_factor: number;
@@ -31,6 +34,8 @@ export interface ProductionBatchInput {
   id: string;
   batch: ProductionBatch;
   item: InventoryItem;
+  location?: InventoryLocation;
+  /** @deprecated use location */
   store: InventoryStore;
   quantity: number;
   unit_cost: number;
@@ -41,6 +46,8 @@ export interface ProductionBatchOutput {
   id: string;
   batch: ProductionBatch;
   item: InventoryItem;
+  location?: InventoryLocation;
+  /** @deprecated use location */
   store: InventoryStore;
   quantity: number;
   yield_percent: number;

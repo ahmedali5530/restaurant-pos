@@ -684,7 +684,12 @@
       "Integration providers": "Integration providers",
       "Integration configuration": "Integration configuration",
       "Integration health": "Integration health",
-      "Integration queue": "Integration queue"
+      "Integration queue": "Integration queue",
+      "Adjustments": "Adjustments",
+      "Edit Adjustments": "Edit Adjustments",
+      "Delete Adjustments": "Delete Adjustments",
+      "Inventory Settings": "Inventory Settings",
+      "Locations": "Locations"
     }
   }
 }

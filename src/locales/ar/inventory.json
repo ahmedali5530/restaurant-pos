@@ -18,7 +18,9 @@
     "production": "الإنتاج",
     "productionHistory": "سجل الإنتاج",
     "buffetMenus": "قوائم البوفيه",
-    "buffetSessions": "جلسات البوفيه"
+    "buffetSessions": "جلسات البوفيه",
+    "adjustments": "التسويات",
+    "locations": "المواقع"
   },
   "security": {
     "accessTab": "Access {{module}}",
@@ -34,7 +36,12 @@
     "deleteIssueReturns": "Delete issue return",
     "editWastes": "Edit waste",
     "deleteWastes": "Delete waste",
-    "editStockTransfers": "Edit stock transfer"
+    "editStockTransfers": "Edit stock transfer",
+    "editAdjustments": "تعديل التسوية",
+    "deleteAdjustments": "حذف التسوية",
+    "postAdjustments": "ترحيل تسوية المخزون",
+    "approveAdjustments": "اعتماد تسوية المخزون",
+    "voidAdjustments": "إلغاء تسوية المخزون"
   },
   "columns": {
     "name": "الاسم",
@@ -72,7 +79,14 @@
     "store": "المخزن",
     "unitCost": "Unit cost",
     "amount": "Amount",
-    "stockValue": "Value"
+    "stockValue": "Value",
+    "reason": "السبب",
+    "quantityChange": "الكمية (+/-)",
+    "notes": "ملاحظات",
+    "locationType": "النوع",
+    "linkedStore": "المخزن المرتبط",
+    "linkedKitchen": "المطبخ المرتبط",
+    "active": "نشط"
   },
   "buttons": {
     "item": "صنف",
@@ -80,7 +94,11 @@
     "view": "عرض",
     "upload": "رفع",
     "cancel": "إلغاء",
-    "save": "حفظ"
+    "save": "حفظ",
+    "adjustment": "تسوية",
+    "line": "سطر",
+    "saveDraft": "حفظ (مسودة)",
+    "saveAndPost": "حفظ وترحيل"
   },
   "forms": {
     "createItem": "إنشاء صنف جديد",
@@ -108,7 +126,12 @@
     "manufacturingDate": "تاريخ التصنيع",
     "storeInventory": "مخزن {{name}}",
     "reorderLevelHint": "الحد الأدنى الاختياري لكل مخزن قبل تنبيه إعادة الطلب",
-    "taxable": "خاضع للضريبة"
+    "taxable": "خاضع للضريبة",
+    "createAdjustment": "تسوية جديدة",
+    "editAdjustment": "تعديل التسوية #{{number}}",
+    "notes": "ملاحظات",
+    "reason": "السبب",
+    "lines": "الأسطر"
   },
   "validation": {
     "required": "هذا الحقل مطلوب",
@@ -153,7 +176,9 @@
     "approved": "معتمد",
     "received": "مستلم",
     "cancelled": "ملغى",
-    "belowReorder": "أقل من حد إعادة الطلب"
+    "belowReorder": "أقل من حد إعادة الطلب",
+    "posted": "مرحّل",
+    "voided": "ملغى"
   },
   "upload": {
     "attachDocuments": "المستندات المرفقة"
@@ -425,5 +450,49 @@
     "addExtra": "إضافة إضافة",
     "extraName": "الاسم",
     "extraAmount": "المبلغ"
+  },
+  "adjustment": {
+    "reasons": {
+      "audit": "جرد",
+      "correction": "تصحيح",
+      "lost": "فقدان",
+      "damaged": "تلف",
+      "found": "عثور",
+      "opening_balance": "رصيد افتتاحي"
+    },
+    "deleteConfirm": "هل تريد حذف التسوية #{{number}}؟",
+    "saved": "تم حفظ التسوية",
+    "savedAndPosted": "تم حفظ وترحيل التسوية",
+    "saveFailed": "فشل حفظ التسوية",
+    "approved": "تم اعتماد التسوية",
+    "posted": "تم ترحيل التسوية ({{count}} قيود)",
+    "voided": "تم إلغاء التسوية ({{count}} قيود عكسية)",
+    "alreadyPosted": "مرحّلة مسبقاً",
+    "alreadyVoided": "ملغاة مسبقاً",
+    "cannotEditPosted": "لا يمكن تعديل المستندات المرحّلة"
+  },
+  "document": {
+    "revisionCreated": "تم إنشاء المراجعة {{revision}} كمسودة",
+    "purchaseVoided": "تم إلغاء المشترى ({{count}} قيود عكسية)",
+    "issueVoided": "تم إلغاء الصرف ({{count}} قيود عكسية)",
+    "alreadyVoided": "ملغى مسبقاً",
+    "alreadyPosted": "مرحّل مسبقاً"
+  },
+  "location": {
+    "sync": "مزامنة من المخازن والمطابخ",
+    "syncing": "جاري المزامنة…",
+    "synced": "تمت مزامنة {{stores}} مخزن و {{kitchens}} مطبخ",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "types": {
+      "Warehouse": "مستودع",
+      "Store": "مخزن",
+      "Kitchen": "مطبخ",
+      "Bakery": "مخبز",
+      "Bar": "بار",
+      "Freezer": "فريزر",
+      "Cold Room": "غرفة تبريد",
+      "Production": "إنتاج"
+    }
   }
 }

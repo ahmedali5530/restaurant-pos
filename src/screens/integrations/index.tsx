@@ -62,6 +62,23 @@ export const IntegrationsScreen = () => {
     void loadStatus();
   }, [initialized, manager]);
 
+  useEffect(() => {
+    if (!initialized || selected !== 'queue') return;
+    let cancelled = false;
+    const refreshQueue = async () => {
+      const queue = await manager.getQueueSnapshot();
+      if (!cancelled) setQueueRows(queue);
+    };
+    void refreshQueue();
+    const timer = setInterval(() => {
+      void refreshQueue();
+    }, 2000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [initialized, manager, selected]);
+
   const handleConfigure = (providerId: string) => {
     setSelectedProviderId(providerId);
     setSelected('configuration');

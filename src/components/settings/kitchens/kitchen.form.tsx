@@ -21,6 +21,8 @@ import { Checkbox } from "@/components/common/input/checkbox.tsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { PrinterForm } from "@/components/settings/printers/printer.form.tsx";
+import { ensureLocationForKitchen } from "@/lib/inventory/location.service.ts";
+import { recordIdToString } from "@/api/reports/shared/records.ts";
 
 interface Props {
   open: boolean
@@ -112,13 +114,23 @@ export const KitchenForm = ({
     vals.priority = Number(values.priority);
 
     try {
+      let kitchenId = data?.id ? recordIdToString(data.id) : "";
       if(data?.id){
         await db.update(data.id, {
           ...vals
         })
       }else{
-        await db.create(Tables.kitchens, {
+        const [created] = await db.create(Tables.kitchens, {
           ...vals
+        });
+        kitchenId = recordIdToString(created?.id) || String(created?.id ?? "");
+      }
+
+      // Phase 8: keep inventory_location shim in sync with kitchens
+      if (kitchenId) {
+        await ensureLocationForKitchen(db, kitchenId, {
+          name: values.name,
+          type: "Kitchen",
         });
       }
 

@@ -13,8 +13,6 @@ import {Button} from "@/components/common/input/button.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {StockTransfer} from "@/api/model/stock_transfer.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
-import {Kitchen} from "@/api/model/kitchen.ts";
-import {InventoryStore} from "@/api/model/inventory_store.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
 import _ from "lodash";
@@ -26,12 +24,10 @@ import {dateToCalendarDate, calendarDateToDate, getToday} from "@/utils/date.ts"
 import {toJsDate} from "@/lib/datetime.ts";
 import {
   createStockTransfer,
-  inferTransferType,
-  StockTransferType,
   updateStockTransfer,
 } from "@/lib/inventory/stock_transfer.service.ts";
-import classNames from "classnames";
 import {fetchNetQuantity, validateStoreTransferAvailability} from "@/utils/inventory.ts";
+import {useInventoryLocations} from "@/hooks/useInventoryLocations.ts";
 
 type SelectOption = {label: string; value: string} | null;
 
@@ -41,11 +37,8 @@ interface StockTransferItemFormValue {
 }
 
 interface StockTransferFormValues {
-  transferType: StockTransferType;
-  fromKitchen: SelectOption;
-  toKitchen: SelectOption;
-  fromStore: SelectOption;
-  toStore: SelectOption;
+  fromLocation: SelectOption;
+  toLocation: SelectOption;
   date: DateValue | null;
   notes?: string;
   items: StockTransferItemFormValue[];
@@ -73,11 +66,8 @@ const selectOptionSchema = yup.object({
 
 const validationSchema = yup
   .object({
-    transferType: yup.string().oneOf(["kitchen", "store"]).required(),
-    fromKitchen: selectOptionSchema.nullable(),
-    toKitchen: selectOptionSchema.nullable(),
-    fromStore: selectOptionSchema.nullable(),
-    toStore: selectOptionSchema.nullable(),
+    fromLocation: selectOptionSchema.required("This is required").nullable(),
+    toLocation: selectOptionSchema.required("This is required").nullable(),
     date: yup.mixed().nullable().required("This is required"),
     notes: yup.string().nullable().optional(),
     items: yup
@@ -96,50 +86,33 @@ const validationSchema = yup
   })
   .test("transfer-endpoints", "Invalid transfer endpoints", function (values) {
     if (!values) return true;
-
-    if (values.transferType === "kitchen") {
-      if (!values.fromKitchen?.value) {
-        return this.createError({
-          path: "fromKitchen",
-          message: "This is required",
-        });
-      }
-      if (!values.toKitchen?.value) {
-        return this.createError({
-          path: "toKitchen",
-          message: "This is required",
-        });
-      }
-      if (values.fromKitchen.value === values.toKitchen.value) {
-        return this.createError({
-          path: "toKitchen",
-          message: "Source and destination must differ",
-        });
-      }
-    } else {
-      if (!values.fromStore?.value) {
-        return this.createError({
-          path: "fromStore",
-          message: "This is required",
-        });
-      }
-      if (!values.toStore?.value) {
-        return this.createError({
-          path: "toStore",
-          message: "This is required",
-        });
-      }
-      if (values.fromStore.value === values.toStore.value) {
-        return this.createError({
-          path: "toStore",
-          message: "Source and destination must differ",
-        });
-      }
+    if (!values.fromLocation?.value) {
+      return this.createError({path: "fromLocation", message: "This is required"});
     }
-
+    if (!values.toLocation?.value) {
+      return this.createError({path: "toLocation", message: "This is required"});
+    }
+    if (values.fromLocation.value === values.toLocation.value) {
+      return this.createError({
+        path: "toLocation",
+        message: "Source and destination must differ",
+      });
+    }
     return true;
   })
   .required();
+
+const resolveEndpointOption = (
+  location?: {name?: string; id?: unknown} | null,
+  store?: {name?: string; id?: unknown} | null
+): SelectOption => {
+  const endpoint = location ?? store;
+  if (!endpoint) return null;
+  return {
+    label: endpoint.name ?? String(endpoint),
+    value: toRecordIdString(endpoint.id ?? endpoint),
+  };
+};
 
 export const StockTransferForm = ({open, onClose, data}: Props) => {
   const {t} = useTranslation("inventory");
@@ -156,20 +129,9 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
   });
 
   const {
-    data: kitchens,
-    fetchData: fetchKitchens,
-    isFetching: loadingKitchens,
-  } = useApi<SettingsData<Kitchen>>(Tables.kitchens, ["deleted_at = none"], [], 0, 9999, [], {
-    enabled: false,
-  });
-
-  const {
-    data: stores,
-    fetchData: fetchStores,
-    isFetching: loadingStores,
-  } = useApi<SettingsData<InventoryStore>>(Tables.inventory_stores, [], [], 0, 9999, [], {
-    enabled: false,
-  });
+    options: locationOptions,
+    loading: loadingLocations,
+  } = useInventoryLocations(open);
 
   const {
     control,
@@ -181,19 +143,15 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
   } = useForm({
     resolver,
     defaultValues: {
-      transferType: "kitchen",
-      fromKitchen: null,
-      toKitchen: null,
-      fromStore: null,
-      toStore: null,
+      fromLocation: null,
+      toLocation: null,
       date: getToday(),
       notes: "",
       items: [{item: null, quantity: 1}],
     },
   });
 
-  const transferType = watch("transferType");
-  const watchedFromStore = watch("fromStore");
+  const watchedFromLocation = watch("fromLocation");
   const watchedItems = useWatch({control, name: "items"});
   const [rowNetQuantities, setRowNetQuantities] = useState<Record<number, number | undefined>>({});
   const netQuantityCacheRef = useRef<Record<string, number>>({});
@@ -214,30 +172,16 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
   useEffect(() => {
     if (open) {
       fetchItems();
-      fetchKitchens();
-      fetchStores();
     }
-  }, [open, fetchItems, fetchKitchens, fetchStores]);
+  }, [open, fetchItems]);
 
   useEffect(() => {
     if (!open) return;
 
     if (data) {
-      const type = inferTransferType(data);
       reset({
-        transferType: type,
-        fromKitchen: data.from_kitchen
-          ? {label: data.from_kitchen.name, value: toRecordIdString(data.from_kitchen.id)}
-          : null,
-        toKitchen: data.to_kitchen
-          ? {label: data.to_kitchen.name, value: toRecordIdString(data.to_kitchen.id)}
-          : null,
-        fromStore: data.from_store
-          ? {label: data.from_store.name, value: toRecordIdString(data.from_store.id)}
-          : null,
-        toStore: data.to_store
-          ? {label: data.to_store.name, value: toRecordIdString(data.to_store.id)}
-          : null,
+        fromLocation: resolveEndpointOption(data.from_location, data.from_store),
+        toLocation: resolveEndpointOption(data.to_location, data.to_store),
         date: data.created_at ? dateToCalendarDate(toJsDate(data.created_at)) : getToday(),
         notes: data.notes ?? "",
         items:
@@ -253,11 +197,8 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
       } as any);
     } else {
       reset({
-        transferType: "kitchen",
-        fromKitchen: null,
-        toKitchen: null,
-        fromStore: null,
-        toStore: null,
+        fromLocation: null,
+        toLocation: null,
         date: getToday(),
         notes: "",
         items: [createEmptyItem()],
@@ -266,50 +207,32 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
   }, [data?.id, open, reset, createEmptyItem, data]);
 
   useEffect(() => {
-    if (transferType !== "store" || !watchedFromStore?.value) {
+    if (!watchedFromLocation?.value) {
       setRowNetQuantities({});
       return;
     }
 
     watchedItems?.forEach((row, index) => {
       const itemId = row?.item?.value;
-      const storeId = watchedFromStore.value;
-      if (!itemId || !storeId) {
+      const locationId = watchedFromLocation.value;
+      if (!itemId || !locationId) {
         setRowNetQuantities((prev) => ({...prev, [index]: undefined}));
         return;
       }
 
-      const cacheKey = `${itemId}:${storeId}`;
+      const cacheKey = `${itemId}:${locationId}`;
       const cached = netQuantityCacheRef.current[cacheKey];
       if (cached !== undefined) {
         setRowNetQuantities((prev) => ({...prev, [index]: cached}));
         return;
       }
 
-      void fetchNetQuantity(db, itemId, storeId).then((value) => {
+      void fetchNetQuantity(db, itemId, locationId).then((value) => {
         netQuantityCacheRef.current[cacheKey] = value;
         setRowNetQuantities((prev) => ({...prev, [index]: value}));
       });
     });
-  }, [transferType, watchedFromStore?.value, watchedItems]);
-
-  const kitchenOptions = useMemo(
-    () =>
-      kitchens?.data?.map((kitchen) => ({
-        label: kitchen.name,
-        value: toRecordIdString(kitchen.id),
-      })) ?? [],
-    [kitchens]
-  );
-
-  const storeOptions = useMemo(
-    () =>
-      stores?.data?.map((store) => ({
-        label: store.name,
-        value: toRecordIdString(store.id),
-      })) ?? [],
-    [stores]
-  );
+  }, [watchedFromLocation?.value, watchedItems]);
 
   const itemOptions = useMemo(
     () =>
@@ -323,11 +246,9 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
   const onSubmit = async (values: any) => {
     try {
       const payload = {
-        type: values.transferType,
-        fromKitchenId: values.fromKitchen?.value,
-        toKitchenId: values.toKitchen?.value,
-        fromStoreId: values.fromStore?.value,
-        toStoreId: values.toStore?.value,
+        type: "location" as const,
+        fromLocationId: values.fromLocation?.value,
+        toLocationId: values.toLocation?.value,
         createdAt: calendarDateToDate(values.date) ?? undefined,
         notes: values.notes,
         items: values.items.map((line) => ({
@@ -336,10 +257,10 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
         })),
       };
 
-      if (values.transferType === "store" && values.fromStore?.value) {
+      if (values.fromLocation?.value) {
         const availability = await validateStoreTransferAvailability(
           db,
-          values.fromStore.value,
+          values.fromLocation.value,
           payload.items,
           data?.id ? toRecordIdString(data.id) : undefined
         );
@@ -387,116 +308,44 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-4 mb-4">
-          <div>
-            <label className="text-sm font-medium text-neutral-700">
-              {t("stockTransfer.type")}
-            </label>
-            <Controller
-              name="transferType"
-              control={control}
-              render={({field}) => (
-                <div className="flex gap-2 mt-1">
-                  {(["kitchen", "store"] as StockTransferType[]).map((type) => (
-                    <button
-                      key={type}
-                      type="button"
-                      className={classNames(
-                        "px-4 py-2 rounded-lg border text-sm font-medium",
-                        field.value === type
-                          ? "border-primary-500 bg-primary-50 text-primary-700"
-                          : "border-neutral-300 bg-white text-neutral-700"
-                      )}
-                      onClick={() => field.onChange(type)}
-                    >
-                      {type === "kitchen"
-                        ? t("stockTransfer.typeKitchen")
-                        : t("stockTransfer.typeStore")}
-                    </button>
-                  ))}
-                </div>
-              )}
-            />
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <label>{t("stockTransfer.fromStore")}</label>
+              <Controller
+                name="fromLocation"
+                control={control}
+                render={({field}) => (
+                  <ReactSelect
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    options={locationOptions}
+                    isLoading={loadingLocations}
+                    isClearable
+                  />
+                )}
+              />
+              <InputError error={_.get(errors, ["fromLocation", "message"])} />
+            </div>
+            <div className="flex-1">
+              <label>{t("stockTransfer.toStore")}</label>
+              <Controller
+                name="toLocation"
+                control={control}
+                render={({field}) => (
+                  <ReactSelect
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    options={locationOptions}
+                    isLoading={loadingLocations}
+                    isClearable
+                  />
+                )}
+              />
+              <InputError error={_.get(errors, ["toLocation", "message"])} />
+            </div>
           </div>
-
-          {transferType === "kitchen" ? (
-            <div className="flex gap-3">
-              <div className="flex-1">
-                <label>{t("stockTransfer.fromKitchen")}</label>
-                <Controller
-                  name="fromKitchen"
-                  control={control}
-                  render={({field}) => (
-                    <ReactSelect
-                      value={field.value}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
-                      options={kitchenOptions}
-                      isLoading={loadingKitchens}
-                      isClearable
-                    />
-                  )}
-                />
-                <InputError error={_.get(errors, ["fromKitchen", "message"])} />
-              </div>
-              <div className="flex-1">
-                <label>{t("stockTransfer.toKitchen")}</label>
-                <Controller
-                  name="toKitchen"
-                  control={control}
-                  render={({field}) => (
-                    <ReactSelect
-                      value={field.value}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
-                      options={kitchenOptions}
-                      isLoading={loadingKitchens}
-                      isClearable
-                    />
-                  )}
-                />
-                <InputError error={_.get(errors, ["toKitchen", "message"])} />
-              </div>
-            </div>
-          ) : (
-            <div className="flex gap-3">
-              <div className="flex-1">
-                <label>{t("stockTransfer.fromStore")}</label>
-                <Controller
-                  name="fromStore"
-                  control={control}
-                  render={({field}) => (
-                    <ReactSelect
-                      value={field.value}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
-                      options={storeOptions}
-                      isLoading={loadingStores}
-                      isClearable
-                    />
-                  )}
-                />
-                <InputError error={_.get(errors, ["fromStore", "message"])} />
-              </div>
-              <div className="flex-1">
-                <label>{t("stockTransfer.toStore")}</label>
-                <Controller
-                  name="toStore"
-                  control={control}
-                  render={({field}) => (
-                    <ReactSelect
-                      value={field.value}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
-                      options={storeOptions}
-                      isLoading={loadingStores}
-                      isClearable
-                    />
-                  )}
-                />
-                <InputError error={_.get(errors, ["toStore", "message"])} />
-              </div>
-            </div>
-          )}
 
           <div className="flex gap-3">
             <div className="flex-1">
@@ -571,7 +420,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
                       />
                     )}
                   />
-                  {transferType === "store" && rowNetQuantities[index] !== undefined && (
+                  {rowNetQuantities[index] !== undefined && (
                     <p className="text-xs text-neutral-500 mt-1">
                       {t("stockTransfer.available", {qty: rowNetQuantities[index]})}
                     </p>

@@ -151,7 +151,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_current_inventory",
-      description: "Inventory levels and items below reorder.",
+      description: "Ledger stock levels and items below reorder.",
       parameters: {type: "object", properties: {limit: {type: "number"}}},
     },
   },
@@ -159,12 +159,27 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_inventory_movements",
-      description: "Inventory movements by type.",
+      description: "Ledger movements by type (purchase, issue, waste, adjustment, transfer, production, buffet).",
       parameters: {
         type: "object",
         properties: {
           ...dateParams,
-          type: {type: "string", enum: ["purchase", "purchase_return", "issue", "issue_return", "waste"]},
+          type: {
+            type: "string",
+            enum: [
+              "purchase",
+              "purchase_return",
+              "issue",
+              "issue_return",
+              "waste",
+              "adjustment",
+              "transfer_in",
+              "transfer_out",
+              "production_input",
+              "production_output",
+              "buffet_consumption",
+            ],
+          },
         },
         required: ["type"],
       },
@@ -174,7 +189,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_consumption",
-      description: "Consumption (issues) summary by item.",
+      description: "Consumption from ledger (issues + buffet).",
       parameters: dateOnly,
     },
   },
@@ -182,7 +197,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_waste_summary",
-      description: "Waste summary by inventory item.",
+      description: "Waste summary from ledger by item.",
       parameters: dateOnly,
     },
   },
@@ -190,7 +205,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_sale_vs_consumption",
-      description: "Compare purchases vs consumption by item.",
+      description: "Compare purchases vs consumption by item (ledger).",
       parameters: dateOnly,
     },
   },

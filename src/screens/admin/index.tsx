@@ -121,7 +121,7 @@ export const Admin = () => {
           description: t('tabs.accessTab', { title: pages[key as AdminTabKey].title }),
         })}
       >
-        <ScrollContainer mouseScroll hideScrollbars={false} className="flex-grow-0 flex-shrink bg-white">
+        <ScrollContainer mouseScroll hideScrollbars={false} className="flex-grow-0 flex-shrink">
           <TabList aria-label={t('tabs.ariaLabel')} className="flex flex-row gap-3 px-1 py-3 flex-nowrap">
             {ADMIN_TAB_KEYS.map(key => (
               <Tab

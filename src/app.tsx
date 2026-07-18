@@ -49,7 +49,7 @@ function GlobalDeliveryOrderPopup() {
 function App() {
   // initialize print templates once
   useEffect(() => {
-    initializePrintTemplates();
+    // initializePrintTemplates();
   }, []);
 
   return (

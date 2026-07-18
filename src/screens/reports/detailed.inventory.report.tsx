@@ -1,18 +1,12 @@
-import {useEffect, useMemo, useRef, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {InventoryPurchaseItem} from "@/api/model/inventory_purchase.ts";
-import {InventoryPurchaseReturnItem} from "@/api/model/inventory_purchase_return.ts";
-import {InventoryIssueItem} from "@/api/model/inventory_issue.ts";
-import {InventoryIssueReturnItem} from "@/api/model/inventory_issue_return.ts";
-import {InventoryWasteItem} from "@/api/model/inventory_waste.ts";
 import {formatNumber} from "@/lib/utils.ts";
 import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
-import {fetchStoreTransferLinesForReport} from "@/lib/inventory/stock_transfer.service.ts";
-import {fetchProductionBatchLinesForDetailedReport} from "@/lib/inventory/production.service.ts";
-import {recordToString} from "@/api/reports/shared/records.ts";
+import {recordIdToString} from "@/api/reports/shared/records.ts";
+import {fetchLedgerMovements} from "@/lib/inventory/ledger.service.ts";
 
 type InventoryTransaction = {
   date: string;
@@ -24,7 +18,7 @@ type InventoryTransaction = {
   unit: string;
   type: string;
   user: string;
-  storeName?: string;
+  locationName?: string;
   comments?: string;
   balance: number;
 };
@@ -38,6 +32,20 @@ type ItemBalance = {
   balance: number;
 };
 
+const REFERENCE_TYPE_LABEL: Record<string, string> = {
+  purchase: "Purchase",
+  purchase_return: "Return",
+  issue: "Issue",
+  issue_return: "Issue Return",
+  waste: "Waste",
+  transfer_out: "Transfer Out",
+  transfer_in: "Transfer In",
+  production_input: "Production Out",
+  production_output: "Production In",
+  buffet_consumption: "Buffet Consumption",
+  adjustment: "Adjustment",
+};
+
 const parseFilters = () => {
   const params = new URLSearchParams(window.location.search);
   const startDate = params.get("start") || params.get("start");
@@ -47,10 +55,14 @@ const parseFilters = () => {
   return {startDate, endDate, itemIds: items, types};
 };
 
+const normalizeId = (id: string): string => {
+  const parts = id.split(":");
+  return parts.length > 1 ? parts[parts.length - 1] : id;
+};
+
 export const DetailedInventoryReport = () => {
   const { t } = useTranslation('reports');
   const db = useDB();
-  const queryRef = useRef(db.query);
   const [transactions, setTransactions] = useState<InventoryTransaction[]>([]);
   const [itemBalances, setItemBalances] = useState<ItemBalance[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,316 +72,94 @@ export const DetailedInventoryReport = () => {
   const subtitle = filters.startDate && filters.endDate ? `${filters.startDate} to ${filters.endDate}` : undefined;
 
   useEffect(() => {
-    queryRef.current = db.query;
-  }, [db]);
-
-  useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const conditions: string[] = [];
-        const params: Record<string, string> = {};
-
-        if (filters.startDate) {
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          params.startDate = filters.startDate;
-        }
-
-        if (filters.endDate) {
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-          params.endDate = filters.endDate;
-        }
-
-        const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
-
-        // Query parent records first, then get their items
-        // Fetch purchases and their items
-        const purchaseQuery = `
-          SELECT * FROM ${Tables.inventory_purchases}
-          ${whereClause}
-          ORDER BY created_at ASC
-          FETCH items, items.item, items.item.category, created_by
-        `;
-
-        // Fetch purchase returns and their items
-        const purchaseReturnQuery = `
-          SELECT * FROM ${Tables.inventory_purchase_returns}
-          ${whereClause}
-          ORDER BY created_at ASC
-          FETCH items, items.item, items.item.category, created_by
-        `;
-
-        // Fetch issues and their items
-        const issueQuery = `
-          SELECT * FROM ${Tables.inventory_issues}
-          ${whereClause}
-          ORDER BY created_at ASC
-          FETCH items, items.item, items.item.category, created_by
-        `;
-
-        // Fetch issue returns and their items
-        const issueReturnQuery = `
-          SELECT * FROM ${Tables.inventory_issue_returns}
-          ${whereClause}
-          ORDER BY created_at ASC
-          FETCH items, items.item, items.item.category, created_by
-        `;
-
-        // Fetch wastes and their items
-        const wasteQuery = `
-          SELECT * FROM ${Tables.inventory_wastes}
-          ${whereClause}
-          ORDER BY created_at ASC
-          FETCH items, items.item, items.item.category, created_by
-        `;
-
-        const [purchaseResult, purchaseReturnResult, issueResult, issueReturnResult, wasteResult] = await Promise.all([
-          queryRef.current(purchaseQuery, params),
-          queryRef.current(purchaseReturnQuery, params),
-          queryRef.current(issueQuery, params),
-          queryRef.current(issueReturnQuery, params),
-          queryRef.current(wasteQuery, params),
+        const [movements, itemsResult, locationsResult] = await Promise.all([
+          fetchLedgerMovements(db, {
+            from: filters.startDate ?? undefined,
+            to: filters.endDate ?? undefined,
+            excludeReversals: true,
+          }),
+          db.query(`SELECT id, name, code, uom, category FROM ${Tables.inventory_items} FETCH category`),
+          db.query(`SELECT id, name FROM ${Tables.inventory_locations}`),
         ]);
 
-        console.log(purchaseResult, purchaseReturnResult, issueResult);
+        const items = (itemsResult?.[0] as any[]) || [];
+        const locations = (locationsResult?.[0] as any[]) || [];
 
-        // SurrealDB returns ActionResult[] - handle both result[0] and result[0].result structures
-        const purchases = (purchaseResult?.[0]?.result ?? purchaseResult?.[0] ?? []) as any[];
-        const purchaseReturns = (purchaseReturnResult?.[0]?.result ?? purchaseReturnResult?.[0] ?? []) as any[];
-        const issues = (issueResult?.[0]?.result ?? issueResult?.[0] ?? []) as any[];
-        const issueReturns = (issueReturnResult?.[0]?.result ?? issueReturnResult?.[0] ?? []) as any[];
-        const wastes = (wasteResult?.[0]?.result ?? wasteResult?.[0] ?? []) as any[];
-
-        if (import.meta.env.DEV) {
-          console.log('Detailed Inventory Report - Purchases:', purchases.length, 'Returns:', purchaseReturns.length, 'Issues:', issues.length, 'Issue Returns:', issueReturns.length, 'Wastes:', wastes.length);
-        }
-
-        const allTransactions: InventoryTransaction[] = [];
-
-        // Process purchase items
-        purchases.forEach((purchase: any) => {
-          const items = purchase.items || [];
-          items.forEach((item: any) => {
-            const itemId = typeof item.item?.id === "string" 
-              ? item.item.id 
-              : item.item?.id?.toString?.() ?? String(item.item?.id ?? "");
-            allTransactions.push({
-              date: purchase.created_at || "",
-              item: item.item?.name || "",
-              itemCode: item.item?.code,
-              itemId: itemId,
-              category: item.item?.category?.name || "",
-              quantity: item.quantity || 0,
-              unit: item.item?.uom || "",
-              type: "Purchase",
-              user: purchase.created_by?.name || "",
-              comments: item.comments || purchase.purchase_comments || purchase.comments || undefined,
-              balance: 0, // Will be calculated later
-            });
-          });
+        const itemByKey = new Map<string, any>();
+        items.forEach((item: any) => {
+          const full = recordIdToString(item.id) || String(item.id);
+          itemByKey.set(full, item);
+          itemByKey.set(normalizeId(full), item);
         });
 
-        // Process purchase return items
-        purchaseReturns.forEach((purchaseReturn: any) => {
-          const items = purchaseReturn.items || [];
-          items.forEach((item: any) => {
-            const itemId = typeof item.item?.id === "string" 
-              ? item.item.id 
-              : item.item?.id?.toString?.() ?? String(item.item?.id ?? "");
-            allTransactions.push({
-              date: purchaseReturn.created_at || "",
-              item: item.item?.name || "",
-              itemCode: item.item?.code,
-              itemId: itemId,
-              category: item.item?.category?.name || "",
-              quantity: item.quantity || 0,
-              unit: item.item?.uom || "",
-              type: "Return",
-              user: purchaseReturn.created_by?.name || "",
-              comments: item.comments || purchaseReturn.comments || undefined,
-              balance: 0, // Will be calculated later
-            });
-          });
+        const locationByKey = new Map<string, any>();
+        locations.forEach((location: any) => {
+          const full = recordIdToString(location.id) || String(location.id);
+          locationByKey.set(full, location);
+          locationByKey.set(normalizeId(full), location);
         });
 
-        // Process issue items
-        issues.forEach((issue: any) => {
-          const items = issue.items || [];
-          items.forEach((item: any) => {
-            const itemId = typeof item.item?.id === "string" 
-              ? item.item.id 
-              : item.item?.id?.toString?.() ?? String(item.item?.id ?? "");
-            allTransactions.push({
-              date: issue.created_at || "",
-              item: item.item?.name || "",
-              itemCode: item.item?.code,
-              itemId: itemId,
-              category: item.item?.category?.name || "",
-              quantity: item.quantity || 0,
-              unit: item.item?.uom || "",
-              type: "Issue",
-              user: issue.created_by?.name || "",
-              comments: item.comments || issue.comments || undefined,
-              balance: 0, // Will be calculated later
-            });
-          });
-        });
+        type Row = InventoryTransaction & { signedChange: number };
 
-        // Process issue return items
-        issueReturns.forEach((issueReturn: any) => {
-          const items = issueReturn.items || [];
-          items.forEach((item: any) => {
-            const itemId = typeof item.item?.id === "string" 
-              ? item.item.id 
-              : item.item?.id?.toString?.() ?? String(item.item?.id ?? "");
-            allTransactions.push({
-              date: issueReturn.created_at || "",
-              item: item.item?.name || "",
-              itemCode: item.item?.code,
-              itemId: itemId,
-              category: item.item?.category?.name || "",
-              quantity: item.quantity || 0,
-              unit: item.item?.uom || "",
-              type: "Issue Return",
-              user: issueReturn.created_by?.name || "",
-              comments: item.comments || issueReturn.comments || undefined,
-              balance: 0, // Will be calculated later
-            });
-          });
-        });
+        let allTransactions: Row[] = movements.map((row) => {
+          const itemKey = recordIdToString(row.inventory_item) || row.inventory_item;
+          const locationKey = recordIdToString(row.inventory_location) || row.inventory_location;
+          const item = itemByKey.get(itemKey) || itemByKey.get(normalizeId(itemKey));
+          const location = locationByKey.get(locationKey) || locationByKey.get(normalizeId(locationKey));
+          const type = REFERENCE_TYPE_LABEL[row.reference_type] || row.reference_type;
+          const qty = Number(row.quantity_change) || 0;
 
-        // Process waste items
-        wastes.forEach((waste: any) => {
-          const items = waste.items || [];
-          items.forEach((item: any) => {
-            const itemId = typeof item.item?.id === "string" 
-              ? item.item.id 
-              : item.item?.id?.toString?.() ?? String(item.item?.id ?? "");
-            allTransactions.push({
-              date: waste.created_at || "",
-              item: item.item?.name || "",
-              itemCode: item.item?.code,
-              itemId: itemId,
-              category: item.item?.category?.name || "",
-              quantity: item.quantity || 0,
-              unit: item.item?.uom || "",
-              type: "Waste",
-              user: waste.created_by?.name || "",
-              comments: item.comments || waste.comments || undefined,
-              balance: 0, // Will be calculated later
-            });
-          });
-        });
-
-        const storeTransfers = await fetchStoreTransferLinesForReport(
-          db,
-          filters.startDate,
-          filters.endDate
-        );
-
-        storeTransfers.forEach((transfer) => {
-          const fromName = transfer.from_store?.name ?? "";
-          const toName = transfer.to_store?.name ?? "";
-          const userName = `${transfer.created_by?.first_name ?? ""} ${transfer.created_by?.last_name ?? ""}`.trim();
-
-          (transfer.items ?? []).forEach((line) => {
-            const itemId = recordToString(line.item?.id ?? line.item);
-            const base = {
-              date: String(transfer.created_at ?? ""),
-              item: line.item?.name || "",
-              itemCode: line.item?.code,
-              itemId,
-              category: "",
-              quantity: Number(line.quantity) || 0,
-              unit: line.item?.uom || "",
-              user: userName,
-              balance: 0,
-            };
-
-            allTransactions.push({
-              ...base,
-              type: "Transfer Out",
-              storeName: fromName,
-              comments: transfer.notes || `To ${toName}`,
-            });
-            allTransactions.push({
-              ...base,
-              type: "Transfer In",
-              storeName: toName,
-              comments: transfer.notes || `From ${fromName}`,
-            });
-          });
-        });
-
-        const productionLines = await fetchProductionBatchLinesForDetailedReport(
-          db,
-          filters.startDate,
-          filters.endDate
-        );
-
-        productionLines.forEach((line) => {
-          allTransactions.push({
-            date: line.createdAt.toISOString(),
-            item: line.itemName,
-            itemId: line.itemId,
-            category: "",
-            quantity: line.quantity,
-            unit: "",
-            type: line.direction === "in" ? "Production In" : "Production Out",
+          return {
+            date: row.created_at
+              ? String(row.created_at)
+              : row.business_date,
+            item: item?.name || "",
+            itemCode: item?.code,
+            itemId: itemKey,
+            category: item?.category?.name || "",
+            quantity: Math.abs(qty),
+            unit: item?.uom || "",
+            type,
             user: "",
-            storeName: line.storeName,
-            comments: `${line.batchNumber} / ${line.recipeName}`,
+            locationName: location?.name || "",
+            comments: row.notes || row.reference_id || undefined,
             balance: 0,
-          });
+            signedChange: qty,
+          };
         });
 
-        // Filter by selected items if provided
-        let filteredTransactions = allTransactions;
         if (filters.itemIds.length > 0) {
-          // Normalize item IDs for comparison - handle both full record IDs and just the ID part
-          const normalizeId = (id: string): string => {
-            const parts = id.split(':');
-            return parts.length > 1 ? parts[parts.length - 1] : id;
-          };
-          
           const normalizedFilterIds = new Set(filters.itemIds.map(normalizeId));
-          
-          filteredTransactions = filteredTransactions.filter(transaction => {
+          allTransactions = allTransactions.filter((transaction) => {
             const normalizedItemId = normalizeId(transaction.itemId);
             return normalizedFilterIds.has(normalizedItemId) || normalizedFilterIds.has(transaction.itemId);
           });
         }
 
-        // Filter by selected types if provided
         if (filters.types.length > 0) {
-          filteredTransactions = filteredTransactions.filter(transaction => 
+          allTransactions = allTransactions.filter((transaction) =>
             filters.types.includes(transaction.type)
           );
         }
 
-        // Sort by date ascending
-        filteredTransactions.sort((a, b) => {
+        allTransactions.sort((a, b) => {
           const dateA = toJsDate(a.date).getTime();
           const dateB = toJsDate(b.date).getTime();
-          if (dateA !== dateB) {
-            return dateA - dateB;
-          }
-          // If same date, sort by item name for consistency
+          if (dateA !== dateB) return dateA - dateB;
           return a.item.localeCompare(b.item);
         });
 
-        // Calculate accumulated balance for each item
-        // Balance formula: + purchases - issue + issue return - waste - purchase return
-        const itemBalances = new Map<string, number>();
+        const balances = new Map<string, number>();
         const itemDetails = new Map<string, { name: string; code?: string; category: string; unit: string }>();
-        
-        const transactionsWithBalance = filteredTransactions.map(transaction => {
-          const currentBalance = itemBalances.get(transaction.itemId) || 0;
-          let balanceChange = 0;
-          
-          // Store item details for balance table
+
+        const transactionsWithBalance = allTransactions.map((transaction) => {
+          const currentBalance = balances.get(transaction.itemId) || 0;
+
           if (!itemDetails.has(transaction.itemId)) {
             itemDetails.set(transaction.itemId, {
               name: transaction.item,
@@ -378,50 +168,27 @@ export const DetailedInventoryReport = () => {
               unit: transaction.unit,
             });
           }
-          
-          switch (transaction.type) {
-            case "Purchase":
-              balanceChange = transaction.quantity;
-              break;
-            case "Issue":
-              balanceChange = -transaction.quantity;
-              break;
-            case "Issue Return":
-              balanceChange = transaction.quantity;
-              break;
-            case "Waste":
-              balanceChange = -transaction.quantity;
-              break;
-            case "Return": // Purchase Return
-              balanceChange = -transaction.quantity;
-              break;
-            case "Transfer Out":
-              balanceChange = -transaction.quantity;
-              break;
-            case "Transfer In":
-              balanceChange = transaction.quantity;
-              break;
-            case "Production In":
-              balanceChange = transaction.quantity;
-              break;
-            case "Production Out":
-              balanceChange = -transaction.quantity;
-              break;
-            default:
-              balanceChange = 0;
-          }
-          
-          const newBalance = currentBalance + balanceChange;
-          itemBalances.set(transaction.itemId, newBalance);
-          
+
+          const newBalance = currentBalance + transaction.signedChange;
+          balances.set(transaction.itemId, newBalance);
+
           return {
-            ...transaction,
+            date: transaction.date,
+            item: transaction.item,
+            itemCode: transaction.itemCode,
+            itemId: transaction.itemId,
+            category: transaction.category,
+            quantity: transaction.quantity,
+            unit: transaction.unit,
+            type: transaction.type,
+            user: transaction.user,
+            locationName: transaction.locationName,
+            comments: transaction.comments,
             balance: newBalance,
           };
         });
 
-        // Create balance summary for separate table
-        const balanceSummary: ItemBalance[] = Array.from(itemBalances.entries()).map(([itemId, balance]) => {
+        const balanceSummary: ItemBalance[] = Array.from(balances.entries()).map(([itemId, balance]) => {
           const details = itemDetails.get(itemId)!;
           return {
             itemId,
@@ -482,7 +249,7 @@ export const DetailedInventoryReport = () => {
                 Quantity
               </th>
               <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-neutral-700">
-                Store
+                {t('inventory:columns.location')}
               </th>
               <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-neutral-700">
                 Type
@@ -512,7 +279,7 @@ export const DetailedInventoryReport = () => {
                     {formatNumber(transaction.quantity)} {transaction.unit}
                   </td>
                   <td className="py-4 px-3 text-sm text-neutral-700">
-                    {transaction.storeName || "—"}
+                    {transaction.locationName || "—"}
                   </td>
                   <td className="py-4 px-3 text-sm text-neutral-700">
                     {transaction.type}
@@ -527,7 +294,7 @@ export const DetailedInventoryReport = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={7} className="py-6 text-center text-sm text-neutral-500">
+                <td colSpan={8} className="py-6 text-center text-sm text-neutral-500">
                   No inventory transactions found for the selected period.
                 </td>
               </tr>
@@ -574,4 +341,3 @@ export const DetailedInventoryReport = () => {
     </ReportsLayout>
   );
 };
-

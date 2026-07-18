@@ -1,11 +1,8 @@
 import { nanoid } from 'nanoid';
-import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from '@/lib/datetime.ts';
 import { IntegrationQueueJob, QueueStore, RetryPolicy } from '@/integrations/queue/types.ts';
 import { RetryEngine } from '@/integrations/queue/retry-engine.ts';
 
 type QueueExecutor = (job: IntegrationQueueJob) => Promise<void>;
-
-const nowIsoString = () => toJsDate(nowSurrealDateTime()).toISOString();
 
 export class IntegrationQueueEngine {
   private readonly retryEngine: RetryEngine;
@@ -25,12 +22,16 @@ export class IntegrationQueueEngine {
   async enqueue(input: Omit<IntegrationQueueJob, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'attempts'>) {
     if (input.dedupeKey) {
       const duplicate = await this.store.findByDedupeKey(input.dedupeKey);
-      if (duplicate && duplicate.status !== 'Cancelled' && duplicate.status !== 'DeadLetter') {
+      // Only reuse in-flight jobs — Completed/Failed/DeadLetter must not block a new enqueue.
+      if (
+        duplicate &&
+        (duplicate.status === 'Pending' || duplicate.status === 'Running' || duplicate.status === 'Waiting')
+      ) {
         return duplicate;
       }
     }
 
-    const now = nowIsoString();
+    const now = new Date().toISOString();
     const job: IntegrationQueueJob = {
       ...input,
       id: `integration_job:${nanoid()}`,
@@ -53,27 +54,25 @@ export class IntegrationQueueEngine {
     if (!job) return null;
 
     job.status = 'Running';
-    job.updatedAt = nowIsoString();
+    job.updatedAt = new Date().toISOString();
     await this.store.update(job);
 
     try {
       await executor(job);
       job.status = 'Completed';
       job.lastError = undefined;
-      job.updatedAt = nowIsoString();
+      job.updatedAt = new Date().toISOString();
       await this.store.update(job);
       return job;
     } catch (error) {
       job.attempts += 1;
       job.lastError = error instanceof Error ? error.message : String(error);
-      job.updatedAt = nowIsoString();
+      job.updatedAt = new Date().toISOString();
       if (this.retryEngine.canRetry(job.attempts) && job.attempts <= job.maxRetries) {
         job.status = 'Waiting';
         const delayMs = this.retryEngine.getDelayMs(job.attempts);
         job.nextRunAt =
-          delayMs > 0
-            ? toJsDate(toSurrealDateTime(Date.now() + delayMs)).toISOString()
-            : undefined;
+          delayMs > 0 ? new Date(Date.now() + delayMs).toISOString() : undefined;
       } else {
         job.status = 'DeadLetter';
       }
@@ -83,6 +82,8 @@ export class IntegrationQueueEngine {
   }
 
   async listActiveJobs() {
-    return this.store.listByStatus(['Pending', 'Running', 'Waiting']);
+    // Include DeadLetter so failed fiscal retries remain visible after offline buffering.
+    const jobs = await this.store.listByStatus(['Pending', 'Running', 'Waiting', 'DeadLetter']);
+    return jobs.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }
 }

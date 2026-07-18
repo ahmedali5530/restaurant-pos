@@ -511,7 +511,12 @@
       "Integration providers": "Fornitori di integrazione",
       "Integration configuration": "Configurazione integrazione",
       "Integration health": "Stato integrazione",
-      "Integration queue": "Coda integrazione"
+      "Integration queue": "Coda integrazione",
+      "Adjustments": "Adjustments",
+      "Edit Adjustments": "Edit Adjustments",
+      "Delete Adjustments": "Delete Adjustments",
+      "Inventory Settings": "Inventory Settings",
+      "Locations": "Locations"
     }
   },
   "discountEngine": {

@@ -1,5 +1,6 @@
 import {InventorySupplier} from "@/api/model/inventory_supplier.ts";
 import {InventoryCategory} from "@/api/model/inventory_category.ts";
+import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {InventoryStore} from "@/api/model/inventory_store.ts";
 
 export type InventoryItemType = 'raw' | 'semi_finished' | 'finished';
@@ -13,6 +14,8 @@ export interface InventoryItem{
   item_types?: InventoryItemType[]
   suppliers: InventorySupplier[]
   category: InventoryCategory
+  locations?: InventoryLocation[]
+  /** @deprecated use locations */
   stores: InventoryStore[]
   price: number
   average_price: number

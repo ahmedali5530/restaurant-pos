@@ -22,6 +22,10 @@ export class IndexedDbQueueStore implements QueueStore {
 
   async findByDedupeKey(dedupeKey: string) {
     const jobs = await values<IntegrationQueueJob>(integrationQueueStore);
-    return jobs.find((job) => job.dedupeKey === dedupeKey);
+    const matches = jobs.filter((job) => job.dedupeKey === dedupeKey);
+    const inFlight = matches.find((job) =>
+      job.status === 'Pending' || job.status === 'Running' || job.status === 'Waiting'
+    );
+    return inFlight ?? matches[0];
   }
 }

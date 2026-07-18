@@ -5,15 +5,15 @@ import {Button} from "@/components/common/input/button.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {InventoryStore} from "@/api/model/inventory_store.ts";
+import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {Recipe} from "@/api/model/recipe.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
 
 export const ProductionReportFilter = () => {
   const {t} = useTranslation("reports");
 
-  const {data: storesData, isLoading: loadingStores} = useApi<SettingsData<InventoryStore>>(
-    Tables.inventory_stores,
+  const {data: locationsData, isLoading: loadingLocations} = useApi<SettingsData<InventoryLocation>>(
+    Tables.inventory_locations,
     [],
     ["name asc"],
     0,
@@ -37,15 +37,15 @@ export const ProductionReportFilter = () => {
       <DateRange isRequired label={t("filters.selectRange")} />
 
       <div className="w-full flex flex-col gap-2">
-        <label>{t("labels.store")}</label>
+        <label>{t("inventory:columns.location")}</label>
         <ReactSelect
           name="store"
           isClearable
-          isLoading={loadingStores}
+          isLoading={loadingLocations}
           className="w-full"
-          options={(storesData?.data ?? []).map((store) => ({
-            label: store.name,
-            value: recordToString(store.id) ?? "",
+          options={(locationsData?.data ?? []).map((location) => ({
+            label: location.name,
+            value: recordToString(location.id) ?? "",
           }))}
         />
       </div>

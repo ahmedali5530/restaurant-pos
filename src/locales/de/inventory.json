@@ -18,7 +18,9 @@
     "production": "Produktion",
     "productionHistory": "Produktionsverlauf",
     "buffetMenus": "Buffet-Menüs",
-    "buffetSessions": "Buffet-Sitzungen"
+    "buffetSessions": "Buffet-Sitzungen",
+    "adjustments": "Anpassungen",
+    "locations": "Standorte"
   },
   "security": {
     "accessTab": "Access {{module}}",
@@ -34,7 +36,12 @@
     "deleteIssueReturns": "Delete issue return",
     "editWastes": "Edit waste",
     "deleteWastes": "Delete waste",
-    "editStockTransfers": "Edit stock transfer"
+    "editStockTransfers": "Edit stock transfer",
+    "editAdjustments": "Anpassung bearbeiten",
+    "deleteAdjustments": "Anpassung löschen",
+    "postAdjustments": "Bestandsanpassung buchen",
+    "approveAdjustments": "Bestandsanpassung genehmigen",
+    "voidAdjustments": "Bestandsanpassung stornieren"
   },
   "columns": {
     "name": "Name",
@@ -72,7 +79,14 @@
     "store": "Lagerort",
     "unitCost": "Unit cost",
     "amount": "Amount",
-    "stockValue": "Value"
+    "stockValue": "Value",
+    "reason": "Grund",
+    "quantityChange": "Menge (+/-)",
+    "notes": "Notizen",
+    "locationType": "Typ",
+    "linkedStore": "Verknüpfter Store",
+    "linkedKitchen": "Verknüpfte Küche",
+    "active": "Aktiv"
   },
   "buttons": {
     "item": "Artikel",
@@ -80,7 +94,11 @@
     "view": "Anzeigen",
     "upload": "Hochladen",
     "cancel": "Abbrechen",
-    "save": "Speichern"
+    "save": "Speichern",
+    "adjustment": "Anpassung",
+    "line": "Zeile",
+    "saveDraft": "Speichern (Entwurf)",
+    "saveAndPost": "Speichern & buchen"
   },
   "forms": {
     "createItem": "Neuen Artikel erstellen",
@@ -108,7 +126,12 @@
     "manufacturingDate": "Herstellungsdatum",
     "storeInventory": "Lager {{name}}",
     "reorderLevelHint": "Optionale Mindestmenge pro Lager vor Nachbestellwarnung",
-    "taxable": "Steuerpflichtig"
+    "taxable": "Steuerpflichtig",
+    "createAdjustment": "Neue Anpassung",
+    "editAdjustment": "Anpassung #{{number}} bearbeiten",
+    "notes": "Notizen",
+    "reason": "Grund",
+    "lines": "Zeilen"
   },
   "validation": {
     "required": "Pflichtfeld",
@@ -153,7 +176,9 @@
     "approved": "Genehmigt",
     "received": "Empfangen",
     "cancelled": "Storniert",
-    "belowReorder": "Unter Meldebestand"
+    "belowReorder": "Unter Meldebestand",
+    "posted": "Gebucht",
+    "voided": "Storniert"
   },
   "upload": {
     "attachDocuments": "Angehängte Dokumente"
@@ -425,5 +450,49 @@
     "addExtra": "Zuschlag hinzufügen",
     "extraName": "Name",
     "extraAmount": "Betrag"
+  },
+  "adjustment": {
+    "reasons": {
+      "audit": "Inventur",
+      "correction": "Korrektur",
+      "lost": "Verlust",
+      "damaged": "Beschädigt",
+      "found": "Gefunden",
+      "opening_balance": "Anfangssaldo"
+    },
+    "deleteConfirm": "Anpassung #{{number}} löschen?",
+    "saved": "Anpassung gespeichert",
+    "savedAndPosted": "Anpassung gespeichert und gebucht",
+    "saveFailed": "Anpassung konnte nicht gespeichert werden",
+    "approved": "Anpassung genehmigt",
+    "posted": "Anpassung gebucht ({{count}} Einträge)",
+    "voided": "Anpassung storniert ({{count}} Gegenbuchungen)",
+    "alreadyPosted": "Bereits gebucht",
+    "alreadyVoided": "Bereits storniert",
+    "cannotEditPosted": "Gebuchte Belege können nicht bearbeitet werden"
+  },
+  "document": {
+    "revisionCreated": "Revision {{revision}} als Entwurf erstellt",
+    "purchaseVoided": "Einkauf storniert ({{count}} Gegenbuchungen)",
+    "issueVoided": "Ausgabe storniert ({{count}} Gegenbuchungen)",
+    "alreadyVoided": "Bereits storniert",
+    "alreadyPosted": "Bereits gebucht"
+  },
+  "location": {
+    "sync": "Von Stores & Küchen synchronisieren",
+    "syncing": "Synchronisiere…",
+    "synced": "{{stores}} Store- und {{kitchens}} Küchenstandorte synchronisiert",
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "types": {
+      "Warehouse": "Lager",
+      "Store": "Store",
+      "Kitchen": "Küche",
+      "Bakery": "Bäckerei",
+      "Bar": "Bar",
+      "Freezer": "Gefrierraum",
+      "Cold Room": "Kühlraum",
+      "Production": "Produktion"
+    }
   }
 }

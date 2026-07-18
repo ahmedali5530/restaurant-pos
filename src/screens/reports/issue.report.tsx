@@ -7,6 +7,7 @@ import {InventoryIssue} from "@/api/model/inventory_issue.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {
+  buildLocationOrStoreInsideCondition,
   buildNestedRecordAnyCondition,
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
@@ -79,7 +80,7 @@ export const IssueReport = () => {
           params.endDate = filters.endDate;
         }
 
-        const storeFilter = buildRecordInsideCondition('store', filters.storeIds, 'storeIds');
+        const storeFilter = buildLocationOrStoreInsideCondition(filters.storeIds, 'storeIds');
         if (storeFilter.condition) {
           conditions.push(storeFilter.condition);
           Object.assign(params, storeFilter.params);
@@ -107,7 +108,7 @@ export const IssueReport = () => {
           SELECT * FROM ${Tables.inventory_issues}
           ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
           ORDER BY created_at ASC
-          FETCH items, items.item, items.item.category, created_by, kitchen, issued_to, store
+          FETCH items, items.item, items.item.category, created_by, kitchen, issued_to, location, store
         `;
 
         const result: any = await queryRef.current(query, params);
@@ -210,7 +211,7 @@ export const IssueReport = () => {
                     const date = toLuxonDateTime(issue.created_at);
                     const dateStr = date.toFormat(import.meta.env.VITE_DATE_FORMAT);
                     const kitchenName = issue.kitchen?.name || 'N/A';
-                    const storeName = issue.store?.name || 'N/A';
+                    const storeName = issue.location?.name || issue.store?.name || 'N/A';
                     const issuedToName = issue.issued_to
                       ? `${issue.issued_to.first_name ?? ''} ${issue.issued_to.last_name ?? ''}`.trim() || issue.issued_to.login || 'Unknown'
                       : 'N/A';

@@ -10,6 +10,8 @@ import {useDB} from "@/api/db/db.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
+import {ensureLocationForStore} from "@/lib/inventory/location.service.ts";
+import {recordIdToString} from "@/api/reports/shared/records.ts";
 
 interface InventoryStoreFormValues {
   name: string;
@@ -54,10 +56,17 @@ export const InventoryStoreForm = ({open, onClose, data}: Props) => {
         name: values.name,
       };
 
+      let storeId = data?.id ? recordIdToString(data.id) : "";
       if (data?.id) {
         await db.update(data.id, payload);
       } else {
-        await db.create(Tables.inventory_stores, payload);
+        const [created] = await db.create(Tables.inventory_stores, payload);
+        storeId = recordIdToString(created?.id) || String(created?.id ?? "");
+      }
+
+      // Phase 8: keep inventory_location shim in sync with stores
+      if (storeId) {
+        await ensureLocationForStore(db, storeId, {name: values.name, type: "Store"});
       }
 
       toast.success(t('toast:inventory.storeSaved', { name: values.name }));

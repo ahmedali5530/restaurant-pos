@@ -1,6 +1,7 @@
 import {DateTime} from "surrealdb";
 import {BuffetMenu, BuffetMenuItem, BuffetSessionType} from "@/api/model/buffet_menu.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
+import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {InventoryStore} from "@/api/model/inventory_store.ts";
 import {InventoryWasteItem} from "@/api/model/inventory_waste.ts";
 import {ProductionBatch} from "@/api/model/production_batch.ts";
@@ -23,6 +24,8 @@ export type BuffetGuestCountType = "expected" | "actual" | "checkpoint";
 export interface BuffetSession {
   id: string;
   menu: BuffetMenu;
+  location?: InventoryLocation;
+  /** @deprecated use location */
   store: InventoryStore;
   business_date: string;
   session_type: BuffetSessionType;

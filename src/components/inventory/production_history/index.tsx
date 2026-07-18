@@ -4,7 +4,7 @@ import {createColumnHelper} from "@tanstack/react-table";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {ProductionBatch} from "@/api/model/production_batch.ts";
-import {InventoryStore} from "@/api/model/inventory_store.ts";
+import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {Recipe} from "@/api/model/recipe.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
@@ -20,10 +20,10 @@ export const InventoryProductionHistory = () => {
   const {t} = useTranslation("inventory");
   const loadHook = useProductionBatchList(0, 10);
 
-  const {data: stores, fetchData: fetchStores} = useApi<SettingsData<InventoryStore>>(
-    Tables.inventory_stores,
-    [],
-    [],
+  const {data: locations, fetchData: fetchLocations} = useApi<SettingsData<InventoryLocation>>(
+    Tables.inventory_locations,
+    ["is_active = true OR is_active = NONE"],
+    ["name ASC"],
     0,
     9999,
     [],
@@ -40,23 +40,23 @@ export const InventoryProductionHistory = () => {
     {enabled: false}
   );
 
-  const [filterStore, setFilterStore] = useState<{label: string; value: string} | null>(null);
+  const [filterLocation, setFilterLocation] = useState<{label: string; value: string} | null>(null);
   const [filterRecipe, setFilterRecipe] = useState<{label: string; value: string} | null>(null);
   const [viewBatchId, setViewBatchId] = useState<string | null>(null);
   const [viewOpen, setViewOpen] = useState(false);
 
   useEffect(() => {
-    fetchStores();
+    fetchLocations();
     fetchRecipes();
-  }, [fetchStores, fetchRecipes]);
+  }, [fetchLocations, fetchRecipes]);
 
-  const storeOptions = useMemo(
+  const locationOptions = useMemo(
     () =>
-      stores?.data?.map((store) => ({
-        label: store.name,
-        value: recordToString(store.id) ?? "",
+      locations?.data?.map((location) => ({
+        label: location.name,
+        value: recordToString(location.id) ?? "",
       })) ?? [],
-    [stores]
+    [locations]
   );
 
   const recipeOptions = useMemo(
@@ -70,7 +70,7 @@ export const InventoryProductionHistory = () => {
 
   const applyFilters = () => {
     loadHook.setListFilters({
-      storeId: filterStore?.value,
+      locationId: filterLocation?.value,
       recipeId: filterRecipe?.value,
     });
     loadHook.handlePageChange(0);
@@ -78,7 +78,7 @@ export const InventoryProductionHistory = () => {
   };
 
   const clearFilters = () => {
-    setFilterStore(null);
+    setFilterLocation(null);
     setFilterRecipe(null);
     loadHook.resetFilters();
     loadHook.fetchData();
@@ -96,9 +96,9 @@ export const InventoryProductionHistory = () => {
       id: "recipe",
       header: t("production.recipe"),
     }),
-    columnHelper.accessor((row) => row.store?.name ?? "", {
-      id: "store",
-      header: t("columns.stores"),
+    columnHelper.accessor((row) => (row as any).location?.name ?? row.store?.name ?? "", {
+      id: "location",
+      header: t("columns.location"),
     }),
     columnHelper.accessor("produced_qty", {header: t("production.producedQty")}),
     columnHelper.accessor("yield_loss_percent", {
@@ -129,8 +129,8 @@ export const InventoryProductionHistory = () => {
     <>
       <div className="flex flex-wrap gap-3 items-end px-4 py-3 border-b border-neutral-200">
         <div className="w-56">
-          <label className="text-sm text-neutral-600">{t("columns.stores")}</label>
-          <ReactSelect value={filterStore} onChange={setFilterStore} options={storeOptions} isClearable />
+          <label className="text-sm text-neutral-600">{t("columns.location")}</label>
+          <ReactSelect value={filterLocation} onChange={setFilterLocation} options={locationOptions} isClearable />
         </div>
         <div className="w-56">
           <label className="text-sm text-neutral-600">{t("production.recipe")}</label>

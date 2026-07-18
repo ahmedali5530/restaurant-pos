@@ -1,5 +1,6 @@
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {InventorySupplier} from "@/api/model/inventory_supplier.ts";
+import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {InventoryStore} from "@/api/model/inventory_store.ts";
 import {Document} from '@/api/model/document.ts';
 import { DateTime } from "surrealdb";
@@ -20,6 +21,8 @@ export interface InventoryPurchaseOrderItem {
   quantity: number
   price?: number
   supplier?: InventorySupplier
+  location?: InventoryLocation
+  /** @deprecated use location */
   store?: InventoryStore
   purchase_order?: InventoryPurchaseOrder
 }

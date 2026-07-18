@@ -511,7 +511,12 @@
       "Integration providers": "Integratieproviders",
       "Integration configuration": "Integratieconfiguratie",
       "Integration health": "Integratiestatus",
-      "Integration queue": "Integratiewachtrij"
+      "Integration queue": "Integratiewachtrij",
+      "Adjustments": "Adjustments",
+      "Edit Adjustments": "Edit Adjustments",
+      "Delete Adjustments": "Delete Adjustments",
+      "Inventory Settings": "Inventory Settings",
+      "Locations": "Locations"
     }
   },
   "discountEngine": {

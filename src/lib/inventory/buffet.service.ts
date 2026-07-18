@@ -22,7 +22,7 @@ import {
   getProductionBatch,
   getRecipe,
 } from "@/lib/inventory/production.service.ts";
-import {toStoreRecordId} from "@/lib/inventory/stock_transfer.service.ts";
+import {toLocationRecordId} from "@/lib/inventory/location.service.ts";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {fetchNextSequentialNumber} from "@/utils/recordNumbers.ts";
 import {toRecordId} from "@/lib/utils.ts";
@@ -46,7 +46,9 @@ export type BuffetMenuInput = {
 
 export type BuffetSessionInput = {
   menuId: string;
-  storeId: string;
+  locationId?: string;
+  /** @deprecated use locationId */
+  storeId?: string;
   businessDate: string;
   sessionType: BuffetSessionType;
   expectedGuests: number;
@@ -57,6 +59,8 @@ export type BuffetSessionInput = {
 };
 
 export type BuffetSessionListFilters = {
+  locationId?: string;
+  /** @deprecated use locationId */
   storeId?: string;
   status?: BuffetSessionStatus;
   sessionType?: BuffetSessionType;
@@ -295,9 +299,10 @@ export const listBuffetSessions = async (
   const where: string[] = [];
   const params: Record<string, unknown> = {limit: pageSize, start: page * pageSize};
 
-  if (filters.storeId) {
-    where.push("store = $store");
-    params.store = toStoreRecordId(filters.storeId);
+  const locationFilter = filters.locationId || filters.storeId;
+  if (locationFilter) {
+    where.push("(location = $location OR store = $location)");
+    params.location = toLocationRecordId(locationFilter);
   }
   if (filters.status) {
     where.push("status = $status");
@@ -328,7 +333,7 @@ export const listBuffetSessions = async (
       ${whereClause}
       ORDER BY business_date DESC, created_at DESC
       LIMIT $limit START $start
-      FETCH menu, store, created_by, closed_by`,
+      FETCH menu, store, location, created_by, closed_by`,
       params
     ),
   ]);
@@ -354,7 +359,7 @@ export const getBuffetSession = async (
     [consumptionLogs],
   ] = await Promise.all([
     db.query(
-      `SELECT * FROM ONLY $id FETCH menu, store, created_by, closed_by`,
+      `SELECT * FROM ONLY $id FETCH menu, store, location, created_by, closed_by`,
       {id: recId}
     ),
     db.query(
@@ -409,9 +414,12 @@ export const createBuffetSession = async (
 
   const sessionNumber = await generateSessionNumber(db);
 
+  const locationId = input.locationId || input.storeId;
+  if (!locationId) throw new Error("Location is required");
+
   const [created] = await db.create(Tables.buffet_sessions, {
     menu: toMenuRecordId(input.menuId),
-    store: toStoreRecordId(input.storeId),
+    location: toLocationRecordId(locationId),
     business_date: input.businessDate,
     session_type: input.sessionType,
     status: "draft",
@@ -458,8 +466,10 @@ export const generateProductionPlan = async (
   const menu = session.menu;
   if (!menu?.items?.length) throw new Error("Menu has no items");
 
-  const storeId = recordToString(session.store?.id ?? session.store);
-  if (!storeId) throw new Error("Session store not found");
+  const storeId =
+    recordToString((session as any).location?.id ?? (session as any).location) ||
+    recordToString(session.store?.id ?? session.store);
+  if (!storeId) throw new Error("Session location not found");
 
   await db.query(
     `DELETE ${Tables.buffet_production_batches} WHERE session = $id AND status = 'planned'`,
@@ -502,8 +512,10 @@ export const completeSessionProduction = async (
   const session = await getBuffetSession(db, sessionId);
   if (!session) throw new Error("Session not found");
 
-  const storeId = recordToString(session.store?.id ?? session.store);
-  if (!storeId) throw new Error("Session store not found");
+  const storeId =
+    recordToString((session as any).location?.id ?? (session as any).location) ||
+    recordToString(session.store?.id ?? session.store);
+  if (!storeId) throw new Error("Session location not found");
 
   const plannedBatches = session.production_batches?.filter((b) => b.status === "planned") ?? [];
 
@@ -517,7 +529,7 @@ export const completeSessionProduction = async (
       db,
       {
         recipeId,
-        storeId,
+        locationId: storeId,
         producedQty: row.planned_qty,
         notes: `Buffet session ${session.session_number}`,
       },
@@ -830,8 +842,10 @@ const postBuffetToLedger = async (
   session: BuffetSession,
   userId: string
 ) => {
-  const storeId = recordToString(session.store?.id ?? session.store);
-  if (!storeId) throw new Error("Session store not found");
+  const storeId =
+    recordToString((session as any).location?.id ?? (session as any).location) ||
+    recordToString(session.store?.id ?? session.store);
+  if (!storeId) throw new Error("Session location not found");
 
   const consumptionLogs = session.consumption_logs ?? [];
   const entries: Array<{itemId: string; quantity: number; source: string; logId: string; field: string}> = [];
@@ -883,13 +897,13 @@ const postBuffetToLedger = async (
   if (!wasteId) throw new Error("Failed to create waste header");
 
   const wasteItemRefs: unknown[] = [];
-  const storeRef = toStoreRecordId(storeId);
+  const locationRef = toLocationRecordId(storeId);
 
   for (const entry of entries) {
     const [wasteItem] = await db.create(Tables.inventory_waste_items, {
       waste: toRecordId(wasteId),
       item: toItemRecordId(entry.itemId),
-      store: storeRef,
+      location: locationRef,
       quantity: entry.quantity,
       comments: `Buffet session ${session.session_number} (${entry.source})`,
       source: entry.source,
@@ -1008,10 +1022,10 @@ export const fetchBuffetConsumptionTotals = async (
       AND posted_to_ledger = true
       AND session IN (
         SELECT VALUE id FROM ${Tables.buffet_sessions}
-        WHERE store = $store AND status = 'closed'
+        WHERE (location = $location OR store = $location) AND status = 'closed'
       )
     GROUP ALL`,
-    {item: toItemRecordId(itemId), store: toStoreRecordId(storeId)}
+    {item: toItemRecordId(itemId), location: toLocationRecordId(storeId)}
   );
 
   return safeNumber(unwrapRows<{total?: number}>(rows)[0]?.total);
@@ -1037,9 +1051,9 @@ export const fetchBuffetConsumptionLinesForStore = async (
     FROM ${Tables.buffet_consumption_logs}
     WHERE item = $item
       AND posted_to_ledger = true
-      AND session.store = $store
+      AND (session.location = $location OR session.store = $location)
     FETCH session`,
-    {item: toItemRecordId(itemId), store: toStoreRecordId(storeId)}
+    {item: toItemRecordId(itemId), location: toLocationRecordId(storeId)}
   );
 
   const lines: Array<{

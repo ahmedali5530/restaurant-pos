@@ -1,24 +1,31 @@
-import type {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {recordToString} from "@/api/reports/shared/records.ts";
+import {recordIdToString, recordToString} from "@/api/reports/shared/records.ts";
 import {buildCreatedAtDateConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
-import {fetchStoreInventoryBreakdown, getReorderLevelForStore} from "@/utils/inventory.ts";
+import {getReorderLevelForStore} from "@/utils/inventory.ts";
 import {safeNumber} from "@/lib/utils.ts";
+import {
+  fetchLedgerMovements,
+  fetchLedgerNetsByStore,
+} from "@/lib/inventory/ledger.service.ts";
 
 export type InventoryMovementType =
   | "purchase"
   | "purchase_return"
   | "issue"
   | "issue_return"
-  | "waste";
+  | "waste"
+  | "adjustment"
+  | "transfer_in"
+  | "transfer_out"
+  | "production_input"
+  | "production_output"
+  | "buffet_consumption";
 
-const MOVEMENT_TABLES: Record<InventoryMovementType, {table: string; itemsTable: string}> = {
-  purchase: {table: Tables.inventory_purchases, itemsTable: Tables.inventory_purchase_items},
-  purchase_return: {table: Tables.inventory_purchase_returns, itemsTable: Tables.inventory_purchase_return_items},
-  issue: {table: Tables.inventory_issues, itemsTable: Tables.inventory_issue_items},
-  issue_return: {table: Tables.inventory_issue_returns, itemsTable: Tables.inventory_issue_return_items},
-  waste: {table: Tables.inventory_wastes, itemsTable: Tables.inventory_waste_items},
+const normalizeKey = (id: unknown): string => {
+  const str = recordIdToString(id) || String(id ?? "");
+  const colon = str.lastIndexOf(":");
+  return colon >= 0 ? str.slice(colon + 1) : str;
 };
 
 export const getCurrentInventory = async (
@@ -42,9 +49,28 @@ export const getCurrentInventory = async (
     unit?: string;
   }>(await db.query(itemsQuery));
 
-  const stores = unwrapQueryResult<{id: unknown; name?: string}>(
-    await db.query(`SELECT id, name FROM ${Tables.inventory_stores}`),
+  const locations = unwrapQueryResult<{id: unknown; name?: string}>(
+    await db.query(`SELECT id, name FROM ${Tables.inventory_locations}`),
   );
+
+  const itemByKey = new Map<string, (typeof items)[0]>();
+  const allowedItemKeys = new Set<string>();
+  items.forEach((item) => {
+    const full = recordToString(item.id);
+    itemByKey.set(full, item);
+    itemByKey.set(normalizeKey(full), item);
+    allowedItemKeys.add(normalizeKey(full));
+    allowedItemKeys.add(full);
+  });
+
+  const locationByKey = new Map<string, (typeof locations)[0]>();
+  locations.forEach((location) => {
+    const full = recordToString(location.id);
+    locationByKey.set(full, location);
+    locationByKey.set(normalizeKey(full), location);
+  });
+
+  const ledgerNets = await fetchLedgerNetsByStore(db as any);
 
   const balances: Array<{
     itemId: string;
@@ -55,33 +81,56 @@ export const getCurrentInventory = async (
     belowReorder: boolean;
   }> = [];
 
-  for (const item of items.slice(0, 30)) {
+  for (const row of ledgerNets) {
+    const itemKey = normalizeKey(row.itemId);
+    if (options.itemIds?.length && !allowedItemKeys.has(itemKey) && !allowedItemKeys.has(row.itemId)) {
+      continue;
+    }
+    const item = itemByKey.get(row.itemId) || itemByKey.get(itemKey);
+    if (!item) continue;
+    const location = locationByKey.get(row.locationId) || locationByKey.get(normalizeKey(row.locationId));
+    if (!location) continue;
+
     const itemId = recordToString(item.id);
-    for (const store of stores.slice(0, 10)) {
-      const storeId = recordToString(store.id);
-      try {
-        const breakdown = await fetchStoreInventoryBreakdown(
-          db as ReturnType<typeof useDB>,
-          itemId,
-          storeId,
+    const locationId = recordToString(location.id);
+    const reorderLevel = getReorderLevelForStore(item, locationId);
+    balances.push({
+      itemId,
+      itemName: item.name ?? "Unknown",
+      storeName: location.name ?? "Unknown",
+      quantity: row.net,
+      reorderLevel: reorderLevel || undefined,
+      belowReorder: reorderLevel > 0 && row.net < reorderLevel,
+    });
+  }
+
+  // Include zero-stock items that have reorder levels when few ledger rows
+  if (balances.length < limit) {
+    for (const item of items) {
+      const itemId = recordToString(item.id);
+      for (const location of locations) {
+        const locationId = recordToString(location.id);
+        const already = balances.some(
+          (b) => normalizeKey(b.itemId) === normalizeKey(itemId)
+            && b.storeName === (location.name ?? "Unknown"),
         );
-        const reorderLevel = getReorderLevelForStore(item, storeId);
+        if (already) continue;
+        const reorderLevel = getReorderLevelForStore(item, locationId);
+        if (reorderLevel <= 0) continue;
         balances.push({
           itemId,
           itemName: item.name ?? "Unknown",
-          storeName: store.name ?? "Unknown",
-          quantity: breakdown.net,
-          reorderLevel: reorderLevel || undefined,
-          belowReorder: reorderLevel > 0 && breakdown.net < reorderLevel,
+          storeName: location.name ?? "Unknown",
+          quantity: 0,
+          reorderLevel,
+          belowReorder: true,
         });
-      } catch {
-        // skip failed breakdown
       }
     }
   }
 
   return {
-    items: balances.sort((a, b) => a.quantity - b.quantity),
+    items: balances.sort((a, b) => a.quantity - b.quantity).slice(0, limit),
     belowReorderCount: balances.filter(b => b.belowReorder).length,
   };
 };
@@ -91,31 +140,39 @@ export const getInventoryMovements = async (
   options: DateRangeFilter & {type: InventoryMovementType; limit?: number},
 ) => {
   const {type, limit = 50, ...dateRange} = options;
-  const tables = MOVEMENT_TABLES[type];
-  const {conditions, params} = buildCreatedAtDateConditions(dateRange);
 
-  const query = `
-    SELECT * FROM ${tables.table}
-    ${conditions.length ? `WHERE ${conditions.join(" AND ")}` : ""}
-    ORDER BY created_at DESC
-    LIMIT ${limit}
-    FETCH items, items.item
-  `;
+  const movements = await fetchLedgerMovements(db as any, {
+    from: dateRange.startDate,
+    to: dateRange.endDate,
+    referenceTypes: [type],
+    excludeReversals: true,
+  });
 
-  const movements = unwrapQueryResult<{
-    id: unknown;
-    created_at?: unknown;
-    items?: Array<{item?: {name?: string}; quantity?: number}>;
-  }>(await db.query(query, params));
+  // Resolve item names
+  const itemIds = [...new Set(movements.map((m) => m.inventory_item))];
+  const itemNameByKey = new Map<string, string>();
+  if (itemIds.length) {
+    const items = unwrapQueryResult<{id: unknown; name?: string}>(
+      await db.query(
+        `SELECT id, name FROM ${Tables.inventory_items}`,
+      ),
+    );
+    items.forEach((item) => {
+      const full = recordToString(item.id);
+      itemNameByKey.set(full, item.name ?? "Unknown");
+      itemNameByKey.set(normalizeKey(full), item.name ?? "Unknown");
+    });
+  }
 
   const byItem = new Map<string, {name: string; quantity: number}>();
-  movements.forEach(movement => {
-    (movement.items || []).forEach(line => {
-      const name = line.item?.name ?? "Unknown";
-      const existing = byItem.get(name) || {name, quantity: 0};
-      existing.quantity += safeNumber(line.quantity);
-      byItem.set(name, existing);
-    });
+  movements.forEach((row) => {
+    const name =
+      itemNameByKey.get(row.inventory_item)
+      || itemNameByKey.get(normalizeKey(row.inventory_item))
+      || "Unknown";
+    const existing = byItem.get(name) || {name, quantity: 0};
+    existing.quantity += Math.abs(safeNumber(row.quantity_change));
+    byItem.set(name, existing);
   });
 
   return {
@@ -125,8 +182,42 @@ export const getInventoryMovements = async (
   };
 };
 
+/** Issues + buffet consumption from ledger. */
 export const getConsumptionSummary = async (db: DbClient, options: DateRangeFilter & {limit?: number}) => {
-  return getInventoryMovements(db, {...options, type: "issue", limit: options.limit ?? 50});
+  const limit = options.limit ?? 50;
+  const movements = await fetchLedgerMovements(db as any, {
+    from: options.startDate,
+    to: options.endDate,
+    referenceTypes: ["issue", "buffet_consumption"],
+    excludeReversals: true,
+  });
+
+  const items = unwrapQueryResult<{id: unknown; name?: string}>(
+    await db.query(`SELECT id, name FROM ${Tables.inventory_items}`),
+  );
+  const itemNameByKey = new Map<string, string>();
+  items.forEach((item) => {
+    const full = recordToString(item.id);
+    itemNameByKey.set(full, item.name ?? "Unknown");
+    itemNameByKey.set(normalizeKey(full), item.name ?? "Unknown");
+  });
+
+  const byItem = new Map<string, {name: string; quantity: number}>();
+  movements.forEach((row) => {
+    const name =
+      itemNameByKey.get(row.inventory_item)
+      || itemNameByKey.get(normalizeKey(row.inventory_item))
+      || "Unknown";
+    const existing = byItem.get(name) || {name, quantity: 0};
+    existing.quantity += Math.abs(safeNumber(row.quantity_change));
+    byItem.set(name, existing);
+  });
+
+  return {
+    type: "issue" as InventoryMovementType,
+    movementCount: movements.length,
+    byItem: Array.from(byItem.values()).sort((a, b) => b.quantity - a.quantity).slice(0, limit),
+  };
 };
 
 export const getWasteSummary = async (db: DbClient, options: DateRangeFilter & {limit?: number}) => {
@@ -169,7 +260,7 @@ export const listInventoryItems = async (
 
 export const getSaleVsConsumption = async (db: DbClient, options: DateRangeFilter) => {
   const [issues, purchases] = await Promise.all([
-    getInventoryMovements(db, {...options, type: "issue", limit: 30}),
+    getConsumptionSummary(db, {...options, limit: 30}),
     getInventoryMovements(db, {...options, type: "purchase", limit: 30}),
   ]);
 
