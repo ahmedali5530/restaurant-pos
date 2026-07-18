@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { appPage } from '@/store/jotai.ts';
 import {
   AppTextDirection,
+  DEFAULT_LANGUAGE,
+  DEFAULT_TEXT_DIRECTION,
   SUPPORTED_LANGUAGES,
   TEXT_DIRECTIONS,
 } from '@/lib/languages.ts';
@@ -12,8 +14,8 @@ import {Button} from "@/components/common/input/button.tsx";
 export const LanguageSettings = () => {
   const [page, setPage] = useAtom(appPage);
   const { t } = useTranslation('settings');
-  const currentLanguage = page.language ?? 'en';
-  const currentDirection: AppTextDirection = page.direction ?? 'ltr';
+  const currentLanguage = page.language ?? DEFAULT_LANGUAGE;
+  const currentDirection: AppTextDirection = page.direction ?? DEFAULT_TEXT_DIRECTION;
 
   return (
     <div className="shadow p-5 rounded-xl bg-white">

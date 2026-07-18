@@ -5,9 +5,6 @@ export interface SupportedLanguage {
 
 export type AppTextDirection = 'ltr' | 'rtl';
 
-export const DEFAULT_LANGUAGE = 'en';
-export const DEFAULT_TEXT_DIRECTION: AppTextDirection = 'ltr';
-
 export const SUPPORTED_LANGUAGES: SupportedLanguage[] = [
   { code: 'en', label: 'English' },
   { code: 'es', label: 'Español' },
@@ -20,6 +17,14 @@ export const SUPPORTED_LANGUAGES: SupportedLanguage[] = [
   { code: 'ar', label: 'العربية' },
   { code: 'ru', label: 'Русский' },
 ];
+
+const configuredLanguage = import.meta.env.VITE_DEFAULT_LANGUAGE;
+export const DEFAULT_LANGUAGE =
+  configuredLanguage && SUPPORTED_LANGUAGES.some((lang) => lang.code === configuredLanguage)
+    ? configuredLanguage
+    : 'en';
+export const DEFAULT_TEXT_DIRECTION: AppTextDirection =
+  DEFAULT_LANGUAGE === 'ar' ? 'rtl' : 'ltr';
 
 export const TEXT_DIRECTIONS: { code: AppTextDirection; labelKey: string }[] = [
   { code: 'ltr', labelKey: 'direction.ltr' },

@@ -16,7 +16,7 @@ import {createStore, del, get, set} from 'idb-keyval'
 import {PaymentType} from "@/api/model/payment_type.ts";
 import {DishModifierGroup} from "@/api/model/dish_modifier_group.ts";
 import {Menu} from "@/api/model/menu.ts";
-import type {AppTextDirection} from "@/lib/languages.ts";
+import {DEFAULT_LANGUAGE, DEFAULT_TEXT_DIRECTION, type AppTextDirection} from "@/lib/languages.ts";
 
 
 export interface AppStateInterface {
@@ -102,8 +102,8 @@ export const appPage = atomWithStorage<AppPageInterface>(
   {
     page: "Login",
     touch: true,
-    language: 'en',
-    direction: 'ltr',
+    language: DEFAULT_LANGUAGE,
+    direction: DEFAULT_TEXT_DIRECTION,
     menuConfig: {
       showTotalInCart: false,
       showTotalInOrderCard: false,
