@@ -449,7 +449,21 @@
     "grandTotal": "Общий итог",
     "addExtra": "Добавить дополнение",
     "extraName": "Название",
-    "extraAmount": "Сумма"
+    "extraAmount": "Сумма",
+    "discount": "Discount",
+    "shipping": "Shipping",
+    "additionalCosts": "Additional costs",
+    "showAdditionalCosts": "Show additional costs",
+    "hideAdditionalCosts": "Hide additional costs",
+    "extraCategory": "Category",
+    "allocationMethod": "Allocation",
+    "inventoryTreatment": "Inventory treatment",
+    "purchaseValue": "Purchase value",
+    "landedCost": "Landed cost",
+    "finalInventoryValue": "Final inventory value",
+    "inventoryValueBefore": "Inventory value before allocation",
+    "inventoryValueAfter": "Inventory value after allocation",
+    "finalUnitCost": "Final unit cost"
   },
   "adjustment": {
     "reasons": {
@@ -494,5 +508,27 @@
       "Cold Room": "Cold Room",
       "Production": "Production"
     }
+  },
+  "costCategories": {
+    "Shipping": "Shipping",
+    "Freight": "Freight",
+    "Insurance": "Insurance",
+    "Customs": "Customs",
+    "ImportDuty": "Import duty",
+    "Handling": "Handling",
+    "Tax": "Tax",
+    "Discount": "Discount",
+    "Miscellaneous": "Miscellaneous"
+  },
+  "inventoryTreatment": {
+    "capitalize": "Capitalize",
+    "expense": "Expense",
+    "ignore": "Ignore"
+  },
+  "allocationMethod": {
+    "by_value": "By value",
+    "by_quantity": "By quantity",
+    "equal": "Equal",
+    "manual": "Manual"
   }
 }

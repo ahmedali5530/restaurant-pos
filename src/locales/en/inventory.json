@@ -472,13 +472,50 @@
     "tax": "Tax",
     "taxRate": "Tax rate (%)",
     "taxAmount": "Tax amount",
+    "discount": "Discount",
+    "shipping": "Shipping",
     "extras": "Extras",
     "extrasTotal": "Extras total",
+    "additionalCosts": "Additional costs",
+    "showAdditionalCosts": "Show additional costs",
+    "hideAdditionalCosts": "Hide additional costs",
     "grandTotal": "Grand total",
-    "addExtra": "Add extra",
+    "addExtra": "Add cost",
     "extraName": "Name",
-    "extraAmount": "Amount"
+    "extraAmount": "Amount",
+    "extraCategory": "Category",
+    "allocationMethod": "Allocation",
+    "inventoryTreatment": "Inventory treatment",
+    "purchaseValue": "Purchase value",
+    "landedCost": "Landed cost",
+    "finalInventoryValue": "Final inventory value",
+    "inventoryValueBefore": "Inventory value before allocation",
+    "inventoryValueAfter": "Inventory value after allocation",
+    "finalUnitCost": "Final unit cost"
   },
+  "costCategories": {
+    "Shipping": "Shipping",
+    "Freight": "Freight",
+    "Insurance": "Insurance",
+    "Customs": "Customs",
+    "ImportDuty": "Import duty",
+    "Handling": "Handling",
+    "Tax": "Tax",
+    "Discount": "Discount",
+    "Miscellaneous": "Miscellaneous"
+  },
+  "inventoryTreatment": {
+    "capitalize": "Capitalize",
+    "expense": "Expense",
+    "ignore": "Ignore"
+  },
+  "allocationMethod": {
+    "by_value": "By value",
+    "by_quantity": "By quantity",
+    "equal": "Equal",
+    "manual": "Manual"
+  },
+
   "location": {
     "create": "New location",
     "edit": "Edit location — {{name}}",

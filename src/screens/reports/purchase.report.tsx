@@ -127,6 +127,8 @@ export const PurchaseReport = () => {
     let totalTax = 0;
     let totalExtras = 0;
     let totalItems = 0;
+    let totalFinalInventory = 0;
+    let totalLanded = 0;
 
     purchases.forEach(purchase => {
       purchase.items?.forEach(item => {
@@ -135,9 +137,18 @@ export const PurchaseReport = () => {
         totalQuantity += qty * base;
         totalSubtotal += safeNumber(item.price) * qty;
         totalItems += 1;
+        if (item.total_inventory_cost != null) {
+          totalFinalInventory += safeNumber(item.total_inventory_cost);
+        } else {
+          totalFinalInventory += safeNumber(item.price) * qty;
+        }
       });
       totalTax += safeNumber(purchase.tax_amount);
       totalExtras += extrasTotal(purchase.extras);
+      const snap = purchase.cost_allocation_snapshot?.summary;
+      if (snap) {
+        totalLanded += safeNumber(snap.capitalized_extras);
+      }
     });
 
     return {
@@ -147,6 +158,8 @@ export const PurchaseReport = () => {
       totalExtras,
       totalGrand: totalSubtotal + totalTax + totalExtras,
       totalItems,
+      totalFinalInventory,
+      totalLanded,
     };
   }, [purchases]);
 
@@ -173,7 +186,7 @@ export const PurchaseReport = () => {
     >
       <div className="space-y-8">
         {/* Summary */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4">
           <div className="bg-neutral-50 p-4 rounded-lg">
             <p className="text-sm text-neutral-600">Total Purchases</p>
             <p className="text-2xl font-bold text-neutral-900">{formatNumber(purchases.length)}</p>
@@ -193,6 +206,14 @@ export const PurchaseReport = () => {
           <div className="bg-neutral-50 p-4 rounded-lg">
             <p className="text-sm text-neutral-600">{t('columns.extras')}</p>
             <p className="text-2xl font-bold text-neutral-900">{withCurrency(totals.totalExtras)}</p>
+          </div>
+          <div className="bg-neutral-50 p-4 rounded-lg">
+            <p className="text-sm text-neutral-600">{t('columns.landedCost')}</p>
+            <p className="text-2xl font-bold text-neutral-900">{withCurrency(totals.totalLanded)}</p>
+          </div>
+          <div className="bg-neutral-50 p-4 rounded-lg">
+            <p className="text-sm text-neutral-600">{t('columns.finalInventory')}</p>
+            <p className="text-2xl font-bold text-neutral-900">{withCurrency(totals.totalFinalInventory)}</p>
           </div>
           <div className="bg-neutral-50 p-4 rounded-lg">
             <p className="text-sm text-neutral-600">{t('columns.grandTotal')}</p>

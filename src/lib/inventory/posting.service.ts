@@ -27,6 +27,9 @@ import {
   POSTING_STRATEGIES,
 } from "@/lib/inventory/posting.strategies.ts";
 import { assertCanVoid } from "@/lib/inventory/dependency-validator.ts";
+import { fetchInventorySettings } from "@/lib/inventory/settings.ts";
+import { allocatePurchaseCosts } from "@/lib/inventory/purchase-cost/allocate.ts";
+import type { LineAllocationResult } from "@/lib/inventory/purchase-cost/types.ts";
 
 type DatabaseClient = ReturnType<typeof useDB>;
 
@@ -136,7 +139,7 @@ const loadLedgerRowsForDocument = async (
   const [rows] = await db.query(
     `SELECT * FROM ${Tables.inventory_ledger}
      WHERE reference_type = $type AND reference_id = $ref
-       AND (notes = NONE OR notes !~ '^reversal:')`,
+       AND (notes = NONE OR string::starts_with(notes, 'reversal:') = false)`,
     {
       type: referenceType,
       ref: recordIdToString(referenceId) || String(referenceId),
@@ -362,9 +365,65 @@ export const postDocument = async (
     parentReversalCount = parentReverse.ledgerEntryCount;
   }
 
-  const entries = strategy.buildEntries(doc, items, input.userId);
+  // Landed cost: allocate extras/tax/discount into final unit costs before ledger write
+  let itemsForPosting = items;
+  let allocationByItemId = new Map<string, LineAllocationResult>();
+  let costAllocationSnapshot: any = undefined;
+  if (input.documentType === "purchase") {
+    const settings = await fetchInventorySettings(input.db);
+    const allocation = allocatePurchaseCosts({
+      lines: items.map((item: any) => ({
+        id: recordIdToString(item.id) || String(item.id ?? ""),
+        quantity: Number(item.quantity) || 0,
+        price: Number(item.price) || 0,
+        taxable: item.taxable,
+      })),
+      extras: doc.extras,
+      tax_rate: doc.tax_rate,
+      tax_amount: doc.tax_amount,
+      settings,
+    });
+    costAllocationSnapshot = {
+      summary: allocation.summary,
+      components: allocation.components,
+      lines: allocation.lines,
+      allocated_at: new Date().toISOString(),
+    };
+    allocationByItemId = new Map(
+      allocation.lines.map((line) => [line.purchase_item_id, line])
+    );
+    itemsForPosting = items.map((item: any) => {
+      const itemId = recordIdToString(item.id) || String(item.id ?? "");
+      const line = allocationByItemId.get(itemId);
+      if (!line) return item;
+      return {
+        ...item,
+        purchase_price: line.purchase_price,
+        allocated_extra_cost: line.allocated_extra_cost,
+        allocated_tax: line.allocated_tax,
+        allocated_discount: line.allocated_discount,
+        final_unit_cost: line.final_unit_cost,
+        total_inventory_cost: line.total_inventory_cost,
+      };
+    });
+  }
+
+  const entries = strategy.buildEntries(doc, itemsForPosting, input.userId);
   if (!entries.length) {
     throw new InventoryPostingError("No ledger entries generated from document lines");
+  }
+
+  // Prefer allocation totals for ledger total_cost (avoids per-unit rounding drift)
+  if (input.documentType === "purchase" && allocationByItemId.size > 0) {
+    for (const entry of entries) {
+      const refItem = entry.reference_item
+        ? recordIdToString(entry.reference_item) || String(entry.reference_item)
+        : "";
+      const line = allocationByItemId.get(refItem);
+      if (!line) continue;
+      entry.unit_cost = line.final_unit_cost;
+      entry.total_cost = line.total_inventory_cost;
+    }
   }
 
   const newEntries: InventoryLedgerInput[] = [];
@@ -388,8 +447,39 @@ export const postDocument = async (
     postStampSets.push("posted_by = $posted_by");
     postStampParams.posted_by = toRecordId(input.userId);
   }
+  if (costAllocationSnapshot) {
+    postStampSets.push("cost_allocation_snapshot = $cost_allocation_snapshot");
+    postStampParams.cost_allocation_snapshot = costAllocationSnapshot;
+  }
+
+  const lineCostStatements: TransactionStatement[] = [];
+  if (input.documentType === "purchase") {
+    for (const [itemId, line] of allocationByItemId) {
+      if (!itemId) continue;
+      const p = `lc_${itemId.replace(/[^a-zA-Z0-9]/g, "_")}_`;
+      lineCostStatements.push({
+        sql: `UPDATE $item_id SET
+          purchase_price = $${p}purchase_price,
+          allocated_extra_cost = $${p}allocated_extra_cost,
+          allocated_tax = $${p}allocated_tax,
+          allocated_discount = $${p}allocated_discount,
+          final_unit_cost = $${p}final_unit_cost,
+          total_inventory_cost = $${p}total_inventory_cost`,
+        params: {
+          item_id: toRecordId(itemId),
+          [`${p}purchase_price`]: line.purchase_price,
+          [`${p}allocated_extra_cost`]: line.allocated_extra_cost,
+          [`${p}allocated_tax`]: line.allocated_tax,
+          [`${p}allocated_discount`]: line.allocated_discount,
+          [`${p}final_unit_cost`]: line.final_unit_cost,
+          [`${p}total_inventory_cost`]: line.total_inventory_cost,
+        },
+      });
+    }
+  }
 
   const statements: TransactionStatement[] = [
+    ...lineCostStatements,
     ...buildLedgerCreateStatements(newEntries),
     {
       sql: `UPDATE $doc_id SET ${postStampSets.join(", ")}`,

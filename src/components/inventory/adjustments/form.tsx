@@ -8,7 +8,7 @@ import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { Tables } from "@/api/db/tables.ts";
 import { useDB } from "@/api/db/db.ts";
 import { Modal } from "@/components/common/react-aria/modal.tsx";
-import { Input, InputError } from "@/components/common/input/input.tsx";
+import { Input } from "@/components/common/input/input.tsx";
 import { Button } from "@/components/common/input/button.tsx";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import { InventoryItem } from "@/api/model/inventory_item.ts";
@@ -255,15 +255,20 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
     >
       <form className="space-y-4" onSubmit={handleSubmit((v) => save(v, false))}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div>
-            <Input
-              type="number"
-              label={t("columns.invoiceNumber")}
-              disabled={locked}
-              {...register("invoice_number")}
-            />
-            <InputError error={errors.invoice_number?.message} />
-          </div>
+          <Controller
+            name="invoice_number"
+            control={control}
+            render={({ field }) => (
+              <Input
+                type="number"
+                label={t("columns.invoiceNumber")}
+                disabled={locked}
+                {...field}
+                value={field.value ?? ""}
+                error={errors.invoice_number?.message}
+              />
+            )}
+          />
           <Controller
             name="reason"
             control={control}

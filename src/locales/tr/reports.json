@@ -326,7 +326,9 @@
     "difference": "Fark",
     "sale": "Satış",
     "itemName": "Ürün Adı",
-    "itemCode": "Ürün kodu"
+    "itemCode": "Ürün kodu",
+    "landedCost": "Landed cost",
+    "finalInventory": "Final inventory"
   },
   "labels": {
     "modifiers": "Değiştiriciler",

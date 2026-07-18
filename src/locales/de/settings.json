@@ -131,6 +131,22 @@
     "requireBatchSelection": "Chargenauswahl bei Ausgaben erforderlich",
     "updated": "Inventareinstellungen aktualisiert",
     "save": "Speichern",
-    "saveDescription": "Inventareinstellungen speichern"
+    "saveDescription": "Inventareinstellungen speichern",
+    "landedCostsSection": "Einkaufskostenverteilung",
+    "enableLandedCosts": "Landed Costs aktivieren (Versand, Fracht usw.)",
+    "enablePurchaseDiscounts": "Einkaufsrabatte in Bestandskosten einbeziehen",
+    "enablePurchaseTaxes": "Einkaufssteuern in Bestandskosten einbeziehen",
+    "defaultAllocationMethod": "Standard-Verteilungsmethode",
+    "allocation": {
+      "by_value": "Nach Wert",
+      "by_quantity": "Nach Menge",
+      "equal": "Gleichmäßig"
+    },
+    "defaultPurchaseTaxBehavior": "Standard-Steuerverhalten Einkauf",
+    "defaultPurchaseTaxBehaviorHint": "Nicht erstattungsfähige Steuer wird aktiviert. Erstattungsfähige Steuer wird für die Bewertung ignoriert.",
+    "taxBehavior": {
+      "non_recoverable": "Nicht erstattungsfähig (aktivieren)",
+      "recoverable": "Erstattungsfähig (für Bestand ignorieren)"
+    }
   }
 }

@@ -65,7 +65,10 @@ const resolveLocationId = (item: any, doc?: any): string => {
 };
 
 const resolveUnitCost = (item: any): number => {
-  const price = Number(item?.price ?? item?.unit_cost ?? 0);
+  // Prefer landed-cost final unit cost when allocation has run at post time
+  const price = Number(
+    item?.final_unit_cost ?? item?.price ?? item?.unit_cost ?? 0
+  );
   return Number.isFinite(price) ? price : 0;
 };
 

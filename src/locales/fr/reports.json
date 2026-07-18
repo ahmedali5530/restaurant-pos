@@ -326,7 +326,9 @@
     "difference": "Écart",
     "sale": "Vente",
     "itemName": "Nom de l'article",
-    "itemCode": "Code article"
+    "itemCode": "Code article",
+    "landedCost": "Landed cost",
+    "finalInventory": "Final inventory"
   },
   "labels": {
     "modifiers": "Modificateurs",

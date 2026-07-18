@@ -11,7 +11,9 @@ import { useSecurity } from "@/hooks/useSecurity.ts";
 import {
   DEFAULT_INVENTORY_SETTINGS,
   INVENTORY_SETTINGS_KEY,
+  InventoryAllocationMethod,
   InventoryCostingMethod,
+  InventoryPurchaseTaxBehavior,
   InventorySettings,
 } from "@/api/model/inventory_settings.ts";
 
@@ -22,6 +24,11 @@ interface FormValues {
   enableManufacturingDate: boolean;
   costing: { label: string; value: InventoryCostingMethod } | null;
   requireBatchSelection: boolean;
+  enable_landed_costs: boolean;
+  enable_purchase_discounts: boolean;
+  enable_purchase_taxes: boolean;
+  default_allocation_method: { label: string; value: InventoryAllocationMethod } | null;
+  default_purchase_tax_behavior: { label: string; value: InventoryPurchaseTaxBehavior } | null;
 }
 
 export const InventorySettingsCard = () => {
@@ -39,6 +46,29 @@ export const InventorySettingsCard = () => {
     [t]
   );
 
+  const allocationOptions = useMemo(
+    () => [
+      { label: t("inventory.allocation.by_value"), value: "by_value" as const },
+      { label: t("inventory.allocation.by_quantity"), value: "by_quantity" as const },
+      { label: t("inventory.allocation.equal"), value: "equal" as const },
+    ],
+    [t]
+  );
+
+  const taxBehaviorOptions = useMemo(
+    () => [
+      {
+        label: t("inventory.taxBehavior.non_recoverable"),
+        value: "non_recoverable" as const,
+      },
+      {
+        label: t("inventory.taxBehavior.recoverable"),
+        value: "recoverable" as const,
+      },
+    ],
+    [t]
+  );
+
   const { control, handleSubmit, reset, watch } = useForm<FormValues>({
     defaultValues: {
       inventory_ledger_enabled: DEFAULT_INVENTORY_SETTINGS.inventory_ledger_enabled,
@@ -47,6 +77,11 @@ export const InventorySettingsCard = () => {
       enableManufacturingDate: DEFAULT_INVENTORY_SETTINGS.enableManufacturingDate,
       costing: costingOptions[0],
       requireBatchSelection: DEFAULT_INVENTORY_SETTINGS.requireBatchSelection,
+      enable_landed_costs: DEFAULT_INVENTORY_SETTINGS.enable_landed_costs,
+      enable_purchase_discounts: DEFAULT_INVENTORY_SETTINGS.enable_purchase_discounts,
+      enable_purchase_taxes: DEFAULT_INVENTORY_SETTINGS.enable_purchase_taxes,
+      default_allocation_method: allocationOptions[0],
+      default_purchase_tax_behavior: taxBehaviorOptions[0],
     },
   });
 
@@ -68,6 +103,12 @@ export const InventorySettingsCard = () => {
       enableManufacturingDate: !!values.enableManufacturingDate,
       costing: values.costing?.value ?? "average",
       requireBatchSelection: !!values.requireBatchSelection,
+      enable_landed_costs: !!values.enable_landed_costs,
+      enable_purchase_discounts: !!values.enable_purchase_discounts,
+      enable_purchase_taxes: !!values.enable_purchase_taxes,
+      default_allocation_method: values.default_allocation_method?.value ?? "by_value",
+      default_purchase_tax_behavior:
+        values.default_purchase_tax_behavior?.value ?? "non_recoverable",
     };
 
     if (settings?.id) {
@@ -102,8 +143,17 @@ export const InventorySettingsCard = () => {
       costing:
         costingOptions.find((o) => o.value === values.costing) ?? costingOptions[0],
       requireBatchSelection: values.requireBatchSelection,
+      enable_landed_costs: values.enable_landed_costs,
+      enable_purchase_discounts: values.enable_purchase_discounts,
+      enable_purchase_taxes: values.enable_purchase_taxes,
+      default_allocation_method:
+        allocationOptions.find((o) => o.value === values.default_allocation_method) ??
+        allocationOptions[0],
+      default_purchase_tax_behavior:
+        taxBehaviorOptions.find((o) => o.value === values.default_purchase_tax_behavior) ??
+        taxBehaviorOptions[0],
     });
-  }, [settings, reset, costingOptions]);
+  }, [settings, reset, costingOptions, allocationOptions, taxBehaviorOptions]);
 
   return (
     <div className="shadow p-5 rounded-xl bg-white">
@@ -142,6 +192,78 @@ export const InventorySettingsCard = () => {
               </div>
             )}
           />
+
+          <hr className="border-neutral-200" />
+          <p className="text-sm font-medium">{t("inventory.landedCostsSection")}</p>
+
+          <Controller
+            name="enable_landed_costs"
+            control={control}
+            render={({ field }) => (
+              <Switch checked={!!field.value} onChange={field.onChange}>
+                {t("inventory.enableLandedCosts")}
+              </Switch>
+            )}
+          />
+          <Controller
+            name="enable_purchase_discounts"
+            control={control}
+            render={({ field }) => (
+              <Switch checked={!!field.value} onChange={field.onChange}>
+                {t("inventory.enablePurchaseDiscounts")}
+              </Switch>
+            )}
+          />
+          <Controller
+            name="enable_purchase_taxes"
+            control={control}
+            render={({ field }) => (
+              <Switch checked={!!field.value} onChange={field.onChange}>
+                {t("inventory.enablePurchaseTaxes")}
+              </Switch>
+            )}
+          />
+
+          <Controller
+            name="default_allocation_method"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <label className="block text-sm mb-1">
+                  {t("inventory.defaultAllocationMethod")}
+                </label>
+                <ReactSelect
+                  options={allocationOptions}
+                  value={field.value}
+                  onChange={field.onChange}
+                  isClearable={false}
+                />
+              </div>
+            )}
+          />
+
+          <Controller
+            name="default_purchase_tax_behavior"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <label className="block text-sm mb-1">
+                  {t("inventory.defaultPurchaseTaxBehavior")}
+                </label>
+                <ReactSelect
+                  options={taxBehaviorOptions}
+                  value={field.value}
+                  onChange={field.onChange}
+                  isClearable={false}
+                />
+                <p className="text-xs text-neutral-500 mt-1">
+                  {t("inventory.defaultPurchaseTaxBehaviorHint")}
+                </p>
+              </div>
+            )}
+          />
+
+          <hr className="border-neutral-200" />
 
           <Controller
             name="enableBatchTracking"

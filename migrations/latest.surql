@@ -953,6 +953,7 @@ DEFINE FIELD code ON inventory_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD item_types ON inventory_item TYPE array<string> DEFAULT ['raw'] ASSERT array::len($value) > 0 PERMISSIONS FULL;
 DEFINE FIELD name ON inventory_item TYPE string PERMISSIONS FULL;
 DEFINE FIELD price ON inventory_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD taxable ON inventory_item TYPE none | bool | null PERMISSIONS FULL;
 DEFINE FIELD reorder_levels ON inventory_item TYPE any DEFAULT {  } PERMISSIONS FULL;
 DEFINE FIELD stores ON inventory_item TYPE array<record<inventory_store>> PERMISSIONS FULL;
 DEFINE FIELD locations ON inventory_item TYPE none | array<record<inventory_location>> | null PERMISSIONS FULL;
@@ -1085,6 +1086,10 @@ DEFINE FIELD location ON inventory_purchase TYPE none | record<inventory_locatio
 DEFINE FIELD supplier ON inventory_purchase TYPE none | record<inventory_supplier> PERMISSIONS FULL;
 DEFINE FIELD voided_at ON inventory_purchase TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD voided_by ON inventory_purchase TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD tax_rate ON inventory_purchase TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD tax_amount ON inventory_purchase TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD extras ON inventory_purchase TYPE none | array | null PERMISSIONS FULL;
+DEFINE FIELD cost_allocation_snapshot ON inventory_purchase TYPE none | any | null PERMISSIONS FULL;
 
 DEFINE INDEX invoice_number ON inventory_purchase FIELDS invoice_number UNIQUE;
 
@@ -1109,6 +1114,13 @@ DEFINE FIELD requested ON inventory_purchase_item TYPE none | float | null PERMI
 DEFINE FIELD store ON inventory_purchase_item TYPE none | record<inventory_store> | null PERMISSIONS FULL;
 DEFINE FIELD location ON inventory_purchase_item TYPE none | record<inventory_location> | null PERMISSIONS FULL;
 DEFINE FIELD supplier ON inventory_purchase_item TYPE none | record<inventory_supplier> | null PERMISSIONS FULL;
+DEFINE FIELD taxable ON inventory_purchase_item TYPE none | bool | null PERMISSIONS FULL;
+DEFINE FIELD purchase_price ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD allocated_extra_cost ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD allocated_tax ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD allocated_discount ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD final_unit_cost ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD total_inventory_cost ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
 
 
 

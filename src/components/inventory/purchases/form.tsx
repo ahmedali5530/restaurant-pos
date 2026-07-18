@@ -44,6 +44,16 @@ import {
 import { recordIdToString } from "@/api/reports/shared/records.ts";
 import { InventoryDocumentStatusBadge } from "@/components/inventory/common/document.status.badge.tsx";
 import { useInventoryLocations } from "@/hooks/useInventoryLocations.ts";
+import {
+  AdvancedExtraFormValue,
+  extrasForInvoiceTotals,
+  mergePurchaseExtrasForSave,
+  splitPurchaseExtrasForForm,
+} from "@/lib/inventory/purchase-cost/form.extras.ts";
+import type {
+  PurchaseAllocationMethod,
+  PurchaseInventoryTreatment,
+} from "@/api/model/inventory_purchase.ts";
 
 type PurchaseMethod = "manual" | "csv" | "purchase_order";
 
@@ -62,11 +72,6 @@ interface PurchaseItemFormValue {
   taxable?: boolean;
 }
 
-interface PurchaseExtraFormValue {
-  name: string;
-  amount: number | string;
-}
-
 interface InventoryPurchaseFormValues {
   invoice_number: number | string;
   purchase_order?: { label: string; value: string } | null;
@@ -77,7 +82,9 @@ interface InventoryPurchaseFormValues {
   date?: DateValue | null;
   update_item_cost?: boolean;
   tax_rate?: number | string;
-  extras: PurchaseExtraFormValue[];
+  discount?: number | string;
+  shipping?: number | string;
+  extras: AdvancedExtraFormValue[];
   items: PurchaseItemFormValue[];
 }
 
@@ -127,10 +134,15 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
   date: yup.mixed().nullable().optional(),
   update_item_cost: yup.boolean().optional(),
   tax_rate: yup.number().typeError("This should be a number").min(0).nullable().optional(),
+  discount: yup.number().typeError("This should be a number").min(0).nullable().optional(),
+  shipping: yup.number().typeError("This should be a number").min(0).nullable().optional(),
   extras: yup.array().of(
     yup.object({
       name: yup.string().required("This is required"),
       amount: yup.number().typeError("This should be a number").required("This is required"),
+      category: yup.object({ label: yup.string(), value: yup.string() }).nullable().optional(),
+      allocation_method: yup.object({ label: yup.string(), value: yup.string() }).nullable().optional(),
+      inventory_treatment: yup.object({ label: yup.string(), value: yup.string() }).nullable().optional(),
     })
   ).optional(),
   items: yup.array().of(
@@ -166,7 +178,40 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
   const { manager } = useIntegrationManager();
   const [purchaseOrderModal, setPurchaseOrderModal] = useState(false);
   const [postingAfterSave, setPostingAfterSave] = useState(false);
+  const [showAdditionalCosts, setShowAdditionalCosts] = useState(false);
   const [state,] = useAtom(appPage);
+
+  const categoryOptions = useMemo(
+    () =>
+      (
+        [
+          "Shipping",
+          "Freight",
+          "Insurance",
+          "Customs",
+          "ImportDuty",
+          "Handling",
+          "Miscellaneous",
+        ] as const
+      ).map((value) => ({ label: t(`costCategories.${value}`), value })),
+    [t]
+  );
+  const allocationOptions = useMemo(
+    () =>
+      (["by_value", "by_quantity", "equal"] as PurchaseAllocationMethod[]).map((value) => ({
+        label: t(`allocationMethod.${value}`),
+        value,
+      })),
+    [t]
+  );
+  const treatmentOptions = useMemo(
+    () =>
+      (["capitalize", "expense", "ignore"] as PurchaseInventoryTreatment[]).map((value) => ({
+        label: t(`inventoryTreatment.${value}`),
+        value,
+      })),
+    [t]
+  );
   const validationSchema = useMemo(() => createValidationSchema(db, data?.id), [db, data?.id]);
   const resolver = useMemo(() => yupResolver(validationSchema), [validationSchema]);
   // Missing status means "posted" only for existing legacy rows — new creates are editable.
@@ -216,8 +261,8 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
     reset,
     watch,
     setValue,
-  } = useForm({
-    resolver,
+  } = useForm<InventoryPurchaseFormValues>({
+    resolver: resolver as any,
   });
 
   const {fields, append, remove, replace} = useFieldArray({
@@ -237,8 +282,21 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
   const method = watch("method");
   const itemsValues = useWatch({control, name: "items"});
   const taxRateValue = useWatch({control, name: "tax_rate"});
+  const discountValue = useWatch({control, name: "discount"});
+  const shippingValue = useWatch({control, name: "shipping"});
   const extrasValues = useWatch({control, name: "extras"});
-  const purchaseTotals = computePurchaseTotals(itemsValues, taxRateValue, extrasValues);
+  const mergedExtrasForTotals = useMemo(
+    () =>
+      extrasForInvoiceTotals(
+        mergePurchaseExtrasForSave({
+          discount: discountValue,
+          shipping: shippingValue,
+          advanced: extrasValues as AdvancedExtraFormValue[],
+        })
+      ),
+    [discountValue, shippingValue, extrasValues]
+  );
+  const purchaseTotals = computePurchaseTotals(itemsValues, taxRateValue, mergedExtrasForTotals);
   const selectedPurchaseOrderId = selectedPurchaseOrder?.value;
   const isPurchaseOrderSelected = Boolean(selectedPurchaseOrderId);
   const isManualMethod = method?.value === "manual";
@@ -353,13 +411,22 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
 
   useEffect(() => {
     if (data) {
+      const split = splitPurchaseExtrasForForm(data.extras, {
+        category: (c) => t(`costCategories.${c}`, { defaultValue: c }),
+        allocation: (m) => t(`allocationMethod.${m}`, { defaultValue: m }),
+        treatment: (tr) => t(`inventoryTreatment.${tr}`, { defaultValue: tr }),
+      });
+      setShowAdditionalCosts(split.advanced.length > 0);
       reset({
         invoice_number: data.invoice_number ?? 1,
         purchase_order: data.purchase_order ? {
           label: `PO #${data.purchase_order.po_number}`,
           value: data.purchase_order.id
         } : null,
-        method: data.method ? {label: data.method, value: data.method.toLowerCase()} : {
+        method: data.method ? {
+          label: data.method,
+          value: data.method.toLowerCase() as PurchaseMethod,
+        } : {
           label: t('purchaseMethods.manual'),
           value: "manual"
         },
@@ -368,10 +435,9 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
         date: data.created_at ? dateToCalendarDate(toJsDate(data.created_at)) : getToday(),
         update_item_cost: false,
         tax_rate: data.tax_rate ?? 0,
-        extras: (data.extras ?? []).map((extra) => ({
-          name: extra.name ?? "",
-          amount: extra.amount ?? 0,
-        })),
+        discount: split.discount,
+        shipping: split.shipping,
+        extras: split.advanced,
         items: data.items?.map(item => ({
           item: item.item ? {
             label: `${item.item.name}-${item.item.code}`,
@@ -400,6 +466,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
         }))
       });
     } else if (open) {
+      setShowAdditionalCosts(false);
       reset({
         invoice_number: 1,
         purchase_order: null,
@@ -409,15 +476,18 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
         date: getToday(),
         update_item_cost: false,
         tax_rate: 0,
+        discount: 0,
+        shipping: 0,
         extras: [],
         items: []
       });
     }
-  }, [data, open, reset]);
+  }, [data, open, reset, t]);
 
   const closeModal = () => {
     onClose();
     setSyncedPurchaseOrderId(undefined);
+    setShowAdditionalCosts(false);
     reset({
       invoice_number: 1,
       purchase_order: null,
@@ -427,6 +497,8 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
       date: getToday(),
       update_item_cost: false,
       tax_rate: 0,
+      discount: 0,
+      shipping: 0,
       extras: [],
       items: []
     });
@@ -477,13 +549,16 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
 
     try {
       const documentRefs = await convertFilesToDocuments(values.documents);
-      const totals = computePurchaseTotals(values.items, values.tax_rate, values.extras);
-      const extrasPayload = (values.extras ?? [])
-        .filter((extra: PurchaseExtraFormValue) => extra.name?.trim())
-        .map((extra: PurchaseExtraFormValue) => ({
-          name: extra.name.trim(),
-          amount: Number(extra.amount) || 0,
-        }));
+      const extrasPayload = mergePurchaseExtrasForSave({
+        discount: values.discount,
+        shipping: values.shipping,
+        advanced: values.extras,
+      });
+      const totals = computePurchaseTotals(
+        values.items,
+        values.tax_rate,
+        extrasForInvoiceTotals(extrasPayload)
+      );
 
       const payload = {
         invoice_number: Number(values.invoice_number),
@@ -1027,57 +1102,37 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
               <InventoryFormLineTotal control={control} name="items" />
             </fieldset>
 
-            <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
-              <legend>{t('totals.extras')}</legend>
-              <div className="mb-3">
-                <Button
-                  type="button"
-                  icon={faPlus}
-                  variant="primary"
-                  onClick={() => appendExtra({name: "", amount: 0})}
-                >
-                  {t('totals.addExtra')}
-                </Button>
-              </div>
-              {extraFields.map((field, index) => (
-                <div className="flex gap-3 mb-3 items-end" key={field.id}>
-                  <div className="flex-1">
-                    <Input
-                      label={t('totals.extraName')}
-                      {...register(`extras.${index}.name` as const)}
-                      error={_.get(errors, ["extras", index, "name", "message"])}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <Controller
-                      name={`extras.${index}.amount`}
-                      control={control}
-                      render={({field: amountField}) => (
-                        <Input
-                          label={t('totals.extraAmount')}
-                          type="number"
-                          value={amountField.value as number | string}
-                          onChange={amountField.onChange}
-                          error={_.get(errors, ["extras", index, "amount", "message"])}
-                        />
-                      )}
-                    />
-                  </div>
-                  <div className="flex-0">
-                    <Button
-                      type="button"
-                      variant="danger"
-                      iconButton
-                      onClick={() => removeExtra(index)}
-                    >
-                      <FontAwesomeIcon icon={faTrash}/>
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </fieldset>
-
             <div className="flex flex-wrap gap-3 items-end">
+              <div className="w-40">
+                <Controller
+                  name="discount"
+                  control={control}
+                  render={({field}) => (
+                    <Input
+                      label={t('totals.discount')}
+                      type="number"
+                      value={field.value ?? 0}
+                      onChange={field.onChange}
+                      error={_.get(errors, ["discount", "message"])}
+                    />
+                  )}
+                />
+              </div>
+              <div className="w-40">
+                <Controller
+                  name="shipping"
+                  control={control}
+                  render={({field}) => (
+                    <Input
+                      label={t('totals.shipping')}
+                      type="number"
+                      value={field.value ?? 0}
+                      onChange={field.onChange}
+                      error={_.get(errors, ["shipping", "message"])}
+                    />
+                  )}
+                />
+              </div>
               <div className="w-40">
                 <Controller
                   name="tax_rate"
@@ -1099,22 +1154,161 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                   <span className="font-medium">{withCurrency(purchaseTotals.subtotal)}</span>
                 </div>
                 <div className="flex justify-between gap-4">
+                  <span className="text-neutral-600">{t('totals.discount')}</span>
+                  <span className="font-medium">{withCurrency(Number(discountValue) || 0)}</span>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <span className="text-neutral-600">{t('totals.shipping')}</span>
+                  <span className="font-medium">{withCurrency(Number(shippingValue) || 0)}</span>
+                </div>
+                <div className="flex justify-between gap-4">
                   <span className="text-neutral-600">
                     {t('totals.tax')}
                     {Number(taxRateValue) > 0 ? ` (${taxRateValue}%)` : ""}
                   </span>
                   <span className="font-medium">{withCurrency(purchaseTotals.taxAmount)}</span>
                 </div>
-                <div className="flex justify-between gap-4">
-                  <span className="text-neutral-600">{t('totals.extras')}</span>
-                  <span className="font-medium">{withCurrency(purchaseTotals.extrasTotal)}</span>
-                </div>
+                {(extrasValues?.length ?? 0) > 0 && (
+                  <div className="flex justify-between gap-4">
+                    <span className="text-neutral-600">{t('totals.additionalCosts')}</span>
+                    <span className="font-medium">
+                      {withCurrency(
+                        purchaseTotals.extrasTotal +
+                          (Number(discountValue) || 0) -
+                          (Number(shippingValue) || 0)
+                      )}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between gap-4 border-t border-neutral-300 pt-1 font-semibold">
                   <span>{t('totals.grandTotal')}</span>
                   <span>{withCurrency(purchaseTotals.grandTotal)}</span>
                 </div>
               </div>
             </div>
+
+            <div>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setShowAdditionalCosts((v) => !v)}
+              >
+                {showAdditionalCosts
+                  ? t('totals.hideAdditionalCosts')
+                  : t('totals.showAdditionalCosts')}
+              </Button>
+            </div>
+
+            {showAdditionalCosts && (
+              <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
+                <legend>{t('totals.additionalCosts')}</legend>
+                <div className="mb-3">
+                  <Button
+                    type="button"
+                    icon={faPlus}
+                    variant="primary"
+                    onClick={() =>
+                      appendExtra({
+                        name: "",
+                        amount: 0,
+                        category: categoryOptions.find((o) => o.value === "Miscellaneous") ?? null,
+                        allocation_method: allocationOptions[0],
+                        inventory_treatment: treatmentOptions[0],
+                      })
+                    }
+                  >
+                    {t('totals.addExtra')}
+                  </Button>
+                </div>
+                {extraFields.map((field, index) => (
+                  <div className="flex flex-wrap gap-3 mb-3 items-end" key={field.id}>
+                    <div className="flex-1 min-w-[140px]">
+                      <Input
+                        label={t('totals.extraName')}
+                        {...register(`extras.${index}.name` as const)}
+                        error={_.get(errors, ["extras", index, "name", "message"])}
+                      />
+                    </div>
+                    <div className="w-40">
+                      <Controller
+                        name={`extras.${index}.category`}
+                        control={control}
+                        render={({field: catField}) => (
+                          <div>
+                            <label className="block text-sm mb-1">{t('totals.extraCategory')}</label>
+                            <ReactSelect
+                              options={categoryOptions}
+                              value={catField.value}
+                              onChange={catField.onChange}
+                              isClearable={false}
+                            />
+                          </div>
+                        )}
+                      />
+                    </div>
+                    <div className="w-32">
+                      <Controller
+                        name={`extras.${index}.amount`}
+                        control={control}
+                        render={({field: amountField}) => (
+                          <Input
+                            label={t('totals.extraAmount')}
+                            type="number"
+                            value={amountField.value as number | string}
+                            onChange={amountField.onChange}
+                            error={_.get(errors, ["extras", index, "amount", "message"])}
+                          />
+                        )}
+                      />
+                    </div>
+                    <div className="w-36">
+                      <Controller
+                        name={`extras.${index}.allocation_method`}
+                        control={control}
+                        render={({field: methodField}) => (
+                          <div>
+                            <label className="block text-sm mb-1">{t('totals.allocationMethod')}</label>
+                            <ReactSelect
+                              options={allocationOptions}
+                              value={methodField.value}
+                              onChange={methodField.onChange}
+                              isClearable={false}
+                            />
+                          </div>
+                        )}
+                      />
+                    </div>
+                    <div className="w-36">
+                      <Controller
+                        name={`extras.${index}.inventory_treatment`}
+                        control={control}
+                        render={({field: treatField}) => (
+                          <div>
+                            <label className="block text-sm mb-1">{t('totals.inventoryTreatment')}</label>
+                            <ReactSelect
+                              options={treatmentOptions}
+                              value={treatField.value}
+                              onChange={treatField.onChange}
+                              isClearable={false}
+                            />
+                          </div>
+                        )}
+                      />
+                    </div>
+                    <div className="flex-0">
+                      <Button
+                        type="button"
+                        variant="danger"
+                        iconButton
+                        onClick={() => removeExtra(index)}
+                      >
+                        <FontAwesomeIcon icon={faTrash}/>
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </fieldset>
+            )}
           </div>
 
           <div className="flex gap-2 items-center">

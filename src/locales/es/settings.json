@@ -131,6 +131,22 @@
     "requireBatchSelection": "Requerir selección de lote en salidas",
     "updated": "Ajustes de inventario actualizados",
     "save": "Guardar",
-    "saveDescription": "Guardar ajustes de inventario"
+    "saveDescription": "Guardar ajustes de inventario",
+    "landedCostsSection": "Asignación de costos de compra",
+    "enableLandedCosts": "Activar costos adicionales (envío, flete, etc.)",
+    "enablePurchaseDiscounts": "Incluir descuentos de compra en el costo de inventario",
+    "enablePurchaseTaxes": "Incluir impuestos de compra en el costo de inventario",
+    "defaultAllocationMethod": "Método de asignación predeterminado",
+    "allocation": {
+      "by_value": "Por valor",
+      "by_quantity": "Por cantidad",
+      "equal": "Igual"
+    },
+    "defaultPurchaseTaxBehavior": "Comportamiento fiscal de compra predeterminado",
+    "defaultPurchaseTaxBehaviorHint": "El impuesto no recuperable se capitaliza. El impuesto recuperable se ignora para la valoración.",
+    "taxBehavior": {
+      "non_recoverable": "No recuperable (capitalizar)",
+      "recoverable": "Recuperable (ignorar para inventario)"
+    }
   }
 }

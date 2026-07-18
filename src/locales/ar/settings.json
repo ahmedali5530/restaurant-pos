@@ -131,6 +131,22 @@
     "requireBatchSelection": "إلزام اختيار الدفعة عند الصرف",
     "updated": "تم تحديث إعدادات المخزون",
     "save": "حفظ",
-    "saveDescription": "حفظ إعدادات المخزون"
+    "saveDescription": "حفظ إعدادات المخزون",
+    "landedCostsSection": "توزيع تكلفة الشراء",
+    "enableLandedCosts": "تفعيل التكاليف الإضافية (الشحن، الشحن البحري، إلخ)",
+    "enablePurchaseDiscounts": "تفعيل خصومات الشراء في تكلفة المخزون",
+    "enablePurchaseTaxes": "تفعيل ضريبة الشراء في تكلفة المخزون",
+    "defaultAllocationMethod": "طريقة التوزيع الافتراضية",
+    "allocation": {
+      "by_value": "حسب القيمة",
+      "by_quantity": "حسب الكمية",
+      "equal": "بالتساوي"
+    },
+    "defaultPurchaseTaxBehavior": "سلوك ضريبة الشراء الافتراضي",
+    "defaultPurchaseTaxBehaviorHint": "الضريبة غير القابلة للاسترداد تُرسمل في المخزون. الضريبة القابلة للاسترداد تُتجاهل للتقييم.",
+    "taxBehavior": {
+      "non_recoverable": "غير قابلة للاسترداد (رسملة)",
+      "recoverable": "قابلة للاسترداد (تجاهل للمخزون)"
+    }
   }
 }

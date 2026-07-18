@@ -326,7 +326,9 @@
     "difference": "Verschil",
     "sale": "Verkoop",
     "itemName": "Artikelnaam",
-    "itemCode": "Artikelcode"
+    "itemCode": "Artikelcode",
+    "landedCost": "Landed cost",
+    "finalInventory": "Final inventory"
   },
   "labels": {
     "modifiers": "Modifiers",

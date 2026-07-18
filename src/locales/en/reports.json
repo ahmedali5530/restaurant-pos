@@ -298,6 +298,8 @@
     "extras": "Extras",
     "subtotal": "Subtotal",
     "grandTotal": "Grand total",
+    "landedCost": "Landed cost",
+    "finalInventory": "Final inventory",
     "taxable": "Taxable",
     "discount": "Discount",
     "coupon": "Coupon",

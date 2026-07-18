@@ -326,7 +326,9 @@
     "difference": "Разница",
     "sale": "Продажа",
     "itemName": "Название товара",
-    "itemCode": "Код товара"
+    "itemCode": "Код товара",
+    "landedCost": "Landed cost",
+    "finalInventory": "Final inventory"
   },
   "labels": {
     "modifiers": "Модификаторы",

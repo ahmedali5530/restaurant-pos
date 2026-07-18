@@ -184,8 +184,15 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
               <div className="text-sm font-semibold text-neutral-800 mb-3">{t('totals.extras')}</div>
               <div className="divide-y divide-neutral-200">
                 {viewPurchase.extras.map((extra, index) => (
-                  <div key={`${extra.name}-${index}`} className="py-2 flex justify-between text-sm">
-                    <span>{extra.name}</span>
+                  <div key={`${extra.name}-${index}`} className="py-2 flex justify-between text-sm gap-3">
+                    <span>
+                      {extra.name}
+                      {extra.category ? (
+                        <span className="text-neutral-500 text-xs ml-2">
+                          ({t(`costCategories.${extra.category}`, { defaultValue: extra.category })})
+                        </span>
+                      ) : null}
+                    </span>
                     <span className="font-medium">{withCurrency(extra.amount)}</span>
                   </div>
                 ))}
@@ -218,6 +225,65 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
                       totals.extrasTotal
                   )}
                 </span>
+              </div>
+            </div>
+          )}
+
+          {viewPurchase.cost_allocation_snapshot?.summary && (
+            <div className="bg-white rounded-xl shadow border border-neutral-200 p-4 text-sm space-y-1">
+              <div className="text-sm font-semibold text-neutral-800 mb-2">
+                {t('totals.finalInventoryValue')}
+              </div>
+              <div className="flex justify-between">
+                <span className="text-neutral-600">{t('totals.inventoryValueBefore')}</span>
+                <span className="font-medium">
+                  {withCurrency(viewPurchase.cost_allocation_snapshot.summary.purchase_value)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-neutral-600">{t('totals.landedCost')}</span>
+                <span className="font-medium">
+                  {withCurrency(viewPurchase.cost_allocation_snapshot.summary.capitalized_extras)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-neutral-600">{t('totals.tax')}</span>
+                <span className="font-medium">
+                  {withCurrency(viewPurchase.cost_allocation_snapshot.summary.capitalized_tax)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-neutral-600">{t('totals.discount')}</span>
+                <span className="font-medium">
+                  {withCurrency(viewPurchase.cost_allocation_snapshot.summary.capitalized_discount)}
+                </span>
+              </div>
+              <div className="flex justify-between border-t border-neutral-200 pt-1 font-semibold">
+                <span>{t('totals.inventoryValueAfter')}</span>
+                <span>
+                  {withCurrency(viewPurchase.cost_allocation_snapshot.summary.final_inventory_value)}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {viewPurchase.items?.some((item) => item.final_unit_cost != null) && (
+            <div className="bg-white rounded-xl shadow border border-neutral-200 p-4">
+              <div className="text-sm font-semibold text-neutral-800 mb-3">
+                {t('totals.finalUnitCost')}
+              </div>
+              <div className="divide-y divide-neutral-200 text-sm">
+                {viewPurchase.items.map((item) =>
+                  item.final_unit_cost == null ? null : (
+                    <div key={item.id} className="py-2 flex justify-between gap-3">
+                      <span>{item.item?.name ?? "Item"}</span>
+                      <span className="font-medium tabular-nums">
+                        {withCurrency(item.purchase_price ?? item.price)} →{" "}
+                        {withCurrency(item.final_unit_cost)}
+                      </span>
+                    </div>
+                  )
+                )}
               </div>
             </div>
           )}

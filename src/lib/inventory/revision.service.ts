@@ -65,6 +65,7 @@ export const createPurchaseRevision = async (
     tax_rate: source.tax_rate,
     tax_amount: source.tax_amount,
     extras: source.extras,
+    cost_allocation_snapshot: null,
     items: [],
   };
   if (userId) headerPayload.created_by = toRecordId(userId);
@@ -107,6 +108,13 @@ export const createPurchaseRevision = async (
       code: line.code,
       comments: line.comments,
       taxable: line.taxable,
+      // Calculated landed-cost fields are recomputed on next post
+      purchase_price: null,
+      allocated_extra_cost: null,
+      allocated_tax: null,
+      allocated_discount: null,
+      final_unit_cost: null,
+      total_inventory_cost: null,
       store: line.store
         ? toRecordId(recordIdToString(line.store.id ?? line.store))
         : undefined,

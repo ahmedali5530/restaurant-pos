@@ -326,7 +326,9 @@
     "difference": "Diferencia",
     "sale": "Venta",
     "itemName": "Nombre del artículo",
-    "itemCode": "Código del artículo"
+    "itemCode": "Código del artículo",
+    "landedCost": "Landed cost",
+    "finalInventory": "Final inventory"
   },
   "labels": {
     "modifiers": "Modificadores",

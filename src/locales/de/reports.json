@@ -326,7 +326,9 @@
     "difference": "Differenz",
     "sale": "Umsatz",
     "itemName": "Artikelname",
-    "itemCode": "Artikelcode"
+    "itemCode": "Artikelcode",
+    "landedCost": "Landed cost",
+    "finalInventory": "Final inventory"
   },
   "labels": {
     "modifiers": "Modifikatoren",
