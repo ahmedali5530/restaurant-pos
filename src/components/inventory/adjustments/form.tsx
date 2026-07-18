@@ -298,8 +298,9 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
           />
         </div>
 
-        <Input label={t("forms.notes")} disabled={locked} {...register("notes")} />
-
+        <div>
+          <Input label={t("forms.notes")} disabled={locked} {...register("notes")} />
+        </div>
         <div className="space-y-3">
           <div className="flex justify-between items-center">
             <h3 className="font-medium">{t("forms.lines")}</h3>

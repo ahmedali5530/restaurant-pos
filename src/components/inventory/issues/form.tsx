@@ -127,7 +127,8 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
   const validationSchema = useMemo(() => createValidationSchema(db, data?.id), [db, data?.id]);
   const resolver = useMemo(() => yupResolver(validationSchema), [validationSchema]);
   const [postingAfterSave, setPostingAfterSave] = useState(false);
-  const locked = isLocked(data?.status);
+  // Missing status means "posted" only for existing legacy rows — new creates are editable.
+  const locked = Boolean(data?.id) && isLocked(data?.status);
 
   const [state, ] = useAtom(appPage);
 
