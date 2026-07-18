@@ -241,16 +241,6 @@ export const Closing = () => {
     return computedTerminalCash.reduce((sum, terminal) => sum + terminal.cash_amount, 0);
   }, [computedTerminalCash]);
 
-  const totalSystemCash = useMemo(() => {
-    return paymentSummaries
-      .filter(ps => ps.payment_type.type?.toLowerCase() === "cash")
-      .reduce((sum, ps) => sum + ps.amount, 0);
-  }, [paymentSummaries]);
-
-  const cashDifference = useMemo(() => {
-    return totalCash - totalSystemCash;
-  }, [totalCash, totalSystemCash]);
-
   const totalOtherPayments = useMemo(() => {
     return paymentSummaries
       .filter(ps => ps.payment_type.type?.toLowerCase() !== "cash")
@@ -641,36 +631,6 @@ export const Closing = () => {
             <div className="mt-4 p-4 bg-gray-100 rounded-lg">
               <span className="text-lg font-semibold">{t("closing:totals.totalCash", {amount: withCurrency(totalCash)})}</span>
             </div>
-            <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-              <div className="text-sm text-gray-600">{t("closing:totals.cashFromPayments")}</div>
-              <div className="text-lg font-semibold">{withCurrency(totalSystemCash)}</div>
-              <div
-                className={`mt-2 text-lg font-semibold ${cashDifference === 0 ? "text-gray-700" : cashDifference > 0 ? "text-success-600" : "text-danger-600"}`}
-              >
-                {t("closing:totals.difference", {amount: withCurrency(cashDifference)})}
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-semibold mb-4">{t("closing:sections.paymentTypesSummary")}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {paymentSummaries.map((ps) => (
-                <div key={ps.payment_type.id} className="border rounded-lg p-4">
-                  <label className="block text-sm font-medium mb-2">{ps.payment_type.name}</label>
-                  <Input
-                    type="number"
-                    value={ps.amount}
-                    placeholder={ps.payment_type.name}
-                    inputSize="lg"
-                    disabled
-                  />
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-              <span className="text-lg font-semibold">{t("closing:totals.totalOtherPayments", {amount: withCurrency(totalOtherPayments)})}</span>
-            </div>
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -798,37 +758,35 @@ export const Closing = () => {
               </>
             )}
             {isClosingCompleted && (
-              <>
-                <Button
-                  onClick={() => {
-                    void protectAction(() => {
-                      void reopenClosing();
-                    }, {
-                      description: t("closing:security.reopenDescription"),
-                      module: 'Edit Closing',
-                    });
-                  }}
-                  variant="warning"
-                  size="lg"
-                  type="button"
-                  disabled={saving}
-                >
-                  <FontAwesomeIcon icon={faSave} className="mr-2"/>
-                  {saving ? t("closing:actions.reopening") : t("closing:actions.reopen")}
-                </Button>
-                <Button
-                  onClick={() => {
-                    printClosing().catch(() => toast.error(t("toast:closing.printFailed")));
-                  }}
-                  variant="primary"
-                  size="lg"
-                  type="button"
-                >
-                  <FontAwesomeIcon icon={faPrint} className="mr-2"/>
-                  {t("closing:actions.printClosing")}
-                </Button>
-              </>
+              <Button
+                onClick={() => {
+                  void protectAction(() => {
+                    void reopenClosing();
+                  }, {
+                    description: t("closing:security.reopenDescription"),
+                    module: 'Edit Closing',
+                  });
+                }}
+                variant="warning"
+                size="lg"
+                type="button"
+                disabled={saving}
+              >
+                <FontAwesomeIcon icon={faSave} className="mr-2"/>
+                {saving ? t("closing:actions.reopening") : t("closing:actions.reopen")}
+              </Button>
             )}
+            <Button
+              onClick={() => {
+                printClosing().catch(() => toast.error(t("toast:closing.printFailed")));
+              }}
+              variant="primary"
+              size="lg"
+              type="button"
+            >
+              <FontAwesomeIcon icon={faPrint} className="mr-2"/>
+              {t("closing:actions.printClosing")}
+            </Button>
           </div>
         </div>
       </ScrollContainer>
