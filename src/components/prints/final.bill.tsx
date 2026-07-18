@@ -3,6 +3,8 @@ import {Order} from "@/api/model/order.ts";
 import {withCurrency} from "@/lib/utils.ts";
 import {calculateOrderTotal} from "@/lib/cart.ts";
 import {CommonBillParts} from "@/components/prints/_common.bill.tsx";
+import { useTranslateReceipts } from "@/hooks/useTranslateReceipts.ts";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   order: Order
@@ -11,6 +13,9 @@ type Props = {
 
 export const PrintFinalBill: React.FC<Props> = ({order, duplicate}) => {
   const itemsTotal = calculateOrderTotal(order);
+  const { enabled: translateReceipts } = useTranslateReceipts();
+  const { t } = useTranslation("receipts");
+  const rt = (key: string) => (translateReceipts ? t(key) : t(key, { lng: "en" }));
 
   const total = useMemo(() => {
     const extrasTotal = order?.extras ? order?.extras?.reduce((prev, item) => prev + item.value, 0) : 0;
@@ -26,7 +31,7 @@ export const PrintFinalBill: React.FC<Props> = ({order, duplicate}) => {
   return (
     <div style={{padding: 12, fontFamily: 'monospace', width: 280}}>
       <div style={{textAlign: 'center', marginBottom: 8}}>
-        <strong>{duplicate ? 'Duplicate ' : ''}Final Bill</strong>
+        <strong>{duplicate ? rt("duplicateFinalBill") : rt("finalBill")}</strong>
       </div>
       <CommonBillParts order={order} itemsTotal={itemsTotal} total={total}/>
       <hr/>
@@ -40,7 +45,7 @@ export const PrintFinalBill: React.FC<Props> = ({order, duplicate}) => {
         <>
           <hr/>
           <div style={{display: 'flex', fontWeight: 'bold'}}>
-            <div style={{flex: 1}}>Change</div>
+            <div style={{flex: 1}}>{rt("change")}</div>
             <div style={{textAlign: 'right'}}>{withCurrency(changeDue)}</div>
           </div>
         </>
@@ -48,4 +53,3 @@ export const PrintFinalBill: React.FC<Props> = ({order, duplicate}) => {
     </div>
   );
 }
-

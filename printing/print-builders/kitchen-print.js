@@ -57,15 +57,18 @@ function build(printer, data = {}, config = {}) {
   const table = getTableLabel(data);
   const printItems = mapPrintItems(items);
 
+  const L = cfg.labels || {};
+
   return printReceiptHeader(printer, cfg).then(() => {
     printKotHeader(printer, {
       kitchenName,
-      bannerLabel: isAddOn ? 'ADDON' : 'New Order',
+      bannerLabel: isAddOn ? (L.addon || 'ADDON') : (L.newOrder || 'New Order'),
       orderId,
       table,
       orderType,
       orderTaker,
       createdAt,
+      labels: L,
     });
 
     printFixedLine(printer, buildItemHeaderString(cfg), { align: 'left', style: 'bold' });

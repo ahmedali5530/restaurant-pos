@@ -18,6 +18,7 @@ function build(printer, data = {}, config = {}) {
   const bill = mapOrderToFinal(order, {
     duplicate: !!data.duplicate,
     showInclusivePrices: !!cfg.showInclusivePrices,
+    labels: cfg.labels,
   });
 
   return printReceiptHeader(printer, cfg).then(() => {

@@ -94,6 +94,12 @@
     "updated": "Instellingen voor inclusieve prijzen bijgewerkt",
     "saveDescription": "Instellingen voor inclusieve prijzen opslaan"
   },
+  "translateReceipts": {
+    "title": "Bonnen vertalen",
+    "description": "Indien ingeschakeld gebruiken systeemlabels op geprinte bonnen (titels, factuur, tafel, belasting, totaal, keukentickets en samenvatting) de geselecteerde taal van dit apparaat. Aangepaste kop- en voettekst uit printinstellingen wordt niet vertaald.",
+    "updated": "Instellingen voor bonvertaling bijgewerkt",
+    "saveDescription": "Instellingen voor bonvertaling opslaan"
+  },
   "visibilityConfig": {
     "title": "Zichtbaarheid artikelen configureren",
     "description": "Werk de configuratie voor dit apparaat bij om te bepalen welke kolommen voor artikelen worden weergegeven of verborgen. Geldt alleen voor dit apparaat.",

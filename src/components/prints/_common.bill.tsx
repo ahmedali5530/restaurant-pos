@@ -7,6 +7,8 @@ import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {getOrderTaxBreakdown} from "@/lib/tax-calculator.ts";
 import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
 import { getOrderItemDisplayLineTotal } from "@/lib/order-item-display.ts";
+import { useTranslateReceipts } from "@/hooks/useTranslateReceipts.ts";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   order: Order
@@ -19,11 +21,14 @@ export const CommonBillParts = ({
 }: Props) => {
   const taxes = getOrderTaxBreakdown(order);
   const { enabled: showInclusive } = useShowInclusivePrices();
+  const { enabled: translateReceipts } = useTranslateReceipts();
+  const { t } = useTranslation("receipts");
+  const rt = (key: string) => (translateReceipts ? t(key) : t(key, { lng: "en" }));
   
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-        <span>Invoice# {order.invoice_number}</span>
+        <span>{rt("invoice")} {order.invoice_number}</span>
         <span>{toLuxonDateTime(order.created_at).toFormat('y-MM-dd hh:mm a')}</span>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
@@ -48,13 +53,13 @@ export const CommonBillParts = ({
           display: 'flex',
           fontWeight: 'bold'
         }}>
-          <div style={{ flex: 1 }}>Items ({getOrderFilteredItems(order).length})</div>
+          <div style={{ flex: 1 }}>{rt("items")} ({getOrderFilteredItems(order).length})</div>
           <div style={{ textAlign: 'right' }}>{withCurrency(itemsTotal)}</div>
         </div>
         {taxes.length > 0 && taxes.map((tax, idx) => (
           <div key={idx} style={{ display: 'flex' }}>
             <div style={{ flex: 1 }}>
-              Tax ({tax.name} {tax.rate}%)
+              {rt("tax")} ({tax.name} {tax.rate}%)
             </div>
             <div style={{ textAlign: 'right' }}>{withCurrency(tax.amount)}</div>
           </div>
@@ -62,7 +67,7 @@ export const CommonBillParts = ({
         {taxes.length === 0 && order?.tax && (
           <div style={{ display: 'flex' }}>
             <div style={{ flex: 1 }}>
-              Tax {order?.tax && <>({order?.tax?.name} {order?.tax?.rate}%)</>}
+              {rt("tax")} {order?.tax && <>({order?.tax?.name} {order?.tax?.rate}%)</>}
             </div>
             <div style={{ textAlign: 'right' }}>{withCurrency(order?.tax_amount)}</div>
           </div>
@@ -77,7 +82,7 @@ export const CommonBillParts = ({
         ))}
         {!(order as Order & { order_discounts?: unknown[] }).order_discounts?.length && order?.discount && (
           <div style={{ display: 'flex' }}>
-            <div style={{ flex: 1 }}>Discount</div>
+            <div style={{ flex: 1 }}>{rt("discount")}</div>
             <div style={{ textAlign: 'right' }}>{withCurrency(order?.discount_amount)}</div>
           </div>
         )}
@@ -95,13 +100,13 @@ export const CommonBillParts = ({
         ))}
         {order?.tip_amount > 0 && (
           <div style={{ display: 'flex' }}>
-            <div style={{ flex: 1 }}>Tip {order?.tip_type === DiscountType.Percent ? '%' : ''}</div>
+            <div style={{ flex: 1 }}>{rt("tip")} {order?.tip_type === DiscountType.Percent ? '%' : ''}</div>
             <div style={{ textAlign: 'right' }}>{withCurrency(order?.tip_amount)}</div>
           </div>
         )}
         <hr/>
         <div style={{display: 'flex', fontWeight: 'bold'}}>
-          <div style={{flex: 1}}>Total</div>
+          <div style={{flex: 1}}>{rt("total")}</div>
           <div style={{textAlign: 'right'}}>{withCurrency(total)}</div>
         </div>
       </div>

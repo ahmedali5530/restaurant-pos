@@ -19,12 +19,13 @@ const {
  * Print bill layout aligned with _common.bill.tsx and final.bill.tsx / presale.bill.tsx.
  * @param {Object} printer - escpos Printer
  * @param {Object} bill - from mapOrderToTemp/Final/Delivery
- * @param {Object} config - normalized config (currencySymbol, showVatNumber, vatName, vatNumber)
+ * @param {Object} config - normalized config (currencySymbol, showVatNumber, vatName, vatNumber, labels, locale)
  * @param {Object} opts - { title, address?, phone?, notes?, thankYou?, showPayments?, showChange?, showDeliveryLine?, isFinal? }
  * @returns {Promise<void>}
  */
 function printBillLayout(printer, bill, config, opts) {
   const cfg = config || {};
+  const L = cfg.labels || {};
   const sym = cfg.currencySymbol || '$';
   const {
     title,
@@ -42,18 +43,38 @@ function printBillLayout(printer, bill, config, opts) {
   } = opts || {};
 
   hardResetLayout(printer);
-  printCenteredText(printer, title || 'Bill', { style: 'bold-underline' });
+  printCenteredText(printer, title || L.bill || 'Bill', { style: 'bold-underline' });
   printer.feed(1);
   printVatLine(printer, cfg);
   hardResetLayout(printer);
 
-  printLineLeftRight(printer, `Invoice# ${bill.orderId || ''}`, bill.date || '');
-  printLineLeftRight(printer, `Table: ${bill.table || '-'}`, `Order Type: ${bill.orderType || '-'}`);
-  printLineLeftRight(printer, `Cashier: ${bill.userName || '-'}`, '');
-  if (customerName) printFixedLine(printer, `Customer: ${String(customerName)}`, { align: 'left' });
-  if (phone) printFixedLine(printer, `Phone: ${String(phone)}`, { align: 'left' });
-  if (address) printFixedLine(printer, `Address: ${String(address).slice(0, 40)}`, { align: 'left' });
-  if (deliveryTime) printFixedLine(printer, `Delivery Time: ${String(deliveryTime)}`, { align: 'left' });
+  const invoiceLabel = L.invoice || 'Invoice#';
+  const tableLabel = L.table || 'Table';
+  const orderTypeLabel = L.orderType || 'Order Type';
+  const cashierLabel = L.cashier || 'Cashier';
+  const customerLabel = L.customer || 'Customer';
+  const phoneLabel = L.phone || 'Phone';
+  const addressLabel = L.address || 'Address';
+  const deliveryTimeLabel = L.deliveryTime || 'Delivery Time';
+  const itemsLabel = L.items || 'Items';
+  const taxLabel = L.tax || 'Tax';
+  const discountLabel = L.discount || 'Discount';
+  const extraLabel = L.extra || 'Extra';
+  const tipLabel = L.tip || 'Tip';
+  const deliveryChargesLabel = L.deliveryCharges || 'Delivery Charges';
+  const totalLabel = L.total || 'Total';
+  const paymentLabel = L.payment || 'Payment';
+  const changeLabel = L.change || 'Change';
+  const notesLabel = L.notes || 'Notes';
+  const checkClosedLabel = L.checkClosed || 'Check Closed';
+
+  printLineLeftRight(printer, `${invoiceLabel} ${bill.orderId || ''}`, bill.date || '');
+  printLineLeftRight(printer, `${tableLabel}: ${bill.table || '-'}`, `${orderTypeLabel}: ${bill.orderType || '-'}`);
+  printLineLeftRight(printer, `${cashierLabel}: ${bill.userName || '-'}`, '');
+  if (customerName) printFixedLine(printer, `${customerLabel}: ${String(customerName)}`, { align: 'left' });
+  if (phone) printFixedLine(printer, `${phoneLabel}: ${String(phone)}`, { align: 'left' });
+  if (address) printFixedLine(printer, `${addressLabel}: ${String(address).slice(0, 40)}`, { align: 'left' });
+  if (deliveryTime) printFixedLine(printer, `${deliveryTimeLabel}: ${String(deliveryTime)}`, { align: 'left' });
   printDivider(printer);
 
   printFixedLine(printer, buildItemHeaderString(cfg), { align: 'left', style: 'bold' });
@@ -63,59 +84,59 @@ function printBillLayout(printer, bill, config, opts) {
   });
   printDivider(printer);
 
-  printLineLeftRight(printer, `Items (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, sym));
+  printLineLeftRight(printer, `${itemsLabel} (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, sym));
   if (bill.tax != null && Number(bill.tax) !== 0) {
-    printLineLeftRight(printer, `Tax (${bill.taxLabel || 'Tax'})`, formatMoney(bill.tax, sym));
+    printLineLeftRight(printer, `${taxLabel} (${bill.taxLabel || taxLabel})`, formatMoney(bill.tax, sym));
     if (Array.isArray(bill.taxLines) && bill.taxLines.length > 0) {
       bill.taxLines.forEach((t) => {
-        printLineLeftRight(printer, t.label || 'Tax', formatMoney(t.amount, sym));
+        printLineLeftRight(printer, t.label || taxLabel, formatMoney(t.amount, sym));
       });
     }
   }
   if (Array.isArray(bill.discountLines) && bill.discountLines.length > 0) {
     bill.discountLines.forEach((d) => {
-      printLineLeftRight(printer, d.name || 'Discount', '-' + formatMoney(d.amount, sym));
+      printLineLeftRight(printer, d.name || discountLabel, '-' + formatMoney(d.amount, sym));
     });
   } else if (bill.discount && bill.discountAmount != null && Number(bill.discountAmount) !== 0) {
-    printLineLeftRight(printer, 'Discount', formatMoney(bill.discountAmount, sym));
+    printLineLeftRight(printer, discountLabel, formatMoney(bill.discountAmount, sym));
   }
   if (bill.serviceChargeLabel && bill.serviceChargeAmount != null && Number(bill.serviceChargeAmount) !== 0) {
     printLineLeftRight(printer, bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym));
   }
   (bill.extras || []).forEach((e) => {
-    printLineLeftRight(printer, e.name || 'Extra', formatMoney(e.value, sym));
+    printLineLeftRight(printer, e.name || extraLabel, formatMoney(e.value, sym));
   });
   if (bill.tipAmount != null && Number(bill.tipAmount) !== 0) {
-    printLineLeftRight(printer, bill.tipLabel || 'Tip', formatMoney(bill.tipAmount, sym));
+    printLineLeftRight(printer, bill.tipLabel || tipLabel, formatMoney(bill.tipAmount, sym));
   }
   if (showDeliveryLine && bill.deliveryCharges != null && Number(bill.deliveryCharges) !== 0) {
-    printLineLeftRight(printer, 'Delivery Charges', formatMoney(bill.deliveryCharges, sym));
+    printLineLeftRight(printer, deliveryChargesLabel, formatMoney(bill.deliveryCharges, sym));
   }
   printDivider(printer);
 
   if (Array.isArray(bill.totalRows) && bill.totalRows.length > 0) {
     bill.totalRows.forEach((row) => {
-      printLineLeftRight(printer, row.label || 'Total', formatMoney(row.amount, sym));
+      printLineLeftRight(printer, row.label || totalLabel, formatMoney(row.amount, sym));
     });
   } else {
-    printLineLeftRight(printer, 'Total', formatMoney(bill.total, sym), { style: 'bold' });
+    printLineLeftRight(printer, totalLabel, formatMoney(bill.total, sym), { style: 'bold' });
     hardResetLayout(printer);
   }
 
   if (showPayments && Array.isArray(bill.payments) && bill.payments.length > 0) {
     printDivider(printer);
     bill.payments.forEach((p) => {
-      printLineLeftRight(printer, p.method || 'Payment', formatMoney(p.amount, sym));
+      printLineLeftRight(printer, p.method || paymentLabel, formatMoney(p.amount, sym));
     });
   }
   if (showChange && bill.change != null && Number(bill.change) !== 0) {
     printDivider(printer);
-    printLineLeftRight(printer, 'Change', formatMoney(bill.change, sym), { style: 'bold' });
+    printLineLeftRight(printer, changeLabel, formatMoney(bill.change, sym), { style: 'bold' });
   }
 
   if (notes) {
     printDivider(printer);
-    printFixedLine(printer, `Notes: ${String(notes).slice(0, 48)}`, { align: 'left' });
+    printFixedLine(printer, `${notesLabel}: ${String(notes).slice(0, 48)}`, { align: 'left' });
   }
   if (thankYou) {
     printer.feed(1);
@@ -129,12 +150,13 @@ function printBillLayout(printer, bill, config, opts) {
 
     if (isFinal) {
       printDivider(printer);
-      printCenteredText(printer, 'Check Closed', { style: 'bold' });
+      printCenteredText(printer, checkClosedLabel, { style: 'bold' });
     }
 
     return printQrCode(printer, qrValue).then(() => {
       const now = new Date();
-      const ts = now.toLocaleString('en-US', {
+      const locale = cfg.locale || 'en-US';
+      const ts = now.toLocaleString(locale, {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',

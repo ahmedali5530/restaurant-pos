@@ -23,20 +23,32 @@ function build(printer, data = {}, config = {}) {
   }
 
   const cfg = normalizeConfig(config);
+  const L = cfg.labels || {};
   const bill = mapOrderToRefund(refundOrder, originalOrder, {
     showInclusivePrices: !!cfg.showInclusivePrices,
   });
 
+  const refundReceiptLabel = L.refundReceipt || 'REFUND RECEIPT';
+  const originalInvoiceLabel = L.originalInvoice || 'Original Invoice#';
+  const tableLabel = L.table || 'Table';
+  const orderTypeLabel = L.orderType || 'Order Type';
+  const cashierLabel = L.cashier || 'Cashier';
+  const refundDateLabel = L.refundDate || 'Refund Date';
+  const itemsLabel = L.items || 'Items';
+  const taxLabel = L.tax || 'Tax';
+  const discountLabel = L.discount || 'Discount';
+  const extraLabel = L.extra || 'Extra';
+  const tipLabel = L.tip || 'Tip';
+  const refundTotalLabel = L.refundTotal || 'Refund Total';
+
   return printReceiptHeader(printer, cfg).then(() => {
-    // --- REFUND RECEIPT header ---
-    printer.align('ct').style('bu').text('REFUND RECEIPT').style('normal');
-    printLineLeftRight(printer, `Original Invoice# ${bill.originalOrderId || ''}`, '');
-    printLineLeftRight(printer, `Table: ${bill.table || '-'}`, `Order Type: ${bill.orderType || '-'}`);
-    printLineLeftRight(printer, `Cashier: ${bill.userName || '-'}`, '');
-    printLineLeftRight(printer, `Refund Date: ${bill.refundDate || ''}`, '');
+    printer.align('ct').style('bu').text(refundReceiptLabel).style('normal');
+    printLineLeftRight(printer, `${originalInvoiceLabel} ${bill.originalOrderId || ''}`, '');
+    printLineLeftRight(printer, `${tableLabel}: ${bill.table || '-'}`, `${orderTypeLabel}: ${bill.orderType || '-'}`);
+    printLineLeftRight(printer, `${cashierLabel}: ${bill.userName || '-'}`, '');
+    printLineLeftRight(printer, `${refundDateLabel}: ${bill.refundDate || ''}`, '');
     printer.drawLine();
 
-    // --- Items ---
     (bill.items || []).forEach((it) => {
       const name = (it.name || it.title || '').slice(0, 28);
       const qty = it.qty != null ? it.qty : 1;
@@ -45,28 +57,26 @@ function build(printer, data = {}, config = {}) {
     });
     printer.drawLine();
 
-    // --- Summary: Items(n), Tax, Discount, Service, extras, Tip ---
-    printLineLeftRight(printer, `Items (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, cfg.currencySymbol || '$'));
+    printLineLeftRight(printer, `${itemsLabel} (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, cfg.currencySymbol || '$'));
     if (bill.tax != null && Number(bill.tax) !== 0) {
-      printLineLeftRight(printer, `Tax (${bill.taxLabel || 'Tax'})`, formatMoney(bill.tax, cfg.currencySymbol || '$'));
+      printLineLeftRight(printer, `${taxLabel} (${bill.taxLabel || taxLabel})`, formatMoney(bill.tax, cfg.currencySymbol || '$'));
     }
     if (bill.discount && bill.discountAmount != null && Number(bill.discountAmount) !== 0) {
-      printLineLeftRight(printer, 'Discount', formatMoney(bill.discountAmount, cfg.currencySymbol || '$'));
+      printLineLeftRight(printer, discountLabel, formatMoney(bill.discountAmount, cfg.currencySymbol || '$'));
     }
     if (bill.serviceChargeLabel && bill.serviceChargeAmount != null && Number(bill.serviceChargeAmount) !== 0) {
       printLineLeftRight(printer, bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, cfg.currencySymbol || '$'));
     }
     (bill.extras || []).forEach((e) => {
-      printLineLeftRight(printer, e.name || 'Extra', formatMoney(e.value, cfg.currencySymbol || '$'));
+      printLineLeftRight(printer, e.name || extraLabel, formatMoney(e.value, cfg.currencySymbol || '$'));
     });
     if (bill.tipAmount != null && Number(bill.tipAmount) !== 0) {
-      printLineLeftRight(printer, bill.tipLabel || 'Tip', formatMoney(bill.tipAmount, cfg.currencySymbol || '$'));
+      printLineLeftRight(printer, bill.tipLabel || tipLabel, formatMoney(bill.tipAmount, cfg.currencySymbol || '$'));
     }
     printer.drawLine();
 
-    // --- Refund Total (bold) ---
     printer.style('bu');
-    printLineLeftRight(printer, 'Refund Total', formatMoney(bill.total, cfg.currencySymbol || '$'));
+    printLineLeftRight(printer, refundTotalLabel, formatMoney(bill.total, cfg.currencySymbol || '$'));
     printer.style('normal');
 
     printVatLine(printer, cfg);

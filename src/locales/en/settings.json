@@ -94,6 +94,12 @@
     "updated": "Show inclusive prices settings updated",
     "saveDescription": "Save show inclusive prices settings"
   },
+  "translateReceipts": {
+    "title": "Translate receipts",
+    "description": "When enabled, system labels on printed receipts (bill titles, Invoice#, Table, Tax, Total, kitchen tickets, and summary) use this device's selected language. Custom header and footer text from print settings is not translated.",
+    "updated": "Translate receipts settings updated",
+    "saveDescription": "Save translate receipts settings"
+  },
   "visibilityConfig": {
     "title": "Items visibility config",
     "description": "Update config for this device for which columns for items you want to show or hide. Only applies to this device.",

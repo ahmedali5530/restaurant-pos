@@ -94,6 +94,12 @@
     "updated": "Impostazioni prezzi inclusivi aggiornate",
     "saveDescription": "Salva impostazioni prezzi inclusivi"
   },
+  "translateReceipts": {
+    "title": "Traduci ricevute",
+    "description": "Se abilitato, le etichette di sistema sulle ricevute stampate (titoli, fattura, tavolo, tassa, totale, ticket cucina e riepilogo) usano la lingua selezionata su questo dispositivo. Il testo personalizzato di intestazione e piè di pagina delle impostazioni di stampa non viene tradotto.",
+    "updated": "Impostazioni traduzione ricevute aggiornate",
+    "saveDescription": "Salva impostazioni traduzione ricevute"
+  },
   "visibilityConfig": {
     "title": "Configurazione visibilità articoli",
     "description": "Aggiorna la configurazione di questo dispositivo per mostrare o nascondere le colonne degli articoli. Si applica solo a questo dispositivo.",

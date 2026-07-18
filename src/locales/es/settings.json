@@ -94,6 +94,12 @@
     "updated": "Configuración de precios inclusivos actualizada",
     "saveDescription": "Guardar configuración de precios inclusivos"
   },
+  "translateReceipts": {
+    "title": "Traducir recibos",
+    "description": "Cuando está activado, las etiquetas del sistema en los recibos impresos (títulos, factura, mesa, impuesto, total, tickets de cocina y resumen) usan el idioma seleccionado en este dispositivo. El texto personalizado de encabezado y pie de las configuraciones de impresión no se traduce.",
+    "updated": "Configuración de traducción de recibos actualizada",
+    "saveDescription": "Guardar configuración de traducción de recibos"
+  },
   "visibilityConfig": {
     "title": "Configuración de visibilidad de artículos",
     "description": "Actualice la configuración de este dispositivo para mostrar u ocultar las columnas de los artículos. Solo se aplica a este dispositivo.",

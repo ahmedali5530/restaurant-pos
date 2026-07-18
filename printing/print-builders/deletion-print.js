@@ -58,20 +58,22 @@ function build(printer, data = {}, config = {}) {
   const table = getTableLabel(data);
   const printItems = mapPrintItems(items);
 
+  const L = cfg.labels || {};
   const extraLines = [];
-  if (reason) extraLines.push({ label: 'Reason', value: reason });
-  if (comments) extraLines.push({ label: 'Note', value: comments });
+  if (reason) extraLines.push({ label: L.reason || 'Reason', value: reason });
+  if (comments) extraLines.push({ label: L.note || 'Note', value: comments });
 
   return printReceiptHeader(printer, cfg).then(() => {
     printKotHeader(printer, {
       kitchenName,
-      bannerLabel: 'DELETION',
+      bannerLabel: L.deletion || 'DELETION',
       orderId,
       table,
       orderType,
       orderTaker,
       createdAt,
       extraLines,
+      labels: L,
     });
 
     printFixedLine(printer, buildItemHeaderString(cfg), { align: 'left', style: 'bold' });

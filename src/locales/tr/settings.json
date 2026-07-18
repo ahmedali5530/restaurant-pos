@@ -94,6 +94,12 @@
     "updated": "Dahil fiyat ayarları güncellendi",
     "saveDescription": "Dahil fiyat ayarlarını kaydet"
   },
+  "translateReceipts": {
+    "title": "Fişleri çevir",
+    "description": "Etkinleştirildiğinde, yazdırılan fişlerdeki sistem etiketleri (fiş başlıkları, Fatura#, Masa, Vergi, Toplam, mutfak fişleri ve özet) bu cihazın seçili dilini kullanır. Yazdırma ayarlarındaki özel üst/alt bilgi metni çevrilmez.",
+    "updated": "Fiş çeviri ayarları güncellendi",
+    "saveDescription": "Fiş çeviri ayarlarını kaydet"
+  },
   "visibilityConfig": {
     "title": "Ürün görünürlük ayarları",
     "description": "Bu cihaz için hangi ürün sütunlarının gösterileceğini veya gizleneceğini ayarlayın. Yalnızca bu cihaza uygulanır.",

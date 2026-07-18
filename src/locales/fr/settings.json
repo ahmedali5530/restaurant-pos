@@ -94,6 +94,12 @@
     "updated": "Paramètres d'affichage des prix TTC mis à jour",
     "saveDescription": "Enregistrer les paramètres d'affichage des prix TTC"
   },
+  "translateReceipts": {
+    "title": "Traduire les reçus",
+    "description": "Lorsqu'il est activé, les libellés système des reçus imprimés (titres, facture, table, taxe, total, tickets cuisine et résumé) utilisent la langue sélectionnée sur cet appareil. Le texte d'en-tête et de pied personnalisé des paramètres d'impression n'est pas traduit.",
+    "updated": "Paramètres de traduction des reçus mis à jour",
+    "saveDescription": "Enregistrer les paramètres de traduction des reçus"
+  },
   "visibilityConfig": {
     "title": "Configuration de visibilité des articles",
     "description": "Mettez à jour la configuration de cet appareil pour afficher ou masquer les colonnes des articles. S'applique uniquement à cet appareil.",

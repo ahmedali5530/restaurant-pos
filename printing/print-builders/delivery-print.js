@@ -15,7 +15,10 @@ function build(printer, data = {}, config = {}) {
   }
 
   const cfg = normalizeConfig(config);
-  const bill = mapOrderToDelivery(order, { showInclusivePrices: !!cfg.showInclusivePrices });
+  const bill = mapOrderToDelivery(order, {
+    showInclusivePrices: !!cfg.showInclusivePrices,
+    labels: cfg.labels,
+  });
 
   return printReceiptHeader(printer, cfg).then(() => {
     return printBillLayout(printer, bill, cfg, {

@@ -94,6 +94,12 @@
     "updated": "Einstellungen für inklusive Preise aktualisiert",
     "saveDescription": "Einstellungen für inklusive Preise speichern"
   },
+  "translateReceipts": {
+    "title": "Belege übersetzen",
+    "description": "Wenn aktiviert, verwenden Systembeschriftungen auf gedruckten Belegen (Titel, Rechnung, Tisch, Steuer, Gesamt, Küchentickets und Zusammenfassung) die auf diesem Gerät ausgewählte Sprache. Benutzerdefinierter Kopf-/Fußtext aus den Druckeinstellungen wird nicht übersetzt.",
+    "updated": "Einstellungen für Belegübersetzung aktualisiert",
+    "saveDescription": "Einstellungen für Belegübersetzung speichern"
+  },
   "visibilityConfig": {
     "title": "Konfiguration der Artikelsichtbarkeit",
     "description": "Konfiguration für dieses Gerät aktualisieren, welche Spalten für Artikel angezeigt oder ausgeblendet werden sollen. Gilt nur für dieses Gerät.",

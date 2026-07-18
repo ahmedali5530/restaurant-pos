@@ -4,6 +4,8 @@ import {withCurrency} from "@/lib/utils.ts";
 import {calculateOrderTotal} from "@/lib/cart.ts";
 import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
 import { getOrderItemDisplayLineTotal } from "@/lib/order-item-display.ts";
+import { useTranslateReceipts } from "@/hooks/useTranslateReceipts.ts";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   order: Order
@@ -13,6 +15,9 @@ type Props = {
 export const PrintRefundBill: React.FC<Props> = ({order, originalOrder}) => {
   const itemsTotal = calculateOrderTotal(order);
   const { enabled: showInclusive } = useShowInclusivePrices();
+  const { enabled: translateReceipts } = useTranslateReceipts();
+  const { t } = useTranslation("receipts");
+  const rt = (key: string) => (translateReceipts ? t(key) : t(key, { lng: "en" }));
 
   const total = useMemo(() => {
     // Items are positive, all charges (tax, service charge, tip, extras) are negative
@@ -31,13 +36,13 @@ export const PrintRefundBill: React.FC<Props> = ({order, originalOrder}) => {
   return (
     <div style={{padding: 12, fontFamily: 'monospace', width: 280}}>
       <div style={{textAlign: 'center', marginBottom: 8}}>
-        <strong>REFUND RECEIPT</strong>
+        <strong>{rt("refundReceipt")}</strong>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-        <span>Original Invoice# {originalOrder?.invoice_number ?? order.invoice_number}</span>
+        <span>{rt("originalInvoice")} {originalOrder?.invoice_number ?? order.invoice_number}</span>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-        <span>Refund Date: {new Date().toLocaleString()}</span>
+        <span>{rt("refundDate")}: {new Date().toLocaleString()}</span>
       </div>
       <hr/>
       <div>
@@ -57,20 +62,20 @@ export const PrintRefundBill: React.FC<Props> = ({order, originalOrder}) => {
           display: 'flex',
           fontWeight: 'bold'
         }}>
-          <div style={{ flex: 1 }}>Items ({order.items?.length ?? 0})</div>
+          <div style={{ flex: 1 }}>{rt("items")} ({order.items?.length ?? 0})</div>
           <div style={{ textAlign: 'right' }}>{withCurrency(itemsTotal)}</div>
         </div>
         {order?.tax && order?.tax_amount !== undefined && order?.tax_amount !== 0 ? (
           <div style={{ display: 'flex' }}>
             <div style={{ flex: 1 }}>
-              Tax {order?.tax && <>({order?.tax?.name} {order?.tax?.rate}%)</>}
+              {rt("tax")} {order?.tax && <>({order?.tax?.name} {order?.tax?.rate}%)</>}
             </div>
             <div style={{ textAlign: 'right' }}>{withCurrency(order?.tax_amount)}</div>
           </div>
         ) : null}
         {order?.discount && order?.discount_amount !== undefined && order?.discount_amount !== 0 ? (
           <div style={{ display: 'flex' }}>
-            <div style={{ flex: 1 }}>Discount</div>
+            <div style={{ flex: 1 }}>{rt("discount")}</div>
             <div style={{ textAlign: 'right' }}>{withCurrency(order?.discount_amount)}</div>
           </div>
         ) : null}
@@ -88,17 +93,16 @@ export const PrintRefundBill: React.FC<Props> = ({order, originalOrder}) => {
         ))}
         {order?.tip_amount !== undefined && order?.tip_amount !== 0 ? (
           <div style={{ display: 'flex' }}>
-            <div style={{ flex: 1 }}>Tip {order?.tip_type === 'Percent' ? '%' : ''}</div>
+            <div style={{ flex: 1 }}>{rt("tip")} {order?.tip_type === 'Percent' ? '%' : ''}</div>
             <div style={{ textAlign: 'right' }}>{withCurrency(order?.tip_amount)}</div>
           </div>
         ) : null}
         <hr/>
         <div style={{display: 'flex', fontWeight: 'bold'}}>
-          <div style={{flex: 1}}>Refund Total</div>
+          <div style={{flex: 1}}>{rt("refundTotal")}</div>
           <div style={{textAlign: 'right'}}>{withCurrency(total)}</div>
         </div>
       </div>
     </div>
   );
 }
-

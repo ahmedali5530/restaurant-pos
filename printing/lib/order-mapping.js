@@ -459,12 +459,13 @@ function mapOrderToBill(order, opts) {
  * Temp: Pre-Sale Bill style (CommonBillParts only, no payments/change). Matches presale.bill.tsx.
  */
 function mapOrderToTemp(order, options) {
+  const L = (options && options.labels) || {};
   return {
     ...mapOrderToBill(order, {
       forDelivery: false,
       showInclusivePrices: !!(options && options.showInclusivePrices),
     }),
-    title: 'Pre-Sale Bill',
+    title: L.preSaleBill || 'Pre-Sale Bill',
     note: '',
   };
 }
@@ -474,13 +475,16 @@ function mapOrderToTemp(order, options) {
  */
 function mapOrderToFinal(order, options) {
   const dup = options && options.duplicate;
+  const L = (options && options.labels) || {};
   return {
     ...mapOrderToBill(order, {
       forDelivery: false,
       showInclusivePrices: !!(options && options.showInclusivePrices),
     }),
-    title: dup ? 'Duplicate Final Bill' : 'Final Bill',
-    thankYou: 'Thank you!',
+    title: dup
+      ? (L.duplicateFinalBill || 'Duplicate Final Bill')
+      : (L.finalBill || 'Final Bill'),
+    thankYou: L.thankYou || 'Thank you!',
   };
 }
 
@@ -488,12 +492,13 @@ function mapOrderToFinal(order, options) {
  * Delivery: CommonBillParts + Delivery line + address/phone/notes + payments + Change.
  */
 function mapOrderToDelivery(order, options) {
+  const L = (options && options.labels) || {};
   return {
     ...mapOrderToBill(order, {
       forDelivery: true,
       showInclusivePrices: !!(options && options.showInclusivePrices),
     }),
-    title: 'DELIVERY',
+    title: L.delivery || 'DELIVERY',
     address: getOrderDeliveryAddress(order),
     phone: getOrderPhone(order),
     notes: getOrderDeliveryNotes(order),

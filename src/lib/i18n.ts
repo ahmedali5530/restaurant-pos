@@ -16,6 +16,7 @@ export const I18N_NAMESPACES = [
   'order-display',
   'closing',
   'summary',
+  'receipts',
   'inventory',
   'reports',
   'delivery',

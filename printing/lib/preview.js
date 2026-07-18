@@ -75,9 +75,10 @@ function escapeHtml(s) {
  */
 function renderBillToHtml(bill, config, opts) {
   const cfg = config || {};
+  const L = cfg.labels || {};
   const sym = cfg.currencySymbol || '$';
   const {
-    title = 'Bill',
+    title = L.bill || 'Bill',
     address,
     phone,
     notes,
@@ -86,6 +87,20 @@ function renderBillToHtml(bill, config, opts) {
     showChange = false,
     showDeliveryLine = false,
   } = opts || {};
+
+  const invoiceLabel = L.invoice || 'Invoice#';
+  const addressLabel = L.address || 'Address';
+  const phoneLabel = L.phone || 'Phone';
+  const itemsLabel = L.items || 'Items';
+  const taxLabel = L.tax || 'Tax';
+  const discountLabel = L.discount || 'Discount';
+  const extraLabel = L.extra || 'Extra';
+  const tipLabel = L.tip || 'Tip';
+  const deliveryChargesLabel = L.deliveryCharges || 'Delivery Charges';
+  const totalLabel = L.total || 'Total';
+  const paymentLabel = L.payment || 'Payment';
+  const changeLabel = L.change || 'Change';
+  const notesLabel = L.notes || 'Notes';
 
   const row = (left, right) =>
     `<div class="row"><span>${escapeHtml(left)}</span><span>${escapeHtml(right)}</span></div>`;
@@ -100,10 +115,10 @@ function renderBillToHtml(bill, config, opts) {
   if (cfg.showVatNumber && cfg.vatNumber) {
     parts.push(`<div class="center">${escapeHtml(cfg.vatName + ': ' + cfg.vatNumber)}</div>`);
   }
-  parts.push(row(`Invoice# ${bill.orderId || ''}`, bill.date || ''));
+  parts.push(row(`${invoiceLabel} ${bill.orderId || ''}`, bill.date || ''));
   parts.push(row(bill.table || '', bill.userName || ''));
-  if (address) parts.push(`<div class="row"><span>Address: ${escapeHtml(String(address).slice(0, 40))}</span></div>`);
-  if (phone) parts.push(`<div class="row"><span>Phone: ${escapeHtml(String(phone))}</span></div>`);
+  if (address) parts.push(`<div class="row"><span>${escapeHtml(addressLabel)}: ${escapeHtml(String(address).slice(0, 40))}</span></div>`);
+  if (phone) parts.push(`<div class="row"><span>${escapeHtml(phoneLabel)}: ${escapeHtml(String(phone))}</span></div>`);
   parts.push('<hr/>');
 
   // Items
@@ -116,44 +131,44 @@ function renderBillToHtml(bill, config, opts) {
   parts.push('<hr/>');
 
   // Summary
-  parts.push(row(`Items (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, sym)));
+  parts.push(row(`${itemsLabel} (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, sym)));
   if (bill.tax != null && Number(bill.tax) !== 0) {
-    parts.push(row(`Tax (${bill.taxLabel || 'Tax'})`, formatMoney(bill.tax, sym)));
+    parts.push(row(`${taxLabel} (${bill.taxLabel || taxLabel})`, formatMoney(bill.tax, sym)));
   }
   if (bill.discount && bill.discountAmount != null && Number(bill.discountAmount) !== 0) {
-    parts.push(row('Discount', formatMoney(bill.discountAmount, sym)));
+    parts.push(row(discountLabel, formatMoney(bill.discountAmount, sym)));
   }
   if (bill.serviceChargeLabel && bill.serviceChargeAmount != null && Number(bill.serviceChargeAmount) !== 0) {
     parts.push(row(bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym)));
   }
   (bill.extras || []).forEach((e) => {
-    parts.push(row(e.name || 'Extra', formatMoney(e.value, sym)));
+    parts.push(row(e.name || extraLabel, formatMoney(e.value, sym)));
   });
   if (bill.tipAmount != null && Number(bill.tipAmount) !== 0) {
-    parts.push(row(bill.tipLabel || 'Tip', formatMoney(bill.tipAmount, sym)));
+    parts.push(row(bill.tipLabel || tipLabel, formatMoney(bill.tipAmount, sym)));
   }
   if (showDeliveryLine && bill.deliveryCharges != null && Number(bill.deliveryCharges) !== 0) {
-    parts.push(row('Delivery Charges', formatMoney(bill.deliveryCharges, sym)));
+    parts.push(row(deliveryChargesLabel, formatMoney(bill.deliveryCharges, sym)));
   }
   parts.push('<hr/>');
 
   // Total
-  parts.push(`<div class="row bold"><span>Total</span><span>${escapeHtml(formatMoney(bill.total, sym))}</span></div>`);
+  parts.push(`<div class="row bold"><span>${escapeHtml(totalLabel)}</span><span>${escapeHtml(formatMoney(bill.total, sym))}</span></div>`);
 
   if (showPayments && Array.isArray(bill.payments) && bill.payments.length > 0) {
     parts.push('<hr/>');
     bill.payments.forEach((p) => {
-      parts.push(row(p.method || 'Payment', formatMoney(p.amount, sym)));
+      parts.push(row(p.method || paymentLabel, formatMoney(p.amount, sym)));
     });
   }
   if (showChange && bill.change != null && Number(bill.change) !== 0) {
     parts.push('<hr/>');
-    parts.push(`<div class="row bold"><span>Change</span><span>${escapeHtml(formatMoney(bill.change, sym))}</span></div>`);
+    parts.push(`<div class="row bold"><span>${escapeHtml(changeLabel)}</span><span>${escapeHtml(formatMoney(bill.change, sym))}</span></div>`);
   }
 
   if (notes) {
     parts.push('<hr/>');
-    parts.push(`<div class="row"><span>Notes: ${escapeHtml(String(notes).slice(0, 48))}</span></div>`);
+    parts.push(`<div class="row"><span>${escapeHtml(notesLabel)}: ${escapeHtml(String(notes).slice(0, 48))}</span></div>`);
   }
   if (thankYou) {
     parts.push(`<div class="center thankyou">${escapeHtml(thankYou)}</div>`);
@@ -186,54 +201,57 @@ function pct(x, of) {
  */
 function renderSummaryToHtml(data, config) {
   const cfg = normalizeConfig(config || {});
+  const L = cfg.labels || {};
   const sym = cfg.currencySymbol || '$';
   const s = computeSummary(data || {});
   const row = (a, b) => `<div class="row"><span>${escapeHtml(a)}</span><span>${escapeHtml(b)}</span></div>`;
   const sect = (t) => `<div class="sect">${escapeHtml(t)}</div>`;
   const ex = s.exclusiveSales;
+  const titleTemplate = L.summaryTitle || 'Daily sales summary — {{date}}';
+  const title = titleTemplate.replace('{{date}}', s.date);
 
   const parts = [];
   const brandingHeader = renderBrandingHeader(cfg);
   if (brandingHeader) parts.push(brandingHeader);
-  parts.push(`<div class="title">Daily sales summary — ${escapeHtml(s.date)}</div>`);
+  parts.push(`<div class="title">${escapeHtml(title)}</div>`);
   parts.push('<hr/>');
-  parts.push(sect('1. Sales revenue'));
-  parts.push(row('Exclusive sales', formatMoney(s.exclusiveSales, sym)));
-  parts.push(row('Extras', formatMoney(s.totalExtras, sym)));
-  parts.push(row('Gross sales', formatMoney(s.grossSales, sym)));
-  parts.push(row('Item discounts', formatMoney(s.itemDiscounts, sym)));
-  parts.push(row('Subtotal discounts', formatMoney(s.subtotalDiscounts, sym)));
-  parts.push(row('Coupon discounts', formatMoney(s.couponDiscounts, sym)));
-  parts.push(row('(−) Discounts', formatMoney(s.discounts, sym)));
-  parts.push(row('Net sales', formatMoney(s.netSales, sym)));
+  parts.push(sect(L.salesRevenue || '1. Sales revenue'));
+  parts.push(row(L.exclusiveSales || 'Exclusive sales', formatMoney(s.exclusiveSales, sym)));
+  parts.push(row(L.extras || 'Extras', formatMoney(s.totalExtras, sym)));
+  parts.push(row(L.grossSales || 'Gross sales', formatMoney(s.grossSales, sym)));
+  parts.push(row(L.itemDiscounts || 'Item discounts', formatMoney(s.itemDiscounts, sym)));
+  parts.push(row(L.subtotalDiscounts || 'Subtotal discounts', formatMoney(s.subtotalDiscounts, sym)));
+  parts.push(row(L.couponDiscounts || 'Coupon discounts', formatMoney(s.couponDiscounts, sym)));
+  parts.push(row(L.discountsMinus || '(−) Discounts', formatMoney(s.discounts, sym)));
+  parts.push(row(L.netSales || 'Net sales', formatMoney(s.netSales, sym)));
   parts.push('<hr/>');
-  parts.push(sect('2. Surcharges and taxes'));
-  parts.push(row('Service charges', formatMoney(s.serviceCharges, sym)));
-  parts.push(row('Taxes', formatMoney(s.taxCollected, sym)));
-  parts.push(`<div class="row bold"><span>Total revenue</span><span>${escapeHtml(formatMoney(s.totalRevenue, sym))}</span></div>`);
+  parts.push(sect(L.surchargesTaxes || '2. Surcharges and taxes'));
+  parts.push(row(L.serviceCharges || 'Service charges', formatMoney(s.serviceCharges, sym)));
+  parts.push(row(L.taxes || 'Taxes', formatMoney(s.taxCollected, sym)));
+  parts.push(`<div class="row bold"><span>${escapeHtml(L.totalRevenue || 'Total revenue')}</span><span>${escapeHtml(formatMoney(s.totalRevenue, sym))}</span></div>`);
   parts.push('<hr/>');
-  parts.push(sect('3. Settlement and cashier'));
-  parts.push(row('Amount due (before tips)', formatMoney(s.amountDue, sym)));
-  parts.push(row('Tips', formatMoney(s.tips, sym)));
-  parts.push(`<div class="row bold"><span>Grand total (due)</span><span>${escapeHtml(formatMoney(s.grandTotalDue, sym))}</span></div>`);
-  parts.push(row('Amount collected', formatMoney(s.amountCollected, sym)));
-  parts.push(row('Rounding', formatMoney(s.rounding, sym)));
-  parts.push(row('Change / variance', formatMoney(s.changeGiven, sym)));
+  parts.push(sect(L.settlementCashier || '3. Settlement and cashier'));
+  parts.push(row(L.amountDueBeforeTips || 'Amount due (before tips)', formatMoney(s.amountDue, sym)));
+  parts.push(row(L.tips || 'Tips', formatMoney(s.tips, sym)));
+  parts.push(`<div class="row bold"><span>${escapeHtml(L.grandTotalDue || 'Grand total (due)')}</span><span>${escapeHtml(formatMoney(s.grandTotalDue, sym))}</span></div>`);
+  parts.push(row(L.amountCollected || 'Amount collected', formatMoney(s.amountCollected, sym)));
+  parts.push(row(L.rounding || 'Rounding', formatMoney(s.rounding, sym)));
+  parts.push(row(L.changeVariance || 'Change / variance', formatMoney(s.changeGiven, sym)));
   parts.push('<hr/>');
-  parts.push(sect('4. Operational controls'));
-  parts.push(row('Voids', formatMoney(s.voids, sym)));
-  parts.push(row('Refunds', formatMoney(s.refunds, sym)));
-  parts.push(row('Covers', formatNum(s.covers)));
-  parts.push(row('Average cover', formatMoney(s.averageCover, sym)));
-  parts.push(row('Orders / checks', formatNum(s.ordersCount)));
-  parts.push(row('Average order / check', formatMoney(s.averageOrderCheck, sym)));
+  parts.push(sect(L.operationalControls || '4. Operational controls'));
+  parts.push(row(L.voids || 'Voids', formatMoney(s.voids, sym)));
+  parts.push(row(L.refunds || 'Refunds', formatMoney(s.refunds, sym)));
+  parts.push(row(L.covers || 'Covers', formatNum(s.covers)));
+  parts.push(row(L.averageCover || 'Average cover', formatMoney(s.averageCover, sym)));
+  parts.push(row(L.ordersChecks || 'Orders / checks', formatNum(s.ordersCount)));
+  parts.push(row(L.averageOrderCheck || 'Average order / check', formatMoney(s.averageOrderCheck, sym)));
   parts.push('<hr/>');
-  parts.push(sect('5. Product mix'));
+  parts.push(sect(L.productMix || '5. Product mix'));
   parts.push(
-    `<div class="row4"><span>Item</span><span>Qty</span><span>Total</span><span>Share</span></div>`
+    `<div class="row4"><span>${escapeHtml(L.item || 'Item')}</span><span>${escapeHtml(L.qty || 'Qty')}</span><span>${escapeHtml(L.total || 'Total')}</span><span>Share</span></div>`
   );
   if (!s.categoryMix || s.categoryMix.length === 0) {
-    parts.push('<p class="muted">No category data for this date.</p>');
+    parts.push(`<p class="muted">${escapeHtml(L.noCategoryData || 'No category data for this date.')}</p>`);
   } else {
     s.categoryMix.forEach((category) => {
       const catShare = formatNum(pct(category.total, ex)) + '%';
@@ -256,9 +274,9 @@ function renderSummaryToHtml(data, config) {
     });
   }
   parts.push('<hr/>');
-  parts.push(sect('6. Payment types'));
+  parts.push(sect(L.paymentTypes || '6. Payment types'));
   if (!s.paymentTypes || s.paymentTypes.length === 0) {
-    parts.push('<p class="muted">No payment data for this date.</p>');
+    parts.push(`<p class="muted">${escapeHtml(L.noPaymentData || 'No payment data for this date.')}</p>`);
   } else {
     s.paymentTypes.forEach((payment) => {
       const p = formatNum(pct(payment.total, s.amountDue)) + '%';
@@ -268,9 +286,9 @@ function renderSummaryToHtml(data, config) {
     });
   }
   parts.push('<hr/>');
-  parts.push(sect('7. Taxes breakdown'));
+  parts.push(sect(L.taxesBreakdown || '7. Taxes breakdown'));
   if (!s.taxesList || s.taxesList.length === 0) {
-    parts.push('<p class="muted">No tax rows for this date.</p>');
+    parts.push(`<p class="muted">${escapeHtml(L.noTaxRows || 'No tax rows for this date.')}</p>`);
   } else {
     s.taxesList.forEach((tax) => {
       const p = formatNum(pct(tax.total, s.taxCollected)) + '%';
@@ -278,9 +296,9 @@ function renderSummaryToHtml(data, config) {
     });
   }
   parts.push('<hr/>');
-  parts.push(sect('8. Discounts breakdown'));
+  parts.push(sect(L.discountsBreakdown || '8. Discounts breakdown'));
   if (!s.discountsList || s.discountsList.length === 0) {
-    parts.push('<p class="muted">No discount rows for this date.</p>');
+    parts.push(`<p class="muted">${escapeHtml(L.noDiscountRows || 'No discount rows for this date.')}</p>`);
   } else {
     s.discountsList.forEach((discount) => {
       const p = formatNum(pct(discount.total, s.discounts)) + '%';
@@ -288,9 +306,9 @@ function renderSummaryToHtml(data, config) {
     });
   }
   parts.push('<hr/>');
-  parts.push(sect('9. Extras breakdown'));
+  parts.push(sect(L.extrasBreakdown || '9. Extras breakdown'));
   if (!s.extrasList || s.extrasList.length === 0) {
-    parts.push('<p class="muted">No extras found for this date.</p>');
+    parts.push(`<p class="muted">${escapeHtml(L.noExtras || 'No extras found for this date.')}</p>`);
   } else {
     s.extrasList.forEach((extra) => {
       const p = formatNum(pct(extra.total, s.totalExtras)) + '%';
@@ -298,9 +316,9 @@ function renderSummaryToHtml(data, config) {
     });
   }
   parts.push('<hr/>');
-  parts.push(sect('10. Coupons breakdown'));
+  parts.push(sect(L.couponsBreakdown || '10. Coupons breakdown'));
   if (!s.couponsList || s.couponsList.length === 0) {
-    parts.push('<p class="muted">No coupon usage for this date.</p>');
+    parts.push(`<p class="muted">${escapeHtml(L.noCoupons || 'No coupon usage for this date.')}</p>`);
   } else {
     s.couponsList.forEach((coupon) => {
       parts.push(row(coupon.name, formatMoney(coupon.total, sym)));
@@ -411,6 +429,7 @@ function renderKitchenToHtml(data, config) {
  */
 function renderRefundToHtml(data, config) {
   const cfg = normalizeConfig(config || {});
+  const L = cfg.labels || {};
   const sym = cfg.currencySymbol || '$';
   const refundOrder = data && data.order;
   const originalOrder = data && data.originalOrder;
@@ -419,15 +438,25 @@ function renderRefundToHtml(data, config) {
   const row = (left, right) =>
     `<div class="row"><span>${escapeHtml(left)}</span><span>${escapeHtml(right)}</span></div>`;
 
+  const refundReceiptLabel = L.refundReceipt || 'REFUND RECEIPT';
+  const originalInvoiceLabel = L.originalInvoice || 'Original Invoice#';
+  const refundDateLabel = L.refundDate || 'Refund Date';
+  const itemsLabel = L.items || 'Items';
+  const taxLabel = L.tax || 'Tax';
+  const discountLabel = L.discount || 'Discount';
+  const extraLabel = L.extra || 'Extra';
+  const tipLabel = L.tip || 'Tip';
+  const refundTotalLabel = L.refundTotal || 'Refund Total';
+
   const parts = [];
   const brandingHeader = renderBrandingHeader(cfg);
   if (brandingHeader) parts.push(brandingHeader);
-  parts.push(`<div class="title">REFUND RECEIPT</div>`);
+  parts.push(`<div class="title">${escapeHtml(refundReceiptLabel)}</div>`);
   if (cfg.showVatNumber && cfg.vatNumber) {
     parts.push(`<div class="center">${escapeHtml(cfg.vatName + ': ' + cfg.vatNumber)}</div>`);
   }
-  parts.push(row(`Original Invoice# ${bill.originalOrderId || ''}`, ''));
-  parts.push(row(`Refund Date: ${bill.refundDate || ''}`, ''));
+  parts.push(row(`${originalInvoiceLabel} ${bill.originalOrderId || ''}`, ''));
+  parts.push(row(`${refundDateLabel}: ${bill.refundDate || ''}`, ''));
   parts.push('<hr/>');
   (bill.items || []).forEach((it) => {
     const name = (it.name || it.title || '').slice(0, 28);
@@ -436,24 +465,24 @@ function renderRefundToHtml(data, config) {
     parts.push(row(`${name} x${qty}`, formatMoney(lineTotal, sym)));
   });
   parts.push('<hr/>');
-  parts.push(row(`Items (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, sym)));
+  parts.push(row(`${itemsLabel} (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, sym)));
   if (bill.tax != null && Number(bill.tax) !== 0) {
-    parts.push(row(`Tax (${bill.taxLabel || 'Tax'})`, formatMoney(bill.tax, sym)));
+    parts.push(row(`${taxLabel} (${bill.taxLabel || taxLabel})`, formatMoney(bill.tax, sym)));
   }
   if (bill.discount && bill.discountAmount != null && Number(bill.discountAmount) !== 0) {
-    parts.push(row('Discount', formatMoney(bill.discountAmount, sym)));
+    parts.push(row(discountLabel, formatMoney(bill.discountAmount, sym)));
   }
   if (bill.serviceChargeLabel && bill.serviceChargeAmount != null && Number(bill.serviceChargeAmount) !== 0) {
     parts.push(row(bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym)));
   }
   (bill.extras || []).forEach((e) => {
-    parts.push(row(e.name || 'Extra', formatMoney(e.value, sym)));
+    parts.push(row(e.name || extraLabel, formatMoney(e.value, sym)));
   });
   if (bill.tipAmount != null && Number(bill.tipAmount) !== 0) {
-    parts.push(row(bill.tipLabel || 'Tip', formatMoney(bill.tipAmount, sym)));
+    parts.push(row(bill.tipLabel || tipLabel, formatMoney(bill.tipAmount, sym)));
   }
   parts.push('<hr/>');
-  parts.push(`<div class="row bold"><span>Refund Total</span><span>${escapeHtml(formatMoney(bill.total, sym))}</span></div>`);
+  parts.push(`<div class="row bold"><span>${escapeHtml(refundTotalLabel)}</span><span>${escapeHtml(formatMoney(bill.total, sym))}</span></div>`);
   const footerSections = renderSectionsToHtml(cfg.footerSections);
   if (footerSections) parts.push(footerSections);
   return `<!DOCTYPE html>
@@ -484,7 +513,7 @@ function renderPreview(printType, data, config) {
   if (t === 'temp') {
     const order = data && data.order;
     if (!order) throw new Error('data.order is required for temp preview');
-    const bill = mapOrderToTemp(order);
+    const bill = mapOrderToTemp(order, { labels: cfg.labels });
     return renderBillToHtml(bill, cfg, {
       title: bill.title,
       notes: bill.note || undefined,
@@ -497,7 +526,7 @@ function renderPreview(printType, data, config) {
   if (t === 'final') {
     const order = data && data.order;
     if (!order) throw new Error('data.order is required for final preview');
-    const bill = mapOrderToFinal(order, { duplicate: !!data.duplicate });
+    const bill = mapOrderToFinal(order, { duplicate: !!data.duplicate, labels: cfg.labels });
     return renderBillToHtml(bill, cfg, {
       title: bill.title,
       thankYou: bill.thankYou,
@@ -510,7 +539,7 @@ function renderPreview(printType, data, config) {
   if (t === 'delivery') {
     const order = data && data.order;
     if (!order) throw new Error('data.order is required for delivery preview');
-    const bill = mapOrderToDelivery(order);
+    const bill = mapOrderToDelivery(order, { labels: cfg.labels });
     return renderBillToHtml(bill, cfg, {
       title: bill.title,
       address: bill.address,

@@ -102,6 +102,8 @@ function normalizeConfig(c = {}) {
     footerSections: normalizeSections(c.footerSections),
     showInclusivePrices: Boolean(c.showInclusivePrices),
     decimal_place: c.decimal_place,
+    labels: c.labels && typeof c.labels === 'object' ? c.labels : {},
+    locale: typeof c.locale === 'string' && c.locale ? c.locale : 'en-US',
   };
 }
 
@@ -507,12 +509,17 @@ function buildItemRowString(item, config) {
  * @returns {string}
  */
 function buildItemHeaderString(config) {
+  const L = (config && config.labels) || {};
+  const item = L.item || 'Item';
+  const qty = L.qty || 'Qty';
+  const rate = L.rate || 'Rate';
+  const ttl = L.ttl || 'Ttl';
   let line = '';
-  if (config.showItemName !== false) line += padRight('Item', ITEM_COL_NAME);
-  if (config.showItemQuantity) line += padLeft('Qty', ITEM_COL_QTY);
-  if (config.showItemPrice) line += padLeft('Rate', ITEM_COL_RATE);
-  if (config.showItemTotal) line += padLeft('Ttl', ITEM_COL_TOTAL);
-  return line || 'Item';
+  if (config.showItemName !== false) line += padRight(item, ITEM_COL_NAME);
+  if (config.showItemQuantity) line += padLeft(qty, ITEM_COL_QTY);
+  if (config.showItemPrice) line += padLeft(rate, ITEM_COL_RATE);
+  if (config.showItemTotal) line += padLeft(ttl, ITEM_COL_TOTAL);
+  return line || item;
 }
 
 /**

@@ -5,6 +5,9 @@ import { Tables } from "@/api/db/tables.ts";
 import type { Printer } from "@/api/model/printer.ts";
 import {RecordId, StringRecordId} from "surrealdb";
 import { fetchShowInclusivePricesEnabled } from "@/hooks/useShowInclusivePrices.ts";
+import { fetchTranslateReceiptsEnabled } from "@/hooks/useTranslateReceipts.ts";
+import { buildReceiptLabels } from "@/lib/receipt-labels.ts";
+
 
 export const PRINT_EVENT = 'posr:print';
 
@@ -225,10 +228,11 @@ export async function dispatchPrint<Payload = any>(
   const explicitPrinters = options?.printers?.length > 0 ? options.printers : null;
 
   // eslint-disable-next-line prefer-const
-  let [config, settingsPrinters, showInclusivePrices] = await Promise.all([
+  let [config, settingsPrinters, showInclusivePrices, translateReceipts] = await Promise.all([
     getPrintConfig(db, template),
     explicitPrinters ? Promise.resolve([]) : getPrintersForType(db, template, uid),
     fetchShowInclusivePricesEnabled(db).catch(() => false),
+    fetchTranslateReceiptsEnabled(db).catch(() => false),
   ]);
 
   const printers = explicitPrinters || (settingsPrinters.length > 0 ? settingsPrinters : null);
@@ -244,13 +248,21 @@ export async function dispatchPrint<Payload = any>(
     printPayload.order = await enrichOrderForPrint(db, printPayload.order as Record<string, unknown>);
   }
 
+  const printConfig: Record<string, unknown> = {
+    ...config,
+    decimal_place: import.meta.env.VITE_DECIMAL_PLACES,
+    showInclusivePrices,
+  };
+
+  if (translateReceipts) {
+    await i18n.loadNamespaces(['receipts', 'summary']);
+    printConfig.labels = buildReceiptLabels(i18n.t.bind(i18n));
+    printConfig.locale = i18n.language;
+  }
+
   const body = {
     data: { printType: template, ...printPayload },
-    config : {
-      ...config,
-      decimal_place: import.meta.env.VITE_DECIMAL_PLACES,
-      showInclusivePrices,
-    },
+    config: printConfig,
     printers: driverPrinters,
   };
 

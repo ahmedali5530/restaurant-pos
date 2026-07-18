@@ -19,6 +19,7 @@ const {
  * @param {string} [opts.orderTaker]
  * @param {string} opts.createdAt
  * @param {Array<{ label: string, value: string }>} [opts.extraLines]
+ * @param {Object} [opts.labels] - translated labels map
  */
 function printKotHeader(printer, opts) {
   const {
@@ -30,22 +31,31 @@ function printKotHeader(printer, opts) {
     orderTaker,
     createdAt,
     extraLines = [],
+    labels = {},
   } = opts || {};
 
+  const L = labels || {};
+  const kotLabel = L.kot || 'KOT';
+  const orderNumberLabel = L.orderNumber || 'Order#';
+  const tableLabel = L.table || 'Table';
+  const orderTypeLabel = L.orderType || 'Order Type';
+  const orderTakerLabel = L.orderTaker || 'Order Taker';
+  const timeLabel = L.time || 'Time';
+
   hardResetLayout(printer);
-  printCenteredText(printer, kitchenName || 'KOT', { style: 'bold-underline', size: 'medium' });
+  printCenteredText(printer, kitchenName || kotLabel, { style: 'bold-underline', size: 'medium' });
   printDivider(printer);
 
   if (bannerLabel) {
     printCenteredText(printer, bannerLabel, { style: 'bold', size: 'medium' });
   }
   if (orderId) {
-    printCenteredText(printer, `Order# ${orderId}`, { style: 'bold', size: 'medium' });
+    printCenteredText(printer, `${orderNumberLabel} ${orderId}`, { style: 'bold', size: 'medium' });
   }
-  if (table) printFixedLine(printer, `Table: ${table}`, { align: 'left' });
-  if (orderType) printFixedLine(printer, `Order Type: ${orderType}`, { align: 'left' });
-  if (orderTaker) printFixedLine(printer, `Order Taker: ${orderTaker}`, { align: 'left' });
-  printFixedLine(printer, `Time: ${createdAt}`, { align: 'left' });
+  if (table) printFixedLine(printer, `${tableLabel}: ${table}`, { align: 'left' });
+  if (orderType) printFixedLine(printer, `${orderTypeLabel}: ${orderType}`, { align: 'left' });
+  if (orderTaker) printFixedLine(printer, `${orderTakerLabel}: ${orderTaker}`, { align: 'left' });
+  printFixedLine(printer, `${timeLabel}: ${createdAt}`, { align: 'left' });
 
   extraLines.forEach((line) => {
     if (line && line.value) {
