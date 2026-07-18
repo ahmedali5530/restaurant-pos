@@ -67,5 +67,8 @@ DEFINE FIELD OVERWRITE locations ON inventory_item TYPE option<array<record<inve
 DEFINE FIELD OVERWRITE from_location ON stock_transfer TYPE option<record<inventory_location>> PERMISSIONS FULL;
 DEFINE FIELD OVERWRITE to_location ON stock_transfer TYPE option<record<inventory_location>> PERMISSIONS FULL;
 
--- Temporary field for ledger remap (script fills, then swaps type)
+-- Temporary field for ledger remap (script fills, then swaps type).
+-- After remap, backfill-location-refs.cjs removes inventory_location (store-typed)
+-- and redefines it as record<inventory_location>. Do not redefine here while
+-- existing rows still hold inventory_store ids — that would fail coercion.
 DEFINE FIELD OVERWRITE inventory_location_new ON inventory_ledger TYPE option<record<inventory_location>> PERMISSIONS FULL;

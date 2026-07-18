@@ -127,42 +127,76 @@ async function main() {
     return storeToLoc.get(toId(storeRef)) || storeToLoc.get(normalizeKey(storeRef)) || null;
   };
 
-  // Ledger: fill inventory_location_new
-  const ledgerRows = rows(
-    await db.query('SELECT id, inventory_location, inventory_location_new FROM inventory_ledger')
-  );
-  let ledgerUpdated = 0;
-  for (const row of ledgerRows) {
-    if (row.inventory_location_new) continue;
-    const locId = resolveStoreLoc(row.inventory_location);
-    if (!locId) {
-      console.warn(`No location for ledger ${toId(row.id)} store=${toId(row.inventory_location)}`);
-      continue;
-    }
-    if (!DRY_RUN) {
+  // Detect whether ledger.inventory_location is already location-typed
+  const infoResult = await db.query('INFO FOR TABLE inventory_ledger');
+  const tableInfo = Array.isArray(infoResult) ? infoResult[0] : infoResult;
+  const fields = (tableInfo && tableInfo.fields) || {};
+  const locationFieldDef = String(fields.inventory_location || '');
+  const hasLocationNewField = Boolean(fields.inventory_location_new);
+  const alreadyLocationTyped = locationFieldDef.includes('record<inventory_location>');
+
+  if (!alreadyLocationTyped) {
+    if (!hasLocationNewField && !DRY_RUN) {
       await db.query(
-        'UPDATE $id SET inventory_location_new = $loc',
-        { id: rid(row.id), loc: rid(locId) }
+        `DEFINE FIELD OVERWRITE inventory_location_new ON inventory_ledger TYPE option<record<inventory_location>> PERMISSIONS FULL`
       );
     }
-    ledgerUpdated += 1;
-  }
-  console.log(`Ledger inventory_location_new set: ${ledgerUpdated}`);
 
-  if (!SKIP_LEDGER_SWAP && !DRY_RUN) {
-    // Swap field type: remove old store-typed field, promote new
-    await db.query('REMOVE FIELD inventory_location ON inventory_ledger');
-    await db.query(
-      `DEFINE FIELD OVERWRITE inventory_location ON inventory_ledger TYPE option<record<inventory_location>> PERMISSIONS FULL`
+    const ledgerRows = rows(
+      await db.query('SELECT id, inventory_location, inventory_location_new FROM inventory_ledger')
     );
-    await db.query(
-      `UPDATE inventory_ledger SET inventory_location = inventory_location_new WHERE inventory_location_new != NONE`
-    );
-    await db.query('REMOVE FIELD inventory_location_new ON inventory_ledger');
-    await db.query(
-      `DEFINE FIELD OVERWRITE inventory_location ON inventory_ledger TYPE record<inventory_location> PERMISSIONS FULL`
-    );
-    console.log('Ledger inventory_location now record<inventory_location>');
+    let ledgerUpdated = 0;
+    for (const row of ledgerRows) {
+      if (row.inventory_location_new) continue;
+      const current = toId(row.inventory_location) || '';
+      // Already a location id (partial cutover) — copy through
+      if (current.startsWith('inventory_location:')) {
+        if (!DRY_RUN) {
+          await db.query('UPDATE $id SET inventory_location_new = $loc', {
+            id: rid(row.id),
+            loc: rid(current),
+          });
+        }
+        ledgerUpdated += 1;
+        continue;
+      }
+      const locId = resolveStoreLoc(row.inventory_location);
+      if (!locId) {
+        console.warn(`No location for ledger ${toId(row.id)} store=${toId(row.inventory_location)}`);
+        continue;
+      }
+      if (!DRY_RUN) {
+        await db.query('UPDATE $id SET inventory_location_new = $loc', {
+          id: rid(row.id),
+          loc: rid(locId),
+        });
+      }
+      ledgerUpdated += 1;
+    }
+    console.log(`Ledger inventory_location_new set: ${ledgerUpdated}`);
+
+    if (!SKIP_LEDGER_SWAP && !DRY_RUN) {
+      // Swap field type: remove old store-typed field, promote new
+      await db.query('REMOVE FIELD inventory_location ON inventory_ledger');
+      await db.query(
+        `DEFINE FIELD OVERWRITE inventory_location ON inventory_ledger TYPE option<record<inventory_location>> PERMISSIONS FULL`
+      );
+      await db.query(
+        `UPDATE inventory_ledger SET inventory_location = inventory_location_new WHERE inventory_location_new != NONE`
+      );
+      await db.query('REMOVE FIELD IF EXISTS inventory_location_new ON inventory_ledger');
+      await db.query('UPDATE inventory_ledger UNSET inventory_location_new');
+      await db.query(
+        `DEFINE FIELD OVERWRITE inventory_location ON inventory_ledger TYPE record<inventory_location> PERMISSIONS FULL`
+      );
+      console.log('Ledger inventory_location now record<inventory_location>');
+    }
+  } else {
+    console.log('Ledger inventory_location already record<inventory_location> — skip swap');
+    if (!DRY_RUN) {
+      await db.query('REMOVE FIELD IF EXISTS inventory_location_new ON inventory_ledger');
+      await db.query('UPDATE inventory_ledger UNSET inventory_location_new');
+    }
   }
 
   // Document tables: store → location
@@ -267,15 +301,18 @@ async function main() {
     }
 
     if (!DRY_RUN) {
-      const payload = {};
+      const sets = [];
+      const params = { id: rid(item.id) };
       if (merged.length) {
-        payload.locations = merged.map((id) => rid(id));
+        sets.push('locations = $locations');
+        params.locations = merged.map((id) => rid(id));
       }
       if (newReorder) {
-        payload.reorder_levels = newReorder;
+        sets.push('reorder_levels = $reorder');
+        params.reorder = newReorder;
       }
-      if (Object.keys(payload).length) {
-        await db.merge(rid(item.id), payload);
+      if (sets.length) {
+        await db.query(`UPDATE $id SET ${sets.join(', ')}`, params);
         itemN += 1;
       }
     } else if (merged.length || newReorder) {
