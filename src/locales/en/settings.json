@@ -148,5 +148,14 @@
     "updated": "Inventory settings updated",
     "save": "Save",
     "saveDescription": "Save inventory settings"
+  },
+  "whatsNew": {
+    "title": "What's New",
+    "description": "View release notes and recent updates for this app.",
+    "open": "Open What's New",
+    "dismiss": "Got it",
+    "dialogTitle": "What's New",
+    "versionLabel": "Version {{version}}",
+    "previousReleases": "Previous releases"
   }
 }

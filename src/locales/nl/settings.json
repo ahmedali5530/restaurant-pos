@@ -148,5 +148,14 @@
       "non_recoverable": "Non-recoverable (capitalize)",
       "recoverable": "Recoverable (ignore for inventory)"
     }
+  },
+  "whatsNew": {
+    "title": "Wat is er nieuw",
+    "description": "Bekijk release notes en recente updates voor deze app.",
+    "open": "Wat is er nieuw openen",
+    "dismiss": "Begrepen",
+    "dialogTitle": "Wat is er nieuw",
+    "versionLabel": "Versie {{version}}",
+    "previousReleases": "Eerdere releases"
   }
 }

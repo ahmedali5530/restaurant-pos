@@ -148,5 +148,14 @@
       "non_recoverable": "Non-recoverable (capitalize)",
       "recoverable": "Recoverable (ignore for inventory)"
     }
+  },
+  "whatsNew": {
+    "title": "Yenilikler",
+    "description": "Bu uygulama için sürüm notlarını ve son güncellemeleri görüntüleyin.",
+    "open": "Yenilikleri aç",
+    "dismiss": "Anladım",
+    "dialogTitle": "Yenilikler",
+    "versionLabel": "Sürüm {{version}}",
+    "previousReleases": "Önceki sürümler"
   }
 }

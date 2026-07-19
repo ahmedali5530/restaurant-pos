@@ -148,5 +148,14 @@
       "non_recoverable": "غير قابلة للاسترداد (رسملة)",
       "recoverable": "قابلة للاسترداد (تجاهل للمخزون)"
     }
+  },
+  "whatsNew": {
+    "title": "ما الجديد",
+    "description": "عرض ملاحظات الإصدار والتحديثات الأخيرة لهذا التطبيق.",
+    "open": "فتح ما الجديد",
+    "dismiss": "حسنًا",
+    "dialogTitle": "ما الجديد",
+    "versionLabel": "الإصدار {{version}}",
+    "previousReleases": "الإصدارات السابقة"
   }
 }

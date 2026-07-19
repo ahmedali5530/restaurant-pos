@@ -148,5 +148,14 @@
       "non_recoverable": "Non-recoverable (capitalize)",
       "recoverable": "Recoverable (ignore for inventory)"
     }
+  },
+  "whatsNew": {
+    "title": "Что нового",
+    "description": "Просмотрите заметки о выпуске и недавние обновления этого приложения.",
+    "open": "Открыть «Что нового»",
+    "dismiss": "Понятно",
+    "dialogTitle": "Что нового",
+    "versionLabel": "Версия {{version}}",
+    "previousReleases": "Предыдущие версии"
   }
 }

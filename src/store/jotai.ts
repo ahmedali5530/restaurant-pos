@@ -93,6 +93,8 @@ export interface AppPageInterface {
   touch?: boolean
   language?: string
   direction?: AppTextDirection
+  /** Last app version for which What's New was dismissed on this device. */
+  whatsNewDismissedVersion?: string
 
   menuConfig?: MenuConfigInterface
 }
@@ -117,6 +119,9 @@ export const appPage = atomWithStorage<AppPageInterface>(
   createJSONStorage<AppPageInterface>(),
   {getOnInit: true}
 );
+
+/** Increment / set true from Settings to force-open the What's New dialog. */
+export const whatsNewOpenRequest = atom(false);
 
 const appStorageStore = createStore('posr-react', 'jotai-storage')
 

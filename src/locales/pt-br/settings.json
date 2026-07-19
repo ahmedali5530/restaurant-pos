@@ -148,5 +148,14 @@
       "non_recoverable": "Non-recoverable (capitalize)",
       "recoverable": "Recoverable (ignore for inventory)"
     }
+  },
+  "whatsNew": {
+    "title": "Novidades",
+    "description": "Veja as notas da versão e as atualizações recentes deste aplicativo.",
+    "open": "Abrir novidades",
+    "dismiss": "Entendi",
+    "dialogTitle": "Novidades",
+    "versionLabel": "Versão {{version}}",
+    "previousReleases": "Versões anteriores"
   }
 }

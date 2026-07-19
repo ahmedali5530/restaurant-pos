@@ -2,6 +2,7 @@ import {useAtomValue} from "jotai";
 import {Navigate, Outlet, useLocation} from "react-router";
 import {appPage} from "@/store/jotai.ts";
 import {LOGIN} from "@/routes/posr.ts";
+import {WhatsNewDialog} from "@/components/whats-new/whats-new.dialog.tsx";
 
 export const ProtectedRoute = () => {
   const {user} = useAtomValue(appPage);
@@ -11,5 +12,10 @@ export const ProtectedRoute = () => {
     return <Navigate to={LOGIN} replace state={{from: location}}/>;
   }
 
-  return <Outlet/>;
+  return (
+    <>
+      <Outlet/>
+      <WhatsNewDialog/>
+    </>
+  );
 };

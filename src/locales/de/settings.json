@@ -148,5 +148,14 @@
       "non_recoverable": "Nicht erstattungsfähig (aktivieren)",
       "recoverable": "Erstattungsfähig (für Bestand ignorieren)"
     }
+  },
+  "whatsNew": {
+    "title": "Neuigkeiten",
+    "description": "Versionshinweise und aktuelle Updates für diese App anzeigen.",
+    "open": "Neuigkeiten öffnen",
+    "dismiss": "Verstanden",
+    "dialogTitle": "Neuigkeiten",
+    "versionLabel": "Version {{version}}",
+    "previousReleases": "Frühere Versionen"
   }
 }

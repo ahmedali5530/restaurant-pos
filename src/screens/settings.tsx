@@ -12,22 +12,24 @@ import {TranslateReceiptsSettingsCard} from "@/components/user_settings/translat
 import {ItemsVisibilityConfig} from "@/components/user_settings/items_visibility_config.tsx";
 import {ShowInclusivePricesSettingsCard} from "@/components/user_settings/show_inclusive_prices.tsx";
 import {InventorySettingsCard} from "@/components/user_settings/inventory_settings.tsx";
+import {WhatsNewSettingsCard} from "@/components/user_settings/whats_new.tsx";
 export const Settings = () => {
 
   return (
     <Layout containerClassName="p-5 gap-5 grid lg:grid-cols-3 md:grid-cols-2">
-      <Printersettings />
+      <WhatsNewSettingsCard />
+      <CacheSettings />
       <LanguageSettings />
       <TranslateReceiptsSettingsCard />
-      <CacheSettings />
+      <Printersettings />
       <MenusSettings />
       <ServiceChargesSettings />
       <ClosingCycleSettingsCard />
       <AutoCheckCloseSettingsCard />
       <ShowInclusivePricesSettingsCard />
-      <InventorySettingsCard />
       <TouchSettings />
       <TableSelectionSettings />
+      <InventorySettingsCard />
       <ItemsVisibilityConfig />
     </Layout>
   );
