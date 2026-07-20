@@ -59,7 +59,7 @@ const schema: ProviderConfigurationSchema = {
           label: 'QR Print Priority',
           type: 'number',
           defaultValue: 50,
-          helpText: 'Higher priority wins when multiple fiscal providers return a QR.',
+          helpText: 'Higher priority prints first when multiple fiscal providers return a QR.',
         },
       ],
     },

@@ -5,8 +5,8 @@ const { printBillLayout } = require('../lib/bill-layout');
 const { mapOrderToFinal } = require('../lib/order-mapping');
 
 /**
- * Final print – Final Bill + CommonBillParts + payments + Change. Matches final.bill.tsx and _common.bill.tsx.
- * Expects data: { order: Order, duplicate?: boolean }. duplicate=true uses "Duplicate Final Bill" as title.
+ * Final print – Final Bill + payments + Change.
+ * Expects data: { order: Order, duplicate?: boolean, qrcodes?: Array<{value, description}>, qrcode?: string }.
  */
 function build(printer, data = {}, config = {}) {
   const order = data && data.order;
@@ -25,6 +25,7 @@ function build(printer, data = {}, config = {}) {
     return printBillLayout(printer, bill, cfg, {
       title: bill.title,
       qrcode: data.qrcode,
+      qrcodes: data.qrcodes,
       thankYou: bill.thankYou,
       showPayments: true,
       showChange: true,

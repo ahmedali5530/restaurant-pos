@@ -5,8 +5,8 @@ const { printBillLayout } = require('../lib/bill-layout');
 const { mapOrderToTemp } = require('../lib/order-mapping');
 
 /**
- * Temp print – Pre-Sale Bill (CommonBillParts only, no payments/change). Matches presale.bill.tsx.
- * Expects data: { order: Order }. Order from src/api/model/order.ts.
+ * Temp print – Pre-Sale Bill (no payments/change).
+ * Expects data: { order: Order, qrcodes?, qrcode? }. Order from src/api/model/order.ts.
  */
 function build(printer, data = {}, config = {}) {
   const order = data && data.order;
@@ -55,6 +55,7 @@ function build(printer, data = {}, config = {}) {
     return printBillLayout(printer, billToPrint, cfg, {
       title: bill.title,
       qrcode: data.qrcode,
+      qrcodes: data.qrcodes,
       notes: bill.note || undefined,
       showPayments: true,
       showChange: false,

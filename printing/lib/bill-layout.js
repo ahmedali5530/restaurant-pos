@@ -16,11 +16,11 @@ const {
 } = require('./receipt-helpers');
 
 /**
- * Print bill layout aligned with _common.bill.tsx and final.bill.tsx / presale.bill.tsx.
+ * Print bill layout for ESC/POS final/temp/delivery receipts.
  * @param {Object} printer - escpos Printer
  * @param {Object} bill - from mapOrderToTemp/Final/Delivery
  * @param {Object} config - normalized config (currencySymbol, showVatNumber, vatName, vatNumber, labels, locale)
- * @param {Object} opts - { title, address?, phone?, notes?, thankYou?, showPayments?, showChange?, showDeliveryLine?, isFinal? }
+ * @param {Object} opts - { title, address?, phone?, notes?, thankYou?, showPayments?, showChange?, showDeliveryLine?, isFinal?, qrcode?, qrcodes? }
  * @returns {Promise<void>}
  */
 function printBillLayout(printer, bill, config, opts) {
@@ -34,6 +34,7 @@ function printBillLayout(printer, bill, config, opts) {
     customerName,
     deliveryTime,
     qrcode,
+    qrcodes,
     notes,
     thankYou,
     showPayments = false,
@@ -144,7 +145,7 @@ function printBillLayout(printer, bill, config, opts) {
     printer.feed(2);
   }
 
-  const qrValue = qrcode != null ? String(qrcode).trim() : '';
+  const qrItems = normalizeQrItems(qrcodes, qrcode);
   return printFooterSections(printer, cfg).then(() => {
     feedBottomMargin(printer, cfg);
 
@@ -153,7 +154,7 @@ function printBillLayout(printer, bill, config, opts) {
       printCenteredText(printer, checkClosedLabel, { style: 'bold' });
     }
 
-    return printQrCode(printer, qrValue).then(() => {
+    return printQrCodes(printer, qrItems).then(() => {
       const now = new Date();
       const locale = cfg.locale || 'en-US';
       const ts = now.toLocaleString(locale, {
@@ -170,6 +171,49 @@ function printBillLayout(printer, bill, config, opts) {
       printer.cut();
     });
   });
+}
+
+/**
+ * @param {unknown} qrcodes
+ * @param {unknown} qrcode
+ * @returns {{ value: string, description: string }[]}
+ */
+function normalizeQrItems(qrcodes, qrcode) {
+  if (Array.isArray(qrcodes) && qrcodes.length > 0) {
+    return qrcodes
+      .map((item) => {
+        if (item == null) return null;
+        if (typeof item === 'string') {
+          const value = item.trim();
+          return value ? { value, description: '' } : null;
+        }
+        const value = String(item.value ?? item.qrcode ?? '').trim();
+        if (!value) return null;
+        const description = String(item.description ?? '').trim();
+        return { value, description };
+      })
+      .filter(Boolean);
+  }
+
+  const qrValue = qrcode != null ? String(qrcode).trim() : '';
+  return qrValue ? [{ value: qrValue, description: '' }] : [];
+}
+
+function printQrCodes(printer, items) {
+  if (!items || items.length === 0) return Promise.resolve();
+
+  return items.reduce((chain, item, index) => {
+    return chain.then(() =>
+      printQrCode(printer, item.value).then(() => {
+        if (item.description) {
+          printCenteredText(printer, item.description);
+        }
+        if (index < items.length - 1) {
+          printer.feed(2);
+        }
+      })
+    );
+  }, Promise.resolve());
 }
 
 function printQrCode(printer, value) {

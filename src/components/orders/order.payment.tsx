@@ -42,7 +42,7 @@ import {useSecurity} from "@/hooks/useSecurity.ts";
 import {nowSurrealDateTime, toJsDate} from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
-import { getFiscalQrcodeForOrderPrint } from "@/integrations/providers/fiscal/settlement.ts";
+import { getFiscalQrcodesForOrderPrint } from "@/integrations/providers/fiscal/settlement.ts";
 import {OrderItemName} from "@/components/common/order/order.item.tsx";
 import {syncOrderPayments} from "@/lib/order-payment-sync.ts";
 
@@ -510,11 +510,12 @@ export const OrderPayment = ({
     // fetch latest order from database
     const [o] = await db.query<[Order]>(`select *
                                          from only ${order.id} fetch items, items.item, item.item.modifiers, table, user, order_type, customer, discount, tax, payments, payments.payment_type, extras, extras.order_extras`);
-    const qrcode = await getFiscalQrcodeForOrderPrint(db, order.id);
+    const qrcodes = await getFiscalQrcodesForOrderPrint(db, order.id);
 
     void dispatchPrint(db, PRINT_TYPE.final_bill, {
       order: o,
-      qrcode,
+      qrcodes,
+      qrcode: qrcodes[0]?.value,
     }, {userId: page?.user?.id});
   }
 

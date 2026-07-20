@@ -21,7 +21,7 @@ import { StringRecordId } from "surrealdb";
 import { IntegrationManager } from "@/integrations/core/integration-manager.ts";
 import {
   fiscalShouldBlockBeforePaid,
-  getFiscalQrcodeForOrderPrint,
+  getFiscalQrcodesForOrderPrint,
   loadOrderForFiscal,
   runFiscalSettlementForOrder,
 } from "@/integrations/providers/fiscal/settlement.ts";
@@ -270,11 +270,11 @@ async function printFinalBill(
   ) as unknown as [Order | undefined];
 
   if (order) {
-    const qrcode = await getFiscalQrcodeForOrderPrint(db, orderId);
+    const qrcodes = await getFiscalQrcodesForOrderPrint(db, orderId);
     void dispatchPrint(
       db,
       PRINT_TYPE.final_bill,
-      { order, qrcode },
+      { order, qrcodes, qrcode: qrcodes[0]?.value },
       { userId }
     );
   }

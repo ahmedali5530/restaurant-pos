@@ -16,6 +16,7 @@ export const RELEASES: ReleaseNotes[] = [
     title: 'Inventory location posting',
     items: [
       'Re-print KOT from the kitchen screen when a ticket is missed.',
+      'Final bills print QR codes from all successful fiscal providers (e.g. FBR and PRA), each with its authority label.',
       'Fixed inventory posting when purchases or issues still reference stores or kitchens — they now resolve to stock locations.',
       'Clearer errors when a document line is missing a location or an inventory transaction fails.',
       'Fixed purchase extras field schema for landed cost and other purchase metadata.',

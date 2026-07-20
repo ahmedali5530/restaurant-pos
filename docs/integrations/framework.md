@@ -246,13 +246,13 @@ When one or more fiscal providers are **enabled**, order settlement submits invo
 2. Each enabled fiscal provider runs `executeImmediate` with action `invoiceSubmission`.
 3. FBR/PRA serialize the Pakistan JSON payload and POST with `Authorization: Bearer <bearerToken>`.
 4. Success requires authority `Code == 100`; `InvoiceNumber` is stored and used as QR.
-5. Among successful submissions, print QR is chosen by highest shared runtime `qrPriority` (not hardcoded provider ids). PRA defaults to `100`, FBR to `50`, so PRA still wins when both succeed unless config overrides.
-6. Each attempt is stored as a row in `integration_order_fiscal` (junction), including `qr_priority`. One row may be marked `selected_for_print`.
-7. Final bill print resolves QR via `resolveFiscalQrcodeForPrint` (`selected_for_print` → highest `qr_priority` success) and passes it into `dispatchPrint` / `final-print.js`.
+5. Successful submissions each contribute a printable QR; `qrPriority` controls print order (higher first). PRA defaults to `100`, FBR to `50`. One row may still be marked `selected_for_print` for bookkeeping.
+6. Each attempt is stored as a row in `integration_order_fiscal` (junction), including `qr_priority`.
+7. Final bill print resolves all successful QRs via `resolveFiscalQrcodesForPrint` (latest completed per provider, sorted by `qr_priority`) with provider authority labels, and passes `qrcodes` into `dispatchPrint` / `final-print.js`.
 
 Junction table (migration `2026_07_11_order_fiscal_fields.surql`):
 - `integration_order_fiscal`: `order`, `provider_id`, `invoice_number`, `qrcode`, `status`, `code`, `error`, `selected_for_print`, `qr_priority`, `request_payload`, `response_payload`, `submitted_at`
-- Use `setFiscalSubmissionSelectedForPrint(db, orderId, submissionId)` to print a non-default QR on reprints.
+- Use `setFiscalSubmissionSelectedForPrint(db, orderId, submissionId)` to mark a preferred submission for bookkeeping; all successful QRs still print.
 
 ### Pakistan FBR/PRA config fields
 
@@ -265,7 +265,7 @@ Junction table (migration `2026_07_11_order_fiscal_fields.surql`):
 | `invoiceType` | Default `1` |
 | `offlineBuffering` | Shared runtime: queue failed immediate submits |
 | `blockSettlementOnFailure` | Shared runtime: abort Paid until fiscal succeeds |
-| `qrPriority` | Shared runtime: higher value wins print QR when multiple succeed (PRA default `100`, FBR default `50`) |
+| `qrPriority` | Shared runtime: higher value prints first when multiple fiscal QRs succeed (PRA default `100`, FBR default `50`) |
 | `punjabMode` (FBR only) | Line `TotalAmount = Quantity × SaleValue` |
 
 FBR also requires `sellerNtn`. USIN uses `order.invoice_number`.

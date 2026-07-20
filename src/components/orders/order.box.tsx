@@ -35,7 +35,7 @@ import {Tables} from "@/api/db/tables";
 import {Tax} from "@/api/model/tax.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {useTranslation} from "react-i18next";
-import { getFiscalQrcodeForOrderPrint } from "@/integrations/providers/fiscal/settlement.ts";
+import { getFiscalQrcodesForOrderPrint } from "@/integrations/providers/fiscal/settlement.ts";
 
 interface Props {
   order: OrderModel
@@ -149,11 +149,12 @@ export const OrderBox = ({
                   if (key === 'final_bill') {
                     protectAction(() => {
                       void (async () => {
-                        const qrcode = await getFiscalQrcodeForOrderPrint(db, order.id);
+                        const qrcodes = await getFiscalQrcodesForOrderPrint(db, order.id);
                         void dispatchPrint(db, PRINT_TYPE.final_bill, {
                           order,
                           duplicate: true,
-                          qrcode,
+                          qrcodes,
+                          qrcode: qrcodes[0]?.value,
                         }, {userId: page?.user?.id});
                       })();
                     }, {

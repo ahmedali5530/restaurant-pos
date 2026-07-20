@@ -3,12 +3,16 @@ import { IntegrationExecutionResponse, ProviderManifest } from '@/integrations/c
 import { IntegrationManager } from '@/integrations/core/integration-manager.ts';
 import { getIntegrationProviderConfig } from '@/integrations/configuration/configuration-store.ts';
 import {
+  collectFiscalQrsForPrint,
+  FiscalQrPrintItem,
   pickPreferredFiscalQr,
   parseFiscalRuntimeConfig,
 } from '@/integrations/providers/fiscal/shared/runtime-config.ts';
+import { getFiscalProviderPrintDescription } from '@/integrations/storage/order-fiscal-repository.ts';
 import { nowSurrealDateTime, toJsDate } from '@/lib/datetime.ts';
 
-export { pickPreferredFiscalQr } from '@/integrations/providers/fiscal/shared/runtime-config.ts';
+export { pickPreferredFiscalQr, collectFiscalQrsForPrint } from '@/integrations/providers/fiscal/shared/runtime-config.ts';
+export type { FiscalQrPrintItem } from '@/integrations/providers/fiscal/shared/runtime-config.ts';
 
 export interface FiscalSubmissionRecord {
   invoiceNumber?: string;
@@ -23,6 +27,7 @@ export interface FiscalSubmissionRecord {
 
 export interface FiscalSettlementResult {
   qrcode?: string;
+  qrcodes?: FiscalQrPrintItem[];
   fiscalInvoiceNumber?: string;
   fiscalProviderId?: string;
   resultsByProvider: Record<string, FiscalSubmissionRecord>;
@@ -156,9 +161,21 @@ export const submitFiscalInvoices = async (
   }
 
   const preferred = pickPreferredFiscalQr(successMap);
+  const qrcodes = collectFiscalQrsForPrint(
+    Object.fromEntries(
+      Object.entries(successMap).map(([providerId, candidate]) => [
+        providerId,
+        {
+          ...candidate,
+          description: getFiscalProviderPrintDescription(providerId),
+        },
+      ])
+    )
+  );
 
   return {
     qrcode: preferred.qrcode,
+    qrcodes,
     fiscalInvoiceNumber: preferred.qrcode,
     fiscalProviderId: preferred.providerId,
     resultsByProvider,
