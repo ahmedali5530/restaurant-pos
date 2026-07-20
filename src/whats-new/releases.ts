@@ -15,6 +15,7 @@ export const RELEASES: ReleaseNotes[] = [
     date: '2026-07-20',
     title: 'Inventory location posting',
     items: [
+      'Re-print KOT from the kitchen screen when a ticket is missed.',
       'Fixed inventory posting when purchases or issues still reference stores or kitchens — they now resolve to stock locations.',
       'Clearer errors when a document line is missing a location or an inventory transaction fails.',
       'Fixed purchase extras field schema for landed cost and other purchase metadata.',

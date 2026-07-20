@@ -4,7 +4,8 @@
     "completedOrders": "Completed Orders",
     "viewAllDishes": "View all dishes",
     "recall": "Recall",
-    "ready": "Ready"
+    "ready": "Ready",
+    "reprint": "Re-print"
   },
   "labels": {
     "avgTime": "Avg time: {{time}}",

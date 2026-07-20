@@ -35,6 +35,7 @@
   "kot": "KOT",
   "newOrder": "Новый заказ",
   "addon": "ДОБАВКА",
+  "duplicateKot": "ДУБЛИКАТ",
   "deletion": "УДАЛЕНИЕ",
   "orderNumber": "Заказ#",
   "orderTaker": "Принял",

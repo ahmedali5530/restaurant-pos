@@ -35,6 +35,7 @@
   "kot": "KOT",
   "newOrder": "Novo pedido",
   "addon": "ADICIONAL",
+  "duplicateKot": "DUPLICATA",
   "deletion": "EXCLUSÃO",
   "orderNumber": "Pedido#",
   "orderTaker": "Atendente",

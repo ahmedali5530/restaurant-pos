@@ -4,7 +4,8 @@
     "completedOrders": "Tamamlanan Siparişler",
     "viewAllDishes": "Tüm yemekleri görüntüle",
     "recall": "Geri çağır",
-    "ready": "Hazır"
+    "ready": "Hazır",
+    "reprint": "Yeniden yazdır"
   },
   "labels": {
     "avgTime": "Ort. süre: {{time}}",

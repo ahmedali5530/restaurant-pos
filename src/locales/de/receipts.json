@@ -35,6 +35,7 @@
   "kot": "KOT",
   "newOrder": "Neue Bestellung",
   "addon": "ZUSATZ",
+  "duplicateKot": "DUPLIKAT",
   "deletion": "LÖSCHUNG",
   "orderNumber": "Bestellung#",
   "orderTaker": "Aufnehmer",

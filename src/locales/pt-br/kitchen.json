@@ -4,7 +4,8 @@
     "completedOrders": "Pedidos Concluídos",
     "viewAllDishes": "Ver todos os pratos",
     "recall": "Reconvocar",
-    "ready": "Pronto"
+    "ready": "Pronto",
+    "reprint": "Reimprimir"
   },
   "labels": {
     "avgTime": "Tempo médio: {{time}}",

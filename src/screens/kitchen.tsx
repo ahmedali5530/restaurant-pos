@@ -374,7 +374,7 @@ export const KitchenScreen = () => {
             <div className="flex-1 rounded-xl flex gap-3 flex-row">
               {orders.map((item, index) => (
                 <div className="w-[400px] flex-shrink-0" key={index}>
-                  <KitchenOrder order={item}/>
+                  <KitchenOrder order={item} kitchen={kitchen}/>
                 </div>
               ))}
             </div>

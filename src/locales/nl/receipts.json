@@ -35,6 +35,7 @@
   "kot": "KOT",
   "newOrder": "Nieuwe bestelling",
   "addon": "TOEVOEGING",
+  "duplicateKot": "DUPLICAAT",
   "deletion": "VERWIJDERING",
   "orderNumber": "Bestelling#",
   "orderTaker": "Opnemer",

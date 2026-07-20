@@ -4,7 +4,8 @@
     "completedOrders": "Abgeschlossene Bestellungen",
     "viewAllDishes": "Alle Gerichte anzeigen",
     "recall": "Zurückrufen",
-    "ready": "Fertig"
+    "ready": "Fertig",
+    "reprint": "Neu drucken"
   },
   "labels": {
     "avgTime": "Ø Zeit: {{time}}",
