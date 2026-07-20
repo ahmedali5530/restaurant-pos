@@ -1,8 +1,15 @@
 -- Location stock SoT cutover
--- SurrealDB 3.x — apply via:
---   ./migrations/scripts/apply-migration.sh migrations/2026_07_18_location_stock_cutover.surql
--- Then run data remap:
---   ./migrations/scripts/run-backfill-location-refs.sh
+-- SurrealDB 3.x — apply WITHOUT the .sh helper (production / Docker):
+--
+--   NODE_PATH=./payments/node_modules \
+--   SURREAL_URL=ws://YOUR_SURREAL_HOST:8000/rpc \
+--   SURREAL_NS=posr SURREAL_DB=posr SURREAL_USER=root SURREAL_PASS=root \
+--   node migrations/scripts/apply-migration.cjs migrations/2026_07_18_location_stock_cutover.surql
+--
+-- Then data remap (same env):
+--   node migrations/scripts/backfill-location-refs.cjs
+--
+-- Local docker-compose still works with apply-migration.sh if you prefer.
 
 -- Ensure location table fields exist
 DEFINE TABLE IF NOT EXISTS inventory_location TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;

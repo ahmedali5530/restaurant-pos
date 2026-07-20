@@ -3,10 +3,14 @@
 /**
  * Remap inventory_store refs → inventory_location refs (ledger + documents).
  *
- * Prerequisite: apply migrations/2026_07_18_location_stock_cutover.surql
+ * Prerequisite: apply migrations/2026_07_18_location_stock_cutover.surql first
+ *   (node migrations/scripts/apply-migration.cjs … — see that file for Docker usage).
  *
- * Usage:
- *   ./migrations/scripts/run-backfill-location-refs.sh
+ * Usage (no .sh — set SURREAL_* to the production DB):
+ *   NODE_PATH=./payments/node_modules \
+ *   SURREAL_URL=ws://YOUR_SURREAL_HOST:8000/rpc \
+ *   SURREAL_NS=posr SURREAL_DB=posr SURREAL_USER=root SURREAL_PASS=root \
+ *   node migrations/scripts/backfill-location-refs.cjs
  *
  * Env:
  *   DRY_RUN=1 — count only

@@ -30,6 +30,10 @@ import { assertCanVoid } from "@/lib/inventory/dependency-validator.ts";
 import { fetchInventorySettings } from "@/lib/inventory/settings.ts";
 import { allocatePurchaseCosts } from "@/lib/inventory/purchase-cost/allocate.ts";
 import type { LineAllocationResult } from "@/lib/inventory/purchase-cost/types.ts";
+import {
+  resolveStockLocationId,
+  toLocationRecordId,
+} from "@/lib/inventory/location.service.ts";
 
 type DatabaseClient = ReturnType<typeof useDB>;
 
@@ -80,7 +84,9 @@ const buildLedgerCreateStatements = (
     const params: Record<string, unknown> = {
       [`${p}business_date`]: entry.business_date,
       [`${p}inventory_item`]: toRecordId(entry.inventory_item),
-      [`${p}inventory_location`]: toRecordId(entry.inventory_location),
+      [`${p}inventory_location`]: toLocationRecordId(
+        recordIdToString(entry.inventory_location) || String(entry.inventory_location)
+      ),
       [`${p}quantity_change`]: entry.quantity_change,
       [`${p}reference_type`]: entry.reference_type,
       [`${p}reference_id`]: entry.reference_id,
@@ -337,10 +343,11 @@ export const postDocument = async (
   if (strategy.requiresAvailabilityCheck && strategy.getAvailabilityLines) {
     const lines = strategy.getAvailabilityLines(items);
     for (const line of lines) {
+      const locationId = await resolveStockLocationId(input.db, line.locationId);
       const available = await fetchNetQuantity(
         input.db,
         line.itemId,
-        line.locationId
+        locationId
       );
       if (line.quantity > available) {
         throw new InventoryPostingError(
@@ -411,6 +418,27 @@ export const postDocument = async (
   const entries = strategy.buildEntries(doc, itemsForPosting, input.userId);
   if (!entries.length) {
     throw new InventoryPostingError("No ledger entries generated from document lines");
+  }
+
+  // Coerce store/kitchen ids → inventory_location (SCHEMAFULL rejects store records).
+  for (const entry of entries) {
+    if (!entry.inventory_location) {
+      throw new InventoryPostingError(
+        "Purchase/issue line is missing a location — pick a location and save again"
+      );
+    }
+    try {
+      entry.inventory_location = await resolveStockLocationId(
+        input.db,
+        entry.inventory_location
+      );
+    } catch (error) {
+      throw new InventoryPostingError(
+        `Could not resolve stock location "${entry.inventory_location}": ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
   }
 
   // Prefer allocation totals for ledger total_cost (avoids per-unit rounding drift)

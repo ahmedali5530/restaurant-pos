@@ -37,5 +37,13 @@ export const withTransaction = async <R extends unknown[] = any[]>(
 
   parts.push("COMMIT TRANSACTION;");
 
-  return db.query<R>(parts.join("\n"), bindings);
+  try {
+    return await db.query<R>(parts.join("\n"), bindings);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    // Surreal often only says "failed transaction" — include statement count for debugging
+    throw new Error(
+      `Inventory transaction failed (${statements.length} statements): ${message}`
+    );
+  }
 };

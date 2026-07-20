@@ -11,6 +11,16 @@ export const APP_VERSION = '1.0.1';
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    version: '1.0.1',
+    date: '2026-07-20',
+    title: 'Inventory location posting',
+    items: [
+      'Fixed inventory posting when purchases or issues still reference stores or kitchens — they now resolve to stock locations.',
+      'Clearer errors when a document line is missing a location or an inventory transaction fails.',
+      'Fixed purchase extras field schema for landed cost and other purchase metadata.',
+    ],
+  },
+  {
     version: '1.0.0',
     date: '2026-07-19',
     title: 'Welcome to POSR',

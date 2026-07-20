@@ -21,11 +21,89 @@ const onlyRow = <T = any>(result: unknown): T | undefined => {
   return first as T | undefined;
 };
 
-/** Normalize any id into an inventory_location record id. */
+/** Normalize an inventory_location id (never pass inventory_store ids here). */
 export const toLocationRecordId = (locationId: string) => {
   const key = recordIdToString(locationId) || String(locationId);
-  const normalized = key.includes(":") ? key : `${Tables.inventory_locations}:${key}`;
-  return toRecordId(normalized);
+  const colon = key.lastIndexOf(":");
+  const table = colon >= 0 ? key.slice(0, colon) : "";
+  const idPart = colon >= 0 ? key.slice(colon + 1) : key;
+
+  if (
+    table === Tables.inventory_stores ||
+    table === "inventory_store" ||
+    table === Tables.kitchens ||
+    table === "kitchen"
+  ) {
+    throw new Error(
+      `toLocationRecordId received ${table} id "${key}" — use resolveStockLocationId first`
+    );
+  }
+
+  return toRecordId(`${Tables.inventory_locations}:${idPart}`);
+};
+
+/**
+ * Coerce a store / kitchen / location id into a real inventory_location id.
+ * Needed because purchase lines may still carry inventory_store refs (legacy /
+ * unmigrated), and SCHEMAFULL ledger rejects those as inventory_location.
+ */
+export const resolveStockLocationId = async (
+  db: DatabaseClient,
+  rawId: string
+): Promise<string> => {
+  const key = recordIdToString(rawId) || String(rawId);
+  if (!key) {
+    throw new Error("Stock location id is required");
+  }
+
+  const colon = key.lastIndexOf(":");
+  const table = colon >= 0 ? key.slice(0, colon) : "";
+  const idPart = colon >= 0 ? key.slice(colon + 1) : key;
+
+  if (
+    table === Tables.inventory_locations ||
+    table === "inventory_location" ||
+    table === ""
+  ) {
+    const asLocation = onlyRow(
+      await db.query(`SELECT id FROM ONLY $id`, {
+        id: toRecordId(`${Tables.inventory_locations}:${idPart}`),
+      })
+    );
+    if (asLocation?.id) {
+      return (
+        recordIdToString(asLocation.id) ||
+        `${Tables.inventory_locations}:${idPart}`
+      );
+    }
+    // Bare / unknown location key — try ensure from store with same key
+    return ensureLocationForStore(db, `${Tables.inventory_stores}:${idPart}`);
+  }
+
+  if (table === Tables.inventory_stores || table === "inventory_store") {
+    return ensureLocationForStore(db, key);
+  }
+
+  if (table === Tables.kitchens || table === "kitchen") {
+    return ensureLocationForKitchen(db, key);
+  }
+
+  // Unknown table prefix — try linked_store lookup, else ensure as store
+  const byLinked = onlyRow<{ id?: unknown }>(
+    await db.query(
+      `SELECT id FROM ${Tables.inventory_locations} WHERE linked_store = $store LIMIT 1`,
+      {
+        store: toRecordId(
+          key.includes(":") ? key : `${Tables.inventory_stores}:${key}`
+        ),
+      }
+    )
+  );
+  if (byLinked?.id) {
+    return recordIdToString(byLinked.id) || String(byLinked.id);
+  }
+
+  return ensureLocationForStore(db, key);
 };
 
 export type LocationInput = {
