@@ -115,5 +115,8 @@
     "description": "La página que buscas no existe o ha sido movida.",
     "backToMenu": "Volver al menú"
   },
+  "documentTitle": {
+    "app": "TPV Restaurante"
+  },
   "loading": "Cargando..."
 }

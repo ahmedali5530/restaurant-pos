@@ -14,6 +14,7 @@ import { useSecurity } from '@/hooks/useSecurity.ts';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { AvailableProviderEntry } from '@/integrations/core/integration-manager.ts';
+import { DocumentTitle } from '@/components/common/document-title.tsx';
 
 const INTEGRATION_TAB_MODULES: Record<string, string> = {
   providers: 'Integration providers',
@@ -24,6 +25,7 @@ const INTEGRATION_TAB_MODULES: Record<string, string> = {
 
 export const IntegrationsScreen = () => {
   const { t } = useTranslation('integrations');
+  const { t: tNav } = useTranslation('navigation');
   const { manager, initialized, providers: availableProviders, setProviderEnabled } = useIntegrationManager();
   const { protectAction } = useSecurity();
 
@@ -101,6 +103,7 @@ export const IntegrationsScreen = () => {
 
   return (
     <Layout>
+      <DocumentTitle parts={[pages[selected as keyof typeof pages]?.title, tNav('sidebar.integrations')]} />
       <Tabs
         className="w-full flex flex-col rounded-xl"
         selectedKey={selected}

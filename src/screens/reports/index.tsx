@@ -50,6 +50,7 @@ import {LaborOvertimeFilter} from "@/components/reports/filters/labor.overtime.f
 import {LaborAttendanceFilter} from "@/components/reports/filters/labor.attendance.filter.tsx";
 import {LaborPayrollSummaryFilter} from "@/components/reports/filters/labor.payroll.summary.filter.tsx";
 import {LaborScheduledVsActualFilter} from "@/components/reports/filters/labor.scheduled.vs.actual.filter.tsx";
+import {DocumentTitle} from "@/components/common/document-title.tsx";
 
 type ReportEntry = {
   filter: ReactNode;
@@ -116,6 +117,7 @@ const buildReportEntries = (
 
 export const Reports = () => {
   const { t } = useTranslation('reports');
+  const { t: tNav } = useTranslation('navigation');
   const reportCategories = useMemo(() => {
     return {
       [t('categories.ai')]: buildReportEntries(t, [
@@ -190,6 +192,7 @@ export const Reports = () => {
 
   return (
     <Layout containerClassName="p-5">
+      <DocumentTitle parts={[tNav('sidebar.reports')]} />
       <div className="grid grid-cols-9 gap-5">
         <div className="col-span-2">
           <div className="bg-white shadow py-5 rounded-lg">

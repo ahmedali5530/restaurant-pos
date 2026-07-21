@@ -115,5 +115,8 @@
     "description": "La pagina che stai cercando non esiste o è stata spostata.",
     "backToMenu": "Torna al menu"
   },
+  "documentTitle": {
+    "app": "POS Ristorante"
+  },
   "loading": "Caricamento..."
 }

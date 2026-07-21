@@ -115,5 +115,8 @@
     "description": "Aradığınız sayfa mevcut değil veya taşınmış.",
     "backToMenu": "Menüye dön"
   },
+  "documentTitle": {
+    "app": "Restoran POS"
+  },
   "loading": "Yükleniyor..."
 }

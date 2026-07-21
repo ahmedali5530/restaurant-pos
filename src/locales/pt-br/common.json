@@ -115,5 +115,8 @@
     "description": "A página que você procura não existe ou foi movida.",
     "backToMenu": "Voltar ao menu"
   },
+  "documentTitle": {
+    "app": "PDV Restaurante"
+  },
   "loading": "Carregando..."
 }

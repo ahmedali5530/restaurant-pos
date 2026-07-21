@@ -16,6 +16,7 @@ import {
 } from "@/lib/export.document.ts";
 import * as XLSX from "xlsx";
 import { DateTime } from "luxon";
+import { DocumentTitle } from "@/components/common/document-title.tsx";
 
 export interface ReportsLayoutProps {
   /** Report title */
@@ -66,6 +67,7 @@ export const ReportsLayout = ({
   className,
 }: ReportsLayoutProps) => {
   const { t } = useTranslation('reports');
+  const { t: tNav } = useTranslation('navigation');
   const reportRef = useRef<HTMLDivElement>(null);
   const [generatedAt] = useState(DateTime.now().toFormat(import.meta.env.VITE_DATE_TIME_FORMAT));
 
@@ -137,6 +139,7 @@ export const ReportsLayout = ({
 
   return (
     <div className={cn("flex flex-col h-full", className)}>
+      <DocumentTitle parts={[title, tNav('sidebar.reports')]} />
       {/* Action Buttons */}
       <div className="flex items-center justify-between gap-3 p-4 bg-white shadow-sm border-b print:hidden">
         <div className="flex items-center gap-2">

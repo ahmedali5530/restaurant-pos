@@ -15,6 +15,7 @@ import {ProfitLoss} from "@/components/accounts/profit.loss.tsx";
 import {CashFlow} from "@/components/accounts/cash.flow.tsx";
 import {CustomerStatement} from "@/components/accounts/customer.statement.tsx";
 import {SupplierStatement} from "@/components/accounts/supplier.statement.tsx";
+import {DocumentTitle} from "@/components/common/document-title.tsx";
 
 /** Stable permission codes stored in user roles — not translated labels. */
 const ACCOUNTS_TAB_MODULES: Record<string, string> = {
@@ -32,6 +33,7 @@ const ACCOUNTS_TAB_MODULES: Record<string, string> = {
 
 export const AccountsScreen = () => {
   const {t} = useTranslation('accounts');
+  const {t: tNav} = useTranslation('navigation');
   const [selected, setSelected] = useState('chart-of-accounts');
   const {protectAction} = useSecurity();
 
@@ -50,6 +52,7 @@ export const AccountsScreen = () => {
 
   return (
     <Layout containerClassName="">
+      <DocumentTitle parts={[pages[selected]?.title, tNav('sidebar.accounts')]} />
       <Tabs
         className="w-full flex flex-col rounded-xl"
         selectedKey={selected}

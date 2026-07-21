@@ -115,5 +115,8 @@
     "description": "La page que vous recherchez n'existe pas ou a été déplacée.",
     "backToMenu": "Retour au menu"
   },
+  "documentTitle": {
+    "app": "Caisse restaurant"
+  },
   "loading": "Chargement..."
 }

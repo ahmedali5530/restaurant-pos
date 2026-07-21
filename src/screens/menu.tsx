@@ -14,8 +14,11 @@ import {toRecordId} from "@/lib/utils.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order, OrderStatus} from "@/api/model/order.ts";
 import 'swiper/css';
+import {useTranslation} from "react-i18next";
+import {DocumentTitle} from "@/components/common/document-title.tsx";
 
 export const Menu = () => {
+  const {t: tNav} = useTranslation('navigation');
   const [state, setState] = useAtom(appState);
   const [settings, setSettings] = useAtom(appSettings);
   const [enforcement] = useAtom(closingEnforcementAtom);
@@ -212,6 +215,7 @@ export const Menu = () => {
       containerClassName={isMenuOrderingScreen ? "overflow-hidden" : undefined}
       showSidebar={state.showFloor === true || state.showPersons === true || hideTableSelection}
     >
+      <DocumentTitle parts={[tNav('sidebar.menu')]} />
       {screen}
     </Layout>
   );

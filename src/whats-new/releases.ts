@@ -6,10 +6,18 @@ export interface ReleaseNotes {
 }
 
 /** Bump this string on every release. */
-export const APP_VERSION = '1.0.2';
+export const APP_VERSION = '1.0.3';
 
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
+  {
+    version: '1.0.3',
+    date: '2026-07-21',
+    title: 'Browser tab titles',
+    items: [
+      'Browser tabs now show the current screen and sub-screen name (e.g. Purchases | Inventory).',
+    ],
+  },
   {
     version: '1.0.2',
     date: '2026-07-21',

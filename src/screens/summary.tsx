@@ -25,6 +25,7 @@ import ScrollContainer from "react-indiana-drag-scroll";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 import {useTranslation} from "react-i18next";
+import {DocumentTitle} from "@/components/common/document-title.tsx";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -70,6 +71,7 @@ const formatDuration = (ms: number): string => {
 
 export const Summary = () => {
   const {t} = useTranslation(["summary", "toast"]);
+  const {t: tNav} = useTranslation('navigation');
   const db = useDB();
   const [page] = useAtom(appPage);
   const {protectAction} = useSecurity();
@@ -303,6 +305,7 @@ export const Summary = () => {
 
   return (
     <Layout overflowHidden>
+      <DocumentTitle parts={[tNav('sidebar.summary')]} />
       <div className="flex gap-5 p-3 flex-col">
         <div className="bg-white rounded-xl flex gap-10 justify-center px-5">
           <div className="flex justify-center items-center flex-col flex-1">

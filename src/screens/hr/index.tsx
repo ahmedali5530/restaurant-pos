@@ -21,6 +21,7 @@ import {HrPayrollRuns} from "@/components/hr/payroll_runs/index.tsx";
 import {HrAdjustments} from "@/components/hr/adjustments/index.tsx";
 import {HrDocuments} from "@/components/hr/documents/index.tsx";
 import {HrPerformance} from "@/components/hr/performance/index.tsx";
+import {DocumentTitle} from "@/components/common/document-title.tsx";
 
 /** Stable permission codes stored in user roles — not translated labels. */
 export const HR_TAB_MODULES: Record<string, string> = {
@@ -44,6 +45,7 @@ export const HR_TAB_MODULES: Record<string, string> = {
 
 export const HrScreen = () => {
   const {t} = useTranslation("hr");
+  const {t: tNav} = useTranslation("navigation");
   const [selected, setSelected] = useState("dashboard");
   const {protectAction} = useSecurity();
 
@@ -68,6 +70,7 @@ export const HrScreen = () => {
 
   return (
     <Layout containerClassName="">
+      <DocumentTitle parts={[pages[selected]?.title, tNav("sidebar.hr")]} />
       <Tabs
         className="w-full flex flex-col rounded-xl"
         selectedKey={selected}
