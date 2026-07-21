@@ -1,5 +1,5 @@
 import {useEffect, useMemo, useState} from "react";
-import {useForm} from "react-hook-form";
+import {Controller, useForm} from "react-hook-form";
 import {useTranslation} from "react-i18next";
 import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
@@ -262,7 +262,20 @@ export const ScheduleTemplateForm = ({open, onClose, data}: Props) => {
               </div>
             </div>
             <div>
-              <Input type="number" label={t("forms.scheduleTemplate.breakMinutes")} {...register("break_minutes", {valueAsNumber: true})}/>
+              <Controller
+                render={({field}) => (
+                  <Input
+                    type="number"
+                    label={t("forms.scheduleTemplate.breakMinutes")}
+                    onChange={field.onChange}
+                    value={field.value}
+                  />
+                )}
+                name="break_minutes"
+                rules={{valueAsNumber: true}}
+                control={control}
+              />
+
             </div>
             <HrCheckboxField
               label={t("forms.holiday.isActive")}

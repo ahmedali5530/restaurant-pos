@@ -61,7 +61,7 @@ export const HrScheduling = () => {
     ["name asc"],
     0,
     10,
-    ["shift_template", "department", "position"],
+    ["shift_template", "department", "position", "cost_center"],
   );
 
   const swapsHook = useApi<SettingsData<ShiftSwapRequest>>(
