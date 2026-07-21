@@ -15,27 +15,35 @@ import {InventorySettingsCard} from "@/components/user_settings/inventory_settin
 import {WhatsNewSettingsCard} from "@/components/user_settings/whats_new.tsx";
 import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
+import {PropsWithChildren} from "react";
+
+function MasonryItem({ children }: PropsWithChildren) {
+  return <div className="break-inside-avoid mb-5">{children}</div>;
+}
 
 export const Settings = () => {
   const {t: tNav} = useTranslation('navigation');
 
   return (
-    <Layout containerClassName="p-5 gap-5 grid lg:grid-cols-3 md:grid-cols-2">
+    <Layout containerClassName="p-5">
       <DocumentTitle parts={[tNav('sidebar.settings')]} />
-      <WhatsNewSettingsCard />
-      <CacheSettings />
-      <LanguageSettings />
-      <TranslateReceiptsSettingsCard />
-      <Printersettings />
-      <MenusSettings />
-      <ServiceChargesSettings />
-      <ClosingCycleSettingsCard />
-      <AutoCheckCloseSettingsCard />
-      <ShowInclusivePricesSettingsCard />
-      <TouchSettings />
-      <TableSelectionSettings />
-      <InventorySettingsCard />
-      <ItemsVisibilityConfig />
+      {/* Columns must not sit on the max-height Layout pane or content is clipped to the viewport. */}
+      <div className="columns-1 md:columns-2 lg:columns-3 gap-5">
+        <MasonryItem><WhatsNewSettingsCard /></MasonryItem>
+        <MasonryItem><CacheSettings /></MasonryItem>
+        <MasonryItem><LanguageSettings /></MasonryItem>
+        <MasonryItem><TranslateReceiptsSettingsCard /></MasonryItem>
+        <MasonryItem><Printersettings /></MasonryItem>
+        <MasonryItem><MenusSettings /></MasonryItem>
+        <MasonryItem><ServiceChargesSettings /></MasonryItem>
+        <MasonryItem><ClosingCycleSettingsCard /></MasonryItem>
+        <MasonryItem><AutoCheckCloseSettingsCard /></MasonryItem>
+        <MasonryItem><ShowInclusivePricesSettingsCard /></MasonryItem>
+        <MasonryItem><TouchSettings /></MasonryItem>
+        <MasonryItem><TableSelectionSettings /></MasonryItem>
+        <MasonryItem><InventorySettingsCard /></MasonryItem>
+        <MasonryItem><ItemsVisibilityConfig /></MasonryItem>
+      </div>
     </Layout>
   );
 }

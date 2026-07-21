@@ -6,10 +6,19 @@ export interface ReleaseNotes {
 }
 
 /** Bump this string on every release. */
-export const APP_VERSION = '1.0.3';
+export const APP_VERSION = '1.0.4';
 
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
+  {
+    version: '1.0.4',
+    date: '2026-07-21',
+    title: 'System printers for shared terminals',
+    items: [
+      'Settings → Printers: assign system printers on this browser/terminal and switch to use them instead of per-user printers for temp, final, refund, and summary.',
+      'Delivery print still uses user or global settings so shared terminals do not override delivery routing.',
+    ],
+  },
   {
     version: '1.0.3',
     date: '2026-07-21',

@@ -1,5 +1,6 @@
 import React from "react";
 import { toast } from "sonner";
+import { getDefaultStore } from "jotai";
 import i18n from "@/lib/i18n.ts";
 import { Tables } from "@/api/db/tables.ts";
 import type { Printer } from "@/api/model/printer.ts";
@@ -7,6 +8,7 @@ import {RecordId, StringRecordId} from "surrealdb";
 import { fetchShowInclusivePricesEnabled } from "@/hooks/useShowInclusivePrices.ts";
 import { fetchTranslateReceiptsEnabled } from "@/hooks/useTranslateReceipts.ts";
 import { buildReceiptLabels } from "@/lib/receipt-labels.ts";
+import { systemPrinterSettings, type SystemPrinterSettings } from "@/store/jotai.ts";
 
 
 export const PRINT_EVENT = 'posr:print';
@@ -56,11 +58,22 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 const DEFAULT_PRINT_URL = 'http://localhost:3132';
 
 function toIdString(v: unknown): string {
+  if (v == null) return '';
   if (typeof v === 'string') return v;
-  const o = v as { id?: string; toString?: () => string };
+  const o = v as { id?: unknown; tb?: string; toString?: () => string };
+  if (typeof o?.toString === 'function') {
+    const s = o.toString();
+    if (typeof s === 'string' && s !== '[object Object]') return s;
+  }
+  if (typeof o?.tb === 'string' && o?.id != null) return `${o.tb}:${String(o.id)}`;
   if (o?.id != null) return String(o.id);
-  if (typeof o?.toString === 'function') return o.toString();
   return String(v);
+}
+
+function toPrinterQueryId(id: unknown): StringRecordId {
+  const s = toIdString(id);
+  if (s.includes(':')) return new StringRecordId(s);
+  return new StringRecordId(`${Tables.printers}:${s}`);
 }
 
 function logoToBase64(logo: unknown): string | undefined {
@@ -161,9 +174,46 @@ async function enrichOrderForPrint(db: PrintDB, order: Record<string, unknown>):
   }
 }
 
+async function loadPrintersByIds(db: PrintDB, ids: unknown[]): Promise<Printer[]> {
+  if (ids.length === 0) return [];
+  const queryIds = ids.map((id) => toPrinterQueryId(id));
+  const [printerRes] = await db.query(
+    `SELECT * FROM ${Tables.printers} WHERE id IN $ids AND deleted_at = none`,
+    { ids: queryIds }
+  );
+  const printerRows = (Array.isArray(printerRes) ? printerRes : []) as Printer[];
+  const idStrings = ids.map((v) => toIdString(v));
+  const keyOf = (s: string) => (s.includes(':') ? s.slice(s.indexOf(':') + 1) : s);
+  return printerRows.sort((a, b) => {
+    const ai = idStrings.findIndex((id) => keyOf(id) === keyOf(a.id.toString()) || id === a.id.toString());
+    const bi = idStrings.findIndex((id) => keyOf(id) === keyOf(b.id.toString()) || id === b.id.toString());
+    return ai - bi;
+  });
+}
+
+const SYSTEM_PRINTER_KEYS: (keyof Omit<SystemPrinterSettings, 'useSystemPrinters'>)[] = [
+  'temp_print_printers',
+  'final_print_printers',
+  'refund_print_printers',
+  'summary_print_printers',
+];
+
+function isSystemPrinterKey(key: string): key is keyof Omit<SystemPrinterSettings, 'useSystemPrinters'> {
+  return (SYSTEM_PRINTER_KEYS as string[]).includes(key);
+}
+
 export async function getPrintersForType(db: PrintDB, template: string, userId?: string | null): Promise<Printer[]> {
   const key = PRINTER_SETTING_KEYS[template];
   if (!key) return [];
+
+  // Delivery always uses user/global DB settings (not terminal-scoped).
+  if (template !== 'delivery' && isSystemPrinterKey(key)) {
+    const system = getDefaultStore().get(systemPrinterSettings);
+    if (system.useSystemPrinters) {
+      const ids = Array.isArray(system[key]) ? system[key] : [];
+      return loadPrintersByIds(db, ids);
+    }
+  }
 
   let row: { values?: unknown[] } | undefined;
   const uid = userId != null && userId !== '' ? new StringRecordId(toIdString(userId)) : null;
@@ -188,14 +238,7 @@ export async function getPrintersForType(db: PrintDB, template: string, userId?:
   const ids = Array.isArray(row?.values)
     ? row.values.map((v) => v as any)
     : [];
-  if (ids.length === 0) return [];
-
-  const [printerRes] = await db.query(
-    `SELECT * FROM ${Tables.printers} WHERE id IN $ids AND deleted_at = none`,
-    { ids }
-  );
-  const printerRows = (Array.isArray(printerRes) ? printerRes : []) as Printer[];
-  return printerRows.sort((a, b) => ids.indexOf(a.id.toString()) - ids.indexOf(b.id.toString()));
+  return loadPrintersByIds(db, ids);
 }
 
 // Simple in-memory registry for print templates

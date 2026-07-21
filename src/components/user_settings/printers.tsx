@@ -8,8 +8,9 @@ import { Tables } from "@/api/db/tables.ts";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { Printer } from "@/api/model/printer.ts";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
+import { Switch } from "@/components/common/input/switch.tsx";
 import { toast } from "sonner";
-import { appPage } from "@/store/jotai.ts";
+import { appPage, systemPrinterSettings, type SystemPrinterSettings } from "@/store/jotai.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {useTranslation} from 'react-i18next';
@@ -21,6 +22,15 @@ const PRINTER_SETTING_KEYS = {
   delivery_print_printers: "delivery_print_printers",
   summary_print_printers: "summary_print_printers",
 } as const;
+
+const SYSTEM_PRINTER_KEYS = [
+  "temp_print_printers",
+  "final_print_printers",
+  "refund_print_printers",
+  "summary_print_printers",
+] as const;
+
+type SystemPrinterKey = (typeof SYSTEM_PRINTER_KEYS)[number];
 
 type PrinterOption = { label: string; value: string };
 
@@ -40,15 +50,8 @@ const defaultFormValues: PrinterSettingsForm = {
   summary_print_printers: [],
 };
 
+/** Normalize record ids to "table:id" strings (never bare RecordId.id alone). */
 function toIdString(v: unknown): string {
-  if (typeof v === "string") return v;
-  if (v != null && typeof (v as { id?: string }).id === "string") return (v as { id: string }).id;
-  if (v != null && typeof (v as { toString?: () => string }).toString === "function") return (v as { toString: () => string }).toString();
-  return String(v);
-}
-
-/** Convert a record id / link (from DB or app) to a plain string for comparison. */
-function recordIdToCompareString(v: unknown): string {
   if (v == null) return "";
   if (typeof v === "string") return v;
   const o = v as Record<string, unknown>;
@@ -56,9 +59,14 @@ function recordIdToCompareString(v: unknown): string {
     const s = o.toString();
     if (typeof s === "string" && s !== "[object Object]") return s;
   }
+  if (typeof o?.tb === "string" && o?.id != null) return `${o.tb}:${String(o.id)}`;
   if (o?.id != null) return String(o.id);
-  if (typeof o?.tb === "string" && o?.id != null) return `${o.tb}:${o.id}`;
   return String(v);
+}
+
+/** Convert a record id / link (from DB or app) to a plain string for comparison. */
+function recordIdToCompareString(v: unknown): string {
+  return toIdString(v);
 }
 
 function getQueryRows<T = unknown>(raw: unknown): T[] {
@@ -67,9 +75,27 @@ function getQueryRows<T = unknown>(raw: unknown): T[] {
   return [];
 }
 
+function idsMatch(a: string, b: string): boolean {
+  if (a === b) return true;
+  const aKey = a.includes(":") ? a.slice(a.indexOf(":") + 1) : a;
+  const bKey = b.includes(":") ? b.slice(b.indexOf(":") + 1) : b;
+  return aKey !== "" && aKey === bKey;
+}
+
+function idsToOptions(ids: string[], printers: Printer[]): PrinterOption[] {
+  return ids
+    .map((id) => {
+      const idStr = toIdString(id);
+      const p = printers.find((x) => idsMatch(toIdString(x.id), idStr));
+      return p ? { label: p.name, value: toIdString(p.id) } : { label: idStr, value: idStr };
+    })
+    .filter((o) => o.value);
+}
+
 export const Printersettings = () => {
   const db = useDB();
   const [page] = useAtom(appPage);
+  const [systemSettings, setSystemSettings] = useAtom(systemPrinterSettings);
   const [loading, setLoading] = useState(true);
   const userId = page?.user?.id != null ? toIdString(page.user.id) : null;
   const {protectFormSubmit} = useSecurity();
@@ -106,16 +132,9 @@ export const Printersettings = () => {
           const row = userRow ?? globalRow;
           const values = row?.values;
           const ids: string[] = Array.isArray(values)
-            ? values.map((v: unknown) => v.toString())
+            ? values.map((v: unknown) => toIdString(v))
             : [];
-          const options: PrinterOption[] = ids
-            .map((id) => {
-              const p = printers.find((x) => x.id.toString() === id);
-              return p ? { label: p.name, value: p.id } : { label: id, value: id };
-            })
-            .filter((o) => o.value);
-
-          loaded[key as keyof PrinterSettingsForm] = options;
+          loaded[key as keyof PrinterSettingsForm] = idsToOptions(ids, printers);
         }
 
         reset({
@@ -133,6 +152,26 @@ export const Printersettings = () => {
     load();
   }, [printers.length, userId]);
 
+  // Upgrade bare system printer ids (e.g. "abc") to full "printer:abc" once printers load.
+  useEffect(() => {
+    if (!printers.length) return;
+    setSystemSettings((prev) => {
+      let changed = false;
+      const next = { ...prev };
+      for (const key of SYSTEM_PRINTER_KEYS) {
+        const normalized = (prev[key] ?? []).map((id) => {
+          const full = toIdString(
+            printers.find((x) => idsMatch(toIdString(x.id), toIdString(id)))?.id ?? id
+          );
+          if (full !== id) changed = true;
+          return full;
+        });
+        next[key] = normalized;
+      }
+      return changed ? next : prev;
+    });
+  }, [printers.length]);
+
   const onSubmit = async (values: PrinterSettingsForm) => {
     if (!userId) {
       toast.error(t('settings:printers.loginRequired'));
@@ -144,7 +183,7 @@ export const Printersettings = () => {
       for (const formKey of keys) {
         const key = PRINTER_SETTING_KEYS[formKey];
         const options = values[formKey];
-        const value = Array.isArray(options) ? options.map((o) => o.value) : [];
+        const value = Array.isArray(options) ? options.map((o) => toIdString(o.value)) : [];
 
         const [raw] = await db.query(
           `SELECT * FROM ${Tables.settings} WHERE key = $key`,
@@ -154,7 +193,6 @@ export const Printersettings = () => {
         const existing = rows.find((r) => (r?.user?.toString()) === recordIdToCompareString(userId.toString()));
 
         if (existing?.id) {
-          console.log(value)
           await db.merge(toRecordId(existing.id), { values: value });
         } else {
           await db.create(Tables.settings, {
@@ -174,14 +212,72 @@ export const Printersettings = () => {
 
   const printerOptions = printers.map((p) => ({
     label: p.name,
-    value: p.id,
+    value: toIdString(p.id),
   }));
+
+  const updateSystemPrinters = (key: SystemPrinterKey, options: readonly PrinterOption[] | null) => {
+    const ids = Array.isArray(options) ? options.map((o) => toIdString(o.value)) : [];
+    setSystemSettings((prev: SystemPrinterSettings) => ({
+      ...prev,
+      [key]: ids,
+    }));
+  };
+
+  const systemFieldLabels: Record<SystemPrinterKey, string> = {
+    temp_print_printers: t('settings:printers.tempPrint'),
+    final_print_printers: t('settings:printers.finalPrint'),
+    refund_print_printers: t('settings:printers.refundPrint'),
+    summary_print_printers: t('settings:printers.summaryPrint'),
+  };
 
   return (
     <div className="shadow p-5 rounded-xl bg-white">
       <h2 className="text-xl font-semibold mb-1">{t('settings:printers.title')}</h2>
       <p className="text-sm text-neutral-500 mb-4">
         {t('settings:printers.description')}
+      </p>
+
+      <div className="mb-6 pb-4 border-b border-neutral-200">
+        <Switch
+          checked={!!systemSettings.useSystemPrinters}
+          onChange={(e) => {
+            setSystemSettings((prev) => ({
+              ...prev,
+              useSystemPrinters: e.target.checked,
+            }));
+          }}
+        >
+          {t('settings:printers.useSystemPrinters')}
+        </Switch>
+        <p className="text-sm text-neutral-500 mt-2">
+          {t('settings:printers.useSystemPrintersDescription')}
+        </p>
+      </div>
+
+      <div className="mb-6 pb-4 border-b border-neutral-200">
+        <h3 className="text-lg font-medium mb-1">{t('settings:printers.systemTitle')}</h3>
+        <p className="text-sm text-neutral-500 mb-4">
+          {t('settings:printers.systemDescription')}
+        </p>
+        <div className="flex flex-col gap-4 max-w-xl">
+          {SYSTEM_PRINTER_KEYS.map((key) => (
+            <div key={key}>
+              <label className="block text-sm font-medium mb-1">{systemFieldLabels[key]}</label>
+              <ReactSelect<PrinterOption, true>
+                isMulti
+                value={idsToOptions(systemSettings[key] ?? [], printers)}
+                onChange={(opts) => updateSystemPrinters(key, opts)}
+                options={printerOptions}
+                placeholder={t('settings:printers.selectPrinters')}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <h3 className="text-lg font-medium mb-1">{t('settings:printers.userTitle')}</h3>
+      <p className="text-sm text-neutral-500 mb-4">
+        {t('settings:printers.userDescription')}
       </p>
 
       {loading ? (

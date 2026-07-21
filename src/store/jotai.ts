@@ -123,6 +123,30 @@ export const appPage = atomWithStorage<AppPageInterface>(
 /** Increment / set true from Settings to force-open the What's New dialog. */
 export const whatsNewOpenRequest = atom(false);
 
+/** Terminal-scoped printer routing (this browser). Delivery stays user/global DB. */
+export interface SystemPrinterSettings {
+  useSystemPrinters: boolean
+  temp_print_printers: string[]
+  final_print_printers: string[]
+  refund_print_printers: string[]
+  summary_print_printers: string[]
+}
+
+export const defaultSystemPrinterSettings: SystemPrinterSettings = {
+  useSystemPrinters: false,
+  temp_print_printers: [],
+  final_print_printers: [],
+  refund_print_printers: [],
+  summary_print_printers: [],
+};
+
+export const systemPrinterSettings = atomWithStorage<SystemPrinterSettings>(
+  'system-printers',
+  defaultSystemPrinterSettings,
+  createJSONStorage<SystemPrinterSettings>(),
+  {getOnInit: true}
+);
+
 const appStorageStore = createStore('posr-react', 'jotai-storage')
 
 export const indexedDBStorage = {
