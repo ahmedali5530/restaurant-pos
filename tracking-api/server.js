@@ -5,19 +5,24 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const trackingRoutes = require('./src/routes/tracking.routes');
+const {
+  createSessionAuthMiddleware,
+  createCorsOriginDelegate,
+} = require('./src/session-auth.middleware');
 
 const app = express();
 const PORT = Number(process.env.TRACKING_PORT || 3138);
 const HOST = process.env.TRACKING_HOST || '0.0.0.0';
+const requireSession = createSessionAuthMiddleware();
 
-app.use(cors());
+app.use(cors({ origin: createCorsOriginDelegate() }));
 app.use(express.json({ limit: '2mb' }));
 
 app.get('/health', (req, res) => {
   res.json({ ok: true, service: 'posr-tracking-api' });
 });
 
-app.use('/tracking', trackingRoutes);
+app.use('/tracking', requireSession, trackingRoutes);
 
 app.use((err, req, res, next) => {
   // eslint-disable-next-line no-console

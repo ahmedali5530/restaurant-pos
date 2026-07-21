@@ -17,6 +17,17 @@ npm start
 
 Server listens on `http://localhost:3140` by default.
 
+## Authentication
+
+When `GATEWAY_AUTH_REQUIRED=true` (and `GATEWAY_JWT_SECRET` matches the auth
+gateway), all module routes (e.g. `/ai/*`) require:
+
+```
+Authorization: Bearer <pos_session JWT>
+```
+
+`/health` remains public. See [docs/security/GATEWAY.md](../docs/security/GATEWAY.md).
+
 From the project root:
 
 ```bash

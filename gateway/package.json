@@ -1,21 +1,17 @@
 {
-  "name": "posr-payment-server",
+  "name": "posr-gateway",
   "version": "1.0.0",
-  "license": "SEE LICENSE IN LICENSE",
-  "description": "POS payment gateway orchestration service",
+  "description": "Auth gateway + Surreal WebSocket relay for POSR",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js"
   },
   "dependencies": {
-    "@paypal/paypal-server-sdk": "^2.4.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jose": "^5.9.6",
-    "razorpay": "^2.9.6",
-    "stripe": "^22.2.1",
     "surrealdb": "^2.0.3",
     "ws": "^8.18.0"
   }

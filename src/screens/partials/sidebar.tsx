@@ -43,17 +43,31 @@ import { getUserModules } from "@/lib/access.rules.ts";
 import { useSecurity } from "@/hooks/useSecurity.ts";
 import ScrollContainer from "react-indiana-drag-scroll";
 import { useTranslation } from "react-i18next";
+import { useDatabase } from "@/hooks/useDatabase.ts";
+import { clearSessionTokens, gatewayLogout, isGatewayAuthEnabled } from "@/lib/session.ts";
 
 export const Sidebar = () => {
   const [page, setPage] = useAtom(appPage);
   const { t } = useTranslation('navigation');
+  const { close } = useDatabase();
 
   const pathInfo = location.pathname;
 
   const navigation = useNavigate();
   const { protectAction } = useSecurity();
 
-  const logout = () => {
+  const logout = async () => {
+    if (isGatewayAuthEnabled()) {
+      await gatewayLogout();
+      clearSessionTokens();
+      window.dispatchEvent(new Event('posr-session'));
+      try {
+        await close();
+      } catch {
+        // ignore
+      }
+    }
+
     setPage(prev => ({
       ...prev,
       page: 'Login',

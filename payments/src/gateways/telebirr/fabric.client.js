@@ -384,7 +384,7 @@ function parseNotification(body) {
 
 function verifyNotificationSignature(payload, publicKeyPem) {
   if (!publicKeyPem) {
-    return true;
+    return false;
   }
   const sign = payload?.sign;
   if (!sign) {

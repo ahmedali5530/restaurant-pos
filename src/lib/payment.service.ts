@@ -1,3 +1,5 @@
+import { authHeaders } from "@/lib/session.ts";
+
 export const PAYMENT_SERVER_URL =
   (import.meta.env.VITE_PAYMENT_SERVER_URL as string) || "http://localhost:3133";
 
@@ -76,10 +78,9 @@ async function requestJson<T>(
 ): Promise<T> {
   const res = await fetch(`${PAYMENT_SERVER_URL.replace(/\/$/, "")}${path}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
+    headers: authHeaders({
       ...(options?.idempotencyKey ? { "x-idempotency-key": options.idempotencyKey } : {}),
-    },
+    }),
     body: JSON.stringify(payload),
   });
 
@@ -145,7 +146,9 @@ export async function fetchWebhookPaymentResult(
 ): Promise<VerifyPaymentResponse | null> {
   const base = PAYMENT_CALLBACK_SERVER_URL.replace(/\/$/, "");
   const orderKey = normalizeOrderKeyForUrl(orderId);
-  const res = await fetch(`${base}/webhooks/${gateway}/${orderKey}`);
+  const res = await fetch(`${base}/webhooks/${gateway}/${orderKey}`, {
+    headers: authHeaders(),
+  });
 
   if (res.status === 404) {
     return null;

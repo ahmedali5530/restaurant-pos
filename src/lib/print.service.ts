@@ -1,6 +1,7 @@
 import React from "react";
 import { toast } from "sonner";
 import i18n from "@/lib/i18n.ts";
+import { authHeaders } from "@/lib/session.ts";
 import { Tables } from "@/api/db/tables.ts";
 import type { Printer } from "@/api/model/printer.ts";
 import {RecordId, StringRecordId} from "surrealdb";
@@ -269,7 +270,7 @@ export async function dispatchPrint<Payload = any>(
   try {
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders(),
       body: JSON.stringify(body),
     });
 

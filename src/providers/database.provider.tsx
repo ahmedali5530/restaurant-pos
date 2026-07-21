@@ -1,9 +1,27 @@
-import React, { createContext, useContext, useEffect, useMemo, useCallback, useState, ReactNode } from "react";
-import { useMutation } from "@tanstack/react-query";
+import React, { createContext, useEffect, useMemo, useCallback, useState, useRef, ReactNode } from "react";
 import { Surreal } from "surrealdb";
-import { DB_REST_DB, DB_REST_NS, DB_REST_PASS, DB_REST_USER, withApi } from "@/api/db/settings.ts";
+import {
+  DB_REST_API,
+  DB_REST_DB,
+  DB_REST_NS,
+  isGatewayAuthEnabled,
+  resolveDbAuthentication,
+  resolveDbWebsocketUrl,
+  withApi,
+} from "@/api/db/settings.ts";
+import { getSessionToken } from "@/lib/session.ts";
 import { PageLoader } from "@/components/common/loader/page-loader.tsx";
 import { useTranslation } from "react-i18next";
+
+const SESSION_EVENT = "posr-session";
+
+const dbEndpointLabel = () => {
+  const endpoint = withApi("") || DB_REST_API || "(missing VITE_DB_WEBDOCKET)";
+  if (typeof endpoint === "string" && /localhost|127\.0\.0\.1/.test(endpoint)) {
+    return `${endpoint} — note: localhost only works on the host running Surreal/gateway`;
+  }
+  return String(endpoint);
+};
 
 export interface DatabaseProviderState {
   /** The Surreal instance */
@@ -30,80 +48,161 @@ export interface DatabaseProviderProps {
   autoConnect?: boolean;
 }
 
-export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({ 
-  children, 
-  autoConnect = true 
+export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
+  children,
+  autoConnect = true,
 }) => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation("common");
   const [surrealInstance] = useState(() => new Surreal());
+  const gatewayMode = isGatewayAuthEnabled();
+  const [sessionReady, setSessionReady] = useState(() => !gatewayMode || Boolean(getSessionToken()));
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [error, setError] = useState<unknown>(null);
+  const connectInFlight = useRef<Promise<void> | null>(null);
+  const wasSessionReady = useRef(sessionReady);
 
-  // React Query mutation for connecting to Surreal
-  const {
-    mutateAsync: connectMutation,
-    isPending,
-    isSuccess,
-    isError,
-    error,
-    reset,
-  } = useMutation({
-    mutationFn: async () => {
-      console.log('Connecting to SurrealDB...');
-      await surrealInstance.connect(withApi(''), {
-        namespace: DB_REST_NS,
-        database: DB_REST_DB,
-        authentication: {
-          username: DB_REST_USER,
-          password: DB_REST_PASS,
-        }
-      });
-      // Wait for connection to be ready
-      await surrealInstance.ready;
-      console.log('Successfully connected to SurrealDB');
-    },
-  });
-
-  // Wrap mutateAsync in a stable callback
-  const connect = useCallback(async () => {
-    await connectMutation();
-  }, [connectMutation]);
-
-  // Wrap close() in a stable callback
-  const close = useCallback(async () => {
-    await surrealInstance.close();
-    reset();
-  }, [surrealInstance, reset]);
-
-  // Auto-connect on mount (if enabled) and cleanup on unmount
   useEffect(() => {
-    if (autoConnect) {
-      connect();
+    if (!gatewayMode) {
+      setSessionReady(true);
+      return;
+    }
+    const sync = () => setSessionReady(Boolean(getSessionToken()));
+    sync();
+    window.addEventListener(SESSION_EVENT, sync);
+    return () => window.removeEventListener(SESSION_EVENT, sync);
+  }, [gatewayMode]);
+
+  const connect = useCallback(async () => {
+    if (connectInFlight.current) {
+      return connectInFlight.current;
     }
 
-    return () => {
-      reset();
-      surrealInstance.close();
-    };
-  }, [autoConnect, connect, reset, surrealInstance]);
+    // Trust the live socket, not React state (StrictMode can desync them).
+    if (surrealInstance.isConnected) {
+      setIsConnected(true);
+      setIsError(false);
+      setError(null);
+      return;
+    }
 
-  // Memoize the context value
+    const pending = (async () => {
+      setIsConnecting(true);
+      setIsError(false);
+      setError(null);
+
+      try {
+        console.log("Connecting to SurrealDB...");
+        const endpoint = resolveDbWebsocketUrl();
+        const authentication = resolveDbAuthentication();
+
+        if (gatewayMode && !getSessionToken()) {
+          throw new Error("No POS session — login required");
+        }
+        if (gatewayMode && !authentication) {
+          throw new Error("No database token — login required");
+        }
+
+        await surrealInstance.connect(endpoint || withApi(""), {
+          namespace: DB_REST_NS,
+          database: DB_REST_DB,
+          ...(authentication ? { authentication } : {}),
+        });
+
+        if (!surrealInstance.isConnected) {
+          throw new Error("SurrealDB connect finished without an active connection");
+        }
+
+        console.log("Successfully connected to SurrealDB");
+        setIsConnected(true);
+      } catch (err) {
+        setIsConnected(false);
+        setIsError(true);
+        setError(err);
+        throw err;
+      } finally {
+        setIsConnecting(false);
+      }
+    })();
+
+    connectInFlight.current = pending;
+    try {
+      await pending;
+    } finally {
+      if (connectInFlight.current === pending) {
+        connectInFlight.current = null;
+      }
+    }
+  }, [gatewayMode, surrealInstance]);
+
+  const close = useCallback(async () => {
+    connectInFlight.current = null;
+    try {
+      await surrealInstance.close();
+    } catch {
+      // ignore
+    }
+    setIsConnected(false);
+    setIsConnecting(false);
+    setIsError(false);
+    setError(null);
+  }, [surrealInstance]);
+
+  // Auto-connect when session allows it.
+  // IMPORTANT: do not close the socket in this effect's cleanup — React StrictMode
+  // runs cleanup immediately in production too and would kill a healthy connection
+  // while React state still says isConnected=true.
+  useEffect(() => {
+    if (!autoConnect) {
+      return;
+    }
+    if (gatewayMode && !sessionReady) {
+      return;
+    }
+    void connect().catch(() => {
+      // surfaced via isError
+    });
+  }, [autoConnect, gatewayMode, sessionReady, connect]);
+
+  // Logout: session cleared after it was ready.
+  useEffect(() => {
+    if (gatewayMode && wasSessionReady.current && !sessionReady) {
+      void close().catch(() => {});
+    }
+    wasSessionReady.current = sessionReady;
+  }, [gatewayMode, sessionReady, close]);
+
+  // Keep React flags aligned with the real socket (handles StrictMode / drops).
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const live = surrealInstance.isConnected;
+      setIsConnected((prev) => (prev === live ? prev : live));
+      if (!live && getSessionToken() && !connectInFlight.current) {
+        void connect().catch(() => {});
+      }
+    }, 2000);
+    return () => window.clearInterval(id);
+  }, [surrealInstance, connect]);
+
   const value: DatabaseProviderState = useMemo(
     () => ({
       client: surrealInstance,
-      isConnecting: isPending,
-      isConnected: isSuccess,
+      isConnecting,
+      isConnected,
       isError,
       error,
       connect,
       close,
     }),
-    [surrealInstance, isPending, isSuccess, isError, error, connect, close],
+    [surrealInstance, isConnecting, isConnected, isError, error, connect, close],
   );
 
   useEffect(() => {
     const onUnhandledRejection = (event: PromiseRejectionEvent) => {
       const errorName = event?.reason?.name;
       if (errorName === "ConnectionUnavailable" || errorName === "EngineDisconnected") {
-        // Intentionally left as a no-op; UI presents reconnect controls.
+        setIsConnected(false);
       }
     };
 
@@ -113,33 +212,48 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
     };
   }, []);
 
-  if (isError) {
+  // Keep the provider mounted so Login's async connect/query keeps a stable client.
+  if (gatewayMode && !sessionReady) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <div className="text-center max-w-md p-6 bg-danger-50 border border-danger-200 rounded-lg">
-          <h2 className="text-xl font-semibold text-danger-800 mb-2">{t('database.connectionError')}</h2>
-          <p className="text-danger-600 mb-4">{String(error) || t('database.connectionFailed')}</p>
-          <button
-            onClick={() => connect()}
-            className="px-4 py-2 bg-danger-600 text-white rounded hover:bg-danger-700"
-          >
-            {t('database.retryConnection')}
-          </button>
-        </div>
-      </div>
+      <DatabaseContext.Provider value={value}>
+        {children}
+      </DatabaseContext.Provider>
     );
   }
 
-  // Show loading state while connecting
-  if (isPending || !isSuccess) {
-    return <PageLoader/>;
+  if (isError && !isConnected) {
+    return (
+      <DatabaseContext.Provider value={value}>
+        <div className="flex items-center justify-center min-h-screen bg-gray-100">
+          <div className="text-center max-w-md p-6 bg-danger-50 border border-danger-200 rounded-lg">
+            <h2 className="text-xl font-semibold text-danger-800 mb-2">{t("database.connectionError")}</h2>
+            <p className="text-danger-600 mb-2">{String(error) || t("database.connectionFailed")}</p>
+            <p className="text-xs text-neutral-600 mb-4 break-all font-mono">{dbEndpointLabel()}</p>
+            <button
+              onClick={() => {
+                void connect();
+              }}
+              className="px-4 py-2 bg-danger-600 text-white rounded hover:bg-danger-700"
+            >
+              {t("database.retryConnection")}
+            </button>
+          </div>
+        </div>
+      </DatabaseContext.Provider>
+    );
   }
 
-  // Only render children when connection is successful
+  if (isConnecting || !isConnected) {
+    return (
+      <DatabaseContext.Provider value={value}>
+        <PageLoader message={`${t("database.connecting")}\n${dbEndpointLabel()}`} />
+      </DatabaseContext.Provider>
+    );
+  }
+
   return (
     <DatabaseContext.Provider value={value}>
       {children}
     </DatabaseContext.Provider>
   );
 };
-
