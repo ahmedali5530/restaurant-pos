@@ -1454,6 +1454,34 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
               setCsvModal(false);
             }
           }}
+          onExport={() => {
+            const formatDate = (value: any) => {
+              if (!value) return '';
+              const d = calendarDateToDate(value);
+              if (!d) return '';
+              const y = d.getFullYear();
+              const m = String(d.getMonth() + 1).padStart(2, '0');
+              const day = String(d.getDate()).padStart(2, '0');
+              return `${y}-${m}-${day}`;
+            };
+
+            return (itemsValues ?? []).map((row: any) => {
+              const catalog = itemsList.find((it) => String(it.id) === String(row?.item?.value));
+              return {
+                name: catalog?.name ?? '',
+                code: catalog?.code ?? '',
+                base_quantity: String(row?.base_quantity ?? ''),
+                quantity: String(row?.quantity ?? ''),
+                requested: String(row?.requested ?? ''),
+                price: String(row?.price ?? ''),
+                expiry_date: formatDate(row?.expiry_date),
+                manufacturing_date: formatDate(row?.manufacturing_date),
+                supplier: row?.supplier?.label ?? '',
+                location: row?.location?.label ?? '',
+                comments: row?.comments ?? '',
+              };
+            });
+          }}
         />
       )}
     </>

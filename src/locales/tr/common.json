@@ -26,6 +26,7 @@
     "import": "İçe aktar",
     "upload": "Yükle",
     "download": "İndir",
+    "downloadTemplate": "Şablon indir",
     "select": "Seç",
     "selectAll": "Tümünü seç",
     "deselectAll": "Tümünün seçimini kaldır",

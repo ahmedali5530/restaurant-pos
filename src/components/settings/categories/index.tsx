@@ -162,6 +162,16 @@ export const AdminCategories = () => {
               throw new Error(e)
             }
           }}
+          onExport={async () => {
+            const [categories] = await db.query(
+              `SELECT * FROM ${Tables.categories} WHERE deleted_at = none`
+            );
+            return (categories as Category[]).map((row) => ({
+              name: row.name ?? '',
+              show_in_menu: row.show_in_menu ? 'true' : 'false',
+              priority: String(row.priority ?? ''),
+            }));
+          }}
           onDone={() => loadHook.fetchData()}
         />
       )}

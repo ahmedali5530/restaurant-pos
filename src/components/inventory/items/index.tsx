@@ -257,6 +257,33 @@ export const InventoryItems = () => {
               throw e;
             }
           }}
+          onExport={async () => {
+            const [items] = await db.query(
+              `SELECT * FROM ${Tables.inventory_items} FETCH category, suppliers, locations, stores`
+            );
+            return (items as InventoryItem[]).map((item) => {
+              const locs = item.locations ?? item.stores ?? [];
+              return {
+                name: item.name ?? '',
+                code: item.code ?? '',
+                category: item.category?.name ?? '',
+                uom: item.uom ?? '',
+                base_quantity: String(item.base_quantity ?? ''),
+                price: String(item.price ?? ''),
+                average_price: String(item.average_price ?? ''),
+                locations: locs.map((l) => l.name).join(','),
+                suppliers: (item.suppliers ?? []).map((s) => s.name).join(','),
+                item_types: (item.item_types ?? []).join(','),
+                reorder_levels: locs
+                  .map((loc) => {
+                    const level = getReorderLevelForStore(item, loc.id);
+                    return level > 0 ? `${loc.name}:${level}` : null;
+                  })
+                  .filter(Boolean)
+                  .join(','),
+              };
+            });
+          }}
         />
       )}
     </>

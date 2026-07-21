@@ -26,6 +26,7 @@
     "import": "Importer",
     "upload": "Téléverser",
     "download": "Télécharger",
+    "downloadTemplate": "Télécharger le modèle",
     "select": "Sélectionner",
     "selectAll": "Tout sélectionner",
     "deselectAll": "Tout désélectionner",

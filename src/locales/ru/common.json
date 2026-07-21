@@ -26,6 +26,7 @@
     "import": "Импорт",
     "upload": "Загрузить",
     "download": "Скачать",
+    "downloadTemplate": "Скачать шаблон",
     "select": "Выбрать",
     "selectAll": "Выбрать все",
     "deselectAll": "Снять выделение",

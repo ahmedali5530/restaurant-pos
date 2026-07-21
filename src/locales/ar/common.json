@@ -26,6 +26,7 @@
     "import": "استيراد",
     "upload": "رفع",
     "download": "تنزيل",
+    "downloadTemplate": "تنزيل القالب",
     "select": "اختيار",
     "selectAll": "تحديد الكل",
     "deselectAll": "إلغاء تحديد الكل",

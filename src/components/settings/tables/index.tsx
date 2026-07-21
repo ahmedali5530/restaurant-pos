@@ -265,6 +265,23 @@ export const AdminTables = () => {
               throw new Error(e)
             }
           }}
+          onExport={async () => {
+            const [tables] = await db.query(
+              `SELECT * FROM ${Tables.tables} WHERE deleted_at = none FETCH floor, categories, payment_types, order_types`
+            );
+            return (tables as Table[]).map((row) => ({
+              name: row.name ?? '',
+              number: String(row.number ?? ''),
+              ask_for_covers: row.ask_for_covers ? 'true' : 'false',
+              background: row.background ?? '',
+              color: row.color ?? '',
+              floor: row.floor?.name ?? '',
+              priority: String(row.priority ?? ''),
+              categories: (row.categories ?? []).map((c) => c.name).join('|'),
+              order_types: (row.order_types ?? []).map((o) => o.name).join('|'),
+              payment_types: (row.payment_types ?? []).map((p) => p.name).join('|'),
+            }));
+          }}
           onDone={() => loadHook.fetchData()}
         />
       )}

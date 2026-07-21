@@ -1,10 +1,11 @@
 import React, {useMemo, useState} from "react";
+import {useTranslation} from "react-i18next";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {cn} from "@/lib/utils.ts";
 import * as XLSX from "xlsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faDownload, faExclamationCircle, faUpload} from "@fortawesome/free-solid-svg-icons";
+import {faDownload, faExclamationCircle, faFileExport, faUpload} from "@fortawesome/free-solid-svg-icons";
 import {Tooltip} from "@/components/common/react-aria/tooltip.tsx";
 import {Focusable, TooltipTrigger} from "react-aria-components";
 
@@ -59,6 +60,12 @@ type CsvUploadModalProps = {
   previewRowLimit?: number;
 
   onDone?: (data: { total: number, success: number }) => void;
+
+  /**
+   * When provided, shows Export next to Download template.
+   * Return rows keyed by field.name; headers use field.label (same as template).
+   */
+  onExport?: () => Promise<Record<string, string>[]> | Record<string, string>[];
 };
 
 export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
@@ -67,13 +74,16 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
   title = "Upload records using CSV",
   fields,
   onCreateRow,
-  onDone
+  onDone,
+  onExport,
 }) => {
+  const { t } = useTranslation('common');
   const [fileName, setFileName] = useState<string | null>(null);
   const [headers, setHeaders] = useState<string[]>([]);
   const [rows, setRows] = useState<string[][]>([]);
   const [mapping, setMapping] = useState<Record<string, string | "">>({});
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resultMessage, setResultMessage] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<number, string>>({});
@@ -211,6 +221,28 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
     XLSX.writeFile(wb, "template.csv");
   }
 
+  const handleExport = async () => {
+    if (!onExport) return;
+    setError(null);
+    setIsExporting(true);
+    try {
+      const exportRows = await onExport();
+      const labels = fields.map((item) => item.label);
+      const dataRows = (exportRows ?? []).map((row) =>
+        fields.map((field) => row[field.name] ?? "")
+      );
+      const ws = XLSX.utils.aoa_to_sheet([labels, ...dataRows]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Export");
+      XLSX.writeFile(wb, "export.csv");
+    } catch (err: any) {
+      console.error(err);
+      setError((err && err.message) || String(err) || "Failed to export CSV.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const handleClose = () => {
     if (isProcessing) return;
     setFileName(null);
@@ -240,7 +272,18 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
             onClick={downloadTemplate}
             variant="secondary"
             icon={faDownload}
-          >Download template</Button>
+            disabled={isProcessing || isExporting}
+          >{t('actions.downloadTemplate')}</Button>
+          {onExport && (
+            <Button
+              className="btn btn-secondary"
+              type="button"
+              onClick={handleExport}
+              variant="secondary"
+              icon={faFileExport}
+              disabled={isProcessing || isExporting}
+            >{isExporting ? t('actions.loading') : t('actions.export')}</Button>
+          )}
           <label htmlFor="file" className="btn btn-primary gap-3">
             <input
               type="file"

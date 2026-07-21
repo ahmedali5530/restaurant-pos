@@ -323,6 +323,20 @@ export const ChartOfAccounts = () => {
             });
             toast.success(t('messages.importComplete', {created, skipped, invalid}));
           }}
+          onExport={async () => {
+            const list = accounts.length > 0
+              ? accounts
+              : (allAccountsHook.data?.data || []);
+            return list.map((a) => ({
+              code: a.code ?? '',
+              name: a.name ?? '',
+              group_code: a.group?.code ?? '',
+              normal_balance: a.normal_balance ?? '',
+              parent_code: a.parent?.code ?? '',
+              is_active: a.is_active ? 'true' : 'false',
+              notes: a.notes ?? '',
+            }));
+          }}
         />
       )}
     </>

@@ -18,6 +18,7 @@ export const RELEASES: ReleaseNotes[] = [
       'Form inputs now keep values when editing records (react-hook-form Controller wiring).',
       'Time fields use the Ant Design TimePicker instead of the native browser control.',
       'Icon-only action buttons show localized tooltips and accessible labels.',
+      'CSV import modals can export current records in the same template format for edit-and-reimport.',
     ],
   },
   {

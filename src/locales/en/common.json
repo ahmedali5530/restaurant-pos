@@ -26,6 +26,7 @@
     "import": "Import",
     "upload": "Upload",
     "download": "Download",
+    "downloadTemplate": "Download template",
     "select": "Select",
     "selectAll": "Select all",
     "deselectAll": "Deselect all",
