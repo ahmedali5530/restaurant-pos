@@ -14,9 +14,8 @@ import {Position} from "@/api/model/position.ts";
 import {CostCenter} from "@/api/model/cost_center.ts";
 import {User} from "@/api/model/user.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
-import {HrDateField, HrFormField, HrSelectField} from "@/components/hr/shared/form-field.tsx";
+import {HrDateField, HrFormField, HrInputField, HrSelectField} from "@/components/hr/shared/form-field.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {
   SelectOption,
@@ -101,7 +100,7 @@ export const EmployeeForm = ({open, onClose, data}: Props) => {
   const costCentersHook = useApi<SettingsData<CostCenter>>(Tables.cost_centers, [], [], 0, 500, []);
   const employeesHook = useApi<SettingsData<Employee>>(Tables.employees, [], [], 0, 500, []);
 
-  const {register, handleSubmit, control, formState: {errors}, reset} = useForm<FormValues>({
+  const {handleSubmit, control, formState: {errors}, reset} = useForm<FormValues>({
     resolver: yupResolver(validationSchema) as never,
     defaultValues: {employment_status: "active", employment_type: "hourly"},
   });
@@ -250,13 +249,29 @@ export const EmployeeForm = ({open, onClose, data}: Props) => {
         })}>
           {/*<input type="hidden" {...register("id")} />*/}
           <div className="flex flex-col gap-3 mb-3">
-            <Input label={t("forms.employee.employeeNumber")} {...register("employee_number")} autoFocus error={errors.employee_number?.message}/>
+            <HrInputField
+              name="employee_number"
+              control={control}
+              label={t("forms.employee.employeeNumber")}
+              autoFocus
+              error={errors.employee_number?.message}
+            />
             <div className="flex gap-3">
               <div className="flex-1">
-                <Input label={t("forms.employee.firstName")} {...register("first_name")} error={errors.first_name?.message}/>
+                <HrInputField
+                  name="first_name"
+                  control={control}
+                  label={t("forms.employee.firstName")}
+                  error={errors.first_name?.message}
+                />
               </div>
               <div className="flex-1">
-                <Input label={t("forms.employee.lastName")} {...register("last_name")} error={errors.last_name?.message}/>
+                <HrInputField
+                  name="last_name"
+                  control={control}
+                  label={t("forms.employee.lastName")}
+                  error={errors.last_name?.message}
+                />
               </div>
             </div>
             <HrSelectField
@@ -343,7 +358,11 @@ export const EmployeeForm = ({open, onClose, data}: Props) => {
                 />
               </div>
             </div>
-            <Input label={t("forms.employee.notes")} {...register("notes")}/>
+            <HrInputField
+              name="notes"
+              control={control}
+              label={t("forms.employee.notes")}
+            />
           </div>
           <Button type="submit" variant="primary">{t("buttons.save")}</Button>
         </form>

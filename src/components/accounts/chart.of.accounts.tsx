@@ -16,9 +16,10 @@ import {CreateAccount} from "@/components/accounts/create.account.tsx";
 import {CsvUploadModal} from "@/components/common/table/csv.uploader.tsx";
 import {toRecordId} from "@/lib/utils.ts";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 export const ChartOfAccounts = () => {
-  const {t} = useTranslation('accounts');
+  const {t} = useTranslation(['accounts', 'common']);
   const db = useDB();
   const [modal, setModal] = useState(false);
   const [csvUploader, setCsvUploader] = useState(false);
@@ -121,7 +122,7 @@ export const ChartOfAccounts = () => {
         const current = info.row.original;
         return (
           <>
-            <Button
+            <IconTooltipButton label={t('common:actions.edit')}
               type="button"
               variant="primary"
               className="w-[40px]"
@@ -133,7 +134,7 @@ export const ChartOfAccounts = () => {
               tabIndex={-1}
             >
               <FontAwesomeIcon icon={faPencilAlt}/>
-            </Button>
+            </IconTooltipButton>
             <span className="mx-2 text-gray-300">|</span>
             <Switch
               checked={current.is_active}

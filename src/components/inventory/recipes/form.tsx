@@ -9,6 +9,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {useDB} from "@/api/db/db.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input, InputError} from "@/components/common/input/input.tsx";
+import {InputField} from "@/components/common/form/rhf-fields.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
@@ -26,6 +27,7 @@ import {
 } from "@/lib/inventory/production.service.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
 import {Radio} from "@/components/common/input/radio.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 type SelectOption = {label: string; value: string} | null;
 
@@ -97,7 +99,7 @@ const toRecordIdString = (id: unknown): string => {
 };
 
 export const RecipeForm = ({open, onClose, data}: Props) => {
-  const {t} = useTranslation("inventory");
+  const {t} = useTranslation(["inventory", 'common']);
   const db = useDB();
   const [state] = useAtom(appPage);
   const [submitting, setSubmitting] = useState(false);
@@ -158,7 +160,6 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
 
   const {
     control,
-    register,
     handleSubmit,
     formState: {errors},
     reset,
@@ -285,17 +286,18 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
       <form key={data?.id ?? "new"} onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <Input label={t("columns.name")} {...register("name")} error={errors.name?.message} />
+            <InputField name="name" control={control} label={t("columns.name")} error={errors.name?.message} />
           </div>
           <div>
-            <Input label={t("columns.code")} {...register("code")} error={errors.code?.message} />
+            <InputField name="code" control={control} label={t("columns.code")} error={errors.code?.message} />
           </div>
           <div>
-            <Input
+            <InputField
+              name="baseBatchQty"
+              control={control}
               label={t("production.baseBatchQty")}
               type="number"
               step="any"
-              {...register("baseBatchQty")}
               error={errors.baseBatchQty?.message}
             />
           </div>
@@ -315,7 +317,7 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
           </div>
         </div>
 
-        <Input label={t("production.notes")} {...register("notes")} />
+        <InputField name="notes" control={control} label={t("production.notes")} />
 
         <Controller
           control={control}
@@ -350,24 +352,25 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
                 <InputError error={_.get(errors, ["items", index, "item", "message"])} />
               </div>
               <div className="col-span-3">
-                <Input
+                <InputField
+                  name={`items.${index}.quantity`}
+                  control={control}
                   type="number"
                   step="any"
                   label={t("forms.quantity")}
-                  {...register(`items.${index}.quantity`)}
                   error={_.get(errors, ["items", index, "quantity", "message"])}
                 />
               </div>
               <div className="col-span-2">
-                <Button
+                <IconTooltipButton label={t('common:actions.remove')}
                   type="button"
                   variant="danger"
-                  iconButton
+                 
                   onClick={() => removeItem(index)}
                   disabled={itemFields.length <= 1}
                 >
                   <FontAwesomeIcon icon={faTrash} />
-                </Button>
+                </IconTooltipButton>
               </div>
             </div>
           ))}
@@ -455,15 +458,15 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
                 />
               </div>
               <div className="col-span-1">
-                <Button
+                <IconTooltipButton label={t('common:actions.remove')}
                   type="button"
                   variant="danger"
-                  iconButton
+                 
                   onClick={() => removeOutput(index)}
                   disabled={outputFields.length <= 1}
                 >
                   <FontAwesomeIcon icon={faTrash} />
-                </Button>
+                </IconTooltipButton>
               </div>
             </div>
           ))}

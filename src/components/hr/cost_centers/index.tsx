@@ -6,7 +6,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {CostCenter} from "@/api/model/cost_center.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {IconTooltipButton} from "@/components/common/input/icon.tooltip.button.tsx";
 import {faPencil, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {CostCenterForm} from "@/components/hr/cost_centers/form.tsx";
 
@@ -33,9 +33,12 @@ export const HrCostCenters = () => {
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => (
-        <Button variant="primary" onClick={() => { setData(info.row.original); setFormModal(true); }}>
-          <FontAwesomeIcon icon={faPencil}/>
-        </Button>
+        <IconTooltipButton
+          label={t("buttons.edit")}
+          variant="primary"
+          icon={faPencil}
+          onClick={() => { setData(info.row.original); setFormModal(true); }}
+        />
       ),
     }),
   ];

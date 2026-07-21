@@ -17,6 +17,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {StringRecordId} from "surrealdb";
 import _ from "lodash";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 interface InventoryItemGroupFormValues {
   main_item: { label: string; value: string } | null;
@@ -49,7 +50,7 @@ const validationSchema = yup.object({
 }).required();
 
 export const InventoryItemGroupForm = ({open, onClose, data}: Props) => {
-  const { t } = useTranslation('inventory');
+  const { t } = useTranslation(['inventory', 'common']);
   const db = useDB();
 
   const {
@@ -284,14 +285,14 @@ export const InventoryItemGroupForm = ({open, onClose, data}: Props) => {
                   />
                 </div>
                 <div className="flex-0 self-end">
-                  <Button
+                  <IconTooltipButton label={t('common:actions.remove')}
                     type="button"
                     variant="danger"
-                    iconButton
+                   
                     onClick={() => remove(index)}
                   >
                     <FontAwesomeIcon icon={faTrash}/>
-                  </Button>
+                  </IconTooltipButton>
                 </div>
               </div>
             ))}

@@ -1,4 +1,4 @@
-import {FC, MutableRefObject, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {Controller, useFieldArray, useForm} from "react-hook-form";
 import {DateTime} from "luxon";
 import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
@@ -10,11 +10,13 @@ import {useTranslation} from "react-i18next";
 import {toast} from "sonner";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input} from "@/components/common/input/input.tsx";
+import {InputField} from "@/components/common/form/rhf-fields.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Account, NormalBalance} from "@/api/model/account.ts";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 interface CreateJournalEntryProps {
   addModal: boolean;
@@ -40,17 +42,8 @@ interface JournalEntryForm {
 
 const EMPTY_LINE: JournalLineForm = {account: null, debit: 0, credit: 0, description: ""};
 
-const mergeInputRef = (
-  registerRef: (instance: HTMLInputElement | null) => void,
-  focusRef: MutableRefObject<(HTMLInputElement | null)[]>,
-  index: number
-) => (instance: HTMLInputElement | null) => {
-  registerRef(instance);
-  focusRef.current[index] = instance;
-};
-
 export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accounts, onClose}) => {
-  const {t} = useTranslation('accounts');
+  const {t} = useTranslation(['accounts', 'common']);
   const [modal, setModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [entryNumber, setEntryNumber] = useState<number | null>(null);
@@ -281,18 +274,18 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
             />
           </div>
           <div>
-            <Input {...register("date")} id="entry_date" type="datetime-local" className="w-full" label={t('columns.date')}/>
+            <InputField name="date" control={control} id="entry_date" type="datetime-local" className="w-full" label={t('columns.date')}/>
           </div>
           <div>
-            <Input {...register("source_module")} id="entry_source_module" className="w-full"
+            <InputField name="source_module" control={control} id="entry_source_module" className="w-full"
                    label={t('columns.module')} placeholder="sales, expenses..."/>
           </div>
           <div>
-            <Input {...register("source_id")} id="entry_source_id" className="w-full"
+            <InputField name="source_id" control={control} id="entry_source_id" className="w-full"
                    label={t('columns.sourceId')} placeholder="optional external reference"/>
           </div>
           <div>
-            <Input {...register("memo")} id="entry_memo" className="w-full" label={t('columns.memo')} placeholder="entry memo"/>
+            <InputField name="memo" control={control} id="entry_memo" className="w-full" label={t('columns.memo')} placeholder="entry memo"/>
           </div>
         </div>
 
@@ -318,11 +311,7 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
           </div>
 
           <div className="p-3 space-y-3">
-            {fields.map((field, index) => {
-              const debitField = register(`lines.${index}.debit` as const);
-              const creditField = register(`lines.${index}.credit` as const);
-
-              return (
+            {fields.map((field, index) => (
               <div className="grid grid-cols-12 gap-3" key={field.id}>
                 <div className="col-span-4">
                   <Controller
@@ -342,29 +331,54 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
                   />
                 </div>
                 <div className="col-span-2">
-                  <Input
-                    type="number"
-                    className="w-full"
-                    {...debitField}
-                    ref={mergeInputRef(debitField.ref, debitRefs, index)}
+                  <Controller
+                    control={control}
+                    name={`lines.${index}.debit`}
+                    render={({field}) => (
+                      <Input
+                        type="number"
+                        className="w-full"
+                        name={field.name}
+                        value={field.value ?? ""}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        ref={(instance) => {
+                          field.ref(instance);
+                          debitRefs.current[index] = instance;
+                        }}
+                      />
+                    )}
                   />
                 </div>
                 <div className="col-span-2">
-                  <Input
-                    type="number"
-                    className="w-full"
-                    {...creditField}
-                    ref={mergeInputRef(creditField.ref, creditRefs, index)}
+                  <Controller
+                    control={control}
+                    name={`lines.${index}.credit`}
+                    render={({field}) => (
+                      <Input
+                        type="number"
+                        className="w-full"
+                        name={field.name}
+                        value={field.value ?? ""}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        ref={(instance) => {
+                          field.ref(instance);
+                          creditRefs.current[index] = instance;
+                        }}
+                      />
+                    )}
                   />
                 </div>
                 <div className="col-span-3">
-                  <Input
+                  <InputField
+                    name={`lines.${index}.description`}
+                    control={control}
                     className="w-full"
-                    {...register(`lines.${index}.description` as const)}
                   />
                 </div>
                 <div className="col-span-1 text-right">
-                  <Button
+                  <IconTooltipButton label={t('common:actions.remove')}
                     type="button"
                     variant="danger"
                     className="w-[40px]"
@@ -372,11 +386,10 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
                     disabled={fields.length <= 2}
                   >
                     <FontAwesomeIcon icon={faTrash}/>
-                  </Button>
+                  </IconTooltipButton>
                 </div>
               </div>
-              );
-            })}
+            ))}
           </div>
 
           <div className="p-3 border-t flex gap-2">

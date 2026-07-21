@@ -5,6 +5,7 @@ import { Tables } from "@/api/db/tables.ts";
 import { FloorTable } from "@/components/settings/floors/layout/table.tsx";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircle, faEquals, faMinus, faPlus, faSquare, faSquareFull } from "@fortawesome/free-solid-svg-icons";
 import { Input } from "@/components/common/input/input.tsx";
@@ -303,21 +304,21 @@ export const AdminFloorLayout = ({
                 <div>
                   <label className="text-sm block mb-2">{t('forms.roundness')}</label>
                   <div className="flex gap-2">
-                    <Button variant="primary" flat active={bulkSettings.rounded === "rounded-none"} onClick={() => {
+                    <IconTooltipButton label={t('forms.roundnessSquare')} variant="primary" flat active={bulkSettings.rounded === "rounded-none"} onClick={() => {
                       setBulkSettings((prev) => ({ ...prev, rounded: "rounded-none" }));
                     }}>
                       <FontAwesomeIcon icon={faSquareFull} />
-                    </Button>
-                    <Button variant="primary" flat active={bulkSettings.rounded === "rounded-xl"} onClick={() => {
+                    </IconTooltipButton>
+                    <IconTooltipButton label={t('forms.roundnessRounded')} variant="primary" flat active={bulkSettings.rounded === "rounded-xl"} onClick={() => {
                       setBulkSettings((prev) => ({ ...prev, rounded: "rounded-xl" }));
                     }}>
                       <FontAwesomeIcon icon={faSquare} />
-                    </Button>
-                    <Button variant="primary" flat active={bulkSettings.rounded === "rounded-full"} onClick={() => {
+                    </IconTooltipButton>
+                    <IconTooltipButton label={t('forms.roundnessCircle')} variant="primary" flat active={bulkSettings.rounded === "rounded-full"} onClick={() => {
                       setBulkSettings((prev) => ({ ...prev, rounded: "rounded-full" }));
                     }}>
                       <FontAwesomeIcon icon={faCircle} />
-                    </Button>
+                    </IconTooltipButton>
                   </div>
                 </div>
                 <Button onClick={applyBulkSettings} variant="primary">Apply to Selected</Button>

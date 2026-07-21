@@ -1,6 +1,8 @@
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input, InputError } from "@/components/common/input/input.tsx";
+import { InputField } from "@/components/common/form/rhf-fields.tsx";
 import { Button } from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { Controller, useForm } from "react-hook-form";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
@@ -106,7 +108,7 @@ export const TableForm = ({
 
   const db = useDB();
 
-  const { register, control, handleSubmit, formState: {errors}, reset } = useForm({
+  const { control, handleSubmit, formState: {errors}, reset } = useForm({
     resolver: yupResolver(validationSchema)
   });
 
@@ -202,10 +204,10 @@ export const TableForm = ({
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <Input label={t('forms.nameOfTable')} {...register('name')} autoFocus error={errors?.name?.message}/>
+              <InputField name="name" control={control} label={t('forms.nameOfTable')} autoFocus error={errors?.name?.message}/>
             </div>
             <div className="flex-1">
-              <Input label={t('forms.numberOfTable')} {...register('number')} error={errors?.number?.message}/>
+              <InputField name="number" control={control} label={t('forms.numberOfTable')} error={errors?.number?.message}/>
             </div>
           </div>
 
@@ -225,11 +227,11 @@ export const TableForm = ({
 
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <Input type="color" label={t('forms.backgroundColor')} {...register('background')}
+              <InputField type="color" name="background" control={control} label={t('forms.backgroundColor')}
                      error={errors?.background?.message}/>
             </div>
             <div className="flex-1">
-              <Input type="color" label={t('forms.fontColor')} {...register('color')} error={errors?.background?.message}/>
+              <InputField type="color" name="color" control={control} label={t('forms.fontColor')} error={errors?.background?.message}/>
             </div>
           </div>
 
@@ -253,9 +255,7 @@ export const TableForm = ({
               />
               <InputError error={errors?.floor?.message} />
             </div>
-            <Button type="button" variant="primary" iconButton onClick={() => setFloorModal(true)}>
-              <FontAwesomeIcon icon={faPlus}/>
-            </Button>
+            <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setFloorModal(true)}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
           </div>
 
           <div className="flex gap-3 mb-3">
@@ -295,9 +295,7 @@ export const TableForm = ({
                 control={control}
               />
             </div>
-            <Button type="button" variant="primary" iconButton onClick={() => setCategoriesModal(true)}>
-              <FontAwesomeIcon icon={faPlus}/>
-            </Button>
+            <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setCategoriesModal(true)}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
           </div>
           <div className="flex gap-3 mb-3 items-end">
             <div className="flex-1">
@@ -319,9 +317,7 @@ export const TableForm = ({
                 control={control}
               />
             </div>
-            <Button type="button" variant="primary" iconButton onClick={() => setOrderTypesModal(true)}>
-              <FontAwesomeIcon icon={faPlus}/>
-            </Button>
+            <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setOrderTypesModal(true)}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
           </div>
           <div className="flex gap-3 mb-3 items-end">
             <div className="flex-1">
@@ -343,9 +339,7 @@ export const TableForm = ({
                 control={control}
               />
             </div>
-            <Button type="button" variant="primary" iconButton onClick={() => setPaymentTypesModal(true)}>
-              <FontAwesomeIcon icon={faPlus}/>
-            </Button>
+            <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setPaymentTypesModal(true)}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
           </div>
 
           <div>

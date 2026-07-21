@@ -15,7 +15,9 @@ import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {Menu} from "@/api/model/menu.ts";
 import {StringRecordId} from "surrealdb";
+import {TimePicker} from "@/components/common/antd/time.picker.tsx";
 import {DeliveryBannersSection} from "@/components/delivery/delivery-banners-section.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 interface DeliveryTimingEntry {
   id: string;
@@ -89,7 +91,7 @@ const validationSchema = yup.object({
 });
 
 export const DeliverySettings = () => {
-  const { t } = useTranslation('delivery');
+  const { t } = useTranslation(['delivery', 'common']);
   const db = useDB();
   const [loading, setLoading] = useState(true);
   const {
@@ -443,13 +445,10 @@ export const DeliverySettings = () => {
                                 name={`delivery_timing.${index}.start_time`}
                                 control={control}
                                 render={({field: timeField}) => (
-                                  <Input
-                                    type="time"
+                                  <TimePicker
                                     label={t('settings.startTime')}
                                     value={timeField.value}
                                     onChange={timeField.onChange}
-                                    // disabled={isDayOff}
-                                    error={errors.delivery_timing?.[index]?.start_time?.message}
                                   />
                                 )}
                               />
@@ -459,13 +458,10 @@ export const DeliverySettings = () => {
                                 name={`delivery_timing.${index}.end_time`}
                                 control={control}
                                 render={({field: timeField}) => (
-                                  <Input
-                                    type="time"
+                                  <TimePicker
                                     label={t('settings.endTime')}
                                     value={timeField.value}
                                     onChange={timeField.onChange}
-                                    // disabled={isDayOff}
-                                    error={errors.delivery_timing?.[index]?.end_time?.message}
                                   />
                                 )}
                               />
@@ -499,14 +495,14 @@ export const DeliverySettings = () => {
                             </div>
                             {!isDefaultDay && (
                               <div className="flex items-center pb-2">
-                                <Button
+                                <IconTooltipButton label={t('common:actions.remove')}
                                   type="button"
                                   variant="danger"
                                   onClick={() => remove(index)}
                                   className="text-red-600 hover:text-red-700"
                                 >
                                   <FontAwesomeIcon icon={faTrash} size="sm" />
-                                </Button>
+                                </IconTooltipButton>
                               </div>
                             )}
                           </div>

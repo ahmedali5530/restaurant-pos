@@ -16,6 +16,7 @@ import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Account} from "@/api/model/account.ts";
 import {toQueryDateTime} from "@/components/accounts/reports.utils.ts";
 import {LedgerEntriesModal} from "@/components/accounts/ledger.entries.modal.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 interface LedgerRow {
   account: {
@@ -30,7 +31,7 @@ interface LedgerRow {
 }
 
 export const GeneralLedger = () => {
-  const {t} = useTranslation('accounts');
+  const {t} = useTranslation(['accounts', 'common']);
   const db = useDB();
   const [isLoading, setIsLoading] = useState(false);
   const [rows, setRows] = useState<LedgerRow[]>([]);
@@ -252,7 +253,7 @@ export const GeneralLedger = () => {
                 <td className="text-right">{formatMoney(Number(row.total_credit || 0))}</td>
                 <td className="text-right">{formatMoney(Number(row.opening_balance || 0) + Number(row.balance || 0))}</td>
                 <td>
-                  <Button
+                  <IconTooltipButton label={t('common:actions.view')}
                     variant="secondary"
                     onClick={() => {
                       setSelectedLedger(row);
@@ -260,7 +261,7 @@ export const GeneralLedger = () => {
                     }}
                   >
                     <FontAwesomeIcon icon={faEye}/>
-                  </Button>
+                  </IconTooltipButton>
                 </td>
               </tr>
             ))}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createColumnHelper, RowSelectionState } from "@tanstack/react-table";
 import { Table } from "@/api/model/table.ts";
 import { Button } from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {faCheck, faLock, faPencil, faPlus, faUpload} from "@fortawesome/free-solid-svg-icons";
 import { TableComponent } from "@/components/common/table/table.tsx";
@@ -102,13 +103,13 @@ export const AdminTables = () => {
       cell: (info) => {
         return (
           <div className="flex gap-3 items-center">
-            <Button
+            <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
                 setData(info.row.original);
                 setFormModal(true);
               }}
-            ><FontAwesomeIcon icon={faPencil}/></Button>
+            ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
             <div className="separator"></div>
             <DeleteConfirm
               message={t('delete.table', { name: `${info.row.original.name}${info.row.original.number}` })}

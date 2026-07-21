@@ -12,9 +12,10 @@ import {InventoryItemForm} from "@/components/inventory/items/form.tsx";
 import {CsvUploadModal} from "@/components/common/table/csv.uploader.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {getReorderLevelForStore} from "@/utils/inventory.ts";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 export const InventoryItems = () => {
-  const { t } = useTranslation('inventory');
+  const { t } = useTranslation(['inventory', 'common']);
   const loadHook = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 10, ['category', 'suppliers', 'locations', 'stores']);
   const db = useDB();
 
@@ -101,13 +102,13 @@ export const InventoryItems = () => {
       cell: (info) => {
         return (
           <>
-            <Button
+            <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
                 setData(info.row.original);
                 setFormModal(true);
               }}
-            ><FontAwesomeIcon icon={faPencil}/></Button>
+            ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
           </>
         );
       },

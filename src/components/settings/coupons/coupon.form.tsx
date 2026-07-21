@@ -14,6 +14,7 @@ import {Coupon, CouponType, WeekDay} from "@/api/model/coupon.ts";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {DateTime} from "luxon";
 import {nowSurrealDateTime, toJsDate, toLuxonDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
+import {TimePicker} from "@/components/common/antd/time.picker.tsx";
 
 interface Props {
   open: boolean;
@@ -384,13 +385,12 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                     : "";
                   return (
                     <div>
-                      <Input
-                        type="time"
+                      <TimePicker
                         label={t('columns.startTime')}
                         value={value}
                         onChange={field.onChange}
-                        error={errors?.start_time?.message as string}
                       />
+                      <InputError error={errors?.start_time?.message as string}/>
                     </div>
                   );
                 }}
@@ -406,13 +406,12 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                     : "";
                   return (
                     <div>
-                      <Input
-                        type="time"
+                      <TimePicker
                         label={t('columns.endTime')}
                         value={value}
                         onChange={field.onChange}
-                        error={errors?.end_time?.message as string}
                       />
+                      <InputError error={errors?.end_time?.message as string}/>
                     </div>
                   );
                 }}

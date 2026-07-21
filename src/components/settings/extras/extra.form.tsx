@@ -10,7 +10,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input } from "@/components/common/input/input.tsx";
+import { InputField } from "@/components/common/form/rhf-fields.tsx";
 import { Button } from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import { Switch } from "@/components/common/input/switch.tsx";
 import { useDB } from "@/api/db/db.ts";
@@ -74,7 +76,7 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
     enabled: false,
   });
 
-  const { register, control, handleSubmit, formState: { errors }, reset } = useForm({
+  const { control, handleSubmit, formState: { errors }, reset } = useForm({
     resolver: yupResolver(validationSchema),
   });
 
@@ -166,7 +168,7 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <Input label={t('columns.name')} {...register("name")} autoFocus error={errors?.name?.message} />
+              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message} />
             </div>
             <div className="flex-1">
               <Controller
@@ -205,9 +207,7 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
                   control={control}
                 />
               </div>
-              <Button type="button" variant="primary" iconButton onClick={() => setPaymentTypesModal(true)}>
-                <FontAwesomeIcon icon={faPlus}/>
-              </Button>
+              <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setPaymentTypesModal(true)}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
             </div>
             <div className="flex gap-2 items-end">
               <div className="flex-1">
@@ -228,9 +228,7 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
                   control={control}
                 />
               </div>
-              <Button type="button" variant="primary" iconButton onClick={() => setOrderTypesModal(true)}>
-                <FontAwesomeIcon icon={faPlus}/>
-              </Button>
+              <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setOrderTypesModal(true)}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
             </div>
             <div className="flex gap-2 items-end">
               <div className="flex-1">
@@ -251,9 +249,7 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
                   control={control}
                 />
               </div>
-              <Button type="button" variant="primary" iconButton onClick={() => setTablesModal(true)}>
-                <FontAwesomeIcon icon={faPlus}/>
-              </Button>
+              <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setTablesModal(true)}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
             </div>
           </div>
 

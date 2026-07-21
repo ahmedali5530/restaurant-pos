@@ -1,9 +1,11 @@
 import React, { FunctionComponent, PropsWithChildren, ReactNode, useCallback, useEffect, useState, } from "react";
-import { Dialog, Heading, Modal as ReactAriaModal, ModalOverlay } from 'react-aria-components';
+import { Dialog, Heading, Modal as ReactAriaModal, ModalOverlay, TooltipTrigger } from 'react-aria-components';
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { cn } from "@/lib/utils.ts";
 import {createPortal} from "react-dom";
+import { useTranslation } from "react-i18next";
+import { Tooltip } from "@/components/common/react-aria/tooltip.tsx";
 
 const isReactAriaTopLayer = (element: Element) =>
   !!element.closest('[data-react-aria-top-layer], .rs__menu-portal, .rs__menu, .delete-confirm-overlay');
@@ -28,8 +30,10 @@ interface ModalProps extends PropsWithChildren {
 export const Modal: FunctionComponent<ModalProps> = ({
   hideCloseButton = false,
   size = 'md',
+
   ...props
 }) => {
+  const { t } = useTranslation('common');
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -97,12 +101,17 @@ export const Modal: FunctionComponent<ModalProps> = ({
                 backdropFilter: 'blur(10px)'
               }} className="rounded-lg">
                 {hideCloseButton !== true && (
-                  <button
-                    onClick={() => close(false)}
-                    className="btn btn-secondary btn-flat btn-square absolute top-2 right-2 lg rounded inline-flex justify-center items-center"
-                    type="button">
-                    <FontAwesomeIcon icon={faTimes} size="lg"/>
-                  </button>
+                  <TooltipTrigger delay={0} closeDelay={0}>
+                    <button
+                      onClick={() => close(false)}
+                      className="btn btn-secondary btn-flat btn-square absolute top-2 right-2 lg rounded inline-flex justify-center items-center"
+                      type="button"
+                      aria-label={t('actions.close')}
+                    >
+                      <FontAwesomeIcon icon={faTimes} size="lg"/>
+                    </button>
+                    <Tooltip>{t('actions.close')}</Tooltip>
+                  </TooltipTrigger>
                 )}
 
                 <div className="p-5 border-b border-neutral-100">

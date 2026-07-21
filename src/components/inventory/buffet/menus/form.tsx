@@ -8,7 +8,7 @@ import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {useDB} from "@/api/db/db.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {Input} from "@/components/common/input/input.tsx";
+import {InputField} from "@/components/common/form/rhf-fields.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
@@ -24,6 +24,7 @@ import {
   updateBuffetMenu,
 } from "@/lib/inventory/buffet.service.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 type SelectOption = {label: string; value: string} | null;
 
@@ -67,7 +68,7 @@ const validationSchema = yup.object({
 });
 
 export const BuffetMenuForm = ({open, onClose, data}: Props) => {
-  const {t} = useTranslation("inventory");
+  const {t} = useTranslation(["inventory", 'common']);
   const db = useDB();
   const [state] = useAtom(appPage);
 
@@ -99,7 +100,6 @@ export const BuffetMenuForm = ({open, onClose, data}: Props) => {
 
   const {
     control,
-    register,
     handleSubmit,
     reset,
     formState: {errors, isSubmitting},
@@ -179,10 +179,10 @@ export const BuffetMenuForm = ({open, onClose, data}: Props) => {
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Input label={t("columns.name")} {...register("name")} error={errors.name?.message} />
+            <InputField name="name" control={control} label={t("columns.name")} error={errors.name?.message} />
           </div>
           <div>
-            <Input label={t("columns.code")} {...register("code")} />
+            <InputField name="code" control={control} label={t("columns.code")} />
           </div>
         </div>
 
@@ -202,7 +202,7 @@ export const BuffetMenuForm = ({open, onClose, data}: Props) => {
           <p className="text-sm text-neutral-600 mt-1">{t("buffet.help.sessionTypeMenu")}</p>
         </div>
 
-        <Input label={t("buffet.notes")} {...register("notes")} />
+        <InputField name="notes" control={control} label={t("buffet.notes")} />
 
         <Controller
           control={control}
@@ -249,23 +249,24 @@ export const BuffetMenuForm = ({open, onClose, data}: Props) => {
                 <p className="text-sm text-neutral-600 mt-1">{t("buffet.help.recipe")}</p>
               </div>
               <div className="col-span-4">
-                <Input
+                <InputField
+                  name={`items.${index}.perGuestQty`}
+                  control={control}
                   label={t("buffet.perGuestQty")}
                   type="number"
                   step="0.01"
-                  {...register(`items.${index}.perGuestQty`)}
                 />
               </div>
               <div className="col-span-1">
-                <Button
+                <IconTooltipButton label={t('common:actions.remove')}
                   type="button"
                   variant="danger"
-                  iconButton
+                 
                   onClick={() => remove(index)}
                   disabled={fields.length <= 1}
                 >
                   <FontAwesomeIcon icon={faTrash} />
-                </Button>
+                </IconTooltipButton>
               </div>
             </div>
           ))}

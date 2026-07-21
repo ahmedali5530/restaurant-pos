@@ -15,10 +15,11 @@ import {InventoryPurchaseOrderViewModal} from "@/components/inventory/purchase_o
 import {InventoryDocumentPrintModal} from "@/components/inventory/common/document.print.modal.tsx";
 import {InventoryInvoiceDoc, mapPurchaseOrderToInvoice} from "@/lib/inventory/invoice.mapper.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
-import { toJsDate } from "@/lib/datetime.ts";
+import {formatDateTime} from "@/lib/datetime.ts";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 export const InventoryPurchaseOrders = () => {
-  const { t } = useTranslation('inventory');
+  const { t } = useTranslation(['inventory', 'common']);
   const loadHook = useApi<SettingsData<InventoryPurchaseOrder>>(
     Tables.inventory_purchase_orders,
     [],
@@ -51,7 +52,7 @@ export const InventoryPurchaseOrders = () => {
     }),
     columnHelper.accessor("created_at", {
       header: t('columns.createdAt'),
-      cell: info => info.getValue() ? toJsDate(info.getValue() as any).toLocaleString() : ""
+      cell: info => info.getValue() ? formatDateTime(info.getValue() as any) : ""
     }),
     columnHelper.accessor("items", {
       header: t('tabs.items'),
@@ -75,27 +76,28 @@ export const InventoryPurchaseOrders = () => {
 
         return (
           <div className="flex gap-3">
-            <Button
+            <IconTooltipButton label={t('common:actions.view')}
               variant="secondary"
-              iconButton
+             
               onClick={() => {
                 setViewOrder(row);
                 setViewModal(true);
               }}
             >
               <FontAwesomeIcon icon={faFile}/>
-            </Button>
-            <Button
+            </IconTooltipButton>
+            <IconTooltipButton label={t('print.printReceipt')}
               variant="secondary"
-              iconButton
-              title={t('print.printReceipt')}
+             
+             
               onClick={() => setPrintDoc(mapPurchaseOrderToInvoice(row))}
             >
               <FontAwesomeIcon icon={faPrint}/>
-            </Button>
+            </IconTooltipButton>
             {row.status === PurchaseOrderStatus.pending && (
               <>
-                <Button
+                <IconTooltipButton
+                  label={t('common:actions.edit')}
                   variant="primary"
                   onClick={() => {
                     protectAction(() => {
@@ -108,7 +110,7 @@ export const InventoryPurchaseOrders = () => {
                   }}
                 >
                   <FontAwesomeIcon icon={faPencil}/>
-                </Button>
+                </IconTooltipButton>
 
                 <DeleteConfirm
                   message={`Do you want to delete purchase order# ${row.po_number}`}

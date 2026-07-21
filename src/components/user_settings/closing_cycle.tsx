@@ -3,8 +3,8 @@ import {Controller, useForm} from "react-hook-form";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Setting} from "@/api/model/setting.ts";
-import {Input} from "@/components/common/input/input.tsx";
 import {Switch} from "@/components/common/input/switch.tsx";
+import {TimeField} from "@/components/common/form/rhf-fields.tsx";
 import {toast} from "sonner";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {CLOSING_CYCLE_KEY} from "@/lib/closing-cycle.ts";
@@ -98,29 +98,15 @@ export const ClosingCycleSettingsCard = () => {
             )}
           />
           <div/>
-          <Controller
+          <TimeField
             name="start_time"
             control={control}
-            render={({field}) => (
-              <Input
-                label={t('settings:closingCycle.startTime')}
-                type="time"
-                value={field.value}
-                onChange={field.onChange}
-              />
-            )}
+            label={t('settings:closingCycle.startTime')}
           />
-          <Controller
+          <TimeField
             name="end_time"
             control={control}
-            render={({field}) => (
-              <Input
-                label={t('settings:closingCycle.endTime')}
-                type="time"
-                value={field.value}
-                onChange={field.onChange}
-              />
-            )}
+            label={t('settings:closingCycle.endTime')}
           />
         </div>
         <button className="btn btn-primary" type="submit">{t('common:actions.save')}</button>

@@ -2,9 +2,11 @@ import { Printer } from "@/api/model/printer.ts";
 import { Kitchen } from "@/api/model/kitchen.ts";
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input } from "@/components/common/input/input.tsx";
+import { InputField } from "@/components/common/form/rhf-fields.tsx";
 import { Controller, useForm } from "react-hook-form";
 import { transformValue } from "@/lib/utils.ts";
 import { Button } from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { useEffect, useState } from "react";
 import { useDB } from "@/api/db/db.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -95,7 +97,7 @@ export const KitchenForm = ({
     enabled: false
   });
 
-  const { register, control, handleSubmit, formState: {errors}, reset } = useForm({
+  const { control, handleSubmit, formState: {errors}, reset } = useForm({
     resolver: zodResolver(validationSchema)
   });
 
@@ -161,7 +163,7 @@ export const KitchenForm = ({
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-3 mb-3 flex-col">
             <div className="flex-1">
-              <Input label={t('columns.name')} {...register('name')} autoFocus error={errors?.name?.message}/>
+              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message}/>
             </div>
 
             <div className="flex-1">
@@ -333,9 +335,7 @@ export const KitchenForm = ({
                   control={control}
                 />
               </div>
-              <Button type="button" variant="primary" iconButton onClick={() => setPrintersModal(true)}>
-                <FontAwesomeIcon icon={faPlus}/>
-              </Button>
+              <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setPrintersModal(true)}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
             </div>
             <div className="flex-1">
               <Controller

@@ -6,6 +6,7 @@ import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { Tables } from "@/api/db/tables.ts";
 import { Extra } from "@/api/model/extra.ts";
 import { Button } from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { TableComponent } from "@/components/common/table/table.tsx";
 import { ExtraForm } from "@/components/settings/extras/extra.form.tsx";
 import { DeleteConfirm } from "@/components/common/table/delete.confirm.tsx";
@@ -63,15 +64,13 @@ export const AdminExtras = () => {
       cell: (info) => {
         return (
           <div className="flex gap-3 items-center">
-            <Button
+            <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
                 setData(info.row.original);
                 setFormModal(true);
               }}
-            >
-              <FontAwesomeIcon icon={faPencil} />
-            </Button>
+            ><FontAwesomeIcon icon={faPencil} /></IconTooltipButton>
             <div className="separator"></div>
             <DeleteConfirm
               message={t('delete.extra', { name: info.row.original.name })}

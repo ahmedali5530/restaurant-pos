@@ -1,6 +1,6 @@
-import {useEffect, useMemo, type FocusEvent} from "react";
+import {useEffect, useMemo} from "react";
 import {useTranslation} from "react-i18next";
-import {useForm, useFieldArray} from "react-hook-form";
+import {Controller, useForm, useFieldArray} from "react-hook-form";
 import {faSave} from "@fortawesome/free-solid-svg-icons";
 import {KitchenReconciliationItem} from "@/api/model/kitchen_reconciliation_item.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
@@ -88,7 +88,7 @@ export const ReconciliationGrid = ({items, status, readOnly, saving, onSave}: Pr
   const isVerified = status === "verified";
   const disabled = readOnly || isMissed || isVerified;
 
-  const {control, register, reset, watch, setValue, getValues} = useForm<FormValues>({
+  const {control, reset, watch, setValue, getValues} = useForm<FormValues>({
     defaultValues: {rows: items.map(toGridRow)},
   });
 
@@ -149,16 +149,29 @@ export const ReconciliationGrid = ({items, status, readOnly, saving, onSave}: Pr
     await onSave(lines);
   };
 
-  const registerEditableField = (index: number, name: keyof Pick<GridRow, "physicalCount" | "wasteQty" | "staffMealQty" | "complimentaryQty">) => {
-    const {onBlur, ...field} = register(`rows.${index}.${name}`);
-    return {
-      ...field,
-      onBlur: (event: FocusEvent<HTMLInputElement>) => {
-        onBlur(event);
-        recomputeRow(index);
-      },
-    };
-  };
+  const renderEditableField = (
+    index: number,
+    name: keyof Pick<GridRow, "physicalCount" | "wasteQty" | "staffMealQty" | "complimentaryQty">,
+    disabled: boolean,
+  ) => (
+    <Controller
+      control={control}
+      name={`rows.${index}.${name}`}
+      render={({field}) => (
+        <Input
+          type="number"
+          disabled={disabled}
+          name={field.name}
+          value={field.value ?? ""}
+          onChange={field.onChange}
+          onBlur={() => {
+            field.onBlur();
+            recomputeRow(index);
+          }}
+        />
+      )}
+    />
+  );
 
   if (fields.length === 0) {
     return (
@@ -216,32 +229,16 @@ export const ReconciliationGrid = ({items, status, readOnly, saving, onSave}: Pr
                 <td className="px-3 py-2">{formatNumber(row?.theoreticalConsumption ?? 0)}</td>
                 <td className="px-3 py-2">{formatNumber(row?.expectedStock ?? 0)}</td>
                 <td className="px-3 py-2 min-w-[100px]">
-                  <Input
-                    type="number"
-                    disabled={disabled}
-                    {...registerEditableField(index, "physicalCount")}
-                  />
+                  {renderEditableField(index, "physicalCount", disabled)}
                 </td>
                 <td className="px-3 py-2 min-w-[90px]">
-                  <Input
-                    type="number"
-                    disabled={disabled}
-                    {...registerEditableField(index, "wasteQty")}
-                  />
+                  {renderEditableField(index, "wasteQty", disabled)}
                 </td>
                 <td className="px-3 py-2 min-w-[90px]">
-                  <Input
-                    type="number"
-                    disabled={disabled}
-                    {...registerEditableField(index, "staffMealQty")}
-                  />
+                  {renderEditableField(index, "staffMealQty", disabled)}
                 </td>
                 <td className="px-3 py-2 min-w-[90px]">
-                  <Input
-                    type="number"
-                    disabled={disabled}
-                    {...registerEditableField(index, "complimentaryQty")}
-                  />
+                  {renderEditableField(index, "complimentaryQty", disabled)}
                 </td>
                 <td className="px-3 py-2">{formatNumber(row?.actualConsumption ?? 0)}</td>
                 <td className={`px-3 py-2 font-medium ${Math.abs(row?.variance ?? 0) > 0.0001 ? "text-danger-600" : ""}`}>

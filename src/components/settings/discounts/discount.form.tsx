@@ -1,5 +1,6 @@
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input, InputError } from "@/components/common/input/input.tsx";
+import { InputField } from "@/components/common/form/rhf-fields.tsx";
 import { Button } from "@/components/common/input/button.tsx";
 import { Checkbox } from "@/components/common/input/checkbox.tsx";
 import { Controller, useForm } from "react-hook-form";
@@ -119,7 +120,7 @@ export const DiscountForm = ({
 
   const db = useDB();
 
-  const { register, control, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<any>({
+  const { control, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<any>({
     resolver: yupResolver(validationSchema)
   });
 
@@ -191,7 +192,7 @@ export const DiscountForm = ({
           <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
             <legend className="px-2 font-semibold">{t('discountEngine.sections.basic')}</legend>
             <div className="flex flex-col gap-3 mt-2">
-              <Input label={t('columns.name')} {...register('name')} autoFocus error={errors?.name?.message as string}/>
+              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message as string}/>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>

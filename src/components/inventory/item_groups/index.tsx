@@ -9,9 +9,10 @@ import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPencil, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {InventoryItemGroupForm} from "@/components/inventory/item_groups/form.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 export const InventoryItemGroups = () => {
-  const { t } = useTranslation('inventory');
+  const { t } = useTranslation(['inventory', 'common']);
   const loadHook = useApi<SettingsData<InventoryItemGroup>>(Tables.inventory_item_groups, [], [], 0, 10, ['main_item', 'sub_items', 'sub_items.item']);
 
   const [data, setData] = useState<InventoryItemGroup>();
@@ -47,7 +48,7 @@ export const InventoryItemGroups = () => {
       enableColumnFilter: false,
       cell: (info) => {
         return (
-          <Button
+          <IconTooltipButton label={t('common:actions.edit')}
             variant="primary"
             onClick={() => {
               setData(info.row.original);
@@ -55,7 +56,7 @@ export const InventoryItemGroups = () => {
             }}
           >
             <FontAwesomeIcon icon={faPencil}/>
-          </Button>
+          </IconTooltipButton>
         );
       },
     }),

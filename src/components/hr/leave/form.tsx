@@ -12,9 +12,8 @@ import {useDB} from "@/api/db/db.ts";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Employee} from "@/api/model/employee.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
-import {HrCheckboxField, HrDateField, HrSelectField} from "@/components/hr/shared/form-field.tsx";
+import {HrCheckboxField, HrDateField, HrInputField, HrSelectField} from "@/components/hr/shared/form-field.tsx";
 import {
   SelectOption,
   calendarDateToSurreal,
@@ -84,7 +83,7 @@ export const LeaveTypeForm = ({open, onClose, data}: LeaveTypeFormProps) => {
   const {t} = useTranslation("hr");
   const db = useDB();
 
-  const {register, handleSubmit, control, reset, formState: {errors}} = useForm({
+  const {handleSubmit, control, reset, formState: {errors}} = useForm({
     resolver: yupResolver(leaveTypeSchema),
     defaultValues: {paid: true, requires_approval: true, is_active: true},
   });
@@ -139,16 +138,38 @@ export const LeaveTypeForm = ({open, onClose, data}: LeaveTypeFormProps) => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-3 mb-3">
           <div>
-            <Input label={t("forms.leave.typeCode")} {...register("code")} autoFocus error={errors.code?.message}/>
+            <HrInputField
+              name="code"
+              control={control}
+              label={t("forms.leave.typeCode")}
+              autoFocus
+              error={errors.code?.message}
+            />
           </div>
           <div>
-            <Input label={t("forms.leave.typeName")} {...register("name")} error={errors.name?.message}/>
+            <HrInputField
+              name="name"
+              control={control}
+              label={t("forms.leave.typeName")}
+              error={errors.name?.message}
+            />
           </div>
           <div>
-            <Input type="number" label={t("forms.leave.maxDaysPerYear")} {...register("max_days_per_year")}/>
+            <HrInputField
+              type="number"
+              name="max_days_per_year"
+              control={control}
+              label={t("forms.leave.maxDaysPerYear")}
+            />
           </div>
           <div>
-            <Input type="number" step="0.01" label={t("forms.leave.accrualRate")} {...register("accrual_rate")}/>
+            <HrInputField
+              type="number"
+              step="0.01"
+              name="accrual_rate"
+              control={control}
+              label={t("forms.leave.accrualRate")}
+            />
           </div>
           <HrCheckboxField
             label={t("forms.leave.paid")}
@@ -174,7 +195,7 @@ export const LeaveRequestForm = ({open, onClose, data}: LeaveRequestFormProps) =
   const employeesHook = useApi<SettingsData<Employee>>(Tables.employees, [], [], 0, 500, []);
   const typesHook = useApi<SettingsData<LeaveType>>(Tables.leave_types, [], [], 0, 500, []);
 
-  const {register, handleSubmit, control, reset, formState: {errors}} = useForm({
+  const {handleSubmit, control, reset, formState: {errors}} = useForm({
     resolver: yupResolver(leaveRequestSchema),
   });
 
@@ -286,10 +307,20 @@ export const LeaveRequestForm = ({open, onClose, data}: LeaveRequestFormProps) =
               </div>
             </div>
             <div>
-              <Input type="number" label={t("forms.leave.days")} {...register("days", {valueAsNumber: true})} error={errors.days?.message}/>
+              <HrInputField
+                type="number"
+                name="days"
+                control={control}
+                label={t("forms.leave.days")}
+                error={errors.days?.message}
+              />
             </div>
             <div>
-              <Input label={t("forms.leave.reason")} {...register("reason")}/>
+              <HrInputField
+                name="reason"
+                control={control}
+                label={t("forms.leave.reason")}
+              />
             </div>
           </div>
           <Button type="submit" variant="primary">{t("buttons.save")}</Button>

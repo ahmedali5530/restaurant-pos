@@ -6,6 +6,7 @@ import { Tables } from "@/api/db/tables.ts";
 import { InventoryLocation } from "@/api/model/inventory_location.ts";
 import { TableComponent } from "@/components/common/table/table.tsx";
 import { Button } from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPencil, faPlus, faSync } from "@fortawesome/free-solid-svg-icons";
 import { useDB } from "@/api/db/db.ts";
@@ -15,7 +16,7 @@ import { recordIdToString } from "@/api/reports/shared/records.ts";
 import { InventoryLocationForm } from "@/components/inventory/locations/form.tsx";
 
 export const InventoryLocations = () => {
-  const { t } = useTranslation("inventory");
+  const { t } = useTranslation(["inventory", 'common']);
   const db = useDB();
   const [syncing, setSyncing] = useState(false);
   const [data, setData] = useState<InventoryLocation>();
@@ -64,7 +65,7 @@ export const InventoryLocations = () => {
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => (
-        <Button
+        <IconTooltipButton label={t('common:actions.edit')}
           variant="primary"
           onClick={() => {
             setData(info.row.original);
@@ -72,7 +73,7 @@ export const InventoryLocations = () => {
           }}
         >
           <FontAwesomeIcon icon={faPencil} />
-        </Button>
+        </IconTooltipButton>
       ),
     }),
   ];

@@ -7,7 +7,7 @@ import {useTranslation} from "react-i18next";
 import {toast} from "sonner";
 import i18n from "@/lib/i18n.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {Input} from "@/components/common/input/input.tsx";
+import {InputField} from "@/components/common/form/rhf-fields.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {useDB} from "@/api/db/db.ts";
@@ -20,6 +20,7 @@ import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import {CreateAccountGroup} from "@/components/accounts/create.account.group.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 interface CreateAccountProps {
   addModal: boolean;
@@ -45,7 +46,7 @@ export const CreateAccount: FC<CreateAccountProps> = ({
   allAccounts,
   onClose,
 }) => {
-  const {t} = useTranslation('accounts');
+  const {t} = useTranslation(['accounts', 'common']);
   const [modal, setModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const db = useDB();
@@ -58,7 +59,7 @@ export const CreateAccount: FC<CreateAccountProps> = ({
     9999,
   );
 
-  const {register, handleSubmit, control, reset, watch, setValue, formState: {errors}} = useForm({
+  const {handleSubmit, control, reset, watch, setValue, formState: {errors}} = useForm({
     resolver: yupResolver(ValidationSchema),
   });
 
@@ -186,10 +187,10 @@ export const CreateAccount: FC<CreateAccountProps> = ({
         <form onSubmit={handleSubmit(saveAccount)} className="mb-5">
           <div className="grid grid-cols-1 gap-4 mb-3">
             <div>
-              <Input {...register("code")} id="account_code" className="w-full" label={t('columns.code')} error={errors.code?.message}/>
+              <InputField name="code" control={control} id="account_code" className="w-full" label={t('columns.code')} error={errors.code?.message}/>
             </div>
             <div>
-              <Input {...register("name")} id="account_name" className="w-full" label={t('columns.name')} error={errors.name?.message}/>
+              <InputField name="name" control={control} id="account_name" className="w-full" label={t('columns.name')} error={errors.name?.message}/>
             </div>
             <div>
               <div className="flex gap-2 items-end">
@@ -208,9 +209,9 @@ export const CreateAccount: FC<CreateAccountProps> = ({
                     )}
                   />
                 </div>
-                <Button type="button" variant="primary" iconButton onClick={() => setGroupModal(true)}>
+                <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setGroupModal(true)}>
                   <FontAwesomeIcon icon={faPlus}/>
-                </Button>
+                </IconTooltipButton>
               </div>
               {errors.group && (
                 <div className="text-danger-500 text-sm">{errors.group.message as string}</div>
@@ -252,7 +253,7 @@ export const CreateAccount: FC<CreateAccountProps> = ({
               />
             </div>
             <div>
-              <Input {...register("notes")} id="account_notes" className="w-full" label={t('forms.notes')}/>
+              <InputField name="notes" control={control} id="account_notes" className="w-full" label={t('forms.notes')}/>
             </div>
             <div>
               <Button variant="primary" type="submit" disabled={saving || groupOptions.length === 0}>

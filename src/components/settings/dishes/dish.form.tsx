@@ -1,7 +1,9 @@
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Dish} from "@/api/model/dish.ts";
 import {Input, InputError} from "@/components/common/input/input.tsx";
+import {InputField} from "@/components/common/form/rhf-fields.tsx";
 import {Button} from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {Controller, useFieldArray, useForm, useWatch} from "react-hook-form";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {useDB} from "@/api/db/db.ts";
@@ -282,7 +284,7 @@ export const DishForm = ({
     }
   }
 
-  const {register, control, handleSubmit, formState: {errors}, reset, watch, getValues, setValue} = useForm({
+  const {control, handleSubmit, formState: {errors}, reset, watch, getValues, setValue} = useForm({
     resolver: yupResolver(validationSchema)
   });
 
@@ -480,10 +482,10 @@ export const DishForm = ({
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <Input label={t('forms.nameOfItem')} {...register('name')} autoFocus error={errors?.name?.message}/>
+              <InputField name="name" control={control} label={t('forms.nameOfItem')} autoFocus error={errors?.name?.message}/>
             </div>
             <div className="flex-1">
-              <Input label={t('forms.numberOfItem')} {...register('number')} error={errors?.number?.message}/>
+              <InputField name="number" control={control} label={t('forms.numberOfItem')} error={errors?.number?.message}/>
             </div>
             <div className="flex-1">
               <Controller
@@ -574,9 +576,7 @@ export const DishForm = ({
               {errors?.categories?.message && <InputError error={errors?.categories?.message}/>}
             </div>
             <div className="flex-0">
-              <Button onClick={() => setCategoriesModal(true)} type="button" variant="primary">
-                <FontAwesomeIcon icon={faPlus}/>
-              </Button>
+              <IconTooltipButton label={t('common:actions.add')} onClick={() => setCategoriesModal(true)} type="button" variant="primary"><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
             </div>
           </div>
 
@@ -596,9 +596,7 @@ export const DishForm = ({
                     }))}
                   />
                 </div>
-                <Button type="button" variant="primary" iconButton onClick={() => setWorkflowModal(true)}>
-                  <FontAwesomeIcon icon={faPlus}/>
-                </Button>
+                <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setWorkflowModal(true)}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
               </div>
 
               {workflowOption && workflowStages.length > 0 && (
@@ -777,9 +775,7 @@ export const DishForm = ({
                     />
                   </div>
                   <div className="flex-0 self-end">
-                    <Button iconButton variant="danger" onClick={() => remove(index)}>
-                      <FontAwesomeIcon icon={faTrash}/>
-                    </Button>
+                    <IconTooltipButton label={t('common:actions.remove')} variant="danger" onClick={() => remove(index)}><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>
                   </div>
                 </div>
               ))}
@@ -887,9 +883,7 @@ export const DishForm = ({
                       />
                     </div>
                     <div className="flex-0 self-end">
-                      <Button iconButton variant="danger" onClick={() => removeRecipe(index)}>
-                        <FontAwesomeIcon icon={faTrash}/>
-                      </Button>
+                      <IconTooltipButton label={t('common:actions.remove')} variant="danger" onClick={() => removeRecipe(index)}><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>
                     </div>
                   </div>
                 );

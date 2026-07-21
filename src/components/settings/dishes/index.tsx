@@ -2,6 +2,7 @@ import {useState} from "react";
 import {Dish} from "@/api/model/dish.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Button} from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {DishForm} from "@/components/settings/dishes/dish.form.tsx";
 import {faPencil, faPhotoFilm, faPlus, faUpload, faEye} from "@fortawesome/free-solid-svg-icons";
 import {createColumnHelper, RowSelectionState} from "@tanstack/react-table";
@@ -150,21 +151,21 @@ export const AdminDishes = () => {
       cell: (info) => {
         return (
           <div className="flex gap-3 items-center">
-            <Button
+            <IconTooltipButton label={t('common:actions.view')}
               variant="secondary"
               onClick={() => {
                 setData(info.row.original);
                 setViewModal(true);
               }}
-            ><FontAwesomeIcon icon={faEye}/></Button>
+            ><FontAwesomeIcon icon={faEye}/></IconTooltipButton>
             <div className="separator"></div>
-            <Button
+            <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
                 setData(info.row.original);
                 setFormModal(true);
               }}
-            ><FontAwesomeIcon icon={faPencil}/></Button>
+            ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
             <div className="separator"></div>
             <DeleteConfirm
               message={t('delete.dish', { name: info.row.original.name })}

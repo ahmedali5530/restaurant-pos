@@ -1,8 +1,8 @@
-import {ChangeEvent, ReactNode} from 'react';
+import {ChangeEvent, ComponentProps, ReactNode} from 'react';
 import {Control, Controller, FieldValues, Path} from 'react-hook-form';
-import {DateValue} from 'react-aria-components';
+import {DateValue, TooltipTrigger} from 'react-aria-components';
 import {ReactSelect} from '@/components/common/input/custom.react.select.tsx';
-import {InputError} from '@/components/common/input/input.tsx';
+import {Input, InputError} from '@/components/common/input/input.tsx';
 import {Checkbox} from '@/components/common/input/checkbox.tsx';
 import {DatePicker} from '@/components/common/antd/datepicker.tsx';
 import {DateTimePicker} from '@/components/common/antd/datetime.picker.tsx';
@@ -10,6 +10,8 @@ import {TimePicker} from '@/components/common/antd/time.picker.tsx';
 import {Button} from '@/components/common/input/button.tsx';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faPlus} from '@fortawesome/free-solid-svg-icons';
+import {Tooltip} from '@/components/common/react-aria/tooltip.tsx';
+import {useTranslation} from 'react-i18next';
 import type {Dayjs} from 'dayjs';
 import type {SelectOption} from '@/components/common/form/types.ts';
 
@@ -26,6 +28,40 @@ export const FormField = ({label, error, children, className = ''}: FormFieldPro
     {children}
     {error && <InputError error={error}/>}
   </div>
+);
+
+type InputFieldProps<T extends FieldValues = FieldValues> = {
+  name: Path<T>;
+  control: Control<T>;
+  label?: ReactNode;
+  error?: any;
+  className?: string;
+} & Omit<ComponentProps<typeof Input>, 'name' | 'value' | 'onChange' | 'onBlur' | 'defaultValue'>;
+
+export const InputField = <T extends FieldValues = FieldValues>({
+  name,
+  control,
+  label,
+  error,
+  type,
+  ...inputProps
+}: InputFieldProps<T>) => (
+  <Controller
+    control={control}
+    name={name}
+    render={({field}) => (
+      <Input
+        {...inputProps}
+        type={type}
+        name={field.name}
+        label={label}
+        error={error}
+        value={field.value ?? ''}
+        onChange={field.onChange}
+        onBlur={field.onBlur}
+      />
+    )}
+  />
 );
 
 interface SelectFieldProps<T extends FieldValues = FieldValues> {
@@ -54,33 +90,45 @@ export const SelectField = <T extends FieldValues = FieldValues>({
   stringValue = false,
   onAdd,
   isMulti,
-}: SelectFieldProps<T>) => (
-  <FormField label={label} error={error} className={className}>
-    <div className={onAdd ? 'flex gap-2 items-end' : undefined}>
-      <div className={onAdd ? 'flex-1' : undefined}>
-        <Controller
-          control={control}
-          name={name}
-          render={({field}) => (
-            <ReactSelect
-              options={options as never}
-              value={stringValue ? options.find((o) => o.value === field.value) ?? null : field.value}
-              onChange={(opt) => field.onChange(stringValue ? (opt as SelectOption | null)?.value : opt)}
-              isClearable={isClearable ?? !stringValue}
-              isLoading={isLoading}
-              isMulti={isMulti}
-            />
-          )}
-        />
+}: SelectFieldProps<T>) => {
+  const {t} = useTranslation('common');
+  return (
+    <FormField label={label} error={error} className={className}>
+      <div className={onAdd ? 'flex gap-2 items-end' : undefined}>
+        <div className={onAdd ? 'flex-1' : undefined}>
+          <Controller
+            control={control}
+            name={name}
+            render={({field}) => (
+              <ReactSelect
+                options={options as never}
+                value={stringValue ? options.find((o) => o.value === field.value) ?? null : field.value}
+                onChange={(opt) => field.onChange(stringValue ? (opt as SelectOption | null)?.value : opt)}
+                isClearable={isClearable ?? !stringValue}
+                isLoading={isLoading}
+                isMulti={isMulti}
+              />
+            )}
+          />
+        </div>
+        {onAdd && (
+          <TooltipTrigger delay={0} closeDelay={0}>
+            <Button
+              type="button"
+              variant="primary"
+              iconButton
+              onClick={onAdd}
+              aria-label={t('actions.add')}
+            >
+              <FontAwesomeIcon icon={faPlus}/>
+            </Button>
+            <Tooltip>{t('actions.add')}</Tooltip>
+          </TooltipTrigger>
+        )}
       </div>
-      {onAdd && (
-        <Button type="button" variant="primary" iconButton onClick={onAdd}>
-          <FontAwesomeIcon icon={faPlus}/>
-        </Button>
-      )}
-    </div>
-  </FormField>
-);
+    </FormField>
+  );
+};
 
 interface DateFieldProps<T extends FieldValues = FieldValues> {
   label?: string;

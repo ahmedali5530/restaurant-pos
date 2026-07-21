@@ -10,6 +10,7 @@ import {Controller, useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import {toast} from "sonner";
 import {Input, InputError} from "@/components/common/input/input.tsx";
+import {InputField} from "@/components/common/form/rhf-fields.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -30,6 +31,7 @@ import {getReorderLevelForStore} from "@/utils/inventory.ts";
 import {Switch} from "@/components/common/input/switch.tsx";
 import {useInventoryLocations} from "@/hooks/useInventoryLocations.ts";
 import {toRecordId} from "@/lib/utils.ts";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 interface Props {
   open: boolean
@@ -71,7 +73,7 @@ const validationSchema = yup.object({
 export const InventoryItemForm = ({
   open, data, onClose
 }: Props) => {
-  const { t } = useTranslation('inventory');
+  const { t } = useTranslation(['inventory', 'common']);
   const closeModal = () => {
     onClose();
     reset({
@@ -127,7 +129,7 @@ export const InventoryItemForm = ({
 
   const db = useDB();
 
-  const { register, control, handleSubmit, formState: { errors }, reset, watch } = useForm({
+  const { control, handleSubmit, formState: { errors }, reset, watch } = useForm({
     resolver: yupResolver(validationSchema)
   });
 
@@ -258,10 +260,10 @@ export const InventoryItemForm = ({
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid grid-cols-4 gap-3 mb-3">
             <div className="flex-1">
-              <Input label={t('forms.nameOfItem')} {...register('name')} autoFocus error={errors?.name?.message}/>
+              <InputField name="name" control={control} label={t('forms.nameOfItem')} autoFocus error={errors?.name?.message}/>
             </div>
             <div className="flex-1">
-              <Input label={t('columns.code')} {...register('code')} error={errors?.code?.message}/>
+              <InputField name="code" control={control} label={t('columns.code')} error={errors?.code?.message}/>
             </div>
             <div className="flex-1">
               <label>{t('itemType.label')}</label>
@@ -301,9 +303,9 @@ export const InventoryItemForm = ({
                 />
                 {errors?.category && <InputError error={errors?.category?.message}/>}
               </div>
-              <Button type="button" variant="primary" iconButton onClick={() => setCategoriesModal(true)}>
+              <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setCategoriesModal(true)}>
                 <FontAwesomeIcon icon={faPlus}/>
-              </Button>
+              </IconTooltipButton>
             </div>
           </div>
           <div className="mb-3">
@@ -403,9 +405,9 @@ export const InventoryItemForm = ({
                 />
                 {errors?.locations?.message && <InputError error={errors?.locations?.message}/>}
               </div>
-              <Button type="button" variant="primary" iconButton onClick={() => setLocationsModal(true)}>
+              <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setLocationsModal(true)}>
                 <FontAwesomeIcon icon={faPlus}/>
-              </Button>
+              </IconTooltipButton>
             </div>
           </div>
 
@@ -460,9 +462,9 @@ export const InventoryItemForm = ({
               {errors?.suppliers?.message && <InputError error={errors?.suppliers?.message}/>}
             </div>
             <div className="flex-0">
-              <Button onClick={() => setSuppliersModal(true)} type="button" variant="primary">
+              <IconTooltipButton label={t('common:actions.add')} onClick={() => setSuppliersModal(true)} type="button" variant="primary">
                 <FontAwesomeIcon icon={faPlus}/>
-              </Button>
+              </IconTooltipButton>
             </div>
           </div>
 

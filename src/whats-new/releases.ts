@@ -6,10 +6,20 @@ export interface ReleaseNotes {
 }
 
 /** Bump this string on every release. */
-export const APP_VERSION = '1.0.1';
+export const APP_VERSION = '1.0.2';
 
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
+  {
+    version: '1.0.2',
+    date: '2026-07-21',
+    title: 'Forms, time pickers, and tooltips',
+    items: [
+      'Form inputs now keep values when editing records (react-hook-form Controller wiring).',
+      'Time fields use the Ant Design TimePicker instead of the native browser control.',
+      'Icon-only action buttons show localized tooltips and accessible labels.',
+    ],
+  },
   {
     version: '1.0.1',
     date: '2026-07-20',

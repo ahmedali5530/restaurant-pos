@@ -7,7 +7,7 @@ import {useTranslation} from "react-i18next";
 import {toast} from "sonner";
 import i18n from "@/lib/i18n.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {Input} from "@/components/common/input/input.tsx";
+import {InputField} from "@/components/common/form/rhf-fields.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {useDB} from "@/api/db/db.ts";
@@ -47,7 +47,7 @@ export const CreateAccountGroup: FC<CreateAccountGroupProps> = ({
   const [saving, setSaving] = useState(false);
   const db = useDB();
 
-  const {register, handleSubmit, control, reset, watch, setValue, formState: {errors}} = useForm({
+  const {handleSubmit, control, reset, watch, setValue, formState: {errors}} = useForm({
     resolver: yupResolver(ValidationSchema),
   });
 
@@ -132,10 +132,10 @@ export const CreateAccountGroup: FC<CreateAccountGroupProps> = ({
       <form onSubmit={handleSubmit(saveGroup)} className="mb-5">
         <div className="grid grid-cols-1 gap-4 mb-3">
           <div>
-            <Input {...register("code")} id="group_code" className="w-full" label={t('columns.code')} error={errors.code?.message}/>
+            <InputField name="code" control={control} id="group_code" className="w-full" label={t('columns.code')} error={errors.code?.message}/>
           </div>
           <div>
-            <Input {...register("name")} id="group_name" className="w-full" label={t('columns.name')} error={errors.name?.message}/>
+            <InputField name="name" control={control} id="group_name" className="w-full" label={t('columns.name')} error={errors.name?.message}/>
           </div>
           <div>
             <label htmlFor="head_type">{t('columns.mainHead')}</label>
@@ -172,7 +172,7 @@ export const CreateAccountGroup: FC<CreateAccountGroupProps> = ({
             )}
           </div>
           <div>
-            <Input {...register("notes")} id="group_notes" className="w-full" label={t('forms.notes')}/>
+            <InputField name="notes" control={control} id="group_notes" className="w-full" label={t('forms.notes')}/>
           </div>
           <div>
             <Button variant="primary" type="submit" disabled={saving}>

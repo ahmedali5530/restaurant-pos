@@ -16,9 +16,8 @@ import {Position} from "@/api/model/position.ts";
 import {CostCenter} from "@/api/model/cost_center.ts";
 import {Shift} from "@/api/model/shift.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
-import {HrDateTimeField, HrSelectField} from "@/components/hr/shared/form-field.tsx";
+import {HrDateTimeField, HrInputField, HrSelectField} from "@/components/hr/shared/form-field.tsx";
 import {
   SelectOption,
   dayjsToSurreal,
@@ -320,7 +319,11 @@ export const ScheduledShiftForm = ({open, onClose, data, defaultSchedule}: Props
               </div>
             </div>
             <div>
-              <Input label={t("forms.schedule.notes")} {...register("notes")}/>
+              <HrInputField
+                name="notes"
+                control={control}
+                label={t("forms.schedule.notes")}
+              />
             </div>
           </div>
           <Button type="submit" variant="primary">{t("buttons.save")}</Button>

@@ -16,7 +16,7 @@ import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
-import {HrCheckboxField, HrFormField, HrSelectField, HrTimeField} from "@/components/hr/shared/form-field.tsx";
+import {HrCheckboxField, HrFormField, HrInputField, HrSelectField, HrTimeField} from "@/components/hr/shared/form-field.tsx";
 import {SelectOption, firstFormError, toRecordId, toSelectOption} from "@/components/hr/shared/form.utils.ts";
 import {ChangeEvent} from "react";
 import {ShiftForm} from "@/components/settings/users/shifts/shift.form.tsx";
@@ -197,7 +197,13 @@ export const ScheduleTemplateForm = ({open, onClose, data}: Props) => {
           <input type="hidden" {...register("id")} />
           <div className="flex flex-col gap-3 mb-3">
             <div>
-              <Input label={t("forms.scheduleTemplate.name")} {...register("name")} autoFocus error={errors.name?.message}/>
+              <HrInputField
+                name="name"
+                control={control}
+                label={t("forms.scheduleTemplate.name")}
+                autoFocus
+                error={errors.name?.message}
+              />
             </div>
             <HrSelectField
               label={t("forms.schedule.shiftTemplate")}

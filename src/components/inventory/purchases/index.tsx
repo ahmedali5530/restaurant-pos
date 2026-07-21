@@ -17,7 +17,7 @@ import {InventoryInvoiceDoc, mapPurchaseToInvoice} from "@/lib/inventory/invoice
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
-import { toJsDate } from "@/lib/datetime.ts";
+import {formatDateTime} from "@/lib/datetime.ts";
 import { canDelete, canEdit, canPost, canVoid } from "@/lib/inventory/lifecycle.ts";
 import { approveDocument, postDocument, voidDocument } from "@/lib/inventory/posting.service.ts";
 import { createPurchaseRevision } from "@/lib/inventory/revision.service.ts";
@@ -30,9 +30,10 @@ import { useAtom } from "jotai";
 import { appPage } from "@/store/jotai.ts";
 import { toast } from "sonner";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 export const InventoryPurchases = () => {
-  const { t } = useTranslation('inventory');
+  const { t } = useTranslation(['inventory', 'common']);
   const db = useDB();
   const { protectAction } = useSecurity();
   const { manager } = useIntegrationManager();
@@ -122,7 +123,7 @@ export const InventoryPurchases = () => {
     }),
     columnHelper.accessor("created_at", {
       header: t('columns.createdAt'),
-      cell: info => info.getValue() ? toJsDate(info.getValue() as any).toLocaleString() : ""
+      cell: info => info.getValue() ? formatDateTime(info.getValue() as any) : ""
     }),
     columnHelper.accessor("items", {
       header: t('tabs.items'),
@@ -152,48 +153,48 @@ export const InventoryPurchases = () => {
 
         return (
           <div className="flex gap-2 flex-wrap">
-            <Button
+            <IconTooltipButton label={t('common:actions.view')}
               variant="secondary"
-              iconButton
+             
               onClick={() => {
                 setViewPurchase(row);
                 setViewModalOpen(true);
               }}
             >
               <FontAwesomeIcon icon={faFile}/>
-            </Button>
-            <Button
+            </IconTooltipButton>
+            <IconTooltipButton label={t('print.printReceipt')}
               variant="secondary"
-              iconButton
-              title={t('print.printReceipt')}
+             
+             
               onClick={() => setPrintDoc(mapPurchaseToInvoice(row))}
             >
               <FontAwesomeIcon icon={faPrint}/>
-            </Button>
+            </IconTooltipButton>
             {postable && (
-              <Button
+              <IconTooltipButton label={t('common:actions.approve')}
                 variant="success"
-                iconButton
+               
                 disabled={busy}
                 onClick={() => handlePost(row)}
               >
                 <FontAwesomeIcon icon={faUpload}/>
-              </Button>
+              </IconTooltipButton>
             )}
             {editable && row.status === "draft" && (
-              <Button
+              <IconTooltipButton label={t('common:actions.approve')}
                 variant="secondary"
-                iconButton
+               
                 disabled={busy}
                 onClick={() => handleApprove(row)}
               >
                 <FontAwesomeIcon icon={faCheck}/>
-              </Button>
+              </IconTooltipButton>
             )}
             {revisable && (
-              <Button
+              <IconTooltipButton label={t('common:actions.revision')}
                 variant="secondary"
-                iconButton
+               
                 disabled={busy}
                 onClick={() =>
                   protectAction(async () => {
@@ -216,12 +217,12 @@ export const InventoryPurchases = () => {
                 }
               >
                 <FontAwesomeIcon icon={faCodeBranch}/>
-              </Button>
+              </IconTooltipButton>
             )}
             {voidable && (
-              <Button
+              <IconTooltipButton label={t('common:actions.void')}
                 variant="danger"
-                iconButton
+               
                 disabled={busy}
                 onClick={() =>
                   protectAction(async () => {
@@ -252,10 +253,10 @@ export const InventoryPurchases = () => {
                 }
               >
                 <FontAwesomeIcon icon={faBan}/>
-              </Button>
+              </IconTooltipButton>
             )}
             {editable && (
-              <Button
+              <IconTooltipButton label={t('common:actions.edit')}
                 variant="primary"
                 onClick={() => {
                   protectAction(() => {
@@ -268,7 +269,7 @@ export const InventoryPurchases = () => {
                 }}
               >
                 <FontAwesomeIcon icon={faPencil}/>
-              </Button>
+              </IconTooltipButton>
             )}
             {deletable && (
               <DeleteConfirm

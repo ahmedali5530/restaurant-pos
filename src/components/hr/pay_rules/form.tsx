@@ -15,14 +15,15 @@ import {Position} from "@/api/model/position.ts";
 import {CostCenter} from "@/api/model/cost_center.ts";
 import {PublicHoliday} from "@/api/model/public_holiday.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
+import {IconTooltipButton} from "@/components/common/input/icon.tooltip.button.tsx";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {
   HrCheckboxField,
   HrDateField,
   HrFormField,
+  HrInputField,
   HrStringSelectField,
   HrTimeField,
 } from "@/components/hr/shared/form-field.tsx";
@@ -40,7 +41,6 @@ import {
   StackingMode,
 } from "@/api/model/hr.types.ts";
 import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {DepartmentForm} from "@/components/hr/departments/form.tsx";
 import {PositionForm} from "@/components/hr/positions/form.tsx";
 import {CostCenterForm} from "@/components/hr/cost_centers/form.tsx";
@@ -393,18 +393,30 @@ export const PayRuleForm = ({open, onClose, data}: Props) => {
         <div className="flex flex-col gap-3">
           <div className="flex gap-3">
             <div className="flex-1">
-              <Input label={t("forms.payRule.code")} {...register("code")} autoFocus error={errors.code?.message}/>
+              <HrInputField
+                name="code"
+                control={control}
+                label={t("forms.payRule.code")}
+                autoFocus
+                error={errors.code?.message}
+              />
             </div>
             <div className="flex-1">
-              <Input label={t("forms.payRule.name")} {...register("name")} error={errors.name?.message}/>
+              <HrInputField
+                name="name"
+                control={control}
+                label={t("forms.payRule.name")}
+                error={errors.name?.message}
+              />
             </div>
           </div>
           <div className="flex gap-3">
             <div className="flex-1">
-              <Input
+              <HrInputField
                 type="number"
+                name="priority"
+                control={control}
                 label={t("forms.payRule.priority")}
-                {...register("priority", {valueAsNumber: true})}
               />
             </div>
             <div className="flex-1">
@@ -440,11 +452,12 @@ export const PayRuleForm = ({open, onClose, data}: Props) => {
                 />
               </div>
               <div className="w-28">
-                <Input
+                <HrInputField
                   type="number"
                   step="any"
+                  name={`effects.${index}.value`}
+                  control={control}
                   label={t("forms.payRule.effectValue")}
-                  {...register(`effects.${index}.value`, {valueAsNumber: true})}
                 />
               </div>
               <div className="min-w-[140px] flex-1">
@@ -456,14 +469,14 @@ export const PayRuleForm = ({open, onClose, data}: Props) => {
                   isClearable={false}
                 />
               </div>
-              <Button
+              <IconTooltipButton
                 type="button"
+                label={t("buttons.delete")}
                 variant="danger"
+                icon={faTrash}
                 disabled={fields.length <= 1}
                 onClick={() => remove(index)}
-              >
-                <FontAwesomeIcon icon={faTrash}/>
-              </Button>
+              />
             </div>
           ))}
           <Button
@@ -497,9 +510,13 @@ export const PayRuleForm = ({open, onClose, data}: Props) => {
                   )}
                 />
               </div>
-              <Button type="button" variant="primary" iconButton onClick={() => setDepartmentModal(true)}>
-                <FontAwesomeIcon icon={faPlus}/>
-              </Button>
+              <IconTooltipButton
+                type="button"
+                label={t("common:actions.add")}
+                variant="primary"
+                icon={faPlus}
+                onClick={() => setDepartmentModal(true)}
+              />
             </div>
           </HrFormField>
           <HrFormField label={t("forms.schedule.position")}>
@@ -519,9 +536,13 @@ export const PayRuleForm = ({open, onClose, data}: Props) => {
                   )}
                 />
               </div>
-              <Button type="button" variant="primary" iconButton onClick={() => setPositionModal(true)}>
-                <FontAwesomeIcon icon={faPlus}/>
-              </Button>
+              <IconTooltipButton
+                type="button"
+                label={t("common:actions.add")}
+                variant="primary"
+                icon={faPlus}
+                onClick={() => setPositionModal(true)}
+              />
             </div>
           </HrFormField>
           <HrFormField label={t("forms.schedule.costCenter")}>
@@ -541,9 +562,13 @@ export const PayRuleForm = ({open, onClose, data}: Props) => {
                   )}
                 />
               </div>
-              <Button type="button" variant="primary" iconButton onClick={() => setCostCenterModal(true)}>
-                <FontAwesomeIcon icon={faPlus}/>
-              </Button>
+              <IconTooltipButton
+                type="button"
+                label={t("common:actions.add")}
+                variant="primary"
+                icon={faPlus}
+                onClick={() => setCostCenterModal(true)}
+              />
             </div>
           </HrFormField>
           <HrFormField label={t("forms.adjustment.employee")}>
@@ -578,9 +603,13 @@ export const PayRuleForm = ({open, onClose, data}: Props) => {
                   )}
                 />
               </div>
-              <Button type="button" variant="primary" iconButton onClick={() => setHolidayModal(true)}>
-                <FontAwesomeIcon icon={faPlus}/>
-              </Button>
+              <IconTooltipButton
+                type="button"
+                label={t("common:actions.add")}
+                variant="primary"
+                icon={faPlus}
+                onClick={() => setHolidayModal(true)}
+              />
             </div>
           </HrFormField>
 
@@ -649,19 +678,21 @@ export const PayRuleForm = ({open, onClose, data}: Props) => {
 
           <div className="flex gap-3">
             <div className="flex-1">
-              <Input
+              <HrInputField
                 type="number"
                 step="any"
+                name="after_hours_day"
+                control={control}
                 label={t("forms.payRule.afterHoursDay")}
-                {...register("after_hours_day", {setValueAs: (v) => (v === "" || v == null ? null : Number(v))})}
               />
             </div>
             <div className="flex-1">
-              <Input
+              <HrInputField
                 type="number"
                 step="any"
+                name="after_hours_week"
+                control={control}
                 label={t("forms.payRule.afterHoursWeek")}
-                {...register("after_hours_week", {setValueAs: (v) => (v === "" || v == null ? null : Number(v))})}
               />
             </div>
           </div>

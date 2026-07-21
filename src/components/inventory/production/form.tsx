@@ -6,7 +6,8 @@ import {yupResolver} from "@hookform/resolvers/yup";
 import {toast} from "sonner";
 import {useDB} from "@/api/db/db.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {Input, InputError} from "@/components/common/input/input.tsx";
+import {InputError} from "@/components/common/input/input.tsx";
+import {InputField} from "@/components/common/form/rhf-fields.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
@@ -87,7 +88,6 @@ export const ProductionForm = ({open, onClose}: Props) => {
 
   const {
     control,
-    register,
     handleSubmit,
     formState: {errors},
     reset,
@@ -185,24 +185,26 @@ export const ProductionForm = ({open, onClose}: Props) => {
             <InputError error={errors.location?.message} />
           </div>
           <div>
-            <Input
+            <InputField
+              name="producedQty"
+              control={control}
               type="number"
               step="any"
               label={t("production.producedQty")}
-              {...register("producedQty")}
               error={errors.producedQty?.message}
             />
           </div>
           <div>
-            <Input
+            <InputField
+              name="batchNumber"
+              control={control}
               label={t("production.batchNumber")}
-              {...register("batchNumber")}
               placeholder={t("production.batchNumberAuto")}
             />
           </div>
         </div>
 
-        <Input label={t("production.notes")} {...register("notes")} />
+        <InputField name="notes" control={control} label={t("production.notes")} />
 
         <Controller
           control={control}

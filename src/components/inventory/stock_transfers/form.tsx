@@ -9,6 +9,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {useDB} from "@/api/db/db.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input, InputError} from "@/components/common/input/input.tsx";
+import {InputField} from "@/components/common/form/rhf-fields.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {StockTransfer} from "@/api/model/stock_transfer.ts";
@@ -28,6 +29,7 @@ import {
 } from "@/lib/inventory/stock_transfer.service.ts";
 import {fetchNetQuantity, validateStoreTransferAvailability} from "@/utils/inventory.ts";
 import {useInventoryLocations} from "@/hooks/useInventoryLocations.ts";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 type SelectOption = {label: string; value: string} | null;
 
@@ -115,7 +117,7 @@ const resolveEndpointOption = (
 };
 
 export const StockTransferForm = ({open, onClose, data}: Props) => {
-  const {t} = useTranslation("inventory");
+  const {t} = useTranslation(["inventory", 'common']);
   const db = useDB();
   const [state] = useAtom(appPage);
   const resolver = useMemo(() => yupResolver(validationSchema), []);
@@ -135,7 +137,6 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
 
   const {
     control,
-    register,
     handleSubmit,
     formState: {errors, isSubmitting},
     reset,
@@ -365,9 +366,10 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
               <InputError error={_.get(errors, ["date", "message"])} />
             </div>
             <div className="flex-1">
-              <Input
+              <InputField
+                name="notes"
+                control={control}
                 label={t("stockTransfer.notes")}
-                {...register("notes")}
                 error={_.get(errors, ["notes", "message"])}
               />
             </div>
@@ -426,15 +428,15 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
                     </p>
                   )}
                 </div>
-                <Button
+                <IconTooltipButton label={t('common:actions.remove')}
                   type="button"
                   variant="danger"
-                  iconButton
+                 
                   onClick={() => remove(index)}
                   disabled={fields.length <= 1}
                 >
                   <FontAwesomeIcon icon={faTrash} />
-                </Button>
+                </IconTooltipButton>
               </div>
             ))}
           </fieldset>

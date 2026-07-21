@@ -11,9 +11,8 @@ import {useDB} from "@/api/db/db.ts";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Employee} from "@/api/model/employee.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
-import {HrDateField, HrFormField, HrSelectField, HrStringSelectField} from "@/components/hr/shared/form-field.tsx";
+import {HrDateField, HrFormField, HrInputField, HrSelectField, HrStringSelectField} from "@/components/hr/shared/form-field.tsx";
 import {
   SelectOption,
   calendarDateToSurreal,
@@ -63,7 +62,7 @@ export const DocumentForm = ({open, onClose, data}: Props) => {
   const [page] = useAtom(appPage);
   const employeesHook = useApi<SettingsData<Employee>>(Tables.employees, [], [], 0, 500, []);
 
-  const {register, handleSubmit, control, reset, formState: {errors}} = useForm<FormValues>({
+  const {handleSubmit, control, reset, formState: {errors}} = useForm<FormValues>({
     resolver: yupResolver(validationSchema) as never,
     defaultValues: {category: "other", file: null},
   });
@@ -164,7 +163,12 @@ export const DocumentForm = ({open, onClose, data}: Props) => {
             error={errors.employee?.message}
           />
           <div>
-            <Input label={t("forms.document.title")} {...register("title")} error={errors.title?.message}/>
+            <HrInputField
+              name="title"
+              control={control}
+              label={t("forms.document.title")}
+              error={errors.title?.message}
+            />
           </div>
           <HrStringSelectField
             label={t("forms.document.category")}

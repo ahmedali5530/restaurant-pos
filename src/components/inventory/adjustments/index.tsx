@@ -6,6 +6,7 @@ import { Tables } from "@/api/db/tables.ts";
 import { InventoryAdjustment } from "@/api/model/inventory_adjustment.ts";
 import { TableComponent } from "@/components/common/table/table.tsx";
 import { Button } from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faPencil, faPlus, faUpload, faBan } from "@fortawesome/free-solid-svg-icons";
 import { InventoryAdjustmentForm } from "@/components/inventory/adjustments/form.tsx";
@@ -13,7 +14,7 @@ import { InventoryDocumentStatusBadge } from "@/components/inventory/common/docu
 import { DeleteConfirm } from "@/components/common/table/delete.confirm.tsx";
 import { useDB } from "@/api/db/db.ts";
 import { useSecurity } from "@/hooks/useSecurity.ts";
-import { toJsDate } from "@/lib/datetime.ts";
+import {formatDateTime} from "@/lib/datetime.ts";
 import { canDelete, canEdit, canPost, canVoid } from "@/lib/inventory/lifecycle.ts";
 import {
   approveDocument,
@@ -27,7 +28,7 @@ import { toast } from "sonner";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
 
 export const InventoryAdjustments = () => {
-  const { t } = useTranslation("inventory");
+  const { t } = useTranslation(["inventory", 'common']);
   const db = useDB();
   const { protectAction } = useSecurity();
   const { manager } = useIntegrationManager();
@@ -68,7 +69,7 @@ export const InventoryAdjustments = () => {
     columnHelper.accessor("created_at", {
       header: t("columns.createdAt"),
       cell: (info) =>
-        info.getValue() ? toJsDate(info.getValue() as any).toLocaleString() : "",
+        info.getValue() ? formatDateTime(info.getValue() as any) : "",
     }),
     columnHelper.accessor("items", {
       header: t("tabs.items"),
@@ -98,9 +99,9 @@ export const InventoryAdjustments = () => {
         return (
           <div className="flex gap-2 flex-wrap">
             {postable && (
-              <Button
+              <IconTooltipButton label={t('common:actions.upload')}
                 variant="success"
-                iconButton
+               
                 disabled={busy}
                 onClick={() =>
                   protectAction(
@@ -138,12 +139,12 @@ export const InventoryAdjustments = () => {
                 }
               >
                 <FontAwesomeIcon icon={faUpload} />
-              </Button>
+              </IconTooltipButton>
             )}
             {editable && row.status === "draft" && (
-              <Button
+              <IconTooltipButton label={t('common:actions.approve')}
                 variant="secondary"
-                iconButton
+               
                 disabled={busy}
                 onClick={() =>
                   protectAction(
@@ -174,12 +175,12 @@ export const InventoryAdjustments = () => {
                 }
               >
                 <FontAwesomeIcon icon={faCheck} />
-              </Button>
+              </IconTooltipButton>
             )}
             {voidable && (
-              <Button
+              <IconTooltipButton label={t('common:actions.void')}
                 variant="danger"
-                iconButton
+               
                 disabled={busy}
                 onClick={() =>
                   protectAction(
@@ -217,7 +218,7 @@ export const InventoryAdjustments = () => {
                 }
               >
                 <FontAwesomeIcon icon={faBan} />
-              </Button>
+              </IconTooltipButton>
             )}
             {editable && (
               <Button

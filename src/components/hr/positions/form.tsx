@@ -11,9 +11,8 @@ import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Department} from "@/api/model/department.ts";
 import {CostCenter} from "@/api/model/cost_center.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
-import {HrCheckboxField, HrSelectField} from "@/components/hr/shared/form-field.tsx";
+import {HrCheckboxField, HrInputField, HrSelectField} from "@/components/hr/shared/form-field.tsx";
 import {SelectOption, toRecordId, toSelectOption} from "@/components/hr/shared/form.utils.ts";
 import {DepartmentForm} from "@/components/hr/departments/form.tsx";
 import {CostCenterForm} from "@/components/hr/cost_centers/form.tsx";
@@ -48,7 +47,7 @@ export const PositionForm = ({open, onClose, data}: Props) => {
   const departmentsHook = useApi<SettingsData<Department>>(Tables.departments, [], [], 0, 500, []);
   const costCentersHook = useApi<SettingsData<CostCenter>>(Tables.cost_centers, [], [], 0, 500, []);
 
-  const {register, handleSubmit, control, formState: {errors}, reset} = useForm({
+  const {handleSubmit, control, formState: {errors}, reset} = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {is_active: true},
   });
@@ -114,10 +113,21 @@ export const PositionForm = ({open, onClose, data}: Props) => {
           {/*<input type="hidden" {...register("id")} />*/}
           <div className="flex flex-col gap-3 mb-3">
             <div>
-              <Input label={t("forms.position.code")} {...register("code")} autoFocus error={errors.code?.message}/>
+              <HrInputField
+                name="code"
+                control={control}
+                label={t("forms.position.code")}
+                autoFocus
+                error={errors.code?.message}
+              />
             </div>
             <div>
-              <Input label={t("forms.position.name")} {...register("name")} error={errors.name?.message}/>
+              <HrInputField
+                name="name"
+                control={control}
+                label={t("forms.position.name")}
+                error={errors.name?.message}
+              />
             </div>
             <HrSelectField
               label={t("forms.position.department")}

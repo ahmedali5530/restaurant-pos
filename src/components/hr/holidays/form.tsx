@@ -9,9 +9,8 @@ import {PublicHoliday} from "@/api/model/public_holiday.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {useDB} from "@/api/db/db.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
-import {HrCheckboxField, HrDateField} from "@/components/hr/shared/form-field.tsx";
+import {HrCheckboxField, HrDateField, HrInputField} from "@/components/hr/shared/form-field.tsx";
 import {calendarDateToSurreal, toCalendarDateValue} from "@/components/hr/shared/form.utils.ts";
 
 interface FormValues {
@@ -42,7 +41,7 @@ export const HolidayForm = ({open, onClose, data}: Props) => {
   const {t} = useTranslation("hr");
   const db = useDB();
 
-  const {register, handleSubmit, control, reset, formState: {errors}} = useForm({
+  const {handleSubmit, control, reset, formState: {errors}} = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {is_recurring: false, is_active: true},
   });
@@ -93,7 +92,13 @@ export const HolidayForm = ({open, onClose, data}: Props) => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-3 mb-3">
           <div>
-            <Input label={t("forms.holiday.name")} {...register("name")} autoFocus error={errors.name?.message}/>
+            <HrInputField
+              name="name"
+              control={control}
+              label={t("forms.holiday.name")}
+              autoFocus
+              error={errors.name?.message}
+            />
           </div>
           <HrDateField
             label={t("forms.holiday.date")}
@@ -102,7 +107,11 @@ export const HolidayForm = ({open, onClose, data}: Props) => {
             error={errors.date?.message}
           />
           <div>
-            <Input label={t("forms.holiday.countryCode")} {...register("country_code")}/>
+            <HrInputField
+              name="country_code"
+              control={control}
+              label={t("forms.holiday.countryCode")}
+            />
           </div>
           <HrCheckboxField
             label={t("forms.holiday.isRecurring")}

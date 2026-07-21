@@ -8,7 +8,7 @@ import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {useDB} from "@/api/db/db.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {Input} from "@/components/common/input/input.tsx";
+import {InputField} from "@/components/common/form/rhf-fields.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {BuffetMenu, BuffetSessionType} from "@/api/model/buffet_menu.ts";
@@ -87,7 +87,6 @@ export const BuffetSessionForm = ({open, onClose, onCreated}: Props) => {
 
   const {
     control,
-    register,
     handleSubmit,
     formState: {errors, isSubmitting},
   } = useForm<BuffetSessionFormValues>({
@@ -167,10 +166,11 @@ export const BuffetSessionForm = ({open, onClose, onCreated}: Props) => {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Input
+            <InputField
+              name="businessDate"
+              control={control}
               label={t("buffet.businessDate")}
               type="date"
-              {...register("businessDate")}
               error={errors.businessDate?.message}
             />
           </div>
@@ -193,25 +193,27 @@ export const BuffetSessionForm = ({open, onClose, onCreated}: Props) => {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Input
+            <InputField
+              name="expectedGuests"
+              control={control}
               label={t("buffet.expectedGuests")}
               type="number"
-              {...register("expectedGuests")}
               error={errors.expectedGuests?.message}
             />
           </div>
           <div>
-            <Input
+            <InputField
+              name="buffetPrice"
+              control={control}
               label={t("buffet.buffetPrice")}
               type="number"
               step="0.01"
-              {...register("buffetPrice")}
               error={errors.buffetPrice?.message}
             />
           </div>
         </div>
 
-        <Input label={t("buffet.notes")} {...register("notes")} />
+        <InputField name="notes" control={control} label={t("buffet.notes")} />
 
         <div className="flex justify-end gap-2">
           <Button type="button" variant="neutral" onClick={onClose}>

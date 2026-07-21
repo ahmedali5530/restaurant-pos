@@ -19,6 +19,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { cn } from "@/lib/utils.ts";
 import { Button } from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { CSSProperties, useMemo } from "react";
 import {NavLink, useNavigate} from "react-router";
 import {
@@ -46,7 +47,7 @@ import { useTranslation } from "react-i18next";
 
 export const Sidebar = () => {
   const [page, setPage] = useAtom(appPage);
-  const { t } = useTranslation('navigation');
+  const { t } = useTranslation(['navigation', 'common']);
 
   const pathInfo = location.pathname;
 
@@ -166,12 +167,12 @@ export const Sidebar = () => {
           </NavLink>
         </div>
         <div className="input-group">
-          <Button className="flex-1" variant="primary" onClick={lock} size="lg">
+          <IconTooltipButton label={t('common:actions.lock')} className="flex-1" variant="primary" onClick={lock} size="lg">
             <FontAwesomeIcon icon={faLock} />
-          </Button>
-          <Button className="flex-1" variant="danger" onClick={logout} size="lg">
+          </IconTooltipButton>
+          <IconTooltipButton label={t('common:actions.logout')} className="flex-1" variant="danger" onClick={logout} size="lg">
             <FontAwesomeIcon icon={faPowerOff} />
-          </Button>
+          </IconTooltipButton>
         </div>
       </div>
     </div>

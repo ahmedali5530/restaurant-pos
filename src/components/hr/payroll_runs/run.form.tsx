@@ -11,9 +11,8 @@ import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {PayrollPeriod} from "@/api/model/payroll_period.ts";
 import {PayrollRun} from "@/api/model/payroll_run.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
-import {HrSelectField} from "@/components/hr/shared/form-field.tsx";
+import {HrInputField, HrSelectField} from "@/components/hr/shared/form-field.tsx";
 import {
   SelectOption,
   firstFormError,
@@ -57,7 +56,7 @@ export const PayrollRunForm = ({open, onClose, onSuccess}: Props) => {
     [],
   );
 
-  const {register, handleSubmit, control, reset, watch, setValue, formState: {errors}} = useForm<FormValues>({
+  const {handleSubmit, control, reset, watch, setValue, formState: {errors}} = useForm<FormValues>({
     resolver: yupResolver(validationSchema) as never,
     defaultValues: {payroll_period: null, run_number: 1},
   });
@@ -141,10 +140,11 @@ export const PayrollRunForm = ({open, onClose, onSuccess}: Props) => {
               onAdd={() => setPayrollPeriodModal(true)}
             />
             <div>
-              <Input
+              <HrInputField
                 type="number"
+                name="run_number"
+                control={control}
                 label={t("columns.runNumber")}
-                {...register("run_number", {valueAsNumber: true})}
                 error={errors.run_number?.message}
               />
             </div>

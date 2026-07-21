@@ -7,7 +7,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faDownload, faFile} from "@fortawesome/free-solid-svg-icons";
 import {downloadArrayBuffer} from "@/utils/files.ts";
 import {Button} from "@/components/common/input/button.tsx";
-import { toJsDate } from "@/lib/datetime.ts";
+import {formatDateTime} from "@/lib/datetime.ts";
 
 interface Props {
   open: boolean;
@@ -70,7 +70,7 @@ export const InventoryIssueReturnViewModal = ({open, issueReturn, onClose}: Prop
                 Return #{viewReturn.invoice_number}
               </div>
               <div className="text-xs text-neutral-500">
-                {viewReturn.created_at ? toJsDate(viewReturn.created_at).toLocaleString() : "—"}
+                {viewReturn.created_at ? formatDateTime(viewReturn.created_at) : "—"}
               </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-neutral-700">

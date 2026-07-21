@@ -6,7 +6,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {PayrollPeriod} from "@/api/model/payroll_period.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {IconTooltipButton} from "@/components/common/input/icon.tooltip.button.tsx";
 import {faPencil, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {PayrollPeriodForm} from "@/components/hr/payroll_periods/form.tsx";
 import {formatDisplayDate} from "@/components/hr/shared/form.utils.ts";
@@ -51,9 +51,12 @@ export const HrPayrollPeriods = () => {
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => (
-        <Button variant="primary" onClick={() => { setData(info.row.original); setFormModal(true); }}>
-          <FontAwesomeIcon icon={faPencil}/>
-        </Button>
+        <IconTooltipButton
+          label={t("buttons.edit")}
+          variant="primary"
+          icon={faPencil}
+          onClick={() => { setData(info.row.original); setFormModal(true); }}
+        />
       ),
     }),
   ];

@@ -21,6 +21,7 @@ import {toRecordId} from "@/lib/utils.ts";
 import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 interface Props {
   order: OrderModel
@@ -37,7 +38,7 @@ interface Split {
 export const SplitAmount = ({
   order, onClose
 }: Props) => {
-  const {t} = useTranslation('orders');
+  const {t} = useTranslation(['orders', 'common']);
   const db = useDB();
   const [page] = useAtom(appPage);
 
@@ -382,10 +383,10 @@ export const SplitAmount = ({
                         {split.name}
                       </h4>
                       {splits.length > 2 && (
-                        <Button
+                        <IconTooltipButton
                           variant="danger"
                           icon={faTrash}
-                          iconButton
+                         
                           size="sm"
                           onClick={() => removeSplit(split.id)}
                         />

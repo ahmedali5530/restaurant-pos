@@ -8,9 +8,8 @@ import {Department} from "@/api/model/department.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {useDB} from "@/api/db/db.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
-import {HrCheckboxField} from "@/components/hr/shared/form-field.tsx";
+import {HrCheckboxField, HrInputField} from "@/components/hr/shared/form-field.tsx";
 
 interface FormValues {
   id?: string;
@@ -38,7 +37,7 @@ export const DepartmentForm = ({open, onClose, data}: Props) => {
   const {t} = useTranslation("hr");
   const db = useDB();
 
-  const {register, handleSubmit, control, formState: {errors}, reset} = useForm({
+  const {handleSubmit, control, formState: {errors}, reset} = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {is_active: true},
   });
@@ -93,13 +92,28 @@ export const DepartmentForm = ({open, onClose, data}: Props) => {
         {/*<input type="hidden" {...register("id")} />*/}
         <div className="flex flex-col gap-3 mb-3">
           <div>
-            <Input label={t("forms.department.code")} {...register("code")} autoFocus error={errors.code?.message}/>
+            <HrInputField
+              name="code"
+              control={control}
+              label={t("forms.department.code")}
+              autoFocus
+              error={errors.code?.message}
+            />
           </div>
           <div>
-            <Input label={t("forms.department.name")} {...register("name")} error={errors.name?.message}/>
+            <HrInputField
+              name="name"
+              control={control}
+              label={t("forms.department.name")}
+              error={errors.name?.message}
+            />
           </div>
           <div>
-            <Input label={t("forms.department.description")} {...register("description")}/>
+            <HrInputField
+              name="description"
+              control={control}
+              label={t("forms.department.description")}
+            />
           </div>
 
           <HrCheckboxField

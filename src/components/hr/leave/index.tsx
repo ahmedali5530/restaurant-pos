@@ -7,7 +7,7 @@ import {LeaveType} from "@/api/model/leave_type.ts";
 import {LeaveRequest} from "@/api/model/leave_request.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {IconTooltipButton} from "@/components/common/input/icon.tooltip.button.tsx";
 import {faCheck, faPencil, faPlus, faXmark} from "@fortawesome/free-solid-svg-icons";
 import {LeaveTypeForm, LeaveRequestForm} from "@/components/hr/leave/form.tsx";
 import {entityLabel, formatDisplayDate} from "@/components/hr/shared/form.utils.ts";
@@ -85,9 +85,12 @@ export const HrLeave = () => {
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => (
-        <Button variant="primary" onClick={() => { setLeaveType(info.row.original); setTypeModal(true); }}>
-          <FontAwesomeIcon icon={faPencil}/>
-        </Button>
+        <IconTooltipButton
+          label={t("buttons.edit")}
+          variant="primary"
+          icon={faPencil}
+          onClick={() => { setLeaveType(info.row.original); setTypeModal(true); }}
+        />
       ),
     }),
   ];
@@ -120,24 +123,34 @@ export const HrLeave = () => {
         const row = info.row.original;
         if (row.status !== "pending") {
           return (
-            <Button variant="primary" onClick={() => { setLeaveRequest(row); setRequestModal(true); }}>
-              <FontAwesomeIcon icon={faPencil}/>
-            </Button>
+            <IconTooltipButton
+              label={t("buttons.edit")}
+              variant="primary"
+              icon={faPencil}
+              onClick={() => { setLeaveRequest(row); setRequestModal(true); }}
+            />
           );
         }
         return (
           <div className="flex gap-2">
-            <Button variant="success" disabled={actionId === row.id} onClick={() => void handleApprove(row)}>
-              <FontAwesomeIcon icon={faCheck}/>
-            </Button>
+            <IconTooltipButton
+              label={t("buttons.approve")}
+              variant="success"
+              icon={faCheck}
+              disabled={actionId === row.id}
+              onClick={() => void handleApprove(row)}
+            />
             <DeleteConfirm
               title={t("confirm.title")}
               message={t("confirm.rejectLeave")}
               onConfirm={() => handleReject(row)}
             >
-              <Button variant="danger" disabled={actionId === row.id}>
-                <FontAwesomeIcon icon={faXmark}/>
-              </Button>
+              <IconTooltipButton
+                label={t("buttons.reject")}
+                variant="danger"
+                icon={faXmark}
+                disabled={actionId === row.id}
+              />
             </DeleteConfirm>
           </div>
         );
