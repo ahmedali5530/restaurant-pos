@@ -135,5 +135,14 @@
     "deactivated": "{{entity}} está em uso e foi desativado.",
     "deleted": "{{entity}} excluído com sucesso.",
     "failed": "Falha ao excluir {{entity}}."
+  },
+  "sessionSecurity": {
+    "autoLock": "Bloqueado por inatividade",
+    "autoLogout": "Sessão encerrada por inatividade"
+  },
+  "autoClockOut": {
+    "warning": "Saída automática em {{countdown}}",
+    "clockedOut": "Saída registrada automaticamente",
+    "failed": "Falha na saída automática"
   }
 }

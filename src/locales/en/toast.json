@@ -74,6 +74,15 @@
     "clockedOut": "Clocked out successfully",
     "clockOutFailed": "Failed to clock out"
   },
+  "sessionSecurity": {
+    "autoLock": "Locked due to inactivity",
+    "autoLogout": "Logged out due to inactivity"
+  },
+  "autoClockOut": {
+    "warning": "Auto clock-out in {{countdown}}",
+    "clockedOut": "Automatically clocked out",
+    "failed": "Auto clock-out failed"
+  },
   "tipDistribution": {
     "selectShiftAndDate": "Please select shift and date",
     "unableToDeriveRange": "Unable to derive time range from shift",

@@ -163,5 +163,26 @@
     "dialogTitle": "Novedades",
     "versionLabel": "Versión {{version}}",
     "previousReleases": "Versiones anteriores"
+  },
+  "sessionSecurity": {
+    "title": "Seguridad de sesión",
+    "description": "Bloquear o cerrar sesión automáticamente tras un período de inactividad. Elija una acción.",
+    "idleMinutes": "Minutos de inactividad (p. ej. 0,1 ≈ 6 segundos)",
+    "action": "Acción",
+    "actionLock": "Bloquear",
+    "actionLogout": "Cerrar sesión",
+    "updated": "Configuración de seguridad de sesión actualizada",
+    "saveDescription": "Guardar configuración de seguridad de sesión",
+    "loginRequired": "Debe iniciar sesión para guardar la seguridad de sesión"
+  },
+  "autoClockOut": {
+    "title": "Salida automática",
+    "description": "Fichar salida automáticamente al finalizar el turno y/o a una hora fija diaria. Usa el turno programado si existe; si no, el turno asignado. Aplica a todos los usuarios.",
+    "onShiftEnd": "Fichar salida al finalizar el turno",
+    "onDefinedTime": "Fichar salida a una hora definida",
+    "definedTime": "Hora de salida",
+    "triggerRequired": "Active el fin de turno y/o una hora definida cuando la salida automática esté activada",
+    "updated": "Configuración de salida automática actualizada",
+    "saveDescription": "Guardar configuración de salida automática"
   }
 }

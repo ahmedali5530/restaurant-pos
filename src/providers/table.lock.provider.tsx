@@ -1,8 +1,10 @@
 import React, {ReactNode, useEffect, useRef} from "react";
+import {useAtomValue} from "jotai";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Table} from "@/api/model/table.ts";
 import {toJsDate} from "@/lib/datetime.ts";
+import {appPage} from "@/store/jotai.ts";
 
 interface TableLockProviderProps {
   children: ReactNode;
@@ -13,16 +15,30 @@ const CHECK_INTERVAL_MS = 30_000;
 
 export const TableLockProvider: React.FC<TableLockProviderProps> = ({children}) => {
   const db = useDB();
+  const page = useAtomValue(appPage);
   const dbRef = useRef(db);
+  const pageRef = useRef(page);
   const inFlightRef = useRef(false);
   dbRef.current = db;
+  pageRef.current = page;
+
+  const userId = page?.user?.id != null ? String(page.user.id) : null;
 
   useEffect(() => {
+    // Only poll while a user is logged in.
+    if (!userId) {
+      return;
+    }
+
     let isActive = true;
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
     const releaseStaleLocks = async () => {
       if (inFlightRef.current) {
+        return;
+      }
+
+      if (!pageRef.current?.user) {
         return;
       }
 
@@ -75,6 +91,10 @@ export const TableLockProvider: React.FC<TableLockProviderProps> = ({children}) 
         return;
       }
 
+      if (!pageRef.current?.user) {
+        return;
+      }
+
       await releaseStaleLocks();
 
       if (!isActive) {
@@ -94,7 +114,7 @@ export const TableLockProvider: React.FC<TableLockProviderProps> = ({children}) 
         clearTimeout(timeoutId);
       }
     };
-  }, []);
+  }, [userId]);
 
   return <>{children}</>;
 };

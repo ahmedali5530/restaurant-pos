@@ -163,5 +163,26 @@
     "dialogTitle": "Novità",
     "versionLabel": "Versione {{version}}",
     "previousReleases": "Versioni precedenti"
+  },
+  "sessionSecurity": {
+    "title": "Sicurezza sessione",
+    "description": "Blocca o disconnetti automaticamente questo utente dopo un periodo di inattività. Scegli un'azione.",
+    "idleMinutes": "Minuti di inattività (es. 0,1 ≈ 6 secondi)",
+    "action": "Azione",
+    "actionLock": "Blocca",
+    "actionLogout": "Esci",
+    "updated": "Impostazioni di sicurezza sessione aggiornate",
+    "saveDescription": "Salva impostazioni di sicurezza sessione",
+    "loginRequired": "Devi essere autenticato per salvare la sicurezza della sessione"
+  },
+  "autoClockOut": {
+    "title": "Uscita automatica",
+    "description": "Timbratura di uscita automatica a fine turno e/o a un orario fisso giornaliero. Usa il turno pianificato se presente, altrimenti il turno assegnato. Vale per tutti gli utenti.",
+    "onShiftEnd": "Timbrare uscita a fine turno",
+    "onDefinedTime": "Timbrare uscita a un orario definito",
+    "definedTime": "Orario di uscita",
+    "triggerRequired": "Abilita fine turno e/o un orario definito quando l'uscita automatica è attiva",
+    "updated": "Impostazioni uscita automatica aggiornate",
+    "saveDescription": "Salva impostazioni uscita automatica"
   }
 }

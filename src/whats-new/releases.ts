@@ -6,10 +6,19 @@ export interface ReleaseNotes {
 }
 
 /** Bump this string on every release. */
-export const APP_VERSION = '1.0.4';
+export const APP_VERSION = '1.0.5';
 
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
+  {
+    version: '1.0.5',
+    date: '2026-07-22',
+    title: 'Auto lock, logout, and clock-out',
+    items: [
+      'Settings → Session security: per-user idle timeout that locks or logs out after inactivity (choose one action).',
+      'Settings → Auto clock-out: global policy to clock out at shift end (scheduled shift preferred, else assigned shift) and/or a fixed daily time.',
+    ],
+  },
   {
     version: '1.0.4',
     date: '2026-07-21',

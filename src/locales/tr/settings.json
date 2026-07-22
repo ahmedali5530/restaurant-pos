@@ -163,5 +163,26 @@
     "dialogTitle": "Yenilikler",
     "versionLabel": "Sürüm {{version}}",
     "previousReleases": "Önceki sürümler"
+  },
+  "sessionSecurity": {
+    "title": "Oturum güvenliği",
+    "description": "Bu kullanıcıyı bir süre işlem yapılmadığında otomatik kilitle veya çıkış yaptır. Bir eylem seçin.",
+    "idleMinutes": "Boşta kalma dakikası (örn. 0,1 ≈ 6 saniye)",
+    "action": "Eylem",
+    "actionLock": "Kilitle",
+    "actionLogout": "Çıkış yap",
+    "updated": "Oturum güvenliği ayarları güncellendi",
+    "saveDescription": "Oturum güvenliği ayarlarını kaydet",
+    "loginRequired": "Oturum güvenliğini kaydetmek için giriş yapmış olmalısınız"
+  },
+  "autoClockOut": {
+    "title": "Otomatik mesai çıkışı",
+    "description": "Vardiya bittiğinde ve/veya sabit bir günlük saatte otomatik mesai çıkışı. Varsa planlı vardiyayı, yoksa atanmış vardiyayı kullanır. Tüm kullanıcılara uygulanır.",
+    "onShiftEnd": "Vardiya bitince çıkış yap",
+    "onDefinedTime": "Belirlenen saatte çıkış yap",
+    "definedTime": "Çıkış saati",
+    "triggerRequired": "Otomatik çıkış açıkken vardiya bitişi ve/veya tanımlı saat etkinleştirin",
+    "updated": "Otomatik mesai çıkışı ayarları güncellendi",
+    "saveDescription": "Otomatik mesai çıkışı ayarlarını kaydet"
   }
 }

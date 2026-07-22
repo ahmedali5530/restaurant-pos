@@ -163,5 +163,26 @@
     "dialogTitle": "Nouveautés",
     "versionLabel": "Version {{version}}",
     "previousReleases": "Versions précédentes"
+  },
+  "sessionSecurity": {
+    "title": "Sécurité de session",
+    "description": "Verrouiller ou déconnecter automatiquement cet utilisateur après une période d'inactivité. Choisissez une action.",
+    "idleMinutes": "Minutes d'inactivité (ex. 0,1 ≈ 6 secondes)",
+    "action": "Action",
+    "actionLock": "Verrouiller",
+    "actionLogout": "Déconnexion",
+    "updated": "Paramètres de sécurité de session mis à jour",
+    "saveDescription": "Enregistrer les paramètres de sécurité de session",
+    "loginRequired": "Vous devez être connecté pour enregistrer la sécurité de session"
+  },
+  "autoClockOut": {
+    "title": "Pointage de sortie automatique",
+    "description": "Pointe automatiquement la sortie lorsque le poste se termine et/ou à une heure fixe. Utilise le poste planifié s'il existe, sinon le poste assigné. S'applique à tous les utilisateurs.",
+    "onShiftEnd": "Pointer la sortie à la fin du poste",
+    "onDefinedTime": "Pointer la sortie à une heure définie",
+    "definedTime": "Heure de sortie",
+    "triggerRequired": "Activez la fin de poste et/ou une heure définie lorsque la sortie automatique est activée",
+    "updated": "Paramètres de sortie automatique mis à jour",
+    "saveDescription": "Enregistrer les paramètres de sortie automatique"
   }
 }

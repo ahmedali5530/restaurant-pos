@@ -18,6 +18,8 @@ import {BrowserRouter} from "react-router";
 import {TableLockProvider} from "@/providers/table.lock.provider.tsx";
 import {AutoCheckCloseProvider} from "@/providers/auto-check-close.provider.tsx";
 import {ClosingCycleEnforcementProvider} from "@/providers/closing-cycle-enforcement.provider.tsx";
+import {SessionIdleProvider} from "@/providers/session-idle.provider.tsx";
+import {AutoClockOutProvider} from "@/providers/auto-clock-out.provider.tsx";
 import {I18nProvider} from "@/providers/i18n.provider.tsx";
 import {AppRoutes} from "@/routes/app.routes.tsx";
 import {IntegrationProvider} from "@/providers/integration.provider.tsx";
@@ -65,8 +67,12 @@ function App() {
                       <SecurityProvider>
                         <BrowserRouter>
                           <I18nProvider>
-                          <GlobalDeliveryOrderPopup/>
-                          <AppRoutes/>
+                            <SessionIdleProvider>
+                              <AutoClockOutProvider>
+                                <GlobalDeliveryOrderPopup/>
+                                <AppRoutes/>
+                              </AutoClockOutProvider>
+                            </SessionIdleProvider>
                           </I18nProvider>
                         </BrowserRouter>
                         <SecurityModal/>

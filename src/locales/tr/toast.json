@@ -135,5 +135,14 @@
     "deactivated": "{{entity}} kullanımda olduğu için devre dışı bırakıldı.",
     "deleted": "{{entity}} başarıyla silindi.",
     "failed": "{{entity}} silinemedi."
+  },
+  "sessionSecurity": {
+    "autoLock": "Hareketsizlik nedeniyle kilitlendi",
+    "autoLogout": "Hareketsizlik nedeniyle çıkış yapıldı"
+  },
+  "autoClockOut": {
+    "warning": "{{countdown}} içinde otomatik mesai çıkışı",
+    "clockedOut": "Otomatik mesai çıkışı yapıldı",
+    "failed": "Otomatik mesai çıkışı başarısız"
   }
 }

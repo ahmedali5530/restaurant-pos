@@ -135,5 +135,14 @@
     "deactivated": "{{entity}} قيد الاستخدام وتم تعطيله.",
     "deleted": "تم حذف {{entity}} بنجاح.",
     "failed": "فشل حذف {{entity}}."
+  },
+  "sessionSecurity": {
+    "autoLock": "تم القفل بسبب عدم النشاط",
+    "autoLogout": "تم تسجيل الخروج بسبب عدم النشاط"
+  },
+  "autoClockOut": {
+    "warning": "تسجيل انصراف تلقائي خلال {{countdown}}",
+    "clockedOut": "تم تسجيل الانصراف تلقائيًا",
+    "failed": "فشل تسجيل الانصراف التلقائي"
   }
 }

@@ -13,6 +13,8 @@ import {ItemsVisibilityConfig} from "@/components/user_settings/items_visibility
 import {ShowInclusivePricesSettingsCard} from "@/components/user_settings/show_inclusive_prices.tsx";
 import {InventorySettingsCard} from "@/components/user_settings/inventory_settings.tsx";
 import {WhatsNewSettingsCard} from "@/components/user_settings/whats_new.tsx";
+import {SessionSecuritySettingsCard} from "@/components/user_settings/session_security.tsx";
+import {AutoClockOutSettingsCard} from "@/components/user_settings/auto_clock_out.tsx";
 import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import {PropsWithChildren} from "react";
@@ -38,6 +40,8 @@ export const Settings = () => {
         <MasonryItem><ServiceChargesSettings /></MasonryItem>
         <MasonryItem><ClosingCycleSettingsCard /></MasonryItem>
         <MasonryItem><AutoCheckCloseSettingsCard /></MasonryItem>
+        <MasonryItem><SessionSecuritySettingsCard /></MasonryItem>
+        <MasonryItem><AutoClockOutSettingsCard /></MasonryItem>
         <MasonryItem><ShowInclusivePricesSettingsCard /></MasonryItem>
         <MasonryItem><TouchSettings /></MasonryItem>
         <MasonryItem><TableSelectionSettings /></MasonryItem>

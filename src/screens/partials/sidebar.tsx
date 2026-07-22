@@ -31,7 +31,6 @@ import {
   HR,
   KITCHEN,
   ORDER_DISPLAY,
-  LOGIN,
   MENU,
   ORDERS,
   REPORTS,
@@ -44,6 +43,7 @@ import { getUserModules } from "@/lib/access.rules.ts";
 import { useSecurity } from "@/hooks/useSecurity.ts";
 import ScrollContainer from "react-indiana-drag-scroll";
 import { useTranslation } from "react-i18next";
+import { lockSession, logoutSession } from "@/lib/session.actions.ts";
 
 export const Sidebar = () => {
   const [page, setPage] = useAtom(appPage);
@@ -55,13 +55,7 @@ export const Sidebar = () => {
   const { protectAction } = useSecurity();
 
   const logout = () => {
-    setPage(prev => ({
-      ...prev,
-      page: 'Login',
-      user: undefined
-    }));
-
-    navigation(LOGIN);
+    logoutSession(setPage, navigation);
   }
 
   const protectedNavigate = async (to: string, module?: string, description?: string) => {
@@ -72,14 +66,7 @@ export const Sidebar = () => {
   }
 
   const lock = () => {
-    setPage(prev => ({
-      ...prev,
-      page: 'Login',
-      locked: true,
-      lockedBy: prev.user
-    }));
-
-    navigation(LOGIN);
+    lockSession(setPage, navigation);
   }
 
   const allSidebarItems = useMemo(() => [

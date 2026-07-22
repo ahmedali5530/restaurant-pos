@@ -163,5 +163,26 @@
     "dialogTitle": "Neuigkeiten",
     "versionLabel": "Version {{version}}",
     "previousReleases": "Frühere Versionen"
+  },
+  "sessionSecurity": {
+    "title": "Sitzungssicherheit",
+    "description": "Diesen Benutzer nach einer Inaktivitätsdauer automatisch sperren oder abmelden. Wählen Sie eine Aktion.",
+    "idleMinutes": "Minuten Inaktivität (z. B. 0,1 ≈ 6 Sekunden)",
+    "action": "Aktion",
+    "actionLock": "Sperren",
+    "actionLogout": "Abmelden",
+    "updated": "Sitzungssicherheitseinstellungen aktualisiert",
+    "saveDescription": "Sitzungssicherheitseinstellungen speichern",
+    "loginRequired": "Sie müssen angemeldet sein, um die Sitzungssicherheit zu speichern"
+  },
+  "autoClockOut": {
+    "title": "Automatisches Ausstempeln",
+    "description": "Stempelt den angemeldeten Benutzer automatisch aus, wenn die Schicht endet und/oder zu einer festen Tageszeit. Bevorzugt die geplante Schicht, sonst die zugewiesene Schicht. Gilt für alle Benutzer.",
+    "onShiftEnd": "Bei Schichtende ausstempeln",
+    "onDefinedTime": "Zu einer festgelegten Zeit ausstempeln",
+    "definedTime": "Ausstempelzeit",
+    "triggerRequired": "Aktivieren Sie Schichtende und/oder eine festgelegte Zeit, wenn Auto-Ausstempeln eingeschaltet ist",
+    "updated": "Einstellungen für automatisches Ausstempeln aktualisiert",
+    "saveDescription": "Einstellungen für automatisches Ausstempeln speichern"
   }
 }
