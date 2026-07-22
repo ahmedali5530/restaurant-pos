@@ -30,6 +30,7 @@ import {
 import {fetchNetQuantity, validateStoreTransferAvailability} from "@/utils/inventory.ts";
 import {useInventoryLocations} from "@/hooks/useInventoryLocations.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import { useIntegrationManager } from "@/providers/integration.provider.tsx";
 
 type SelectOption = {label: string; value: string} | null;
 
@@ -120,6 +121,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
   const {t} = useTranslation(["inventory", 'common']);
   const db = useDB();
   const [state] = useAtom(appPage);
+  const { manager: integrationManager } = useIntegrationManager();
   const resolver = useMemo(() => yupResolver(validationSchema), []);
 
   const {
@@ -285,7 +287,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
           toast.error(t("stockTransfer.userRequired"));
           return;
         }
-        await createStockTransfer(db, payload, toRecordIdString(state.user.id));
+        await createStockTransfer(db, payload, toRecordIdString(state.user.id), integrationManager);
         toast.success(t("stockTransfer.created"));
       }
 

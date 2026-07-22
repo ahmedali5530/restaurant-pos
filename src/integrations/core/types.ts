@@ -44,6 +44,8 @@ export type IntegrationEventName =
   | 'PayrollPosted'
   | 'WasteRecorded'
   | 'InventoryAdjusted'
+  | 'InventoryIssued'
+  | 'IssueReturned'
   | 'StockCountCompleted'
   | 'InventoryTransferred'
   | 'ProductionCompleted'

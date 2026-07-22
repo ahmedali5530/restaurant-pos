@@ -19,6 +19,9 @@ import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
 import {cancelItemStages} from "@/lib/kitchen/workflow.service.ts";
 import {useTranslation} from "react-i18next";
+import {useIntegrationManager} from "@/providers/integration.provider.tsx";
+import {publishOrderCancelled} from "@/integrations/accounting/events/publish.ts";
+import {nanoid} from "nanoid";
 
 interface OrderCancelModalProps {
   order: OrderModel
@@ -39,6 +42,7 @@ export const OrderCancelModal = ({
   const {t} = useTranslation('orders');
   const db = useDB();
   const [page] = useAtom(appPage);
+  const {manager: integrationManager} = useIntegrationManager();
 
   const reasonOptions = useMemo<ReasonOption[]>(() => {
     return Object.values(OrderVoidReason).map((reason) => ({
@@ -232,6 +236,12 @@ export const OrderCancelModal = ({
         },
         user: page?.user,
       });
+
+      // Only reverse GL when a SaleCompleted path existed (Paid orders).
+      if (order.status === OrderStatus.Paid) {
+        const voidBatchKey = nanoid(10);
+        await publishOrderCancelled(integrationManager, order, voidBatchKey);
+      }
 
       toast.success(allSelected ? t('cancel.successOrder') : t('cancel.successItems'));
       onClose();

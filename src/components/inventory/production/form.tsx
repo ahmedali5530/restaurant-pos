@@ -22,6 +22,7 @@ import {
 import {ScaledRecipeResult} from "@/lib/inventory/production.calculations.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
 import {useInventoryLocations} from "@/hooks/useInventoryLocations.ts";
+import {useIntegrationManager} from "@/providers/integration.provider.tsx";
 
 type SelectOption = {label: string; value: string} | null;
 
@@ -58,6 +59,7 @@ export const ProductionForm = ({open, onClose}: Props) => {
   const db = useDB();
   const dbRef = useRef(db);
   const [state] = useAtom(appPage);
+  const {manager: integrationManager} = useIntegrationManager();
   const [submitting, setSubmitting] = useState(false);
   const [preview, setPreview] = useState<ScaledRecipeResult | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -145,7 +147,8 @@ export const ProductionForm = ({open, onClose}: Props) => {
           notes: values.notes,
           updateItemCost: values.updateItemCost,
         },
-        recordToString(state.user.id)!
+        recordToString(state.user.id)!,
+        integrationManager
       );
       toast.success(t("production.batchCompleted"));
       reset();

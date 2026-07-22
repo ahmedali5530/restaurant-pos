@@ -54,6 +54,13 @@ describe('InternalAccountingProvider', () => {
       SALES_REVENUE: 'account:sales',
       CASH_MAIN: 'account:cash',
       CARD_RECEIVABLE: 'account:card',
+      INVENTORY: 'account:inventory',
+      COGS: 'account:cogs',
+      PAYROLL_EXPENSE: 'account:payroll-exp',
+      PAYROLL_LIABILITY: 'account:payroll-liab',
+      ACCOUNTS_PAYABLE: 'account:ap',
+      WASTE_EXPENSE: 'account:waste',
+      INVENTORY_ADJUSTMENT: 'account:adj',
     }));
     const result = await provider.validate();
     expect(result.valid).toBe(true);

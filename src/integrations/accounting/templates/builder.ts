@@ -1,4 +1,3 @@
-import { SaleCompletedPayload } from '@/integrations/accounting/events/payloads.ts';
 import { resolveLogicalAccount } from '@/integrations/accounting/mapping/account-mapping.ts';
 import {
   AccountMapping,
@@ -9,26 +8,15 @@ import {
 } from '@/integrations/accounting/types.ts';
 import { IntegrationEvent } from '@/integrations/core/types.ts';
 import { buildAccountingIdempotencyKey } from '@/integrations/accounting/idempotency.ts';
+import { SaleCompletedPayload } from '@/integrations/accounting/events/payloads.ts';
+import { buildSaleCompletedAmountContext as buildSaleAmounts } from '@/integrations/accounting/handlers.ts';
 
 export type TemplateAmountContext = Record<string, number>;
 
+/** @deprecated Prefer handlers.buildSaleCompletedAmountContext */
 export const buildSaleCompletedAmountContext = (
   payload: SaleCompletedPayload
-): TemplateAmountContext => {
-  const salesRevenue = Number(
-    (payload.subtotal + payload.discountAmount).toFixed(2)
-  );
-  return {
-    cashAmount: payload.tenders.cashAmount,
-    cardAmount: payload.tenders.cardAmount,
-    otherAmount: payload.tenders.otherAmount,
-    taxAmount: payload.taxAmount,
-    discountAmount: payload.discountAmount,
-    tipAmount: payload.tipAmount,
-    salesRevenue,
-    totalCollected: payload.totalCollected,
-  };
-};
+): TemplateAmountContext => buildSaleAmounts(payload);
 
 export const buildJournalLinesFromTemplate = (
   template: JournalTemplate,
@@ -51,7 +39,6 @@ export const buildJournalLinesFromTemplate = (
 
     const accountId = resolveLogicalAccount(mapping, def.logicalAccount);
     if (!accountId) {
-      // OTHER_RECEIVABLE can fall back to CARD_RECEIVABLE then CASH_MAIN
       if (def.logicalAccount === 'OTHER_RECEIVABLE') {
         const fallback =
           resolveLogicalAccount(mapping, 'CARD_RECEIVABLE') ||

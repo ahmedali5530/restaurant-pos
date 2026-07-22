@@ -30,6 +30,8 @@ import {dateToCalendarDate, calendarDateToDate, getToday} from "@/utils/date.ts"
 import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
 import {InventoryFormPricedLineTotal} from "@/components/inventory/common/form.line.total.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import { useIntegrationManager } from "@/providers/integration.provider.tsx";
+import { publishIssueReturned } from "@/integrations/accounting/events/publish.ts";
 
 interface InventoryIssueReturnItemFormValue {
   item: { label: string; value: string } | null;
@@ -375,6 +377,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
   };
 
   const [state, ] = useAtom(appPage);
+  const { manager: integrationManager } = useIntegrationManager();
 
   const convertFilesToDocuments = async (files: FileList | null | undefined): Promise<RecordId[]> => {
     if (!files || files.length === 0) return [];
@@ -483,6 +486,31 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
       await db.merge(issueReturnIdString, {
         items: itemRefs,
       });
+
+      const inventoryValue = Number(
+        values.items
+          .reduce((sum, item) => {
+            const qty = Number(item.quantity || 0);
+            const issuedIssueItem = selectedIssuance?.items?.find((issueItem) => {
+              const issuedId = item.issued_item?.value;
+              if (!issuedId || !issueItem.id) return false;
+              return String(issueItem.id) === String(issuedId);
+            });
+            const price = Number(
+              issuedIssueItem?.price ??
+                (item.price != null && item.price !== "" ? item.price : 0)
+            );
+            return sum + qty * price;
+          }, 0)
+          .toFixed(2)
+      );
+      if (inventoryValue > 0) {
+        await publishIssueReturned(integrationManager, {
+          documentId: String(issueReturnIdString),
+          issuanceId: values.issuance?.value ? String(values.issuance.value) : undefined,
+          inventoryValue,
+        });
+      }
 
       toast.success(t('toast:inventory.issueReturnSaved'));
       closeModal();

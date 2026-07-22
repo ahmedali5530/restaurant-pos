@@ -21,11 +21,13 @@ import {
 } from "@/lib/labor-engine/payroll/run.service.ts";
 import {PayrollRunForm} from "@/components/hr/payroll_runs/run.form.tsx";
 import {PayrollRunSnapshots} from "@/components/hr/payroll_runs/snapshots.modal.tsx";
+import {useIntegrationManager} from "@/providers/integration.provider.tsx";
 
 export const HrPayrollRuns = () => {
   const {t} = useTranslation("hr");
   const db = useDB();
   const [page] = useAtom(appPage);
+  const {manager: integrationManager} = useIntegrationManager();
   const loadHook = useApi<SettingsData<PayrollRun>>(
     Tables.payroll_runs,
     [],
@@ -58,7 +60,11 @@ export const HrPayrollRuns = () => {
         await lockRun(db, {runId: run.id, lockedBy: page.user});
         toast.success(t("payroll.lock"));
       } else if (action === "approve") {
-        await approveRun(db, {runId: run.id, approvedBy: page.user});
+        await approveRun(db, {
+          runId: run.id,
+          approvedBy: page.user,
+          integrationManager,
+        });
         toast.success(t("payroll.approve"));
       } else {
         const {rows} = await exportRun(db, {runId: run.id, exportedBy: page.user});

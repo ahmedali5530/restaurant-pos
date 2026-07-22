@@ -20,6 +20,9 @@ import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import { nowSurrealDateTime } from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
+import {useIntegrationManager} from "@/providers/integration.provider.tsx";
+import {publishSaleRefunded} from "@/integrations/accounting/events/publish.ts";
+import {nanoid} from "nanoid";
 
 interface OrderRefundModalProps {
   order: OrderModel
@@ -35,6 +38,7 @@ export const OrderRefundModal = ({
   const {t} = useTranslation('orders');
   const db = useDB();
   const [page] = useAtom(appPage);
+  const {manager: integrationManager} = useIntegrationManager();
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -124,7 +128,7 @@ export const OrderRefundModal = ({
       const orderId = new StringRecordId(order.id.toString());
       const itemIds = selectedItemsList.map(item => new StringRecordId(item.id.toString()));
 
-      await db.create(Tables.order_refunds, {
+      const createdRefund = await db.create(Tables.order_refunds, {
         order: orderId,
         items: itemIds,
         created_at: nowSurrealDateTime(),
@@ -132,6 +136,10 @@ export const OrderRefundModal = ({
         logged_in_user: userId,
         reason: reason || undefined,
       });
+      const refundRecord = Array.isArray(createdRefund) ? createdRefund[0] : createdRefund;
+      const refundId = refundRecord?.id
+        ? String(refundRecord.id)
+        : `refund:${String(order.id)}:${nanoid(8)}`;
 
       for(const itemId of itemIds) {
         await db.merge(itemId, {
@@ -142,6 +150,17 @@ export const OrderRefundModal = ({
       // add a tag in original table
       await db.merge(orderId, {
         tags: Array.from(new Set([...(order.tags || []), OrderStatus.Refunded])),
+      });
+
+      await publishSaleRefunded(integrationManager, {
+        order,
+        refundId,
+        subtotal: refundCharges.itemsTotal,
+        taxAmount: refundCharges.taxAmount,
+        discountAmount: refundCharges.discountAmount,
+        tipAmount: refundCharges.tipAmount,
+        total: refundCharges.total,
+        itemIds: selectedItemsList.map((item) => String(item.id)),
       });
 
       postOrderTracking({

@@ -133,13 +133,13 @@ sequenceDiagram
 - Framework supports normalized events (`IntegrationEvent`) and provider subscriptions.
 - POS publishes business events via `createPosEvent` + `IntegrationManager.publish` (optionally with a **stable event id** for idempotency).
 - Providers handle only events they declare in `manifest.supportedEvents`.
-- Accounting: POS must **never** create journal entries directly. Use `publishSaleCompleted(manager, order)` after payment settlement.
+- Accounting: Domain modules must **never** create journal entries directly. Publish helpers live in `src/integrations/accounting/events/publish.ts` (`publishSaleCompleted`, `publishSaleRefunded`, `publishOrderCancelled`, `publishPayrollPosted`, inventory helpers, etc.).
 
 ## Accounting integration (draft-first)
 
 ```mermaid
 flowchart TD
-  POS[POS SaleCompleted] --> Publish[manager.publish]
+  Domain[POS HR Inventory commits] --> Publish[manager.publish]
   Publish --> Provider[InternalAccountingProvider.handleEvent]
   Provider --> Engine[AccountingPostingEngine]
   Engine --> Rules[Posting Rules]
@@ -153,12 +153,28 @@ flowchart TD
 ```
 
 - Provider id: `provider:internal-accounting` (`category: accounting`)
-- Posting logic lives in `src/integrations/accounting/` (engine, rules, templates, mapping) — **outside** the provider.
+- Posting logic lives in `src/integrations/accounting/` (engine handlers, rules, templates, mapping) — **outside** the provider.
 - Provider only validates config, receives `postJournal`, and persists draft journals.
-- Idempotency: event id `SaleCompleted:{orderId}` → key `accounting:SaleCompleted:{orderId}`; duplicates return the existing entry.
+- Idempotency: stable event ids (e.g. `SaleCompleted:{orderId}`, `SaleRefunded:{refundId}`, `PayrollPosted:{runId}`, `PurchaseReceived:{documentId}`) → key `accounting:{eventId}`; duplicates return the existing entry.
 - Default `autoPublish` is **off**; GL reports only include `status = 'posted'`.
 - Configure account mappings (logical codes → COA) in Integrations → Configuration (`account` field type).
 
+### Supported accounting business events
+
+| Event | Source hook | Journal template |
+|-------|-------------|------------------|
+| `SaleCompleted` | Payment close / auto-check-close | Restaurant sale |
+| `SaleRefunded` | Order refund modal | Restaurant sale reversal |
+| `OrderCancelled` | Cancel modal **only if order was Paid** | Restaurant sale reversal |
+| `PayrollPosted` | Payroll `approveRun` | Payroll expense / liability |
+| `PurchaseReceived` | Inventory `postDocument(purchase)` | Inventory / AP |
+| `PurchaseReturned` | Purchase return form save | AP / Inventory |
+| `InventoryIssued` | Inventory `postDocument(issue)` | COGS / Inventory |
+| `IssueReturned` | Issue return form save | Inventory / COGS |
+| `WasteRecorded` | Waste form / production waste | Waste expense / Inventory |
+| `InventoryAdjusted` | Inventory `postDocument(adjustment)` | Inventory / adjustment |
+| `InventoryTransferred` | `createStockTransfer` | Inventory ↔ Inventory |
+| `ProductionCompleted` | `completeProductionBatch` | Outputs / inputs / yield loss |
 ## Queue and Retry
 
 - Queue states: `Pending`, `Running`, `Waiting`, `Completed`, `Failed`, `Cancelled`, `DeadLetter`
