@@ -25,6 +25,8 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: any;
   enableKeyboard?: boolean;
   disableDirectInput?: boolean;
+  decimalScale?: number;
+  allowNegative?: boolean;
 }
 
 export const Input = forwardRef((props: InputProps, ref: Ref<any>) => {
@@ -48,6 +50,8 @@ export const Input = forwardRef((props: InputProps, ref: Ref<any>) => {
     autoFocus,
     disabled,
     name,
+    decimalScale,
+    allowNegative = false,
     id: providedId,
     ...inputProps
   } = props;
@@ -164,6 +168,8 @@ export const Input = forwardRef((props: InputProps, ref: Ref<any>) => {
           onMouseDown={enableKeyboard && page.touch ? handleMouseDownOpen : undefined}
           onBlur={onBlur}
           id={id}
+          decimalScale={decimalScale}
+          allowNegative={allowNegative}
         />
         {formattedHelp}
         {enableKeyboard && showKeyboard && page.touch && (

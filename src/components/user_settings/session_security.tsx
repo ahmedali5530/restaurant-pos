@@ -149,17 +149,19 @@ export const SessionSecuritySettingsCard = () => {
               min: MIN_IDLE_MINUTES,
             }}
             render={({ field }) => (
-              <Input
-                type="number"
-                min={MIN_IDLE_MINUTES}
-                step={0.1}
-                decimalScale={2}
-                allowNegative={false}
-                label={t('settings:sessionSecurity.idleMinutes')}
-                value={field.value ?? ''}
-                onChange={(e) => field.onChange(e.target.value === '' ? '' : Number(e.target.value))}
-                disabled={!enabled}
-              />
+              <div>
+                <Input
+                  type="number"
+                  min={MIN_IDLE_MINUTES}
+                  step={0.1}
+                  decimalScale={2}
+                  allowNegative={false}
+                  label={t('settings:sessionSecurity.idleMinutes')}
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value === '' ? '' : Number(e.target.value))}
+                  disabled={!enabled}
+                />
+              </div>
             )}
           />
           <div>
