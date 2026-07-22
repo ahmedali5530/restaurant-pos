@@ -1,12 +1,33 @@
 import { NavigateFunction } from 'react-router';
 import { AppPageInterface } from '@/store/jotai.ts';
 import { LOGIN } from '@/routes/posr.ts';
+import {
+  clearSessionTokens,
+  gatewayLogout,
+  isGatewayAuthEnabled,
+} from '@/lib/session.ts';
 
 type SetAppPage = (
   updater: AppPageInterface | ((prev: AppPageInterface) => AppPageInterface)
 ) => void;
 
-export const logoutSession = (setPage: SetAppPage, navigate: NavigateFunction) => {
+const SESSION_EVENT = 'posr-session';
+
+async function clearGatewaySession(): Promise<void> {
+  if (!isGatewayAuthEnabled()) {
+    return;
+  }
+  await gatewayLogout();
+  clearSessionTokens();
+  window.dispatchEvent(new Event(SESSION_EVENT));
+}
+
+export const logoutSession = async (
+  setPage: SetAppPage,
+  navigate: NavigateFunction
+): Promise<void> => {
+  await clearGatewaySession();
+
   setPage((prev) => ({
     ...prev,
     page: 'Login',

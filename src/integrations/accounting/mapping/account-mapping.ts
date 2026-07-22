@@ -17,13 +17,26 @@ const ACCOUNT_KEYS: LogicalAccountCode[] = [
   'COGS',
   'PAYROLL_EXPENSE',
   'PAYROLL_LIABILITY',
+  'ACCOUNTS_PAYABLE',
+  'WASTE_EXPENSE',
+  'INVENTORY_ADJUSTMENT',
 ];
 
-export const REQUIRED_SALE_ACCOUNT_CODES: LogicalAccountCode[] = [
+export const REQUIRED_ACCOUNTING_ACCOUNT_CODES: LogicalAccountCode[] = [
   'SALES_REVENUE',
   'CASH_MAIN',
   'CARD_RECEIVABLE',
+  'INVENTORY',
+  'COGS',
+  'PAYROLL_EXPENSE',
+  'PAYROLL_LIABILITY',
+  'ACCOUNTS_PAYABLE',
+  'WASTE_EXPENSE',
+  'INVENTORY_ADJUSTMENT',
 ];
+
+/** @deprecated Use REQUIRED_ACCOUNTING_ACCOUNT_CODES */
+export const REQUIRED_SALE_ACCOUNT_CODES = REQUIRED_ACCOUNTING_ACCOUNT_CODES;
 
 export const parseInternalAccountingConfig = (
   raw: Record<string, unknown>
@@ -58,14 +71,17 @@ export const resolveLogicalAccount = (
   return id && id.trim() ? id.trim() : undefined;
 };
 
-export const validateSaleAccountMapping = (
+export const validateAccountingAccountMapping = (
   mapping: AccountMapping
 ): { valid: boolean; errors: string[] } => {
   const errors: string[] = [];
-  for (const code of REQUIRED_SALE_ACCOUNT_CODES) {
+  for (const code of REQUIRED_ACCOUNTING_ACCOUNT_CODES) {
     if (!resolveLogicalAccount(mapping, code)) {
       errors.push(`Missing GL account mapping for ${code}`);
     }
   }
   return { valid: errors.length === 0, errors };
 };
+
+/** @deprecated Use validateAccountingAccountMapping */
+export const validateSaleAccountMapping = validateAccountingAccountMapping;

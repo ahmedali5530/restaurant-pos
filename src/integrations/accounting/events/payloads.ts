@@ -23,6 +23,155 @@ export interface SaleCompletedPayload {
   completedAt?: string;
 }
 
+export interface SaleRefundedPayload {
+  orderId: string;
+  refundId: string;
+  subtotal: number;
+  taxAmount: number;
+  discountAmount: number;
+  tipAmount: number;
+  totalCollected: number;
+  tenders: SaleCompletedTenderSplit;
+  storeId?: string;
+  branchId?: string;
+  currency?: string;
+  itemIds?: string[];
+}
+
+export interface OrderCancelledPayload {
+  orderId: string;
+  voidBatchKey: string;
+  subtotal: number;
+  taxAmount: number;
+  discountAmount: number;
+  tipAmount: number;
+  totalCollected: number;
+  tenders: SaleCompletedTenderSplit;
+  storeId?: string;
+  branchId?: string;
+  currency?: string;
+}
+
+export interface PayrollPostedPayload {
+  payrollRunId: string;
+  periodId?: string;
+  periodStart?: string;
+  periodEnd?: string;
+  totals: {
+    grossPay: number;
+    netPay: number;
+    deductions: number;
+    adjustments?: number;
+    bonuses?: number;
+  };
+}
+
+export interface AccountingInventoryLine {
+  itemId?: string;
+  quantity: number;
+  unitCost: number;
+  totalCost: number;
+  locationId?: string;
+}
+
+export interface PurchaseReceivedPayload {
+  documentId: string;
+  supplierId?: string;
+  locationId?: string;
+  inventoryValue: number;
+  lines?: AccountingInventoryLine[];
+  branchId?: string;
+  currency?: string;
+}
+
+export interface PurchaseReturnedPayload {
+  documentId: string;
+  purchaseId?: string;
+  supplierId?: string;
+  locationId?: string;
+  inventoryValue: number;
+  lines?: AccountingInventoryLine[];
+  branchId?: string;
+  currency?: string;
+}
+
+export interface WasteRecordedPayload {
+  documentId: string;
+  locationId?: string;
+  inventoryValue: number;
+  lines?: AccountingInventoryLine[];
+  branchId?: string;
+  currency?: string;
+}
+
+export interface InventoryAdjustedPayload {
+  documentId: string;
+  locationId?: string;
+  /** Positive = stock increase, negative = stock decrease (absolute value used with signed keys). */
+  netInventoryValue: number;
+  increaseValue: number;
+  decreaseValue: number;
+  reason?: string;
+  lines?: AccountingInventoryLine[];
+  branchId?: string;
+  currency?: string;
+}
+
+export interface InventoryIssuedPayload {
+  documentId: string;
+  locationId?: string;
+  inventoryValue: number;
+  lines?: AccountingInventoryLine[];
+  branchId?: string;
+  currency?: string;
+}
+
+export interface IssueReturnedPayload {
+  documentId: string;
+  issuanceId?: string;
+  locationId?: string;
+  inventoryValue: number;
+  lines?: AccountingInventoryLine[];
+  branchId?: string;
+  currency?: string;
+}
+
+export interface InventoryTransferredPayload {
+  documentId: string;
+  fromLocationId?: string;
+  toLocationId?: string;
+  inventoryValue: number;
+  lines?: AccountingInventoryLine[];
+  branchId?: string;
+  currency?: string;
+}
+
+export interface ProductionCompletedPayload {
+  documentId: string;
+  locationId?: string;
+  inputCost: number;
+  outputCost: number;
+  yieldLoss: number;
+  lines?: AccountingInventoryLine[];
+  branchId?: string;
+  currency?: string;
+}
+
+export type AccountingBusinessEventPayloadMap = {
+  SaleCompleted: SaleCompletedPayload;
+  SaleRefunded: SaleRefundedPayload;
+  OrderCancelled: OrderCancelledPayload;
+  PayrollPosted: PayrollPostedPayload;
+  PurchaseReceived: PurchaseReceivedPayload;
+  PurchaseReturned: PurchaseReturnedPayload;
+  WasteRecorded: WasteRecordedPayload;
+  InventoryAdjusted: InventoryAdjustedPayload;
+  InventoryIssued: InventoryIssuedPayload;
+  IssueReturned: IssueReturnedPayload;
+  InventoryTransferred: InventoryTransferredPayload;
+  ProductionCompleted: ProductionCompletedPayload;
+};
+
 const isCashPaymentType = (typeName?: string): boolean => {
   const normalized = (typeName ?? '').trim().toLowerCase();
   return normalized === 'cash' || normalized.includes('cash');
@@ -67,6 +216,24 @@ export const buildTenderSplitFromOrder = (order: Order): SaleCompletedTenderSpli
   };
 };
 
+/** Allocate a refund/void total across cash/card/other in proportion to original tenders. */
+export const allocateTendersByRatio = (
+  total: number,
+  base: SaleCompletedTenderSplit
+): SaleCompletedTenderSplit => {
+  const baseTotal = base.cashAmount + base.cardAmount + base.otherAmount;
+  if (!Number.isFinite(total) || total <= 0) {
+    return { cashAmount: 0, cardAmount: 0, otherAmount: 0 };
+  }
+  if (baseTotal <= 0) {
+    return { cashAmount: Number(total.toFixed(2)), cardAmount: 0, otherAmount: 0 };
+  }
+  const cashAmount = Number(((total * base.cashAmount) / baseTotal).toFixed(2));
+  const cardAmount = Number(((total * base.cardAmount) / baseTotal).toFixed(2));
+  const otherAmount = Number((total - cashAmount - cardAmount).toFixed(2));
+  return { cashAmount, cardAmount, otherAmount };
+};
+
 export const buildSaleCompletedPayload = (order: Order): SaleCompletedPayload => {
   const taxAmount = Number(order.tax_amount ?? 0);
   const discountAmount = Number(order.discount_amount ?? 0);
@@ -91,18 +258,46 @@ export const buildSaleCompletedPayload = (order: Order): SaleCompletedPayload =>
   };
 };
 
-/** Placeholder typed payloads for future events — extend incrementally. */
-export interface SaleRefundedPayload {
-  orderId: string;
-  refundId?: string;
-  amount: number;
-  taxAmount?: number;
-  storeId?: string;
-  branchId?: string;
-  currency?: string;
-}
+export const buildSaleRefundedPayload = (params: {
+  order: Order;
+  refundId: string;
+  subtotal: number;
+  taxAmount: number;
+  discountAmount: number;
+  tipAmount: number;
+  total: number;
+  itemIds?: string[];
+}): SaleRefundedPayload => {
+  const baseTenders = buildTenderSplitFromOrder(params.order);
+  const tenders = allocateTendersByRatio(params.total, baseTenders);
+  return {
+    orderId: String(params.order.id),
+    refundId: params.refundId,
+    subtotal: Number(params.subtotal.toFixed(2)),
+    taxAmount: Number(params.taxAmount.toFixed(2)),
+    discountAmount: Number(params.discountAmount.toFixed(2)),
+    tipAmount: Number(params.tipAmount.toFixed(2)),
+    totalCollected: Number(params.total.toFixed(2)),
+    tenders,
+    storeId: params.order.floor?.id ? String(params.order.floor.id) : undefined,
+    itemIds: params.itemIds,
+  };
+};
 
-export type AccountingBusinessEventPayloadMap = {
-  SaleCompleted: SaleCompletedPayload;
-  SaleRefunded: SaleRefundedPayload;
+export const buildOrderCancelledPayload = (
+  order: Order,
+  voidBatchKey: string
+): OrderCancelledPayload => {
+  const sale = buildSaleCompletedPayload(order);
+  return {
+    orderId: sale.orderId,
+    voidBatchKey,
+    subtotal: sale.subtotal,
+    taxAmount: sale.taxAmount,
+    discountAmount: sale.discountAmount,
+    tipAmount: sale.tipAmount,
+    totalCollected: sale.totalCollected,
+    tenders: sale.tenders,
+    storeId: sale.storeId,
+  };
 };

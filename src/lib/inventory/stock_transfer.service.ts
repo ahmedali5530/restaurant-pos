@@ -5,6 +5,8 @@ import {recordIdToString, recordToString} from "@/api/reports/shared/records.ts"
 import {nowSurrealDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
 import {toLocationRecordId} from "@/lib/inventory/location.service.ts";
 import {toRecordId} from "@/lib/utils.ts";
+import type {IntegrationManager} from "@/integrations/core/integration-manager.ts";
+import {publishInventoryTransferred} from "@/integrations/accounting/events/publish.ts";
 
 type DatabaseClient = ReturnType<typeof useDB>;
 
@@ -190,7 +192,8 @@ export const getStockTransfer = async (
 export const createStockTransfer = async (
   db: DatabaseClient,
   input: StockTransferInput,
-  userId: string
+  userId: string,
+  integrationManager?: IntegrationManager | null
 ): Promise<StockTransfer> => {
   const payload = {
     ...buildHeaderPayload(input, userId),
@@ -211,6 +214,43 @@ export const createStockTransfer = async (
   const result = await getStockTransfer(db, transferId);
   if (!result) {
     throw new Error("Failed to load created stock transfer");
+  }
+
+  const itemIds = input.items.map((line) => line.itemId).filter(Boolean);
+  let inventoryValue = 0;
+  if (itemIds.length > 0) {
+    const [rows] = await db.query(
+      `SELECT id, average_price, price FROM ${Tables.inventory_items} WHERE id IN $ids`,
+      { ids: itemIds.map((id) => toItemRecordId(id)) }
+    );
+    const items = (Array.isArray(rows) ? rows : []) as Array<{
+      id: unknown;
+      average_price?: number;
+      price?: number;
+    }>;
+    const priceById = new Map(
+      items.map((row) => [
+        String(row.id),
+        Number(row.average_price ?? row.price ?? 0),
+      ])
+    );
+    inventoryValue = Number(
+      input.items
+        .reduce((sum, line) => {
+          const unit = priceById.get(String(toItemRecordId(line.itemId))) ?? 0;
+          return sum + Number(line.quantity || 0) * unit;
+        }, 0)
+        .toFixed(2)
+    );
+  }
+
+  if (inventoryValue > 0) {
+    await publishInventoryTransferred(integrationManager, {
+      documentId: transferId,
+      fromLocationId: input.fromLocationId || input.fromStoreId,
+      toLocationId: input.toLocationId || input.toStoreId,
+      inventoryValue,
+    });
   }
 
   return result;

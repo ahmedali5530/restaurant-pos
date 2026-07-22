@@ -12,6 +12,7 @@ import {
 } from "surrealdb";
 import {toast} from "sonner";
 import {useDatabase} from "@/hooks/useDatabase.ts";
+import {getSessionToken, isGatewayAuthEnabled} from "@/lib/session.ts";
 import {string} from "yup";
 
 type QueryBindings = Record<string, unknown>;
@@ -44,9 +45,14 @@ export const useDB = () => {
   const databaseContext = useDatabase();
   const {client, isConnected, isConnecting} = databaseContext;
 
-  // Only throw error if we're not connecting and not connected
-  // The provider ensures children only render when connected, so this should rarely happen
-  if (!isConnected && !isConnecting) {
+  // Gateway pre-login: allow the hook so Login can render; queries still need a live connection.
+  const allowDisconnected =
+    isGatewayAuthEnabled() && !getSessionToken();
+
+  // Prefer the live socket flag — React state can briefly lag after StrictMode/drop.
+  const liveConnected = client.isConnected || isConnected;
+
+  if (!liveConnected && !isConnecting && !allowDisconnected) {
     throw new Error('Database is not connected. Please ensure DatabaseProvider is wrapping your app and connection is established.');
   }
 

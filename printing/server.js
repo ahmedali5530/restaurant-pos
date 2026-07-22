@@ -4,14 +4,23 @@ const express = require('express');
 const cors = require('cors');
 const { handlePrint } = require('./print-handler');
 const { renderPreview } = require('./lib/preview');
+const {
+  createSessionAuthMiddleware,
+  createCorsOriginDelegate,
+} = require('./session-auth.middleware');
 
 const app = express();
 const PORT = process.env.PRINT_PORT || 3132;
+const requireSession = createSessionAuthMiddleware();
 
-app.use(cors());
+app.use(cors({ origin: createCorsOriginDelegate() }));
 app.use(express.json({ limit: '1mb' }));
 
-app.post('/print/preview', (req, res) => {
+app.get('/health', (req, res) => {
+  res.json({ ok: true, service: 'posr-print-server' });
+});
+
+app.post('/print/preview', requireSession, (req, res) => {
   try {
     const body = req.body || {};
     const { data = {}, config = {} } = body;
@@ -90,7 +99,7 @@ app.get('/print/preview', (req, res) => {
   res.send(tool);
 });
 
-app.post('/print', async (req, res) => {
+app.post('/print', requireSession, async (req, res) => {
   try {
     const body = req.body;
 
@@ -108,10 +117,6 @@ app.post('/print', async (req, res) => {
     const message = err && (err.message || String(err));
     res.status(400).json({ success: false, error: message });
   }
-});
-
-app.get('/health', (req, res) => {
-  res.json({ ok: true, service: 'posr-print-server' });
 });
 
 const HOST = process.env.PRINT_HOST || '0.0.0.0';

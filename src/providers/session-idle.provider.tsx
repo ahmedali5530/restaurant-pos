@@ -118,7 +118,7 @@ export const SessionIdleProvider: React.FC<SessionIdleProviderProps> = ({ childr
     const idleAction = normalizeSessionAction(settings.idle_action ?? settings.action);
     if (idleAction === 'logout') {
       toast.info(tRef.current('toast:sessionSecurity.autoLogout'));
-      logoutSession(setPageRef.current, navigateRef.current);
+      void logoutSession(setPageRef.current, navigateRef.current);
     } else {
       toast.info(tRef.current('toast:sessionSecurity.autoLock'));
       lockSession(setPageRef.current, navigateRef.current);

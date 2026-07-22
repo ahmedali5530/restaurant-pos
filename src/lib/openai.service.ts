@@ -1,4 +1,5 @@
 import {apiUrl} from "@/lib/api.service.ts";
+import {authHeaders} from "@/lib/session.ts";
 
 // Chat completions are proxied through the backend `api` service so the OpenAI
 // key, URL, and model never ship in the client bundle. See `api/src/modules/ai`.
@@ -45,7 +46,7 @@ export const callOpenAIChat = async ({
 }): Promise<OpenAIChatResponse> => {
   const response = await fetch(apiUrl(CHAT_COMPLETIONS_PATH), {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
+    headers: authHeaders(),
     body: JSON.stringify({messages, tools}),
   });
 

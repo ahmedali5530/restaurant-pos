@@ -6,10 +6,20 @@ export interface ReleaseNotes {
 }
 
 /** Bump this string on every release. */
-export const APP_VERSION = '1.0.5';
+export const APP_VERSION = '1.0.6';
 
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
+  {
+    version: '1.0.6',
+    date: '2026-07-22',
+    title: 'Optional auth gateway',
+    items: [
+      'Optional auth gateway keeps Surreal root credentials off the browser when VITE_GATEWAY_AUTH is enabled.',
+      'Payment, print, tracking, and API sidecars can require a POS session JWT; payment webhooks fail closed unless signatures verify (or an explicit unsigned opt-in).',
+      'Legacy direct-Surreal mode remains available via feature flags for rollback.',
+    ],
+  },
   {
     version: '1.0.5',
     date: '2026-07-22',

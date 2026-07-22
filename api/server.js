@@ -12,12 +12,14 @@ const express = require('express');
 const cors = require('cors');
 const { handleError } = require('./src/lib/response');
 const { requestLogMiddleware } = require('./src/lib/request-log.middleware');
+const { createSessionAuthMiddleware } = require('./src/lib/session-auth.middleware');
 const { modules } = require('./src/modules');
 const logger = require('./src/lib/logger');
 
 const app = express();
 const PORT = Number(process.env.API_PORT || 3140);
 const HOST = process.env.API_HOST || '0.0.0.0';
+const requireSession = createSessionAuthMiddleware();
 
 const allowedOrigins = (process.env.API_ALLOWED_ORIGINS || '')
   .split(',')
@@ -52,7 +54,8 @@ app.get('/health', (req, res) => {
 });
 
 for (const module of modules) {
-  app.use(module.basePath, module.router);
+  // Protect module routes with POS session JWT (same secret as auth gateway).
+  app.use(module.basePath, requireSession, module.router);
 }
 
 app.use((err, req, res, next) => {

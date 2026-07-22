@@ -31,6 +31,8 @@ import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.
 import {InventoryFormPricedLineTotal} from "@/components/inventory/common/form.line.total.tsx";
 import { useInventoryLocations } from "@/hooks/useInventoryLocations.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import { useIntegrationManager } from "@/providers/integration.provider.tsx";
+import { publishPurchaseReturned } from "@/integrations/accounting/events/publish.ts";
 
 
 interface Props {
@@ -38,6 +40,19 @@ interface Props {
   onClose: () => void;
   data?: InventoryPurchaseReturn;
 }
+
+const resolvePurchaseLineUnitCost = (pi?: any): number => {
+  if (!pi) return 0;
+  const qty = Math.abs(Number(pi.quantity) || 0);
+  const total = Number(pi.total_inventory_cost);
+  if (Number.isFinite(total) && total !== 0 && qty > 0) {
+    return Math.abs(total) / qty;
+  }
+  const unit = Number(
+    pi.final_unit_cost ?? pi.purchase_price ?? pi.price ?? 0
+  );
+  return Number.isFinite(unit) ? Math.abs(unit) : 0;
+};
 
 const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string) => yup.object({
   invoice_number: yup.number().typeError("This should be a number").required("This is required").test(
@@ -97,6 +112,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
   const { t } = useTranslation(['inventory', 'common']);
   const db = useDB();
   const [state, ] = useAtom(appPage);
+  const { manager: integrationManager } = useIntegrationManager();
   const validationSchema = useMemo(() => createValidationSchema(db, data?.id), [db, data?.id]);
   const resolver = useMemo(() => yupResolver(validationSchema), [validationSchema]);
 
@@ -124,7 +140,9 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
     {
       enabled: false
     },
-    data?.id === undefined ? ['*', 'items[where is_done != true] as items'] : ['*']
+    data?.id === undefined
+      ? ['*', 'items[where is_done != true] as items']
+      : ['*', 'items']
   );
 
   const {
@@ -152,28 +170,42 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
   const watchedItems = useWatch({control, name: "items"});
   const selectedPurchaseId = useWatch({control, name: "purchase"})?.value;
   const selectedPurchase = useMemo(
-    () => purchases?.data?.find((p) => p.id === selectedPurchaseId),
+    () =>
+      purchases?.data?.find(
+        (p) => String(p.id) === String(selectedPurchaseId)
+      ),
     [purchases?.data, selectedPurchaseId],
   );
+
   const pricedLines = useMemo(
     () =>
       (watchedItems ?? []).map((line: any) => {
         const matchedPurchaseItem =
-          selectedPurchase?.items?.find((pi) => pi.id === line.purchase_item_id) ||
-          selectedPurchase?.items?.find((pi) => pi.item?.id === line.item?.value);
+          selectedPurchase?.items?.find(
+            (pi) => String(pi.id) === String(line.purchase_item_id)
+          ) ||
+          selectedPurchase?.items?.find(
+            (pi) => String(pi.item?.id) === String(line.item?.value)
+          );
         const matchedReturnItem = data?.items?.find(
-          (ri) => ri.purchase_item?.id === line.purchase_item_id,
+          (ri) =>
+            String(ri.purchase_item?.id) === String(line.purchase_item_id) ||
+            String(ri.item?.id) === String(line.item?.value)
+        );
+        const catalogItem = (items?.data ?? []).find(
+          (ci) => String(ci.id) === String(line.item?.value)
         );
         return {
           quantity: line.quantity,
           price:
-            matchedPurchaseItem?.price ??
-            matchedReturnItem?.price ??
-            matchedReturnItem?.purchase_item?.price ??
+            resolvePurchaseLineUnitCost(matchedPurchaseItem) ||
+            Number(matchedReturnItem?.price) ||
+            resolvePurchaseLineUnitCost(matchedReturnItem?.purchase_item) ||
+            Number(catalogItem?.price) ||
             0,
         };
       }),
-    [watchedItems, selectedPurchase, data?.items],
+    [watchedItems, selectedPurchase, data?.items, items?.data],
   );
 
   useEffect(() => {
@@ -353,18 +385,56 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
       }
 
       const itemsRefs = [];
-      const selectedPurchase = purchases?.data?.find(
-        (p) => String(p.id) === String(values.purchase?.value ?? values.purchase),
-      );
+      const purchaseId = values.purchase?.value
+        ? String(values.purchase.value)
+        : values.purchase
+          ? String(values.purchase)
+          : undefined;
+
+      let purchaseLineItems =
+        purchases?.data?.find((p) => String(p.id) === String(purchaseId))?.items ??
+        [];
+
+      if (purchaseId && purchaseLineItems.length === 0) {
+        try {
+          const [rows] = await db.query(
+            `SELECT items FROM $id FETCH items, items.item`,
+            { id: toRecordId(purchaseId) }
+          );
+          const row = Array.isArray(rows) ? rows[0] : rows;
+          purchaseLineItems = row?.items ?? [];
+        } catch (error) {
+          console.warn("Failed loading purchase items for return costing", error);
+        }
+      }
+
+      const matchPurchaseLine = (item: any) =>
+        purchaseLineItems.find(
+          (pi: any) =>
+            String(pi.id) === String(item.purchase_item_id) ||
+            String(pi.item?.id) === String(item.item?.value)
+        );
+
+      const resolveReturnLineUnitCost = (item: any, matched?: any): number => {
+        if (item.price != null && item.price !== "") {
+          const formPrice = Number(item.price);
+          if (Number.isFinite(formPrice) && formPrice !== 0) {
+            return Math.abs(formPrice);
+          }
+        }
+        const fromPurchase = resolvePurchaseLineUnitCost(matched);
+        if (fromPurchase > 0) return fromPurchase;
+        const catalog = (items?.data ?? []).find(
+          (ci) => String(ci.id) === String(item.item?.value)
+        );
+        const catalogPrice = Number(catalog?.price ?? 0);
+        return Number.isFinite(catalogPrice) ? Math.abs(catalogPrice) : 0;
+      };
+
       await Promise.all(
         values.items.map(async (item) => {
-          const matchedPurchaseItem = selectedPurchase?.items?.find((pi) =>
-            String(pi.id) === String(item.purchase_item_id)
-            || String(pi.item?.id) === String(item.item?.value),
-          );
-          const snapshotPrice = item.price != null && item.price !== ""
-            ? Number(item.price)
-            : matchedPurchaseItem?.price;
+          const matchedPurchaseItem = matchPurchaseLine(item);
+          const snapshotPrice = resolveReturnLineUnitCost(item, matchedPurchaseItem);
 
           const [created] = await db.create(Tables.inventory_purchase_return_items, {
             purchase_return: toRecordId(purchaseReturnId),
@@ -373,7 +443,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
             supplier: item.supplier ? toRecordId(item.supplier.value) : undefined,
             purchase_item: item.purchase_item_id ? toRecordId(item.purchase_item_id) : undefined,
             quantity: Number(item.quantity),
-            price: snapshotPrice != null ? Number(snapshotPrice) : undefined,
+            price: snapshotPrice > 0 ? snapshotPrice : undefined,
             comments: item.comments?.trim() ? item.comments.trim() : undefined,
           });
 
@@ -392,6 +462,60 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
       await db.merge(toRecordId(purchaseReturnIdString), {
         items: itemsRefs,
       });
+
+      let inventoryValue = Number(
+        values.items
+          .reduce((sum, item) => {
+            const qty = Number(item.quantity || 0);
+            const price = resolveReturnLineUnitCost(item, matchPurchaseLine(item));
+            return sum + qty * price;
+          }, 0)
+          .toFixed(2)
+      );
+
+      if (inventoryValue <= 0 && purchaseId) {
+        try {
+          const [rows] = await db.query(
+            `SELECT items FROM $id FETCH items, items.item`,
+            { id: toRecordId(purchaseId) }
+          );
+          const row = Array.isArray(rows) ? rows[0] : rows;
+          const fetchedItems = row?.items ?? [];
+          if (fetchedItems.length > 0) {
+            purchaseLineItems = fetchedItems;
+            inventoryValue = Number(
+              values.items
+                .reduce((sum, item) => {
+                  const qty = Number(item.quantity || 0);
+                  const price = resolveReturnLineUnitCost(
+                    item,
+                    matchPurchaseLine(item)
+                  );
+                  return sum + qty * price;
+                }, 0)
+                .toFixed(2)
+            );
+          }
+        } catch (error) {
+          console.warn(
+            "Failed reloading purchase items for return accounting value",
+            error
+          );
+        }
+      }
+
+      if (inventoryValue > 0) {
+        await publishPurchaseReturned(integrationManager, {
+          documentId: String(purchaseReturnIdString),
+          purchaseId,
+          inventoryValue,
+        });
+      } else {
+        console.warn(
+          "Skipped PurchaseReturned accounting event: inventory value is 0",
+          { purchaseReturnId: purchaseReturnIdString, itemCount: values.items.length, purchaseId }
+        );
+      }
 
       toast.success(t('toast:inventory.purchaseReturnSaved'));
       closeModal();

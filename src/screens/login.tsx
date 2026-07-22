@@ -6,6 +6,7 @@ import { useAtom } from "jotai";
 import { appPage } from "@/store/jotai.ts";
 import { cn } from "@/lib/utils.ts";
 import { useDB } from "@/api/db/db.ts";
+import { useDatabase } from "@/hooks/useDatabase.ts";
 import { User } from "@/api/model/user.ts";
 import {useNavigate, useLocation} from "react-router";
 import {MENU} from "@/routes/posr.ts";
@@ -21,10 +22,18 @@ import { ensureEmployeeForUser } from "@/lib/labor-engine/employee.resolver.ts";
 import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n.ts";
 import { DocumentTitle } from "@/components/common/document-title.tsx";
+import {
+  clearSessionTokens,
+  gatewayLogin,
+  isGatewayAuthEnabled,
+  setSessionTokens,
+} from "@/lib/session.ts";
 
 export const Login = () => {
   const db = useDB();
+  const { connect } = useDatabase();
   const { t } = useTranslation('auth');
+  const gatewayAuth = isGatewayAuthEnabled();
 
   const [code, setCode] = useState('');
   const [loginMethod, setLoginMethod] = useState<'pin'|'form'>('pin');
@@ -52,59 +61,102 @@ export const Login = () => {
     }
   }
 
+  const afterUserAuthenticated = async (normalizedUser: User) => {
+    if (page.locked && page.lockedBy?.login !== normalizedUser.login) {
+      denyLogin();
+      return false;
+    }
+
+    const timeEntryCheck: any = await db.query(`SELECT * from ${Tables.time_entries} where user = $userId and clock_out = NONE and platform = $platform`, {
+      userId: normalizedUser.id,
+      platform: 'web'
+    });
+
+    if (timeEntryCheck[0].length === 0) {
+      setPendingUser(normalizedUser);
+      setShowClockInModal(true);
+    } else {
+      allowLogin(normalizedUser);
+    }
+    return true;
+  };
+
+  const checkLoginGateway = async (login: string, pass: string, method: 'pin'|'form') => {
+    const result = await gatewayLogin({ method, login, password: pass });
+    if (!result.ok || !result.token || !result.surrealToken || !result.user) {
+      denyLogin();
+      return false;
+    }
+
+    setSessionTokens(result.token, result.surrealToken);
+
+    try {
+      // Connect before announcing the session so Login stays mounted.
+      await connect();
+    } catch (err) {
+      console.error(err);
+      clearSessionTokens();
+      toast.error(i18n.t('auth:login.connectionFailed', { defaultValue: 'Database connection failed after login' }));
+      denyLogin();
+      return false;
+    }
+
+    window.dispatchEvent(new Event('posr-session'));
+
+    const loggedInUser = result.user as User;
+    const normalizedUser = {
+      ...loggedInUser,
+      roles: (loggedInUser as User & { roles?: string[] }).roles?.length
+        ? (loggedInUser as User & { roles?: string[] }).roles!
+        : getUserModules(loggedInUser),
+    } as User;
+
+    return afterUserAuthenticated(normalizedUser);
+  };
+
+  const checkLoginLegacy = async (login: string, pass: string, method: 'pin'|'form') => {
+    const query = method === 'pin'
+      ? `SELECT * from ${Tables.users} where login = $login and deleted_at = none and (login_method = 'pin' OR login_method = NONE) and crypto::bcrypt::compare(password, $password) = true fetch user_role, user_shift`
+      : `SELECT * from ${Tables.users} where login = $login and deleted_at = none and login_method = 'form' and crypto::bcrypt::compare(password, $password) = true fetch user_role, user_shift`;
+
+    const record: any = await db.query(query, {
+      login: login,
+      password: pass,
+    });
+
+    if (record[0].length > 0) {
+      const loggedInUser = record[0][0];
+      const roleId = typeof loggedInUser.user_role === "object" ? loggedInUser.user_role?.id : loggedInUser.user_role;
+      let fetchedRole: UserRole | undefined;
+
+      if (roleId) {
+        const [roleRecords]: any = await db.query(`SELECT * FROM ${Tables.user_roles} WHERE id = $roleId AND deleted_at = none LIMIT 1`, {
+          roleId,
+        });
+        fetchedRole = roleRecords?.[0];
+      }
+
+      const normalizedUser = {
+        ...loggedInUser,
+        user_role: fetchedRole || loggedInUser.user_role,
+        roles: fetchedRole
+          ? [...new Set(fetchedRole.roles || [])]
+          : getUserModules(loggedInUser),
+      };
+
+      return afterUserAuthenticated(normalizedUser);
+    }
+
+    denyLogin();
+    return false;
+  };
+
   const checkLogin = async (login: string, pass: string, method: 'pin'|'form') => {
     if ((method === 'pin' && login.trim().length === 4) || (method === 'form' && login.trim() && pass.trim())) {
-      const query = method === 'pin'
-        ? `SELECT * from ${Tables.users} where login = $login and deleted_at = none and (login_method = 'pin' OR login_method = NONE) and crypto::bcrypt::compare(password, $password) = true fetch user_role, user_shift`
-        : `SELECT * from ${Tables.users} where login = $login and deleted_at = none and login_method = 'form' and crypto::bcrypt::compare(password, $password) = true fetch user_role, user_shift`;
-
-      const record: any = await db.query(query, {
-        login: login,
-        password: pass,
-      });
-
-      if(record[0].length > 0){
-        const loggedInUser = record[0][0];
-        const roleId = typeof loggedInUser.user_role === "object" ? loggedInUser.user_role?.id : loggedInUser.user_role;
-        let fetchedRole: UserRole | undefined;
-
-        if (roleId) {
-          const [roleRecords]: any = await db.query(`SELECT * FROM ${Tables.user_roles} WHERE id = $roleId AND deleted_at = none LIMIT 1`, {
-            roleId,
-          });
-          fetchedRole = roleRecords?.[0];
-        }
-
-        const normalizedUser = {
-          ...loggedInUser,
-          user_role: fetchedRole || loggedInUser.user_role,
-          roles: fetchedRole
-            ? [...new Set(fetchedRole.roles || [])]
-            : getUserModules(loggedInUser),
-        };
-
-        if(page.locked && page.lockedBy?.login !== record[0][0].login){
-          denyLogin();
-          return false;
-        }
-
-        // Check for active time entry
-        const timeEntryCheck: any = await db.query(`SELECT * from ${Tables.time_entries} where user = $userId and clock_out = NONE and platform = $platform`, {
-          userId: record[0][0].id,
-          platform: 'web'
-        });
-
-        if(timeEntryCheck[0].length === 0){
-          // No active time entry, show clock-in modal
-          setPendingUser(normalizedUser);
-          setShowClockInModal(true);
-        } else {
-          // Active time entry exists, proceed with login
-          allowLogin(normalizedUser);
-        }
-      }else{
-        denyLogin();
+      if (gatewayAuth) {
+        return checkLoginGateway(login, pass, method);
       }
+      return checkLoginLegacy(login, pass, method);
     }
   }
 

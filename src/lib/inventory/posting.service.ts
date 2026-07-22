@@ -23,6 +23,11 @@ import {
   publishInventoryReversed,
 } from "@/lib/inventory/events/publish.ts";
 import {
+  publishInventoryAdjusted as publishAccountingInventoryAdjusted,
+  publishInventoryIssued,
+  publishPurchaseReceived,
+} from "@/integrations/accounting/events/publish.ts";
+import {
   InventoryPostingDocumentType,
   POSTING_STRATEGIES,
 } from "@/lib/inventory/posting.strategies.ts";
@@ -528,6 +533,29 @@ export const postDocument = async (
         adjustedBy: input.userId,
         businessDate: newEntries[0]?.business_date,
       });
+
+      let increaseValue = 0;
+      let decreaseValue = 0;
+      for (const entry of newEntries) {
+        const cost = Number(entry.total_cost ?? 0);
+        if (cost > 0) increaseValue += cost;
+        else if (cost < 0) decreaseValue += Math.abs(cost);
+        else {
+          const qty = Number(entry.quantity_change ?? 0);
+          const unit = Number(entry.unit_cost ?? 0);
+          const line = Number((qty * unit).toFixed(2));
+          if (line > 0) increaseValue += line;
+          else if (line < 0) decreaseValue += Math.abs(line);
+        }
+      }
+      await publishAccountingInventoryAdjusted(input.integrationManager, {
+        documentId: String(documentId),
+        locationId: doc.location?.id ? String(doc.location.id) : doc.store?.id ? String(doc.store.id) : undefined,
+        netInventoryValue: Number((increaseValue - decreaseValue).toFixed(2)),
+        increaseValue: Number(increaseValue.toFixed(2)),
+        decreaseValue: Number(decreaseValue.toFixed(2)),
+        reason: doc.reason ? String(doc.reason) : undefined,
+      });
     } else {
       await publishInventoryPosted(input.integrationManager, {
         referenceType: strategy.referenceType,
@@ -535,8 +563,70 @@ export const postDocument = async (
         documentNumber: doc.invoice_number,
         ledgerEntryCount: newEntries.length + parentReversalCount,
         postedBy: input.userId,
-        businessDate: newEntries[0]?.business_date,
+        businessDate: newEntries[0]?.business_date ?? entries[0]?.business_date,
       });
+
+      // Prefer authoritative line/allocation costs — not only newly inserted ledger
+      // rows (reposts or zero unit_cost on ledger can leave newEntries empty/zero).
+      const sumEntryCosts = (rows: typeof entries) =>
+        Number(
+          rows
+            .reduce((sum, entry) => sum + Math.abs(Number(entry.total_cost ?? 0)), 0)
+            .toFixed(2)
+        );
+      let inventoryValue = sumEntryCosts(newEntries.length > 0 ? newEntries : entries);
+      if (inventoryValue <= 0) {
+        inventoryValue = Number(
+          itemsForPosting
+            .reduce((sum: number, item: any) => {
+              const qty = Math.abs(Number(item.quantity) || 0);
+              const lineTotal = Number(item.total_inventory_cost);
+              if (Number.isFinite(lineTotal) && lineTotal !== 0) {
+                return sum + Math.abs(lineTotal);
+              }
+              const unitRaw =
+                item.final_unit_cost ?? item.price ?? item.unit_cost ?? 0;
+              const unit = Number(unitRaw);
+              return sum + qty * (Number.isFinite(unit) ? Math.abs(unit) : 0);
+            }, 0)
+            .toFixed(2)
+        );
+      }
+
+      const locationId = doc.location?.id
+        ? String(doc.location.id)
+        : doc.store?.id
+          ? String(doc.store.id)
+          : undefined;
+
+      if (input.documentType === "purchase") {
+        if (inventoryValue > 0) {
+          await publishPurchaseReceived(input.integrationManager, {
+            documentId: String(documentId),
+            supplierId: doc.supplier?.id ? String(doc.supplier.id) : undefined,
+            locationId,
+            inventoryValue,
+          });
+        } else {
+          console.warn(
+            "Skipped PurchaseReceived accounting event: inventory value is 0",
+            { documentId, ledgerEntries: newEntries.length, builtEntries: entries.length }
+          );
+        }
+      } else if (input.documentType === "issue") {
+        if (inventoryValue > 0) {
+          await publishInventoryIssued(input.integrationManager, {
+            documentId: String(documentId),
+            locationId,
+            inventoryValue,
+          });
+        } else {
+          console.warn(
+            "Skipped InventoryIssued accounting event: inventory value is 0",
+            { documentId, ledgerEntries: newEntries.length, builtEntries: entries.length }
+          );
+        }
+      }
     }
   } catch (error) {
     console.warn("Failed publishing inventory posting event", error);

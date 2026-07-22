@@ -55,7 +55,7 @@ export const Sidebar = () => {
   const { protectAction } = useSecurity();
 
   const logout = () => {
-    logoutSession(setPage, navigation);
+    void logoutSession(setPage, navigation);
   }
 
   const protectedNavigate = async (to: string, module?: string, description?: string) => {

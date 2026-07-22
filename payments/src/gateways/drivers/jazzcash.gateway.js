@@ -164,7 +164,7 @@ class JazzcashGateway extends BaseGateway {
     const paymentTypeId = fields.paymentTypeId || fields.metadata?.paymentTypeId;
     const txnRefNo = parsed.txnRefNo;
 
-    let signatureValid = true;
+    let signatureValid = false;
     let integritySalt = null;
 
     if (paymentTypeId) {
@@ -185,8 +185,9 @@ class JazzcashGateway extends BaseGateway {
 
     if (integritySalt && fields.pp_SecureHash) {
       signatureValid = verifyReturnHash(fields, integritySalt);
-    } else if (fields.pp_SecureHash) {
-      signatureValid = false;
+    } else if (!fields.pp_SecureHash && process.env.JAZZCASH_ALLOW_UNSIGNED === 'true') {
+      // Explicit opt-in for local demos only
+      signatureValid = true;
     }
 
     if (!signatureValid) {

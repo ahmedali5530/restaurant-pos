@@ -10,6 +10,10 @@ const { handleError } = require('./src/lib/response');
 const { initSurrealClient } = require('./src/lib/surreal-client');
 const { requestLogMiddleware } = require('./src/lib/request-log.middleware');
 const {
+  createSessionAuthMiddleware,
+  createCorsOriginDelegate,
+} = require('./src/lib/session-auth.middleware');
+const {
   buildMpesaWebhookCallbackUrl,
   getPaymentBaseUrl,
   getPaymentCallbackBaseUrl,
@@ -19,7 +23,7 @@ const app = express();
 const PORT = Number(process.env.PAYMENT_PORT || 3133);
 const HOST = process.env.PAYMENT_HOST || '0.0.0.0';
 
-app.use(cors());
+app.use(cors({ origin: createCorsOriginDelegate() }));
 
 // Keep webhook body untouched for signature verification in real integrations.
 app.use('/webhooks', express.raw({ type: '*/*', limit: '1mb' }));
@@ -30,7 +34,9 @@ app.get('/health', (req, res) => {
   res.json({ ok: true, service: 'posr-payment-server' });
 });
 
-app.use('/payments', paymentsRoutes);
+const requireSession = createSessionAuthMiddleware();
+
+app.use('/payments', requireSession, paymentsRoutes);
 app.use('/webhooks', webhooksRoutes);
 
 app.use((err, req, res, next) => {

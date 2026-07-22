@@ -6,4 +6,11 @@ export * from '@/integrations/accounting/events/publish.ts';
 export * from '@/integrations/accounting/mapping/account-mapping.ts';
 export * from '@/integrations/accounting/rules/default-rules.ts';
 export * from '@/integrations/accounting/templates/restaurant-sale.ts';
-export * from '@/integrations/accounting/templates/builder.ts';
+export * from '@/integrations/accounting/templates/registry.ts';
+export {
+  buildJournalDraftFromEvent,
+  buildJournalLinesFromTemplate,
+  assertBalancedLines,
+  buildSaleCompletedAmountContext,
+} from '@/integrations/accounting/templates/builder.ts';
+export { EVENT_POSTING_HANDLERS } from '@/integrations/accounting/handlers.ts';

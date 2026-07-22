@@ -182,19 +182,29 @@ class TelebirrGateway extends BaseGateway {
     }
 
     const paymentTypeId = body.paymentTypeId || body.metadata?.paymentTypeId;
-    let signatureValid = true;
+    let signatureValid = false;
 
-    if (paymentTypeId) {
-      try {
-        const { loadPaymentTypeGatewayConfig } = require('../../lib/gateway-config.store');
-        const { credentials } = await loadPaymentTypeGatewayConfig(
-          String(paymentTypeId),
-          this.name
-        );
-        signatureValid = verifyNotificationSignature(body, credentials.notifyPublicKey);
-      } catch (err) {
-        logger.warn('telebirr', 'webhook config lookup failed', { message: err.message });
-      }
+    if (!paymentTypeId) {
+      return {
+        gateway: this.name,
+        status: WebhookStatus.REJECTED,
+        eventType: 'notify',
+        eventId: parsed.merchOrderId,
+        normalizedData: { ...parsed, signatureValid: false, reason: 'missing_paymentTypeId' },
+        receivedAt: new Date().toISOString(),
+      };
+    }
+
+    try {
+      const { loadPaymentTypeGatewayConfig } = require('../../lib/gateway-config.store');
+      const { credentials } = await loadPaymentTypeGatewayConfig(
+        String(paymentTypeId),
+        this.name
+      );
+      signatureValid = verifyNotificationSignature(body, credentials.notifyPublicKey);
+    } catch (err) {
+      logger.warn('telebirr', 'webhook config lookup failed', { message: err.message });
+      signatureValid = false;
     }
 
     if (!signatureValid) {

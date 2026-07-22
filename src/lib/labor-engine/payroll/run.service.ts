@@ -19,6 +19,7 @@ import { logLaborChange } from '@/lib/labor-engine/audit/labor-audit.service.ts'
 import { toEntityRecordId, toUserRecordId } from '@/lib/labor-engine/record-id.ts'
 import { nowSurrealDateTime } from '@/lib/datetime.ts'
 import { safeNumber } from '@/lib/utils.ts'
+import { publishPayrollPosted } from '@/integrations/accounting/events/publish.ts'
 
 const DEDUCTION_ADJUSTMENT_TYPES = new Set<LaborAdjustmentType>([
   'penalty',
@@ -73,6 +74,7 @@ export interface LockRunParams {
 export interface ApproveRunParams {
   runId: string
   approvedBy: User
+  integrationManager?: import('@/integrations/core/integration-manager.ts').IntegrationManager | null
 }
 
 export interface ExportRunParams {
@@ -361,7 +363,7 @@ export const approveRun = async (
   params: ApproveRunParams
 ): Promise<PayrollRun> => {
   const existing = await db.query<[PayrollRun[]]>(
-    `SELECT * FROM ${Tables.payroll_runs} WHERE id = $id LIMIT 1`,
+    `SELECT * FROM ${Tables.payroll_runs} WHERE id = $id LIMIT 1 FETCH payroll_period`,
     { id: params.runId }
   )
   const before = existing?.[0]?.[0]
@@ -386,6 +388,59 @@ export const approveRun = async (
     after: run,
     changedBy: params.approvedBy,
   })
+
+  const [snapshots] = await db.query(
+    `SELECT gross_pay, net_pay, deductions, adjustments, bonuses
+     FROM ${Tables.payroll_snapshots}
+     WHERE payroll_run = $runId`,
+    { runId: toEntityRecordId(params.runId) }
+  )
+
+  const snapshotRows = (Array.isArray(snapshots) ? snapshots : []) as Array<{
+    gross_pay?: number
+    net_pay?: number
+    deductions?: number
+    adjustments?: number
+    bonuses?: number
+  }>
+
+  const totals = snapshotRows.reduce(
+    (acc: {
+      grossPay: number
+      netPay: number
+      deductions: number
+      adjustments: number
+      bonuses: number
+    }, row) => {
+      acc.grossPay += safeNumber(row.gross_pay)
+      acc.netPay += safeNumber(row.net_pay)
+      acc.deductions += safeNumber(row.deductions)
+      acc.adjustments += safeNumber(row.adjustments)
+      acc.bonuses += safeNumber(row.bonuses)
+      return acc
+    },
+    { grossPay: 0, netPay: 0, deductions: 0, adjustments: 0, bonuses: 0 }
+  )
+
+  if (totals.grossPay > 0) {
+    const period =
+      typeof before.payroll_period === 'object' && before.payroll_period
+        ? before.payroll_period
+        : undefined
+    await publishPayrollPosted(params.integrationManager, {
+      payrollRunId: String(run.id ?? params.runId),
+      periodId: period?.id ? String(period.id) : undefined,
+      periodStart: period?.start_date ? String(period.start_date) : undefined,
+      periodEnd: period?.end_date ? String(period.end_date) : undefined,
+      totals: {
+        grossPay: Number(totals.grossPay.toFixed(2)),
+        netPay: Number(totals.netPay.toFixed(2)),
+        deductions: Number(totals.deductions.toFixed(2)),
+        adjustments: Number(totals.adjustments.toFixed(2)),
+        bonuses: Number(totals.bonuses.toFixed(2)),
+      },
+    })
+  }
 
   return run
 }

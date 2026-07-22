@@ -84,7 +84,7 @@ export const AutoClockOutProvider: React.FC<AutoClockOutProviderProps> = ({ chil
       }
 
       toast.success(t('toast:autoClockOut.clockedOut'));
-      logoutSession(setPage, navigate);
+      void logoutSession(setPage, navigate);
     } catch (error) {
       console.error('Auto clock-out failed:', error);
       toast.error(t('toast:autoClockOut.failed'));

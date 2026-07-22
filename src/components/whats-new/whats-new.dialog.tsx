@@ -16,7 +16,7 @@ export const WhatsNewDialog = () => {
   const open = shouldAutoOpen || forceOpen;
 
   const latest = getLatestRelease();
-  const priorReleases = RELEASES.filter((r) => r.version !== latest?.version).slice(0, 3);
+  const priorReleases = RELEASES.filter((r) => r.version !== latest?.version).slice(0, 5);
 
   const dismiss = () => {
     setPage((prev) => ({
@@ -50,7 +50,7 @@ export const WhatsNewDialog = () => {
         </ul>
 
         {priorReleases.length > 0 && (
-          <div className="pt-3 border-t border-neutral-200 space-y-3">
+          <div className="pt-3 border-t border-neutral-200 space-y-3 overflow-auto max-h-[calc(100vh_-_350px)]">
             <p className="text-sm font-medium text-neutral-600">{t('whatsNew.previousReleases')}</p>
             {priorReleases.map((release) => (
               <div key={release.version}>

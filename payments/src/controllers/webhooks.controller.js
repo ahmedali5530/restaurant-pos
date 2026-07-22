@@ -73,16 +73,23 @@ async function handleOrderWebhook(req, res, next) {
 
     const driverResult = await processWebhook(gateway, rawBody, req.headers, signature);
 
-    await savePaymentWebhook({
-      key: orderKey,
-      gateway,
-      data: {
-        raw: parseWebhookBody(rawBody),
-        normalized: driverResult,
-      },
-    });
-
-    logger.info('webhook', 'Stored order webhook', { gateway, orderKey });
+    if (driverResult.status === WebhookStatus.RECEIVED) {
+      await savePaymentWebhook({
+        key: orderKey,
+        gateway,
+        data: {
+          raw: parseWebhookBody(rawBody),
+          normalized: driverResult,
+        },
+      });
+      logger.info('webhook', 'Stored order webhook', { gateway, orderKey });
+    } else {
+      logger.info('webhook', 'Ignored order webhook (not RECEIVED)', {
+        gateway,
+        orderKey,
+        status: driverResult.status,
+      });
+    }
 
     sendSuccess(res, driverResult);
   } catch (err) {

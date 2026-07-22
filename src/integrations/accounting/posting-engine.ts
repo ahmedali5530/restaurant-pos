@@ -1,16 +1,13 @@
 import { IntegrationEvent, IntegrationExecutionRequest } from '@/integrations/core/types.ts';
 import { findMatchingPostingRule } from '@/integrations/accounting/rules/default-rules.ts';
-import { getJournalTemplate } from '@/integrations/accounting/templates/restaurant-sale.ts';
-import {
-  buildJournalDraftFromEvent,
-  buildSaleCompletedAmountContext,
-} from '@/integrations/accounting/templates/builder.ts';
+import { getJournalTemplate } from '@/integrations/accounting/templates/registry.ts';
+import { buildJournalDraftFromEvent } from '@/integrations/accounting/templates/builder.ts';
 import {
   InternalAccountingConfig,
   JournalDraftRequest,
   PostingRule,
 } from '@/integrations/accounting/types.ts';
-import { SaleCompletedPayload } from '@/integrations/accounting/events/payloads.ts';
+import { EVENT_POSTING_HANDLERS } from '@/integrations/accounting/handlers.ts';
 
 export type AccountingExecuteSink = (
   request: IntegrationExecutionRequest
@@ -25,8 +22,8 @@ export interface PostingEngineResult {
 
 /**
  * Accounting posting engine — independent of any IntegrationProvider.
- * Resolves rules/templates/mappings, then hands a journal draft to the sink
- * (typically provider execute / queue enqueue for action postJournal).
+ * Resolves rules/templates/mappings via event handlers, then hands a journal
+ * draft to the sink (provider execute / queue enqueue for action postJournal).
  */
 export class AccountingPostingEngine {
   constructor(private readonly rules?: PostingRule[]) {}
@@ -50,19 +47,23 @@ export class AccountingPostingEngine {
       };
     }
 
-    if (event.name !== 'SaleCompleted') {
+    const handler = EVENT_POSTING_HANDLERS[event.name];
+    if (!handler) {
       return {
         handled: false,
-        skippedReason: `Event "${event.name}" not implemented in phase 1`,
+        skippedReason: `Event "${event.name}" has no posting handler`,
       };
     }
 
-    const payload = event.payload as unknown as SaleCompletedPayload;
-    if (!payload?.orderId) {
-      return { handled: false, error: 'SaleCompleted payload missing orderId' };
+    const originRecordId = handler.originRecordId(event.payload);
+    if (!originRecordId) {
+      return {
+        handled: false,
+        error: `${event.name} payload missing origin record id`,
+      };
     }
 
-    const amounts = buildSaleCompletedAmountContext(payload);
+    const amounts = handler.buildAmounts(event.payload);
     const built = buildJournalDraftFromEvent({
       event,
       rule,
@@ -71,7 +72,7 @@ export class AccountingPostingEngine {
       providerId,
       autoPublish: config.autoPublish,
       amounts,
-      originRecordId: payload.orderId,
+      originRecordId,
     });
 
     if (built.error || !built.draft) {
