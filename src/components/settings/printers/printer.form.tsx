@@ -9,6 +9,7 @@ import {useTranslation} from 'react-i18next';
 import i18n from '@/lib/i18n.ts';
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input } from "@/components/common/input/input.tsx";
+import { InputField } from "@/components/common/form/rhf-fields.tsx";
 import { Button } from "@/components/common/input/button.tsx";
 import * as z from "zod";
 import { transformValue } from "@/lib/utils.ts";
@@ -42,7 +43,7 @@ export const PrinterForm = ({
     onClose();
   }
 
-  const { register, control, handleSubmit, formState: {errors}, reset } = useForm({
+  const { control, handleSubmit, formState: {errors}, reset } = useForm({
     resolver: zodResolver(validationSchema)
   });
 
@@ -105,7 +106,7 @@ export const PrinterForm = ({
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-3 mb-3 flex-col">
             <div className="flex-1">
-              <Input label={t('columns.name')} {...register('name')} autoFocus error={errors?.name?.message}/>
+              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message}/>
             </div>
             <div className="flex-1">
               <label htmlFor="type">{t('columns.type')}</label>

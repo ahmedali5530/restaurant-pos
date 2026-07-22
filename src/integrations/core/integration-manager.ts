@@ -64,7 +64,9 @@ export class IntegrationManager {
       configurable.setDbLoader(this.dbLoader);
     }
     if (typeof configurable.setJobEnqueuer === 'function') {
-      configurable.setJobEnqueuer((request) => this.execute(providerId, request));
+      // Prefer immediate execute so accounting drafts are created synchronously
+      // when domain events fire (queue still used for fiscal offline retries).
+      configurable.setJobEnqueuer((request) => this.executeImmediate(providerId, request));
     }
   }
 

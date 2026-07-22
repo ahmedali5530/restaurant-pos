@@ -12,12 +12,13 @@ import {InventoryDocumentPrintModal} from "@/components/inventory/common/documen
 import {InventoryInvoiceDoc, mapStockTransferToInvoice} from "@/lib/inventory/invoice.mapper.ts";
 import {useStockTransferList} from "@/hooks/useStockTransferList.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
-import {toJsDate} from "@/lib/datetime.ts";
+import {formatDateTime} from "@/lib/datetime.ts";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {useInventoryLocations} from "@/hooks/useInventoryLocations.ts";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 export const InventoryStockTransfers = () => {
-  const {t} = useTranslation("inventory");
+  const {t} = useTranslation(["inventory", 'common']);
   const {protectAction} = useSecurity();
   const loadHook = useStockTransferList(0, 10);
 
@@ -50,7 +51,7 @@ export const InventoryStockTransfers = () => {
     columnHelper.accessor("created_at", {
       header: t("columns.createdAt"),
       cell: (info) =>
-        info.getValue() ? toJsDate(info.getValue() as any).toLocaleString() : "",
+        info.getValue() ? formatDateTime(info.getValue() as any) : "",
     }),
     columnHelper.accessor(
       (row) => {
@@ -91,25 +92,25 @@ export const InventoryStockTransfers = () => {
       enableColumnFilter: false,
       cell: (info) => (
         <div className="flex gap-2">
-          <Button
+          <IconTooltipButton label={t('common:actions.view')}
             variant="secondary"
-            iconButton
+           
             onClick={() => {
               setViewTransfer(info.row.original);
               setViewModalOpen(true);
             }}
           >
             <FontAwesomeIcon icon={faFile} />
-          </Button>
-          <Button
+          </IconTooltipButton>
+          <IconTooltipButton label={t("print.printReceipt")}
             variant="secondary"
-            iconButton
-            title={t("print.printReceipt")}
+           
+           
             onClick={() => setPrintDoc(mapStockTransferToInvoice(info.row.original))}
           >
             <FontAwesomeIcon icon={faPrint} />
-          </Button>
-          <Button
+          </IconTooltipButton>
+          <IconTooltipButton label={t('common:actions.edit')}
             variant="primary"
             onClick={() => {
               protectAction(() => {
@@ -122,7 +123,7 @@ export const InventoryStockTransfers = () => {
             }}
           >
             <FontAwesomeIcon icon={faPencil} />
-          </Button>
+          </IconTooltipButton>
         </div>
       ),
     }),

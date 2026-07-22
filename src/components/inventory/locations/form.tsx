@@ -11,7 +11,7 @@ import {
 } from "@/api/model/inventory_location.ts";
 import { useDB } from "@/api/db/db.ts";
 import { Modal } from "@/components/common/react-aria/modal.tsx";
-import { Input } from "@/components/common/input/input.tsx";
+import { InputField } from "@/components/common/form/rhf-fields.tsx";
 import { Button } from "@/components/common/input/button.tsx";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import { Switch } from "@/components/common/input/switch.tsx";
@@ -46,7 +46,6 @@ export const InventoryLocationForm = ({ open, onClose, data }: Props) => {
   const db = useDB();
 
   const {
-    register,
     handleSubmit,
     control,
     formState: { errors },
@@ -119,9 +118,10 @@ export const InventoryLocationForm = ({ open, onClose, data }: Props) => {
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-3 mb-3">
-          <Input
+          <InputField
+            name="name"
+            control={control}
             label={t("columns.name")}
-            {...register("name")}
             autoFocus
             error={errors?.name?.message}
           />

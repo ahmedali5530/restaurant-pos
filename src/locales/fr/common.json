@@ -26,6 +26,7 @@
     "import": "Importer",
     "upload": "Téléverser",
     "download": "Télécharger",
+    "downloadTemplate": "Télécharger le modèle",
     "select": "Sélectionner",
     "selectAll": "Tout sélectionner",
     "deselectAll": "Tout désélectionner",
@@ -38,6 +39,8 @@
     "continue": "Continuer",
     "done": "Terminé",
     "remove": "Retirer",
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
     "duplicate": "Dupliquer",
     "copy": "Copier",
     "filter": "Filtrer",
@@ -69,7 +72,20 @@
     "success": "Succès",
     "error": "Erreur",
     "warning": "Avertissement",
-    "info": "Info"
+    "info": "Info",
+    "approve": "Approuver",
+    "reject": "Rejeter",
+    "publish": "Publier",
+    "unpublish": "Dépublier",
+    "logout": "Se déconnecter",
+    "lock": "Verrouiller",
+    "void": "Annuler",
+    "hold": "Mettre en attente",
+    "fire": "Envoyer",
+    "revision": "Révision",
+    "comment": "Commentaire",
+    "settings": "Paramètres",
+    "clock": "Pointeuse"
   },
   "database": {
     "connectionError": "Erreur de connexion",
@@ -98,6 +114,9 @@
     "title": "Page introuvable",
     "description": "La page que vous recherchez n'existe pas ou a été déplacée.",
     "backToMenu": "Retour au menu"
+  },
+  "documentTitle": {
+    "app": "Caisse restaurant"
   },
   "loading": "Chargement..."
 }

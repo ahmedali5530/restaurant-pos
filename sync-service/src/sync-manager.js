@@ -164,7 +164,7 @@ class SyncManager {
     } else {
       const payload = {
         ...result,
-        client_id: this.config.clientId,
+        // client_id: this.config.clientId,
       };
       await this.master.upsert(recordId).content(payload);
     }

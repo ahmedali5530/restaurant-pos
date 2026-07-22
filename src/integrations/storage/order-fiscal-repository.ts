@@ -3,7 +3,12 @@ import {
   OrderFiscalSubmission,
   OrderFiscalSubmissionStatus,
 } from '@/api/model/order_fiscal_submission.ts';
-import { pickPreferredFiscalQr } from '@/integrations/providers/fiscal/shared/runtime-config.ts';
+import {
+  collectFiscalQrsForPrint,
+  FiscalQrPrintItem,
+  pickPreferredFiscalQr,
+} from '@/integrations/providers/fiscal/shared/runtime-config.ts';
+import { PROVIDER_CATALOG } from '@/integrations/providers/index.ts';
 import { nowSurrealDateTime } from '@/lib/datetime.ts';
 import { toRecordId } from '@/lib/utils.ts';
 
@@ -26,6 +31,17 @@ export interface CreateOrderFiscalSubmissionInput {
   responsePayload?: unknown;
   qrPriority?: number;
 }
+
+export const getFiscalProviderPrintDescription = (providerId: string): string => {
+  const factory = PROVIDER_CATALOG[providerId];
+  if (!factory) return providerId;
+  try {
+    const manifest = factory().getManifest();
+    return (manifest.authority || manifest.displayName || providerId).trim();
+  } catch {
+    return providerId;
+  }
+};
 
 export const listOrderFiscalSubmissions = async (
   db: FiscalSubmissionDbClient,
@@ -112,13 +128,49 @@ export const pickPreferredFiscalSubmission = (
   return rows.find((row) => row.provider_id === preferred.providerId && row.status === 'completed');
 };
 
+/** Latest completed submission with a QR per provider, then sorted by qr_priority desc. */
+export const buildFiscalQrcodesForPrint = (
+  rows: OrderFiscalSubmission[]
+): FiscalQrPrintItem[] => {
+  const byProvider = new Map<string, OrderFiscalSubmission>();
+
+  for (const row of rows) {
+    if (row.status !== 'completed') continue;
+    if (!(row.qrcode || row.invoice_number)) continue;
+    if (byProvider.has(row.provider_id)) continue; // rows are submitted_at DESC
+    byProvider.set(row.provider_id, row);
+  }
+
+  return collectFiscalQrsForPrint(
+    Object.fromEntries(
+      [...byProvider.entries()].map(([providerId, row]) => [
+        providerId,
+        {
+          success: true,
+          qrcode: row.qrcode ?? undefined,
+          invoiceNumber: row.invoice_number ?? undefined,
+          qrPriority: row.qr_priority ?? 0,
+          description: getFiscalProviderPrintDescription(providerId),
+        },
+      ])
+    )
+  );
+};
+
+export const resolveFiscalQrcodesForPrint = async (
+  db: FiscalSubmissionDbClient,
+  orderId: unknown
+): Promise<FiscalQrPrintItem[]> => {
+  const rows = await listOrderFiscalSubmissions(db, orderId);
+  return buildFiscalQrcodesForPrint(rows);
+};
+
 export const resolveFiscalQrcodeForPrint = async (
   db: FiscalSubmissionDbClient,
   orderId: unknown
 ): Promise<string | undefined> => {
-  const rows = await listOrderFiscalSubmissions(db, orderId);
-  const preferred = pickPreferredFiscalSubmission(rows);
-  return preferred?.qrcode ?? preferred?.invoice_number ?? undefined;
+  const items = await resolveFiscalQrcodesForPrint(db, orderId);
+  return items[0]?.value;
 };
 
 export const persistFiscalSubmissionsForOrder = async (
@@ -175,5 +227,6 @@ export const persistFiscalSubmissionsForOrder = async (
     created,
     selected: preferred,
     qrcode: preferred?.qrcode ?? preferred?.invoice_number,
+    qrcodes: buildFiscalQrcodesForPrint(created),
   };
 };

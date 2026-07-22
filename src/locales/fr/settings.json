@@ -37,8 +37,14 @@
   },
   "printers": {
     "title": "Imprimantes par défaut",
-    "description": "Les affectations d'imprimantes sont enregistrées par utilisateur. Chaque utilisateur peut assigner des imprimantes pour l'impression provisoire, finale, de remboursement, de livraison et de résumé. Si aucune n'est définie, les paramètres globaux sont utilisés en secours.",
+    "description": "Assignez des imprimantes par utilisateur ou pour ce terminal. Quand les imprimantes système sont activées, le provisoire, le final, le remboursement et le résumé utilisent les affectations de cet appareil. La livraison utilise toujours les paramètres utilisateur ou globaux.",
     "loading": "Chargement des paramètres d'impression…",
+    "useSystemPrinters": "Utiliser les imprimantes système sur cet appareil",
+    "useSystemPrintersDescription": "Si activé, ce navigateur/terminal utilise les imprimantes système ci-dessous au lieu de celles de l'utilisateur connecté (sauf livraison).",
+    "systemTitle": "Imprimantes système (cet appareil)",
+    "systemDescription": "Enregistrées uniquement dans ce navigateur. Idéal pour les terminaux partagés afin d'imprimer sur les imprimantes proches. La livraison n'est pas incluse — reste utilisateur ou global.",
+    "userTitle": "Imprimantes utilisateur",
+    "userDescription": "Enregistrées par utilisateur connecté. Utilisées quand les imprimantes système sont désactivées, et toujours pour la livraison.",
     "tempPrint": "Imprimantes pour impression provisoire",
     "finalPrint": "Imprimantes pour impression finale",
     "refundPrint": "Imprimantes pour impression de remboursement",
@@ -157,5 +163,26 @@
     "dialogTitle": "Nouveautés",
     "versionLabel": "Version {{version}}",
     "previousReleases": "Versions précédentes"
+  },
+  "sessionSecurity": {
+    "title": "Sécurité de session",
+    "description": "Verrouiller ou déconnecter automatiquement cet utilisateur après une période d'inactivité. Choisissez une action.",
+    "idleMinutes": "Minutes d'inactivité (ex. 0,1 ≈ 6 secondes)",
+    "action": "Action",
+    "actionLock": "Verrouiller",
+    "actionLogout": "Déconnexion",
+    "updated": "Paramètres de sécurité de session mis à jour",
+    "saveDescription": "Enregistrer les paramètres de sécurité de session",
+    "loginRequired": "Vous devez être connecté pour enregistrer la sécurité de session"
+  },
+  "autoClockOut": {
+    "title": "Pointage de sortie automatique",
+    "description": "Pointe automatiquement la sortie lorsque le poste se termine et/ou à une heure fixe. Utilise le poste planifié s'il existe, sinon le poste assigné. S'applique à tous les utilisateurs.",
+    "onShiftEnd": "Pointer la sortie à la fin du poste",
+    "onDefinedTime": "Pointer la sortie à une heure définie",
+    "definedTime": "Heure de sortie",
+    "triggerRequired": "Activez la fin de poste et/ou une heure définie lorsque la sortie automatique est activée",
+    "updated": "Paramètres de sortie automatique mis à jour",
+    "saveDescription": "Enregistrer les paramètres de sortie automatique"
   }
 }

@@ -23,6 +23,7 @@ import type { UserShift } from "@/api/model/user.ts";
 import { nowSurrealDateTime, toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
 import { clockOut as laborClockOut } from "@/lib/labor-engine/attendance/attendance.service.ts";
 import {useTranslation} from "react-i18next";
+import {DocumentTitle} from "@/components/common/document-title.tsx";
 
 const formatShiftClock = (time: string) => {
   const trimmed = time.trim();
@@ -33,6 +34,7 @@ const formatShiftClock = (time: string) => {
 
 export const Clock = () => {
   const {t} = useTranslation(["summary", "toast"]);
+  const {t: tNav} = useTranslation('navigation');
   const [page, setPage] = useAtom(appPage);
   const db = useDB();
   const navigation = useNavigate();
@@ -294,6 +296,7 @@ export const Clock = () => {
   if (isLoading) {
     return (
       <Layout containerClassName="p-5">
+        <DocumentTitle parts={[tNav('sidebar.clock')]} />
         <div className="bg-white shadow p-5 rounded-lg">
           <p>{t("summary:clock.loading")}</p>
         </div>
@@ -316,6 +319,7 @@ export const Clock = () => {
 
   return (
     <Layout containerClassName="p-5">
+      <DocumentTitle parts={[tNav('sidebar.clock')]} />
       {/* Sale Summary Widgets */}
       <div className="bg-white p-5 rounded-lg shadow">
         <h2 className="text-2xl font-bold mb-4 text-neutral-700">{t("summary:clock.saleSummary")}</h2>

@@ -1,5 +1,6 @@
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input } from "@/components/common/input/input.tsx";
+import { InputField } from "@/components/common/form/rhf-fields.tsx";
 import { Button } from "@/components/common/input/button.tsx";
 import { Controller, useForm } from "react-hook-form";
 import { useDB } from "@/api/db/db.ts";
@@ -54,7 +55,7 @@ export const FloorForm = ({
 
   const db = useDB();
 
-  const { register, control, handleSubmit, formState: { errors }, reset } = useForm({
+  const { control, handleSubmit, formState: { errors }, reset } = useForm({
     resolver: yupResolver(validationSchema)
   });
 
@@ -91,17 +92,17 @@ export const FloorForm = ({
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <Input label={t('columns.name')} {...register('name')} autoFocus error={errors?.name?.message}/>
+              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message}/>
             </div>
           </div>
 
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <Input type="color" label={t('forms.backgroundColor')} {...register('background')}
+              <InputField type="color" name="background" control={control} label={t('forms.backgroundColor')}
                      error={errors?.background?.message}/>
             </div>
             <div className="flex-1">
-              <Input type="color" label={t('forms.fontColor')} {...register('color')} error={errors?.color?.message}/>
+              <InputField type="color" name="color" control={control} label={t('forms.fontColor')} error={errors?.color?.message}/>
             </div>
           </div>
 

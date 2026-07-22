@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
-import { Input } from '@/components/common/input/input.tsx'
 import { Button } from '@/components/common/input/button.tsx'
 import { DatePicker } from '@/components/common/antd/datepicker.tsx'
+import { TimePicker } from '@/components/common/antd/time.picker.tsx'
 import type { DiscountSchedule } from '@/api/model/discount.ts'
 import { DAY_KEYS } from '@/lib/discount-engine/i18n-options.ts'
 import { scheduleDateToValue, valueToScheduleDate } from '@/lib/discount-engine/schedule-dates.ts'
@@ -69,19 +69,15 @@ export const DiscountScheduleEditor = ({ value, onChange }: Props) => {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Input
+            <TimePicker
               label={t('discountEngine.fields.startTime')}
-              type="time"
               value={schedule.start_time || ''}
-              onChange={e => update(idx, { start_time: e.target.value })}
-              placeholder={t('discountEngine.placeholders.startTime')}
+              onChange={v => update(idx, { start_time: v })}
             />
-            <Input
+            <TimePicker
               label={t('discountEngine.fields.endTime')}
-              type="time"
               value={schedule.end_time || ''}
-              onChange={e => update(idx, { end_time: e.target.value })}
-              placeholder={t('discountEngine.placeholders.endTime')}
+              onChange={v => update(idx, { end_time: v })}
             />
             <DatePicker
               label={t('discountEngine.fields.startDate')}

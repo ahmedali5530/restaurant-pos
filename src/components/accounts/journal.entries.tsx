@@ -5,6 +5,7 @@ import { faCheck, faEye, faPlus, faUndo } from "@fortawesome/free-solid-svg-icon
 import { DateTime } from "luxon";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { TableComponent } from "@/components/common/table/table.tsx";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { Tables } from "@/api/db/tables.ts";
@@ -22,7 +23,7 @@ import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import { publishJournalEntry } from "@/integrations/storage/account-journal-repository.ts";
 
 export const JournalEntries = () => {
-  const { t } = useTranslation('accounts');
+  const { t } = useTranslation(['accounts', 'common']);
   const db = useDB();
   const [{ user }] = useAtom(appPage);
   const [modal, setModal] = useState(false);
@@ -180,7 +181,7 @@ export const JournalEntries = () => {
       header: t('columns.actions', 'Actions'),
       cell: (info) => (
         <div className="flex gap-2 justify-end">
-          <Button
+          <IconTooltipButton label={t('common:actions.view')}
             variant="secondary"
             onClick={() => {
               setSelectedEntry(info.row.original);
@@ -188,7 +189,7 @@ export const JournalEntries = () => {
             }}
           >
             <FontAwesomeIcon icon={faEye} />
-          </Button>
+          </IconTooltipButton>
           {info.row.original.status === 'draft' && (
             <DeleteConfirm
               title={t('confirm.publishTitle', 'Publish journal entry')}
@@ -198,9 +199,9 @@ export const JournalEntries = () => {
               )}
               onConfirm={() => handlePublish(info.row.original)}
             >
-              <Button variant="success">
+              <IconTooltipButton label={t('common:actions.approve')} variant="success">
                 <FontAwesomeIcon icon={faCheck} />
-              </Button>
+              </IconTooltipButton>
             </DeleteConfirm>
           )}
           {info.row.original.status === 'posted' && (
@@ -209,9 +210,9 @@ export const JournalEntries = () => {
               message={t('messages.confirmReverse')}
               onConfirm={() => handleReverse(info.row.original)}
             >
-              <Button variant="warning">
+              <IconTooltipButton label={t('common:actions.edit')} variant="warning">
                 <FontAwesomeIcon icon={faUndo} />
-              </Button>
+              </IconTooltipButton>
             </DeleteConfirm>
           )}
         </div>

@@ -14,9 +14,10 @@ import {recordToString} from "@/api/reports/shared/records.ts";
 import {toast} from "sonner";
 import classNames from "classnames";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 export const BuffetMenus = () => {
-  const {t} = useTranslation("inventory");
+  const {t} = useTranslation(["inventory", 'common']);
   const db = useDB();
   const loadHook = useBuffetMenuList(0, 10);
   const [data, setData] = useState<BuffetMenu>();
@@ -54,16 +55,16 @@ export const BuffetMenus = () => {
       enableSorting: false,
       cell: (info) => (
         <div className="flex gap-2">
-          <Button
+          <IconTooltipButton label={t('common:actions.edit')}
             variant="primary"
-            iconButton
+           
             onClick={() => {
               setData(info.row.original);
               setFormModal(true);
             }}
           >
             <FontAwesomeIcon icon={faPencil} />
-          </Button>
+          </IconTooltipButton>
           <DeleteConfirm
             message={t("buffet.confirmDeleteMenu")}
             onConfirm={async () => {

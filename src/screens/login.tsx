@@ -21,6 +21,7 @@ import { clockIn as laborClockIn } from "@/lib/labor-engine/attendance/attendanc
 import { ensureEmployeeForUser } from "@/lib/labor-engine/employee.resolver.ts";
 import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n.ts";
+import { DocumentTitle } from "@/components/common/document-title.tsx";
 import {
   clearSessionTokens,
   gatewayLogin,
@@ -226,6 +227,7 @@ export const Login = () => {
 
   return (
     <div className="relative">
+      <DocumentTitle parts={[t('login.title')]} />
       <div className="bg-neutral-900 flex justify-center items-center h-screen flex-col gap-8">
         <h4 className="text-4xl text-neutral-100">{t('login.title')}</h4>
         <div className="flex gap-3">

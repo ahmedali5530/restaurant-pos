@@ -17,6 +17,11 @@ import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {validateProductionAvailability} from "@/utils/inventory.ts";
 import {fetchNextSequentialNumber} from "@/utils/recordNumbers.ts";
 import {toRecordId} from "@/lib/utils.ts";
+import type {IntegrationManager} from "@/integrations/core/integration-manager.ts";
+import {
+  publishProductionCompleted,
+  publishWasteRecorded,
+} from "@/integrations/accounting/events/publish.ts";
 
 type DatabaseClient = ReturnType<typeof useDB>;
 
@@ -392,7 +397,8 @@ const generateBatchNumber = async (db: DatabaseClient): Promise<string> => {
 export const completeProductionBatch = async (
   db: DatabaseClient,
   input: ProductionBatchCompleteInput,
-  userId: string
+  userId: string,
+  integrationManager?: IntegrationManager | null
 ): Promise<ProductionBatch> => {
   const recipe = await getRecipe(db, input.recipeId);
   if (!recipe) throw new Error("Recipe not found");
@@ -502,6 +508,37 @@ export const completeProductionBatch = async (
   );
 
   const result = await getProductionBatch(db, batchId);
+
+  const inputCost = Number(scaled.totalInputCost ?? 0);
+  const outputCost = Number(scaled.totalOutputCost ?? 0);
+  const yieldLoss = Number(Math.max(inputCost - outputCost, 0).toFixed(2));
+  await publishProductionCompleted(integrationManager, {
+    documentId: batchId,
+    locationId,
+    inputCost,
+    outputCost,
+    yieldLoss,
+  });
+
+  if (wasteHeaderId) {
+    const wasteValue = Number(
+      wasteOutputs
+        .reduce(
+          (sum, line) =>
+            sum + Number(line.quantity || 0) * Number(line.unitCost || 0),
+          0
+        )
+        .toFixed(2)
+    );
+    if (wasteValue > 0) {
+      await publishWasteRecorded(integrationManager, {
+        documentId: wasteHeaderId,
+        locationId,
+        inventoryValue: wasteValue,
+      });
+    }
+  }
+
   if (result) return result;
 
   return {

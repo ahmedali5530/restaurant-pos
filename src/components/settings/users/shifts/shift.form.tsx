@@ -1,13 +1,13 @@
 import { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { toast } from "sonner";
 import {useTranslation} from 'react-i18next';
 import i18n from '@/lib/i18n.ts';
 import { Modal } from "@/components/common/react-aria/modal.tsx";
-import { Input } from "@/components/common/input/input.tsx";
 import { Button } from "@/components/common/input/button.tsx";
+import { InputField, TimeField } from "@/components/common/form/rhf-fields.tsx";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
 import { Shift } from "@/api/model/shift.ts";
@@ -29,7 +29,7 @@ export const ShiftForm = ({ open, onClose, data }: Props) => {
   const db = useDB();
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
 
-  const { register, control, watch, handleSubmit, formState: { errors }, reset } = useForm({
+  const { control, watch, handleSubmit, formState: { errors }, reset } = useForm({
     resolver: yupResolver(validationSchema),
   });
 
@@ -86,37 +86,29 @@ export const ShiftForm = ({ open, onClose, data }: Props) => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-3 mb-3">
           <div className="flex-1">
-            <Input label={t('forms.shiftName')} {...register("name")} autoFocus error={errors?.name?.message} />
+            <InputField
+              name="name"
+              control={control}
+              label={t('forms.shiftName')}
+              autoFocus
+              error={errors?.name?.message}
+            />
           </div>
           <div className="flex gap-3">
             <div className="flex-1">
-              <Controller
+              <TimeField
                 name="start_time"
                 control={control}
-                render={({ field }) => (
-                  <Input
-                    type="time"
-                    label={t('columns.startTime')}
-                    value={field.value}
-                    onChange={field.onChange}
-                    error={errors?.start_time?.message}
-                  />
-                )}
+                label={t('columns.startTime')}
+                error={errors?.start_time?.message}
               />
             </div>
             <div className="flex-1">
-              <Controller
+              <TimeField
                 name="end_time"
                 control={control}
-                render={({ field }) => (
-                  <Input
-                    type="time"
-                    label={t('columns.endTime')}
-                    value={field.value}
-                    onChange={field.onChange}
-                    error={errors?.end_time?.message}
-                  />
-                )}
+                label={t('columns.endTime')}
+                error={errors?.end_time?.message}
               />
             </div>
           </div>

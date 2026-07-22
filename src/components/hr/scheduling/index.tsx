@@ -9,7 +9,7 @@ import {ScheduleTemplate} from "@/api/model/schedule_template.ts";
 import {ShiftSwapRequest} from "@/api/model/shift_swap_request.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {IconTooltipButton} from "@/components/common/input/icon.tooltip.button.tsx";
 import {faCheck, faPencil, faPlus, faTrash, faXmark} from "@fortawesome/free-solid-svg-icons";
 import {formatDisplayDate, entityLabel} from "@/components/hr/shared/form.utils.ts";
 import {useDB} from "@/api/db/db.ts";
@@ -61,7 +61,7 @@ export const HrScheduling = () => {
     ["name asc"],
     0,
     10,
-    ["shift_template", "department", "position"],
+    ["shift_template", "department", "position", "cost_center"],
   );
 
   const swapsHook = useApi<SettingsData<ShiftSwapRequest>>(
@@ -191,9 +191,12 @@ export const HrScheduling = () => {
           <div className="flex gap-2">
             {isDraft && (
               <>
-                <Button variant="primary" onClick={() => { setSchedule(row); setScheduleModal(true); }}>
-                  <FontAwesomeIcon icon={faPencil}/>
-                </Button>
+                <IconTooltipButton
+                  label={t("buttons.edit")}
+                  variant="primary"
+                  icon={faPencil}
+                  onClick={() => { setSchedule(row); setScheduleModal(true); }}
+                />
                 <Button
                   variant="success"
                   disabled={publishingId === row.id}
@@ -205,9 +208,12 @@ export const HrScheduling = () => {
                   message={t("confirm.deleteSchedule")}
                   onConfirm={() => handleDeleteSchedule(row)}
                 >
-                  <Button variant="danger" disabled={actionId === row.id}>
-                    <FontAwesomeIcon icon={faTrash}/>
-                  </Button>
+                  <IconTooltipButton
+                    label={t("buttons.delete")}
+                    variant="danger"
+                    icon={faTrash}
+                    disabled={actionId === row.id}
+                  />
                 </DeleteConfirm>
                 <Button
                   variant="neutral"
@@ -255,17 +261,23 @@ export const HrScheduling = () => {
         return (
           <div className="flex gap-2">
             {canEdit && (
-              <Button variant="primary" onClick={() => { setShift(row); setShiftModal(true); }}>
-                <FontAwesomeIcon icon={faPencil}/>
-              </Button>
+              <IconTooltipButton
+                label={t("buttons.edit")}
+                variant="primary"
+                icon={faPencil}
+                onClick={() => { setShift(row); setShiftModal(true); }}
+              />
             )}
             <DeleteConfirm
               message={t("confirm.deleteShift")}
               onConfirm={() => handleCancelShift(row)}
             >
-              <Button variant="danger" disabled={actionId === row.id}>
-                <FontAwesomeIcon icon={faTrash}/>
-              </Button>
+              <IconTooltipButton
+                label={t("buttons.delete")}
+                variant="danger"
+                icon={faTrash}
+                disabled={actionId === row.id}
+              />
             </DeleteConfirm>
           </div>
         );
@@ -288,9 +300,12 @@ export const HrScheduling = () => {
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => (
-        <Button variant="primary" onClick={() => { setTemplate(info.row.original); setTemplateModal(true); }}>
-          <FontAwesomeIcon icon={faPencil}/>
-        </Button>
+        <IconTooltipButton
+          label={t("buttons.edit")}
+          variant="primary"
+          icon={faPencil}
+          onClick={() => { setTemplate(info.row.original); setTemplateModal(true); }}
+        />
       ),
     }),
   ];
@@ -316,17 +331,24 @@ export const HrScheduling = () => {
         if (row.status !== "pending") return null;
         return (
           <div className="flex gap-2">
-            <Button variant="success" disabled={actionId === row.id} onClick={() => void handleApproveSwap(row)}>
-              <FontAwesomeIcon icon={faCheck}/>
-            </Button>
+            <IconTooltipButton
+              label={t("buttons.approve")}
+              variant="success"
+              icon={faCheck}
+              disabled={actionId === row.id}
+              onClick={() => void handleApproveSwap(row)}
+            />
             <DeleteConfirm
               title={t("confirm.title")}
               message={t("confirm.rejectSwap")}
               onConfirm={() => handleRejectSwap(row)}
             >
-              <Button variant="danger" disabled={actionId === row.id}>
-                <FontAwesomeIcon icon={faXmark}/>
-              </Button>
+              <IconTooltipButton
+                label={t("buttons.reject")}
+                variant="danger"
+                icon={faXmark}
+                disabled={actionId === row.id}
+              />
             </DeleteConfirm>
           </div>
         );

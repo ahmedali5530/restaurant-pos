@@ -4,6 +4,7 @@ import {Category} from "@/api/model/category.ts";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {createColumnHelper, RowSelectionState} from "@tanstack/react-table";
 import {Button} from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheck, faPencil, faPlus, faTimes, faUpload} from "@fortawesome/free-solid-svg-icons";
 import {TableComponent} from "@/components/common/table/table.tsx";
@@ -69,13 +70,13 @@ export const AdminCategories = () => {
       cell: (info) => {
         return (
           <div className="flex gap-3 items-center">
-            <Button
+            <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
                 setData(info.row.original);
                 setFormModal(true);
               }}
-            ><FontAwesomeIcon icon={faPencil}/></Button>
+            ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
             <div className="separator"></div>
             <DeleteConfirm message={t('delete.category', { name: info.row.original.name })} onConfirm={async () => {
               await executeSettingsDelete({
@@ -160,6 +161,16 @@ export const AdminCategories = () => {
             } catch (e) {
               throw new Error(e)
             }
+          }}
+          onExport={async () => {
+            const [categories] = await db.query(
+              `SELECT * FROM ${Tables.categories} WHERE deleted_at = none`
+            );
+            return (categories as Category[]).map((row) => ({
+              name: row.name ?? '',
+              show_in_menu: row.show_in_menu ? 'true' : 'false',
+              priority: String(row.priority ?? ''),
+            }));
           }}
           onDone={() => loadHook.fetchData()}
         />

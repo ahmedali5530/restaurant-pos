@@ -165,7 +165,7 @@ export const InventorySettingsCard = () => {
           description: t("inventory.saveDescription"),
         })}
       >
-        <div className="grid grid-cols-1 gap-4 mb-5">
+        <div className="flex flex-col gap-4 mb-5">
           <Controller
             name="inventory_ledger_enabled"
             control={control}

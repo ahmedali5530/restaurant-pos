@@ -7,9 +7,8 @@ import {toast} from "sonner";
 import type {Dayjs} from "dayjs";
 import {WorkSchedule} from "@/api/model/work_schedule.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
-import {HrDateTimeField} from "@/components/hr/shared/form-field.tsx";
+import {HrDateTimeField, HrInputField} from "@/components/hr/shared/form-field.tsx";
 import {dayjsToSurreal, firstFormError, toDayjsDateTime} from "@/components/hr/shared/form.utils.ts";
 import {useDB} from "@/api/db/db.ts";
 import {useAtom} from "jotai";
@@ -105,7 +104,13 @@ export const ScheduleForm = ({open, onClose, data}: Props) => {
         <input type="hidden" {...register("id")} />
         <div className="flex flex-col gap-3 mb-3">
           <div>
-            <Input label={t("forms.schedule.name")} {...register("name")} autoFocus error={errors.name?.message}/>
+            <HrInputField
+              name="name"
+              control={control}
+              label={t("forms.schedule.name")}
+              autoFocus
+              error={errors.name?.message}
+            />
           </div>
           <div className="flex gap-3">
             <div className="flex-1">

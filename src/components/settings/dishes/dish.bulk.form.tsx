@@ -1,6 +1,7 @@
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input, InputError} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {Controller, useFieldArray, useForm, useWatch} from "react-hook-form";
 import {useDB} from "@/api/db/db.ts";
 import {toast} from "sonner";
@@ -374,15 +375,12 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                     )}
                   />
                 </div>
-                <Button
+                <IconTooltipButton label={t('common:actions.add')}
                   type="button"
                   variant="primary"
-                  iconButton
                   disabled={!replaceWorkflow}
                   onClick={() => setWorkflowModal(true)}
-                >
-                  <FontAwesomeIcon icon={faPlus}/>
-                </Button>
+                ><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
               </div>
             </fieldset>
           </div>
@@ -422,9 +420,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
               {errors?.categories?.message && <InputError error={errors?.categories?.message}/>}
             </div>
             <div className="flex-0">
-              <Button onClick={() => setCategoriesModal(true)} type="button" variant="primary" disabled={!replaceCategories}>
-                <FontAwesomeIcon icon={faPlus}/>
-              </Button>
+              <IconTooltipButton label={t('common:actions.add')} onClick={() => setCategoriesModal(true)} type="button" variant="primary" disabled={!replaceCategories}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
             </div>
           </div>
 
@@ -587,9 +583,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                     />
                   </div>
                   <div className="flex-0 self-end">
-                    <Button iconButton variant="danger" onClick={() => removeModifierGroup(index)} disabled={!replaceModifierGroups}>
-                      <FontAwesomeIcon icon={faTrash}/>
-                    </Button>
+                    <IconTooltipButton label={t('common:actions.remove')} variant="danger" onClick={() => removeModifierGroup(index)} disabled={!replaceModifierGroups}><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>
                   </div>
                 </div>
               ))}
@@ -699,9 +693,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                       />
                     </div>
                     <div className="flex-0 self-end">
-                      <Button iconButton variant="danger" onClick={() => removeRecipe(index)} disabled={!replaceRecipes}>
-                        <FontAwesomeIcon icon={faTrash}/>
-                      </Button>
+                      <IconTooltipButton label={t('common:actions.remove')} variant="danger" onClick={() => removeRecipe(index)} disabled={!replaceRecipes}><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>
                     </div>
                   </div>
                 );

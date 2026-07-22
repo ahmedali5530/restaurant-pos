@@ -1,4 +1,5 @@
-import { KitchenOrder as KitchenOrderModel } from "@/api/model/kitchen.ts";
+import { useState } from "react";
+import { Kitchen, KitchenOrder as KitchenOrderModel } from "@/api/model/kitchen.ts";
 import { Countdown } from "@/components/floor/countdown.tsx";
 import { cn } from "@/lib/utils.ts";
 import { Button } from "@/components/common/input/button.tsx";
@@ -7,20 +8,24 @@ import { OrderItemName } from "@/components/common/order/order.item.tsx";
 import {getInvoiceNumber} from "@/lib/order.ts";
 import { nowInAppTimezone, toLuxonDateTime } from "@/lib/datetime.ts";
 import { completeStage, completeStages } from "@/lib/kitchen/workflow.service.ts";
+import { dispatchPrint } from "@/lib/print.service.ts";
 import { useAtom } from "jotai";
 import { appPage } from "@/store/jotai.ts";
 import {useTranslation} from "react-i18next";
 
 interface Props {
   order: KitchenOrderModel
+  kitchen?: Kitchen
 }
 
 export const KitchenOrder = ({
-  order
+  order,
+  kitchen,
 }: Props) => {
   const db = useDB();
   const [page] = useAtom(appPage);
-  const {t} = useTranslation("kitchen");
+  const {t} = useTranslation(["kitchen", "payment"]);
+  const [printing, setPrinting] = useState(false);
 
   const stageStart = order.items[0]?.activated_at ?? order.items[0]?.created_at;
   const diff = nowInAppTimezone().diff(toLuxonDateTime(stageStart)).as('minutes');
@@ -34,6 +39,43 @@ export const KitchenOrder = ({
 
   const singleReady = async (item: string) => {
     await completeStage(db, item, page?.user?.id);
+  }
+
+  const reprint = async () => {
+    if (!kitchen?.printers?.length || printing) {
+      return;
+    }
+
+    const items = order.items
+      .filter((item) => !item.order_item?.deleted_at && item.order_item)
+      .map((item) => ({
+        ...item.order_item,
+        item: item.order_item.item,
+      }));
+
+    if (items.length === 0) {
+      return;
+    }
+
+    setPrinting(true);
+    try {
+      await dispatchPrint(db, 'kitchen', {
+        items,
+        order: order.order,
+        kitchenName: kitchen.name,
+        table: order.order?.table,
+        duplicate: true,
+      }, {
+        title: t("payment:print.kitchenTitle"),
+        copies: 1,
+        userId: page?.user?.id,
+        printers: kitchen.printers,
+      });
+    } catch (error) {
+      console.error('Kitchen KOT reprint failed', error);
+    } finally {
+      setPrinting(false);
+    }
   }
 
   const isAddon = () => {
@@ -95,8 +137,18 @@ export const KitchenOrder = ({
           </div>
         ))}
       </div>
-      <div className="p-3">
-        <Button variant="success" filled className="w-full" size="lg" onClick={ready}>{t("actions.ready")}</Button>
+      <div className="p-3 flex gap-2">
+        <Button
+          variant="neutral"
+          className="flex-1"
+          size="lg"
+          isLoading={printing}
+          disabled={!kitchen?.printers?.length}
+          onClick={reprint}
+        >
+          {t("actions.reprint")}
+        </Button>
+        <Button variant="success" filled className="flex-1" size="lg" onClick={ready}>{t("actions.ready")}</Button>
       </div>
     </div>
   )

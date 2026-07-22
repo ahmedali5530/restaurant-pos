@@ -7,6 +7,7 @@ import {DeliverySettings} from "@/screens/delivery/settings.tsx";
 import {Layout} from "@/screens/partials/layout.tsx";
 import {DeliveryAreas} from "@/screens/delivery/delivery.areas.tsx";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {DocumentTitle} from "@/components/common/document-title.tsx";
 
 /** Stable permission codes stored in user roles — not translated labels. */
 const DELIVERY_TAB_MODULES: Record<string, string> = {
@@ -17,6 +18,7 @@ const DELIVERY_TAB_MODULES: Record<string, string> = {
 
 export const Index = () => {
   const { t } = useTranslation('delivery');
+  const { t: tNav } = useTranslation('navigation');
   const [selected, setSelected] = useState('delivery');
   const {protectAction} = useSecurity();
 
@@ -28,6 +30,7 @@ export const Index = () => {
 
   return (
     <Layout>
+      <DocumentTitle parts={[pages[selected]?.title, tNav('sidebar.delivery')]} />
       <Tabs
         className="w-full flex flex-col rounded-xl"
         selectedKey={selected}

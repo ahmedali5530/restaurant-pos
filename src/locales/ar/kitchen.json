@@ -4,7 +4,8 @@
     "completedOrders": "الطلبات المكتملة",
     "viewAllDishes": "عرض جميع الأطباق",
     "recall": "استرجاع",
-    "ready": "جاهز"
+    "ready": "جاهز",
+    "reprint": "إعادة طباعة"
   },
   "labels": {
     "avgTime": "متوسط الوقت: {{time}}",

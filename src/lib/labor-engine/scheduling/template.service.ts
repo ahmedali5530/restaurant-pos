@@ -7,6 +7,7 @@ import {
   type GenerateFromTemplateParams,
 } from '@/lib/labor-engine/scheduling/schedule.service.ts'
 import { getAppTimezone, toLuxonDateTime } from '@/lib/datetime.ts'
+import { toRecordId } from '@/lib/utils.ts'
 import { DateTime as LuxonDateTime } from 'luxon'
 
 const parseTimeOnDate = (date: LuxonDateTime, time: string): LuxonDateTime => {
@@ -16,13 +17,34 @@ const parseTimeOnDate = (date: LuxonDateTime, time: string): LuxonDateTime => {
   return date.set({ hour, minute, second: 0, millisecond: 0 })
 }
 
+/** Normalize a linked record (RecordId, string, or fetched row) to a string id. */
+const relatedRecordId = (value: unknown): string | undefined => {
+  if (!value) return undefined
+  if (typeof value === 'string') return value
+  if (typeof value === 'object' && value !== null && 'id' in value) {
+    const id = (value as { id: unknown }).id
+    // Fetched row: id is a RecordId/string. Plain RecordId: stringify the whole value.
+    if (typeof id === 'object' && id !== null && 'tb' in (id as object)) {
+      return String(id)
+    }
+    if ('tb' in value) {
+      return String(value)
+    }
+    return id != null ? String(id) : undefined
+  }
+  return undefined
+}
+
 export const generateShiftsFromTemplate = async (
   db: DbClient,
   params: GenerateFromTemplateParams
 ): Promise<{ created: number; skipped: number; conflicts: string[] }> => {
   const [templateRows] = await db.query<[ScheduleTemplate[]]>(
-    `SELECT * FROM ${Tables.schedule_templates} WHERE id = $id LIMIT 1`,
-    { id: params.templateId }
+    `SELECT * FROM ${Tables.schedule_templates}
+     WHERE id = $id
+     LIMIT 1
+     FETCH shift_template, department, position, cost_center`,
+    { id: toRecordId(params.templateId) }
   )
   const template = templateRows?.[0]
   if (!template) {
@@ -31,7 +53,7 @@ export const generateShiftsFromTemplate = async (
 
   const [scheduleRows] = await db.query<[WorkSchedule[]]>(
     `SELECT * FROM ${Tables.work_schedules} WHERE id = $id LIMIT 1`,
-    { id: params.workScheduleId }
+    { id: toRecordId(params.workScheduleId) }
   )
   const schedule = scheduleRows?.[0]
   if (!schedule) {
@@ -45,6 +67,10 @@ export const generateShiftsFromTemplate = async (
   const periodStart = toLuxonDateTime(schedule.period_start).setZone(timezone).startOf('day')
   const periodEnd = toLuxonDateTime(schedule.period_end).setZone(timezone).startOf('day')
   const daysOfWeek = new Set(template.days_of_week ?? [])
+  const shiftTemplateId = relatedRecordId(template.shift_template)
+  const departmentId = relatedRecordId(template.department)
+  const positionId = relatedRecordId(template.position)
+  const costCenterId = relatedRecordId(template.cost_center)
 
   let created = 0
   let skipped = 0
@@ -65,18 +91,10 @@ export const generateShiftsFromTemplate = async (
           employeeId,
           startAt: shiftStart.toJSDate(),
           endAt: shiftEnd.toJSDate(),
-          shiftTemplateId: template.shift_template?.id
-            ? String(template.shift_template.id)
-            : undefined,
-          departmentId: template.department?.id
-            ? String(template.department.id)
-            : undefined,
-          positionId: template.position?.id
-            ? String(template.position.id)
-            : undefined,
-          costCenterId: template.cost_center?.id
-            ? String(template.cost_center.id)
-            : undefined,
+          shiftTemplateId,
+          departmentId,
+          positionId,
+          costCenterId,
           skipConflictCheck: params.skipConflictCheck,
         })
 

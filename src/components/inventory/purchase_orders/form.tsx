@@ -27,6 +27,7 @@ import {DateValue} from "react-aria-components";
 import {dateToCalendarDate, calendarDateToDate, getToday} from "@/utils/date.ts";
 import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
 import {InventoryFormLineTotal} from "@/components/inventory/common/form.line.total.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 interface PurchaseOrderItemFormValue {
   item: { label: string; value: string } | null;
@@ -100,7 +101,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
 }).required();
 
 export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
-  const { t } = useTranslation('inventory');
+  const { t } = useTranslation(['inventory', 'common']);
   const db = useDB();
   const [state, ] = useAtom(appPage);
   const validationSchema = useMemo(() => createValidationSchema(db, data?.id), [db, data?.id]);
@@ -404,9 +405,9 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                     />
                     <InputError error={_.get(errors, ["supplier", "message"])}/>
                   </div>
-                  <Button type="button" variant="primary" iconButton onClick={() => setSupplierModal(true)}>
+                  <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setSupplierModal(true)}>
                     <FontAwesomeIcon icon={faPlus}/>
-                  </Button>
+                  </IconTooltipButton>
                 </div>
               </div>
               <div className="flex-1">
@@ -529,14 +530,14 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                         <InputError error={_.get(errors, ["items", index, "supplier", "message"])}/>
                       </div>
                       <div className="flex-0 self-end">
-                        <Button
+                        <IconTooltipButton label={t('common:actions.remove')}
                           type="button"
                           variant="danger"
-                          iconButton
+                         
                           onClick={() => remove(index)}
                         >
                           <FontAwesomeIcon icon={faTrash}/>
-                        </Button>
+                        </IconTooltipButton>
                       </div>
                     </div>
                   </div>

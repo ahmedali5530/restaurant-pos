@@ -19,6 +19,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { cn } from "@/lib/utils.ts";
 import { Button } from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { CSSProperties, useMemo } from "react";
 import {NavLink, useNavigate} from "react-router";
 import {
@@ -30,7 +31,6 @@ import {
   HR,
   KITCHEN,
   ORDER_DISPLAY,
-  LOGIN,
   MENU,
   ORDERS,
   REPORTS,
@@ -43,38 +43,19 @@ import { getUserModules } from "@/lib/access.rules.ts";
 import { useSecurity } from "@/hooks/useSecurity.ts";
 import ScrollContainer from "react-indiana-drag-scroll";
 import { useTranslation } from "react-i18next";
-import { useDatabase } from "@/hooks/useDatabase.ts";
-import { clearSessionTokens, gatewayLogout, isGatewayAuthEnabled } from "@/lib/session.ts";
+import { lockSession, logoutSession } from "@/lib/session.actions.ts";
 
 export const Sidebar = () => {
   const [page, setPage] = useAtom(appPage);
-  const { t } = useTranslation('navigation');
-  const { close } = useDatabase();
+  const { t } = useTranslation(['navigation', 'common']);
 
   const pathInfo = location.pathname;
 
   const navigation = useNavigate();
   const { protectAction } = useSecurity();
 
-  const logout = async () => {
-    if (isGatewayAuthEnabled()) {
-      await gatewayLogout();
-      clearSessionTokens();
-      window.dispatchEvent(new Event('posr-session'));
-      try {
-        await close();
-      } catch {
-        // ignore
-      }
-    }
-
-    setPage(prev => ({
-      ...prev,
-      page: 'Login',
-      user: undefined
-    }));
-
-    navigation(LOGIN);
+  const logout = () => {
+    void logoutSession(setPage, navigation);
   }
 
   const protectedNavigate = async (to: string, module?: string, description?: string) => {
@@ -85,14 +66,7 @@ export const Sidebar = () => {
   }
 
   const lock = () => {
-    setPage(prev => ({
-      ...prev,
-      page: 'Login',
-      locked: true,
-      lockedBy: prev.user
-    }));
-
-    navigation(LOGIN);
+    lockSession(setPage, navigation);
   }
 
   const allSidebarItems = useMemo(() => [
@@ -180,12 +154,12 @@ export const Sidebar = () => {
           </NavLink>
         </div>
         <div className="input-group">
-          <Button className="flex-1" variant="primary" onClick={lock} size="lg">
+          <IconTooltipButton label={t('common:actions.lock')} className="flex-1" variant="primary" onClick={lock} size="lg">
             <FontAwesomeIcon icon={faLock} />
-          </Button>
-          <Button className="flex-1" variant="danger" onClick={logout} size="lg">
+          </IconTooltipButton>
+          <IconTooltipButton label={t('common:actions.logout')} className="flex-1" variant="danger" onClick={logout} size="lg">
             <FontAwesomeIcon icon={faPowerOff} />
-          </Button>
+          </IconTooltipButton>
         </div>
       </div>
     </div>

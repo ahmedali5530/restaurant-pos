@@ -37,8 +37,14 @@
   },
   "printers": {
     "title": "Default printers",
-    "description": "Printer assignments are stored per user. Each user can assign printers for temp, final, refund, delivery, and summary. If you have not set any, global settings are used as fallback.",
+    "description": "Assign printers per user or for this terminal. When system printers are enabled, temp, final, refund, and summary use this device’s assignments. Delivery always uses user or global settings.",
     "loading": "Loading printer settings…",
+    "useSystemPrinters": "Use system printers on this device",
+    "useSystemPrintersDescription": "When enabled, this browser/terminal uses the system printer assignments below instead of the logged-in user’s printers (except delivery).",
+    "systemTitle": "System printers (this device)",
+    "systemDescription": "Stored in this browser only. Ideal for shared terminals so prints go to nearby printers. Delivery is not included — it stays user or global.",
+    "userTitle": "User printers",
+    "userDescription": "Stored per logged-in user. Used when system printers are off, and always for delivery.",
     "tempPrint": "Printers for temp print",
     "finalPrint": "Printers for final print",
     "refundPrint": "Printers for refund print",
@@ -157,5 +163,26 @@
     "dialogTitle": "What's New",
     "versionLabel": "Version {{version}}",
     "previousReleases": "Previous releases"
+  },
+  "sessionSecurity": {
+    "title": "Session security",
+    "description": "Automatically lock or log out this user after a period of inactivity. Choose one action.",
+    "idleMinutes": "Idle minutes (e.g. 0.1 ≈ 6 seconds)",
+    "action": "Action",
+    "actionLock": "Lock",
+    "actionLogout": "Logout",
+    "updated": "Session security settings updated",
+    "saveDescription": "Save session security settings",
+    "loginRequired": "You must be logged in to save session security settings"
+  },
+  "autoClockOut": {
+    "title": "Auto clock-out",
+    "description": "Automatically clock out the logged-in user when their shift ends and/or at a fixed daily time. Uses the scheduled shift when available, otherwise the user's assigned shift. Applies to all users.",
+    "onShiftEnd": "Clock out when shift ends",
+    "onDefinedTime": "Clock out at a defined time",
+    "definedTime": "Clock-out time",
+    "triggerRequired": "Enable shift end and/or a defined time when auto clock-out is on",
+    "updated": "Auto clock-out settings updated",
+    "saveDescription": "Save auto clock-out settings"
   }
 }

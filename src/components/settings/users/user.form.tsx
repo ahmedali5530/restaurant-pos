@@ -1,6 +1,7 @@
 import { Modal } from "@/components/common/react-aria/modal.tsx";
-import { Input } from "@/components/common/input/input.tsx";
+import { InputField } from "@/components/common/form/rhf-fields.tsx";
 import { Button } from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { Checkbox } from "@/components/common/input/checkbox.tsx";
 import { Controller, useForm } from "react-hook-form";
 import { useDB } from "@/api/db/db.ts";
@@ -72,7 +73,7 @@ export const UserForm = ({
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
 
-  const { register, control, handleSubmit, formState: { errors }, reset, watch, setValue, getValues } = useForm({
+  const { control, handleSubmit, formState: { errors }, reset, watch, setValue, getValues } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       login_method: {
@@ -277,10 +278,10 @@ export const UserForm = ({
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-3 flex-col mb-3">
             <div className="flex-1">
-              <Input label={t('columns.firstName')} {...register('first_name')} autoFocus error={errors?.first_name?.message}/>
+              <InputField name="first_name" control={control} label={t('columns.firstName')} autoFocus error={errors?.first_name?.message}/>
             </div>
             <div className="flex-1">
-              <Input label={t('columns.lastName')} {...register('last_name')} error={errors?.last_name?.message}/>
+              <InputField name="last_name" control={control} label={t('columns.lastName')} error={errors?.last_name?.message}/>
             </div>
             <div className="flex-1">
               <label htmlFor="login_method">Login method</label>
@@ -300,11 +301,11 @@ export const UserForm = ({
               />
             </div>
             <div className="flex-1">
-              <Input label={isPinLogin ? "Pin" : "Username"} {...register('login')} error={errors?.login?.message}/>
+              <InputField name="login" control={control} label={isPinLogin ? "Pin" : "Username"} error={errors?.login?.message}/>
             </div>
             {!isPinLogin && (
               <div className="flex-1">
-                <Input type="password" label={t('forms.password')} {...register('password')} error={errors?.password?.message}/>
+                <InputField type="password" name="password" control={control} label={t('forms.password')} error={errors?.password?.message}/>
               </div>
             )}
             <div className="flex gap-2 items-end">
@@ -326,9 +327,7 @@ export const UserForm = ({
                 />
                 <span className="text-danger-600 text-sm">{errors?.user_role?.message as string}</span>
               </div>
-              <Button type="button" variant="primary" iconButton onClick={() => setRoleModal(true)}>
-                <FontAwesomeIcon icon={faPlus}/>
-              </Button>
+              <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setRoleModal(true)}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
             </div>
             <div className="flex gap-2 items-end">
               <div className="flex-1">
@@ -349,9 +348,7 @@ export const UserForm = ({
                   )}
                 />
               </div>
-              <Button type="button" variant="primary" iconButton onClick={() => setShiftModal(true)}>
-                <FontAwesomeIcon icon={faPlus}/>
-              </Button>
+              <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setShiftModal(true)}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
             </div>
 
             {isCreateMode && (
@@ -370,9 +367,10 @@ export const UserForm = ({
                 {createEmployee && (
                   <>
                     <p className="text-sm text-neutral-500">{t('forms.createEmployeeHint')}</p>
-                    <Input
+                    <InputField
+                      name="employee_number"
+                      control={control}
                       label={t('forms.employeeNumber')}
-                      {...register('employee_number')}
                       error={errors?.employee_number?.message}
                     />
                   </>

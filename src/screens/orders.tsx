@@ -35,9 +35,11 @@ import {translateOrderStatus} from "@/lib/order.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
+import {DocumentTitle} from "@/components/common/document-title.tsx";
 
 export const Orders = () => {
   const {t} = useTranslation('orders');
+  const {t: tNav} = useTranslation('navigation');
   const db = useDB();
   const {protectAction} = useSecurity();
   const liveQueryRef = useRef<LiveSubscription | null>(null);
@@ -313,6 +315,7 @@ export const Orders = () => {
 
   return (
     <Layout containerClassName="overflow-hidden">
+      <DocumentTitle parts={[tNav('sidebar.orders')]} />
       <div className="flex gap-5 p-3 flex-col">
         <div className="h-[60px] flex-0 rounded-xl bg-white flex items-center px-3 gap-3">
           <div className="min-w-[200px]">

@@ -8,7 +8,7 @@ import {InventorySupplier} from "@/api/model/inventory_supplier.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {useDB} from "@/api/db/db.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {Input} from "@/components/common/input/input.tsx";
+import {InputField} from "@/components/common/form/rhf-fields.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 
 interface SupplierFormValues {
@@ -46,7 +46,7 @@ export const SupplierForm = ({open, onClose, data}: Props) => {
   const { t } = useTranslation('inventory');
   const db = useDB();
 
-  const {register, handleSubmit, formState: {errors}, reset} = useForm({
+  const {register, control, handleSubmit, formState: {errors}, reset} = useForm({
     resolver: yupResolver(validationSchema)
   });
 
@@ -106,17 +106,17 @@ export const SupplierForm = ({open, onClose, data}: Props) => {
         <input type="hidden" {...register("id")} />
         <div className="flex flex-col gap-3 mb-3">
           <div className="flex-1">
-            <Input label={t('columns.name')} {...register("name")} autoFocus error={errors?.name?.message} />
+            <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message} />
           </div>
           <div className="flex-1">
-            <Input label={t('columns.address')} {...register("address")} error={errors?.address?.message ?? undefined} />
+            <InputField name="address" control={control} label={t('columns.address')} error={errors?.address?.message ?? undefined} />
           </div>
           <div className="flex gap-3">
             <div className="flex-1">
-              <Input label={t('columns.phone')} {...register("phone")} error={errors?.phone?.message ?? undefined} />
+              <InputField name="phone" control={control} label={t('columns.phone')} error={errors?.phone?.message ?? undefined} />
             </div>
             <div className="flex-1">
-              <Input label={t('columns.email')} {...register("email")} error={errors?.email?.message ?? undefined} />
+              <InputField name="email" control={control} label={t('columns.email')} error={errors?.email?.message ?? undefined} />
             </div>
           </div>
         </div>

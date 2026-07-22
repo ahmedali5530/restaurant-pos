@@ -9,6 +9,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {useDB} from "@/api/db/db.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input, InputError} from "@/components/common/input/input.tsx";
+import {InputField} from "@/components/common/form/rhf-fields.tsx";
 import {Textarea} from "@/components/common/input/textarea.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
@@ -54,6 +55,7 @@ import type {
   PurchaseAllocationMethod,
   PurchaseInventoryTreatment,
 } from "@/api/model/inventory_purchase.ts";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 type PurchaseMethod = "manual" | "csv" | "purchase_order";
 
@@ -173,7 +175,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
 }).required();
 
 export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
-  const {t} = useTranslation('inventory');
+  const {t} = useTranslation(['inventory', 'common']);
   const db = useDB();
   const { manager } = useIntegrationManager();
   const [purchaseOrderModal, setPurchaseOrderModal] = useState(false);
@@ -808,11 +810,11 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                   />
                   <InputError error={_.get(errors, ["purchase_order", "message"])}/>
                 </div>
-                <Button
+                <IconTooltipButton label={t('common:actions.add')}
                   disabled={data?.purchase_order !== undefined}
-                  type="button" variant="primary" iconButton onClick={() => setPurchaseOrderModal(true)}>
+                  type="button" variant="primary" onClick={() => setPurchaseOrderModal(true)}>
                   <FontAwesomeIcon icon={faPlus}/>
-                </Button>
+                </IconTooltipButton>
               </div>
             )}
 
@@ -829,10 +831,19 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
 
             <div className="flex gap-3">
               <div className="flex-1">
-                <Textarea
-                  placeholder={t('forms.comments')}
-                  rows={4}
-                  {...register("comments")}
+                <Controller
+                  name="comments"
+                  control={control}
+                  render={({field}) => (
+                    <Textarea
+                      placeholder={t('forms.comments')}
+                      rows={4}
+                      value={field.value ?? ""}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                    />
+                  )}
                 />
               </div>
               <div className="flex-1">
@@ -1079,21 +1090,22 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                         <InputError error={_.get(errors, ["items", index, "location", "message"])}/>
                       </div>
                       <div className="flex-1">
-                        <Input
+                        <InputField
+                          name={`items.${index}.comments`}
+                          control={control}
                           label={t('forms.comments')}
-                          {...register(`items.${index}.comments` as const)}
                         />
                       </div>
                       <div className="flex-0 self-end">
-                        <Button
+                        <IconTooltipButton label={t('common:actions.remove')}
                           type="button"
                           variant="danger"
-                          iconButton
+                         
                           disabled={isPurchaseOrderMethod}
                           onClick={() => remove(index)}
                         >
                           <FontAwesomeIcon icon={faTrash}/>
-                        </Button>
+                        </IconTooltipButton>
                       </div>
                     </div>
                   </div>
@@ -1223,9 +1235,10 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                 {extraFields.map((field, index) => (
                   <div className="flex flex-wrap gap-3 mb-3 items-end" key={field.id}>
                     <div className="flex-1 min-w-[140px]">
-                      <Input
+                      <InputField
+                        name={`extras.${index}.name`}
+                        control={control}
                         label={t('totals.extraName')}
-                        {...register(`extras.${index}.name` as const)}
                         error={_.get(errors, ["extras", index, "name", "message"])}
                       />
                     </div>
@@ -1296,14 +1309,14 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                       />
                     </div>
                     <div className="flex-0">
-                      <Button
+                      <IconTooltipButton label={t('common:actions.remove')}
                         type="button"
                         variant="danger"
-                        iconButton
+                       
                         onClick={() => removeExtra(index)}
                       >
                         <FontAwesomeIcon icon={faTrash}/>
-                      </Button>
+                      </IconTooltipButton>
                     </div>
                   </div>
                 ))}
@@ -1440,6 +1453,34 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
             if (data.total === data.success) {
               setCsvModal(false);
             }
+          }}
+          onExport={() => {
+            const formatDate = (value: any) => {
+              if (!value) return '';
+              const d = calendarDateToDate(value);
+              if (!d) return '';
+              const y = d.getFullYear();
+              const m = String(d.getMonth() + 1).padStart(2, '0');
+              const day = String(d.getDate()).padStart(2, '0');
+              return `${y}-${m}-${day}`;
+            };
+
+            return (itemsValues ?? []).map((row: any) => {
+              const catalog = itemsList.find((it) => String(it.id) === String(row?.item?.value));
+              return {
+                name: catalog?.name ?? '',
+                code: catalog?.code ?? '',
+                base_quantity: String(row?.base_quantity ?? ''),
+                quantity: String(row?.quantity ?? ''),
+                requested: String(row?.requested ?? ''),
+                price: String(row?.price ?? ''),
+                expiry_date: formatDate(row?.expiry_date),
+                manufacturing_date: formatDate(row?.manufacturing_date),
+                supplier: row?.supplier?.label ?? '',
+                location: row?.location?.label ?? '',
+                comments: row?.comments ?? '',
+              };
+            });
           }}
         />
       )}

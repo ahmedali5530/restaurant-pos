@@ -12,9 +12,10 @@ import {InventoryItemForm} from "@/components/inventory/items/form.tsx";
 import {CsvUploadModal} from "@/components/common/table/csv.uploader.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {getReorderLevelForStore} from "@/utils/inventory.ts";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 export const InventoryItems = () => {
-  const { t } = useTranslation('inventory');
+  const { t } = useTranslation(['inventory', 'common']);
   const loadHook = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 10, ['category', 'suppliers', 'locations', 'stores']);
   const db = useDB();
 
@@ -101,13 +102,13 @@ export const InventoryItems = () => {
       cell: (info) => {
         return (
           <>
-            <Button
+            <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
                 setData(info.row.original);
                 setFormModal(true);
               }}
-            ><FontAwesomeIcon icon={faPencil}/></Button>
+            ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
           </>
         );
       },
@@ -255,6 +256,33 @@ export const InventoryItems = () => {
             }catch(e){
               throw e;
             }
+          }}
+          onExport={async () => {
+            const [items] = await db.query(
+              `SELECT * FROM ${Tables.inventory_items} FETCH category, suppliers, locations, stores`
+            );
+            return (items as InventoryItem[]).map((item) => {
+              const locs = item.locations ?? item.stores ?? [];
+              return {
+                name: item.name ?? '',
+                code: item.code ?? '',
+                category: item.category?.name ?? '',
+                uom: item.uom ?? '',
+                base_quantity: String(item.base_quantity ?? ''),
+                price: String(item.price ?? ''),
+                average_price: String(item.average_price ?? ''),
+                locations: locs.map((l) => l.name).join(','),
+                suppliers: (item.suppliers ?? []).map((s) => s.name).join(','),
+                item_types: (item.item_types ?? []).join(','),
+                reorder_levels: locs
+                  .map((loc) => {
+                    const level = getReorderLevelForStore(item, loc.id);
+                    return level > 0 ? `${loc.name}:${level}` : null;
+                  })
+                  .filter(Boolean)
+                  .join(','),
+              };
+            });
           }}
         />
       )}

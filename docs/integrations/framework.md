@@ -133,13 +133,13 @@ sequenceDiagram
 - Framework supports normalized events (`IntegrationEvent`) and provider subscriptions.
 - POS publishes business events via `createPosEvent` + `IntegrationManager.publish` (optionally with a **stable event id** for idempotency).
 - Providers handle only events they declare in `manifest.supportedEvents`.
-- Accounting: POS must **never** create journal entries directly. Use `publishSaleCompleted(manager, order)` after payment settlement.
+- Accounting: Domain modules must **never** create journal entries directly. Publish helpers live in `src/integrations/accounting/events/publish.ts` (`publishSaleCompleted`, `publishSaleRefunded`, `publishOrderCancelled`, `publishPayrollPosted`, inventory helpers, etc.).
 
 ## Accounting integration (draft-first)
 
 ```mermaid
 flowchart TD
-  POS[POS SaleCompleted] --> Publish[manager.publish]
+  Domain[POS HR Inventory commits] --> Publish[manager.publish]
   Publish --> Provider[InternalAccountingProvider.handleEvent]
   Provider --> Engine[AccountingPostingEngine]
   Engine --> Rules[Posting Rules]
@@ -153,12 +153,28 @@ flowchart TD
 ```
 
 - Provider id: `provider:internal-accounting` (`category: accounting`)
-- Posting logic lives in `src/integrations/accounting/` (engine, rules, templates, mapping) — **outside** the provider.
+- Posting logic lives in `src/integrations/accounting/` (engine handlers, rules, templates, mapping) — **outside** the provider.
 - Provider only validates config, receives `postJournal`, and persists draft journals.
-- Idempotency: event id `SaleCompleted:{orderId}` → key `accounting:SaleCompleted:{orderId}`; duplicates return the existing entry.
+- Idempotency: stable event ids (e.g. `SaleCompleted:{orderId}`, `SaleRefunded:{refundId}`, `PayrollPosted:{runId}`, `PurchaseReceived:{documentId}`) → key `accounting:{eventId}`; duplicates return the existing entry.
 - Default `autoPublish` is **off**; GL reports only include `status = 'posted'`.
 - Configure account mappings (logical codes → COA) in Integrations → Configuration (`account` field type).
 
+### Supported accounting business events
+
+| Event | Source hook | Journal template |
+|-------|-------------|------------------|
+| `SaleCompleted` | Payment close / auto-check-close | Restaurant sale |
+| `SaleRefunded` | Order refund modal | Restaurant sale reversal |
+| `OrderCancelled` | Cancel modal **only if order was Paid** | Restaurant sale reversal |
+| `PayrollPosted` | Payroll `approveRun` | Payroll expense / liability |
+| `PurchaseReceived` | Inventory `postDocument(purchase)` | Inventory / AP |
+| `PurchaseReturned` | Purchase return form save | AP / Inventory |
+| `InventoryIssued` | Inventory `postDocument(issue)` | COGS / Inventory |
+| `IssueReturned` | Issue return form save | Inventory / COGS |
+| `WasteRecorded` | Waste form / production waste | Waste expense / Inventory |
+| `InventoryAdjusted` | Inventory `postDocument(adjustment)` | Inventory / adjustment |
+| `InventoryTransferred` | `createStockTransfer` | Inventory ↔ Inventory |
+| `ProductionCompleted` | `completeProductionBatch` | Outputs / inputs / yield loss |
 ## Queue and Retry
 
 - Queue states: `Pending`, `Running`, `Waiting`, `Completed`, `Failed`, `Cancelled`, `DeadLetter`
@@ -246,13 +262,13 @@ When one or more fiscal providers are **enabled**, order settlement submits invo
 2. Each enabled fiscal provider runs `executeImmediate` with action `invoiceSubmission`.
 3. FBR/PRA serialize the Pakistan JSON payload and POST with `Authorization: Bearer <bearerToken>`.
 4. Success requires authority `Code == 100`; `InvoiceNumber` is stored and used as QR.
-5. Among successful submissions, print QR is chosen by highest shared runtime `qrPriority` (not hardcoded provider ids). PRA defaults to `100`, FBR to `50`, so PRA still wins when both succeed unless config overrides.
-6. Each attempt is stored as a row in `integration_order_fiscal` (junction), including `qr_priority`. One row may be marked `selected_for_print`.
-7. Final bill print resolves QR via `resolveFiscalQrcodeForPrint` (`selected_for_print` → highest `qr_priority` success) and passes it into `dispatchPrint` / `final-print.js`.
+5. Successful submissions each contribute a printable QR; `qrPriority` controls print order (higher first). PRA defaults to `100`, FBR to `50`. One row may still be marked `selected_for_print` for bookkeeping.
+6. Each attempt is stored as a row in `integration_order_fiscal` (junction), including `qr_priority`.
+7. Final bill print resolves all successful QRs via `resolveFiscalQrcodesForPrint` (latest completed per provider, sorted by `qr_priority`) with provider authority labels, and passes `qrcodes` into `dispatchPrint` / `final-print.js`.
 
 Junction table (migration `2026_07_11_order_fiscal_fields.surql`):
 - `integration_order_fiscal`: `order`, `provider_id`, `invoice_number`, `qrcode`, `status`, `code`, `error`, `selected_for_print`, `qr_priority`, `request_payload`, `response_payload`, `submitted_at`
-- Use `setFiscalSubmissionSelectedForPrint(db, orderId, submissionId)` to print a non-default QR on reprints.
+- Use `setFiscalSubmissionSelectedForPrint(db, orderId, submissionId)` to mark a preferred submission for bookkeeping; all successful QRs still print.
 
 ### Pakistan FBR/PRA config fields
 
@@ -265,7 +281,7 @@ Junction table (migration `2026_07_11_order_fiscal_fields.surql`):
 | `invoiceType` | Default `1` |
 | `offlineBuffering` | Shared runtime: queue failed immediate submits |
 | `blockSettlementOnFailure` | Shared runtime: abort Paid until fiscal succeeds |
-| `qrPriority` | Shared runtime: higher value wins print QR when multiple succeed (PRA default `100`, FBR default `50`) |
+| `qrPriority` | Shared runtime: higher value prints first when multiple fiscal QRs succeed (PRA default `100`, FBR default `50`) |
 | `punjabMode` (FBR only) | Line `TotalAmount = Quantity × SaleValue` |
 
 FBR also requires `sellerNtn`. USIN uses `order.invoice_number`.

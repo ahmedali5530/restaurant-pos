@@ -35,6 +35,7 @@
   "kot": "KOT",
   "newOrder": "Yeni Sipariş",
   "addon": "EK",
+  "duplicateKot": "KOPYA",
   "deletion": "SİLME",
   "orderNumber": "Sipariş#",
   "orderTaker": "Sipariş Alan",

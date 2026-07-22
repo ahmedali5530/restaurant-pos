@@ -7,7 +7,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faDownload, faFile} from "@fortawesome/free-solid-svg-icons";
 import {downloadArrayBuffer} from "@/utils/files.ts";
 import {Button} from "@/components/common/input/button.tsx";
-import { toJsDate } from "@/lib/datetime.ts";
+import {formatDateTime} from "@/lib/datetime.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import {itemsSubtotal} from "@/lib/inventory/purchase.totals.ts";
 import {lineAmount} from "@/lib/inventory/line.cost.ts";
@@ -90,7 +90,7 @@ export const InventoryPurchaseOrderViewModal = ({open, order, onClose}: Props) =
               </div>
               <div>
                 <div className="text-neutral-500 text-xs uppercase">{t('columns.createdAt')}</div>
-                <div>{viewOrder.created_at ? toJsDate(viewOrder.created_at).toLocaleString() : "—"}</div>
+                <div>{viewOrder.created_at ? formatDateTime(viewOrder.created_at) : "—"}</div>
               </div>
             </div>
           </div>

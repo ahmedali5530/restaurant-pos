@@ -336,6 +336,15 @@ export const KitchenReconciliationScreen = () => {
         isOpen={csvOpen}
         onClose={() => setCsvOpen(false)}
         onImportRows={handleCsvImport}
+        onExport={() =>
+          (reconciliation?.items ?? []).map((line) => ({
+            item_code: line.item?.code ?? '',
+            physical_count: line.physical_count != null ? String(line.physical_count) : '',
+            waste: String(line.waste_qty ?? 0),
+            staff_meal: String(line.staff_meal_qty ?? 0),
+            complimentary: String(line.complimentary_qty ?? 0),
+          }))
+        }
       />
     </div>
   );

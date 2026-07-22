@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createColumnHelper, RowSelectionState } from "@tanstack/react-table";
 import { Table } from "@/api/model/table.ts";
 import { Button } from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {faCheck, faLock, faPencil, faPlus, faUpload} from "@fortawesome/free-solid-svg-icons";
 import { TableComponent } from "@/components/common/table/table.tsx";
@@ -102,13 +103,13 @@ export const AdminTables = () => {
       cell: (info) => {
         return (
           <div className="flex gap-3 items-center">
-            <Button
+            <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
                 setData(info.row.original);
                 setFormModal(true);
               }}
-            ><FontAwesomeIcon icon={faPencil}/></Button>
+            ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
             <div className="separator"></div>
             <DeleteConfirm
               message={t('delete.table', { name: `${info.row.original.name}${info.row.original.number}` })}
@@ -263,6 +264,23 @@ export const AdminTables = () => {
             }catch(e){
               throw new Error(e)
             }
+          }}
+          onExport={async () => {
+            const [tables] = await db.query(
+              `SELECT * FROM ${Tables.tables} WHERE deleted_at = none FETCH floor, categories, payment_types, order_types`
+            );
+            return (tables as Table[]).map((row) => ({
+              name: row.name ?? '',
+              number: String(row.number ?? ''),
+              ask_for_covers: row.ask_for_covers ? 'true' : 'false',
+              background: row.background ?? '',
+              color: row.color ?? '',
+              floor: row.floor?.name ?? '',
+              priority: String(row.priority ?? ''),
+              categories: (row.categories ?? []).map((c) => c.name).join('|'),
+              order_types: (row.order_types ?? []).map((o) => o.name).join('|'),
+              payment_types: (row.payment_types ?? []).map((p) => p.name).join('|'),
+            }));
           }}
           onDone={() => loadHook.fetchData()}
         />

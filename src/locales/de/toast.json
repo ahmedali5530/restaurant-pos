@@ -135,5 +135,14 @@
     "deactivated": "{{entity}} wird verwendet und wurde deaktiviert.",
     "deleted": "{{entity}} erfolgreich gelöscht.",
     "failed": "{{entity}} konnte nicht gelöscht werden."
+  },
+  "sessionSecurity": {
+    "autoLock": "Wegen Inaktivität gesperrt",
+    "autoLogout": "Wegen Inaktivität abgemeldet"
+  },
+  "autoClockOut": {
+    "warning": "Automatisches Ausstempeln in {{countdown}}",
+    "clockedOut": "Automatisch ausgestempelt",
+    "failed": "Automatisches Ausstempeln fehlgeschlagen"
   }
 }

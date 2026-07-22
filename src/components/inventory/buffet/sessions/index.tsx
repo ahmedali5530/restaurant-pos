@@ -13,9 +13,10 @@ import {BuffetSessionDashboard} from "@/components/inventory/buffet/sessions/das
 import {BuffetSessionViewModal} from "@/components/inventory/buffet/sessions/view.modal.tsx";
 import {formatNumber} from "@/lib/utils.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 export const BuffetSessions = () => {
-  const {t} = useTranslation("inventory");
+  const {t} = useTranslation(["inventory", 'common']);
   const loadHook = useBuffetSessionList(0, 10);
   const [formOpen, setFormOpen] = useState(false);
   const [activeSessionId, setActiveSessionId] = useState<string>();
@@ -78,13 +79,13 @@ export const BuffetSessions = () => {
         return (
           <div className="flex gap-2">
             {isClosed ? (
-              <Button
+              <IconTooltipButton label={t('common:actions.view')}
                 variant="primary"
-                iconButton
+               
                 onClick={() => setViewSession(session)}
               >
                 <FontAwesomeIcon icon={faEye} />
-              </Button>
+              </IconTooltipButton>
             ) : (
               <Button
                 variant="primary"

@@ -9,7 +9,9 @@ import { Tables } from "@/api/db/tables.ts";
 import { useDB } from "@/api/db/db.ts";
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input } from "@/components/common/input/input.tsx";
+import { InputField } from "@/components/common/form/rhf-fields.tsx";
 import { Button } from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import { InventoryItem } from "@/api/model/inventory_item.ts";
 import {
@@ -78,7 +80,7 @@ const resolveLocationOption = (data?: InventoryAdjustment): Option | null => {
 };
 
 export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
-  const { t } = useTranslation("inventory");
+  const { t } = useTranslation(["inventory", 'common']);
   const db = useDB();
   const [state] = useAtom(appPage);
   const { manager } = useIntegrationManager();
@@ -106,7 +108,7 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
     reload: reloadLocations,
   } = useInventoryLocations(open);
 
-  const { control, handleSubmit, register, reset, formState: { errors } } = useForm<FormValues>({
+  const { control, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     resolver: yupResolver(validationSchema) as any,
     defaultValues: {
       invoice_number: 1,
@@ -304,7 +306,7 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
         </div>
 
         <div>
-          <Input label={t("forms.notes")} disabled={locked} {...register("notes")} />
+          <InputField name="notes" control={control} label={t("forms.notes")} disabled={locked} />
         </div>
         <div className="space-y-3">
           <div className="flex justify-between items-center">
@@ -340,35 +342,38 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
                 />
               </div>
               <div className="col-span-2">
-                <Input
+                <InputField
+                  name={`items.${index}.quantity_change`}
+                  control={control}
                   type="number"
                   step="any"
                   placeholder={t("columns.quantityChange")}
                   disabled={locked}
-                  {...register(`items.${index}.quantity_change`)}
                 />
               </div>
               <div className="col-span-2">
-                <Input
+                <InputField
+                  name={`items.${index}.unit_cost`}
+                  control={control}
                   type="number"
                   step="any"
                   placeholder={t("columns.unitCost")}
                   disabled={locked}
-                  {...register(`items.${index}.unit_cost`)}
                 />
               </div>
               <div className="col-span-2">
-                <Input
-                  disabled={locked}
+                <InputField
+                  name={`items.${index}.comments`}
+                  control={control}
                   placeholder={t("forms.comments")}
-                  {...register(`items.${index}.comments`)}
+                  disabled={locked}
                 />
               </div>
               <div className="col-span-1">
                 {!locked && fields.length > 1 && (
-                  <Button type="button" variant="danger" iconButton onClick={() => remove(index)}>
+                  <IconTooltipButton label={t('common:actions.remove')} type="button" variant="danger" onClick={() => remove(index)}>
                     <FontAwesomeIcon icon={faTrash} />
-                  </Button>
+                  </IconTooltipButton>
                 )}
               </div>
             </div>

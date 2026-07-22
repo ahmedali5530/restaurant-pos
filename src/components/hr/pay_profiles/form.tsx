@@ -11,9 +11,8 @@ import {useDB} from "@/api/db/db.ts";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Employee} from "@/api/model/employee.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
-import {HrDateField, HrSelectField, HrStringSelectField} from "@/components/hr/shared/form-field.tsx";
+import {HrDateField, HrInputField, HrSelectField, HrStringSelectField} from "@/components/hr/shared/form-field.tsx";
 import {
   SelectOption,
   calendarDateToSurreal,
@@ -60,7 +59,7 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
   const db = useDB();
   const employeesHook = useApi<SettingsData<Employee>>(Tables.employees, [], [], 0, 500, []);
 
-  const {register, handleSubmit, control, formState: {errors}, reset} = useForm({
+  const {handleSubmit, control, formState: {errors}, reset} = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {pay_type: "hourly", currency: "USD"},
   });
@@ -170,10 +169,21 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
             error={errors.pay_type?.message}
           />
           <div>
-            <Input type="number" step="0.01" label={t("forms.payProfile.baseRate")} {...register("base_rate", {valueAsNumber: true})} error={errors.base_rate?.message}/>
+            <HrInputField
+              type="number"
+              step="0.01"
+              name="base_rate"
+              control={control}
+              label={t("forms.payProfile.baseRate")}
+              error={errors.base_rate?.message}
+            />
           </div>
           <div>
-            <Input label={t("forms.payProfile.currency")} {...register("currency")}/>
+            <HrInputField
+              name="currency"
+              control={control}
+              label={t("forms.payProfile.currency")}
+            />
           </div>
           <div className="flex gap-3">
             <div className="flex-1">
@@ -194,7 +204,11 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
             </div>
           </div>
           <div>
-            <Input label={t("forms.payProfile.notes")} {...register("notes")}/>
+            <HrInputField
+              name="notes"
+              control={control}
+              label={t("forms.payProfile.notes")}
+            />
           </div>
         </div>
         <Button type="submit" variant="primary">{t("buttons.save")}</Button>

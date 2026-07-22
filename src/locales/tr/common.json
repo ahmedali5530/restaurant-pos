@@ -26,6 +26,7 @@
     "import": "İçe aktar",
     "upload": "Yükle",
     "download": "İndir",
+    "downloadTemplate": "Şablon indir",
     "select": "Seç",
     "selectAll": "Tümünü seç",
     "deselectAll": "Tümünün seçimini kaldır",
@@ -38,6 +39,8 @@
     "continue": "Devam et",
     "done": "Tamamlandı",
     "remove": "Kaldır",
+    "moveUp": "Yukarı taşı",
+    "moveDown": "Aşağı taşı",
     "duplicate": "Çoğalt",
     "copy": "Kopyala",
     "filter": "Filtrele",
@@ -69,7 +72,20 @@
     "success": "Başarılı",
     "error": "Hata",
     "warning": "Uyarı",
-    "info": "Bilgi"
+    "info": "Bilgi",
+    "approve": "Onayla",
+    "reject": "Reddet",
+    "publish": "Yayınla",
+    "unpublish": "Yayından kaldır",
+    "logout": "Çıkış yap",
+    "lock": "Kilitle",
+    "void": "İptal et",
+    "hold": "Beklet",
+    "fire": "Gönder",
+    "revision": "Revizyon",
+    "comment": "Yorum",
+    "settings": "Ayarlar",
+    "clock": "Mesai"
   },
   "database": {
     "connectionError": "Bağlantı Hatası",
@@ -98,6 +114,9 @@
     "title": "Sayfa bulunamadı",
     "description": "Aradığınız sayfa mevcut değil veya taşınmış.",
     "backToMenu": "Menüye dön"
+  },
+  "documentTitle": {
+    "app": "Restoran POS"
   },
   "loading": "Yükleniyor..."
 }

@@ -71,8 +71,8 @@ export const useDB = () => {
       if (import.meta.env.DEV) {
         console.info(sql.trim());
         console.info(parameters);
+        console.info(result);
       }
-      console.info(result);
       console.info(`Query fetch time: ${t1 - t0}ms`);
       console.groupEnd()
       return result as R;

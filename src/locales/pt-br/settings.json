@@ -37,8 +37,14 @@
   },
   "printers": {
     "title": "Impressoras padrão",
-    "description": "As atribuições de impressora são armazenadas por usuário. Cada usuário pode atribuir impressoras para impressão temporária, final, reembolso, delivery e resumo. Se nenhuma estiver definida, as configurações globais serão usadas como alternativa.",
+    "description": "Atribua impressoras por usuário ou para este terminal. Com impressoras do sistema ativadas, temporária, final, reembolso e resumo usam as atribuições deste dispositivo. Delivery sempre usa configurações de usuário ou globais.",
     "loading": "Carregando configurações de impressora…",
+    "useSystemPrinters": "Usar impressoras do sistema neste dispositivo",
+    "useSystemPrintersDescription": "Quando ativado, este navegador/terminal usa as impressoras do sistema abaixo em vez das do usuário logado (exceto delivery).",
+    "systemTitle": "Impressoras do sistema (este dispositivo)",
+    "systemDescription": "Armazenadas apenas neste navegador. Ideal para terminais compartilhados para imprimir em impressoras próximas. Delivery não está incluído — permanece usuário ou global.",
+    "userTitle": "Impressoras do usuário",
+    "userDescription": "Armazenadas por usuário logado. Usadas quando as do sistema estão desativadas, e sempre para delivery.",
     "tempPrint": "Impressoras para impressão temporária",
     "finalPrint": "Impressoras para impressão final",
     "refundPrint": "Impressoras para impressão de reembolso",
@@ -157,5 +163,26 @@
     "dialogTitle": "Novidades",
     "versionLabel": "Versão {{version}}",
     "previousReleases": "Versões anteriores"
+  },
+  "sessionSecurity": {
+    "title": "Segurança da sessão",
+    "description": "Bloquear ou sair automaticamente após um período de inatividade. Escolha uma ação.",
+    "idleMinutes": "Minutos de inatividade (ex.: 0,1 ≈ 6 segundos)",
+    "action": "Ação",
+    "actionLock": "Bloquear",
+    "actionLogout": "Sair",
+    "updated": "Configurações de segurança da sessão atualizadas",
+    "saveDescription": "Salvar configurações de segurança da sessão",
+    "loginRequired": "Você precisa estar conectado para salvar a segurança da sessão"
+  },
+  "autoClockOut": {
+    "title": "Saída automática",
+    "description": "Registrar saída automaticamente ao fim do turno e/ou em um horário diário fixo. Usa o turno agendado se houver; caso contrário, o turno atribuído. Aplica-se a todos os usuários.",
+    "onShiftEnd": "Registrar saída ao fim do turno",
+    "onDefinedTime": "Registrar saída em um horário definido",
+    "definedTime": "Horário de saída",
+    "triggerRequired": "Ative o fim do turno e/ou um horário definido quando a saída automática estiver ligada",
+    "updated": "Configurações de saída automática atualizadas",
+    "saveDescription": "Salvar configurações de saída automática"
   }
 }

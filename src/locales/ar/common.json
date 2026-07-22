@@ -26,6 +26,7 @@
     "import": "استيراد",
     "upload": "رفع",
     "download": "تنزيل",
+    "downloadTemplate": "تنزيل القالب",
     "select": "اختيار",
     "selectAll": "تحديد الكل",
     "deselectAll": "إلغاء تحديد الكل",
@@ -38,6 +39,8 @@
     "continue": "متابعة",
     "done": "تم",
     "remove": "إزالة",
+    "moveUp": "تحريك لأعلى",
+    "moveDown": "تحريك لأسفل",
     "duplicate": "نسخ",
     "copy": "نسخ",
     "filter": "تصفية",
@@ -69,7 +72,22 @@
     "success": "نجاح",
     "error": "خطأ",
     "warning": "تحذير",
-    "info": "معلومات"
+    "info": "معلومات",
+    "approve": "موافقة",
+    "reject": "رفض",
+    "publish": "نشر",
+    "unpublish": "إلغاء النشر",
+    "logout": "تسجيل الخروج",
+    "lock": "قفل",
+    "void": "إلغاء",
+    "hold": "تعليق",
+    "fire": "إرسال",
+    "revision": "مراجعة",
+    "comment": "تعليق",
+    "moveUp": "تحريك لأعلى",
+    "moveDown": "تحريك لأسفل",
+    "settings": "الإعدادات",
+    "clock": "الساعة"
   },
   "database": {
     "connectionError": "خطأ في الاتصال",
@@ -98,6 +116,9 @@
     "title": "الصفحة غير موجودة",
     "description": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
     "backToMenu": "العودة إلى القائمة"
+  },
+  "documentTitle": {
+    "app": "نظام نقاط البيع للمطاعم"
   },
   "loading": "جارٍ التحميل..."
 }

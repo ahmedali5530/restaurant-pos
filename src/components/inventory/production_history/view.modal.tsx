@@ -5,7 +5,7 @@ import {ProductionBatch} from "@/api/model/production_batch.ts";
 import {useDB} from "@/api/db/db.ts";
 import {getProductionBatch} from "@/lib/inventory/production.service.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
-import {toJsDate} from "@/lib/datetime.ts";
+import {formatDateTime} from "@/lib/datetime.ts";
 
 interface Props {
   open: boolean;
@@ -50,7 +50,7 @@ export const ProductionBatchViewModal = ({open, batchId, onClose}: Props) => {
             <div><strong>{t("production.totalOutputCost")}:</strong> {batch.total_output_cost}</div>
             <div>
               <strong>{t("columns.createdAt")}:</strong>{" "}
-              {toJsDate(batch.created_at).toLocaleString()}
+              {formatDateTime(batch.created_at)}
             </div>
           </div>
 

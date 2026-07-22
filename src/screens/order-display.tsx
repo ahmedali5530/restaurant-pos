@@ -23,9 +23,11 @@ import { OrderTile } from '@/components/order-display/order-tile.tsx';
 import { OrderReadyCelebration } from '@/components/order-display/order-ready-celebration.tsx';
 import { useOrderReadyAnnouncements } from '@/hooks/useOrderReadyAnnouncements.ts';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
+import { DocumentTitle } from '@/components/common/document-title.tsx';
 
 export const OrderDisplayScreen = () => {
   const { t } = useTranslation(['order-display', 'orders']);
+  const { t: tNav } = useTranslation('navigation');
   const db = useDB();
   const [state, setState] = useAtom(appState);
   const [orders, setOrders] = useState<OrderModel[]>([]);
@@ -163,6 +165,7 @@ export const OrderDisplayScreen = () => {
 
   return (
     <Layout showSidebar={showSidebar} overflowHidden containerClassName="overflow-hidden">
+      <DocumentTitle parts={[tNav('sidebar.orderDisplay')]} />
       {activeCelebration && (
         <OrderReadyCelebration
           orderNumber={activeCelebration.orderNumber}

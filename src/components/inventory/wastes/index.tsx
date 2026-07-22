@@ -15,10 +15,11 @@ import {InventoryWasteViewModal} from "@/components/inventory/wastes/view.modal.
 import {InventoryDocumentPrintModal} from "@/components/inventory/common/document.print.modal.tsx";
 import {InventoryInvoiceDoc, mapWasteToInvoice} from "@/lib/inventory/invoice.mapper.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
-import { toJsDate } from "@/lib/datetime.ts";
+import {formatDateTime} from "@/lib/datetime.ts";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 export const InventoryWastes = () => {
-  const { t } = useTranslation('inventory');
+  const { t } = useTranslation(['inventory', 'common']);
   const loadHook = useApi<SettingsData<InventoryWaste>>(
     Tables.inventory_wastes,
     [],
@@ -58,7 +59,7 @@ export const InventoryWastes = () => {
     }),
     columnHelper.accessor("created_at", {
       header: t('columns.createdAt'),
-      cell: info => info.getValue() ? toJsDate(info.getValue() as any).toLocaleString() : ""
+      cell: info => info.getValue() ? formatDateTime(info.getValue() as any) : ""
     }),
     columnHelper.accessor("items", {
       header: t('tabs.items'),
@@ -80,25 +81,25 @@ export const InventoryWastes = () => {
       cell: (info) => {
         return (
           <div className="flex gap-3">
-            <Button
+            <IconTooltipButton label={t('common:actions.view')}
               variant="secondary"
-              iconButton
+             
               onClick={() => {
                 setViewWaste(info.row.original);
                 setViewModalOpen(true);
               }}
             >
               <FontAwesomeIcon icon={faFile}/>
-            </Button>
-            <Button
+            </IconTooltipButton>
+            <IconTooltipButton label={t('print.printReceipt')}
               variant="secondary"
-              iconButton
-              title={t('print.printReceipt')}
+             
+             
               onClick={() => setPrintDoc(mapWasteToInvoice(info.row.original))}
             >
               <FontAwesomeIcon icon={faPrint}/>
-            </Button>
-            <Button
+            </IconTooltipButton>
+            <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
                 protectAction(() => {
@@ -111,7 +112,7 @@ export const InventoryWastes = () => {
               }}
             >
               <FontAwesomeIcon icon={faPencil}/>
-            </Button>
+            </IconTooltipButton>
 
             <DeleteConfirm onConfirm={() =>
               protectAction(async () => {

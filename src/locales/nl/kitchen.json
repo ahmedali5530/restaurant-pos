@@ -4,7 +4,8 @@
     "completedOrders": "Voltooide bestellingen",
     "viewAllDishes": "Alle gerechten bekijken",
     "recall": "Terughalen",
-    "ready": "Klaar"
+    "ready": "Klaar",
+    "reprint": "Opnieuw afdrukken"
   },
   "labels": {
     "avgTime": "Gem. tijd: {{time}}",

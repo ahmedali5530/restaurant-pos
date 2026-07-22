@@ -2,6 +2,7 @@ import {useState} from "react";
 import {Dish} from "@/api/model/dish.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Button} from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {DishForm} from "@/components/settings/dishes/dish.form.tsx";
 import {faPencil, faPhotoFilm, faPlus, faUpload, faEye} from "@fortawesome/free-solid-svg-icons";
 import {createColumnHelper, RowSelectionState} from "@tanstack/react-table";
@@ -150,21 +151,21 @@ export const AdminDishes = () => {
       cell: (info) => {
         return (
           <div className="flex gap-3 items-center">
-            <Button
+            <IconTooltipButton label={t('common:actions.view')}
               variant="secondary"
               onClick={() => {
                 setData(info.row.original);
                 setViewModal(true);
               }}
-            ><FontAwesomeIcon icon={faEye}/></Button>
+            ><FontAwesomeIcon icon={faEye}/></IconTooltipButton>
             <div className="separator"></div>
-            <Button
+            <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
                 setData(info.row.original);
                 setFormModal(true);
               }}
-            ><FontAwesomeIcon icon={faPencil}/></Button>
+            ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
             <div className="separator"></div>
             <DeleteConfirm
               message={t('delete.dish', { name: info.row.original.name })}
@@ -327,6 +328,19 @@ export const AdminDishes = () => {
               throw new Error(e)
             }
           }}
+          onExport={async () => {
+            const [dishes] = await db.query(
+              `SELECT * FROM ${Tables.dishes} WHERE deleted_at = none FETCH categories`
+            );
+            return (dishes as Dish[]).map((d) => ({
+              name: d.name ?? '',
+              number: d.number ?? '',
+              priority: String(d.priority ?? ''),
+              sale_price: String(d.price ?? ''),
+              cost_price: String(d.cost ?? ''),
+              categories: (d.categories ?? []).map((c) => c.name).join('|'),
+            }));
+          }}
           onDone={() => loadHook.fetchData()}
         />
       )}
@@ -418,6 +432,18 @@ export const AdminDishes = () => {
               items: [...existingItems.map((id: any) => toRecordId(id)), toRecordId(recipeRecord.id)],
             });
           }}
+          onExport={async () => {
+            const [recipes] = await db.query(
+              `SELECT *, menu_item.number AS dish_number FROM ${Tables.dishes_recipes} FETCH item, menu_item`
+            );
+            return ((recipes as any[]) ?? []).map((rec) => ({
+              dish_number: String(rec.dish_number ?? rec.menu_item?.number ?? ''),
+              ingredient: rec.item?.code || rec.item?.name || '',
+              quantity: String(rec.quantity ?? ''),
+              cost: String(rec.cost ?? ''),
+              is_price_locked: rec.is_price_locked ? 'true' : 'false',
+            }));
+          }}
           onDone={() => loadHook.fetchData()}
         />
       )}
@@ -508,6 +534,22 @@ export const AdminDishes = () => {
                 priority,
               }
             );
+          }}
+          onExport={async () => {
+            const [edges] = await db.query(
+              `SELECT *, in.number AS dish_number, out.name AS modifier_group_name
+               FROM ${Tables.dish_modifier_groups}
+               FETCH in, out`
+            );
+            return ((edges as any[]) ?? []).map((edge) => ({
+              dish_number: String(edge.dish_number ?? edge.in?.number ?? ''),
+              modifier_group: edge.modifier_group_name ?? edge.out?.name ?? '',
+              priority: String(edge.priority ?? ''),
+              has_required_modifiers: edge.has_required_modifiers ? 'true' : 'false',
+              required_modifiers: String(edge.required_modifiers ?? 0),
+              should_auto_open: edge.should_auto_open ? 'true' : 'false',
+              should_auto_select: edge.should_auto_select ? 'true' : 'false',
+            }));
           }}
           onDone={() => loadHook.fetchData()}
         />

@@ -144,3 +144,25 @@
     @apply text-neutral-500;
   }
 }
+
+.react-aria-Tooltip {
+  .react-aria-OverlayArrow svg {
+    display: block;
+  }
+
+  &[data-placement='top'] .react-aria-OverlayArrow svg {
+    transform: rotate(180deg);
+  }
+
+  &[data-placement='bottom'] .react-aria-OverlayArrow svg {
+    transform: rotate(0deg);
+  }
+
+  &[data-placement='left'] .react-aria-OverlayArrow svg {
+    transform: rotate(90deg);
+  }
+
+  &[data-placement='right'] .react-aria-OverlayArrow svg {
+    transform: rotate(-90deg);
+  }
+}

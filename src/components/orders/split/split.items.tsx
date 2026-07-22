@@ -21,6 +21,7 @@ import {toRecordId} from "@/lib/utils.ts";
 import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 interface Props {
   order: OrderModel
@@ -37,7 +38,7 @@ interface Split {
 export const SplitItems = ({
   order, onClose
 }: Props) => {
-  const {t} = useTranslation('orders');
+  const {t} = useTranslation(['orders', 'common']);
   const db = useDB();
   const [page] = useAtom(appPage);
   // Initialize with one split containing all items
@@ -393,10 +394,10 @@ export const SplitItems = ({
                              <span className="text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
                                {t('split.byItems.total', {amount: formatNumber(splitTotals[index + 1])})}
                              </span>
-                             <Button
+                             <IconTooltipButton label={t('split.byItems.moveBackToSplitOne')}
                                variant="danger"
                                icon={faTrash}
-                               iconButton
+                              
                                size="lg"
                                onClick={() => removeSplit(split.id)}
                              />
@@ -426,11 +427,11 @@ export const SplitItems = ({
                                        showPrice={true}
                                      />
                                    </div>
-                                   <div title={t('split.byItems.moveBackToSplitOne')}>
+                                   <div>
                                    <Button
                                      variant="danger"
                                      icon={faArrowLeft}
-                                     iconButton
+                                    
                                      size="lg"
                                      onClick={() => removeItemFromSplit(item.id, split.id)}
                                      className="ml-2"

@@ -37,8 +37,14 @@
   },
   "printers": {
     "title": "Standaardprinters",
-    "description": "Printertoewijzingen worden per gebruiker opgeslagen. Elke gebruiker kan printers toewijzen voor tijdelijke, definitieve, terugbetalings-, bezorg- en overzichtsafdrukken. Als u geen hebt ingesteld, worden globale instellingen als fallback gebruikt.",
+    "description": "Wijs printers toe per gebruiker of voor deze terminal. Als systeemprinters aan staan, gebruiken tijdelijke, definitieve, terugbetalings- en overzichtsafdrukken de toewijzingen van dit apparaat. Bezorging gebruikt altijd gebruikers- of globale instellingen.",
     "loading": "Printerinstellingen laden…",
+    "useSystemPrinters": "Systeemprinters op dit apparaat gebruiken",
+    "useSystemPrintersDescription": "Indien ingeschakeld gebruikt deze browser/terminal de systeemprinters hieronder in plaats van die van de ingelogde gebruiker (behalve bezorging).",
+    "systemTitle": "Systeemprinters (dit apparaat)",
+    "systemDescription": "Alleen in deze browser opgeslagen. Ideaal voor gedeelde terminals zodat dichtbij wordt geprint. Bezorging is niet inbegrepen — blijft gebruiker of globaal.",
+    "userTitle": "Gebruikersprinters",
+    "userDescription": "Opgeslagen per ingelogde gebruiker. Gebruikt als systeemprinters uit staan, en altijd voor bezorging.",
     "tempPrint": "Printers voor tijdelijke afdruk",
     "finalPrint": "Printers voor definitieve afdruk",
     "refundPrint": "Printers voor terugbetalingsafdruk",
@@ -157,5 +163,26 @@
     "dialogTitle": "Wat is er nieuw",
     "versionLabel": "Versie {{version}}",
     "previousReleases": "Eerdere releases"
+  },
+  "sessionSecurity": {
+    "title": "Sessiebeveiliging",
+    "description": "Vergrendel of log deze gebruiker automatisch uit na een periode van inactiviteit. Kies één actie.",
+    "idleMinutes": "Minuten inactiviteit (bijv. 0,1 ≈ 6 seconden)",
+    "action": "Actie",
+    "actionLock": "Vergrendelen",
+    "actionLogout": "Uitloggen",
+    "updated": "Sessiebeveiligingsinstellingen bijgewerkt",
+    "saveDescription": "Sessiebeveiligingsinstellingen opslaan",
+    "loginRequired": "U moet ingelogd zijn om sessiebeveiliging op te slaan"
+  },
+  "autoClockOut": {
+    "title": "Automatisch uitklokken",
+    "description": "Klok automatisch uit aan het einde van de dienst en/of op een vast dagelijks tijdstip. Gebruikt de geplande dienst indien aanwezig, anders de toegewezen dienst. Geldt voor alle gebruikers.",
+    "onShiftEnd": "Uitklokken bij einde dienst",
+    "onDefinedTime": "Uitklokken op een vast tijdstip",
+    "definedTime": "Uitkloktijd",
+    "triggerRequired": "Schakel einde dienst en/of een vast tijdstip in wanneer automatisch uitklokken aan staat",
+    "updated": "Instellingen voor automatisch uitklokken bijgewerkt",
+    "saveDescription": "Instellingen voor automatisch uitklokken opslaan"
   }
 }

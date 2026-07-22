@@ -2,8 +2,10 @@ import { Workflow } from "@/api/model/workflow.ts";
 import { Kitchen } from "@/api/model/kitchen.ts";
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input, InputError } from "@/components/common/input/input.tsx";
+import { InputField } from "@/components/common/form/rhf-fields.tsx";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { Button } from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { useEffect } from "react";
 import { useDB } from "@/api/db/db.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -50,7 +52,7 @@ export const WorkflowForm = ({
     enabled: false
   });
 
-  const { register, control, handleSubmit, formState: { errors }, reset } = useForm({
+  const { control, handleSubmit, formState: { errors }, reset } = useForm({
     resolver: zodResolver(validationSchema),
     defaultValues: {
       name: '',
@@ -149,7 +151,7 @@ export const WorkflowForm = ({
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex gap-3 mb-3 flex-col">
           <div className="flex-1">
-            <Input label={t('columns.name')} {...register('name')} autoFocus error={errors?.name?.message}/>
+            <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message}/>
           </div>
 
           <div className="flex-1">
@@ -198,17 +200,11 @@ export const WorkflowForm = ({
                     <InputError error={_.get(errors, ['stages', index, 'kitchen', 'message'])}/>
                   </div>
                   <div className="flex-0 flex gap-1">
-                    <Button iconButton variant="secondary" type="button" isDisabled={index === 0}
-                            onClick={() => move(index, index - 1)}>
-                      <FontAwesomeIcon icon={faArrowUp}/>
-                    </Button>
-                    <Button iconButton variant="secondary" type="button" isDisabled={index === fields.length - 1}
-                            onClick={() => move(index, index + 1)}>
-                      <FontAwesomeIcon icon={faArrowDown}/>
-                    </Button>
-                    <Button iconButton variant="danger" type="button" onClick={() => remove(index)}>
-                      <FontAwesomeIcon icon={faTrash}/>
-                    </Button>
+                    <IconTooltipButton label={t('common:actions.moveUp')} variant="secondary" type="button" isDisabled={index === 0}
+                            onClick={() => move(index, index - 1)}><FontAwesomeIcon icon={faArrowUp}/></IconTooltipButton>
+                    <IconTooltipButton label={t('common:actions.moveDown')} variant="secondary" type="button" isDisabled={index === fields.length - 1}
+                            onClick={() => move(index, index + 1)}><FontAwesomeIcon icon={faArrowDown}/></IconTooltipButton>
+                    <IconTooltipButton label={t('common:actions.remove')} variant="danger" type="button" onClick={() => remove(index)}><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>
                   </div>
                 </div>
               ))}

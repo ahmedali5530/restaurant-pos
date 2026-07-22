@@ -4,7 +4,8 @@
     "completedOrders": "Завершённые заказы",
     "viewAllDishes": "Показать все блюда",
     "recall": "Вернуть",
-    "ready": "Готово"
+    "ready": "Готово",
+    "reprint": "Перепечатать"
   },
   "labels": {
     "avgTime": "Среднее время: {{time}}",

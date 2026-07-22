@@ -25,6 +25,7 @@ import {InventoryProductionHistory} from "@/components/inventory/production_hist
 import {BuffetMenus} from "@/components/inventory/buffet/menus/index.tsx";
 import {BuffetSessions} from "@/components/inventory/buffet/sessions/index.tsx";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {DocumentTitle} from "@/components/common/document-title.tsx";
 
 /** Stable permission codes stored in user roles — not translated labels. */
 const INVENTORY_TAB_MODULES: Record<string, string> = {
@@ -52,6 +53,7 @@ const INVENTORY_TAB_MODULES: Record<string, string> = {
 
 export const Inventory = () => {
   const { t } = useTranslation('inventory');
+  const { t: tNav } = useTranslation('navigation');
   const [selected, setSelected] = useState('inventory');
   const {protectAction} = useSecurity();
 
@@ -82,6 +84,7 @@ export const Inventory = () => {
     <Layout
       containerClassName=""
     >
+      <DocumentTitle parts={[pages[selected]?.title, tNav('sidebar.inventory')]} />
       <Tabs
         className="w-full flex flex-col rounded-xl"
         selectedKey={selected}

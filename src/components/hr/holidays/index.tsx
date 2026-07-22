@@ -6,7 +6,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {PublicHoliday} from "@/api/model/public_holiday.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {IconTooltipButton} from "@/components/common/input/icon.tooltip.button.tsx";
 import {faPencil, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {HolidayForm} from "@/components/hr/holidays/form.tsx";
 import {formatDisplayDate} from "@/components/hr/shared/form.utils.ts";
@@ -41,9 +41,12 @@ export const HrHolidays = () => {
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => (
-        <Button variant="primary" onClick={() => { setData(info.row.original); setFormModal(true); }}>
-          <FontAwesomeIcon icon={faPencil}/>
-        </Button>
+        <IconTooltipButton
+          label={t("buttons.edit")}
+          variant="primary"
+          icon={faPencil}
+          onClick={() => { setData(info.row.original); setFormModal(true); }}
+        />
       ),
     }),
   ];

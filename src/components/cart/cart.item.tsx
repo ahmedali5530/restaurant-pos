@@ -15,6 +15,7 @@ import {StringRecordId} from "surrealdb";
 import { nowSurrealDateTime } from "@/lib/datetime.ts";
 import {CartItemName} from "@/components/common/cart/cart.item.name.tsx";
 import {useTranslation} from "react-i18next";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 interface Props {
   item: MenuItem
@@ -23,7 +24,7 @@ interface Props {
 
 export const CartItem = ({ item, index }: Props) => {
   const db = useDB();
-  const { t } = useTranslation('cart');
+  const { t } = useTranslation(['cart', 'common']);
   const [state, setState] = useAtom(appState);
   const [page, ] = useAtom(appPage);
   const [isModifiersOpen, setModifiersOpen] = useState(false);
@@ -95,9 +96,9 @@ export const CartItem = ({ item, index }: Props) => {
           <div className="flex gap-2 items-center">
             {item.newOrOld === MenuItemType.new && (
               <>
-                <Button
+                <IconTooltipButton label={t('common:actions.add')}
                   flat
-                  iconButton
+                 
                   variant="primary"
                   onClick={() => {
                     setState(prev => ({
@@ -111,7 +112,7 @@ export const CartItem = ({ item, index }: Props) => {
                     }))
                   }}
                   className="!rounded-none"
-                ><FontAwesomeIcon icon={faPlus}/></Button>
+                ><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
                 <Input
                   type="number"
                   enableKeyboard
@@ -130,9 +131,9 @@ export const CartItem = ({ item, index }: Props) => {
                   className="!w-[60px] !border-0 !bg-white !rounded-none"
                 />
                 {item.quantity <= 1 ? (
-                  <Button
+                  <IconTooltipButton label={t('common:actions.remove')}
                     flat
-                    iconButton
+                   
                     variant={'danger'}
                     onClick={() => {
                       setState(prev => ({
@@ -145,11 +146,11 @@ export const CartItem = ({ item, index }: Props) => {
                       }))
                     }}
                     className="!rounded-none"
-                  ><FontAwesomeIcon icon={faTrash}/></Button>
+                  ><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>
                 ) : (
-                  <Button
+                  <IconTooltipButton label={t('common:actions.remove')}
                     flat
-                    iconButton
+                   
                     variant="primary"
                     onClick={() => {
                       setState(prev => ({
@@ -166,7 +167,7 @@ export const CartItem = ({ item, index }: Props) => {
                         })
                       }))
                     }}
-                  ><FontAwesomeIcon icon={faMinus}/></Button>
+                  ><FontAwesomeIcon icon={faMinus}/></IconTooltipButton>
                 )}
               </>
             )}
@@ -175,14 +176,14 @@ export const CartItem = ({ item, index }: Props) => {
               <>
                 <span className="p-2 px-3 justify-center items-center flat !bg-white">{item.quantity}</span>
                 {/*{item.deleted_at === undefined && (*/}
-                {/*  <Button*/}
+                {/*  <IconTooltipButton label={t('common:actions.remove')}*/}
                 {/*    flat*/}
-                {/*    iconButton*/}
+                {/*   */}
                 {/*    variant={'danger'}*/}
                 {/*    onClick={() => {*/}
                 {/*      deleteOrderItem(item)*/}
                 {/*    }}*/}
-                {/*  ><FontAwesomeIcon icon={faTrash}/></Button>*/}
+                {/*  ><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>*/}
                 {/*)}*/}
 
               </>
@@ -192,23 +193,23 @@ export const CartItem = ({ item, index }: Props) => {
             <div>
               {item.newOrOld === MenuItemType.new && item?.selectedGroups?.length > 0 && (
                 <>
-                  <Button
+                  <IconTooltipButton label={t('common:actions.edit')}
                     flat
                     variant="primary"
-                    iconButton
+                   
                     onClick={() => {
                       setModifiersOpen(true)
                     }}
                     className="mr-2 !rounded-none"
-                  ><FontAwesomeIcon icon={faPencil}/></Button>
+                  ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
                 </>
               )}
               {item.newOrOld === MenuItemType.new && (
                 <>
-                  <Button
+                  <IconTooltipButton label={t('common:actions.comment')}
                     flat
                     variant="primary"
-                    iconButton
+                   
                     onClick={() => {
                       setCommentText(item.comments || "");
                       setCommentKeyboardOpen(true);
@@ -216,7 +217,7 @@ export const CartItem = ({ item, index }: Props) => {
                     className="!rounded-none"
                   >
                     <FontAwesomeIcon icon={faComment}/>
-                  </Button>
+                  </IconTooltipButton>
                 </>
               )}
             </div>

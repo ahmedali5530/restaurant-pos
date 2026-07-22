@@ -9,6 +9,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {useDB} from "@/api/db/db.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input} from "@/components/common/input/input.tsx";
+import {InputField} from "@/components/common/form/rhf-fields.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 
 interface InventoryCategoryFormValues {
@@ -32,7 +33,7 @@ export const InventoryCategoryForm = ({open, onClose, data}: Props) => {
   const { t } = useTranslation('inventory');
   const db = useDB();
 
-  const {register, handleSubmit, formState: {errors}, reset, control} = useForm({
+  const {handleSubmit, formState: {errors}, reset, control} = useForm({
     resolver: yupResolver(validationSchema),
   });
 
@@ -83,7 +84,7 @@ export const InventoryCategoryForm = ({open, onClose, data}: Props) => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-3 mb-3">
           <div className="flex-1">
-            <Input label={t('columns.name')} {...register("name")} autoFocus error={errors?.name?.message} />
+            <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message} />
           </div>
           <div className="flex-1">
             <Controller

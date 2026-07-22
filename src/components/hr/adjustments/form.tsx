@@ -12,9 +12,8 @@ import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Employee} from "@/api/model/employee.ts";
 import {PayrollPeriod} from "@/api/model/payroll_period.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
-import {HrDateField, HrSelectField, HrStringSelectField} from "@/components/hr/shared/form-field.tsx";
+import {HrDateField, HrInputField, HrSelectField, HrStringSelectField} from "@/components/hr/shared/form-field.tsx";
 import {
   SelectOption,
   calendarDateToSurreal,
@@ -194,10 +193,21 @@ export const AdjustmentForm = ({open, onClose, data}: Props) => {
             />
             <p className="text-sm text-neutral-600">{t("forms.adjustment.signHint")}</p>
             <div>
-              <Input type="number" step="0.01" label={t("forms.adjustment.amount")} {...register("amount", {valueAsNumber: true})} error={errors.amount?.message}/>
+              <HrInputField
+                type="number"
+                step="0.01"
+                name="amount"
+                control={control}
+                label={t("forms.adjustment.amount")}
+                error={errors.amount?.message}
+              />
             </div>
             <div>
-              <Input label={t("forms.adjustment.currency")} {...register("currency")}/>
+              <HrInputField
+                name="currency"
+                control={control}
+                label={t("forms.adjustment.currency")}
+              />
             </div>
             <HrDateField
               label={t("forms.adjustment.effectiveDate")}
@@ -206,7 +216,11 @@ export const AdjustmentForm = ({open, onClose, data}: Props) => {
               error={errors.effective_date?.message}
             />
             <div>
-              <Input label={t("forms.adjustment.description")} {...register("description")}/>
+              <HrInputField
+                name="description"
+                control={control}
+                label={t("forms.adjustment.description")}
+              />
             </div>
           </div>
           <Button type="submit" variant="primary">{t("buttons.save")}</Button>

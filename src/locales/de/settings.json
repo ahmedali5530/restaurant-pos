@@ -37,8 +37,14 @@
   },
   "printers": {
     "title": "Standarddrucker",
-    "description": "Druckerzuweisungen werden pro Benutzer gespeichert. Jeder Benutzer kann Drucker für Zwischen-, End-, Rückerstattungs-, Liefer- und Zusammenfassungsdruck zuweisen. Wenn keine gesetzt sind, werden globale Einstellungen als Fallback verwendet.",
+    "description": "Weisen Sie Drucker pro Benutzer oder für dieses Terminal zu. Wenn Systemdrucker aktiviert sind, nutzen Zwischen-, End-, Rückerstattungs- und Zusammenfassungsdruck die Zuweisungen dieses Geräts. Lieferdruck verwendet immer Benutzer- oder globale Einstellungen.",
     "loading": "Druckereinstellungen werden geladen…",
+    "useSystemPrinters": "Systemdrucker auf diesem Gerät verwenden",
+    "useSystemPrintersDescription": "Wenn aktiviert, verwendet dieser Browser/dieses Terminal die Systemdrucker unten statt der Drucker des angemeldeten Benutzers (außer Lieferung).",
+    "systemTitle": "Systemdrucker (dieses Gerät)",
+    "systemDescription": "Nur in diesem Browser gespeichert. Ideal für gemeinsame Terminals, damit in der Nähe gedruckt wird. Lieferung ist nicht enthalten — bleibt Benutzer- oder global.",
+    "userTitle": "Benutzerdrucker",
+    "userDescription": "Pro angemeldetem Benutzer gespeichert. Werden verwendet, wenn Systemdrucker aus sind, und immer für Lieferung.",
     "tempPrint": "Drucker für Zwischenrechnung",
     "finalPrint": "Drucker für Endrechnung",
     "refundPrint": "Drucker für Rückerstattung",
@@ -157,5 +163,26 @@
     "dialogTitle": "Neuigkeiten",
     "versionLabel": "Version {{version}}",
     "previousReleases": "Frühere Versionen"
+  },
+  "sessionSecurity": {
+    "title": "Sitzungssicherheit",
+    "description": "Diesen Benutzer nach einer Inaktivitätsdauer automatisch sperren oder abmelden. Wählen Sie eine Aktion.",
+    "idleMinutes": "Minuten Inaktivität (z. B. 0,1 ≈ 6 Sekunden)",
+    "action": "Aktion",
+    "actionLock": "Sperren",
+    "actionLogout": "Abmelden",
+    "updated": "Sitzungssicherheitseinstellungen aktualisiert",
+    "saveDescription": "Sitzungssicherheitseinstellungen speichern",
+    "loginRequired": "Sie müssen angemeldet sein, um die Sitzungssicherheit zu speichern"
+  },
+  "autoClockOut": {
+    "title": "Automatisches Ausstempeln",
+    "description": "Stempelt den angemeldeten Benutzer automatisch aus, wenn die Schicht endet und/oder zu einer festen Tageszeit. Bevorzugt die geplante Schicht, sonst die zugewiesene Schicht. Gilt für alle Benutzer.",
+    "onShiftEnd": "Bei Schichtende ausstempeln",
+    "onDefinedTime": "Zu einer festgelegten Zeit ausstempeln",
+    "definedTime": "Ausstempelzeit",
+    "triggerRequired": "Aktivieren Sie Schichtende und/oder eine festgelegte Zeit, wenn Auto-Ausstempeln eingeschaltet ist",
+    "updated": "Einstellungen für automatisches Ausstempeln aktualisiert",
+    "saveDescription": "Einstellungen für automatisches Ausstempeln speichern"
   }
 }

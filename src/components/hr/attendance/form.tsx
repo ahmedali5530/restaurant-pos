@@ -10,9 +10,8 @@ import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Employee} from "@/api/model/employee.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
-import {HrDateTimeField, HrSelectField} from "@/components/hr/shared/form-field.tsx";
+import {HrDateTimeField, HrInputField, HrSelectField} from "@/components/hr/shared/form-field.tsx";
 import {SelectOption, dayjsToSurreal, firstFormError} from "@/components/hr/shared/form.utils.ts";
 import {createManualEntry} from "@/lib/labor-engine/attendance/attendance.service.ts";
 import {useAtom} from "jotai";
@@ -43,7 +42,7 @@ export const AttendanceManualForm = ({open, onClose}: Props) => {
   const [page] = useAtom(appPage);
   const employeesHook = useApi<SettingsData<Employee>>(Tables.employees, [], [], 0, 500, []);
 
-  const {register, handleSubmit, control, reset, formState: {errors}} = useForm<FormValues>({
+  const {handleSubmit, control, reset, formState: {errors}} = useForm<FormValues>({
     resolver: yupResolver(validationSchema) as never,
   });
 
@@ -126,7 +125,11 @@ export const AttendanceManualForm = ({open, onClose}: Props) => {
             </div>
           </div>
           <div>
-            <Input label={t("columns.notes")} {...register("notes")}/>
+            <HrInputField
+              name="notes"
+              control={control}
+              label={t("columns.notes")}
+            />
           </div>
         </div>
         <Button type="submit" variant="primary">{t("buttons.save")}</Button>

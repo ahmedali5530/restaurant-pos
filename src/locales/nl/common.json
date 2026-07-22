@@ -26,6 +26,7 @@
     "import": "Importeren",
     "upload": "Uploaden",
     "download": "Downloaden",
+    "downloadTemplate": "Sjabloon downloaden",
     "select": "Selecteren",
     "selectAll": "Alles selecteren",
     "deselectAll": "Alles deselecteren",
@@ -38,6 +39,8 @@
     "continue": "Doorgaan",
     "done": "Klaar",
     "remove": "Verwijderen",
+    "moveUp": "Omhoog",
+    "moveDown": "Omlaag",
     "duplicate": "Dupliceren",
     "copy": "Kopiëren",
     "filter": "Filteren",
@@ -69,7 +72,20 @@
     "success": "Geslaagd",
     "error": "Fout",
     "warning": "Waarschuwing",
-    "info": "Info"
+    "info": "Info",
+    "approve": "Goedkeuren",
+    "reject": "Afwijzen",
+    "publish": "Publiceren",
+    "unpublish": "Depubliceren",
+    "logout": "Uitloggen",
+    "lock": "Vergrendelen",
+    "void": "Annuleren",
+    "hold": "Vasthouden",
+    "fire": "Verzenden",
+    "revision": "Revisie",
+    "comment": "Opmerking",
+    "settings": "Instellingen",
+    "clock": "Klok"
   },
   "database": {
     "connectionError": "Verbindingsfout",
@@ -98,6 +114,9 @@
     "title": "Pagina niet gevonden",
     "description": "De pagina die je zoekt bestaat niet of is verplaatst.",
     "backToMenu": "Terug naar menu"
+  },
+  "documentTitle": {
+    "app": "Restaurant POS"
   },
   "loading": "Laden..."
 }

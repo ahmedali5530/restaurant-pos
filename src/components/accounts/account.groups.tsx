@@ -13,9 +13,10 @@ import {useDB} from "@/api/db/db.ts";
 import {AccountGroup} from "@/api/model/account.group.ts";
 import {CreateAccountGroup} from "@/components/accounts/create.account.group.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 export const AccountGroups = () => {
-  const {t} = useTranslation('accounts');
+  const {t} = useTranslation(['accounts', 'common']);
   const db = useDB();
   const [modal, setModal] = useState(false);
   const [operation, setOperation] = useState<"create" | "update">("create");
@@ -59,7 +60,7 @@ export const AccountGroups = () => {
         const current = info.row.original;
         return (
           <>
-            <Button
+            <IconTooltipButton label={t('common:actions.edit')}
               type="button"
               variant="primary"
               className="w-[40px]"
@@ -71,7 +72,7 @@ export const AccountGroups = () => {
               tabIndex={-1}
             >
               <FontAwesomeIcon icon={faPencilAlt}/>
-            </Button>
+            </IconTooltipButton>
             <span className="mx-2 text-gray-300">|</span>
             <Switch
               checked={current.is_active}

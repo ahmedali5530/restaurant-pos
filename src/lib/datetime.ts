@@ -166,3 +166,6 @@ export const toJsDate = (value?: DateInput): Date => {
 
   return new Date();
 };
+
+export const formatDateTime = (value?: DateInput): string =>
+  toLuxonDateTime(value).toFormat(import.meta.env.VITE_DATE_TIME_FORMAT as string);

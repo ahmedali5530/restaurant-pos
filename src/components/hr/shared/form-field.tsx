@@ -9,6 +9,7 @@ export {
   DateTimeField as HrDateTimeField,
   CheckboxField as HrCheckboxField,
   TimeField as HrTimeField,
+  InputField as HrInputField,
 } from '@/components/common/form/rhf-fields.tsx';
 
 type StringSelectFieldProps<T extends FieldValues = FieldValues> = Omit<

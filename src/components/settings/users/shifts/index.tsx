@@ -6,6 +6,7 @@ import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { Tables } from "@/api/db/tables.ts";
 import { Shift } from "@/api/model/shift.ts";
 import { Button } from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { TableComponent } from "@/components/common/table/table.tsx";
 import { ShiftForm } from "@/components/settings/users/shifts/shift.form.tsx";
 import { shiftDisplayTime } from "@/lib/shift.utils.ts";
@@ -39,15 +40,13 @@ export const AdminShifts = () => {
       enableColumnFilter: false,
       cell: (info) => (
         <div className="flex gap-3 items-center">
-          <Button
+          <IconTooltipButton label={t('common:actions.edit')}
             variant="primary"
             onClick={() => {
               setData(info.row.original);
               setFormModal(true);
             }}
-          >
-            <FontAwesomeIcon icon={faPencil} />
-          </Button>
+          ><FontAwesomeIcon icon={faPencil} /></IconTooltipButton>
           <div className="separator"></div>
           <DeleteConfirm
             message={t('delete.shift', { name: info.row.original.name })}

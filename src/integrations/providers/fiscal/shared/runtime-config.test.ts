@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  collectFiscalQrsForPrint,
   parseFiscalRuntimeConfig,
   pickPreferredFiscalQr,
 } from '@/integrations/providers/fiscal/shared/runtime-config.ts';
@@ -52,5 +53,63 @@ describe('pickPreferredFiscalQr', () => {
         'provider:pra': { success: false, qrPriority: 100 },
       })
     ).toEqual({});
+  });
+});
+
+describe('collectFiscalQrsForPrint', () => {
+  it('returns all successful QRs sorted by qrPriority desc', () => {
+    const items = collectFiscalQrsForPrint({
+      'provider:fbr': {
+        success: true,
+        invoiceNumber: 'FBR-1',
+        qrPriority: 50,
+        description: 'FBR',
+      },
+      'provider:pra': {
+        success: true,
+        invoiceNumber: 'PRA-9',
+        qrPriority: 100,
+        description: 'PRA',
+      },
+      'provider:zatca': {
+        success: true,
+        invoiceNumber: 'ZATCA-3',
+        qrPriority: 80,
+        description: 'ZATCA',
+      },
+    });
+
+    expect(items.map((i) => i.providerId)).toEqual([
+      'provider:pra',
+      'provider:zatca',
+      'provider:fbr',
+    ]);
+    expect(items[0]).toMatchObject({
+      value: 'PRA-9',
+      description: 'PRA',
+      qrPriority: 100,
+    });
+  });
+
+  it('skips failed providers and missing QR values', () => {
+    const items = collectFiscalQrsForPrint({
+      'provider:pra': { success: false, invoiceNumber: 'PRA-9', qrPriority: 100 },
+      'provider:fbr': { success: true, qrPriority: 50 },
+      'provider:zatca': {
+        success: true,
+        qrcode: 'ZATCA-OK',
+        qrPriority: 80,
+        description: 'ZATCA',
+      },
+    });
+
+    expect(items).toEqual([
+      {
+        value: 'ZATCA-OK',
+        description: 'ZATCA',
+        providerId: 'provider:zatca',
+        qrPriority: 80,
+      },
+    ]);
   });
 });

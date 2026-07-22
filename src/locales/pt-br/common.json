@@ -26,6 +26,7 @@
     "import": "Importar",
     "upload": "Enviar",
     "download": "Baixar",
+    "downloadTemplate": "Baixar modelo",
     "select": "Selecionar",
     "selectAll": "Selecionar tudo",
     "deselectAll": "Desmarcar tudo",
@@ -38,6 +39,8 @@
     "continue": "Continuar",
     "done": "Concluído",
     "remove": "Remover",
+    "moveUp": "Mover para cima",
+    "moveDown": "Mover para baixo",
     "duplicate": "Duplicar",
     "copy": "Copiar",
     "filter": "Filtrar",
@@ -69,7 +72,20 @@
     "success": "Sucesso",
     "error": "Erro",
     "warning": "Aviso",
-    "info": "Informação"
+    "info": "Informação",
+    "approve": "Aprovar",
+    "reject": "Rejeitar",
+    "publish": "Publicar",
+    "unpublish": "Despublicar",
+    "logout": "Sair",
+    "lock": "Bloquear",
+    "void": "Anular",
+    "hold": "Reter",
+    "fire": "Enviar",
+    "revision": "Revisão",
+    "comment": "Comentário",
+    "settings": "Configurações",
+    "clock": "Ponto"
   },
   "database": {
     "connectionError": "Erro de conexão",
@@ -98,6 +114,9 @@
     "title": "Página não encontrada",
     "description": "A página que você procura não existe ou foi movida.",
     "backToMenu": "Voltar ao menu"
+  },
+  "documentTitle": {
+    "app": "PDV Restaurante"
   },
   "loading": "Carregando..."
 }

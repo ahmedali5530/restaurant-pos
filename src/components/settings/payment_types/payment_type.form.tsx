@@ -1,6 +1,8 @@
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input } from "@/components/common/input/input.tsx";
+import { InputField } from "@/components/common/form/rhf-fields.tsx";
 import { Button } from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { Controller, useForm } from "react-hook-form";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
@@ -165,7 +167,7 @@ export const PaymentTypeForm = ({
     enabled: false
   });
 
-  const { register, control, handleSubmit, formState: {errors}, reset, watch } = useForm({
+  const { control, handleSubmit, formState: {errors}, reset, watch } = useForm({
     resolver: zodResolver(validationSchema)
   });
 
@@ -262,7 +264,7 @@ export const PaymentTypeForm = ({
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <Input label={t('columns.name')} {...register('name')} autoFocus error={errors?.name?.message}/>
+              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message}/>
             </div>
             <div className="flex-1">
               <Controller
@@ -350,12 +352,13 @@ export const PaymentTypeForm = ({
               <h4 className="font-medium mb-3">Gateway Keys</h4>
               <div className="grid grid-cols-2 gap-3 mb-3">
                 {selectedGatewayDescriptor.fields.map((field) => (
-                  <Input
+                  <InputField
                     key={field.configKey}
+                    name={`gateway_config.${field.configKey}`}
+                    control={control}
                     label={field.label}
                     type={field.type === "password" ? "password" : "text"}
                     placeholder={field.placeholder}
-                    {...register(`gateway_config.${field.configKey}`)}
                   />
                 ))}
               </div>
@@ -386,9 +389,7 @@ export const PaymentTypeForm = ({
                 control={control}
               />
             </div>
-            <Button type="button" variant="primary" iconButton onClick={() => setTaxModal(true)}>
-              <FontAwesomeIcon icon={faPlus}/>
-            </Button>
+            <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setTaxModal(true)}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
           </div>
 
           <div className="flex gap-2 items-end mb-3">
@@ -411,9 +412,7 @@ export const PaymentTypeForm = ({
               />
               <span className="text-sm text-neutral-500">Only fixed amount discounts can be applied</span>
             </div>
-            <Button type="button" variant="primary" iconButton onClick={() => setDiscountsModal(true)}>
-              <FontAwesomeIcon icon={faPlus}/>
-            </Button>
+            <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setDiscountsModal(true)}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
           </div>
 
           <div>

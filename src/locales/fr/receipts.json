@@ -35,6 +35,7 @@
   "kot": "KOT",
   "newOrder": "Nouvelle commande",
   "addon": "AJOUT",
+  "duplicateKot": "DUPLICATA",
   "deletion": "SUPPRESSION",
   "orderNumber": "Commande#",
   "orderTaker": "Preneur",

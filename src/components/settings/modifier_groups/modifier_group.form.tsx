@@ -1,6 +1,8 @@
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input } from "@/components/common/input/input.tsx";
+import { InputField } from "@/components/common/form/rhf-fields.tsx";
 import { Button } from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
@@ -190,16 +192,15 @@ const ModifierNextGroups = ({
                   {row.out.name}
                 </Switch>
                 {checked && (
-                  <Button
+                  <IconTooltipButton
+                    label={t('common:actions.edit')}
                     type="button"
                     variant={isGroupModified(groupId) ? 'warning' : 'secondary'}
                     filled
                     flat
                     onClick={() => openCustomize(groupId, row.out.name)}
                     icon={faPencil}
-                    iconButton
-                  >
-                  </Button>
+                  />
                 )}
               </div>
             );
@@ -241,7 +242,7 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
 
   const db = useDB();
 
-  const { register, control, handleSubmit, formState: { errors }, reset, setValue } = useForm({
+  const { control, handleSubmit, formState: { errors }, reset, setValue } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       modifiers: []
@@ -387,7 +388,7 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-3 flex gap-3">
             <div>
-              <Input label={t('columns.name')} {...register('name')} autoFocus error={errors?.name?.message}/>
+              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message}/>
             </div>
             <div>
               <Controller
@@ -477,9 +478,7 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
                   </div>
                   <div className="self-start flex flex-col">
                     <label htmlFor="">&nbsp;</label>
-                    <Button iconButton variant="danger" type="button" onClick={() => remove(index)}>
-                      <FontAwesomeIcon icon={faTrash} />
-                    </Button>
+                    <IconTooltipButton label={t('common:actions.remove')} variant="danger" type="button" onClick={() => remove(index)}><FontAwesomeIcon icon={faTrash} /></IconTooltipButton>
                   </div>
                   <ModifierNextGroups
                     index={index}

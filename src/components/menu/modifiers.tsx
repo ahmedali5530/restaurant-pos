@@ -25,6 +25,7 @@ import {
   updateModifierNestedGroups,
 } from "@/lib/modifier-groups.ts";
 import {useTranslation} from "react-i18next";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 interface Props {
   dish?: Dish
@@ -62,7 +63,7 @@ const NestedModifiersSummary = ({groups}: { groups: CartModifierGroup[] }) => (
 export const MenuDishModifiers = (props: Props) => {
   const [state] = useAtom(appState);
   const [, setAlert] = useAtom(appAlert);
-  const { t } = useTranslation('menu');
+  const { t } = useTranslation(['menu', 'common']);
 
   const [groups, setGroups] = useState(() => cloneCartModifierGroups(props.groups));
   const [group, setGroup] = useState<CartModifierGroup>();
@@ -385,16 +386,16 @@ export const MenuDishModifiers = (props: Props) => {
                   <span className="font-bold">{getGroupSidebarLabel(g, groups)}</span>
                   {(g.selectedModifiers ?? []).map((m, mIndex) => (
                     <div key={mIndex} className="mb-2 flex items-start gap-3">
-                      <Button
+                      <IconTooltipButton label={t('common:actions.edit')}
                         className="shrink-0"
                         size="lg"
                         variant="danger"
                         flat
-                        iconButton
+                       
                         onClick={() => removeItem(g, mIndex)}
                       >
                         <FontAwesomeIcon icon={faTimes}/>
-                      </Button>
+                      </IconTooltipButton>
                       <div className="min-w-0 flex-1">
                         {m?.selectedGroups?.length > 0 ? (
                           <>

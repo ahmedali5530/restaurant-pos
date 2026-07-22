@@ -5,6 +5,7 @@ import * as yup from "yup";
 import { toast } from "sonner";
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input } from "@/components/common/input/input.tsx";
+import { InputField } from "@/components/common/form/rhf-fields.tsx";
 import { Button } from "@/components/common/input/button.tsx";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
@@ -133,7 +134,7 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
     roles: yup.array().of(yup.string()).default([]).min(1, t('validation:required')),
   }), [t]);
 
-  const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<RoleFormValues>({
+  const { control, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<RoleFormValues>({
     resolver: yupResolver(validationSchema) as Resolver<RoleFormValues>,
     defaultValues: {
       name: "",
@@ -200,7 +201,7 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-3 mb-3">
           <div className="flex-1">
-            <Input label={t('forms.roleName')} {...register("name")} autoFocus error={errors?.name?.message} />
+            <InputField name="name" control={control} label={t('forms.roleName')} autoFocus error={errors?.name?.message} />
           </div>
         </div>
         

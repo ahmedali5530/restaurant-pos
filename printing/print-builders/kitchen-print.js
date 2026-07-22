@@ -41,13 +41,14 @@ function getTableLabel(data) {
 
 /**
  * Kitchen print builder (KOT).
- * Expects data: { order, items, kitchenName?, table?, isAddOn? }
+ * Expects data: { order, items, kitchenName?, table?, isAddOn?, duplicate? }
  */
 function build(printer, data = {}, config = {}) {
   const order = data.order;
   const items = Array.isArray(data.items) ? data.items : [];
   const kitchenName = data.kitchenName || '';
   const isAddOn = !!data.isAddOn;
+  const isDuplicate = !!data.duplicate;
   const cfg = normalizeConfig(config);
 
   const orderId = order ? getOrderId(order) : '';
@@ -58,11 +59,14 @@ function build(printer, data = {}, config = {}) {
   const printItems = mapPrintItems(items);
 
   const L = cfg.labels || {};
+  const bannerLabel = isDuplicate
+    ? (L.duplicateKot || 'DUPLICATE')
+    : (isAddOn ? (L.addon || 'ADDON') : (L.newOrder || 'New Order'));
 
   return printReceiptHeader(printer, cfg).then(() => {
     printKotHeader(printer, {
       kitchenName,
-      bannerLabel: isAddOn ? (L.addon || 'ADDON') : (L.newOrder || 'New Order'),
+      bannerLabel,
       orderId,
       table,
       orderType,

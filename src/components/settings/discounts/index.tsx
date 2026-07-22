@@ -3,6 +3,7 @@ import {Tables} from "@/api/db/tables.ts";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {createColumnHelper} from "@tanstack/react-table";
 import {Button} from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPencil, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {TableComponent} from "@/components/common/table/table.tsx";
@@ -76,10 +77,10 @@ export const AdminDiscounts = () => {
       enableColumnFilter: false,
       cell: (info) => (
         <div className="flex gap-3 items-center">
-          <Button variant="primary" onClick={() => {
+          <IconTooltipButton label={t('common:actions.edit')} variant="primary" onClick={() => {
             setData(info.row.original);
             setFormModal(true);
-          }}><FontAwesomeIcon icon={faPencil}/></Button>
+          }}><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
           <DeleteConfirm
             message={t('delete.discount', {name: info.row.original.name})}
             onConfirm={() => deleteItem(info.row.original.id)}

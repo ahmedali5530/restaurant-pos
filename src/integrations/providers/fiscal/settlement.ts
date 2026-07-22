@@ -10,7 +10,9 @@ import { ORDER_PAYMENT_FETCHES, parseOrderQueryResult } from '@/api/model/order.
 import {
   persistFiscalSubmissionsForOrder,
   resolveFiscalQrcodeForPrint,
+  resolveFiscalQrcodesForPrint,
 } from '@/integrations/storage/order-fiscal-repository.ts';
+import { FiscalQrPrintItem } from '@/integrations/providers/fiscal/shared/runtime-config.ts';
 
 type DbLike = {
   query: <R extends unknown[] = any[]>(sql: string, parameters?: Record<string, unknown>) => Promise<R>;
@@ -39,6 +41,7 @@ export const persistFiscalSettlement = async (
   return {
     ...result,
     qrcode: persisted.qrcode ?? result.qrcode,
+    qrcodes: persisted.qrcodes ?? result.qrcodes,
     fiscalInvoiceNumber: persisted.qrcode ?? result.fiscalInvoiceNumber,
     fiscalProviderId: persisted.selected?.provider_id ?? result.fiscalProviderId,
   } satisfies FiscalSettlementResult;
@@ -64,6 +67,13 @@ export const fiscalShouldBlockBeforePaid = async (
   return shouldBlockSettlementForFiscal(manager, (providerId) =>
     getIntegrationProviderConfig(db, providerId)
   );
+};
+
+export const getFiscalQrcodesForOrderPrint = async (
+  db: DbLike,
+  orderId: unknown
+): Promise<FiscalQrPrintItem[]> => {
+  return resolveFiscalQrcodesForPrint(db, orderId);
 };
 
 export const getFiscalQrcodeForOrderPrint = async (db: DbLike, orderId: unknown) => {

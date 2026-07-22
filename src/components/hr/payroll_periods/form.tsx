@@ -9,9 +9,8 @@ import {PayrollPeriod} from "@/api/model/payroll_period.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {useDB} from "@/api/db/db.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
-import {HrDateField, HrStringSelectField} from "@/components/hr/shared/form-field.tsx";
+import {HrDateField, HrInputField, HrStringSelectField} from "@/components/hr/shared/form-field.tsx";
 import {
   calendarDateToSurreal,
   enumLocaleKey,
@@ -52,7 +51,7 @@ export const PayrollPeriodForm = ({open, onClose, data}: Props) => {
   const {t} = useTranslation("hr");
   const db = useDB();
 
-  const {register, handleSubmit, control, reset, formState: {errors}} = useForm({
+  const {handleSubmit, control, reset, formState: {errors}} = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {period_type: "monthly", status: "open"},
   });
@@ -119,7 +118,13 @@ export const PayrollPeriodForm = ({open, onClose, data}: Props) => {
         {/*<input type="hidden" {...register("id")} />*/}
         <div className="flex flex-col gap-3 mb-3">
           <div>
-            <Input label={t("forms.payroll.periodName")} {...register("name")} autoFocus error={errors.name?.message}/>
+            <HrInputField
+              name="name"
+              control={control}
+              label={t("forms.payroll.periodName")}
+              autoFocus
+              error={errors.name?.message}
+            />
           </div>
           <HrStringSelectField
             label={t("forms.payroll.periodType")}

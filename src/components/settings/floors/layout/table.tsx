@@ -4,6 +4,7 @@ import { useMove } from 'react-aria';
 import { cn, withCurrency } from "@/lib/utils.ts";
 import { useDB } from "@/api/db/db.ts";
 import { Button } from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { Popover } from "@/components/common/react-aria/popover.tsx";
 import { DialogTrigger } from "react-aria-components";
 import {
@@ -225,7 +226,7 @@ export const FloorTable = ({
       {isEditing && (
         <>
           <DialogTrigger>
-            <Button
+            <IconTooltipButton label={t('forms.tableOptions')}
               variant="custom"
               onClick={(e) => e.stopPropagation()}
               style={{
@@ -238,7 +239,7 @@ export const FloorTable = ({
               className="absolute top-0 right-0"
             >
               <FontAwesomeIcon icon={faEllipsisVertical}/>
-            </Button>
+            </IconTooltipButton>
             <Popover>
               <div className="w-[250px] p-3 flex gap-5 flex-col">
                 <Slider value={settings.height} label={t('forms.height')} onChange={(value) => setSettings(prev => ({
@@ -251,30 +252,30 @@ export const FloorTable = ({
                 }))} step={10} maxValue={maxHeightWidth} minValue={minHeightWidth}/>
                 <div className="mb-3">
                   <div className="flex gap-3">
-                    <Button variant="primary" flat active={settings.rounded === 'rounded-none'} onClick={() => {
+                    <IconTooltipButton label={t('forms.roundnessSquare')} variant="primary" flat active={settings.rounded === 'rounded-none'} onClick={() => {
                       setSettings(prev => ({
                         ...prev,
                         rounded: 'rounded-none'
                       }))
                     }}>
                       <FontAwesomeIcon icon={faSquareFull} size="2x"/>
-                    </Button>
-                    <Button variant="primary" flat active={settings.rounded === 'rounded-xl'} onClick={() => {
+                    </IconTooltipButton>
+                    <IconTooltipButton label={t('forms.roundnessRounded')} variant="primary" flat active={settings.rounded === 'rounded-xl'} onClick={() => {
                       setSettings(prev => ({
                         ...prev,
                         rounded: 'rounded-xl'
                       }))
                     }}>
                       <FontAwesomeIcon icon={faSquare} size="2x"/>
-                    </Button>
-                    <Button variant="primary" flat active={settings.rounded === 'rounded-full'} onClick={() => {
+                    </IconTooltipButton>
+                    <IconTooltipButton label={t('forms.roundnessCircle')} variant="primary" flat active={settings.rounded === 'rounded-full'} onClick={() => {
                       setSettings(prev => ({
                         ...prev,
                         rounded: 'rounded-full'
                       }))
                     }}>
                       <FontAwesomeIcon icon={faCircle} size="2x"/>
-                    </Button>
+                    </IconTooltipButton>
                   </div>
                 </div>
                 <div className="mb-3 flex flex-col gap-3">

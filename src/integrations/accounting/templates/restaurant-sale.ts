@@ -64,12 +64,3 @@ export const restaurantSaleTemplate: JournalTemplate = {
     },
   ],
 };
-
-const TEMPLATES: Record<string, JournalTemplate> = {
-  [RESTAURANT_SALE_TEMPLATE_ID]: restaurantSaleTemplate,
-};
-
-export const getJournalTemplate = (templateId: string): JournalTemplate | undefined =>
-  TEMPLATES[templateId];
-
-export const listJournalTemplates = (): JournalTemplate[] => Object.values(TEMPLATES);

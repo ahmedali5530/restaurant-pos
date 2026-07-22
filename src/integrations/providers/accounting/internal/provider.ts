@@ -12,7 +12,7 @@ import { nowSurrealDateTime, toJsDate } from '@/lib/datetime.ts';
 import { accountingPostingEngine } from '@/integrations/accounting/posting-engine.ts';
 import {
   parseInternalAccountingConfig,
-  validateSaleAccountMapping,
+  validateAccountingAccountMapping,
 } from '@/integrations/accounting/mapping/account-mapping.ts';
 import { JournalDraftRequest } from '@/integrations/accounting/types.ts';
 import {
@@ -76,10 +76,13 @@ const schema: ProviderConfigurationSchema = {
         { key: 'CASH_MAIN', label: 'Cash', type: 'account', required: true },
         { key: 'CARD_RECEIVABLE', label: 'Card Receivable', type: 'account', required: true },
         { key: 'OTHER_RECEIVABLE', label: 'Other Receivable', type: 'account' },
-        { key: 'INVENTORY', label: 'Inventory', type: 'account' },
-        { key: 'COGS', label: 'Cost of Goods Sold', type: 'account' },
-        { key: 'PAYROLL_EXPENSE', label: 'Payroll Expense', type: 'account' },
-        { key: 'PAYROLL_LIABILITY', label: 'Payroll Liability', type: 'account' },
+        { key: 'INVENTORY', label: 'Inventory', type: 'account', required: true },
+        { key: 'COGS', label: 'Cost of Goods Sold', type: 'account', required: true },
+        { key: 'ACCOUNTS_PAYABLE', label: 'Accounts Payable', type: 'account', required: true },
+        { key: 'WASTE_EXPENSE', label: 'Waste Expense', type: 'account', required: true },
+        { key: 'INVENTORY_ADJUSTMENT', label: 'Inventory Adjustment', type: 'account', required: true },
+        { key: 'PAYROLL_EXPENSE', label: 'Payroll Expense', type: 'account', required: true },
+        { key: 'PAYROLL_LIABILITY', label: 'Payroll Liability', type: 'account', required: true },
       ],
     },
   ],
@@ -97,6 +100,7 @@ const manifest: ProviderManifest = {
   supportedEvents: [
     'SaleCompleted',
     'SaleRefunded',
+    'OrderCancelled',
     'InvoicePaid',
     'InvoiceVoided',
     'PurchaseReceived',
@@ -106,6 +110,8 @@ const manifest: ProviderManifest = {
     'PayrollPosted',
     'WasteRecorded',
     'InventoryAdjusted',
+    'InventoryIssued',
+    'IssueReturned',
     'InventoryPosted',
     'InventoryReversed',
     'StockCountCompleted',
@@ -181,7 +187,7 @@ export class InternalAccountingProvider implements IntegrationProvider {
 
   async validate() {
     const config = parseInternalAccountingConfig(await this.getConfig());
-    const mapping = validateSaleAccountMapping(config.accounts);
+    const mapping = validateAccountingAccountMapping(config.accounts);
     if (!mapping.valid) {
       return { valid: false, errors: mapping.errors };
     }
@@ -233,6 +239,15 @@ export class InternalAccountingProvider implements IntegrationProvider {
       console.warn(
         `[InternalAccountingProvider] Failed processing ${event.name}:`,
         result.error
+      );
+    } else if (result.skippedReason) {
+      console.warn(
+        `[InternalAccountingProvider] Skipped ${event.name}:`,
+        result.skippedReason
+      );
+    } else if (!result.handled) {
+      console.warn(
+        `[InternalAccountingProvider] Did not handle ${event.name}`
       );
     }
   }

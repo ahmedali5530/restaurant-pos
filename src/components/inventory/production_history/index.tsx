@@ -14,10 +14,11 @@ import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {useProductionBatchList} from "@/hooks/useProductionBatchList.ts";
 import {ProductionBatchViewModal} from "@/components/inventory/production_history/view.modal.tsx";
 import {recordToString} from "@/api/reports/shared/records.ts";
-import {toJsDate} from "@/lib/datetime.ts";
+import {formatDateTime} from "@/lib/datetime.ts";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 export const InventoryProductionHistory = () => {
-  const {t} = useTranslation("inventory");
+  const {t} = useTranslation(["inventory", 'common']);
   const loadHook = useProductionBatchList(0, 10);
 
   const {data: locations, fetchData: fetchLocations} = useApi<SettingsData<InventoryLocation>>(
@@ -90,7 +91,7 @@ export const InventoryProductionHistory = () => {
     columnHelper.accessor("batch_number", {header: t("production.batchNumber")}),
     columnHelper.accessor("created_at", {
       header: t("columns.createdAt"),
-      cell: (info) => toJsDate(info.getValue() as any).toLocaleString(),
+      cell: (info) => formatDateTime(info.getValue() as any),
     }),
     columnHelper.accessor((row) => row.recipe?.name ?? "", {
       id: "recipe",
@@ -111,16 +112,16 @@ export const InventoryProductionHistory = () => {
       header: t("columns.actions"),
       enableSorting: false,
       cell: (info) => (
-        <Button
+        <IconTooltipButton label={t('common:actions.view')}
           variant="secondary"
-          iconButton
+         
           onClick={() => {
             setViewBatchId(recordToString(info.getValue()));
             setViewOpen(true);
           }}
         >
           <FontAwesomeIcon icon={faFile} />
-        </Button>
+        </IconTooltipButton>
       ),
     }),
   ];

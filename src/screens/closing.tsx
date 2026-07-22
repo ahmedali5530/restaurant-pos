@@ -30,6 +30,8 @@ import {ClosingCycleWindow, resolveClosingWindow} from "@/lib/closing-cycle.ts";
 import {getCurrentCycleClosing, hasOpenOrdersInCurrentCycle} from "@/lib/closing.guard.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {useTranslation} from "react-i18next";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import { DocumentTitle } from "@/components/common/document-title.tsx";
 
 const DEFAULT_TERMINALS: TerminalCash[] = [
   {terminal_id: "terminal_1", terminal_name: "Terminal 1", cash_amount: 0},
@@ -71,7 +73,8 @@ const normalizeTerminalDenomination = (input?: Partial<TerminalDenomination>): T
 };
 
 export const Closing = () => {
-  const {t} = useTranslation(["closing", "toast"]);
+  const {t} = useTranslation(["closing", "toast", 'common']);
+  const {t: tNav} = useTranslation('navigation');
   const db = useDB();
   const [page] = useAtom(appPage);
   const {protectAction} = useSecurity();
@@ -482,6 +485,7 @@ export const Closing = () => {
   if (loading) {
     return (
       <Layout overflowHidden>
+        <DocumentTitle parts={[tNav('sidebar.closing')]} />
         <div className="h-[calc(100vh_-_30px)] flex justify-center items-center text-xl font-semibold">
           {t("closing:loading")}
         </div>
@@ -491,6 +495,7 @@ export const Closing = () => {
 
   return (
     <Layout overflowHidden>
+      <DocumentTitle parts={[tNav('sidebar.closing')]} />
       <ScrollContainer className="overflow-y-auto h-[calc(100vh_-_30px)] select-none">
         <div className="p-6">
           <h1 className="text-3xl font-bold mb-3 text-center">{t("closing:title", {date: today})}</h1>
@@ -557,10 +562,10 @@ export const Closing = () => {
                 <div key={terminal.terminal_id} className="border rounded-lg p-4">
                   <div className="flex justify-between items-center mb-4">
                     <label className="text-lg font-semibold">{terminal.terminal_name}</label>
-                    <Button
+                    <IconTooltipButton
+                      label={t('common:actions.remove')}
                       icon={faTrash}
                       size="lg"
-                      iconButton
                       variant="danger"
                       disabled={isReadOnly}
                       onClick={() => removeTerminal(terminal.terminal_id)}

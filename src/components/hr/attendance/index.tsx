@@ -6,7 +6,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {TimeEntry} from "@/api/model/time_entry.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {IconTooltipButton} from "@/components/common/input/icon.tooltip.button.tsx";
 import {faCheck, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {entityLabel, formatDisplayDate} from "@/components/hr/shared/form.utils.ts";
 import {AttendanceManualForm} from "@/components/hr/attendance/form.tsx";
@@ -95,13 +95,13 @@ export const HrAttendance = () => {
         const row = info.row.original;
         if (row.approval_status === "approved") return null;
         return (
-          <Button
+          <IconTooltipButton
+            label={t("buttons.approve")}
             variant="success"
+            icon={faCheck}
             disabled={approvingId === row.id}
             onClick={() => void handleApprove(row)}
-          >
-            <FontAwesomeIcon icon={faCheck}/>
-          </Button>
+          />
         );
       },
     }),

@@ -11,6 +11,7 @@ import { useDB } from "@/api/db/db.ts";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import { Input } from "@/components/common/input/input.tsx";
 import { Button } from "@/components/common/input/button.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {useTranslation} from 'react-i18next';
 
 interface RoleDistributionRow {
@@ -178,12 +179,10 @@ export const AdminTipDistribution = () => {
                   }}
                 />
               </div>
-              <Button
+              <IconTooltipButton label={t('common:actions.remove')}
                 variant="danger"
                 onClick={() => setRoleRows(prev => prev.filter((_, i) => i !== index))}
-              >
-                <FontAwesomeIcon icon={faTrash} />
-              </Button>
+              ><FontAwesomeIcon icon={faTrash} /></IconTooltipButton>
             </div>
           ))}
         </div>
@@ -251,12 +250,10 @@ export const AdminTipDistribution = () => {
                 />
               </div>
               
-              <Button
+              <IconTooltipButton label={t('common:actions.remove')}
                 variant="danger"
                 onClick={() => setUserRows(prev => prev.filter((_, i) => i !== index))}
-              >
-                <FontAwesomeIcon icon={faTrash} />
-              </Button>
+              ><FontAwesomeIcon icon={faTrash} /></IconTooltipButton>
             </div>
           ))}
         </div>

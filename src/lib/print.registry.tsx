@@ -1,10 +1,3 @@
-import {registerPrintTemplate} from "@/lib/print.service.ts";
-import React from "react";
-import {PrintPresaleBill} from "@/components/prints/presale.bill.tsx";
-import {PrintFinalBill} from "@/components/prints/final.bill.tsx";
-import {PrintRefundBill} from "@/components/prints/refund.bill.tsx";
-import {Summary} from "@/components/summary/summary.tsx";
-
 export enum PRINT_TYPE {
   presale_bill = 'temp',
   final_bill = 'final',
@@ -16,8 +9,5 @@ export enum PRINT_TYPE {
 }
 
 export function initializePrintTemplates() {
-
+  // ESC/POS builders handle receipt templates; React on-screen bills were removed.
 }
-
-
-

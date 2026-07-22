@@ -135,5 +135,14 @@
     "deactivated": "{{entity}} is in gebruik en is gedeactiveerd.",
     "deleted": "{{entity}} succesvol verwijderd.",
     "failed": "Verwijderen van {{entity}} mislukt."
+  },
+  "sessionSecurity": {
+    "autoLock": "Vergrendeld wegens inactiviteit",
+    "autoLogout": "Uitgelogd wegens inactiviteit"
+  },
+  "autoClockOut": {
+    "warning": "Automatisch uitklokken over {{countdown}}",
+    "clockedOut": "Automatisch uitgeklokt",
+    "failed": "Automatisch uitklokken mislukt"
   }
 }

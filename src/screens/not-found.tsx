@@ -3,6 +3,7 @@ import {useTranslation} from "react-i18next";
 import {MENU} from "@/routes/posr.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";
+import {DocumentTitle} from "@/components/common/document-title.tsx";
 
 const NotFoundIllustration = () => (
   <svg
@@ -103,6 +104,7 @@ export const NotFound = () => {
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center gap-8 overflow-hidden bg-neutral-900 px-6 py-12">
+      <DocumentTitle parts={[t('notFound.title')]} />
       <NotFoundIllustration/>
 
       <div className="z-10 flex max-w-md flex-col items-center gap-3 text-center">

@@ -22,6 +22,7 @@ import { AdminExtras } from "@/components/settings/extras";
 import { AdminCoupons } from "@/components/settings/coupons";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {useTranslation} from 'react-i18next';
+import {DocumentTitle} from "@/components/common/document-title.tsx";
 
 const ADMIN_TAB_KEYS = [
   'dishes',
@@ -90,6 +91,7 @@ export const Admin = () => {
   const [selected, setSelected] = useState<AdminTabKey>('dishes');
   const {protectAction} = useSecurity();
   const { t } = useTranslation('admin');
+  const { t: tNav } = useTranslation('navigation');
 
   const pages = useMemo(() => ({
     dishes: { component: <AdminDishes/>, title: t('tabs.dishes') },
@@ -113,6 +115,7 @@ export const Admin = () => {
 
   return (
     <Layout>
+      <DocumentTitle parts={[pages[selected].title, tNav('sidebar.manage')]} />
       <Tabs
         className="w-full flex flex-col"
         selectedKey={selected}

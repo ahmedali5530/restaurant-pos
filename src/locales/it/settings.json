@@ -37,8 +37,14 @@
   },
   "printers": {
     "title": "Stampanti predefinite",
-    "description": "Le assegnazioni stampante sono salvate per utente. Ogni utente può assegnare stampanti per preconto, conto finale, rimborso, consegna e riepilogo. Se non ne hai impostate, vengono usate le impostazioni globali come fallback.",
+    "description": "Assegna stampanti per utente o per questo terminale. Con le stampanti di sistema attive, preconto, finale, rimborso e riepilogo usano le assegnazioni di questo dispositivo. La consegna usa sempre impostazioni utente o globali.",
     "loading": "Caricamento impostazioni stampante…",
+    "useSystemPrinters": "Usa stampanti di sistema su questo dispositivo",
+    "useSystemPrintersDescription": "Se attivo, questo browser/terminale usa le stampanti di sistema sotto invece di quelle dell'utente collegato (tranne la consegna).",
+    "systemTitle": "Stampanti di sistema (questo dispositivo)",
+    "systemDescription": "Salvate solo in questo browser. Ideali per terminali condivisi per stampare su stampanti vicine. La consegna non è inclusa: resta utente o globale.",
+    "userTitle": "Stampanti utente",
+    "userDescription": "Salvate per utente collegato. Usate quando le stampanti di sistema sono disattivate, e sempre per la consegna.",
     "tempPrint": "Stampanti per preconto",
     "finalPrint": "Stampanti per conto finale",
     "refundPrint": "Stampanti per stampa rimborso",
@@ -157,5 +163,26 @@
     "dialogTitle": "Novità",
     "versionLabel": "Versione {{version}}",
     "previousReleases": "Versioni precedenti"
+  },
+  "sessionSecurity": {
+    "title": "Sicurezza sessione",
+    "description": "Blocca o disconnetti automaticamente questo utente dopo un periodo di inattività. Scegli un'azione.",
+    "idleMinutes": "Minuti di inattività (es. 0,1 ≈ 6 secondi)",
+    "action": "Azione",
+    "actionLock": "Blocca",
+    "actionLogout": "Esci",
+    "updated": "Impostazioni di sicurezza sessione aggiornate",
+    "saveDescription": "Salva impostazioni di sicurezza sessione",
+    "loginRequired": "Devi essere autenticato per salvare la sicurezza della sessione"
+  },
+  "autoClockOut": {
+    "title": "Uscita automatica",
+    "description": "Timbratura di uscita automatica a fine turno e/o a un orario fisso giornaliero. Usa il turno pianificato se presente, altrimenti il turno assegnato. Vale per tutti gli utenti.",
+    "onShiftEnd": "Timbrare uscita a fine turno",
+    "onDefinedTime": "Timbrare uscita a un orario definito",
+    "definedTime": "Orario di uscita",
+    "triggerRequired": "Abilita fine turno e/o un orario definito quando l'uscita automatica è attiva",
+    "updated": "Impostazioni uscita automatica aggiornate",
+    "saveDescription": "Salva impostazioni uscita automatica"
   }
 }

@@ -19,6 +19,7 @@ import { isOvernightShift } from "@/lib/shift.utils.ts";
 import { DateValue } from "react-aria-components";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import {useTranslation} from "react-i18next";
+import {DocumentTitle} from "@/components/common/document-title.tsx";
 
 interface DistributionRow {
   user: User
@@ -42,6 +43,7 @@ const normalizeId = (value: any): string => {
 
 export const TipDistributionScreen = () => {
   const {t} = useTranslation(["summary", "toast"]);
+  const {t: tNav} = useTranslation('navigation');
   const db = useDB();
   const [page] = useAtom(appPage);
 
@@ -197,6 +199,7 @@ export const TipDistributionScreen = () => {
 
   return (
     <Layout containerClassName="p-5 flex flex-col gap-5">
+      <DocumentTitle parts={[tNav('sidebar.tipDist')]} />
       <div className="bg-white rounded-xl shadow p-4 grid grid-cols-3 gap-4 items-end">
         <div>
           <label>{t("summary:tipDistribution.shift")}</label>

@@ -14,12 +14,13 @@ import {Tables} from "@/api/db/tables.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {createStageRows} from "@/lib/kitchen/workflow.service.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 export const CartActions = () => {
   const db = useDB();
   const [state, setState] = useAtom(appState);
   const [page] = useAtom(appPage);
-  const { t } = useTranslation(['cart', 'payment']);
+  const { t } = useTranslation(['cart', 'payment', 'common']);
   const [selected, setSelected] = useState(false);
 
   const hasNewItems = useMemo(() => {
@@ -226,30 +227,30 @@ export const CartActions = () => {
 
   return (
     <div className="flex gap-3">
-      <Button size="lg" iconButton variant="primary" onClick={toggleCartItems}>
+      <IconTooltipButton label={t('common:actions.selectAll')} size="lg" variant="primary" onClick={toggleCartItems}>
         <FontAwesomeIcon icon={faSquareCheck} size="lg"/>
-      </Button>
+      </IconTooltipButton>
       {hasNewItems && (
         <>
           <span className="bg-neutral-400 h-[48px] w-[2px]"></span>
-          <Button size="lg" iconButton variant="primary" onClick={copySelectedCartItems}>
+          <IconTooltipButton label={t('common:actions.copy')} size="lg" variant="primary" onClick={copySelectedCartItems}>
             <FontAwesomeIcon icon={faCopy} size="lg"/>
-          </Button>
-          <Button size="lg" iconButton variant="danger" onClick={deleteSelectedCartItems}>
+          </IconTooltipButton>
+          <IconTooltipButton label={t('common:actions.remove')} size="lg" variant="danger" onClick={deleteSelectedCartItems}>
             <FontAwesomeIcon icon={faTrash} size="lg"/>
-          </Button>
+          </IconTooltipButton>
         </>
       )}
 
 
       {hasHoldItems ? (
-        <Button size="lg" iconButton variant="success" onClick={fireSelectedCartItems}>
+        <IconTooltipButton label={t('common:actions.fire')} size="lg" variant="success" onClick={fireSelectedCartItems}>
           <FontAwesomeIcon icon={faPlay} size="lg"/>
-        </Button>
+        </IconTooltipButton>
       ) : (
-        <Button size="lg" iconButton variant="warning" onClick={toggleHoldSelectedCartItems}>
+        <IconTooltipButton label={t('common:actions.hold')} size="lg" variant="warning" onClick={toggleHoldSelectedCartItems}>
           <FontAwesomeIcon icon={faPause} size="lg"/>
-        </Button>
+        </IconTooltipButton>
       )}
 
       {hasNewItems && (

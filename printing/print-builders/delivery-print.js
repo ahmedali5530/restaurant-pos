@@ -24,6 +24,7 @@ function build(printer, data = {}, config = {}) {
     return printBillLayout(printer, bill, cfg, {
       title: bill.title,
       qrcode: data.qrcode,
+      qrcodes: data.qrcodes,
       address: bill.address,
       phone: bill.phone,
       customerName: bill.customerName || undefined,

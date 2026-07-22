@@ -9,6 +9,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {useDB} from "@/api/db/db.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input, InputError} from "@/components/common/input/input.tsx";
+import {InputField} from "@/components/common/form/rhf-fields.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {InventoryWaste} from "@/api/model/inventory_waste.ts";
@@ -27,6 +28,9 @@ import {DateValue} from "react-aria-components";
 import {dateToCalendarDate, calendarDateToDate, getToday} from "@/utils/date.ts";
 import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
 import {InventoryFormPricedLineTotal} from "@/components/inventory/common/form.line.total.tsx";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import { useIntegrationManager } from "@/providers/integration.provider.tsx";
+import { publishWasteRecorded } from "@/integrations/accounting/events/publish.ts";
 
 type SourceType = "purchase" | "issue";
 
@@ -82,9 +86,10 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
 }).required();
 
 export const InventoryWasteForm = ({open, onClose, data}: Props) => {
-  const { t } = useTranslation('inventory');
+  const { t } = useTranslation(['inventory', 'common']);
   const db = useDB();
   const [state, ] = useAtom(appPage);
+  const { manager: integrationManager } = useIntegrationManager();
   const validationSchema = useMemo(() => createValidationSchema(db, data?.id), [db, data?.id]);
   const resolver = useMemo(() => yupResolver(validationSchema), [validationSchema]);
 
@@ -324,6 +329,32 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
         items: itemsRefs,
       });
 
+      const inventoryValue = Number(
+        values.items
+          .reduce((sum: number, item: any) => {
+            const qty = Number(item.quantity || 0);
+            const sourcePurchaseItem = item.purchase_item_id
+              ? purchases?.data
+                ?.flatMap((p: any) => p.items ?? [])
+                ?.find((pi: any) => String(pi.id) === String(item.purchase_item_id))
+              : undefined;
+            const sourceIssueItem = item.issue_item_id
+              ? issues?.data
+                ?.flatMap((i: any) => i.items ?? [])
+                ?.find((ii: any) => String(ii.id) === String(item.issue_item_id))
+              : undefined;
+            const price = Number(sourcePurchaseItem?.price ?? sourceIssueItem?.price ?? 0);
+            return sum + qty * price;
+          }, 0)
+          .toFixed(2)
+      );
+      if (inventoryValue > 0) {
+        await publishWasteRecorded(integrationManager, {
+          documentId: String(wasteIdString),
+          inventoryValue,
+        });
+      }
+
       toast.success(t('toast:inventory.wasteSaved'));
       closeModal();
     } catch (error) {
@@ -544,20 +575,21 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                       />
                     </div>
                     <div className="flex-1">
-                      <Input
+                      <InputField
+                        name={`items.${index}.comments`}
+                        control={control}
                         label={t('forms.comments')}
-                        {...register(`items.${index}.comments` as const)}
                       />
                     </div>
                     <div className="flex-0 self-end">
-                      <Button
+                      <IconTooltipButton label={t('common:actions.remove')}
                         type="button"
                         variant="danger"
-                        iconButton
+                       
                         onClick={() => remove(index)}
                       >
                         <FontAwesomeIcon icon={faTrash}/>
-                      </Button>
+                      </IconTooltipButton>
                     </div>
                   </div>
                 </div>

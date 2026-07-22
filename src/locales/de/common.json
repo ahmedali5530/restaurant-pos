@@ -26,6 +26,7 @@
     "import": "Importieren",
     "upload": "Hochladen",
     "download": "Herunterladen",
+    "downloadTemplate": "Vorlage herunterladen",
     "select": "Auswählen",
     "selectAll": "Alle auswählen",
     "deselectAll": "Alle abwählen",
@@ -38,6 +39,8 @@
     "continue": "Fortfahren",
     "done": "Fertig",
     "remove": "Entfernen",
+    "moveUp": "Nach oben",
+    "moveDown": "Nach unten",
     "duplicate": "Duplizieren",
     "copy": "Kopieren",
     "filter": "Filtern",
@@ -69,7 +72,20 @@
     "success": "Erfolg",
     "error": "Fehler",
     "warning": "Warnung",
-    "info": "Info"
+    "info": "Info",
+    "approve": "Genehmigen",
+    "reject": "Ablehnen",
+    "publish": "Veröffentlichen",
+    "unpublish": "Zurückziehen",
+    "logout": "Abmelden",
+    "lock": "Sperren",
+    "void": "Stornieren",
+    "hold": "Halten",
+    "fire": "Freigeben",
+    "revision": "Revision",
+    "comment": "Kommentar",
+    "settings": "Einstellungen",
+    "clock": "Zeiterfassung"
   },
   "database": {
     "connectionError": "Verbindungsfehler",
@@ -98,6 +114,9 @@
     "title": "Seite nicht gefunden",
     "description": "Die gesuchte Seite existiert nicht oder wurde verschoben.",
     "backToMenu": "Zurück zum Menü"
+  },
+  "documentTitle": {
+    "app": "Restaurant POS"
   },
   "loading": "Wird geladen..."
 }

@@ -23,10 +23,12 @@ import {appPage, closingEnforcementAtom} from "@/store/jotai.ts";
 import {completeStages, recallStage} from "@/lib/kitchen/workflow.service.ts";
 import {useTranslation} from "react-i18next";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import {DocumentTitle} from "@/components/common/document-title.tsx";
 
 
 export const KitchenScreen = () => {
   const {t} = useTranslation(["kitchen", "toast"]);
+  const {t: tNav} = useTranslation('navigation');
   const db = useDB();
   const [enforcement] = useAtom(closingEnforcementAtom);
   const [page] = useAtom(appPage);
@@ -329,6 +331,7 @@ export const KitchenScreen = () => {
 
   return (
     <Layout containerClassName="overflow-hidden">
+      <DocumentTitle parts={[tNav('sidebar.kitchen')]} />
       <div className="flex gap-5 p-3 flex-col">
         <div className="h-[60px] flex-0 flex items-center gap-3 justify-between">
           <div className="input-group flex-1">
@@ -374,7 +377,7 @@ export const KitchenScreen = () => {
             <div className="flex-1 rounded-xl flex gap-3 flex-row">
               {orders.map((item, index) => (
                 <div className="w-[400px] flex-shrink-0" key={index}>
-                  <KitchenOrder order={item}/>
+                  <KitchenOrder order={item} kitchen={kitchen}/>
                 </div>
               ))}
             </div>

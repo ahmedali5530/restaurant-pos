@@ -12,7 +12,10 @@ export type LogicalAccountCode =
   | 'INVENTORY'
   | 'COGS'
   | 'PAYROLL_EXPENSE'
-  | 'PAYROLL_LIABILITY';
+  | 'PAYROLL_LIABILITY'
+  | 'ACCOUNTS_PAYABLE'
+  | 'WASTE_EXPENSE'
+  | 'INVENTORY_ADJUSTMENT';
 
 export type JournalLineSide = 'debit' | 'credit';
 

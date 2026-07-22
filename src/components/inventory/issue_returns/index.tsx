@@ -15,10 +15,11 @@ import {InventoryInvoiceDoc, mapIssueReturnToInvoice} from "@/lib/inventory/invo
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
-import { toJsDate } from "@/lib/datetime.ts";
+import {formatDateTime} from "@/lib/datetime.ts";
+import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 export const InventoryIssueReturns = () => {
-  const { t } = useTranslation('inventory');
+  const { t } = useTranslation(['inventory', 'common']);
   const db = useDB();
   const { protectAction } = useSecurity();
   const loadHook = useApi<SettingsData<InventoryIssueReturn>>(
@@ -49,7 +50,7 @@ export const InventoryIssueReturns = () => {
     }),
     columnHelper.accessor("created_at", {
       header: t('columns.createdAt'),
-      cell: info => info.getValue() ? toJsDate(info.getValue() as any).toLocaleString() : ""
+      cell: info => info.getValue() ? formatDateTime(info.getValue() as any) : ""
     }),
     columnHelper.accessor('issued_to', {
       id: "issued_to",
@@ -81,25 +82,25 @@ export const InventoryIssueReturns = () => {
         const row = info.row.original;
         return (
           <div className="flex gap-2">
-            <Button
+            <IconTooltipButton label={t('common:actions.view')}
               variant="secondary"
-              iconButton
+             
               onClick={() => {
                 setViewIssueReturn(row);
                 setViewModalOpen(true);
               }}
             >
               <FontAwesomeIcon icon={faFile}/>
-            </Button>
-            <Button
+            </IconTooltipButton>
+            <IconTooltipButton label={t('print.printReceipt')}
               variant="secondary"
-              iconButton
-              title={t('print.printReceipt')}
+             
+             
               onClick={() => setPrintDoc(mapIssueReturnToInvoice(row))}
             >
               <FontAwesomeIcon icon={faPrint}/>
-            </Button>
-            <Button
+            </IconTooltipButton>
+            <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
                 protectAction(() => {
@@ -112,7 +113,7 @@ export const InventoryIssueReturns = () => {
               }}
             >
               <FontAwesomeIcon icon={faPencil}/>
-            </Button>
+            </IconTooltipButton>
             <DeleteConfirm
               message={`Do you want to delete issue return #${row.invoice_number}?`}
               onConfirm={() =>

@@ -13,9 +13,10 @@ type Props = {
   isOpen: boolean;
   onClose: () => void;
   onImportRows: (rows: Array<Record<string, string>>) => Promise<void>;
+  onExport?: () => Promise<Record<string, string>[]> | Record<string, string>[];
 };
 
-export const ReconciliationCsvImportModal = ({isOpen, onClose, onImportRows}: Props) => {
+export const ReconciliationCsvImportModal = ({isOpen, onClose, onImportRows, onExport}: Props) => {
   const batchRef = useRef<Array<Record<string, string>>>([]);
 
   return (
@@ -35,6 +36,7 @@ export const ReconciliationCsvImportModal = ({isOpen, onClose, onImportRows}: Pr
         }
         batchRef.current = [];
       }}
+      onExport={onExport}
     />
   );
 };
