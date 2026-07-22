@@ -16,6 +16,7 @@ A high-performance, scalable, and resilient Point of Sale (POS) system designed 
 
 ![Restaurant POS system demo](docs/demo.gif)
 ▶ [Watch full video](https://ahmedali5530.xyz/assets/posr/demo.mp4)
+📱 [Order taking app flow](https://www.youtube.com/watch?v=VP3zBUfHtYQ&list=PLAnQKFs1ybdM&pp=sAgC)
 
 
 ---
@@ -135,6 +136,7 @@ This system solves that by combining everything into one platform:
 - Instant sync with kitchen
 - Lightweight POS mode for staff devices
 - Full touch compatible modules for faster order processing
+- [order taking app flow](https://www.youtube.com/watch?v=VP3zBUfHtYQ&list=PLAnQKFs1ybdM&pp=sAgC)
 
 ---
 
