@@ -436,7 +436,9 @@
     "print": "Print",
     "exportPdf": "Export as PDF",
     "exportImage": "Export as Image",
-    "previewTitle": "{{docType}} #{{number}}"
+    "previewTitle": "{{docType}} #{{number}}",
+    "notFound": "Documento não encontrado",
+    "loadFailed": "Falha ao carregar documento"
   },
   "totals": {
     "lineTotal": "Total de itens",

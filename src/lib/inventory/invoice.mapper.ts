@@ -225,7 +225,6 @@ export const mapPurchaseToInvoice = (purchase: InventoryPurchase): InventoryInvo
     fileBaseName: `purchase-${purchase.invoice_number ?? "receipt"}`,
     notes: purchase.comments,
     meta: [
-      {label: "Supplier", value: purchase.supplier?.name ?? "—"},
       {
         label: "Purchase order",
         value: purchase.purchase_order?.po_number != null

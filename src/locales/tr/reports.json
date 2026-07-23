@@ -328,7 +328,8 @@
     "itemName": "Ürün Adı",
     "itemCode": "Ürün kodu",
     "landedCost": "Landed cost",
-    "finalInventory": "Final inventory"
+    "finalInventory": "Final inventory",
+    "taxPercent": "Vergi %"
   },
   "labels": {
     "modifiers": "Değiştiriciler",

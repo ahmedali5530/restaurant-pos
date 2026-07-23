@@ -436,7 +436,9 @@
     "print": "Print",
     "exportPdf": "Export as PDF",
     "exportImage": "Export as Image",
-    "previewTitle": "{{docType}} #{{number}}"
+    "previewTitle": "{{docType}} #{{number}}",
+    "notFound": "Документ не найден",
+    "loadFailed": "Не удалось загрузить документ"
   },
   "totals": {
     "lineTotal": "Итого по позициям",

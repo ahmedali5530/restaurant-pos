@@ -12,6 +12,7 @@ import {
   buildNestedRecordAnyCondition,
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
+import {inventoryPrintUrl} from "@/routes/posr.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -239,7 +240,20 @@ export const IssueReturnReport = () => {
                       return (
                         <tr key={`${issueReturn.id}-${index}`}>
                           <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{dateStr}</td>
-                          <td className="py-3 px-3 text-sm text-neutral-700">{issueReturn.invoice_number || 'N/A'}</td>
+                          <td className="py-3 px-3 text-sm text-neutral-700">
+                            {issueReturn.id ? (
+                              <a
+                                className="text-primary-600 underline print:no-underline print:text-neutral-700"
+                                href={inventoryPrintUrl("issue-return", String(issueReturn.id))}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                {issueReturn.invoice_number || 'N/A'}
+                              </a>
+                            ) : (
+                              issueReturn.invoice_number || 'N/A'
+                            )}
+                          </td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{kitchenName}</td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{storeName}</td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{itemName}</td>

@@ -328,7 +328,8 @@
     "itemName": "اسم الصنف",
     "itemCode": "رمز الصنف",
     "landedCost": "Landed cost",
-    "finalInventory": "Final inventory"
+    "finalInventory": "Final inventory",
+    "taxPercent": "نسبة الضريبة %"
   },
   "labels": {
     "modifiers": "الإضافات",

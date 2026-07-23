@@ -1,5 +1,6 @@
 import {useEffect, useMemo, useState} from "react";
 import {DateTime} from "luxon";
+import type {Dayjs} from "dayjs";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faEye} from "@fortawesome/free-solid-svg-icons";
 import {useTranslation} from "react-i18next";
@@ -38,8 +39,8 @@ interface Props {
   open: boolean;
   onClose: () => void;
   account: LedgerAccount | null;
-  dateFrom: string;
-  dateTo: string;
+  dateFrom?: string | Dayjs | Date | null;
+  dateTo?: string | Dayjs | Date | null;
   openingBalance: number;
 }
 
@@ -51,12 +52,15 @@ const resolveAccountId = (account?: LedgerAccount | null) => {
   return id.toString();
 };
 
-const formatDateRangeLabel = (value: string) => {
+const formatDateRangeLabel = (value?: string | Dayjs | Date | null) => {
   if (!value) {
     return "—";
   }
-  const parsed = DateTime.fromFormat(value, "yyyy-MM-dd'T'HH:mm");
-  return parsed.isValid ? parsed.toFormat("yyyy-LL-dd HH:mm") : value;
+  const asDate = toQueryDateTime(value);
+  if (!asDate) {
+    return "—";
+  }
+  return DateTime.fromJSDate(asDate).toFormat("yyyy-LL-dd HH:mm");
 };
 
 export const LedgerEntriesModal = ({

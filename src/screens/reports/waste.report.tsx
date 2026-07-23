@@ -11,6 +11,7 @@ import {
   buildNestedRecordAnyCondition,
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
+import {inventoryPrintUrl} from "@/routes/posr.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -218,7 +219,20 @@ export const WasteReport = () => {
                       return (
                         <tr key={`${waste.id}-${index}`}>
                           <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{dateStr}</td>
-                          <td className="py-3 px-3 text-sm text-neutral-700">{waste.invoice_number || 'N/A'}</td>
+                          <td className="py-3 px-3 text-sm text-neutral-700">
+                            {waste.id ? (
+                              <a
+                                className="text-primary-600 underline print:no-underline print:text-neutral-700"
+                                href={inventoryPrintUrl("waste", String(waste.id))}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                {waste.invoice_number || 'N/A'}
+                              </a>
+                            ) : (
+                              waste.invoice_number || 'N/A'
+                            )}
+                          </td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{itemName}</td>
                           <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(quantity)}</td>
                           <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(price)}</td>

@@ -464,7 +464,9 @@
     "print": "Print",
     "exportPdf": "Export as PDF",
     "exportImage": "Export as Image",
-    "previewTitle": "{{docType}} #{{number}}"
+    "previewTitle": "{{docType}} #{{number}}",
+    "notFound": "Document not found",
+    "loadFailed": "Failed to load document"
   },
   "totals": {
     "lineTotal": "Items total",
@@ -515,7 +517,6 @@
     "equal": "Equal",
     "manual": "Manual"
   },
-
   "location": {
     "create": "New location",
     "edit": "Edit location — {{name}}",

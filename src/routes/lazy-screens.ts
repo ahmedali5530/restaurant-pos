@@ -138,3 +138,6 @@ export const LaborPayrollSummaryReport = lazy(() =>
 export const LaborScheduledVsActualReport = lazy(() =>
   import('@/screens/reports/labor.scheduled.vs.actual.report.tsx').then(m => ({default: m.LaborScheduledVsActualReport}))
 );
+export const InventoryDocumentPrintPage = lazy(() =>
+  import('@/screens/inventory/document.print.tsx').then(m => ({default: m.InventoryDocumentPrintPage}))
+);

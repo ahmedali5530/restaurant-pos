@@ -11,9 +11,8 @@ import {faBan, faCheck, faCodeBranch, faFile, faPencil, faPlus, faPrint, faUploa
 import {InventoryPurchaseForm} from "@/components/inventory/purchases/form.tsx";
 import {InventoryPurchaseUpload} from "@/components/inventory/purchases/upload.tsx";
 import {InventoryPurchaseViewModal} from "@/components/inventory/purchases/view.modal.tsx";
-import {InventoryDocumentPrintModal} from "@/components/inventory/common/document.print.modal.tsx";
 import {InventoryDocumentStatusBadge} from "@/components/inventory/common/document.status.badge.tsx";
-import {InventoryInvoiceDoc, mapPurchaseToInvoice} from "@/lib/inventory/invoice.mapper.ts";
+import {inventoryPrintUrl} from "@/routes/posr.ts";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
@@ -52,7 +51,6 @@ export const InventoryPurchases = () => {
   const [uploadModal, setUploadModal] = useState(false);
   const [viewPurchase, setViewPurchase] = useState<InventoryPurchase | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
-  const [printDoc, setPrintDoc] = useState<InventoryInvoiceDoc | null>(null);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
   const userId = state?.user?.id ? recordIdToString(state.user.id) : undefined;
@@ -167,7 +165,7 @@ export const InventoryPurchases = () => {
               variant="secondary"
              
              
-              onClick={() => setPrintDoc(mapPurchaseToInvoice(row))}
+              onClick={() => window.open(inventoryPrintUrl("purchase", String(row.id)), "_blank")}
             >
               <FontAwesomeIcon icon={faPrint}/>
             </IconTooltipButton>
@@ -352,12 +350,6 @@ export const InventoryPurchases = () => {
           }}
         />
       )}
-
-      <InventoryDocumentPrintModal
-        open={!!printDoc}
-        doc={printDoc}
-        onClose={() => setPrintDoc(null)}
-      />
     </>
   );
 };

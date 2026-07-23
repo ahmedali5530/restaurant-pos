@@ -1,12 +1,26 @@
 import {DateTime} from "luxon";
+import dayjs, {type Dayjs} from "dayjs";
 import {toRecordId} from "@/lib/utils.ts";
 import type {AccountHeadType} from "@/api/model/account.ts";
 
 export const DATETIME_LOCAL_FORMAT = "yyyy-MM-dd'T'HH:mm";
 
-export const toQueryDateTime = (value?: string) => {
+export const toQueryDateTime = (value?: string | Dayjs | Date | null) => {
   if (!value) {
     return undefined;
+  }
+
+  if (dayjs.isDayjs(value)) {
+    return value.toDate();
+  }
+
+  if (value instanceof Date) {
+    return value;
+  }
+
+  const asDayjs = dayjs(value);
+  if (asDayjs.isValid()) {
+    return asDayjs.toDate();
   }
 
   return DateTime.fromFormat(value, DATETIME_LOCAL_FORMAT).toJSDate();

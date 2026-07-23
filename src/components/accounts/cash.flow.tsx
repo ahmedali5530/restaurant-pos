@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useState} from "react";
-import {DateTime} from "luxon";
+import dayjs, {type Dayjs} from "dayjs";
 import {useTranslation} from "react-i18next";
-import {Input} from "@/components/common/input/input.tsx";
+import {DateTimePicker} from "@/components/common/antd/datetime.picker.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {Loader} from "@/components/common/loader/loader.tsx";
 import {useDB} from "@/api/db/db.ts";
@@ -20,9 +20,9 @@ export const CashFlow = () => {
   const db = useDB();
   const [rows, setRows] = useState<CashFlowRow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [filters, setFilters] = useState({
-    date_from: DateTime.now().startOf("month").toFormat("yyyy-MM-dd'T'HH:mm"),
-    date_to: DateTime.now().endOf("month").toFormat("yyyy-MM-dd'T'HH:mm"),
+  const [filters, setFilters] = useState<{date_from: Dayjs | null; date_to: Dayjs | null}>({
+    date_from: dayjs().startOf("month"),
+    date_to: dayjs().endOf("month"),
   });
 
   const loadCashFlow = async (event?: any) => {
@@ -94,19 +94,15 @@ export const CashFlow = () => {
     <>
       <form className="grid grid-cols-5 gap-4 mb-4" onSubmit={loadCashFlow}>
         <div className="col-span-2">
-          <Input
-            type="datetime-local"
-            className="w-full"
+          <DateTimePicker
             value={filters.date_from}
-            onChange={(e) => setFilters((prev) => ({...prev, date_from: e.target.value}))}
+            onChange={(value) => setFilters((prev) => ({...prev, date_from: value}))}
           />
         </div>
         <div className="col-span-2">
-          <Input
-            type="datetime-local"
-            className="w-full"
+          <DateTimePicker
             value={filters.date_to}
-            onChange={(e) => setFilters((prev) => ({...prev, date_to: e.target.value}))}
+            onChange={(value) => setFilters((prev) => ({...prev, date_to: value}))}
           />
         </div>
         <div>

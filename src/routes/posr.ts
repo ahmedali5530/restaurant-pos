@@ -11,6 +11,22 @@ export const SETTINGS = '/settings';
 export const INTEGRATIONS = '/integrations';
 export const CLOCK = '/clock';
 export const INVENTORY = '/inventory';
+export const INVENTORY_PRINT = '/inventory/print/:type/:id';
+
+export type InventoryPrintDocType =
+  | 'purchase'
+  | 'purchase-return'
+  | 'purchase-order'
+  | 'issue'
+  | 'issue-return'
+  | 'waste'
+  | 'stock-transfer';
+
+export const inventoryPrintUrl = (type: InventoryPrintDocType, id: string | {toString(): string}) => {
+  const raw = typeof id === 'string' ? id : id.toString();
+  const encodedId = encodeURIComponent(raw);
+  return `/inventory/print/${type}/${encodedId}`;
+};
 export const HR = '/hr';
 export const TIP_DISTRIBUTION = '/tip-distribution';
 export const ACCOUNTS = '/accounts';

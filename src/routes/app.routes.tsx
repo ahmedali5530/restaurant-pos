@@ -24,6 +24,7 @@ import {
   CLOSING,
   DELIVERY,
   INVENTORY,
+  INVENTORY_PRINT,
   HR,
   KITCHEN,
   ORDER_DISPLAY,
@@ -102,6 +103,7 @@ import {
   DiscountsReport,
   ExpenseReport,
   InventoryDashboardReport,
+  InventoryDocumentPrintPage,
   IssueReport,
   IssueReturnReport,
   KitchenReconciliationReport,
@@ -154,6 +156,7 @@ export const AppRoutes = () => (
       <Route path={REPORTS} element={<Reports/>}/>
 
       <Route element={<SuspenseOutlet/>}>
+        <Route path={INVENTORY_PRINT} element={<InventoryDocumentPrintPage/>}/>
         <Route path={REPORTS_SALES_DASHBOARD} element={<SalesDashboardReport/>}/>
         <Route path={REPORTS_INVENTORY_DASHBOARD} element={<InventoryDashboardReport/>}/>
         <Route path={REPORTS_AUDIT} element={<AuditReport/>}/>

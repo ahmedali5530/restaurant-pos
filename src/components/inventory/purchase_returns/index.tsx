@@ -10,8 +10,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faFile, faPencil, faPlus, faPrint} from "@fortawesome/free-solid-svg-icons";
 import {InventoryPurchaseReturnForm} from "@/components/inventory/purchase_returns/form.tsx";
 import {InventoryPurchaseReturnViewModal} from "@/components/inventory/purchase_returns/view.modal.tsx";
-import {InventoryDocumentPrintModal} from "@/components/inventory/common/document.print.modal.tsx";
-import {InventoryInvoiceDoc, mapPurchaseReturnToInvoice} from "@/lib/inventory/invoice.mapper.ts";
+import {inventoryPrintUrl} from "@/routes/posr.ts";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
@@ -35,7 +34,6 @@ export const InventoryPurchaseReturns = () => {
   const [formModal, setFormModal] = useState(false);
   const [viewReturn, setViewReturn] = useState<InventoryPurchaseReturn | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
-  const [printDoc, setPrintDoc] = useState<InventoryInvoiceDoc | null>(null);
 
   const columnHelper = createColumnHelper<InventoryPurchaseReturn>();
 
@@ -86,7 +84,7 @@ export const InventoryPurchaseReturns = () => {
               variant="secondary"
              
              
-              onClick={() => setPrintDoc(mapPurchaseReturnToInvoice(row))}
+              onClick={() => window.open(inventoryPrintUrl("purchase-return", String(row.id)), "_blank")}
             >
               <FontAwesomeIcon icon={faPrint}/>
             </IconTooltipButton>
@@ -168,12 +166,6 @@ export const InventoryPurchaseReturns = () => {
           }}
         />
       )}
-
-      <InventoryDocumentPrintModal
-        open={!!printDoc}
-        doc={printDoc}
-        onClose={() => setPrintDoc(null)}
-      />
     </>
   );
 };

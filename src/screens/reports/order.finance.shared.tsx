@@ -7,7 +7,7 @@ import {Order} from "@/api/model/order.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {formatNumber, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
-import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
+import {getOrderTaxAmount, getOrderTaxBreakdown} from "@/lib/tax-calculator.ts";
 import {getOrderFilteredItems, getOrderDiscountTotal} from "@/lib/order.ts";
 import {
   buildNestedRecordAnyCondition,
@@ -42,6 +42,18 @@ const getMetricAmount = (order: Order, metric: MetricKey) => {
     return getOrderTaxAmount(order);
   }
   return safeNumber((order as any)?.[metric]);
+};
+
+const formatTaxPercent = (order: Order) => {
+  const breakdown = getOrderTaxBreakdown(order);
+  if (breakdown.length === 0) {
+    const legacyRate = safeNumber((order.tax as any)?.rate);
+    return legacyRate > 0 ? `${legacyRate}%` : "-";
+  }
+  if (breakdown.length === 1) {
+    return `${breakdown[0].rate}%`;
+  }
+  return breakdown.map((entry) => `${entry.name} ${entry.rate}%`).join(", ");
 };
 
 const calculateGross = (order: Order) => {
@@ -163,6 +175,9 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
               <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.order')}</th>
               <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('metrics.cashier')}</th>
               <th className="py-3 px-3 text-right text-sm font-semibold text-neutral-700">{t('metrics.gross')}</th>
+              {metric === "tax_amount" && (
+                <th className="py-3 px-3 text-right text-sm font-semibold text-neutral-700">{t('columns.taxPercent')}</th>
+              )}
               <th className="py-3 px-3 text-right text-sm font-semibold text-neutral-700">{metricHeader}</th>
               <th className="py-3 pr-6 text-right text-sm font-semibold text-neutral-700">{t('metrics.net')}</th>
             </tr>
@@ -170,7 +185,7 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
             <tbody className="divide-y divide-neutral-100 bg-white">
             {orders.length === 0 ? (
               <tr>
-                <td colSpan={6} className="py-6 text-center text-sm text-neutral-500">No rows found for selected range.</td>
+                <td colSpan={metric === "tax_amount" ? 7 : 6} className="py-6 text-center text-sm text-neutral-500">No rows found for selected range.</td>
               </tr>
             ) : orders.map((order) => {
               const gross = calculateGross(order);
@@ -185,6 +200,9 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
                   <td className="py-3 px-3 text-sm text-neutral-700">{order.invoice_number ? `#${order.invoice_number}` : order.id.toString()}</td>
                   <td className="py-3 px-3 text-sm text-neutral-700">{cashierName || "-"}</td>
                   <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(gross)}</td>
+                  {metric === "tax_amount" && (
+                    <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatTaxPercent(order)}</td>
+                  )}
                   <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">{withCurrency(metricAmount)}</td>
                   <td className="py-3 pr-6 text-right text-sm text-neutral-700">{withCurrency(net)}</td>
                 </tr>

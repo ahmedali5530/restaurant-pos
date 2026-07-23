@@ -10,9 +10,8 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBan, faCheck, faCodeBranch, faFile, faPencil, faPlus, faPrint, faUpload} from "@fortawesome/free-solid-svg-icons";
 import {InventoryIssueForm} from "@/components/inventory/issues/form.tsx";
 import {InventoryIssueViewModal} from "@/components/inventory/issues/view.modal.tsx";
-import {InventoryDocumentPrintModal} from "@/components/inventory/common/document.print.modal.tsx";
 import {InventoryDocumentStatusBadge} from "@/components/inventory/common/document.status.badge.tsx";
-import {InventoryInvoiceDoc, mapIssueToInvoice} from "@/lib/inventory/invoice.mapper.ts";
+import {inventoryPrintUrl} from "@/routes/posr.ts";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
@@ -50,7 +49,6 @@ export const InventoryIssues = () => {
   const [formModal, setFormModal] = useState(false);
   const [viewIssue, setViewIssue] = useState<InventoryIssue | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
-  const [printDoc, setPrintDoc] = useState<InventoryInvoiceDoc | null>(null);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
   const userId = state?.user?.id ? recordIdToString(state.user.id) : undefined;
@@ -169,7 +167,7 @@ export const InventoryIssues = () => {
               variant="secondary"
              
              
-              onClick={() => setPrintDoc(mapIssueToInvoice(row))}
+              onClick={() => window.open(inventoryPrintUrl("issue", String(row.id)), "_blank")}
             >
               <FontAwesomeIcon icon={faPrint}/>
             </IconTooltipButton>
@@ -344,12 +342,6 @@ export const InventoryIssues = () => {
           }}
         />
       )}
-
-      <InventoryDocumentPrintModal
-        open={!!printDoc}
-        doc={printDoc}
-        onClose={() => setPrintDoc(null)}
-      />
     </>
   );
 };

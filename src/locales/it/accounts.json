@@ -30,7 +30,8 @@
     "sourceId": "Source ID",
     "memo": "Memo",
     "debit": "Debit",
-    "credit": "Credit"
+    "credit": "Credit",
+    "createdBy": "Creato da"
   },
   "actions": {
     "group": "Group",

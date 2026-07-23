@@ -12,6 +12,7 @@ import {
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
 import {extrasTotal} from "@/lib/inventory/purchase.totals.ts";
+import {inventoryPrintUrl} from "@/routes/posr.ts";
 
 interface ReportFilters {
   startDate?: string | null;
@@ -274,7 +275,20 @@ export const PurchaseReport = () => {
                       return (
                         <tr key={`${purchase.id}-${index}`}>
                           <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{dateStr}</td>
-                          <td className="py-3 px-3 text-sm text-neutral-700">{purchase.invoice_number || 'N/A'}</td>
+                          <td className="py-3 px-3 text-sm text-neutral-700">
+                            {purchase.id ? (
+                              <a
+                                className="text-primary-600 underline print:no-underline print:text-neutral-700"
+                                href={inventoryPrintUrl("purchase", String(purchase.id))}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                {purchase.invoice_number || 'N/A'}
+                              </a>
+                            ) : (
+                              purchase.invoice_number || 'N/A'
+                            )}
+                          </td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{supplierName}</td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{storeName}</td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{itemName}</td>

@@ -328,7 +328,8 @@
     "itemName": "Nome articolo",
     "itemCode": "Codice articolo",
     "landedCost": "Landed cost",
-    "finalInventory": "Final inventory"
+    "finalInventory": "Final inventory",
+    "taxPercent": "Imposta %"
   },
   "labels": {
     "modifiers": "Modificatori",

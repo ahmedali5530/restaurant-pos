@@ -1,13 +1,13 @@
 import {useEffect, useMemo, useState} from "react";
-import {DateTime} from "luxon";
+import dayjs, {type Dayjs} from "dayjs";
 import {useTranslation} from "react-i18next";
-import {Input} from "@/components/common/input/input.tsx";
+import {DateTimePicker} from "@/components/common/antd/datetime.picker.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {Loader} from "@/components/common/loader/loader.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {toRecordId} from "@/lib/utils.ts";
 import {formatMoney} from "@/components/accounts/account.constants.ts";
+import {toQueryDateTime} from "@/components/accounts/reports.utils.ts";
 
 interface TrialBalanceRow {
   account: {
@@ -23,7 +23,7 @@ export const TrialBalance = () => {
   const db = useDB();
   const [isLoading, setIsLoading] = useState(false);
   const [rows, setRows] = useState<TrialBalanceRow[]>([]);
-  const [asOf, setAsOf] = useState(DateTime.now().toFormat("yyyy-MM-dd'T'HH:mm"));
+  const [asOf, setAsOf] = useState<Dayjs | null>(dayjs());
 
   const loadTrialBalance = async (event?: any) => {
     event?.preventDefault?.();
@@ -42,7 +42,7 @@ export const TrialBalance = () => {
           ORDER BY account.code ASC
               FETCH account
       `, {
-        as_of: DateTime.fromFormat(asOf, "yyyy-MM-dd'T'HH:mm").toJSDate(),
+        as_of: toQueryDateTime(asOf),
       });
 
       setRows(result || []);
@@ -74,12 +74,7 @@ export const TrialBalance = () => {
     <>
       <form className="grid grid-cols-4 gap-4 mb-4" onSubmit={loadTrialBalance}>
         <div className="col-span-3">
-          <Input
-            type="datetime-local"
-            className="w-full"
-            value={asOf}
-            onChange={(e) => setAsOf(e.target.value)}
-          />
+          <DateTimePicker value={asOf} onChange={setAsOf} />
         </div>
         <div>
           <Button variant="primary" type="submit" className="w-full" disabled={isLoading}>

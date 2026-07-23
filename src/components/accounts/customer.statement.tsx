@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useState} from "react";
+import dayjs, {type Dayjs} from "dayjs";
 import {DateTime} from "luxon";
 import {Controller, useForm} from "react-hook-form";
 import {useTranslation} from "react-i18next";
@@ -6,7 +7,7 @@ import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Account} from "@/api/model/account.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
-import {Input} from "@/components/common/input/input.tsx";
+import {DateTimePicker} from "@/components/common/antd/datetime.picker.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {Loader} from "@/components/common/loader/loader.tsx";
 import {useDB} from "@/api/db/db.ts";
@@ -34,9 +35,9 @@ export const CustomerStatement = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [openingBalance, setOpeningBalance] = useState(0);
   const [closingBalance, setClosingBalance] = useState(0);
-  const [filters, setFilters] = useState({
-    date_from: DateTime.now().startOf("month").toFormat("yyyy-MM-dd'T'HH:mm"),
-    date_to: DateTime.now().endOf("month").toFormat("yyyy-MM-dd'T'HH:mm"),
+  const [filters, setFilters] = useState<{date_from: Dayjs | null; date_to: Dayjs | null}>({
+    date_from: dayjs().startOf("month"),
+    date_to: dayjs().endOf("month"),
   });
   const {control, watch} = useForm({
     defaultValues: {
@@ -139,19 +140,15 @@ export const CustomerStatement = () => {
           />
         </div>
         <div className="col-span-2">
-          <Input
-            type="datetime-local"
-            className="w-full"
+          <DateTimePicker
             value={filters.date_from}
-            onChange={(e) => setFilters((prev) => ({...prev, date_from: e.target.value}))}
+            onChange={(value) => setFilters((prev) => ({...prev, date_from: value}))}
           />
         </div>
         <div className="col-span-2">
-          <Input
-            type="datetime-local"
-            className="w-full"
+          <DateTimePicker
             value={filters.date_to}
-            onChange={(e) => setFilters((prev) => ({...prev, date_to: e.target.value}))}
+            onChange={(value) => setFilters((prev) => ({...prev, date_to: value}))}
           />
         </div>
         <div className="col-span-2">

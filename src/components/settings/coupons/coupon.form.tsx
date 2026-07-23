@@ -1,6 +1,7 @@
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input, InputError} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
+import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {Controller, useForm} from "react-hook-form";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -13,8 +14,11 @@ import {useEffect} from "react";
 import {Coupon, CouponType, WeekDay} from "@/api/model/coupon.ts";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {DateTime} from "luxon";
+import type {Dayjs} from "dayjs";
 import {nowSurrealDateTime, toJsDate, toLuxonDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
 import {TimePicker} from "@/components/common/antd/time.picker.tsx";
+import {DateTimePicker, jsDateToDayjs} from "@/components/common/antd/datetime.picker.tsx";
+import {dayjsToSurreal} from "@/components/hr/shared/form.utils.ts";
 
 interface Props {
   open: boolean;
@@ -78,8 +82,8 @@ const validationSchema = yup.object({
   is_active: yup.boolean().default(true),
   start_time: yup.string().nullable(),
   end_time: yup.string().nullable(),
-  start_date: yup.string().nullable(),
-  end_date: yup.string().nullable(),
+  start_date: yup.mixed<Dayjs>().nullable(),
+  end_date: yup.mixed<Dayjs>().nullable(),
 });
 
 export const CouponForm = ({ open, onClose, data }: Props) => {
@@ -87,7 +91,6 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
   const db = useDB();
 
   const {
-    register,
     control,
     handleSubmit,
     formState: {errors},
@@ -103,14 +106,12 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
 
   useEffect(() => {
     if (data) {
-      const startDateString = data.start_date ? toLuxonDateTime(data.start_date).toFormat("yyyy-LL-dd'T'HH:mm") : undefined;
-      const endDateString = data.end_date ? toLuxonDateTime(data.end_date).toFormat("yyyy-LL-dd'T'HH:mm") : undefined;
       const startTimeString = data.start_time ? toLuxonDateTime(data.start_time).toFormat("HH:mm") : undefined;
       const endTimeString = data.end_time ? toLuxonDateTime(data.end_time).toFormat("HH:mm") : undefined;
       reset({
         ...data,
-        start_date: startDateString,
-        end_date: endDateString,
+        start_date: data.start_date ? jsDateToDayjs(toLuxonDateTime(data.start_date).toJSDate()) : null,
+        end_date: data.end_date ? jsDateToDayjs(toLuxonDateTime(data.end_date).toJSDate()) : null,
         start_time: startTimeString,
         end_time: endTimeString,
         coupon_type: data.coupon_type
@@ -144,12 +145,6 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
     }
 
     // Normalize date/time fields to Surreal DateTime before sending to DB
-    const toDateTime = (input?: string | null) => {
-      if (!input) return undefined;
-      const dt = DateTime.fromISO(input);
-      return dt.isValid ? toSurrealDateTime(dt) : undefined;
-    };
-
     const toTimeOfDayDate = (input?: string | null) => {
       if (!input) return undefined;
       const [hh, mm] = input.split(":").map((v) => Number(v) || 0);
@@ -157,8 +152,8 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
       return toSurrealDateTime(dt);
     };
 
-    vals.start_date = toDateTime(vals.start_date);
-    vals.end_date = toDateTime(vals.end_date);
+    vals.start_date = dayjsToSurreal(vals.start_date) ?? undefined;
+    vals.end_date = dayjsToSurreal(vals.end_date) ?? undefined;
     vals.start_time = toTimeOfDayDate(vals.start_time);
     vals.end_time = toTimeOfDayDate(vals.end_time);
 
@@ -421,63 +416,81 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
               <Controller
                 name="start_date"
                 control={control}
-                render={({field}) => {
-                  const value = field.value
-                    ? typeof field.value === "string"
-                      ? field.value
-                      : toJsDate(field.value as any).toISOString().slice(0, 16)
-                    : "";
-                  return (
-                    <div>
-                      <Input
-                        type="datetime-local"
-                        label={t('forms.startDate')}
-                        value={value}
-                        onChange={field.onChange}
-                        error={errors?.start_date?.message as string}
-                      />
-                    </div>
-                  );
-                }}
+                render={({field}) => (
+                  <div>
+                    <DateTimePicker
+                      label={t('forms.startDate')}
+                      value={field.value as Dayjs | null}
+                      onChange={field.onChange}
+                      isClearable
+                    />
+                    {errors?.start_date?.message && (
+                      <InputError error={errors.start_date.message as string} />
+                    )}
+                  </div>
+                )}
               />
               <Controller
                 name="end_date"
                 control={control}
-                render={({field}) => {
-                  const value = field.value
-                    ? typeof field.value === "string"
-                      ? field.value
-                      : toJsDate(field.value as any).toISOString().slice(0, 16)
-                    : "";
-                  return (
-                    <div>
-                      <Input
-                        type="datetime-local"
-                        label={t('forms.endDate')}
-                        value={value}
-                        onChange={field.onChange}
-                        error={errors?.end_date?.message as string}
-                      />
-                    </div>
-                  );
-                }}
+                render={({field}) => (
+                  <div>
+                    <DateTimePicker
+                      label={t('forms.endDate')}
+                      value={field.value as Dayjs | null}
+                      onChange={field.onChange}
+                      isClearable
+                    />
+                    {errors?.end_date?.message && (
+                      <InputError error={errors.end_date.message as string} />
+                    )}
+                  </div>
+                )}
               />
             </div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" {...register("stackable")} id="stackable"/>
-              <label htmlFor="stackable">Stackable with other discounts</label>
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                {...register("first_order_only")}
-                id="first_order_only"
+            <div className="flex flex-wrap gap-4">
+              <Controller
+                name="stackable"
+                control={control}
+                defaultValue={false}
+                render={({field}) => (
+                  <div>
+                    <Checkbox
+                      label={t('columns.stackable')}
+                      checked={!!field.value}
+                      onChange={e => field.onChange((e.target as HTMLInputElement).checked)}
+                    />
+                  </div>
+                )}
               />
-              <label htmlFor="first_order_only">First order only</label>
-            </div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" {...register("is_active")} id="is_active"/>
-              <label htmlFor="is_active">Active</label>
+              <Controller
+                name="first_order_only"
+                control={control}
+                defaultValue={false}
+                render={({field}) => (
+                  <div>
+                    <Checkbox
+                      label={t('columns.firstOrderOnly')}
+                      checked={!!field.value}
+                      onChange={e => field.onChange((e.target as HTMLInputElement).checked)}
+                    />
+                  </div>
+                )}
+              />
+              <Controller
+                name="is_active"
+                control={control}
+                defaultValue={true}
+                render={({field}) => (
+                  <div>
+                    <Checkbox
+                      label={t('discountEngine.fields.isActive')}
+                      checked={field.value ?? true}
+                      onChange={e => field.onChange((e.target as HTMLInputElement).checked)}
+                    />
+                  </div>
+                )}
+              />
             </div>
           </div>
         </div>

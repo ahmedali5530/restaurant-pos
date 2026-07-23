@@ -12,8 +12,7 @@ import {InventoryPurchaseOrderForm} from "@/components/inventory/purchase_orders
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {InventoryPurchaseOrderViewModal} from "@/components/inventory/purchase_orders/view.modal.tsx";
-import {InventoryDocumentPrintModal} from "@/components/inventory/common/document.print.modal.tsx";
-import {InventoryInvoiceDoc, mapPurchaseOrderToInvoice} from "@/lib/inventory/invoice.mapper.ts";
+import {inventoryPrintUrl} from "@/routes/posr.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {formatDateTime} from "@/lib/datetime.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
@@ -35,7 +34,6 @@ export const InventoryPurchaseOrders = () => {
   const [formModal, setFormModal] = useState(false);
   const [viewOrder, setViewOrder] = useState<InventoryPurchaseOrder | null>(null);
   const [viewModal, setViewModal] = useState(false);
-  const [printDoc, setPrintDoc] = useState<InventoryInvoiceDoc | null>(null);
 
   const columnHelper = createColumnHelper<InventoryPurchaseOrder>();
 
@@ -90,7 +88,7 @@ export const InventoryPurchaseOrders = () => {
               variant="secondary"
              
              
-              onClick={() => setPrintDoc(mapPurchaseOrderToInvoice(row))}
+              onClick={() => window.open(inventoryPrintUrl("purchase-order", String(row.id)), "_blank")}
             >
               <FontAwesomeIcon icon={faPrint}/>
             </IconTooltipButton>
@@ -179,12 +177,6 @@ export const InventoryPurchaseOrders = () => {
           }}
         />
       )}
-
-      <InventoryDocumentPrintModal
-        open={!!printDoc}
-        doc={printDoc}
-        onClose={() => setPrintDoc(null)}
-      />
     </>
   );
 };

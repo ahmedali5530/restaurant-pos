@@ -12,8 +12,7 @@ import {InventoryWasteForm} from "@/components/inventory/wastes/form.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {InventoryWasteViewModal} from "@/components/inventory/wastes/view.modal.tsx";
-import {InventoryDocumentPrintModal} from "@/components/inventory/common/document.print.modal.tsx";
-import {InventoryInvoiceDoc, mapWasteToInvoice} from "@/lib/inventory/invoice.mapper.ts";
+import {inventoryPrintUrl} from "@/routes/posr.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {formatDateTime} from "@/lib/datetime.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
@@ -35,7 +34,6 @@ export const InventoryWastes = () => {
   const [formModal, setFormModal] = useState(false);
   const [viewWaste, setViewWaste] = useState<InventoryWaste | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
-  const [printDoc, setPrintDoc] = useState<InventoryInvoiceDoc | null>(null);
 
   const columnHelper = createColumnHelper<InventoryWaste>();
 
@@ -95,7 +93,7 @@ export const InventoryWastes = () => {
               variant="secondary"
              
              
-              onClick={() => setPrintDoc(mapWasteToInvoice(info.row.original))}
+              onClick={() => window.open(inventoryPrintUrl("waste", String(info.row.original.id)), "_blank")}
             >
               <FontAwesomeIcon icon={faPrint}/>
             </IconTooltipButton>
@@ -177,12 +175,6 @@ export const InventoryWastes = () => {
           }}
         />
       )}
-
-      <InventoryDocumentPrintModal
-        open={!!printDoc}
-        doc={printDoc}
-        onClose={() => setPrintDoc(null)}
-      />
     </>
   );
 };

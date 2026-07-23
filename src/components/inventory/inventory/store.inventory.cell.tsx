@@ -24,6 +24,13 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
   const unitCost = resolveCatalogUnitCost(item);
   const stockValue = lineAmount(unitCost, netQuantity);
 
+  const resolveItemMeta = (rowItem?: {name?: string; code?: string; uom?: string}) => ({
+    ...rowItem,
+    name: rowItem?.name || item?.name,
+    code: rowItem?.code || item?.code,
+    uom: rowItem?.uom || item?.uom,
+  });
+
   const unified = useMemo(() => {
     const list: Array<{
       id: string;
@@ -40,7 +47,7 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
         operator: "+",
         quantity: row.quantity,
         created_at: row.created_at instanceof Date ? row.created_at : new Date(row.created_at),
-        item: row.item,
+        item: resolveItemMeta(row.item),
       })),
       ...records.returns.map((row: any) => ({
         id: String(row.id),
@@ -48,7 +55,7 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
         operator: "-",
         quantity: row.quantity,
         created_at: row.created_at instanceof Date ? row.created_at : new Date(row.created_at),
-        item: row.item,
+        item: resolveItemMeta(row.item),
       })),
       ...records.issues.map((row: any) => ({
         id: String(row.id),
@@ -56,7 +63,7 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
         operator: "-",
         quantity: row.quantity,
         created_at: row.created_at instanceof Date ? row.created_at : new Date(row.created_at),
-        item: row.item,
+        item: resolveItemMeta(row.item),
       })),
       ...records.issueReturns.map((row: any) => ({
         id: String(row.id),
@@ -64,7 +71,7 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
         operator: "+",
         quantity: row.quantity,
         created_at: row.created_at instanceof Date ? row.created_at : new Date(row.created_at),
-        item: row.item,
+        item: resolveItemMeta(row.item),
       })),
       ...records.waste.map((row: any) => ({
         id: String(row.id),
@@ -72,7 +79,7 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
         operator: "-",
         quantity: row.quantity,
         created_at: row.created_at instanceof Date ? row.created_at : new Date(row.created_at),
-        item: row.item,
+        item: resolveItemMeta(row.item),
       })),
       ...records.transfersIn.map((row) => ({
         id: row.id,
@@ -80,7 +87,7 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
         operator: "+",
         quantity: row.quantity,
         created_at: row.created_at,
-        item: row.item,
+        item: resolveItemMeta(row.item),
         counterparty: row.counterparty,
       })),
       ...records.transfersOut.map((row) => ({
@@ -89,7 +96,7 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
         operator: "-",
         quantity: row.quantity,
         created_at: row.created_at,
-        item: row.item,
+        item: resolveItemMeta(row.item),
         counterparty: row.counterparty,
       })),
       ...records.productionOutputs.map((row) => ({
@@ -98,7 +105,7 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
         operator: "+",
         quantity: row.quantity,
         created_at: row.created_at,
-        item: row.item,
+        item: resolveItemMeta(row.item),
         counterparty: row.batchNumber,
       })),
       ...records.productionInputs.map((row) => ({
@@ -107,7 +114,7 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
         operator: "-",
         quantity: row.quantity,
         created_at: row.created_at,
-        item: row.item,
+        item: resolveItemMeta(row.item),
         counterparty: row.batchNumber,
       })),
       ...records.buffetConsumption.map((row) => ({
@@ -116,7 +123,7 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
         operator: "-",
         quantity: row.quantity,
         created_at: row.created_at,
-        item: {...row.item, name: item?.name, code: item?.code, uom: item?.uom},
+        item: resolveItemMeta(row.item),
         counterparty: row.sessionNumber,
       })),
       ...(records.adjustments ?? []).map((row) => ({
@@ -125,7 +132,7 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
         operator: row.quantity >= 0 ? "+" : "-",
         quantity: Math.abs(row.quantity),
         created_at: row.created_at,
-        item: {...row.item, name: item?.name, code: item?.code, uom: item?.uom},
+        item: resolveItemMeta(row.item),
         counterparty: row.notes,
       })),
     ];
@@ -279,7 +286,7 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
                             return (
                               <tr key={splitItem.id}>
                                 <td>{splitItem.created_at ? toLuxonDateTime(splitItem.created_at).toFormat(import.meta.env.VITE_DATE_FORMAT) : splitItem.created_at}</td>
-                                <td>{splitItem.quantity} {splitItem.item?.uom}</td>
+                                <td>{splitItem.quantity} {splitItem.item?.uom || item?.uom}</td>
                               </tr>
                             );
                           })}

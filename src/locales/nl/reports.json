@@ -328,7 +328,8 @@
     "itemName": "Artikelnaam",
     "itemCode": "Artikelcode",
     "landedCost": "Landed cost",
-    "finalInventory": "Final inventory"
+    "finalInventory": "Final inventory",
+    "taxPercent": "Belasting %"
   },
   "labels": {
     "modifiers": "Modifiers",

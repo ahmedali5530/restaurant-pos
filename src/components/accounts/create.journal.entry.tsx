@@ -1,6 +1,6 @@
 import {FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {Controller, useFieldArray, useForm} from "react-hook-form";
-import {DateTime} from "luxon";
+import dayjs, {type Dayjs} from "dayjs";
 import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {StringRecordId, RecordId} from "surrealdb";
@@ -10,13 +10,14 @@ import {useTranslation} from "react-i18next";
 import {toast} from "sonner";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input} from "@/components/common/input/input.tsx";
-import {InputField} from "@/components/common/form/rhf-fields.tsx";
+import {DateTimeField, InputField} from "@/components/common/form/rhf-fields.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Account, NormalBalance} from "@/api/model/account.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import {toQueryDateTime} from "@/components/accounts/reports.utils.ts";
 
 interface CreateJournalEntryProps {
   addModal: boolean;
@@ -32,7 +33,7 @@ interface JournalLineForm {
 }
 
 interface JournalEntryForm {
-  date: string;
+  date: Dayjs | null;
   memo?: string;
   source_module?: string;
   source_id?: string;
@@ -95,7 +96,7 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
 
   const {register, handleSubmit, control, reset, watch} = useForm<JournalEntryForm>({
     defaultValues: {
-      date: DateTime.now().toFormat("yyyy-MM-dd'T'HH:mm"),
+      date: dayjs(),
       lines: [{...EMPTY_LINE}, {...EMPTY_LINE}],
     }
   });
@@ -154,7 +155,7 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
 
   const onModalClose = () => {
     reset({
-      date: DateTime.now().toFormat("yyyy-MM-dd'T'HH:mm"),
+      date: dayjs(),
       memo: "",
       source_module: "",
       source_id: "",
@@ -219,7 +220,7 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
       const resolvedEntryNumber = entryNumber ?? await fetchNextEntryNumber();
       const [entry] = await db.insert(Tables.account_journal_entries, {
         entry_number: resolvedEntryNumber,
-        date: DateTime.fromFormat(values.date, "yyyy-MM-dd'T'HH:mm").toJSDate(),
+        date: toQueryDateTime(values.date),
         memo: values.memo || null,
         source_module: values.source_module || null,
         source_id: values.source_id || null,
@@ -274,7 +275,7 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
             />
           </div>
           <div>
-            <InputField name="date" control={control} id="entry_date" type="datetime-local" className="w-full" label={t('columns.date')}/>
+            <DateTimeField name="date" control={control} className="w-full" label={t('columns.date')} isClearable={false}/>
           </div>
           <div>
             <InputField name="source_module" control={control} id="entry_source_module" className="w-full"

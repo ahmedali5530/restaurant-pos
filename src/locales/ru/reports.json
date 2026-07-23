@@ -328,7 +328,8 @@
     "itemName": "Название товара",
     "itemCode": "Код товара",
     "landedCost": "Landed cost",
-    "finalInventory": "Final inventory"
+    "finalInventory": "Final inventory",
+    "taxPercent": "Налог %"
   },
   "labels": {
     "modifiers": "Модификаторы",

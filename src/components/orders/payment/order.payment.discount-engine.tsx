@@ -19,6 +19,7 @@ import { orderItemToEvaluable } from '@/lib/discount-engine/context.ts'
 import { getOrderFilteredItems } from '@/lib/order.ts'
 import { ReactSelect } from '@/components/common/input/custom.react.select.tsx'
 import { matchesApplicationMode } from '@/lib/discount-engine/eligibility.ts'
+import {Input} from "@/components/common/input/input.tsx";
 
 interface Props {
   order: Order
@@ -225,11 +226,12 @@ export const OrderPaymentDiscountEngine = ({
               value={reasonOptions.find(o => o.value === reasonId)}
               onChange={(opt: any) => setReasonId(opt?.value)}
             />
-            <input
+            <Input
               className="border rounded px-3 py-2"
               placeholder={t('discount.reasonNotes')}
               value={reasonText}
               onChange={e => setReasonText(e.target.value)}
+              enableKeyboard
             />
           </div>
         )}

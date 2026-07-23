@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useState} from "react";
-import {DateTime} from "luxon";
+import dayjs, {type Dayjs} from "dayjs";
 import {useTranslation} from "react-i18next";
-import {Input} from "@/components/common/input/input.tsx";
+import {DateTimePicker} from "@/components/common/antd/datetime.picker.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {Loader} from "@/components/common/loader/loader.tsx";
 import {useDB} from "@/api/db/db.ts";
@@ -26,7 +26,7 @@ export const BalanceSheet = () => {
   const db = useDB();
   const [rows, setRows] = useState<BalanceSheetRow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [asOf, setAsOf] = useState(DateTime.now().toFormat("yyyy-MM-dd'T'HH:mm"));
+  const [asOf, setAsOf] = useState<Dayjs | null>(dayjs());
 
   const loadBalanceSheet = async (event?: any) => {
     event?.preventDefault?.();
@@ -110,12 +110,7 @@ export const BalanceSheet = () => {
     <>
       <form className="grid grid-cols-4 gap-4 mb-4" onSubmit={loadBalanceSheet}>
         <div className="col-span-3">
-          <Input
-            type="datetime-local"
-            className="w-full"
-            value={asOf}
-            onChange={(e) => setAsOf(e.target.value)}
-          />
+          <DateTimePicker value={asOf} onChange={setAsOf} />
         </div>
         <div>
           <Button variant="primary" type="submit" className="w-full" disabled={isLoading}>

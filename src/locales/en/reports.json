@@ -332,7 +332,8 @@
     "difference": "Difference",
     "sale": "Sale",
     "itemName": "Item Name",
-    "itemCode": "Item code"
+    "itemCode": "Item code",
+    "taxPercent": "Tax %"
   },
   "labels": {
     "modifiers": "Modifiers",

@@ -6,10 +6,21 @@ export interface ReleaseNotes {
 }
 
 /** Bump this string on every release. */
-export const APP_VERSION = '1.0.6';
+export const APP_VERSION = '1.0.7';
 
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
+  {
+    version: '1.0.7',
+    date: '2026-07-22',
+    title: 'Inventory print pages and report polish',
+    items: [
+      'Inventory receipts open on a dedicated print URL so they can be linked from purchase, issue, and waste reports.',
+      'Tax report shows tax percent alongside tax amount.',
+      'Accounts reports and journal entry date filters use Ant Design date-time pickers.',
+      'Current inventory detail modal shows item name/code for ledger movements.',
+    ],
+  },
   {
     version: '1.0.6',
     date: '2026-07-22',
