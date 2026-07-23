@@ -85,7 +85,7 @@ function App() {
           </IntegrationProvider>
 
           <Alert/>
-          <Toaster richColors position="top-right" closeButton={true}/>
+          <Toaster richColors position="top-right" closeButton={true} duration={2000}/>
         </DatabaseProvider>
       </ConfigProvider>
     </QueryClientProvider>

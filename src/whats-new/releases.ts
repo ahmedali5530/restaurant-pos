@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-07-23',
+    title: 'Stock transfers update location quantities',
+    items: [
+      'Stock transfers now post transfer_out / transfer_in ledger rows so Current Inventory decreases at the source location and increases at the destination.',
+      'Re-run the inventory ledger backfill script if older location-based transfers still show unchanged quantities.',
+    ],
+  },
+  {
+    date: '2026-07-23',
     title: 'Gateway auth stability',
     items: [
       'Fixed Reports opening in a new tab under gateway auth (session tokens are shared across tabs; Login no longer redirect-loops).',

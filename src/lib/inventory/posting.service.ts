@@ -144,15 +144,16 @@ const buildLedgerCreateStatements = (
 
 const loadLedgerRowsForDocument = async (
   db: DatabaseClient,
-  referenceType: string,
+  referenceTypes: string | string[],
   referenceId: string
 ) => {
+  const types = Array.isArray(referenceTypes) ? referenceTypes : [referenceTypes];
   const [rows] = await db.query(
     `SELECT * FROM ${Tables.inventory_ledger}
-     WHERE reference_type = $type AND reference_id = $ref
+     WHERE reference_type IN $types AND reference_id = $ref
        AND (notes = NONE OR string::starts_with(notes, 'reversal:') = false)`,
     {
-      type: referenceType,
+      types,
       ref: recordIdToString(referenceId) || String(referenceId),
     }
   );
@@ -204,7 +205,7 @@ export const reverseDocument = async (
 
   const originalRows = await loadLedgerRowsForDocument(
     input.db,
-    strategy.referenceType,
+    strategy.ledgerReferenceTypes ?? [strategy.referenceType],
     documentId
   );
 
@@ -346,7 +347,7 @@ export const postDocument = async (
   }
 
   if (strategy.requiresAvailabilityCheck && strategy.getAvailabilityLines) {
-    const lines = strategy.getAvailabilityLines(items);
+    const lines = strategy.getAvailabilityLines(items, doc);
     for (const line of lines) {
       const locationId = await resolveStockLocationId(input.db, line.locationId);
       const available = await fetchNetQuantity(

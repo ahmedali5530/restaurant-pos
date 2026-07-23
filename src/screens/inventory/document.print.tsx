@@ -51,7 +51,7 @@ export const InventoryDocumentPrintPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [db, id, t, type]);
+  }, [id, t, type]);
 
   const baseName = doc?.fileBaseName || `inventory-${doc?.invoiceNumber || "receipt"}`;
 

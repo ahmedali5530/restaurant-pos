@@ -366,6 +366,8 @@ async function backfillTransfers(db, stats) {
   const items = rows(
     await db.query(
       `SELECT id, item, quantity, transfer,
+              transfer.from_location AS from_location,
+              transfer.to_location AS to_location,
               transfer.from_store AS from_store,
               transfer.to_store AS to_store,
               transfer.created_at AS created_at,
@@ -376,8 +378,8 @@ async function backfillTransfers(db, stats) {
   );
   for (const row of items) {
     const itemId = resolveRecord(row.item);
-    const fromStore = resolveRecord(row.from_store);
-    const toStore = resolveRecord(row.to_store);
+    const fromLocation = resolveRecord(row.from_location) || resolveRecord(row.from_store);
+    const toLocation = resolveRecord(row.to_location) || resolveRecord(row.to_store);
     const lineId = toId(row.id);
     const refId = resolveRecord(row.transfer);
     if (!itemId || !lineId) {
@@ -385,13 +387,13 @@ async function backfillTransfers(db, stats) {
       continue;
     }
     const qty = Number(row.quantity) || 0;
-    if (fromStore) {
+    if (fromLocation) {
       const result = await upsertLedger(db, {
         created_at: row.created_at,
         created_by: resolveRecord(row.created_by),
         business_date: businessDateFrom(row.created_at),
         inventory_item: itemId,
-        inventory_location: fromStore,
+        inventory_location: fromLocation,
         quantity_change: -qty,
         reference_type: 'transfer_out',
         reference_id: refId || lineId,
@@ -400,13 +402,13 @@ async function backfillTransfers(db, stats) {
       });
       stats[result] += 1;
     }
-    if (toStore) {
+    if (toLocation) {
       const result = await upsertLedger(db, {
         created_at: row.created_at,
         created_by: resolveRecord(row.created_by),
         business_date: businessDateFrom(row.created_at),
         inventory_item: itemId,
-        inventory_location: toStore,
+        inventory_location: toLocation,
         quantity_change: qty,
         reference_type: 'transfer_in',
         reference_id: refId || lineId,

@@ -70,7 +70,11 @@ const resolveEndpointIds = (input: StockTransferInput) => ({
   toId: input.toLocationId || input.toStoreId,
 });
 
-const buildHeaderPayload = (input: StockTransferInput, userId?: string) => {
+const buildHeaderPayload = (
+  input: StockTransferInput,
+  userId?: string,
+  options?: {status?: string}
+) => {
   const {fromId, toId} = resolveEndpointIds(input);
   const payload: Record<string, unknown> = {
     notes: input.notes?.trim() || null,
@@ -81,6 +85,10 @@ const buildHeaderPayload = (input: StockTransferInput, userId?: string) => {
     from_location: fromId ? toLocationRecordId(fromId) : null,
     to_location: toId ? toLocationRecordId(toId) : null,
   };
+
+  if (options?.status) {
+    payload.status = options.status;
+  }
 
   if (input.createdAt) {
     payload.created_at = toSurrealDateTime(input.createdAt);
@@ -196,7 +204,7 @@ export const createStockTransfer = async (
   integrationManager?: IntegrationManager | null
 ): Promise<StockTransfer> => {
   const payload = {
-    ...buildHeaderPayload(input, userId),
+    ...buildHeaderPayload(input, userId, {status: "draft"}),
     created_at: input.createdAt
       ? toSurrealDateTime(input.createdAt)
       : nowSurrealDateTime(),

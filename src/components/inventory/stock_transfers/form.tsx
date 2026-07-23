@@ -27,6 +27,7 @@ import {
   createStockTransfer,
   updateStockTransfer,
 } from "@/lib/inventory/stock_transfer.service.ts";
+import {postDocument, InventoryPostingError} from "@/lib/inventory/posting.service.ts";
 import {fetchNetQuantity, validateStoreTransferAvailability} from "@/utils/inventory.ts";
 import {useInventoryLocations} from "@/hooks/useInventoryLocations.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
@@ -287,14 +288,37 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
           toast.error(t("stockTransfer.userRequired"));
           return;
         }
-        await createStockTransfer(db, payload, toRecordIdString(state.user.id), integrationManager);
+        const userId = toRecordIdString(state.user.id);
+        const created = await createStockTransfer(db, payload, userId, integrationManager);
+        const documentId = toRecordIdString(created.id);
+        try {
+          await postDocument({
+            db,
+            documentType: "stock_transfer",
+            documentId,
+            userId,
+            integrationManager,
+          });
+        } catch (error) {
+          console.error("Failed to post stock transfer", error);
+          toast.error(
+            error instanceof InventoryPostingError
+              ? error.message
+              : t("stockTransfer.saveFailed")
+          );
+          return;
+        }
         toast.success(t("stockTransfer.created"));
       }
 
       onClose();
     } catch (error) {
       console.error("Failed to save stock transfer", error);
-      toast.error(t("stockTransfer.saveFailed"));
+      toast.error(
+        error instanceof InventoryPostingError
+          ? error.message
+          : t("stockTransfer.saveFailed")
+      );
     }
   };
 
