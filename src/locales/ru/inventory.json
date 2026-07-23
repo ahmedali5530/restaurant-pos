@@ -41,7 +41,10 @@
     "deleteAdjustments": "Delete adjustment",
     "postAdjustments": "Post inventory adjustment",
     "approveAdjustments": "Approve inventory adjustment",
-    "voidAdjustments": "Void inventory adjustment"
+    "voidAdjustments": "Void inventory adjustment",
+    "approvePurchaseOrders": "Утвердить заказ на закупку",
+    "submitPurchaseOrders": "Отправить заказ на закупку на утверждение",
+    "rejectPurchaseOrders": "Отклонить заказ на закупку"
   },
   "columns": {
     "name": "Название",
@@ -79,6 +82,7 @@
     "store": "Склад",
     "unitCost": "Unit cost",
     "amount": "Amount",
+    "total": "Итого",
     "stockValue": "Value",
     "reason": "Reason",
     "quantityChange": "Qty (+/-)",
@@ -532,5 +536,15 @@
     "by_quantity": "By quantity",
     "equal": "Equal",
     "manual": "Manual"
+  },
+  "purchaseOrder": {
+    "submitted": "Заказ на закупку отправлен на утверждение",
+    "approved": "Заказ на закупку утверждён",
+    "rejected": "Заказ на закупку отклонён",
+    "rejectConfirm": "Отклонить заказ на закупку №{{number}}?",
+    "submitForApproval": "Отправить на утверждение",
+    "submittedAt": "Отправлено",
+    "approvedAt": "Утверждено",
+    "rejectedAt": "Отклонено"
   }
 }

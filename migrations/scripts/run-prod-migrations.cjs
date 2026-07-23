@@ -48,7 +48,8 @@ const MIGRATION_PLAN = [
     backfill: 'backfill-location-refs.cjs',
   },
   { id: '2026_07_18_purchase_landed_cost', file: '2026_07_18_purchase_landed_cost.surql' },
-  {id: '2026_07_20_fix_purchase_extras', file: '2026_07_20.surql'}
+  { id: '2026_07_20_fix_purchase_extras', file: '2026_07_20.surql'},
+  { id: '2026_07_23_purchase_order_approval', file: '2026_07_23_purchase_order_approval.surql' },
 ];
 
 const rows = (result) => {

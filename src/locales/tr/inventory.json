@@ -41,7 +41,10 @@
     "deleteAdjustments": "Delete adjustment",
     "postAdjustments": "Post inventory adjustment",
     "approveAdjustments": "Approve inventory adjustment",
-    "voidAdjustments": "Void inventory adjustment"
+    "voidAdjustments": "Void inventory adjustment",
+    "approvePurchaseOrders": "Satın alma siparişini onayla",
+    "submitPurchaseOrders": "Satın alma siparişini onaya gönder",
+    "rejectPurchaseOrders": "Satın alma siparişini reddet"
   },
   "columns": {
     "name": "Ad",
@@ -79,6 +82,7 @@
     "store": "Depo",
     "unitCost": "Unit cost",
     "amount": "Amount",
+    "total": "Toplam",
     "stockValue": "Value",
     "reason": "Reason",
     "quantityChange": "Qty (+/-)",
@@ -532,5 +536,15 @@
     "by_quantity": "By quantity",
     "equal": "Equal",
     "manual": "Manual"
+  },
+  "purchaseOrder": {
+    "submitted": "Satın alma siparişi onaya gönderildi",
+    "approved": "Satın alma siparişi onaylandı",
+    "rejected": "Satın alma siparişi reddedildi",
+    "rejectConfirm": "Satın alma siparişi #{{number}} reddedilsin mi?",
+    "submitForApproval": "Onaya gönder",
+    "submittedAt": "Gönderilme",
+    "approvedAt": "Onaylanma",
+    "rejectedAt": "Reddedilme"
   }
 }

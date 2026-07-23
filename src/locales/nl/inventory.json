@@ -41,7 +41,10 @@
     "deleteAdjustments": "Delete adjustment",
     "postAdjustments": "Post inventory adjustment",
     "approveAdjustments": "Approve inventory adjustment",
-    "voidAdjustments": "Void inventory adjustment"
+    "voidAdjustments": "Void inventory adjustment",
+    "approvePurchaseOrders": "Inkooporder goedkeuren",
+    "submitPurchaseOrders": "Inkooporder indienen ter goedkeuring",
+    "rejectPurchaseOrders": "Inkooporder afwijzen"
   },
   "columns": {
     "name": "Naam",
@@ -79,6 +82,7 @@
     "store": "Magazijn",
     "unitCost": "Unit cost",
     "amount": "Amount",
+    "total": "Totaal",
     "stockValue": "Value",
     "reason": "Reason",
     "quantityChange": "Qty (+/-)",
@@ -532,5 +536,15 @@
     "by_quantity": "By quantity",
     "equal": "Equal",
     "manual": "Manual"
+  },
+  "purchaseOrder": {
+    "submitted": "Inkooporder ingediend ter goedkeuring",
+    "approved": "Inkooporder goedgekeurd",
+    "rejected": "Inkooporder afgewezen",
+    "rejectConfirm": "Wilt u inkooporder #{{number}} afwijzen?",
+    "submitForApproval": "Indienen ter goedkeuring",
+    "submittedAt": "Ingediend op",
+    "approvedAt": "Goedgekeurd op",
+    "rejectedAt": "Afgewezen op"
   }
 }

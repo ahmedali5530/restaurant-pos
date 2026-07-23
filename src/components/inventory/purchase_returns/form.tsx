@@ -33,6 +33,8 @@ import { useInventoryLocations } from "@/hooks/useInventoryLocations.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { useIntegrationManager } from "@/providers/integration.provider.tsx";
 import { publishPurchaseReturned } from "@/integrations/accounting/events/publish.ts";
+import { postDocument } from "@/lib/inventory/posting.service.ts";
+import { recordIdToString } from "@/api/reports/shared/records.ts";
 
 
 interface Props {
@@ -355,7 +357,10 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
         documents: documentRefs.length > 0 ? documentRefs : undefined,
         items: [],
         created_at: values.date ? toSurrealDateTime(calendarDateToDate(values.date) || undefined) : nowSurrealDateTime(),
-        created_by: toRecordId(state.user.id)
+        created_by: toRecordId(state.user.id),
+        status: data?.id
+          ? (data.status && data.status !== "posted" ? data.status : "draft")
+          : "draft",
       };
 
       let purchaseReturnId: any = data?.id;
@@ -463,6 +468,15 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
         items: itemsRefs,
       });
 
+      const userId = state?.user?.id ? recordIdToString(state.user.id) : undefined;
+      const postResult = await postDocument({
+        db,
+        documentType: "purchase_return",
+        documentId: String(purchaseReturnIdString),
+        userId,
+        integrationManager,
+      });
+
       let inventoryValue = Number(
         values.items
           .reduce((sum, item) => {
@@ -517,7 +531,11 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
         );
       }
 
-      toast.success(t('toast:inventory.purchaseReturnSaved'));
+      toast.success(
+        postResult.skipped
+          ? (postResult.reason || t('toast:inventory.purchaseReturnSaved'))
+          : t('toast:inventory.purchaseReturnSaved')
+      );
       closeModal();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : String(error));

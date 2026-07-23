@@ -28,6 +28,8 @@ import {computeLine} from "@/lib/kitchen/reconciliation.calculations.ts";
 import {nowSurrealDateTime, toJsDate, toSurrealDateTime, getAppTimezone} from "@/lib/datetime.ts";
 import {safeNumber, toRecordId} from "@/lib/utils.ts";
 import {fetchNextSequentialNumber} from "@/utils/recordNumbers.ts";
+import {postDocument} from "@/lib/inventory/posting.service.ts";
+import {toLocationRecordId} from "@/lib/inventory/location.service.ts";
 
 type DatabaseClient = ReturnType<typeof useDB>;
 
@@ -1085,28 +1087,43 @@ const postToLedger = async (
     items: [],
     created_at: nowSurrealDateTime(),
     created_by: toRecordId(userId),
+    status: "draft",
   });
 
   const wasteId = recordToString(wasteHeader?.id);
   const wasteItemRefs: unknown[] = [];
+
+  const [issueRows] = await db.query(
+    `SELECT location, store FROM $id LIMIT 1`,
+    {id: toRecordId(issueId)}
+  );
+  const issueDoc = unwrapRows<{location?: unknown; store?: unknown}>(issueRows)[0];
+  const issueLocationId =
+    recordToString((issueDoc as any)?.location?.id ?? (issueDoc as any)?.location) ||
+    recordToString((issueDoc as any)?.store?.id ?? (issueDoc as any)?.store);
 
   for (const entry of entries) {
     if (entry.quantity <= 0) continue;
 
     const [issueItemRows] = await db.query(
       `
-        SELECT id FROM ${Tables.inventory_issue_items}
+        SELECT id, location, store FROM ${Tables.inventory_issue_items}
         WHERE issue = $issue AND item = $item
         LIMIT 1
       `,
       {issue: toRecordId(issueId), item: toInventoryItemRecordId(entry.itemId)}
     );
-    const issueItem = unwrapRows<{id: unknown}>(issueItemRows)[0];
+    const issueItem = unwrapRows<{id: unknown; location?: unknown; store?: unknown}>(issueItemRows)[0];
+    const lineLocationId =
+      recordToString((issueItem as any)?.location?.id ?? (issueItem as any)?.location) ||
+      recordToString((issueItem as any)?.store?.id ?? (issueItem as any)?.store) ||
+      issueLocationId;
 
     const [wasteItem] = await db.create(Tables.inventory_waste_items, {
       waste: toRecordId(wasteId),
       item: toInventoryItemRecordId(entry.itemId),
       issue_item: issueItem?.id ? toRecordId(issueItem.id) : undefined,
+      location: lineLocationId ? toLocationRecordId(lineLocationId) : undefined,
       quantity: entry.quantity,
       comments: entry.source,
       source: entry.source,
@@ -1119,6 +1136,15 @@ const postToLedger = async (
   }
 
   await db.merge(toRecordId(wasteId), {items: wasteItemRefs});
+
+  if (wasteId && wasteItemRefs.length > 0) {
+    await postDocument({
+      db,
+      documentType: "waste",
+      documentId: wasteId,
+      userId,
+    });
+  }
 
   await db.query(
     `UPDATE ${Tables.kitchen_reconciliation_items} SET posted_to_ledger = true WHERE reconciliation = $id`,

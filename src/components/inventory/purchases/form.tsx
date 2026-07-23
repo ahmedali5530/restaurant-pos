@@ -246,7 +246,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
     isFetching: loadingPurchaseOrders,
   } = useApi<SettingsData<InventoryPurchaseOrder>>(
     Tables.inventory_purchase_orders,
-    [`status = '${PurchaseOrderStatus.pending}'`],
+    [`status = '${PurchaseOrderStatus.approved}'`],
     [],
     0,
     9999,

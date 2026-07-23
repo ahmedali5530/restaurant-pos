@@ -41,7 +41,10 @@
     "deleteAdjustments": "Delete adjustment",
     "postAdjustments": "Post inventory adjustment",
     "approveAdjustments": "Approve inventory adjustment",
-    "voidAdjustments": "Void inventory adjustment"
+    "voidAdjustments": "Void inventory adjustment",
+    "approvePurchaseOrders": "Aprovar pedido de compra",
+    "submitPurchaseOrders": "Enviar pedido de compra para aprovação",
+    "rejectPurchaseOrders": "Rejeitar pedido de compra"
   },
   "columns": {
     "name": "Nome",
@@ -79,6 +82,7 @@
     "store": "Loja",
     "unitCost": "Unit cost",
     "amount": "Amount",
+    "total": "Total",
     "stockValue": "Value",
     "reason": "Reason",
     "quantityChange": "Qty (+/-)",
@@ -532,5 +536,15 @@
     "by_quantity": "By quantity",
     "equal": "Equal",
     "manual": "Manual"
+  },
+  "purchaseOrder": {
+    "submitted": "Pedido de compra enviado para aprovação",
+    "approved": "Pedido de compra aprovado",
+    "rejected": "Pedido de compra rejeitado",
+    "rejectConfirm": "Deseja rejeitar o pedido de compra #{{number}}?",
+    "submitForApproval": "Enviar para aprovação",
+    "submittedAt": "Enviado em",
+    "approvedAt": "Aprovado em",
+    "rejectedAt": "Rejeitado em"
   }
 }

@@ -41,7 +41,10 @@
     "deleteAdjustments": "Supprimer l'ajustement",
     "postAdjustments": "Comptabiliser l'ajustement de stock",
     "approveAdjustments": "Approuver l'ajustement de stock",
-    "voidAdjustments": "Annuler l'ajustement de stock"
+    "voidAdjustments": "Annuler l'ajustement de stock",
+    "approvePurchaseOrders": "Approuver le bon de commande",
+    "submitPurchaseOrders": "Soumettre le bon de commande pour approbation",
+    "rejectPurchaseOrders": "Rejeter le bon de commande"
   },
   "columns": {
     "name": "Nom",
@@ -79,6 +82,7 @@
     "store": "Magasin",
     "unitCost": "Unit cost",
     "amount": "Amount",
+    "total": "Total",
     "stockValue": "Value",
     "reason": "Motif",
     "quantityChange": "Qté (+/-)",
@@ -532,5 +536,15 @@
     "by_quantity": "By quantity",
     "equal": "Equal",
     "manual": "Manual"
+  },
+  "purchaseOrder": {
+    "submitted": "Bon de commande soumis pour approbation",
+    "approved": "Bon de commande approuvé",
+    "rejected": "Bon de commande rejeté",
+    "rejectConfirm": "Voulez-vous rejeter le bon de commande #{{number}} ?",
+    "submitForApproval": "Soumettre pour approbation",
+    "submittedAt": "Soumis le",
+    "approvedAt": "Approuvé le",
+    "rejectedAt": "Rejeté le"
   }
 }

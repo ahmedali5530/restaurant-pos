@@ -41,7 +41,10 @@
     "deleteAdjustments": "Anpassung löschen",
     "postAdjustments": "Bestandsanpassung buchen",
     "approveAdjustments": "Bestandsanpassung genehmigen",
-    "voidAdjustments": "Bestandsanpassung stornieren"
+    "voidAdjustments": "Bestandsanpassung stornieren",
+    "approvePurchaseOrders": "Bestellung genehmigen",
+    "submitPurchaseOrders": "Bestellung zur Genehmigung einreichen",
+    "rejectPurchaseOrders": "Bestellung ablehnen"
   },
   "columns": {
     "name": "Name",
@@ -79,6 +82,7 @@
     "store": "Lagerort",
     "unitCost": "Unit cost",
     "amount": "Amount",
+    "total": "Gesamt",
     "stockValue": "Value",
     "reason": "Grund",
     "quantityChange": "Menge (+/-)",
@@ -532,5 +536,15 @@
     "by_quantity": "By quantity",
     "equal": "Equal",
     "manual": "Manual"
+  },
+  "purchaseOrder": {
+    "submitted": "Bestellung zur Genehmigung eingereicht",
+    "approved": "Bestellung genehmigt",
+    "rejected": "Bestellung abgelehnt",
+    "rejectConfirm": "Möchten Sie Bestellung #{{number}} ablehnen?",
+    "submitForApproval": "Zur Genehmigung einreichen",
+    "submittedAt": "Eingereicht am",
+    "approvedAt": "Genehmigt am",
+    "rejectedAt": "Abgelehnt am"
   }
 }

@@ -29,6 +29,8 @@ import { appPage } from "@/store/jotai.ts";
 import { toast } from "sonner";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import { issueListTotal } from "@/lib/inventory/document.list.total.ts";
+import { withCurrency } from "@/lib/utils.ts";
 
 export const InventoryIssues = () => {
   const { t } = useTranslation(['inventory', 'common']);
@@ -136,6 +138,11 @@ export const InventoryIssues = () => {
           ))}
         </div>
       )
+    }),
+    columnHelper.accessor(row => issueListTotal(row.items), {
+      id: "total",
+      header: t('columns.total'),
+      cell: info => withCurrency(info.getValue()),
     }),
     columnHelper.accessor("id", {
       id: "actions",

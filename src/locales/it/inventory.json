@@ -41,7 +41,10 @@
     "deleteAdjustments": "Delete adjustment",
     "postAdjustments": "Post inventory adjustment",
     "approveAdjustments": "Approve inventory adjustment",
-    "voidAdjustments": "Void inventory adjustment"
+    "voidAdjustments": "Void inventory adjustment",
+    "approvePurchaseOrders": "Approva ordine di acquisto",
+    "submitPurchaseOrders": "Invia ordine di acquisto per approvazione",
+    "rejectPurchaseOrders": "Rifiuta ordine di acquisto"
   },
   "columns": {
     "name": "Nome",
@@ -79,6 +82,7 @@
     "store": "Magazzino",
     "unitCost": "Unit cost",
     "amount": "Amount",
+    "total": "Totale",
     "stockValue": "Value",
     "reason": "Reason",
     "quantityChange": "Qty (+/-)",
@@ -532,5 +536,15 @@
     "by_quantity": "By quantity",
     "equal": "Equal",
     "manual": "Manual"
+  },
+  "purchaseOrder": {
+    "submitted": "Ordine di acquisto inviato per approvazione",
+    "approved": "Ordine di acquisto approvato",
+    "rejected": "Ordine di acquisto rifiutato",
+    "rejectConfirm": "Vuoi rifiutare l'ordine di acquisto #{{number}}?",
+    "submitForApproval": "Invia per approvazione",
+    "submittedAt": "Inviato il",
+    "approvedAt": "Approvato il",
+    "rejectedAt": "Rifiutato il"
   }
 }

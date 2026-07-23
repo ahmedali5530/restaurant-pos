@@ -1139,6 +1139,12 @@ DEFINE FIELD status ON inventory_purchase_order TYPE string PERMISSIONS FULL;
 DEFINE FIELD store ON inventory_purchase_order TYPE none | record<inventory_store> | null PERMISSIONS FULL;
 DEFINE FIELD location ON inventory_purchase_order TYPE none | record<inventory_location> | null PERMISSIONS FULL;
 DEFINE FIELD supplier ON inventory_purchase_order TYPE none | record<inventory_supplier> | null PERMISSIONS FULL;
+DEFINE FIELD submitted_at ON inventory_purchase_order TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD submitted_by ON inventory_purchase_order TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD approved_at ON inventory_purchase_order TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD approved_by ON inventory_purchase_order TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD rejected_at ON inventory_purchase_order TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD rejected_by ON inventory_purchase_order TYPE none | record<user> | null PERMISSIONS FULL;
 
 DEFINE INDEX po_number ON inventory_purchase_order FIELDS po_number UNIQUE;
 

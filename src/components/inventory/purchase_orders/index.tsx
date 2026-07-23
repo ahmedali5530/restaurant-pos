@@ -7,7 +7,7 @@ import {InventoryPurchaseOrder, PurchaseOrderStatus} from "@/api/model/inventory
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faFile, faPencil, faPlus, faPrint} from "@fortawesome/free-solid-svg-icons";
+import {faCheck, faFile, faPaperPlane, faPencil, faPlus, faPrint, faXmark} from "@fortawesome/free-solid-svg-icons";
 import {InventoryPurchaseOrderForm} from "@/components/inventory/purchase_orders/form.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
@@ -16,6 +16,17 @@ import {inventoryPrintUrl} from "@/routes/posr.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {formatDateTime} from "@/lib/datetime.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import {
+  approvePurchaseOrder,
+  rejectPurchaseOrder,
+  submitPurchaseOrder,
+} from "@/lib/inventory/purchase_order.service.ts";
+import { useAtom } from "jotai";
+import { appPage } from "@/store/jotai.ts";
+import { toast } from "sonner";
+import { recordIdToString } from "@/api/reports/shared/records.ts";
+import { purchaseOrderListTotal } from "@/lib/inventory/document.list.total.ts";
+import { withCurrency } from "@/lib/utils.ts";
 
 export const InventoryPurchaseOrders = () => {
   const { t } = useTranslation(['inventory', 'common']);
@@ -29,13 +40,70 @@ export const InventoryPurchaseOrders = () => {
   );
   const db = useDB();
   const { protectAction } = useSecurity();
+  const [state] = useAtom(appPage);
+  const userId = state?.user?.id ? recordIdToString(state.user.id) : undefined;
 
   const [data, setData] = useState<InventoryPurchaseOrder>();
   const [formModal, setFormModal] = useState(false);
   const [viewOrder, setViewOrder] = useState<InventoryPurchaseOrder | null>(null);
   const [viewModal, setViewModal] = useState(false);
+  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
   const columnHelper = createColumnHelper<InventoryPurchaseOrder>();
+
+  const handleSubmit = (row: InventoryPurchaseOrder) => {
+    protectAction(async () => {
+      try {
+        setActionLoadingId(String(row.id));
+        await submitPurchaseOrder(db, String(row.id), userId);
+        toast.success(t('purchaseOrder.submitted'));
+        loadHook.fetchData();
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : String(error));
+      } finally {
+        setActionLoadingId(null);
+      }
+    }, {
+      module: 'Edit Purchase Orders',
+      description: t('security.submitPurchaseOrders'),
+    });
+  };
+
+  const handleApprove = (row: InventoryPurchaseOrder) => {
+    protectAction(async () => {
+      try {
+        setActionLoadingId(String(row.id));
+        await approvePurchaseOrder(db, String(row.id), userId);
+        toast.success(t('purchaseOrder.approved'));
+        loadHook.fetchData();
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : String(error));
+      } finally {
+        setActionLoadingId(null);
+      }
+    }, {
+      module: 'Approve Purchase Orders',
+      description: t('security.approvePurchaseOrders'),
+    });
+  };
+
+  const handleReject = (row: InventoryPurchaseOrder) => {
+    protectAction(async () => {
+      try {
+        setActionLoadingId(String(row.id));
+        await rejectPurchaseOrder(db, String(row.id), userId);
+        toast.success(t('purchaseOrder.rejected'));
+        loadHook.fetchData();
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : String(error));
+      } finally {
+        setActionLoadingId(null);
+      }
+    }, {
+      module: 'Approve Purchase Orders',
+      description: t('security.rejectPurchaseOrders'),
+    });
+  };
 
   const columns: any = [
     columnHelper.accessor("po_number", {
@@ -64,6 +132,11 @@ export const InventoryPurchaseOrders = () => {
         </div>
       )
     }),
+    columnHelper.accessor(row => purchaseOrderListTotal(row.items), {
+      id: "total",
+      header: t('columns.total'),
+      cell: info => withCurrency(info.getValue()),
+    }),
     columnHelper.accessor("id", {
       id: "actions",
       header: t('columns.actions'),
@@ -71,12 +144,14 @@ export const InventoryPurchaseOrders = () => {
       enableColumnFilter: false,
       cell: (info) => {
         const row = info.row.original;
+        const isDraft = row.status === PurchaseOrderStatus.draft;
+        const isPendingApproval = row.status === PurchaseOrderStatus.pendingApproval;
+        const busy = actionLoadingId === String(row.id);
 
         return (
           <div className="flex gap-3">
             <IconTooltipButton label={t('common:actions.view')}
               variant="secondary"
-             
               onClick={() => {
                 setViewOrder(row);
                 setViewModal(true);
@@ -86,14 +161,20 @@ export const InventoryPurchaseOrders = () => {
             </IconTooltipButton>
             <IconTooltipButton label={t('print.printReceipt')}
               variant="secondary"
-             
-             
               onClick={() => window.open(inventoryPrintUrl("purchase-order", String(row.id)), "_blank")}
             >
               <FontAwesomeIcon icon={faPrint}/>
             </IconTooltipButton>
-            {row.status === PurchaseOrderStatus.pending && (
+            {isDraft && (
               <>
+                <IconTooltipButton
+                  label={t('purchaseOrder.submitForApproval')}
+                  variant="secondary"
+                  disabled={busy}
+                  onClick={() => handleSubmit(row)}
+                >
+                  <FontAwesomeIcon icon={faPaperPlane}/>
+                </IconTooltipButton>
                 <IconTooltipButton
                   label={t('common:actions.edit')}
                   variant="primary"
@@ -126,6 +207,31 @@ export const InventoryPurchaseOrders = () => {
                     })
                   }
                 />
+              </>
+            )}
+            {isPendingApproval && (
+              <>
+                <IconTooltipButton
+                  label={t('common:actions.approve')}
+                  variant="success"
+                  disabled={busy}
+                  onClick={() => handleApprove(row)}
+                >
+                  <FontAwesomeIcon icon={faCheck}/>
+                </IconTooltipButton>
+                <DeleteConfirm
+                  title={t('common:actions.reject')}
+                  message={t('purchaseOrder.rejectConfirm', { number: row.po_number })}
+                  onConfirm={() => handleReject(row)}
+                >
+                  <IconTooltipButton
+                    label={t('common:actions.reject')}
+                    variant="danger"
+                    disabled={busy}
+                  >
+                    <FontAwesomeIcon icon={faXmark}/>
+                  </IconTooltipButton>
+                </DeleteConfirm>
               </>
             )}
 
@@ -180,4 +286,3 @@ export const InventoryPurchaseOrders = () => {
     </>
   );
 };
-

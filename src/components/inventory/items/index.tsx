@@ -73,6 +73,9 @@ export const InventoryItems = () => {
         );
       },
     }),
+    columnHelper.accessor("item_types", {
+      header: t('itemType.label')
+    }),
     columnHelper.accessor((row) => row.locations ?? row.stores ?? [], {
       id: "locations",
       header: t('tabs.locations'),

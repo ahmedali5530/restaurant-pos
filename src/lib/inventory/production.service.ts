@@ -22,6 +22,7 @@ import {
   publishProductionCompleted,
   publishWasteRecorded,
 } from "@/integrations/accounting/events/publish.ts";
+import {postDocument} from "@/lib/inventory/posting.service.ts";
 
 type DatabaseClient = ReturnType<typeof useDB>;
 
@@ -468,9 +469,12 @@ export const completeProductionBatch = async (
       created_at: now,
       created_by: toUserRecordId(userId),
       invoice_number: invoiceNumber,
+      status: "draft",
     });
     wasteHeaderId = recordToString(wasteHeader?.id);
   }
+
+  const wasteItemRefs: unknown[] = [];
 
   await Promise.all(
     scaled.outputs.map(async (line) => {
@@ -480,11 +484,14 @@ export const completeProductionBatch = async (
         const [wasteItem] = await db.create(Tables.inventory_waste_items, {
           waste: toRecordId(wasteHeaderId),
           item: toItemRecordId(line.itemId),
+          location: locationRef,
           quantity: line.quantity,
+          price: line.unitCost > 0 ? line.unitCost : undefined,
           comments: `Production batch ${batchNumber}`,
           source: "production",
         });
         ledgerWasteItem = wasteItem?.id ?? null;
+        if (wasteItem?.id) wasteItemRefs.push(wasteItem.id);
       }
 
       await db.create(Tables.production_batch_outputs, {
@@ -506,6 +513,29 @@ export const completeProductionBatch = async (
       }
     })
   );
+
+  if (wasteHeaderId && wasteItemRefs.length > 0) {
+    await db.merge(toRecordId(wasteHeaderId), {items: wasteItemRefs});
+  }
+
+  await postDocument({
+    db,
+    documentType: "production_batch",
+    documentId: batchId,
+    userId,
+    integrationManager,
+  });
+
+  if (wasteHeaderId && wasteItemRefs.length > 0) {
+    await postDocument({
+      db,
+      documentType: "waste",
+      documentId: wasteHeaderId,
+      userId,
+      integrationManager,
+      skipAvailabilityCheck: true,
+    });
+  }
 
   const result = await getProductionBatch(db, batchId);
 

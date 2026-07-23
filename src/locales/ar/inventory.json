@@ -41,7 +41,10 @@
     "deleteAdjustments": "حذف التسوية",
     "postAdjustments": "ترحيل تسوية المخزون",
     "approveAdjustments": "اعتماد تسوية المخزون",
-    "voidAdjustments": "إلغاء تسوية المخزون"
+    "voidAdjustments": "إلغاء تسوية المخزون",
+    "approvePurchaseOrders": "الموافقة على أمر الشراء",
+    "submitPurchaseOrders": "إرسال أمر الشراء للموافقة",
+    "rejectPurchaseOrders": "رفض أمر الشراء"
   },
   "columns": {
     "name": "الاسم",
@@ -79,6 +82,7 @@
     "store": "المخزن",
     "unitCost": "Unit cost",
     "amount": "Amount",
+    "total": "الإجمالي",
     "stockValue": "Value",
     "reason": "السبب",
     "quantityChange": "الكمية (+/-)",
@@ -532,5 +536,15 @@
     "by_quantity": "By quantity",
     "equal": "Equal",
     "manual": "Manual"
+  },
+  "purchaseOrder": {
+    "submitted": "تم إرسال أمر الشراء للموافقة",
+    "approved": "تمت الموافقة على أمر الشراء",
+    "rejected": "تم رفض أمر الشراء",
+    "rejectConfirm": "هل تريد رفض أمر الشراء رقم {{number}}؟",
+    "submitForApproval": "إرسال للموافقة",
+    "submittedAt": "تاريخ الإرسال",
+    "approvedAt": "تاريخ الموافقة",
+    "rejectedAt": "تاريخ الرفض"
   }
 }

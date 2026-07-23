@@ -41,7 +41,10 @@
     "deleteAdjustments": "Eliminar ajuste",
     "postAdjustments": "Contabilizar ajuste de inventario",
     "approveAdjustments": "Aprobar ajuste de inventario",
-    "voidAdjustments": "Anular ajuste de inventario"
+    "voidAdjustments": "Anular ajuste de inventario",
+    "approvePurchaseOrders": "Aprobar orden de compra",
+    "submitPurchaseOrders": "Enviar orden de compra para aprobación",
+    "rejectPurchaseOrders": "Rechazar orden de compra"
   },
   "columns": {
     "name": "Nombre",
@@ -79,6 +82,7 @@
     "store": "Almacén",
     "unitCost": "Unit cost",
     "amount": "Amount",
+    "total": "Total",
     "stockValue": "Value",
     "reason": "Motivo",
     "quantityChange": "Cant. (+/-)",
@@ -532,5 +536,15 @@
     "by_quantity": "By quantity",
     "equal": "Equal",
     "manual": "Manual"
+  },
+  "purchaseOrder": {
+    "submitted": "Orden de compra enviada para aprobación",
+    "approved": "Orden de compra aprobada",
+    "rejected": "Orden de compra rechazada",
+    "rejectConfirm": "¿Desea rechazar la orden de compra #{{number}}?",
+    "submitForApproval": "Enviar para aprobación",
+    "submittedAt": "Enviado el",
+    "approvedAt": "Aprobado el",
+    "rejectedAt": "Rechazado el"
   }
 }

@@ -92,6 +92,24 @@ export const InventoryPurchaseOrderViewModal = ({open, order, onClose}: Props) =
                 <div className="text-neutral-500 text-xs uppercase">{t('columns.createdAt')}</div>
                 <div>{viewOrder.created_at ? formatDateTime(viewOrder.created_at) : "—"}</div>
               </div>
+              {viewOrder.submitted_at && (
+                <div>
+                  <div className="text-neutral-500 text-xs uppercase">{t('purchaseOrder.submittedAt')}</div>
+                  <div>{formatDateTime(viewOrder.submitted_at)}</div>
+                </div>
+              )}
+              {viewOrder.approved_at && (
+                <div>
+                  <div className="text-neutral-500 text-xs uppercase">{t('purchaseOrder.approvedAt')}</div>
+                  <div>{formatDateTime(viewOrder.approved_at)}</div>
+                </div>
+              )}
+              {viewOrder.rejected_at && (
+                <div>
+                  <div className="text-neutral-500 text-xs uppercase">{t('purchaseOrder.rejectedAt')}</div>
+                  <div>{formatDateTime(viewOrder.rejected_at)}</div>
+                </div>
+              )}
             </div>
           </div>
 

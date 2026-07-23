@@ -41,7 +41,10 @@
     "deleteAdjustments": "Delete adjustment",
     "postAdjustments": "Post inventory adjustment",
     "approveAdjustments": "Approve inventory adjustment",
-    "voidAdjustments": "Void inventory adjustment"
+    "voidAdjustments": "Void inventory adjustment",
+    "approvePurchaseOrders": "Approve purchase order",
+    "submitPurchaseOrders": "Submit purchase order for approval",
+    "rejectPurchaseOrders": "Reject purchase order"
   },
   "columns": {
     "name": "Name",
@@ -80,6 +83,7 @@
     "source": "Source",
     "unitCost": "Unit cost",
     "amount": "Amount",
+    "total": "Total",
     "stockValue": "Value",
     "reason": "Reason",
     "quantityChange": "Qty (+/-)",
@@ -536,5 +540,15 @@
       "Cold Room": "Cold Room",
       "Production": "Production"
     }
+  },
+  "purchaseOrder": {
+    "submitted": "Purchase order submitted for approval",
+    "approved": "Purchase order approved",
+    "rejected": "Purchase order rejected",
+    "rejectConfirm": "Do you want to reject purchase order #{{number}}?",
+    "submitForApproval": "Submit for approval",
+    "submittedAt": "Submitted at",
+    "approvedAt": "Approved at",
+    "rejectedAt": "Rejected at"
   }
 }

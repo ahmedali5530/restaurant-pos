@@ -31,6 +31,8 @@ import {InventoryFormPricedLineTotal} from "@/components/inventory/common/form.l
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { useIntegrationManager } from "@/providers/integration.provider.tsx";
 import { publishWasteRecorded } from "@/integrations/accounting/events/publish.ts";
+import { postDocument } from "@/lib/inventory/posting.service.ts";
+import { recordIdToString } from "@/api/reports/shared/records.ts";
 
 type SourceType = "purchase" | "issue";
 
@@ -266,6 +268,9 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
         items: [],
         created_at: values.date ? toSurrealDateTime(calendarDateToDate(values.date) || undefined) : nowSurrealDateTime(),
         created_by: toRecordId(state.user.id),
+        status: data?.id
+          ? (data.status && data.status !== "posted" ? data.status : "draft")
+          : "draft",
       };
 
       let wasteId: any = data?.id;
@@ -327,6 +332,15 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
 
       await db.merge(toRecordId(wasteIdString), {
         items: itemsRefs,
+      });
+
+      const userId = state?.user?.id ? recordIdToString(state.user.id) : undefined;
+      await postDocument({
+        db,
+        documentType: "waste",
+        documentId: String(wasteIdString),
+        userId,
+        integrationManager,
       });
 
       const inventoryValue = Number(

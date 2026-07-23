@@ -111,7 +111,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
     data: items,
     fetchData: fetchItems,
     isFetching: loadingItems,
-  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 9999, ['suppliers'], {
+  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, ['array::any(item_types, "raw")'], [], 0, 9999, ['suppliers'], {
     enabled: false
   });
 
@@ -258,7 +258,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
         items: [],
         created_at: values.date ? toSurrealDateTime(calendarDateToDate(values.date) || undefined) : nowSurrealDateTime(),
         created_by: toRecordId(state.user.id),
-        status: PurchaseOrderStatus.pending,
+        status: PurchaseOrderStatus.draft,
         documents: documentRefs.length > 0 ? documentRefs : undefined,
       };
 

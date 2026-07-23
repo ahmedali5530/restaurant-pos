@@ -3,6 +3,7 @@ import {InventorySupplier} from "@/api/model/inventory_supplier.ts";
 import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {InventoryStore} from "@/api/model/inventory_store.ts";
 import {Document} from '@/api/model/document.ts';
+import {User} from "@/api/model/user.ts";
 import { DateTime } from "surrealdb";
 
 export interface InventoryPurchaseOrder {
@@ -13,6 +14,12 @@ export interface InventoryPurchaseOrder {
   supplier?: InventorySupplier
   items: InventoryPurchaseOrderItem[]
   documents?: Document[]
+  submitted_at?: DateTime
+  submitted_by?: User
+  approved_at?: DateTime
+  approved_by?: User
+  rejected_at?: DateTime
+  rejected_by?: User
 }
 
 export interface InventoryPurchaseOrderItem {
@@ -28,6 +35,8 @@ export interface InventoryPurchaseOrderItem {
 }
 
 export enum PurchaseOrderStatus {
-  pending = 'Pending',
-  fulfilled = 'Fulfilled'
+  draft = 'Draft',
+  pendingApproval = 'Pending Approval',
+  approved = 'Approved',
+  fulfilled = 'Fulfilled',
 }

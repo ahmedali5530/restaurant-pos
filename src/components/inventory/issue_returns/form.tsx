@@ -32,6 +32,8 @@ import {InventoryFormPricedLineTotal} from "@/components/inventory/common/form.l
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { useIntegrationManager } from "@/providers/integration.provider.tsx";
 import { publishIssueReturned } from "@/integrations/accounting/events/publish.ts";
+import { postDocument } from "@/lib/inventory/posting.service.ts";
+import { recordIdToString } from "@/api/reports/shared/records.ts";
 
 interface InventoryIssueReturnItemFormValue {
   item: { label: string; value: string } | null;
@@ -421,7 +423,10 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
         items: [],
         documents: documentRefs.length > 0 ? documentRefs : undefined,
         created_at: values.date ? toSurrealDateTime(calendarDateToDate(values.date) || undefined) : nowSurrealDateTime(),
-        created_by: toRecordId(state.user.id)
+        created_by: toRecordId(state.user.id),
+        status: data?.id
+          ? (data.status && data.status !== "posted" ? data.status : "draft")
+          : "draft",
       };
 
       let issueReturnId: any = data?.id;
@@ -485,6 +490,15 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
 
       await db.merge(issueReturnIdString, {
         items: itemRefs,
+      });
+
+      const userId = state?.user?.id ? recordIdToString(state.user.id) : undefined;
+      await postDocument({
+        db,
+        documentType: "issue_return",
+        documentId: String(issueReturnIdString),
+        userId,
+        integrationManager,
       });
 
       const inventoryValue = Number(

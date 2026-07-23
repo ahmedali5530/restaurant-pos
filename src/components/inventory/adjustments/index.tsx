@@ -26,6 +26,8 @@ import { useAtom } from "jotai";
 import { appPage } from "@/store/jotai.ts";
 import { toast } from "sonner";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
+import { adjustmentListTotal } from "@/lib/inventory/document.list.total.ts";
+import { withCurrency } from "@/lib/utils.ts";
 
 export const InventoryAdjustments = () => {
   const { t } = useTranslation(["inventory", 'common']);
@@ -82,6 +84,11 @@ export const InventoryAdjustments = () => {
           ))}
         </div>
       ),
+    }),
+    columnHelper.accessor((row) => adjustmentListTotal(row.items), {
+      id: "total",
+      header: t("columns.total"),
+      cell: (info) => withCurrency(info.getValue()),
     }),
     columnHelper.accessor("id", {
       id: "actions",

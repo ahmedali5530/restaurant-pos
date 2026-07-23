@@ -16,6 +16,8 @@ import {useDB} from "@/api/db/db.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {formatDateTime} from "@/lib/datetime.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import { purchaseReturnListTotal } from "@/lib/inventory/document.list.total.ts";
+import { withCurrency } from "@/lib/utils.ts";
 
 export const InventoryPurchaseReturns = () => {
   const { t } = useTranslation(['inventory', 'common']);
@@ -60,6 +62,11 @@ export const InventoryPurchaseReturns = () => {
           ))}
         </div>
       )
+    }),
+    columnHelper.accessor(row => purchaseReturnListTotal(row.items), {
+      id: "total",
+      header: t('columns.total'),
+      cell: info => withCurrency(info.getValue()),
     }),
     columnHelper.accessor("id", {
       id: "actions",

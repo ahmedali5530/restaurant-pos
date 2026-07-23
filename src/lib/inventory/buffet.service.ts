@@ -26,6 +26,7 @@ import {toLocationRecordId} from "@/lib/inventory/location.service.ts";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {fetchNextSequentialNumber} from "@/utils/recordNumbers.ts";
 import {toRecordId} from "@/lib/utils.ts";
+import {postDocument} from "@/lib/inventory/posting.service.ts";
 
 type DatabaseClient = ReturnType<typeof useDB>;
 
@@ -891,6 +892,7 @@ const postBuffetToLedger = async (
     created_at: nowSurrealDateTime(),
     created_by: toUserRecordId(userId),
     invoice_number: invoiceNumber,
+    status: "draft",
   });
 
   const wasteId = recordToString(wasteHeader?.id);
@@ -924,6 +926,13 @@ const postBuffetToLedger = async (
   }
 
   await db.merge(toRecordId(wasteId), {items: wasteItemRefs});
+
+  await postDocument({
+    db,
+    documentType: "waste",
+    documentId: wasteId,
+    userId,
+  });
 
   const sessionRef = toSessionRecordId(session.id);
   await db.query(

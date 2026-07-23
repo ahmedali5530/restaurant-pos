@@ -16,6 +16,8 @@ import {inventoryPrintUrl} from "@/routes/posr.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {formatDateTime} from "@/lib/datetime.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import { wasteListTotal } from "@/lib/inventory/document.list.total.ts";
+import { withCurrency } from "@/lib/utils.ts";
 
 export const InventoryWastes = () => {
   const { t } = useTranslation(['inventory', 'common']);
@@ -70,6 +72,11 @@ export const InventoryWastes = () => {
           ))}
         </div>
       )
+    }),
+    columnHelper.accessor(row => wasteListTotal(row.items), {
+      id: "total",
+      header: t('columns.total'),
+      cell: info => withCurrency(info.getValue()),
     }),
     columnHelper.accessor("id", {
       id: "actions",

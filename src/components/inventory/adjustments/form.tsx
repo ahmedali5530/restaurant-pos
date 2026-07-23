@@ -261,14 +261,16 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
             name="invoice_number"
             control={control}
             render={({ field }) => (
-              <Input
-                type="number"
-                label={t("columns.invoiceNumber")}
-                disabled={locked}
-                {...field}
-                value={field.value ?? ""}
-                error={errors.invoice_number?.message}
-              />
+              <div>
+                <Input
+                  type="number"
+                  label={t("columns.invoiceNumber")}
+                  disabled={locked}
+                  {...field}
+                  value={field.value ?? ""}
+                  error={errors.invoice_number?.message}
+                />
+              </div>
             )}
           />
           <Controller

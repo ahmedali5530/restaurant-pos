@@ -55,6 +55,8 @@ export type PostDocumentInput = {
   documentId: string;
   userId?: string;
   integrationManager?: IntegrationManager | null;
+  /** Skip on-hand check (e.g. production waste outputs that never entered inventory). */
+  skipAvailabilityCheck?: boolean;
 };
 
 export type PostDocumentResult = {
@@ -317,36 +319,52 @@ export const postDocument = async (
     documentId,
     userId: input.userId,
   };
+  const isProductionBatch = input.documentType === "production_batch";
 
   const doc = await strategy.loadDocument(ctx);
   if (!doc) {
     throw new InventoryPostingError(`Document not found: ${documentId}`);
   }
 
-  const status = normalizeDocumentStatus(doc.status);
-  if (status === "posted" && doc.posted_at) {
-    return {
-      posted: false,
-      skipped: true,
-      reason: "Document already posted",
-      ledgerEntryCount: 0,
-    };
-  }
+  if (isProductionBatch) {
+    if (String(doc.status) === "voided") {
+      throw new InventoryPostingError("Voided production batch cannot be posted");
+    }
+    if (String(doc.status) !== "completed") {
+      throw new InventoryPostingError(
+        `Production batch status "${doc.status}" cannot be posted`
+      );
+    }
+  } else {
+    const status = normalizeDocumentStatus(doc.status);
+    if (status === "posted" && doc.posted_at) {
+      return {
+        posted: false,
+        skipped: true,
+        reason: "Document already posted",
+        ledgerEntryCount: 0,
+      };
+    }
 
-  if (!canPost(status)) {
-    throw new InventoryPostingError(
-      `Document status "${status}" cannot be posted`
-    );
-  }
+    if (!canPost(status)) {
+      throw new InventoryPostingError(
+        `Document status "${status}" cannot be posted`
+      );
+    }
 
-  assertTransition(status, "posted");
+    assertTransition(status, "posted");
+  }
 
   const items = (await strategy.loadItems(ctx)) ?? doc.items ?? [];
   if (!items.length) {
     throw new InventoryPostingError("Document has no line items to post");
   }
 
-  if (strategy.requiresAvailabilityCheck && strategy.getAvailabilityLines) {
+  if (
+    strategy.requiresAvailabilityCheck &&
+    strategy.getAvailabilityLines &&
+    !input.skipAvailabilityCheck
+  ) {
     const lines = strategy.getAvailabilityLines(items, doc);
     for (const line of lines) {
       const locationId = await resolveStockLocationId(input.db, line.locationId);
@@ -366,7 +384,7 @@ export const postDocument = async (
   // Phase 5: when posting a revision, reverse the parent first in the same flow
   const parentId = recordIdToString(doc.parent?.id ?? doc.parent);
   let parentReversalCount = 0;
-  if (parentId) {
+  if (parentId && !isProductionBatch) {
     const parentReverse = await reverseDocument({
       db: input.db,
       documentType: input.documentType,
@@ -469,29 +487,23 @@ export const postDocument = async (
     }
   }
 
-  const postStampSets = [
-    "status = 'posted'",
-    "posted_at = $posted_at",
-  ];
-  const postStampParams: Record<string, unknown> = {
-    doc_id: toRecordId(documentId),
-    posted_at: nowSurrealDateTime(),
-  };
-  if (input.userId) {
-    postStampSets.push("posted_by = $posted_by");
-    postStampParams.posted_by = toRecordId(input.userId);
-  }
-  if (costAllocationSnapshot) {
-    postStampSets.push("cost_allocation_snapshot = $cost_allocation_snapshot");
-    postStampParams.cost_allocation_snapshot = costAllocationSnapshot;
+  // Idempotent re-post for production: all ledger keys already exist
+  if (isProductionBatch && newEntries.length === 0) {
+    return {
+      posted: false,
+      skipped: true,
+      reason: "Production batch already posted to ledger",
+      ledgerEntryCount: 0,
+    };
   }
 
-  const lineCostStatements: TransactionStatement[] = [];
+  const statements: TransactionStatement[] = [];
+
   if (input.documentType === "purchase") {
     for (const [itemId, line] of allocationByItemId) {
       if (!itemId) continue;
       const p = `lc_${itemId.replace(/[^a-zA-Z0-9]/g, "_")}_`;
-      lineCostStatements.push({
+      statements.push({
         sql: `UPDATE $item_id SET
           purchase_price = $${p}purchase_price,
           allocated_extra_cost = $${p}allocated_extra_cost,
@@ -512,14 +524,30 @@ export const postDocument = async (
     }
   }
 
-  const statements: TransactionStatement[] = [
-    ...lineCostStatements,
-    ...buildLedgerCreateStatements(newEntries),
-    {
+  statements.push(...buildLedgerCreateStatements(newEntries));
+
+  if (!isProductionBatch) {
+    const postStampSets = [
+      "status = 'posted'",
+      "posted_at = $posted_at",
+    ];
+    const postStampParams: Record<string, unknown> = {
+      doc_id: toRecordId(documentId),
+      posted_at: nowSurrealDateTime(),
+    };
+    if (input.userId) {
+      postStampSets.push("posted_by = $posted_by");
+      postStampParams.posted_by = toRecordId(input.userId);
+    }
+    if (costAllocationSnapshot) {
+      postStampSets.push("cost_allocation_snapshot = $cost_allocation_snapshot");
+      postStampParams.cost_allocation_snapshot = costAllocationSnapshot;
+    }
+    statements.push({
       sql: `UPDATE $doc_id SET ${postStampSets.join(", ")}`,
       params: postStampParams,
-    },
-  ];
+    });
+  }
 
   await withTransaction(input.db, statements);
 
@@ -557,7 +585,7 @@ export const postDocument = async (
         decreaseValue: Number(decreaseValue.toFixed(2)),
         reason: doc.reason ? String(doc.reason) : undefined,
       });
-    } else {
+    } else if (!isProductionBatch) {
       await publishInventoryPosted(input.integrationManager, {
         referenceType: strategy.referenceType,
         referenceId: documentId,

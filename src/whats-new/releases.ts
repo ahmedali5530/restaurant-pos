@@ -7,6 +7,32 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-07-24',
+    title: 'Inventory list totals',
+    items: [
+      'Purchase orders, purchases, returns, issues, issue returns, waste, and adjustments list tables now show document totals matching receipt amounts.',
+    ],
+  },
+  {
+    date: '2026-07-24',
+    title: 'Current Inventory ledger posting',
+    items: [
+      'Purchase returns, issue returns, and waste now post to the inventory ledger so Current Inventory updates immediately.',
+      'Production batches post production_input / production_output ledger rows; buffet close and kitchen verification post their waste documents to the ledger.',
+      'Re-run the inventory ledger backfill script if older returns, waste, production, or buffet movements still show unchanged quantities.',
+    ],
+  },
+  {
+    date: '2026-07-23',
+    title: 'Purchase order approval',
+    items: [
+      'Purchase orders now start as Draft, then Submit for approval → Approved (or Reject back to Draft).',
+      'Only Approved purchase orders can be used when creating a purchase; fulfillment still marks the PO Fulfilled.',
+      'New protected module Approve Purchase Orders controls who can approve or reject submitted POs (grant under Admin → Roles).',
+      'Existing Pending purchase orders are migrated to Approved so they remain usable for purchase.',
+    ],
+  },
+  {
     date: '2026-07-23',
     title: 'Stock transfers update location quantities',
     items: [

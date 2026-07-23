@@ -5,6 +5,20 @@ import { InventoryPurchase, InventoryPurchaseItem } from "@/api/model/inventory_
 import { InventoryIssue, InventoryIssueItem } from "@/api/model/inventory_issue.ts";
 import { InventoryAdjustment, InventoryAdjustmentItem } from "@/api/model/inventory_adjustment.ts";
 import { StockTransfer, StockTransferItem } from "@/api/model/stock_transfer.ts";
+import {
+  InventoryPurchaseReturn,
+  InventoryPurchaseReturnItem,
+} from "@/api/model/inventory_purchase_return.ts";
+import {
+  InventoryIssueReturn,
+  InventoryIssueReturnItem,
+} from "@/api/model/inventory_issue_return.ts";
+import { InventoryWaste, InventoryWasteItem } from "@/api/model/inventory_waste.ts";
+import {
+  ProductionBatch,
+  ProductionBatchInput,
+  ProductionBatchOutput,
+} from "@/api/model/production_batch.ts";
 import { buildLedgerKey } from "@/lib/inventory/ledger.service.ts";
 import { resolveCatalogUnitCost } from "@/lib/inventory/line.cost.ts";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
@@ -17,7 +31,15 @@ export type InventoryPostingDocumentType =
   | "purchase"
   | "issue"
   | "adjustment"
-  | "stock_transfer";
+  | "stock_transfer"
+  | "purchase_return"
+  | "issue_return"
+  | "waste"
+  | "production_batch";
+
+type ProductionLedgerLine =
+  | (ProductionBatchInput & { _kind: "input" })
+  | (ProductionBatchOutput & { _kind: "output" });
 
 export type InventoryPostingContext = {
   db: DatabaseClient;
@@ -62,10 +84,19 @@ const resolveItemId = (item: any): string => {
   return toIdString(raw);
 };
 
+const resolveLinkedLocation = (linked?: any): unknown =>
+  linked?.location?.id ??
+  linked?.location ??
+  linked?.store?.id ??
+  linked?.store;
+
 const resolveLocationId = (item: any, doc?: any): string => {
   const raw =
     item?.location?.id ??
     item?.location ??
+    resolveLinkedLocation(item?.purchase_item) ??
+    resolveLinkedLocation(item?.issued_item) ??
+    resolveLinkedLocation(item?.issue_item) ??
     doc?.location?.id ??
     doc?.location ??
     item?.store?.id ??
@@ -378,9 +409,316 @@ export const stockTransferPostingStrategy: InventoryPostingStrategy = {
   },
 };
 
+export const purchaseReturnPostingStrategy: InventoryPostingStrategy = {
+  referenceType: "purchase_return",
+  table: Tables.inventory_purchase_returns,
+  itemTable: Tables.inventory_purchase_return_items,
+  itemParentField: "purchase_return",
+  requiresAvailabilityCheck: true,
+  loadDocument: async ({ db, documentId }) => {
+    const [rows] = await db.query(
+      `SELECT * FROM ${Tables.inventory_purchase_returns} WHERE id = $id LIMIT 1
+       FETCH items, items.item, items.location, items.store, items.purchase_item,
+             items.purchase_item.location, items.purchase_item.store, location, store, created_by`,
+      { id: toRecordId(documentId) }
+    );
+    return Array.isArray(rows) ? rows[0] : undefined;
+  },
+  loadItems: async ({ db, documentId }) => {
+    const [rows] = await db.query(
+      `SELECT * FROM ${Tables.inventory_purchase_return_items} WHERE purchase_return = $id
+       FETCH item, location, store, purchase_item, purchase_item.location, purchase_item.store`,
+      { id: toRecordId(documentId) }
+    );
+    return Array.isArray(rows) ? rows : [];
+  },
+  getAvailabilityLines: (items: InventoryPurchaseReturnItem[], doc?: InventoryPurchaseReturn) =>
+    items
+      .map((item) => ({
+        itemId: resolveItemId(item),
+        locationId: resolveLocationId(item, doc),
+        quantity: Number(item.quantity) || 0,
+      }))
+      .filter((line) => line.itemId && line.locationId && line.quantity > 0),
+  buildEntries: (
+    doc: InventoryPurchaseReturn,
+    items: InventoryPurchaseReturnItem[],
+    userId?: string
+  ) => {
+    const referenceId = toIdString(doc.id);
+    const businessDate = toBusinessDate(doc.created_at);
+    const entries: InventoryLedgerInput[] = [];
+
+    for (const item of items) {
+      const itemId = resolveItemId(item);
+      const locationId = resolveLocationId(item, doc);
+      if (!itemId || !locationId) continue;
+
+      const quantity = Number(item.quantity) || 0;
+      if (quantity === 0) continue;
+
+      const unitCost = resolveUnitCost(item);
+      const referenceItem = toIdString(item.id);
+
+      entries.push({
+        created_by: userId,
+        business_date: businessDate,
+        inventory_item: itemId,
+        inventory_location: locationId,
+        quantity_change: -quantity,
+        unit_cost: unitCost,
+        total_cost: unitCost * quantity,
+        reference_type: "purchase_return",
+        reference_id: referenceId,
+        reference_item: referenceItem,
+        ledger_key: buildLedgerKey("purchase_return", referenceItem),
+      });
+    }
+
+    return entries;
+  },
+};
+
+export const issueReturnPostingStrategy: InventoryPostingStrategy = {
+  referenceType: "issue_return",
+  table: Tables.inventory_issue_returns,
+  itemTable: Tables.inventory_issue_return_items,
+  itemParentField: "issue_return",
+  requiresAvailabilityCheck: false,
+  loadDocument: async ({ db, documentId }) => {
+    const [rows] = await db.query(
+      `SELECT * FROM ${Tables.inventory_issue_returns} WHERE id = $id LIMIT 1
+       FETCH items, items.item, items.location, items.store, items.issued_item,
+             items.issued_item.location, items.issued_item.store, location, store, created_by`,
+      { id: toRecordId(documentId) }
+    );
+    return Array.isArray(rows) ? rows[0] : undefined;
+  },
+  loadItems: async ({ db, documentId }) => {
+    const [rows] = await db.query(
+      `SELECT * FROM ${Tables.inventory_issue_return_items} WHERE issue_return = $id
+       FETCH item, location, store, issued_item, issued_item.location, issued_item.store`,
+      { id: toRecordId(documentId) }
+    );
+    return Array.isArray(rows) ? rows : [];
+  },
+  buildEntries: (
+    doc: InventoryIssueReturn,
+    items: InventoryIssueReturnItem[],
+    userId?: string
+  ) => {
+    const referenceId = toIdString(doc.id);
+    const businessDate = toBusinessDate(doc.created_at);
+    const entries: InventoryLedgerInput[] = [];
+
+    for (const item of items) {
+      const itemId = resolveItemId(item);
+      const locationId = resolveLocationId(item, doc);
+      if (!itemId || !locationId) continue;
+
+      const quantity = Number(item.quantity) || 0;
+      if (quantity === 0) continue;
+
+      const unitCost = resolveUnitCost(item);
+      const referenceItem = toIdString(item.id);
+
+      entries.push({
+        created_by: userId,
+        business_date: businessDate,
+        inventory_item: itemId,
+        inventory_location: locationId,
+        quantity_change: quantity,
+        unit_cost: unitCost,
+        total_cost: unitCost * quantity,
+        reference_type: "issue_return",
+        reference_id: referenceId,
+        reference_item: referenceItem,
+        ledger_key: buildLedgerKey("issue_return", referenceItem),
+      });
+    }
+
+    return entries;
+  },
+};
+
+export const wastePostingStrategy: InventoryPostingStrategy = {
+  referenceType: "waste",
+  table: Tables.inventory_wastes,
+  itemTable: Tables.inventory_waste_items,
+  itemParentField: "waste",
+  requiresAvailabilityCheck: true,
+  loadDocument: async ({ db, documentId }) => {
+    const [rows] = await db.query(
+      `SELECT * FROM ${Tables.inventory_wastes} WHERE id = $id LIMIT 1
+       FETCH items, items.item, items.location, items.store, items.purchase_item,
+             items.purchase_item.location, items.purchase_item.store,
+             items.issue_item, items.issue_item.location, items.issue_item.store, created_by`,
+      { id: toRecordId(documentId) }
+    );
+    return Array.isArray(rows) ? rows[0] : undefined;
+  },
+  loadItems: async ({ db, documentId }) => {
+    const [rows] = await db.query(
+      `SELECT * FROM ${Tables.inventory_waste_items} WHERE waste = $id
+       FETCH item, location, store, purchase_item, purchase_item.location, purchase_item.store,
+             issue_item, issue_item.location, issue_item.store`,
+      { id: toRecordId(documentId) }
+    );
+    return Array.isArray(rows) ? rows : [];
+  },
+  getAvailabilityLines: (items: InventoryWasteItem[]) =>
+    items
+      .map((item) => ({
+        itemId: resolveItemId(item),
+        locationId: resolveLocationId(item),
+        quantity: Number(item.quantity) || 0,
+      }))
+      .filter((line) => line.itemId && line.locationId && line.quantity > 0),
+  buildEntries: (doc: InventoryWaste, items: InventoryWasteItem[], userId?: string) => {
+    const referenceId = toIdString(doc.id);
+    const businessDate = toBusinessDate(doc.created_at);
+    const entries: InventoryLedgerInput[] = [];
+
+    for (const item of items) {
+      const itemId = resolveItemId(item);
+      const locationId = resolveLocationId(item, doc);
+      if (!itemId || !locationId) continue;
+
+      const quantity = Number(item.quantity) || 0;
+      if (quantity === 0) continue;
+
+      const unitCost = resolveUnitCost(item);
+      const referenceItem = toIdString(item.id);
+
+      entries.push({
+        created_by: userId,
+        business_date: businessDate,
+        inventory_item: itemId,
+        inventory_location: locationId,
+        quantity_change: -quantity,
+        unit_cost: unitCost,
+        total_cost: unitCost * quantity,
+        reference_type: "waste",
+        reference_id: referenceId,
+        reference_item: referenceItem,
+        notes: item.source ? `source:${item.source}` : undefined,
+        ledger_key: buildLedgerKey("waste", referenceItem),
+      });
+    }
+
+    return entries;
+  },
+};
+
+export const productionBatchPostingStrategy: InventoryPostingStrategy = {
+  referenceType: "production_batch",
+  ledgerReferenceTypes: ["production_input", "production_output"],
+  table: Tables.production_batches,
+  itemTable: Tables.production_batch_inputs,
+  itemParentField: "batch",
+  requiresAvailabilityCheck: true,
+  loadDocument: async ({ db, documentId }) => {
+    const [rows] = await db.query(
+      `SELECT * FROM ${Tables.production_batches} WHERE id = $id LIMIT 1
+       FETCH location, store, created_by, recipe`,
+      { id: toRecordId(documentId) }
+    );
+    return Array.isArray(rows) ? rows[0] : undefined;
+  },
+  loadItems: async ({ db, documentId }) => {
+    const batchId = toRecordId(documentId);
+    const [[inputs], [outputs]] = await Promise.all([
+      db.query(
+        `SELECT * FROM ${Tables.production_batch_inputs} WHERE batch = $id
+         FETCH item, location, store`,
+        { id: batchId }
+      ),
+      db.query(
+        `SELECT * FROM ${Tables.production_batch_outputs} WHERE batch = $id
+         FETCH item, location, store`,
+        { id: batchId }
+      ),
+    ]);
+    const inputLines: ProductionLedgerLine[] = (Array.isArray(inputs) ? inputs : []).map(
+      (line: ProductionBatchInput) => ({ ...line, _kind: "input" as const })
+    );
+    const outputLines: ProductionLedgerLine[] = (Array.isArray(outputs) ? outputs : []).map(
+      (line: ProductionBatchOutput) => ({ ...line, _kind: "output" as const })
+    );
+    return [...inputLines, ...outputLines];
+  },
+  getAvailabilityLines: (items: ProductionLedgerLine[], doc?: ProductionBatch) =>
+    items
+      .filter((line) => line._kind === "input")
+      .map((item) => ({
+        itemId: resolveItemId(item),
+        locationId: resolveLocationId(item, doc),
+        quantity: Number(item.quantity) || 0,
+      }))
+      .filter((line) => line.itemId && line.locationId && line.quantity > 0),
+  buildEntries: (doc: ProductionBatch, items: ProductionLedgerLine[], userId?: string) => {
+    const referenceId = toIdString(doc.id);
+    const businessDate = toBusinessDate(doc.completed_at ?? doc.created_at);
+    const entries: InventoryLedgerInput[] = [];
+
+    for (const item of items) {
+      const itemId = resolveItemId(item);
+      const locationId = resolveLocationId(item, doc);
+      if (!itemId || !locationId) continue;
+
+      const quantity = Number(item.quantity) || 0;
+      if (quantity === 0) continue;
+
+      const referenceItem = toIdString(item.id);
+      if (!referenceItem) continue;
+
+      if (item._kind === "input") {
+        const unitCost = Number(item.unit_cost) || resolveUnitCost(item);
+        entries.push({
+          created_by: userId,
+          business_date: businessDate,
+          inventory_item: itemId,
+          inventory_location: locationId,
+          quantity_change: -quantity,
+          unit_cost: unitCost,
+          total_cost: Number(item.total_cost) || unitCost * quantity,
+          reference_type: "production_input",
+          reference_id: referenceId,
+          reference_item: referenceItem,
+          ledger_key: buildLedgerKey("production_input", referenceItem),
+        });
+        continue;
+      }
+
+      if (item.disposition !== "inventory") continue;
+
+      const unitCost = Number(item.unit_cost) || resolveUnitCost(item);
+      entries.push({
+        created_by: userId,
+        business_date: businessDate,
+        inventory_item: itemId,
+        inventory_location: locationId,
+        quantity_change: quantity,
+        unit_cost: unitCost,
+        total_cost: Number(item.allocated_cost) || unitCost * quantity,
+        reference_type: "production_output",
+        reference_id: referenceId,
+        reference_item: referenceItem,
+        ledger_key: buildLedgerKey("production_output", referenceItem),
+      });
+    }
+
+    return entries;
+  },
+};
+
 export const POSTING_STRATEGIES: Record<InventoryPostingDocumentType, InventoryPostingStrategy> = {
   purchase: purchasePostingStrategy,
   issue: issuePostingStrategy,
   adjustment: adjustmentPostingStrategy,
   stock_transfer: stockTransferPostingStrategy,
+  purchase_return: purchaseReturnPostingStrategy,
+  issue_return: issueReturnPostingStrategy,
+  waste: wastePostingStrategy,
+  production_batch: productionBatchPostingStrategy,
 };
