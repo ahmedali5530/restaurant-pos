@@ -259,7 +259,8 @@
     "chart": "Loading chart...",
     "map": "Loading map...",
     "latestActivity": "Loading latest activity...",
-    "sessions": "Loading sessions..."
+    "sessions": "Loading sessions...",
+    "discounts": "Loading discounts report…"
   },
   "errors": {
     "unableToLoad": "Unable to load report",
@@ -333,7 +334,12 @@
     "sale": "Sale",
     "itemName": "Item Name",
     "itemCode": "Item code",
-    "taxPercent": "Tax %"
+    "taxPercent": "Tax %",
+    "scope": "Scope",
+    "valueType": "Type",
+    "applicationType": "Application",
+    "appliedBy": "Applied by",
+    "approvedBy": "Approved by"
   },
   "labels": {
     "modifiers": "Modifiers",
@@ -421,7 +427,11 @@
     "staffMeal": "Staff meal",
     "complimentary": "Complimentary",
     "actualConsumption": "Actual consumption",
-    "variance": "Variance"
+    "variance": "Variance",
+    "discountLines": "Discount lines",
+    "totalDiscount": "Total discount",
+    "discountDetails": "Discount details",
+    "customDiscount": "Custom discount"
   },
   "metrics": {
     "gross": "Gross",
@@ -495,5 +505,10 @@
       "store": "Include only closed buffet sessions at this store. Leave empty for all stores.",
       "sessionType": "Include only sessions for this meal period. Leave empty for all types."
     }
+  },
+  "empty": {
+    "noDiscountTypes": "No discount types for selected range.",
+    "noDiscountsByUsers": "No discounts by users for selected range.",
+    "noDiscountRows": "No discount rows found for selected range."
   }
 }

@@ -161,8 +161,8 @@
     "open": "Open What's New",
     "dismiss": "Got it",
     "dialogTitle": "What's New",
-    "versionLabel": "Version {{version}}",
-    "previousReleases": "Previous releases"
+    "previousReleases": "Previous updates",
+    "dateLabel": "Updated {{date}}"
   },
   "sessionSecurity": {
     "title": "Session security",

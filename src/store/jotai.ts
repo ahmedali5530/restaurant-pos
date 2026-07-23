@@ -93,7 +93,9 @@ export interface AppPageInterface {
   touch?: boolean
   language?: string
   direction?: AppTextDirection
-  /** Last app version for which What's New was dismissed on this device. */
+  /** Last What's New release date dismissed on this device (YYYY-MM-DD). */
+  whatsNewDismissedDate?: string
+  /** @deprecated Prefer whatsNewDismissedDate */
   whatsNewDismissedVersion?: string
 
   menuConfig?: MenuConfigInterface

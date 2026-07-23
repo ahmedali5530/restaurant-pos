@@ -161,8 +161,8 @@
     "open": "Neuigkeiten öffnen",
     "dismiss": "Verstanden",
     "dialogTitle": "Neuigkeiten",
-    "versionLabel": "Version {{version}}",
-    "previousReleases": "Frühere Versionen"
+    "previousReleases": "Frühere Updates",
+    "dateLabel": "Aktualisiert {{date}}"
   },
   "sessionSecurity": {
     "title": "Sitzungssicherheit",

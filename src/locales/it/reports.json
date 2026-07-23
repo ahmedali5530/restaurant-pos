@@ -255,7 +255,8 @@
     "map": "Caricamento mappa...",
     "latestActivity": "Caricamento ultima attività...",
     "sessions": "Caricamento sessioni...",
-    "kitchenReconciliation": "Loading kitchen reconciliation report…"
+    "kitchenReconciliation": "Loading kitchen reconciliation report…",
+    "discounts": "Caricamento report sconti…"
   },
   "errors": {
     "unableToLoad": "Impossibile caricare il report",
@@ -329,7 +330,12 @@
     "itemCode": "Codice articolo",
     "landedCost": "Landed cost",
     "finalInventory": "Final inventory",
-    "taxPercent": "Imposta %"
+    "taxPercent": "Imposta %",
+    "scope": "Ambito",
+    "valueType": "Tipo",
+    "applicationType": "Applicazione",
+    "appliedBy": "Applicato da",
+    "approvedBy": "Approvato da"
   },
   "labels": {
     "modifiers": "Modificatori",
@@ -417,7 +423,11 @@
     "staffMeal": "Pasto del personale",
     "complimentary": "Omaggio",
     "actualConsumption": "Consumo effettivo",
-    "variance": "Scostamento"
+    "variance": "Scostamento",
+    "discountLines": "Righe sconto",
+    "totalDiscount": "Sconto totale",
+    "discountDetails": "Dettagli sconto",
+    "customDiscount": "Sconto personalizzato"
   },
   "metrics": {
     "gross": "Lordo",
@@ -491,5 +501,10 @@
       "store": "Includi solo sessioni buffet chiuse in questo magazzino. Lascia vuoto per tutti i magazzini.",
       "sessionType": "Includi solo sessioni per questo periodo pasto. Lascia vuoto per tutti i tipi."
     }
+  },
+  "empty": {
+    "noDiscountTypes": "Nessun tipo di sconto per l'intervallo selezionato.",
+    "noDiscountsByUsers": "Nessuno sconto per utente per l'intervallo selezionato.",
+    "noDiscountRows": "Nessuna riga sconto trovata per l'intervallo selezionato."
   }
 }

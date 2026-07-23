@@ -225,7 +225,7 @@ export const SalesAdvancedReport = () => {
         }
 
         if (filters.withDiscount) {
-          orderConditions.push(`(discount != NONE OR array::len(order_discounts) > 0 OR coupon != NONE)`);
+          orderConditions.push(`(discount != NONE OR (order_discounts != NONE AND array::len(order_discounts) > 0) OR coupon != NONE)`);
         }
 
         if (filters.withoutDiscount) {

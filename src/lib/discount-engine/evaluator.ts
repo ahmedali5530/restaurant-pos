@@ -10,6 +10,7 @@ import {
   sumDiscountTotal,
 } from '@/lib/discount-engine/resolver.ts'
 import { computeTaxAmount, pickOrderTaxTreatment } from '@/lib/discount-engine/tax.ts'
+import { toTargetId } from '@/lib/discount-engine/target-ids.ts'
 import type {
   DiscountCandidate,
   EvaluationContext,
@@ -18,10 +19,13 @@ import type {
 
 const buildAutoCandidates = (ctx: EvaluationContext): DiscountCandidate[] => {
   const candidates: DiscountCandidate[] = []
-  const appliedDiscountIds = new Set(ctx.existingApplications.map(a => a.discountId))
+  const appliedDiscountIds = new Set(
+    ctx.existingApplications.map(a => toTargetId(a.discountId)).filter(Boolean),
+  )
 
   for (const rule of ctx.rules) {
-    if (appliedDiscountIds.has(rule.id)) continue
+    const ruleId = toTargetId(rule.id)
+    if (appliedDiscountIds.has(ruleId)) continue
     if (!isEligibleForAuto(rule, ctx)) continue
 
     const computed = computeScopedDiscount(rule, ctx.items)
@@ -49,7 +53,8 @@ const buildManualCandidates = (ctx: EvaluationContext): DiscountCandidate[] => {
   const candidates: DiscountCandidate[] = []
 
   for (const req of ctx.manualRequests || []) {
-    const rule = ctx.rules.find(r => r.id === req.discountId)
+    const reqId = toTargetId(req.discountId)
+    const rule = ctx.rules.find(r => toTargetId(r.id) === reqId)
     if (!rule || !isEligibleForManual(rule, ctx)) continue
 
     const computed = computeScopedDiscount(rule, ctx.items, {
@@ -102,7 +107,7 @@ export const evaluateDiscounts = (ctx: EvaluationContext): EvaluationResult => {
   // Deduplicate by discountId + targets
   const seen = new Set<string>()
   const uniqueLines = combined.filter(line => {
-    const key = `${line.discountId}:${(line.lineAllocations || []).map(l => l.orderItemId).join(',')}`
+    const key = `${toTargetId(line.discountId)}:${(line.lineAllocations || []).map(l => toTargetId(l.orderItemId)).join(',')}`
     if (seen.has(key)) return false
     seen.add(key)
     return true
@@ -110,7 +115,7 @@ export const evaluateDiscounts = (ctx: EvaluationContext): EvaluationResult => {
 
   const discountTotal = sumDiscountTotal(
     uniqueLines.map(l => ({
-      discount: { id: l.discountId, name: l.name, priority: 0 } as any,
+      discount: { id: toTargetId(l.discountId), name: l.name, priority: 0 } as any,
       appliedAmount: l.appliedAmount,
       baseAmount: 0,
       scope: l.scope,

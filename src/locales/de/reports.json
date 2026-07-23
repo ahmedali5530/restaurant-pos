@@ -255,7 +255,8 @@
     "map": "Karte wird geladen...",
     "latestActivity": "Letzte Aktivität wird geladen...",
     "sessions": "Sitzungen werden geladen...",
-    "kitchenReconciliation": "Loading kitchen reconciliation report…"
+    "kitchenReconciliation": "Loading kitchen reconciliation report…",
+    "discounts": "Rabattbericht wird geladen…"
   },
   "errors": {
     "unableToLoad": "Bericht konnte nicht geladen werden",
@@ -329,7 +330,12 @@
     "itemCode": "Artikelcode",
     "landedCost": "Landed cost",
     "finalInventory": "Final inventory",
-    "taxPercent": "Steuer %"
+    "taxPercent": "Steuer %",
+    "scope": "Bereich",
+    "valueType": "Typ",
+    "applicationType": "Anwendung",
+    "appliedBy": "Angewendet von",
+    "approvedBy": "Genehmigt von"
   },
   "labels": {
     "modifiers": "Modifikatoren",
@@ -417,7 +423,11 @@
     "staffMeal": "Mitarbeiteressen",
     "complimentary": "Gratis",
     "actualConsumption": "Tatsächlicher Verbrauch",
-    "variance": "Abweichung"
+    "variance": "Abweichung",
+    "discountLines": "Rabattzeilen",
+    "totalDiscount": "Gesamtrabatt",
+    "discountDetails": "Rabattdetails",
+    "customDiscount": "Individueller Rabatt"
   },
   "metrics": {
     "gross": "Brutto",
@@ -491,5 +501,10 @@
       "store": "Nur geschlossene Buffet-Sitzungen an diesem Lagerort einbeziehen. Leer lassen für alle Lagerorte.",
       "sessionType": "Nur Sitzungen für diese Mahlzeit einbeziehen. Leer lassen für alle Typen."
     }
+  },
+  "empty": {
+    "noDiscountTypes": "Keine Rabattarten für den ausgewählten Zeitraum.",
+    "noDiscountsByUsers": "Keine Rabatte nach Benutzer für den ausgewählten Zeitraum.",
+    "noDiscountRows": "Keine Rabattzeilen für den ausgewählten Zeitraum gefunden."
   }
 }

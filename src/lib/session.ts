@@ -1,6 +1,25 @@
 const SESSION_TOKEN_KEY = 'posr_session_token';
 const SURREAL_TOKEN_KEY = 'posr_surreal_token';
 
+function readStorage(key: string): string | null {
+  try {
+    const fromLocal = localStorage.getItem(key);
+    if (fromLocal) {
+      return fromLocal;
+    }
+    // One-time migrate from sessionStorage (pre multi-tab fix).
+    const fromSession = sessionStorage.getItem(key);
+    if (fromSession) {
+      localStorage.setItem(key, fromSession);
+      sessionStorage.removeItem(key);
+      return fromSession;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export function isGatewayAuthEnabled(): boolean {
   const raw = String(import.meta.env.VITE_GATEWAY_AUTH ?? '').toLowerCase();
   return raw === 'true' || raw === '1' || raw === 'yes';
@@ -18,28 +37,28 @@ export function getGatewayBaseUrl(): string {
 }
 
 export function getSessionToken(): string | null {
-  try {
-    return sessionStorage.getItem(SESSION_TOKEN_KEY);
-  } catch {
-    return null;
-  }
+  return readStorage(SESSION_TOKEN_KEY);
 }
 
 export function getSurrealToken(): string | null {
-  try {
-    return sessionStorage.getItem(SURREAL_TOKEN_KEY);
-  } catch {
-    return null;
-  }
+  return readStorage(SURREAL_TOKEN_KEY);
 }
 
 export function setSessionTokens(sessionToken: string, surrealToken: string): void {
-  sessionStorage.setItem(SESSION_TOKEN_KEY, sessionToken);
-  sessionStorage.setItem(SURREAL_TOKEN_KEY, surrealToken);
+  localStorage.setItem(SESSION_TOKEN_KEY, sessionToken);
+  localStorage.setItem(SURREAL_TOKEN_KEY, surrealToken);
+  try {
+    sessionStorage.removeItem(SESSION_TOKEN_KEY);
+    sessionStorage.removeItem(SURREAL_TOKEN_KEY);
+  } catch {
+    // ignore
+  }
 }
 
 export function clearSessionTokens(): void {
   try {
+    localStorage.removeItem(SESSION_TOKEN_KEY);
+    localStorage.removeItem(SURREAL_TOKEN_KEY);
     sessionStorage.removeItem(SESSION_TOKEN_KEY);
     sessionStorage.removeItem(SURREAL_TOKEN_KEY);
   } catch {
@@ -106,10 +125,56 @@ export async function refreshSurrealToken(): Promise<string | null> {
   if (!res.ok) return null;
   const data = await res.json();
   if (data?.surrealToken) {
-    sessionStorage.setItem(SURREAL_TOKEN_KEY, data.surrealToken);
+    localStorage.setItem(SURREAL_TOKEN_KEY, data.surrealToken);
+    try {
+      sessionStorage.removeItem(SURREAL_TOKEN_KEY);
+    } catch {
+      // ignore
+    }
     return data.surrealToken as string;
   }
   return null;
+}
+
+/** Decode JWT `exp` without verifying — used only for proactive refresh. */
+export function isJwtExpiredOrNearExpiry(
+  token: string | null | undefined,
+  skewSeconds = 120
+): boolean {
+  if (!token) return true;
+  try {
+    const parts = token.split('.');
+    if (parts.length < 2) return true;
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    if (typeof payload.exp !== 'number') return false;
+    return payload.exp * 1000 <= Date.now() + skewSeconds * 1000;
+  } catch {
+    return false;
+  }
+}
+
+export function isSurrealAuthError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error ?? '');
+  const name = error instanceof Error ? error.name : '';
+  const haystack = `${name} ${message}`.toLowerCase();
+  return (
+    haystack.includes('notallowed') ||
+    haystack.includes('token has expired') ||
+    haystack.includes('token expired') ||
+    haystack.includes('invalid token') ||
+    haystack.includes('expired token') ||
+    haystack.includes('authentication')
+  );
+}
+
+/** Clear POS + Surreal tokens and notify providers (forces login in gateway mode). */
+export function invalidateGatewaySession(): void {
+  clearSessionTokens();
+  try {
+    window.dispatchEvent(new Event('posr-session'));
+  } catch {
+    // ignore
+  }
 }
 
 /** Append gateway session JWT to the Surreal WS URL for the relay. */

@@ -1,17 +1,21 @@
 export interface ReleaseNotes {
-  version: string
-  date?: string
+  date: string
   title?: string
   items: string[]
 }
 
-/** Bump this string on every release. */
-export const APP_VERSION = '1.0.7';
-
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
-    version: '1.0.7',
+    date: '2026-07-23',
+    title: 'Gateway auth stability',
+    items: [
+      'Fixed Reports opening in a new tab under gateway auth (session tokens are shared across tabs; Login no longer redirect-loops).',
+      'Database queries wait while Surreal is connecting and stay quiet when there is no POS session, so integrations no longer spam errors on the login screen.',
+      'Gateway mode refreshes expired Surreal DB tokens automatically (or returns to login if the POS session is gone).',
+    ],
+  },
+  {
     date: '2026-07-22',
     title: 'Inventory print pages and report polish',
     items: [
@@ -22,7 +26,6 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
-    version: '1.0.6',
     date: '2026-07-22',
     title: 'Optional auth gateway',
     items: [
@@ -32,7 +35,6 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
-    version: '1.0.5',
     date: '2026-07-22',
     title: 'Auto lock, logout, and clock-out',
     items: [
@@ -41,7 +43,6 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
-    version: '1.0.4',
     date: '2026-07-21',
     title: 'System printers for shared terminals',
     items: [
@@ -50,7 +51,6 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
-    version: '1.0.3',
     date: '2026-07-21',
     title: 'Browser tab titles',
     items: [
@@ -58,7 +58,6 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
-    version: '1.0.2',
     date: '2026-07-21',
     title: 'Forms, time pickers, and tooltips',
     items: [
@@ -69,7 +68,6 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
-    version: '1.0.1',
     date: '2026-07-20',
     title: 'Inventory location posting',
     items: [
@@ -81,7 +79,6 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
-    version: '1.0.0',
     date: '2026-07-19',
     title: 'Welcome to POSR',
     items: [
@@ -97,5 +94,7 @@ export const RELEASES: ReleaseNotes[] = [
   }
 ];
 
-export const getLatestRelease = (): ReleaseNotes | undefined =>
-  RELEASES.find((r) => r.version === APP_VERSION) ?? RELEASES[0];
+export const getLatestRelease = (): ReleaseNotes | undefined => RELEASES[0];
+
+/** Date of the newest release — used to decide when to auto-open What's New. */
+export const LATEST_RELEASE_DATE = getLatestRelease()?.date ?? '';

@@ -161,8 +161,8 @@
     "open": "فتح ما الجديد",
     "dismiss": "حسنًا",
     "dialogTitle": "ما الجديد",
-    "versionLabel": "الإصدار {{version}}",
-    "previousReleases": "الإصدارات السابقة"
+    "previousReleases": "التحديثات السابقة",
+    "dateLabel": "تم التحديث {{date}}"
   },
   "sessionSecurity": {
     "title": "أمان الجلسة",

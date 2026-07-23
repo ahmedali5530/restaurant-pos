@@ -2,7 +2,7 @@ import {Order} from "@/api/model/order.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {OrderHeader} from "@/components/orders/order.header.tsx";
 import ScrollContainer from "react-indiana-drag-scroll";
-import React, {CSSProperties, useCallback, useEffect, useMemo, useState} from "react";
+import React, {CSSProperties, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {OrderTimes} from "@/components/orders/order.times.tsx";
 import {calculateOrderTotal} from "@/lib/cart.ts";
 import {computeOrderPaymentTotals} from "@/lib/order-payment-totals.ts";
@@ -20,6 +20,7 @@ import {
   syncOrderDiscountDenorm,
 } from "@/lib/discount-engine/service.ts";
 import {orderDiscountToAppliedLine} from "@/lib/discount-engine/context.ts";
+import {toTargetId} from "@/lib/discount-engine/target-ids.ts";
 import {OrderPaymentServiceCharges} from "@/components/orders/payment/order.payment.service_charges.tsx";
 import {OrderPaymentTip} from "@/components/orders/payment/order.payment.tip.tsx";
 import {faPencil} from "@fortawesome/free-solid-svg-icons";
@@ -84,6 +85,8 @@ export const OrderPayment = ({
   const [discountLines, setDiscountLines] = useState<AppliedDiscountLine[]>([]);
   const [discountAmount, setDiscountAmount] = useState<number>(0);
   const [orderDiscountIds, setOrderDiscountIds] = useState<string[]>([]);
+  const saveInFlightRef = useRef(false);
+  const savePendingRef = useRef(false);
 
   const [serviceCharge, setServiceCharge] = useState<number>(0);
   const [serviceChargeAmount, setServiceChargeAmount] = useState<number>(0);
@@ -258,7 +261,10 @@ export const OrderPayment = ({
       try {
         const rows = await loadActiveOrderDiscounts(db, order.id);
         if (rows.length > 0) {
-          const lines = rows.map(orderDiscountToAppliedLine);
+          // Seed manuals only — automatic lines are recomputed by cart totals.
+          const lines = rows
+            .map(orderDiscountToAppliedLine)
+            .filter(line => line.applicationType === 'manual');
           setDiscountLines(lines);
           setOrderDiscountIds(rows.map(r => r.id));
           setDiscountAmount(lines.reduce((s, l) => s + l.appliedAmount, 0));
@@ -266,7 +272,7 @@ export const OrderPayment = ({
           setDiscountAmount(order.discount_amount);
           if (order.discount) {
             setDiscountLines([{
-              discountId: order.discount.id,
+              discountId: toTargetId(order.discount.id),
               name: order.discount.name,
               appliedAmount: order.discount_amount,
               appliedRate: order.discount_rate,
@@ -279,6 +285,8 @@ export const OrderPayment = ({
         }
       } catch {
         setDiscountAmount(order?.discount_amount ?? 0);
+      } finally {
+        setInitialized(true);
       }
     })();
 
@@ -312,8 +320,6 @@ export const OrderPayment = ({
       });
       return next;
     });
-
-    setInitialized(true);
   }, [order, isInitialized]);
 
   const total = paymentTotals.total;
@@ -660,9 +666,35 @@ export const OrderPayment = ({
     page?.user
   ])
 
+  const saveOrderProgressRef = useRef(saveOrderProgress);
   useEffect(() => {
-    saveOrderProgress();
+    saveOrderProgressRef.current = saveOrderProgress;
   }, [saveOrderProgress]);
+
+  useEffect(() => {
+    if (!isInitialized) {
+      return;
+    }
+
+    const run = async () => {
+      if (saveInFlightRef.current) {
+        savePendingRef.current = true;
+        return;
+      }
+
+      saveInFlightRef.current = true;
+      try {
+        do {
+          savePendingRef.current = false;
+          await saveOrderProgressRef.current();
+        } while (savePendingRef.current);
+      } finally {
+        saveInFlightRef.current = false;
+      }
+    };
+
+    void run();
+  }, [saveOrderProgress, isInitialized]);
 
   const [pageState] = useAtom(appPage);
   const {
@@ -914,7 +946,7 @@ export const OrderPayment = ({
             discountAmount={cartTotals.discountTotal}
             onPaymentTypeDiscount={(d, amount) => {
               const line: AppliedDiscountLine = {
-                discountId: d.id,
+                discountId: toTargetId(d.id),
                 name: d.name,
                 appliedAmount: amount,
                 scope: (d.scope || 'cart') as AppliedDiscountLine['scope'],
@@ -923,7 +955,8 @@ export const OrderPayment = ({
                 applicationType: 'automatic',
               };
               setDiscountLines(prev => {
-                const withoutPt = prev.filter(l => l.applicationType !== 'automatic' || l.discountId !== d.id);
+                const discountId = toTargetId(d.id);
+                const withoutPt = prev.filter(l => l.applicationType !== 'automatic' || toTargetId(l.discountId) !== discountId);
                 return [...withoutPt, line];
               });
             }}

@@ -25,6 +25,7 @@ import { DocumentTitle } from "@/components/common/document-title.tsx";
 import {
   clearSessionTokens,
   gatewayLogin,
+  getSessionToken,
   isGatewayAuthEnabled,
   setSessionTokens,
 } from "@/lib/session.ts";
@@ -218,12 +219,17 @@ export const Login = () => {
   }, [error]);
 
   useLayoutEffect(() => {
-    if(page.user && !page.locked){
+    // Gateway mode: user may exist in localStorage from another tab without a JWT here —
+    // do not bounce back to the protected route or we loop Login ↔ report forever.
+    if (gatewayAuth && !getSessionToken()) {
+      return;
+    }
+    if (page.user && !page.locked) {
       const from = (location.state as { from?: { pathname: string; search?: string } })?.from;
       const returnPath = from ? `${from.pathname}${from.search ?? ''}` : MENU;
       navigation(returnPath, { replace: true });
     }
-  }, [page.user, page.locked, location.state, navigation]);
+  }, [gatewayAuth, page.user, page.locked, location.state, navigation]);
 
   return (
     <div className="relative">

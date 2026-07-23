@@ -6,30 +6,45 @@ import { nowSurrealDateTime } from '@/lib/datetime.ts'
 import type { useDB } from '@/api/db/db.ts'
 import type { User } from '@/api/model/user.ts'
 import {toRecordId} from "@/lib/utils.ts";
+import { toTargetId } from '@/lib/discount-engine/target-ids.ts'
 
 export type DbClient = ReturnType<typeof useDB>
 
+const dedupeAppliedLines = (lines: AppliedDiscountLine[]): AppliedDiscountLine[] => {
+  const seen = new Set<string>()
+  return lines.filter(line => {
+    const key = `${toTargetId(line.discountId)}:${(line.lineAllocations || []).map(l => toTargetId(l.orderItemId)).join(',')}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
+/**
+ * Delete every order_discount for an order, then insert the new set.
+ * History lives in the tracking/log table — do not soft-delete with removed_at.
+ */
 export const persistOrderDiscounts = async (
   db: DbClient,
   orderId: string,
   lines: AppliedDiscountLine[],
   user?: User,
-  existingIds?: string[]
+  _existingIds?: string[]
 ): Promise<OrderDiscount[]> => {
-  if (existingIds?.length) {
-    for (const id of existingIds) {
-      await db.merge(id, {
-        removed_at: nowSurrealDateTime(),
-        removed_by: toRecordId(user?.id || null),
-      })
-    }
-  }
+  const orderRecordId = toRecordId(orderId)
+  const now = nowSurrealDateTime()
+  const uniqueLines = dedupeAppliedLines(lines)
+
+  await db.query(
+    `DELETE ${Tables.order_discounts} WHERE order = $orderId`,
+    { orderId: orderRecordId }
+  )
 
   const created: OrderDiscount[] = []
-  for (const line of lines) {
+  for (const line of uniqueLines) {
     const inserted = await db.create(Tables.order_discounts, {
-      order: toRecordId(orderId),
-      discount: toRecordId(line.discountId),
+      order: orderRecordId,
+      discount: toRecordId(toTargetId(line.discountId) || line.discountId),
       name: line.name,
       scope: line.scope,
       value_type: line.valueType,
@@ -46,7 +61,7 @@ export const persistOrderDiscounts = async (
         order_item: toRecordId(l.orderItemId),
         amount: l.amount,
       })) || [],
-      created_at: nowSurrealDateTime(),
+      created_at: now,
     })
     const record = (Array.isArray(inserted) ? inserted[0] : inserted) as unknown as OrderDiscount
     created.push(record)
@@ -61,9 +76,9 @@ export const loadActiveOrderDiscounts = async (
 ): Promise<OrderDiscount[]> => {
   const result = await db.query<[OrderDiscount[]]>(
     `SELECT * FROM ${Tables.order_discounts}
-     WHERE order = $orderId AND removed_at = none
+     WHERE order = $orderId AND (removed_at = NONE OR removed_at = null)
      FETCH discount, reason, applied_by`,
-    { orderId }
+    { orderId: toRecordId(orderId) }
   )
   return result?.[0] ?? []
 }
@@ -79,7 +94,7 @@ export const syncOrderDiscountDenorm = async (
   await db.merge(orderId, {
     discount_amount: total,
     discount_rate: primaryRate,
-    discount: lines[0]?.discountId ?? null,
+    discount: lines[0]?.discountId ? toRecordId(toTargetId(lines[0].discountId)) : null,
   })
 }
 

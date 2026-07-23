@@ -161,8 +161,8 @@
     "open": "Открыть «Что нового»",
     "dismiss": "Понятно",
     "dialogTitle": "Что нового",
-    "versionLabel": "Версия {{version}}",
-    "previousReleases": "Предыдущие версии"
+    "previousReleases": "Предыдущие обновления",
+    "dateLabel": "Обновлено {{date}}"
   },
   "sessionSecurity": {
     "title": "Безопасность сеанса",

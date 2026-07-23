@@ -161,8 +161,8 @@
     "open": "Wat is er nieuw openen",
     "dismiss": "Begrepen",
     "dialogTitle": "Wat is er nieuw",
-    "versionLabel": "Versie {{version}}",
-    "previousReleases": "Eerdere releases"
+    "previousReleases": "Eerdere updates",
+    "dateLabel": "Bijgewerkt {{date}}"
   },
   "sessionSecurity": {
     "title": "Sessiebeveiliging",

@@ -255,7 +255,8 @@
     "map": "Chargement de la carte...",
     "latestActivity": "Chargement de la dernière activité...",
     "sessions": "Chargement des sessions...",
-    "kitchenReconciliation": "Loading kitchen reconciliation report…"
+    "kitchenReconciliation": "Loading kitchen reconciliation report…",
+    "discounts": "Chargement du rapport des remises…"
   },
   "errors": {
     "unableToLoad": "Impossible de charger le rapport",
@@ -329,7 +330,12 @@
     "itemCode": "Code article",
     "landedCost": "Landed cost",
     "finalInventory": "Final inventory",
-    "taxPercent": "Taxe %"
+    "taxPercent": "Taxe %",
+    "scope": "Portée",
+    "valueType": "Type",
+    "applicationType": "Application",
+    "appliedBy": "Appliqué par",
+    "approvedBy": "Approuvé par"
   },
   "labels": {
     "modifiers": "Modificateurs",
@@ -417,7 +423,11 @@
     "staffMeal": "Repas du personnel",
     "complimentary": "Offert",
     "actualConsumption": "Consommation réelle",
-    "variance": "Écart"
+    "variance": "Écart",
+    "discountLines": "Lignes de remise",
+    "totalDiscount": "Remise totale",
+    "discountDetails": "Détails des remises",
+    "customDiscount": "Remise personnalisée"
   },
   "metrics": {
     "gross": "Brut",
@@ -491,5 +501,10 @@
       "store": "Inclure uniquement les sessions buffet fermées dans ce magasin. Laisser vide pour tous les magasins.",
       "sessionType": "Inclure uniquement les sessions de cette période de repas. Laisser vide pour tous les types."
     }
+  },
+  "empty": {
+    "noDiscountTypes": "Aucun type de remise pour la période sélectionnée.",
+    "noDiscountsByUsers": "Aucune remise par utilisateur pour la période sélectionnée.",
+    "noDiscountRows": "Aucune ligne de remise trouvée pour la période sélectionnée."
   }
 }

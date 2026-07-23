@@ -1,6 +1,7 @@
 import type { Discount } from '@/api/model/discount.ts'
 import type { DiscountCandidate, ResolvedSet } from '@/lib/discount-engine/types.ts'
 import { roundCurrency } from '@/lib/discount-engine/rounding.ts'
+import { toTargetId } from '@/lib/discount-engine/target-ids.ts'
 
 const getGroupKey = (c: DiscountCandidate): string => {
   return c.discount.stack_group || `${c.scope}:${c.discount.category || 'default'}`
@@ -8,9 +9,9 @@ const getGroupKey = (c: DiscountCandidate): string => {
 
 const isDuplicate = (applied: DiscountCandidate[], candidate: DiscountCandidate): boolean => {
   return applied.some(a => {
-    if (a.discount.id !== candidate.discount.id) return false
-    const aTargets = (a.targetItemIds || []).sort().join(',')
-    const bTargets = (candidate.targetItemIds || []).sort().join(',')
+    if (toTargetId(a.discount.id) !== toTargetId(candidate.discount.id)) return false
+    const aTargets = (a.targetItemIds || []).map(toTargetId).sort().join(',')
+    const bTargets = (candidate.targetItemIds || []).map(toTargetId).sort().join(',')
     return aTargets === bTargets
   })
 }
@@ -95,9 +96,9 @@ export const resolveDiscountConflicts = (candidates: DiscountCandidate[]): Resol
       applied.push(c)
     }
 
-    const resolvedIds = new Set(resolved.map(r => r.discount.id + (r.targetItemIds || []).join(',')))
+    const resolvedIds = new Set(resolved.map(r => toTargetId(r.discount.id) + (r.targetItemIds || []).map(toTargetId).join(',')))
     for (const c of group) {
-      const key = c.discount.id + (c.targetItemIds || []).join(',')
+      const key = toTargetId(c.discount.id) + (c.targetItemIds || []).map(toTargetId).join(',')
       if (!resolvedIds.has(key)) rejected.push(c)
     }
   }
@@ -120,7 +121,7 @@ export const sumDiscountTotal = (applied: DiscountCandidate[]): number => {
 }
 
 export const candidateToAppliedLine = (c: DiscountCandidate) => ({
-  discountId: c.discount.id,
+  discountId: toTargetId(c.discount.id),
   name: c.discount.name,
   appliedAmount: c.appliedAmount,
   appliedRate: c.appliedRate,
@@ -128,7 +129,7 @@ export const candidateToAppliedLine = (c: DiscountCandidate) => ({
   valueType: (c.discount.value_type || 'percent') as any,
   taxTreatment: (c.discount.tax_treatment || 'tax_before_discount') as any,
   applicationType: c.applicationType,
-  lineAllocations: c.lineAllocations?.map(l => ({ orderItemId: l.orderItemId, amount: l.amount })),
+  lineAllocations: c.lineAllocations?.map(l => ({ orderItemId: toTargetId(l.orderItemId), amount: l.amount })),
   reasonId: c.reasonId,
   reasonText: c.reasonText,
 })

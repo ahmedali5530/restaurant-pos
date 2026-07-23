@@ -161,8 +161,8 @@
     "open": "Yenilikleri aç",
     "dismiss": "Anladım",
     "dialogTitle": "Yenilikler",
-    "versionLabel": "Sürüm {{version}}",
-    "previousReleases": "Önceki sürümler"
+    "previousReleases": "Önceki güncellemeler",
+    "dateLabel": "Güncellendi {{date}}"
   },
   "sessionSecurity": {
     "title": "Oturum güvenliği",

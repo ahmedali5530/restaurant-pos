@@ -1,5 +1,7 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useDB } from '@/api/db/db.ts';
+import { useDatabase } from '@/hooks/useDatabase.ts';
+import { getSessionToken, isGatewayAuthEnabled } from '@/lib/session.ts';
 import { IntegrationManager } from '@/integrations/core/integration-manager.ts';
 import { ProviderRegistry } from '@/integrations/registry/provider-registry.ts';
 import { IntegrationEventBus } from '@/integrations/events/event-bus.ts';
@@ -22,16 +24,27 @@ interface IntegrationContextValue {
 }
 
 const FRAMEWORK_VERSION = '1.0.0';
+const SESSION_EVENT = 'posr-session';
 
 const IntegrationContext = createContext<IntegrationContextValue | null>(null);
+
+function isSessionReadyForIntegrations() {
+  if (!isGatewayAuthEnabled()) {
+    return true;
+  }
+  return Boolean(getSessionToken());
+}
 
 export const IntegrationProvider = ({ children }: PropsWithChildren) => {
   const [initialized, setInitialized] = useState(false);
   const [providers, setProviders] = useState<AvailableProviderEntry[]>([]);
+  const [sessionReady, setSessionReady] = useState(isSessionReadyForIntegrations);
   const repositories = useIntegrationRepositories();
+  const { isConnected } = useDatabase();
   const db = useDB();
   const dbRef = useRef(db);
   dbRef.current = db;
+  const bootstrappedRef = useRef(false);
 
   const manager = useMemo(() => {
     const registry = new ProviderRegistry(FRAMEWORK_VERSION);
@@ -49,7 +62,19 @@ export const IntegrationProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   useEffect(() => {
+    if (!isGatewayAuthEnabled()) {
+      setSessionReady(true);
+      return;
+    }
+    const sync = () => setSessionReady(Boolean(getSessionToken()));
+    sync();
+    window.addEventListener(SESSION_EVENT, sync);
+    return () => window.removeEventListener(SESSION_EVENT, sync);
+  }, []);
+
+  useEffect(() => {
     let mounted = true;
+    let queueTimer: ReturnType<typeof setInterval> | undefined;
 
     const refreshProviderStates = async () => {
       let enabledIds: string[] = [];
@@ -90,8 +115,25 @@ export const IntegrationProvider = ({ children }: PropsWithChildren) => {
       await refreshProviderStates();
       if (mounted) {
         setInitialized(true);
+        bootstrappedRef.current = true;
       }
     };
+
+    // Catalog-only UI while waiting for a live DB session.
+    if (!isConnected || !sessionReady) {
+      if (bootstrappedRef.current) {
+        bootstrappedRef.current = false;
+        setInitialized(false);
+        void manager.shutdown();
+      }
+      const discovery = new BundledProviderDiscovery();
+      const catalogManifests = discovery.discoverCatalog().listCatalogManifests();
+      setProviders(catalogManifests.map((manifest) => ({ manifest, enabled: false })));
+      return () => {
+        mounted = false;
+      };
+    }
+
     void bootstrap().catch((error) => {
       console.error('Integration framework bootstrap failed', error);
       if (mounted) {
@@ -99,16 +141,19 @@ export const IntegrationProvider = ({ children }: PropsWithChildren) => {
       }
     });
 
-    const queueTimer = setInterval(() => {
+    queueTimer = setInterval(() => {
       void manager.processQueue();
     }, 1200);
 
     return () => {
       mounted = false;
-      clearInterval(queueTimer);
+      if (queueTimer) {
+        clearInterval(queueTimer);
+      }
       void manager.shutdown();
+      bootstrappedRef.current = false;
     };
-  }, [manager]);
+  }, [manager, isConnected, sessionReady]);
 
   const refreshProviderStates = async () => {
     let enabledIds: string[] = [];

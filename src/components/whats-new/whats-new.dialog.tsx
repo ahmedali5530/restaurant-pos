@@ -1,7 +1,7 @@
 import {useAtom} from 'jotai';
 import {useTranslation} from 'react-i18next';
 import {appPage, whatsNewOpenRequest} from '@/store/jotai.ts';
-import {APP_VERSION, getLatestRelease, RELEASES} from '@/whats-new/releases.ts';
+import {getLatestRelease, LATEST_RELEASE_DATE, RELEASES} from '@/whats-new/releases.ts';
 import {Modal} from '@/components/common/react-aria/modal.tsx';
 import {Button} from '@/components/common/input/button.tsx';
 
@@ -11,17 +11,18 @@ export const WhatsNewDialog = () => {
   const [forceOpen, setForceOpen] = useAtom(whatsNewOpenRequest);
 
   const user = page.user;
-  const dismissed = page.whatsNewDismissedVersion;
-  const shouldAutoOpen = !!user && dismissed !== APP_VERSION;
+  const dismissed = page.whatsNewDismissedDate ?? page.whatsNewDismissedVersion;
+  const shouldAutoOpen = !!user && !!LATEST_RELEASE_DATE && dismissed !== LATEST_RELEASE_DATE;
   const open = shouldAutoOpen || forceOpen;
 
   const latest = getLatestRelease();
-  const priorReleases = RELEASES.filter((r) => r.version !== latest?.version).slice(0, 5);
+  const priorReleases = RELEASES.slice(1, 6);
 
   const dismiss = () => {
     setPage((prev) => ({
       ...prev,
-      whatsNewDismissedVersion: APP_VERSION,
+      whatsNewDismissedDate: LATEST_RELEASE_DATE,
+      whatsNewDismissedVersion: undefined,
     }));
     setForceOpen(false);
   };
@@ -39,8 +40,7 @@ export const WhatsNewDialog = () => {
     >
       <div className="space-y-4">
         <p className="text-sm text-neutral-500">
-          {t('whatsNew.versionLabel', {version: latest.version})}
-          {latest.date ? ` · ${latest.date}` : ''}
+          {t('whatsNew.dateLabel', {date: latest.date})}
         </p>
 
         <ul className="list-disc pl-5 space-y-2 text-neutral-800">
@@ -52,13 +52,13 @@ export const WhatsNewDialog = () => {
         {priorReleases.length > 0 && (
           <div className="pt-3 border-t border-neutral-200 space-y-3 overflow-auto max-h-[calc(100vh_-_350px)]">
             <p className="text-sm font-medium text-neutral-600">{t('whatsNew.previousReleases')}</p>
-            {priorReleases.map((release) => (
-              <div key={release.version}>
+            {priorReleases.map((release, index) => (
+              <div key={`${release.date}-${release.title ?? index}`}>
                 <p className="text-sm font-semibold text-neutral-700">
-                  {release.title ?? release.version}
+                  {release.title ?? release.date}
                   <span className="font-normal text-neutral-500">
                     {' '}
-                    ({release.version}{release.date ? ` · ${release.date}` : ''})
+                    ({release.date})
                   </span>
                 </p>
                 <ul className="list-disc pl-5 mt-1 space-y-1 text-sm text-neutral-700">

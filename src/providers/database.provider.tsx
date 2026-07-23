@@ -9,7 +9,14 @@ import {
   resolveDbWebsocketUrl,
   withApi,
 } from "@/api/db/settings.ts";
-import { getSessionToken } from "@/lib/session.ts";
+import {
+  getSessionToken,
+  getSurrealToken,
+  invalidateGatewaySession,
+  isJwtExpiredOrNearExpiry,
+  isSurrealAuthError,
+  refreshSurrealToken,
+} from "@/lib/session.ts";
 import { PageLoader } from "@/components/common/loader/page-loader.tsx";
 import { useTranslation } from "react-i18next";
 
@@ -92,8 +99,7 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
       setIsError(false);
       setError(null);
 
-      try {
-        console.log("Connecting to SurrealDB...");
+      const openSocket = async () => {
         const endpoint = resolveDbWebsocketUrl();
         const authentication = resolveDbAuthentication();
 
@@ -104,6 +110,15 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
           throw new Error("No database token — login required");
         }
 
+        // Ensure a clean socket before reconnect (expired-token retries).
+        if (surrealInstance.isConnected) {
+          try {
+            await surrealInstance.close();
+          } catch {
+            // ignore
+          }
+        }
+
         await surrealInstance.connect(endpoint || withApi(""), {
           namespace: DB_REST_NS,
           database: DB_REST_DB,
@@ -112,6 +127,40 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
 
         if (!surrealInstance.isConnected) {
           throw new Error("SurrealDB connect finished without an active connection");
+        }
+      };
+
+      try {
+        console.log("Connecting to SurrealDB...");
+
+        if (gatewayMode && isJwtExpiredOrNearExpiry(getSurrealToken())) {
+          const refreshed = await refreshSurrealToken();
+          if (!refreshed) {
+            invalidateGatewaySession();
+            throw new Error("Database session expired — please log in again");
+          }
+        }
+
+        try {
+          await openSocket();
+        } catch (err) {
+          if (!gatewayMode || !isSurrealAuthError(err)) {
+            throw err;
+          }
+
+          console.warn("Surreal auth failed; refreshing database token...", err);
+          const refreshed = await refreshSurrealToken();
+          if (!refreshed) {
+            invalidateGatewaySession();
+            throw new Error("Database session expired — please log in again");
+          }
+
+          try {
+            await surrealInstance.close();
+          } catch {
+            // ignore
+          }
+          await openSocket();
         }
 
         console.log("Successfully connected to SurrealDB");

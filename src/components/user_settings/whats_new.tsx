@@ -1,7 +1,7 @@
 import {useSetAtom} from 'jotai';
 import {useTranslation} from 'react-i18next';
 import {whatsNewOpenRequest} from '@/store/jotai.ts';
-import {APP_VERSION} from '@/whats-new/releases.ts';
+import {LATEST_RELEASE_DATE} from '@/whats-new/releases.ts';
 import {Button} from '@/components/common/input/button.tsx';
 
 export const WhatsNewSettingsCard = () => {
@@ -17,7 +17,7 @@ export const WhatsNewSettingsCard = () => {
         </div>
       </div>
       <p className="text-sm text-neutral-600 mb-4">
-        {t('whatsNew.versionLabel', {version: APP_VERSION})}
+        {t('whatsNew.dateLabel', {date: LATEST_RELEASE_DATE})}
       </p>
       <Button variant="primary" size="lg" onClick={() => setForceOpen(true)}>
         {t('whatsNew.open')}

@@ -85,7 +85,9 @@ export const buildEvaluationContext = (
 }
 
 export const orderDiscountToAppliedLine = (od: OrderDiscount): AppliedDiscountLine => ({
-  discountId: typeof od.discount === 'string' ? od.discount : od.discount?.id?.toString() || '',
+  discountId: toTargetId(
+    typeof od.discount === 'string' ? od.discount : od.discount?.id,
+  ),
   orderDiscountId: od.id,
   name: od.name,
   appliedAmount: od.applied_amount,
@@ -95,7 +97,9 @@ export const orderDiscountToAppliedLine = (od: OrderDiscount): AppliedDiscountLi
   taxTreatment: od.tax_treatment,
   applicationType: od.application_type,
   lineAllocations: od.line_allocations?.map(l => ({
-    orderItemId: typeof l.order_item === 'string' ? l.order_item : l.order_item?.id?.toString() || '',
+    orderItemId: toTargetId(
+      typeof l.order_item === 'string' ? l.order_item : l.order_item?.id,
+    ),
     amount: l.amount,
   })),
   reasonId: typeof od.reason === 'string' ? od.reason : od.reason?.id,

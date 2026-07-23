@@ -101,7 +101,7 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
         if (metric === "coupon_discount") {
           conditions.push(`coupon != NONE`);
         } else if (metric === "discount_amount") {
-          conditions.push(`(discount != NONE OR array::len(order_discounts) > 0 OR coupon != NONE)`);
+          conditions.push(`(discount != NONE OR (order_discounts != NONE AND array::len(order_discounts) > 0) OR coupon != NONE)`);
         } else {
           conditions.push(`${metric} > 0`);
         }

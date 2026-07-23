@@ -255,7 +255,8 @@
     "map": "Kaart laden...",
     "latestActivity": "Laatste activiteit laden...",
     "sessions": "Sessies laden...",
-    "kitchenReconciliation": "Loading kitchen reconciliation report…"
+    "kitchenReconciliation": "Loading kitchen reconciliation report…",
+    "discounts": "Kortingsrapport laden…"
   },
   "errors": {
     "unableToLoad": "Kan rapport niet laden",
@@ -329,7 +330,12 @@
     "itemCode": "Artikelcode",
     "landedCost": "Landed cost",
     "finalInventory": "Final inventory",
-    "taxPercent": "Belasting %"
+    "taxPercent": "Belasting %",
+    "scope": "Bereik",
+    "valueType": "Type",
+    "applicationType": "Toepassing",
+    "appliedBy": "Toegepast door",
+    "approvedBy": "Goedgekeurd door"
   },
   "labels": {
     "modifiers": "Modifiers",
@@ -417,7 +423,11 @@
     "staffMeal": "Personeelsmaaltijd",
     "complimentary": "Gratis",
     "actualConsumption": "Werkelijk verbruik",
-    "variance": "Afwijking"
+    "variance": "Afwijking",
+    "discountLines": "Kortingsregels",
+    "totalDiscount": "Totale korting",
+    "discountDetails": "Kortingsdetails",
+    "customDiscount": "Aangepaste korting"
   },
   "metrics": {
     "gross": "Bruto",
@@ -491,5 +501,10 @@
       "store": "Alleen gesloten buffetsessies in dit magazijn opnemen. Leeg laten voor alle magazijnen.",
       "sessionType": "Alleen sessies voor deze maaltijdperiode opnemen. Leeg laten voor alle typen."
     }
+  },
+  "empty": {
+    "noDiscountTypes": "Geen kortingstypes voor geselecteerd bereik.",
+    "noDiscountsByUsers": "Geen kortingen per gebruiker voor geselecteerd bereik.",
+    "noDiscountRows": "Geen kortingsregels gevonden voor geselecteerd bereik."
   }
 }

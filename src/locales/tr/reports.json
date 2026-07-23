@@ -255,7 +255,8 @@
     "map": "Harita yükleniyor...",
     "latestActivity": "Son aktivite yükleniyor...",
     "sessions": "Oturumlar yükleniyor...",
-    "kitchenReconciliation": "Loading kitchen reconciliation report…"
+    "kitchenReconciliation": "Loading kitchen reconciliation report…",
+    "discounts": "İndirim raporu yükleniyor…"
   },
   "errors": {
     "unableToLoad": "Rapor yüklenemedi",
@@ -329,7 +330,12 @@
     "itemCode": "Ürün kodu",
     "landedCost": "Landed cost",
     "finalInventory": "Final inventory",
-    "taxPercent": "Vergi %"
+    "taxPercent": "Vergi %",
+    "scope": "Kapsam",
+    "valueType": "Tür",
+    "applicationType": "Uygulama",
+    "appliedBy": "Uygulayan",
+    "approvedBy": "Onaylayan"
   },
   "labels": {
     "modifiers": "Değiştiriciler",
@@ -417,7 +423,11 @@
     "staffMeal": "Personel yemeği",
     "complimentary": "İkram",
     "actualConsumption": "Gerçek tüketim",
-    "variance": "Sapma"
+    "variance": "Sapma",
+    "discountLines": "İndirim satırları",
+    "totalDiscount": "Toplam indirim",
+    "discountDetails": "İndirim detayları",
+    "customDiscount": "Özel indirim"
   },
   "metrics": {
     "gross": "Brüt",
@@ -491,5 +501,10 @@
       "store": "Yalnızca bu depodaki kapatılmış büfe oturumlarını dahil edin. Tüm depolar için boş bırakın.",
       "sessionType": "Yalnızca bu öğün dönemindeki oturumları dahil edin. Tüm türler için boş bırakın."
     }
+  },
+  "empty": {
+    "noDiscountTypes": "Seçilen aralık için indirim türü yok.",
+    "noDiscountsByUsers": "Seçilen aralık için kullanıcıya göre indirim yok.",
+    "noDiscountRows": "Seçilen aralık için indirim satırı bulunamadı."
   }
 }

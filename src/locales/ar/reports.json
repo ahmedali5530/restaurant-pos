@@ -255,7 +255,8 @@
     "map": "جارٍ تحميل الخريطة...",
     "latestActivity": "جارٍ تحميل آخر النشاط...",
     "sessions": "جارٍ تحميل الجلسات...",
-    "kitchenReconciliation": "Loading kitchen reconciliation report…"
+    "kitchenReconciliation": "Loading kitchen reconciliation report…",
+    "discounts": "جاري تحميل تقرير الخصومات…"
   },
   "errors": {
     "unableToLoad": "تعذّر تحميل التقرير",
@@ -329,7 +330,12 @@
     "itemCode": "رمز الصنف",
     "landedCost": "Landed cost",
     "finalInventory": "Final inventory",
-    "taxPercent": "نسبة الضريبة %"
+    "taxPercent": "نسبة الضريبة %",
+    "scope": "النطاق",
+    "valueType": "النوع",
+    "applicationType": "طريقة التطبيق",
+    "appliedBy": "طبق بواسطة",
+    "approvedBy": "وافق بواسطة"
   },
   "labels": {
     "modifiers": "الإضافات",
@@ -417,7 +423,11 @@
     "staffMeal": "وجبة الموظف",
     "complimentary": "مجاني",
     "actualConsumption": "الاستهلاك الفعلي",
-    "variance": "الفرق"
+    "variance": "الفرق",
+    "discountLines": "بنود الخصم",
+    "totalDiscount": "إجمالي الخصم",
+    "discountDetails": "تفاصيل الخصم",
+    "customDiscount": "خصم مخصص"
   },
   "metrics": {
     "gross": "إجمالي",
@@ -491,5 +501,10 @@
       "store": "تضمين جلسات البوفيه المغلقة فقط في هذا المخزن. اتركه فارغًا لجميع المخازن.",
       "sessionType": "تضمين جلسات فترة الوجبة هذه فقط. اتركه فارغًا لجميع الأنواع."
     }
+  },
+  "empty": {
+    "noDiscountTypes": "لا توجد أنواع خصم للنطاق المحدد.",
+    "noDiscountsByUsers": "لا توجد خصومات حسب المستخدمين للنطاق المحدد.",
+    "noDiscountRows": "لا توجد صفوف خصم للنطاق المحدد."
   }
 }

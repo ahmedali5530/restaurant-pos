@@ -255,7 +255,8 @@
     "map": "Загрузка карты...",
     "latestActivity": "Загрузка последней активности...",
     "sessions": "Загрузка сессий...",
-    "kitchenReconciliation": "Loading kitchen reconciliation report…"
+    "kitchenReconciliation": "Loading kitchen reconciliation report…",
+    "discounts": "Загрузка отчёта по скидкам…"
   },
   "errors": {
     "unableToLoad": "Не удалось загрузить отчёт",
@@ -329,7 +330,12 @@
     "itemCode": "Код товара",
     "landedCost": "Landed cost",
     "finalInventory": "Final inventory",
-    "taxPercent": "Налог %"
+    "taxPercent": "Налог %",
+    "scope": "Область",
+    "valueType": "Тип",
+    "applicationType": "Применение",
+    "appliedBy": "Применил",
+    "approvedBy": "Утвердил"
   },
   "labels": {
     "modifiers": "Модификаторы",
@@ -417,7 +423,11 @@
     "staffMeal": "Питание персонала",
     "complimentary": "Бесплатно",
     "actualConsumption": "Фактическое потребление",
-    "variance": "Отклонение"
+    "variance": "Отклонение",
+    "discountLines": "Строки скидок",
+    "totalDiscount": "Общая скидка",
+    "discountDetails": "Детали скидок",
+    "customDiscount": "Произвольная скидка"
   },
   "metrics": {
     "gross": "Валовый",
@@ -491,5 +501,10 @@
       "store": "Включать только закрытые сессии шведского стола на этом складе. Оставьте пустым для всех складов.",
       "sessionType": "Включать только сессии этого периода приёма пищи. Оставьте пустым для всех типов."
     }
+  },
+  "empty": {
+    "noDiscountTypes": "Нет типов скидок за выбранный период.",
+    "noDiscountsByUsers": "Нет скидок по пользователям за выбранный период.",
+    "noDiscountRows": "Строки скидок за выбранный период не найдены."
   }
 }
