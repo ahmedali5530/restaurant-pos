@@ -84,7 +84,8 @@
     "payrollDetails": "Detalles de nómina",
     "laborTrend": "Tendencia de mano de obra",
     "laborForecast": "Pronóstico de mano de obra",
-    "laborDashboard": "Panel de mano de obra"
+    "laborDashboard": "Panel de mano de obra",
+    "purchaseOrder": "Orden de compra"
   },
   "titles": {
     "aiReport": "Informe de IA",
@@ -152,7 +153,8 @@
     "payrollDetails": "Detalles de nómina",
     "laborTrend": "Tendencia de mano de obra",
     "laborForecast": "Pronóstico de mano de obra",
-    "laborDashboard": "Panel de mano de obra"
+    "laborDashboard": "Panel de mano de obra",
+    "purchaseOrder": "Informe de orden de compra"
   },
   "layout": {
     "print": "Imprimir",
@@ -256,7 +258,8 @@
     "latestActivity": "Cargando actividad reciente...",
     "sessions": "Cargando sesiones...",
     "kitchenReconciliation": "Loading kitchen reconciliation report…",
-    "discounts": "Cargando informe de descuentos…"
+    "discounts": "Cargando informe de descuentos…",
+    "purchaseOrder": "Cargando informe de orden de compra…"
   },
   "errors": {
     "unableToLoad": "No se pudo cargar el informe",

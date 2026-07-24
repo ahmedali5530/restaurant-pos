@@ -28,6 +28,7 @@ import {
   getCurrentInventory,
   getInventoryMovements,
   getKitchenReconciliationSummary,
+  getPurchaseOrders,
   getSaleVsConsumption,
   getWasteSummary,
   listInventoryItems,
@@ -257,6 +258,14 @@ export const executeAiReportTool = async (
       return getKitchenReconciliationSummary(db, {
         ...parseOptionalDateRangeArgs(args),
         limit: args.limit ? Number(args.limit) : 20,
+      });
+
+    case "get_purchase_orders":
+      return getPurchaseOrders(db, {
+        ...parseDateRangeWithPhrase(args),
+        status: args.status ? String(args.status) : undefined,
+        statuses: Array.isArray(args.statuses) ? args.statuses.map(String) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
       });
 
     case "get_expenses":

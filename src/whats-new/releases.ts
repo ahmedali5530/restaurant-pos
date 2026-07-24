@@ -8,6 +8,15 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-07-24',
+    title: 'Purchase order report and pricing',
+    items: [
+      'New Purchase Order report under Reports → Inventory with date, status, supplier, item, and created-by filters.',
+      'Creating a purchase order now shows previous purchase price per item and auto-fills the line price (last purchase, then catalog cost).',
+      'AI Report can answer purchase order questions via the new get_purchase_orders tool (separate from ledger purchase movements).',
+    ],
+  },
+  {
+    date: '2026-07-24',
     title: 'Inventory list totals',
     items: [
       'Purchase orders, purchases, returns, issues, issue returns, waste, and adjustments list tables now show document totals matching receipt amounts.',

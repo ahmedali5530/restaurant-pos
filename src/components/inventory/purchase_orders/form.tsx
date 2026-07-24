@@ -28,6 +28,8 @@ import {dateToCalendarDate, calendarDateToDate, getToday} from "@/utils/date.ts"
 import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
 import {InventoryFormLineTotal} from "@/components/inventory/common/form.line.total.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import {getLastPurchasePrice} from "@/lib/inventory/last.purchase.price.ts";
+import {withCurrency} from "@/lib/utils.ts";
 
 interface PurchaseOrderItemFormValue {
   item: { label: string; value: string } | null;
@@ -123,6 +125,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
     enabled: false
   });
   const [supplierModal, setSupplierModal] = useState(false);
+  const [previousPrices, setPreviousPrices] = useState<Record<string, number>>({});
 
   const {
     control,
@@ -223,11 +226,13 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
           } : null
         }))
       });
+      setPreviousPrices({});
     }
   }, [data, reset]);
 
   const closeModal = () => {
     onClose();
+    setPreviousPrices({});
     reset({
       po_number: 0,
       supplier: null,
@@ -240,6 +245,31 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
         supplier: null
       }]
     });
+  };
+
+  const applyPreviousPrice = async (
+    fieldId: string,
+    index: number,
+    itemId: string | null | undefined,
+    lineSupplierId?: string | null,
+  ) => {
+    if (!itemId) {
+      setPreviousPrices(prev => {
+        const next = {...prev};
+        delete next[fieldId];
+        return next;
+      });
+      setValue(`items.${index}.price`, 0);
+      return;
+    }
+
+    const catalog = (items?.data ?? []).find((it) => String(it.id) === String(itemId));
+    const previous = await getLastPurchasePrice(db, itemId, {
+      supplierId: lineSupplierId || selectedSupplierId || null,
+      catalog,
+    });
+    setPreviousPrices(prev => ({...prev, [fieldId]: previous}));
+    setValue(`items.${index}.price`, previous);
   };
 
   const toRecordId = (value?: string | { toString(): string }) => {
@@ -357,8 +387,6 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
     }, {});
   }, [itemsList]);
 
-  console.log();
-
   return (
     <>
       <Modal
@@ -457,14 +485,14 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
               <InputError error={_.get(errors, ["items", "message"])}/>
 
 
-              {fields.map((field, index) => {
+              {fields.map((rowField, index) => {
                 const selectedRowItemId = watchedItems?.[index]?.item?.value;
                 const rowSupplierOptions = selectedRowItemId
                   ? itemSuppliersMap[selectedRowItemId] ?? []
                   : supplierOptions;
 
                 return (
-                  <div className="flex flex-col gap-3 mb-3" key={field.id}>
+                  <div className="flex flex-col gap-3 mb-3" key={rowField.id}>
                     <div className="flex gap-3">
                       <div className="flex-1">
                         <label>{t('buttons.item')}</label>
@@ -474,7 +502,15 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                           render={({field}) => (
                             <ReactSelect
                               value={field.value}
-                              onChange={field.onChange}
+                              onChange={(option) => {
+                                field.onChange(option);
+                                void applyPreviousPrice(
+                                  rowField.id,
+                                  index,
+                                  option?.value,
+                                  watchedItems?.[index]?.supplier?.value,
+                                );
+                              }}
                               options={availableItemOptions}
                               isLoading={loadingItems}
                             />
@@ -483,34 +519,50 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                         <InputError error={_.get(errors, ["items", index, "item", "message"])}/>
                       </div>
                       <div className="flex-1 self-end">
-                        <Controller
-                          name={`items.${index}.quantity`}
-                          control={control}
-                          render={({field}) => (
-                            <Input
-                              label={t('forms.quantity')}
-                              type="number"
-                              value={field.value as number | string}
-                              onChange={field.onChange}
-                              error={_.get(errors, ["items", index, "quantity", "message"])}
-                            />
-                          )}
-                        />
+                        <div>
+                          <Controller
+                            name={`items.${index}.quantity`}
+                            control={control}
+                            render={({field}) => (
+                              <Input
+                                label={t('forms.quantity')}
+                                type="number"
+                                value={field.value as number | string}
+                                onChange={field.onChange}
+                                error={_.get(errors, ["items", index, "quantity", "message"])}
+                              />
+                            )}
+                          />
+                        </div>
                       </div>
                       <div className="flex-1 self-end">
-                        <Controller
-                          name={`items.${index}.price`}
-                          control={control}
-                          render={({field}) => (
-                            <Input
-                              label={t('columns.price')}
-                              type="number"
-                              value={field.value as number | string | undefined}
-                              onChange={field.onChange}
-                              error={_.get(errors, ["items", index, "price", "message"])}
-                            />
-                          )}
-                        />
+                        <div>
+                          <label className="block text-sm text-neutral-600 mb-1">
+                            {t('forms.previousPrice')}
+                          </label>
+                          <div className="px-3 py-2 border border-neutral-300 rounded-lg bg-neutral-50 text-neutral-700">
+                            {previousPrices[rowField.id] != null
+                              ? withCurrency(previousPrices[rowField.id])
+                              : "—"}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex-1 self-end">
+                        <div>
+                          <Controller
+                            name={`items.${index}.price`}
+                            control={control}
+                            render={({field}) => (
+                              <Input
+                                label={t('columns.price')}
+                                type="number"
+                                value={field.value as number | string | undefined}
+                                onChange={field.onChange}
+                                error={_.get(errors, ["items", index, "price", "message"])}
+                              />
+                            )}
+                          />
+                        </div>
                       </div>
                       <div className="flex-1">
                         <label>Supplier override</label>

@@ -62,6 +62,7 @@ export const REPORTS_VOIDS = REPORTS + '/voids';
 export const REPORTS_CURRENT_INVENTORY = REPORTS + '/current-inventory';
 export const REPORTS_DETAILED_INVENTORY = REPORTS + '/detailed-inventory';
 export const REPORTS_PURCHASE = REPORTS + '/purchase';
+export const REPORTS_PURCHASE_ORDER = REPORTS + '/purchase-order';
 export const REPORTS_PURCHASE_RETURN = REPORTS + '/purchase-return';
 export const REPORTS_ISSUE = REPORTS + '/issue';
 export const REPORTS_ISSUE_RETURN = REPORTS + '/issue-return';

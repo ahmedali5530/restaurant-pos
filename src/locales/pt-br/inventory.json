@@ -90,7 +90,8 @@
     "locationType": "Type",
     "linkedStore": "Linked store",
     "linkedKitchen": "Linked kitchen",
-    "active": "Active"
+    "active": "Active",
+    "previousPrice": "Preço anterior"
   },
   "buttons": {
     "item": "Item",
@@ -135,7 +136,8 @@
     "editAdjustment": "Edit adjustment #{{number}}",
     "notes": "Notes",
     "reason": "Reason",
-    "lines": "Lines"
+    "lines": "Lines",
+    "previousPrice": "Preço anterior"
   },
   "validation": {
     "required": "Este campo é obrigatório",

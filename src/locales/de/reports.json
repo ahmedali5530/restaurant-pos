@@ -84,7 +84,8 @@
     "payrollDetails": "Lohnabrechnungsdetails",
     "laborTrend": "Personaltrend",
     "laborForecast": "Personalprognose",
-    "laborDashboard": "Personal-Dashboard"
+    "laborDashboard": "Personal-Dashboard",
+    "purchaseOrder": "Bestellung"
   },
   "titles": {
     "aiReport": "KI-Bericht",
@@ -152,7 +153,8 @@
     "payrollDetails": "Lohnabrechnungsdetails",
     "laborTrend": "Personaltrend",
     "laborForecast": "Personalprognose",
-    "laborDashboard": "Personal-Dashboard"
+    "laborDashboard": "Personal-Dashboard",
+    "purchaseOrder": "Bestellbericht"
   },
   "layout": {
     "print": "Drucken",
@@ -256,7 +258,8 @@
     "latestActivity": "Letzte Aktivität wird geladen...",
     "sessions": "Sitzungen werden geladen...",
     "kitchenReconciliation": "Loading kitchen reconciliation report…",
-    "discounts": "Rabattbericht wird geladen…"
+    "discounts": "Rabattbericht wird geladen…",
+    "purchaseOrder": "Bestellbericht wird geladen…"
   },
   "errors": {
     "unableToLoad": "Bericht konnte nicht geladen werden",

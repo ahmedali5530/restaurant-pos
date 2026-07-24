@@ -84,7 +84,8 @@
     "payrollDetails": "تفاصيل الرواتب",
     "laborTrend": "اتجاه العمالة",
     "laborForecast": "توقعات العمالة",
-    "laborDashboard": "لوحة معلومات العمالة"
+    "laborDashboard": "لوحة معلومات العمالة",
+    "purchaseOrder": "أمر الشراء"
   },
   "titles": {
     "aiReport": "تقرير AI",
@@ -152,7 +153,8 @@
     "payrollDetails": "تفاصيل الرواتب",
     "laborTrend": "اتجاه العمالة",
     "laborForecast": "توقعات العمالة",
-    "laborDashboard": "لوحة معلومات العمالة"
+    "laborDashboard": "لوحة معلومات العمالة",
+    "purchaseOrder": "تقرير أمر الشراء"
   },
   "layout": {
     "print": "طباعة",
@@ -256,7 +258,8 @@
     "latestActivity": "جارٍ تحميل آخر النشاط...",
     "sessions": "جارٍ تحميل الجلسات...",
     "kitchenReconciliation": "Loading kitchen reconciliation report…",
-    "discounts": "جاري تحميل تقرير الخصومات…"
+    "discounts": "جاري تحميل تقرير الخصومات…",
+    "purchaseOrder": "جارٍ تحميل تقرير أمر الشراء…"
   },
   "errors": {
     "unableToLoad": "تعذّر تحميل التقرير",

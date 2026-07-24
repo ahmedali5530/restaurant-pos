@@ -90,7 +90,8 @@
     "locationType": "Type",
     "linkedStore": "Linked store",
     "linkedKitchen": "Linked kitchen",
-    "active": "Active"
+    "active": "Active",
+    "previousPrice": "Vorige prijs"
   },
   "buttons": {
     "item": "Artikel",
@@ -135,7 +136,8 @@
     "editAdjustment": "Edit adjustment #{{number}}",
     "notes": "Notes",
     "reason": "Reason",
-    "lines": "Lines"
+    "lines": "Lines",
+    "previousPrice": "Vorige prijs"
   },
   "validation": {
     "required": "Dit is verplicht",

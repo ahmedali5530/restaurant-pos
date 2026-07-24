@@ -22,6 +22,7 @@ import {SalesSummary2Filter} from "@/components/reports/filters/sales.summary2.f
 import {CurrentInventoryFilter} from "@/components/reports/filters/current.inventory.filter.tsx";
 import {DetailedInventoryFilter} from "@/components/reports/filters/detailed.inventory.filter.tsx";
 import {PurchaseFilter} from "@/components/reports/filters/purchase.filter.tsx";
+import {PurchaseOrderFilter} from "@/components/reports/filters/purchase.order.filter.tsx";
 import {PurchaseReturnFilter} from "@/components/reports/filters/purchase.return.filter.tsx";
 import {IssueFilter} from "@/components/reports/filters/issue.filter.tsx";
 import {IssueReturnFilter} from "@/components/reports/filters/issue.return.filter.tsx";
@@ -87,6 +88,7 @@ const REPORT_PERMISSION_MODULES: Record<string, string> = {
   currentInventory: 'Current Inventory',
   detailedInventory: 'Detailed Inventory',
   purchase: 'Purchase',
+  purchaseOrder: 'Purchase Order',
   purchaseReturn: 'Purchase Return',
   issue: 'Issue',
   issueReturn: 'Issue Return',
@@ -163,6 +165,7 @@ export const Reports = () => {
         { reportKey: 'currentInventory', filter: <CurrentInventoryFilter /> },
         { reportKey: 'detailedInventory', filter: <DetailedInventoryFilter /> },
         { reportKey: 'purchase', filter: <PurchaseFilter /> },
+        { reportKey: 'purchaseOrder', filter: <PurchaseOrderFilter /> },
         { reportKey: 'purchaseReturn', filter: <PurchaseReturnFilter /> },
         { reportKey: 'issue', filter: <IssueFilter /> },
         { reportKey: 'issueReturn', filter: <IssueReturnFilter /> },

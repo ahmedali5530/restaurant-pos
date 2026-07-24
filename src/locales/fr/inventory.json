@@ -90,7 +90,8 @@
     "locationType": "Type",
     "linkedStore": "Magasin lié",
     "linkedKitchen": "Cuisine liée",
-    "active": "Actif"
+    "active": "Actif",
+    "previousPrice": "Prix précédent"
   },
   "buttons": {
     "item": "Article",
@@ -135,7 +136,8 @@
     "editAdjustment": "Modifier l’ajustement #{{number}}",
     "notes": "Notes",
     "reason": "Motif",
-    "lines": "Lignes"
+    "lines": "Lignes",
+    "previousPrice": "Prix précédent"
   },
   "validation": {
     "required": "Ce champ est obligatoire",

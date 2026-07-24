@@ -22,6 +22,7 @@ export const TOOL_PERMISSION_MODULES: Record<string, string | string[]> = {
   get_waste_summary: "Waste",
   get_sale_vs_consumption: "Sale vs Inventory",
   get_kitchen_reconciliation: "Kitchen Reconciliation",
+  get_purchase_orders: ["Purchase Order", "Purchase Orders"],
   get_expenses: "Expense",
   get_activity_log: "Activity",
   get_cash_closing: "Cash closing",

@@ -84,7 +84,8 @@
     "payrollDetails": "Salarisdetails",
     "laborTrend": "Arbeidstrend",
     "laborForecast": "Arbeidsprognose",
-    "laborDashboard": "Arbeidsdashboard"
+    "laborDashboard": "Arbeidsdashboard",
+    "purchaseOrder": "Inkooporder"
   },
   "titles": {
     "aiReport": "AI-rapport",
@@ -152,7 +153,8 @@
     "payrollDetails": "Salarisdetails",
     "laborTrend": "Arbeidstrend",
     "laborForecast": "Arbeidsprognose",
-    "laborDashboard": "Arbeidsdashboard"
+    "laborDashboard": "Arbeidsdashboard",
+    "purchaseOrder": "Inkooporderrapport"
   },
   "layout": {
     "print": "Afdrukken",
@@ -256,7 +258,8 @@
     "latestActivity": "Laatste activiteit laden...",
     "sessions": "Sessies laden...",
     "kitchenReconciliation": "Loading kitchen reconciliation report…",
-    "discounts": "Kortingsrapport laden…"
+    "discounts": "Kortingsrapport laden…",
+    "purchaseOrder": "Inkooporderrapport laden…"
   },
   "errors": {
     "unableToLoad": "Kan rapport niet laden",

@@ -53,6 +53,7 @@ import {
   REPORTS_PRODUCT_MIX_SUMMARY,
   REPORTS_PRODUCT_MIX_WEEKLY,
   REPORTS_PURCHASE,
+  REPORTS_PURCHASE_ORDER,
   REPORTS_PURCHASE_RETURN,
   REPORTS_SALE_VS_CONSUMPTION,
   REPORTS_KITCHEN_RECONCILIATION,
@@ -114,6 +115,7 @@ import {
   ProductMixSummaryReport,
   ProductMixWeeklyReport,
   ProductionReport,
+  PurchaseOrderReport,
   PurchaseReport,
   PurchaseReturnReport,
   SaleVsConsumptionReport,
@@ -188,6 +190,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_DETAILED_INVENTORY} element={<DetailedInventoryReport/>}/>
         <Route path={REPORTS_CURRENT_INVENTORY} element={<CurrentInventoryReport/>}/>
         <Route path={REPORTS_PURCHASE} element={<PurchaseReport/>}/>
+        <Route path={REPORTS_PURCHASE_ORDER} element={<PurchaseOrderReport/>}/>
         <Route path={REPORTS_PURCHASE_RETURN} element={<PurchaseReturnReport/>}/>
         <Route path={REPORTS_ISSUE} element={<IssueReport/>}/>
         <Route path={REPORTS_ISSUE_RETURN} element={<IssueReturnReport/>}/>

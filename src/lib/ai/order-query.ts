@@ -1,5 +1,6 @@
 import {OrderStatus} from "@/api/model/order.ts";
 import {normalizeOrderStatus} from "@/api/reports/operations/orders.ts";
+import {isPurchaseOrderPrompt} from "@/lib/ai/purchase-order-query.ts";
 
 const STATUS_PATTERNS: Array<{pattern: RegExp; status: string}> = [
   {pattern: /\b(?:in[\s_-]*)?progress\b/i, status: OrderStatus["In Progress"]},
@@ -14,7 +15,7 @@ const STATUS_PATTERNS: Array<{pattern: RegExp; status: string}> = [
 
 export const isDeliveryOrderListPrompt = (prompt: string): boolean => {
   // Require an explicit delivery channel mention — not just "pending" or "progress"
-  return /\bdelivery\b/i.test(prompt) && /\borders?\b/i.test(prompt);
+  return /\bdelivery\b/i.test(prompt) && /\borders?\b/i.test(prompt) && !isPurchaseOrderPrompt(prompt);
 };
 
 /** Active delivery pipeline — matches the Delivery screen, not OrderStatus.Pending alone. */
@@ -64,6 +65,11 @@ export const inferOrderStatusesFromPrompt = (prompt: string): string[] => {
 };
 
 export const isOrderListByStatusPrompt = (prompt: string): boolean => {
+  // Purchase order questions contain "orders" + often "pending" — never treat as POS orders.
+  if (isPurchaseOrderPrompt(prompt)) {
+    return false;
+  }
+
   if (!/\borders?\b/i.test(prompt)) {
     return false;
   }

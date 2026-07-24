@@ -1,6 +1,11 @@
 import {Tables} from "@/api/db/tables.ts";
 import {recordIdToString, recordToString} from "@/api/reports/shared/records.ts";
-import {buildCreatedAtDateConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
+import {
+  buildCreatedAtDateConditions,
+  buildRecordInsideCondition,
+  buildStringInsideCondition,
+  unwrapQueryResult,
+} from "@/api/reports/shared/query.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 import {getReorderLevelForStore} from "@/utils/inventory.ts";
 import {safeNumber} from "@/lib/utils.ts";
@@ -300,5 +305,100 @@ export const getKitchenReconciliationSummary = async (db: DbClient, options: Dat
       reconciledAt: row.reconciled_at,
       status: row.status,
     })),
+  };
+};
+
+export const getPurchaseOrders = async (
+  db: DbClient,
+  options: DateRangeFilter & {
+    status?: string;
+    statuses?: string[];
+    supplierIds?: string[];
+    limit?: number;
+  } = {},
+) => {
+  const limit = options.limit ?? 50;
+  const {conditions, params} = buildCreatedAtDateConditions(options);
+  const queryParams: Record<string, any> = {...params};
+
+  const statuses = [
+    ...(options.statuses ?? []),
+    ...(options.status ? [options.status] : []),
+  ].filter(Boolean);
+
+  const statusFilter = buildStringInsideCondition("status", statuses, "statuses");
+  if (statusFilter.condition) {
+    conditions.push(statusFilter.condition);
+    Object.assign(queryParams, statusFilter.params);
+  }
+
+  const supplierFilter = buildRecordInsideCondition(
+    "supplier",
+    options.supplierIds ?? [],
+    "supplierIds",
+  );
+  if (supplierFilter.condition) {
+    conditions.push(supplierFilter.condition);
+    Object.assign(queryParams, supplierFilter.params);
+  }
+
+  const query = `
+    SELECT * FROM ${Tables.inventory_purchase_orders}
+    ${conditions.length ? `WHERE ${conditions.join(" AND ")}` : ""}
+    ORDER BY created_at DESC
+    LIMIT ${limit}
+    FETCH supplier, items, items.item
+  `;
+
+  const rows = unwrapQueryResult<{
+    id: unknown;
+    po_number?: number;
+    status?: string;
+    created_at?: unknown;
+    supplier?: {name?: string};
+    items?: Array<{
+      quantity?: number;
+      price?: number | null;
+      item?: {name?: string; code?: string; price?: number | null; average_price?: number | null};
+    }>;
+  }>(await db.query(query, queryParams));
+
+  const orders = rows.map(row => {
+    const lines = (row.items ?? []).map(line => {
+      const qty = safeNumber(line.quantity);
+      const unit =
+        line.price != null && Number.isFinite(Number(line.price))
+          ? safeNumber(line.price)
+          : (line.item?.average_price != null && Number.isFinite(Number(line.item.average_price))
+            ? safeNumber(line.item.average_price)
+            : safeNumber(line.item?.price));
+      return {
+        itemName: line.item?.name ?? "Unknown",
+        itemCode: line.item?.code,
+        quantity: qty,
+        price: unit,
+        amount: qty * unit,
+      };
+    });
+    const totalAmount = lines.reduce((sum, line) => sum + line.amount, 0);
+    const totalQuantity = lines.reduce((sum, line) => sum + line.quantity, 0);
+
+    return {
+      id: recordToString(row.id),
+      poNumber: row.po_number,
+      status: row.status,
+      createdAt: row.created_at,
+      supplierName: row.supplier?.name ?? null,
+      lineCount: lines.length,
+      totalQuantity,
+      totalAmount,
+      lines,
+    };
+  });
+
+  return {
+    count: orders.length,
+    totalAmount: orders.reduce((sum, order) => sum + order.totalAmount, 0),
+    orders,
   };
 };

@@ -84,7 +84,8 @@
     "payrollDetails": "Bordro detayları",
     "laborTrend": "İşgücü trendi",
     "laborForecast": "İşgücü tahmini",
-    "laborDashboard": "İşgücü paneli"
+    "laborDashboard": "İşgücü paneli",
+    "purchaseOrder": "Satın Alma Siparişi"
   },
   "titles": {
     "aiReport": "AI Raporu",
@@ -152,7 +153,8 @@
     "payrollDetails": "Bordro detayları",
     "laborTrend": "İşgücü trendi",
     "laborForecast": "İşgücü tahmini",
-    "laborDashboard": "İşgücü paneli"
+    "laborDashboard": "İşgücü paneli",
+    "purchaseOrder": "Satın Alma Siparişi Raporu"
   },
   "layout": {
     "print": "Yazdır",
@@ -256,7 +258,8 @@
     "latestActivity": "Son aktivite yükleniyor...",
     "sessions": "Oturumlar yükleniyor...",
     "kitchenReconciliation": "Loading kitchen reconciliation report…",
-    "discounts": "İndirim raporu yükleniyor…"
+    "discounts": "İndirim raporu yükleniyor…",
+    "purchaseOrder": "Satın alma siparişi raporu yükleniyor…"
   },
   "errors": {
     "unableToLoad": "Rapor yüklenemedi",

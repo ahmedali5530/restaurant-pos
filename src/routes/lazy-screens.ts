@@ -57,6 +57,9 @@ export const DetailedInventoryReport = lazy(() =>
 export const PurchaseReport = lazy(() =>
   import('@/screens/reports/purchase.report.tsx').then(m => ({default: m.PurchaseReport}))
 );
+export const PurchaseOrderReport = lazy(() =>
+  import('@/screens/reports/purchase.order.report.tsx').then(m => ({default: m.PurchaseOrderReport}))
+);
 export const PurchaseReturnReport = lazy(() =>
   import('@/screens/reports/purchase.return.report.tsx').then(m => ({default: m.PurchaseReturnReport}))
 );

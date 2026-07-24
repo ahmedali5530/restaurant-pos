@@ -16,7 +16,7 @@ export const WhatsNewDialog = () => {
   const open = shouldAutoOpen || forceOpen;
 
   const latest = getLatestRelease();
-  const priorReleases = RELEASES.slice(1, 6);
+  const priorReleases = RELEASES.slice(1, 10);
 
   const dismiss = () => {
     setPage((prev) => ({

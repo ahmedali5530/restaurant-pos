@@ -84,7 +84,8 @@
     "payrollDetails": "Detalhes da folha de pagamento",
     "laborTrend": "Tendência de mão de obra",
     "laborForecast": "Previsão de mão de obra",
-    "laborDashboard": "Painel de mão de obra"
+    "laborDashboard": "Painel de mão de obra",
+    "purchaseOrder": "Pedido de compra"
   },
   "titles": {
     "aiReport": "Relatório de IA",
@@ -152,7 +153,8 @@
     "payrollDetails": "Detalhes da folha de pagamento",
     "laborTrend": "Tendência de mão de obra",
     "laborForecast": "Previsão de mão de obra",
-    "laborDashboard": "Painel de mão de obra"
+    "laborDashboard": "Painel de mão de obra",
+    "purchaseOrder": "Relatório de pedido de compra"
   },
   "layout": {
     "print": "Imprimir",
@@ -256,7 +258,8 @@
     "latestActivity": "Carregando atividades recentes...",
     "sessions": "Carregando sessões...",
     "kitchenReconciliation": "Loading kitchen reconciliation report…",
-    "discounts": "Carregando relatório de descontos…"
+    "discounts": "Carregando relatório de descontos…",
+    "purchaseOrder": "Carregando relatório de pedido de compra…"
   },
   "errors": {
     "unableToLoad": "Não foi possível carregar o relatório",

@@ -90,7 +90,8 @@
     "locationType": "Tipo",
     "linkedStore": "Almacén vinculado",
     "linkedKitchen": "Cocina vinculada",
-    "active": "Activo"
+    "active": "Activo",
+    "previousPrice": "Precio anterior"
   },
   "buttons": {
     "item": "Artículo",
@@ -135,7 +136,8 @@
     "editAdjustment": "Editar ajuste #{{number}}",
     "notes": "Notas",
     "reason": "Motivo",
-    "lines": "Líneas"
+    "lines": "Líneas",
+    "previousPrice": "Precio anterior"
   },
   "validation": {
     "required": "Este campo es obligatorio",

@@ -84,7 +84,8 @@
     "payrollDetails": "Dettagli buste paga",
     "laborTrend": "Trend manodopera",
     "laborForecast": "Previsione manodopera",
-    "laborDashboard": "Dashboard manodopera"
+    "laborDashboard": "Dashboard manodopera",
+    "purchaseOrder": "Ordine di acquisto"
   },
   "titles": {
     "aiReport": "Report AI",
@@ -152,7 +153,8 @@
     "payrollDetails": "Dettagli buste paga",
     "laborTrend": "Trend manodopera",
     "laborForecast": "Previsione manodopera",
-    "laborDashboard": "Dashboard manodopera"
+    "laborDashboard": "Dashboard manodopera",
+    "purchaseOrder": "Report ordini di acquisto"
   },
   "layout": {
     "print": "Stampa",
@@ -256,7 +258,8 @@
     "latestActivity": "Caricamento ultima attività...",
     "sessions": "Caricamento sessioni...",
     "kitchenReconciliation": "Loading kitchen reconciliation report…",
-    "discounts": "Caricamento report sconti…"
+    "discounts": "Caricamento report sconti…",
+    "purchaseOrder": "Caricamento report ordini di acquisto…"
   },
   "errors": {
     "unableToLoad": "Impossibile caricare il report",

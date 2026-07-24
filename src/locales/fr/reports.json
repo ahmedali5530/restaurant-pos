@@ -84,7 +84,8 @@
     "payrollDetails": "Détails de la paie",
     "laborTrend": "Tendance de la main-d'œuvre",
     "laborForecast": "Prévision de la main-d'œuvre",
-    "laborDashboard": "Tableau de bord de la main-d'œuvre"
+    "laborDashboard": "Tableau de bord de la main-d'œuvre",
+    "purchaseOrder": "Bon de commande"
   },
   "titles": {
     "aiReport": "Rapport IA",
@@ -152,7 +153,8 @@
     "payrollDetails": "Détails de la paie",
     "laborTrend": "Tendance de la main-d'œuvre",
     "laborForecast": "Prévision de la main-d'œuvre",
-    "laborDashboard": "Tableau de bord de la main-d'œuvre"
+    "laborDashboard": "Tableau de bord de la main-d'œuvre",
+    "purchaseOrder": "Rapport des bons de commande"
   },
   "layout": {
     "print": "Imprimer",
@@ -256,7 +258,8 @@
     "latestActivity": "Chargement de la dernière activité...",
     "sessions": "Chargement des sessions...",
     "kitchenReconciliation": "Loading kitchen reconciliation report…",
-    "discounts": "Chargement du rapport des remises…"
+    "discounts": "Chargement du rapport des remises…",
+    "purchaseOrder": "Chargement du rapport des bons de commande…"
   },
   "errors": {
     "unableToLoad": "Impossible de charger le rapport",

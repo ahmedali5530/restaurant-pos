@@ -267,6 +267,33 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
   {
     type: "function",
     function: {
+      name: "get_purchase_orders",
+      description: "Get purchase order documents (Draft, Pending Approval, Approved, Fulfilled) with line items and totals. Use for PO / approval questions — NOT for posted purchase ledger movements (use get_inventory_movements with type purchase for those).",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateRangeProps,
+          status: {
+            type: "string",
+            enum: ["Draft", "Pending Approval", "Approved", "Fulfilled"],
+            description: "Optional single status filter",
+          },
+          statuses: {
+            type: "array",
+            items: {
+              type: "string",
+              enum: ["Draft", "Pending Approval", "Approved", "Fulfilled"],
+            },
+            description: "Optional multiple status filters",
+          },
+          limit: {type: "number", default: 50},
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "get_expenses",
       description: "Get expenses from day closings by category.",
       parameters: {type: "object", properties: dateRangeProps},

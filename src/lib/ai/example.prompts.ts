@@ -50,6 +50,7 @@ export const AI_EXAMPLE_PROMPTS: AiExamplePrompt[] = [
   {category: "inventory", prompt: "Sale vs consumption variance this month"},
   {category: "inventory", prompt: "Kitchen reconciliation report for last week"},
   {category: "inventory", prompt: "Inventory purchase movements this week"},
+  {category: "inventory", prompt: "Open purchase orders awaiting approval"},
   {category: "inventory", prompt: "Show inventory adjustments this month"},
   {category: "inventory", prompt: "Which items are below reorder after recent adjustments?"},
 

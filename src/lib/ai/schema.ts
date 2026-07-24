@@ -50,6 +50,7 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
 - inventory_item.reorder_levels: map of inventory_location id to minimum quantity before reorder (per location).
 - Admin kitchens (${Tables.kitchens}) are POS-only (routing/stations), not inventory stock locations.
 - Document types: purchases, purchase returns, issues, issue returns, wastes, adjustments, stock transfers, production, buffet consumption — all reflected in ledger reference_type.
+- Purchase Orders (${Tables.inventory_purchase_orders}) are approval documents (Draft / Pending Approval / Approved / Fulfilled) — use get_purchase_orders. Do NOT use get_inventory_movements type "purchase" for PO questions; that is posted purchase ledger movements.
 - Reorder levels: get_current_inventory compares ledger stock to reorder_levels. Movements: get_inventory_movements (includes adjustment). Waste/consumption: get_waste_summary / get_consumption.`,
   operations: `- Orders: ${Tables.orders}. Statuses: In Progress, Paid, Cancelled, Pending, etc.
 - List orders by status: get_orders with statuses. Delivery only when user says "delivery" (deliveryOnly=true).
@@ -85,6 +86,7 @@ const FULL_DATABASE_CONTEXT = `Database context:
 - Inventory items: ${Tables.inventory_items} (reorder_levels: per-location minimum quantity map), locations: ${Tables.inventory_locations} (stock SoT), legacy stores: ${Tables.inventory_stores}
 - Admin kitchens (${Tables.kitchens}) are POS-only — not stock locations.
 - Stock on-hand: ${Tables.inventory_ledger} keyed by inventory_location (posted documents only). Adjustments: ${Tables.inventory_adjustments}. Purchases/issues/waste remain document history.
+- Purchase Orders (${Tables.inventory_purchase_orders}): approval workflow documents with statuses Draft, Pending Approval, Approved, Fulfilled. Use get_purchase_orders for PO / purchase-order questions. Do NOT use get_orders (POS customer orders) or get_inventory_movements type "purchase" (posted purchase ledger) for PO questions.
 - Day closings: ${Tables.closings}, Activity tracking: ${Tables.tracking}
 - Tip amounts on paid orders: order.tip_amount (use get_tips — matches Advanced Sales tips column)
 - Saved tip distribution records: ${Tables.tip_distributions} (finalized after Tip Distribution screen — may be empty until saved)
@@ -99,6 +101,7 @@ const FULL_WORKFLOW = `Workflow:
 5. For forecasts: always call get_time_series or domain tools first, then forecast_sales or forecast_inventory. Never project from memory.
 6. For discounts: prefer get_discount_summary (includes order_discounts engine records). For "today" prompts always pass phrase or resolved dates.
 7. For order lists by status (In Progress, Paid, etc.): use get_orders with statuses — never use get_sales_summary or get_order_lifecycle for this.
+7b. For purchase orders / POs / pending approval: use get_purchase_orders — never get_orders and never get_inventory_movements type "purchase".
 8. For unsold / no-sales products: use get_unsold_products with phrase like "last 60 days" — never infer unsold items from get_top_selling_dishes or get_product_mix alone.
 9. For current clock-in session sales per order taker: use get_current_session_sales — not get_server_sales (which uses date ranges, not time_entry sessions).
 10. For tips collected / tip distribution shares: use get_tips with phrase (e.g. today). tipsCollected sums order tip_amount on paid orders. projectedShares shows each staff member's weighted share from tip_distribution settings.

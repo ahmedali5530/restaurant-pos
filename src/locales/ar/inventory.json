@@ -90,7 +90,8 @@
     "locationType": "النوع",
     "linkedStore": "المخزن المرتبط",
     "linkedKitchen": "المطبخ المرتبط",
-    "active": "نشط"
+    "active": "نشط",
+    "previousPrice": "السعر السابق"
   },
   "buttons": {
     "item": "صنف",
@@ -135,7 +136,8 @@
     "editAdjustment": "تعديل التسوية #{{number}}",
     "notes": "ملاحظات",
     "reason": "السبب",
-    "lines": "الأسطر"
+    "lines": "الأسطر",
+    "previousPrice": "السعر السابق"
   },
   "validation": {
     "required": "هذا الحقل مطلوب",

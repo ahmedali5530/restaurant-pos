@@ -84,7 +84,8 @@
     "payrollDetails": "Детали зарплаты",
     "laborTrend": "Тренд персонала",
     "laborForecast": "Прогноз персонала",
-    "laborDashboard": "Панель персонала"
+    "laborDashboard": "Панель персонала",
+    "purchaseOrder": "Заказ на закупку"
   },
   "titles": {
     "aiReport": "ИИ-отчёт",
@@ -152,7 +153,8 @@
     "payrollDetails": "Детали зарплаты",
     "laborTrend": "Тренд персонала",
     "laborForecast": "Прогноз персонала",
-    "laborDashboard": "Панель персонала"
+    "laborDashboard": "Панель персонала",
+    "purchaseOrder": "Отчёт по заказам на закупку"
   },
   "layout": {
     "print": "Печать",
@@ -256,7 +258,8 @@
     "latestActivity": "Загрузка последней активности...",
     "sessions": "Загрузка сессий...",
     "kitchenReconciliation": "Loading kitchen reconciliation report…",
-    "discounts": "Загрузка отчёта по скидкам…"
+    "discounts": "Загрузка отчёта по скидкам…",
+    "purchaseOrder": "Загрузка отчёта по заказам на закупку…"
   },
   "errors": {
     "unableToLoad": "Не удалось загрузить отчёт",

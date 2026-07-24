@@ -84,7 +84,8 @@
     "payrollDetails": "Payroll Details",
     "laborTrend": "Labor Trend",
     "laborForecast": "Labor Forecast",
-    "laborDashboard": "Labor Dashboard"
+    "laborDashboard": "Labor Dashboard",
+    "purchaseOrder": "Purchase Order"
   },
   "titles": {
     "aiReport": "AI Report",
@@ -152,7 +153,8 @@
     "laborTrend": "Labor trend",
     "laborForecast": "Labor forecast",
     "laborDashboard": "Labor dashboard",
-    "tablesSummary": "Tables summary"
+    "tablesSummary": "Tables summary",
+    "purchaseOrder": "Purchase Order Report"
   },
   "layout": {
     "print": "Print",
@@ -260,7 +262,8 @@
     "map": "Loading map...",
     "latestActivity": "Loading latest activity...",
     "sessions": "Loading sessions...",
-    "discounts": "Loading discounts report…"
+    "discounts": "Loading discounts report…",
+    "purchaseOrder": "Loading purchase order report…"
   },
   "errors": {
     "unableToLoad": "Unable to load report",

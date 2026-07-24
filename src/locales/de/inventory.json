@@ -90,7 +90,8 @@
     "locationType": "Typ",
     "linkedStore": "Verknüpfter Store",
     "linkedKitchen": "Verknüpfte Küche",
-    "active": "Aktiv"
+    "active": "Aktiv",
+    "previousPrice": "Vorheriger Preis"
   },
   "buttons": {
     "item": "Artikel",
@@ -135,7 +136,8 @@
     "editAdjustment": "Anpassung #{{number}} bearbeiten",
     "notes": "Notizen",
     "reason": "Grund",
-    "lines": "Zeilen"
+    "lines": "Zeilen",
+    "previousPrice": "Vorheriger Preis"
   },
   "validation": {
     "required": "Pflichtfeld",

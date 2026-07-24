@@ -41,7 +41,7 @@ export const HrAttendance = () => {
     }
     setApprovingId(entry.id);
     try {
-      await approveEntry(db, {timeEntryId: entry.id, approvedBy: page.user, source: 'manual'});
+      await approveEntry(db, {timeEntryId: entry.id, approvedBy: page.user, source: entry.source ?? 'manual'});
       toast.success(t("attendance.approveEntry"));
       loadHook.fetchData();
     } catch (error) {

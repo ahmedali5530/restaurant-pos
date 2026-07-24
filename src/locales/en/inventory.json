@@ -91,7 +91,8 @@
     "locationType": "Type",
     "linkedStore": "Linked store",
     "linkedKitchen": "Linked kitchen",
-    "active": "Active"
+    "active": "Active",
+    "previousPrice": "Previous price"
   },
   "buttons": {
     "item": "Item",
@@ -136,7 +137,8 @@
     "manufacturingDate": "Manufacturing date",
     "storeInventory": "{{name}} store",
     "reorderLevelHint": "Optional minimum quantity per store before reorder alert",
-    "taxable": "Taxable"
+    "taxable": "Taxable",
+    "previousPrice": "Previous price"
   },
   "adjustment": {
     "reasons": {

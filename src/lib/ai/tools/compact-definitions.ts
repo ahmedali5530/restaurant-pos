@@ -220,6 +220,24 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
   {
     type: "function",
     function: {
+      name: "get_purchase_orders",
+      description: "Purchase order documents by status/date (not ledger purchases).",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateParams,
+          status: {
+            type: "string",
+            enum: ["Draft", "Pending Approval", "Approved", "Fulfilled"],
+          },
+          limit: {type: "number", default: 50},
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "get_expenses",
       description: "Expenses from day closings.",
       parameters: dateOnly,

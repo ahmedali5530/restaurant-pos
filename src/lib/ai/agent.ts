@@ -1,11 +1,17 @@
+import {parseDateRangeWithPhrase} from "@/api/reports/shared/filters.ts";
 import type {DbClient} from "@/api/reports/shared/types.ts";
 import {getOrders} from "@/api/reports/operations/orders.ts";
+import {getPurchaseOrders} from "@/api/reports/inventory/index.ts";
 import type {AiChartSpec} from "@/lib/ai/charts.ts";
 import {dedupeCharts} from "@/lib/ai/charts.ts";
 import {buildAutoChartsFromToolResults} from "@/lib/ai/auto-charts.ts";
 import type {AiReportFormat} from "@/lib/ai.report.storage.ts";
 import {isLocalAiReportCompactMode} from "@/lib/ai/config.ts";
 import {isOrderListByStatusPrompt, resolveOrderListQueryFromPrompt} from "@/lib/ai/order-query.ts";
+import {
+  isPurchaseOrderPrompt,
+  resolvePurchaseOrderQueryFromPrompt,
+} from "@/lib/ai/purchase-order-query.ts";
 import {isUnsoldProductsPrompt, resolveUnsoldProductsDateRange} from "@/lib/ai/product-query.ts";
 import {isCurrentSessionSalesPrompt} from "@/lib/ai/session-query.ts";
 import {isTipsPrompt, resolveTipsDateRange, wantsTipDistribution} from "@/lib/ai/tip-query.ts";
@@ -86,6 +92,38 @@ export const runAiReportAgent = async (
     }
     return {answer, toolsUsed, charts: dedupeCharts(charts)};
   };
+
+  if (isPurchaseOrderPrompt(trimmedPrompt)) {
+    options.onToolStart?.("get_purchase_orders");
+    const query = resolvePurchaseOrderQueryFromPrompt(trimmedPrompt);
+    const dateRange = parseDateRangeWithPhrase({phrase: query.phrase});
+    const args = {
+      ...dateRange,
+      statuses: query.statuses,
+      limit: 50,
+    };
+    const data = await getPurchaseOrders(db, args);
+    toolsUsed.push({name: "get_purchase_orders", args});
+    toolResults.push({name: "get_purchase_orders", result: data});
+
+    const response = await callOpenAIChat({
+      messages: [
+        ...messages,
+        {
+          role: "user",
+          content: `${trimmedPrompt}\n\nget_purchase_orders returned ${data.count} purchase order(s), totalAmount=${data.totalAmount}:\n${JSON.stringify(data)}\n\nSummarize PO number, status, supplier, totals, and line items. These are inventory purchase orders, not POS customer orders. If the user asks what is pending to procurement, highlight Draft / Pending Approval / Approved (not Fulfilled).`,
+        },
+      ],
+      tools: [],
+    });
+
+    const answer = response.choices[0]?.message?.content?.trim();
+    if (!answer) {
+      throw new Error("OpenAI returned an empty response.");
+    }
+
+    return finish(answer);
+  }
 
   if (isOrderListByStatusPrompt(trimmedPrompt)) {
     options.onToolStart?.("get_orders");
