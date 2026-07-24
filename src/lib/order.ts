@@ -1,6 +1,6 @@
 import {Order as OrderModel, OrderStatus} from '@/api/model/order';
 import {OrderDiscount} from '@/api/model/order_discount.ts';
-import {Discount, getDiscountValueType} from '@/api/model/discount.ts';
+import {getDiscountValueType} from '@/api/model/discount.ts';
 import {OrderPayment} from "@/api/model/order_payment.ts";
 import {OrderVoidReason} from "@/api/model/order_void.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
@@ -87,11 +87,6 @@ export const orderMatchesDiscountId = (order: OrderModel, discountId: string): b
   return !!legacyDiscountId && recordIdSuffix(legacyDiscountId) === normalizedFilter;
 };
 
-export interface DiscountRateBreakdown {
-  percentRates: Set<number>;
-  fixedAmounts: Set<number>;
-}
-
 export interface OrderDiscountBreakdownEntry {
   name: string;
   quantity: number;
@@ -99,48 +94,17 @@ export interface OrderDiscountBreakdownEntry {
   rateLabel: string;
 }
 
-const createDiscountRateBreakdown = (): DiscountRateBreakdown => ({
-  percentRates: new Set<number>(),
-  fixedAmounts: new Set<number>(),
-});
-
-const collectEngineLineDiscountRate = (
-  breakdown: DiscountRateBreakdown,
-  line: OrderDiscount,
-) => {
-  const rate = safeNumber(line.applied_rate);
+const formatSingleDiscountRate = (valueType: string | undefined, rate: number): string => {
   if (rate <= 0) {
-    return;
+    return '-';
   }
-  if (line.value_type === 'percent') {
-    breakdown.percentRates.add(rate);
-  } else if (line.value_type === 'fixed_amount') {
-    breakdown.fixedAmounts.add(rate);
-  }
-};
-
-const collectLegacyDiscountRate = (
-  breakdown: DiscountRateBreakdown,
-  discount: Discount | string | undefined,
-  discountRate: number,
-) => {
-  if (discountRate <= 0 || !discount || typeof discount === 'string') {
-    return;
-  }
-  const valueType = getDiscountValueType(discount);
   if (valueType === 'percent') {
-    breakdown.percentRates.add(discountRate);
-  } else if (valueType === 'fixed_amount') {
-    breakdown.fixedAmounts.add(discountRate);
+    return `${formatNumber(rate)}%`;
   }
-};
-
-export const formatDiscountRateBreakdown = (breakdown: DiscountRateBreakdown): string => {
-  const parts = [
-    ...Array.from(breakdown.percentRates).sort((a, b) => a - b).map(rate => `${formatNumber(rate)}%`),
-    ...Array.from(breakdown.fixedAmounts).sort((a, b) => a - b).map(rate => withCurrency(rate)),
-  ];
-  return parts.length > 0 ? parts.join(', ') : '-';
+  if (valueType === 'fixed_amount') {
+    return withCurrency(rate);
+  }
+  return '-';
 };
 
 const getUserDisplayName = (order: OrderModel, line?: OrderDiscount): string => {
@@ -165,7 +129,7 @@ const getUserDisplayName = (order: OrderModel, line?: OrderDiscount): string => 
 type DiscountBreakdownGroupBy = 'name' | 'user';
 
 /**
- * Aggregate discount breakdown grouped by discount name or applying user.
+ * Aggregate discount breakdown grouped by discount name (or user) + value type + rate.
  * Junction-first: active order_discounts lines; legacy fallback per order.
  */
 export const aggregateOrderDiscountBreakdown = (
@@ -173,21 +137,28 @@ export const aggregateOrderDiscountBreakdown = (
   groupBy: DiscountBreakdownGroupBy,
   legacyDiscountLabel = 'Custom discount',
 ): OrderDiscountBreakdownEntry[] => {
-  const map = new Map<string, {quantity: number; total: number} & DiscountRateBreakdown>();
+  const map = new Map<string, OrderDiscountBreakdownEntry>();
 
   orders.forEach(order => {
     const activeLines = getActiveOrderDiscounts(order);
 
     if (activeLines.length > 0) {
       activeLines.forEach(line => {
-        const key = groupBy === 'user'
+        const name = groupBy === 'user'
           ? getUserDisplayName(order, line)
           : (line.name || legacyDiscountLabel);
+        const rate = safeNumber(line.applied_rate);
+        const valueType = line.value_type ?? '';
+        const key = `${name}|${valueType}|${rate}`;
         const amount = safeNumber(line.applied_amount);
-        const existing = map.get(key) ?? {quantity: 0, total: 0, ...createDiscountRateBreakdown()};
+        const existing = map.get(key) ?? {
+          name,
+          quantity: 0,
+          total: 0,
+          rateLabel: formatSingleDiscountRate(valueType, rate),
+        };
         existing.quantity += 1;
         existing.total += amount;
-        collectEngineLineDiscountRate(existing, line);
         map.set(key, existing);
       });
       return;
@@ -198,28 +169,30 @@ export const aggregateOrderDiscountBreakdown = (
       return;
     }
 
-    const key = groupBy === 'user'
+    const name = groupBy === 'user'
       ? getUserDisplayName(order)
       : (
         order.discount?.name
         || (typeof order.discount === 'string' ? order.discount : null)
         || legacyDiscountLabel
       );
-    const existing = map.get(key) ?? {quantity: 0, total: 0, ...createDiscountRateBreakdown()};
+    const rate = safeNumber(order.discount_rate);
+    const valueType = order.discount && typeof order.discount !== 'string'
+      ? getDiscountValueType(order.discount)
+      : '';
+    const key = `${name}|${valueType}|${rate}`;
+    const existing = map.get(key) ?? {
+      name,
+      quantity: 0,
+      total: 0,
+      rateLabel: formatSingleDiscountRate(valueType, rate),
+    };
     existing.quantity += 1;
     existing.total += discountAmount;
-    collectLegacyDiscountRate(existing, order.discount, safeNumber(order.discount_rate));
     map.set(key, existing);
   });
 
-  return Array.from(map.entries())
-    .map(([name, data]) => ({
-      name,
-      quantity: data.quantity,
-      total: data.total,
-      rateLabel: formatDiscountRateBreakdown(data),
-    }))
-    .sort((a, b) => b.total - a.total);
+  return Array.from(map.values()).sort((a, b) => b.total - a.total);
 };
 
 /** Net sales after discounts (excludes tax, service, tips). */

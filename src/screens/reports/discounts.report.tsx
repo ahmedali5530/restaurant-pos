@@ -335,7 +335,7 @@ export const DiscountsReport = () => {
                     </tr>
                   ) : (
                     discountTypes.map((item) => (
-                      <tr key={item.name}>
+                      <tr key={`${item.name}-${item.rateLabel}`}>
                         <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{item.name}</td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">{item.rateLabel}</td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.quantity)}</td>
@@ -373,7 +373,7 @@ export const DiscountsReport = () => {
                     </tr>
                   ) : (
                     discountsByUsers.map((item) => (
-                      <tr key={item.name}>
+                      <tr key={`${item.name}-${item.rateLabel}`}>
                         <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{item.name}</td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">{item.rateLabel}</td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.quantity)}</td>

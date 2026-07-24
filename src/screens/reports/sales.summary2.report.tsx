@@ -952,7 +952,7 @@ export const SalesSummary2Report = () => {
                     <table className="min-w-full ">
                       <tbody className="divide-y divide-neutral-100">
                         {discountTypesBreakdown.discountTypes.map(discount => (
-                          <tr key={discount.name}>
+                          <tr key={`${discount.name}-${discount.rateLabel}`}>
                             <td className="py-1 text-neutral-700">{discount.name}</td>
                             <td className="py-1 text-right text-neutral-700">
                               {discount.rateLabel}
@@ -1279,7 +1279,7 @@ export const SalesSummary2Report = () => {
                   </thead>
                   <tbody className="divide-y divide-neutral-100">
                     {breakdownMetrics.userDiscounts.map(userDiscount => (
-                      <tr key={userDiscount.name}>
+                      <tr key={`${userDiscount.name}-${userDiscount.rateLabel}`}>
                         <td className="py-1.5 text-neutral-700">{userDiscount.name}</td>
                         <td className="py-1.5 text-right text-neutral-700">
                           {userDiscount.rateLabel}

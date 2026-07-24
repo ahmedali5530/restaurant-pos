@@ -249,7 +249,7 @@ export const aggregateSalesSummary = (orders: Order[], orderVoids: OrderVoid[]):
   const totalVoids = orderVoids.reduce((sum, entry) => sum + calculateVoidEntryAmount(entry), 0);
 
   const discountRows = aggregateOrderDiscountBreakdown(orders, 'name').map(row => ({
-    type: row.name,
+    type: row.rateLabel !== '-' ? `${row.name} (${row.rateLabel})` : row.name,
     quantity: row.quantity,
     amount: row.total,
   }));

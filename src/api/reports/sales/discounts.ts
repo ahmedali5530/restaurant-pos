@@ -25,7 +25,7 @@ export const getDiscountSummary = async (
   const discountedOrders = orders.filter(orderHasDiscount);
 
   const byType = aggregateOrderDiscountBreakdown(discountedOrders, 'name').map(row => ({
-    type: row.name,
+    type: row.rateLabel !== '-' ? `${row.name} (${row.rateLabel})` : row.name,
     quantity: row.quantity,
     amount: row.total,
   }));

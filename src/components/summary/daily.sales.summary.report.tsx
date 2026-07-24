@@ -224,7 +224,10 @@ function useDailySalesFigures(orders: Order[] | undefined) {
       .sort((a, b) => b.total - a.total);
 
     const discountsList: BreakdownEntry[] = aggregateOrderDiscountBreakdown(list, 'name', t('report.orderDiscount'))
-      .map(row => ({name: row.name, total: row.total}));
+      .map(row => ({
+        name: row.rateLabel !== '-' ? `${row.name} (${row.rateLabel})` : row.name,
+        total: row.total,
+      }));
 
     const extrasMap: Record<string, number> = {};
     list.forEach(order => {
