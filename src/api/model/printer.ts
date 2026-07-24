@@ -4,7 +4,8 @@ import {DateTime} from "surrealdb";
 export interface Printer extends ID, Name, Priority{
   ip_address: string
   port: number
-  prints: number
+  /** @deprecated Use global print_options.copies instead */
+  prints?: number
   type: string
 
   deleted_at?: DateTime

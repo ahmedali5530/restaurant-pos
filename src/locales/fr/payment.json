@@ -84,7 +84,8 @@
     "tempBill": "Note provisoire",
     "complete": "Terminer",
     "cannotAddCard": "Impossible d'ajouter un paiement supplémentaire par carte",
-    "exactCardAmount": "Montant exact ajouté pour le paiement par carte"
+    "exactCardAmount": "Montant exact ajouté pour le paiement par carte",
+    "tempAlreadyPrinted": "Note provisoire déjà imprimée"
   },
   "remote": {
     "remoteLabel": "{{name}} (À distance)",

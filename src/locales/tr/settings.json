@@ -59,6 +59,27 @@
     "saved": "Yazıcı ayarları kaydedildi",
     "saveFailed": "Yazıcı ayarları kaydedilemedi"
   },
+  "printOptions": {
+    "title": "Yazdırma seçenekleri",
+    "description": "Her yazdırma türünün kaç fiziksel kopya üreteceğini ve sipariş başına geçici veya nihai faturaların yönetici onayı gerekmeden kaç kez yazdırılabileceğini ayarlayın.",
+    "copiesTitle": "Yazdırma türüne göre kopyalar",
+    "maxAttemptsTitle": "Sipariş başına maksimum yazdırma denemesi",
+    "unlimitedHint": "Sınırsız için maksimum denemeyi 0 yapın. Limit aşıldığında Yazdırma limitini geçersiz kıl yetkisine sahip bir yönetici onaylamalıdır.",
+    "copies": {
+      "temp": "Geçici fatura kopyaları",
+      "final": "Nihai fatura kopyaları",
+      "refund": "İade kopyaları",
+      "kitchen": "Mutfak / KOT kopyaları",
+      "delivery": "Teslimat kopyaları",
+      "summary": "Özet kopyaları"
+    },
+    "maxAttempts": {
+      "temp": "Maks. geçici fatura yazdırma",
+      "final": "Maks. nihai fatura yazdırma"
+    },
+    "updated": "Yazdırma seçenekleri güncellendi",
+    "saveDescription": "Yazdırma seçeneklerini kaydet"
+  },
   "menus": {
     "title": "Menü ayarları",
     "activateMenus": "Menüleri etkinleştir",

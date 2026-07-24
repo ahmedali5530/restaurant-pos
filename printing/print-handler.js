@@ -46,6 +46,7 @@ function printOnDevice(device, escposOptions, printType, data, config) {
 async function handlePrint(body) {
   const { printers = [], data = {}, config: rawConfig = {} } = body;
   const printType = data.printType || 'final';
+  const copies = Math.max(1, Number(data.copies) || 1);
 
   if (!Array.isArray(printers) || printers.length === 0) {
     throw new Error('Request must include a non-empty "printers" array');
@@ -59,8 +60,10 @@ async function handlePrint(body) {
   for (let i = 0; i < printers.length; i++) {
     const p = printers[i];
     try {
-      const device = createDevice(p);
-      await printOnDevice(device, p.escposOptions || {}, printType, data, config);
+      for (let c = 0; c < copies; c++) {
+        const device = createDevice(p);
+        await printOnDevice(device, p.escposOptions || {}, printType, data, config);
+      }
       results.push({ index: i, ok: true });
     } catch (err) {
       results.push({

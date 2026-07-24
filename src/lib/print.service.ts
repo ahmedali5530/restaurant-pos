@@ -10,6 +10,12 @@ import { fetchShowInclusivePricesEnabled } from "@/hooks/useShowInclusivePrices.
 import { fetchTranslateReceiptsEnabled } from "@/hooks/useTranslateReceipts.ts";
 import { buildReceiptLabels } from "@/lib/receipt-labels.ts";
 import { systemPrinterSettings, type SystemPrinterSettings } from "@/store/jotai.ts";
+import {
+  copiesKeyForTemplate,
+  DEFAULT_PRINT_OPTIONS,
+  PRINT_OPTIONS_KEY,
+  type PrintOptions,
+} from "@/api/model/print_options.ts";
 
 
 export const PRINT_EVENT = 'posr:print';
@@ -256,6 +262,23 @@ export function getPrintTemplate(name: string): PrintTemplateRenderer<any> | und
   return templateRegistry[name];
 }
 
+async function fetchPrintCopiesSettings(db: any): Promise<PrintOptions['copies']> {
+  try {
+    const result = await db.query(
+      `SELECT values FROM ${Tables.settings} WHERE key = $key AND is_global = true LIMIT 1`,
+      { key: PRINT_OPTIONS_KEY }
+    );
+    const rows = Array.isArray(result?.[0]) ? result[0] : (Array.isArray(result) ? result : []);
+    const values = (rows[0] as { values?: PrintOptions } | undefined)?.values;
+    return {
+      ...DEFAULT_PRINT_OPTIONS.copies,
+      ...(values?.copies ?? {}),
+    };
+  } catch {
+    return { ...DEFAULT_PRINT_OPTIONS.copies };
+  }
+}
+
 export async function dispatchPrint<Payload = any>(
   db: any,
   template: string,
@@ -264,7 +287,7 @@ export async function dispatchPrint<Payload = any>(
     title?: string; copies?: number; userId?: string | { id?: string; toString?: () => string } | null,
     printers?: Printer[]
   }
-): Promise<void> {
+): Promise<boolean> {
   const baseUrl = (import.meta.env.VITE_PRINT_SERVER_URL as string) || DEFAULT_PRINT_URL;
   const url = `${baseUrl.replace(/\/$/, '')}/print`;
   const uid = options?.userId != null ? toIdString(options.userId) : null;
@@ -272,11 +295,12 @@ export async function dispatchPrint<Payload = any>(
   const explicitPrinters = options?.printers?.length > 0 ? options.printers : null;
 
   // eslint-disable-next-line prefer-const
-  let [config, settingsPrinters, showInclusivePrices, translateReceipts] = await Promise.all([
+  let [config, settingsPrinters, showInclusivePrices, translateReceipts, printCopies] = await Promise.all([
     getPrintConfig(db, template),
     explicitPrinters ? Promise.resolve([]) : getPrintersForType(db, template, uid),
     fetchShowInclusivePricesEnabled(db).catch(() => false),
     fetchTranslateReceiptsEnabled(db).catch(() => false),
+    fetchPrintCopiesSettings(db).catch(() => DEFAULT_PRINT_OPTIONS.copies),
   ]);
 
   const printers = explicitPrinters || (settingsPrinters.length > 0 ? settingsPrinters : null);
@@ -284,13 +308,21 @@ export async function dispatchPrint<Payload = any>(
   const driverPrinters = printers?.map(printerToDriverConfig);
   if (!driverPrinters || driverPrinters.length === 0) {
     console.error('No printers configured for this print type.');
-    return;
+    return false;
   }
 
   let printPayload = { ...(payload as Record<string, unknown>) };
   if (printPayload.order && (template === 'kitchen' || template === 'deletion')) {
     printPayload.order = await enrichOrderForPrint(db, printPayload.order as Record<string, unknown>);
   }
+
+  const copyKey = copiesKeyForTemplate(template);
+  const settingsCopies = copyKey
+    ? Math.max(1, Number(printCopies?.[copyKey] ?? 1) || 1)
+    : 1;
+  const copies = options?.copies != null
+    ? Math.max(1, Number(options.copies) || 1)
+    : settingsCopies;
 
   const printConfig: Record<string, unknown> = {
     ...config,
@@ -305,7 +337,7 @@ export async function dispatchPrint<Payload = any>(
   }
 
   const body = {
-    data: { printType: template, ...printPayload },
+    data: { printType: template, copies, ...printPayload },
     config: printConfig,
     printers: driverPrinters,
   };
@@ -325,11 +357,13 @@ export async function dispatchPrint<Payload = any>(
         msg = (j?.error as string) ?? text;
       } catch { /* ignore */ }
       toast.error(msg || i18n.t('common:toast.printFailed'));
-      return;
+      return false;
     }
+    return true;
   } catch (e) {
     const msg = e && typeof e === 'object' && 'message' in e ? String((e as Error).message) : 'Print request failed';
     console.error(msg);
     toast.error(i18n.t('common:toast.printError'));
+    return false;
   }
 }

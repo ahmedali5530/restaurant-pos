@@ -82,6 +82,7 @@
     "remaining": "Remaining",
     "change": "Change",
     "tempBill": "Temp bill",
+    "tempAlreadyPrinted": "Temp bill already printed",
     "complete": "Complete",
     "cannotAddCard": "Cannot add more payment for card",
     "exactCardAmount": "Added exact amount for card based payment"

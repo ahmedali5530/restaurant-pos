@@ -176,5 +176,8 @@
       "creating": "Criando divisões...",
       "save": "Salvar {{count}} divisão(ões)"
     }
+  },
+  "print": {
+    "tempAlreadyPrinted": "Conta provisória já impressa"
   }
 }

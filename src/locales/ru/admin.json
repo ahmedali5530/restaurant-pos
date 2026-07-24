@@ -524,7 +524,9 @@
       "Edit Adjustments": "Edit Adjustments",
       "Delete Adjustments": "Delete Adjustments",
       "Inventory Settings": "Inventory Settings",
-      "Locations": "Locations"
+      "Locations": "Locations",
+      "Override print limit": "Превысить лимит печати",
+      "Print options": "Параметры печати"
     }
   },
   "discountEngine": {

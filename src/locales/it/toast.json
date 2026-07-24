@@ -144,5 +144,11 @@
     "warning": "Uscita automatica tra {{countdown}}",
     "clockedOut": "Uscita timbrata automaticamente",
     "failed": "Uscita automatica non riuscita"
+  },
+  "print": {
+    "tempLimitReached": "Limite stampa preconto raggiunto ({{count}}/{{limit}}). Approvazione del manager richiesta.",
+    "finalLimitReached": "Limite stampa conto finale raggiunto ({{count}}/{{limit}}). Approvazione del manager richiesta.",
+    "overrideRequired": "Superare limite di stampa",
+    "recordFailed": "Impossibile registrare la stampa"
   }
 }

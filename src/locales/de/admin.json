@@ -524,7 +524,9 @@
       "Edit Adjustments": "Anpassungen bearbeiten",
       "Delete Adjustments": "Anpassungen löschen",
       "Inventory Settings": "Inventareinstellungen",
-      "Locations": "Standorte"
+      "Locations": "Standorte",
+      "Override print limit": "Drucklimit überschreiben",
+      "Print options": "Druckoptionen"
     }
   },
   "discountEngine": {

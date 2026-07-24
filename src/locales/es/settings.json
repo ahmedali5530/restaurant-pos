@@ -59,6 +59,27 @@
     "saved": "Configuración de impresoras guardada",
     "saveFailed": "Error al guardar la configuración de impresoras"
   },
+  "printOptions": {
+    "title": "Opciones de impresión",
+    "description": "Configure cuántas copias físicas produce cada tipo de impresión y cuántas veces se pueden imprimir facturas temporales o finales por pedido antes de requerir aprobación del gerente.",
+    "copiesTitle": "Copias por tipo de impresión",
+    "maxAttemptsTitle": "Máximo de intentos de impresión por pedido",
+    "unlimitedHint": "Establezca los intentos máximos en 0 para ilimitado. Al alcanzar el límite, un gerente con permiso Anular límite de impresión debe aprobar.",
+    "copies": {
+      "temp": "Copias de factura temporal",
+      "final": "Copias de factura final",
+      "refund": "Copias de reembolso",
+      "kitchen": "Copias de cocina / KOT",
+      "delivery": "Copias de entrega",
+      "summary": "Copias de resumen"
+    },
+    "maxAttempts": {
+      "temp": "Máx. impresiones factura temporal",
+      "final": "Máx. impresiones factura final"
+    },
+    "updated": "Opciones de impresión actualizadas",
+    "saveDescription": "Guardar opciones de impresión"
+  },
   "menus": {
     "title": "Configuración de menús",
     "activateMenus": "Activar menús",

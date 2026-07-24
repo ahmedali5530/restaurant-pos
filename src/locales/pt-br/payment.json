@@ -84,7 +84,8 @@
     "tempBill": "Conta provisória",
     "complete": "Concluir",
     "cannotAddCard": "Não é possível adicionar mais pagamento para cartão",
-    "exactCardAmount": "Valor exato adicionado para pagamento com cartão"
+    "exactCardAmount": "Valor exato adicionado para pagamento com cartão",
+    "tempAlreadyPrinted": "Conta provisória já impressa"
   },
   "remote": {
     "remoteLabel": "{{name}} (Remoto)",

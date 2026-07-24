@@ -38,6 +38,7 @@ import {orderItemToEvaluable} from "@/lib/discount-engine/context.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import {useTranslation} from "react-i18next";
 import {useIntegrationManager} from "@/providers/integration.provider.tsx";
+import { hasTempPrint, requestBillPrint } from "@/lib/order-print.ts";
 import {
   fiscalShouldBlockBeforePaid,
   loadOrderForFiscal,
@@ -137,6 +138,18 @@ const OrderPaymentReceivingContent = ({
   const db = useDB();
   const {protectAction} = useSecurity();
   const { manager: integrationManager } = useIntegrationManager();
+  const [page] = useAtom(appPage);
+  const [tempPrinted, setTempPrinted] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void hasTempPrint(db, order.id.toString()).then((v) => {
+      if (!cancelled) setTempPrinted(v);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [db, order.id]);
 
   const [, setAlert] = useAtom(appAlert);
 
@@ -165,7 +178,6 @@ const OrderPaymentReceivingContent = ({
   const keyboardKeys = [1, 2, 3, 4, 5, 6, 7, 8, 9, '.', 0];
 
   const [closing, setClosing] = useState(false);
-  const [page] = useAtom(appPage);
 
   const isTaxObject = (value: unknown): value is Tax => {
     return (
@@ -621,28 +633,32 @@ const OrderPaymentReceivingContent = ({
               </Button>
             </div>
             <div className="flex gap-5">
-              <Button
-                variant="primary"
-                className="flex-1"
-                flat
-                icon={faPrint}
-                size="lg"
-                onClick={() => {
-                  protectAction(() => {
-                    void dispatchPrint(db, PRINT_TYPE.presale_bill, {
-                      order,
-                      taxes: allTaxes?.data
-                    }, {userId: page?.user?.id});
-                  }, {
-                    module: 'Print temp bill',
-                    description: 'Print temp bill',
-                    payload: {
-                      order: order.id.toString()
-                    }
-                  });
-
-                }}
-              >{t('receiving.tempBill')}</Button>
+              <span title={tempPrinted ? t('receiving.tempAlreadyPrinted') : undefined} className="flex-1 flex">
+                <Button
+                  variant={tempPrinted ? "warning" : "primary"}
+                  className="flex-1"
+                  flat
+                  icon={faPrint}
+                  size="lg"
+                  onClick={() => {
+                    void requestBillPrint({
+                      db,
+                      protectAction,
+                      orderId: order.id.toString(),
+                      printType: 'temp',
+                      printModule: 'Print temp bill',
+                      description: 'Print temp bill',
+                      payload: { order: order.id.toString() },
+                      userId: page?.user?.id?.toString?.() ?? page?.user?.id,
+                      doPrint: () => dispatchPrint(db, PRINT_TYPE.presale_bill, {
+                        order,
+                        taxes: allTaxes?.data
+                      }, {userId: page?.user?.id}),
+                      onPrinted: () => setTempPrinted(true),
+                    });
+                  }}
+                >{t('receiving.tempBill')}</Button>
+              </span>
               <Button
                 variant="success"
                 className="flex-1"

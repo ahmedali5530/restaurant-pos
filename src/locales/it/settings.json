@@ -59,6 +59,27 @@
     "saved": "Impostazioni stampante salvate",
     "saveFailed": "Salvataggio impostazioni stampante non riuscito"
   },
+  "printOptions": {
+    "title": "Opzioni di stampa",
+    "description": "Imposta quante copie fisiche produce ogni tipo di stampa e quante volte i preconto o i conti finali possono essere stampati per ordine prima dell'approvazione del manager.",
+    "copiesTitle": "Copie per tipo di stampa",
+    "maxAttemptsTitle": "Tentativi di stampa max per ordine",
+    "unlimitedHint": "Imposta i tentativi max a 0 per illimitato. Al raggiungimento del limite, un manager con Superare limite di stampa deve approvare.",
+    "copies": {
+      "temp": "Copie preconto",
+      "final": "Copie conto finale",
+      "refund": "Copie rimborso",
+      "kitchen": "Copie cucina / KOT",
+      "delivery": "Copie consegna",
+      "summary": "Copie riepilogo"
+    },
+    "maxAttempts": {
+      "temp": "Max stampe preconto",
+      "final": "Max stampe conto finale"
+    },
+    "updated": "Opzioni di stampa aggiornate",
+    "saveDescription": "Salva opzioni di stampa"
+  },
   "menus": {
     "title": "Impostazioni menu",
     "activateMenus": "Attiva menu",

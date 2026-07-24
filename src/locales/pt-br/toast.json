@@ -144,5 +144,11 @@
     "warning": "Saída automática em {{countdown}}",
     "clockedOut": "Saída registrada automaticamente",
     "failed": "Falha na saída automática"
+  },
+  "print": {
+    "tempLimitReached": "Limite de impressão da conta provisória atingido ({{count}}/{{limit}}). Aprovação do gerente necessária.",
+    "finalLimitReached": "Limite de impressão da conta final atingido ({{count}}/{{limit}}). Aprovação do gerente necessária.",
+    "overrideRequired": "Substituir limite de impressão",
+    "recordFailed": "Falha ao registrar impressão da conta"
   }
 }

@@ -15,6 +15,7 @@ import {
 } from "@/lib/closing-cycle.ts";
 import { dispatchPrint } from "@/lib/print.service.ts";
 import { PRINT_TYPE } from "@/lib/print.registry.tsx";
+import { requestBillPrint } from "@/lib/order-print.ts";
 import { nowSurrealDateTime, toSurrealDateTime } from "@/lib/datetime.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import { StringRecordId } from "surrealdb";
@@ -271,12 +272,21 @@ async function printFinalBill(
 
   if (order) {
     const qrcodes = await getFiscalQrcodesForOrderPrint(db, orderId);
-    void dispatchPrint(
+    await requestBillPrint({
       db,
-      PRINT_TYPE.final_bill,
-      { order, qrcodes, qrcode: qrcodes[0]?.value },
-      { userId }
-    );
+      orderId: String(orderId),
+      printType: 'final',
+      printModule: 'Print final copy',
+      description: 'Print final bill',
+      userId,
+      skipIfOverLimit: true,
+      doPrint: () => dispatchPrint(
+        db,
+        PRINT_TYPE.final_bill,
+        { order, qrcodes, qrcode: qrcodes[0]?.value },
+        { userId }
+      ),
+    });
   }
 }
 

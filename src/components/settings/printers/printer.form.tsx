@@ -25,7 +25,6 @@ const validationSchema = z.object({
   name: z.string().min(1, i18n.t('validation:required')),
   ip_address: z.string().optional(),
   port: z.number({message: i18n.t('validation:invalidPort')}).optional(),
-  prints: z.number({message: i18n.t('validation:required')}).min(1, i18n.t('validation:required')),
   type: z.object({
     label: z.string(),
     value: z.string()
@@ -55,7 +54,6 @@ export const PrinterForm = ({
         priority: data.priority,
         ip_address: data.ip_address,
         port: data.port,
-        prints: data.prints,
         type: data.type ? {
           label: data.type,
           value: data.type
@@ -209,22 +207,6 @@ export const PrinterForm = ({
                 </div>
               </div>
             )}
-
-            <div className="flex-1">
-              <Controller
-                render={({ field }) => (
-                  <Input
-                    type="number"
-                    label={t('forms.prints')}
-                    error={errors?.prints?.message}
-                    value={transformValue.input(field.value)}
-                    onChange={(e) => field.onChange(transformValue.output(e))}
-                  />
-                )}
-                name="prints"
-                control={control}
-              />
-            </div>
           </div>
           <div>
             <Button type="submit" variant="primary">{t('common:actions.save')}</Button>

@@ -59,6 +59,27 @@
     "saved": "Configurações de impressora salvas",
     "saveFailed": "Falha ao salvar configurações de impressora"
   },
+  "printOptions": {
+    "title": "Opções de impressão",
+    "description": "Defina quantas cópias físicas cada tipo de impressão produz e quantas vezes contas provisórias ou finais podem ser impressas por pedido antes de exigir aprovação do gerente.",
+    "copiesTitle": "Cópias por tipo de impressão",
+    "maxAttemptsTitle": "Máximo de tentativas de impressão por pedido",
+    "unlimitedHint": "Defina as tentativas máximas como 0 para ilimitado. Ao atingir o limite, um gerente com permissão Substituir limite de impressão deve aprovar.",
+    "copies": {
+      "temp": "Cópias da conta provisória",
+      "final": "Cópias da conta final",
+      "refund": "Cópias de reembolso",
+      "kitchen": "Cópias de cozinha / KOT",
+      "delivery": "Cópias de entrega",
+      "summary": "Cópias do resumo"
+    },
+    "maxAttempts": {
+      "temp": "Máx. impressões conta provisória",
+      "final": "Máx. impressões conta final"
+    },
+    "updated": "Opções de impressão atualizadas",
+    "saveDescription": "Salvar opções de impressão"
+  },
   "menus": {
     "title": "Configurações de cardápio",
     "activateMenus": "Ativar cardápios",

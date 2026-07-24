@@ -1,5 +1,5 @@
 import {Order as OrderModel, OrderStatus} from "@/api/model/order.ts";
-import React, {CSSProperties, useMemo, useState} from "react";
+import React, {CSSProperties, useEffect, useMemo, useState} from "react";
 import {useAtom} from "jotai";
 import {useDB} from "@/api/db/db.ts";
 import {appPage, closingEnforcementAtom} from "@/store/jotai.ts";
@@ -36,6 +36,7 @@ import {Tax} from "@/api/model/tax.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {useTranslation} from "react-i18next";
 import { getFiscalQrcodesForOrderPrint } from "@/integrations/providers/fiscal/settlement.ts";
+import { hasTempPrint, requestBillPrint } from "@/lib/order-print.ts";
 
 interface Props {
   order: OrderModel
@@ -43,10 +44,11 @@ interface Props {
   mergingOrders: OrderModel[]
   merging: boolean
   onAction?: () => void;
+  tempPrinted?: boolean;
 }
 
 export const OrderBox = ({
-  order, onMergeSelect, mergingOrders, merging, onAction
+  order, onMergeSelect, mergingOrders, merging, onAction, tempPrinted: tempPrintedProp
 }: Props) => {
   const {t} = useTranslation('orders');
   const db = useDB();
@@ -60,6 +62,22 @@ export const OrderBox = ({
   const [splitByAmount, setSplitByAmount] = useState(false);
   const [cancelOrderOpen, setCancelOrderOpen] = useState(false);
   const [refundOrderOpen, setRefundOrderOpen] = useState(false);
+  const [tempPrintedLocal, setTempPrintedLocal] = useState(false);
+
+  const tempPrinted = tempPrintedProp ?? tempPrintedLocal;
+
+  useEffect(() => {
+    if (tempPrintedProp != null) {
+      return;
+    }
+    let cancelled = false;
+    void hasTempPrint(db, order.id.toString()).then((v) => {
+      if (!cancelled) setTempPrintedLocal(v);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [db, order.id, tempPrintedProp]);
 
   const hasSeats = useMemo(() => {
     const items = getOrderFilteredItems(order).filter((item) => item.seat !== undefined);
@@ -74,11 +92,48 @@ export const OrderBox = ({
     data: taxes
   } = useApi<SettingsData<Tax>>(Tables.taxes, ['deleted_at = none']);
 
-  const printTempBill = () => {
-    void dispatchPrint(db, PRINT_TYPE.presale_bill, {order, taxes: taxes?.data}, {userId: page?.user?.id});
-  }
-
   const {protectAction} = useSecurity();
+
+  const printTempBill = () => {
+    void requestBillPrint({
+      db,
+      protectAction,
+      orderId: order.id.toString(),
+      printType: 'temp',
+      printModule: 'Print temp bill',
+      description: 'Print temp bill',
+      payload: { order: order.id.toString() },
+      userId: page?.user?.id?.toString?.() ?? page?.user?.id,
+      doPrint: () => dispatchPrint(db, PRINT_TYPE.presale_bill, {order, taxes: taxes?.data}, {userId: page?.user?.id}),
+      onPrinted: () => {
+        setTempPrintedLocal(true);
+        onAction?.();
+      },
+    });
+  };
+
+  const printFinalCopy = () => {
+    void requestBillPrint({
+      db,
+      protectAction,
+      orderId: order.id.toString(),
+      printType: 'final',
+      printModule: 'Print final copy',
+      description: 'Print final copy',
+      payload: { order: order.id.toString() },
+      userId: page?.user?.id?.toString?.() ?? page?.user?.id,
+      isDuplicate: true,
+      doPrint: async () => {
+        const qrcodes = await getFiscalQrcodesForOrderPrint(db, order.id);
+        return dispatchPrint(db, PRINT_TYPE.final_bill, {
+          order,
+          duplicate: true,
+          qrcodes,
+          qrcode: qrcodes[0]?.value,
+        }, {userId: page?.user?.id});
+      },
+    });
+  };
 
   const [pageState] = useAtom(appPage);
   const {
@@ -93,7 +148,7 @@ export const OrderBox = ({
   return (
     <>
       <div className="rounded-xl p-3 bg-white gap-5 flex flex-col shadow select-none">
-        <OrderHeader order={order}/>
+        <OrderHeader order={order} tempPrinted={tempPrinted}/>
         <OrderTimes order={order}/>
         <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
         <ScrollContainer>
@@ -135,35 +190,11 @@ export const OrderBox = ({
                 className="flex-1"
                 onAction={(key) => {
                   if (key === 'temp_bill') {
-                    protectAction(() => {
-                      printTempBill();
-                    }, {
-                      module: 'Print temp bill',
-                      description: 'Print temp bill',
-                      payload: {
-                        order: order.id.toString()
-                      }
-                    });
+                    printTempBill();
                   }
 
                   if (key === 'final_bill') {
-                    protectAction(() => {
-                      void (async () => {
-                        const qrcodes = await getFiscalQrcodesForOrderPrint(db, order.id);
-                        void dispatchPrint(db, PRINT_TYPE.final_bill, {
-                          order,
-                          duplicate: true,
-                          qrcodes,
-                          qrcode: qrcodes[0]?.value,
-                        }, {userId: page?.user?.id});
-                      })();
-                    }, {
-                      module: 'Print final copy',
-                      description: 'Print final copy',
-                      payload: {
-                        order: order.id.toString()
-                      }
-                    });
+                    printFinalCopy();
                   }
 
                   if (key === 'split_by_seats' && hasSeats) {
@@ -283,17 +314,16 @@ export const OrderBox = ({
               </Dropdown>
               {order.status === OrderStatus["In Progress"] && (
                 <>
-                  <Button onClick={() => {
-                    protectAction(() => {
-                      printTempBill();
-                    }, {
-                      module: 'Print temp bill',
-                      description: 'Print temp bill',
-                      payload: {
-                        order: order.id.toString()
-                      }
-                    });
-                  }} variant="primary" flat size="lg" className="flex-1" icon={faPrint}></Button>
+                  <span title={tempPrinted ? t('print.tempAlreadyPrinted') : undefined} className="flex-1 flex">
+                    <Button
+                      onClick={printTempBill}
+                      variant={tempPrinted ? "warning" : "primary"}
+                      flat
+                      size="lg"
+                      className="flex-1"
+                      icon={faPrint}
+                    ></Button>
+                  </span>
                   <Button variant="warning" filled size="lg" className="flex-1" onClick={() => setPaymentOrder(order)}
                           icon={faCreditCard}>
                   </Button>

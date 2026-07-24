@@ -9,6 +9,14 @@ export interface SecurityAction {
   description: string;
   authType?: AuthType;
   module?: string;
+  /** When set, always show PIN/password modal (skip current-user auto-allow). */
+  forceAuth?: boolean;
+  /**
+   * Print-limit override: accept users with Override print limit (including self),
+   * or users with `alternateModule` who are not the current cashier.
+   */
+  alternateModule?: string;
+  excludeUserId?: string;
   onConfirm: (manager?: SecurityManager, usedAuthType?: AuthType) => void;
   onCancel?: () => void;
   onError?: () => void;

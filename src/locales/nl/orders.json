@@ -176,5 +176,8 @@
       "creating": "Splitsingen aanmaken...",
       "save": "{{count}} splitsing(en) opslaan"
     }
+  },
+  "print": {
+    "tempAlreadyPrinted": "Tijdelijke rekening al afgedrukt"
   }
 }

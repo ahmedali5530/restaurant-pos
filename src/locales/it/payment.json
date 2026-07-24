@@ -84,7 +84,8 @@
     "tempBill": "Preconto",
     "complete": "Completa",
     "cannotAddCard": "Impossibile aggiungere altro pagamento con carta",
-    "exactCardAmount": "Aggiunto importo esatto per pagamento con carta"
+    "exactCardAmount": "Aggiunto importo esatto per pagamento con carta",
+    "tempAlreadyPrinted": "Preconto già stampato"
   },
   "remote": {
     "remoteLabel": "{{name}} (Remoto)",

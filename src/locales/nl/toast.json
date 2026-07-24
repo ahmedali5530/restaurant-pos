@@ -144,5 +144,11 @@
     "warning": "Automatisch uitklokken over {{countdown}}",
     "clockedOut": "Automatisch uitgeklokt",
     "failed": "Automatisch uitklokken mislukt"
+  },
+  "print": {
+    "tempLimitReached": "Limiet tijdelijke rekening bereikt ({{count}}/{{limit}}). Managergoedkeuring vereist.",
+    "finalLimitReached": "Limiet eindrekening bereikt ({{count}}/{{limit}}). Managergoedkeuring vereist.",
+    "overrideRequired": "Afdruklimiet overschrijven",
+    "recordFailed": "Afdrukregistratie mislukt"
   }
 }

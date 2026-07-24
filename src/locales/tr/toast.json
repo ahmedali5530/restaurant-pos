@@ -144,5 +144,11 @@
     "warning": "{{countdown}} içinde otomatik mesai çıkışı",
     "clockedOut": "Otomatik mesai çıkışı yapıldı",
     "failed": "Otomatik mesai çıkışı başarısız"
+  },
+  "print": {
+    "tempLimitReached": "Geçici fatura yazdırma limiti aşıldı ({{count}}/{{limit}}). Yönetici onayı gerekli.",
+    "finalLimitReached": "Nihai fatura yazdırma limiti aşıldı ({{count}}/{{limit}}). Yönetici onayı gerekli.",
+    "overrideRequired": "Yazdırma limitini geçersiz kıl",
+    "recordFailed": "Fatura yazdırması kaydedilemedi"
   }
 }

@@ -5,6 +5,7 @@ import {cn} from "@/lib/utils.ts";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import { useTranslation } from 'react-i18next';
+import {toRecordId} from "@/lib/utils.ts";
 
 interface PinAuthProps {
   onSuccess: (manager?: SecurityManager) => void;
@@ -47,14 +48,54 @@ export const PinAuth: React.FC<PinAuthProps> = ({
   };
 
   const validatePIN = async () => {
-    const [userWithModules] = await db.query(`SELECT * FROM ${Tables.users} where deleted_at = none and $module IN user_role.roles and login_method = 'pin' and login = $pin and crypto::bcrypt::compare(password, $pin) = true FETCH user_role, user_shift`, {
-      module: currentAction.module,
-      pin
-    });
+    const module = currentAction?.module;
+    const alternateModule = currentAction?.alternateModule;
+    const excludeUserId = currentAction?.excludeUserId
+      ? toRecordId(currentAction.excludeUserId)
+      : null;
 
-    if(userWithModules.length > 0){
+    // Limit override: Override print limit (any user) OR print module (another user only).
+    const useOverrideGate = Boolean(alternateModule && excludeUserId);
+
+    const [userWithModules] = useOverrideGate
+      ? await db.query(
+          `SELECT * FROM ${Tables.users}
+           WHERE deleted_at = none
+             AND login_method = 'pin'
+             AND login = $pin
+             AND crypto::bcrypt::compare(password, $pin) = true
+             AND (
+               $overrideModule IN user_role.roles
+               OR (
+                 $printModule IN user_role.roles
+                 AND id != $excludeUserId
+               )
+             )
+           FETCH user_role, user_shift`,
+          {
+            pin,
+            overrideModule: module,
+            printModule: alternateModule,
+            excludeUserId,
+          }
+        )
+      : await db.query(
+          `SELECT * FROM ${Tables.users}
+           WHERE deleted_at = none
+             AND $module IN user_role.roles
+             AND login_method = 'pin'
+             AND login = $pin
+             AND crypto::bcrypt::compare(password, $pin) = true
+           FETCH user_role, user_shift`,
+          {
+            module,
+            pin,
+          }
+        );
+
+    if (userWithModules.length > 0) {
       onSuccess(userWithModules[0] as SecurityManager);
-    }else{
+    } else {
       setError(t('security.invalidPin', { module: currentAction?.module }));
     }
 
@@ -96,9 +137,9 @@ export const PinAuth: React.FC<PinAuthProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        {/*{error && (*/}
-        {/*  <div className="my-4 alert alert-danger">{error}</div>*/}
-        {/*)}*/}
+        {error && (
+          <div className="my-4 alert alert-danger">{error}</div>
+        )}
         
         {/* PIN Dots Display */}
         <div className={

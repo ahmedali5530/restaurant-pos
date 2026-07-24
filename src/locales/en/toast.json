@@ -144,5 +144,11 @@
     "deactivated": "{{entity}} is in use and was deactivated.",
     "deleted": "{{entity}} deleted successfully.",
     "failed": "Failed to delete {{entity}}."
+  },
+  "print": {
+    "tempLimitReached": "Temp bill print limit reached ({{count}}/{{limit}}). Manager approval required.",
+    "finalLimitReached": "Final bill print limit reached ({{count}}/{{limit}}). Manager approval required.",
+    "overrideRequired": "Override print limit",
+    "recordFailed": "Failed to record bill print"
   }
 }

@@ -5,6 +5,7 @@ import {Input} from "@/components/common/input/input.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import { useTranslation } from 'react-i18next';
+import {toRecordId} from "@/lib/utils.ts";
 
 interface PasswordAuthProps {
   onSuccess: (manager?: SecurityManager) => void;
@@ -27,14 +28,50 @@ export const PasswordAuth: React.FC<PasswordAuthProps> = ({
     e.preventDefault();
     setError('');
 
-    const [userWithModules] = await db.query(`SELECT * FROM ${Tables.users} FETCH user_role, user_shift where deleted_at = none and $module IN user_role.roles and login_method = 'form' and crypto::bcrypt::compare(password, $password) = true `, {
-      module: currentAction.module,
-      password
-    });
+    const module = currentAction?.module;
+    const alternateModule = currentAction?.alternateModule;
+    const excludeUserId = currentAction?.excludeUserId
+      ? toRecordId(currentAction.excludeUserId)
+      : null;
+    const useOverrideGate = Boolean(alternateModule && excludeUserId);
 
-    if(userWithModules.length > 0){
+    const [userWithModules] = useOverrideGate
+      ? await db.query(
+          `SELECT * FROM ${Tables.users}
+           WHERE deleted_at = none
+             AND login_method = 'form'
+             AND crypto::bcrypt::compare(password, $password) = true
+             AND (
+               $overrideModule IN user_role.roles
+               OR (
+                 $printModule IN user_role.roles
+                 AND id != $excludeUserId
+               )
+             )
+           FETCH user_role, user_shift`,
+          {
+            password,
+            overrideModule: module,
+            printModule: alternateModule,
+            excludeUserId,
+          }
+        )
+      : await db.query(
+          `SELECT * FROM ${Tables.users}
+           WHERE deleted_at = none
+             AND $module IN user_role.roles
+             AND login_method = 'form'
+             AND crypto::bcrypt::compare(password, $password) = true
+           FETCH user_role, user_shift`,
+          {
+            module,
+            password,
+          }
+        );
+
+    if (userWithModules.length > 0) {
       onSuccess(userWithModules[0] as SecurityManager);
-    }else{
+    } else {
       setError(t('security.invalidPassword', { module: currentAction.module }));
     }
 

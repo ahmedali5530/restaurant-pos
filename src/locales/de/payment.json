@@ -84,7 +84,8 @@
     "tempBill": "Zwischenrechnung",
     "complete": "Abschließen",
     "cannotAddCard": "Keine weitere Kartenzahlung möglich",
-    "exactCardAmount": "Exakter Betrag für Kartenzahlung hinzugefügt"
+    "exactCardAmount": "Exakter Betrag für Kartenzahlung hinzugefügt",
+    "tempAlreadyPrinted": "Zwischenrechnung bereits gedruckt"
   },
   "remote": {
     "remoteLabel": "{{name}} (Remote)",

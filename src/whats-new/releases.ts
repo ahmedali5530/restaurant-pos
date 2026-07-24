@@ -8,6 +8,15 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-07-24',
+    title: 'Bill print tracking and copies',
+    items: [
+      'Temp and final bill prints are tracked per order; a print icon marks orders that already had a temp bill.',
+      'Settings → Print options (beside printers) sets copies per print type and max temp/final attempts (0 = unlimited).',
+      'Exceeding the attempt limit requires manager approval via Override print limit. The unused Prints field was removed from the printer form.',
+    ],
+  },
+  {
+    date: '2026-07-24',
     title: 'Consumption vs issuance',
     items: [
       'Consumption report and AI Report now use recipe ingredient qty × sold (Paid) dishes — not inventory issuance.',

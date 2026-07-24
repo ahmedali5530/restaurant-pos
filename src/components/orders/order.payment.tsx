@@ -38,6 +38,7 @@ import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Extra} from "@/api/model/extra.ts";
 import {Coupon, WeekDay} from "@/api/model/coupon.ts";
 import {OrderPaymentCoupon} from "@/components/orders/payment/order.payment.coupon.tsx";
+import { hasTempPrint, requestBillPrint } from "@/lib/order-print.ts";
 import {toast} from "sonner";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {nowSurrealDateTime, toJsDate} from "@/lib/datetime.ts";
@@ -103,6 +104,17 @@ export const OrderPayment = ({
   const [coupon, setCoupon] = useState<Coupon | undefined>();
   const [couponAmount, setCouponAmount] = useState<number>(0);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [tempPrinted, setTempPrinted] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void hasTempPrint(db, order.id.toString()).then((v) => {
+      if (!cancelled) setTempPrinted(v);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [db, order.id]);
 
   const {
     data: extrasData,
@@ -518,18 +530,27 @@ export const OrderPayment = ({
                                          from only ${order.id} fetch items, items.item, item.item.modifiers, table, user, order_type, customer, discount, tax, payments, payments.payment_type, extras, extras.order_extras`);
     const qrcodes = await getFiscalQrcodesForOrderPrint(db, order.id);
 
-    void dispatchPrint(db, PRINT_TYPE.final_bill, {
-      order: o,
-      qrcodes,
-      qrcode: qrcodes[0]?.value,
-    }, {userId: page?.user?.id});
+    await requestBillPrint({
+      db,
+      orderId: order.id.toString(),
+      printType: 'final',
+      printModule: 'Print final copy',
+      description: 'Print final bill',
+      userId: page?.user?.id?.toString?.() ?? page?.user?.id,
+      skipIfOverLimit: true,
+      doPrint: () => dispatchPrint(db, PRINT_TYPE.final_bill, {
+        order: o,
+        qrcodes,
+        qrcode: qrcodes[0]?.value,
+      }, {userId: page?.user?.id}),
+    });
   }
 
   const onPayment = () => {
     closeModal();
 
     setTimeout(() => {
-      print();
+      void print();
     }, 300)
   }
 
@@ -716,7 +737,7 @@ export const OrderPayment = ({
       <div className="grid grid-cols-4 gap-5 mb-0 select-none">
         <div className="bg-white rounded-xl flex flex-col overflow-auto h-[calc(100vh_-_120px)]">
           <div className="p-3 flex gap-3 flex-col">
-            <OrderHeader order={order}/>
+            <OrderHeader order={order} tempPrinted={tempPrinted}/>
             <OrderTimes order={order}/>
             <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
             <ScrollContainer className="gap-1 flex flex-col">

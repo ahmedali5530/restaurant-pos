@@ -176,5 +176,8 @@
       "creating": "Creando divisiones...",
       "save": "Guardar {{count}} división(es)"
     }
+  },
+  "print": {
+    "tempAlreadyPrinted": "Factura temporal ya impresa"
   }
 }

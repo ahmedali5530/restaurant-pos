@@ -9,7 +9,7 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
   },
   "Orders": {
     label: "Orders", 
-    children: ['Orders', 'Cancel order', 'Split by seats', 'Split by items', 'Split by amount', 'Merge orders', 'Refund order', 'Print final copy', 'Print temp bill', 'Open cash drawer', 'Apply tax', 'Apply discount', 'Apply coupon', 'Apply service charges', 'Apply tips', 'Change extras', 'Complete order'] as string[]
+    children: ['Orders', 'Cancel order', 'Split by seats', 'Split by items', 'Split by amount', 'Merge orders', 'Refund order', 'Print final copy', 'Print temp bill', 'Override print limit', 'Open cash drawer', 'Apply tax', 'Apply discount', 'Apply coupon', 'Apply service charges', 'Apply tips', 'Change extras', 'Complete order'] as string[]
   },
   "Summary": {
     label: "Summary",
@@ -86,7 +86,7 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
   },
   'Settings': {
     label: 'Settings',
-    children: ['Settings', 'Printers', 'Service charges', 'Auto check close', 'Closing cycle', 'Session security', 'Auto clock-out', 'Show inclusive prices', 'Access control', 'Inventory Settings']
+    children: ['Settings', 'Printers', 'Print options', 'Service charges', 'Auto check close', 'Closing cycle', 'Session security', 'Auto clock-out', 'Show inclusive prices', 'Access control', 'Inventory Settings']
   },
   'Accounts': {
     label: 'Accounts',

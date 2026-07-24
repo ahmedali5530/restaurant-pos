@@ -72,6 +72,9 @@
     "tempBill": "Temp bill",
     "payNow": "Pay Now"
   },
+  "print": {
+    "tempAlreadyPrinted": "Temp bill already printed"
+  },
   "cancel": {
     "title": "Cancel order",
     "reason": "Reason",

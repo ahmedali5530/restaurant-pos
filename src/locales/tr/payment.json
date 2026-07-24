@@ -84,7 +84,8 @@
     "tempBill": "Geçici fatura",
     "complete": "Tamamla",
     "cannotAddCard": "Kart için daha fazla ödeme eklenemez",
-    "exactCardAmount": "Kart tabanlı ödeme için tam tutar eklendi"
+    "exactCardAmount": "Kart tabanlı ödeme için tam tutar eklendi",
+    "tempAlreadyPrinted": "Geçici fatura zaten yazdırıldı"
   },
   "remote": {
     "remoteLabel": "{{name}} (Uzaktan)",

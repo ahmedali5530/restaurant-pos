@@ -59,6 +59,27 @@
     "saved": "Druckereinstellungen gespeichert",
     "saveFailed": "Druckereinstellungen konnten nicht gespeichert werden"
   },
+  "printOptions": {
+    "title": "Druckoptionen",
+    "description": "Legen Sie fest, wie viele physische Kopien jeder Drucktyp erzeugt und wie oft Zwischen- oder Endrechnungen pro Bestellung gedruckt werden dürfen, bevor eine Managerfreigabe nötig ist.",
+    "copiesTitle": "Kopien pro Drucktyp",
+    "maxAttemptsTitle": "Max. Druckversuche pro Bestellung",
+    "unlimitedHint": "Setzen Sie max. Versuche auf 0 für unbegrenzt. Bei Erreichen des Limits muss ein Manager mit Drucklimit überschreiben freigeben.",
+    "copies": {
+      "temp": "Zwischenrechnung Kopien",
+      "final": "Endrechnung Kopien",
+      "refund": "Rückerstattung Kopien",
+      "kitchen": "Küche / KOT Kopien",
+      "delivery": "Lieferkopien",
+      "summary": "Zusammenfassung Kopien"
+    },
+    "maxAttempts": {
+      "temp": "Max. Zwischenrechnungsdrucke",
+      "final": "Max. Endrechnungsdrucke"
+    },
+    "updated": "Druckoptionen aktualisiert",
+    "saveDescription": "Druckoptionen speichern"
+  },
   "menus": {
     "title": "Speisekarteneinstellungen",
     "activateMenus": "Speisekarten aktivieren",

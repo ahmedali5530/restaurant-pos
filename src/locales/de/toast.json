@@ -144,5 +144,11 @@
     "warning": "Automatisches Ausstempeln in {{countdown}}",
     "clockedOut": "Automatisch ausgestempelt",
     "failed": "Automatisches Ausstempeln fehlgeschlagen"
+  },
+  "print": {
+    "tempLimitReached": "Limit für Zwischenrechnung erreicht ({{count}}/{{limit}}). Managerfreigabe erforderlich.",
+    "finalLimitReached": "Limit für Endrechnung erreicht ({{count}}/{{limit}}). Managerfreigabe erforderlich.",
+    "overrideRequired": "Drucklimit überschreiben",
+    "recordFailed": "Druck konnte nicht erfasst werden"
   }
 }

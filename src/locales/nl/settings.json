@@ -59,6 +59,27 @@
     "saved": "Printerinstellingen opgeslagen",
     "saveFailed": "Printerinstellingen opslaan mislukt"
   },
+  "printOptions": {
+    "title": "Afdrukopties",
+    "description": "Stel in hoeveel fysieke kopieën elk afdruktype produceert en hoe vaak tijdelijke of eindrekeningen per bestelling mogen worden afgedrukt voordat managergoedkeuring vereist is.",
+    "copiesTitle": "Kopieën per afdruktype",
+    "maxAttemptsTitle": "Max. afdrukpogingen per bestelling",
+    "unlimitedHint": "Zet max. pogingen op 0 voor onbeperkt. Bij limiet is goedkeuring nodig van een manager met Afdruklimiet overschrijven.",
+    "copies": {
+      "temp": "Tijdelijke rekening kopieën",
+      "final": "Eindrekening kopieën",
+      "refund": "Terugbetalingskopieën",
+      "kitchen": "Keuken / KOT kopieën",
+      "delivery": "Bezorgkopieën",
+      "summary": "Samenvatting kopieën"
+    },
+    "maxAttempts": {
+      "temp": "Max. tijdelijke rekening afdrukken",
+      "final": "Max. eindrekening afdrukken"
+    },
+    "updated": "Afdrukopties bijgewerkt",
+    "saveDescription": "Afdrukopties opslaan"
+  },
   "menus": {
     "title": "Menu-instellingen",
     "activateMenus": "Menu's activeren",

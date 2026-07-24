@@ -176,5 +176,8 @@
       "creating": "Création des divisions...",
       "save": "Enregistrer {{count}} division(s)"
     }
+  },
+  "print": {
+    "tempAlreadyPrinted": "Note provisoire déjà imprimée"
   }
 }

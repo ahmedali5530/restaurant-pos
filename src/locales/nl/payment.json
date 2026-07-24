@@ -84,7 +84,8 @@
     "tempBill": "Tijdelijke rekening",
     "complete": "Voltooien",
     "cannotAddCard": "Kan geen extra betaling toevoegen voor kaart",
-    "exactCardAmount": "Exact bedrag toegevoegd voor kaartbetaling"
+    "exactCardAmount": "Exact bedrag toegevoegd voor kaartbetaling",
+    "tempAlreadyPrinted": "Tijdelijke rekening al afgedrukt"
   },
   "remote": {
     "remoteLabel": "{{name}} (Op afstand)",

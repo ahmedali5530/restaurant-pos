@@ -524,7 +524,9 @@
       "Edit Adjustments": "تعديل التسويات",
       "Delete Adjustments": "حذف التسويات",
       "Inventory Settings": "إعدادات المخزون",
-      "Locations": "المواقع"
+      "Locations": "المواقع",
+      "Override print limit": "تجاوز حد الطباعة",
+      "Print options": "خيارات الطباعة"
     }
   },
   "discountEngine": {

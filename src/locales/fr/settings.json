@@ -59,6 +59,27 @@
     "saved": "Paramètres d'impression enregistrés",
     "saveFailed": "Échec de l'enregistrement des paramètres d'impression"
   },
+  "printOptions": {
+    "title": "Options d'impression",
+    "description": "Définissez le nombre de copies physiques par type d'impression et le nombre de fois que les notes provisoires ou finales peuvent être imprimées par commande avant l'approbation du responsable.",
+    "copiesTitle": "Copies par type d'impression",
+    "maxAttemptsTitle": "Tentatives d'impression max. par commande",
+    "unlimitedHint": "Mettez les tentatives max. à 0 pour illimité. Une fois la limite atteinte, un responsable avec Contourner la limite d'impression doit approuver.",
+    "copies": {
+      "temp": "Copies note provisoire",
+      "final": "Copies note finale",
+      "refund": "Copies remboursement",
+      "kitchen": "Copies cuisine / KOT",
+      "delivery": "Copies livraison",
+      "summary": "Copies résumé"
+    },
+    "maxAttempts": {
+      "temp": "Max. impressions note provisoire",
+      "final": "Max. impressions note finale"
+    },
+    "updated": "Options d'impression mises à jour",
+    "saveDescription": "Enregistrer les options d'impression"
+  },
   "menus": {
     "title": "Paramètres du menu",
     "activateMenus": "Activer les menus",

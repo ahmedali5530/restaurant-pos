@@ -59,6 +59,27 @@
     "saved": "Printer settings saved",
     "saveFailed": "Failed to save printer settings"
   },
+  "printOptions": {
+    "title": "Print options",
+    "description": "Set how many physical copies each print type produces, and how many times temp or final bills can be printed per order before manager approval is required.",
+    "copiesTitle": "Copies per print type",
+    "maxAttemptsTitle": "Max print attempts per order",
+    "unlimitedHint": "Set max attempts to 0 for unlimited. When the limit is reached, a manager with Override print limit permission must approve.",
+    "copies": {
+      "temp": "Temp bill copies",
+      "final": "Final bill copies",
+      "refund": "Refund bill copies",
+      "kitchen": "Kitchen / KOT copies",
+      "delivery": "Delivery bill copies",
+      "summary": "Summary copies"
+    },
+    "maxAttempts": {
+      "temp": "Max temp bill prints",
+      "final": "Max final bill prints"
+    },
+    "updated": "Print options updated",
+    "saveDescription": "Save print options"
+  },
   "menus": {
     "title": "Menu settings",
     "activateMenus": "Activate menus",

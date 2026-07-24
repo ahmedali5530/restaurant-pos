@@ -36,6 +36,7 @@ import {useSecurity} from "@/hooks/useSecurity.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
+import { batchOrdersWithTempPrint } from "@/lib/order-print.ts";
 
 export const Orders = () => {
   const {t} = useTranslation('orders');
@@ -64,6 +65,7 @@ export const Orders = () => {
   const [app,] = useAtom(appPage);
 
   const [orders, setOrders] = useState<OrderModel[]>([]);
+  const [tempPrintedOrderIds, setTempPrintedOrderIds] = useState<Set<string>>(new Set());
 
   const updateOrderFilter = useCallback((key: keyof AppStateInterface['ordersFilters'], value: LabelValue[]) => {
     setState(prev => ({
@@ -133,8 +135,11 @@ export const Orders = () => {
 
   const fetchOrders = useCallback(async () => {
     const [listQuery] = await db.query(ordersQb.queryString, ordersQb.parameters);
-
-    setOrders(listQuery as OrderModel[]);
+    const list = listQuery as OrderModel[];
+    setOrders(list);
+    const ids = list.map((o) => o.id.toString());
+    const printed = await batchOrdersWithTempPrint(db, ids);
+    setTempPrintedOrderIds(printed);
   }, [ordersQb.queryString, ordersQb.parameters]);
 
   fetchOrdersRef.current = fetchOrders;
@@ -402,6 +407,7 @@ export const Orders = () => {
                     order={item}
                     merging={merging}
                     mergingOrders={mergingOrders}
+                    tempPrinted={tempPrintedOrderIds.has(item.id.toString())}
                     onMergeSelect={(order, status) => {
                       if (status) {
                         setMerging(true);

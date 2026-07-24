@@ -84,7 +84,8 @@
     "tempBill": "فاتورة مؤقتة",
     "complete": "إكمال",
     "cannotAddCard": "لا يمكن إضافة المزيد من الدفع للبطاقة",
-    "exactCardAmount": "تمت إضافة المبلغ الدقيق للدفع بالبطاقة"
+    "exactCardAmount": "تمت إضافة المبلغ الدقيق للدفع بالبطاقة",
+    "tempAlreadyPrinted": "تمت طباعة الفاتورة المؤقتة مسبقاً"
   },
   "remote": {
     "remoteLabel": "{{name}} (عن بُعد)",

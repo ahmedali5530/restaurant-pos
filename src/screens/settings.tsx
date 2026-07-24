@@ -1,5 +1,6 @@
 import { Layout } from "@/screens/partials/layout.tsx";
 import {Printersettings} from "@/components/user_settings/printers.tsx";
+import {PrintOptionsSettingsCard} from "@/components/user_settings/print_options.tsx";
 import {ServiceChargesSettings} from "@/components/user_settings/service_charges.tsx";
 import {CacheSettings} from "@/components/user_settings/cache.tsx";
 import {TouchSettings} from "@/components/user_settings/touch.tsx";
@@ -36,6 +37,7 @@ export const Settings = () => {
         <MasonryItem><LanguageSettings /></MasonryItem>
         <MasonryItem><TranslateReceiptsSettingsCard /></MasonryItem>
         <MasonryItem><Printersettings /></MasonryItem>
+        <MasonryItem><PrintOptionsSettingsCard /></MasonryItem>
         <MasonryItem><MenusSettings /></MasonryItem>
         <MasonryItem><ServiceChargesSettings /></MasonryItem>
         <MasonryItem><ClosingCycleSettingsCard /></MasonryItem>

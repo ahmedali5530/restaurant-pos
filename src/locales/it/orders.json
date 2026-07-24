@@ -176,5 +176,8 @@
       "creating": "Creazione divisioni...",
       "save": "Salva {{count}} divisione/i"
     }
+  },
+  "print": {
+    "tempAlreadyPrinted": "Preconto già stampato"
   }
 }

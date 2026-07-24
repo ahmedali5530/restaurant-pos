@@ -1883,6 +1883,23 @@ DEFINE FIELD payment_type ON order_payment TYPE record<payment_type> PERMISSIONS
 
 
 -- ------------------------------
+-- TABLE: order_print
+-- ------------------------------
+
+DEFINE TABLE order_print TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD order ON order_print TYPE record<order> PERMISSIONS FULL;
+DEFINE FIELD print_type ON order_print TYPE string ASSERT $value INSIDE ['temp', 'final'] PERMISSIONS FULL;
+DEFINE FIELD printed_by ON order_print TYPE option<record<user>> PERMISSIONS FULL;
+DEFINE FIELD printed_at ON order_print TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD is_override ON order_print TYPE bool DEFAULT false PERMISSIONS FULL;
+DEFINE FIELD is_duplicate ON order_print TYPE bool DEFAULT false PERMISSIONS FULL;
+
+DEFINE INDEX order_print_order_type ON order_print FIELDS order, print_type;
+
+
+
+-- ------------------------------
 -- TABLE: order_refund
 -- ------------------------------
 

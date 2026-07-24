@@ -176,5 +176,8 @@
       "creating": "Bölmeler oluşturuluyor...",
       "save": "{{count}} bölmeyi kaydet"
     }
+  },
+  "print": {
+    "tempAlreadyPrinted": "Geçici fatura zaten yazdırıldı"
   }
 }

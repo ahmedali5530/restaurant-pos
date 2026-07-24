@@ -176,5 +176,8 @@
       "creating": "Teilungen werden erstellt...",
       "save": "{{count}} Teilung(en) speichern"
     }
+  },
+  "print": {
+    "tempAlreadyPrinted": "Zwischenrechnung bereits gedruckt"
   }
 }

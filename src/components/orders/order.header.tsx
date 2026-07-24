@@ -2,13 +2,17 @@ import { Order, OrderStatus } from "@/api/model/order.ts";
 import { cn } from "@/lib/utils.ts";
 import {getInvoiceNumber, translateOrderStatus} from "@/lib/order.ts";
 import {useTranslation} from "react-i18next";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faPrint} from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   order: Order
+  tempPrinted?: boolean
 }
 
 export const OrderHeader = ({
-  order
+  order,
+  tempPrinted = false,
 }: Props) => {
   const {t} = useTranslation('orders');
 
@@ -42,8 +46,18 @@ export const OrderHeader = ({
 
         </div>
       </div>
-      <div className="flex flex-col">
-        <span className="text-lg font-bold bg-neutral-200 px-2 rounded">{order?.user?.first_name}</span>
+      <div className="flex flex-col items-end gap-1">
+        <div className="flex items-center gap-2">
+          {tempPrinted && (
+            <span
+              className="text-warning-600 bg-warning-100 px-2 py-1 rounded"
+              title={t('print.tempAlreadyPrinted')}
+            >
+              <FontAwesomeIcon icon={faPrint} />
+            </span>
+          )}
+          <span className="text-lg font-bold bg-neutral-200 px-2 rounded">{order?.user?.first_name}</span>
+        </div>
         {order?.customer && (
           <>
             <span>{order?.customer?.name}</span>

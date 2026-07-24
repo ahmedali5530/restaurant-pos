@@ -12,6 +12,10 @@ export interface ProtectedActionOptions {
   authType?: AuthType;
   module?: string;
   orderId?: string;
+  /** Always open manager auth UI (do not auto-allow current user). */
+  forceAuth?: boolean;
+  alternateModule?: string;
+  excludeUserId?: string;
   onSuccess?: (manager?: SecurityManager) => void;
   onCancel?: () => void;
   onError?: () => void;
@@ -51,15 +55,27 @@ export const useSecurity = () => {
     action: () => void,
     options: ProtectedActionOptions
   ) => {
-    const { description, authType = 'pin', module, onSuccess, onCancel, onError, payload } = options;
+    const {
+      description,
+      authType = 'pin',
+      module,
+      forceAuth = false,
+      alternateModule,
+      excludeUserId,
+      onSuccess,
+      onCancel,
+      onError,
+      payload,
+    } = options;
 
-    const [userWithModules] = await db.query(`SELECT * FROM ONLY ${toRecordId(user?.id)} WHERE deleted_at = none FETCH user_role`);
-    if(userWithModules?.user_role?.roles.includes(module)){
-
-      action();
-      onSuccess?.();
-      void trackProtectActionSuccess(options, 'auto');
-      return;
+    if (!forceAuth) {
+      const [userWithModules] = await db.query(`SELECT * FROM ONLY ${toRecordId(user?.id)} WHERE deleted_at = none FETCH user_role`);
+      if (userWithModules?.user_role?.roles?.includes(module)) {
+        action();
+        onSuccess?.();
+        void trackProtectActionSuccess(options, 'auto');
+        return;
+      }
     }
 
     requestSecurity({
@@ -67,6 +83,9 @@ export const useSecurity = () => {
       description,
       authType,
       module,
+      forceAuth,
+      alternateModule,
+      excludeUserId,
       onConfirm: (manager?: SecurityManager, usedAuthType?: AuthType) => {
         action();
         onSuccess?.(manager);
