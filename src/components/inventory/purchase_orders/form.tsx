@@ -540,7 +540,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                           <label className="block text-sm text-neutral-600 mb-1">
                             {t('forms.previousPrice')}
                           </label>
-                          <div className="px-3 py-2 border border-neutral-300 rounded-lg bg-neutral-50 text-neutral-700">
+                          <div className="input">
                             {previousPrices[rowField.id] != null
                               ? withCurrency(previousPrices[rowField.id])
                               : "—"}

@@ -60,7 +60,7 @@ const queryLastPurchaseLine = async (
   }
 
   const query = `
-    SELECT final_unit_cost, purchase_price, price
+    SELECT final_unit_cost, purchase_price, price, purchase.created_at
     FROM ${Tables.inventory_purchase_items}
     WHERE ${conditions.join(" AND ")}
     ORDER BY purchase.created_at DESC
