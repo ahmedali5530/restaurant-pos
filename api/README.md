@@ -62,6 +62,19 @@ win. All secrets remain server-side; do not add them to the frontend `.env`.
 | `OPENAI_API_URL` | Chat completions endpoint |
 | `OPENAI_PROXY_URL` | Optional URL that overrides `OPENAI_API_URL` |
 | `OPENAI_MODEL` | Model name (default `gpt-4o-mini`) |
+| `AI_ENABLED` | `false` / `0` hard-blocks all AI (403). Default `true`. |
+| `AI_DAILY_LIMIT` | Max chat completions per UTC day. Empty/unset = unlimited. |
+| `AI_MONTHLY_LIMIT` | Max chat completions per UTC calendar month. Empty/unset = unlimited. |
+
+### AI usage limits (VPS / shared key)
+
+Each successful `POST /ai/chat/completions` counts toward the daily and monthly
+caps. Counters live in `api/data/ai-usage.json` on the API host (not in the
+browser). Change limits or set `AI_ENABLED=false` in `.env.local` and restart
+the API process.
+
+Leave `AI_DAILY_LIMIT` / `AI_MONTHLY_LIMIT` blank on local installs where the
+customer supplies their own OpenAI key — quotas do not apply unless set.
 
 ## API
 
@@ -69,10 +82,26 @@ win. All secrets remain server-side; do not add them to the frontend `.env`.
 
 Returns `{ ok, service, modules }`.
 
+### `GET /ai/usage`
+
+Returns current quota status (no secrets):
+
+```json
+{
+  "enabled": true,
+  "daily": { "used": 12, "limit": 100 },
+  "monthly": { "used": 87, "limit": 2000 }
+}
+```
+
+`limit` is `null` when that cap is unset (unlimited).
+
 ### `POST /ai/chat/completions`
 
 Proxies an OpenAI-compatible chat completion. The browser sends only messages
 and (optional) tool definitions; the server injects the model, key, and URL.
+Checks `AI_ENABLED` and daily/monthly limits before forwarding; increments
+counters only after a successful upstream response.
 
 Request:
 
@@ -85,11 +114,21 @@ Request:
 
 Response: the raw OpenAI-compatible chat completion JSON (`{ choices: [...] }`).
 On failure, a JSON error `{ success: false, error, details? }` with the upstream
-status code.
+status code. Quota failures return `403` (`AI_DISABLED`) or `429`
+(`AI_DAILY_LIMIT` / `AI_MONTHLY_LIMIT`) with:
+
+```json
+{
+  "success": false,
+  "error": "Daily AI limit reached. ...",
+  "code": "AI_DAILY_LIMIT",
+  "daily": { "used": 100, "limit": 100 },
+  "monthly": { "used": 450, "limit": 2000 }
+}
+```
 
 Azure endpoints (URL contains `openai.azure.com`) automatically use the
 `api-key` header instead of `Authorization: Bearer`.
-
 ## Adding a new module
 
 The service is designed so future backends are not limited to AI:

@@ -24,6 +24,7 @@ import {
   saveAiReportPrompt,
   saveToHistory,
 } from "@/lib/ai.report.storage.ts";
+import {AiQuotaError, fetchAiUsage, type AiUsageStatus} from "@/lib/openai.service.ts";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
 
@@ -130,10 +131,47 @@ export const AiReport = () => {
   const [loadingTool, setLoadingTool] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [hasRun, setHasRun] = useState(false);
+  const [usage, setUsage] = useState<AiUsageStatus | null>(null);
+
+  const refreshUsage = useCallback(async () => {
+    const next = await fetchAiUsage();
+    setUsage(next);
+  }, []);
 
   useEffect(() => {
     queryRef.current = db.query;
   }, [db]);
+
+  useEffect(() => {
+    void refreshUsage();
+  }, [refreshUsage]);
+
+  const formatQuotaError = useCallback((err: AiQuotaError) => {
+    if (err.code === "AI_DISABLED") {
+      return t("filters.aiDisabled");
+    }
+    if (err.code === "AI_DAILY_LIMIT") {
+      return t("filters.aiDailyLimitReached");
+    }
+    if (err.code === "AI_MONTHLY_LIMIT") {
+      return t("filters.aiMonthlyLimitReached");
+    }
+    return err.message;
+  }, [t]);
+
+  const usageLabel = useMemo(() => {
+    if (!usage || !usage.enabled) {
+      return null;
+    }
+    const parts: string[] = [];
+    if (usage.daily.limit !== null) {
+      parts.push(t("filters.aiUsageDaily", {used: usage.daily.used, limit: usage.daily.limit}));
+    }
+    if (usage.monthly.limit !== null) {
+      parts.push(t("filters.aiUsageMonthly", {used: usage.monthly.used, limit: usage.monthly.limit}));
+    }
+    return parts.length ? parts.join(" · ") : null;
+  }, [t, usage]);
 
   const stableDb = useMemo((): DbClient => ({
     query: (sql, params) => queryRef.current(sql, params),
@@ -185,15 +223,30 @@ export const AiReport = () => {
         onToolStart: setLoadingTool,
       });
       applyResult(result, trimmedPrompt);
+      void refreshUsage();
     } catch (err) {
       setResponse("");
       setCharts([]);
-      setError(err instanceof Error ? err.message : t("filters.aiRunFailed"));
+      if (err instanceof AiQuotaError) {
+        setError(formatQuotaError(err));
+        if (err.daily || err.monthly) {
+          setUsage({
+            enabled: err.code !== "AI_DISABLED",
+            daily: err.daily ?? {used: 0, limit: null},
+            monthly: err.monthly ?? {used: 0, limit: null},
+          });
+        } else {
+          void refreshUsage();
+        }
+      } else {
+        setError(err instanceof Error ? err.message : t("filters.aiRunFailed"));
+        void refreshUsage();
+      }
     } finally {
       setLoading(false);
       setLoadingTool(null);
     }
-  }, [allowedModules, applyResult, conversation, format, stableDb, t]);
+  }, [allowedModules, applyResult, conversation, format, formatQuotaError, refreshUsage, stableDb, t]);
 
   const runPromptRef = useRef(runPrompt);
   runPromptRef.current = runPrompt;
@@ -265,7 +318,7 @@ export const AiReport = () => {
 
           <div className="mt-3">
             <AiExamplePrompts
-              disabled={loading}
+              disabled={loading || usage?.enabled === false}
               onSelect={selected => {
                 setPrompt(selected);
                 const isChartPrompt = AI_EXAMPLE_PROMPTS.some(
@@ -290,11 +343,17 @@ export const AiReport = () => {
               variant="primary"
               filled
               isLoading={loading}
-              disabled={loading || !prompt.trim()}
+              disabled={loading || !prompt.trim() || usage?.enabled === false}
               onClick={() => void runPrompt(prompt, format, {appendConversation: true})}
             >
               {t("filters.run")}
             </Button>
+            {usageLabel && (
+              <span className="text-sm text-gray-500">{usageLabel}</span>
+            )}
+            {usage && !usage.enabled && (
+              <span className="text-sm text-danger-600">{t("filters.aiDisabled")}</span>
+            )}
           </div>
 
           <div className="mt-3">

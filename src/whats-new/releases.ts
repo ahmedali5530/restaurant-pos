@@ -8,6 +8,23 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-07-24',
+    title: 'Consumption vs issuance',
+    items: [
+      'Consumption report and AI Report now use recipe ingredient qty × sold (Paid) dishes — not inventory issuance.',
+      'AI can query issuance separately via get_issuance; Sale vs Consumption compares sales, recipe consumption, issuance, and purchases.',
+    ],
+  },
+  {
+    date: '2026-07-24',
+    title: 'AI usage limits',
+    items: [
+      'AI Report completions can be capped per day and per month via AI_DAILY_LIMIT / AI_MONTHLY_LIMIT on the api service (VPS installs).',
+      'Set AI_ENABLED=false to hard-block AI. Leave limits unset for unlimited use (typical for local installs with a customer-owned key).',
+      'AI Report shows remaining quota when limits are configured and clear errors when disabled or over quota.',
+    ],
+  },
+  {
+    date: '2026-07-24',
     title: 'Purchase order report and pricing',
     items: [
       'New Purchase Order report under Reports → Inventory with date, status, supplier, item, and created-by filters.',

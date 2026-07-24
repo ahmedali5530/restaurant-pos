@@ -41,5 +41,7 @@ database/LOCK
 
 # Print service persisted logo (written at runtime)
 printing/data
+# API AI usage counters (written at runtime)
+api/data
 backups/surrealdb
 .qwen

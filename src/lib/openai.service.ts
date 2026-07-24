@@ -4,6 +4,7 @@ import {authHeaders} from "@/lib/session.ts";
 // Chat completions are proxied through the backend `api` service so the OpenAI
 // key, URL, and model never ship in the client bundle. See `api/src/modules/ai`.
 const CHAT_COMPLETIONS_PATH = "/ai/chat/completions";
+const AI_USAGE_PATH = "/ai/usage";
 
 export interface OpenAIToolDefinition {
   type: "function";
@@ -37,6 +38,96 @@ export interface OpenAIChatResponse {
   }[];
 }
 
+export type AiQuotaBucket = {
+  used: number;
+  limit: number | null;
+};
+
+export type AiUsageStatus = {
+  enabled: boolean;
+  daily: AiQuotaBucket;
+  monthly: AiQuotaBucket;
+};
+
+export type AiQuotaErrorCode = "AI_DISABLED" | "AI_DAILY_LIMIT" | "AI_MONTHLY_LIMIT";
+
+export class AiQuotaError extends Error {
+  readonly code: AiQuotaErrorCode;
+  readonly status: number;
+  readonly daily?: AiQuotaBucket;
+  readonly monthly?: AiQuotaBucket;
+
+  constructor(
+    message: string,
+    code: AiQuotaErrorCode,
+    status: number,
+    daily?: AiQuotaBucket,
+    monthly?: AiQuotaBucket,
+  ) {
+    super(message);
+    this.name = "AiQuotaError";
+    this.code = code;
+    this.status = status;
+    this.daily = daily;
+    this.monthly = monthly;
+  }
+}
+
+const isAiQuotaCode = (value: unknown): value is AiQuotaErrorCode =>
+  value === "AI_DISABLED" || value === "AI_DAILY_LIMIT" || value === "AI_MONTHLY_LIMIT";
+
+const throwFromFailedResponse = async (response: Response): Promise<never> => {
+  const errorText = await response.text();
+  let message = errorText;
+  let code: string | undefined;
+  let daily: AiQuotaBucket | undefined;
+  let monthly: AiQuotaBucket | undefined;
+
+  try {
+    const parsed = JSON.parse(errorText) as {
+      error?: string;
+      code?: string;
+      daily?: AiQuotaBucket;
+      monthly?: AiQuotaBucket;
+    };
+    if (parsed?.error) {
+      message = parsed.error;
+    }
+    code = parsed?.code;
+    daily = parsed?.daily;
+    monthly = parsed?.monthly;
+  } catch {
+    // Non-JSON error body; use raw text.
+  }
+
+  if (isAiQuotaCode(code)) {
+    throw new AiQuotaError(
+      message || `AI request failed with status ${response.status}`,
+      code,
+      response.status,
+      daily,
+      monthly,
+    );
+  }
+
+  throw new Error(message || `AI request failed with status ${response.status}`);
+};
+
+export const fetchAiUsage = async (): Promise<AiUsageStatus | null> => {
+  try {
+    const response = await fetch(apiUrl(AI_USAGE_PATH), {
+      method: "GET",
+      headers: authHeaders(),
+    });
+    if (!response.ok) {
+      return null;
+    }
+    return response.json() as Promise<AiUsageStatus>;
+  } catch {
+    return null;
+  }
+};
+
 export const callOpenAIChat = async ({
   messages,
   tools,
@@ -51,17 +142,7 @@ export const callOpenAIChat = async ({
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    let message = errorText;
-    try {
-      const parsed = JSON.parse(errorText) as {error?: string};
-      if (parsed?.error) {
-        message = parsed.error;
-      }
-    } catch {
-      // Non-JSON error body; use raw text.
-    }
-    throw new Error(message || `AI request failed with status ${response.status}`);
+    await throwFromFailedResponse(response);
   }
 
   return response.json() as Promise<OpenAIChatResponse>;

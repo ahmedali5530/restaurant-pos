@@ -13,6 +13,24 @@ import {
   fetchLedgerMovements,
   fetchLedgerNetsByStore,
 } from "@/lib/inventory/ledger.service.ts";
+import {
+  getIssuanceSummary,
+  getRecipeConsumptionSummary,
+  getRecipeConsumptionTimeSeries,
+  getSaleVsConsumptionReport,
+} from "@/api/reports/inventory/consumption.ts";
+
+export {
+  getIssuanceSummary,
+  getRecipeConsumptionSummary,
+  getRecipeConsumptionTimeSeries,
+  getSaleVsConsumptionReport,
+} from "@/api/reports/inventory/consumption.ts";
+export type {
+  RecipeConsumptionItem,
+  RecipeConsumptionOptions,
+  RecipeConsumptionSummary,
+} from "@/api/reports/inventory/consumption.ts";
 
 export type InventoryMovementType =
   | "purchase"
@@ -187,41 +205,26 @@ export const getInventoryMovements = async (
   };
 };
 
-/** Issues + buffet consumption from ledger. */
-export const getConsumptionSummary = async (db: DbClient, options: DateRangeFilter & {limit?: number}) => {
-  const limit = options.limit ?? 50;
-  const movements = await fetchLedgerMovements(db as any, {
-    from: options.startDate,
-    to: options.endDate,
-    referenceTypes: ["issue", "buffet_consumption"],
-    excludeReversals: true,
-  });
-
-  const items = unwrapQueryResult<{id: unknown; name?: string}>(
-    await db.query(`SELECT id, name FROM ${Tables.inventory_items}`),
-  );
-  const itemNameByKey = new Map<string, string>();
-  items.forEach((item) => {
-    const full = recordToString(item.id);
-    itemNameByKey.set(full, item.name ?? "Unknown");
-    itemNameByKey.set(normalizeKey(full), item.name ?? "Unknown");
-  });
-
-  const byItem = new Map<string, {name: string; quantity: number}>();
-  movements.forEach((row) => {
-    const name =
-      itemNameByKey.get(row.inventory_item)
-      || itemNameByKey.get(normalizeKey(row.inventory_item))
-      || "Unknown";
-    const existing = byItem.get(name) || {name, quantity: 0};
-    existing.quantity += Math.abs(safeNumber(row.quantity_change));
-    byItem.set(name, existing);
-  });
-
+/**
+ * Theoretical consumption from sold (Paid) dishes × recipes.
+ * For ledger issuance use getIssuanceSummary instead.
+ */
+export const getConsumptionSummary = async (
+  db: DbClient,
+  options: DateRangeFilter & {limit?: number; dishIds?: string[]; itemIds?: string[]} = {},
+) => {
+  const summary = await getRecipeConsumptionSummary(db, options);
   return {
-    type: "issue" as InventoryMovementType,
-    movementCount: movements.length,
-    byItem: Array.from(byItem.values()).sort((a, b) => b.quantity - a.quantity).slice(0, limit),
+    source: "recipe_x_sold" as const,
+    orderCount: summary.orderCount,
+    totals: summary.totals,
+    byItem: summary.byItem.map((item) => ({
+      name: item.name,
+      quantity: item.quantity,
+      costAverage: item.costAverage,
+      costCurrent: item.costCurrent,
+      saleAllocated: item.saleAllocated,
+    })),
   };
 };
 
@@ -263,24 +266,9 @@ export const listInventoryItems = async (
     .filter(item => !search || item.name.toLowerCase().includes(search));
 };
 
+/** Same metrics as the Sale vs Consumption report UI. */
 export const getSaleVsConsumption = async (db: DbClient, options: DateRangeFilter) => {
-  const [issues, purchases] = await Promise.all([
-    getConsumptionSummary(db, {...options, limit: 30}),
-    getInventoryMovements(db, {...options, type: "purchase", limit: 30}),
-  ]);
-
-  const issueMap = new Map(issues.byItem.map(i => [i.name, i.quantity]));
-  const purchaseMap = new Map(purchases.byItem.map(i => [i.name, i.quantity]));
-  const allNames = new Set([...issueMap.keys(), ...purchaseMap.keys()]);
-
-  return {
-    items: Array.from(allNames).map(name => ({
-      name,
-      issued: issueMap.get(name) ?? 0,
-      purchased: purchaseMap.get(name) ?? 0,
-      variance: (purchaseMap.get(name) ?? 0) - (issueMap.get(name) ?? 0),
-    })),
-  };
+  return getSaleVsConsumptionReport(db, {...options, limit: 30});
 };
 
 export const getKitchenReconciliationSummary = async (db: DbClient, options: DateRangeFilter & {limit?: number}) => {
