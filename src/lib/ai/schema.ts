@@ -51,7 +51,7 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
 - Admin kitchens (${Tables.kitchens}) are POS-only (routing/stations), not inventory stock locations.
 - Document types: purchases, purchase returns, issues, issue returns, wastes, adjustments, stock transfers, production, buffet consumption — all reflected in ledger reference_type.
 - Purchase Orders (${Tables.inventory_purchase_orders}) are approval documents (Draft / Pending Approval / Approved / Fulfilled) — use get_purchase_orders. Do NOT use get_inventory_movements type "purchase" for PO questions; that is posted purchase ledger movements.
-- Reorder levels: get_current_inventory compares ledger stock to reorder_levels. Movements: get_inventory_movements (includes adjustment). Waste/consumption: get_waste_summary / get_consumption.`,
+- Reorder levels: get_current_inventory compares ledger stock to reorder_levels. Movements: get_inventory_movements (includes adjustment). Waste: get_waste_summary. Consumption (recipe×sold Paid dishes): get_consumption. Issuance (ledger issues): get_issuance. Sale vs consumption report: get_sale_vs_consumption.`,
   operations: `- Orders: ${Tables.orders}. Statuses: In Progress, Paid, Cancelled, Pending, etc.
 - List orders by status: get_orders with statuses. Delivery only when user says "delivery" (deliveryOnly=true).
 - Void/cancel/comp reasons: get_void_and_cancel_summary. Prep delays: get_prep_times_by_order_type, get_kitchen_station_delays.
@@ -68,6 +68,8 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
 - Customer/supplier statements: get_account_statement with accountCode. Chart of accounts: list_accounts.
 - Customer/supplier detection uses code/name heuristics (same as Accounts UI). POS sales do not auto-post to GL.`,
   analysis: `- Forecasts: call get_time_series first, then forecast_sales or forecast_inventory.
+- Inventory consumption forecast (overall qty): get_time_series metric=consumption_qty then forecast_sales. Do not loop issuance tools.
+- Per-item stock depletion: only use forecast_inventory when you already have that item's currentStock and daily consumptionPoints.
 - Comparisons: use compare_periods with two explicit date ranges. State method and that projections are estimates.`,
   chart: `- Call render_chart with data from prior tool results before the final answer.`,
   lookup: `- Use list_staff, list_categories, list_menu_items, or list_inventory_items for name-to-ID resolution.`,

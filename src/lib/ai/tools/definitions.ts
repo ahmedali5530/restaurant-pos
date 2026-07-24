@@ -227,7 +227,18 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_consumption",
-      description: "Get inventory consumption summary by item from ledger (issues + buffet consumption).",
+      description: "Theoretical inventory consumption by item = recipe ingredient qty × sold (Paid) dishes. Not inventory issuance.",
+      parameters: {
+        type: "object",
+        properties: {...dateRangeProps, limit: {type: "number", default: 50}},
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_issuance",
+      description: "Actual inventory issuance from the ledger (issues + buffet consumption). Distinct from recipe-based consumption.",
       parameters: {
         type: "object",
         properties: {...dateRangeProps, limit: {type: "number", default: 50}},
@@ -249,7 +260,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_sale_vs_consumption",
-      description: "Compare purchases vs consumption (issues + buffet) by item using ledger movements.",
+      description: "Compare sales vs recipe consumption vs issuance vs purchases (same as Sale vs Consumption report).",
       parameters: {type: "object", properties: dateRangeProps},
     },
   },
@@ -360,7 +371,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_time_series",
-      description: "Get time-bucketed data for charts and forecasting.",
+      description: "Get time-bucketed data for charts and forecasting. consumption_qty is recipe×sold ingredient qty (not issuance).",
       parameters: {
         type: "object",
         properties: {
@@ -402,7 +413,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "forecast_inventory",
-      description: "Forecast inventory stock levels based on consumption history.",
+      description: "Forecast ONE inventory item's stock depletion. Requires currentStock and daily consumptionPoints for that item. For overall consumption qty forecasts use get_time_series(consumption_qty) + forecast_sales instead.",
       parameters: {
         type: "object",
         properties: {

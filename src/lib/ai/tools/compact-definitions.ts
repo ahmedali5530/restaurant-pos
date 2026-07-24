@@ -189,7 +189,15 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_consumption",
-      description: "Consumption from ledger (issues + buffet).",
+      description: "Recipe×sold consumption (not issuance).",
+      parameters: dateOnly,
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_issuance",
+      description: "Ledger issuance (issues + buffet).",
       parameters: dateOnly,
     },
   },
@@ -205,7 +213,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_sale_vs_consumption",
-      description: "Compare purchases vs consumption by item (ledger).",
+      description: "Sales vs recipe consumption vs issuance vs purchases.",
       parameters: dateOnly,
     },
   },
@@ -328,7 +336,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "forecast_inventory",
-      description: "Forecast inventory stock from consumption history.",
+      description: "Per-item stock depletion (needs currentStock + daily points). Overall consumption: get_time_series + forecast_sales.",
       parameters: {
         type: "object",
         properties: {

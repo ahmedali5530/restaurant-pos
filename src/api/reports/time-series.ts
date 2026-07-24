@@ -9,7 +9,7 @@ import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import {toJsDate} from "@/lib/datetime.ts";
 import {DateTime} from "luxon";
-import {getInventoryMovements, type InventoryMovementType} from "@/api/reports/inventory/index.ts";
+import {getInventoryMovements, getRecipeConsumptionTimeSeries, type InventoryMovementType} from "@/api/reports/inventory/index.ts";
 
 export type TimeSeriesMetric =
   | "net_sales"
@@ -124,8 +124,16 @@ export const getTimeSeries = async (
     };
   }
 
+  if (metric === "consumption_qty") {
+    const points = await getRecipeConsumptionTimeSeries(db, {...dateRange, granularity});
+    return {
+      metric,
+      granularity,
+      points,
+    };
+  }
+
   const movementType: Record<string, InventoryMovementType> = {
-    consumption_qty: "issue",
     waste_qty: "waste",
     purchase_qty: "purchase",
   };

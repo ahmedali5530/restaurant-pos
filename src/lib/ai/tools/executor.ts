@@ -27,6 +27,7 @@ import {
   getConsumptionSummary,
   getCurrentInventory,
   getInventoryMovements,
+  getIssuanceSummary,
   getKitchenReconciliationSummary,
   getPurchaseOrders,
   getSaleVsConsumption,
@@ -241,6 +242,12 @@ export const executeAiReportTool = async (
 
     case "get_consumption":
       return getConsumptionSummary(db, {
+        ...parseOptionalDateRangeArgs(args),
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "get_issuance":
+      return getIssuanceSummary(db, {
         ...parseOptionalDateRangeArgs(args),
         limit: args.limit ? Number(args.limit) : 50,
       });

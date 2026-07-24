@@ -24,6 +24,14 @@ import {selectToolsForPrompt} from "@/lib/ai/tools/select-tools.ts";
 import {tryAnalyticsFastPath} from "@/lib/ai/analytics-fast-path.ts";
 import {tryAccountsFastPath} from "@/lib/ai/accounts-fast-path.ts";
 import {isFraudSuspiciousPrompt} from "@/lib/ai/fraud-query.ts";
+import {
+  isInventoryConsumptionForecastPrompt,
+  resolveConsumptionHistoryRange,
+  resolveForecastDaysFromPrompt,
+} from "@/lib/ai/forecast-query.ts";
+import {forecastFromPoints} from "@/lib/ai/forecast.ts";
+import {getTimeSeries} from "@/api/reports/time-series.ts";
+import {getConsumptionSummary} from "@/api/reports/inventory/index.ts";
 import {callOpenAIChat, type OpenAIChatMessage} from "@/lib/openai.service.ts";
 
 const MAX_ITERATIONS = 10;
@@ -232,6 +240,59 @@ export const runAiReportAgent = async (
       throw new Error("OpenAI returned an empty response.");
     }
 
+    return finish(answer);
+  }
+
+  if (isInventoryConsumptionForecastPrompt(trimmedPrompt)) {
+    const historyRange = resolveConsumptionHistoryRange(trimmedPrompt);
+    const forecastDays = resolveForecastDaysFromPrompt(trimmedPrompt, 14);
+
+    options.onToolStart?.("get_time_series");
+    const series = await getTimeSeries(db, {
+      ...historyRange,
+      metric: "consumption_qty",
+      granularity: "daily",
+    });
+    toolsUsed.push({
+      name: "get_time_series",
+      args: {...historyRange, metric: "consumption_qty", granularity: "daily"},
+    });
+    toolResults.push({name: "get_time_series", result: series});
+
+    options.onToolStart?.("forecast_sales");
+    const forecast = forecastFromPoints(series.points, forecastDays, "linear_regression");
+    toolsUsed.push({
+      name: "forecast_sales",
+      args: {points: series.points, forecastDays, method: "linear_regression"},
+    });
+    toolResults.push({name: "forecast_sales", result: forecast});
+
+    options.onToolStart?.("get_consumption");
+    const topConsumed = await getConsumptionSummary(db, {...historyRange, limit: 10});
+    toolsUsed.push({name: "get_consumption", args: {...historyRange, limit: 10}});
+    toolResults.push({name: "get_consumption", result: topConsumed});
+
+    const response = await callOpenAIChat({
+      messages: [
+        ...messages,
+        {
+          role: "user",
+          content:
+            `${trimmedPrompt}\n\n`
+            + `Historical daily recipe×sold consumption (last 30 days):\n${JSON.stringify(series)}\n\n`
+            + `${forecastDays}-day forecast (linear regression on total daily consumption qty):\n${JSON.stringify(forecast)}\n\n`
+            + `Top consumed items in the history window (recipe×sold, not issuance):\n${JSON.stringify(topConsumed)}\n\n`
+            + `Summarize projected daily consumption, total over the forecast window, trend/confidence, and top items. `
+            + `Do not treat this as per-item stock depletion unless current stock was provided.`,
+        },
+      ],
+      tools: [],
+    });
+
+    const answer = response.choices[0]?.message?.content?.trim();
+    if (!answer) {
+      throw new Error("OpenAI returned an empty response.");
+    }
     return finish(answer);
   }
 
