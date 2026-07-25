@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencil, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faEye, faPencil, faPlus } from "@fortawesome/free-solid-svg-icons";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { Tables } from "@/api/db/tables.ts";
 import { UserRole } from "@/api/model/user_role.ts";
@@ -9,6 +9,7 @@ import { Button } from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { TableComponent } from "@/components/common/table/table.tsx";
 import { UserRoleForm } from "@/components/settings/users/roles/role.form.tsx";
+import { RoleModulesModal } from "@/components/settings/users/roles/role.modules.modal.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {useTranslation} from 'react-i18next';
@@ -20,6 +21,7 @@ export const AdminUserRoles = () => {
   const db = useDB();
   const [data, setData] = useState<UserRole>();
   const [formModal, setFormModal] = useState(false);
+  const [modulesRole, setModulesRole] = useState<UserRole>();
 
   const columnHelper = createColumnHelper<UserRole>();
 
@@ -30,13 +32,22 @@ export const AdminUserRoles = () => {
     columnHelper.accessor("roles", {
       header: t('columns.modules'),
       enableColumnFilter: false,
-      cell: (info) => (
-        <div className="flex gap-2 flex-wrap">
-          {info.getValue()?.map((item, index) => (
-            <span className="tag" key={`${item}-${index}`}>{item}</span>
-          ))}
-        </div>
-      ),
+      enableSorting: false,
+      cell: (info) => {
+        const count = info.getValue()?.length ?? 0;
+        return (
+          <Button
+            variant="primary"
+            size="sm"
+            flat
+            icon={faEye}
+            disabled={count === 0}
+            onClick={() => setModulesRole(info.row.original)}
+          >
+            {t('forms.moduleCount', { count })}
+          </Button>
+        );
+      },
     }),
     columnHelper.accessor("id", {
       id: "actions",
@@ -104,6 +115,12 @@ export const AdminUserRoles = () => {
           setData(undefined);
           loadHook.fetchData();
         }}
+      />
+      <RoleModulesModal
+        open={!!modulesRole}
+        roleName={modulesRole?.name ?? ""}
+        modules={modulesRole?.roles ?? []}
+        onClose={() => setModulesRole(undefined)}
       />
     </>
   );

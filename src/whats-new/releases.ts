@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-07-25',
+    title: 'Role modules view',
+    items: [
+      'Admin → Users → Roles shows a modules count instead of tagging every permission on the table.',
+      'Click the count to open a searchable modal with modules grouped by area.',
+    ],
+  },
+  {
     date: '2026-07-24',
     title: 'Bill print tracking and copies',
     items: [
