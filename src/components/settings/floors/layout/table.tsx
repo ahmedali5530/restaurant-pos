@@ -30,6 +30,7 @@ interface Props {
   table: Table
   order?: Order
   isEditing: boolean
+  canMove?: boolean
   onClick?: () => void
   onRemove?: () => void
   isLocked?: boolean
@@ -37,15 +38,33 @@ interface Props {
   boundaryWidth?: number
   boundaryHeight?: number
   isSelected?: boolean
+  positionOverride?: { x: number; y: number }
+  onGroupMove?: (deltaX: number, deltaY: number) => void
+  onGroupMoveEnd?: () => void
 }
 
 export const FloorTable = ({
-  table, isEditing, onClick, onRemove, order, isLocked, numberOfOrders, boundaryWidth, boundaryHeight, isSelected
+  table,
+  isEditing,
+  canMove: canMoveProp,
+  onClick,
+  onRemove,
+  order,
+  isLocked,
+  numberOfOrders,
+  boundaryWidth,
+  boundaryHeight,
+  isSelected,
+  positionOverride,
+  onGroupMove,
+  onGroupMoveEnd,
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
   const { enabled: showInclusive } = useShowInclusivePrices();
 
   const db = useDB();
+  const canMove = canMoveProp ?? isEditing;
+  const isGroupMoving = Boolean(onGroupMove && isSelected);
 
   const minHeightWidth = 50;
   const maxHeightWidth = 500;
@@ -103,7 +122,12 @@ export const FloorTable = ({
 
   const { moveProps } = useMove({
     onMove(e) {
-      if( isEditing ) {
+      if (isGroupMoving) {
+        onGroupMove?.(e.deltaX, e.deltaY);
+        return;
+      }
+
+      if (canMove) {
         const maxX = getMaxX();
         const maxY = getMaxY();
         setSettings(prev => {
@@ -116,9 +140,9 @@ export const FloorTable = ({
       }
     },
     onMoveEnd() {
-      // if( isEditing ) {
-      //
-      // }
+      if (isGroupMoving) {
+        onGroupMoveEnd?.();
+      }
     }
   });
 
@@ -129,10 +153,13 @@ export const FloorTable = ({
   }
 
   useEffect(() => {
-    if( isEditing ) {
+    if (isEditing && !isGroupMoving) {
       saveTableInfo();
     }
-  }, [settings, isEditing]);
+  }, [settings, isEditing, isGroupMoving]);
+
+  const displayX = positionOverride?.x ?? settings.x;
+  const displayY = positionOverride?.y ?? settings.y;
 
   const removeTable = async () => {
     await db.merge(table.id, {
@@ -161,8 +188,8 @@ export const FloorTable = ({
         color: settings.color,
         height: settings.height,
         width: settings.width,
-        left: clampAxis(settings.x, getMaxX()),
-        top: clampAxis(settings.y, getMaxY()),
+        left: clampAxis(displayX, getMaxX()),
+        top: clampAxis(displayY, getMaxY()),
         borderColor: settings.color,
         '--scale': 0.95,
       } as CSSProperties}
@@ -298,7 +325,7 @@ export const FloorTable = ({
                     }}/>
                   </div>
                 </div>
-                <Button variant="danger" onClick={removeTable}>Remove</Button>
+                {/*<Button variant="danger" onClick={removeTable}>Remove</Button>*/}
               </div>
             </Popover>
           </DialogTrigger>

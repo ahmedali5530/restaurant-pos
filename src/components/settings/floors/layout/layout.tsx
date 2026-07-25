@@ -3,7 +3,7 @@ import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { Table } from "@/api/model/table.ts";
 import { Tables } from "@/api/db/tables.ts";
 import { FloorTable } from "@/components/settings/floors/layout/table.tsx";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -37,6 +37,9 @@ export const AdminFloorLayout = ({
   const [layoutGridHeight, setLayoutGridHeight] = useState<number | undefined>(undefined);
   const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
   const [selectedTableIds, setSelectedTableIds] = useState<string[]>([]);
+  const [localPositions, setLocalPositions] = useState<Record<string, { x: number; y: number }>>({});
+  const localPositionsRef = useRef(localPositions);
+  localPositionsRef.current = localPositions;
   const [bulkSettings, setBulkSettings] = useState({
     width: 100,
     height: 100,
@@ -80,6 +83,7 @@ export const AdminFloorLayout = ({
     setLayoutGridWidth(undefined);
     setLayoutGridHeight(undefined);
     setSelectedTableIds([]);
+    setLocalPositions({});
     setIsMultiSelectMode(false);
   }, [floor.id]);
 
@@ -178,6 +182,98 @@ export const AdminFloorLayout = ({
     });
   }, []);
 
+  const handleGroupMove = useCallback((deltaX: number, deltaY: number) => {
+    if (!selectedTableIds.length || !tables?.data?.length) {
+      return;
+    }
+
+    const selectedSet = new Set(selectedTableIds);
+    const selectedTables = tables.data.filter((item) => selectedSet.has(item.id.toString()));
+    if (!selectedTables.length) {
+      return;
+    }
+
+    setLocalPositions((prev) => {
+      let safeDeltaX = deltaX;
+      let safeDeltaY = deltaY;
+
+      for (const item of selectedTables) {
+        const id = item.id.toString();
+        const width = Math.max(10, Number(item.width) || 50);
+        const height = Math.max(10, Number(item.height) || 50);
+        const maxX = Math.max(0, effectiveGridWidth - width);
+        const maxY = Math.max(0, effectiveGridHeight - height);
+        const current = prev[id] ?? {
+          x: Math.max(0, Number(item.x) || 0),
+          y: Math.max(0, Number(item.y) || 0),
+        };
+
+        if (safeDeltaX > 0) {
+          safeDeltaX = Math.min(safeDeltaX, maxX - current.x);
+        } else if (safeDeltaX < 0) {
+          safeDeltaX = Math.max(safeDeltaX, -current.x);
+        }
+
+        if (safeDeltaY > 0) {
+          safeDeltaY = Math.min(safeDeltaY, maxY - current.y);
+        } else if (safeDeltaY < 0) {
+          safeDeltaY = Math.max(safeDeltaY, -current.y);
+        }
+      }
+
+      if (safeDeltaX === 0 && safeDeltaY === 0) {
+        return prev;
+      }
+
+      const next = { ...prev };
+      for (const item of selectedTables) {
+        const id = item.id.toString();
+        const current = prev[id] ?? {
+          x: Math.max(0, Number(item.x) || 0),
+          y: Math.max(0, Number(item.y) || 0),
+        };
+        next[id] = {
+          x: current.x + safeDeltaX,
+          y: current.y + safeDeltaY,
+        };
+      }
+      localPositionsRef.current = next;
+      return next;
+    });
+  }, [effectiveGridHeight, effectiveGridWidth, selectedTableIds, tables?.data]);
+
+  const handleGroupMoveEnd = useCallback(async () => {
+    if (!selectedTableIds.length) {
+      return;
+    }
+
+    const positions = localPositionsRef.current;
+    const entries = selectedTableIds
+      .map((id) => {
+        const position = positions[id];
+        if (!position) {
+          return null;
+        }
+        return { id, ...position };
+      })
+      .filter((entry): entry is { id: string; x: number; y: number } => entry !== null);
+
+    if (!entries.length) {
+      return;
+    }
+
+    for (const entry of entries) {
+      await db.merge(toRecordId(entry.id), {
+        x: entry.x,
+        y: entry.y,
+      });
+    }
+
+    await fetchTables();
+    localPositionsRef.current = {};
+    setLocalPositions({});
+  }, [db, fetchTables, selectedTableIds]);
+
   const applyBulkSettings = useCallback(async () => {
     if (!selectedTableIds.length) {
       toast.info(t('toast:admin.selectAtLeastOneTable'));
@@ -246,6 +342,7 @@ export const AdminFloorLayout = ({
             onClick={() => {
               setIsMultiSelectMode((prev) => !prev);
               setSelectedTableIds([]);
+              setLocalPositions({});
             }}
           >
             {isMultiSelectMode ? t('forms.cancelSelect') : t('forms.selectTables')}
@@ -336,18 +433,28 @@ export const AdminFloorLayout = ({
               height: effectiveGridHeight,
             }}
           >
-            {tables?.data?.map(table => (
-              <FloorTable
-                key={table.id}
-                table={table}
-                isEditing={!isMultiSelectMode}
-                isSelected={selectedTableIds.includes(table.id.toString())}
-                onClick={isMultiSelectMode ? () => toggleTableSelection(table.id.toString()) : undefined}
-                boundaryWidth={effectiveGridWidth}
-                boundaryHeight={effectiveGridHeight}
-                onRemove={() => fetchTables()}
-              />
-            ))}
+            {tables?.data?.map(table => {
+              const tableId = table.id.toString();
+              const isSelected = selectedTableIds.includes(tableId);
+              const canGroupMove = isMultiSelectMode && selectedTableIds.length > 0 && isSelected;
+
+              return (
+                <FloorTable
+                  key={table.id}
+                  table={table}
+                  isEditing={!isMultiSelectMode}
+                  canMove={!isMultiSelectMode || isSelected}
+                  isSelected={isSelected}
+                  positionOverride={localPositions[tableId]}
+                  onGroupMove={canGroupMove ? handleGroupMove : undefined}
+                  onGroupMoveEnd={canGroupMove ? handleGroupMoveEnd : undefined}
+                  onClick={isMultiSelectMode ? () => toggleTableSelection(tableId) : undefined}
+                  boundaryWidth={effectiveGridWidth}
+                  boundaryHeight={effectiveGridHeight}
+                  onRemove={() => fetchTables()}
+                />
+              );
+            })}
           </div>
         </div>
       </div>
