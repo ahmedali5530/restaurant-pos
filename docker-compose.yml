@@ -154,6 +154,9 @@ services:
       - API_ALLOWED_ORIGINS=${API_ALLOWED_ORIGINS:-http://localhost:5173}
       - GATEWAY_JWT_SECRET=${GATEWAY_JWT_SECRET:-dev-only-change-me-posr-gateway}
       - GATEWAY_AUTH_REQUIRED=${GATEWAY_AUTH_REQUIRED:-false}
+      - AI_ENABLED=${AI_ENABLED:-false}
+      - AI_DAILY_LIMIT=${AI_DAILY_LIMIT:-}
+      - AI_MONTHLY_LIMIT=${AI_MONTHLY_LIMIT:-}
     command: sh -c "npm install && node server.js"
     ports:
       - "3140:3140"
