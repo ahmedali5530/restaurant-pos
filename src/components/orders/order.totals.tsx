@@ -77,6 +77,37 @@ export const OrderTotals = ({order, cart, className}: Props) => {
       ?.reduce((prev, item) => Number(prev) + Number(item.payable ?? 0) - Number(item.amount ?? 0), 0)
   }, [order?.payments]);
 
+  /** Detail label for a discount line: "Summer Sale (10%)" or "Summer Sale" */
+  const formatDiscountDetail = (name: string | undefined | null, valueType?: string | null, rate?: number | null) => {
+    const base = name || '';
+    const n = Number(rate ?? 0);
+    const isPercent = valueType === 'percent' || (!valueType && n > 0);
+    if (isPercent && n > 0) {
+      return base ? `${base} (${n}%)` : `${n}%`;
+    }
+    return base;
+  };
+
+  /** Single-discount header: "Discount (Summer Sale 10%)" — matches tax style */
+  const formatDiscountMinimal = (name: string | undefined | null, valueType?: string | null, rate?: number | null) => {
+    const label = t('totals.discount');
+    const n = Number(rate ?? 0);
+    const isPercent = valueType === 'percent' || (!valueType && n > 0);
+    if (name && isPercent && n > 0) {
+      return `${label} (${name} ${n}%)`;
+    }
+    if (name) {
+      return `${label} (${name})`;
+    }
+    if (isPercent && n > 0) {
+      return `${label} (${n}%)`;
+    }
+    return label;
+  };
+
+  const activeDiscountLines = (order?.order_discounts || []).filter((od) => !od.removed_at);
+  const showLegacyDiscount = activeDiscountLines.length === 0 && (!!order?.discount || preview.discountAmount > 0);
+
   return (
     <div className={cn("flex flex-col gap-1", className)}>
       <div className="flex font-bold">
@@ -101,12 +132,36 @@ export const OrderTotals = ({order, cart, className}: Props) => {
           </div>
         )
       )}
-      {order?.discount ? (
+      {activeDiscountLines.length === 1 ? (
         <div className="flex">
-          <div className="flex-1">{t('totals.discount')}</div>
+          <div className="flex-1">
+            {formatDiscountMinimal(
+              activeDiscountLines[0].name,
+              activeDiscountLines[0].value_type,
+              activeDiscountLines[0].applied_rate
+            )}
+          </div>
+          <div className="text-right">{withCurrency(Number(activeDiscountLines[0].applied_amount ?? 0))}</div>
+        </div>
+      ) : activeDiscountLines.length > 1 ? (
+        <>
+          <div className="flex">
+            <div className="flex-1">{t('totals.discount')}</div>
+            <div className="text-right">{withCurrency(preview.discountAmount)}</div>
+          </div>
+          {activeDiscountLines.map((od, index) => (
+            <div className="flex pl-3" key={od.id?.toString?.() ?? `${od.name}-${index}`}>
+              <div className="flex-1">{formatDiscountDetail(od.name, od.value_type, od.applied_rate) || t('totals.discount')}</div>
+              <div className="text-right">{withCurrency(Number(od.applied_amount ?? 0))}</div>
+            </div>
+          ))}
+        </>
+      ) : showLegacyDiscount ? (
+        <div className="flex">
+          <div className="flex-1">{formatDiscountMinimal(order?.discount?.name, null, order?.discount_rate)}</div>
           <div className="text-right">{withCurrency(preview.discountAmount)}</div>
         </div>
-      ) : ''}
+      ) : null}
       {order?.service_charge && order?.service_charge > 0 ? (
         <div className="flex">
           <div className="flex-1">{t('totals.serviceCharges', {

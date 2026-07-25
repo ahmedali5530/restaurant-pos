@@ -16,6 +16,30 @@ const {
 } = require('./receipt-helpers');
 
 /**
+ * Single-discount header: "Discount (Summer Sale 10%)".
+ * @param {string|null|undefined} name
+ * @param {string|null|undefined} valueType
+ * @param {number|null|undefined} rate
+ * @param {string} [fallback='Discount']
+ * @returns {string}
+ */
+function formatDiscountMinimalPrint(name, valueType, rate, fallback) {
+  const label = fallback || 'Discount';
+  const n = Number(rate || 0);
+  const isPercent = valueType === 'percent' || (!valueType && n > 0);
+  if (name && isPercent && n > 0) {
+    return label + ' (' + name + ' ' + n + '%)';
+  }
+  if (name) {
+    return label + ' (' + name + ')';
+  }
+  if (isPercent && n > 0) {
+    return label + ' (' + n + '%)';
+  }
+  return label;
+}
+
+/**
  * Print bill layout for ESC/POS final/temp/delivery receipts.
  * @param {Object} printer - escpos Printer
  * @param {Object} bill - from mapOrderToTemp/Final/Delivery
@@ -94,12 +118,17 @@ function printBillLayout(printer, bill, config, opts) {
       });
     }
   }
-  if (Array.isArray(bill.discountLines) && bill.discountLines.length > 0) {
+  if (Array.isArray(bill.discountLines) && bill.discountLines.length === 1) {
+    const d = bill.discountLines[0];
+    const singleLabel = formatDiscountMinimalPrint(d.rawName, d.valueType, d.rate, discountLabel);
+    printLineLeftRight(printer, singleLabel, '-' + formatMoney(d.amount, sym));
+  } else if (Array.isArray(bill.discountLines) && bill.discountLines.length > 1) {
+    printLineLeftRight(printer, discountLabel, '-' + formatMoney(bill.discountAmount, sym));
     bill.discountLines.forEach((d) => {
-      printLineLeftRight(printer, d.name || discountLabel, '-' + formatMoney(d.amount, sym));
+      printLineLeftRight(printer, '  ' + (d.name || discountLabel), '-' + formatMoney(d.amount, sym));
     });
   } else if (bill.discount && bill.discountAmount != null && Number(bill.discountAmount) !== 0) {
-    printLineLeftRight(printer, discountLabel, formatMoney(bill.discountAmount, sym));
+    printLineLeftRight(printer, bill.discountLabel || discountLabel, formatMoney(bill.discountAmount, sym));
   }
   if (bill.serviceChargeLabel && bill.serviceChargeAmount != null && Number(bill.serviceChargeAmount) !== 0) {
     printLineLeftRight(printer, bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym));

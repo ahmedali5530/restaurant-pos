@@ -4,6 +4,30 @@ const { formatMoney, normalizeConfig, normalizeSections } = require('./receipt-h
 const { mapOrderToTemp, mapOrderToFinal, mapOrderToDelivery, mapOrderToRefund } = require('./order-mapping');
 const { computeSummary, formatNum } = require('./summary-mapping');
 
+/**
+ * Single-discount header: "Discount (Summer Sale 10%)".
+ * @param {string|null|undefined} name
+ * @param {string|null|undefined} valueType
+ * @param {number|null|undefined} rate
+ * @param {string} [fallback='Discount']
+ * @returns {string}
+ */
+function formatDiscountMinimalPreview(name, valueType, rate, fallback) {
+  const label = fallback || 'Discount';
+  const n = Number(rate || 0);
+  const isPercent = valueType === 'percent' || (!valueType && n > 0);
+  if (name && isPercent && n > 0) {
+    return label + ' (' + name + ' ' + n + '%)';
+  }
+  if (name) {
+    return label + ' (' + name + ')';
+  }
+  if (isPercent && n > 0) {
+    return label + ' (' + n + '%)';
+  }
+  return label;
+}
+
 function sectionAlignClass(align) {
   if (align === 'left') return 'left';
   if (align === 'right') return 'right';
@@ -135,8 +159,17 @@ function renderBillToHtml(bill, config, opts) {
   if (bill.tax != null && Number(bill.tax) !== 0) {
     parts.push(row(`${taxLabel} (${bill.taxLabel || taxLabel})`, formatMoney(bill.tax, sym)));
   }
-  if (bill.discount && bill.discountAmount != null && Number(bill.discountAmount) !== 0) {
-    parts.push(row(discountLabel, formatMoney(bill.discountAmount, sym)));
+  if (Array.isArray(bill.discountLines) && bill.discountLines.length === 1) {
+    const d = bill.discountLines[0];
+    const singleLabel = formatDiscountMinimalPreview(d.rawName, d.valueType, d.rate, discountLabel);
+    parts.push(row(singleLabel, '-' + formatMoney(d.amount, sym)));
+  } else if (Array.isArray(bill.discountLines) && bill.discountLines.length > 1) {
+    parts.push(row(discountLabel, '-' + formatMoney(bill.discountAmount, sym)));
+    bill.discountLines.forEach((d) => {
+      parts.push(row('  ' + (d.name || discountLabel), '-' + formatMoney(d.amount, sym)));
+    });
+  } else if (bill.discount && bill.discountAmount != null && Number(bill.discountAmount) !== 0) {
+    parts.push(row(bill.discountLabel || discountLabel, formatMoney(bill.discountAmount, sym)));
   }
   if (bill.serviceChargeLabel && bill.serviceChargeAmount != null && Number(bill.serviceChargeAmount) !== 0) {
     parts.push(row(bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym)));
