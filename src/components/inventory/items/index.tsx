@@ -13,6 +13,12 @@ import {CsvUploadModal} from "@/components/common/table/csv.uploader.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {getReorderLevelForStore} from "@/utils/inventory.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import {
+  assertCsvMatchValues,
+  buildMatchConditions,
+  findCsvImportMatches,
+  writeCsvImportRow,
+} from "@/utils/csv-import.ts";
 
 export const InventoryItems = () => {
   const { t } = useTranslation(['inventory', 'common']);
@@ -153,6 +159,8 @@ export const InventoryItems = () => {
             setImportModal(false);
             loadHook.fetchData();
           }}
+          enableImportModes
+          defaultMatchFields={['code']}
           fields={[{
             name: 'name',
             label: t('columns.name')
@@ -187,8 +195,7 @@ export const InventoryItems = () => {
             name: 'reorder_levels',
             label: t('columns.reorderLevels')
           }]}
-          onCreateRow={async (data) => {
-            try{
+          onImportRow={async (data, { mode, matchFields }) => {
               const [category] = await db.query(`select * from ${Tables.inventory_categories} where name = $name`, {
                 name: data.category
               });
@@ -243,7 +250,7 @@ export const InventoryItems = () => {
                 }
               }
 
-              await db.create(Tables.inventory_items, {
+              const payload: any = {
                 name: data.name,
                 code: data.code,
                 uom: data.uom,
@@ -254,11 +261,36 @@ export const InventoryItems = () => {
                 price: Number(data.price),
                 average_price: Number(data.average_price),
                 reorder_levels: reorderLevels,
+              };
+
+              assertCsvMatchValues(data, matchFields, (field) =>
+                t('common:csvImport.emptyMatchValue', { field })
+              );
+
+              const unsupported = ['category', 'locations', 'suppliers', 'item_types', 'reorder_levels'];
+              const conditions = buildMatchConditions(data, matchFields, (field, value) => {
+                if (unsupported.includes(field)) {
+                  throw new Error(t('common:csvImport.unsupportedMatchField', { field }));
+                }
+                if (field === 'base_quantity' || field === 'price' || field === 'average_price') {
+                  return { column: field, value: Number(value) };
+                }
+                return { column: field, value };
               });
 
-            }catch(e){
-              throw e;
-            }
+              const existing = mode === 'create'
+                ? []
+                : await findCsvImportMatches(db, Tables.inventory_items, conditions, { softDelete: false });
+
+              await writeCsvImportRow(db, {
+                mode,
+                table: Tables.inventory_items,
+                existing,
+                payload,
+                useCreate: true,
+                notFoundMessage: t('common:csvImport.recordNotFound'),
+                multipleMatchesMessage: t('common:csvImport.multipleMatches'),
+              });
           }}
           onExport={async () => {
             const [items] = await db.query(

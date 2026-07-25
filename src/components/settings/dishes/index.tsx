@@ -19,6 +19,12 @@ import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {canUseInDishRecipe} from "@/utils/inventoryItemTypes.ts";
+import {
+  assertCsvMatchValues,
+  buildMatchConditions,
+  findCsvImportMatches,
+  writeCsvImportRow,
+} from "@/utils/csv-import.ts";
 import {StringRecordId} from "surrealdb";
 
 const parseCsvBool = (value?: string) =>
@@ -281,6 +287,8 @@ export const AdminDishes = () => {
           isOpen={true}
           onClose={() => setImportModal(false)}
           title={t('forms.importDishesTitle')}
+          enableImportModes
+          defaultMatchFields={['number']}
           fields={[{
             name: 'name',
             label: t('columns.name')
@@ -300,33 +308,58 @@ export const AdminDishes = () => {
             name: 'categories',
             label: t('columns.categories')
           }]}
-          onCreateRow={async (rowData) => {
-            try {
-              const [categories] = await db.query(`SELECT id
-                                                   from ${Tables.categories}
-                                                   where name IN $names and deleted_at = none`, {
-                names: rowData.categories.split('|')
-              });
+          onImportRow={async (rowData, { mode, matchFields }) => {
+            const [categories] = await db.query(`SELECT id
+                                                 from ${Tables.categories}
+                                                 where name IN $names and deleted_at = none`, {
+              names: rowData.categories.split('|')
+            });
 
-              if (categories.length !== rowData?.categories?.split('|')?.filter(item => item !== '')?.length) {
-                throw new Error(t('toast:admin.invalidCategories'));
-              }
-
-              const dishData: any = {
-                name: rowData.name,
-                number: rowData.number,
-                // position: data.position,
-                priority: Number(rowData.priority),
-                price: Number(rowData.sale_price),
-                cost: Number(rowData.cost_price),
-                categories: categories.map(item => toRecordId(item.id))
-              };
-
-              await db.insert(Tables.dishes, dishData);
-
-            } catch (e) {
-              throw new Error(e)
+            if (categories.length !== rowData?.categories?.split('|')?.filter(item => item !== '')?.length) {
+              throw new Error(t('toast:admin.invalidCategories'));
             }
+
+            const dishData: any = {
+              name: rowData.name,
+              number: rowData.number,
+              priority: Number(rowData.priority),
+              price: Number(rowData.sale_price),
+              cost: Number(rowData.cost_price),
+              categories: categories.map(item => toRecordId(item.id))
+            };
+
+            assertCsvMatchValues(rowData, matchFields, (field) =>
+              t('common:csvImport.emptyMatchValue', { field })
+            );
+
+            const conditions = buildMatchConditions(rowData, matchFields, (field, value) => {
+              if (field === 'sale_price') {
+                return { column: 'price', value: Number(value) };
+              }
+              if (field === 'cost_price') {
+                return { column: 'cost', value: Number(value) };
+              }
+              if (field === 'priority') {
+                return { column: 'priority', value: Number(value) };
+              }
+              if (field === 'categories') {
+                throw new Error(t('common:csvImport.unsupportedMatchField', { field }));
+              }
+              return { column: field, value };
+            });
+
+            const existing = mode === 'create'
+              ? []
+              : await findCsvImportMatches(db, Tables.dishes, conditions);
+
+            await writeCsvImportRow(db, {
+              mode,
+              table: Tables.dishes,
+              existing,
+              payload: dishData,
+              notFoundMessage: t('common:csvImport.recordNotFound'),
+              multipleMatchesMessage: t('common:csvImport.multipleMatches'),
+            });
           }}
           onExport={async () => {
             const [dishes] = await db.query(

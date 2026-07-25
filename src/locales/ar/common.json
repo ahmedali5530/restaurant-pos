@@ -120,5 +120,22 @@
   "documentTitle": {
     "app": "نظام نقاط البيع للمطاعم"
   },
+  "csvImport": {
+    "importMode": "وضع الاستيراد",
+    "upsert": "إدراج أو تحديث",
+    "matchColumns": "أعمدة المطابقة",
+    "matchColumnsPlaceholder": "حدد الأعمدة لمطابقة التكرارات",
+    "selectMatchColumns": "حدد عمود مطابقة واحدًا على الأقل للتحديث أو الإدراج/التحديث.",
+    "mapAllFields": "قم بتعيين جميع الحقول قبل استيراد السجلات.",
+    "creating": "جارٍ الإنشاء...",
+    "updating": "جارٍ التحديث...",
+    "upserting": "جارٍ الإدراج أو التحديث...",
+    "processedRows": "تمت معالجة {{total}} صفًا. النجاح: {{success}}.",
+    "failedCount": "فشل: {{count}}",
+    "emptyMatchValue": "عمود المطابقة \"{{field}}\" فارغ لهذا الصف.",
+    "recordNotFound": "لم يتم العثور على سجل مطابق للتحديث.",
+    "multipleMatches": "تطابقت عدة سجلات مع الأعمدة المحددة.",
+    "unsupportedMatchField": "لا يمكن المطابقة على العمود \"{{field}}\"."
+  },
   "loading": "جارٍ التحميل..."
 }

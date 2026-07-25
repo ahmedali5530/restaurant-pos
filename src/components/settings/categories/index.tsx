@@ -17,6 +17,12 @@ import {CsvUploadModal} from "@/components/common/table/csv.uploader.tsx";
 import {Checkbox} from "@/components/common/input/checkbox";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
+import {
+  assertCsvMatchValues,
+  buildMatchConditions,
+  findCsvImportMatches,
+  writeCsvImportRow,
+} from "@/utils/csv-import.ts";
 
 export const AdminCategories = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
@@ -138,6 +144,8 @@ export const AdminCategories = () => {
         <CsvUploadModal
           isOpen={true}
           onClose={() => setImportModal(false)}
+          enableImportModes
+          defaultMatchFields={['name']}
           fields={[{
             name: 'name',
             label: t('columns.name')
@@ -148,19 +156,39 @@ export const AdminCategories = () => {
             name: 'priority',
             label: t('columns.priority')
           }]}
-          onCreateRow={async (rowData) => {
-            try {
-              const dishData: any = {
-                name: rowData.name,
-                show_in_menu: truthy(rowData.show_in_menu),
-                priority: Number(rowData.priority),
-              };
+          onImportRow={async (rowData, { mode, matchFields }) => {
+            const dishData: any = {
+              name: rowData.name,
+              show_in_menu: truthy(rowData.show_in_menu),
+              priority: Number(rowData.priority),
+            };
 
-              await db.insert(Tables.categories, dishData);
+            assertCsvMatchValues(rowData, matchFields, (field) =>
+              t('common:csvImport.emptyMatchValue', { field })
+            );
 
-            } catch (e) {
-              throw new Error(e)
-            }
+            const conditions = buildMatchConditions(rowData, matchFields, (field, value) => {
+              if (field === 'priority') {
+                return { column: 'priority', value: Number(value) };
+              }
+              if (field === 'show_in_menu') {
+                return { column: 'show_in_menu', value: truthy(value) };
+              }
+              return { column: field, value };
+            });
+
+            const existing = mode === 'create'
+              ? []
+              : await findCsvImportMatches(db, Tables.categories, conditions);
+
+            await writeCsvImportRow(db, {
+              mode,
+              table: Tables.categories,
+              existing,
+              payload: dishData,
+              notFoundMessage: t('common:csvImport.recordNotFound'),
+              multipleMatchesMessage: t('common:csvImport.multipleMatches'),
+            });
           }}
           onExport={async () => {
             const [categories] = await db.query(

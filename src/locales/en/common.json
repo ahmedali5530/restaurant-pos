@@ -118,5 +118,22 @@
   "documentTitle": {
     "app": "Restaurant POS"
   },
+  "csvImport": {
+    "importMode": "Import mode",
+    "upsert": "Upsert",
+    "matchColumns": "Match columns",
+    "matchColumnsPlaceholder": "Select columns to match duplicates",
+    "selectMatchColumns": "Select at least one match column for update or upsert.",
+    "mapAllFields": "Map all fields before importing records.",
+    "creating": "Creating...",
+    "updating": "Updating...",
+    "upserting": "Upserting...",
+    "processedRows": "Processed {{total}} rows. Success: {{success}}.",
+    "failedCount": "Failed: {{count}}",
+    "emptyMatchValue": "Match column \"{{field}}\" is empty for this row.",
+    "recordNotFound": "No matching record found to update.",
+    "multipleMatches": "Multiple records matched the selected columns.",
+    "unsupportedMatchField": "Cannot match on column \"{{field}}\"."
+  },
   "loading": "Loading..."
 }

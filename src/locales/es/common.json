@@ -118,5 +118,22 @@
   "documentTitle": {
     "app": "TPV Restaurante"
   },
+  "csvImport": {
+    "importMode": "Modo de importación",
+    "upsert": "Insertar o actualizar",
+    "matchColumns": "Columnas de coincidencia",
+    "matchColumnsPlaceholder": "Seleccione columnas para detectar duplicados",
+    "selectMatchColumns": "Seleccione al menos una columna de coincidencia para actualizar o insertar/actualizar.",
+    "mapAllFields": "Asigne todos los campos antes de importar registros.",
+    "creating": "Creando...",
+    "updating": "Actualizando...",
+    "upserting": "Insertando o actualizando...",
+    "processedRows": "Se procesaron {{total}} filas. Éxito: {{success}}.",
+    "failedCount": "Fallidos: {{count}}",
+    "emptyMatchValue": "La columna de coincidencia \"{{field}}\" está vacía en esta fila.",
+    "recordNotFound": "No se encontró ningún registro coincidente para actualizar.",
+    "multipleMatches": "Varios registros coinciden con las columnas seleccionadas.",
+    "unsupportedMatchField": "No se puede coincidir por la columna \"{{field}}\"."
+  },
   "loading": "Cargando..."
 }

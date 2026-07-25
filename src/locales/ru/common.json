@@ -118,5 +118,22 @@
   "documentTitle": {
     "app": "POS Ресторан"
   },
+  "csvImport": {
+    "importMode": "Режим импорта",
+    "upsert": "Upsert",
+    "matchColumns": "Столбцы сопоставления",
+    "matchColumnsPlaceholder": "Выберите столбцы для поиска дубликатов",
+    "selectMatchColumns": "Выберите хотя бы один столбец сопоставления для обновления или upsert.",
+    "mapAllFields": "Сопоставьте все поля перед импортом записей.",
+    "creating": "Создание...",
+    "updating": "Обновление...",
+    "upserting": "Выполняется upsert...",
+    "processedRows": "Обработано строк: {{total}}. Успешно: {{success}}.",
+    "failedCount": "Ошибки: {{count}}",
+    "emptyMatchValue": "Столбец сопоставления \"{{field}}\" пуст для этой строки.",
+    "recordNotFound": "Не найдена запись для обновления.",
+    "multipleMatches": "Несколько записей соответствуют выбранным столбцам.",
+    "unsupportedMatchField": "Нельзя сопоставлять по столбцу \"{{field}}\"."
+  },
   "loading": "Загрузка..."
 }

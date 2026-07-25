@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-07-25',
+    title: 'CSV import create, update, upsert',
+    items: [
+      'CSV import for dishes, categories, tables, inventory items, and accounts supports Create, Update, and Upsert modes.',
+      'Choose match columns in a multi-select; update/upsert find existing rows by those fields and merge or insert accordingly.',
+    ],
+  },
+  {
+    date: '2026-07-25',
     title: 'Correct wall-clock times',
     items: [
       'Timestamps now use the system wall clock (Luxon) instead of a monotonic clock that could drift hours behind after long sessions or device sleep.',

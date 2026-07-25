@@ -118,5 +118,22 @@
   "documentTitle": {
     "app": "PDV Restaurante"
   },
+  "csvImport": {
+    "importMode": "Modo de importação",
+    "upsert": "Inserir ou atualizar",
+    "matchColumns": "Colunas de correspondência",
+    "matchColumnsPlaceholder": "Selecione colunas para detectar duplicatas",
+    "selectMatchColumns": "Selecione pelo menos uma coluna de correspondência para atualizar ou inserir/atualizar.",
+    "mapAllFields": "Mapeie todos os campos antes de importar registros.",
+    "creating": "Criando...",
+    "updating": "Atualizando...",
+    "upserting": "Inserindo ou atualizando...",
+    "processedRows": "{{total}} linhas processadas. Sucesso: {{success}}.",
+    "failedCount": "Falhas: {{count}}",
+    "emptyMatchValue": "A coluna de correspondência \"{{field}}\" está vazia nesta linha.",
+    "recordNotFound": "Nenhum registro correspondente encontrado para atualizar.",
+    "multipleMatches": "Vários registros corresponderam às colunas selecionadas.",
+    "unsupportedMatchField": "Não é possível corresponder pela coluna \"{{field}}\"."
+  },
   "loading": "Carregando..."
 }

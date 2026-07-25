@@ -118,5 +118,22 @@
   "documentTitle": {
     "app": "Caisse restaurant"
   },
+  "csvImport": {
+    "importMode": "Mode d'importation",
+    "upsert": "Upsert",
+    "matchColumns": "Colonnes de correspondance",
+    "matchColumnsPlaceholder": "Sélectionnez les colonnes pour détecter les doublons",
+    "selectMatchColumns": "Sélectionnez au moins une colonne de correspondance pour la mise à jour ou l'upsert.",
+    "mapAllFields": "Mappez tous les champs avant d'importer les enregistrements.",
+    "creating": "Création...",
+    "updating": "Mise à jour...",
+    "upserting": "Upsert en cours...",
+    "processedRows": "{{total}} lignes traitées. Succès : {{success}}.",
+    "failedCount": "Échecs : {{count}}",
+    "emptyMatchValue": "La colonne de correspondance \"{{field}}\" est vide pour cette ligne.",
+    "recordNotFound": "Aucun enregistrement correspondant trouvé pour la mise à jour.",
+    "multipleMatches": "Plusieurs enregistrements correspondent aux colonnes sélectionnées.",
+    "unsupportedMatchField": "Impossible de correspondre sur la colonne \"{{field}}\"."
+  },
   "loading": "Chargement..."
 }

@@ -17,6 +17,12 @@ import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
+import {
+  assertCsvMatchValues,
+  buildMatchConditions,
+  findCsvImportMatches,
+  writeCsvImportRow,
+} from "@/utils/csv-import.ts";
 
 export const AdminTables = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
@@ -182,6 +188,8 @@ export const AdminTables = () => {
         <CsvUploadModal
           isOpen={true}
           onClose={() => setImportModal(false)}
+          enableImportModes
+          defaultMatchFields={['number']}
           fields={[{
             name: 'name',
             label: t('columns.name')
@@ -213,8 +221,7 @@ export const AdminTables = () => {
             name: 'payment_types',
             label: t('columns.paymentTypes')
           }]}
-          onCreateRow={async (rowData) => {
-            try{
+          onImportRow={async (rowData, { mode, matchFields }) => {
               const [floor] = await db.query(`SELECT id from ${Tables.floors} where name = $name and deleted_at = none`, {
                 name: rowData.floor
               });
@@ -259,11 +266,36 @@ export const AdminTables = () => {
                 payment_types: payment_types.map(item => toRecordId(item.id)),
               };
 
-              await db.insert(Tables.tables, dishData);
+              assertCsvMatchValues(rowData, matchFields, (field) =>
+                t('common:csvImport.emptyMatchValue', { field })
+              );
 
-            }catch(e){
-              throw new Error(e)
-            }
+              const relationMatchFields = ['categories', 'order_types', 'payment_types', 'floor'];
+              const conditions = buildMatchConditions(rowData, matchFields, (field, value) => {
+                if (relationMatchFields.includes(field)) {
+                  throw new Error(t('common:csvImport.unsupportedMatchField', { field }));
+                }
+                if (field === 'priority') {
+                  return { column: 'priority', value: Number(value) };
+                }
+                if (field === 'ask_for_covers') {
+                  return { column: 'ask_for_covers', value: truthy(value) };
+                }
+                return { column: field, value };
+              });
+
+              const existing = mode === 'create'
+                ? []
+                : await findCsvImportMatches(db, Tables.tables, conditions);
+
+              await writeCsvImportRow(db, {
+                mode,
+                table: Tables.tables,
+                existing,
+                payload: dishData,
+                notFoundMessage: t('common:csvImport.recordNotFound'),
+                multipleMatchesMessage: t('common:csvImport.multipleMatches'),
+              });
           }}
           onExport={async () => {
             const [tables] = await db.query(

@@ -118,5 +118,22 @@
   "documentTitle": {
     "app": "Restoran POS"
   },
+  "csvImport": {
+    "importMode": "İçe aktarma modu",
+    "upsert": "Upsert",
+    "matchColumns": "Eşleme sütunları",
+    "matchColumnsPlaceholder": "Yinelenenleri eşlemek için sütun seçin",
+    "selectMatchColumns": "Güncelleme veya upsert için en az bir eşleme sütunu seçin.",
+    "mapAllFields": "Kayıtları içe aktarmadan önce tüm alanları eşleyin.",
+    "creating": "Oluşturuluyor...",
+    "updating": "Güncelleniyor...",
+    "upserting": "Upsert yapılıyor...",
+    "processedRows": "{{total}} satır işlendi. Başarılı: {{success}}.",
+    "failedCount": "Başarısız: {{count}}",
+    "emptyMatchValue": "Bu satır için eşleme sütunu \"{{field}}\" boş.",
+    "recordNotFound": "Güncellenecek eşleşen kayıt bulunamadı.",
+    "multipleMatches": "Seçilen sütunlarla birden fazla kayıt eşleşti.",
+    "unsupportedMatchField": "\"{{field}}\" sütununda eşleme yapılamaz."
+  },
   "loading": "Yükleniyor..."
 }

@@ -118,5 +118,22 @@
   "documentTitle": {
     "app": "POS Ristorante"
   },
+  "csvImport": {
+    "importMode": "Modalità di importazione",
+    "upsert": "Upsert",
+    "matchColumns": "Colonne di corrispondenza",
+    "matchColumnsPlaceholder": "Seleziona le colonne per rilevare i duplicati",
+    "selectMatchColumns": "Seleziona almeno una colonna di corrispondenza per aggiornamento o upsert.",
+    "mapAllFields": "Mappa tutti i campi prima di importare i record.",
+    "creating": "Creazione...",
+    "updating": "Aggiornamento...",
+    "upserting": "Upsert in corso...",
+    "processedRows": "Elaborate {{total}} righe. Successo: {{success}}.",
+    "failedCount": "Non riuscite: {{count}}",
+    "emptyMatchValue": "La colonna di corrispondenza \"{{field}}\" è vuota per questa riga.",
+    "recordNotFound": "Nessun record corrispondente trovato da aggiornare.",
+    "multipleMatches": "Più record corrispondono alle colonne selezionate.",
+    "unsupportedMatchField": "Impossibile corrispondere sulla colonna \"{{field}}\"."
+  },
   "loading": "Caricamento..."
 }

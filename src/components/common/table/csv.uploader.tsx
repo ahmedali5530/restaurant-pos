@@ -8,6 +8,9 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faDownload, faExclamationCircle, faFileExport, faUpload} from "@fortawesome/free-solid-svg-icons";
 import {Tooltip} from "@/components/common/react-aria/tooltip.tsx";
 import {Focusable, TooltipTrigger} from "react-aria-components";
+import {Radio} from "@/components/common/input/radio.tsx";
+import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
+import type {CsvImportMode, CsvImportRowContext} from "@/utils/csv-import.ts";
 
 // Very small CSV parser (not perfect, but good for simple CSVs).
 // Replace with PapaParse if you want more robust parsing.
@@ -30,13 +33,15 @@ function parseCsv(text: string): { headers: string[]; rows: string[][] } {
 }
 
 export type CsvFieldConfig = {
-  /** Internal field name (used in payload to `onCreateRow`) */
+  /** Internal field name (used in payload to `onImportRow` / `onCreateRow`) */
   name: string;
   /** User-friendly label shown in the UI */
   label: string;
   /** Optional: default CSV header name to preselect */
   defaultCsvHeader?: string;
 };
+
+type MatchOption = { label: string; value: string };
 
 type CsvUploadModalProps = {
   /** Whether the modal is visible */
@@ -52,9 +57,18 @@ type CsvUploadModalProps = {
 
   /**
    * Called once for every row (sequentially).
-   * Return a promise that performs the DB create (or any side-effect).
+   * Prefer `onImportRow` when using import modes.
    */
-  onCreateRow: (rowData: Record<string, string>) => Promise<void>;
+  onImportRow?: (
+    rowData: Record<string, string>,
+    ctx: CsvImportRowContext
+  ) => Promise<void>;
+
+  /**
+   * Legacy create-only callback. Used when `onImportRow` is not provided
+   * (or when import modes are disabled).
+   */
+  onCreateRow?: (rowData: Record<string, string>) => Promise<void>;
 
   /** Optional: limit rows shown in preview table */
   previewRowLimit?: number;
@@ -66,6 +80,15 @@ type CsvUploadModalProps = {
    * Return rows keyed by field.name; headers use field.label (same as template).
    */
   onExport?: () => Promise<Record<string, string>[]> | Record<string, string>[];
+
+  /**
+   * Show Create / Update / Upsert mode + match-column multi-select.
+   * Default false so purchase / kitchen recon stay create-only.
+   */
+  enableImportModes?: boolean;
+
+  /** Preselected match column field names when modes are enabled */
+  defaultMatchFields?: string[];
 };
 
 export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
@@ -73,9 +96,12 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
   onClose,
   title = "Upload records using CSV",
   fields,
+  onImportRow,
   onCreateRow,
   onDone,
   onExport,
+  enableImportModes = false,
+  defaultMatchFields = [],
 }) => {
   const { t } = useTranslation('common');
   const [fileName, setFileName] = useState<string | null>(null);
@@ -87,8 +113,23 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [resultMessage, setResultMessage] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<number, string>>({});
+  const [importMode, setImportMode] = useState<CsvImportMode>('create');
+  const [matchFields, setMatchFields] = useState<string[]>(defaultMatchFields);
 
   const hasFile = headers.length > 0;
+
+  const matchOptions: MatchOption[] = useMemo(
+    () => fields.map((field) => ({ label: field.label, value: field.name })),
+    [fields]
+  );
+
+  const matchValue = useMemo(
+    () => matchOptions.filter((opt) => matchFields.includes(opt.value)),
+    [matchOptions, matchFields]
+  );
+
+  const needsMatchFields = enableImportModes && importMode !== 'create';
+  const matchFieldsReady = !needsMatchFields || matchFields.length > 0;
 
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -143,13 +184,43 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
     [fields, mapping]
   );
 
-  const handleCreate = async () => {
+  const actionLabel = useMemo(() => {
+    if (!enableImportModes) {
+      return t('actions.create');
+    }
+    if (importMode === 'update') {
+      return t('actions.update');
+    }
+    if (importMode === 'upsert') {
+      return t('csvImport.upsert');
+    }
+    return t('actions.create');
+  }, [enableImportModes, importMode, t]);
+
+  const processingLabel = useMemo(() => {
+    if (!enableImportModes) {
+      return t('csvImport.creating');
+    }
+    if (importMode === 'update') {
+      return t('csvImport.updating');
+    }
+    if (importMode === 'upsert') {
+      return t('csvImport.upserting');
+    }
+    return t('csvImport.creating');
+  }, [enableImportModes, importMode, t]);
+
+  const handleImport = async () => {
     if (!hasFile) {
       setError("Please upload a CSV file first.");
       return;
     }
     if (!allRequiredMapped) {
-      setError("Please map all fields before creating records.");
+      setError(t('csvImport.mapAllFields'));
+      return;
+    }
+    if (needsMatchFields && matchFields.length === 0) {
+      setError(t('csvImport.selectMatchColumns'));
       return;
     }
 
@@ -167,6 +238,8 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
       let successCount = 0;
       let failureCount = 0;
       const rowErrors: Record<number, string> = {};
+      const mode: CsvImportMode = enableImportModes ? importMode : 'create';
+      const activeMatchFields = mode === 'create' ? [] : matchFields;
 
       for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
         const row = rows[rowIndex];
@@ -180,23 +253,31 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
         }
 
         try {
-          // Sequential create
-          await onCreateRow(payload);
+          if (onImportRow) {
+            await onImportRow(payload, { mode, matchFields: activeMatchFields });
+          } else if (onCreateRow) {
+            await onCreateRow(payload);
+          } else {
+            throw new Error('No import handler provided');
+          }
           successCount++;
         } catch (err: any) {
-          console.error("Row create failed", err, payload);
+          console.error("Row import failed", err, payload);
           failureCount++;
           rowErrors[rowIndex] =
-            (err && err.message) || String(err) || "Failed to create this row.";
+            (err && err.message) || String(err) || "Failed to import this row.";
         }
       }
 
       setErrors(rowErrors);
 
       setResultMessage(
-        `Processed ${rows.length} rows. Success: ${successCount}.`
+        t('csvImport.processedRows', {
+          total: rows.length,
+          success: successCount,
+        })
       );
-      setError(`Failed: ${failureCount}`);
+      setError(failureCount > 0 ? t('csvImport.failedCount', { count: failureCount }) : null);
 
       if (onDone !== undefined) {
         onDone({
@@ -251,6 +332,8 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
     setMapping({});
     setError(null);
     setResultMessage(null);
+    setImportMode('create');
+    setMatchFields(defaultMatchFields);
     onClose();
   };
 
@@ -304,6 +387,68 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
           etc...
         </div>
 
+        {enableImportModes && (
+          <div className="rounded border bg-gray-50 p-4 space-y-3">
+            <h3 className="text-sm font-semibold text-gray-800">
+              {t('csvImport.importMode')}
+            </h3>
+            <div className="flex flex-wrap gap-4">
+              <div>
+                <Radio
+                  name="csvImportMode"
+                  label={t('actions.create')}
+                  checked={importMode === 'create'}
+                  onChange={() => setImportMode('create')}
+                  disabled={isProcessing}
+                />
+              </div>
+              <div>
+                <Radio
+                  name="csvImportMode"
+                  label={t('actions.update')}
+                  checked={importMode === 'update'}
+                  onChange={() => setImportMode('update')}
+                  disabled={isProcessing}
+                />
+              </div>
+              <div>
+                <Radio
+                  name="csvImportMode"
+                  label={t('csvImport.upsert')}
+                  checked={importMode === 'upsert'}
+                  onChange={() => setImportMode('upsert')}
+                  disabled={isProcessing}
+                />
+              </div>
+            </div>
+            {needsMatchFields && (
+              <div>
+                <label className="block mb-1 text-xs font-medium text-gray-700">
+                  {t('csvImport.matchColumns')}
+                </label>
+                <div>
+                  <ReactSelect
+                    isMulti
+                    options={matchOptions}
+                    value={matchValue}
+                    onChange={(value) => {
+                      const selected = (value as MatchOption[] | null) ?? [];
+                      setMatchFields(selected.map((opt) => opt.value));
+                    }}
+                    isDisabled={isProcessing}
+                    placeholder={t('csvImport.matchColumnsPlaceholder')}
+                  />
+                </div>
+                {matchFields.length === 0 && (
+                  <p className="mt-2 text-danger-600 text-sm">
+                    {t('csvImport.selectMatchColumns')}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Mapping */}
         {hasFile && (
           <div className="rounded border bg-gray-50 p-4">
@@ -338,7 +483,7 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
 
             {!allRequiredMapped && (
               <p className="mt-2 text-danger-600">
-                Map all fields before creating records.
+                {t('csvImport.mapAllFields')}
               </p>
             )}
           </div>
@@ -422,10 +567,10 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
           <Button
             type="button"
             variant="primary"
-            onClick={handleCreate}
-            disabled={!hasFile || !allRequiredMapped || isProcessing}
+            onClick={handleImport}
+            disabled={!hasFile || !allRequiredMapped || !matchFieldsReady || isProcessing}
           >
-            {isProcessing ? "Creating..." : "Create"}
+            {isProcessing ? processingLabel : actionLabel}
           </Button>
         </div>
       </div>

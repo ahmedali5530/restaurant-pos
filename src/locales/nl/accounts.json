@@ -132,8 +132,8 @@
   },
   "messages": {
     "needTwoAccounts": "Add at least two active accounts before posting journal entries.",
-    "importSummary": "Import summary - Total: {{total}}, Created: {{created}}, Skipped duplicates: {{skipped}}, Invalid: {{invalid}}",
-    "importComplete": "Accounts CSV import completed. Created: {{created}}, Skipped duplicates: {{skipped}}, Invalid: {{invalid}}.",
+    "importSummary": "Import summary - Total: {{total}}, Created: {{created}}, Updated: {{updated}}, Invalid: {{invalid}}",
+    "importComplete": "Accounts CSV import completed. Created: {{created}}, Updated: {{updated}}, Invalid: {{invalid}}.",
     "saveGroupFailed": "Failed to save account group.",
     "saveAccountFailed": "Failed to save account.",
     "saveJournalFailed": "Failed to save journal entry.",

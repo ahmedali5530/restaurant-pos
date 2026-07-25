@@ -118,5 +118,22 @@
   "documentTitle": {
     "app": "Restaurant POS"
   },
+  "csvImport": {
+    "importMode": "Importmodus",
+    "upsert": "Upsert",
+    "matchColumns": "Matchkolommen",
+    "matchColumnsPlaceholder": "Selecteer kolommen om duplicaten te matchen",
+    "selectMatchColumns": "Selecteer minstens één matchkolom voor bijwerken of upsert.",
+    "mapAllFields": "Wijs alle velden toe voordat u records importeert.",
+    "creating": "Aanmaken...",
+    "updating": "Bijwerken...",
+    "upserting": "Upserten...",
+    "processedRows": "{{total}} rijen verwerkt. Geslaagd: {{success}}.",
+    "failedCount": "Mislukt: {{count}}",
+    "emptyMatchValue": "Matchkolom \"{{field}}\" is leeg voor deze rij.",
+    "recordNotFound": "Geen overeenkomend record gevonden om bij te werken.",
+    "multipleMatches": "Meerdere records komen overeen met de geselecteerde kolommen.",
+    "unsupportedMatchField": "Kan niet matchen op kolom \"{{field}}\"."
+  },
   "loading": "Laden..."
 }
