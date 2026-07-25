@@ -16,6 +16,7 @@ import {
   PRINT_OPTIONS_KEY,
   type PrintOptions,
 } from "@/api/model/print_options.ts";
+import { getAppTimezone } from "@/lib/datetime.ts";
 
 
 export const PRINT_EVENT = 'posr:print';
@@ -328,6 +329,7 @@ export async function dispatchPrint<Payload = any>(
     ...config,
     decimal_place: import.meta.env.VITE_DECIMAL_PLACES,
     showInclusivePrices,
+    timezone: getAppTimezone(),
   };
 
   if (translateReceipts) {

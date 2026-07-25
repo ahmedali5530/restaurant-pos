@@ -104,6 +104,7 @@ function normalizeConfig(c = {}) {
     decimal_place: c.decimal_place,
     labels: c.labels && typeof c.labels === 'object' ? c.labels : {},
     locale: typeof c.locale === 'string' && c.locale ? c.locale : 'en-US',
+    timezone: typeof c.timezone === 'string' && c.timezone.trim() ? c.timezone.trim() : undefined,
   };
 }
 

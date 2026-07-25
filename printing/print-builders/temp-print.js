@@ -18,6 +18,8 @@ function build(printer, data = {}, config = {}) {
   const bill = mapOrderToTemp(order, {
     showInclusivePrices: !!cfg.showInclusivePrices,
     labels: cfg.labels,
+    timezone: cfg.timezone,
+    locale: cfg.locale,
   });
 
   // If order has no tax but data.taxes is provided (array of Tax), compute per-tax rows

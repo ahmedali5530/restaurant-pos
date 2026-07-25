@@ -51,8 +51,11 @@ function build(printer, data = {}, config = {}) {
   const comments = data.comments || '';
   const cfg = normalizeConfig(config);
 
+  const dateOpts = { timezone: cfg.timezone, locale: cfg.locale };
   const orderId = order ? getOrderId(order) : '';
-  const createdAt = order ? getOrderCreatedAt(order) : new Date().toLocaleTimeString();
+  const createdAt = order
+    ? getOrderCreatedAt(order, dateOpts)
+    : getOrderCreatedAt(null, dateOpts);
   const orderTaker = order ? getOrderUserName(order) : '';
   const orderType = order ? getOrderType(order) : '';
   const table = getTableLabel(data);

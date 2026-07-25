@@ -18,6 +18,8 @@ function build(printer, data = {}, config = {}) {
   const bill = mapOrderToDelivery(order, {
     showInclusivePrices: !!cfg.showInclusivePrices,
     labels: cfg.labels,
+    timezone: cfg.timezone,
+    locale: cfg.locale,
   });
 
   return printReceiptHeader(printer, cfg).then(() => {

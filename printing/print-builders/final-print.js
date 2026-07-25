@@ -19,6 +19,8 @@ function build(printer, data = {}, config = {}) {
     duplicate: !!data.duplicate,
     showInclusivePrices: !!cfg.showInclusivePrices,
     labels: cfg.labels,
+    timezone: cfg.timezone,
+    locale: cfg.locale,
   });
 
   return printReceiptHeader(printer, cfg).then(() => {

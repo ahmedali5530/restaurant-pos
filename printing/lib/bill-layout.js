@@ -186,14 +186,16 @@ function printBillLayout(printer, bill, config, opts) {
     return printQrCodes(printer, qrItems).then(() => {
       const now = new Date();
       const locale = cfg.locale || 'en-US';
-      const ts = now.toLocaleString(locale, {
+      const formatOpts = {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
         hour: '2-digit',
         minute: '2-digit',
         hour12: true,
-      });
+      };
+      if (cfg.timezone) formatOpts.timeZone = cfg.timezone;
+      const ts = now.toLocaleString(locale, formatOpts);
       printer.feed(2);
       printCenteredText(printer, ts);
       printer.feed(2);

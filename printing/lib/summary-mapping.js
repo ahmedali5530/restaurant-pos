@@ -126,7 +126,10 @@ function normalizeOrdersList(props) {
 
 function computeSummary(props) {
   const list = normalizeOrdersList(props);
-  const date = props?.date || new Date().toLocaleDateString();
+  const dateFormatOpts = {};
+  if (props?.timezone) dateFormatOpts.timeZone = props.timezone;
+  const date = props?.date
+    || new Date().toLocaleDateString(props?.locale || undefined, dateFormatOpts);
 
   const paymentTotals = list.map((order) => getOrderPaymentTotals(order));
 

@@ -236,7 +236,11 @@ function renderSummaryToHtml(data, config) {
   const cfg = normalizeConfig(config || {});
   const L = cfg.labels || {};
   const sym = cfg.currencySymbol || '$';
-  const s = computeSummary(data || {});
+  const s = computeSummary({
+    ...(data || {}),
+    timezone: cfg.timezone,
+    locale: cfg.locale,
+  });
   const row = (a, b) => `<div class="row"><span>${escapeHtml(a)}</span><span>${escapeHtml(b)}</span></div>`;
   const sect = (t) => `<div class="sect">${escapeHtml(t)}</div>`;
   const ex = s.exclusiveSales;
@@ -410,7 +414,7 @@ function renderKitchenToHtml(data, config) {
   const kitchenName = data.kitchenName || 'KOT';
   const isAddOn = !!data.isAddOn;
   const orderId = getOrderId(order);
-  const createdAt = getOrderCreatedAt(order);
+  const createdAt = getOrderCreatedAt(order, { timezone: cfg.timezone, locale: cfg.locale });
   const orderTaker = getOrderUserName(order);
   const orderType = getOrderType(order);
   const table = data.table
@@ -467,7 +471,11 @@ function renderRefundToHtml(data, config) {
   const refundOrder = data && data.order;
   const originalOrder = data && data.originalOrder;
   if (!refundOrder) return `<html><body><p>data.order (refund order) is required for refund preview</p></body></html>`;
-  const bill = mapOrderToRefund(refundOrder, originalOrder);
+  const bill = mapOrderToRefund(refundOrder, originalOrder, {
+    showInclusivePrices: !!cfg.showInclusivePrices,
+    timezone: cfg.timezone,
+    locale: cfg.locale,
+  });
   const row = (left, right) =>
     `<div class="row"><span>${escapeHtml(left)}</span><span>${escapeHtml(right)}</span></div>`;
 
@@ -546,7 +554,12 @@ function renderPreview(printType, data, config) {
   if (t === 'temp') {
     const order = data && data.order;
     if (!order) throw new Error('data.order is required for temp preview');
-    const bill = mapOrderToTemp(order, { labels: cfg.labels });
+    const bill = mapOrderToTemp(order, {
+      labels: cfg.labels,
+      timezone: cfg.timezone,
+      locale: cfg.locale,
+      showInclusivePrices: !!cfg.showInclusivePrices,
+    });
     return renderBillToHtml(bill, cfg, {
       title: bill.title,
       notes: bill.note || undefined,
@@ -559,7 +572,13 @@ function renderPreview(printType, data, config) {
   if (t === 'final') {
     const order = data && data.order;
     if (!order) throw new Error('data.order is required for final preview');
-    const bill = mapOrderToFinal(order, { duplicate: !!data.duplicate, labels: cfg.labels });
+    const bill = mapOrderToFinal(order, {
+      duplicate: !!data.duplicate,
+      labels: cfg.labels,
+      timezone: cfg.timezone,
+      locale: cfg.locale,
+      showInclusivePrices: !!cfg.showInclusivePrices,
+    });
     return renderBillToHtml(bill, cfg, {
       title: bill.title,
       thankYou: bill.thankYou,
@@ -572,7 +591,12 @@ function renderPreview(printType, data, config) {
   if (t === 'delivery') {
     const order = data && data.order;
     if (!order) throw new Error('data.order is required for delivery preview');
-    const bill = mapOrderToDelivery(order, { labels: cfg.labels });
+    const bill = mapOrderToDelivery(order, {
+      labels: cfg.labels,
+      timezone: cfg.timezone,
+      locale: cfg.locale,
+      showInclusivePrices: !!cfg.showInclusivePrices,
+    });
     return renderBillToHtml(bill, cfg, {
       title: bill.title,
       address: bill.address,

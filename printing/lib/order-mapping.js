@@ -378,28 +378,71 @@ function getOrderDeliveryNotes(order) {
 }
 
 /**
- * Date to match _common.bill: 'y-MM-dd hh:mm a' (e.g. 2026-01-17 11:52 PM).
+ * @param {unknown} value
+ * @returns {Date}
  */
-function getOrderDate(order) {
-  const d = order && order.created_at ? (order.created_at instanceof Date ? order.created_at : new Date(order.created_at)) : new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  const h = d.getHours();
-  const min = String(d.getMinutes()).padStart(2, '0');
-  const am = h >= 12 ? 'PM' : 'AM';
-  const h12 = h % 12 || 12;
-  return `${y}-${m}-${day} ${String(h12).padStart(2, '0')}:${min} ${am}`;
+function toJsDate(value) {
+  if (!value) return new Date();
+  return value instanceof Date ? value : new Date(value);
+}
+
+/**
+ * @param {{ timezone?: string, locale?: string }|undefined} opts
+ * @returns {{ timezone?: string, locale: string }}
+ */
+function getDateFormatOpts(opts) {
+  return {
+    timezone: opts && typeof opts.timezone === 'string' && opts.timezone.trim()
+      ? opts.timezone.trim()
+      : undefined,
+    locale: opts && typeof opts.locale === 'string' && opts.locale
+      ? opts.locale
+      : 'en-US',
+  };
+}
+
+/**
+ * Date to match _common.bill: 'y-MM-dd hh:mm a' (e.g. 2026-01-17 11:52 PM).
+ * @param {Object} order
+ * @param {{ timezone?: string, locale?: string }} [opts]
+ */
+function getOrderDate(order, opts) {
+  const d = toJsDate(order && order.created_at);
+  const { timezone, locale } = getDateFormatOpts(opts);
+  const formatOpts = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  };
+  if (timezone) formatOpts.timeZone = timezone;
+  const parts = new Intl.DateTimeFormat(locale, formatOpts).formatToParts(d);
+  const get = (type) => {
+    const part = parts.find((p) => p.type === type);
+    return part ? part.value : '';
+  };
+  const y = get('year');
+  const m = get('month');
+  const day = get('day');
+  const hour = get('hour').padStart(2, '0');
+  const min = get('minute').padStart(2, '0');
+  const am = get('dayPeriod') || '';
+  return `${y}-${m}-${day} ${hour}:${min}${am ? ` ${am}` : ''}`;
 }
 
 /**
  * @param {Object} order
+ * @param {{ timezone?: string, locale?: string }} [opts]
  * @returns {string} - time for kitchen
  */
-function getOrderCreatedAt(order) {
-  if (!order || !order.created_at) return new Date().toLocaleTimeString();
-  const d = order.created_at;
-  return d instanceof Date ? d.toLocaleTimeString() : new Date(d).toLocaleTimeString();
+function getOrderCreatedAt(order, opts) {
+  const d = (!order || !order.created_at) ? new Date() : toJsDate(order.created_at);
+  const { timezone, locale } = getDateFormatOpts(opts);
+  const formatOpts = {};
+  if (timezone) formatOpts.timeZone = timezone;
+  return d.toLocaleTimeString(locale, formatOpts);
 }
 
 /**
@@ -457,7 +500,7 @@ function formatDiscountMinimal(name, valueType, rate, fallback) {
 /**
  * Common bill shape aligned with _common.bill.tsx and final.bill.tsx.
  * @param {Object} order
- * @param {{ forDelivery?: boolean, showInclusivePrices?: boolean }} opts - forDelivery: use totalWithDelivery and include deliveryCharges in total
+ * @param {{ forDelivery?: boolean, showInclusivePrices?: boolean, timezone?: string, locale?: string }} opts - forDelivery: use totalWithDelivery and include deliveryCharges in total
  */
 function mapOrderToBill(order, opts) {
   const tot = getOrderTotals(order);
@@ -482,7 +525,7 @@ function mapOrderToBill(order, opts) {
     orderId: getOrderId(order),
     table: getOrderTable(order),
     orderType: getOrderType(order),
-    date: getOrderDate(order),
+    date: getOrderDate(order, opts),
     userName: getOrderUserName(order),
     items,
     itemsCount: items.length,
@@ -514,6 +557,8 @@ function mapOrderToTemp(order, options) {
     ...mapOrderToBill(order, {
       forDelivery: false,
       showInclusivePrices: !!(options && options.showInclusivePrices),
+      timezone: options && options.timezone,
+      locale: options && options.locale,
     }),
     title: L.preSaleBill || 'Pre-Sale Bill',
     note: '',
@@ -530,6 +575,8 @@ function mapOrderToFinal(order, options) {
     ...mapOrderToBill(order, {
       forDelivery: false,
       showInclusivePrices: !!(options && options.showInclusivePrices),
+      timezone: options && options.timezone,
+      locale: options && options.locale,
     }),
     title: dup
       ? (L.duplicateFinalBill || 'Duplicate Final Bill')
@@ -547,6 +594,8 @@ function mapOrderToDelivery(order, options) {
     ...mapOrderToBill(order, {
       forDelivery: true,
       showInclusivePrices: !!(options && options.showInclusivePrices),
+      timezone: options && options.timezone,
+      locale: options && options.locale,
     }),
     title: L.delivery || 'DELIVERY',
     address: getOrderDeliveryAddress(order),
@@ -559,13 +608,15 @@ function mapOrderToDelivery(order, options) {
 
 /**
  * Map Order -> kitchen shape: { orderId, table, items, createdAt, priority }
+ * @param {Object} order
+ * @param {{ timezone?: string, locale?: string }} [options]
  */
-function mapOrderToKitchen(order) {
+function mapOrderToKitchen(order, options) {
   return {
     orderId: getOrderId(order),
     table: getOrderTable(order),
     items: getOrderItems(order),
-    createdAt: getOrderCreatedAt(order),
+    createdAt: getOrderCreatedAt(order, options),
     priority: getOrderPriority(order),
   };
 }
@@ -615,12 +666,22 @@ function mapOrderToRefund(refundOrder, originalOrder, options) {
   const orig = originalOrder || refundOrder;
   const serviceChargeLabel = getOrderServiceChargeLabel(refundOrder);
   const tipLabel = refundOrder && refundOrder.tip_type === 'Percent' ? 'Tip %' : 'Tip';
+  const { timezone, locale } = getDateFormatOpts(options);
+  const refundFormatOpts = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  };
+  if (timezone) refundFormatOpts.timeZone = timezone;
   return {
     originalOrderId: getOrderId(orig),
     table: getOrderTable(orig),
     orderType: getOrderType(orig),
     userName: getOrderUserName(orig),
-    refundDate: new Date().toLocaleString(),
+    refundDate: new Date().toLocaleString(locale, refundFormatOpts),
     items,
     itemsCount: items.length,
     itemsTotal,

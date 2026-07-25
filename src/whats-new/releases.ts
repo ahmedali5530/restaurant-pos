@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-07-25',
+    title: 'Correct wall-clock times',
+    items: [
+      'Timestamps now use the system wall clock (Luxon) instead of a monotonic clock that could drift hours behind after long sessions or device sleep.',
+      'KOT, bills, refunds, and other receipts format times in the app timezone (VITE_APP_TIMEZONE) so printed times match the POS.',
+    ],
+  },
+  {
+    date: '2026-07-25',
     title: 'Role modules view',
     items: [
       'Admin → Users → Roles shows a modules count instead of tagging every permission on the table.',

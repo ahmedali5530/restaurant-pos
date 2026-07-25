@@ -101,7 +101,11 @@ function safeNumber(value) {
 function printDailySalesSummary(printer, data, cfg) {
   const sym = cfg.currencySymbol || '$';
   const L = cfg.labels || {};
-  const s = computeSummary(data);
+  const s = computeSummary({
+    ...data,
+    timezone: cfg.timezone,
+    locale: cfg.locale,
+  });
   const line = (left, right) => printLineLeftRight(printer, left, right);
 
   const titleTemplate = L.summaryTitle || 'Daily sales summary — {{date}}';

@@ -47,6 +47,7 @@ services:
     environment:
       - PRINT_PORT=3132
       - PRINT_HOST=0.0.0.0
+      - TZ=${VITE_APP_TIMEZONE:-UTC}
       - GATEWAY_JWT_SECRET=${GATEWAY_JWT_SECRET:-dev-only-change-me-posr-gateway}
       - GATEWAY_AUTH_REQUIRED=${GATEWAY_AUTH_REQUIRED:-false}
       - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-*}

@@ -17,7 +17,7 @@ export const isSurrealDateTime = (value: unknown): value is SurrealDateTime => {
 
 export const toSurrealDateTime = (value?: DateInput): SurrealDateTime => {
   if (value === undefined || value === null) {
-    return SurrealDateTime.now();
+    return new SurrealDateTime(LuxonDateTime.now().toJSDate());
   }
 
   if (isSurrealDateTime(value)) {
@@ -40,11 +40,11 @@ export const toSurrealDateTime = (value?: DateInput): SurrealDateTime => {
     return new SurrealDateTime(Number(value));
   }
 
-  return SurrealDateTime.now();
+  return new SurrealDateTime(LuxonDateTime.now().toJSDate());
 };
 
 export const nowSurrealDateTime = (): SurrealDateTime => {
-  return SurrealDateTime.now();
+  return new SurrealDateTime(LuxonDateTime.now().toJSDate());
 };
 
 export const nowInAppTimezone = (): LuxonDateTime => {

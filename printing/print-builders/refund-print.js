@@ -26,6 +26,8 @@ function build(printer, data = {}, config = {}) {
   const L = cfg.labels || {};
   const bill = mapOrderToRefund(refundOrder, originalOrder, {
     showInclusivePrices: !!cfg.showInclusivePrices,
+    timezone: cfg.timezone,
+    locale: cfg.locale,
   });
 
   const refundReceiptLabel = L.refundReceipt || 'REFUND RECEIPT';
