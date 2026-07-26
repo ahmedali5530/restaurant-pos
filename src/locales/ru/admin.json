@@ -455,6 +455,7 @@
       "reports.merge_orders": "Объединение заказов",
       "reports.split_orders": "Разделение заказов",
       "reports.order_life_cycle": "Жизненный цикл заказа",
+      "reports.order_fiscal": "Фискализация заказов",
       "reports.expense": "Расходы",
       "reports.activity": "Активность",
       "reports.product_mix_weekly": "Ассортимент за неделю",

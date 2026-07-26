@@ -624,6 +624,7 @@
       "reports.merge_orders": "Merge Orders",
       "reports.split_orders": "Split Orders",
       "reports.order_life_cycle": "Order Life Cycle",
+      "reports.order_fiscal": "Order Fiscal",
       "reports.expense": "Expense",
       "reports.activity": "Activity",
       "reports.product_mix_weekly": "Product Mix Weekly",

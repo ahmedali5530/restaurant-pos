@@ -455,6 +455,7 @@
       "reports.merge_orders": "Bestellingen samenvoegen",
       "reports.split_orders": "Bestellingen splitsen",
       "reports.order_life_cycle": "Bestellingslevenscyclus",
+      "reports.order_fiscal": "Bestelling fiscaal",
       "reports.expense": "Uitgaven",
       "reports.activity": "Activiteit",
       "reports.product_mix_weekly": "Productmix wekelijks",

@@ -154,7 +154,7 @@ const ModuleCheckbox = memo(function ModuleCheckbox({
       </div>
 
       {showChildren && (
-        <div className="mt-2 space-y-2 ml-7">
+        <div className="mt-2 space-y-2 ml-11">
           {visibleChildren.map((child) => (
             <div key={child.key} className="flex items-center space-x-2">
               <Checkbox

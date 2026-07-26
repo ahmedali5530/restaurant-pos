@@ -455,6 +455,7 @@
       "reports.merge_orders": "Fusion de commandes",
       "reports.split_orders": "Division de commandes",
       "reports.order_life_cycle": "Cycle de vie des commandes",
+      "reports.order_fiscal": "Fiscalisation commandes",
       "reports.expense": "Dépenses",
       "reports.activity": "Activité",
       "reports.product_mix_weekly": "Mix produits hebdomadaire",
