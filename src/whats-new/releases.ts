@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-07-26',
+    title: 'Order fiscal report',
+    items: [
+      'New Order Fiscal report (Reports → Orders) lists FBR/PRA fiscal invoice submissions per order with provider, fiscal invoice number, status, QR availability and errors.',
+      'Filter by date range, fiscal provider, and submission status, with summaries by provider and by status.',
+    ],
+  },
+  {
+    date: '2026-07-26',
     title: 'Fiscal invoice API proxy',
     items: [
       'FBR/PRA fiscal invoice submission is proxied through the API server so the browser no longer calls authority URLs directly (fixes CORS failures at settlement).',

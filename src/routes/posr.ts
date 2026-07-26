@@ -43,6 +43,7 @@ export const REPORTS_COUPON = REPORTS + '/coupon';
 export const REPORTS_MERGE_ORDERS = REPORTS + '/merge-orders';
 export const REPORTS_SPLIT_ORDERS = REPORTS + '/split-orders';
 export const REPORTS_ORDER_LIFECYCLE = REPORTS + '/order-lifecycle';
+export const REPORTS_ORDER_FISCAL = REPORTS + '/order-fiscal';
 export const REPORTS_EXPENSE = REPORTS + '/expense';
 export const REPORTS_ACTIVITY = REPORTS + '/activity';
 export const REPORTS_PRODUCT_HOURLY = REPORTS + '/product-hourly';

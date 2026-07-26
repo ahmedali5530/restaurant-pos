@@ -42,6 +42,7 @@ import {SplitOrdersFilter} from "@/components/reports/filters/split.orders.filte
 import {TaxFilter} from "@/components/reports/filters/tax.filter.tsx";
 import {CouponFilter} from "@/components/reports/filters/coupon.filter.tsx";
 import {OrderLifecycleFilter} from "@/components/reports/filters/order.lifecycle.filter.tsx";
+import {OrderFiscalFilter} from "@/components/reports/filters/order.fiscal.filter.tsx";
 import {ExpenseFilter} from "@/components/reports/filters/expense.filter.tsx";
 import {ActivityFilter} from "@/components/reports/filters/activity.filter.tsx";
 import {AiReportFilter} from "@/components/reports/filters/ai.report.filter.tsx";
@@ -79,6 +80,7 @@ const REPORT_PERMISSION_MODULES: Record<string, string> = {
   mergeOrders: 'reports.merge_orders',
   splitOrders: 'reports.split_orders',
   orderLifeCycle: 'reports.order_life_cycle',
+  orderFiscal: 'reports.order_fiscal',
   cashClosing: 'reports.cash_closing',
   expense: 'reports.expense',
   activity: 'reports.activity',
@@ -148,6 +150,7 @@ export const Reports = () => {
         { reportKey: 'mergeOrders', filter: <MergeOrdersFilter /> },
         { reportKey: 'splitOrders', filter: <SplitOrdersFilter /> },
         { reportKey: 'orderLifeCycle', filter: <OrderLifecycleFilter /> },
+        { reportKey: 'orderFiscal', filter: <OrderFiscalFilter /> },
       ]),
       [t('categories.cashClosing')]: buildReportEntries(t, [
         { reportKey: 'cashClosing', filter: <CashClosingFilter /> },

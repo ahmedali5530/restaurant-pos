@@ -1,15 +1,17 @@
-import {HTMLProps, useEffect, useRef} from "react";
+import {HTMLProps, useEffect, useId, useRef} from "react";
 import _ from "lodash";
 import { cn } from "@/lib/utils.ts";
-import {nanoid} from "nanoid";
 
 interface InputProps extends HTMLProps<HTMLInputElement>{
   indeterminate?: boolean;
+  label?: string;
 }
 
 export const Checkbox = (props: InputProps) => {
   const ref = useRef<HTMLInputElement>(null);
-  const {indeterminate, ...rest} = props;
+  const generatedId = useId();
+  const {indeterminate, id: propsId, label, ...rest} = props;
+  const id = propsId ?? generatedId;
 
   useEffect(() => {
     if(ref.current !== null){
@@ -19,8 +21,6 @@ export const Checkbox = (props: InputProps) => {
       }
     }
   }, [indeterminate, props.checked]);
-
-  const id = nanoid();
 
   return (
     <div className="inline-flex items-center gap-3">
@@ -36,7 +36,7 @@ export const Checkbox = (props: InputProps) => {
           )
         }
       />
-      {props.label && <label htmlFor={id} className="font-bold cursor-pointer">{props.label}</label>}
+      {label && <label htmlFor={id} className="font-bold cursor-pointer">{label}</label>}
     </div>
   );
 };

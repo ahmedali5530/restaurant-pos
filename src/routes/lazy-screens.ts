@@ -114,6 +114,9 @@ export const SplitOrdersReport = lazy(() =>
 export const OrderLifecycleReport = lazy(() =>
   import('@/screens/reports/order.lifecycle.report.tsx').then(m => ({default: m.OrderLifecycleReport}))
 );
+export const OrderFiscalReport = lazy(() =>
+  import('@/screens/reports/order.fiscal.report.tsx').then(m => ({default: m.OrderFiscalReport}))
+);
 export const ExpenseReport = lazy(() =>
   import('@/screens/reports/expense.report.tsx').then(m => ({default: m.ExpenseReport}))
 );

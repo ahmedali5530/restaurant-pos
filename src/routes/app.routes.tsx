@@ -47,6 +47,7 @@ import {
   REPORTS_ISSUE,
   REPORTS_ISSUE_RETURN,
   REPORTS_MERGE_ORDERS,
+  REPORTS_ORDER_FISCAL,
   REPORTS_ORDER_LIFECYCLE,
   REPORTS_PRODUCT_HOURLY,
   REPORTS_PRODUCT_LIST,
@@ -109,6 +110,7 @@ import {
   IssueReturnReport,
   KitchenReconciliationReport,
   MergeOrdersReport,
+  OrderFiscalReport,
   OrderLifecycleReport,
   ProductHourlyReport,
   ProductListReport,
@@ -169,6 +171,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_MERGE_ORDERS} element={<MergeOrdersReport/>}/>
         <Route path={REPORTS_SPLIT_ORDERS} element={<SplitOrdersReport/>}/>
         <Route path={REPORTS_ORDER_LIFECYCLE} element={<OrderLifecycleReport/>}/>
+        <Route path={REPORTS_ORDER_FISCAL} element={<OrderFiscalReport/>}/>
         <Route path={REPORTS_EXPENSE} element={<ExpenseReport/>}/>
         <Route path={REPORTS_ACTIVITY} element={<ActivityReport/>}/>
         <Route path={REPORTS_AI} element={<AiReport/>}/>
