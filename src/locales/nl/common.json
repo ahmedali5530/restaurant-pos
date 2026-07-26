@@ -133,7 +133,8 @@
     "emptyMatchValue": "Matchkolom \"{{field}}\" is leeg voor deze rij.",
     "recordNotFound": "Geen overeenkomend record gevonden om bij te werken.",
     "multipleMatches": "Meerdere records komen overeen met de geselecteerde kolommen.",
-    "unsupportedMatchField": "Kan niet matchen op kolom \"{{field}}\"."
+    "unsupportedMatchField": "Kan niet matchen op kolom \"{{field}}\".",
+    "fileTooLarge": "Het bestand is te groot. Maximale grootte is {{max}}."
   },
   "loading": "Laden..."
 }

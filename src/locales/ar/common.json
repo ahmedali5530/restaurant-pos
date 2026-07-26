@@ -135,7 +135,8 @@
     "emptyMatchValue": "عمود المطابقة \"{{field}}\" فارغ لهذا الصف.",
     "recordNotFound": "لم يتم العثور على سجل مطابق للتحديث.",
     "multipleMatches": "تطابقت عدة سجلات مع الأعمدة المحددة.",
-    "unsupportedMatchField": "لا يمكن المطابقة على العمود \"{{field}}\"."
+    "unsupportedMatchField": "لا يمكن المطابقة على العمود \"{{field}}\".",
+    "fileTooLarge": "الملف كبير جدًا. الحد الأقصى للحجم هو {{max}}."
   },
   "loading": "جارٍ التحميل..."
 }

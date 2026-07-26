@@ -12,6 +12,7 @@ export const RELEASES: ReleaseNotes[] = [
     items: [
       'CSV import for dishes, categories, tables, inventory items, and accounts supports Create, Update, and Upsert modes.',
       'Choose match columns in a multi-select; update/upsert find existing rows by those fields and merge or insert accordingly.',
+      'CSV imports are limited to a configurable max size (VITE_MAX_CSV_UPLOAD_BYTES, default 2 MB); other uploads use VITE_MAX_UPLOAD_BYTES (default 500 KB).',
     ],
   },
   {

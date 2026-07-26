@@ -1,3 +1,40 @@
+/** Max binary/image upload size in bytes. Override via VITE_MAX_UPLOAD_BYTES (default 500 KB). */
+export const MAX_UPLOAD_BYTES =
+  Number(import.meta.env.VITE_MAX_UPLOAD_BYTES) || 500 * 1024;
+
+/** Max CSV import file size in bytes. Override via VITE_MAX_CSV_UPLOAD_BYTES (default 2 MB). */
+export const MAX_CSV_UPLOAD_BYTES =
+  Number(import.meta.env.VITE_MAX_CSV_UPLOAD_BYTES) || 2 * 1024 * 1024;
+
+/**
+ * Formats a byte count for display (e.g. 512000 → "500 KB").
+ */
+export const formatFileSize = (bytes: number): string => {
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+  if (bytes < 1024 * 1024) {
+    const kb = bytes / 1024;
+    return `${Number.isInteger(kb) ? kb : kb.toFixed(1)} KB`;
+  }
+  const mb = bytes / (1024 * 1024);
+  return `${Number.isInteger(mb) ? mb : mb.toFixed(1)} MB`;
+};
+
+/**
+ * Throws if the file exceeds MAX_UPLOAD_BYTES.
+ */
+export const assertFileWithinLimit = (
+  file: File,
+  maxBytes: number = MAX_UPLOAD_BYTES
+): void => {
+  if (file.size > maxBytes) {
+    throw new Error(
+      `File exceeds the maximum size of ${formatFileSize(maxBytes)}.`
+    );
+  }
+};
+
 /**
  * Downloads an ArrayBuffer as a file
  * @param arrayBuffer - The ArrayBuffer or string (base64) to download

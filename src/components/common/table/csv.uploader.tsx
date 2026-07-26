@@ -11,6 +11,7 @@ import {Focusable, TooltipTrigger} from "react-aria-components";
 import {Radio} from "@/components/common/input/radio.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import type {CsvImportMode, CsvImportRowContext} from "@/utils/csv-import.ts";
+import {formatFileSize, MAX_CSV_UPLOAD_BYTES} from "@/utils/files.ts";
 
 // Very small CSV parser (not perfect, but good for simple CSVs).
 // Replace with PapaParse if you want more robust parsing.
@@ -140,6 +141,13 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
 
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (file.size > MAX_CSV_UPLOAD_BYTES) {
+      setError(
+        t("csvImport.fileTooLarge", { max: formatFileSize(MAX_CSV_UPLOAD_BYTES) })
+      );
+      return;
+    }
 
     try {
       const text = await file.text();
@@ -491,8 +499,8 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
 
         {/* Preview table */}
         {hasFile && (
-          <div className="max-h-80 overflow-auto rounded border">
-            <table className="table table-hover">
+          <div className="max-h-80 overflow-auto rounded border max-w-[calc(100vw_-_200px)]">
+            <table className="table table-hover table-sm">
               <thead className="bg-gray-100">
               <tr>
                 {Object.keys(errors).length > 0 && (

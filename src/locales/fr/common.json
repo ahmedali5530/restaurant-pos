@@ -133,7 +133,8 @@
     "emptyMatchValue": "La colonne de correspondance \"{{field}}\" est vide pour cette ligne.",
     "recordNotFound": "Aucun enregistrement correspondant trouvé pour la mise à jour.",
     "multipleMatches": "Plusieurs enregistrements correspondent aux colonnes sélectionnées.",
-    "unsupportedMatchField": "Impossible de correspondre sur la colonne \"{{field}}\"."
+    "unsupportedMatchField": "Impossible de correspondre sur la colonne \"{{field}}\".",
+    "fileTooLarge": "Le fichier est trop volumineux. La taille maximale est {{max}}."
   },
   "loading": "Chargement..."
 }

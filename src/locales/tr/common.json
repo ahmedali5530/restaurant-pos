@@ -133,7 +133,8 @@
     "emptyMatchValue": "Bu satır için eşleme sütunu \"{{field}}\" boş.",
     "recordNotFound": "Güncellenecek eşleşen kayıt bulunamadı.",
     "multipleMatches": "Seçilen sütunlarla birden fazla kayıt eşleşti.",
-    "unsupportedMatchField": "\"{{field}}\" sütununda eşleme yapılamaz."
+    "unsupportedMatchField": "\"{{field}}\" sütununda eşleme yapılamaz.",
+    "fileTooLarge": "Dosya çok büyük. Maksimum boyut {{max}}."
   },
   "loading": "Yükleniyor..."
 }

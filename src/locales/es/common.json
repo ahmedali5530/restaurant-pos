@@ -133,7 +133,8 @@
     "emptyMatchValue": "La columna de coincidencia \"{{field}}\" está vacía en esta fila.",
     "recordNotFound": "No se encontró ningún registro coincidente para actualizar.",
     "multipleMatches": "Varios registros coinciden con las columnas seleccionadas.",
-    "unsupportedMatchField": "No se puede coincidir por la columna \"{{field}}\"."
+    "unsupportedMatchField": "No se puede coincidir por la columna \"{{field}}\".",
+    "fileTooLarge": "El archivo es demasiado grande. El tamaño máximo es {{max}}."
   },
   "loading": "Cargando..."
 }

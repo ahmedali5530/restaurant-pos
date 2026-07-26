@@ -27,6 +27,7 @@ import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {canUseInDishRecipe} from "@/utils/inventoryItemTypes.ts";
 import {StringRecordId, type RecordId} from "surrealdb";
 import React, {useEffect, useState} from "react";
+import {formatFileSize, MAX_UPLOAD_BYTES} from "@/utils/files";
 
 interface Props {
   open: boolean
@@ -105,12 +106,14 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
   const [workflowModal, setWorkflowModal] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoData, setPhotoData] = useState<ArrayBuffer | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
 
   const db = useDB();
 
   const closeModal = () => {
     setPhotoData(null);
     setPhotoPreview(null);
+    setPhotoFile(null);
     reset(defaultValues);
     onClose();
   };
@@ -188,10 +191,24 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
   const handlePhotoChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
     if (!file) {
+      setPhotoFile(null);
       setPhotoData(null);
       setPhotoPreview(null);
       return;
     }
+
+    if (file.size > MAX_UPLOAD_BYTES) {
+      toast.error(
+        t('common:csvImport.fileTooLarge', { max: formatFileSize(MAX_UPLOAD_BYTES) })
+      );
+      setPhotoFile(null);
+      setPhotoData(null);
+      setPhotoPreview(null);
+      event.target.value = '';
+      return;
+    }
+
+    setPhotoFile(file);
 
     try {
       const buffer = await file.arrayBuffer();
@@ -199,6 +216,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
       const blob = new Blob([buffer], {type: file.type || "application/octet-stream"});
       setPhotoPreview(URL.createObjectURL(blob));
     } catch (error) {
+      setPhotoFile(null);
       setPhotoData(null);
       setPhotoPreview(null);
       toast.error(t('toast:admin.failedReadPhoto'));
@@ -230,9 +248,12 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
 
     try {
       let photoDocumentId: string | undefined | RecordId;
-      if (photoData) {
+      if (photoData && photoFile) {
         const [photo] = await db.create(Tables.documents, {
-          content: photoData
+          name: photoFile.name,
+          content: photoData,
+          size: photoFile.size,
+          type: photoFile.type || undefined,
         });
         photoDocumentId = photo.id;
       }

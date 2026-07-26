@@ -133,7 +133,8 @@
     "emptyMatchValue": "Abgleichsspalte \"{{field}}\" ist für diese Zeile leer.",
     "recordNotFound": "Kein passender Datensatz zum Aktualisieren gefunden.",
     "multipleMatches": "Mehrere Datensätze stimmen mit den ausgewählten Spalten überein.",
-    "unsupportedMatchField": "Abgleich über Spalte \"{{field}}\" ist nicht möglich."
+    "unsupportedMatchField": "Abgleich über Spalte \"{{field}}\" ist nicht möglich.",
+    "fileTooLarge": "Die Datei ist zu groß. Maximale Größe ist {{max}}."
   },
   "loading": "Wird geladen..."
 }

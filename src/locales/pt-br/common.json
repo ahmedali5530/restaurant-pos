@@ -133,7 +133,8 @@
     "emptyMatchValue": "A coluna de correspondência \"{{field}}\" está vazia nesta linha.",
     "recordNotFound": "Nenhum registro correspondente encontrado para atualizar.",
     "multipleMatches": "Vários registros corresponderam às colunas selecionadas.",
-    "unsupportedMatchField": "Não é possível corresponder pela coluna \"{{field}}\"."
+    "unsupportedMatchField": "Não é possível corresponder pela coluna \"{{field}}\".",
+    "fileTooLarge": "O arquivo é muito grande. O tamanho máximo é {{max}}."
   },
   "loading": "Carregando..."
 }

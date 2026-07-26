@@ -26,7 +26,7 @@ import {ModifierGroupForm} from "@/components/settings/modifier_groups/modifier_
 import {RecordId, StringRecordId} from "surrealdb";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {canUseInDishRecipe} from "@/utils/inventoryItemTypes.ts";
-import {detectMimeType} from "@/utils/files";
+import {detectMimeType, formatFileSize, MAX_UPLOAD_BYTES} from "@/utils/files";
 import {Workflow} from "@/api/model/workflow.ts";
 import {Kitchen} from "@/api/model/kitchen.ts";
 import {WorkflowForm} from "@/components/settings/workflows/workflow.form.tsx";
@@ -350,9 +350,12 @@ export const DishForm = ({
         menuId = record.id;
       }
 
-      if (photoData) {
+      if (photoData && photoFile) {
         const [photoId] = await db.create(Tables.documents, {
-          content: photoData
+          name: photoFile.name,
+          content: photoData,
+          size: photoFile.size,
+          type: photoFile.type || undefined,
         });
 
         await db.merge(menuId, {
@@ -434,6 +437,17 @@ export const DishForm = ({
       setPhotoFile(null);
       setPhotoPreview(null);
       setPhotoData(null);
+      return;
+    }
+
+    if (file.size > MAX_UPLOAD_BYTES) {
+      toast.error(
+        t('common:csvImport.fileTooLarge', { max: formatFileSize(MAX_UPLOAD_BYTES) })
+      );
+      setPhotoFile(null);
+      setPhotoPreview(null);
+      setPhotoData(null);
+      event.target.value = '';
       return;
     }
 
