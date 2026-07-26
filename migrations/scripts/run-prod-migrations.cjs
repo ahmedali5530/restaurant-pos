@@ -55,7 +55,6 @@ const MIGRATION_PLAN = [
     id: '2026_07_26_access_modules_backfill',
     backfill: 'backfill-access-modules.cjs',
   },
-  { id: '2026_07_11_order_fiscal_fields', file: '2026_07_11_order_fiscal_fields.surql' },
 ];
 
 const rows = (result) => {
