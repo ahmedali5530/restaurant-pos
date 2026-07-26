@@ -261,8 +261,12 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
     };
   }, []);
 
-  // Keep the provider mounted so Login's async connect/query keeps a stable client.
-  if (gatewayMode && !sessionReady) {
+  // Pre-login / mid-login: show Login without waiting for Surreal.
+  // - No token: true pre-login keypad
+  // - Token set but session not announced yet: Login stays mounted for connect +
+  //   clock-in check (Login shows its own PageLoader via isAuthenticating)
+  // Once both token and sessionReady are set, fall through to PageLoader until connected.
+  if (gatewayMode && (!getSessionToken() || !sessionReady)) {
     return (
       <DatabaseContext.Provider value={value}>
         {children}
@@ -293,9 +297,10 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
   }
 
   if (isConnecting || !isConnected) {
+    console.log(`connecting to ${dbEndpointLabel()}...`);
     return (
       <DatabaseContext.Provider value={value}>
-        <PageLoader message={`${t("database.connecting")}\n${dbEndpointLabel()}`} />
+        <PageLoader message={`${t("database.connecting")}`} />
       </DatabaseContext.Provider>
     );
   }

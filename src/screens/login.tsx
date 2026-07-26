@@ -4,8 +4,8 @@ import {faCircle as circleRegular} from '@fortawesome/free-regular-svg-icons';
 import {useEffect, useLayoutEffect, useState} from "react";
 import { useAtom } from "jotai";
 import { appPage } from "@/store/jotai.ts";
-import { cn } from "@/lib/utils.ts";
-import { useDB } from "@/api/db/db.ts";
+import { cn, toRecordId } from "@/lib/utils.ts";
+import { DbNotReadyError, useDB } from "@/api/db/db.ts";
 import { useDatabase } from "@/hooks/useDatabase.ts";
 import { User } from "@/api/model/user.ts";
 import {useNavigate, useLocation} from "react-router";
@@ -22,6 +22,7 @@ import { ensureEmployeeForUser } from "@/lib/labor-engine/employee.resolver.ts";
 import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n.ts";
 import { DocumentTitle } from "@/components/common/document-title.tsx";
+import { PageLoader } from "@/components/common/loader/page-loader.tsx";
 import {
   clearSessionTokens,
   gatewayLogin,
@@ -30,10 +31,18 @@ import {
   setSessionTokens,
 } from "@/lib/session.ts";
 
+const TIME_ENTRY_CHECK_RETRIES = 3;
+const TIME_ENTRY_RETRY_DELAY_MS = 400;
+
+const sleep = (ms: number) => new Promise<void>((resolve) => {
+  window.setTimeout(resolve, ms);
+});
+
 export const Login = () => {
   const db = useDB();
   const { connect } = useDatabase();
   const { t } = useTranslation('auth');
+  const { t: tCommon } = useTranslation('common');
   const gatewayAuth = isGatewayAuthEnabled();
 
   const [code, setCode] = useState('');
@@ -44,6 +53,7 @@ export const Login = () => {
   const [error, setError] = useState(false);
   const [showClockInModal, setShowClockInModal] = useState(false);
   const [pendingUser, setPendingUser] = useState<User | null>(null);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   const navigation = useNavigate();
   const location = useLocation();
@@ -62,24 +72,69 @@ export const Login = () => {
     }
   }
 
+  const failConnection = () => {
+    clearSessionTokens();
+    toast.error(i18n.t('auth:login.connectionFailed', { defaultValue: 'Database connection failed after login' }));
+    denyLogin();
+  };
+
   const afterUserAuthenticated = async (normalizedUser: User) => {
     if (page.locked && page.lockedBy?.login !== normalizedUser.login) {
       denyLogin();
       return false;
     }
 
-    const timeEntryCheck: any = await db.query(`SELECT * from ${Tables.time_entries} where user = $userId and clock_out = NONE and platform = $platform`, {
-      userId: normalizedUser.id,
-      platform: 'web'
-    });
+    for (let attempt = 0; attempt < TIME_ENTRY_CHECK_RETRIES; attempt++) {
+      try {
+        const timeEntryCheck = await db.query(
+          `SELECT * from ${Tables.time_entries} where user = $userId and clock_out = NONE and platform = $platform`,
+          {
+            userId: toRecordId(normalizedUser.id),
+            platform: 'web',
+          }
+        );
 
-    if (timeEntryCheck[0].length === 0) {
-      setPendingUser(normalizedUser);
-      setShowClockInModal(true);
-    } else {
-      allowLogin(normalizedUser);
+        const rows = timeEntryCheck?.[0];
+        if (!Array.isArray(rows)) {
+          throw new Error('Unexpected time entry query result');
+        }
+
+        if (rows.length === 0) {
+          setPendingUser(normalizedUser);
+          setShowClockInModal(true);
+        } else {
+          allowLogin(normalizedUser);
+        }
+        return true;
+      } catch (err) {
+        const errName = err instanceof Error ? err.name : '';
+        const isNotReady =
+          err instanceof DbNotReadyError ||
+          errName === 'ConnectionUnavailable' ||
+          errName === 'EngineDisconnected';
+        console.error(err);
+
+        if (attempt < TIME_ENTRY_CHECK_RETRIES - 1 && isNotReady) {
+          try {
+            await connect();
+          } catch (connectErr) {
+            console.error(connectErr);
+          }
+          await sleep(TIME_ENTRY_RETRY_DELAY_MS);
+          continue;
+        }
+
+        if (gatewayAuth) {
+          failConnection();
+        } else {
+          toast.error(i18n.t('auth:login.connectionFailed', { defaultValue: 'Database connection failed after login' }));
+          denyLogin();
+        }
+        return false;
+      }
     }
-    return true;
+
+    return false;
   };
 
   const checkLoginGateway = async (login: string, pass: string, method: 'pin'|'form') => {
@@ -96,13 +151,9 @@ export const Login = () => {
       await connect();
     } catch (err) {
       console.error(err);
-      clearSessionTokens();
-      toast.error(i18n.t('auth:login.connectionFailed', { defaultValue: 'Database connection failed after login' }));
-      denyLogin();
+      failConnection();
       return false;
     }
-
-    window.dispatchEvent(new Event('posr-session'));
 
     const loggedInUser = result.user as User;
     const normalizedUser = {
@@ -112,7 +163,11 @@ export const Login = () => {
         : getUserModules(loggedInUser),
     } as User;
 
-    return afterUserAuthenticated(normalizedUser);
+    // Finish clock-in status check while Login is still mounted (session not announced yet).
+    const ok = await afterUserAuthenticated(normalizedUser);
+    // Sync provider with token presence (cleared on connection failure).
+    window.dispatchEvent(new Event('posr-session'));
+    return ok;
   };
 
   const checkLoginLegacy = async (login: string, pass: string, method: 'pin'|'form') => {
@@ -154,10 +209,19 @@ export const Login = () => {
 
   const checkLogin = async (login: string, pass: string, method: 'pin'|'form') => {
     if ((method === 'pin' && login.trim().length === 4) || (method === 'form' && login.trim() && pass.trim())) {
-      if (gatewayAuth) {
-        return checkLoginGateway(login, pass, method);
+      setIsAuthenticating(true);
+      try {
+        if (gatewayAuth) {
+          return await checkLoginGateway(login, pass, method);
+        }
+        return await checkLoginLegacy(login, pass, method);
+      } catch (err) {
+        console.error(err);
+        denyLogin();
+        return false;
+      } finally {
+        setIsAuthenticating(false);
       }
-      return checkLoginLegacy(login, pass, method);
     }
   }
 
@@ -208,7 +272,11 @@ export const Login = () => {
 
   useEffect(() => {
     if (loginMethod === 'pin') {
-      checkLogin(code, code, 'pin');
+      void checkLogin(code, code, 'pin').catch((err) => {
+        console.error(err);
+        setIsAuthenticating(false);
+        denyLogin();
+      });
     }
   }, [code]);
 
@@ -230,6 +298,15 @@ export const Login = () => {
       navigation(returnPath, { replace: true });
     }
   }, [gatewayAuth, page.user, page.locked, location.state, navigation]);
+
+  if (isAuthenticating) {
+    return (
+      <>
+        <DocumentTitle parts={[t('login.title')]} />
+        <PageLoader message={tCommon('database.connecting')} />
+      </>
+    );
+  }
 
   return (
     <div className="relative">
