@@ -23,11 +23,14 @@ import {
   findCsvImportMatches,
   writeCsvImportRow,
 } from "@/utils/csv-import.ts";
+import {useSecurity} from "@/hooks/useSecurity.ts";
+import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 export const AdminTables = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<Table>>(Tables.tables, ['deleted_at = none'], [], 0, 10, ['floor', 'categories', 'payment_types', 'order_types']);
   const db = useDB();
+  const { protectAction } = useSecurity();
 
   const [data, setData] = useState<Table>();
   const [formModal, setFormModal] = useState(false);
@@ -112,14 +115,22 @@ export const AdminTables = () => {
             <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
-                setData(info.row.original);
-                setFormModal(true);
+                protectAction(() => {
+                  setData(info.row.original);
+                  setFormModal(true);
+                }, {
+                  module: 'admin.tables.update',
+                  description: getAccessRuleChildLabel('admin.tables.update'),
+                });
               }}
             ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
             <div className="separator"></div>
             <DeleteConfirm
               message={t('delete.table', { name: `${info.row.original.name}${info.row.original.number}` })}
-              onConfirm={() => deleteItem(info.row.original.id)}
+              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                module: 'admin.tables.delete',
+                description: getAccessRuleChildLabel('admin.tables.delete'),
+              })}
             />
           </div>
         );
@@ -159,10 +170,19 @@ export const AdminTables = () => {
         loaderLineItems={columns.length}
         buttons={[
           <Button variant="primary" onClick={() => {
-            setImportModal(true);
+            protectAction(() => setImportModal(true), {
+              module: 'admin.tables.import',
+              description: getAccessRuleChildLabel('admin.tables.import'),
+            });
           }} icon={faUpload}>{t('buttons.importTables')}</Button>,
           <Button variant="primary" onClick={() => {
-            setFormModal(true);
+            protectAction(() => {
+              setData(undefined);
+              setFormModal(true);
+            }, {
+              module: 'admin.tables.create',
+              description: getAccessRuleChildLabel('admin.tables.create'),
+            });
           }} icon={faPlus}>{t('buttons.table')}</Button>
         ]}
         enableSelection
@@ -176,10 +196,15 @@ export const AdminTables = () => {
         }}
         selectionButtons={[
           <Button variant="primary" onClick={() => {
-            setBulkEdit((prev) => ({
-              ...prev,
-              state: true,
-            }));
+            protectAction(() => {
+              setBulkEdit((prev) => ({
+                ...prev,
+                state: true,
+              }));
+            }, {
+              module: 'admin.tables.update',
+              description: getAccessRuleChildLabel('admin.tables.update'),
+            });
           }} icon={faPencil}>{t('buttons.bulkEdit')}</Button>
         ]}
       />

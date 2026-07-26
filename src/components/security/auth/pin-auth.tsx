@@ -6,6 +6,7 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import { useTranslation } from 'react-i18next';
 import {toRecordId} from "@/lib/utils.ts";
+import {moduleMatchCandidates} from "@/lib/access.rules.ts";
 
 interface PinAuthProps {
   onSuccess: (manager?: SecurityManager) => void;
@@ -53,6 +54,8 @@ export const PinAuth: React.FC<PinAuthProps> = ({
     const excludeUserId = currentAction?.excludeUserId
       ? toRecordId(currentAction.excludeUserId)
       : null;
+    const moduleCandidates = moduleMatchCandidates(module);
+    const alternateCandidates = moduleMatchCandidates(alternateModule);
 
     // Limit override: Override print limit (any user) OR print module (another user only).
     const useOverrideGate = Boolean(alternateModule && excludeUserId);
@@ -65,30 +68,30 @@ export const PinAuth: React.FC<PinAuthProps> = ({
              AND login = $pin
              AND crypto::bcrypt::compare(password, $pin) = true
              AND (
-               $overrideModule IN user_role.roles
+               array::len(array::intersect(user_role.roles ?? [], $overrideModules)) > 0
                OR (
-                 $printModule IN user_role.roles
+                 array::len(array::intersect(user_role.roles ?? [], $printModules)) > 0
                  AND id != $excludeUserId
                )
              )
            FETCH user_role, user_shift`,
           {
             pin,
-            overrideModule: module,
-            printModule: alternateModule,
+            overrideModules: moduleCandidates,
+            printModules: alternateCandidates,
             excludeUserId,
           }
         )
       : await db.query(
           `SELECT * FROM ${Tables.users}
            WHERE deleted_at = none
-             AND $module IN user_role.roles
+             AND array::len(array::intersect(user_role.roles ?? [], $modules)) > 0
              AND login_method = 'pin'
              AND login = $pin
              AND crypto::bcrypt::compare(password, $pin) = true
            FETCH user_role, user_shift`,
           {
-            module,
+            modules: moduleCandidates,
             pin,
           }
         );

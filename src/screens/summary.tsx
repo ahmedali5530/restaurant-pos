@@ -347,7 +347,7 @@ export const Summary = () => {
                 onClick={() => {
                   protectAction(handlePrintSummary, {
                     description: t("summary:security.printSummaryDescription"),
-                    module: 'Print summary',
+                    module: 'summary.print',
                   });
                 }}
               >{t("summary:screen.printSummary")}</Button>
@@ -358,7 +358,7 @@ export const Summary = () => {
                 onClick={() => {
                   protectAction(handlePrintProductMix, {
                     description: t("summary:security.productMixDescription"),
-                    module: 'Product mix report',
+                    module: 'summary.product_mix',
                   });
                 }}
               >
@@ -371,7 +371,7 @@ export const Summary = () => {
                 onClick={() => {
                   protectAction(handlePrintServerSales, {
                     description: t("summary:security.serverSalesDescription"),
-                    module: 'Server sales',
+                    module: 'summary.server_sales',
                   });
                 }}
               >

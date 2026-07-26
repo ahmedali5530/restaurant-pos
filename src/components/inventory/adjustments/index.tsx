@@ -139,7 +139,7 @@ export const InventoryAdjustments = () => {
                       }
                     },
                     {
-                      module: "Edit Adjustments",
+                      module: "inventory.adjustments.update",
                       description: t("security.postAdjustments"),
                     }
                   )
@@ -175,7 +175,7 @@ export const InventoryAdjustments = () => {
                       }
                     },
                     {
-                      module: "Edit Adjustments",
+                      module: "inventory.adjustments.update",
                       description: t("security.approveAdjustments"),
                     }
                   )
@@ -218,7 +218,7 @@ export const InventoryAdjustments = () => {
                       }
                     },
                     {
-                      module: "Edit Adjustments",
+                      module: "inventory.adjustments.update",
                       description: t("security.voidAdjustments"),
                     }
                   )
@@ -237,7 +237,7 @@ export const InventoryAdjustments = () => {
                       setFormModal(true);
                     },
                     {
-                      module: "Edit Adjustments",
+                      module: "inventory.adjustments.update",
                       description: t("security.editAdjustments"),
                     }
                   );
@@ -262,7 +262,7 @@ export const InventoryAdjustments = () => {
                       loadHook.fetchData();
                     },
                     {
-                      module: "Delete Adjustments",
+                      module: "inventory.adjustments.delete",
                       description: t("security.deleteAdjustments"),
                     }
                   )

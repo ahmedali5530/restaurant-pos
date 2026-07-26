@@ -111,7 +111,7 @@ export const InventoryWastes = () => {
                   setData(info.row.original);
                   setFormModal(true);
                 }, {
-                  module: 'Edit Wastes',
+                  module: 'inventory.wastes.update',
                   description: t('security.editWastes'),
                 });
               }}
@@ -130,7 +130,7 @@ export const InventoryWastes = () => {
 
                 loadHook.fetchData();
               }, {
-                module: 'Delete Wastes',
+                module: 'inventory.wastes.delete',
                 description: t('security.deleteWastes'),
               })
             }/>

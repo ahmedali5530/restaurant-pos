@@ -106,7 +106,7 @@ export const KitchenReconciliationScreen = () => {
         toast.error(err instanceof Error ? err.message : String(err));
       }
     }, {
-      module: "Kitchen Reconciliation",
+      module: "inventory.kitchen_reconciliation",
       description: t("kitchenReconciliation.generateAction"),
     });
   };
@@ -134,7 +134,7 @@ export const KitchenReconciliationScreen = () => {
         toast.error(err instanceof Error ? err.message : String(err));
       }
     }, {
-      module: "Kitchen Reconciliation",
+      module: "inventory.kitchen_reconciliation",
       description: t("kitchenReconciliation.discardAction"),
     });
   };
@@ -149,7 +149,7 @@ export const KitchenReconciliationScreen = () => {
         toast.error(err instanceof Error ? err.message : String(err));
       }
     }, {
-      module: "Kitchen Reconciliation",
+      module: "inventory.kitchen_reconciliation",
       description: t("kitchenReconciliation.verifyAction"),
     });
   };

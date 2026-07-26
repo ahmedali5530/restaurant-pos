@@ -17,10 +17,10 @@ import { AvailableProviderEntry } from '@/integrations/core/integration-manager.
 import { DocumentTitle } from '@/components/common/document-title.tsx';
 
 const INTEGRATION_TAB_MODULES: Record<string, string> = {
-  providers: 'Integration providers',
-  configuration: 'Integration configuration',
-  health: 'Integration health',
-  queue: 'Integration queue',
+  providers: 'integrations.providers',
+  configuration: 'integrations.configuration',
+  health: 'integrations.health',
+  queue: 'integrations.queue',
 };
 
 export const IntegrationsScreen = () => {

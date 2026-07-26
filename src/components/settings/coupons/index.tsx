@@ -13,11 +13,14 @@ import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
+import {useSecurity} from "@/hooks/useSecurity.ts";
+import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 export const AdminCoupons = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<Coupon>>(Tables.coupons, ['deleted_at = none']);
   const db = useDB();
+  const { protectAction } = useSecurity();
 
   const [data, setData] = useState<Coupon>();
   const [formModal, setFormModal] = useState(false);
@@ -81,14 +84,22 @@ export const AdminCoupons = () => {
             <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
-                setData(info.row.original);
-                setFormModal(true);
+                protectAction(() => {
+                  setData(info.row.original);
+                  setFormModal(true);
+                }, {
+                  module: 'admin.coupons.update',
+                  description: getAccessRuleChildLabel('admin.coupons.update'),
+                });
               }}
             ><FontAwesomeIcon icon={faPencil} /></IconTooltipButton>
             <div className="separator"></div>
             <DeleteConfirm
               message={t('delete.coupon', { code: info.row.original.code })}
-              onConfirm={() => deleteItem(info.row.original.id)}
+              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                module: 'admin.coupons.delete',
+                description: getAccessRuleChildLabel('admin.coupons.delete'),
+              })}
             />
           </div>
         );
@@ -125,7 +136,13 @@ export const AdminCoupons = () => {
           <Button
             variant="primary"
             onClick={() => {
-              setFormModal(true);
+              protectAction(() => {
+                setData(undefined);
+                setFormModal(true);
+              }, {
+                module: 'admin.coupons.create',
+                description: getAccessRuleChildLabel('admin.coupons.create'),
+              });
             }}
             icon={faPlus}
             key="new-coupon"

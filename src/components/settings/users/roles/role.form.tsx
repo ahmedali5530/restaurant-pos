@@ -10,7 +10,7 @@ import { Button } from "@/components/common/input/button.tsx";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
 import { UserRole } from "@/api/model/user_role.ts";
-import { ACCESS_RULE_MODULES, AccessRuleModule } from "@/lib/access.rules.ts";
+import { ACCESS_RULE_MODULES, AccessRuleModule, normalizeModules } from "@/lib/access.rules.ts";
 import { getAccessRuleChildLabel, getAccessRuleModuleLabel } from "@/lib/access.rules.i18n.ts";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {useTranslation} from 'react-i18next';
@@ -75,9 +75,17 @@ const ModuleCheckbox: React.FC<ModuleCheckboxProps> = ({
     
     if (checked) {
       newModules.push(child);
-      // Ensure parent is selected when child is selected
+      // Ensure section parent is selected when child is selected
       if (!newModules.includes(module)) {
         newModules.push(module);
+      }
+      // Action IDs (section.resource.action) also grant the resource view
+      const parts = child.split('.');
+      if (parts.length >= 3) {
+        const viewId = `${parts[0]}.${parts[1]}`;
+        if (!newModules.includes(viewId)) {
+          newModules.push(viewId);
+        }
       }
     } else {
       newModules = newModules.filter(m => m !== child);
@@ -161,7 +169,7 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
     if (data) {
       reset({
         name: data.name ?? "",
-        roles: data.roles ?? [],
+        roles: normalizeModules(data.roles ?? []),
       });
     } else {
       reset({

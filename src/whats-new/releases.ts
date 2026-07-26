@@ -7,6 +7,15 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-07-26',
+    title: 'Hierarchical permissions and Manage hardening',
+    items: [
+      'Role permissions now use stable hierarchical IDs (section.resource.action), so the same label in Reports vs Inventory/Summary/Settings no longer share one grant.',
+      'Manage (Admin) create, update, delete, and import actions require their own permissions (e.g. admin.dishes.create) — tab access alone is no longer enough.',
+      'Existing roles are remapped by the access-modules backfill (view only for Admin resources). Review roles and assign create/update/delete/import where staff should keep editing Manage data.',
+    ],
+  },
+  {
     date: '2026-07-25',
     title: 'CSV import create, update, upsert',
     items: [

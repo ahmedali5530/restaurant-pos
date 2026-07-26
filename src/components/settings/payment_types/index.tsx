@@ -13,11 +13,14 @@ import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
+import {useSecurity} from "@/hooks/useSecurity.ts";
+import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 export const AdminPaymentTypes = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<PaymentType>>(Tables.payment_types, ['deleted_at = none'], ['priority asc'], 0, 10, ['tax', 'discounts', 'gateway_config']);
   const db = useDB();
+  const { protectAction } = useSecurity();
 
   const [data, setData] = useState<PaymentType>();
   const [formModal, setFormModal] = useState(false);
@@ -65,14 +68,22 @@ export const AdminPaymentTypes = () => {
             <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
-                setData(info.row.original);
-                setFormModal(true);
+                protectAction(() => {
+                  setData(info.row.original);
+                  setFormModal(true);
+                }, {
+                  module: 'admin.payment_types.update',
+                  description: getAccessRuleChildLabel('admin.payment_types.update'),
+                });
               }}
             ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
             <div className="separator"></div>
             <DeleteConfirm
               message={t('delete.paymentType', { name: info.row.original.name })}
-              onConfirm={() => deleteItem(info.row.original.id)}
+              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                module: 'admin.payment_types.delete',
+                description: getAccessRuleChildLabel('admin.payment_types.delete'),
+              })}
             />
           </div>
         );
@@ -107,7 +118,13 @@ export const AdminPaymentTypes = () => {
         loaderLineItems={columns.length}
         buttons={[
           <Button variant="primary" onClick={() => {
-            setFormModal(true);
+            protectAction(() => {
+              setData(undefined);
+              setFormModal(true);
+            }, {
+              module: 'admin.payment_types.create',
+              description: getAccessRuleChildLabel('admin.payment_types.create'),
+            });
           }} icon={faPlus}>{t('buttons.paymentType')}</Button>
         ]}
       />

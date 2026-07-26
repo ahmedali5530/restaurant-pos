@@ -25,22 +25,22 @@ import {DocumentTitle} from "@/components/common/document-title.tsx";
 
 /** Stable permission codes stored in user roles — not translated labels. */
 export const HR_TAB_MODULES: Record<string, string> = {
-  dashboard: "HR Dashboard",
-  employees: "Employees",
-  departments: "Departments",
-  positions: "Positions",
-  "cost-centers": "Cost Centers",
-  "pay-profiles": "Pay Profiles",
-  "pay-rules": "Pay Rules",
-  scheduling: "Scheduling",
-  attendance: "Attendance",
-  leave: "Leave",
-  holidays: "Holidays",
-  "payroll-periods": "Payroll Periods",
-  "payroll-runs": "Payroll Runs",
-  adjustments: "Adjustments",
-  documents: "Documents",
-  performance: "Performance",
+  dashboard: "hr.dashboard",
+  employees: "hr.employees",
+  departments: "hr.departments",
+  positions: "hr.positions",
+  "cost-centers": "hr.cost_centers",
+  "pay-profiles": "hr.pay_profiles",
+  "pay-rules": "hr.pay_rules",
+  scheduling: "hr.scheduling",
+  attendance: "hr.attendance",
+  leave: "hr.leave",
+  holidays: "hr.holidays",
+  "payroll-periods": "hr.payroll_periods",
+  "payroll-runs": "hr.payroll_runs",
+  adjustments: "hr.adjustments",
+  documents: "hr.documents",
+  performance: "hr.performance",
 };
 
 export const HrScreen = () => {

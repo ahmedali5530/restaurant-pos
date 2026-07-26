@@ -534,7 +534,7 @@ export const OrderPayment = ({
       db,
       orderId: order.id.toString(),
       printType: 'final',
-      printModule: 'Print final copy',
+      printModule: 'orders.print_final',
       description: 'Print final bill',
       userId: page?.user?.id?.toString?.() ?? page?.user?.id,
       skipIfOverLimit: true,
@@ -651,7 +651,7 @@ export const OrderPayment = ({
     await db.merge(order.id, progressMerge);
 
     postOrderTracking({
-      module: "Update order payment details",
+      module: "orders.update_payment",
       page: page?.page,
       orderId: order.id,
       payload: {
@@ -778,7 +778,7 @@ export const OrderPayment = ({
               )
             } onClick={() => {
               protectAction(() => setMode(PaymentOptions.Tax), {
-                module: 'Apply tax',
+                module: 'orders.apply_tax',
                 description: 'Apply tax',
                 payload: {
                   order: order.id.toString()
@@ -801,7 +801,7 @@ export const OrderPayment = ({
               )
             } onClick={() => {
               protectAction(() => setMode(PaymentOptions.Discount), {
-                module: 'Apply discount',
+                module: 'orders.apply_discount',
                 description: 'Apply discount',
                 payload: {
                   order: order.id.toString()
@@ -823,7 +823,7 @@ export const OrderPayment = ({
               )
             } onClick={() => {
               protectAction(() => setMode(PaymentOptions.Coupon), {
-                module: 'Apply coupon',
+                module: 'orders.apply_coupon',
                 description: 'Apply coupon',
                 payload: {
                   order: order.id.toString()
@@ -841,7 +841,7 @@ export const OrderPayment = ({
               )
             } onClick={() => {
               protectAction(() => setMode(PaymentOptions['Service Charges']), {
-                module: 'Apply service charges',
+                module: 'orders.apply_service_charges',
                 description: 'Apply service charges',
                 payload: {
                   order: order.id.toString()
@@ -863,7 +863,7 @@ export const OrderPayment = ({
               )
             } onClick={() => {
               protectAction(() => setMode(PaymentOptions.Tip), {
-                module: 'Apply tips',
+                module: 'orders.apply_tips',
                 description: 'Apply tips',
                 payload: {
                   order: order.id.toString()
@@ -889,7 +889,7 @@ export const OrderPayment = ({
                     ...prev,
                     [extra]: !(prev[extra] ?? true)
                   })), {
-                    module: 'Change extras',
+                    module: 'orders.change_extras',
                     description: 'Change extras',
                     payload: {
                       order: order.id.toString()

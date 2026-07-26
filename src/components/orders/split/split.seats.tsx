@@ -196,7 +196,7 @@ export const SplitBySeats = ({
       });
 
       postOrderTracking({
-        module: "Split order by seats",
+        module: "orders.split_by_seats",
         page: page?.page,
         orderId: order.id,
         payload: {

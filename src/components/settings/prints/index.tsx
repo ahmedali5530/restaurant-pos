@@ -10,9 +10,12 @@ import {TableComponent} from "@/components/common/table/table.tsx";
 import {Setting} from "@/api/model/setting.ts";
 import {useTranslation} from 'react-i18next';
 import {PrintForm} from "@/components/settings/prints/print.form.tsx";
+import {useSecurity} from "@/hooks/useSecurity.ts";
+import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 export const AdminPrints = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
+  const { protectAction } = useSecurity();
   const loadHook = useApi<SettingsData<Setting>>(Tables.settings, [
     '(key = "Temp Print" or key = "Final Print" or key = "Kitchen Print" or key = "Summary Print" or key = "Delivery Print")'
   ], ['priority asc']);
@@ -37,8 +40,13 @@ export const AdminPrints = () => {
             <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
-                setData(info.row.original);
-                setFormModal(true);
+                protectAction(() => {
+                  setData(info.row.original);
+                  setFormModal(true);
+                }, {
+                  module: 'admin.print_settings.update',
+                  description: getAccessRuleChildLabel('admin.print_settings.update'),
+                });
               }}
             ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
           </>

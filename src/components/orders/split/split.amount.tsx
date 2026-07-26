@@ -306,7 +306,7 @@ export const SplitAmount = ({
       });
 
       postOrderTracking({
-        module: "Split order by amount",
+        module: "orders.split_by_amount",
         page: page?.page,
         orderId: order.id,
         payload: {

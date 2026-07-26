@@ -15,11 +15,14 @@ import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
+import {useSecurity} from "@/hooks/useSecurity.ts";
+import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 export const AdminFloors = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<Floor>>(Tables.floors, ['deleted_at = none'], [], 0, 10, ['tables']);
   const db = useDB();
+  const { protectAction } = useSecurity();
 
   const [data, setData] = useState<Floor>();
   const [formModal, setFormModal] = useState(false);
@@ -45,16 +48,26 @@ export const AdminFloors = () => {
               variant="primary"
               type="button"
               onClick={() => {
-                setData(info.row.original);
-                setFormModal(true);
+                protectAction(() => {
+                  setData(info.row.original);
+                  setFormModal(true);
+                }, {
+                  module: 'admin.floors.update',
+                  description: getAccessRuleChildLabel('admin.floors.update'),
+                });
               }}
             ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
             <Button
               variant="warning"
               type="button"
               onClick={() => {
-                setLayoutModal(true)
-                setData(info.row.original);
+                protectAction(() => {
+                  setLayoutModal(true)
+                  setData(info.row.original);
+                }, {
+                  module: 'admin.floors.update',
+                  description: getAccessRuleChildLabel('admin.floors.update'),
+                });
               }}
             >
               Layout
@@ -62,7 +75,10 @@ export const AdminFloors = () => {
             <div className="separator"></div>
             <DeleteConfirm
               message={t('delete.floor', { name: info.row.original.name })}
-              onConfirm={() => deleteItem(info.row.original.id)}
+              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                module: 'admin.floors.delete',
+                description: getAccessRuleChildLabel('admin.floors.delete'),
+              })}
             />
           </div>
         );
@@ -97,7 +113,13 @@ export const AdminFloors = () => {
         loaderLineItems={columns.length}
         buttons={[
           <Button variant="primary" onClick={() => {
-            setFormModal(true);
+            protectAction(() => {
+              setData(undefined);
+              setFormModal(true);
+            }, {
+              module: 'admin.floors.create',
+              description: getAccessRuleChildLabel('admin.floors.create'),
+            });
           }} icon={faPlus}>{t('buttons.floor')}</Button>
         ]}
       />

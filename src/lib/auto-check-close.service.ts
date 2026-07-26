@@ -276,7 +276,7 @@ async function printFinalBill(
       db,
       orderId: String(orderId),
       printType: 'final',
-      printModule: 'Print final copy',
+      printModule: 'orders.print_final',
       description: 'Print final bill',
       userId,
       skipIfOverLimit: true,

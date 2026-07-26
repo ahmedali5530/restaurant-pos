@@ -83,7 +83,7 @@ export const ShowInclusivePricesSettingsCard = () => {
       </p>
       <form
         onSubmit={protectFormSubmit(handleSubmit(saveSettings), {
-          module: "Show inclusive prices",
+          module: "settings.show_inclusive_prices",
           description: t("settings:showInclusivePrices.saveDescription"),
         })}
       >

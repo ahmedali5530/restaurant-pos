@@ -102,7 +102,7 @@ export const InventoryPurchaseReturns = () => {
                   setData(row);
                   setFormModal(true);
                 }, {
-                  module: 'Edit Purchase Returns',
+                  module: 'inventory.purchase_returns.update',
                   description: t('security.editPurchaseReturns'),
                 });
               }}
@@ -120,7 +120,7 @@ export const InventoryPurchaseReturns = () => {
                   );
                   loadHook.fetchData();
                 }, {
-                  module: 'Delete Purchase Returns',
+                  module: 'inventory.purchase_returns.delete',
                   description: t('security.deletePurchaseReturns'),
                 })
               }

@@ -70,20 +70,20 @@ export const Sidebar = () => {
   }
 
   const allSidebarItems = useMemo(() => [
-    { title: t('sidebar.menu'), icon: <FontAwesomeIcon icon={faBars} size="lg"/>, link: MENU, role: 'Menu' },
-    { title: t('sidebar.orders'), icon: <FontAwesomeIcon icon={faList} size="lg"/>, link: ORDERS, role: 'Orders' },
-    { title: t('sidebar.summary'), icon: <FontAwesomeIcon icon={faClipboardList} size="lg"/>, link: SUMMARY, role: 'Summary' },
-    { title: t('sidebar.kitchen'), icon: <FontAwesomeIcon icon={faUtensils} size="lg"/>, link: KITCHEN, role: 'Kitchen' },
-    // { title: t('sidebar.orderDisplay'), icon: <FontAwesomeIcon icon={faDisplay} size="lg"/>, link: ORDER_DISPLAY, role: 'Order Display' },
-    { title: t('sidebar.delivery'), icon: <FontAwesomeIcon icon={faMotorcycle} size="lg"/>, link: DELIVERY, role: 'Delivery' },
-    { title: t('sidebar.closing'), icon: <FontAwesomeIcon icon={faStore} size="lg"/>, link: CLOSING, role: 'Closing' },
-    { title: t('sidebar.inventory'), icon: <FontAwesomeIcon icon={faWarehouse} size="lg"/>, link: INVENTORY, role: 'Inventory' },
-    { title: t('sidebar.manage'), icon: <FontAwesomeIcon icon={faGear} size="lg"/>, link: ADMIN, role: 'Admin' },
-    { title: t('sidebar.reports'), icon: <FontAwesomeIcon icon={faLineChart} size="lg"/>, link: REPORTS, role: 'Reports' },
-    { title: t('sidebar.tipDist'), icon: <FontAwesomeIcon icon={faBarChart} size="lg"/>, link: TIP_DISTRIBUTION, role: 'Tips' },
-    { title: t('sidebar.accounts'), icon: <FontAwesomeIcon icon={faReceipt} size="lg"/>, link: ACCOUNTS, role: 'Accounts' },
-    { title: t('sidebar.hr'), icon: <FontAwesomeIcon icon={faUsers} size="lg"/>, link: HR, role: 'HR' },
-    { title: t('sidebar.integrations'), icon: <FontAwesomeIcon icon={faPlug} size="lg"/>, link: INTEGRATIONS, role: 'Integrations' },
+    { title: t('sidebar.menu'), icon: <FontAwesomeIcon icon={faBars} size="lg"/>, link: MENU, role: 'menu' },
+    { title: t('sidebar.orders'), icon: <FontAwesomeIcon icon={faList} size="lg"/>, link: ORDERS, role: 'orders' },
+    { title: t('sidebar.summary'), icon: <FontAwesomeIcon icon={faClipboardList} size="lg"/>, link: SUMMARY, role: 'summary' },
+    { title: t('sidebar.kitchen'), icon: <FontAwesomeIcon icon={faUtensils} size="lg"/>, link: KITCHEN, role: 'kitchen' },
+    // { title: t('sidebar.orderDisplay'), icon: <FontAwesomeIcon icon={faDisplay} size="lg"/>, link: ORDER_DISPLAY, role: 'order_display' },
+    { title: t('sidebar.delivery'), icon: <FontAwesomeIcon icon={faMotorcycle} size="lg"/>, link: DELIVERY, role: 'delivery' },
+    { title: t('sidebar.closing'), icon: <FontAwesomeIcon icon={faStore} size="lg"/>, link: CLOSING, role: 'closing' },
+    { title: t('sidebar.inventory'), icon: <FontAwesomeIcon icon={faWarehouse} size="lg"/>, link: INVENTORY, role: 'inventory' },
+    { title: t('sidebar.manage'), icon: <FontAwesomeIcon icon={faGear} size="lg"/>, link: ADMIN, role: 'admin' },
+    { title: t('sidebar.reports'), icon: <FontAwesomeIcon icon={faLineChart} size="lg"/>, link: REPORTS, role: 'reports' },
+    { title: t('sidebar.tipDist'), icon: <FontAwesomeIcon icon={faBarChart} size="lg"/>, link: TIP_DISTRIBUTION, role: 'tips' },
+    { title: t('sidebar.accounts'), icon: <FontAwesomeIcon icon={faReceipt} size="lg"/>, link: ACCOUNTS, role: 'accounts' },
+    { title: t('sidebar.hr'), icon: <FontAwesomeIcon icon={faUsers} size="lg"/>, link: HR, role: 'hr' },
+    { title: t('sidebar.integrations'), icon: <FontAwesomeIcon icon={faPlug} size="lg"/>, link: INTEGRATIONS, role: 'integrations' },
   ], [t]);
 
   // Filter sidebar items based on user roles
@@ -128,7 +128,7 @@ export const Sidebar = () => {
       <div className="flex flex-col gap-2 w-full p-2">
         <div className="input-group">
           <button
-            onClick={() => protectedNavigate(SETTINGS, 'Settings')}
+            onClick={() => protectedNavigate(SETTINGS, 'settings')}
             className={cn(
               'btn btn-primary lg flex-1',
               pathInfo === SETTINGS ? 'active' : ''

@@ -112,7 +112,7 @@ export const InventoryIssueReturns = () => {
                   setData(row);
                   setFormModal(true);
                 }, {
-                  module: 'Edit Issue Returns',
+                  module: 'inventory.issue_returns.update',
                   description: t('security.editIssueReturns'),
                 });
               }}
@@ -130,7 +130,7 @@ export const InventoryIssueReturns = () => {
                   );
                   loadHook.fetchData();
                 }, {
-                  module: 'Delete Issue Returns',
+                  module: 'inventory.issue_returns.delete',
                   description: t('security.deleteIssueReturns'),
                 })
               }

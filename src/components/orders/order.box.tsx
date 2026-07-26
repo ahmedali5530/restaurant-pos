@@ -100,7 +100,7 @@ export const OrderBox = ({
       protectAction,
       orderId: order.id.toString(),
       printType: 'temp',
-      printModule: 'Print temp bill',
+      printModule: 'orders.print_temp',
       description: 'Print temp bill',
       payload: { order: order.id.toString() },
       userId: page?.user?.id?.toString?.() ?? page?.user?.id,
@@ -118,7 +118,7 @@ export const OrderBox = ({
       protectAction,
       orderId: order.id.toString(),
       printType: 'final',
-      printModule: 'Print final copy',
+      printModule: 'orders.print_final',
       description: 'Print final copy',
       payload: { order: order.id.toString() },
       userId: page?.user?.id?.toString?.() ?? page?.user?.id,
@@ -201,7 +201,7 @@ export const OrderBox = ({
                     protectAction(() => {
                       setSplitBySeats(true)
                     }, {
-                      module: 'Split by seats',
+                      module: 'orders.split_by_seats',
                       description: 'Split by seats',
                       payload: {
                         order: order.id.toString()
@@ -213,7 +213,7 @@ export const OrderBox = ({
                     protectAction(() => {
                       setSplitByManually(true);
                     }, {
-                      module: 'Split by items',
+                      module: 'orders.split_by_items',
                       description: 'Split by items',
                       payload: {
                         order: order.id.toString()
@@ -225,7 +225,7 @@ export const OrderBox = ({
                     protectAction(() => {
                       setSplitByAmount(true);
                     }, {
-                      module: 'Split by amount',
+                      module: 'orders.split_by_amount',
                       description: 'Split by amount',
                       payload: {
                         order: order.id.toString()
@@ -237,7 +237,7 @@ export const OrderBox = ({
                     protectAction(() => {
                       setCancelOrderOpen(true);
                     }, {
-                      module: 'Cancel order',
+                      module: 'orders.cancel',
                       description: 'Cancel order',
                       payload: {
                         order: order.id.toString()
@@ -251,7 +251,7 @@ export const OrderBox = ({
                     protectAction(() => {
                       onMergeSelect(order, true);
                     }, {
-                      module: 'Merge orders',
+                      module: 'orders.merge',
                       description: 'Merge orders',
                       payload: {
                         order: order.id.toString()
@@ -263,7 +263,7 @@ export const OrderBox = ({
                     protectAction(() => {
                       setRefundOrderOpen(true);
                     }, {
-                      module: 'Refund order',
+                      module: 'orders.refund',
                       description: 'Refund order',
                       payload: {
                         order: order.id.toString()

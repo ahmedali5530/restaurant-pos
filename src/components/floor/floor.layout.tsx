@@ -225,7 +225,7 @@ export const FloorLayout = () => {
           }
 
           postOrderTracking({
-            module: "Move order table",
+            module: "orders.move_table",
             page: page?.page,
             orderId: state.order.id,
             payload: {

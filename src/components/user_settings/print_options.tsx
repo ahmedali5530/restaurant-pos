@@ -143,7 +143,7 @@ export const PrintOptionsSettingsCard = () => {
       </p>
       <form
         onSubmit={protectFormSubmit(handleSubmit(saveSettings), {
-          module: "Print options",
+          module: "settings.print_options",
           description: t("settings:printOptions.saveDescription"),
         })}
       >

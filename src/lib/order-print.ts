@@ -204,7 +204,7 @@ export async function requestBillPrint(opts: {
     return run();
   }
 
-  const module = isOverride ? "Override print limit" : opts.printModule;
+  const module = isOverride ? "orders.override_print_limit" : opts.printModule;
   const description = isOverride
     ? i18n.t("toast:print.overrideRequired")
     : opts.description;

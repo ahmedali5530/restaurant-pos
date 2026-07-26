@@ -15,11 +15,14 @@ import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
+import {useSecurity} from "@/hooks/useSecurity.ts";
+import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 export const AdminMenus = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<Menu>>(Tables.menus, ['deleted_at = none'], [], 0, 10, ['items', 'items.menu_item', 'items.taxes']);
   const db = useDB();
+  const { protectAction } = useSecurity();
 
   const [data, setData] = useState<Menu>();
   const [formModal, setFormModal] = useState(false);
@@ -82,22 +85,35 @@ export const AdminMenus = () => {
             <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
-                setData(info.row.original);
-                setFormModal(true);
+                protectAction(() => {
+                  setData(info.row.original);
+                  setFormModal(true);
+                }, {
+                  module: 'admin.menus.update',
+                  description: getAccessRuleChildLabel('admin.menus.update'),
+                });
               }}
             ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
             <div className="separator"></div>
             <IconTooltipButton label={t('forms.manageMenuItems')}
               variant="primary"
               onClick={() => {
-                setSelectedMenu(info.row.original);
-                setItemsModal(true);
+                protectAction(() => {
+                  setSelectedMenu(info.row.original);
+                  setItemsModal(true);
+                }, {
+                  module: 'admin.menus.update',
+                  description: getAccessRuleChildLabel('admin.menus.update'),
+                });
               }}
             ><FontAwesomeIcon icon={faList}/></IconTooltipButton>
             <div className="separator"></div>
             <DeleteConfirm
               message={t('delete.menu', { name: info.row.original.name })}
-              onConfirm={() => deleteItem(info.row.original.id)}
+              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                module: 'admin.menus.delete',
+                description: getAccessRuleChildLabel('admin.menus.delete'),
+              })}
             />
           </div>
         );
@@ -134,7 +150,13 @@ export const AdminMenus = () => {
         loaderLineItems={columns.length}
         buttons={[
           <Button variant="primary" onClick={() => {
-            setFormModal(true);
+            protectAction(() => {
+              setData(undefined);
+              setFormModal(true);
+            }, {
+              module: 'admin.menus.create',
+              description: getAccessRuleChildLabel('admin.menus.create'),
+            });
           }} icon={faPlus}>{t('buttons.menu')}</Button>
         ]}
       />

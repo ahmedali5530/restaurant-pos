@@ -164,7 +164,7 @@ export const OrderRefundModal = ({
       });
 
       postOrderTracking({
-        module: "Refund order",
+        module: "orders.refund",
         page: page?.page,
         orderId: order.id,
         payload: {

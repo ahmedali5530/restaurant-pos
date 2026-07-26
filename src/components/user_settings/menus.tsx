@@ -130,7 +130,7 @@ export const MenusSettings = () => {
       ) : (
         <form onSubmit={protectFormSubmit((handleSubmit(onSubmit)), {
           description: t('settings:menus.saveDescription'),
-          module: 'Menus'
+          module: 'settings.menus'
         })} className="flex flex-col gap-4 max-w-xl">
           <div>
             <label className="block text-sm font-medium mb-1">{t('settings:menus.activateMenus')}</label>

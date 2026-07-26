@@ -26,6 +26,8 @@ import {
   writeCsvImportRow,
 } from "@/utils/csv-import.ts";
 import {StringRecordId} from "surrealdb";
+import {useSecurity} from "@/hooks/useSecurity.ts";
+import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 const parseCsvBool = (value?: string) =>
   ['true', '1', 'yes'].includes((value ?? '').trim().toLowerCase());
@@ -33,6 +35,7 @@ const parseCsvBool = (value?: string) =>
 export const AdminDishes = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
   const db = useDB();
+  const { protectAction } = useSecurity();
 
   const loadHook = useApi<SettingsData<Dish & { modifiers: [] }>>(
     Tables.dishes, [`deleted_at = none`], [], 0, 10, ['categories', 'items', 'items.item'], {}, [
@@ -168,14 +171,22 @@ export const AdminDishes = () => {
             <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
-                setData(info.row.original);
-                setFormModal(true);
+                protectAction(() => {
+                  setData(info.row.original);
+                  setFormModal(true);
+                }, {
+                  module: 'admin.dishes.update',
+                  description: getAccessRuleChildLabel('admin.dishes.update'),
+                });
               }}
             ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
             <div className="separator"></div>
             <DeleteConfirm
               message={t('delete.dish', { name: info.row.original.name })}
-              onConfirm={() => deleteItem(info.row.original.id)}
+              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                module: 'admin.dishes.delete',
+                description: getAccessRuleChildLabel('admin.dishes.delete'),
+              })}
             />
           </div>
         );
@@ -227,16 +238,31 @@ export const AdminDishes = () => {
         loaderLineItems={columns.length}
         buttons={[
           <Button variant="primary" onClick={() => {
-            setImportModal(true);
+            protectAction(() => setImportModal(true), {
+              module: 'admin.dishes.import',
+              description: getAccessRuleChildLabel('admin.dishes.import'),
+            });
           }} icon={faUpload}>{t('buttons.importDishes')}</Button>,
           <Button variant="primary" onClick={() => {
-            setIngredientsImportModal(true);
+            protectAction(() => setIngredientsImportModal(true), {
+              module: 'admin.dishes.import',
+              description: getAccessRuleChildLabel('admin.dishes.import'),
+            });
           }} icon={faUpload}>{t('buttons.importIngredients')}</Button>,
           <Button variant="primary" onClick={() => {
-            setModifierGroupsImportModal(true);
+            protectAction(() => setModifierGroupsImportModal(true), {
+              module: 'admin.dishes.import',
+              description: getAccessRuleChildLabel('admin.dishes.import'),
+            });
           }} icon={faUpload}>{t('buttons.importModifierGroups')}</Button>,
           <Button variant="primary" onClick={() => {
-            setFormModal(true);
+            protectAction(() => {
+              setData(undefined);
+              setFormModal(true);
+            }, {
+              module: 'admin.dishes.create',
+              description: getAccessRuleChildLabel('admin.dishes.create'),
+            });
           }} icon={faPlus}>{t('buttons.dish')}</Button>
         ]}
         customSearch
@@ -259,10 +285,15 @@ export const AdminDishes = () => {
         }}
         selectionButtons={[
           <Button variant="primary" onClick={() => {
-            setBulkEdit((prev) => ({
-              ...prev,
-              state: true,
-            }));
+            protectAction(() => {
+              setBulkEdit((prev) => ({
+                ...prev,
+                state: true,
+              }));
+            }, {
+              module: 'admin.dishes.update',
+              description: getAccessRuleChildLabel('admin.dishes.update'),
+            });
           }} icon={faPencil}>{t('buttons.bulkEdit')}</Button>
         ]}
       />

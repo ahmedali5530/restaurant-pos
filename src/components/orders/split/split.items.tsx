@@ -253,7 +253,7 @@ export const SplitItems = ({
       });
 
       postOrderTracking({
-        module: "Split order by items",
+        module: "orders.split_by_items",
         page: page?.page,
         orderId: order.id,
         payload: {

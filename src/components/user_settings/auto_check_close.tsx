@@ -127,7 +127,7 @@ export const AutoCheckCloseSettingsCard = () => {
       </p>
       <form
         onSubmit={protectFormSubmit(handleSubmit(saveSettings), {
-          module: 'Auto check close',
+          module: 'settings.auto_check_close',
           description: t('settings:autoCheckClose.saveDescription'),
         })}
       >

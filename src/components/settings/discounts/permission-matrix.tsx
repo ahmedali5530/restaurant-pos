@@ -9,10 +9,13 @@ import { Checkbox } from '@/components/common/input/checkbox.tsx'
 import { DISCOUNT_CATEGORIES } from '@/lib/discount-engine/types.ts'
 import { toast } from 'sonner'
 import { translatedSelectOptions } from '@/lib/discount-engine/i18n-options.ts'
+import { useSecurity } from '@/hooks/useSecurity.ts'
+import { getAccessRuleChildLabel } from '@/lib/access.rules.i18n.ts'
 
 export const DiscountPermissionMatrix = () => {
   const { t } = useTranslation('admin')
   const db = useDB()
+  const { protectAction } = useSecurity()
   const { data: roles } = useApi<SettingsData<UserRole>>(Tables.user_roles, ['deleted_at = none'])
   const loadHook = useApi<SettingsData<RoleDiscountPolicy>>(Tables.role_discount_policies, [], ['user_role asc'])
   const policies = loadHook.data?.data || []
@@ -28,24 +31,29 @@ export const DiscountPermissionMatrix = () => {
     })
 
   const savePolicy = async (role: UserRole, patch: Partial<RoleDiscountPolicy>) => {
-    const existing = getPolicy(role.id)
-    try {
-      if (existing?.id) {
-        await db.merge(existing.id, patch)
-      } else {
-        await db.create(Tables.role_discount_policies, {
-          user_role: role.id,
-          can_apply_manual: true,
-          can_override_approval: false,
-          allowed_categories: [],
-          ...patch,
-        })
+    protectAction(async () => {
+      const existing = getPolicy(role.id)
+      try {
+        if (existing?.id) {
+          await db.merge(existing.id, patch)
+        } else {
+          await db.create(Tables.role_discount_policies, {
+            user_role: role.id,
+            can_apply_manual: true,
+            can_override_approval: false,
+            allowed_categories: [],
+            ...patch,
+          })
+        }
+        loadHook.fetchData()
+        toast.success(t('discountEngine.permissions.policySaved'))
+      } catch (e) {
+        toast.error(t('discountEngine.errors.saveFailed'))
       }
-      loadHook.fetchData()
-      toast.success(t('discountEngine.permissions.policySaved'))
-    } catch (e) {
-      toast.error(t('discountEngine.errors.saveFailed'))
-    }
+    }, {
+      module: 'admin.discounts.update',
+      description: getAccessRuleChildLabel('admin.discounts.update'),
+    })
   }
 
   return (

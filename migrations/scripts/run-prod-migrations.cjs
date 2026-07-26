@@ -51,6 +51,10 @@ const MIGRATION_PLAN = [
   { id: '2026_07_20_fix_purchase_extras', file: '2026_07_20.surql'},
   { id: '2026_07_23_purchase_order_approval', file: '2026_07_23_purchase_order_approval.surql' },
   { id: '2026_07_24_order_print', file: '2026_07_24_order_print.surql' },
+  {
+    id: '2026_07_26_access_modules_backfill',
+    backfill: 'backfill-access-modules.cjs',
+  },
 ];
 
 const rows = (result) => {

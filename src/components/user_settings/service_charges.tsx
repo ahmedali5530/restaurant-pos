@@ -86,7 +86,7 @@ export const ServiceChargesSettings = () => {
     <div className="shadow p-5 rounded-xl bg-white">
       <h2 className="text-xl font-semibold mb-1">{t('settings:serviceCharges.title')}</h2>
       <form onSubmit={protectFormSubmit((handleSubmit(saveSettings)), {
-        module: 'Service charges',
+        module: 'settings.service_charges',
         description: t('settings:serviceCharges.saveDescription')
       })}>
         <div className="grid grid-cols-2 gap-5 mb-5">

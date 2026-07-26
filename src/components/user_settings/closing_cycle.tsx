@@ -84,7 +84,7 @@ export const ClosingCycleSettingsCard = () => {
         {t('settings:closingCycle.description')}
       </p>
       <form onSubmit={protectFormSubmit(handleSubmit(saveSettings), {
-        module: "Closing cycle",
+        module: "settings.closing_cycle",
         description: t('settings:closingCycle.saveDescription'),
       })}>
         <div className="grid grid-cols-2 gap-5 mb-5">

@@ -19,16 +19,16 @@ import {DocumentTitle} from "@/components/common/document-title.tsx";
 
 /** Stable permission codes stored in user roles — not translated labels. */
 const ACCOUNTS_TAB_MODULES: Record<string, string> = {
-  'chart-of-accounts': 'Chart of Accounts',
-  'account-groups': 'Account Groups',
-  'journal-entries': 'Journal Entries',
-  'general-ledger': 'General Ledger',
-  'trial-balance': 'Trial Balance',
-  'balance-sheet': 'Balance Sheet',
-  'profit-loss': 'Profit & Loss',
-  'cash-flow': 'Cash Flow',
-  'customer-statement': 'Customer Statement',
-  'supplier-statement': 'Supplier Statement',
+  'chart-of-accounts': 'accounts.chart_of_accounts',
+  'account-groups': 'accounts.account_groups',
+  'journal-entries': 'accounts.journal_entries',
+  'general-ledger': 'accounts.general_ledger',
+  'trial-balance': 'accounts.trial_balance',
+  'balance-sheet': 'accounts.balance_sheet',
+  'profit-loss': 'accounts.profit_loss',
+  'cash-flow': 'accounts.cash_flow',
+  'customer-statement': 'accounts.customer_statement',
+  'supplier-statement': 'accounts.supplier_statement',
 };
 
 export const AccountsScreen = () => {

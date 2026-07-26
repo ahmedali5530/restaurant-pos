@@ -285,7 +285,7 @@ export const Printersettings = () => {
       ) : (
         <form onSubmit={protectFormSubmit((handleSubmit(onSubmit)), {
           description: t('settings:printers.saveDescription'),
-          module: 'Printers'
+          module: 'settings.printers'
         })} className="flex flex-col gap-4 max-w-xl">
 
           <div>

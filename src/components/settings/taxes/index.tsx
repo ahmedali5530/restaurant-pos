@@ -13,11 +13,14 @@ import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
+import {useSecurity} from "@/hooks/useSecurity.ts";
+import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 export const AdminTaxes = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<Tax>>(Tables.taxes, ['deleted_at = none']);
   const db = useDB();
+  const { protectAction } = useSecurity();
 
   const [data, setData] = useState<Tax>();
   const [formModal, setFormModal] = useState(false);
@@ -45,14 +48,22 @@ export const AdminTaxes = () => {
             <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
-                setData(info.row.original);
-                setFormModal(true);
+                protectAction(() => {
+                  setData(info.row.original);
+                  setFormModal(true);
+                }, {
+                  module: 'admin.taxes.update',
+                  description: getAccessRuleChildLabel('admin.taxes.update'),
+                });
               }}
             ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
             <div className="separator"></div>
             <DeleteConfirm
               message={t('delete.tax', { name: info.row.original.name })}
-              onConfirm={() => deleteItem(info.row.original.id.toString())}
+              onConfirm={() => protectAction(() => deleteItem(info.row.original.id.toString()), {
+                module: 'admin.taxes.delete',
+                description: getAccessRuleChildLabel('admin.taxes.delete'),
+              })}
             />
           </div>
         );
@@ -90,7 +101,13 @@ export const AdminTaxes = () => {
         loaderLineItems={columns.length}
         buttons={[
           <Button variant="primary" onClick={() => {
-            setFormModal(true);
+            protectAction(() => {
+              setData(undefined);
+              setFormModal(true);
+            }, {
+              module: 'admin.taxes.create',
+              description: getAccessRuleChildLabel('admin.taxes.create'),
+            });
           }} icon={faPlus}>{t('buttons.tax')}</Button>
         ]}
       />

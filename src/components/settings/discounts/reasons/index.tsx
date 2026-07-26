@@ -11,10 +11,13 @@ import { Input } from '@/components/common/input/input.tsx'
 import { useDB } from '@/api/db/db.ts'
 import { toast } from 'sonner'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { useSecurity } from '@/hooks/useSecurity.ts'
+import { getAccessRuleChildLabel } from '@/lib/access.rules.i18n.ts'
 
 export const DiscountReasonsAdmin = () => {
   const { t } = useTranslation(['admin', 'common'])
   const db = useDB()
+  const { protectAction } = useSecurity()
   const loadHook = useApi<SettingsData<DiscountReason>>(
     Tables.discount_reasons,
     ['deleted_at = none'],
@@ -64,7 +67,10 @@ export const DiscountReasonsAdmin = () => {
         columns={columns}
         loaderLineItems={4}
         buttons={[
-          <Button key="add" variant="primary" icon={faPlus} onClick={() => setOpen(true)}>
+          <Button key="add" variant="primary" icon={faPlus} onClick={() => protectAction(() => setOpen(true), {
+            module: 'admin.discounts.create',
+            description: getAccessRuleChildLabel('admin.discounts.create'),
+          })}>
             {t('discountEngine.reasons.add')}
           </Button>,
         ]}

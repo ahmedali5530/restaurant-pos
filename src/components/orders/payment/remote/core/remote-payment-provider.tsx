@@ -44,7 +44,7 @@ export function RemotePaymentProvider({
     () => ({
       trackCreateIntent: (payload: Record<string, unknown>) => {
         postOrderTracking({
-          module: "Create remote payment intent",
+          module: "orders.remote_payment_create",
           page,
           orderId: order.id,
           payload,
@@ -53,7 +53,7 @@ export function RemotePaymentProvider({
       },
       trackVerifyPayment: (payload: Record<string, unknown>) => {
         postOrderTracking({
-          module: "Verify remote payment",
+          module: "orders.remote_payment_verify",
           page,
           orderId: order.id,
           payload,

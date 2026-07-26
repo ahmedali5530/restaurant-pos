@@ -20,11 +20,13 @@ import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useTranslation} from 'react-i18next';
+import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 const AdminUsersList = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<User>>(Tables.users, ['deleted_at = none'], [], 0, 10, ["user_role", "user_shift"]);
   const db = useDB();
+  const {protectAction} = useSecurity();
 
   const [data, setData] = useState<User>();
   const [formModal, setFormModal] = useState(false);
@@ -68,14 +70,22 @@ const AdminUsersList = () => {
             <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
-                setData(info.row.original);
-                setFormModal(true);
+                protectAction(() => {
+                  setData(info.row.original);
+                  setFormModal(true);
+                }, {
+                  module: 'admin.users.update',
+                  description: getAccessRuleChildLabel('admin.users.update'),
+                });
               }}
             ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
             <div className="separator"></div>
             <DeleteConfirm
               message={t('delete.user', { name: `${info.row.original.first_name} ${info.row.original.last_name}` })}
-              onConfirm={() => deleteItem(info.row.original.id)}
+              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                module: 'admin.users.delete',
+                description: getAccessRuleChildLabel('admin.users.delete'),
+              })}
             />
           </div>
         );
@@ -110,7 +120,13 @@ const AdminUsersList = () => {
         loaderLineItems={columns.length}
         buttons={[
           <Button variant="primary" onClick={() => {
-            setFormModal(true);
+            protectAction(() => {
+              setData(undefined);
+              setFormModal(true);
+            }, {
+              module: 'admin.users.create',
+              description: getAccessRuleChildLabel('admin.users.create'),
+            });
           }} icon={faPlus}>{t('buttons.user')}</Button>
         ]}
       />
@@ -128,38 +144,52 @@ const AdminUsersList = () => {
   )
 }
 
+const USERS_TAB_MODULES = [
+  'admin.users',
+  'admin.roles',
+  'admin.shifts',
+  'admin.tips_definition',
+] as const;
+
 export const AdminUsers = () => {
-  const [s, setS] = useState('Users');
+  const [s, setS] = useState<(typeof USERS_TAB_MODULES)[number]>('admin.users');
   const {protectAction} = useSecurity();
   const { t } = useTranslation('admin');
+
+  const tabTitles: Record<(typeof USERS_TAB_MODULES)[number], string> = {
+    'admin.users': t('tabs.users'),
+    'admin.roles': t('tabs.roles'),
+    'admin.shifts': t('tabs.shifts'),
+    'admin.tips_definition': t('tabs.tipsDefinition'),
+  };
 
   return (
     <Tabs
       className="w-full flex flex-col"
       selectedKey={s}
       onSelectionChange={(k: string) => {
-        protectAction(() => setS(k), {
+        protectAction(() => setS(k as (typeof USERS_TAB_MODULES)[number]), {
           module: k,
-          description: t('tabs.accessTab', { title: k }),
+          description: t('tabs.accessTab', { title: tabTitles[k as (typeof USERS_TAB_MODULES)[number]] ?? k }),
         });
       }}
     >
       <TabList aria-label={t('users.manageTabs')} className="flex gap-3 p-3 bg-white border-b border-neutral-200">
-        <Tab id="Users">{t('tabs.users')}</Tab>
-        <Tab id="Roles">{t('tabs.roles')}</Tab>
-        <Tab id="Shifts">{t('tabs.shifts')}</Tab>
-        <Tab id="Tips definition">{t('tabs.tipsDefinition')}</Tab>
+        <Tab id="admin.users">{t('tabs.users')}</Tab>
+        <Tab id="admin.roles">{t('tabs.roles')}</Tab>
+        <Tab id="admin.shifts">{t('tabs.shifts')}</Tab>
+        <Tab id="admin.tips_definition">{t('tabs.tipsDefinition')}</Tab>
       </TabList>
-      <TabPanel id="Users" className="bg-white">
+      <TabPanel id="admin.users" className="bg-white">
         <AdminUsersList />
       </TabPanel>
-      <TabPanel id="Roles" className="bg-white">
+      <TabPanel id="admin.roles" className="bg-white">
         <AdminUserRoles />
       </TabPanel>
-      <TabPanel id="Shifts" className="bg-white">
+      <TabPanel id="admin.shifts" className="bg-white">
         <AdminShifts />
       </TabPanel>
-      <TabPanel id="Tips definition" className="bg-white">
+      <TabPanel id="admin.tips_definition" className="bg-white">
         <AdminTipDistribution />
       </TabPanel>
     </Tabs>

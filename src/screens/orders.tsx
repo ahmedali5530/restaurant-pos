@@ -293,7 +293,7 @@ export const Orders = () => {
       await db.create(Tables.order_merge, mergePayload)
 
       postOrderTracking({
-        module: "Merge orders",
+        module: "orders.merge",
         page: app?.page,
         orderId: mergedOrder[0].id,
         payload: {
@@ -382,7 +382,7 @@ export const Orders = () => {
                 protectAction(() => {
                   void dispatchPrint(db, PRINT_TYPE.pulse, {}, {userId: app?.user?.id});
                 }, {
-                  module: 'Open cash drawer',
+                  module: 'orders.open_cash_drawer',
                   description: 'Open cash drawer',
                 });
               }}

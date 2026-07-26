@@ -70,7 +70,7 @@ export const InventoryPurchases = () => {
         setActionLoadingId(null);
       }
     }, {
-      module: 'Edit Purchases',
+      module: 'inventory.purchases.update',
       description: t('security.editPurchases'),
     });
   };
@@ -98,7 +98,7 @@ export const InventoryPurchases = () => {
         setActionLoadingId(null);
       }
     }, {
-      module: 'Edit Purchases',
+      module: 'inventory.purchases.update',
       description: t('security.editPurchases'),
     });
   };
@@ -216,7 +216,7 @@ export const InventoryPurchases = () => {
                       setActionLoadingId(null);
                     }
                   }, {
-                    module: 'Edit Purchases',
+                    module: 'inventory.purchases.update',
                     description: t('security.editPurchases'),
                   })
                 }
@@ -252,7 +252,7 @@ export const InventoryPurchases = () => {
                       setActionLoadingId(null);
                     }
                   }, {
-                    module: 'Edit Purchases',
+                    module: 'inventory.purchases.update',
                     description: t('security.editPurchases'),
                   })
                 }
@@ -268,7 +268,7 @@ export const InventoryPurchases = () => {
                     setData(row);
                     setFormModal(true);
                   }, {
-                    module: 'Edit Purchases',
+                    module: 'inventory.purchases.update',
                     description: t('security.editPurchases'),
                   });
                 }}
@@ -293,7 +293,7 @@ export const InventoryPurchases = () => {
                     );
                     loadHook.fetchData();
                   }, {
-                    module: 'Delete Purchases',
+                    module: 'inventory.purchases.delete',
                     description: t('security.deletePurchases'),
                   })
                 }

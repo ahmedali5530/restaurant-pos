@@ -127,7 +127,7 @@ export const SessionSecuritySettingsCard = () => {
       </p>
       <form
         onSubmit={protectFormSubmit(handleSubmit(saveSettings), {
-          module: 'Session security',
+          module: 'settings.session_security',
           description: t('settings:sessionSecurity.saveDescription'),
         })}
       >

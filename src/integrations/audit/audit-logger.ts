@@ -20,7 +20,7 @@ export interface IntegrationAuditEvent {
 export class IntegrationAuditLogger {
   async log(event: IntegrationAuditEvent) {
     await postTracking({
-      module: 'Integrations',
+      module: 'integrations',
       page: event.providerId,
       payload: {
         action: event.action,

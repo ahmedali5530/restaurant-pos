@@ -64,7 +64,7 @@ export const InventoryPurchaseOrders = () => {
         setActionLoadingId(null);
       }
     }, {
-      module: 'Edit Purchase Orders',
+      module: 'inventory.purchase_orders.update',
       description: t('security.submitPurchaseOrders'),
     });
   };
@@ -82,7 +82,7 @@ export const InventoryPurchaseOrders = () => {
         setActionLoadingId(null);
       }
     }, {
-      module: 'Approve Purchase Orders',
+      module: 'inventory.purchase_orders.approve',
       description: t('security.approvePurchaseOrders'),
     });
   };
@@ -100,7 +100,7 @@ export const InventoryPurchaseOrders = () => {
         setActionLoadingId(null);
       }
     }, {
-      module: 'Approve Purchase Orders',
+      module: 'inventory.purchase_orders.approve',
       description: t('security.rejectPurchaseOrders'),
     });
   };
@@ -183,7 +183,7 @@ export const InventoryPurchaseOrders = () => {
                       setData(row);
                       setFormModal(true);
                     }, {
-                      module: 'Edit Purchase Orders',
+                      module: 'inventory.purchase_orders.update',
                       description: t('security.editPurchaseOrders'),
                     });
                   }}
@@ -202,7 +202,7 @@ export const InventoryPurchaseOrders = () => {
                       );
                       loadHook.fetchData();
                     }, {
-                      module: 'Delete Purchase Orders',
+                      module: 'inventory.purchase_orders.delete',
                       description: t('security.deletePurchaseOrders'),
                     })
                   }

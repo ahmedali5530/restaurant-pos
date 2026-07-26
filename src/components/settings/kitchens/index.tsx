@@ -13,11 +13,14 @@ import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
+import {useSecurity} from "@/hooks/useSecurity.ts";
+import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 export const AdminKitchens = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<Kitchen>>(Tables.kitchens, ['deleted_at = none'], ['priority asc'], 0, 10, ['items', 'printers']);
   const db = useDB();
+  const { protectAction } = useSecurity();
 
   const [data, setData] = useState<Kitchen>();
   const [formModal, setFormModal] = useState(false);
@@ -46,14 +49,22 @@ export const AdminKitchens = () => {
             <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
-                setData(info.row.original);
-                setFormModal(true);
+                protectAction(() => {
+                  setData(info.row.original);
+                  setFormModal(true);
+                }, {
+                  module: 'admin.kitchens.update',
+                  description: getAccessRuleChildLabel('admin.kitchens.update'),
+                });
               }}
             ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
             <div className="separator"></div>
             <DeleteConfirm
               message={t('delete.kitchen', { name: info.row.original.name })}
-              onConfirm={() => deleteItem(info.row.original.id)}
+              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                module: 'admin.kitchens.delete',
+                description: getAccessRuleChildLabel('admin.kitchens.delete'),
+              })}
             />
           </div>
         );
@@ -88,7 +99,13 @@ export const AdminKitchens = () => {
         loaderLineItems={columns.length}
         buttons={[
           <Button variant="primary" onClick={() => {
-            setFormModal(true);
+            protectAction(() => {
+              setData(undefined);
+              setFormModal(true);
+            }, {
+              module: 'admin.kitchens.create',
+              description: getAccessRuleChildLabel('admin.kitchens.create'),
+            });
           }} icon={faPlus}>{t('buttons.kitchen')}</Button>
         ]}
       />

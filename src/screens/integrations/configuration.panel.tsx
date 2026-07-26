@@ -65,7 +65,7 @@ export const ConfigurationPanel = ({
       onSubmit={protectFormSubmit(() => {
         void save();
       }, {
-        module: 'Integration configuration',
+        module: 'integrations.configuration',
         description: t('security.saveConfiguration'),
       })}
     >

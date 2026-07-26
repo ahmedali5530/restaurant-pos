@@ -99,7 +99,7 @@ export const AutoClockOutSettingsCard = () => {
       </p>
       <form
         onSubmit={protectFormSubmit(handleSubmit(saveSettings), {
-          module: 'Auto clock-out',
+          module: 'settings.auto_clock_out',
           description: t('settings:autoClockOut.saveDescription'),
         })}
       >

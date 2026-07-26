@@ -83,7 +83,7 @@ export const TranslateReceiptsSettingsCard = () => {
       </p>
       <form
         onSubmit={protectFormSubmit(handleSubmit(saveSettings), {
-          module: "Translate receipts",
+          module: "settings.translate_receipts",
           description: t("settings:translateReceipts.saveDescription"),
         })}
       >

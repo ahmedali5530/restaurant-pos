@@ -1,125 +1,625 @@
 import { User } from "@/api/model/user.ts";
 
-export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
-  "Menu": {
-    label: "Menu",
-    children: [
-      'Change table'
-    ] as string[]
-  },
-  "Orders": {
-    label: "Orders", 
-    children: ['Orders', 'Cancel order', 'Split by seats', 'Split by items', 'Split by amount', 'Merge orders', 'Refund order', 'Print final copy', 'Print temp bill', 'Override print limit', 'Open cash drawer', 'Apply tax', 'Apply discount', 'Apply coupon', 'Apply service charges', 'Apply tips', 'Change extras', 'Complete order'] as string[]
-  },
-  "Summary": {
-    label: "Summary",
-    children: ['Summary', 'Print summary', 'Product mix report', 'Server sales'] as string[]
-  },
-  "Reports": {
-    label: "Reports",
-    children: ['Reports', "Delivery Density", "Cash closing", "Sales dashboard", "Inventory dashboard", "Sales Hourly Labour", "Sales Hourly Labour Weekly", "Server Sales", "Sales Summary", 'Sales Summary 2', 'Sales Weekly', 'Tips', 'Advanced Sales', 'Discount', 'Tax', 'Coupon', 'Voids', 'Merge Orders', 'Split Orders', 'Order Life Cycle', 'Expense', 'Activity', 'Product Mix Weekly', 'Product Mix Summary', 'Products Hourly', 'Current Inventory', 'Detailed Inventory', 'Purchase', 'Purchase Order', 'Purchase Return', 'Issue', 'Issue Return', 'Waste', 'Consumption', 'Sale vs Inventory', 'Kitchen Reconciliation', 'Production Report', 'Buffet Report', 'AI Report', 'Labor Dashboard', 'Daily Labor Cost', 'Weekly Labor Cost', 'Monthly Labor Cost', 'Employee Labor Cost', 'Department Labor Cost', 'Cost Center Labor Cost', 'Average Hourly Cost', 'Labor Percent', 'Sales Per Labor Hour', 'Revenue Per Employee', 'Overtime Report', 'Attendance Report', 'Late Arrival Report', 'Absence Report', 'Leave Report', 'Holiday Cost Report', 'Scheduled vs Actual', 'Manager Approval Report', 'Top Labor Cost Employees', 'Top Overtime Employees', 'Payroll Summary', 'Payroll Details', 'Labor Trend', 'Labor Forecast Dataset'] as string[]
-  },
-  "Closing": {
-    label: "Closing",
-    children: ["Closing", "Edit Closing"] as string[]
-  },
-  "Kitchen": {
-    label: "Kitchen",
-    children: ['Kitchen'] as string[]
-  },
-  "Order Display": {
-    label: "Order Display",
-    children: ['Order Display'] as string[]
-  },
-  "Delivery": {
-    label: "Delivery",
-    children: ['Delivery', "Delivery orders", "Delivery areas", "Delivery settings"] as string[]
-  },
-  "Admin": {
-    label: "Administration",
-    children: ['Admin', "Dishes", "Menus", "Categories", 'Modifier Groups', 'Tables', 'Floors', 'Discounts', 'Coupons', 'Kitchens', 'Workflows', 'Printers', 'Print settings', 'Order Types', 'Payment Types', 'Extras', 'Taxes', 'Users', 'Roles', 'Shifts', 'Tips definition'] as string[]
-  },
-  "Riders": {
-    label: "Riders",
-    children: [] as string[]
-  },
-  "Tips": {
-    label: "Tip Distribution",
-    children: ['Tips', "Tip Calculation", "Payout Management"] as string[]
-  },
-  'Inventory': {
-    label: 'Inventory',
-    children: [
-      'Inventory', 'Current Inventory', 'Items', 'Suppliers', 'Item Categories', 'Item Groups', 'Locations',
-      'Purchase Orders', 'Edit Purchase Orders', 'Delete Purchase Orders', 'Approve Purchase Orders',
-      'Purchases', 'Edit Purchases', 'Delete Purchases',
-      'Purchase Returns', 'Edit Purchase Returns', 'Delete Purchase Returns',
-      'Issues', 'Edit Issues', 'Delete Issues',
-      'Issue Returns', 'Edit Issue Returns', 'Delete Issue Returns',
-      'Wastes', 'Edit Wastes', 'Delete Wastes',
-      'Adjustments', 'Edit Adjustments', 'Delete Adjustments',
-      'Stock Transfers', 'Edit Stock Transfers',
-      'Kitchen Reconciliation', 'Production Recipes', 'Production', 'Production History', 'Buffet Menus', 'Buffet Sessions',
-    ] as string[]
-  },
-  'HR': {
-    label: 'HR',
-    children: [
-      'HR',
-      'HR Dashboard',
-      'Employees',
-      'Departments',
-      'Positions',
-      'Cost Centers',
-      'Pay Profiles',
-      'Pay Rules',
-      'Scheduling',
-      'Attendance',
-      'Leave',
-      'Holidays',
-      'Payroll Periods',
-      'Payroll Runs',
-      'Adjustments',
-      'Documents',
-      'Performance',
-    ] as string[]
-  },
-  'Settings': {
-    label: 'Settings',
-    children: ['Settings', 'Printers', 'Print options', 'Service charges', 'Auto check close', 'Closing cycle', 'Session security', 'Auto clock-out', 'Show inclusive prices', 'Access control', 'Inventory Settings']
-  },
-  'Accounts': {
-    label: 'Accounts',
-    children: [
-      'Accounts',
-      'Chart of Accounts',
-      'Account Groups',
-      'Journal Entries',
-      'General Ledger',
-      'Trial Balance',
-      'Balance Sheet',
-      'Profit & Loss',
-      'Cash Flow',
-      'Customer Statement',
-      'Supplier Statement',
-    ] as string[]
-  },
-  'Integrations': {
-    label: 'Integrations',
-    children: [
-      'Integrations',
-      'Integration providers',
-      'Integration configuration',
-      'Integration health',
-      'Integration queue',
-    ] as string[]
-  }
-};
-
 export type AccessRuleModule = {
   label: string;
   children: string[];
 };
+
+/** Hierarchical permission IDs: section | section.resource | section.resource.action */
+export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
+  menu: {
+    label: "Menu",
+    children: ["menu", "menu.change_table"],
+  },
+  orders: {
+    label: "Orders",
+    children: [
+      "orders",
+      "orders.cancel",
+      "orders.split_by_seats",
+      "orders.split_by_items",
+      "orders.split_by_amount",
+      "orders.merge",
+      "orders.refund",
+      "orders.print_final",
+      "orders.print_temp",
+      "orders.override_print_limit",
+      "orders.open_cash_drawer",
+      "orders.apply_tax",
+      "orders.apply_discount",
+      "orders.apply_coupon",
+      "orders.apply_service_charges",
+      "orders.apply_tips",
+      "orders.change_extras",
+      "orders.complete",
+      "orders.complete_payment",
+      "orders.update_payment",
+      "orders.move_table",
+      "orders.remote_payment_create",
+      "orders.remote_payment_verify",
+    ],
+  },
+  summary: {
+    label: "Summary",
+    children: [
+      "summary",
+      "summary.print",
+      "summary.product_mix",
+      "summary.server_sales",
+    ],
+  },
+  reports: {
+    label: "Reports",
+    children: [
+      "reports",
+      "reports.delivery_density",
+      "reports.cash_closing",
+      "reports.sales_dashboard",
+      "reports.inventory_dashboard",
+      "reports.sales_hourly_labour",
+      "reports.sales_hourly_labour_weekly",
+      "reports.server_sales",
+      "reports.sales_summary",
+      "reports.sales_summary_2",
+      "reports.sales_weekly",
+      "reports.tips",
+      "reports.advanced_sales",
+      "reports.discount",
+      "reports.tax",
+      "reports.coupon",
+      "reports.voids",
+      "reports.merge_orders",
+      "reports.split_orders",
+      "reports.order_life_cycle",
+      "reports.expense",
+      "reports.activity",
+      "reports.product_mix_weekly",
+      "reports.product_mix_summary",
+      "reports.products_hourly",
+      "reports.current_inventory",
+      "reports.detailed_inventory",
+      "reports.purchase",
+      "reports.purchase_order",
+      "reports.purchase_return",
+      "reports.issue",
+      "reports.issue_return",
+      "reports.waste",
+      "reports.consumption",
+      "reports.sale_vs_inventory",
+      "reports.kitchen_reconciliation",
+      "reports.production",
+      "reports.buffet",
+      "reports.ai",
+      "reports.labor_dashboard",
+      "reports.daily_labor_cost",
+      "reports.weekly_labor_cost",
+      "reports.monthly_labor_cost",
+      "reports.employee_labor_cost",
+      "reports.department_labor_cost",
+      "reports.cost_center_labor_cost",
+      "reports.average_hourly_cost",
+      "reports.labor_percent",
+      "reports.sales_per_labor_hour",
+      "reports.revenue_per_employee",
+      "reports.overtime",
+      "reports.attendance",
+      "reports.late_arrival",
+      "reports.absence",
+      "reports.leave",
+      "reports.holiday_cost",
+      "reports.scheduled_vs_actual",
+      "reports.manager_approval",
+      "reports.top_labor_cost_employees",
+      "reports.top_overtime_employees",
+      "reports.payroll_summary",
+      "reports.payroll_details",
+      "reports.labor_trend",
+      "reports.labor_forecast_dataset",
+    ],
+  },
+  closing: {
+    label: "Closing",
+    children: ["closing", "closing.edit"],
+  },
+  kitchen: {
+    label: "Kitchen",
+    children: ["kitchen"],
+  },
+  order_display: {
+    label: "Order Display",
+    children: ["order_display"],
+  },
+  delivery: {
+    label: "Delivery",
+    children: [
+      "delivery",
+      "delivery.orders",
+      "delivery.areas",
+      "delivery.settings",
+    ],
+  },
+  admin: {
+    label: "Administration",
+    children: [
+      "admin",
+      "admin.dishes",
+      "admin.dishes.create",
+      "admin.dishes.update",
+      "admin.dishes.delete",
+      "admin.dishes.import",
+      "admin.menus",
+      "admin.menus.create",
+      "admin.menus.update",
+      "admin.menus.delete",
+      "admin.categories",
+      "admin.categories.create",
+      "admin.categories.update",
+      "admin.categories.delete",
+      "admin.categories.import",
+      "admin.modifier_groups",
+      "admin.modifier_groups.create",
+      "admin.modifier_groups.update",
+      "admin.modifier_groups.delete",
+      "admin.tables",
+      "admin.tables.create",
+      "admin.tables.update",
+      "admin.tables.delete",
+      "admin.tables.import",
+      "admin.floors",
+      "admin.floors.create",
+      "admin.floors.update",
+      "admin.floors.delete",
+      "admin.discounts",
+      "admin.discounts.create",
+      "admin.discounts.update",
+      "admin.discounts.delete",
+      "admin.coupons",
+      "admin.coupons.create",
+      "admin.coupons.update",
+      "admin.coupons.delete",
+      "admin.kitchens",
+      "admin.kitchens.create",
+      "admin.kitchens.update",
+      "admin.kitchens.delete",
+      "admin.workflows",
+      "admin.workflows.create",
+      "admin.workflows.update",
+      "admin.workflows.delete",
+      "admin.printers",
+      "admin.printers.create",
+      "admin.printers.update",
+      "admin.printers.delete",
+      "admin.print_settings",
+      "admin.print_settings.update",
+      "admin.order_types",
+      "admin.order_types.create",
+      "admin.order_types.update",
+      "admin.order_types.delete",
+      "admin.payment_types",
+      "admin.payment_types.create",
+      "admin.payment_types.update",
+      "admin.payment_types.delete",
+      "admin.extras",
+      "admin.extras.create",
+      "admin.extras.update",
+      "admin.extras.delete",
+      "admin.taxes",
+      "admin.taxes.create",
+      "admin.taxes.update",
+      "admin.taxes.delete",
+      "admin.users",
+      "admin.users.create",
+      "admin.users.update",
+      "admin.users.delete",
+      "admin.roles",
+      "admin.roles.create",
+      "admin.roles.update",
+      "admin.roles.delete",
+      "admin.shifts",
+      "admin.shifts.create",
+      "admin.shifts.update",
+      "admin.shifts.delete",
+      "admin.tips_definition",
+      "admin.tips_definition.create",
+      "admin.tips_definition.update",
+      "admin.tips_definition.delete",
+    ],
+  },
+  riders: {
+    label: "Riders",
+    children: [],
+  },
+  tips: {
+    label: "Tip Distribution",
+    children: ["tips", "tips.calculation", "tips.payout"],
+  },
+  inventory: {
+    label: "Inventory",
+    children: [
+      "inventory",
+      "inventory.current_inventory",
+      "inventory.items",
+      "inventory.suppliers",
+      "inventory.item_categories",
+      "inventory.item_groups",
+      "inventory.locations",
+      "inventory.purchase_orders",
+      "inventory.purchase_orders.update",
+      "inventory.purchase_orders.delete",
+      "inventory.purchase_orders.approve",
+      "inventory.purchases",
+      "inventory.purchases.update",
+      "inventory.purchases.delete",
+      "inventory.purchase_returns",
+      "inventory.purchase_returns.update",
+      "inventory.purchase_returns.delete",
+      "inventory.issues",
+      "inventory.issues.update",
+      "inventory.issues.delete",
+      "inventory.issue_returns",
+      "inventory.issue_returns.update",
+      "inventory.issue_returns.delete",
+      "inventory.wastes",
+      "inventory.wastes.update",
+      "inventory.wastes.delete",
+      "inventory.adjustments",
+      "inventory.adjustments.update",
+      "inventory.adjustments.delete",
+      "inventory.stock_transfers",
+      "inventory.stock_transfers.update",
+      "inventory.kitchen_reconciliation",
+      "inventory.production_recipes",
+      "inventory.production",
+      "inventory.production_history",
+      "inventory.buffet_menus",
+      "inventory.buffet_sessions",
+    ],
+  },
+  hr: {
+    label: "HR",
+    children: [
+      "hr",
+      "hr.dashboard",
+      "hr.employees",
+      "hr.departments",
+      "hr.positions",
+      "hr.cost_centers",
+      "hr.pay_profiles",
+      "hr.pay_rules",
+      "hr.scheduling",
+      "hr.attendance",
+      "hr.leave",
+      "hr.holidays",
+      "hr.payroll_periods",
+      "hr.payroll_runs",
+      "hr.adjustments",
+      "hr.documents",
+      "hr.performance",
+    ],
+  },
+  settings: {
+    label: "Settings",
+    children: [
+      "settings",
+      "settings.printers",
+      "settings.print_options",
+      "settings.service_charges",
+      "settings.menus",
+      "settings.auto_check_close",
+      "settings.closing_cycle",
+      "settings.session_security",
+      "settings.auto_clock_out",
+      "settings.show_inclusive_prices",
+      "settings.access_control",
+      "settings.inventory",
+      "settings.translate_receipts",
+    ],
+  },
+  accounts: {
+    label: "Accounts",
+    children: [
+      "accounts",
+      "accounts.chart_of_accounts",
+      "accounts.account_groups",
+      "accounts.journal_entries",
+      "accounts.general_ledger",
+      "accounts.trial_balance",
+      "accounts.balance_sheet",
+      "accounts.profit_loss",
+      "accounts.cash_flow",
+      "accounts.customer_statement",
+      "accounts.supplier_statement",
+    ],
+  },
+  integrations: {
+    label: "Integrations",
+    children: [
+      "integrations",
+      "integrations.providers",
+      "integrations.configuration",
+      "integrations.health",
+      "integrations.queue",
+    ],
+  },
+};
+
+/** Old English permission strings → new ID(s). Ambiguous collisions expand to all targets. */
+export const LEGACY_MODULE_MAP: Record<string, string | string[]> = {
+  // Sections / sidebar
+  Menu: "menu",
+  Orders: "orders",
+  Summary: "summary",
+  Reports: "reports",
+  Closing: "closing",
+  Kitchen: "kitchen",
+  "Order Display": "order_display",
+  Delivery: "delivery",
+  Admin: "admin",
+  Riders: "riders",
+  Tips: ["tips", "reports.tips"],
+  Inventory: "inventory",
+  HR: "hr",
+  Settings: "settings",
+  Accounts: "accounts",
+  Integrations: "integrations",
+
+  // Menu
+  "Change table": "menu.change_table",
+
+  // Orders
+  "Cancel order": "orders.cancel",
+  "Split by seats": "orders.split_by_seats",
+  "Split order by seats": "orders.split_by_seats",
+  "Split by items": "orders.split_by_items",
+  "Split order by items": "orders.split_by_items",
+  "Split by amount": "orders.split_by_amount",
+  "Split order by amount": "orders.split_by_amount",
+  "Merge orders": "orders.merge",
+  "Refund order": "orders.refund",
+  "Print final copy": "orders.print_final",
+  "Print temp bill": "orders.print_temp",
+  "Override print limit": "orders.override_print_limit",
+  "Open cash drawer": "orders.open_cash_drawer",
+  "Apply tax": "orders.apply_tax",
+  "Apply discount": "orders.apply_discount",
+  "Apply coupon": "orders.apply_coupon",
+  "Apply service charges": "orders.apply_service_charges",
+  "Apply tips": "orders.apply_tips",
+  "Change extras": "orders.change_extras",
+  "Complete order": "orders.complete",
+  "Complete order payment": "orders.complete_payment",
+  "Update order payment details": "orders.update_payment",
+  "Move order table": "orders.move_table",
+  "Create remote payment intent": "orders.remote_payment_create",
+  "Verify remote payment": "orders.remote_payment_verify",
+
+  // Summary
+  "Print summary": "summary.print",
+  "Product mix report": "summary.product_mix",
+  "Server sales": "summary.server_sales",
+
+  // Reports
+  "Delivery Density": "reports.delivery_density",
+  "Cash closing": "reports.cash_closing",
+  "Sales dashboard": "reports.sales_dashboard",
+  "Inventory dashboard": "reports.inventory_dashboard",
+  "Sales Hourly Labour": "reports.sales_hourly_labour",
+  "Sales Hourly Labour Weekly": "reports.sales_hourly_labour_weekly",
+  "Server Sales": "reports.server_sales",
+  "Sales Summary": "reports.sales_summary",
+  "Sales Summary 2": "reports.sales_summary_2",
+  "Sales Weekly": "reports.sales_weekly",
+  "Advanced Sales": "reports.advanced_sales",
+  Discount: "reports.discount",
+  Tax: "reports.tax",
+  Coupon: "reports.coupon",
+  Voids: "reports.voids",
+  "Merge Orders": "reports.merge_orders",
+  "Split Orders": "reports.split_orders",
+  "Order Life Cycle": "reports.order_life_cycle",
+  Expense: "reports.expense",
+  Activity: "reports.activity",
+  "Product Mix Weekly": "reports.product_mix_weekly",
+  "Product Mix Summary": "reports.product_mix_summary",
+  "Products Hourly": "reports.products_hourly",
+  "Current Inventory": ["inventory.current_inventory", "reports.current_inventory"],
+  "Detailed Inventory": "reports.detailed_inventory",
+  Purchase: "reports.purchase",
+  "Purchase Order": "reports.purchase_order",
+  "Purchase Return": "reports.purchase_return",
+  Issue: "reports.issue",
+  "Issue Return": "reports.issue_return",
+  Waste: "reports.waste",
+  Consumption: "reports.consumption",
+  "Sale vs Inventory": "reports.sale_vs_inventory",
+  "Kitchen Reconciliation": ["inventory.kitchen_reconciliation", "reports.kitchen_reconciliation"],
+  "Production Report": "reports.production",
+  "Buffet Report": "reports.buffet",
+  "AI Report": "reports.ai",
+  "Labor Dashboard": "reports.labor_dashboard",
+  "Daily Labor Cost": "reports.daily_labor_cost",
+  "Weekly Labor Cost": "reports.weekly_labor_cost",
+  "Monthly Labor Cost": "reports.monthly_labor_cost",
+  "Employee Labor Cost": "reports.employee_labor_cost",
+  "Department Labor Cost": "reports.department_labor_cost",
+  "Cost Center Labor Cost": "reports.cost_center_labor_cost",
+  "Average Hourly Cost": "reports.average_hourly_cost",
+  "Labor Percent": "reports.labor_percent",
+  "Sales Per Labor Hour": "reports.sales_per_labor_hour",
+  "Revenue Per Employee": "reports.revenue_per_employee",
+  "Overtime Report": "reports.overtime",
+  "Attendance Report": "reports.attendance",
+  "Late Arrival Report": "reports.late_arrival",
+  "Absence Report": "reports.absence",
+  "Leave Report": "reports.leave",
+  "Holiday Cost Report": "reports.holiday_cost",
+  "Scheduled vs Actual": "reports.scheduled_vs_actual",
+  "Manager Approval Report": "reports.manager_approval",
+  "Top Labor Cost Employees": "reports.top_labor_cost_employees",
+  "Top Overtime Employees": "reports.top_overtime_employees",
+  "Payroll Summary": "reports.payroll_summary",
+  "Payroll Details": "reports.payroll_details",
+  "Labor Trend": "reports.labor_trend",
+  "Labor Forecast Dataset": "reports.labor_forecast_dataset",
+
+  // Closing
+  "Edit Closing": "closing.edit",
+
+  // Delivery
+  "Delivery orders": "delivery.orders",
+  "Delivery areas": "delivery.areas",
+  "Delivery settings": "delivery.settings",
+
+  // Admin
+  Dishes: "admin.dishes",
+  Menus: ["admin.menus", "settings.menus"],
+  Categories: "admin.categories",
+  "Modifier Groups": "admin.modifier_groups",
+  Tables: "admin.tables",
+  Floors: "admin.floors",
+  Discounts: "admin.discounts",
+  Coupons: "admin.coupons",
+  Kitchens: "admin.kitchens",
+  Workflows: "admin.workflows",
+  Printers: ["admin.printers", "settings.printers"],
+  "Print settings": "admin.print_settings",
+  "Order Types": "admin.order_types",
+  "Payment Types": "admin.payment_types",
+  Extras: "admin.extras",
+  Taxes: "admin.taxes",
+  Users: "admin.users",
+  Roles: "admin.roles",
+  Shifts: "admin.shifts",
+  "Tips definition": "admin.tips_definition",
+
+  // Tips distribution
+  "Tip Calculation": "tips.calculation",
+  "Payout Management": "tips.payout",
+
+  // Inventory
+  Items: "inventory.items",
+  Suppliers: "inventory.suppliers",
+  "Item Categories": "inventory.item_categories",
+  "Item Groups": "inventory.item_groups",
+  Locations: "inventory.locations",
+  Stores: "inventory.locations",
+  "Purchase Orders": "inventory.purchase_orders",
+  "Edit Purchase Orders": "inventory.purchase_orders.update",
+  "Delete Purchase Orders": "inventory.purchase_orders.delete",
+  "Approve Purchase Orders": "inventory.purchase_orders.approve",
+  Purchases: "inventory.purchases",
+  "Edit Purchases": "inventory.purchases.update",
+  "Delete Purchases": "inventory.purchases.delete",
+  "Purchase Returns": "inventory.purchase_returns",
+  "Edit Purchase Returns": "inventory.purchase_returns.update",
+  "Delete Purchase Returns": "inventory.purchase_returns.delete",
+  Issues: "inventory.issues",
+  "Edit Issues": "inventory.issues.update",
+  "Delete Issues": "inventory.issues.delete",
+  "Issue Returns": "inventory.issue_returns",
+  "Edit Issue Returns": "inventory.issue_returns.update",
+  "Delete Issue Returns": "inventory.issue_returns.delete",
+  Wastes: "inventory.wastes",
+  "Edit Wastes": "inventory.wastes.update",
+  "Delete Wastes": "inventory.wastes.delete",
+  Adjustments: ["inventory.adjustments", "hr.adjustments"],
+  "Edit Adjustments": "inventory.adjustments.update",
+  "Delete Adjustments": "inventory.adjustments.delete",
+  "Stock Transfers": "inventory.stock_transfers",
+  "Edit Stock Transfers": "inventory.stock_transfers.update",
+  "Production Recipes": "inventory.production_recipes",
+  Production: "inventory.production",
+  "Production History": "inventory.production_history",
+  "Buffet Menus": "inventory.buffet_menus",
+  "Buffet Sessions": "inventory.buffet_sessions",
+
+  // HR
+  "HR Dashboard": "hr.dashboard",
+  Employees: "hr.employees",
+  Departments: "hr.departments",
+  Positions: "hr.positions",
+  "Cost Centers": "hr.cost_centers",
+  "Pay Profiles": "hr.pay_profiles",
+  "Pay Rules": "hr.pay_rules",
+  Scheduling: "hr.scheduling",
+  Attendance: "hr.attendance",
+  Leave: "hr.leave",
+  Holidays: "hr.holidays",
+  "Payroll Periods": "hr.payroll_periods",
+  "Payroll Runs": "hr.payroll_runs",
+  Documents: "hr.documents",
+  Performance: "hr.performance",
+
+  // Settings
+  "Print options": "settings.print_options",
+  "Service charges": "settings.service_charges",
+  "Auto check close": "settings.auto_check_close",
+  "Closing cycle": "settings.closing_cycle",
+  "Session security": "settings.session_security",
+  "Auto clock-out": "settings.auto_clock_out",
+  "Show inclusive prices": "settings.show_inclusive_prices",
+  "Access control": "settings.access_control",
+  "Inventory Settings": "settings.inventory",
+  "Translate receipts": "settings.translate_receipts",
+
+  // Accounts
+  "Chart of Accounts": "accounts.chart_of_accounts",
+  "Account Groups": "accounts.account_groups",
+  "Journal Entries": "accounts.journal_entries",
+  "General Ledger": "accounts.general_ledger",
+  "Trial Balance": "accounts.trial_balance",
+  "Balance Sheet": "accounts.balance_sheet",
+  "Profit & Loss": "accounts.profit_loss",
+  "Cash Flow": "accounts.cash_flow",
+  "Customer Statement": "accounts.customer_statement",
+  "Supplier Statement": "accounts.supplier_statement",
+
+  // Integrations
+  "Integration providers": "integrations.providers",
+  "Integration configuration": "integrations.configuration",
+  "Integration health": "integrations.health",
+  "Integration queue": "integrations.queue",
+};
+
+const KNOWN_MODULE_IDS = new Set<string>([
+  ...Object.keys(ACCESS_RULE_MODULES),
+  ...Object.values(ACCESS_RULE_MODULES).flatMap((m) => m.children),
+]);
+
+export const expandLegacyModule = (id: string): string[] => {
+  if (!id) return [];
+  const mapped = LEGACY_MODULE_MAP[id];
+  if (mapped == null) {
+    return [id];
+  }
+  return Array.isArray(mapped) ? mapped : [mapped];
+};
+
+export const normalizeModules = (modules: string[] | undefined | null): string[] => {
+  if (!modules?.length) return [];
+  const next = new Set<string>();
+  for (const mod of modules) {
+    for (const expanded of expandLegacyModule(mod)) {
+      next.add(expanded);
+    }
+  }
+  return [...next];
+};
+
+/** Candidates for DB `IN` checks during legacy→new transition. */
+export const moduleMatchCandidates = (module?: string): string[] => {
+  if (!module) return [];
+  const normalized = expandLegacyModule(module);
+  const legacies = Object.entries(LEGACY_MODULE_MAP)
+    .filter(([, target]) => {
+      const targets = Array.isArray(target) ? target : [target];
+      return targets.some((t) => normalized.includes(t) || t === module);
+    })
+    .map(([legacy]) => legacy);
+  return [...new Set([module, ...normalized, ...legacies])];
+};
+
+export const isKnownModuleId = (id: string): boolean => KNOWN_MODULE_IDS.has(id);
 
 export const getUserModules = (user?: User): string[] => {
   if (!user) return [];
@@ -127,5 +627,5 @@ export const getUserModules = (user?: User): string[] => {
   const modulesFromRoles = user.user_role?.roles || [];
   const modules = [...modulesFromRoles, ...(user.roles || [])];
 
-  return [...new Set(modules)];
+  return normalizeModules(modules);
 };

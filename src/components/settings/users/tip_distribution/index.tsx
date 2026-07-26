@@ -13,6 +13,8 @@ import { Input } from "@/components/common/input/input.tsx";
 import { Button } from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {useTranslation} from 'react-i18next';
+import {useSecurity} from "@/hooks/useSecurity.ts";
+import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 interface RoleDistributionRow {
   role_id: string
@@ -32,6 +34,7 @@ interface TipDistributionValues {
 export const AdminTipDistribution = () => {
   const db = useDB();
   const { t } = useTranslation(['admin', 'common', 'toast']);
+  const { protectAction } = useSecurity();
   const [settings, setSettings] = useState<Setting>();
   const [roleRows, setRoleRows] = useState<RoleDistributionRow[]>([]);
   const [userRows, setUserRows] = useState<UserDistributionRow[]>([]);
@@ -130,10 +133,15 @@ export const AdminTipDistribution = () => {
             variant="primary"
             icon={faPlus}
             onClick={() => {
-              setRoleRows((prev) => [
-                ...prev,
-                { role_id: "", weight: 0 },
-              ]);
+              protectAction(() => {
+                setRoleRows((prev) => [
+                  ...prev,
+                  { role_id: "", weight: 0 },
+                ]);
+              }, {
+                module: 'admin.tips_definition.create',
+                description: getAccessRuleChildLabel('admin.tips_definition.create'),
+              });
             }}
           >
             {t('forms.roleWeight')}
@@ -181,7 +189,10 @@ export const AdminTipDistribution = () => {
               </div>
               <IconTooltipButton label={t('common:actions.remove')}
                 variant="danger"
-                onClick={() => setRoleRows(prev => prev.filter((_, i) => i !== index))}
+                onClick={() => protectAction(() => setRoleRows(prev => prev.filter((_, i) => i !== index)), {
+                  module: 'admin.tips_definition.delete',
+                  description: getAccessRuleChildLabel('admin.tips_definition.delete'),
+                })}
               ><FontAwesomeIcon icon={faTrash} /></IconTooltipButton>
             </div>
           ))}
@@ -195,10 +206,15 @@ export const AdminTipDistribution = () => {
             variant="primary"
             icon={faPlus}
             onClick={() => {
-              setUserRows((prev) => [
-                ...prev,
-                { user_id: "", weight: 0 },
-              ]);
+              protectAction(() => {
+                setUserRows((prev) => [
+                  ...prev,
+                  { user_id: "", weight: 0 },
+                ]);
+              }, {
+                module: 'admin.tips_definition.create',
+                description: getAccessRuleChildLabel('admin.tips_definition.create'),
+              });
             }}
           >
             {t('forms.userWeight')}
@@ -252,7 +268,10 @@ export const AdminTipDistribution = () => {
               
               <IconTooltipButton label={t('common:actions.remove')}
                 variant="danger"
-                onClick={() => setUserRows(prev => prev.filter((_, i) => i !== index))}
+                onClick={() => protectAction(() => setUserRows(prev => prev.filter((_, i) => i !== index)), {
+                  module: 'admin.tips_definition.delete',
+                  description: getAccessRuleChildLabel('admin.tips_definition.delete'),
+                })}
               ><FontAwesomeIcon icon={faTrash} /></IconTooltipButton>
             </div>
           ))}
@@ -260,7 +279,10 @@ export const AdminTipDistribution = () => {
       </div>
 
       <div className="col-span-2">
-        <Button variant="primary" onClick={saveSettings} isLoading={saving}>
+        <Button variant="primary" onClick={() => protectAction(saveSettings, {
+          module: 'admin.tips_definition.update',
+          description: getAccessRuleChildLabel('admin.tips_definition.update'),
+        })} isLoading={saving}>
           {t('forms.saveDistribution')}
         </Button>
       </div>

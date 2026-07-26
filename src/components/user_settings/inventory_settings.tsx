@@ -161,7 +161,7 @@ export const InventorySettingsCard = () => {
       <p className="text-sm text-neutral-500 mb-5">{t("inventory.description")}</p>
       <form
         onSubmit={protectFormSubmit(handleSubmit(saveSettings), {
-          module: "Inventory Settings",
+          module: "settings.inventory",
           description: t("inventory.saveDescription"),
         })}
       >

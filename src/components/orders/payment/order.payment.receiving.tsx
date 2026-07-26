@@ -338,7 +338,7 @@ const OrderPaymentReceivingContent = ({
       }
 
       postOrderTracking({
-        module: "Complete order payment",
+        module: "orders.complete_payment",
         page: page?.page,
         orderId: order.id,
         payload: {
@@ -646,7 +646,7 @@ const OrderPaymentReceivingContent = ({
                       protectAction,
                       orderId: order.id.toString(),
                       printType: 'temp',
-                      printModule: 'Print temp bill',
+                      printModule: 'orders.print_temp',
                       description: 'Print temp bill',
                       payload: { order: order.id.toString() },
                       userId: page?.user?.id?.toString?.() ?? page?.user?.id,
@@ -666,7 +666,7 @@ const OrderPaymentReceivingContent = ({
                 size="lg"
                 onClick={async () => {
                   await protectAction(async () => await closeOrder(), {
-                    module: 'Complete order',
+                    module: 'orders.complete',
                     description: 'Complete order',
                     payload: {
                       order: order.id.toString()

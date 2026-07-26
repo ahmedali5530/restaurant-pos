@@ -68,7 +68,7 @@ export const InventoryIssues = () => {
         setActionLoadingId(null);
       }
     }, {
-      module: 'Edit Issues',
+      module: 'inventory.issues.update',
       description: t('security.editIssues'),
     });
   };
@@ -96,7 +96,7 @@ export const InventoryIssues = () => {
         setActionLoadingId(null);
       }
     }, {
-      module: 'Edit Issues',
+      module: 'inventory.issues.update',
       description: t('security.editIssues'),
     });
   };
@@ -218,7 +218,7 @@ export const InventoryIssues = () => {
                       setActionLoadingId(null);
                     }
                   }, {
-                    module: 'Edit Issues',
+                    module: 'inventory.issues.update',
                     description: t('security.editIssues'),
                   })
                 }
@@ -254,7 +254,7 @@ export const InventoryIssues = () => {
                       setActionLoadingId(null);
                     }
                   }, {
-                    module: 'Edit Issues',
+                    module: 'inventory.issues.update',
                     description: t('security.editIssues'),
                   })
                 }
@@ -270,7 +270,7 @@ export const InventoryIssues = () => {
                     setData(row);
                     setFormModal(true);
                   }, {
-                    module: 'Edit Issues',
+                    module: 'inventory.issues.update',
                     description: t('security.editIssues'),
                   });
                 }}
@@ -295,7 +295,7 @@ export const InventoryIssues = () => {
                     );
                     loadHook.fetchData();
                   }, {
-                    module: 'Delete Issues',
+                    module: 'inventory.issues.delete',
                     description: t('security.deleteIssues'),
                   })
                 }

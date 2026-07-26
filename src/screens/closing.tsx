@@ -769,7 +769,7 @@ export const Closing = () => {
                     void reopenClosing();
                   }, {
                     description: t("closing:security.reopenDescription"),
-                    module: 'Edit Closing',
+                    module: 'closing.edit',
                   });
                 }}
                 variant="warning"

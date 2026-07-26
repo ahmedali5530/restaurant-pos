@@ -115,7 +115,7 @@ export const InventoryStockTransfers = () => {
                 setData(info.row.original);
                 setFormModal(true);
               }, {
-                module: "Edit Stock Transfers",
+                module: "inventory.stock_transfers.update",
                 description: t("security.editStockTransfers"),
               });
             }}

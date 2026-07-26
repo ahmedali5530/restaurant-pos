@@ -13,6 +13,8 @@ import { DeleteConfirm } from "@/components/common/table/delete.confirm.tsx";
 import { useDB } from "@/api/db/db.ts";
 import {useTranslation} from 'react-i18next';
 import { withCurrency } from "@/lib/utils.ts";
+import {useSecurity} from "@/hooks/useSecurity.ts";
+import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 export const AdminExtras = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
@@ -22,6 +24,7 @@ export const AdminExtras = () => {
     "tables",
   ]);
   const db = useDB();
+  const { protectAction } = useSecurity();
 
   const [data, setData] = useState<Extra>();
   const [formModal, setFormModal] = useState(false);
@@ -67,17 +70,25 @@ export const AdminExtras = () => {
             <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
-                setData(info.row.original);
-                setFormModal(true);
+                protectAction(() => {
+                  setData(info.row.original);
+                  setFormModal(true);
+                }, {
+                  module: 'admin.extras.update',
+                  description: getAccessRuleChildLabel('admin.extras.update'),
+                });
               }}
             ><FontAwesomeIcon icon={faPencil} /></IconTooltipButton>
             <div className="separator"></div>
             <DeleteConfirm
               message={t('delete.extra', { name: info.row.original.name })}
-              onConfirm={async () => {
+              onConfirm={() => protectAction(async () => {
                 await db.delete(info.row.original.id);
                 loadHook.fetchData();
-              }}
+              }, {
+                module: 'admin.extras.delete',
+                description: getAccessRuleChildLabel('admin.extras.delete'),
+              })}
             />
           </div>
         );
@@ -95,7 +106,13 @@ export const AdminExtras = () => {
           <Button
             variant="primary"
             onClick={() => {
-              setFormModal(true);
+              protectAction(() => {
+                setData(undefined);
+                setFormModal(true);
+              }, {
+                module: 'admin.extras.create',
+                description: getAccessRuleChildLabel('admin.extras.create'),
+              });
             }}
             icon={faPlus}
           >

@@ -23,11 +23,14 @@ import {
   findCsvImportMatches,
   writeCsvImportRow,
 } from "@/utils/csv-import.ts";
+import {useSecurity} from "@/hooks/useSecurity.ts";
+import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 export const AdminCategories = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<Category>>(Tables.categories, ['deleted_at = none']);
   const db = useDB();
+  const { protectAction } = useSecurity();
 
   const [data, setData] = useState<Category>();
   const [formModal, setFormModal] = useState(false);
@@ -79,12 +82,17 @@ export const AdminCategories = () => {
             <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
-                setData(info.row.original);
-                setFormModal(true);
+                protectAction(() => {
+                  setData(info.row.original);
+                  setFormModal(true);
+                }, {
+                  module: 'admin.categories.update',
+                  description: getAccessRuleChildLabel('admin.categories.update'),
+                });
               }}
             ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
             <div className="separator"></div>
-            <DeleteConfirm message={t('delete.category', { name: info.row.original.name })} onConfirm={async () => {
+            <DeleteConfirm message={t('delete.category', { name: info.row.original.name })} onConfirm={() => protectAction(async () => {
               await executeSettingsDelete({
                 db,
                 id: info.row.original.id,
@@ -98,7 +106,10 @@ export const AdminCategories = () => {
                   loadHook.fetchData();
                 }
               });
-            }}/>
+            }, {
+              module: 'admin.categories.delete',
+              description: getAccessRuleChildLabel('admin.categories.delete'),
+            })}/>
           </div>
         );
       },
@@ -115,10 +126,19 @@ export const AdminCategories = () => {
         loaderLineItems={columns.length}
         buttons={[
           <Button variant="primary" onClick={() => {
-            setImportModal(true);
+            protectAction(() => setImportModal(true), {
+              module: 'admin.categories.import',
+              description: getAccessRuleChildLabel('admin.categories.import'),
+            });
           }} icon={faUpload}>{t('buttons.importCategories')}</Button>,
           <Button variant="primary" onClick={() => {
-            setFormModal(true);
+            protectAction(() => {
+              setData(undefined);
+              setFormModal(true);
+            }, {
+              module: 'admin.categories.create',
+              description: getAccessRuleChildLabel('admin.categories.create'),
+            });
           }} icon={faPlus}>{t('buttons.category')}</Button>
         ]}
         enableSelection
@@ -132,10 +152,15 @@ export const AdminCategories = () => {
         }}
         selectionButtons={[
           <Button variant="primary" onClick={() => {
-            setBulkEdit((prev) => ({
-              ...prev,
-              state: true,
-            }));
+            protectAction(() => {
+              setBulkEdit((prev) => ({
+                ...prev,
+                state: true,
+              }));
+            }, {
+              module: 'admin.categories.update',
+              description: getAccessRuleChildLabel('admin.categories.update'),
+            });
           }} icon={faPencil}>{t('buttons.bulkEdit')}</Button>
         ]}
       />

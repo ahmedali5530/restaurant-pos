@@ -13,11 +13,14 @@ import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
+import {useSecurity} from "@/hooks/useSecurity.ts";
+import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 export const AdminModifierGroups = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<ModifierGroup>>(Tables.modifier_groups, ['deleted_at = none'], ['priority asc'], 0, 10, ['modifiers', 'modifiers.modifier', 'modifiers.allowed_next_groups', 'modifiers.next_group_overrides']);
   const db = useDB();
+  const { protectAction } = useSecurity();
 
   const [data, setData] = useState<ModifierGroup>();
   const [formModal, setFormModal] = useState(false);
@@ -56,14 +59,22 @@ export const AdminModifierGroups = () => {
             <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
               onClick={() => {
-                setData(info.row.original);
-                setFormModal(true);
+                protectAction(() => {
+                  setData(info.row.original);
+                  setFormModal(true);
+                }, {
+                  module: 'admin.modifier_groups.update',
+                  description: getAccessRuleChildLabel('admin.modifier_groups.update'),
+                });
               }}
             ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
             <div className="separator"></div>
             <DeleteConfirm
               message={t('delete.dish', { name: info.row.original.name })}
-              onConfirm={() => deleteItem(info.row.original.id)}
+              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                module: 'admin.modifier_groups.delete',
+                description: getAccessRuleChildLabel('admin.modifier_groups.delete'),
+              })}
             />
           </div>
         );
@@ -103,7 +114,13 @@ export const AdminModifierGroups = () => {
         loaderLineItems={columns.length}
         buttons={[
           <Button variant="primary" onClick={() => {
-            setFormModal(true);
+            protectAction(() => {
+              setData(undefined);
+              setFormModal(true);
+            }, {
+              module: 'admin.modifier_groups.create',
+              description: getAccessRuleChildLabel('admin.modifier_groups.create'),
+            });
           }} icon={faPlus}>{t('buttons.modifierGroup')}</Button>
         ]}
       />

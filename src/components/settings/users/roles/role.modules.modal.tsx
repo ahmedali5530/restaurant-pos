@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input } from "@/components/common/input/input.tsx";
-import { ACCESS_RULE_MODULES } from "@/lib/access.rules.ts";
+import { ACCESS_RULE_MODULES, normalizeModules } from "@/lib/access.rules.ts";
 import { getAccessRuleChildLabel, getAccessRuleModuleLabel } from "@/lib/access.rules.i18n.ts";
 
 interface Props {
@@ -78,7 +78,7 @@ export const RoleModulesModal = ({ open, onClose, roleName, modules }: Props) =>
   const [searchTerm, setSearchTerm] = useState("");
 
   const groups = useMemo(
-    () => buildGroups(modules ?? [], t("forms.otherModules")),
+    () => buildGroups(normalizeModules(modules ?? []), t("forms.otherModules")),
     [modules, t]
   );
 

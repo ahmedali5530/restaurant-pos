@@ -35,7 +35,7 @@ export const DeliveryOrdersProvider: React.FC<DeliveryOrdersProviderProps> = ({ 
   const [{ user }] = useAtom(appPage);
 
   const canUseDeliveryOrders = Boolean(
-    user && getUserModules(user).includes("Delivery")
+    user && getUserModules(user).includes("delivery")
   );
 
   const { deliveryOrders, refetch: fetchDeliveryOrders } = useFetchDeliveryOrders({

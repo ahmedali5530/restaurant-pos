@@ -11,9 +11,9 @@ import {DocumentTitle} from "@/components/common/document-title.tsx";
 
 /** Stable permission codes stored in user roles — not translated labels. */
 const DELIVERY_TAB_MODULES: Record<string, string> = {
-  delivery: 'Delivery orders',
-  areas: 'Delivery areas',
-  settings: 'Delivery settings',
+  delivery: 'delivery.orders',
+  areas: 'delivery.areas',
+  settings: 'delivery.settings',
 };
 
 export const Index = () => {
