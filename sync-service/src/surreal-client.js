@@ -1,6 +1,11 @@
 'use strict';
 
+const WS = require('ws');
 const { Surreal } = require('surrealdb');
+
+if (typeof global.WebSocket === 'undefined') {
+  global.WebSocket = WS;
+}
 
 async function createConnectedClient(label, connectionConfig, logger) {
   const client = new Surreal();

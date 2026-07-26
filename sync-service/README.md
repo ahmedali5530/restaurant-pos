@@ -8,6 +8,7 @@ This service listens to live changes from a source SurrealDB instance and mirror
 - Discovers all source tables via `INFO FOR DB`.
 - Subscribes to live events for every discovered table.
 - Mirrors `CREATE` and `UPDATE` to master with the same record id and injected `client_id`.
+- When a parent row has `array<record<...>>` fields (e.g. `order.items`), also upserts those linked child rows so burst creates that drop LIVE sibling events do not leave broken links on master.
 - Mirrors `DELETE` to master by deleting the same record id.
 - Exposes health endpoints:
   - `GET /health`
@@ -15,7 +16,10 @@ This service listens to live changes from a source SurrealDB instance and mirror
 
 ## Environment variables
 
-Copy `.env.example` to `.env` and update values:
+Copy `.env.example` to `.env` (or `.env.local`) and update values.
+
+`server.js` loads `.env` first, then `.env.local` with override (same pattern as `api/`).
+Prefer `.env.local` for real master credentials — it is gitignored via `*.local`.
 
 - `SYNC_CLIENT_ID` (required): tenant identifier written into master records.
 - Source DB:

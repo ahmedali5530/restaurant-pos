@@ -103,12 +103,10 @@ services:
       - SYNC_SOURCE_DB=${SYNC_SOURCE_DB:-posr}
       - SYNC_SOURCE_USER=${SYNC_SOURCE_USER:-root}
       - SYNC_SOURCE_PASS=${SYNC_SOURCE_PASS:-root}
-      - SYNC_MASTER_URL=${SYNC_MASTER_URL:-}
-      - SYNC_MASTER_NS=${SYNC_MASTER_NS:-posr}
-      - SYNC_MASTER_DB=${SYNC_MASTER_DB:-posr}
-      - SYNC_MASTER_USER=${SYNC_MASTER_USER:-root}
-      - SYNC_MASTER_PASS=${SYNC_MASTER_PASS:-root}
       - SYNC_EXCLUDE_TABLES=${SYNC_EXCLUDE_TABLES:-}
+      # SYNC_MASTER_* come from sync-service/.env or .env.local (dotenv).
+      # Do not set SYNC_MASTER_URL=${SYNC_MASTER_URL:-} here — an empty value
+      # disables sync even when .env.local has a real URL.
     command: sh -c "npm install && node server.js"
     ports:
       - "3136:3136"

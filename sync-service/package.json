@@ -11,6 +11,7 @@
   "dependencies": {
     "dotenv": "^16.4.5",
     "express": "^4.21.2",
-    "surrealdb": "^2.0.3"
+    "surrealdb": "^2.0.3",
+    "ws": "^8.18.0"
   }
 }
