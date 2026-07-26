@@ -8,6 +8,13 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-07-26',
+    title: 'Fiscal invoice API proxy',
+    items: [
+      'FBR/PRA fiscal invoice submission is proxied through the API server so the browser no longer calls authority URLs directly (fixes CORS failures at settlement).',
+    ],
+  },
+  {
+    date: '2026-07-26',
     title: 'Hierarchical permissions and Manage hardening',
     items: [
       'Role permissions now use stable hierarchical IDs (section.resource.action), so the same label in Reports vs Inventory/Summary/Settings no longer share one grant.',

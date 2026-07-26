@@ -129,6 +129,27 @@ status code. Quota failures return `403` (`AI_DISABLED`) or `429`
 
 Azure endpoints (URL contains `openai.azure.com`) automatically use the
 `api-key` header instead of `Authorization: Bearer`.
+
+### `POST /fiscal/invoice`
+
+Proxies a Pakistan FBR/PRA fiscal invoice POST so the browser never calls the
+authority URL directly (avoids CORS). Credentials and upstream URL come from
+Integrations settings on the client; the API only forwards the hop.
+
+Request:
+
+```json
+{
+  "url": "https://authority.example/invoice",
+  "bearerToken": "…",
+  "payload": { }
+}
+```
+
+Response: the upstream status code and JSON body (e.g. `{ "Code": 100, "InvoiceNumber": "…" }`).
+On network failure to the authority, `{ success: false, error }` with status `502`.
+Validation failures return `400`.
+
 ## Adding a new module
 
 The service is designed so future backends are not limited to AI:

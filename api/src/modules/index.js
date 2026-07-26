@@ -15,6 +15,11 @@ const modules = [
     basePath: '/ai',
     router: require('./ai/ai.routes'),
   },
+  {
+    name: 'fiscal',
+    basePath: '/fiscal',
+    router: require('./fiscal/fiscal.routes'),
+  },
 ];
 
 module.exports = { modules };

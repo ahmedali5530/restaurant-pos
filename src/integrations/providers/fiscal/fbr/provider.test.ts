@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { Order, OrderStatus } from '@/api/model/order.ts';
 import { FbrProvider } from '@/integrations/providers/fiscal/fbr/provider.ts';
 import { TransportRouter } from '@/integrations/transport/router.ts';
+import { apiUrl } from '@/lib/api.service.ts';
 import { nowSurrealDateTime } from '@/lib/datetime.ts';
 
 const order = {
@@ -66,9 +67,11 @@ describe('FbrProvider execute', () => {
     expect(response.data?.invoiceNumber).toBe('FBR-INV-1');
     expect(send).toHaveBeenCalledWith(
       expect.objectContaining({
-        endpoint: 'https://fbr.example/invoice',
-        headers: expect.objectContaining({
-          Authorization: 'Bearer secret-token',
+        endpoint: apiUrl('/fiscal/invoice'),
+        body: expect.objectContaining({
+          url: 'https://fbr.example/invoice',
+          bearerToken: 'secret-token',
+          payload: expect.any(Object),
         }),
       })
     );

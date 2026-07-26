@@ -11,12 +11,25 @@ import {
   PkFiscalInvoicePayload,
   serializePkFiscalInvoice,
 } from '@/integrations/providers/fiscal/pk-fbr-pra/serialize-invoice.ts';
+import { apiUrl } from '@/lib/api.service.ts';
+import { authHeaders } from '@/lib/session.ts';
+
+const FISCAL_INVOICE_PATH = '/fiscal/invoice';
 
 type AuthorityResponse = {
   Code?: number | string;
   InvoiceNumber?: string;
   Response?: string;
   message?: string;
+  error?: string;
+};
+
+const sessionAuthHeaderRecord = (): Record<string, string> => {
+  const headers: Record<string, string> = {};
+  authHeaders().forEach((value, key) => {
+    headers[key] = value;
+  });
+  return headers;
 };
 
 export const submitPkFiscalInvoiceRequest = async (
@@ -62,23 +75,29 @@ export const submitPkFiscalInvoiceRequest = async (
   }
 
   const payload = serializePkFiscalInvoice(order, authority, parsed);
+  // Proxy through the API server so the browser never calls FBR/PRA directly (CORS).
   const transportResponse = await transport.send<AuthorityResponse>({
     protocol: 'http',
-    endpoint: parsed.apiBaseUrl,
+    endpoint: apiUrl(FISCAL_INVOICE_PATH),
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${parsed.bearerToken}`,
-      'Content-Type': 'application/json',
+    headers: sessionAuthHeaderRecord(),
+    body: {
+      url: parsed.apiBaseUrl,
+      bearerToken: parsed.bearerToken,
+      payload,
     },
-    body: payload,
   });
 
   if (!transportResponse.ok || transportResponse.error) {
+    const proxyError =
+      transportResponse.body?.error ||
+      transportResponse.body?.message ||
+      transportResponse.body?.Response;
     return {
       success: false,
       status: 'failed',
       providerId,
-      error: transportResponse.error ?? `HTTP ${transportResponse.status}`,
+      error: transportResponse.error ?? proxyError ?? `HTTP ${transportResponse.status}`,
       retriable: true,
       data: {
         request: payload,
