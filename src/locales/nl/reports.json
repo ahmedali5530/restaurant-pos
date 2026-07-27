@@ -517,6 +517,7 @@
   "orderFiscal": {
     "byProvider": "Per aanbieder",
     "byStatus": "Per status",
+    "grossTotal": "Bruto totaal",
     "detail": "Fiscale inzendingen",
     "provider": "Aanbieder",
     "order": "Bestelling nr.",

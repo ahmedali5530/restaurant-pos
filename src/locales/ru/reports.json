@@ -517,6 +517,7 @@
   "orderFiscal": {
     "byProvider": "По провайдеру",
     "byStatus": "По статусу",
+    "grossTotal": "Валовая сумма",
     "detail": "Фискальные отправки",
     "provider": "Провайдер",
     "order": "Заказ №",

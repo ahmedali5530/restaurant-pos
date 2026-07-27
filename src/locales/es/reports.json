@@ -517,6 +517,7 @@
   "orderFiscal": {
     "byProvider": "Por proveedor",
     "byStatus": "Por estado",
+    "grossTotal": "Total bruto",
     "detail": "Envíos fiscales",
     "provider": "Proveedor",
     "order": "Pedido n.º",

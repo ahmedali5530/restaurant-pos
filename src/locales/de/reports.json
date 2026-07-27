@@ -517,6 +517,7 @@
   "orderFiscal": {
     "byProvider": "Nach Anbieter",
     "byStatus": "Nach Status",
+    "grossTotal": "Bruttosumme",
     "detail": "Fiskalische Übermittlungen",
     "provider": "Anbieter",
     "order": "Bestell-Nr.",

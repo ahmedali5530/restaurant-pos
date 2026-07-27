@@ -517,6 +517,7 @@
   "orderFiscal": {
     "byProvider": "حسب المزود",
     "byStatus": "حسب الحالة",
+    "grossTotal": "الإجمالي قبل الضريبة",
     "detail": "الإرساليات الضريبية",
     "provider": "المزود",
     "order": "رقم الطلب",

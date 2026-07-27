@@ -517,6 +517,7 @@
   "orderFiscal": {
     "byProvider": "Per provider",
     "byStatus": "Per stato",
+    "grossTotal": "Totale lordo",
     "detail": "Invii fiscali",
     "provider": "Provider",
     "order": "Ordine n.",

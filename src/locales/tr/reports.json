@@ -517,6 +517,7 @@
   "orderFiscal": {
     "byProvider": "Sağlayıcıya göre",
     "byStatus": "Duruma göre",
+    "grossTotal": "Brüt toplam",
     "detail": "Fiskal gönderimler",
     "provider": "Sağlayıcı",
     "order": "Sipariş no",

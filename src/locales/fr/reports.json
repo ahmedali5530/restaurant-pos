@@ -517,6 +517,7 @@
   "orderFiscal": {
     "byProvider": "Par prestataire",
     "byStatus": "Par statut",
+    "grossTotal": "Total brut",
     "detail": "Soumissions fiscales",
     "provider": "Prestataire",
     "order": "Commande n°",

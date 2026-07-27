@@ -193,11 +193,12 @@ export const OrderFiscalReport = () => {
         const order = getOrder(sub);
         if (!order) return acc;
         const figures = getOrderSettlementFigures(order);
+        acc.gross += figures.netSales;
         acc.tax += figures.tax;
         acc.total += figures.grandTotalDue;
         return acc;
       },
-      {tax: 0, total: 0},
+      {gross: 0, tax: 0, total: 0},
     );
   }, [submissions]);
 
@@ -305,6 +306,7 @@ export const OrderFiscalReport = () => {
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('orderFiscal.fiscalInvoice')}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.status')}</th>
                   <th className="py-3 px-3 text-center text-xs font-semibold text-neutral-700">{t('orderFiscal.qr')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('orderFiscal.grossTotal')}</th>
                   <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.taxPercent')}</th>
                   <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.tax')}</th>
                   <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.grandTotal')}</th>
@@ -315,7 +317,7 @@ export const OrderFiscalReport = () => {
               <tbody className="divide-y divide-neutral-100 bg-white">
                 {submissions.length === 0 ? (
                   <tr>
-                    <td colSpan={12} className="py-6 text-center text-sm text-neutral-500">{t('orderFiscal.noRecords')}</td>
+                    <td colSpan={13} className="py-6 text-center text-sm text-neutral-500">{t('orderFiscal.noRecords')}</td>
                   </tr>
                 ) : (
                   submissions.map(sub => {
@@ -340,6 +342,9 @@ export const OrderFiscalReport = () => {
                         <td className="py-3 px-3 text-center text-sm text-neutral-700">
                           {sub.qrcode ? t('orderFiscal.available') : t('orderFiscal.notAvailable')}
                         </td>
+                        <td className="py-3 px-3 text-right text-sm text-neutral-700">
+                          {figures ? withCurrency(figures.netSales) : '—'}
+                        </td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatTaxPercent(order)}</td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">
                           {order ? withCurrency(getOrderTaxAmount(order)) : '—'}
@@ -359,7 +364,9 @@ export const OrderFiscalReport = () => {
                   <tr>
                     <td colSpan={2} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">{t('columns.total')}</td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{formatNumber(submissions.length)}</td>
-                    <td colSpan={5}></td>
+                    <td colSpan={4}></td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(detailTotals.gross)}</td>
+                    <td></td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(detailTotals.tax)}</td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(detailTotals.total)}</td>
                     <td colSpan={2}></td>

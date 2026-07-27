@@ -521,6 +521,7 @@
   "orderFiscal": {
     "byProvider": "By provider",
     "byStatus": "By status",
+    "grossTotal": "Gross total",
     "detail": "Fiscal submissions",
     "provider": "Provider",
     "order": "Order #",
