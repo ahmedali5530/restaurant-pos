@@ -162,7 +162,7 @@ export const CacheSettings = () => {
           <h2 className="text-xl font-semibold mb-1">{t('cache.title')}</h2>
           <p className="text-sm text-neutral-500">{t('cache.description')}</p>
         </div>
-        <Button variant="primary" size="lg" onClick={reloadCache} isLoading={isReloading}>
+        <Button variant="danger" size="lg" filled onClick={reloadCache} isLoading={isReloading}>
           {t('cache.reload')}
         </Button>
       </div>

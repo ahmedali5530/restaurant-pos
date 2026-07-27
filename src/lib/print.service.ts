@@ -8,6 +8,8 @@ import type { Printer } from "@/api/model/printer.ts";
 import {RecordId, StringRecordId} from "surrealdb";
 import { fetchShowInclusivePricesEnabled } from "@/hooks/useShowInclusivePrices.ts";
 import { fetchTranslateReceiptsEnabled } from "@/hooks/useTranslateReceipts.ts";
+import { fetchCurrencySymbolSettings } from "@/hooks/useCurrencySymbol.ts";
+import { DEFAULT_CURRENCY_SYMBOL } from "@/api/model/currency_symbol.ts";
 import { buildReceiptLabels } from "@/lib/receipt-labels.ts";
 import { systemPrinterSettings, type SystemPrinterSettings } from "@/store/jotai.ts";
 import {
@@ -296,12 +298,13 @@ export async function dispatchPrint<Payload = any>(
   const explicitPrinters = options?.printers?.length > 0 ? options.printers : null;
 
   // eslint-disable-next-line prefer-const
-  let [config, settingsPrinters, showInclusivePrices, translateReceipts, printCopies] = await Promise.all([
+  let [config, settingsPrinters, showInclusivePrices, translateReceipts, printCopies, currencySymbolSettings] = await Promise.all([
     getPrintConfig(db, template),
     explicitPrinters ? Promise.resolve([]) : getPrintersForType(db, template, uid),
     fetchShowInclusivePricesEnabled(db).catch(() => false),
     fetchTranslateReceiptsEnabled(db).catch(() => false),
     fetchPrintCopiesSettings(db).catch(() => DEFAULT_PRINT_OPTIONS.copies),
+    fetchCurrencySymbolSettings(db).catch(() => DEFAULT_CURRENCY_SYMBOL),
   ]);
 
   const printers = explicitPrinters || (settingsPrinters.length > 0 ? settingsPrinters : null);
@@ -329,6 +332,7 @@ export async function dispatchPrint<Payload = any>(
     ...config,
     decimal_place: import.meta.env.VITE_DECIMAL_PLACES,
     showInclusivePrices,
+    showCurrencySymbol: currencySymbolSettings.receipts,
     timezone: getAppTimezone(),
   };
 

@@ -121,6 +121,14 @@
     "updated": "Impostazioni prezzi inclusivi aggiornate",
     "saveDescription": "Salva impostazioni prezzi inclusivi"
   },
+  "currencySymbol": {
+    "title": "Simbolo valuta",
+    "description": "Controlla se il simbolo della valuta appare accanto agli importi nell'app e sulle ricevute stampate. Se disattivato vengono mostrati solo i numeri (es. 1.250 invece di Rs 1.250). È solo visualizzazione e non modifica i valori memorizzati.",
+    "showInUi": "Mostra a schermo",
+    "showOnReceipts": "Mostra sulle ricevute",
+    "updated": "Impostazioni simbolo valuta aggiornate",
+    "saveDescription": "Salva impostazioni simbolo valuta"
+  },
   "translateReceipts": {
     "title": "Traduci ricevute",
     "description": "Se abilitato, le etichette di sistema sulle ricevute stampate (titoli, fattura, tavolo, tassa, totale, ticket cucina e riepilogo) usano la lingua selezionata su questo dispositivo. Il testo personalizzato di intestazione e piè di pagina delle impostazioni di stampa non viene tradotto.",

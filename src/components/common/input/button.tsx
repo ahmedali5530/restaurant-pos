@@ -51,7 +51,7 @@ export const Button = (props: ButtonProps) => {
         </span>
       )}
       {isLoading && (
-        <FontAwesomeIcon icon={faSpinner} spin />
+        <FontAwesomeIcon icon={faSpinner} spin className={children === undefined ? '' : 'mr-2'} />
       )}
       {children as ReactNode}
       {rightIcon && (

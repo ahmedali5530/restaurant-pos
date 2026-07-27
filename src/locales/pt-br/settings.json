@@ -121,6 +121,14 @@
     "updated": "Configurações de preços inclusivos atualizadas",
     "saveDescription": "Salvar configurações de preços inclusivos"
   },
+  "currencySymbol": {
+    "title": "Símbolo da moeda",
+    "description": "Controla se o símbolo da moeda aparece ao lado dos valores no app e nos recibos impressos. Desativado, mostra apenas números (ex.: 1.250 em vez de Rs 1.250). É apenas exibição e não altera os valores armazenados.",
+    "showInUi": "Mostrar na tela",
+    "showOnReceipts": "Mostrar nos recibos",
+    "updated": "Configurações do símbolo da moeda atualizadas",
+    "saveDescription": "Salvar configurações do símbolo da moeda"
+  },
   "translateReceipts": {
     "title": "Traduzir recibos",
     "description": "Quando ativado, os rótulos do sistema nos recibos impressos (títulos, fatura, mesa, imposto, total, tickets de cozinha e resumo) usam o idioma selecionado neste dispositivo. O texto personalizado de cabeçalho e rodapé das configurações de impressão não é traduzido.",

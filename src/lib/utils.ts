@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import {RecordId, StringRecordId} from "surrealdb";
+import { getShowCurrencySymbolInUi } from "@/lib/currency-format.ts";
 
 const DECIMAL_PLACES = import.meta.env.VITE_DECIMAL_PLACES;
 
@@ -22,7 +23,12 @@ export const DENOMINATION_NOTES = [10, 20, 50, 100, 500, 1000, 5000];
 export const DENOMINATION_COINS = [1, 2, 5];
 
 export const withCurrency = (amount: string | number | undefined, decimalPlaces = DECIMAL_PLACES) => {
+  const showSymbol = getShowCurrencySymbolInUi();
+
   if (amount === undefined) {
+    if (!showSymbol) {
+      return "";
+    }
     //just return currency symbol
     return (0)
       .toLocaleString(import.meta.env.VITE_LOCALE, {
@@ -33,6 +39,12 @@ export const withCurrency = (amount: string | number | undefined, decimalPlaces 
       })
       .replace(/\d/g, "")
       .trim();
+  }
+
+  if (!showSymbol) {
+    return new Intl.NumberFormat(import.meta.env.VITE_LOCALE, {
+      maximumFractionDigits: decimalPlaces,
+    }).format(Number(amount));
   }
 
   return new Intl.NumberFormat(import.meta.env.VITE_LOCALE, {

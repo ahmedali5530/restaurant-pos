@@ -22,6 +22,7 @@ const DEFAULTS = {
   vatName: 'VAT',
   vatNumber: '',
   currencySymbol: '$',
+  showCurrencySymbol: true,
   headerSections: [],
   footerSections: [],
 };
@@ -97,7 +98,10 @@ function normalizeConfig(c = {}) {
     showVatNumber: Boolean(c.showVatNumber !== undefined ? c.showVatNumber : DEFAULTS.showVatNumber),
     vatName: String(n(c.vatName, DEFAULTS.vatName) || 'VAT'),
     vatNumber: String(n(c.vatNumber, DEFAULTS.vatNumber)),
-    currencySymbol: String(n(c.currencySymbol, DEFAULTS.currencySymbol) || '$'),
+    showCurrencySymbol: c.showCurrencySymbol !== false,
+    currencySymbol: c.showCurrencySymbol === false
+      ? ''
+      : String(n(c.currencySymbol, DEFAULTS.currencySymbol) || '$'),
     headerSections: normalizeSections(c.headerSections),
     footerSections: normalizeSections(c.footerSections),
     showInclusivePrices: Boolean(c.showInclusivePrices),
@@ -202,12 +206,14 @@ function printDivider(printer) {
 /**
  * Format amount as currency string (e.g. "$12.34").
  * @param {number} amount
- * @param {string} symbol - default '$'
+ * @param {string} [symbol='$'] - empty string omits the symbol
  * @returns {string}
  */
 function formatMoney(amount, symbol) {
-  const s = symbol != null ? symbol+' ' : '$';
-  return s + Number(amount || 0).toFixed(0);
+  const num = Number(amount || 0).toFixed(0);
+  const s = symbol === undefined || symbol === null ? '$' : String(symbol);
+  if (!s) return num;
+  return s + ' ' + num;
 }
 
 /**

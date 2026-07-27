@@ -121,6 +121,14 @@
     "updated": "Paramètres d'affichage des prix TTC mis à jour",
     "saveDescription": "Enregistrer les paramètres d'affichage des prix TTC"
   },
+  "currencySymbol": {
+    "title": "Symbole monétaire",
+    "description": "Contrôlez l'affichage du symbole monétaire à côté des montants dans l'application et sur les reçus imprimés. En le désactivant, seuls les nombres s'affichent (par ex. 1 250 au lieu de Rs 1 250). Ceci est uniquement d'affichage et ne modifie pas les valeurs stockées.",
+    "showInUi": "Afficher à l'écran",
+    "showOnReceipts": "Afficher sur les reçus",
+    "updated": "Paramètres du symbole monétaire mis à jour",
+    "saveDescription": "Enregistrer les paramètres du symbole monétaire"
+  },
   "translateReceipts": {
     "title": "Traduire les reçus",
     "description": "Lorsqu'il est activé, les libellés système des reçus imprimés (titres, facture, table, taxe, total, tickets cuisine et résumé) utilisent la langue sélectionnée sur cet appareil. Le texte d'en-tête et de pied personnalisé des paramètres d'impression n'est pas traduit.",

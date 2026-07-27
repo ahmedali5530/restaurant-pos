@@ -121,6 +121,14 @@
     "updated": "Dahil fiyat ayarları güncellendi",
     "saveDescription": "Dahil fiyat ayarlarını kaydet"
   },
+  "currencySymbol": {
+    "title": "Para birimi simgesi",
+    "description": "Uygulamadaki tutarların ve yazdırılan fişlerin yanında para birimi simgesinin görünüp görünmeyeceğini kontrol eder. Kapatıldığında yalnızca sayılar gösterilir (ör. Rs 1.250 yerine 1.250). Bu yalnızca görüntülemedir ve saklanan değerleri değiştirmez.",
+    "showInUi": "Ekranda göster",
+    "showOnReceipts": "Fişlerde göster",
+    "updated": "Para birimi simgesi ayarları güncellendi",
+    "saveDescription": "Para birimi simgesi ayarlarını kaydet"
+  },
   "translateReceipts": {
     "title": "Fişleri çevir",
     "description": "Etkinleştirildiğinde, yazdırılan fişlerdeki sistem etiketleri (fiş başlıkları, Fatura#, Masa, Vergi, Toplam, mutfak fişleri ve özet) bu cihazın seçili dilini kullanır. Yazdırma ayarlarındaki özel üst/alt bilgi metni çevrilmez.",

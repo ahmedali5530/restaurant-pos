@@ -12,6 +12,7 @@ import {LanguageSettings} from "@/components/user_settings/language.tsx";
 import {TranslateReceiptsSettingsCard} from "@/components/user_settings/translate_receipts.tsx";
 import {ItemsVisibilityConfig} from "@/components/user_settings/items_visibility_config.tsx";
 import {ShowInclusivePricesSettingsCard} from "@/components/user_settings/show_inclusive_prices.tsx";
+import {CurrencySymbolSettingsCard} from "@/components/user_settings/currency_symbol.tsx";
 import {InventorySettingsCard} from "@/components/user_settings/inventory_settings.tsx";
 import {WhatsNewSettingsCard} from "@/components/user_settings/whats_new.tsx";
 import {SessionSecuritySettingsCard} from "@/components/user_settings/session_security.tsx";
@@ -45,6 +46,7 @@ export const Settings = () => {
         <MasonryItem><SessionSecuritySettingsCard /></MasonryItem>
         <MasonryItem><AutoClockOutSettingsCard /></MasonryItem>
         <MasonryItem><ShowInclusivePricesSettingsCard /></MasonryItem>
+        <MasonryItem><CurrencySymbolSettingsCard /></MasonryItem>
         <MasonryItem><TouchSettings /></MasonryItem>
         <MasonryItem><TableSelectionSettings /></MasonryItem>
         <MasonryItem><InventorySettingsCard /></MasonryItem>

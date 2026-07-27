@@ -50,7 +50,7 @@ function formatDiscountMinimalPrint(name, valueType, rate, fallback) {
 function printBillLayout(printer, bill, config, opts) {
   const cfg = config || {};
   const L = cfg.labels || {};
-  const sym = cfg.currencySymbol || '$';
+  const sym = cfg.currencySymbol ?? '$';
   const {
     title,
     address,

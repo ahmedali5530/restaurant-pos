@@ -657,6 +657,7 @@
       "settings.session_security": "Session security",
       "settings.auto_clock_out": "Auto clock-out",
       "settings.show_inclusive_prices": "Mostra prezzi inclusivi",
+      "settings.currency_symbol": "Simbolo valuta",
       "settings.access_control": "Access control",
       "settings.inventory": "Inventory Settings",
       "settings.translate_receipts": "Translate receipts",

@@ -8,6 +8,13 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-07-27',
+    title: 'Currency symbol display',
+    items: [
+      'Settings → Currency symbol lets you show or hide the currency symbol next to amounts on screen and on printed receipts independently.',
+    ],
+  },
+  {
+    date: '2026-07-27',
     title: 'FBR/PRA line ItemCode and ItemName',
     items: [
       'Fiscal invoice lines now include compulsory ItemCode (dish number) and ItemName so FBR/PRA no longer reject posts with “Item Code/Name is required”.',

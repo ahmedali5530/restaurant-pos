@@ -121,6 +121,14 @@
     "updated": "Instellingen voor inclusieve prijzen bijgewerkt",
     "saveDescription": "Instellingen voor inclusieve prijzen opslaan"
   },
+  "currencySymbol": {
+    "title": "Valutasymbool",
+    "description": "Bepaal of het valutasymbool naast bedragen in de app en op geprinte bonnen verschijnt. Uitgeschakeld toont alleen getallen (bijv. 1.250 in plaats van Rs 1.250). Dit is alleen weergave en wijzigt geen opgeslagen waarden.",
+    "showInUi": "Tonen op scherm",
+    "showOnReceipts": "Tonen op bonnen",
+    "updated": "Valutasymbool-instellingen bijgewerkt",
+    "saveDescription": "Valutasymbool-instellingen opslaan"
+  },
   "translateReceipts": {
     "title": "Bonnen vertalen",
     "description": "Indien ingeschakeld gebruiken systeemlabels op geprinte bonnen (titels, factuur, tafel, belasting, totaal, keukentickets en samenvatting) de geselecteerde taal van dit apparaat. Aangepaste kop- en voettekst uit printinstellingen wordt niet vertaald.",

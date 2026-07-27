@@ -99,7 +99,7 @@ function safeNumber(value) {
 }
 
 function printDailySalesSummary(printer, data, cfg) {
-  const sym = cfg.currencySymbol || '$';
+  const sym = cfg.currencySymbol ?? '$';
   const L = cfg.labels || {};
   const s = computeSummary({
     ...data,

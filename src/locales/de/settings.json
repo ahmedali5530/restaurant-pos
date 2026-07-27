@@ -121,6 +121,14 @@
     "updated": "Einstellungen für inklusive Preise aktualisiert",
     "saveDescription": "Einstellungen für inklusive Preise speichern"
   },
+  "currencySymbol": {
+    "title": "Währungssymbol",
+    "description": "Steuern Sie, ob das Währungssymbol neben Beträgen in der App und auf gedruckten Belegen erscheint. Bei Deaktivierung werden nur Zahlen angezeigt (z. B. 1.250 statt Rs 1.250). Dies betrifft nur die Anzeige und ändert keine gespeicherten Werte.",
+    "showInUi": "Auf dem Bildschirm anzeigen",
+    "showOnReceipts": "Auf Belegen anzeigen",
+    "updated": "Währungssymbol-Einstellungen aktualisiert",
+    "saveDescription": "Währungssymbol-Einstellungen speichern"
+  },
   "translateReceipts": {
     "title": "Belege übersetzen",
     "description": "Wenn aktiviert, verwenden Systembeschriftungen auf gedruckten Belegen (Titel, Rechnung, Tisch, Steuer, Gesamt, Küchentickets und Zusammenfassung) die auf diesem Gerät ausgewählte Sprache. Benutzerdefinierter Kopf-/Fußtext aus den Druckeinstellungen wird nicht übersetzt.",

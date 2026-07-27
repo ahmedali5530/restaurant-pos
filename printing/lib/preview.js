@@ -100,7 +100,7 @@ function escapeHtml(s) {
 function renderBillToHtml(bill, config, opts) {
   const cfg = config || {};
   const L = cfg.labels || {};
-  const sym = cfg.currencySymbol || '$';
+  const sym = cfg.currencySymbol ?? '$';
   const {
     title = L.bill || 'Bill',
     address,
@@ -235,7 +235,7 @@ function pct(x, of) {
 function renderSummaryToHtml(data, config) {
   const cfg = normalizeConfig(config || {});
   const L = cfg.labels || {};
-  const sym = cfg.currencySymbol || '$';
+  const sym = cfg.currencySymbol ?? '$';
   const s = computeSummary({
     ...(data || {}),
     timezone: cfg.timezone,
@@ -467,7 +467,7 @@ function renderKitchenToHtml(data, config) {
 function renderRefundToHtml(data, config) {
   const cfg = normalizeConfig(config || {});
   const L = cfg.labels || {};
-  const sym = cfg.currencySymbol || '$';
+  const sym = cfg.currencySymbol ?? '$';
   const refundOrder = data && data.order;
   const originalOrder = data && data.originalOrder;
   if (!refundOrder) return `<html><body><p>data.order (refund order) is required for refund preview</p></body></html>`;

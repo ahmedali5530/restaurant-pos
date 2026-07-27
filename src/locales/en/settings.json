@@ -121,6 +121,14 @@
     "updated": "Show inclusive prices settings updated",
     "saveDescription": "Save show inclusive prices settings"
   },
+  "currencySymbol": {
+    "title": "Currency symbol",
+    "description": "Control whether the currency symbol appears next to amounts in the app and on printed receipts. Turning these off shows numbers only (e.g. 1,250 instead of Rs 1,250). This is display-only and does not change stored values.",
+    "showInUi": "Show on screen",
+    "showOnReceipts": "Show on receipts",
+    "updated": "Currency symbol settings updated",
+    "saveDescription": "Save currency symbol settings"
+  },
   "translateReceipts": {
     "title": "Translate receipts",
     "description": "When enabled, system labels on printed receipts (bill titles, Invoice#, Table, Tax, Total, kitchen tickets, and summary) use this device's selected language. Custom header and footer text from print settings is not translated.",
