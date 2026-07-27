@@ -27,7 +27,7 @@ const baseOrder = {
       quantity: 2,
       price: 50,
       discount: 0,
-      item: { id: 'menu_item:1', name: 'Tea', price: 50 } as Order['items'][number]['item'],
+      item: { id: 'menu_item:1', name: 'Tea', number: 'TEA-1', price: 50 } as Order['items'][number]['item'],
       modifiers: [],
       position: 0,
       created_at: {} as Order['items'][number]['created_at'],
@@ -62,6 +62,34 @@ describe('serializePkFiscalInvoice', () => {
         ],
       } as Order)
     ).toBe(2);
+  });
+
+  it('includes compulsory ItemCode and ItemName from dish number/name', () => {
+    const pra = serializePkFiscalInvoice(baseOrder, 'pra', {
+      posId: 'POS-1',
+      defaultPctCode: '69111020',
+      invoiceType: 1,
+    });
+    expect(pra.Items[0].ItemCode).toBe('TEA-1');
+    expect(pra.Items[0].ItemName).toBe('Tea');
+  });
+
+  it('falls back ItemCode to dish id when number is missing', () => {
+    const order = {
+      ...baseOrder,
+      items: [
+        {
+          ...baseOrder.items[0],
+          item: { id: 'menu_item:abc', name: 'Coffee', price: 50 },
+        },
+      ],
+    } as unknown as Order;
+    const pra = serializePkFiscalInvoice(order, 'pra', {
+      posId: 'POS-1',
+      defaultPctCode: '69111020',
+    });
+    expect(pra.Items[0].ItemCode).toBe('abc');
+    expect(pra.Items[0].ItemName).toBe('Coffee');
   });
 
   it('uses SaleValue+Tax for PRA and non-Punjab FBR TotalAmount', () => {

@@ -6,6 +6,7 @@ export {
   serializePkFiscalInvoice,
   formatPkFiscalAmount,
   mapPkPaymentMode,
+  resolvePkFiscalItemIdentity,
 } from '@/integrations/providers/fiscal/pk-fbr-pra/serialize-invoice.ts';
 export type {
   PkFiscalAuthority,

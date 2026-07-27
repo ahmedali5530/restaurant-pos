@@ -76,6 +76,7 @@ export const submitPkFiscalInvoiceRequest = async (
 
   const payload = serializePkFiscalInvoice(order, authority, parsed);
   // Proxy through the API server so the browser never calls FBR/PRA directly (CORS).
+  // Send both `url` and `apiBaseUrl` so older/newer proxy validators accept the body.
   const transportResponse = await transport.send<AuthorityResponse>({
     protocol: 'http',
     endpoint: apiUrl(FISCAL_INVOICE_PATH),
@@ -83,6 +84,7 @@ export const submitPkFiscalInvoiceRequest = async (
     headers: sessionAuthHeaderRecord(),
     body: {
       url: parsed.apiBaseUrl,
+      apiBaseUrl: parsed.apiBaseUrl,
       bearerToken: parsed.bearerToken,
       payload,
     },

@@ -278,6 +278,8 @@ Junction table (migration `2026_07_11_order_fiscal_fields.surql`):
 | `bearerToken` | `Authorization: Bearer …` |
 | `posId` | `POSID` |
 | `defaultPctCode` | Line `PCTCode` for all items (Phase 1; no per-product PCT yet) |
+
+Line items also send compulsory FBR/PRA `ItemCode` (dish `number`, else dish/order-item id) and `ItemName` (dish name).
 | `invoiceType` | Default `1` |
 | `offlineBuffering` | Shared runtime: queue failed immediate submits |
 | `blockSettlementOnFailure` | Shared runtime: abort Paid until fiscal succeeds |

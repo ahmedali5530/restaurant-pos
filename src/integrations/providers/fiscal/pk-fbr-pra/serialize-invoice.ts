@@ -16,6 +16,10 @@ export interface PkFiscalSerializeConfig {
 }
 
 export interface PkFiscalInvoiceItem {
+  /** FBR/PRA compulsory — dish number, else dish/order-item id */
+  ItemCode: string;
+  /** FBR/PRA compulsory — dish name */
+  ItemName: string;
   PCTCode: string;
   Quantity: string;
   SaleValue: string;
@@ -81,6 +85,37 @@ const resolveTaxRate = (order: Order, item: Order['items'][number], unitSale: nu
   return 0;
 };
 
+const recordIdSuffix = (value: unknown): string => {
+  const str = value == null ? '' : String(value);
+  if (!str) return '';
+  return str.includes(':') ? str.split(':').slice(1).join(':') : str;
+};
+
+const truncate = (value: string, max: number): string =>
+  value.length <= max ? value : value.slice(0, max);
+
+/** FBR/PRA ItemCode (max 50) / ItemName (max 150). */
+export const resolvePkFiscalItemIdentity = (
+  item: Order['items'][number]
+): { ItemCode: string; ItemName: string } => {
+  const dish = item?.item;
+  const name =
+    (typeof dish === 'object' && dish
+      ? String(dish.menu_name || dish.name || '').trim()
+      : '') || 'Item';
+  const number =
+    typeof dish === 'object' && dish?.number != null ? String(dish.number).trim() : '';
+  const code =
+    number ||
+    recordIdSuffix(typeof dish === 'object' ? dish?.id : dish) ||
+    recordIdSuffix(item?.id) ||
+    'ITEM';
+  return {
+    ItemCode: truncate(code, 50),
+    ItemName: truncate(name, 150),
+  };
+};
+
 /** Pakistan FBR/PRA invoice JSON body (not used by ZATCA/KRA). */
 export const serializePkFiscalInvoice = (
   order: Order,
@@ -109,7 +144,11 @@ export const serializePkFiscalInvoice = (
 
     totalSaleValue += lineSale;
 
+    const { ItemCode, ItemName } = resolvePkFiscalItemIdentity(item);
+
     return {
+      ItemCode,
+      ItemName,
       PCTCode: config.defaultPctCode,
       Quantity: formatPkFiscalAmount(quantity),
       SaleValue: formatPkFiscalAmount(unitSale),

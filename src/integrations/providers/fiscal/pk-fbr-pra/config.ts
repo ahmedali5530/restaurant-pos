@@ -20,13 +20,35 @@ export const parsePkFiscalProviderConfig = (
   values: Record<string, unknown>,
   options: ParsePkFiscalConfigOptions = {}
 ): PkFiscalProviderConfig | { error: string } => {
-  const apiBaseUrl = String(values.apiBaseUrl ?? '').trim();
+  // Strip copy-paste quotes / zero-width chars so proxy URL validation does not fail.
+  const stripInvisible = (value: string) =>
+    value.replace(/[\u200B-\u200D\uFEFF\u00A0]/g, '').trim();
+  const normalizeUrl = (raw: string) => {
+    let value = stripInvisible(raw);
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = stripInvisible(value.slice(1, -1));
+    }
+    return value;
+  };
+
+  const apiBaseUrl = normalizeUrl(String(values.apiBaseUrl ?? ''));
   const bearerToken = String(values.bearerToken ?? '').trim();
   const posId = String(values.posId ?? '').trim();
   const defaultPctCode = String(values.defaultPctCode ?? '').trim();
   const runtime = parseFiscalRuntimeConfig(values);
 
   if (!apiBaseUrl) return { error: 'apiBaseUrl is required' };
+  try {
+    const parsedUrl = new URL(apiBaseUrl);
+    if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+      return { error: 'apiBaseUrl must be a valid http(s) URL' };
+    }
+  } catch {
+    return { error: 'apiBaseUrl must be a valid http(s) URL' };
+  }
   if (!bearerToken) return { error: 'bearerToken is required' };
   if (!posId) return { error: 'posId is required' };
   if (!defaultPctCode) return { error: 'defaultPctCode is required' };

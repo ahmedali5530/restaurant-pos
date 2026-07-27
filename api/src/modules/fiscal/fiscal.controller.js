@@ -3,8 +3,28 @@
 const { sendError } = require('../../lib/response');
 const logger = require('../../lib/logger');
 
+/** Strip BOM / zero-width chars that often sneak in from copy-paste. */
+function stripInvisible(value) {
+  return String(value)
+    .replace(/[\u200B-\u200D\uFEFF\u00A0]/g, '')
+    .trim();
+}
+
+function normalizeUpstreamUrl(raw) {
+  if (raw == null) return '';
+  let value = stripInvisible(raw);
+  // Common paste: "https://..." or 'https://...'
+  if (
+    (value.startsWith('"') && value.endsWith('"')) ||
+    (value.startsWith("'") && value.endsWith("'"))
+  ) {
+    value = stripInvisible(value.slice(1, -1));
+  }
+  return value;
+}
+
 function isHttpUrl(value) {
-  if (typeof value !== 'string' || !value.trim()) return false;
+  if (!value) return false;
   try {
     const parsed = new URL(value);
     return parsed.protocol === 'http:' || parsed.protocol === 'https:';
@@ -13,12 +33,36 @@ function isHttpUrl(value) {
   }
 }
 
+function pickUpstreamUrl(body) {
+  if (!body || typeof body !== 'object') return '';
+  // Accept several aliases — clients / manual tests may use any of these.
+  return normalizeUpstreamUrl(
+    body.url ?? body.apiBaseUrl ?? body.upstreamUrl ?? body.endpoint ?? ''
+  );
+}
+
 async function proxyInvoice(req, res, next) {
   try {
-    const { url, bearerToken, payload } = req.body || {};
+    const body = req.body || {};
+    const { bearerToken, payload } = body;
+    const url = pickUpstreamUrl(body);
 
     if (!isHttpUrl(url)) {
-      return sendError(res, 400, 'url must be a valid http(s) URL');
+      const raw = body.url ?? body.apiBaseUrl ?? body.upstreamUrl ?? body.endpoint;
+      logger.warn('fiscal', 'invalid upstream url', {
+        typeof: typeof raw,
+        keys: body && typeof body === 'object' ? Object.keys(body) : [],
+        preview: raw == null ? null : String(raw).slice(0, 120),
+      });
+      return sendError(
+        res,
+        400,
+        'url must be a valid http(s) URL',
+        {
+          receivedType: raw == null ? 'missing' : typeof raw,
+          hint: 'Set Integrations → API Base URL to a full URL like https://ims.fbr.gov.pk/api/Live/PostData/ (no quotes).',
+        }
+      );
     }
     if (typeof bearerToken !== 'string' || !bearerToken.trim()) {
       return sendError(res, 400, 'bearerToken is required');
@@ -47,15 +91,15 @@ async function proxyInvoice(req, res, next) {
 
     const contentType = upstream.headers.get('content-type') || '';
     const raw = await upstream.text();
-    let body;
+    let responseBody;
     if (raw) {
       try {
-        body = JSON.parse(raw);
+        responseBody = JSON.parse(raw);
       } catch {
-        body = { message: raw };
+        responseBody = { message: raw };
       }
     } else {
-      body = {};
+      responseBody = {};
     }
 
     logger.info('fiscal', 'upstream response', {
@@ -64,11 +108,11 @@ async function proxyInvoice(req, res, next) {
       ok: upstream.ok,
     });
 
-    res.status(upstream.status).json(body);
+    res.status(upstream.status).json(responseBody);
   } catch (err) {
     logger.error('fiscal', 'proxy invoice failed', { message: err.message });
     next(err);
   }
 }
 
-module.exports = { proxyInvoice };
+module.exports = { proxyInvoice, normalizeUpstreamUrl, isHttpUrl, pickUpstreamUrl };

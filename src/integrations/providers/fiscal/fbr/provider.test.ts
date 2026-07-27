@@ -70,6 +70,7 @@ describe('FbrProvider execute', () => {
         endpoint: apiUrl('/fiscal/invoice'),
         body: expect.objectContaining({
           url: 'https://fbr.example/invoice',
+          apiBaseUrl: 'https://fbr.example/invoice',
           bearerToken: 'secret-token',
           payload: expect.any(Object),
         }),
