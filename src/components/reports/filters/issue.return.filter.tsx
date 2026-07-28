@@ -8,7 +8,6 @@ import {Tables} from "@/api/db/tables.ts";
 import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {User} from "@/api/model/user.ts";
-import {Kitchen} from "@/api/model/kitchen.ts";
 
 const toOption = <T extends { id?: any }>(
   item: T | undefined,
@@ -35,7 +34,6 @@ export const IssueReturnFilter = () => {
   const {data: locationsData, isLoading: loadingLocations} = useApi<SettingsData<InventoryLocation>>(Tables.inventory_locations, [], ['name asc'], 0, 9999);
   const {data: itemsData, isLoading: loadingItems} = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], ['name asc'], 0, 9999);
   const {data: usersData, isLoading: loadingUsers} = useApi<SettingsData<User>>(Tables.users, [], ['first_name asc'], 0, 9999);
-  const {data: kitchensData, isLoading: loadingKitchens} = useApi<SettingsData<Kitchen>>(Tables.kitchens, [], ['name asc'], 0, 9999);
 
   return (
     <form
@@ -47,10 +45,10 @@ export const IssueReturnFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="issue-return-locations">{t('inventory:columns.location')}</label>
+          <label htmlFor="issue-return-locations">{t('filters.location')}</label>
           <ReactSelect
             id="issue-return-locations"
-            name="stores[]"
+            name="locations[]"
             isMulti
             isLoading={loadingLocations}
             className="w-full"
@@ -70,20 +68,6 @@ export const IssueReturnFilter = () => {
             className="w-full"
             options={(itemsData?.data || [])
               .map(item => toOption(item, item.name))
-              .filter(notNull)}
-          />
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <label htmlFor="issue-return-kitchens">{t('metrics.kitchens')}</label>
-          <ReactSelect
-            id="issue-return-kitchens"
-            name="kitchens[]"
-            isMulti
-            isLoading={loadingKitchens}
-            className="w-full"
-            options={(kitchensData?.data || [])
-              .map(kitchen => toOption(kitchen, kitchen.name))
               .filter(notNull)}
           />
         </div>

@@ -574,7 +574,7 @@ export const completeProductionBatch = async (
   return {
     id: batchId,
     recipe: recipe as ProductionBatch["recipe"],
-    store: (batchHeader as any)?.location ?? (batchHeader as any)?.store,
+    location: (batchHeader as any)?.location,
     batch_number: batchNumber,
     scale_factor: scaled.scaleFactor,
     produced_qty: Number(input.producedQty),
@@ -613,7 +613,7 @@ export const listProductionBatches = async (
 
   const locationFilter = filters.locationId || filters.storeId;
   if (locationFilter) {
-    where.push("(location = $location OR store = $location)");
+    where.push("location = $location");
     params.location = toLocationRecordId(locationFilter);
   }
   if (filters.recipeId) {
@@ -641,7 +641,7 @@ export const listProductionBatches = async (
       ${whereClause}
       ORDER BY created_at DESC
       LIMIT $limit START $start
-      FETCH recipe, store, location, created_by`,
+      FETCH recipe, location, created_by`,
       params
     ),
   ]);
@@ -660,15 +660,15 @@ export const getProductionBatch = async (
 
   const [[header], [inputs], [outputs]] = await Promise.all([
     db.query(
-      `SELECT * FROM ONLY $id FETCH recipe, store, location, created_by`,
+      `SELECT * FROM ONLY $id FETCH recipe, location, created_by`,
       {id: recId}
     ),
     db.query(
-      `SELECT * FROM ${Tables.production_batch_inputs} WHERE batch = $id FETCH item, store, location`,
+      `SELECT * FROM ${Tables.production_batch_inputs} WHERE batch = $id FETCH item, location`,
       {id: recId}
     ),
     db.query(
-      `SELECT * FROM ${Tables.production_batch_outputs} WHERE batch = $id FETCH item, store, location, ledger_waste_item`,
+      `SELECT * FROM ${Tables.production_batch_outputs} WHERE batch = $id FETCH item, location, ledger_waste_item`,
       {id: recId}
     ),
   ]);
@@ -685,14 +685,14 @@ export const getProductionBatch = async (
 export const fetchProductionInputTotals = async (
   db: DatabaseClient,
   itemId: string,
-  storeId: string
+  locationId: string
 ): Promise<number> => {
   const [rows] = await db.query(
     `SELECT math::sum(quantity) AS total FROM ${Tables.production_batch_inputs}
-    WHERE item = $item AND (location = $location OR store = $location)
+    WHERE item = $item AND location = $location
     AND batch IN (SELECT VALUE id FROM ${Tables.production_batches} WHERE status = 'completed')
     GROUP ALL`,
-    {item: toItemRecordId(itemId), location: toLocationRecordId(storeId)}
+    {item: toItemRecordId(itemId), location: toLocationRecordId(locationId)}
   );
   return getTotalFromRows(rows);
 };
@@ -700,14 +700,14 @@ export const fetchProductionInputTotals = async (
 export const fetchProductionOutputTotals = async (
   db: DatabaseClient,
   itemId: string,
-  storeId: string
+  locationId: string
 ): Promise<number> => {
   const [rows] = await db.query(
     `SELECT math::sum(quantity) AS total FROM ${Tables.production_batch_outputs}
-    WHERE item = $item AND (location = $location OR store = $location) AND disposition = 'inventory'
+    WHERE item = $item AND location = $location AND disposition = 'inventory'
     AND batch IN (SELECT VALUE id FROM ${Tables.production_batches} WHERE status = 'completed')
     GROUP ALL`,
-    {item: toItemRecordId(itemId), location: toLocationRecordId(storeId)}
+    {item: toItemRecordId(itemId), location: toLocationRecordId(locationId)}
   );
   return getTotalFromRows(rows);
 };
@@ -717,8 +717,8 @@ export type ProductionReportLine = {
   batchNumber: string;
   createdAt: Date;
   recipeName: string;
-  storeId: string;
-  storeName: string;
+  locationId: string;
+  locationName: string;
   itemId: string;
   producedQty: number;
   totalInputCost: number;
@@ -742,7 +742,7 @@ export const fetchProductionLinesForReport = async (
 
   const locationFilter = filters.locationId || filters.storeId;
   if (locationFilter) {
-    where.push("(location = $location OR store = $location)");
+    where.push("location = $location");
     params.location = toLocationRecordId(locationFilter);
   }
   if (filters.recipeId) {
@@ -767,7 +767,7 @@ export const fetchProductionLinesForReport = async (
     FROM ${Tables.production_batches}
     ${whereClause}
     ORDER BY created_at ASC
-    FETCH recipe, store, location`,
+    FETCH recipe, location`,
     params
   );
 
@@ -777,9 +777,9 @@ export const fetchProductionLinesForReport = async (
     const batchId = recordToString(batch.id) ?? "";
     const recipeName =
       typeof batch.recipe === "object" ? batch.recipe.name : String(batch.recipe);
-    const loc = (batch as any).location ?? batch.store;
-    const storeId = recordToString(loc?.id ?? loc) ?? "";
-    const storeName =
+    const loc = batch.location;
+    const locationId = recordToString(loc?.id ?? loc) ?? "";
+    const locationName =
       typeof loc === "object" && loc?.name ? loc.name : String(loc ?? "");
     const createdAt =
       batch.created_at instanceof Date
@@ -795,8 +795,8 @@ export const fetchProductionLinesForReport = async (
         batchNumber: batch.batch_number,
         createdAt,
         recipeName,
-        storeId,
-        storeName,
+        locationId,
+        locationName,
         itemId,
         producedQty: batch.produced_qty,
         totalInputCost: batch.total_input_cost,
@@ -820,8 +820,8 @@ export const fetchProductionLinesForReport = async (
         batchNumber: batch.batch_number,
         createdAt,
         recipeName,
-        storeId,
-        storeName,
+        locationId,
+        locationName,
         itemId,
         producedQty: batch.produced_qty,
         totalInputCost: batch.total_input_cost,

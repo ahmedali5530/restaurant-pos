@@ -44,7 +44,7 @@ export const InventoryIssues = () => {
     ["created_at DESC"],
     0,
     10,
-    ["issued_to", "created_by", "kitchen", "items", "items.item", "items.location", "items.store"]
+    ["issued_to", "created_by", "location", "items", "items.item", "items.location"]
   );
 
   const [data, setData] = useState<InventoryIssue>();
@@ -123,9 +123,9 @@ export const InventoryIssues = () => {
       id: "issued_to",
       header: t('columns.issuedTo')
     }),
-    columnHelper.accessor(row => row.kitchen?.name ?? "", {
-      id: "kitchen",
-      header: t('columns.kitchen')
+    columnHelper.accessor(row => row.location?.name ?? "", {
+      id: "location",
+      header: t('columns.location')
     }),
     columnHelper.accessor("items", {
       header: t('tabs.items'),

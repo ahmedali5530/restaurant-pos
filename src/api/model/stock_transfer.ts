@@ -8,7 +8,9 @@ import { LifecycleFields } from "@/api/model/inventory_document.ts";
 
 export interface StockTransfer extends LifecycleFields {
   id: string;
+  /** @deprecated use from_location */
   from_kitchen?: Kitchen;
+  /** @deprecated use to_location */
   to_kitchen?: Kitchen;
   from_location?: InventoryLocation;
   to_location?: InventoryLocation;

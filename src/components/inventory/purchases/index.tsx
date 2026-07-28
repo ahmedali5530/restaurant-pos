@@ -45,7 +45,7 @@ export const InventoryPurchases = () => {
     ["created_at DESC"],
     0,
     10,
-    ["supplier", "purchase_order", "items", "items.item", "items.supplier", "items.location", "items.store", "created_by"]
+    ["supplier", "purchase_order", "items", "items.item", "items.supplier", "items.location", "created_by"]
   );
 
   const [data, setData] = useState<InventoryPurchase>();

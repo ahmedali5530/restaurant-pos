@@ -40,9 +40,8 @@ const loaders: Record<InventoryPrintDocType, Loader> = {
         "items.item",
         "items.supplier",
         "items.location",
-        "items.store",
         "created_by",
-        "store",
+        "location",
       ]);
       return row ? mapPurchaseToInvoice(row) : null;
     },
@@ -58,12 +57,11 @@ const loaders: Record<InventoryPrintDocType, Loader> = {
         "items.item",
         "items.purchase_item",
         "items.purchase_item.location",
-        "items.purchase_item.store",
         "items.purchase_item.supplier",
         "items.location",
-        "items.store",
         "items.supplier",
         "created_by",
+        "location",
       ]);
       return row ? mapPurchaseReturnToInvoice(row) : null;
     },
@@ -75,7 +73,7 @@ const loaders: Record<InventoryPrintDocType, Loader> = {
         "items",
         "items.item",
         "items.supplier",
-        "items.store",
+        "items.location",
       ]);
       return row ? mapPurchaseOrderToInvoice(row) : null;
     },
@@ -85,11 +83,10 @@ const loaders: Record<InventoryPrintDocType, Loader> = {
       const row = await selectOnly(db, Tables.inventory_issues, id, [
         "issued_to",
         "created_by",
-        "kitchen",
+        "location",
         "items",
         "items.item",
         "items.location",
-        "items.store",
       ]);
       return row ? mapIssueToInvoice(row) : null;
     },
@@ -100,15 +97,15 @@ const loaders: Record<InventoryPrintDocType, Loader> = {
         "issuance",
         "issuance.items",
         "issuance.items.item",
-        "issuance.items.store",
+        "issuance.items.location",
         "issued_to",
-        "kitchen",
+        "location",
         "created_by",
         "items",
         "items.item",
         "items.issued_item",
-        "items.issued_item.store",
-        "items.store",
+        "items.issued_item.location",
+        "items.location",
       ]);
       return row ? mapIssueReturnToInvoice(row) : null;
     },
@@ -124,6 +121,7 @@ const loaders: Record<InventoryPrintDocType, Loader> = {
         "issue.items.item",
         "items",
         "items.item",
+        "items.location",
         "items.purchase_item",
         "items.issue_item",
         "created_by",

@@ -77,11 +77,11 @@ const normalizeRecordParams = (itemId: unknown, locationId: unknown) => ({
 export const fetchLegacyStoreInventoryBreakdown = async (
   db: DatabaseClient,
   itemId: string,
-  storeId: string
+  locationId: string
 ): Promise<StoreInventoryBreakdown> => {
   const itemKey = recordIdToString(itemId) || String(itemId);
-  const storeKey = recordIdToString(storeId) || String(storeId);
-  const params = normalizeRecordParams(itemKey, storeKey);
+  const locationKey = recordIdToString(locationId) || String(locationId);
+  const params = normalizeRecordParams(itemKey, locationKey);
 
   const [
     [purchaseRows],
@@ -96,43 +96,43 @@ export const fetchLegacyStoreInventoryBreakdown = async (
   ] = await Promise.all([
     db.query(
       `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_purchase_items}
-       WHERE item = $item AND (location = $location OR store = $location)
+       WHERE item = $item AND location = $location
          AND (purchase.status = 'posted' OR purchase.status = NONE)
        GROUP ALL`,
       params
     ),
     db.query(
       `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_purchase_return_items}
-       WHERE item = $item AND (location = $location OR purchase_item.location = $location OR purchase_item.store = $location)
+       WHERE item = $item AND (location = $location OR purchase_item.location = $location)
          AND (purchase_return.status = 'posted' OR purchase_return.status = NONE)
        GROUP ALL`,
       params
     ),
     db.query(
       `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_issue_items}
-       WHERE item = $item AND (location = $location OR store = $location)
+       WHERE item = $item AND location = $location
          AND (issue.status = 'posted' OR issue.status = NONE)
        GROUP ALL`,
       params
     ),
     db.query(
       `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_issue_return_items}
-       WHERE item = $item AND (location = $location OR store = $location OR issued_item.location = $location OR issued_item.store = $location)
+       WHERE item = $item AND (location = $location OR issued_item.location = $location)
          AND (issue_return.status = 'posted' OR issue_return.status = NONE)
        GROUP ALL`,
       params
     ),
     db.query(
       `SELECT Math::sum(quantity) AS total FROM ${Tables.inventory_waste_items}
-       WHERE item = $item AND purchase_item != null AND (purchase_item.location = $location OR purchase_item.store = $location)
+       WHERE item = $item AND purchase_item != null AND purchase_item.location = $location
          AND (waste.status = 'posted' OR waste.status = NONE)
        GROUP ALL`,
       params
     ),
-    fetchStoreTransferTotals(db, itemKey, storeKey),
-    fetchProductionInputTotals(db, itemKey, storeKey),
-    fetchProductionOutputTotals(db, itemKey, storeKey),
-    fetchBuffetConsumptionTotals(db, itemKey, storeKey),
+    fetchStoreTransferTotals(db, itemKey, locationKey),
+    fetchProductionInputTotals(db, itemKey, locationKey),
+    fetchProductionOutputTotals(db, itemKey, locationKey),
+    fetchBuffetConsumptionTotals(db, itemKey, locationKey),
   ]);
 
   const breakdown = {
@@ -162,46 +162,46 @@ export const fetchLegacyStoreInventoryBreakdown = async (
 export const fetchStoreInventoryBreakdown = async (
   db: DatabaseClient,
   itemId: string,
-  storeId: string
+  locationId: string
 ): Promise<StoreInventoryBreakdown> => {
   const ledgerEnabled = await isInventoryLedgerEnabled(db);
   if (ledgerEnabled) {
-    return computeBreakdownFromLedger(db, itemId, storeId);
+    return computeBreakdownFromLedger(db, itemId, locationId);
   }
-  return fetchLegacyStoreInventoryBreakdown(db, itemId, storeId);
+  return fetchLegacyStoreInventoryBreakdown(db, itemId, locationId);
 };
 
 /**
- * Fetches the net available quantity of an item in a specific store.
+ * Fetches the net available quantity of an item in a specific location.
  */
 export const fetchNetQuantity = async (
   db: DatabaseClient,
   itemId: string,
-  storeId: string
+  locationId: string
 ): Promise<number> => {
   const ledgerEnabled = await isInventoryLedgerEnabled(db);
   if (ledgerEnabled) {
-    return computeStockFromLedger(db, itemId, storeId);
+    return computeStockFromLedger(db, itemId, locationId);
   }
-  const breakdown = await fetchLegacyStoreInventoryBreakdown(db, itemId, storeId);
+  const breakdown = await fetchLegacyStoreInventoryBreakdown(db, itemId, locationId);
   return breakdown.net;
 };
 
 export const validateStoreTransferAvailability = async (
   db: DatabaseClient,
-  fromStoreId: string,
+  fromLocationId: string,
   items: StockTransferLineInput[],
   excludeTransferId?: string
 ): Promise<{valid: boolean; itemId?: string; available?: number; requested?: number}> => {
   for (const line of items) {
-    const available = await fetchNetQuantity(db, line.itemId, fromStoreId);
+    const available = await fetchNetQuantity(db, line.itemId, fromLocationId);
     let adjustedAvailable = available;
 
     if (excludeTransferId) {
       const {transfersOut} = await fetchStoreTransferTotals(
         db,
         line.itemId,
-        fromStoreId,
+        fromLocationId,
         excludeTransferId
       );
       adjustedAvailable += transfersOut;
@@ -222,11 +222,11 @@ export const validateStoreTransferAvailability = async (
 
 export const validateProductionAvailability = async (
   db: DatabaseClient,
-  storeId: string,
+  locationId: string,
   items: Array<{itemId: string; quantity: number}>
 ): Promise<{valid: boolean; itemId?: string; available?: number; requested?: number}> => {
   for (const line of items) {
-    const available = await fetchNetQuantity(db, line.itemId, storeId);
+    const available = await fetchNetQuantity(db, line.itemId, locationId);
     if (Number(line.quantity) > available) {
       return {
         valid: false,
@@ -247,14 +247,14 @@ const normalizeRecordKey = (id: string): string => {
 
 export const getReorderLevelForStore = (
   item: Pick<InventoryItem, "reorder_levels"> | undefined,
-  storeId: string,
+  locationId: string,
 ): number => {
   const levels = item?.reorder_levels;
   if (!levels || typeof levels !== "object") {
     return 0;
   }
 
-  const targetKey = normalizeRecordKey(storeId);
+  const targetKey = normalizeRecordKey(locationId);
   for (const [key, value] of Object.entries(levels)) {
     if (normalizeRecordKey(key) === targetKey) {
       const num = Number(value);
@@ -267,9 +267,9 @@ export const getReorderLevelForStore = (
 
 export const isBelowReorderLevel = (
   item: Pick<InventoryItem, "reorder_levels"> | undefined,
-  storeId: string,
+  locationId: string,
   quantity: number,
 ): boolean => {
-  const reorderLevel = getReorderLevelForStore(item, storeId);
+  const reorderLevel = getReorderLevelForStore(item, locationId);
   return reorderLevel > 0 && quantity < reorderLevel;
 };

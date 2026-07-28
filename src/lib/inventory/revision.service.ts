@@ -33,7 +33,7 @@ export const createPurchaseRevision = async (
 
   const [rows] = await db.query(
     `SELECT * FROM ${Tables.inventory_purchases} WHERE id = $id LIMIT 1
-     FETCH items, items.item, items.store, items.supplier, supplier, store, documents`,
+     FETCH items, items.item, items.location, items.supplier, supplier, location, documents`,
     { id: toRecordId(id) }
   );
   const source = (Array.isArray(rows) ? rows[0] : undefined) as InventoryPurchase | undefined;
@@ -74,9 +74,9 @@ export const createPurchaseRevision = async (
       recordIdToString(source.supplier.id ?? source.supplier)
     );
   }
-  if (source.store) {
-    headerPayload.store = toRecordId(
-      recordIdToString(source.store.id ?? source.store)
+  if (source.location) {
+    headerPayload.location = toRecordId(
+      recordIdToString(source.location.id ?? source.location)
     );
   }
   if (source.payment_method) {
@@ -115,8 +115,8 @@ export const createPurchaseRevision = async (
       allocated_discount: null,
       final_unit_cost: null,
       total_inventory_cost: null,
-      store: line.store
-        ? toRecordId(recordIdToString(line.store.id ?? line.store))
+      location: line.location
+        ? toRecordId(recordIdToString(line.location.id ?? line.location))
         : undefined,
       supplier: line.supplier
         ? toRecordId(recordIdToString(line.supplier.id ?? line.supplier))
@@ -139,7 +139,7 @@ export const createPurchaseRevision = async (
 
   const [fresh] = await db.query(
     `SELECT * FROM ${Tables.inventory_purchases} WHERE id = $id LIMIT 1
-     FETCH items, items.item, items.store, supplier, store, created_by`,
+     FETCH items, items.item, items.location, supplier, location, created_by`,
     { id: toRecordId(newId) }
   );
   return (Array.isArray(fresh) ? fresh[0] : fresh) as InventoryPurchase;
@@ -155,7 +155,7 @@ export const createIssueRevision = async (
 
   const [rows] = await db.query(
     `SELECT * FROM ${Tables.inventory_issues} WHERE id = $id LIMIT 1
-     FETCH items, items.item, items.store, issued_to, kitchen, store, documents`,
+     FETCH items, items.item, items.location, issued_to, location, documents`,
     { id: toRecordId(id) }
   );
   const source = (Array.isArray(rows) ? rows[0] : undefined) as InventoryIssue | undefined;
@@ -190,14 +190,9 @@ export const createIssueRevision = async (
       recordIdToString(source.issued_to.id ?? source.issued_to)
     );
   }
-  if (source.kitchen) {
-    headerPayload.kitchen = toRecordId(
-      recordIdToString(source.kitchen.id ?? source.kitchen)
-    );
-  }
-  if (source.store) {
-    headerPayload.store = toRecordId(
-      recordIdToString(source.store.id ?? source.store)
+  if (source.location) {
+    headerPayload.location = toRecordId(
+      recordIdToString(source.location.id ?? source.location)
     );
   }
 
@@ -217,8 +212,8 @@ export const createIssueRevision = async (
       price: line.price,
       code: line.code,
       comments: line.comments,
-      store: line.store
-        ? toRecordId(recordIdToString(line.store.id ?? line.store))
+      location: line.location
+        ? toRecordId(recordIdToString(line.location.id ?? line.location))
         : undefined,
     });
     if (item?.id) itemIds.push(recordIdToString(item.id) || String(item.id));
@@ -236,7 +231,7 @@ export const createIssueRevision = async (
 
   const [fresh] = await db.query(
     `SELECT * FROM ${Tables.inventory_issues} WHERE id = $id LIMIT 1
-     FETCH items, items.item, items.store, issued_to, kitchen, created_by`,
+     FETCH items, items.item, items.location, issued_to, location, created_by`,
     { id: toRecordId(newId) }
   );
   return (Array.isArray(fresh) ? fresh[0] : fresh) as InventoryIssue;

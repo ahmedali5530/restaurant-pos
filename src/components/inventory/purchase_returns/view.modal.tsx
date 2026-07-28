@@ -31,7 +31,7 @@ export const InventoryPurchaseReturnViewModal = ({open, purchaseReturn, onClose}
       setLoading(true);
       try {
         const [result] = await db.query(
-          `SELECT * FROM ONLY ${purchaseReturn.id} FETCH purchase, purchase.supplier, items, items.item, items.store, items.supplier, created_by, documents`
+          `SELECT * FROM ONLY ${purchaseReturn.id} FETCH purchase, purchase.supplier, items, items.item, items.location, items.supplier, created_by, documents`
         );
         setViewReturn(result as any);
       } catch (e) {
@@ -102,7 +102,7 @@ export const InventoryPurchaseReturnViewModal = ({open, purchaseReturn, onClose}
                         {item.item?.name ?? "Item"}{item.item?.code ? ` - ${item.item.code}` : ""}
                       </div>
                       <div className="text-xs text-neutral-500">
-                        {item.store?.name ? `Store: ${item.store.name}` : ""}
+                        {item.location?.name ? `Location: ${item.location.name}` : ""}
                       </div>
                     </div>
                     <div className="w-24 text-right">

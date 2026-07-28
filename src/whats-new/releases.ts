@@ -7,6 +7,57 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-07-28',
+    title: 'Kitchen reconciliation revision details',
+    items: [
+      'Click a revision in kitchen reconciliation history to open a modal with who changed it, snapshots, and field-level diffs.',
+    ],
+  },
+  {
+    date: '2026-07-28',
+    title: 'Keyboard navigation in count grids',
+    items: [
+      'Kitchen reconciliation and buffet closing grids support Ctrl/Cmd + arrow keys to move between editable cells.',
+    ],
+  },
+  {
+    date: '2026-07-28',
+    title: 'Kitchen reconciliation theoretical consumption',
+    items: [
+      'Theoretical (system) consumption is restored: sold dishes for the location’s linked POS kitchen are exploded via recipes into ingredient quantities for the business-date window.',
+      'Reconciliation stock identity remains location (opening, issued, transfers). If a location has no linked kitchen, generate still works and theoretical stays 0.',
+    ],
+  },
+  {
+    date: '2026-07-28',
+    title: 'Kitchen reconciliation by location',
+    items: [
+      'Kitchen reconciliation is keyed by inventory location: generate, load, discard, opening, issued, and transfers use location only.',
+      'Reconciliation headers store location; reports and dashboard show location.',
+      'Run schema migration 2026_07_28_kitchen_reconciliation_location. Older kitchen-keyed reconciliations are not backfilled.',
+    ],
+  },
+  {
+    date: '2026-07-28',
+    title: 'Location-first inventory cutover',
+    items: [
+      'Inventory operations (purchases, returns, issues, issue returns, adjustments, transfers, production, buffet) save and display location instead of store/kitchen.',
+      'Inventory dashboard, summary, and reports filter and show location.',
+      'No inventory backfill — older store-only rows may show a blank location until edited.',
+    ],
+  },
+  {
+    date: '2026-07-28',
+    title: 'Kitchen reconciliation generate fix',
+    items: [
+      'Generate Reconciliation no longer hangs: paid-order consumption uses indexed datetime filters, and missed-day stubs no longer re-scan sales for every skipped day.',
+      'Generate also avoids loading dish photo blobs and nested order subqueries that could freeze large databases.',
+      'Fixed hang after revision insert: revision snapshots no longer embed every line item (huge websocket payloads), and line reload uses a light item meta query.',
+      'Fixed Surreal hang from bare record ids (recordToString stripped table prefixes); all binds now use full table:id via toQueryRecordId.',
+      'Missed-day backfill for Generate is header-only (no per-day line inserts), so generating today after a date gap no longer freezes.',
+    ],
+  },
+  {
     date: '2026-07-27',
     title: 'Currency symbol display',
     items: [

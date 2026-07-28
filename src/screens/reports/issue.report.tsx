@@ -7,7 +7,7 @@ import {InventoryIssue} from "@/api/model/inventory_issue.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {
-  buildLocationOrStoreInsideCondition,
+  buildLocationInsideCondition,
   buildNestedRecordAnyCondition,
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
@@ -21,9 +21,8 @@ const safeNumber = (value: unknown) => {
 interface ReportFilters {
   startDate?: string | null;
   endDate?: string | null;
-  storeIds: string[];
+  locationIds: string[];
   itemIds: string[];
-  kitchenIds: string[];
   userIds: string[];
 }
 
@@ -40,9 +39,8 @@ const parseFilters = (): ReportFilters => {
   return {
     startDate: params.get('start') || params.get('start'),
     endDate: params.get('end') || params.get('end'),
-    storeIds: parseMulti('stores'),
+    locationIds: parseMulti('locations'),
     itemIds: parseMulti('items'),
-    kitchenIds: parseMulti('kitchens'),
     userIds: parseMulti('users'),
   };
 };
@@ -81,16 +79,10 @@ export const IssueReport = () => {
           params.endDate = filters.endDate;
         }
 
-        const storeFilter = buildLocationOrStoreInsideCondition(filters.storeIds, 'storeIds');
-        if (storeFilter.condition) {
-          conditions.push(storeFilter.condition);
-          Object.assign(params, storeFilter.params);
-        }
-
-        const kitchenFilter = buildRecordInsideCondition('kitchen', filters.kitchenIds, 'kitchenIds');
-        if (kitchenFilter.condition) {
-          conditions.push(kitchenFilter.condition);
-          Object.assign(params, kitchenFilter.params);
+        const locationFilter = buildLocationInsideCondition(filters.locationIds, 'locationIds');
+        if (locationFilter.condition) {
+          conditions.push(locationFilter.condition);
+          Object.assign(params, locationFilter.params);
         }
 
         const userFilter = buildRecordInsideCondition('created_by', filters.userIds, 'userIds');
@@ -109,7 +101,7 @@ export const IssueReport = () => {
           SELECT * FROM ${Tables.inventory_issues}
           ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
           ORDER BY created_at ASC
-          FETCH items, items.item, items.item.category, created_by, kitchen, issued_to, location, store
+          FETCH items, items.item, items.item.category, created_by, issued_to, location
         `;
 
         const result: any = await queryRef.current(query, params);
@@ -123,7 +115,7 @@ export const IssueReport = () => {
     };
 
     fetchData();
-  }, [filters.startDate, filters.endDate, filters.storeIds, filters.itemIds, filters.kitchenIds, filters.userIds]);
+  }, [filters.startDate, filters.endDate, filters.locationIds, filters.itemIds, filters.userIds]);
 
   // Calculate totals
   const totals = useMemo(() => {
@@ -189,8 +181,7 @@ export const IssueReport = () => {
                 <tr>
                   <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.date')}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.invoice')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.kitchen')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.store')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.location')}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.item')}</th>
                   <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
                   <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.price')}</th>
@@ -203,7 +194,7 @@ export const IssueReport = () => {
               <tbody className="divide-y divide-neutral-100 bg-white">
                 {issues.length === 0 ? (
                   <tr>
-                    <td colSpan={11} className="py-6 text-center text-sm text-neutral-500">
+                    <td colSpan={10} className="py-6 text-center text-sm text-neutral-500">
                       No issues found for the selected filters
                     </td>
                   </tr>
@@ -211,8 +202,7 @@ export const IssueReport = () => {
                   issues.flatMap(issue => {
                     const date = toLuxonDateTime(issue.created_at);
                     const dateStr = date.toFormat(import.meta.env.VITE_DATE_FORMAT);
-                    const kitchenName = issue.kitchen?.name || 'N/A';
-                    const storeName = issue.location?.name || issue.store?.name || 'N/A';
+                    const locationName = issue.location?.name || 'N/A';
                     const issuedToName = issue.issued_to
                       ? `${issue.issued_to.first_name ?? ''} ${issue.issued_to.last_name ?? ''}`.trim() || issue.issued_to.login || 'Unknown'
                       : 'N/A';
@@ -243,8 +233,7 @@ export const IssueReport = () => {
                               issue.invoice_number || 'N/A'
                             )}
                           </td>
-                          <td className="py-3 px-3 text-sm text-neutral-700">{kitchenName}</td>
-                          <td className="py-3 px-3 text-sm text-neutral-700">{storeName}</td>
+                          <td className="py-3 px-3 text-sm text-neutral-700">{locationName}</td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{itemName}</td>
                           <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(quantity)}</td>
                           <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(price)}</td>
@@ -261,7 +250,7 @@ export const IssueReport = () => {
               {issues.length > 0 && (
                 <tfoot className="bg-neutral-50">
                   <tr>
-                    <td colSpan={5} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">{t('columns.total')}</td>
+                    <td colSpan={4} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">{t('columns.total')}</td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
                       {formatNumber(totals.totalQuantity)}
                     </td>

@@ -220,7 +220,8 @@
       "inventory": "Voorraad",
       "charts": "Grafieken en prognose",
       "analysis": "Analyse"
-    }
+    },
+    "location": "Locatie"
   },
   "datePresets": {
     "today": "Vandaag",
@@ -280,6 +281,7 @@
     "date": "Datum",
     "supplier": "Leverancier",
     "store": "Magazijn",
+    "location": "Locatie",
     "createdBy": "Aangemaakt door",
     "items": "Artikelen",
     "total": "Totaal",
@@ -439,7 +441,13 @@
     "discountLines": "Kortingsregels",
     "totalDiscount": "Totale korting",
     "discountDetails": "Kortingsdetails",
-    "customDiscount": "Aangepaste korting"
+    "customDiscount": "Aangepaste korting",
+    "location": "Locatie",
+    "recipe": "Recept",
+    "item": "Artikel",
+    "direction": "Richting",
+    "quantity": "Hoeveelheid",
+    "cost": "Kosten"
   },
   "metrics": {
     "gross": "Bruto",
@@ -474,6 +482,7 @@
     "floors": "Verdiepingen",
     "kitchens": "Keukens",
     "store": "Magazijn",
+    "location": "Locatie",
     "recipe": "Recept",
     "item": "Artikel",
     "direction": "Richting",
@@ -511,6 +520,7 @@
     "totalGuests": "Totaal gasten",
     "help": {
       "store": "Alleen gesloten buffetsessies in dit magazijn opnemen. Leeg laten voor alle magazijnen.",
+      "location": "Alleen gesloten buffetsessies op deze locatie opnemen. Leeg laten voor alle locaties.",
       "sessionType": "Alleen sessies voor deze maaltijdperiode opnemen. Leeg laten voor alle typen."
     }
   },

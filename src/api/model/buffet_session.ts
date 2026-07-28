@@ -26,7 +26,7 @@ export interface BuffetSession {
   menu: BuffetMenu;
   location?: InventoryLocation;
   /** @deprecated use location */
-  store: InventoryStore;
+  store?: InventoryStore;
   business_date: string;
   session_type: BuffetSessionType;
   status: BuffetSessionStatus;

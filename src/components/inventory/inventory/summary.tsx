@@ -61,7 +61,7 @@ export const InventorySummary = () => {
           header: location.name,
           id: `location-${location.id}`,
           cell: (info) => {
-            return <StoreInventoryCell item={info.row.original} storeId={String(location.id)} />;
+            return <StoreInventoryCell item={info.row.original} locationId={String(location.id)} />;
           }
         }));
       }

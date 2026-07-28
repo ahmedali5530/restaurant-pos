@@ -220,7 +220,8 @@
       "inventory": "Inventario",
       "charts": "Gráficos y pronósticos",
       "analysis": "Análisis"
-    }
+    },
+    "location": "Ubicación"
   },
   "datePresets": {
     "today": "Hoy",
@@ -280,6 +281,7 @@
     "date": "Fecha",
     "supplier": "Proveedor",
     "store": "Almacén",
+    "location": "Ubicación",
     "createdBy": "Creado por",
     "items": "Artículos",
     "total": "Total",
@@ -439,7 +441,13 @@
     "discountLines": "Líneas de descuento",
     "totalDiscount": "Descuento total",
     "discountDetails": "Detalles del descuento",
-    "customDiscount": "Descuento personalizado"
+    "customDiscount": "Descuento personalizado",
+    "location": "Ubicación",
+    "recipe": "Receta",
+    "item": "Artículo",
+    "direction": "Dirección",
+    "quantity": "Cantidad",
+    "cost": "Costo"
   },
   "metrics": {
     "gross": "Bruto",
@@ -474,6 +482,7 @@
     "floors": "Plantas",
     "kitchens": "Cocinas",
     "store": "Almacén",
+    "location": "Ubicación",
     "recipe": "Receta",
     "item": "Artículo",
     "direction": "Dirección",
@@ -511,6 +520,7 @@
     "totalGuests": "Total de comensales",
     "help": {
       "store": "Incluir solo sesiones de buffet cerradas en este almacén. Dejar vacío para todos los almacenes.",
+      "location": "Incluir solo sesiones de buffet cerradas en esta ubicación. Dejar vacío para todas las ubicaciones.",
       "sessionType": "Incluir solo sesiones de este período de comida. Dejar vacío para todos los tipos."
     }
   },

@@ -99,7 +99,7 @@ export const BuffetSessionDashboard = ({sessionId, onBack}: Props) => {
             {session.session_number} — {session.menu?.name}
           </h2>
           <p className="text-neutral-600">
-            {session.business_date} · {t(`buffet.sessionTypes.${session.session_type}`)} · {session.store?.name}
+            {session.business_date} · {t(`buffet.sessionTypes.${session.session_type}`)} · {session.location?.name}
           </p>
         </div>
         <span className={classNames("tag text-sm", {

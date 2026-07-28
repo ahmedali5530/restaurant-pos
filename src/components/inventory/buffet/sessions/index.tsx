@@ -46,8 +46,8 @@ export const BuffetSessions = () => {
       header: t("buffet.sessionType"),
       cell: (info) => t(`buffet.sessionTypes.${info.getValue()}`),
     }),
-    columnHelper.accessor("store", {
-      header: t("columns.store"),
+    columnHelper.accessor("location", {
+      header: t("columns.location"),
       cell: (info) => info.getValue()?.name ?? "",
     }),
     columnHelper.accessor("menu", {

@@ -1289,7 +1289,8 @@ DEFINE FIELD created_at ON kitchen_reconciliation TYPE datetime DEFAULT time::no
 DEFINE FIELD created_by ON kitchen_reconciliation TYPE record<user> PERMISSIONS FULL;
 DEFINE FIELD date_from ON kitchen_reconciliation TYPE datetime PERMISSIONS FULL;
 DEFINE FIELD date_to ON kitchen_reconciliation TYPE datetime PERMISSIONS FULL;
-DEFINE FIELD kitchen ON kitchen_reconciliation TYPE record<kitchen> PERMISSIONS FULL;
+DEFINE FIELD location ON kitchen_reconciliation TYPE none | record<inventory_location> | null PERMISSIONS FULL;
+DEFINE FIELD kitchen ON kitchen_reconciliation TYPE none | record<kitchen> | null PERMISSIONS FULL;
 DEFINE FIELD notes ON kitchen_reconciliation TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD parent ON kitchen_reconciliation TYPE none | record<kitchen_reconciliation> | null PERMISSIONS FULL;
 DEFINE FIELD revision ON kitchen_reconciliation TYPE int DEFAULT 1 PERMISSIONS FULL;
@@ -1298,7 +1299,7 @@ DEFINE FIELD superseded_by ON kitchen_reconciliation TYPE none | record<kitchen_
 DEFINE FIELD verified_at ON kitchen_reconciliation TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD verified_by ON kitchen_reconciliation TYPE none | record<user> | null PERMISSIONS FULL;
 
-DEFINE INDEX kr_kitchen_date_rev ON kitchen_reconciliation FIELDS kitchen, business_date, revision UNIQUE;
+DEFINE INDEX kr_location_date_rev ON kitchen_reconciliation FIELDS location, business_date, revision UNIQUE;
 
 
 -- ------------------------------

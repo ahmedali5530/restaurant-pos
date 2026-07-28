@@ -27,7 +27,7 @@ export type InventoryInvoiceLine = {
   unit?: string;
   unitCost?: number;
   total?: number;
-  store?: string;
+  location?: string;
   note?: string;
 };
 
@@ -101,7 +101,7 @@ export const mapIssueToInvoice = (issue: InventoryIssue): InventoryInvoiceDoc =>
       unit: item.item?.uom,
       unitCost,
       total: lineAmount(unitCost, qty),
-      store: item.store?.name,
+      location: item.location?.name,
       note: item.comments,
     };
   });
@@ -116,8 +116,7 @@ export const mapIssueToInvoice = (issue: InventoryIssue): InventoryInvoiceDoc =>
     meta: [
       {label: "Created by", value: personName(issue.created_by)},
       {label: "Issued to", value: personName(issue.issued_to)},
-      {label: "Kitchen", value: issue.kitchen?.name ?? "—"},
-      {label: "Store", value: issue.store?.name ?? "—"},
+      {label: "Location", value: issue.location?.name ?? "—"},
     ],
     lines,
   });
@@ -138,7 +137,7 @@ export const mapIssueReturnToInvoice = (doc: InventoryIssueReturn): InventoryInv
       unit: item.item?.uom,
       unitCost,
       total: lineAmount(unitCost, qty),
-      store: item.store?.name,
+      location: item.location?.name,
       note: item.comments,
     };
   });
@@ -158,7 +157,7 @@ export const mapIssueReturnToInvoice = (doc: InventoryIssueReturn): InventoryInv
           : "—",
       },
       {label: "Issued to", value: personName(doc.issued_to)},
-      {label: "Kitchen", value: doc.kitchen?.name ?? "—"},
+      {label: "Location", value: doc.location?.name ?? "—"},
       {label: "Created by", value: personName(doc.created_by)},
     ],
     lines,
@@ -179,7 +178,7 @@ export const mapPurchaseToInvoice = (purchase: InventoryPurchase): InventoryInvo
       unit: item.item?.uom,
       unitCost,
       total: lineAmount(unitCost, qty),
-      store: item.store?.name,
+      location: item.location?.name,
       note: [
         item.taxable ? "Taxable" : null,
         item.comments,
@@ -234,7 +233,7 @@ export const mapPurchaseToInvoice = (purchase: InventoryPurchase): InventoryInvo
       {label: "Created by", value: personName(purchase.created_by)},
       {label: "Method", value: purchase.method ?? "Manual"},
       {label: "Payment", value: purchase.payment_method ?? "—"},
-      {label: "Store", value: purchase.store?.name ?? "—"},
+      {label: "Location", value: purchase.location?.name ?? "—"},
     ],
     lines,
     totals,
@@ -258,7 +257,7 @@ export const mapPurchaseReturnToInvoice = (
       unit: item.item?.uom,
       unitCost,
       total: lineAmount(unitCost, qty),
-      store: item.store?.name,
+      location: item.location?.name,
       note: item.comments,
     };
   });
@@ -279,7 +278,7 @@ export const mapPurchaseReturnToInvoice = (
       },
       {label: "Supplier", value: doc.purchase?.supplier?.name ?? "—"},
       {label: "Created by", value: personName(doc.created_by)},
-      {label: "Store", value: doc.store?.name ?? "—"},
+      {label: "Location", value: doc.location?.name ?? "—"},
     ],
     lines,
   });
@@ -301,7 +300,7 @@ export const mapPurchaseOrderToInvoice = (
       unit: item.item?.uom,
       unitCost,
       total: lineAmount(unitCost, qty),
-      store: item.store?.name,
+      location: item.location?.name,
     };
   });
 
@@ -336,7 +335,7 @@ export const mapWasteToInvoice = (waste: InventoryWaste): InventoryInvoiceDoc =>
       unit: item.item?.uom,
       unitCost,
       total: lineAmount(unitCost, qty),
-      store: item.store?.name,
+      location: item.location?.name,
       note: item.comments,
     };
   });
@@ -399,17 +398,11 @@ export const mapStockTransferToInvoice = (
       },
       {
         label: "From location",
-        value:
-          transfer.from_location?.name ??
-          transfer.from_store?.name ??
-          "—",
+        value: transfer.from_location?.name ?? "—",
       },
       {
         label: "To location",
-        value:
-          transfer.to_location?.name ??
-          transfer.to_store?.name ??
-          "—",
+        value: transfer.to_location?.name ?? "—",
       },
       {label: "Created by", value: personName(transfer.created_by)},
     ],

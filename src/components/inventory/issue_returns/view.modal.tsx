@@ -31,7 +31,7 @@ export const InventoryIssueReturnViewModal = ({open, issueReturn, onClose}: Prop
       setLoading(true);
       try {
         const [result] = await db.query<[InventoryIssueReturn]>(
-          `SELECT * FROM ONLY ${issueReturn.id} FETCH issuance, issuance.items, issuance.items.item, issued_to, kitchen, created_by, items, items.item, items.issued_item, documents`
+          `SELECT * FROM ONLY ${issueReturn.id} FETCH issuance, issuance.items, issuance.items.item, issuance.location, issued_to, location, created_by, items, items.item, items.issued_item, items.location, documents`
         );
         setViewReturn(result as InventoryIssueReturn);
       } catch (e) {
@@ -83,8 +83,8 @@ export const InventoryIssueReturnViewModal = ({open, issueReturn, onClose}: Prop
                 <div>{viewReturn.issued_to ? `${viewReturn.issued_to.first_name} ${viewReturn.issued_to.last_name}` : "—"}</div>
               </div>
               <div>
-                <div className="text-neutral-500 text-xs uppercase">{t('columns.kitchen')}</div>
-                <div>{viewReturn.kitchen?.name ?? "—"}</div>
+                <div className="text-neutral-500 text-xs uppercase">{t('columns.location')}</div>
+                <div>{viewReturn.location?.name ?? viewReturn.issuance?.location?.name ?? "—"}</div>
               </div>
               <div>
                 <div className="text-neutral-500 text-xs uppercase">{t('columns.createdBy')}</div>

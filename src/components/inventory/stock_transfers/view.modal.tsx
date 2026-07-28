@@ -73,7 +73,7 @@ export const StockTransferViewModal = ({open, transfer, onClose}: Props) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className={classNames("tag", "bg-neutral-100 text-neutral-800")}>
-                  {t("stockTransfer.typeStore")}
+                  {t("stockTransfer.typeLocation")}
                 </span>
                 <div className="text-lg font-semibold">{t("stockTransfer.viewTitle")}</div>
               </div>
@@ -87,18 +87,18 @@ export const StockTransferViewModal = ({open, transfer, onClose}: Props) => {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-neutral-700">
               <div>
                 <div className="text-neutral-500 text-xs uppercase">
-                  {t("stockTransfer.fromStore")}
+                  {t("stockTransfer.fromLocation")}
                 </div>
                 <div>
-                  {viewTransfer.from_location?.name ?? viewTransfer.from_store?.name ?? "—"}
+                  {viewTransfer.from_location?.name ?? "—"}
                 </div>
               </div>
               <div>
                 <div className="text-neutral-500 text-xs uppercase">
-                  {t("stockTransfer.toStore")}
+                  {t("stockTransfer.toLocation")}
                 </div>
                 <div>
-                  {viewTransfer.to_location?.name ?? viewTransfer.to_store?.name ?? "—"}
+                  {viewTransfer.to_location?.name ?? "—"}
                 </div>
               </div>
               <div>

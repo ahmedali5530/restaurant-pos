@@ -57,16 +57,16 @@ export const VariancePanel = ({items, status}: Props) => {
         <div>
           <dt className="text-neutral-500">{t("kitchenReconciliation.totalVariance")}</dt>
           <dd className={`font-semibold ${totals.totalVariance !== 0 ? "text-danger-600" : "text-success-600"}`}>
-            {formatNumber(totals.totalVariance)}
+            {formatNumber(totals.totalVariance, 4)}
           </dd>
         </div>
         <div>
           <dt className="text-neutral-500">{t("kitchenReconciliation.totalActualConsumption")}</dt>
-          <dd className="font-semibold">{formatNumber(totals.totalActualConsumption)}</dd>
+          <dd className="font-semibold">{formatNumber(totals.totalActualConsumption, 4)}</dd>
         </div>
         <div>
           <dt className="text-neutral-500">{t("kitchenReconciliation.totalTheoretical")}</dt>
-          <dd className="font-semibold">{formatNumber(totals.totalTheoreticalConsumption)}</dd>
+          <dd className="font-semibold">{formatNumber(totals.totalTheoreticalConsumption, 4)}</dd>
         </div>
         <div>
           <dt className="text-neutral-500">{t("kitchenReconciliation.linesWithVariance")}</dt>

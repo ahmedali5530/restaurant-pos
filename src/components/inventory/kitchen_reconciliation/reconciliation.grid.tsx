@@ -3,13 +3,13 @@ import {useTranslation} from "react-i18next";
 import {Controller, useForm, useFieldArray} from "react-hook-form";
 import {faSave} from "@fortawesome/free-solid-svg-icons";
 import {KitchenReconciliationItem} from "@/api/model/kitchen_reconciliation_item.ts";
-import {recordToString} from "@/api/reports/shared/records.ts";
 import {computeLine} from "@/lib/kitchen/reconciliation.calculations.ts";
 import {formatNumber} from "@/lib/utils.ts";
-import {ManualLineInput} from "@/lib/kitchen/reconciliation.service.ts";
+import {normalizeInventoryItemId, ManualLineInput} from "@/lib/kitchen/reconciliation.service.ts";
 import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {KitchenReconciliationStatus} from "@/api/model/kitchen_reconciliation.ts";
+import {KeyboardGrid, KeyboardGridCell} from "@/components/common/table/keyboard.grid.tsx";
 
 type GridRow = {
   itemId: string;
@@ -43,7 +43,7 @@ type Props = {
 };
 
 const toGridRow = (line: KitchenReconciliationItem): GridRow => {
-  const itemId = recordToString(line.item?.id ?? line.item);
+  const itemId = normalizeInventoryItemId(line.item?.id ?? line.item);
   const computed = computeLine({
     openingStock: line.opening_stock,
     issuedQty: line.issued_qty,
@@ -99,7 +99,7 @@ export const ReconciliationGrid = ({items, status, readOnly, saving, onSave}: Pr
     () =>
       items
         .map((line) => {
-          const itemId = recordToString(line.item?.id ?? line.item);
+          const itemId = normalizeInventoryItemId(line.item?.id ?? line.item);
           return [
             itemId,
             line.physical_count,
@@ -163,7 +163,7 @@ export const ReconciliationGrid = ({items, status, readOnly, saving, onSave}: Pr
           disabled={disabled}
           name={field.name}
           value={field.value ?? ""}
-          onChange={field.onChange}
+          onChange={(e) => field.onChange((e?.target as HTMLInputElement | undefined)?.value ?? "")}
           onBlur={() => {
             field.onBlur();
             recomputeRow(index);
@@ -184,7 +184,7 @@ export const ReconciliationGrid = ({items, status, readOnly, saving, onSave}: Pr
   return (
     <div className="flex flex-col gap-3">
       {!disabled && (
-        <div className="flex justify-end">
+        <div className="flex flex-col items-end gap-1">
           <Button
             variant="primary"
             icon={faSave}
@@ -193,9 +193,10 @@ export const ReconciliationGrid = ({items, status, readOnly, saving, onSave}: Pr
           >
             {t("kitchenReconciliation.saveDraft")}
           </Button>
+          <p className="text-xs text-neutral-500">{t("kitchenReconciliation.keyboardHint")}</p>
         </div>
       )}
-      <div className="overflow-x-auto rounded-xl border border-neutral-200 bg-white">
+      <KeyboardGrid className="overflow-x-auto rounded-xl border border-neutral-200 bg-white">
       <table className="w-full text-sm">
         <thead className="bg-neutral-50 text-left">
           <tr>
@@ -226,21 +227,45 @@ export const ReconciliationGrid = ({items, status, readOnly, saving, onSave}: Pr
                 <td className="px-3 py-2">{formatNumber(row?.issuedQty ?? 0)}</td>
                 <td className="px-3 py-2">{formatNumber(row?.transfersIn ?? 0)}</td>
                 <td className="px-3 py-2">{formatNumber(row?.transfersOut ?? 0)}</td>
-                <td className="px-3 py-2">{formatNumber(row?.theoreticalConsumption ?? 0)}</td>
-                <td className="px-3 py-2">{formatNumber(row?.expectedStock ?? 0)}</td>
-                <td className="px-3 py-2 min-w-[100px]">
+                <td className="px-3 py-2">{formatNumber(row?.theoreticalConsumption ?? 0, 4)}</td>
+                <td className="px-3 py-2">{formatNumber(row?.expectedStock ?? 0, 4)}</td>
+                <KeyboardGridCell
+                  row={index}
+                  col={0}
+                  navigable={!disabled}
+                  disabled={disabled}
+                  className="px-3 py-2 min-w-[100px]"
+                >
                   {renderEditableField(index, "physicalCount", disabled)}
-                </td>
-                <td className="px-3 py-2 min-w-[90px]">
+                </KeyboardGridCell>
+                <KeyboardGridCell
+                  row={index}
+                  col={1}
+                  navigable={!disabled}
+                  disabled={disabled}
+                  className="px-3 py-2 min-w-[90px]"
+                >
                   {renderEditableField(index, "wasteQty", disabled)}
-                </td>
-                <td className="px-3 py-2 min-w-[90px]">
+                </KeyboardGridCell>
+                <KeyboardGridCell
+                  row={index}
+                  col={2}
+                  navigable={!disabled}
+                  disabled={disabled}
+                  className="px-3 py-2 min-w-[90px]"
+                >
                   {renderEditableField(index, "staffMealQty", disabled)}
-                </td>
-                <td className="px-3 py-2 min-w-[90px]">
+                </KeyboardGridCell>
+                <KeyboardGridCell
+                  row={index}
+                  col={3}
+                  navigable={!disabled}
+                  disabled={disabled}
+                  className="px-3 py-2 min-w-[90px]"
+                >
                   {renderEditableField(index, "complimentaryQty", disabled)}
-                </td>
-                <td className="px-3 py-2">{formatNumber(row?.actualConsumption ?? 0)}</td>
+                </KeyboardGridCell>
+                <td className="px-3 py-2">{formatNumber(row?.actualConsumption ?? 0, 4)}</td>
                 <td className={`px-3 py-2 font-medium ${Math.abs(row?.variance ?? 0) > 0.0001 ? "text-danger-600" : ""}`}>
                   {formatNumber(row?.variance ?? 0)}
                 </td>
@@ -249,7 +274,7 @@ export const ReconciliationGrid = ({items, status, readOnly, saving, onSave}: Pr
           })}
         </tbody>
       </table>
-      </div>
+      </KeyboardGrid>
     </div>
   );
 };

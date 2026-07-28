@@ -7,7 +7,7 @@ import {InventoryPurchase} from "@/api/model/inventory_purchase.ts";
 import {formatNumber, safeNumber, withCurrency} from "@/lib/utils.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {
-  buildLocationOrStoreInsideCondition,
+  buildLocationInsideCondition,
   buildNestedRecordAnyCondition,
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
@@ -18,7 +18,7 @@ interface ReportFilters {
   startDate?: string | null;
   endDate?: string | null;
   supplierIds: string[];
-  storeIds: string[];
+  locationIds: string[];
   itemIds: string[];
   userIds: string[];
 }
@@ -37,7 +37,7 @@ const parseFilters = (): ReportFilters => {
     startDate: params.get('start') || params.get('start'),
     endDate: params.get('end') || params.get('end'),
     supplierIds: parseMulti('suppliers'),
-    storeIds: parseMulti('stores'),
+    locationIds: parseMulti('locations'),
     itemIds: parseMulti('items'),
     userIds: parseMulti('users'),
   };
@@ -83,10 +83,10 @@ export const PurchaseReport = () => {
           Object.assign(params, supplierFilter.params);
         }
 
-        const storeFilter = buildLocationOrStoreInsideCondition(filters.storeIds, 'storeIds');
-        if (storeFilter.condition) {
-          conditions.push(storeFilter.condition);
-          Object.assign(params, storeFilter.params);
+        const locationFilter = buildLocationInsideCondition(filters.locationIds, 'locationIds');
+        if (locationFilter.condition) {
+          conditions.push(locationFilter.condition);
+          Object.assign(params, locationFilter.params);
         }
 
         const userFilter = buildRecordInsideCondition('created_by', filters.userIds, 'userIds');
@@ -119,7 +119,7 @@ export const PurchaseReport = () => {
     };
 
     fetchData();
-  }, [filters.startDate, filters.endDate, filters.supplierIds, filters.storeIds, filters.itemIds, filters.userIds]);
+  }, [filters.startDate, filters.endDate, filters.supplierIds, filters.locationIds, filters.itemIds, filters.userIds]);
 
   // Calculate totals
   const totals = useMemo(() => {
@@ -232,7 +232,7 @@ export const PurchaseReport = () => {
                   <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.date')}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.invoice')}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.supplier')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.store')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.location')}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.item')}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.taxable')}</th>
                   <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
@@ -256,7 +256,7 @@ export const PurchaseReport = () => {
                     const date = toLuxonDateTime(purchase.created_at);
                     const dateStr = date.toFormat(import.meta.env.VITE_DATE_FORMAT);
                     const supplierName = purchase.supplier?.name || 'N/A';
-                    const storeName = purchase.location?.name || purchase.store?.name || 'N/A';
+                    const locationName = purchase.location?.name || 'N/A';
                     const createdByName = purchase.created_by
                       ? `${purchase.created_by.first_name ?? ''} ${purchase.created_by.last_name ?? ''}`.trim() || purchase.created_by.login || 'Unknown'
                       : 'Unknown';
@@ -290,7 +290,7 @@ export const PurchaseReport = () => {
                             )}
                           </td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{supplierName}</td>
-                          <td className="py-3 px-3 text-sm text-neutral-700">{storeName}</td>
+                          <td className="py-3 px-3 text-sm text-neutral-700">{locationName}</td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{itemName}</td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{item.taxable ? 'Yes' : 'No'}</td>
                           <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(effectiveQty)}</td>

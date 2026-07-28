@@ -25,7 +25,7 @@ const toFullRecordIdString = (value: unknown, table: string): string => {
 interface ReportFilters {
   startDate?: string | null;
   endDate?: string | null;
-  kitchenIds: string[];
+  locationIds: string[];
   statusIds: KitchenReconciliationStatus[];
   itemIds: string[];
 }
@@ -39,7 +39,7 @@ const parseFilters = (): ReportFilters => {
   return {
     startDate: params.get("start"),
     endDate: params.get("end"),
-    kitchenIds: parseMulti("kitchens"),
+    locationIds: parseMulti("locations"),
     statusIds: parseMulti("statuses") as KitchenReconciliationStatus[],
     itemIds: parseMulti("items"),
   };
@@ -49,6 +49,10 @@ const formatUserName = (user?: {first_name?: string; last_name?: string; login?:
   if (!user) return "—";
   const name = `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim();
   return name || user.login || "—";
+};
+
+const resolveLocationName = (reconciliation: KitchenReconciliation): string => {
+  return reconciliation.location?.name || "—";
 };
 
 export const KitchenReconciliationReport = () => {
@@ -78,7 +82,7 @@ export const KitchenReconciliationReport = () => {
         let rows = await listKitchenReconciliationsForReport(dbRef.current, {
           startDate: filters.startDate,
           endDate: filters.endDate,
-          kitchenIds: filters.kitchenIds.length > 0 ? filters.kitchenIds : undefined,
+          locationIds: filters.locationIds.length > 0 ? filters.locationIds : undefined,
           statuses: filters.statusIds.length > 0 ? filters.statusIds : undefined,
         });
 
@@ -110,7 +114,7 @@ export const KitchenReconciliationReport = () => {
   }, [
     filters.startDate,
     filters.endDate,
-    filters.kitchenIds,
+    filters.locationIds,
     filters.statusIds,
     filters.itemIds,
     t,
@@ -140,7 +144,7 @@ export const KitchenReconciliationReport = () => {
       );
 
       return {
-        kitchen: reconciliation.kitchen?.name ?? "—",
+        location: resolveLocationName(reconciliation),
         businessDate: reconciliation.business_date,
         status: reconciliation.status,
         revision: reconciliation.revision,
@@ -158,7 +162,7 @@ export const KitchenReconciliationReport = () => {
 
   const detailRows = useMemo(() => {
     return reconciliations.flatMap((reconciliation) => {
-      const kitchenName = reconciliation.kitchen?.name ?? "—";
+      const locationName = resolveLocationName(reconciliation);
       return (reconciliation.items ?? []).map((line) => {
         const computed = computeLine({
           openingStock: line.opening_stock,
@@ -174,7 +178,7 @@ export const KitchenReconciliationReport = () => {
         const itemId = recordToString(line.item?.id ?? line.item);
 
         return {
-          kitchen: kitchenName,
+          location: locationName,
           businessDate: reconciliation.business_date,
           status: reconciliation.status,
           itemCode: line.item?.code ?? "—",
@@ -282,7 +286,7 @@ export const KitchenReconciliationReport = () => {
             <table className="min-w-full divide-y divide-neutral-200">
               <thead className="bg-neutral-50">
                 <tr>
-                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t("filters.kitchen")}</th>
+                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t("columns.location")}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("labels.businessDate")}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("filters.status")}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("labels.revision")}</th>
@@ -303,7 +307,7 @@ export const KitchenReconciliationReport = () => {
                 ) : (
                   headerRows.map((row, index) => (
                     <tr key={index}>
-                      <td className="py-3 pl-6 pr-3 text-sm">{row.kitchen}</td>
+                      <td className="py-3 pl-6 pr-3 text-sm">{row.location}</td>
                       <td className="py-3 px-3 text-sm">{row.businessDate}</td>
                       <td className="py-3 px-3 text-sm uppercase">{row.status}</td>
                       <td className="py-3 px-3 text-sm">{row.revision}</td>
@@ -328,7 +332,7 @@ export const KitchenReconciliationReport = () => {
             <table className="min-w-full divide-y divide-neutral-200">
               <thead className="bg-neutral-50">
                 <tr>
-                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t("filters.kitchen")}</th>
+                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t("columns.location")}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("labels.businessDate")}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("filters.status")}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("columns.code")}</th>
@@ -357,7 +361,7 @@ export const KitchenReconciliationReport = () => {
                 ) : (
                   detailRows.map((row, index) => (
                     <tr key={index}>
-                      <td className="py-3 pl-6 pr-3 text-sm">{row.kitchen}</td>
+                      <td className="py-3 pl-6 pr-3 text-sm">{row.location}</td>
                       <td className="py-3 px-3 text-sm">{row.businessDate}</td>
                       <td className="py-3 px-3 text-sm uppercase">{row.status}</td>
                       <td className="py-3 px-3 text-sm">{row.itemCode}</td>

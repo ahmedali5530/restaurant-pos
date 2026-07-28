@@ -30,8 +30,8 @@ export const BuffetSessionViewModal = ({sessionId, open, onClose}: Props) => {
               <div className="font-medium">{session.business_date}</div>
             </div>
             <div>
-              <div className="text-sm text-neutral-500">{t("columns.store")}</div>
-              <div className="font-medium">{session.store?.name}</div>
+              <div className="text-sm text-neutral-500">{t("columns.location")}</div>
+              <div className="font-medium">{session.location?.name}</div>
             </div>
             <div>
               <div className="text-sm text-neutral-500">{t("buffet.actualGuests")}</div>

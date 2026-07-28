@@ -229,7 +229,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
     [],
     0,
     9999,
-    ["suppliers", "locations", "stores"],
+    ["suppliers", "locations"],
     {
       enabled: false
     }
@@ -250,7 +250,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
     [],
     0,
     9999,
-    ["supplier", "items", "items.item", "items.supplier", "items.item.locations", "items.item.stores"],
+    ["supplier", "items", "items.item", "items.supplier", "items.item.locations"],
     {
       enabled: false
     });
@@ -374,7 +374,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
           value: order.supplier.id
         } : null),
       location: (() => {
-        const locs = (orderItem.item as any)?.locations ?? orderItem.item?.stores;
+        const locs = orderItem.item?.locations;
         if (locs && locs.length === 1) {
           return { label: locs[0].name, value: locs[0].id };
         }
@@ -457,7 +457,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
             value: item.supplier.id
           } : null,
           location: (() => {
-            const loc = (item as any).location ?? item.store;
+            const loc = item.location;
             return loc ? {
               label: loc.name,
               value: loc.id.toString()
@@ -683,7 +683,6 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
   const itemsList: (InventoryItem & {
     suppliers?: { id: string; name: string }[];
     locations?: InventoryLocation[];
-    stores?: { id: string; name: string }[];
   })[] = (items?.data as any) ?? [];
 
   const itemOptions = itemsList.map(item => ({
@@ -709,7 +708,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
     for (const item of itemsList) {
       const key = item.id?.toString();
       if (!key) continue;
-      const locs = item.locations ?? item.stores ?? [];
+      const locs = item.locations ?? [];
       map[key] = locs.map((loc) => ({
         label: loc.name,
         value: String((loc as any).id ?? loc)
@@ -1073,7 +1072,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                         <InputError error={_.get(errors, ["items", index, "supplier", "message"])}/>
                       </div>
                       <div className="flex-1">
-                        <label>{t('columns.store')}</label>
+                        <label>{t('columns.location')}</label>
                         <Controller
                           name={`items.${index}.location`}
                           control={control}
@@ -1391,7 +1390,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
             label: t('columns.suppliers')
           }, {
             name: 'location',
-            label: t('columns.store')
+            label: t('columns.location')
           }, {
             name: 'comments',
             label: t('forms.comments')
@@ -1402,7 +1401,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                                              FROM ${Tables.inventory_items}
                                              where name = $name
                                                and code = $code fetch suppliers
-                                                 , locations, stores`, {
+                                                 , locations`, {
                 name: rowData.name,
                 code: rowData.code,
               });
@@ -1416,8 +1415,8 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                 throw new Error('Supplier not found');
               }
 
-              const locs = item[0]?.locations ?? item[0]?.stores ?? [];
-              const location = locs.find((loc: any) => loc.name === rowData.location || loc.name === rowData.store);
+              const locs = item[0]?.locations ?? [];
+              const location = locs.find((loc: any) => loc.name === rowData.location);
               if (location === undefined) {
                 throw new Error('Location not found');
               }

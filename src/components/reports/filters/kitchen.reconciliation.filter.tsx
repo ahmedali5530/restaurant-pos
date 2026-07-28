@@ -1,13 +1,16 @@
+import {useEffect, useMemo, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {REPORTS_KITCHEN_RECONCILIATION} from "@/routes/posr.ts";
 import {DateRange} from "@/components/reports/filters/date.range.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
+import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
-import {Kitchen} from "@/api/model/kitchen.ts";
+import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {KitchenReconciliationStatus} from "@/api/model/kitchen_reconciliation.ts";
+import {listInventoryLocations, toLocationOptions} from "@/lib/inventory/location.service.ts";
 
 const toOption = <T extends {id?: unknown}>(item: T | undefined, label: string) => {
   if (!item?.id) return null;
@@ -27,13 +30,31 @@ const STATUS_OPTIONS: Array<{label: string; value: KitchenReconciliationStatus}>
 
 export const KitchenReconciliationFilter = () => {
   const {t} = useTranslation("reports");
-  const {data: kitchensData, isLoading: loadingKitchens} = useApi<SettingsData<Kitchen>>(
-    Tables.kitchens,
-    [],
-    ["name asc"],
-    0,
-    9999
-  );
+  const db = useDB();
+  const [locationRows, setLocationRows] = useState<InventoryLocation[]>([]);
+  const [loadingLocations, setLoadingLocations] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoadingLocations(true);
+    listInventoryLocations(db, {sync: true, activeOnly: true})
+      .then((rows) => {
+        if (!cancelled) setLocationRows(rows);
+      })
+      .catch(() => {
+        if (!cancelled) setLocationRows([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingLocations(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const locationOptions = useMemo(() => toLocationOptions(locationRows), [locationRows]);
+
   const {data: itemsData, isLoading: loadingItems} = useApi<SettingsData<InventoryItem>>(
     Tables.inventory_items,
     [],
@@ -52,16 +73,14 @@ export const KitchenReconciliationFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="kr-kitchens">{t("filters.kitchen")}</label>
+          <label htmlFor="kr-locations">{t("filters.location")}</label>
           <ReactSelect
-            id="kr-kitchens"
-            name="kitchens[]"
+            id="kr-locations"
+            name="locations[]"
             isMulti
-            isLoading={loadingKitchens}
+            isLoading={loadingLocations}
             className="w-full"
-            options={(kitchensData?.data || [])
-              .map((kitchen) => toOption(kitchen, kitchen.name))
-              .filter(notNull)}
+            options={locationOptions}
           />
         </div>
 

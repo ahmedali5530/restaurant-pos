@@ -82,7 +82,7 @@ export type BuffetReportLine = {
   sessionNumber: string;
   businessDate: string;
   sessionType: BuffetSessionType;
-  storeName: string;
+  locationName: string;
   expectedGuests: number;
   actualGuests: number;
   buffetPrice: number;
@@ -302,7 +302,7 @@ export const listBuffetSessions = async (
 
   const locationFilter = filters.locationId || filters.storeId;
   if (locationFilter) {
-    where.push("(location = $location OR store = $location)");
+    where.push("location = $location");
     params.location = toLocationRecordId(locationFilter);
   }
   if (filters.status) {
@@ -334,7 +334,7 @@ export const listBuffetSessions = async (
       ${whereClause}
       ORDER BY business_date DESC, created_at DESC
       LIMIT $limit START $start
-      FETCH menu, store, location, created_by, closed_by`,
+      FETCH menu, location, created_by, closed_by`,
       params
     ),
   ]);
@@ -360,7 +360,7 @@ export const getBuffetSession = async (
     [consumptionLogs],
   ] = await Promise.all([
     db.query(
-      `SELECT * FROM ONLY $id FETCH menu, store, location, created_by, closed_by`,
+      `SELECT * FROM ONLY $id FETCH menu, location, created_by, closed_by`,
       {id: recId}
     ),
     db.query(
@@ -467,10 +467,8 @@ export const generateProductionPlan = async (
   const menu = session.menu;
   if (!menu?.items?.length) throw new Error("Menu has no items");
 
-  const storeId =
-    recordToString((session as any).location?.id ?? (session as any).location) ||
-    recordToString(session.store?.id ?? session.store);
-  if (!storeId) throw new Error("Session location not found");
+  const locationId = recordToString(session.location?.id ?? session.location);
+  if (!locationId) throw new Error("Session location not found");
 
   await db.query(
     `DELETE ${Tables.buffet_production_batches} WHERE session = $id AND status = 'planned'`,
@@ -513,10 +511,8 @@ export const completeSessionProduction = async (
   const session = await getBuffetSession(db, sessionId);
   if (!session) throw new Error("Session not found");
 
-  const storeId =
-    recordToString((session as any).location?.id ?? (session as any).location) ||
-    recordToString(session.store?.id ?? session.store);
-  if (!storeId) throw new Error("Session location not found");
+  const locationId = recordToString(session.location?.id ?? session.location);
+  if (!locationId) throw new Error("Session location not found");
 
   const plannedBatches = session.production_batches?.filter((b) => b.status === "planned") ?? [];
 
@@ -530,7 +526,7 @@ export const completeSessionProduction = async (
       db,
       {
         recipeId,
-        locationId: storeId,
+        locationId,
         producedQty: row.planned_qty,
         notes: `Buffet session ${session.session_number}`,
       },
@@ -843,10 +839,8 @@ const postBuffetToLedger = async (
   session: BuffetSession,
   userId: string
 ) => {
-  const storeId =
-    recordToString((session as any).location?.id ?? (session as any).location) ||
-    recordToString(session.store?.id ?? session.store);
-  if (!storeId) throw new Error("Session location not found");
+  const locationId = recordToString(session.location?.id ?? session.location);
+  if (!locationId) throw new Error("Session location not found");
 
   const consumptionLogs = session.consumption_logs ?? [];
   const entries: Array<{itemId: string; quantity: number; source: string; logId: string; field: string}> = [];
@@ -899,7 +893,7 @@ const postBuffetToLedger = async (
   if (!wasteId) throw new Error("Failed to create waste header");
 
   const wasteItemRefs: unknown[] = [];
-  const locationRef = toLocationRecordId(storeId);
+  const locationRef = toLocationRecordId(locationId);
 
   for (const entry of entries) {
     const [wasteItem] = await db.create(Tables.inventory_waste_items, {
@@ -1020,7 +1014,7 @@ export const closeBuffetSession = async (
 export const fetchBuffetConsumptionTotals = async (
   db: DatabaseClient,
   itemId: string,
-  storeId: string
+  locationId: string
 ): Promise<number> => {
   const [rows] = await db.query(
     `SELECT math::sum(
@@ -1031,10 +1025,10 @@ export const fetchBuffetConsumptionTotals = async (
       AND posted_to_ledger = true
       AND session IN (
         SELECT VALUE id FROM ${Tables.buffet_sessions}
-        WHERE (location = $location OR store = $location) AND status = 'closed'
+        WHERE location = $location AND status = 'closed'
       )
     GROUP ALL`,
-    {item: toItemRecordId(itemId), location: toLocationRecordId(storeId)}
+    {item: toItemRecordId(itemId), location: toLocationRecordId(locationId)}
   );
 
   return safeNumber(unwrapRows<{total?: number}>(rows)[0]?.total);
@@ -1043,7 +1037,7 @@ export const fetchBuffetConsumptionTotals = async (
 export const fetchBuffetConsumptionLinesForStore = async (
   db: DatabaseClient,
   itemId: string,
-  storeId: string
+  locationId: string
 ): Promise<Array<{
   id: string;
   sessionNumber: string;
@@ -1060,9 +1054,9 @@ export const fetchBuffetConsumptionLinesForStore = async (
     FROM ${Tables.buffet_consumption_logs}
     WHERE item = $item
       AND posted_to_ledger = true
-      AND (session.location = $location OR session.store = $location)
+      AND session.location = $location
     FETCH session`,
-    {item: toItemRecordId(itemId), location: toLocationRecordId(storeId)}
+    {item: toItemRecordId(itemId), location: toLocationRecordId(locationId)}
   );
 
   const lines: Array<{
@@ -1126,7 +1120,7 @@ export const fetchBuffetReportLines = async (
       sessionNumber: full.session_number,
       businessDate: full.business_date,
       sessionType: full.session_type,
-      storeName: full.store?.name ?? "",
+      locationName: full.location?.name ?? "",
       expectedGuests: full.expected_guests,
       actualGuests: full.actual_guests,
       buffetPrice: full.buffet_price,

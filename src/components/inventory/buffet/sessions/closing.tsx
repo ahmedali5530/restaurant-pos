@@ -7,6 +7,7 @@ import {appPage} from "@/store/jotai.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {Input} from "@/components/common/input/input.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import {KeyboardGrid, KeyboardGridCell} from "@/components/common/table/keyboard.grid.tsx";
 import {useBuffetSession} from "@/hooks/useBuffetSession.ts";
 import {
   closeBuffetSession,
@@ -177,6 +178,7 @@ export const BuffetSessionClosing = ({sessionId, onBack, onClosed}: Props) => {
         </div>
       )}
 
+      <KeyboardGrid>
       <table className="table table-sm bg-white w-full">
         <thead>
           <tr>
@@ -191,37 +193,37 @@ export const BuffetSessionClosing = ({sessionId, onBack, onClosed}: Props) => {
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => {
+          {rows.map((row, index) => {
             const computed = preview.find((l) => l.itemId === row.itemId);
             return (
               <tr key={row.itemId}>
                 <td>{row.itemName}</td>
                 <td>{row.producedQty}</td>
                 <td>{row.startQty}</td>
-                <td>
+                <KeyboardGridCell row={index} col={0}>
                   <Input
                     type="number"
                     step="0.01"
                     value={row.leftoverQty}
                     onChange={(e) => updateRow(row.itemId, "leftoverQty", e.target.value)}
                   />
-                </td>
-                <td>
+                </KeyboardGridCell>
+                <KeyboardGridCell row={index} col={1}>
                   <Input
                     type="number"
                     step="0.01"
                     value={row.wasteQty}
                     onChange={(e) => updateRow(row.itemId, "wasteQty", e.target.value)}
                   />
-                </td>
-                <td>
+                </KeyboardGridCell>
+                <KeyboardGridCell row={index} col={2}>
                   <Input
                     type="number"
                     step="0.01"
                     value={row.staffMealQty}
                     onChange={(e) => updateRow(row.itemId, "staffMealQty", e.target.value)}
                   />
-                </td>
+                </KeyboardGridCell>
                 <td>{computed?.guestConsumption ?? "—"}</td>
                 <td className={classNames(
                   computed && Math.abs(computed.varianceQty) > 0.01
@@ -235,6 +237,7 @@ export const BuffetSessionClosing = ({sessionId, onBack, onClosed}: Props) => {
           })}
         </tbody>
       </table>
+      </KeyboardGrid>
     </div>
   );
 };

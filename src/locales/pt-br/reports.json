@@ -220,7 +220,8 @@
       "inventory": "Estoque",
       "charts": "Gráficos e Previsão",
       "analysis": "Análise"
-    }
+    },
+    "location": "Localização"
   },
   "datePresets": {
     "today": "Hoje",
@@ -280,6 +281,7 @@
     "date": "Data",
     "supplier": "Fornecedor",
     "store": "Depósito",
+    "location": "Localização",
     "createdBy": "Criado Por",
     "items": "Itens",
     "total": "Total",
@@ -439,7 +441,13 @@
     "discountLines": "Linhas de desconto",
     "totalDiscount": "Desconto total",
     "discountDetails": "Detalhes do desconto",
-    "customDiscount": "Desconto personalizado"
+    "customDiscount": "Desconto personalizado",
+    "location": "Localização",
+    "recipe": "Receita",
+    "item": "Item",
+    "direction": "Direção",
+    "quantity": "Quantidade",
+    "cost": "Custo"
   },
   "metrics": {
     "gross": "Bruto",
@@ -474,6 +482,7 @@
     "floors": "Andares",
     "kitchens": "Cozinhas",
     "store": "Loja",
+    "location": "Localização",
     "recipe": "Receita",
     "item": "Item",
     "direction": "Direção",
@@ -511,6 +520,7 @@
     "totalGuests": "Total de convidados",
     "help": {
       "store": "Incluir apenas sessões de buffet fechadas nesta loja. Deixe vazio para todas as lojas.",
+      "location": "Incluir apenas sessões de buffet fechadas nesta localização. Deixe vazio para todas as localizações.",
       "sessionType": "Incluir apenas sessões deste período de refeição. Deixe vazio para todos os tipos."
     }
   },

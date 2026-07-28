@@ -42,7 +42,7 @@ export const ProductionBatchViewModal = ({open, batchId, onClose}: Props) => {
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-2 text-sm">
             <div><strong>{t("production.recipe")}:</strong> {batch.recipe?.name}</div>
-            <div><strong>{t("columns.stores")}:</strong> {batch.store?.name}</div>
+            <div><strong>{t("columns.location")}:</strong> {batch.location?.name}</div>
             <div><strong>{t("production.producedQty")}:</strong> {batch.produced_qty}</div>
             <div><strong>{t("production.scaleFactor")}:</strong> {batch.scale_factor}</div>
             <div><strong>{t("production.yieldLoss")}:</strong> {batch.yield_loss_percent}%</div>

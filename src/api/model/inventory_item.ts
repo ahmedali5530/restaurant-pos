@@ -16,7 +16,7 @@ export interface InventoryItem{
   category: InventoryCategory
   locations?: InventoryLocation[]
   /** @deprecated use locations */
-  stores: InventoryStore[]
+  stores?: InventoryStore[]
   price: number
   average_price: number
   reorder_levels?: Record<string, number>

@@ -41,7 +41,7 @@ export const InventoryAdjustments = () => {
     ["created_at DESC"],
     0,
     10,
-    ["location", "store", "items", "items.item", "items.location", "items.store", "created_by"]
+    ["location", "items", "items.item", "items.location", "created_by"]
   );
 
   const [data, setData] = useState<InventoryAdjustment>();

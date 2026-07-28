@@ -34,7 +34,7 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
       setLoading(true);
       try {
         const [result] = await db.query(
-          `SELECT * FROM ONLY ${purchase.id} FETCH supplier, purchase_order, purchase_order.supplier, items, items.item, items.supplier, items.store, created_by, documents`
+          `SELECT * FROM ONLY ${purchase.id} FETCH supplier, purchase_order, purchase_order.supplier, items, items.item, items.supplier, items.location, created_by, documents`
         );
         setViewPurchase(result as any);
       } catch (e) {
@@ -120,7 +120,7 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
                     <tr>
                       <th className="py-2 pl-3 pr-2 text-left text-xs font-semibold text-neutral-600">{t('columns.name')}</th>
                       <th className="py-2 px-2 text-left text-xs font-semibold text-neutral-600">{t('columns.suppliers')}</th>
-                      <th className="py-2 px-2 text-left text-xs font-semibold text-neutral-600">{t('columns.store')}</th>
+                      <th className="py-2 px-2 text-left text-xs font-semibold text-neutral-600">{t('columns.location')}</th>
                       <th className="py-2 px-2 text-right text-xs font-semibold text-neutral-600">{t('forms.quantity')}</th>
                       <th className="py-2 px-2 text-right text-xs font-semibold text-neutral-600">{t('columns.baseQuantity')}</th>
                       <th className="py-2 px-2 text-right text-xs font-semibold text-neutral-600">{t('columns.price')}</th>
@@ -146,7 +146,7 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
                             {item.supplier?.name ?? "—"}
                           </td>
                           <td className="py-2 px-2 align-top text-neutral-700">
-                            {item.store?.name ?? "—"}
+                            {item.location?.name ?? "—"}
                           </td>
                           <td className="py-2 px-2 align-top text-right tabular-nums text-neutral-700">
                             {formatNumber(item.quantity)}

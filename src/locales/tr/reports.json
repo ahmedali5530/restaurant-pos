@@ -220,7 +220,8 @@
       "inventory": "Envanter",
       "charts": "Grafikler ve Tahmin",
       "analysis": "Analiz"
-    }
+    },
+    "location": "Konum"
   },
   "datePresets": {
     "today": "Bugün",
@@ -280,6 +281,7 @@
     "date": "Tarih",
     "supplier": "Tedarikçi",
     "store": "Depo",
+    "location": "Konum",
     "createdBy": "Oluşturan",
     "items": "Ürünler",
     "total": "Toplam",
@@ -439,7 +441,13 @@
     "discountLines": "İndirim satırları",
     "totalDiscount": "Toplam indirim",
     "discountDetails": "İndirim detayları",
-    "customDiscount": "Özel indirim"
+    "customDiscount": "Özel indirim",
+    "location": "Konum",
+    "recipe": "Tarif",
+    "item": "Ürün",
+    "direction": "Yön",
+    "quantity": "Miktar",
+    "cost": "Maliyet"
   },
   "metrics": {
     "gross": "Brüt",
@@ -474,6 +482,7 @@
     "floors": "Katlar",
     "kitchens": "Mutfaklar",
     "store": "Depo",
+    "location": "Konum",
     "recipe": "Tarif",
     "item": "Ürün",
     "direction": "Yön",
@@ -511,6 +520,7 @@
     "totalGuests": "Toplam misafir",
     "help": {
       "store": "Yalnızca bu depodaki kapatılmış büfe oturumlarını dahil edin. Tüm depolar için boş bırakın.",
+      "location": "Yalnızca bu konumdaki kapatılmış büfe oturumlarını dahil edin. Tüm konumlar için boş bırakın.",
       "sessionType": "Yalnızca bu öğün dönemindeki oturumları dahil edin. Tüm türler için boş bırakın."
     }
   },

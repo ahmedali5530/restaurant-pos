@@ -122,7 +122,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
     data: items,
     fetchData: fetchItems,
     isFetching: loadingItems,
-  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 9999, ['suppliers', 'locations', 'stores'], {
+  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 9999, ['suppliers', 'locations'], {
     enabled: false
   });
 
@@ -229,11 +229,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
         date: data.created_at ? dateToCalendarDate(toJsDate(data.created_at)) : getToday(),
         documents: undefined,
         items: data.items?.map(item => {
-          const loc =
-            (item as any).location ||
-            (item.purchase_item as any)?.location ||
-            item.store ||
-            item.purchase_item?.store;
+          const loc = item.location || item.purchase_item?.location;
           return {
             location: loc ? {
               label: loc?.name ?? "",
@@ -623,7 +619,6 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
 
   const itemsList = (items?.data ?? []) as (InventoryItem & {
     locations?: InventoryLocation[];
-    stores?: { id: string }[];
     suppliers?: { id: string; name: string }[];
   })[];
 
@@ -633,7 +628,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
     }
     return itemsList
       .filter((item) => {
-        const locs = item.locations ?? item.stores;
+        const locs = item.locations;
         if (!locs?.length) return true;
         return locs.some((loc) => loc.id.toString() === locationId.toString());
       })
@@ -768,7 +763,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
                   <input type="hidden" {...register(`items.${index}.purchase_item_id` as const)} />
                   <div className="flex gap-3">
                     <div className="flex-1">
-                      <label>{t('columns.store')}</label>
+                      <label>{t('columns.location')}</label>
                       <Controller
                         name={`items.${index}.location`}
                         control={control}

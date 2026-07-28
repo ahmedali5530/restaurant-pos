@@ -98,7 +98,7 @@ export const getCurrentInventory = async (
   const balances: Array<{
     itemId: string;
     itemName: string;
-    storeName: string;
+    locationName: string;
     quantity: number;
     reorderLevel?: number;
     belowReorder: boolean;
@@ -120,7 +120,7 @@ export const getCurrentInventory = async (
     balances.push({
       itemId,
       itemName: item.name ?? "Unknown",
-      storeName: location.name ?? "Unknown",
+      locationName: location.name ?? "Unknown",
       quantity: row.net,
       reorderLevel: reorderLevel || undefined,
       belowReorder: reorderLevel > 0 && row.net < reorderLevel,
@@ -135,7 +135,7 @@ export const getCurrentInventory = async (
         const locationId = recordToString(location.id);
         const already = balances.some(
           (b) => normalizeKey(b.itemId) === normalizeKey(itemId)
-            && b.storeName === (location.name ?? "Unknown"),
+            && b.locationName === (location.name ?? "Unknown"),
         );
         if (already) continue;
         const reorderLevel = getReorderLevelForStore(item, locationId);
@@ -143,7 +143,7 @@ export const getCurrentInventory = async (
         balances.push({
           itemId,
           itemName: item.name ?? "Unknown",
-          storeName: location.name ?? "Unknown",
+          locationName: location.name ?? "Unknown",
           quantity: 0,
           reorderLevel,
           belowReorder: true,

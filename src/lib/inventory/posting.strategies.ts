@@ -86,9 +86,7 @@ const resolveItemId = (item: any): string => {
 
 const resolveLinkedLocation = (linked?: any): unknown =>
   linked?.location?.id ??
-  linked?.location ??
-  linked?.store?.id ??
-  linked?.store;
+  linked?.location;
 
 const resolveLocationId = (item: any, doc?: any): string => {
   const raw =
@@ -98,21 +96,15 @@ const resolveLocationId = (item: any, doc?: any): string => {
     resolveLinkedLocation(item?.issued_item) ??
     resolveLinkedLocation(item?.issue_item) ??
     doc?.location?.id ??
-    doc?.location ??
-    item?.store?.id ??
-    item?.store ??
-    doc?.store?.id ??
-    doc?.store;
+    doc?.location;
   return toIdString(raw);
 };
 
 const resolveTransferEndpointId = (
-  location?: {id?: unknown} | string | null,
-  store?: {id?: unknown} | string | null
+  location?: {id?: unknown} | string | null
 ): string => {
   const raw =
-    (typeof location === "object" && location !== null ? location.id ?? location : location) ??
-    (typeof store === "object" && store !== null ? store.id ?? store : store);
+    typeof location === "object" && location !== null ? location.id ?? location : location;
   return toIdString(raw);
 };
 
@@ -135,14 +127,14 @@ export const purchasePostingStrategy: InventoryPostingStrategy = {
   requiresAvailabilityCheck: false,
   loadDocument: async ({ db, documentId }) => {
     const [rows] = await db.query(
-      `SELECT * FROM ${Tables.inventory_purchases} WHERE id = $id LIMIT 1 FETCH items, items.item, items.location, items.store, created_by, parent`,
+      `SELECT * FROM ${Tables.inventory_purchases} WHERE id = $id LIMIT 1 FETCH items, items.item, items.location, created_by, parent`,
       { id: toRecordId(documentId) }
     );
     return Array.isArray(rows) ? rows[0] : undefined;
   },
   loadItems: async ({ db, documentId }) => {
     const [rows] = await db.query(
-      `SELECT * FROM ${Tables.inventory_purchase_items} WHERE purchase = $id FETCH item, location, store`,
+      `SELECT * FROM ${Tables.inventory_purchase_items} WHERE purchase = $id FETCH item, location`,
       { id: toRecordId(documentId) }
     );
     return Array.isArray(rows) ? rows : [];
@@ -190,14 +182,14 @@ export const issuePostingStrategy: InventoryPostingStrategy = {
   requiresAvailabilityCheck: true,
   loadDocument: async ({ db, documentId }) => {
     const [rows] = await db.query(
-      `SELECT * FROM ${Tables.inventory_issues} WHERE id = $id LIMIT 1 FETCH items, items.item, items.location, items.store, created_by, parent`,
+      `SELECT * FROM ${Tables.inventory_issues} WHERE id = $id LIMIT 1 FETCH items, items.item, items.location, created_by, parent`,
       { id: toRecordId(documentId) }
     );
     return Array.isArray(rows) ? rows[0] : undefined;
   },
   loadItems: async ({ db, documentId }) => {
     const [rows] = await db.query(
-      `SELECT * FROM ${Tables.inventory_issue_items} WHERE issue = $id FETCH item, location, store`,
+      `SELECT * FROM ${Tables.inventory_issue_items} WHERE issue = $id FETCH item, location`,
       { id: toRecordId(documentId) }
     );
     return Array.isArray(rows) ? rows : [];
@@ -253,14 +245,14 @@ export const adjustmentPostingStrategy: InventoryPostingStrategy = {
   requiresAvailabilityCheck: true,
   loadDocument: async ({ db, documentId }) => {
     const [rows] = await db.query(
-      `SELECT * FROM ${Tables.inventory_adjustments} WHERE id = $id LIMIT 1 FETCH items, items.item, items.location, items.store, location, store, created_by`,
+      `SELECT * FROM ${Tables.inventory_adjustments} WHERE id = $id LIMIT 1 FETCH items, items.item, items.location, location, created_by`,
       { id: toRecordId(documentId) }
     );
     return Array.isArray(rows) ? rows[0] : undefined;
   },
   loadItems: async ({ db, documentId }) => {
     const [rows] = await db.query(
-      `SELECT * FROM ${Tables.inventory_adjustment_items} WHERE adjustment = $id FETCH item, location, store`,
+      `SELECT * FROM ${Tables.inventory_adjustment_items} WHERE adjustment = $id FETCH item, location`,
       { id: toRecordId(documentId) }
     );
     return Array.isArray(rows) ? rows : [];
@@ -322,7 +314,7 @@ export const stockTransferPostingStrategy: InventoryPostingStrategy = {
   loadDocument: async ({ db, documentId }) => {
     const [rows] = await db.query(
       `SELECT * FROM ${Tables.stock_transfers} WHERE id = $id LIMIT 1
-       FETCH from_location, to_location, from_store, to_store, created_by`,
+       FETCH from_location, to_location, created_by`,
       { id: toRecordId(documentId) }
     );
     return Array.isArray(rows) ? rows[0] : undefined;
@@ -335,10 +327,7 @@ export const stockTransferPostingStrategy: InventoryPostingStrategy = {
     return Array.isArray(rows) ? rows : [];
   },
   getAvailabilityLines: (items: StockTransferItem[], doc?: StockTransfer) => {
-    const fromLocationId = resolveTransferEndpointId(
-      doc?.from_location as any,
-      doc?.from_store as any
-    );
+    const fromLocationId = resolveTransferEndpointId(doc?.from_location as any);
     if (!fromLocationId) return [];
     return items
       .map((item) => ({
@@ -351,14 +340,8 @@ export const stockTransferPostingStrategy: InventoryPostingStrategy = {
   buildEntries: (doc: StockTransfer, items: StockTransferItem[], userId?: string) => {
     const referenceId = toIdString(doc.id);
     const businessDate = toBusinessDate(doc.created_at);
-    const fromLocationId = resolveTransferEndpointId(
-      doc.from_location as any,
-      doc.from_store as any
-    );
-    const toLocationId = resolveTransferEndpointId(
-      doc.to_location as any,
-      doc.to_store as any
-    );
+    const fromLocationId = resolveTransferEndpointId(doc.from_location as any);
+    const toLocationId = resolveTransferEndpointId(doc.to_location as any);
     const entries: InventoryLedgerInput[] = [];
 
     if (!fromLocationId || !toLocationId) {
@@ -418,8 +401,8 @@ export const purchaseReturnPostingStrategy: InventoryPostingStrategy = {
   loadDocument: async ({ db, documentId }) => {
     const [rows] = await db.query(
       `SELECT * FROM ${Tables.inventory_purchase_returns} WHERE id = $id LIMIT 1
-       FETCH items, items.item, items.location, items.store, items.purchase_item,
-             items.purchase_item.location, items.purchase_item.store, location, store, created_by`,
+       FETCH items, items.item, items.location, items.purchase_item,
+             items.purchase_item.location, location, created_by`,
       { id: toRecordId(documentId) }
     );
     return Array.isArray(rows) ? rows[0] : undefined;
@@ -427,7 +410,7 @@ export const purchaseReturnPostingStrategy: InventoryPostingStrategy = {
   loadItems: async ({ db, documentId }) => {
     const [rows] = await db.query(
       `SELECT * FROM ${Tables.inventory_purchase_return_items} WHERE purchase_return = $id
-       FETCH item, location, store, purchase_item, purchase_item.location, purchase_item.store`,
+       FETCH item, location, purchase_item, purchase_item.location`,
       { id: toRecordId(documentId) }
     );
     return Array.isArray(rows) ? rows : [];
@@ -488,8 +471,8 @@ export const issueReturnPostingStrategy: InventoryPostingStrategy = {
   loadDocument: async ({ db, documentId }) => {
     const [rows] = await db.query(
       `SELECT * FROM ${Tables.inventory_issue_returns} WHERE id = $id LIMIT 1
-       FETCH items, items.item, items.location, items.store, items.issued_item,
-             items.issued_item.location, items.issued_item.store, location, store, created_by`,
+       FETCH items, items.item, items.location, items.issued_item,
+             items.issued_item.location, location, created_by`,
       { id: toRecordId(documentId) }
     );
     return Array.isArray(rows) ? rows[0] : undefined;
@@ -497,7 +480,7 @@ export const issueReturnPostingStrategy: InventoryPostingStrategy = {
   loadItems: async ({ db, documentId }) => {
     const [rows] = await db.query(
       `SELECT * FROM ${Tables.inventory_issue_return_items} WHERE issue_return = $id
-       FETCH item, location, store, issued_item, issued_item.location, issued_item.store`,
+       FETCH item, location, issued_item, issued_item.location`,
       { id: toRecordId(documentId) }
     );
     return Array.isArray(rows) ? rows : [];
@@ -550,9 +533,9 @@ export const wastePostingStrategy: InventoryPostingStrategy = {
   loadDocument: async ({ db, documentId }) => {
     const [rows] = await db.query(
       `SELECT * FROM ${Tables.inventory_wastes} WHERE id = $id LIMIT 1
-       FETCH items, items.item, items.location, items.store, items.purchase_item,
-             items.purchase_item.location, items.purchase_item.store,
-             items.issue_item, items.issue_item.location, items.issue_item.store, created_by`,
+       FETCH items, items.item, items.location, items.purchase_item,
+             items.purchase_item.location,
+             items.issue_item, items.issue_item.location, created_by`,
       { id: toRecordId(documentId) }
     );
     return Array.isArray(rows) ? rows[0] : undefined;
@@ -560,8 +543,8 @@ export const wastePostingStrategy: InventoryPostingStrategy = {
   loadItems: async ({ db, documentId }) => {
     const [rows] = await db.query(
       `SELECT * FROM ${Tables.inventory_waste_items} WHERE waste = $id
-       FETCH item, location, store, purchase_item, purchase_item.location, purchase_item.store,
-             issue_item, issue_item.location, issue_item.store`,
+       FETCH item, location, purchase_item, purchase_item.location,
+             issue_item, issue_item.location`,
       { id: toRecordId(documentId) }
     );
     return Array.isArray(rows) ? rows : [];
@@ -620,7 +603,7 @@ export const productionBatchPostingStrategy: InventoryPostingStrategy = {
   loadDocument: async ({ db, documentId }) => {
     const [rows] = await db.query(
       `SELECT * FROM ${Tables.production_batches} WHERE id = $id LIMIT 1
-       FETCH location, store, created_by, recipe`,
+       FETCH location, created_by, recipe`,
       { id: toRecordId(documentId) }
     );
     return Array.isArray(rows) ? rows[0] : undefined;
@@ -630,12 +613,12 @@ export const productionBatchPostingStrategy: InventoryPostingStrategy = {
     const [[inputs], [outputs]] = await Promise.all([
       db.query(
         `SELECT * FROM ${Tables.production_batch_inputs} WHERE batch = $id
-         FETCH item, location, store`,
+         FETCH item, location`,
         { id: batchId }
       ),
       db.query(
         `SELECT * FROM ${Tables.production_batch_outputs} WHERE batch = $id
-         FETCH item, location, store`,
+         FETCH item, location`,
         { id: batchId }
       ),
     ]);

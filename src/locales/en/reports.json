@@ -224,7 +224,8 @@
       "charts": "Charts & Forecast",
       "analysis": "Analysis"
     },
-    "unnamedUser": "Unnamed user"
+    "unnamedUser": "Unnamed user",
+    "location": "Location"
   },
   "datePresets": {
     "today": "Today",
@@ -284,6 +285,7 @@
     "date": "Date",
     "supplier": "Supplier",
     "store": "Store",
+    "location": "Location",
     "createdBy": "Created By",
     "items": "Items",
     "total": "Total",
@@ -443,7 +445,13 @@
     "discountLines": "Discount lines",
     "totalDiscount": "Total discount",
     "discountDetails": "Discount details",
-    "customDiscount": "Custom discount"
+    "customDiscount": "Custom discount",
+    "location": "Location",
+    "recipe": "Recipe",
+    "item": "Item",
+    "direction": "Direction",
+    "quantity": "Quantity",
+    "cost": "Cost"
   },
   "metrics": {
     "gross": "Gross",
@@ -478,6 +486,7 @@
     "floors": "Floors",
     "kitchens": "Kitchens",
     "store": "Store",
+    "location": "Location",
     "recipe": "Recipe",
     "item": "Item",
     "direction": "Direction",
@@ -515,6 +524,7 @@
     "totalGuests": "Total guests",
     "help": {
       "store": "Include only closed buffet sessions at this store. Leave empty for all stores.",
+      "location": "Include only closed buffet sessions at this location. Leave empty for all locations.",
       "sessionType": "Include only sessions for this meal period. Leave empty for all types."
     }
   },

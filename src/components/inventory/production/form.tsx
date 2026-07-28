@@ -177,7 +177,7 @@ export const ProductionForm = ({open, onClose}: Props) => {
             <InputError error={errors.recipe?.message} />
           </div>
           <div>
-            <label className="text-sm">{t("columns.store")}</label>
+            <label className="text-sm">{t("columns.location")}</label>
             <Controller
               control={control}
               name="location"

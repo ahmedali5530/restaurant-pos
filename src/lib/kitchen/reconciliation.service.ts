@@ -6,13 +6,13 @@
  * 2. saveManualInputs — persist physical counts / waste / staff / complimentary, recompute lines
  * 3. verifyReconciliation — lock record, post to inventory_item_waste ledger
  *
- * Historical verified and missed records are never updated in place; edits create a new revision.
+ * Primary identity is inventory location (not kitchen). Historical verified and missed
+ * records are never updated in place; edits create a new revision.
  */
-import {StringRecordId} from "surrealdb";
-import {DateTime} from "luxon";
+import {RecordId, StringRecordId} from "surrealdb";
 import type {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {recordToString} from "@/api/reports/shared/records.ts";
+import {recordIdToString, toQueryRecordId} from "@/api/reports/shared/records.ts";
 import {
   KitchenReconciliation,
   KitchenReconciliationStatus,
@@ -20,13 +20,14 @@ import {
 import {KitchenReconciliationItem} from "@/api/model/kitchen_reconciliation_item.ts";
 import {KitchenReconciliationChangeType} from "@/api/model/kitchen_reconciliation_revision.ts";
 import {
+  buildWindowForBusinessDate,
   enumerateBusinessDates,
   resolveBusinessDateWindow,
 } from "@/lib/kitchen/business-date.ts";
-import {ClosingCycleWindow} from "@/lib/closing-cycle.ts";
+import {ClosingCycleWindow, loadClosingCycleConfig} from "@/lib/closing-cycle.ts";
 import {computeLine} from "@/lib/kitchen/reconciliation.calculations.ts";
-import {nowSurrealDateTime, toJsDate, toSurrealDateTime, getAppTimezone} from "@/lib/datetime.ts";
-import {safeNumber, toRecordId} from "@/lib/utils.ts";
+import {nowSurrealDateTime, toJsDate, toSurrealDateTime} from "@/lib/datetime.ts";
+import {safeNumber} from "@/lib/utils.ts";
 import {fetchNextSequentialNumber} from "@/utils/recordNumbers.ts";
 import {postDocument} from "@/lib/inventory/posting.service.ts";
 import {toLocationRecordId} from "@/lib/inventory/location.service.ts";
@@ -43,39 +44,60 @@ export type ManualLineInput = {
 
 type QuantityMap = Map<string, number>;
 
-const toKitchenRecordId = (kitchenId: string) => {
-  const normalized = kitchenId.includes(":") ? kitchenId : `${Tables.kitchens}:${kitchenId}`;
-  return toRecordId(normalized);
-};
-
 const toFullRecordIdString = (value: unknown, table: string): string => {
-  if (!value) return "";
-  const raw =
-    typeof value === "object" && value !== null && "toString" in value
-      ? (value as {toString(): string}).toString()
-      : typeof value === "string"
-        ? value
-        : String(value);
+  const raw = recordIdToString(value);
+  if (!raw) return "";
   return raw.includes(":") ? raw : `${table}:${raw}`;
 };
 
-const toDishRecordId = (dishId: string) => {
-  const normalized = dishId.includes(":") ? dishId : `${Tables.dishes}:${dishId}`;
-  return toRecordId(normalized);
-};
+/**
+ * Inventory item ids must be a single `inventory_item:…` key.
+ * Enriched `{tb, id: RecordId}` shapes otherwise become `inventory_item:inventory_item:…`
+ * and draft saves silently skip every row.
+ */
+export const normalizeInventoryItemId = (value: unknown): string => {
+  if (value == null || value === "") return "";
 
-const toInventoryItemRecordId = (itemId: string) => {
-  const normalized = itemId.includes(":") ? itemId : `${Tables.inventory_items}:${itemId}`;
-  return toRecordId(normalized);
-};
-
-const toReconciliationRecordId = (reconciliationId: unknown) => {
-  const normalized = toFullRecordIdString(reconciliationId, Tables.kitchen_reconciliations);
-  if (!normalized) {
-    throw new Error("Invalid reconciliation id");
+  if (typeof value === "string") {
+    let raw = value.trim();
+    const prefix = `${Tables.inventory_items}:`;
+    while (raw.startsWith(prefix + prefix) || raw.startsWith(`${prefix}${Tables.inventory_items}:`)) {
+      raw = raw.slice(prefix.length);
+    }
+    if (raw.startsWith(prefix)) return raw;
+    if (raw.includes(":")) return raw;
+    return `${prefix}${raw}`;
   }
-  return toRecordId(normalized);
+
+  if (value instanceof StringRecordId || value instanceof RecordId) {
+    return normalizeInventoryItemId(value.toString());
+  }
+
+  if (typeof value === "object" && value !== null && "id" in value) {
+    const inner = (value as {id: unknown}).id;
+    if (inner != null && typeof inner === "object") {
+      return normalizeInventoryItemId(inner);
+    }
+    if (typeof inner === "string" && inner) {
+      return normalizeInventoryItemId(inner);
+    }
+  }
+
+  return normalizeInventoryItemId(recordIdToString(value));
 };
+
+const toKitchenRecordId = (kitchenId: unknown) =>
+  toQueryRecordId(kitchenId, Tables.kitchens);
+
+const toDishRecordId = (dishId: unknown) => toQueryRecordId(dishId, Tables.dishes);
+
+const toInventoryItemRecordId = (itemId: unknown) =>
+  toQueryRecordId(normalizeInventoryItemId(itemId) || itemId, Tables.inventory_items);
+
+const toReconciliationRecordId = (reconciliationId: unknown) =>
+  toQueryRecordId(reconciliationId, Tables.kitchen_reconciliations);
+
+const toUserRecordId = (userId: unknown) => toQueryRecordId(userId, Tables.users);
 
 const fetchReconciliationItems = async (
   db: DatabaseClient,
@@ -85,11 +107,59 @@ const fetchReconciliationItems = async (
     `
       SELECT * FROM ${Tables.kitchen_reconciliation_items}
       WHERE reconciliation = $reconciliation
-      FETCH item
     `,
     {reconciliation: toReconciliationRecordId(reconciliationId)}
   );
-  return unwrapRows<KitchenReconciliationItem>(rows);
+  const lines = unwrapRows<KitchenReconciliationItem>(rows);
+  if (lines.length === 0) return lines;
+
+  const itemIdStrings = Array.from(
+    new Set(
+      lines
+        .map((line) => normalizeInventoryItemId(line.item))
+        .filter(Boolean)
+    )
+  );
+
+  if (itemIdStrings.length === 0) return lines;
+
+  const metaById = new Map<string, {id?: unknown; name?: string; code?: string; uom?: string}>();
+  const META_CHUNK = 80;
+  try {
+    for (let i = 0; i < itemIdStrings.length; i += META_CHUNK) {
+      const ids = itemIdStrings
+        .slice(i, i + META_CHUNK)
+        .map((id) => toInventoryItemRecordId(id));
+      const [itemRows] = await db.query(
+        `SELECT id, name, code, uom FROM ${Tables.inventory_items} WHERE id IN $ids`,
+        {ids}
+      );
+      unwrapRows<{id?: unknown; name?: string; code?: string; uom?: string}>(itemRows).forEach(
+        (item) => {
+          const id = normalizeInventoryItemId(item.id);
+          if (id) metaById.set(id, item);
+        }
+      );
+    }
+  } catch {
+    return lines;
+  }
+
+  return lines.map((line) => {
+    const id = normalizeInventoryItemId(line.item);
+    const meta = id ? metaById.get(id) : undefined;
+    if (!meta) return line;
+    // Keep a plain string id — spreading RecordId creates {tb,id} and double-prefixes on save.
+    return {
+      ...line,
+      item: {
+        id,
+        name: meta.name,
+        code: meta.code,
+        uom: meta.uom,
+      } as KitchenReconciliationItem["item"],
+    };
+  });
 };
 
 const attachReconciliationItems = async (
@@ -117,7 +187,7 @@ const unwrapRows = <T>(result: unknown): T[] => {
 const toItemMap = (rows: Array<{item?: unknown; total?: unknown}>): QuantityMap => {
   const map: QuantityMap = new Map();
   for (const row of rows) {
-    const itemId = recordToString(row.item);
+    const itemId = recordIdToString(row.item);
     if (itemId) {
       map.set(itemId, safeNumber(row.total));
     }
@@ -127,20 +197,20 @@ const toItemMap = (rows: Array<{item?: unknown; total?: unknown}>): QuantityMap 
 
 export const getActiveReconciliation = async (
   db: DatabaseClient,
-  kitchenId: string,
+  locationId: string,
   businessDate: string
 ): Promise<KitchenReconciliation | null> => {
   const [rows] = await db.query(
     `
       SELECT * FROM ${Tables.kitchen_reconciliations}
-      WHERE kitchen = $kitchen
+      WHERE location = $location
         AND business_date = $businessDate
         AND superseded_by = NONE
       ORDER BY revision DESC
       LIMIT 1
-      FETCH kitchen
+      FETCH location
     `,
-    {kitchen: toKitchenRecordId(kitchenId), businessDate}
+    {location: toLocationRecordId(locationId), businessDate}
   );
 
   const reconciliation = unwrapRows<KitchenReconciliation>(rows)[0] ?? null;
@@ -150,18 +220,18 @@ export const getActiveReconciliation = async (
 
 export const getMissedReconciliations = async (
   db: DatabaseClient,
-  kitchenId: string
+  locationId: string
 ): Promise<KitchenReconciliation[]> => {
   const [rows] = await db.query(
     `
       SELECT * FROM ${Tables.kitchen_reconciliations}
-      WHERE kitchen = $kitchen
+      WHERE location = $location
         AND status = 'missed'
         AND superseded_by = NONE
       ORDER BY business_date DESC
-      FETCH kitchen
+      FETCH location
     `,
-    {kitchen: toKitchenRecordId(kitchenId)}
+    {location: toLocationRecordId(locationId)}
   );
 
   return unwrapRows<KitchenReconciliation>(rows);
@@ -169,7 +239,7 @@ export const getMissedReconciliations = async (
 
 export const detectMissedDays = async (
   db: DatabaseClient,
-  kitchenId: string,
+  locationId: string,
   fromDate: string,
   toDate: string
 ): Promise<string[]> => {
@@ -179,12 +249,12 @@ export const detectMissedDays = async (
   const [rows] = await db.query(
     `
       SELECT business_date FROM ${Tables.kitchen_reconciliations}
-      WHERE kitchen = $kitchen
+      WHERE location = $location
         AND business_date >= $fromDate
         AND business_date <= $toDate
         AND superseded_by = NONE
     `,
-    {kitchen: toKitchenRecordId(kitchenId), fromDate, toDate}
+    {location: toLocationRecordId(locationId), fromDate, toDate}
   );
 
   const existing = new Set(
@@ -194,56 +264,23 @@ export const detectMissedDays = async (
   return candidateDates.filter((date) => !existing.has(date));
 };
 
-const fetchKitchenDishIds = async (
-  db: DatabaseClient,
-  kitchenId: string
-): Promise<Set<string>> => {
-  const dishIds = new Set<string>();
-
-  const [kitchenRows] = await db.query(
-    `SELECT * FROM ${Tables.kitchens} WHERE id = $kitchen FETCH items`,
-    {kitchen: toKitchenRecordId(kitchenId)}
-  );
-  const kitchen = unwrapRows<{items?: Array<{id?: unknown}>}>(kitchenRows)[0];
-  kitchen?.items?.forEach((dish) => {
-    const id = toFullRecordIdString(dish.id, Tables.dishes);
-    if (id) dishIds.add(id);
-  });
-
-  const [workflowRows] = await db.query(
-    `
-      SELECT VALUE menu_item FROM ${Tables.dishes}
-      WHERE workflow IN (
-        SELECT VALUE workflow FROM ${Tables.workflow_stages} WHERE kitchen = $kitchen
-      )
-    `,
-    {kitchen: toKitchenRecordId(kitchenId)}
-  );
-  unwrapRows<unknown>(workflowRows).forEach((dishId) => {
-    const id = toFullRecordIdString(dishId, Tables.dishes);
-    if (id) dishIds.add(id);
-  });
-
-  return dishIds;
-};
-
 const fetchOpeningStock = async (
   db: DatabaseClient,
-  kitchenId: string,
+  locationId: string,
   businessDate: string
 ): Promise<QuantityMap> => {
   const map: QuantityMap = new Map();
   const [rows] = await db.query(
     `
       SELECT * FROM ${Tables.kitchen_reconciliations}
-      WHERE kitchen = $kitchen
+      WHERE location = $location
         AND status = 'verified'
         AND business_date < $businessDate
         AND superseded_by = NONE
       ORDER BY business_date DESC, revision DESC
       LIMIT 1
     `,
-    {kitchen: toKitchenRecordId(kitchenId), businessDate}
+    {location: toLocationRecordId(locationId), businessDate}
   );
 
   const reconciliation = unwrapRows<KitchenReconciliation>(rows)[0];
@@ -254,7 +291,7 @@ const fetchOpeningStock = async (
     toFullRecordIdString(reconciliation.id, Tables.kitchen_reconciliations)
   );
   lines.forEach((line) => {
-    const itemId = recordToString(line.item?.id ?? line.item);
+    const itemId = recordIdToString(line.item);
     if (itemId && line.physical_count != null) {
       map.set(itemId, safeNumber(line.physical_count));
     }
@@ -264,37 +301,52 @@ const fetchOpeningStock = async (
 
 const fetchIssuedQty = async (
   db: DatabaseClient,
-  kitchenId: string,
+  locationId: string,
   window: ClosingCycleWindow
 ): Promise<QuantityMap> => {
-  const [rows] = await db.query(
-    `
-      SELECT item, math::sum(quantity) AS total FROM ${Tables.inventory_issue_items}
-      WHERE issue IN (
+  const params: Record<string, unknown> = {
+    location: toLocationRecordId(locationId),
+    dateFrom: toSurrealDateTime(window.date_from),
+    dateTo: toSurrealDateTime(window.date_to),
+  };
+
+  try {
+    const [issueIdRows] = await db.query(
+      `
         SELECT VALUE id FROM ${Tables.inventory_issues}
-        WHERE kitchen = $kitchen
+        WHERE location = $location
           AND created_at >= $dateFrom
           AND created_at <= $dateTo
-      )
-      GROUP BY item
-    `,
-    {
-      kitchen: toKitchenRecordId(kitchenId),
-      dateFrom: toSurrealDateTime(window.date_from),
-      dateTo: toSurrealDateTime(window.date_to),
-    }
-  );
+      `,
+      params
+    );
+    const issueIds = unwrapRows<unknown>(issueIdRows)
+      .map((id) => toFullRecordIdString(id, Tables.inventory_issues))
+      .filter(Boolean)
+      .map((id) => toQueryRecordId(id, Tables.inventory_issues));
+    if (issueIds.length === 0) return new Map();
 
-  return toItemMap(unwrapRows(rows));
+    const [rows] = await db.query(
+      `
+        SELECT item, math::sum(quantity) AS total FROM ${Tables.inventory_issue_items}
+        WHERE issue IN $issueIds
+        GROUP BY item
+      `,
+      {issueIds}
+    );
+    return toItemMap(unwrapRows(rows));
+  } catch {
+    return new Map();
+  }
 };
 
 const fetchTransfers = async (
   db: DatabaseClient,
-  kitchenId: string,
+  locationId: string,
   window: ClosingCycleWindow
 ): Promise<{transfersIn: QuantityMap; transfersOut: QuantityMap}> => {
-  const params = {
-    kitchen: toKitchenRecordId(kitchenId),
+  const params: Record<string, unknown> = {
+    location: toLocationRecordId(locationId),
     dateFrom: toSurrealDateTime(window.date_from),
     dateTo: toSurrealDateTime(window.date_to),
   };
@@ -306,7 +358,7 @@ const fetchTransfers = async (
           SELECT item, math::sum(quantity) AS total FROM ${Tables.stock_transfer_items}
           WHERE transfer IN (
             SELECT VALUE id FROM ${Tables.stock_transfers}
-            WHERE to_kitchen = $kitchen
+            WHERE to_location = $location
               AND created_at >= $dateFrom
               AND created_at <= $dateTo
           )
@@ -319,7 +371,7 @@ const fetchTransfers = async (
           SELECT item, math::sum(quantity) AS total FROM ${Tables.stock_transfer_items}
           WHERE transfer IN (
             SELECT VALUE id FROM ${Tables.stock_transfers}
-            WHERE from_kitchen = $kitchen
+            WHERE from_location = $location
               AND created_at >= $dateFrom
               AND created_at <= $dateTo
           )
@@ -338,78 +390,6 @@ const fetchTransfers = async (
   }
 };
 
-const fetchTheoreticalConsumption = async (
-  db: DatabaseClient,
-  kitchenDishIds: Set<string>,
-  window: ClosingCycleWindow
-): Promise<QuantityMap> => {
-  const consumption: QuantityMap = new Map();
-  if (kitchenDishIds.size === 0) return consumption;
-
-  const dbFormat = import.meta.env.VITE_DB_DATABASE_FORMAT as string;
-  const timezone = getAppTimezone();
-  const dateFrom = DateTime.fromJSDate(window.date_from).setZone(timezone).toFormat("yyyy-MM-dd HH:mm");
-  const dateTo = DateTime.fromJSDate(window.date_to).setZone(timezone).toFormat("yyyy-MM-dd HH:mm");
-  const dishIds = Array.from(kitchenDishIds).map((id) => toDishRecordId(id));
-
-  const [orderItemRows] = await db.query(
-    `
-      SELECT item, math::sum(quantity) AS total FROM ${Tables.order_items}
-      WHERE item IN $dishIds
-        AND order IN (
-          SELECT VALUE id FROM ${Tables.orders}
-          WHERE status = 'Paid'
-            AND time::format(created_at, $fmt) >= $dateFrom
-            AND time::format(created_at, $fmt) <= $dateTo
-        )
-      GROUP BY item
-    `,
-    {dishIds, fmt: dbFormat, dateFrom, dateTo}
-  );
-
-  const soldByDish = new Map<string, number>();
-  unwrapRows<{item?: unknown; total?: unknown}>(orderItemRows).forEach((row) => {
-    const dishId = toFullRecordIdString(row.item, Tables.dishes);
-    if (dishId) soldByDish.set(dishId, safeNumber(row.total));
-  });
-
-  if (soldByDish.size === 0) {
-    return consumption;
-  }
-
-  const [recipeRows] = await db.query(
-    `
-      SELECT * FROM ${Tables.dishes_recipes}
-      WHERE menu_item IN $dishIds
-      FETCH item
-    `,
-    {dishIds}
-  );
-
-  const recipesMap = new Map<string, Array<{item?: {id?: unknown}; quantity?: unknown}>>();
-  unwrapRows<{menu_item?: unknown; item?: {id?: unknown}; quantity?: unknown}>(recipeRows).forEach(
-    (recipe) => {
-      const dishId = toFullRecordIdString(recipe.menu_item, Tables.dishes);
-      if (!dishId) return;
-      const list = recipesMap.get(dishId) ?? [];
-      list.push(recipe);
-      recipesMap.set(dishId, list);
-    }
-  );
-
-  soldByDish.forEach((soldQty, dishId) => {
-    const recipes = recipesMap.get(dishId) ?? [];
-    recipes.forEach((recipe) => {
-      const itemId = toFullRecordIdString(recipe.item?.id ?? recipe.item, Tables.inventory_items);
-      if (!itemId) return;
-      const qty = soldQty * safeNumber(recipe.quantity);
-      consumption.set(itemId, (consumption.get(itemId) ?? 0) + qty);
-    });
-  });
-
-  return consumption;
-};
-
 const collectIngredientScope = (
   opening: QuantityMap,
   issued: QuantityMap,
@@ -424,23 +404,6 @@ const collectIngredientScope = (
   return Array.from(ids);
 };
 
-const snapshotItems = (items: KitchenReconciliationItem[]) =>
-  items.map((line) => ({
-    item_id: recordToString(line.item?.id ?? line.item),
-    opening_stock: line.opening_stock,
-    issued_qty: line.issued_qty,
-    transfers_in: line.transfers_in,
-    transfers_out: line.transfers_out,
-    theoretical_consumption: line.theoretical_consumption,
-    expected_stock: line.expected_stock,
-    physical_count: line.physical_count,
-    waste_qty: line.waste_qty,
-    staff_meal_qty: line.staff_meal_qty,
-    complimentary_qty: line.complimentary_qty,
-    actual_consumption: line.actual_consumption,
-    variance: line.variance,
-  }));
-
 const writeRevision = async (
   db: DatabaseClient,
   reconciliationId: string,
@@ -451,16 +414,21 @@ const writeRevision = async (
   snapshotBefore?: Record<string, unknown> | null,
   fieldChanges: Array<{item_id?: string; field: string; old: unknown; new: unknown}> = []
 ) => {
-  await db.create(Tables.kitchen_reconciliation_revisions, {
-    reconciliation: toRecordId(reconciliationId),
-    revision_number: revisionNumber,
-    change_type: changeType,
-    changed_by: toRecordId(userId),
-    changed_at: nowSurrealDateTime(),
-    snapshot_before: snapshotBefore ?? undefined,
-    snapshot_after: snapshotAfter,
-    field_changes: fieldChanges,
-  });
+  await db.query(
+    `CREATE ${Tables.kitchen_reconciliation_revisions} CONTENT $content RETURN NONE`,
+    {
+      content: {
+        reconciliation: toReconciliationRecordId(reconciliationId),
+        revision_number: revisionNumber,
+        change_type: changeType,
+        changed_by: toUserRecordId(userId),
+        changed_at: nowSurrealDateTime(),
+        snapshot_before: snapshotBefore ?? undefined,
+        snapshot_after: snapshotAfter,
+        field_changes: fieldChanges,
+      },
+    }
+  );
 };
 
 const buildLineRecords = (
@@ -514,63 +482,360 @@ const buildLineRecords = (
   });
 };
 
+const LINE_INSERT_CHUNK = 25;
+const LINE_UPDATE_CHUNK = 10;
+
+type LineRecord = {
+  reconciliation: unknown;
+  item: unknown;
+  opening_stock: number;
+  issued_qty: number;
+  transfers_in: number;
+  transfers_out: number;
+  theoretical_consumption: number;
+  expected_stock: number;
+  physical_count: number | null;
+  waste_qty: number;
+  staff_meal_qty: number;
+  complimentary_qty: number;
+  actual_consumption: number;
+  variance: number;
+  posted_to_ledger: boolean;
+};
+
+/** Wipe by id chunks — bulk DELETE … WHERE hangs the websocket on large drafts. */
+const deleteLineItemsByReconciliation = async (
+  db: DatabaseClient,
+  reconciliationId: string
+) => {
+  const reconciliation = toReconciliationRecordId(reconciliationId);
+  const [idRows] = await db.query(
+    `SELECT VALUE id FROM ${Tables.kitchen_reconciliation_items} WHERE reconciliation = $reconciliation`,
+    {reconciliation}
+  );
+  const ids = unwrapRows<unknown>(idRows)
+    .map((id) => toQueryRecordId(id, Tables.kitchen_reconciliation_items))
+    .filter(Boolean);
+
+  for (let i = 0; i < ids.length; i += LINE_INSERT_CHUNK) {
+    const chunk = ids.slice(i, i + LINE_INSERT_CHUNK);
+    await db.query(`DELETE $ids RETURN NONE`, {ids: chunk});
+  }
+};
+
+const insertLineRecordChunks = async (db: DatabaseClient, lineRecords: LineRecord[]) => {
+  if (lineRecords.length === 0) return;
+  // RETURN NONE — default INSERT returns every row and hangs the websocket client.
+  for (let i = 0; i < lineRecords.length; i += LINE_INSERT_CHUNK) {
+    const rows = lineRecords.slice(i, i + LINE_INSERT_CHUNK);
+    await db.query(
+      `INSERT INTO ${Tables.kitchen_reconciliation_items} $rows RETURN NONE`,
+      {rows}
+    );
+  }
+};
+
 const persistLineItems = async (
   db: DatabaseClient,
   reconciliationId: string,
-  lineRecords: ReturnType<typeof buildLineRecords>
+  lineRecords: LineRecord[]
 ) => {
-  await db.query(
-    `DELETE ${Tables.kitchen_reconciliation_items} WHERE reconciliation = $reconciliation`,
-    {reconciliation: toReconciliationRecordId(reconciliationId)}
-  );
+  await deleteLineItemsByReconciliation(db, reconciliationId);
+  await insertLineRecordChunks(db, lineRecords);
+  return [];
+};
 
-  const createdRows = await Promise.all(
-    lineRecords.map((record) => db.create(Tables.kitchen_reconciliation_items, record))
-  );
-  const itemRefs = createdRows
-    .map(([created]) => created?.id)
-    .filter((id): id is NonNullable<typeof id> => Boolean(id));
+/**
+ * Draft saves must not DELETE+reinsert. Update by (reconciliation, item) so enriched
+ * item shapes / line-id mismatches cannot silently skip writes.
+ */
+const patchDirtyLineItems = async (
+  db: DatabaseClient,
+  reconciliationId: string,
+  patches: Array<{
+    itemId: string;
+    physical_count: number | null;
+    waste_qty: number;
+    staff_meal_qty: number;
+    complimentary_qty: number;
+    expected_stock: number;
+    actual_consumption: number;
+    variance: number;
+  }>
+) => {
+  if (patches.length === 0) return;
 
-  return itemRefs;
+  const reconciliation = toReconciliationRecordId(reconciliationId);
+  for (let i = 0; i < patches.length; i += LINE_UPDATE_CHUNK) {
+    const chunk = patches.slice(i, i + LINE_UPDATE_CHUNK);
+    await Promise.all(
+      chunk.map((patch) =>
+        db.query(
+          `
+            UPDATE ${Tables.kitchen_reconciliation_items} SET
+              physical_count = $physical_count,
+              waste_qty = $waste_qty,
+              staff_meal_qty = $staff_meal_qty,
+              complimentary_qty = $complimentary_qty,
+              expected_stock = $expected_stock,
+              actual_consumption = $actual_consumption,
+              variance = $variance
+            WHERE reconciliation = $reconciliation AND item = $item
+            RETURN NONE
+          `,
+          {
+            reconciliation,
+            item: toInventoryItemRecordId(patch.itemId),
+            physical_count: patch.physical_count,
+            waste_qty: patch.waste_qty,
+            staff_meal_qty: patch.staff_meal_qty,
+            complimentary_qty: patch.complimentary_qty,
+            expected_stock: patch.expected_stock,
+            actual_consumption: patch.actual_consumption,
+            variance: patch.variance,
+          }
+        )
+      )
+    );
+  }
 };
 
 const getLastReconciliationDate = async (
   db: DatabaseClient,
-  kitchenId: string
+  locationId: string
 ): Promise<string | null> => {
   const [rows] = await db.query(
     `
       SELECT business_date FROM ${Tables.kitchen_reconciliations}
-      WHERE kitchen = $kitchen AND superseded_by = NONE
+      WHERE location = $location AND superseded_by = NONE
       ORDER BY business_date DESC
       LIMIT 1
     `,
-    {kitchen: toKitchenRecordId(kitchenId)}
+    {location: toLocationRecordId(locationId)}
   );
   return unwrapRows<{business_date: string}>(rows)[0]?.business_date ?? null;
 };
 
+/**
+ * POS shim: linked_kitchen on the inventory location drives dish/theoretical scope only.
+ * Stock identity remains location.
+ */
+const resolveLinkedKitchenId = async (
+  db: DatabaseClient,
+  locationId: string
+): Promise<string | null> => {
+  try {
+    const result = await db.query(
+      `SELECT linked_kitchen FROM ONLY $id`,
+      {id: toLocationRecordId(locationId)}
+    );
+    const first = Array.isArray(result) ? result[0] : undefined;
+    const row = (Array.isArray(first) ? first[0] : first) as
+      | {linked_kitchen?: unknown}
+      | undefined;
+    const kitchenId = recordIdToString(row?.linked_kitchen);
+    return kitchenId || null;
+  } catch {
+    return null;
+  }
+};
+
+/** Kitchen dishes for theoretical — never FETCH items (photo blobs hang Surreal). */
+const fetchKitchenDishIds = async (
+  db: DatabaseClient,
+  kitchenId: string
+): Promise<Set<string>> => {
+  const dishIds = new Set<string>();
+  const kitchen = toKitchenRecordId(kitchenId);
+
+  const [kitchenRows] = await db.query(
+    `SELECT items FROM ${Tables.kitchens} WHERE id = $kitchen`,
+    {kitchen}
+  );
+  const kitchenRow = unwrapRows<{items?: unknown[]}>(kitchenRows)[0];
+  kitchenRow?.items?.forEach((dish) => {
+    const id = toFullRecordIdString(dish, Tables.dishes);
+    if (id) dishIds.add(id);
+  });
+
+  const [workflowIds] = await db.query(
+    `SELECT VALUE workflow FROM ${Tables.workflow_stages} WHERE kitchen = $kitchen`,
+    {kitchen}
+  );
+  const workflows = unwrapRows<unknown>(workflowIds)
+    .map((id) => toFullRecordIdString(id, Tables.workflows))
+    .filter(Boolean)
+    .map((id) => toQueryRecordId(id, Tables.workflows));
+
+  if (workflows.length > 0) {
+    const [dishRows] = await db.query(
+      `SELECT VALUE id FROM ${Tables.dishes} WHERE workflow IN $workflows`,
+      {workflows}
+    );
+    unwrapRows<unknown>(dishRows).forEach((dishId) => {
+      const id = toFullRecordIdString(dishId, Tables.dishes);
+      if (id) dishIds.add(id);
+    });
+  }
+
+  return dishIds;
+};
+
+/**
+ * Sold dishes in the business window → recipe ingredients.
+ * Uses datetime filters on order_item (no nested order IN / time::format).
+ */
+const fetchTheoreticalConsumption = async (
+  db: DatabaseClient,
+  kitchenDishIds: Set<string>,
+  window: ClosingCycleWindow
+): Promise<QuantityMap> => {
+  const consumption: QuantityMap = new Map();
+  if (kitchenDishIds.size === 0) return consumption;
+
+  const dishIds = Array.from(kitchenDishIds).map((id) => toDishRecordId(id));
+  const dateFrom = toSurrealDateTime(window.date_from);
+  const dateTo = toSurrealDateTime(window.date_to);
+
+  const soldByDish = new Map<string, number>();
+  try {
+    const [orderItemRows] = await db.query(
+      `
+        SELECT item, math::sum(quantity) AS total FROM ${Tables.order_items}
+        WHERE item IN $dishIds
+          AND created_at >= $dateFrom
+          AND created_at <= $dateTo
+          AND (is_refunded = false OR is_refunded = NONE OR is_refunded = null)
+          AND (deleted_at = NONE OR deleted_at = null)
+        GROUP BY item
+      `,
+      {dishIds, dateFrom, dateTo}
+    );
+    unwrapRows<{item?: unknown; total?: unknown}>(orderItemRows).forEach((row) => {
+      const dishId = toFullRecordIdString(row.item, Tables.dishes);
+      if (dishId) soldByDish.set(dishId, safeNumber(row.total));
+    });
+  } catch {
+    return consumption;
+  }
+
+  if (soldByDish.size === 0) return consumption;
+
+  let recipeRows: unknown = [];
+  try {
+    const [rows] = await db.query(
+      `
+        SELECT menu_item, item, quantity FROM ${Tables.dishes_recipes}
+        WHERE menu_item IN $dishIds
+      `,
+      {dishIds}
+    );
+    recipeRows = rows;
+  } catch {
+    return consumption;
+  }
+
+  const recipesMap = new Map<string, Array<{item?: unknown; quantity?: unknown}>>();
+  unwrapRows<{menu_item?: unknown; item?: unknown; quantity?: unknown}>(recipeRows).forEach(
+    (recipe) => {
+      const dishId = toFullRecordIdString(recipe.menu_item, Tables.dishes);
+      if (!dishId) return;
+      const list = recipesMap.get(dishId) ?? [];
+      list.push(recipe);
+      recipesMap.set(dishId, list);
+    }
+  );
+
+  soldByDish.forEach((soldQty, dishId) => {
+    const recipes = recipesMap.get(dishId) ?? [];
+    recipes.forEach((recipe) => {
+      const itemId = toFullRecordIdString(recipe.item, Tables.inventory_items);
+      if (!itemId) return;
+      const qty = soldQty * safeNumber(recipe.quantity);
+      consumption.set(itemId, (consumption.get(itemId) ?? 0) + qty);
+    });
+  });
+
+  return consumption;
+};
+
+const withTimeout = <T,>(promise: Promise<T>, ms: number, label: string): Promise<T> => {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`${label} timed out after ${ms}ms`));
+    }, ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (err) => {
+        clearTimeout(timer);
+        reject(err);
+      }
+    );
+  });
+};
+
 const aggregateMovementData = async (
   db: DatabaseClient,
-  kitchenId: string,
+  locationId: string,
   window: ClosingCycleWindow,
-  businessDate: string
+  businessDate: string,
+  onProgress?: (stage: GenerateProgressStage) => void
 ) => {
-  const kitchenDishIds = await fetchKitchenDishIds(db, kitchenId);
+  const [opening, issued, transfers] = await Promise.all([
+    fetchOpeningStock(db, locationId, businessDate),
+    fetchIssuedQty(db, locationId, window),
+    fetchTransfers(db, locationId, window),
+  ]);
+  const {transfersIn, transfersOut} = transfers;
 
-  const opening = await fetchOpeningStock(db, kitchenId, businessDate);
-  const issued = await fetchIssuedQty(db, kitchenId, window);
-  const {transfersIn, transfersOut} = await fetchTransfers(db, kitchenId, window);
-  const theoretical = await fetchTheoreticalConsumption(db, kitchenDishIds, window);
+  onProgress?.("theoretical");
+  let theoretical: QuantityMap = new Map();
+  const kitchenId = await resolveLinkedKitchenId(db, locationId);
+  if (kitchenId) {
+    try {
+      const dishIds = await fetchKitchenDishIds(db, kitchenId);
+      theoretical = await withTimeout(
+        fetchTheoreticalConsumption(db, dishIds, window),
+        45_000,
+        "Theoretical consumption"
+      );
+    } catch {
+      theoretical = new Map();
+    }
+  } else {
+    onProgress?.("theoretical_skipped");
+  }
+
   const itemIds = collectIngredientScope(opening, issued, transfersIn, transfersOut, theoretical);
 
   return {opening, issued, transfersIn, transfersOut, theoretical, itemIds};
 };
 
+const hasActiveReconciliation = async (
+  db: DatabaseClient,
+  locationId: string,
+  businessDate: string
+): Promise<boolean> => {
+  const [rows] = await db.query(
+    `
+      SELECT VALUE id FROM ${Tables.kitchen_reconciliations}
+      WHERE location = $location
+        AND business_date = $businessDate
+        AND superseded_by = NONE
+      LIMIT 1
+    `,
+    {location: toLocationRecordId(locationId), businessDate}
+  );
+  return unwrapRows(rows).length > 0;
+};
+
 const createReconciliationHeader = async (
   db: DatabaseClient,
   params: {
-    kitchenId: string;
+    locationId: string;
     businessDate: string;
     window: ClosingCycleWindow;
     status: KitchenReconciliationStatus;
@@ -580,93 +845,131 @@ const createReconciliationHeader = async (
   }
 ) => {
   const [created] = await db.create(Tables.kitchen_reconciliations, {
-    kitchen: toKitchenRecordId(params.kitchenId),
+    location: toLocationRecordId(params.locationId),
     business_date: params.businessDate,
     date_from: toSurrealDateTime(params.window.date_from),
     date_to: toSurrealDateTime(params.window.date_to),
     status: params.status,
     revision: params.revision ?? 1,
-    parent: params.parentId ? toRecordId(params.parentId) : undefined,
+    parent: params.parentId ? toReconciliationRecordId(params.parentId) : undefined,
     created_at: nowSurrealDateTime(),
-    created_by: toRecordId(params.userId),
+    created_by: toUserRecordId(params.userId),
   });
 
   if (!created?.id) {
     throw new Error("Failed to create reconciliation");
   }
 
-  return recordToString(created.id);
+  return recordIdToString(created.id);
 };
 
 export const createMissedStub = async (
   db: DatabaseClient,
-  kitchenId: string,
+  locationId: string,
   businessDate: string,
-  userId: string
-): Promise<KitchenReconciliation> => {
-  const existing = await getActiveReconciliation(db, kitchenId, businessDate);
-  if (existing) return existing;
+  userId: string,
+  window?: ClosingCycleWindow
+): Promise<void> => {
+  if (await hasActiveReconciliation(db, locationId, businessDate)) {
+    return;
+  }
 
-  const window = await resolveBusinessDateWindow(db, businessDate);
-  const {opening, issued, transfersIn, transfersOut, theoretical, itemIds} =
-    await aggregateMovementData(db, kitchenId, window, businessDate);
-
+  // Marker only — no line items. Next verified day's opening uses last verified close.
+  const resolvedWindow = window ?? (await resolveBusinessDateWindow(db, businessDate));
   const reconciliationId = await createReconciliationHeader(db, {
-    kitchenId,
+    locationId,
     businessDate,
-    window,
+    window: resolvedWindow,
     status: "missed",
     userId,
   });
 
-  const lineRecords = buildLineRecords(
-    reconciliationId,
-    itemIds,
-    opening,
-    issued,
-    transfersIn,
-    transfersOut,
-    theoretical,
-    new Map(),
-    true
-  );
-  await persistLineItems(db, reconciliationId, lineRecords);
-
   await writeRevision(db, reconciliationId, 1, "missed_stub", userId, {
     status: "missed",
     business_date: businessDate,
-    items: lineRecords,
+    item_count: 0,
   });
-
-  return (await getActiveReconciliation(db, kitchenId, businessDate))!;
 };
+
+export type GenerateProgressStage =
+  | "checking"
+  | "missed_days"
+  | "aggregating"
+  | "theoretical"
+  | "theoretical_skipped"
+  | "saving"
+  | "saving_lines"
+  | "saving_revision";
+
+const STUB_CHUNK = 8;
 
 export const generateReconciliation = async (
   db: DatabaseClient,
-  kitchenId: string,
+  locationId: string,
   businessDate: string,
-  userId: string
+  userId: string,
+  onProgress?: (stage: GenerateProgressStage) => void
 ): Promise<KitchenReconciliation> => {
-  const existing = await getActiveReconciliation(db, kitchenId, businessDate);
+  onProgress?.("checking");
+  const existing = await getActiveReconciliation(db, locationId, businessDate);
   if (existing) {
     return existing;
   }
 
-  const lastDate = await getLastReconciliationDate(db, kitchenId);
+  const lastDate = await getLastReconciliationDate(db, locationId);
   if (lastDate && lastDate < businessDate) {
     const dates = enumerateBusinessDates(lastDate, businessDate);
     const gapDates = dates.slice(1, -1);
-    for (const gapDate of gapDates) {
-      await createMissedStub(db, kitchenId, gapDate, userId);
+    if (gapDates.length > 0) {
+      onProgress?.("missed_days");
+
+      const [existingRows] = await db.query(
+        `
+          SELECT business_date FROM ${Tables.kitchen_reconciliations}
+          WHERE location = $location
+            AND business_date > $fromDate
+            AND business_date < $toDate
+            AND superseded_by = NONE
+        `,
+        {
+          location: toLocationRecordId(locationId),
+          fromDate: lastDate,
+          toDate: businessDate,
+        }
+      );
+      const alreadyHave = new Set(
+        unwrapRows<{business_date: string}>(existingRows).map((row) => row.business_date)
+      );
+      const missing = gapDates.filter((date) => !alreadyHave.has(date));
+
+      if (missing.length > 0) {
+        const {config} = await loadClosingCycleConfig(db);
+        for (let i = 0; i < missing.length; i += STUB_CHUNK) {
+          const chunk = missing.slice(i, i + STUB_CHUNK);
+          await Promise.all(
+            chunk.map((gapDate) =>
+              createMissedStub(
+                db,
+                locationId,
+                gapDate,
+                userId,
+                buildWindowForBusinessDate(config, gapDate)
+              )
+            )
+          );
+        }
+      }
     }
   }
 
+  onProgress?.("aggregating");
   const window = await resolveBusinessDateWindow(db, businessDate);
   const {opening, issued, transfersIn, transfersOut, theoretical, itemIds} =
-    await aggregateMovementData(db, kitchenId, window, businessDate);
+    await aggregateMovementData(db, locationId, window, businessDate, onProgress);
 
+  onProgress?.("saving");
   const reconciliationId = await createReconciliationHeader(db, {
-    kitchenId,
+    locationId,
     businessDate,
     window,
     status: "draft",
@@ -684,16 +987,34 @@ export const generateReconciliation = async (
     new Map(),
     false
   );
+
+  onProgress?.("saving_lines");
   await persistLineItems(db, reconciliationId, lineRecords);
 
+  onProgress?.("saving_revision");
   await writeRevision(db, reconciliationId, 1, "create", userId, {
     status: "draft",
     business_date: businessDate,
-    items: lineRecords,
+    item_count: lineRecords.length,
   });
 
-  const result = (await getActiveReconciliation(db, kitchenId, businessDate))!;
-  return result;
+  // Load header only — full line FETCH/IN binds after a large insert can hang the socket.
+  // The hook calls load() next, which attaches items in a separate request.
+  const [headerRows] = await db.query(
+    `
+      SELECT * FROM ${Tables.kitchen_reconciliations}
+      WHERE id = $id
+      LIMIT 1
+      FETCH location
+    `,
+    {id: toReconciliationRecordId(reconciliationId)}
+  );
+  const header = unwrapRows<KitchenReconciliation>(headerRows)[0];
+  if (!header) {
+    throw new Error("Failed to create reconciliation");
+  }
+  header.items = [];
+  return header;
 };
 
 export const createRevision = async (
@@ -705,7 +1026,7 @@ export const createRevision = async (
     `
       SELECT * FROM ${Tables.kitchen_reconciliations}
       WHERE id = $id
-      FETCH kitchen
+      FETCH location
     `,
     {id: toReconciliationRecordId(reconciliationId)}
   );
@@ -714,11 +1035,12 @@ export const createRevision = async (
   await attachReconciliationItems(db, source);
   if (source.superseded_by) throw new Error("Reconciliation already superseded");
 
-  const kitchenId = recordToString(source.kitchen?.id ?? source.kitchen);
+  const locationId = recordIdToString(source.location);
+  if (!locationId) throw new Error("Reconciliation missing location");
   const newRevision = (source.revision ?? 1) + 1;
 
   const newId = await createReconciliationHeader(db, {
-    kitchenId,
+    locationId,
     businessDate: source.business_date,
     window: {
       date_from: toJsDate(source.date_from),
@@ -730,11 +1052,11 @@ export const createRevision = async (
     parentId: reconciliationId,
   });
 
-  await db.merge(reconciliationId, {superseded_by: toRecordId(newId)});
+  await db.merge(toReconciliationRecordId(reconciliationId), {superseded_by: toReconciliationRecordId(newId)});
 
   const manualByItem = new Map<string, ManualLineInput>();
   source.items?.forEach((line) => {
-    const itemId = recordToString(line.item?.id ?? line.item);
+    const itemId = recordIdToString(line.item);
     if (!itemId) return;
     manualByItem.set(itemId, {
       itemId,
@@ -746,7 +1068,7 @@ export const createRevision = async (
   });
 
   const lineRecords = source.items?.map((line) => {
-    const itemId = recordToString(line.item?.id ?? line.item);
+    const itemId = recordIdToString(line.item);
     const manual = manualByItem.get(itemId);
     const computed = computeLine({
       openingStock: line.opening_stock,
@@ -761,7 +1083,7 @@ export const createRevision = async (
     });
 
     return {
-      reconciliation: toRecordId(newId),
+      reconciliation: toReconciliationRecordId(newId),
       item: toInventoryItemRecordId(itemId),
       opening_stock: computed.openingStock,
       issued_qty: computed.issuedQty,
@@ -787,11 +1109,17 @@ export const createRevision = async (
     newRevision,
     "create",
     userId,
-    {status: "draft", items: lineRecords},
-    {status: source.status, items: snapshotItems(source.items ?? [])}
+    {status: "draft", item_count: lineRecords.length},
+    {status: source.status, item_count: source.items?.length ?? 0}
   );
 
-  return (await getActiveReconciliation(db, kitchenId, source.business_date))!;
+  return (await getActiveReconciliation(db, locationId, source.business_date))!;
+};
+
+const sameManualValue = (a: unknown, b: unknown) => {
+  if (a == null && b == null) return true;
+  if (a == null || b == null) return false;
+  return Number(a) === Number(b);
 };
 
 const upsertManualTables = async (
@@ -800,61 +1128,93 @@ const upsertManualTables = async (
   userId: string,
   lines: ManualLineInput[]
 ) => {
+  if (lines.length === 0) return;
+
+  const reconciliation = toReconciliationRecordId(reconciliationId);
+  const countedBy = toUserRecordId(userId);
+  const countedAt = nowSurrealDateTime();
+  const items = lines
+    .map((line) => toInventoryItemRecordId(line.itemId))
+    .filter(Boolean);
+
+  // Only clear/reinsert rows for lines being saved — never wipe the whole recon.
+  await Promise.all([
+    db.query(
+      `DELETE ${Tables.kitchen_stock_counts} WHERE reconciliation = $reconciliation AND item IN $items RETURN NONE`,
+      {reconciliation, items}
+    ),
+    db.query(
+      `DELETE ${Tables.kitchen_wastes} WHERE reconciliation = $reconciliation AND item IN $items RETURN NONE`,
+      {reconciliation, items}
+    ),
+    db.query(
+      `DELETE ${Tables.kitchen_staff_meals} WHERE reconciliation = $reconciliation AND item IN $items RETURN NONE`,
+      {reconciliation, items}
+    ),
+    db.query(
+      `DELETE ${Tables.kitchen_complimentary_items} WHERE reconciliation = $reconciliation AND item IN $items RETURN NONE`,
+      {reconciliation, items}
+    ),
+  ]);
+
+  const stockRows: Array<Record<string, unknown>> = [];
+  const wasteRows: Array<Record<string, unknown>> = [];
+  const staffRows: Array<Record<string, unknown>> = [];
+  const complimentaryRows: Array<Record<string, unknown>> = [];
+
   for (const line of lines) {
+    const item = toInventoryItemRecordId(line.itemId);
     if (line.physicalCount != null) {
-      const [existing] = await db.query(
-        `
-          SELECT * FROM ${Tables.kitchen_stock_counts}
-          WHERE reconciliation = $reconciliation AND item = $item
-        `,
-        {reconciliation: toRecordId(reconciliationId), item: toInventoryItemRecordId(line.itemId)}
-      );
-      const row = unwrapRows<{id: string}>(existing)[0];
-      if (row?.id) {
-        await db.merge(row.id, {
-          quantity: line.physicalCount,
-          counted_at: nowSurrealDateTime(),
-          counted_by: toRecordId(userId),
-        });
-      } else {
-        await db.create(Tables.kitchen_stock_counts, {
-          reconciliation: toRecordId(reconciliationId),
-          item: toInventoryItemRecordId(line.itemId),
-          quantity: line.physicalCount,
-          counted_at: nowSurrealDateTime(),
-          counted_by: toRecordId(userId),
-        });
-      }
+      stockRows.push({
+        reconciliation,
+        item,
+        quantity: line.physicalCount,
+        counted_at: countedAt,
+        counted_by: countedBy,
+      });
     }
-
-    const upsertQtyTable = async (
-      table: Tables,
-      qty: number | undefined,
-      extra?: Record<string, unknown>
-    ) => {
-      if (qty === undefined) return;
-      await db.query(
-        `DELETE ${table} WHERE reconciliation = $reconciliation AND item = $item`,
-        {reconciliation: toRecordId(reconciliationId), item: toInventoryItemRecordId(line.itemId)}
-      );
-      if (qty > 0) {
-        await db.create(table, {
-          reconciliation: toRecordId(reconciliationId),
-          item: toInventoryItemRecordId(line.itemId),
-          quantity: qty,
-          created_at: nowSurrealDateTime(),
-          created_by: toRecordId(userId),
-          ...extra,
-        });
-      }
-    };
-
-    await upsertQtyTable(Tables.kitchen_wastes, line.wasteQty);
-    await upsertQtyTable(Tables.kitchen_staff_meals, line.staffMealQty, {
-      notes: "Reconciliation staff meal",
-    });
-    await upsertQtyTable(Tables.kitchen_complimentary_items, line.complimentaryQty);
+    if ((line.wasteQty ?? 0) > 0) {
+      wasteRows.push({
+        reconciliation,
+        item,
+        quantity: line.wasteQty,
+        created_at: countedAt,
+        created_by: countedBy,
+      });
+    }
+    if ((line.staffMealQty ?? 0) > 0) {
+      staffRows.push({
+        reconciliation,
+        item,
+        quantity: line.staffMealQty,
+        notes: "Reconciliation staff meal",
+        created_at: countedAt,
+        created_by: countedBy,
+      });
+    }
+    if ((line.complimentaryQty ?? 0) > 0) {
+      complimentaryRows.push({
+        reconciliation,
+        item,
+        quantity: line.complimentaryQty,
+        created_at: countedAt,
+        created_by: countedBy,
+      });
+    }
   }
+
+  const insertChunks = async (table: Tables, rows: Array<Record<string, unknown>>) => {
+    if (rows.length === 0) return;
+    for (let i = 0; i < rows.length; i += LINE_INSERT_CHUNK) {
+      const chunk = rows.slice(i, i + LINE_INSERT_CHUNK);
+      await db.query(`INSERT INTO ${table} $rows RETURN NONE`, {rows: chunk});
+    }
+  };
+
+  await insertChunks(Tables.kitchen_stock_counts, stockRows);
+  await insertChunks(Tables.kitchen_wastes, wasteRows);
+  await insertChunks(Tables.kitchen_staff_meals, staffRows);
+  await insertChunks(Tables.kitchen_complimentary_items, complimentaryRows);
 };
 
 export const saveManualInputs = async (
@@ -866,7 +1226,7 @@ export const saveManualInputs = async (
 ): Promise<KitchenReconciliation> => {
   let targetId = reconciliationId;
   const [headerRows] = await db.query(
-    `SELECT * FROM ${Tables.kitchen_reconciliations} WHERE id = $id FETCH kitchen`,
+    `SELECT * FROM ${Tables.kitchen_reconciliations} WHERE id = $id FETCH location`,
     {id: toReconciliationRecordId(reconciliationId)}
   );
   let reconciliation = unwrapRows<KitchenReconciliation>(headerRows)[0];
@@ -881,84 +1241,101 @@ export const saveManualInputs = async (
     throw new Error("Cannot edit a missed reconciliation day; generate the next business date instead");
   }
 
-  const beforeSnapshot = {items: snapshotItems(reconciliation.items ?? [])};
-  await upsertManualTables(db, targetId, userId, lines);
+  const beforeSnapshot = {item_count: reconciliation.items?.length ?? 0};
+  const existingByItem = new Map(
+    (reconciliation.items ?? [])
+      .map((line) => {
+        const itemId = normalizeInventoryItemId(line.item);
+        return [itemId, line] as const;
+      })
+      .filter((entry) => Boolean(entry[0]))
+  );
 
-  const manualByItem = new Map<string, ManualLineInput>();
-  reconciliation.items?.forEach((line) => {
-    const itemId = recordToString(line.item?.id ?? line.item);
-    if (itemId) {
-      manualByItem.set(itemId, {
-        itemId,
-        physicalCount: line.physical_count ?? null,
-        wasteQty: line.waste_qty,
-        staffMealQty: line.staff_meal_qty,
-        complimentaryQty: line.complimentary_qty,
-      });
-    }
-  });
-  lines.forEach((line) => {
-    const existing = manualByItem.get(line.itemId) ?? {itemId: line.itemId};
-    manualByItem.set(line.itemId, {
-      ...existing,
+  const normalizedLines: ManualLineInput[] = lines
+    .map((line) => ({
       ...line,
-      itemId: line.itemId,
-    });
+      itemId: normalizeInventoryItemId(line.itemId),
+    }))
+    .filter((line) => Boolean(line.itemId));
+
+  const dirtyLines = normalizedLines.filter((line) => {
+    const prev = existingByItem.get(line.itemId);
+    if (!prev) return true;
+    if (line.physicalCount !== undefined && !sameManualValue(prev.physical_count, line.physicalCount)) {
+      return true;
+    }
+    if (line.wasteQty !== undefined && !sameManualValue(prev.waste_qty, line.wasteQty ?? 0)) {
+      return true;
+    }
+    if (line.staffMealQty !== undefined && !sameManualValue(prev.staff_meal_qty, line.staffMealQty ?? 0)) {
+      return true;
+    }
+    if (
+      line.complimentaryQty !== undefined &&
+      !sameManualValue(prev.complimentary_qty, line.complimentaryQty ?? 0)
+    ) {
+      return true;
+    }
+    return false;
   });
 
-  const lineRecords = (reconciliation.items ?? []).map((line) => {
-    const itemId = recordToString(line.item?.id ?? line.item);
-    const manual = manualByItem.get(itemId);
+  await upsertManualTables(db, targetId, userId, dirtyLines);
+
+  const patches = dirtyLines.map((line) => {
+    const existing = existingByItem.get(line.itemId);
     const computed = computeLine({
-      openingStock: line.opening_stock,
-      issuedQty: line.issued_qty,
-      transfersIn: line.transfers_in,
-      transfersOut: line.transfers_out,
-      theoreticalConsumption: line.theoretical_consumption,
-      physicalCount: manual?.physicalCount ?? null,
-      wasteQty: manual?.wasteQty ?? 0,
-      staffMealQty: manual?.staffMealQty ?? 0,
-      complimentaryQty: manual?.complimentaryQty ?? 0,
+      openingStock: existing?.opening_stock ?? 0,
+      issuedQty: existing?.issued_qty ?? 0,
+      transfersIn: existing?.transfers_in ?? 0,
+      transfersOut: existing?.transfers_out ?? 0,
+      theoreticalConsumption: existing?.theoretical_consumption ?? 0,
+      physicalCount: line.physicalCount ?? null,
+      wasteQty: line.wasteQty ?? 0,
+      staffMealQty: line.staffMealQty ?? 0,
+      complimentaryQty: line.complimentaryQty ?? 0,
     });
 
     return {
-      reconciliation: toReconciliationRecordId(targetId),
-      item: toInventoryItemRecordId(itemId),
-      opening_stock: computed.openingStock,
-      issued_qty: computed.issuedQty,
-      transfers_in: computed.transfersIn,
-      transfers_out: computed.transfersOut,
-      theoretical_consumption: computed.theoreticalConsumption,
-      expected_stock: computed.expectedStock,
+      itemId: line.itemId,
       physical_count: computed.physicalCount,
       waste_qty: computed.wasteQty,
       staff_meal_qty: computed.staffMealQty,
       complimentary_qty: computed.complimentaryQty,
+      expected_stock: computed.expectedStock,
       actual_consumption: computed.actualConsumption,
       variance: computed.variance,
-      posted_to_ledger: line.posted_to_ledger ?? false,
     };
   });
 
-  await persistLineItems(db, targetId, lineRecords);
+  await patchDirtyLineItems(db, targetId, patches);
 
-  const fieldChanges = lines.flatMap((line) => {
+  const fieldChanges = dirtyLines.flatMap((line) => {
     const changes: Array<{item_id: string; field: string; old: unknown; new: unknown}> = [];
-    const prev = beforeSnapshot.items.find((i) => i.item_id === line.itemId);
+    const prev = existingByItem.get(line.itemId);
+    const pushIfChanged = (field: string, oldVal: unknown, newVal: unknown) => {
+      if (sameManualValue(oldVal, newVal)) return;
+      if ((oldVal == null || oldVal === "") && (newVal == null || newVal === "")) return;
+      changes.push({item_id: line.itemId, field, old: oldVal, new: newVal});
+    };
     if (line.physicalCount !== undefined) {
-      changes.push({item_id: line.itemId, field: "physical_count", old: prev?.physical_count, new: line.physicalCount});
+      pushIfChanged("physical_count", prev?.physical_count ?? null, line.physicalCount);
     }
     if (line.wasteQty !== undefined) {
-      changes.push({item_id: line.itemId, field: "waste_qty", old: prev?.waste_qty, new: line.wasteQty});
+      pushIfChanged("waste_qty", prev?.waste_qty ?? 0, line.wasteQty ?? 0);
     }
     if (line.staffMealQty !== undefined) {
-      changes.push({item_id: line.itemId, field: "staff_meal_qty", old: prev?.staff_meal_qty, new: line.staffMealQty});
+      pushIfChanged("staff_meal_qty", prev?.staff_meal_qty ?? 0, line.staffMealQty ?? 0);
     }
     if (line.complimentaryQty !== undefined) {
-      changes.push({item_id: line.itemId, field: "complimentary_qty", old: prev?.complimentary_qty, new: line.complimentaryQty});
+      pushIfChanged("complimentary_qty", prev?.complimentary_qty ?? 0, line.complimentaryQty ?? 0);
     }
     return changes;
   });
+
+  const slimFieldChanges =
+    fieldChanges.length > 100
+      ? [{item_id: "", field: "_summary", old: null, new: `${fieldChanges.length} cell updates`}]
+      : fieldChanges;
 
   await writeRevision(
     db,
@@ -966,51 +1343,54 @@ export const saveManualInputs = async (
     reconciliation.revision ?? 1,
     changeType,
     userId,
-    {items: lineRecords},
+    {item_count: reconciliation.items?.length ?? 0, changed_fields: fieldChanges.length},
     beforeSnapshot,
-    fieldChanges
+    slimFieldChanges
   );
 
-  const kitchenId = recordToString(reconciliation.kitchen?.id ?? reconciliation.kitchen);
-  return (await getActiveReconciliation(db, kitchenId, reconciliation.business_date))!;
+  const locationId = recordIdToString(reconciliation.location);
+  if (!locationId) throw new Error("Reconciliation missing location");
+  return (await getActiveReconciliation(db, locationId, reconciliation.business_date))!;
 };
 
 const resolveIssueForPosting = async (
   db: DatabaseClient,
-  kitchenId: string,
+  locationId: string,
   window: ClosingCycleWindow,
   userId: string
 ): Promise<string> => {
+  const params: Record<string, unknown> = {
+    location: toLocationRecordId(locationId),
+    dateFrom: toSurrealDateTime(window.date_from),
+    dateTo: toSurrealDateTime(window.date_to),
+  };
+
   const [rows] = await db.query(
     `
       SELECT id, created_at FROM ${Tables.inventory_issues}
-      WHERE kitchen = $kitchen
+      WHERE location = $location
         AND created_at >= $dateFrom
         AND created_at <= $dateTo
       ORDER BY created_at DESC
       LIMIT 1
     `,
-    {
-      kitchen: toKitchenRecordId(kitchenId),
-      dateFrom: toSurrealDateTime(window.date_from),
-      dateTo: toSurrealDateTime(window.date_to),
-    }
+    params
   );
 
   const existing = unwrapRows<{id: unknown}>(rows)[0];
-  if (existing?.id) return recordToString(existing.id);
+  if (existing?.id) return recordIdToString(existing.id);
 
   const invoiceNumber = await fetchNextSequentialNumber(db, Tables.inventory_issues, "invoice_number");
   const [created] = await db.create(Tables.inventory_issues, {
-    kitchen: toKitchenRecordId(kitchenId),
+    location: toLocationRecordId(locationId),
     items: [],
     invoice_number: invoiceNumber,
     created_at: nowSurrealDateTime(),
-    created_by: toRecordId(userId),
+    created_by: toUserRecordId(userId),
   });
 
   if (!created?.id) throw new Error("Failed to create issue for ledger posting");
-  return recordToString(created.id);
+  return recordIdToString(created.id);
 };
 
 const postToLedger = async (
@@ -1018,27 +1398,29 @@ const postToLedger = async (
   reconciliation: KitchenReconciliation,
   userId: string
 ) => {
-  const kitchenId = recordToString(reconciliation.kitchen?.id ?? reconciliation.kitchen);
+  const locationId = recordIdToString(reconciliation.location);
+  if (!locationId) throw new Error("Reconciliation missing location");
+
   const window = {
     date_from: toJsDate(reconciliation.date_from),
     date_to: toJsDate(reconciliation.date_to),
   };
 
-  const issueId = await resolveIssueForPosting(db, kitchenId, window, userId);
+  const issueId = await resolveIssueForPosting(db, locationId, window, userId);
   const reconciliationId = reconciliation.id;
 
   const [[wasteRows], [staffRows], [compRows]] = await Promise.all([
     db.query(
       `SELECT * FROM ${Tables.kitchen_wastes} WHERE reconciliation = $id AND ledger_waste_item = NONE FETCH item`,
-      {id: toRecordId(reconciliationId)}
+      {id: toReconciliationRecordId(reconciliationId)}
     ),
     db.query(
       `SELECT * FROM ${Tables.kitchen_staff_meals} WHERE reconciliation = $id AND ledger_waste_item = NONE FETCH item`,
-      {id: toRecordId(reconciliationId)}
+      {id: toReconciliationRecordId(reconciliationId)}
     ),
     db.query(
       `SELECT * FROM ${Tables.kitchen_complimentary_items} WHERE reconciliation = $id AND ledger_waste_item = NONE FETCH item`,
-      {id: toRecordId(reconciliationId)}
+      {id: toReconciliationRecordId(reconciliationId)}
     ),
   ]);
 
@@ -1054,7 +1436,7 @@ const postToLedger = async (
     entries.push({
       table: Tables.kitchen_wastes,
       rowId: row.id,
-      itemId: recordToString(row.item?.id ?? row.item),
+      itemId: recordIdToString(row.item),
       quantity: safeNumber(row.quantity),
       source: "reconciliation_waste",
     });
@@ -1063,7 +1445,7 @@ const postToLedger = async (
     entries.push({
       table: Tables.kitchen_staff_meals,
       rowId: row.id,
-      itemId: recordToString(row.item?.id ?? row.item),
+      itemId: recordIdToString(row.item),
       quantity: safeNumber(row.quantity),
       source: "staff_meal",
     });
@@ -1072,7 +1454,7 @@ const postToLedger = async (
     entries.push({
       table: Tables.kitchen_complimentary_items,
       rowId: row.id,
-      itemId: recordToString(row.item?.id ?? row.item),
+      itemId: recordIdToString(row.item),
       quantity: safeNumber(row.quantity),
       source: "complimentary",
     });
@@ -1082,25 +1464,26 @@ const postToLedger = async (
 
   const invoiceNumber = await fetchNextSequentialNumber(db, Tables.inventory_wastes, "invoice_number");
   const [wasteHeader] = await db.create(Tables.inventory_wastes, {
-    issue: toRecordId(issueId),
+    issue: toQueryRecordId(issueId, Tables.inventory_issues),
     invoice_number: invoiceNumber,
     items: [],
     created_at: nowSurrealDateTime(),
-    created_by: toRecordId(userId),
+    created_by: toUserRecordId(userId),
     status: "draft",
   });
 
-  const wasteId = recordToString(wasteHeader?.id);
+  const wasteId = recordIdToString(wasteHeader?.id);
   const wasteItemRefs: unknown[] = [];
 
   const [issueRows] = await db.query(
     `SELECT location, store FROM $id LIMIT 1`,
-    {id: toRecordId(issueId)}
+    {id: toQueryRecordId(issueId, Tables.inventory_issues)}
   );
   const issueDoc = unwrapRows<{location?: unknown; store?: unknown}>(issueRows)[0];
   const issueLocationId =
-    recordToString((issueDoc as any)?.location?.id ?? (issueDoc as any)?.location) ||
-    recordToString((issueDoc as any)?.store?.id ?? (issueDoc as any)?.store);
+    recordIdToString((issueDoc as any)?.location) ||
+    recordIdToString((issueDoc as any)?.store) ||
+    locationId;
 
   for (const entry of entries) {
     if (entry.quantity <= 0) continue;
@@ -1111,18 +1494,18 @@ const postToLedger = async (
         WHERE issue = $issue AND item = $item
         LIMIT 1
       `,
-      {issue: toRecordId(issueId), item: toInventoryItemRecordId(entry.itemId)}
+      {issue: toQueryRecordId(issueId, Tables.inventory_issues), item: toInventoryItemRecordId(entry.itemId)}
     );
     const issueItem = unwrapRows<{id: unknown; location?: unknown; store?: unknown}>(issueItemRows)[0];
     const lineLocationId =
-      recordToString((issueItem as any)?.location?.id ?? (issueItem as any)?.location) ||
-      recordToString((issueItem as any)?.store?.id ?? (issueItem as any)?.store) ||
+      recordIdToString((issueItem as any)?.location) ||
+      recordIdToString((issueItem as any)?.store) ||
       issueLocationId;
 
     const [wasteItem] = await db.create(Tables.inventory_waste_items, {
-      waste: toRecordId(wasteId),
+      waste: toQueryRecordId(wasteId, Tables.inventory_wastes),
       item: toInventoryItemRecordId(entry.itemId),
-      issue_item: issueItem?.id ? toRecordId(issueItem.id) : undefined,
+      issue_item: issueItem?.id ? toQueryRecordId(issueItem.id, Tables.inventory_issue_items) : undefined,
       location: lineLocationId ? toLocationRecordId(lineLocationId) : undefined,
       quantity: entry.quantity,
       comments: entry.source,
@@ -1135,7 +1518,7 @@ const postToLedger = async (
     }
   }
 
-  await db.merge(toRecordId(wasteId), {items: wasteItemRefs});
+  await db.merge(toQueryRecordId(wasteId, Tables.inventory_wastes), {items: wasteItemRefs});
 
   if (wasteId && wasteItemRefs.length > 0) {
     await postDocument({
@@ -1148,7 +1531,7 @@ const postToLedger = async (
 
   await db.query(
     `UPDATE ${Tables.kitchen_reconciliation_items} SET posted_to_ledger = true WHERE reconciliation = $id`,
-    {id: toRecordId(reconciliationId)}
+    {id: toReconciliationRecordId(reconciliationId)}
   );
 };
 
@@ -1161,7 +1544,7 @@ export const verifyReconciliation = async (
     `
       SELECT * FROM ${Tables.kitchen_reconciliations}
       WHERE id = $id
-      FETCH kitchen
+      FETCH location
     `,
     {id: toReconciliationRecordId(reconciliationId)}
   );
@@ -1176,7 +1559,7 @@ export const verifyReconciliation = async (
     throw new Error("Cannot verify a superseded reconciliation");
   }
 
-  const beforeSnapshot = {status: reconciliation.status, items: snapshotItems(reconciliation.items ?? [])};
+  const beforeSnapshot = {status: reconciliation.status, item_count: reconciliation.items?.length ?? 0};
 
   await postToLedger(db, reconciliation, userId);
 
@@ -1188,7 +1571,7 @@ export const verifyReconciliation = async (
   await db.merge(toReconciliationRecordId(reconciliationRecordId), {
     status: "verified",
     verified_at: nowSurrealDateTime(),
-    verified_by: toRecordId(userId),
+    verified_by: toUserRecordId(userId),
   });
 
   await writeRevision(
@@ -1201,16 +1584,18 @@ export const verifyReconciliation = async (
     beforeSnapshot
   );
 
-  const kitchenId = recordToString(reconciliation.kitchen?.id ?? reconciliation.kitchen);
-  return (await getActiveReconciliation(db, kitchenId, reconciliation.business_date))!;
+  const locationId = recordIdToString(reconciliation.location);
+  if (!locationId) throw new Error("Reconciliation missing location");
+  return (await getActiveReconciliation(db, locationId, reconciliation.business_date))!;
 };
 
 export const discardDraftReconciliation = async (
   db: DatabaseClient,
   reconciliationId: unknown,
-  kitchenId: string,
+  locationId: string,
   businessDate: string,
-  userId: string
+  userId: string,
+  onProgress?: (stage: GenerateProgressStage) => void
 ): Promise<KitchenReconciliation> => {
   const id = toFullRecordIdString(reconciliationId, Tables.kitchen_reconciliations);
   if (!id) throw new Error("Invalid reconciliation id");
@@ -1226,18 +1611,35 @@ export const discardDraftReconciliation = async (
   }
 
   const recId = toReconciliationRecordId(id);
+  // Chunked item wipe — bulk DELETE … WHERE hangs on large drafts.
+  await deleteLineItemsByReconciliation(db, id);
+  // RETURN NONE — default DELETE returns every deleted row over the websocket and hangs.
   await Promise.all([
-    db.query(`DELETE ${Tables.kitchen_reconciliation_items} WHERE reconciliation = $id`, {id: recId}),
-    db.query(`DELETE ${Tables.kitchen_reconciliation_revisions} WHERE reconciliation = $id`, {id: recId}),
-    db.query(`DELETE ${Tables.kitchen_stock_counts} WHERE reconciliation = $id`, {id: recId}),
-    db.query(`DELETE ${Tables.kitchen_wastes} WHERE reconciliation = $id`, {id: recId}),
-    db.query(`DELETE ${Tables.kitchen_staff_meals} WHERE reconciliation = $id`, {id: recId}),
-    db.query(`DELETE ${Tables.kitchen_complimentary_items} WHERE reconciliation = $id`, {id: recId}),
+    db.query(
+      `DELETE ${Tables.kitchen_reconciliation_revisions} WHERE reconciliation = $id RETURN NONE`,
+      {id: recId}
+    ),
+    db.query(
+      `DELETE ${Tables.kitchen_stock_counts} WHERE reconciliation = $id RETURN NONE`,
+      {id: recId}
+    ),
+    db.query(
+      `DELETE ${Tables.kitchen_wastes} WHERE reconciliation = $id RETURN NONE`,
+      {id: recId}
+    ),
+    db.query(
+      `DELETE ${Tables.kitchen_staff_meals} WHERE reconciliation = $id RETURN NONE`,
+      {id: recId}
+    ),
+    db.query(
+      `DELETE ${Tables.kitchen_complimentary_items} WHERE reconciliation = $id RETURN NONE`,
+      {id: recId}
+    ),
   ]);
 
-  await db.delete(id);
+  await db.delete(recId);
 
-  return generateReconciliation(db, kitchenId, businessDate, userId);
+  return generateReconciliation(db, locationId, businessDate, userId, onProgress);
 };
 
 export const getReconciliationRevisions = async (
@@ -1259,6 +1661,8 @@ export const getReconciliationRevisions = async (
 export type KitchenReconciliationReportFilters = {
   startDate?: string | null;
   endDate?: string | null;
+  locationIds?: string[];
+  /** @deprecated ignored — use locationIds */
   kitchenIds?: string[];
   statuses?: KitchenReconciliationStatus[];
 };
@@ -1288,25 +1692,26 @@ export const listKitchenReconciliationsForReport = async (
       SELECT * FROM ${Tables.kitchen_reconciliations}
       WHERE ${conditions.join(" AND ")}
       ORDER BY business_date ASC
-      FETCH kitchen, created_by, verified_by
+      FETCH location, created_by, verified_by
     `,
     params
   );
 
   let reconciliations = unwrapRows<KitchenReconciliation>(rows);
 
-  if (filters.kitchenIds && filters.kitchenIds.length > 0) {
-    const kitchenIdSet = new Set(
-      filters.kitchenIds.map((id) => toFullRecordIdString(id, Tables.kitchens))
+  if (filters.locationIds && filters.locationIds.length > 0) {
+    const locationIdSet = new Set(
+      filters.locationIds.map((id) => toFullRecordIdString(id, Tables.inventory_locations))
     );
     reconciliations = reconciliations.filter((reconciliation) => {
-      const kitchenId = toFullRecordIdString(
-        reconciliation.kitchen?.id ?? reconciliation.kitchen,
-        Tables.kitchens
+      const locationId = toFullRecordIdString(
+        reconciliation.location,
+        Tables.inventory_locations
       );
-      return kitchenIdSet.has(kitchenId);
+      return locationIdSet.has(locationId);
     });
   }
+  // kitchenIds is deprecated and intentionally ignored
 
   if (reconciliations.length === 0) return [];
 

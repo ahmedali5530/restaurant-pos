@@ -2,19 +2,18 @@
  * Kitchen reconciliation screen.
  *
  * UI events:
- * - Generate → generateReconciliation(kitchen, businessDate, user)
+ * - Generate → generateReconciliation(location, businessDate, user)
  * - Grid save draft / CSV import → saveManualInputs(lines, user)
  * - Verify → verifyReconciliation(id, user) with manager gate
  */
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {useAtom} from "jotai";
 import {toast} from "sonner";
 import {faCheck, faPlus, faTrash, faUpload} from "@fortawesome/free-solid-svg-icons";
-import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {useDB} from "@/api/db/db.ts";
-import {Kitchen} from "@/api/model/kitchen.ts";
+import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {appPage} from "@/store/jotai.ts";
 import {businessDateFromJsDate} from "@/lib/kitchen/business-date.ts";
 import {ManualLineInput} from "@/lib/kitchen/reconciliation.service.ts";
@@ -30,18 +29,11 @@ import {ReconciliationGrid} from "@/components/inventory/kitchen_reconciliation/
 import {VariancePanel} from "@/components/inventory/kitchen_reconciliation/variance.panel.tsx";
 import {ReconciliationCsvImportModal} from "@/components/inventory/kitchen_reconciliation/csv.import.tsx";
 import {RevisionHistory} from "@/components/inventory/kitchen_reconciliation/revision.history.tsx";
+import {listInventoryLocations, toLocationOptions} from "@/lib/inventory/location.service.ts";
 
-type KitchenOption = {
+type LocationOption = {
   label: string;
   value: string;
-};
-
-const toKitchenOption = (kitchen: Kitchen): KitchenOption => {
-  const id = kitchen.id as string | {toString(): string};
-  return {
-    label: kitchen.name,
-    value: typeof id === "string" ? id : id.toString(),
-  };
 };
 
 export const KitchenReconciliationScreen = () => {
@@ -51,27 +43,40 @@ export const KitchenReconciliationScreen = () => {
   const {protectAction} = useSecurity();
 
   const [businessDate, setBusinessDate] = useState<DateValue | null>(getToday());
-  const [selectedKitchen, setSelectedKitchen] = useState<KitchenOption | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<LocationOption | null>(null);
+  const [locationRows, setLocationRows] = useState<InventoryLocation[]>([]);
+  const [loadingLocations, setLoadingLocations] = useState(false);
   const [csvOpen, setCsvOpen] = useState(false);
 
-  const kitchenId = selectedKitchen?.value ?? null;
+  const locationId = selectedLocation?.value ?? null;
 
   const businessDateStr = useMemo(() => {
     const date = calendarDateToDate(businessDate);
     return date ? businessDateFromJsDate(date) : null;
   }, [businessDate]);
 
-  const {data: kitchens, isLoading: loadingKitchens} = useApi<SettingsData<Kitchen>>(
-    Tables.kitchens,
-    [],
-    ["name asc"],
-    0,
-    9999
-  );
+  useEffect(() => {
+    let cancelled = false;
+    setLoadingLocations(true);
+    listInventoryLocations(db, {sync: true, activeOnly: true})
+      .then((rows) => {
+        if (!cancelled) setLocationRows(rows);
+      })
+      .catch((error) => {
+        console.error("Failed to load inventory locations", error);
+        if (!cancelled) setLocationRows([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingLocations(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  const kitchenOptions = useMemo(
-    () => kitchens?.data?.map(toKitchenOption) ?? [],
-    [kitchens]
+  const locationOptions = useMemo(
+    () => toLocationOptions(locationRows),
+    [locationRows]
   );
 
   const {
@@ -80,21 +85,24 @@ export const KitchenReconciliationScreen = () => {
     revisions,
     windowLabel,
     loading,
+    statusMessage,
     error,
     generate,
     saveLines,
     verify,
     discard,
-  } = useKitchenReconciliation(kitchenId, businessDateStr);
+  } = useKitchenReconciliation(locationId, businessDateStr);
 
   const userId = state?.user?.id;
   const status = reconciliation?.status;
   const isVerified = status === "verified";
   const isMissed = status === "missed";
+  const isDraft = status === "draft";
+  const hasItems = (reconciliation?.items?.length ?? 0) > 0;
 
   const handleGenerate = () => {
-    if (!kitchenId || !businessDateStr || !userId) {
-      toast.error(t("kitchenReconciliation.selectKitchenAndDate"));
+    if (!locationId || !businessDateStr || !userId) {
+      toast.error(t("kitchenReconciliation.selectLocationAndDate"));
       return;
     }
 
@@ -120,9 +128,6 @@ export const KitchenReconciliationScreen = () => {
       toast.error(err instanceof Error ? err.message : String(err));
     }
   };
-
-  const isDraft = status === "draft";
-  const hasItems = (reconciliation?.items?.length ?? 0) > 0;
 
   const handleDiscard = () => {
     if (!userId) return;
@@ -203,15 +208,15 @@ export const KitchenReconciliationScreen = () => {
     <div className="flex flex-col gap-4 p-4">
       <div className="flex flex-wrap items-end gap-4">
         <div className="min-w-[200px] flex-1 max-w-sm">
-          <label className="block text-sm mb-1">{t("columns.kitchen")}</label>
-          <ReactSelect<KitchenOption>
-            value={selectedKitchen}
-            onChange={(option) => setSelectedKitchen(option)}
-            options={kitchenOptions}
-            isLoading={loadingKitchens}
+          <label className="block text-sm mb-1">{t("columns.location")}</label>
+          <ReactSelect<LocationOption>
+            value={selectedLocation}
+            onChange={(option) => setSelectedLocation(option)}
+            options={locationOptions}
+            isLoading={loadingLocations}
             isClearable
             className="w-full"
-            placeholder={t("kitchenReconciliation.selectKitchen")}
+            placeholder={t("kitchenReconciliation.selectLocation")}
           />
         </div>
 
@@ -235,7 +240,7 @@ export const KitchenReconciliationScreen = () => {
             icon={faPlus}
             onClick={handleGenerate}
             isLoading={loading}
-            disabled={!kitchenId || !businessDateStr || isVerified || isDraft}
+            disabled={!locationId || !businessDateStr || isVerified || isDraft}
           >
             {t("kitchenReconciliation.generate")}
           </Button>
@@ -297,6 +302,14 @@ export const KitchenReconciliationScreen = () => {
         </div>
       )}
 
+      {loading && statusMessage && (
+        <div className="text-sm text-neutral-500">
+          {t(`kitchenReconciliation.progress.${statusMessage}`, {
+            defaultValue: t("kitchenReconciliation.generating"),
+          })}
+        </div>
+      )}
+
       <MissedDaysBanner missedDays={missedDays} />
 
       {reconciliation && hasItems && (
@@ -312,7 +325,7 @@ export const KitchenReconciliationScreen = () => {
           </div>
           <div className="flex min-w-0 flex-col gap-4 xl:min-w-[350px]">
             <VariancePanel items={reconciliation.items} status={status} />
-            <RevisionHistory revisions={revisions} />
+            <RevisionHistory revisions={revisions} items={reconciliation.items} />
           </div>
         </div>
       )}
@@ -326,7 +339,7 @@ export const KitchenReconciliationScreen = () => {
         </div>
       )}
 
-      {!reconciliation && kitchenId && businessDateStr && !loading && (
+      {!reconciliation && locationId && businessDateStr && !loading && (
         <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-8 text-center text-neutral-600">
           {t("kitchenReconciliation.noReconciliation")}
         </div>
@@ -338,8 +351,8 @@ export const KitchenReconciliationScreen = () => {
         onImportRows={handleCsvImport}
         onExport={() =>
           (reconciliation?.items ?? []).map((line) => ({
-            item_code: line.item?.code ?? '',
-            physical_count: line.physical_count != null ? String(line.physical_count) : '',
+            item_code: line.item?.code ?? "",
+            physical_count: line.physical_count != null ? String(line.physical_count) : "",
             waste: String(line.waste_qty ?? 0),
             staff_meal: String(line.staff_meal_qty ?? 0),
             complimentary: String(line.complimentary_qty ?? 0),

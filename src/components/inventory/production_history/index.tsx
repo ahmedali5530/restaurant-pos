@@ -97,7 +97,7 @@ export const InventoryProductionHistory = () => {
       id: "recipe",
       header: t("production.recipe"),
     }),
-    columnHelper.accessor((row) => (row as any).location?.name ?? row.store?.name ?? "", {
+    columnHelper.accessor((row) => row.location?.name ?? "", {
       id: "location",
       header: t("columns.location"),
     }),

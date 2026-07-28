@@ -220,7 +220,8 @@
       "inventory": "Inventaire",
       "charts": "Graphiques et prévisions",
       "analysis": "Analyse"
-    }
+    },
+    "location": "Emplacement"
   },
   "datePresets": {
     "today": "Aujourd'hui",
@@ -280,6 +281,7 @@
     "date": "Date",
     "supplier": "Fournisseur",
     "store": "Magasin",
+    "location": "Emplacement",
     "createdBy": "Créé par",
     "items": "Articles",
     "total": "Total",
@@ -439,7 +441,13 @@
     "discountLines": "Lignes de remise",
     "totalDiscount": "Remise totale",
     "discountDetails": "Détails des remises",
-    "customDiscount": "Remise personnalisée"
+    "customDiscount": "Remise personnalisée",
+    "location": "Emplacement",
+    "recipe": "Recette",
+    "item": "Article",
+    "direction": "Direction",
+    "quantity": "Quantité",
+    "cost": "Coût"
   },
   "metrics": {
     "gross": "Brut",
@@ -474,6 +482,7 @@
     "floors": "Salles",
     "kitchens": "Cuisines",
     "store": "Magasin",
+    "location": "Emplacement",
     "recipe": "Recette",
     "item": "Article",
     "direction": "Direction",
@@ -511,6 +520,7 @@
     "totalGuests": "Total des convives",
     "help": {
       "store": "Inclure uniquement les sessions buffet fermées dans ce magasin. Laisser vide pour tous les magasins.",
+      "location": "Inclure uniquement les sessions buffet fermées à cet emplacement. Laisser vide pour tous les emplacements.",
       "sessionType": "Inclure uniquement les sessions de cette période de repas. Laisser vide pour tous les types."
     }
   },

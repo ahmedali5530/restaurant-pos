@@ -61,10 +61,10 @@ export const PurchaseReturnFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="purchase-return-locations">{t('inventory:columns.location')}</label>
+          <label htmlFor="purchase-return-locations">{t('filters.location')}</label>
           <ReactSelect
             id="purchase-return-locations"
-            name="stores[]"
+            name="locations[]"
             isMulti
             isLoading={loadingLocations}
             className="w-full"

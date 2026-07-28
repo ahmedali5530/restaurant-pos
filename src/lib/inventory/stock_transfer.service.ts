@@ -139,9 +139,7 @@ export const listStockTransfers = async (
 
   const locationFilter = filters.locationId || filters.storeId;
   if (locationFilter) {
-    where.push(
-      "(from_location = $location OR to_location = $location OR from_store = $location OR to_store = $location)"
-    );
+    where.push("(from_location = $location OR to_location = $location)");
     params.location = toLocationRecordId(locationFilter);
   }
 
@@ -159,7 +157,7 @@ export const listStockTransfers = async (
       ${whereClause}
       ORDER BY created_at DESC
       LIMIT $limit START $start
-      FETCH from_kitchen, to_kitchen, from_store, to_store, from_location, to_location, created_by`,
+      FETCH from_location, to_location, created_by`,
       params
     ),
   ]);
@@ -178,7 +176,7 @@ export const getStockTransfer = async (
 
   const [[header], [items]] = await Promise.all([
     db.query(
-      `SELECT * FROM ONLY $id FETCH from_kitchen, to_kitchen, from_store, to_store, from_location, to_location, created_by`,
+      `SELECT * FROM ONLY $id FETCH from_location, to_location, created_by`,
       {id: recId}
     ),
     db.query(
@@ -297,12 +295,12 @@ const getTotalFromRows = (rows: unknown): number => {
 export const fetchStoreTransferTotals = async (
   db: DatabaseClient,
   itemId: string,
-  storeId: string,
+  locationId: string,
   excludeTransferId?: string
 ): Promise<{transfersIn: number; transfersOut: number}> => {
   const params: Record<string, unknown> = {
     item: toItemRecordId(itemId),
-    location: toLocationRecordId(storeId),
+    location: toLocationRecordId(locationId),
   };
 
   const excludeClause = excludeTransferId
@@ -317,8 +315,8 @@ export const fetchStoreTransferTotals = async (
       `SELECT math::sum(quantity) AS total FROM ${Tables.stock_transfer_items}
       WHERE item = $item AND transfer IN (
         SELECT VALUE id FROM ${Tables.stock_transfers}
-        WHERE (to_location = $location OR to_store = $location)
-          AND (from_location != NONE OR from_store != NONE)
+        WHERE to_location = $location
+          AND from_location != NONE
           AND (status = 'posted' OR status = NONE)
       )${excludeClause}
       GROUP ALL`,
@@ -328,8 +326,8 @@ export const fetchStoreTransferTotals = async (
       `SELECT math::sum(quantity) AS total FROM ${Tables.stock_transfer_items}
       WHERE item = $item AND transfer IN (
         SELECT VALUE id FROM ${Tables.stock_transfers}
-        WHERE (from_location = $location OR from_store = $location)
-          AND (to_location != NONE OR to_store != NONE)
+        WHERE from_location = $location
+          AND to_location != NONE
           AND (status = 'posted' OR status = NONE)
       )${excludeClause}
       GROUP ALL`,
@@ -344,7 +342,7 @@ export const fetchStoreTransferTotals = async (
 };
 
 export type StoreTransferAggregateRow = {
-  storeId: string;
+  locationId: string;
   itemId: string;
   quantity: number;
   direction: "in" | "out";
@@ -359,12 +357,8 @@ export const fetchStoreTransferAggregates = async (
   const rows: StoreTransferAggregateRow[] = [];
 
   for (const transfer of transfers) {
-    const fromId =
-      recordToString(transfer.from_location?.id ?? transfer.from_location) ||
-      recordToString(transfer.from_store?.id ?? transfer.from_store);
-    const toId =
-      recordToString(transfer.to_location?.id ?? transfer.to_location) ||
-      recordToString(transfer.to_store?.id ?? transfer.to_store);
+    const fromId = recordToString(transfer.from_location?.id ?? transfer.from_location);
+    const toId = recordToString(transfer.to_location?.id ?? transfer.to_location);
     if (!fromId || !toId) continue;
 
     for (const line of transfer.items ?? []) {
@@ -372,13 +366,13 @@ export const fetchStoreTransferAggregates = async (
       if (!itemId) continue;
 
       rows.push({
-        storeId: fromId,
+        locationId: fromId,
         itemId,
         quantity: Number(line.quantity) || 0,
         direction: "out",
       });
       rows.push({
-        storeId: toId,
+        locationId: toId,
         itemId,
         quantity: Number(line.quantity) || 0,
         direction: "in",
@@ -395,8 +389,8 @@ export const fetchStoreTransferLinesForReport = async (
   dateTo?: string | null
 ) => {
   const where: string[] = [
-    "(from_location != NONE OR from_store != NONE)",
-    "(to_location != NONE OR to_store != NONE)",
+    "from_location != NONE",
+    "to_location != NONE",
   ];
   const params: Record<string, unknown> = {};
   const dbFormat = import.meta.env.VITE_DB_DATABASE_FORMAT as string;
@@ -418,7 +412,7 @@ export const fetchStoreTransferLinesForReport = async (
     FROM ${Tables.stock_transfers}
     ${whereClause}
     ORDER BY created_at ASC
-    FETCH from_store, to_store, from_location, to_location, created_by`,
+    FETCH from_location, to_location, created_by`,
     params
   );
 

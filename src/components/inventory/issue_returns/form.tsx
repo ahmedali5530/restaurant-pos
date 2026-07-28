@@ -16,7 +16,6 @@ import {InventoryIssueReturn} from "@/api/model/inventory_issue_return.ts";
 import {InventoryIssue} from "@/api/model/inventory_issue.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {User} from "@/api/model/user.ts";
-import {Kitchen} from "@/api/model/kitchen.ts";
 import {RecordId, StringRecordId} from "surrealdb";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
@@ -34,6 +33,7 @@ import { useIntegrationManager } from "@/providers/integration.provider.tsx";
 import { publishIssueReturned } from "@/integrations/accounting/events/publish.ts";
 import { postDocument } from "@/lib/inventory/posting.service.ts";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
+import { ensureLocationForKitchen, toLocationRecordId } from "@/lib/inventory/location.service.ts";
 
 interface InventoryIssueReturnItemFormValue {
   item: { label: string; value: string } | null;
@@ -47,11 +47,19 @@ interface InventoryIssueReturnItemFormValue {
 interface InventoryIssueReturnFormValues {
   issuance?: { label: string; value: string } | null;
   issued_to?: { label: string; value: string } | null;
-  kitchen?: { label: string; value: string } | null;
+  location?: { label: string; value: string } | null;
   date?: DateValue | null;
   documents?: FileList;
   items: InventoryIssueReturnItemFormValue[];
 }
+
+const issueLabel = (issue: InventoryIssue) => {
+  const destination = issue.location?.name ?? issue.kitchen?.name;
+  const issuedTo = issue.issued_to
+    ? ` - ${issue.issued_to.first_name} ${issue.issued_to.last_name}`
+    : "";
+  return `${issue.invoice_number}${destination ? ` - ${destination}` : ""}${issuedTo}`;
+};
 
 interface Props {
   open: boolean;
@@ -94,7 +102,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
     label: yup.string(),
     value: yup.string()
   }).nullable().optional(),
-  kitchen: yup.object({
+  location: yup.object({
     label: yup.string(),
     value: yup.string()
   }).nullable().optional(),
@@ -131,7 +139,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
     data: issues,
     fetchData: fetchIssues,
     isFetching: loadingIssues
-  } = useApi<SettingsData<InventoryIssue>>(Tables.inventory_issues, [], [], 0, 9999, ["issued_to", "kitchen", "items", "items.item", "items.location", "items.store"], {
+  } = useApi<SettingsData<InventoryIssue>>(Tables.inventory_issues, [], [], 0, 9999, ["issued_to", "location", "kitchen", "items", "items.item", "items.location"], {
     enabled: false
   });
 
@@ -152,14 +160,6 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
   });
 
   const {
-    data: kitchens,
-    fetchData: fetchKitchens,
-    isFetching: loadingKitchens
-  } = useApi<SettingsData<Kitchen>>(Tables.kitchens, ['deleted_at = none'], [], 0, 9999, [], {
-    enabled: false
-  });
-
-  const {
     control,
     register,
     watch,
@@ -173,7 +173,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
       invoice_number: 0,
       issuance: null,
       issued_to: null,
-      kitchen: null,
+      location: null,
       documents: undefined,
       items: [{
         item: null,
@@ -196,72 +196,103 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
       fetchIssues();
       fetchItems();
       fetchUsers();
-      fetchKitchens();
     }
-  }, [open, fetchIssues, fetchItems, fetchUsers, fetchKitchens]);
+  }, [open, fetchIssues, fetchItems, fetchUsers]);
 
   useEffect(() => {
-    if (data) {
-      reset({
-        invoice_number: data.invoice_number,
-        issuance: data.issuance ? {
-          label: `${data.issuance.invoice_number}${data.issuance.kitchen ? ` - ${data.issuance.kitchen.name}` : ''}${data.issuance.issued_to ? ` - ${data.issuance.issued_to.first_name} ${data.issuance.issued_to.last_name}` : ""}`,
-          value: data.issuance.id
-        } : null,
-        issued_to: data.issued_to ? {
-          label: data.issued_to.first_name + ' ' + data.issued_to.last_name,
-          value: data.issued_to.id
-        } : null,
-        kitchen: data.kitchen ? {
-          label: data.kitchen.name,
-          value: data.kitchen.id
-        } : null,
-        date: data.created_at ? dateToCalendarDate(toJsDate(data.created_at)) : getToday(),
-        documents: undefined,
-        items: data.items?.map(item => {
-          const loc =
-            (item as any).location ||
-            (item.issued_item as any)?.location ||
-            item.store ||
-            item.issued_item?.store;
-          return {
-            item: item.item ? {
-              label: item.item.name,
-              value: item.item.id
-            } : null,
-            issued_item: item.issued_item ? {
-              label: item.issued_item.item?.name ? `${item.issued_item.item.name} (${item.issued_item.quantity})` : item.issued_item.id,
-              value: item.issued_item.id
-            } : null,
-            location: loc ? {
-              label: loc?.name,
-              value: loc?.id
-            } : null,
-            issued: item.issued ?? undefined,
-            quantity: item.quantity ?? 1,
-            comments: item.comments ?? "",
+    let cancelled = false;
+
+    const applyReset = async () => {
+      if (data) {
+        let destinationLocation: {label: string; value: string} | null = null;
+        if (data.location) {
+          destinationLocation = {
+            label: data.location.name,
+            value: recordIdToString(data.location.id),
           };
-        })
-      });
-    } else if (open) {
-      reset({
-        invoice_number: 0,
-        issuance: null,
-        issued_to: null,
-        kitchen: null,
-        date: getToday(),
-        documents: undefined,
-        items: [{
-          item: null,
-          issued_item: null,
+        } else if (data.kitchen?.id) {
+          try {
+            const locationId = await ensureLocationForKitchen(
+              db,
+              recordIdToString(data.kitchen.id)
+            );
+            if (!cancelled) {
+              destinationLocation = {
+                label: data.kitchen.name,
+                value: locationId,
+              };
+            }
+          } catch (error) {
+            console.error("Failed to resolve location for kitchen", error);
+          }
+        } else if (data.issuance?.location) {
+          destinationLocation = {
+            label: data.issuance.location.name,
+            value: recordIdToString(data.issuance.location.id),
+          };
+        }
+
+        if (cancelled) return;
+
+        reset({
+          invoice_number: data.invoice_number,
+          issuance: data.issuance ? {
+            label: issueLabel(data.issuance),
+            value: data.issuance.id
+          } : null,
+          issued_to: data.issued_to ? {
+            label: data.issued_to.first_name + ' ' + data.issued_to.last_name,
+            value: data.issued_to.id
+          } : null,
+          location: destinationLocation,
+          date: data.created_at ? dateToCalendarDate(toJsDate(data.created_at)) : getToday(),
+          documents: undefined,
+          items: data.items?.map(item => {
+            const loc = item.location || (item.issued_item as any)?.location;
+            return {
+              item: item.item ? {
+                label: item.item.name,
+                value: item.item.id
+              } : null,
+              issued_item: item.issued_item ? {
+                label: item.issued_item.item?.name ? `${item.issued_item.item.name} (${item.issued_item.quantity})` : item.issued_item.id,
+                value: item.issued_item.id
+              } : null,
+              location: loc ? {
+                label: loc?.name,
+                value: loc?.id
+              } : null,
+              issued: item.issued ?? undefined,
+              quantity: item.quantity ?? 1,
+              comments: item.comments ?? "",
+            };
+          })
+        });
+      } else if (open) {
+        reset({
+          invoice_number: 0,
+          issuance: null,
+          issued_to: null,
           location: null,
-          issued: undefined,
-          quantity: 1,
-          comments: "",
-        }]
-      });
-    }
-  }, [data, open, reset]);
+          date: getToday(),
+          documents: undefined,
+          items: [{
+            item: null,
+            issued_item: null,
+            location: null,
+            issued: undefined,
+            quantity: 1,
+            comments: "",
+          }]
+        });
+      }
+    };
+
+    void applyReset();
+    return () => {
+      cancelled = true;
+    };
+  }, [data, open, reset, db]);
 
   useEffect(() => {
     if (!open || data?.id) {
@@ -309,24 +340,44 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
   // Load items and populate fields when issuance is selected
   useEffect(() => {
     if (selectedIssuance && !data) {
-      // Populate issued_to and kitchen from selected issuance
       if (selectedIssuance.issued_to) {
         setValue("issued_to", {
           label: `${selectedIssuance.issued_to.first_name} ${selectedIssuance.issued_to.last_name}`,
           value: selectedIssuance.issued_to.id
         });
       }
-      if (selectedIssuance.kitchen) {
-        setValue("kitchen", {
-          label: selectedIssuance.kitchen.name,
-          value: selectedIssuance.kitchen.id
-        });
-      }
 
-      // Load items from the issuance
+      const populateLocation = async () => {
+        if (selectedIssuance.location) {
+          setValue("location", {
+            label: selectedIssuance.location.name,
+            value: recordIdToString(selectedIssuance.location.id),
+          });
+          return;
+        }
+        if (selectedIssuance.kitchen?.id) {
+          try {
+            const locationId = await ensureLocationForKitchen(
+              db,
+              recordIdToString(selectedIssuance.kitchen.id)
+            );
+            setValue("location", {
+              label: selectedIssuance.kitchen.name,
+              value: locationId,
+            });
+          } catch (error) {
+            console.error("Failed to resolve location for kitchen", error);
+            setValue("location", null);
+          }
+        } else {
+          setValue("location", null);
+        }
+      };
+      void populateLocation();
+
       if (selectedIssuance.items && selectedIssuance.items.length > 0) {
         const newItems = selectedIssuance.items.map((issueItem) => {
-          const loc = (issueItem as any).location ?? issueItem.store;
+          const loc = issueItem.location;
           return {
             item: issueItem.item ? {
               label: `${issueItem.item.name}-${issueItem.item.code}`,
@@ -350,13 +401,12 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
         replace([]);
       }
     } else if (!selectedIssuance && !data) {
-      // Clear issued_to and kitchen when issuance is cleared
       setValue("issued_to", null);
-      setValue("kitchen", null);
+      setValue("location", null);
 
       replace([]);
     }
-  }, [selectedIssuance?.id, data, setValue, replace, fields.length, append]);
+  }, [selectedIssuance?.id, data, setValue, replace, db]);
 
   const closeModal = () => {
     onClose();
@@ -364,7 +414,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
       invoice_number: 0,
       issuance: null,
       issued_to: null,
-      kitchen: null,
+      location: null,
       date: getToday(),
       documents: undefined,
       items: [{
@@ -419,7 +469,9 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
         invoice_number: Number(values.invoice_number),
         issuance: values.issuance ? toRecordId(values.issuance.value) : undefined,
         issued_to: values.issued_to ? toRecordId(values.issued_to.value) : undefined,
-        kitchen: values.kitchen ? toRecordId(values.kitchen.value) : undefined,
+        location: values.location?.value
+          ? toLocationRecordId(recordIdToString(values.location.value))
+          : undefined,
         items: [],
         documents: documentRefs.length > 0 ? documentRefs : undefined,
         created_at: values.date ? toSurrealDateTime(calendarDateToDate(values.date) || undefined) : nowSurrealDateTime(),
@@ -465,15 +517,15 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
           });
           const locationValue = item.location?.value
             ?? (issuedIssueItem as any)?.location?.id
-            ?? (issuedIssueItem as any)?.location
-            ?? issuedIssueItem?.store?.id
-            ?? issuedIssueItem?.store;
+            ?? (issuedIssueItem as any)?.location;
 
           const [created] = await db.create(Tables.inventory_issue_return_items, {
             issue_return: toRecordId(issueReturnIdString),
             item: item.item ? toRecordId(item.item.value) : undefined,
             issued_item: item.issued_item ? toRecordId(item.issued_item.value) : undefined,
-            location: locationValue ? toRecordId(locationValue) : undefined,
+            location: locationValue
+              ? toLocationRecordId(recordIdToString(locationValue) || String(locationValue))
+              : undefined,
             issued: item.issued !== undefined && item.issued !== "" ? Number(item.issued) : undefined,
             quantity: Number(item.quantity),
             price: issuedIssueItem?.price != null
@@ -535,7 +587,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
   };
 
   const issueOptions = issues?.data?.map(issue => ({
-    label: `${issue.invoice_number}${issue.kitchen ? ` - ${issue.kitchen.name}` : ''}${issue.issued_to ? ` - ${issue.issued_to.first_name} ${issue.issued_to.last_name}` : ""}`,
+    label: issueLabel(issue),
     value: issue.id
   })) ?? [];
 
@@ -552,11 +604,6 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
   const userOptions = users?.data?.map(user => ({
     label: `${user.first_name} ${user.last_name}`,
     value: user.id
-  })) ?? [];
-
-  const kitchenOptions = kitchens?.data?.map(kitchen => ({
-    label: kitchen.name,
-    value: kitchen.id
   })) ?? [];
 
   return (
@@ -622,22 +669,21 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
               <InputError error={_.get(errors, ["issued_to", "message"])}/>
             </div>
             <div className="flex-1">
-              <label>{t('columns.kitchen')}</label>
+              <label>{t('columns.location')}</label>
               <Controller
-                name="kitchen"
+                name="location"
                 control={control}
                 render={({field}) => (
                   <ReactSelect
                     value={field.value}
                     onChange={field.onChange}
-                    options={kitchenOptions}
-                    isLoading={loadingKitchens}
+                    options={field.value ? [field.value] : []}
                     isClearable
                     isDisabled
                   />
                 )}
               />
-              <InputError error={_.get(errors, ["kitchen", "message"])}/>
+              <InputError error={_.get(errors, ["location", "message"])}/>
             </div>
             <div className="flex-1">
               <Controller

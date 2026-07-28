@@ -15,11 +15,12 @@ import {
   verifyReconciliation,
   discardDraftReconciliation,
   ManualLineInput,
+  GenerateProgressStage,
 } from "@/lib/kitchen/reconciliation.service.ts";
 import {KitchenReconciliationRevision} from "@/api/model/kitchen_reconciliation_revision.ts";
 
 export const useKitchenReconciliation = (
-  kitchenId: string | null,
+  locationId: string | null,
   businessDate: string | null
 ) => {
   const db = useDB();
@@ -35,10 +36,11 @@ export const useKitchenReconciliation = (
   const [windowLabel, setWindowLabel] = useState<string>("");
   const [window, setWindow] = useState<ClosingCycleWindow | null>(null);
   const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    if (!kitchenId || !businessDate) {
+    if (!locationId || !businessDate) {
       setReconciliation(null);
       setMissedDays([]);
       setRevisions([]);
@@ -58,8 +60,8 @@ export const useKitchenReconciliation = (
       setWindowLabel(formatBusinessDateWindow(resolvedWindow));
 
       const [active, missed] = await Promise.all([
-        getActiveReconciliation(client, kitchenId, businessDate),
-        getMissedReconciliations(client, kitchenId),
+        getActiveReconciliation(client, locationId, businessDate),
+        getMissedReconciliations(client, locationId),
       ]);
 
       setReconciliation(active);
@@ -75,8 +77,9 @@ export const useKitchenReconciliation = (
       setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
+      setStatusMessage(null);
     }
-  }, [kitchenId, businessDate]);
+  }, [locationId, businessDate]);
 
   useEffect(() => {
     void load();
@@ -84,15 +87,18 @@ export const useKitchenReconciliation = (
 
   const generate = useCallback(
     async (userId: string) => {
-      if (!kitchenId || !businessDate) return null;
+      if (!locationId || !businessDate) return null;
       setLoading(true);
+      setStatusMessage("checking");
       try {
         const result = await generateReconciliation(
           dbRef.current,
-          kitchenId,
+          locationId,
           businessDate,
-          userId
+          userId,
+          (stage: GenerateProgressStage) => setStatusMessage(stage)
         );
+        setStatusMessage(null);
         await load();
         return result;
       } catch (err) {
@@ -100,9 +106,10 @@ export const useKitchenReconciliation = (
         throw err;
       } finally {
         setLoading(false);
+        setStatusMessage(null);
       }
     },
-    [kitchenId, businessDate, load]
+    [locationId, businessDate, load]
   );
 
   const saveLines = useCallback(
@@ -117,6 +124,9 @@ export const useKitchenReconciliation = (
           userId,
           changeType
         );
+        if (result) {
+          setReconciliation(result);
+        }
         await load();
         return result;
       } catch (err) {
@@ -149,16 +159,19 @@ export const useKitchenReconciliation = (
 
   const discard = useCallback(
     async (userId: string) => {
-      if (!kitchenId || !businessDate || !reconciliation?.id) return null;
+      if (!locationId || !businessDate || !reconciliation?.id) return null;
       setLoading(true);
+      setStatusMessage("checking");
       try {
         const result = await discardDraftReconciliation(
           dbRef.current,
           reconciliation.id,
-          kitchenId,
+          locationId,
           businessDate,
-          userId
+          userId,
+          (stage: GenerateProgressStage) => setStatusMessage(stage)
         );
+        setStatusMessage(null);
         await load();
         return result;
       } catch (err) {
@@ -166,9 +179,10 @@ export const useKitchenReconciliation = (
         throw err;
       } finally {
         setLoading(false);
+        setStatusMessage(null);
       }
     },
-    [kitchenId, businessDate, reconciliation?.id, load]
+    [locationId, businessDate, reconciliation?.id, load]
   );
 
   return {
@@ -178,6 +192,7 @@ export const useKitchenReconciliation = (
     window,
     windowLabel,
     loading,
+    statusMessage,
     error,
     reload: load,
     generate,

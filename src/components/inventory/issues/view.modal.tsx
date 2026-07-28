@@ -31,7 +31,7 @@ export const InventoryIssueViewModal = ({open, issue, onClose}: Props) => {
       setLoading(true);
       try {
         const [result] = await db.query<[InventoryIssue]>(
-          `SELECT * FROM ONLY ${issue.id} FETCH created_by, issued_to, kitchen, items, items.item, items.store, documents`
+          `SELECT * FROM ONLY ${issue.id} FETCH created_by, issued_to, location, items, items.item, items.location, documents`
         );
         setViewIssue(result as InventoryIssue);
       } catch (e) {
@@ -83,8 +83,8 @@ export const InventoryIssueViewModal = ({open, issue, onClose}: Props) => {
                 <div>{viewIssue.issued_to ? `${viewIssue.issued_to.first_name} ${viewIssue.issued_to.last_name}` : "—"}</div>
               </div>
               <div>
-                <div className="text-neutral-500 text-xs uppercase">{t('columns.kitchen')}</div>
-                <div>{viewIssue.kitchen?.name ?? "—"}</div>
+                <div className="text-neutral-500 text-xs uppercase">{t('columns.location')}</div>
+                <div>{viewIssue.location?.name ?? "—"}</div>
               </div>
             </div>
           </div>
@@ -102,7 +102,7 @@ export const InventoryIssueViewModal = ({open, issue, onClose}: Props) => {
                         {item.item?.name ?? "Item"}{item.item?.code ? ` - ${item.item.code}` : ""}
                       </div>
                       <div className="text-xs text-neutral-500">
-                        {item.store?.name ? `Store: ${item.store.name}` : ""}
+                        {item.location?.name ? `Location: ${item.location.name}` : ""}
                       </div>
                     </div>
                     <div className="w-24 text-right">

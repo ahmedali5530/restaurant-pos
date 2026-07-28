@@ -149,7 +149,7 @@ export const BuffetSessionForm = ({open, onClose, onCreated}: Props) => {
         </div>
 
         <div>
-          <label>{t("columns.store")}</label>
+          <label>{t("columns.location")}</label>
           <Controller
             control={control}
             name="location"
@@ -161,7 +161,7 @@ export const BuffetSessionForm = ({open, onClose, onCreated}: Props) => {
               />
             )}
           />
-          <p className="text-sm text-neutral-600 mt-1">{t("buffet.help.store")}</p>
+          <p className="text-sm text-neutral-600 mt-1">{t("buffet.help.location")}</p>
         </div>
 
         <div className="grid grid-cols-2 gap-4">

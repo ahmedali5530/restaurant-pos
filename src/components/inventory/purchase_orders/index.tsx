@@ -36,7 +36,7 @@ export const InventoryPurchaseOrders = () => {
     ["created_at DESC"],
     0,
     10,
-    ["supplier", "items", "items.item", "items.supplier", "items.store"]
+    ["supplier", "items", "items.item", "items.supplier"]
   );
   const db = useDB();
   const { protectAction } = useSecurity();

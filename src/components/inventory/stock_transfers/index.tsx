@@ -53,9 +53,8 @@ export const InventoryStockTransfers = () => {
     }),
     columnHelper.accessor(
       (row) => {
-        const from =
-          row.from_location?.name ?? row.from_store?.name ?? "—";
-        const to = row.to_location?.name ?? row.to_store?.name ?? "—";
+        const from = row.from_location?.name ?? "—";
+        const to = row.to_location?.name ?? "—";
         return `${from} → ${to}`;
       },
       {
@@ -131,7 +130,7 @@ export const InventoryStockTransfers = () => {
     <>
       <div className="flex flex-wrap gap-3 items-end px-4 py-3 border-b border-neutral-200">
         <div className="w-56">
-          <label className="text-sm text-neutral-600">{t("stockTransfer.filterStore")}</label>
+          <label className="text-sm text-neutral-600">{t("stockTransfer.filterLocation")}</label>
           <ReactSelect
             value={filterLocation}
             onChange={setFilterLocation}

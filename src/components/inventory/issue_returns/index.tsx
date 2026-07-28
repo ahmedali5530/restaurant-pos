@@ -29,7 +29,7 @@ export const InventoryIssueReturns = () => {
     ["created_at DESC"],
     0,
     10,
-    ["issuance", "issuance.items", "issuance.items.item", "issuance.items.store", "issued_to", "kitchen", "created_by", "items", "items.item", "items.issued_item", "items.issued_item.store", "items.store"]
+    ["issuance", "issuance.items", "issuance.items.item", "issuance.items.location", "issuance.location", "issued_to", "location", "created_by", "items", "items.item", "items.issued_item", "items.issued_item.location", "items.location"]
   );
 
   const [data, setData] = useState<InventoryIssueReturn>();
@@ -57,9 +57,9 @@ export const InventoryIssueReturns = () => {
       header: t('columns.issuedTo'),
       cell: info => `${info.getValue()?.first_name} ${info.getValue()?.last_name}`
     }),
-    columnHelper.accessor(row => row.kitchen?.name ?? "", {
-      id: "kitchen",
-      header: t('columns.kitchen')
+    columnHelper.accessor(row => row.location?.name ?? row.issuance?.location?.name ?? "", {
+      id: "location",
+      header: t('columns.location')
     }),
     columnHelper.accessor("items", {
       header: t('tabs.items'),

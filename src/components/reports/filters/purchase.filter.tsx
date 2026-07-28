@@ -61,10 +61,10 @@ export const PurchaseFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="purchase-locations">{t('inventory:columns.location')}</label>
+          <label htmlFor="purchase-locations">{t('filters.location')}</label>
           <ReactSelect
             id="purchase-locations"
-            name="stores[]"
+            name="locations[]"
             isMulti
             isLoading={loadingLocations}
             className="w-full"

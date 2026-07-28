@@ -41,6 +41,7 @@ import {
 import { recordIdToString } from "@/api/reports/shared/records.ts";
 import { InventoryDocumentStatusBadge } from "@/components/inventory/common/document.status.badge.tsx";
 import { useInventoryLocations } from "@/hooks/useInventoryLocations.ts";
+import { ensureLocationForKitchen, toLocationRecordId } from "@/lib/inventory/location.service.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
@@ -56,6 +57,8 @@ interface InventoryIssueItemFormValue {
 interface InventoryIssueFormValues {
   invoice_number: number | string;
   issued_to?: { label: string; value: string } | null;
+  /** Destination stock location (typically a kitchen location). */
+  location?: { label: string; value: string } | null;
   date?: DateValue | null;
   documents?: FileList;
   update_item_cost?: boolean;
@@ -100,6 +103,10 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
     label: yup.string(),
     value: yup.string()
   }).required('This is required'),
+  location: yup.object({
+    label: yup.string(),
+    value: yup.string()
+  }).required('This is required'),
   date: yup.mixed().nullable().optional(),
   documents: yup.mixed().optional(),
   update_item_cost: yup.boolean().optional(),
@@ -138,7 +145,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     data: items,
     fetchData: fetchItems,
     isFetching: loadingItems,
-  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 9999, ["locations", "stores"], {
+  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 9999, ["locations"], {
     enabled: false
   });
 
@@ -151,9 +158,14 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
   });
 
   const {
-    options: locationOptions,
-    loading: loadingLocations,
+    options: sourceLocationOptions,
+    loading: loadingSourceLocations,
   } = useInventoryLocations(open);
+
+  const {
+    options: destinationLocationOptions,
+    loading: loadingDestinationLocations,
+  } = useInventoryLocations(open, {types: [], sync: true});
 
   const {
     control,
@@ -206,48 +218,85 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
   }, [open, fetchItems, fetchUsers]);
 
   useEffect(() => {
-    if (data) {
-      resetInventoryState();
-      reset({
-        invoice_number: data?.invoice_number,
-        issued_to: data.issued_to ? {
-          label: `${data.issued_to.first_name} ${data.issued_to.last_name}`,
-          value: data.issued_to.id
-        } : null,
-        date: data.created_at ? dateToCalendarDate(toJsDate(data.created_at)) : getToday(),
-        documents: undefined,
-        update_item_cost: false,
-        update_recipe_cost: false,
-        items: data.items?.map(item => {
-          const loc = (item as any).location ?? item.store;
-          return {
-            location: loc ? {
-              label: loc.name,
-              value: loc.id.toString()
-            } : null,
-            item: item.item ? {
-              label: `${item.item.name}-${item.item.code}`,
-              value: item.item.id.toString()
-            } : null,
-            requested: item.requested ?? 1,
-            quantity: item.quantity ?? 1,
-            price: item.price ?? 0,
-            comments: item.comments ?? "",
+    let cancelled = false;
+
+    const applyReset = async () => {
+      if (data) {
+        resetInventoryState();
+
+        let destinationLocation: {label: string; value: string} | null = null;
+        if (data.location) {
+          destinationLocation = {
+            label: data.location.name,
+            value: recordIdToString(data.location.id),
           };
-        })
-      });
-    } else if (open) {
-      resetInventoryState();
-      reset({
-        invoice_number: 1,
-        issued_to: null,
-        date: getToday(),
-        documents: undefined,
-        update_item_cost: false,
-        update_recipe_cost: false,
-        items: [createEmptyItem()]
-      });
-    }
+        } else if (data.kitchen?.id) {
+          try {
+            const locationId = await ensureLocationForKitchen(
+              db,
+              recordIdToString(data.kitchen.id)
+            );
+            if (!cancelled) {
+              destinationLocation = {
+                label: data.kitchen.name,
+                value: locationId,
+              };
+            }
+          } catch (error) {
+            console.error("Failed to resolve location for kitchen", error);
+          }
+        }
+
+        if (cancelled) return;
+
+        reset({
+          invoice_number: data?.invoice_number,
+          issued_to: data.issued_to ? {
+            label: `${data.issued_to.first_name} ${data.issued_to.last_name}`,
+            value: recordIdToString(data.issued_to.id)
+          } : null,
+          location: destinationLocation,
+          date: data.created_at ? dateToCalendarDate(toJsDate(data.created_at)) : getToday(),
+          documents: undefined,
+          update_item_cost: false,
+          update_recipe_cost: false,
+          items: data.items?.map(item => {
+            const loc = item.location;
+            return {
+              location: loc ? {
+                label: loc.name,
+                value: recordIdToString(loc.id)
+              } : null,
+              item: item.item ? {
+                label: `${item.item.name}-${item.item.code}`,
+                value: recordIdToString(item.item.id)
+              } : null,
+              requested: item.requested ?? 1,
+              quantity: item.quantity ?? 1,
+              price: item.price ?? 0,
+              comments: item.comments ?? "",
+            };
+          })
+        });
+      } else if (open) {
+        resetInventoryState();
+        reset({
+          invoice_number: 1,
+          issued_to: null,
+          location: null,
+          date: getToday(),
+          documents: undefined,
+          update_item_cost: false,
+          update_recipe_cost: false,
+          items: [createEmptyItem()]
+        });
+      }
+    };
+
+    void applyReset();
+    return () => {
+      cancelled = true;
+    };
   }, [data, open, reset, resetInventoryState, createEmptyItem]);
 
   useEffect(() => {
@@ -271,7 +320,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     return () => {
       isMounted = false;
     };
-  }, [open, data?.id, db, setValue]);
+  }, [open, data?.id, setValue]);
 
   useEffect(() => {
     if (open && !data && fields.length === 0) {
@@ -364,6 +413,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     reset({
       invoice_number: 1,
       issued_to: null,
+      location: null,
       date: getToday(),
       documents: undefined,
       update_item_cost: false,
@@ -418,8 +468,13 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
 
       const documentRefs = await convertFilesToDocuments(values.documents);
 
+      const destinationLocationId = values.location?.value
+        ? recordIdToString(values.location.value)
+        : undefined;
+
       const payload: Record<string, unknown> = {
         issued_to: values.issued_to ? toRecordId(values.issued_to.value) : undefined,
+        location: destinationLocationId ? toLocationRecordId(destinationLocationId) : undefined,
         items: [],
         invoice_number: Number(values.invoice_number),
         documents: documentRefs.length > 0 ? documentRefs : undefined,
@@ -523,14 +578,14 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     }
   };
 
-  const itemsList = (items?.data ?? []) as (InventoryItem & { locations?: InventoryLocation[]; stores?: { id: string }[] })[];
+  const itemsList = (items?.data ?? []) as (InventoryItem & { locations?: InventoryLocation[] })[];
 
   const getItemOptionsForLocation = useCallback((locationId?: string) => {
     if (!locationId) {
       return [];
     }
     const filtered = itemsList.filter((item) => {
-      const locs = item.locations ?? item.stores;
+      const locs = item.locations;
       if (!locs?.length) return true;
       return locs.some((loc) => loc.id.toString() === locationId.toString());
     });
@@ -542,7 +597,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
 
   const userOptions = users?.data?.map(user => ({
     label: `${user.first_name} ${user.last_name}`,
-    value: user.id
+    value: recordIdToString(user.id)
   })) ?? [];
 
   return (
@@ -580,6 +635,23 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                 )}
               />
               <InputError error={_.get(errors, ["issued_to", "message"])}/>
+            </div>
+            <div className="flex-1">
+              <label>{t('columns.location')}</label>
+              <Controller
+                name="location"
+                control={control}
+                render={({field}) => (
+                  <ReactSelect
+                    value={field.value}
+                    onChange={field.onChange}
+                    options={destinationLocationOptions}
+                    isLoading={loadingDestinationLocations}
+                    isClearable
+                  />
+                )}
+              />
+              <InputError error={_.get(errors, ["location", "message"])}/>
             </div>
             <div className="flex-1">
               <Controller
@@ -659,7 +731,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
               <div className="flex flex-col mb-3" key={field.id}>
                 <div className="flex gap-3">
                   <div className="flex-1">
-                    <label>{t('columns.store')}</label>
+                    <label>{t('columns.location')}</label>
                     <Controller
                       name={`items.${index}.location`}
                       control={control}
@@ -670,8 +742,8 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                             field.onChange(value);
                             setValue(`items.${index}.item`, null);
                           }}
-                          options={locationOptions}
-                          isLoading={loadingLocations}
+                          options={sourceLocationOptions}
+                          isLoading={loadingSourceLocations}
                         />
                       )}
                     />

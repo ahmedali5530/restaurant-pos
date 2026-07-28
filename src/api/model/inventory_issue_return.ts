@@ -12,6 +12,7 @@ export interface InventoryIssueReturn extends LifecycleFields {
   id: string
   created_at: DateTime
   created_by: User
+  /** @deprecated use location */
   kitchen?: Kitchen
   issued_to?: User
   items: InventoryIssueReturnItem[]

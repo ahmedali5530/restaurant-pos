@@ -14,7 +14,7 @@ const parseFilters = () => {
   return {
     startDate: params.get("start") || undefined,
     endDate: params.get("end") || undefined,
-    storeId: params.get("store") || undefined,
+    locationId: params.get("locationId") || undefined,
     recipeId: params.get("recipe") || undefined,
   };
 };
@@ -24,7 +24,7 @@ type BatchSummary = {
   batchNumber: string;
   createdAt: Date;
   recipeName: string;
-  storeName: string;
+  locationName: string;
   producedQty: number;
   totalInputCost: number;
   totalOutputCost: number;
@@ -58,7 +58,7 @@ export const ProductionReport = () => {
         const lines = await fetchProductionLinesForReport(dbRef.current, {
           dateFrom: filters.startDate,
           dateTo: filters.endDate,
-          storeId: filters.storeId,
+          locationId: filters.locationId,
           recipeId: filters.recipeId,
         });
 
@@ -70,7 +70,7 @@ export const ProductionReport = () => {
               batchNumber: line.batchNumber,
               createdAt: line.createdAt,
               recipeName: line.recipeName,
-              storeName: line.storeName,
+              locationName: line.locationName,
               producedQty: line.producedQty,
               totalInputCost: line.totalInputCost,
               totalOutputCost: line.totalOutputCost,
@@ -94,7 +94,7 @@ export const ProductionReport = () => {
     };
 
     load();
-  }, [filters.startDate, filters.endDate, filters.storeId, filters.recipeId, t]);
+  }, [filters.startDate, filters.endDate, filters.locationId, filters.recipeId, t]);
 
   return (
     <ReportsLayout title={t("reports.productionReport")} subtitle={subtitle}>
@@ -108,7 +108,7 @@ export const ProductionReport = () => {
             <th>{t("production.batchNumber")}</th>
             <th>{t("production.date")}</th>
             <th>{t("labels.recipe")}</th>
-            <th>{t("labels.store")}</th>
+            <th>{t("columns.location")}</th>
             <th>{t("production.producedQty")}</th>
             <th>{t("production.yieldLoss")}</th>
             <th>{t("production.inputCost")}</th>
@@ -123,7 +123,7 @@ export const ProductionReport = () => {
                 {toLuxonDateTime(batch.createdAt).toFormat(import.meta.env.VITE_DATE_FORMAT)}
               </td>
               <td>{batch.recipeName}</td>
-              <td>{batch.storeName}</td>
+              <td>{batch.locationName}</td>
               <td>{formatNumber(batch.producedQty)}</td>
               <td>{formatNumber(batch.yieldLossPercent)}%</td>
               <td>{formatNumber(batch.totalInputCost)}</td>

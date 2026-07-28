@@ -13,7 +13,7 @@ const parseFilters = () => {
   return {
     dateFrom: params.get("start") || undefined,
     dateTo: params.get("end") || undefined,
-    storeId: params.get("store") || undefined,
+    locationId: params.get("locationId") || undefined,
     sessionType: (params.get("sessionType") || undefined) as BuffetReportLine["sessionType"] | undefined,
   };
 };
@@ -42,7 +42,7 @@ export const BuffetReport = () => {
         setLoading(true);
         setError(null);
         const reportLines = await fetchBuffetReportLines(dbRef.current, {
-          storeId: filters.storeId,
+          locationId: filters.locationId,
           sessionType: filters.sessionType,
           dateFrom: filters.dateFrom,
           dateTo: filters.dateTo,
@@ -57,7 +57,7 @@ export const BuffetReport = () => {
     };
 
     void load();
-  }, [filters.dateFrom, filters.dateTo, filters.storeId, filters.sessionType]);
+  }, [filters.dateFrom, filters.dateTo, filters.locationId, filters.sessionType]);
 
   const totals = useMemo(() => ({
     sales: lines.reduce((sum, l) => sum + l.totalSales, 0),
@@ -97,7 +97,7 @@ export const BuffetReport = () => {
             <th>{t("buffet.sessionNumber")}</th>
             <th>{t("buffet.businessDate")}</th>
             <th>{t("buffet.sessionType")}</th>
-            <th>{t("labels.store")}</th>
+            <th>{t("columns.location")}</th>
             <th>{t("buffet.actualGuests")}</th>
             <th>{t("buffet.totalSales")}</th>
             <th>{t("buffet.totalFoodCost")}</th>
@@ -114,7 +114,7 @@ export const BuffetReport = () => {
               <td>{line.sessionNumber}</td>
               <td>{line.businessDate}</td>
               <td>{t(`buffet.sessionTypes.${line.sessionType}`)}</td>
-              <td>{line.storeName}</td>
+              <td>{line.locationName}</td>
               <td>{line.actualGuests}</td>
               <td>{formatNumber(line.totalSales)}</td>
               <td>{formatNumber(line.totalFoodCost)}</td>

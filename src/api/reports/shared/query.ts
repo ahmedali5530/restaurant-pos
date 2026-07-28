@@ -56,6 +56,7 @@ export const buildRecordInsideCondition = (
 /**
  * Prefer location field; also match legacy store for documents not yet cut over.
  * `(location INSIDE $param OR store INSIDE $param)`
+ * @deprecated Use buildLocationInsideCondition now that reports are location-only.
  */
 export const buildLocationOrStoreInsideCondition = (
   ids: string[],
@@ -69,6 +70,17 @@ export const buildLocationOrStoreInsideCondition = (
     condition: `(location INSIDE $${paramName} OR store INSIDE $${paramName})`,
     params: {[paramName]: ids.map(id => toRecordId(id))},
   };
+};
+
+/**
+ * Location-only filter for reports fully cut over to location:
+ * `location INSIDE $param` (no legacy store fallback).
+ */
+export const buildLocationInsideCondition = (
+  ids: string[],
+  paramName = "locationIds",
+): {condition?: string; params: Record<string, any>} => {
+  return buildRecordInsideCondition("location", ids, paramName);
 };
 
 /**

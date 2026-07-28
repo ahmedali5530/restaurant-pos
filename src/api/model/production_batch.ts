@@ -13,7 +13,7 @@ export interface ProductionBatch {
   recipe: Recipe;
   location?: InventoryLocation;
   /** @deprecated use location */
-  store: InventoryStore;
+  store?: InventoryStore;
   batch_number: string;
   scale_factor: number;
   produced_qty: number;
@@ -36,7 +36,7 @@ export interface ProductionBatchInput {
   item: InventoryItem;
   location?: InventoryLocation;
   /** @deprecated use location */
-  store: InventoryStore;
+  store?: InventoryStore;
   quantity: number;
   unit_cost: number;
   total_cost: number;
@@ -48,7 +48,7 @@ export interface ProductionBatchOutput {
   item: InventoryItem;
   location?: InventoryLocation;
   /** @deprecated use location */
-  store: InventoryStore;
+  store?: InventoryStore;
   quantity: number;
   yield_percent: number;
   disposition: OutputDisposition;

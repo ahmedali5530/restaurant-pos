@@ -15,9 +15,9 @@ const isDebitType = (type: string, quantity?: number) => {
     || type === "production_out" || type.startsWith("buffet_");
 };
 
-export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: InventoryItem}) => {
+export const StoreInventoryCell = ({locationId, item}: {locationId: string, item?: InventoryItem}) => {
   const { t } = useTranslation('inventory');
-  const {netQuantity, loading, records} = useStoreInventory(item?.id, storeId);
+  const {netQuantity, loading, records} = useStoreInventory(item?.id, locationId);
   const [modal, setModal] = useState(false);
   const [display, setDisplay] = useState<"unified"|"split">("unified");
 
@@ -160,8 +160,8 @@ export const StoreInventoryCell = ({storeId, item}: {storeId: string, item?: Inv
     return <span className="text-gray-400">...</span>;
   }
 
-  const reorderLevel = item ? getReorderLevelForStore(item, storeId) : 0;
-  const belowReorder = item ? isBelowReorderLevel(item, storeId, netQuantity) : false;
+  const reorderLevel = item ? getReorderLevelForStore(item, locationId) : 0;
+  const belowReorder = item ? isBelowReorderLevel(item, locationId, netQuantity) : false;
 
   let total = 0;
 

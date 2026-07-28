@@ -71,7 +71,7 @@ const validationSchema = yup.object({
 });
 
 const resolveLocationOption = (data?: InventoryAdjustment): Option | null => {
-  const loc = data?.location ?? data?.store;
+  const loc = data?.location;
   if (!loc) return null;
   return {
     label: (loc as any).name ?? String(loc),
@@ -294,7 +294,7 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
             control={control}
             render={({ field }) => (
               <div>
-                <label className="block text-sm mb-1">{t("columns.store")}</label>
+                <label className="block text-sm mb-1">{t("columns.location")}</label>
                 <ReactSelect
                   options={locationOptions}
                   value={field.value}

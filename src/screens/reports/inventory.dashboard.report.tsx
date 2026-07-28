@@ -56,6 +56,12 @@ const safeNumber = (value: unknown): number => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
+const normalizeKey = (id: unknown): string => {
+  const str = recordIdToString(id) || String(id ?? "");
+  const colon = str.lastIndexOf(":");
+  return colon >= 0 ? str.slice(colon + 1) : str;
+};
+
 const getReconciliationTotals = (reconciliation: KitchenReconciliation) => {
   const lines = (reconciliation.items ?? []).map((line) =>
     computeLine({
@@ -366,10 +372,10 @@ export const InventoryDashboardReport = () => {
           itemsResult,
           locationsResult,
         ] = await Promise.all([
-          queryRef.current(`SELECT * FROM ${Tables.inventory_purchases} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} ORDER BY created_at DESC FETCH items, items.item, supplier, location, store, created_by`, whereParams),
-          queryRef.current(`SELECT * FROM ${Tables.inventory_purchase_returns} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} ORDER BY created_at DESC FETCH items, items.item, purchase, location, store, created_by`, whereParams),
-          queryRef.current(`SELECT * FROM ${Tables.inventory_issues} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} ORDER BY created_at DESC FETCH items, items.item, location, store, created_by`, whereParams),
-          queryRef.current(`SELECT * FROM ${Tables.inventory_issue_returns} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} ORDER BY created_at DESC FETCH items, items.item, location, store, created_by`, whereParams),
+          queryRef.current(`SELECT * FROM ${Tables.inventory_purchases} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} ORDER BY created_at DESC FETCH items, items.item, supplier, location, created_by`, whereParams),
+          queryRef.current(`SELECT * FROM ${Tables.inventory_purchase_returns} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} ORDER BY created_at DESC FETCH items, items.item, purchase, location, created_by`, whereParams),
+          queryRef.current(`SELECT * FROM ${Tables.inventory_issues} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} ORDER BY created_at DESC FETCH items, items.item, location, created_by`, whereParams),
+          queryRef.current(`SELECT * FROM ${Tables.inventory_issue_returns} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} ORDER BY created_at DESC FETCH items, items.item, location, created_by`, whereParams),
           queryRef.current(`SELECT * FROM ${Tables.inventory_wastes} ${whereConditions.length > 0 ? `WHERE ${whereConditions.join(' and ')}` : ''} ORDER BY created_at DESC FETCH items, items.item, created_by`, whereParams),
           queryRef.current(`SELECT * FROM ${Tables.inventory_items}`),
           queryRef.current(`SELECT * FROM ${Tables.inventory_locations}`),
@@ -390,12 +396,6 @@ export const InventoryDashboardReport = () => {
         // On-hand stock from inventory_ledger (source of truth)
         const items = (itemsResult?.[0] as any[]) || [];
         const locations = (locationsResult?.[0] as any[]) || [];
-
-        const normalizeKey = (id: unknown): string => {
-          const str = recordIdToString(id) || String(id ?? "");
-          const colon = str.lastIndexOf(":");
-          return colon >= 0 ? str.slice(colon + 1) : str;
-        };
 
         const itemByKey = new Map<string, any>();
         items.forEach((item: any) => {
@@ -637,7 +637,7 @@ export const InventoryDashboardReport = () => {
         invoice: `#${p.invoice_number || '-'}`,
         date: DateTime.fromJSDate(p.created_at).toFormat(import.meta.env.VITE_DATE_HUMAN_FORMAT),
         supplier: p.supplier?.name || '-',
-        store: p.location?.name || p.store?.name || '-',
+        location: p.location?.name || '-',
         createdBy: `${p.created_by?.first_name || ''} ${p.created_by?.last_name || ''}`.trim() || '-',
         items: p.items?.length || 0,
         total: withCurrency(itemsTotal + safeNumber(p.tax_amount) + extras),
@@ -650,7 +650,7 @@ export const InventoryDashboardReport = () => {
       invoice: `#${pr.invoice_number || '-'}`,
       date: DateTime.fromJSDate(pr.created_at).toFormat(import.meta.env.VITE_DATE_HUMAN_FORMAT),
       purchase: pr.purchase ? `#${pr.purchase.invoice_number || '-'}` : '-',
-      store: pr.location?.name || pr.store?.name || '-',
+      location: pr.location?.name || '-',
       createdBy: `${pr.created_by?.first_name || ''} ${pr.created_by?.last_name || ''}`.trim() || '-',
       items: pr.items?.length || 0,
       total: withCurrency(pr.items.reduce((sum: number, item: any) => sum + (safeNumber(item.quantity) * safeNumber(item.price)), 0)),
@@ -661,9 +661,8 @@ export const InventoryDashboardReport = () => {
     return issues.slice(0, 20).map(i => ({
       invoice: i.invoice_number ? `#${i.invoice_number}` : '-',
       date: DateTime.fromJSDate(i.created_at).toFormat(import.meta.env.VITE_DATE_HUMAN_FORMAT),
-      kitchen: i.kitchen?.name || '-',
       issuedTo: i.issued_to ? `${i.issued_to.first_name || ''} ${i.issued_to.last_name || ''}`.trim() : '-',
-      store: i.location?.name || i.store?.name || '-',
+      location: i.location?.name || '-',
       createdBy: `${i.created_by?.first_name || ''} ${i.created_by?.last_name || ''}`.trim() || '-',
       items: i.items?.length || 0,
       total: formatNumber(i.items.reduce((sum: number, item: any) => sum + safeNumber(item.quantity), 0)),
@@ -675,8 +674,7 @@ export const InventoryDashboardReport = () => {
       invoice: `#${ir.invoice_number || '-'}`,
       date: DateTime.fromJSDate(ir.created_at).toFormat(import.meta.env.VITE_DATE_HUMAN_FORMAT),
       issuance: ir.issuance?.invoice_number ? `#${ir.issuance.invoice_number}` : '-',
-      kitchen: ir.kitchen?.name || '-',
-      store: ir.location?.name || ir.store?.name || '-',
+      location: ir.location?.name || '-',
       createdBy: `${ir.created_by?.first_name || ''} ${ir.created_by?.last_name || ''}`.trim() || '-',
       items: ir.items?.length || 0,
       total: formatNumber(ir.items.reduce((sum: number, item: any) => sum + safeNumber(item.quantity), 0)),
@@ -702,7 +700,7 @@ export const InventoryDashboardReport = () => {
       .map((reconciliation) => {
         const totals = getReconciliationTotals(reconciliation);
         return {
-          kitchen: reconciliation.kitchen?.name || "-",
+          location: reconciliation.location?.name || "-",
           businessDate: reconciliation.business_date,
           status: reconciliation.status,
           revision: reconciliation.revision,
@@ -903,7 +901,7 @@ export const InventoryDashboardReport = () => {
             {key: 'invoice', label: t('columns.invoice')},
             {key: 'date', label: t('columns.date')},
             {key: 'supplier', label: t('filters.supplier')},
-            {key: 'store', label: t('inventory:columns.location')},
+            {key: 'location', label: t('columns.location')},
             {key: 'createdBy', label: t('columns.createdBy')},
             {key: 'items', label: t('columns.items')},
             {key: 'total', label: t('columns.total'), className: 'text-right font-semibold'},
@@ -921,7 +919,7 @@ export const InventoryDashboardReport = () => {
             {key: 'invoice', label: t('columns.invoice')},
             {key: 'date', label: t('columns.date')},
             {key: 'purchase', label: t('columns.purchase')},
-            {key: 'store', label: t('inventory:columns.location')},
+            {key: 'location', label: t('columns.location')},
             {key: 'createdBy', label: t('columns.createdBy')},
             {key: 'items', label: t('columns.items')},
             {key: 'total', label: t('columns.total'), className: 'text-right font-semibold'},
@@ -938,9 +936,8 @@ export const InventoryDashboardReport = () => {
           columns={[
             {key: 'invoice', label: t('columns.invoice')},
             {key: 'date', label: t('columns.date')},
-            {key: 'kitchen', label: t('filters.kitchen')},
             {key: 'issuedTo', label: t('columns.issuedTo')},
-            {key: 'store', label: t('inventory:columns.location')},
+            {key: 'location', label: t('columns.location')},
             {key: 'createdBy', label: t('columns.createdBy')},
             {key: 'items', label: t('columns.items')},
             {key: 'total', label: t('columns.totalQty'), className: 'text-right font-semibold'},
@@ -958,8 +955,7 @@ export const InventoryDashboardReport = () => {
             {key: 'invoice', label: t('columns.invoice')},
             {key: 'date', label: t('columns.date')},
             {key: 'issuance', label: t('columns.issuance')},
-            {key: 'kitchen', label: t('filters.kitchen')},
-            {key: 'store', label: t('inventory:columns.location')},
+            {key: 'location', label: t('columns.location')},
             {key: 'createdBy', label: t('columns.createdBy')},
             {key: 'items', label: t('columns.items')},
             {key: 'total', label: t('columns.totalQty'), className: 'text-right font-semibold'},
@@ -991,7 +987,7 @@ export const InventoryDashboardReport = () => {
           icon={TrendingUp}
           color="primary"
           columns={[
-            {key: "kitchen", label: t("filters.kitchen")},
+            {key: "location", label: t("columns.location")},
             {key: "businessDate", label: t("labels.businessDate")},
             {key: "status", label: t("filters.status")},
             {key: "revision", label: t("labels.revision")},

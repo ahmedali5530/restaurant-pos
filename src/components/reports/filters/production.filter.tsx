@@ -37,9 +37,9 @@ export const ProductionReportFilter = () => {
       <DateRange isRequired label={t("filters.selectRange")} />
 
       <div className="w-full flex flex-col gap-2">
-        <label>{t("inventory:columns.location")}</label>
+        <label>{t("filters.location")}</label>
         <ReactSelect
-          name="store"
+          name="locationId"
           isClearable
           isLoading={loadingLocations}
           className="w-full"

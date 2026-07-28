@@ -70,7 +70,7 @@ export const InventoryInvoice = ({doc}: Props) => {
                   </>
                 )}
                 {!showCost && (
-                  <th className="py-2 font-semibold">Store</th>
+                  <th className="py-2 font-semibold">Location</th>
                 )}
               </tr>
             </thead>
@@ -96,8 +96,8 @@ export const InventoryInvoice = ({doc}: Props) => {
                       {line.sku && (
                         <div className="text-xs text-neutral-500">SKU: {line.sku}</div>
                       )}
-                      {showCost && line.store && (
-                        <div className="text-xs text-neutral-500">Store: {line.store}</div>
+                      {showCost && line.location && (
+                        <div className="text-xs text-neutral-500">Location: {line.location}</div>
                       )}
                       {line.note && (
                         <div className="text-xs text-neutral-500 mt-0.5">{line.note}</div>
@@ -117,7 +117,7 @@ export const InventoryInvoice = ({doc}: Props) => {
                         </td>
                       </>
                     ) : (
-                      <td className="py-2.5 text-neutral-600">{line.store || "—"}</td>
+                      <td className="py-2.5 text-neutral-600">{line.location || "—"}</td>
                     )}
                   </tr>
                 ))

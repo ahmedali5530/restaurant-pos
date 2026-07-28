@@ -1,5 +1,6 @@
 import {DateTime} from "surrealdb";
 import {Kitchen} from "@/api/model/kitchen.ts";
+import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {User} from "@/api/model/user.ts";
 import {KitchenReconciliationItem} from "@/api/model/kitchen_reconciliation_item.ts";
 
@@ -7,7 +8,10 @@ export type KitchenReconciliationStatus = "draft" | "verified" | "missed";
 
 export interface KitchenReconciliation {
   id: string;
-  kitchen: Kitchen;
+  /** Stock identity for inventory reconciliation. */
+  location?: InventoryLocation;
+  /** @deprecated use location — legacy POS kitchen key */
+  kitchen?: Kitchen;
   business_date: string;
   date_from: DateTime;
   date_to: DateTime;

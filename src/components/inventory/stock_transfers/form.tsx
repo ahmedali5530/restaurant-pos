@@ -29,9 +29,11 @@ import {
 } from "@/lib/inventory/stock_transfer.service.ts";
 import {postDocument, InventoryPostingError} from "@/lib/inventory/posting.service.ts";
 import {fetchNetQuantity, validateStoreTransferAvailability} from "@/utils/inventory.ts";
+import {ensureLocationForStore} from "@/lib/inventory/location.service.ts";
 import {useInventoryLocations} from "@/hooks/useInventoryLocations.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { useIntegrationManager } from "@/providers/integration.provider.tsx";
+import {recordIdToString} from "@/api/reports/shared/records.ts";
 
 type SelectOption = {label: string; value: string} | null;
 
@@ -106,16 +108,33 @@ const validationSchema = yup
   })
   .required();
 
-const resolveEndpointOption = (
+const resolveLocationOption = (
+  location?: {name?: string; id?: unknown} | null
+): SelectOption => {
+  if (!location) return null;
+  return {
+    label: location.name ?? String(location),
+    value: toRecordIdString(location.id ?? location),
+  };
+};
+
+const resolveEndpointFromLegacyStore = async (
+  db: ReturnType<typeof useDB>,
   location?: {name?: string; id?: unknown} | null,
   store?: {name?: string; id?: unknown} | null
-): SelectOption => {
-  const endpoint = location ?? store;
-  if (!endpoint) return null;
-  return {
-    label: endpoint.name ?? String(endpoint),
-    value: toRecordIdString(endpoint.id ?? endpoint),
-  };
+): Promise<SelectOption> => {
+  if (location) return resolveLocationOption(location);
+  if (!store?.id) return null;
+  try {
+    const locationId = await ensureLocationForStore(db, recordIdToString(store.id));
+    return {
+      label: store.name ?? String(store),
+      value: locationId,
+    };
+  } catch (error) {
+    console.error("Failed to resolve location for store", error);
+    return null;
+  }
 };
 
 export const StockTransferForm = ({open, onClose, data}: Props) => {
@@ -182,32 +201,47 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
   useEffect(() => {
     if (!open) return;
 
-    if (data) {
-      reset({
-        fromLocation: resolveEndpointOption(data.from_location, data.from_store),
-        toLocation: resolveEndpointOption(data.to_location, data.to_store),
-        date: data.created_at ? dateToCalendarDate(toJsDate(data.created_at)) : getToday(),
-        notes: data.notes ?? "",
-        items:
-          data.items?.map((line) => ({
-            item: line.item
-              ? {
-                  label: `${line.item.name}-${line.item.code}`,
-                  value: toRecordIdString(line.item.id),
-                }
-              : null,
-            quantity: line.quantity ?? 1,
-          })) ?? [createEmptyItem()],
-      } as any);
-    } else {
-      reset({
-        fromLocation: null,
-        toLocation: null,
-        date: getToday(),
-        notes: "",
-        items: [createEmptyItem()],
-      } as any);
-    }
+    let cancelled = false;
+
+    const applyReset = async () => {
+      if (data) {
+        const [fromLocation, toLocation] = await Promise.all([
+          resolveEndpointFromLegacyStore(db, data.from_location, data.from_store),
+          resolveEndpointFromLegacyStore(db, data.to_location, data.to_store),
+        ]);
+        if (cancelled) return;
+
+        reset({
+          fromLocation,
+          toLocation,
+          date: data.created_at ? dateToCalendarDate(toJsDate(data.created_at)) : getToday(),
+          notes: data.notes ?? "",
+          items:
+            data.items?.map((line) => ({
+              item: line.item
+                ? {
+                    label: `${line.item.name}-${line.item.code}`,
+                    value: toRecordIdString(line.item.id),
+                  }
+                : null,
+              quantity: line.quantity ?? 1,
+            })) ?? [createEmptyItem()],
+        } as any);
+      } else {
+        reset({
+          fromLocation: null,
+          toLocation: null,
+          date: getToday(),
+          notes: "",
+          items: [createEmptyItem()],
+        } as any);
+      }
+    };
+
+    void applyReset();
+    return () => {
+      cancelled = true;
+    };
   }, [data?.id, open, reset, createEmptyItem, data]);
 
   useEffect(() => {
@@ -337,7 +371,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
         <div className="flex flex-col gap-4 mb-4">
           <div className="flex gap-3">
             <div className="flex-1">
-              <label>{t("stockTransfer.fromStore")}</label>
+              <label>{t("stockTransfer.fromLocation")}</label>
               <Controller
                 name="fromLocation"
                 control={control}
@@ -355,7 +389,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
               <InputError error={_.get(errors, ["fromLocation", "message"])} />
             </div>
             <div className="flex-1">
-              <label>{t("stockTransfer.toStore")}</label>
+              <label>{t("stockTransfer.toLocation")}</label>
               <Controller
                 name="toLocation"
                 control={control}

@@ -111,7 +111,7 @@ type IdentifierValue = string | undefined;
 
 interface InventoryIdentifiers {
   itemId?: string;
-  storeId?: string;
+  locationId?: string;
 }
 
 const toRecordId = (value?: string | { toString(): string }) => {
@@ -134,7 +134,7 @@ const toJsDate = (value: unknown): Date => {
 
 const emptyItemMeta = (): {name?: string; code?: string; uom?: string} => ({});
 
-export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreId?: IdentifierValue) => {
+export const useStoreInventory = (initialItemId?: IdentifierValue, initialLocationId?: IdentifierValue) => {
   const db = useDB();
   const queryRef = useRef(db.query);
 
@@ -144,7 +144,7 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
 
   const [identifiers, setIdentifiers] = useState<InventoryIdentifiers>({
     itemId: normalizeIdentifier(initialItemId),
-    storeId: normalizeIdentifier(initialStoreId)
+    locationId: normalizeIdentifier(initialLocationId)
   });
 
   const [totals, setTotals] = useState<InventoryTotals>(initialTotals);
@@ -153,23 +153,23 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const setArgs = useCallback((itemId?: IdentifierValue, storeId?: IdentifierValue) => {
+  const setArgs = useCallback((itemId?: IdentifierValue, locationId?: IdentifierValue) => {
     const nextItemId = normalizeIdentifier(itemId);
-    const nextStoreId = normalizeIdentifier(storeId);
+    const nextLocationId = normalizeIdentifier(locationId);
 
     setIdentifiers(prev => {
-      if (prev.itemId === nextItemId && prev.storeId === nextStoreId) return prev;
-      return { itemId: nextItemId, storeId: nextStoreId };
+      if (prev.itemId === nextItemId && prev.locationId === nextLocationId) return prev;
+      return { itemId: nextItemId, locationId: nextLocationId };
     });
   }, []);
 
   useEffect(() => {
-    setArgs(initialItemId, initialStoreId);
-  }, [initialItemId, initialStoreId, setArgs]);
+    setArgs(initialItemId, initialLocationId);
+  }, [initialItemId, initialLocationId, setArgs]);
 
   useEffect(() => {
-    const { itemId, storeId } = identifiers;
-    if (!itemId || !storeId) {
+    const { itemId, locationId } = identifiers;
+    if (!itemId || !locationId) {
       setTotals(initialTotals);
       setRecords(initialRecords);
       setNetQuantity(0);
@@ -184,11 +184,11 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
       setLoading(true);
       setError(null);
 
-      const location = toLocationRecordId(storeId);
-      const params = { item: toRecordId(itemId), location, store: location };
+      const location = toLocationRecordId(locationId);
+      const params = { item: toRecordId(itemId), location };
 
       try {
-        const breakdown = await fetchStoreInventoryBreakdown(db, itemId, storeId);
+        const breakdown = await fetchStoreInventoryBreakdown(db, itemId, locationId);
         const ledgerEnabled = await isInventoryLedgerEnabled(db);
 
         if (!cancelled) {
@@ -211,7 +211,7 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
         if (ledgerEnabled) {
           const movements = await fetchLedgerMovements(db, {
             itemId,
-            storeId,
+            locationId,
             excludeReversals: true,
           });
 
@@ -319,53 +319,53 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
             buffetConsumptionRecords,
           ] = await Promise.all([
             queryRef.current(
-              `SELECT *, purchase.created_at as created_at, purchase.invoice_number as invoice_number FROM ${Tables.inventory_purchase_items} WHERE item = $item AND (location = $location OR store = $location) order by purchase.created_at DESC FETCH item`,
+              `SELECT *, purchase.created_at as created_at, purchase.invoice_number as invoice_number FROM ${Tables.inventory_purchase_items} WHERE item = $item AND location = $location order by purchase.created_at DESC FETCH item`,
               params
             ),
             queryRef.current(
-              `SELECT *, purchase_return.created_at as created_at, purchase_return.invoice_number as invoice_number FROM ${Tables.inventory_purchase_return_items} WHERE item = $item AND (location = $location OR purchase_item.location = $location OR purchase_item.store = $location) order by purchase_return.created_at DESC FETCH item`,
+              `SELECT *, purchase_return.created_at as created_at, purchase_return.invoice_number as invoice_number FROM ${Tables.inventory_purchase_return_items} WHERE item = $item AND (location = $location OR purchase_item.location = $location) order by purchase_return.created_at DESC FETCH item`,
               params
             ),
             queryRef.current(
-              `SELECT *, issue.created_at as created_at, issue.invoice_number as invoice_number FROM ${Tables.inventory_issue_items} WHERE item = $item AND (location = $location OR store = $location) order by issue.created_at DESC FETCH item`,
+              `SELECT *, issue.created_at as created_at, issue.invoice_number as invoice_number FROM ${Tables.inventory_issue_items} WHERE item = $item AND location = $location order by issue.created_at DESC FETCH item`,
               params
             ),
             queryRef.current(
-              `SELECT *, issue_return.created_at as created_at, issue_return.invoice_number as invoice_number FROM ${Tables.inventory_issue_return_items} WHERE item = $item AND (location = $location OR store = $location OR issued_item.location = $location OR issued_item.store = $location OR issue_return.store = $location) order by issue_return.created_at DESC FETCH item`,
+              `SELECT *, issue_return.created_at as created_at, issue_return.invoice_number as invoice_number FROM ${Tables.inventory_issue_return_items} WHERE item = $item AND (location = $location OR issued_item.location = $location) order by issue_return.created_at DESC FETCH item`,
               params
             ),
             queryRef.current(
-              `SELECT *, waste.created_at as created_at, waste.invoice_number as invoice_number FROM ${Tables.inventory_waste_items} WHERE item = $item AND ((purchase_item != none AND (purchase_item.location = $location OR purchase_item.store = $location)) or (issue_item != none and (issue_item.location = $location OR issue_item.store = $location))) order by waste.created_at DESC FETCH item`,
+              `SELECT *, waste.created_at as created_at, waste.invoice_number as invoice_number FROM ${Tables.inventory_waste_items} WHERE item = $item AND ((purchase_item != none AND purchase_item.location = $location) or (issue_item != none and issue_item.location = $location)) order by waste.created_at DESC FETCH item`,
               params
             ),
             queryRef.current(
-              `SELECT *, transfer.created_at AS created_at, transfer.to_location.name AS counterparty_location, transfer.to_store.name AS counterparty_store
+              `SELECT *, transfer.created_at AS created_at, transfer.to_location.name AS counterparty_location
               FROM ${Tables.stock_transfer_items}
               WHERE item = $item AND transfer IN (
                 SELECT VALUE id FROM ${Tables.stock_transfers}
-                WHERE (from_location = $location OR from_store = $location)
-                  AND (to_location != NONE OR to_store != NONE)
+                WHERE from_location = $location
+                  AND to_location != NONE
               )
               ORDER BY transfer.created_at DESC
-              FETCH item, transfer, transfer.to_store, transfer.to_location`,
+              FETCH item, transfer, transfer.to_location`,
               params
             ),
             queryRef.current(
-              `SELECT *, transfer.created_at AS created_at, transfer.from_location.name AS counterparty_location, transfer.from_store.name AS counterparty_store
+              `SELECT *, transfer.created_at AS created_at, transfer.from_location.name AS counterparty_location
               FROM ${Tables.stock_transfer_items}
               WHERE item = $item AND transfer IN (
                 SELECT VALUE id FROM ${Tables.stock_transfers}
-                WHERE (to_location = $location OR to_store = $location)
-                  AND (from_location != NONE OR from_store != NONE)
+                WHERE to_location = $location
+                  AND from_location != NONE
               )
               ORDER BY transfer.created_at DESC
-              FETCH item, transfer, transfer.from_store, transfer.from_location`,
+              FETCH item, transfer, transfer.from_location`,
               params
             ),
             queryRef.current(
               `SELECT *, batch.created_at AS created_at, batch.batch_number AS batch_number
               FROM ${Tables.production_batch_inputs}
-              WHERE item = $item AND (location = $location OR store = $location)
+              WHERE item = $item AND location = $location
               AND batch IN (SELECT VALUE id FROM ${Tables.production_batches} WHERE status = 'completed')
               ORDER BY batch.created_at DESC
               FETCH item, batch`,
@@ -374,13 +374,13 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
             queryRef.current(
               `SELECT *, batch.created_at AS created_at, batch.batch_number AS batch_number
               FROM ${Tables.production_batch_outputs}
-              WHERE item = $item AND (location = $location OR store = $location) AND disposition = 'inventory'
+              WHERE item = $item AND location = $location AND disposition = 'inventory'
               AND batch IN (SELECT VALUE id FROM ${Tables.production_batches} WHERE status = 'completed')
               ORDER BY batch.created_at DESC
               FETCH item, batch`,
               params
             ),
-            fetchBuffetConsumptionLinesForStore(db, itemId, storeId),
+            fetchBuffetConsumptionLinesForStore(db, itemId, locationId),
           ]);
 
           if (!cancelled) {
@@ -398,7 +398,7 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
                   code: row.item?.code,
                   uom: row.item?.uom,
                 },
-                counterparty: row.counterparty_location || row.counterparty_store || row.counterparty,
+                counterparty: row.counterparty_location || row.counterparty,
               }));
 
             setRecords({
@@ -459,7 +459,7 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialStoreI
     return () => {
       cancelled = true;
     };
-  }, [identifiers.itemId, identifiers.storeId]);
+  }, [identifiers.itemId, identifiers.locationId]);
 
   return { identifiers, setArgs, totals, records, netQuantity, loading, error };
 };
