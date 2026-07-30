@@ -31,6 +31,24 @@ export type {
   RecipeConsumptionOptions,
   RecipeConsumptionSummary,
 } from "@/api/reports/inventory/consumption.ts";
+export {
+  loadInventoryDashboard,
+  getIssuanceVsConsumption,
+  getDashboardStockByLocation,
+  getTodayPulse,
+  getNeededForToday,
+  getRunoutForecast,
+  getPeriodDocumentBundles,
+} from "@/api/reports/inventory/dashboard.ts";
+export type {
+  InventoryDashboardPayload,
+  IssuanceVsConsumptionRow,
+  LocationStockGroup,
+  NeededTodayRow,
+  RunoutForecastRow,
+  TodayPulse,
+  PeriodMovementTotals,
+} from "@/api/reports/inventory/dashboard.ts";
 
 export type InventoryMovementType =
   | "purchase"

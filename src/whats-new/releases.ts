@@ -7,6 +7,15 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-07-30',
+    title: 'Inventory dashboard refresh',
+    items: [
+      'Inventory dashboard covers transfers, production, buffet, adjustments, stock value, and below-reorder alerts.',
+      'Issuance vs theoretical consumption (recipe × paid sales) is shown by item for the selected period.',
+      'Today’s sales/inventory pulse, projected inventory needed for today, and sales-based runout forecast are included.',
+    ],
+  },
+  {
     date: '2026-07-28',
     title: 'Kitchen reconciliation revision details',
     items: [

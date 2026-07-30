@@ -344,22 +344,25 @@ export const getIssuanceSummary = async (
   const items = unwrapQueryResult<{id: unknown; name?: string}>(
     await db.query(`SELECT id, name FROM ${Tables.inventory_items}`),
   );
-  const itemNameByKey = new Map<string, string>();
+  const itemMetaByKey = new Map<string, {id: string; name: string}>();
   items.forEach((item) => {
     const full = recordToString(item.id);
-    itemNameByKey.set(full, item.name ?? "Unknown");
-    itemNameByKey.set(normalizeKey(full), item.name ?? "Unknown");
+    const meta = {id: full, name: item.name ?? "Unknown"};
+    itemMetaByKey.set(full, meta);
+    itemMetaByKey.set(normalizeKey(full), meta);
   });
 
-  const byItem = new Map<string, {name: string; quantity: number}>();
+  const byItem = new Map<string, {itemId: string; name: string; quantity: number}>();
   movements.forEach((row) => {
-    const name =
-      itemNameByKey.get(row.inventory_item)
-      || itemNameByKey.get(normalizeKey(row.inventory_item))
-      || "Unknown";
-    const existing = byItem.get(name) || {name, quantity: 0};
+    const meta =
+      itemMetaByKey.get(row.inventory_item)
+      || itemMetaByKey.get(normalizeKey(row.inventory_item));
+    const itemId = meta?.id || row.inventory_item;
+    const name = meta?.name || "Unknown";
+    const key = normalizeKey(itemId);
+    const existing = byItem.get(key) || {itemId, name, quantity: 0};
     existing.quantity += Math.abs(safeNumber(row.quantity_change));
-    byItem.set(name, existing);
+    byItem.set(key, existing);
   });
 
   return {
