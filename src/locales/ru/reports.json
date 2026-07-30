@@ -529,7 +529,8 @@
     "latestTransfers": "Последние перемещения",
     "latestProduction": "Последнее производство",
     "latestBuffet": "Последние сессии буфета",
-    "latestAdjustments": "Последние корректировки"
+    "latestAdjustments": "Последние корректировки",
+    "inventoryNeededForPeriodHelp": "Средняя дневная теоретическая потребность за {{range}} по сравнению с текущим остатком."
   },
   "metrics": {
     "gross": "Валовый",

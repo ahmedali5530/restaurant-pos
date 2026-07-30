@@ -325,6 +325,9 @@ export const InventoryIssues = () => {
             Issue
           </Button>
         ]}
+        defaultSort={[
+          {id: 'invoice_number', desc: true}
+        ]}
       />
 
       {formModal && (

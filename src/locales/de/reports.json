@@ -529,7 +529,8 @@
     "latestTransfers": "Neueste Umlagerungen",
     "latestProduction": "Neueste Produktion",
     "latestBuffet": "Neueste Buffet-Sitzungen",
-    "latestAdjustments": "Neueste Korrekturen"
+    "latestAdjustments": "Neueste Korrekturen",
+    "inventoryNeededForPeriodHelp": "Durchschnittlicher täglicher theoretischer Bedarf für {{range}}, verglichen mit dem aktuellen Bestand."
   },
   "metrics": {
     "gross": "Brutto",

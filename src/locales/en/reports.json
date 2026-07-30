@@ -495,6 +495,7 @@
     "todayConsumptionCost": "Today’s consumption cost",
     "inventoryNeededForToday": "Inventory needed for today",
     "inventoryNeededForTodayHelp": "Projected from today’s sales pace ({{percent}}% of the day elapsed).",
+    "inventoryNeededForPeriodHelp": "Average daily theoretical need for {{range}}, compared with current on-hand stock.",
     "coveredItems": "Covered items",
     "shortItems": "Short items",
     "projectedNeedCost": "Projected need cost",

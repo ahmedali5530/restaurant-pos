@@ -22,7 +22,7 @@ import {
 import { buildLedgerKey } from "@/lib/inventory/ledger.service.ts";
 import { resolveCatalogUnitCost } from "@/lib/inventory/line.cost.ts";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
-import { toJsDate } from "@/lib/datetime.ts";
+import { toAppBusinessDate } from "@/lib/datetime.ts";
 import { toRecordId } from "@/lib/utils.ts";
 
 type DatabaseClient = ReturnType<typeof useDB>;
@@ -67,17 +67,8 @@ export type InventoryPostingStrategy = {
 const toIdString = (value: unknown): string =>
   recordIdToString(value) || String(value ?? "");
 
-const toBusinessDate = (createdAt: unknown): string => {
-  try {
-    const d = toJsDate(createdAt as any);
-    if (d && !Number.isNaN(d.getTime())) {
-      return d.toISOString().slice(0, 10);
-    }
-  } catch {
-    // fall through
-  }
-  return new Date().toISOString().slice(0, 10);
-};
+/** Business date in app timezone (fixes UTC off-by-one from toISOString). */
+const toBusinessDate = (createdAt: unknown): string => toAppBusinessDate(createdAt as any);
 
 const resolveItemId = (item: any): string => {
   const raw = item?.item?.id ?? item?.item ?? item?.inventory_item;

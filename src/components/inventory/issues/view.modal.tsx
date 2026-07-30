@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import {InventoryIssue} from "@/api/model/inventory_issue.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
@@ -8,6 +8,8 @@ import {faDownload, faFile} from "@fortawesome/free-solid-svg-icons";
 import {downloadArrayBuffer} from "@/utils/files.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {formatDateTime} from "@/lib/datetime.ts";
+import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {lineAmount} from "@/lib/inventory/line.cost.ts";
 
 interface Props {
   open: boolean;
@@ -31,7 +33,7 @@ export const InventoryIssueViewModal = ({open, issue, onClose}: Props) => {
       setLoading(true);
       try {
         const [result] = await db.query<[InventoryIssue]>(
-          `SELECT * FROM ONLY ${issue.id} FETCH created_by, issued_to, location, items, items.item, items.location, documents`
+          `SELECT * FROM ONLY ${issue.id} FETCH created_by, issued_to, location, items.item, items.location, documents`
         );
         setViewIssue(result as InventoryIssue);
       } catch (e) {
@@ -44,6 +46,17 @@ export const InventoryIssueViewModal = ({open, issue, onClose}: Props) => {
 
     fetchDetails();
   }, [open, issue?.id]);
+
+  const totals = useMemo(() => {
+    if (!viewIssue?.items?.length) return null;
+    const totalItems = viewIssue.items.length;
+    const totalQty = viewIssue.items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
+    const totalValue = viewIssue.items.reduce((sum, item) => {
+      const price = Number(item.price) || 0;
+      return sum + lineAmount(price, Number(item.quantity) || 0);
+    }, 0);
+    return {totalItems, totalQty, totalValue};
+  }, [viewIssue]);
 
   if (!open) {
     return null;
@@ -91,35 +104,59 @@ export const InventoryIssueViewModal = ({open, issue, onClose}: Props) => {
 
           <div className="bg-white rounded-xl shadow border border-neutral-200 p-4">
             <div className="text-sm font-semibold text-neutral-800 mb-3">
-              Items
+              {t('tabs.items')}
             </div>
             {viewIssue.items && viewIssue.items.length > 0 ? (
-              <div className="max-h-64 overflow-auto divide-y divide-neutral-200">
-                {viewIssue.items.map((item) => (
-                  <div key={item.id} className="py-2 flex flex-wrap gap-2 text-sm">
-                    <div className="flex-1 min-w-[160px]">
-                      <div className="font-medium">
-                        {item.item?.name ?? "Item"}{item.item?.code ? ` - ${item.item.code}` : ""}
-                      </div>
-                      <div className="text-xs text-neutral-500">
-                        {item.location?.name ? `Location: ${item.location.name}` : ""}
-                      </div>
-                    </div>
-                    <div className="w-24 text-right">
-                      <div className="text-neutral-700">
-                        Qty: {item.quantity}
-                      </div>
-                      {item.requested !== undefined && (
-                        <div className="text-xs text-neutral-500">
-                          Requested: {item.requested}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-[120px] text-xs text-neutral-500">
-                      {item.comments && <div className="truncate">Note: {item.comments}</div>}
-                    </div>
-                  </div>
-                ))}
+              <div className="overflow-x-auto max-h-80 overflow-y-auto rounded-lg border border-neutral-200">
+                <table className="min-w-full divide-y divide-neutral-200 text-sm">
+                  <thead className="bg-neutral-50 sticky top-0">
+                    <tr>
+                      <th className="py-2 pl-3 pr-2 text-left text-xs font-semibold text-neutral-600">{t('columns.name')}</th>
+                      <th className="py-2 px-2 text-left text-xs font-semibold text-neutral-600">{t('columns.location')}</th>
+                      <th className="py-2 px-2 text-right text-xs font-semibold text-neutral-600">{t('forms.quantity')}</th>
+                      <th className="py-2 px-2 text-right text-xs font-semibold text-neutral-600">{t('columns.requested')}</th>
+                      <th className="py-2 px-2 text-right text-xs font-semibold text-neutral-600">{t('columns.price')}</th>
+                      <th className="py-2 px-2 text-right text-xs font-semibold text-neutral-600">{t('columns.amount')}</th>
+                      <th className="py-2 pl-2 pr-3 text-left text-xs font-semibold text-neutral-600">{t('forms.comments')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-100 bg-white">
+                    {viewIssue.items.map((item) => {
+                      const price = Number(item.price) || 0;
+                      const amount = lineAmount(price, Number(item.quantity) || 0);
+                      return (
+                        <tr key={item.id}>
+                          <td className="py-2 pl-3 pr-2 align-top">
+                            <div className="font-medium text-neutral-900">
+                              {(item.item as any)?.name ?? "Item"}
+                            </div>
+                            {(item.item as any)?.code && (
+                              <div className="text-xs text-neutral-500">{(item.item as any).code}</div>
+                            )}
+                          </td>
+                          <td className="py-2 px-2 align-top text-neutral-700">
+                            {item.location?.name ?? "—"}
+                          </td>
+                          <td className="py-2 px-2 align-top text-right tabular-nums text-neutral-700">
+                            {formatNumber(item.quantity)}
+                          </td>
+                          <td className="py-2 px-2 align-top text-right tabular-nums text-neutral-500">
+                            {item.requested !== undefined ? formatNumber(item.requested) : "—"}
+                          </td>
+                          <td className="py-2 px-2 align-top text-right tabular-nums text-neutral-700">
+                            {price > 0 ? withCurrency(price) : "—"}
+                          </td>
+                          <td className="py-2 px-2 align-top text-right tabular-nums font-medium text-neutral-900">
+                            {amount > 0 ? withCurrency(amount) : "—"}
+                          </td>
+                          <td className="py-2 pl-2 pr-3 align-top text-neutral-600 max-w-[160px] truncate" title={item.comments ?? undefined}>
+                            {item.comments || "—"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             ) : (
               <div className="text-sm text-neutral-500">
@@ -127,6 +164,26 @@ export const InventoryIssueViewModal = ({open, issue, onClose}: Props) => {
               </div>
             )}
           </div>
+
+          {totals && (
+            <div className="bg-white rounded-xl shadow border border-neutral-200 p-4 text-sm space-y-1">
+              <div className="text-sm font-semibold text-neutral-800 mb-2">
+                {t('common:actions.total')}
+              </div>
+              <div className="flex justify-between">
+                <span className="text-neutral-600">{t('tabs.items')}</span>
+                <span className="font-medium">{totals.totalItems}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-neutral-600">{t('forms.quantity')}</span>
+                <span className="font-medium">{formatNumber(totals.totalQty)}</span>
+              </div>
+              <div className="flex justify-between border-t border-neutral-200 pt-1 font-semibold">
+                <span>{t('columns.amount')}</span>
+                <span>{withCurrency(totals.totalValue)}</span>
+              </div>
+            </div>
+          )}
 
           <div className="bg-white rounded-xl shadow border border-neutral-200 p-4">
             <div className="flex items-center justify-between mb-3">

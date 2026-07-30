@@ -529,7 +529,8 @@
     "latestTransfers": "Ultimi trasferimenti",
     "latestProduction": "Ultima produzione",
     "latestBuffet": "Ultime sessioni buffet",
-    "latestAdjustments": "Ultime rettifiche"
+    "latestAdjustments": "Ultime rettifiche",
+    "inventoryNeededForPeriodHelp": "Fabbisogno teorico medio giornaliero per {{range}}, confrontato con le scorte attuali."
   },
   "metrics": {
     "gross": "Lordo",

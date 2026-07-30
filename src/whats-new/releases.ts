@@ -8,6 +8,22 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-07-30',
+    title: 'Inventory dashboard issuance date filters',
+    items: [
+      'Issuance and other ledger movements now match report date filters correctly (business_date no longer compared to full date-times).',
+      'Dashboard document KPIs (issues, purchases, etc.) use app-timezone datetime bounds so “Today” includes local-midnight documents.',
+    ],
+  },
+  {
+    date: '2026-07-30',
+    title: 'Inventory ledger business date timezone',
+    items: [
+      'Ledger business_date now uses the app timezone instead of UTC, so issuance and other movements no longer appear one day behind created_at.',
+      'Existing ledger rows are corrected by migration backfill 2026_07_30_ledger_business_date_tz.',
+    ],
+  },
+  {
+    date: '2026-07-30',
     title: 'Inventory dashboard refresh',
     items: [
       'Inventory dashboard covers transfers, production, buffet, adjustments, stock value, and below-reorder alerts.',

@@ -212,7 +212,7 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialLocati
           const movements = await fetchLedgerMovements(db, {
             itemId,
             locationId,
-            excludeReversals: true,
+            excludeReversals: false,
           });
 
           if (cancelled) return;
@@ -233,10 +233,13 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialLocati
             const created_at = row.created_at
               ? toJsDate(row.created_at)
               : toJsDate(row.business_date);
-            const qty = Math.abs(Number(row.quantity_change) || 0);
+            const signedQty = Number(row.quantity_change) || 0;
+            const reversal = !!row.reversal_of;
             const base = {
               id: row.id,
-              quantity: qty,
+              quantity: Math.abs(signedQty),
+              signedQuantity: signedQty,
+              reversal,
               created_at,
               item: emptyItemMeta(),
             };

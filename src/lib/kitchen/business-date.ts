@@ -4,7 +4,7 @@
  */
 import {DateTime} from "luxon";
 import {ClosingCycleConfig, ClosingCycleWindow, loadClosingCycleConfig} from "@/lib/closing-cycle.ts";
-import {getAppTimezone} from "@/lib/datetime.ts";
+import {getAppTimezone, toAppBusinessDate} from "@/lib/datetime.ts";
 
 type DBLike = {
   query: (sql: string, params?: Record<string, unknown>) => Promise<unknown[][]>;
@@ -78,6 +78,5 @@ export const enumerateBusinessDates = (fromDate: string, toDate: string): string
 };
 
 export const businessDateFromJsDate = (date: Date): string => {
-  const timezone = getAppTimezone();
-  return DateTime.fromJSDate(date).setZone(timezone).toFormat("yyyy-MM-dd");
+  return toAppBusinessDate(date);
 };

@@ -8,8 +8,37 @@ import { toLocationRecordId } from "@/lib/inventory/location.service.ts";
 import { nowSurrealDateTime } from "@/lib/datetime.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
+import { unwrapQueryResult } from "@/api/reports/shared/query.ts";
 
 type DatabaseClient = ReturnType<typeof useDB>;
+
+/**
+ * business_date is yyyy-MM-dd. Report filters often send date-times;
+ * comparing "2026-07-30" >= "2026-07-30 00:00" is false and returns no rows.
+ */
+const toBusinessDateBound = (value?: string): string | undefined => {
+  if (!value?.trim()) return undefined;
+  const trimmed = value.trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+  if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) return trimmed.slice(0, 10);
+  return trimmed;
+};
+
+const unwrapLedgerRows = (result: unknown): any[] => {
+  const nested = unwrapQueryResult(result);
+  if (nested.length > 0) return nested;
+  // Flat collect() shape: [row, row, ...]
+  if (
+    Array.isArray(result)
+    && result.length > 0
+    && !Array.isArray(result[0])
+    && typeof result[0] === "object"
+    && result[0] !== null
+  ) {
+    return result as any[];
+  }
+  return [];
+};
 
 /** Mirrors StoreInventoryBreakdown without importing utils (avoids circular deps). */
 export type LedgerStoreBreakdown = {
@@ -117,6 +146,7 @@ export const computeBreakdownFromLedger = async (
        FROM ${Tables.inventory_ledger}
        WHERE inventory_item = $item AND inventory_location = $location
          AND reference_type != 'adjustment'
+         AND (reversal_of = NONE OR reversal_of = null)
        GROUP BY reference_type`,
       params
     ),
@@ -124,6 +154,7 @@ export const computeBreakdownFromLedger = async (
       `SELECT Math::sum(quantity_change) AS total FROM ${Tables.inventory_ledger}
        WHERE inventory_item = $item AND inventory_location = $location
          AND reference_type = 'adjustment'
+         AND reversal_of = NONE
        GROUP ALL`,
       params
     ),
@@ -222,12 +253,18 @@ export const fetchLedgerMovements = async (
     params.item = toItemRecordId(opts.itemId);
   }
   if (opts.from) {
-    conditions.push("business_date >= $from");
-    params.from = opts.from;
+    const from = toBusinessDateBound(opts.from);
+    if (from) {
+      conditions.push("business_date >= $from");
+      params.from = from;
+    }
   }
   if (opts.to) {
-    conditions.push("business_date <= $to");
-    params.to = opts.to;
+    const to = toBusinessDateBound(opts.to);
+    if (to) {
+      conditions.push("business_date <= $to");
+      params.to = to;
+    }
   }
   if (opts.referenceTypes?.length) {
     conditions.push("reference_type IN $referenceTypes");
@@ -238,7 +275,7 @@ export const fetchLedgerMovements = async (
   }
 
   const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
-  const [rows] = await db.query(
+  const result = await db.query(
     `SELECT id, business_date, created_at, inventory_item, inventory_location,
             quantity_change, unit_cost, total_cost, reference_type, reference_id,
             reference_item, notes, reversal_of
@@ -248,7 +285,7 @@ export const fetchLedgerMovements = async (
     params
   );
 
-  const list = Array.isArray(rows) ? rows : [];
+  const list = unwrapLedgerRows(result);
   const filtered = opts.excludeReversals === false
     ? list
     : list.filter((row: any) => {

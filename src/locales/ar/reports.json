@@ -529,7 +529,8 @@
     "latestTransfers": "أحدث التحويلات",
     "latestProduction": "أحدث الإنتاج",
     "latestBuffet": "أحدث جلسات البوفيه",
-    "latestAdjustments": "أحدث التسويات"
+    "latestAdjustments": "أحدث التسويات",
+    "inventoryNeededForPeriodHelp": "متوسط الحاجة اليومية النظرية لـ {{range}}، مقارنة بالمخزون الحالي."
   },
   "metrics": {
     "gross": "إجمالي",

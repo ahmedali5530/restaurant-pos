@@ -291,6 +291,9 @@ export const InventoryAdjustments = () => {
             {t("buttons.adjustment")}
           </Button>,
         ]}
+        defaultSort={[
+          {id: 'invoice_number', desc: true}
+        ]}
       />
       {formModal && (
         <InventoryAdjustmentForm

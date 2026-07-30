@@ -14,7 +14,7 @@ import {
 } from "@/lib/inventory/ledger.service.ts";
 import { fetchNetQuantity } from "@/utils/inventory.ts";
 import { withTransaction, TransactionStatement } from "@/lib/inventory/transaction.ts";
-import { nowSurrealDateTime, toJsDate } from "@/lib/datetime.ts";
+import { nowSurrealDateTime, toAppBusinessDate } from "@/lib/datetime.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
 import {
@@ -226,17 +226,12 @@ export const reverseDocument = async (
 
     let businessDate = row.business_date;
     if (!businessDate) {
-      try {
-        const d = toJsDate(row.created_at);
-        businessDate = d?.toISOString().slice(0, 10);
-      } catch {
-        businessDate = new Date().toISOString().slice(0, 10);
-      }
+      businessDate = toAppBusinessDate(row.created_at);
     }
 
     reversalEntries.push({
       created_by: input.userId,
-      business_date: businessDate || new Date().toISOString().slice(0, 10),
+      business_date: businessDate || toAppBusinessDate(),
       inventory_item: itemId,
       inventory_location: locationId,
       quantity_change: -qty,

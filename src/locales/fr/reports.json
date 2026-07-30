@@ -529,7 +529,8 @@
     "latestTransfers": "Derniers transferts",
     "latestProduction": "Dernière production",
     "latestBuffet": "Dernières sessions buffet",
-    "latestAdjustments": "Derniers ajustements"
+    "latestAdjustments": "Derniers ajustements",
+    "inventoryNeededForPeriodHelp": "Besoin théorique quotidien moyen pour {{range}}, comparé au stock actuel."
   },
   "metrics": {
     "gross": "Brut",

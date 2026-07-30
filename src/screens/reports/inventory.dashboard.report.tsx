@@ -25,9 +25,11 @@ import {listKitchenReconciliationsForReport} from "@/lib/kitchen/reconciliation.
 import {computeLine, computeTotals} from "@/lib/kitchen/reconciliation.calculations.ts";
 import {
   loadInventoryDashboard,
+  resolveDashboardDateRange,
   type InventoryDashboardPayload,
   type LocationStockGroup,
 } from "@/api/reports/inventory/dashboard.ts";
+import {parseDateRangeFromParams} from "@/api/reports/shared/filters.ts";
 
 type ChartDataPoint = {x: string; y: number};
 
@@ -292,13 +294,16 @@ export const InventoryDashboardReport = () => {
   const [payload, setPayload] = useState<InventoryDashboardPayload | null>(null);
   const [reconciliations, setReconciliations] = useState<KitchenReconciliation[]>([]);
 
-  const filters = useMemo(() => {
-    const params = new URLSearchParams(window.location.search);
-    return {
-      startDate: params.get("start") || undefined,
-      endDate: params.get("end") || undefined,
-    };
-  }, []);
+  const filters = useMemo(
+    () => parseDateRangeFromParams(new URLSearchParams(window.location.search)),
+    [],
+  );
+
+  const dateRange = useMemo(() => resolveDashboardDateRange(filters), [filters]);
+  const dateRangeLabel = useMemo(() => {
+    if (dateRange.startBiz === dateRange.endBiz) return dateRange.startBiz;
+    return `${dateRange.startBiz} → ${dateRange.endBiz}`;
+  }, [dateRange]);
 
   useEffect(() => {
     queryRef.current = db;
@@ -309,11 +314,12 @@ export const InventoryDashboardReport = () => {
       try {
         setLoading(true);
         setError(null);
+        const range = resolveDashboardDateRange(filters);
         const [dashboard, reconciliationRows] = await Promise.all([
           loadInventoryDashboard(queryRef.current, filters),
           listKitchenReconciliationsForReport(queryRef.current, {
-            startDate: filters.startDate ?? null,
-            endDate: filters.endDate ?? null,
+            startDate: range.startBiz,
+            endDate: range.endBiz,
           }),
         ]);
         setPayload(dashboard);
@@ -640,7 +646,10 @@ export const InventoryDashboardReport = () => {
   const trendKey = today?.trendSummaryKey ?? "insufficient";
 
   return (
-    <ReportsLayout title={t("reports.inventoryDashboard")} subtitle={t("titles.inventoryDashboard")}>
+    <ReportsLayout
+      title={t("reports.inventoryDashboard")}
+      subtitle={`${t("titles.inventoryDashboard")} · ${dateRangeLabel}`}
+    >
       <div className="space-y-5">
         <SectionCard title={t("labels.keyMetrics")}>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -851,7 +860,7 @@ export const InventoryDashboardReport = () => {
 
         <SectionCard
           title={t("labels.todaysInventoryAndSales")}
-          subtitle={t(`labels.todayTrend.${trendKey}`)}
+          subtitle={`${dateRangeLabel}. ${t(`labels.todayTrend.${trendKey}`)}`}
         >
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4">
             <KPIMetricWidget
@@ -931,9 +940,13 @@ export const InventoryDashboardReport = () => {
 
         <SectionCard
           title={t("labels.inventoryNeededForToday")}
-          subtitle={t("labels.inventoryNeededForTodayHelp", {
-            percent: formatNumber((needed?.dayFraction ?? 0) * 100),
-          })}
+          subtitle={
+            dateRange.isLiveToday
+              ? t("labels.inventoryNeededForTodayHelp", {
+                  percent: formatNumber((needed?.dayFraction ?? 0) * 100),
+                })
+              : t("labels.inventoryNeededForPeriodHelp", {range: dateRangeLabel})
+          }
         >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             <KPIMetricWidget

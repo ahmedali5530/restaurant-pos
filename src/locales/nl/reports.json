@@ -529,7 +529,8 @@
     "latestTransfers": "Laatste transfers",
     "latestProduction": "Laatste productie",
     "latestBuffet": "Laatste buffetsessies",
-    "latestAdjustments": "Laatste correcties"
+    "latestAdjustments": "Laatste correcties",
+    "inventoryNeededForPeriodHelp": "Gemiddelde dagelijkse theoretische behoefte voor {{range}}, vergeleken met de huidige voorraad."
   },
   "metrics": {
     "gross": "Bruto",

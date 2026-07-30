@@ -78,14 +78,34 @@ const toId = (value) => {
 };
 
 const businessDateFrom = (createdAt) => {
+  const APP_TZ = process.env.APP_TIMEZONE || process.env.VITE_APP_TIMEZONE || 'Asia/Karachi';
+  const toDate = (value) => {
+    if (value == null) return new Date();
+    if (value instanceof Date) return value;
+    if (typeof value === 'object' && typeof value.toDate === 'function') return value.toDate();
+    if (typeof value === 'object' && value.seconds != null) return new Date(Number(value.seconds) * 1000);
+    if (typeof value === 'number' || typeof value === 'bigint') return new Date(Number(value));
+    return new Date(String(value));
+  };
   try {
-    if (!createdAt) return new Date().toISOString().slice(0, 10);
-    const d = createdAt instanceof Date ? createdAt : new Date(createdAt);
-    if (!Number.isNaN(d.getTime())) return d.toISOString().slice(0, 10);
+    const d = toDate(createdAt);
+    if (!Number.isNaN(d.getTime())) {
+      return new Intl.DateTimeFormat('en-CA', {
+        timeZone: APP_TZ,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(d);
+    }
   } catch {
     // fall through
   }
-  return new Date().toISOString().slice(0, 10);
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: APP_TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
 };
 
 const resolveRecord = (value) => {

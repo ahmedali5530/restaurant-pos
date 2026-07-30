@@ -749,7 +749,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                     />
                     <InputError error={_.get(errors, ["items", index, "location", "message"])}/>
                   </div>
-                  <div className="flex-1">
+                    <div className="flex-1">
                     <label>{t('buttons.item')}</label>
                     <Controller
                       name={`items.${index}.item`}
@@ -757,7 +757,16 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                       render={({field}) => (
                         <ReactSelect
                           value={field.value}
-                          onChange={field.onChange}
+                          onChange={(option) => {
+                            field.onChange(option);
+                            const catalog = itemsList.find((it) => it.id.toString() === option?.value);
+                            if (catalog) {
+                              const catalogPrice = catalog.price || catalog.average_price || 0;
+                              if (catalogPrice > 0) {
+                                setValue(`items.${index}.price`, catalogPrice);
+                              }
+                            }
+                          }}
                           options={rowItemOptions}
                           isLoading={loadingItems}
                           isDisabled={!rowLocationId}

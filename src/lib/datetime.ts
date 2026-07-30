@@ -89,6 +89,11 @@ export const getAppTimezone = (): string => {
   return zoneProbe.isValid ? timezone : "UTC";
 };
 
+/** Calendar date (yyyy-MM-dd) in the app timezone — never use UTC toISOString for this. */
+export const toAppBusinessDate = (value?: DateInput): string => {
+  return toLuxonDateTime(value).toFormat("yyyy-MM-dd");
+};
+
 export const getBusinessDayUnixRange = (value?: DateInput) => {
   const timezone = getAppTimezone();
   const dateTime = toLuxonDateTime(value).setZone(timezone);

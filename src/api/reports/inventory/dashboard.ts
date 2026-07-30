@@ -7,10 +7,11 @@ import {
   getRecipeConsumptionTimeSeries,
 } from "@/api/reports/inventory/consumption.ts";
 import {fetchPaidOrders, SALES_SUMMARY_FETCHES} from "@/api/reports/sales/fetch.ts";
-import {buildCreatedAtDateConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
+import {formatDateTimeForQuery} from "@/api/reports/shared/filters.ts";
+import {unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import {recordIdToString, recordToString} from "@/api/reports/shared/records.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
-import {toJsDate} from "@/lib/datetime.ts";
+import {getAppTimezone, toJsDate} from "@/lib/datetime.ts";
 import {forecastInventoryConsumption} from "@/lib/ai/forecast.ts";
 import {
   fetchLedgerMovements,
@@ -32,12 +33,116 @@ const unitCostOf = (item?: {average_price?: number; price?: number}): number => 
   return safeNumber(item?.price);
 };
 
-const todayIso = (): string => DateTime.now().toISODate() ?? "";
+/** Ledger business_date is yyyy-MM-dd; report filters often send date-times. */
+export const toBusinessDate = (value?: string | null): string | undefined => {
+  if (!value?.trim()) return undefined;
+  const trimmed = value.trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+  const zone = getAppTimezone();
+  const queryFmt = import.meta.env.VITE_DATE_TIME_FORMAT as string;
+  const dateFmt = import.meta.env.VITE_DATE_FORMAT as string;
+  for (const fmt of [queryFmt, dateFmt]) {
+    const parsed = DateTime.fromFormat(trimmed, fmt, {zone});
+    if (parsed.isValid) return parsed.toISODate() ?? undefined;
+  }
+  const iso = DateTime.fromISO(trimmed, {zone});
+  if (iso.isValid) return iso.toISODate() ?? undefined;
+  if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) return trimmed.slice(0, 10);
+  return undefined;
+};
 
 const dayFractionElapsed = (): number => {
-  const now = DateTime.now();
+  const now = DateTime.now().setZone(getAppTimezone());
   const hours = now.diff(now.startOf("day"), "hours").hours;
   return Math.max(0.1, Math.min(1, hours / 24));
+};
+
+/** Parse report filter wall-clock strings in the app timezone. */
+const parseFilterWallTime = (
+  value: string | undefined,
+  bound: "start" | "end",
+): DateTime | undefined => {
+  if (!value?.trim()) return undefined;
+  const zone = getAppTimezone();
+  const trimmed = value.trim();
+  const queryFmt = import.meta.env.VITE_DATE_TIME_FORMAT as string;
+  const dateFmt = import.meta.env.VITE_DATE_FORMAT as string;
+  for (const fmt of [queryFmt, dateFmt]) {
+    const parsed = DateTime.fromFormat(trimmed, fmt, {zone});
+    if (parsed.isValid) {
+      if (fmt === dateFmt) {
+        return bound === "start" ? parsed.startOf("day") : parsed.endOf("day");
+      }
+      return bound === "end" ? parsed.endOf("minute") : parsed;
+    }
+  }
+  const iso = DateTime.fromISO(trimmed, {zone});
+  if (iso.isValid) {
+    return bound === "end" && trimmed.length <= 10 ? iso.endOf("day") : iso;
+  }
+  return undefined;
+};
+
+/** Resolve filter range for created_at queries + business-date ledger queries. */
+export const resolveDashboardDateRange = (options: DateRangeFilter = {}) => {
+  const zone = getAppTimezone();
+  const today = DateTime.now().setZone(zone);
+  const todayBiz = today.toISODate() ?? "";
+  const startBiz = toBusinessDate(options.startDate) ?? todayBiz;
+  const endBiz = toBusinessDate(options.endDate) ?? todayBiz;
+  const queryStart =
+    options.startDate?.trim()
+    || formatDateTimeForQuery(DateTime.fromISO(startBiz, {zone}).startOf("day"));
+  const queryEnd =
+    options.endDate?.trim()
+    || formatDateTimeForQuery(DateTime.fromISO(endBiz, {zone}).endOf("day"));
+  const startDt = DateTime.fromISO(startBiz, {zone});
+  const endDt = DateTime.fromISO(endBiz, {zone});
+  const dayCount = Math.max(1, Math.floor(endDt.diff(startDt, "days").days) + 1);
+  const isLiveToday = startBiz === todayBiz && endBiz === todayBiz;
+
+  // UTC ISO bounds for created_at (only when filter dates are present)
+  const createdAtStartIso = options.startDate?.trim()
+    ? (parseFilterWallTime(options.startDate, "start")?.toUTC().toISO() ?? undefined)
+    : undefined;
+  const createdAtEndIso = options.endDate?.trim()
+    ? (parseFilterWallTime(options.endDate, "end")?.toUTC().toISO() ?? undefined)
+    : undefined;
+
+  return {
+    startBiz,
+    endBiz,
+    queryStart,
+    queryEnd,
+    dayCount,
+    isLiveToday,
+    todayBiz,
+    createdAtStartIso,
+    createdAtEndIso,
+  };
+};
+
+/** created_at range conditions using UTC datetime binds (app-timezone wall clock → UTC). */
+export const buildCreatedAtDatetimeConditions = (
+  options: DateRangeFilter = {},
+): {conditions: string[]; params: Record<string, string>} => {
+  const conditions: string[] = [];
+  const params: Record<string, string> = {};
+  if (options.startDate?.trim()) {
+    const start = parseFilterWallTime(options.startDate, "start")?.toUTC().toISO();
+    if (start) {
+      conditions.push("created_at >= <datetime>$startDate");
+      params.startDate = start;
+    }
+  }
+  if (options.endDate?.trim()) {
+    const end = parseFilterWallTime(options.endDate, "end")?.toUTC().toISO();
+    if (end) {
+      conditions.push("created_at <= <datetime>$endDate");
+      params.endDate = end;
+    }
+  }
+  return {conditions, params};
 };
 
 export type IssuanceVsConsumptionRow = {
@@ -139,11 +244,25 @@ export type TodayPulse = {
 };
 
 const sumDocumentLineValue = (
-  docs: Array<{items?: Array<{quantity?: number; price?: number}>; tax_amount?: number; extras?: Array<{amount?: number}>}>,
+  docs: Array<{
+    items?: Array<{
+      quantity?: number;
+      price?: number;
+      item?: {price?: number; average_price?: number};
+    }>;
+    tax_amount?: number;
+    extras?: Array<{amount?: number}>;
+  }>,
 ): number =>
   docs.reduce((sum, doc) => {
     const itemsTotal = (doc.items ?? []).reduce(
-      (itemSum, item) => itemSum + safeNumber(item.quantity) * safeNumber(item.price),
+      (itemSum, item) => {
+        const price =
+          safeNumber(item.price) ||
+          safeNumber(item.item?.price) ||
+          safeNumber(item.item?.average_price);
+        return itemSum + safeNumber(item.quantity) * price;
+      },
       0,
     );
     const extras = (doc.extras ?? []).reduce(
@@ -210,11 +329,10 @@ export const getIssuanceVsConsumption = async (
     }
   });
 
-  const rows = Array.from(byKey.values())
-    .sort((a, b) => Math.abs(b.variance) - Math.abs(a.variance) || b.consumedQty - a.consumedQty)
-    .slice(0, limit);
+  const allRows = Array.from(byKey.values())
+    .sort((a, b) => Math.abs(b.variance) - Math.abs(a.variance) || b.consumedQty - a.consumedQty);
 
-  const totals = rows.reduce(
+  const totals = allRows.reduce(
     (acc, row) => {
       acc.issuedQty += row.issuedQty;
       acc.consumedQty += row.consumedQty;
@@ -225,7 +343,7 @@ export const getIssuanceVsConsumption = async (
     {issuedQty: 0, consumedQty: 0, variance: 0, costAverage: 0},
   );
 
-  return {rows, totals};
+  return {rows: allRows.slice(0, limit), totals};
 };
 
 export const getDashboardStockByLocation = async (
@@ -332,7 +450,7 @@ export const getDashboardStockByLocation = async (
     };
   });
 
-  // Zero-stock items with reorder levels
+  // Add all remaining inventory items to every location (zero-stock display)
   items.forEach((item) => {
     const itemId = recordToString(item.id);
     const itemKey = normalizeKey(itemId);
@@ -343,9 +461,11 @@ export const getDashboardStockByLocation = async (
       if (!group) return;
       if (group.items.some((row) => row.id === itemKey)) return;
       const reorderLevel = getReorderLevelForStore(item, locationId);
-      if (reorderLevel <= 0) return;
-      belowReorderCount += 1;
-      maxReorderByItem.set(itemKey, Math.max(maxReorderByItem.get(itemKey) || 0, reorderLevel));
+      const belowReorder = reorderLevel > 0;
+      if (belowReorder) {
+        belowReorderCount += 1;
+        maxReorderByItem.set(itemKey, Math.max(maxReorderByItem.get(itemKey) || 0, reorderLevel));
+      }
       group.items.push({
         id: itemKey,
         name: item.name ?? "Unknown",
@@ -354,8 +474,8 @@ export const getDashboardStockByLocation = async (
         uom: item.uom || "",
         unitCost: unitCostOf(item),
         value: 0,
-        reorderLevel,
-        belowReorder: true,
+        reorderLevel: reorderLevel || undefined,
+        belowReorder,
       });
       group.items.sort((a, b) => a.name.localeCompare(b.name));
     });
@@ -364,12 +484,34 @@ export const getDashboardStockByLocation = async (
   return {locations: groups, totalStockValue, belowReorderCount, onHandByItem, maxReorderByItem, itemMetaByKey};
 };
 
+const getLedgerCostByTypes = async (
+  db: DbClient,
+  options: DateRangeFilter,
+  referenceTypes: string[],
+): Promise<number> => {
+  const movements = await fetchLedgerMovements(db as any, {
+    from: toBusinessDate(options.startDate) ?? options.startDate,
+    to: toBusinessDate(options.endDate) ?? options.endDate,
+    referenceTypes,
+    excludeReversals: false,
+  });
+  const voidedOriginalIds = new Set<string>();
+  movements.forEach((row) => {
+    if (row.reversal_of) voidedOriginalIds.add(row.reversal_of);
+  });
+  const activeMovements = movements.filter(
+    (row) => !row.reversal_of && !voidedOriginalIds.has(row.id),
+  );
+  return activeMovements.reduce((sum, row) => sum + Math.abs(safeNumber(row.total_cost)), 0);
+};
+
 export const getPeriodDocumentBundles = async (
   db: DbClient,
   options: DateRangeFilter,
 ) => {
-  const {conditions, params} = buildCreatedAtDateConditions(options);
-  const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+  const {conditions, params} = buildCreatedAtDatetimeConditions(options);
+  const allConditions = ["status != 'voided'", ...conditions];
+  const where = `WHERE ${allConditions.join(" AND ")}`;
 
   const [
     purchases,
@@ -452,11 +594,17 @@ export const getPeriodDocumentBundles = async (
     );
   }, 0);
 
+  // Compute issue value and issue return qty from the ledger (more reliable than document line prices/quantities).
+  const [issueTotalCost, issueReturnTotalQty] = await Promise.all([
+    getLedgerCostByTypes(db, options, ["issue"]),
+    getLedgerQtyByTypes(db, options, ["issue_return"]),
+  ]);
+
   const totals: PeriodMovementTotals = {
     purchaseValue: sumDocumentLineValue(purchases),
     purchaseReturnValue: sumDocumentLineValue(purchaseReturns),
-    issueValue: sumDocumentLineValue(issues),
-    issueReturnQty: sumDocumentLineQty(issueReturns),
+    issueValue: issueTotalCost,
+    issueReturnQty: issueReturnTotalQty,
     wasteQty: sumDocumentLineQty(wastes),
     transferQty: sumDocumentLineQty(transfers),
     productionOutputQty,
@@ -493,38 +641,55 @@ const getLedgerQtyByTypes = async (
   referenceTypes: string[],
 ): Promise<number> => {
   const movements = await fetchLedgerMovements(db as any, {
-    from: options.startDate,
-    to: options.endDate,
+    from: toBusinessDate(options.startDate) ?? options.startDate,
+    to: toBusinessDate(options.endDate) ?? options.endDate,
     referenceTypes,
-    excludeReversals: true,
+    excludeReversals: false,
   });
-  return movements.reduce((sum, row) => sum + Math.abs(safeNumber(row.quantity_change)), 0);
+  // Exclude both reversal entries and the original rows they reverse (voided).
+  const voidedOriginalIds = new Set<string>();
+  movements.forEach((row) => {
+    if (row.reversal_of) {
+      voidedOriginalIds.add(row.reversal_of);
+    }
+  });
+  const activeMovements = movements.filter(
+    (row) => !row.reversal_of && !voidedOriginalIds.has(row.id),
+  );
+  return activeMovements.reduce((sum, row) => sum + Math.abs(safeNumber(row.quantity_change)), 0);
 };
 
-export const getTodayPulse = async (db: DbClient): Promise<TodayPulse> => {
-  const today = todayIso();
-  const historyStart = DateTime.now().minus({days: 28}).toISODate() ?? today;
+export const getTodayPulse = async (
+  db: DbClient,
+  options: DateRangeFilter = {},
+): Promise<TodayPulse> => {
+  const {startBiz, endBiz, queryStart, queryEnd, isLiveToday} = resolveDashboardDateRange(options);
+  const historyStart =
+    DateTime.fromISO(endBiz, {zone: getAppTimezone()}).minus({days: 28}).toISODate() ?? endBiz;
+  const historyQueryStart = formatDateTimeForQuery(
+    DateTime.fromISO(historyStart, {zone: getAppTimezone()}).startOf("day"),
+  );
 
   const [
-    todayOrders,
-    todayConsumption,
-    todayIssuance,
+    periodOrders,
+    periodConsumption,
+    periodIssuance,
     historyOrders,
     historySeries,
-    todayPurchases,
+    purchaseValue,
     wasteQty,
     transferQty,
     productionOutputQty,
     buffetConsumptionQty,
     adjustmentQty,
   ] = await Promise.all([
-    fetchPaidOrders(db, {startDate: today, endDate: today, fetches: SALES_SUMMARY_FETCHES}),
-    getRecipeConsumptionSummary(db, {startDate: today, endDate: today}),
-    getIssuanceSummary(db, {startDate: today, endDate: today, limit: 500}),
-    fetchPaidOrders(db, {startDate: historyStart, endDate: today, fetches: SALES_SUMMARY_FETCHES}),
-    getRecipeConsumptionTimeSeries(db, {startDate: historyStart, endDate: today, granularity: "daily"}),
+    fetchPaidOrders(db, {startDate: queryStart, endDate: queryEnd, fetches: SALES_SUMMARY_FETCHES}),
+    getRecipeConsumptionSummary(db, {startDate: queryStart, endDate: queryEnd}),
+    getIssuanceSummary(db, {startDate: queryStart, endDate: queryEnd, limit: 500}),
+    fetchPaidOrders(db, {startDate: historyQueryStart, endDate: queryEnd, fetches: SALES_SUMMARY_FETCHES}),
+    getRecipeConsumptionTimeSeries(db, {startDate: historyQueryStart, endDate: queryEnd, granularity: "daily"}),
     (async () => {
-      const {conditions, params} = buildCreatedAtDateConditions({startDate: today, endDate: today});
+      const {conditions, params} = buildCreatedAtDatetimeConditions({startDate: queryStart, endDate: queryEnd});
       const rows = unwrapQueryResult<{
         items?: Array<{quantity?: number; price?: number}>;
         tax_amount?: number;
@@ -537,25 +702,24 @@ export const getTodayPulse = async (db: DbClient): Promise<TodayPulse> => {
       );
       return sumDocumentLineValue(rows);
     })(),
-    getLedgerQtyByTypes(db, {startDate: today, endDate: today}, ["waste"]),
-    getLedgerQtyByTypes(db, {startDate: today, endDate: today}, ["transfer_in", "transfer_out"]),
-    getLedgerQtyByTypes(db, {startDate: today, endDate: today}, ["production_output"]),
-    getLedgerQtyByTypes(db, {startDate: today, endDate: today}, ["buffet_consumption"]),
-    getLedgerQtyByTypes(db, {startDate: today, endDate: today}, ["adjustment"]),
+    getLedgerQtyByTypes(db, {startDate: queryStart, endDate: queryEnd}, ["waste"]),
+    getLedgerQtyByTypes(db, {startDate: queryStart, endDate: queryEnd}, ["transfer_in", "transfer_out"]),
+    getLedgerQtyByTypes(db, {startDate: queryStart, endDate: queryEnd}, ["production_output"]),
+    getLedgerQtyByTypes(db, {startDate: queryStart, endDate: queryEnd}, ["buffet_consumption"]),
+    getLedgerQtyByTypes(db, {startDate: queryStart, endDate: queryEnd}, ["adjustment"]),
   ]);
 
-  const netSales = todayOrders.reduce((sum, order) => sum + calculateOrderNetSales(order), 0);
-  const issuedQty = todayIssuance.byItem.reduce((sum, row) => sum + row.quantity, 0);
-  const purchaseValue = todayPurchases;
+  const netSales = periodOrders.reduce((sum, order) => sum + calculateOrderNetSales(order), 0);
+  const issuedQty = periodIssuance.byItem.reduce((sum, row) => sum + row.quantity, 0);
 
-  const weekday = DateTime.now().weekday;
+  const weekday = DateTime.fromISO(endBiz, {zone: getAppTimezone()}).weekday;
   const sameWeekdaySales: number[] = [];
   const salesByDay = new Map<string, number>();
   historyOrders.forEach((order) => {
     const jsDate = toJsDate(order.created_at as Parameters<typeof toJsDate>[0]);
-    const dt = DateTime.fromJSDate(jsDate);
+    const dt = DateTime.fromJSDate(jsDate).setZone(getAppTimezone());
     const key = dt.toISODate() ?? "";
-    if (!key || key === today) return;
+    if (!key || (key >= startBiz && key <= endBiz)) return;
     if (dt.weekday !== weekday) return;
     salesByDay.set(key, (salesByDay.get(key) || 0) + calculateOrderNetSales(order));
   });
@@ -563,7 +727,7 @@ export const getTodayPulse = async (db: DbClient): Promise<TodayPulse> => {
 
   const sameWeekdayConsumption: number[] = [];
   historySeries.forEach((point) => {
-    if (point.period === today) return;
+    if (point.period >= startBiz && point.period <= endBiz) return;
     const dt = DateTime.fromISO(point.period);
     if (!dt.isValid || dt.weekday !== weekday) return;
     sameWeekdayConsumption.push(point.value);
@@ -578,11 +742,21 @@ export const getTodayPulse = async (db: DbClient): Promise<TodayPulse> => {
       ? sameWeekdayConsumption.reduce((a, b) => a + b, 0) / sameWeekdayConsumption.length
       : 0;
 
+  // For multi-day ranges, compare average daily figures to same-weekday daily averages.
+  const periodDays = Math.max(
+    1,
+    Math.floor(
+      DateTime.fromISO(endBiz).diff(DateTime.fromISO(startBiz), "days").days,
+    ) + 1,
+  );
+  const avgDailySales = netSales / periodDays;
+  const avgDailyConsumption = periodConsumption.totals.quantity / periodDays;
+
   const salesTrendPercent =
-    sameWeekdayAvgSales > 0 ? ((netSales - sameWeekdayAvgSales) / sameWeekdayAvgSales) * 100 : null;
+    sameWeekdayAvgSales > 0 ? ((avgDailySales - sameWeekdayAvgSales) / sameWeekdayAvgSales) * 100 : null;
   const consumptionTrendPercent =
     sameWeekdayAvgConsumption > 0
-      ? ((todayConsumption.totals.quantity - sameWeekdayAvgConsumption) / sameWeekdayAvgConsumption) * 100
+      ? ((avgDailyConsumption - sameWeekdayAvgConsumption) / sameWeekdayAvgConsumption) * 100
       : null;
 
   let trendSummaryKey: TodayPulse["trendSummaryKey"] = "insufficient";
@@ -594,11 +768,11 @@ export const getTodayPulse = async (db: DbClient): Promise<TodayPulse> => {
   }
 
   return {
-    date: today,
-    orderCount: todayOrders.length,
+    date: isLiveToday ? endBiz : `${startBiz} → ${endBiz}`,
+    orderCount: periodOrders.length,
     netSales,
-    consumptionQty: todayConsumption.totals.quantity,
-    consumptionCost: todayConsumption.totals.costAverage,
+    consumptionQty: periodConsumption.totals.quantity,
+    consumptionCost: periodConsumption.totals.costAverage,
     issuedQty,
     purchaseValue,
     wasteQty,
@@ -618,6 +792,7 @@ export const getNeededForToday = async (
   db: DbClient,
   onHandByItem: Map<string, number>,
   itemMetaByKey: Map<string, {id: string; name: string; code?: string; uom?: string; unitCost: number}>,
+  options: DateRangeFilter = {},
 ): Promise<{
   rows: NeededTodayRow[];
   coveredCount: number;
@@ -626,11 +801,11 @@ export const getNeededForToday = async (
   totalShortfallCost: number;
   dayFraction: number;
 }> => {
-  const today = todayIso();
-  const fraction = dayFractionElapsed();
+  const {queryStart, queryEnd, dayCount, isLiveToday} = resolveDashboardDateRange(options);
+  const fraction = isLiveToday ? dayFractionElapsed() : 1;
   const consumption = await getRecipeConsumptionSummary(db, {
-    startDate: today,
-    endDate: today,
+    startDate: queryStart,
+    endDate: queryEnd,
     limit: 500,
   });
 
@@ -639,7 +814,10 @@ export const getNeededForToday = async (
     const meta = itemMetaByKey.get(key);
     const onHand = onHandByItem.get(key) || 0;
     const todayConsumed = item.quantity;
-    const projectedNeed = todayConsumed / fraction;
+    // Live today: extrapolate full-day need. Otherwise: average daily need over the filtered range.
+    const projectedNeed = isLiveToday
+      ? todayConsumed / fraction
+      : todayConsumed / dayCount;
     const shortfall = Math.max(0, projectedNeed - onHand);
     const unitCost = meta?.unitCost ?? (item.quantity > 0 ? item.costAverage / item.quantity : 0);
     return {
@@ -667,7 +845,7 @@ export const getNeededForToday = async (
     shortCount,
     totalProjectedNeedCost,
     totalShortfallCost,
-    dayFraction: fraction,
+    dayFraction: isLiveToday ? fraction : 1,
   };
 };
 
@@ -761,17 +939,22 @@ export const getRunoutForecast = async (
   onHandByItem: Map<string, number>,
   maxReorderByItem: Map<string, number>,
   itemMetaByKey: Map<string, {id: string; name: string; code?: string; uom?: string; unitCost: number}>,
+  options: DateRangeFilter = {},
   forecastDays = 14,
 ): Promise<{
   rows: RunoutForecastRow[];
   overallSeries: Array<{period: string; value: number}>;
 }> => {
-  const end = todayIso();
-  const start = DateTime.now().minus({days: 28}).toISODate() ?? end;
+  const {endBiz, queryEnd} = resolveDashboardDateRange(options);
+  const startBiz =
+    DateTime.fromISO(endBiz, {zone: getAppTimezone()}).minus({days: 28}).toISODate() ?? endBiz;
+  const queryStart = formatDateTimeForQuery(
+    DateTime.fromISO(startBiz, {zone: getAppTimezone()}).startOf("day"),
+  );
 
   const [perItem, overallSeries] = await Promise.all([
-    getPerItemDailyConsumption(db, {startDate: start, endDate: end}),
-    getRecipeConsumptionTimeSeries(db, {startDate: start, endDate: end, granularity: "daily"}),
+    getPerItemDailyConsumption(db, {startDate: queryStart, endDate: queryEnd}),
+    getRecipeConsumptionTimeSeries(db, {startDate: queryStart, endDate: queryEnd, granularity: "daily"}),
   ]);
 
   const rows: RunoutForecastRow[] = [];
@@ -833,12 +1016,12 @@ export const loadInventoryDashboard = async (
     getPeriodDocumentBundles(db, options),
     getDashboardStockByLocation(db),
     getIssuanceVsConsumption(db, {...options, limit: 50}),
-    getTodayPulse(db),
+    getTodayPulse(db, options),
   ]);
 
   const [neededToday, runout] = await Promise.all([
-    getNeededForToday(db, stock.onHandByItem, stock.itemMetaByKey),
-    getRunoutForecast(db, stock.onHandByItem, stock.maxReorderByItem, stock.itemMetaByKey),
+    getNeededForToday(db, stock.onHandByItem, stock.itemMetaByKey, options),
+    getRunoutForecast(db, stock.onHandByItem, stock.maxReorderByItem, stock.itemMetaByKey, options),
   ]);
 
   return {

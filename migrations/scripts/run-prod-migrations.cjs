@@ -56,6 +56,10 @@ const MIGRATION_PLAN = [
     id: '2026_07_26_access_modules_backfill',
     backfill: 'backfill-access-modules.cjs',
   },
+  {
+    id: '2026_07_30_ledger_business_date_tz',
+    backfill: 'backfill-ledger-business-date.cjs',
+  },
 ];
 
 const rows = (result) => {

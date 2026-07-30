@@ -334,12 +334,34 @@ export const getIssuanceSummary = async (
   options: DateRangeFilter & {limit?: number} = {},
 ) => {
   const limit = options.limit ?? 50;
+  // business_date is yyyy-MM-dd; strip time from report filter date-times
+  const toBiz = (value?: string) => {
+    if (!value?.trim()) return undefined;
+    const trimmed = value.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+    if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) return trimmed.slice(0, 10);
+    return trimmed;
+  };
+  // Include reversals so we can detect and exclude voided originals.
   const movements = await fetchLedgerMovements(db as any, {
-    from: options.startDate,
-    to: options.endDate,
+    from: toBiz(options.startDate),
+    to: toBiz(options.endDate),
     referenceTypes: ["issue", "buffet_consumption"],
-    excludeReversals: true,
+    excludeReversals: false,
   });
+
+  // Build a set of original ledger row IDs that have been reversed (voided).
+  const voidedOriginalIds = new Set<string>();
+  movements.forEach((row) => {
+    if (row.reversal_of) {
+      voidedOriginalIds.add(row.reversal_of);
+    }
+  });
+
+  // Exclude both reversal entries and the original rows they reverse.
+  const activeMovements = movements.filter(
+    (row) => !row.reversal_of && !voidedOriginalIds.has(row.id),
+  );
 
   const items = unwrapQueryResult<{id: unknown; name?: string}>(
     await db.query(`SELECT id, name FROM ${Tables.inventory_items}`),
@@ -353,7 +375,7 @@ export const getIssuanceSummary = async (
   });
 
   const byItem = new Map<string, {itemId: string; name: string; quantity: number}>();
-  movements.forEach((row) => {
+  activeMovements.forEach((row) => {
     const meta =
       itemMetaByKey.get(row.inventory_item)
       || itemMetaByKey.get(normalizeKey(row.inventory_item));
@@ -367,7 +389,7 @@ export const getIssuanceSummary = async (
 
   return {
     type: "issue" as const,
-    movementCount: movements.length,
+    movementCount: activeMovements.length,
     byItem: Array.from(byItem.values()).sort((a, b) => b.quantity - a.quantity).slice(0, limit),
   };
 };

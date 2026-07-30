@@ -9,12 +9,6 @@ import {getReorderLevelForStore, isBelowReorderLevel} from "@/utils/inventory.ts
 import {lineAmount, resolveCatalogUnitCost} from "@/lib/inventory/line.cost.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
 
-const isDebitType = (type: string, quantity?: number) => {
-  if (type === "adjustment") return (quantity ?? 0) < 0;
-  return type === "issue" || type === "return" || type === "waste" || type === "transfer_out"
-    || type === "production_out" || type.startsWith("buffet_");
-};
-
 export const StoreInventoryCell = ({locationId, item}: {locationId: string, item?: InventoryItem}) => {
   const { t } = useTranslation('inventory');
   const {netQuantity, loading, records} = useStoreInventory(item?.id, locationId);
@@ -37,55 +31,69 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
       type: string;
       operator: string;
       quantity: number;
+      signedQuantity: number;
       created_at: Date;
       item: {name?: string; code?: string; uom?: string};
       counterparty?: string;
+      reversal?: boolean;
     }> = [
       ...records.purchases.map((row: any) => ({
         id: String(row.id),
         type: "purchase",
-        operator: "+",
+        operator: (row.signedQuantity ?? 0) >= 0 ? "+" : "-",
         quantity: row.quantity,
+        signedQuantity: row.signedQuantity ?? 0,
+        reversal: !!row.reversal,
         created_at: row.created_at instanceof Date ? row.created_at : new Date(row.created_at),
         item: resolveItemMeta(row.item),
       })),
       ...records.returns.map((row: any) => ({
         id: String(row.id),
         type: "return",
-        operator: "-",
+        operator: (row.signedQuantity ?? 0) >= 0 ? "+" : "-",
         quantity: row.quantity,
+        signedQuantity: row.signedQuantity ?? 0,
+        reversal: !!row.reversal,
         created_at: row.created_at instanceof Date ? row.created_at : new Date(row.created_at),
         item: resolveItemMeta(row.item),
       })),
       ...records.issues.map((row: any) => ({
         id: String(row.id),
         type: "issue",
-        operator: "-",
+        operator: (row.signedQuantity ?? 0) >= 0 ? "+" : "-",
         quantity: row.quantity,
+        signedQuantity: row.signedQuantity ?? 0,
+        reversal: !!row.reversal,
         created_at: row.created_at instanceof Date ? row.created_at : new Date(row.created_at),
         item: resolveItemMeta(row.item),
       })),
       ...records.issueReturns.map((row: any) => ({
         id: String(row.id),
         type: "issue_return",
-        operator: "+",
+        operator: (row.signedQuantity ?? 0) >= 0 ? "+" : "-",
         quantity: row.quantity,
+        signedQuantity: row.signedQuantity ?? 0,
+        reversal: !!row.reversal,
         created_at: row.created_at instanceof Date ? row.created_at : new Date(row.created_at),
         item: resolveItemMeta(row.item),
       })),
       ...records.waste.map((row: any) => ({
         id: String(row.id),
         type: "waste",
-        operator: "-",
+        operator: (row.signedQuantity ?? 0) >= 0 ? "+" : "-",
         quantity: row.quantity,
+        signedQuantity: row.signedQuantity ?? 0,
+        reversal: !!row.reversal,
         created_at: row.created_at instanceof Date ? row.created_at : new Date(row.created_at),
         item: resolveItemMeta(row.item),
       })),
       ...records.transfersIn.map((row) => ({
         id: row.id,
         type: "transfer_in",
-        operator: "+",
+        operator: ((row as any).signedQuantity ?? 0) >= 0 ? "+" : "-",
         quantity: row.quantity,
+        signedQuantity: (row as any).signedQuantity ?? 0,
+        reversal: !!(row as any).reversal,
         created_at: row.created_at,
         item: resolveItemMeta(row.item),
         counterparty: row.counterparty,
@@ -93,8 +101,10 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
       ...records.transfersOut.map((row) => ({
         id: row.id,
         type: "transfer_out",
-        operator: "-",
+        operator: ((row as any).signedQuantity ?? 0) >= 0 ? "+" : "-",
         quantity: row.quantity,
+        signedQuantity: (row as any).signedQuantity ?? 0,
+        reversal: !!(row as any).reversal,
         created_at: row.created_at,
         item: resolveItemMeta(row.item),
         counterparty: row.counterparty,
@@ -102,8 +112,10 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
       ...records.productionOutputs.map((row) => ({
         id: row.id,
         type: "production_in",
-        operator: "+",
+        operator: ((row as any).signedQuantity ?? 0) >= 0 ? "+" : "-",
         quantity: row.quantity,
+        signedQuantity: (row as any).signedQuantity ?? 0,
+        reversal: !!(row as any).reversal,
         created_at: row.created_at,
         item: resolveItemMeta(row.item),
         counterparty: row.batchNumber,
@@ -111,8 +123,10 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
       ...records.productionInputs.map((row) => ({
         id: row.id,
         type: "production_out",
-        operator: "-",
+        operator: ((row as any).signedQuantity ?? 0) >= 0 ? "+" : "-",
         quantity: row.quantity,
+        signedQuantity: (row as any).signedQuantity ?? 0,
+        reversal: !!(row as any).reversal,
         created_at: row.created_at,
         item: resolveItemMeta(row.item),
         counterparty: row.batchNumber,
@@ -120,8 +134,10 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
       ...records.buffetConsumption.map((row) => ({
         id: row.id,
         type: row.type,
-        operator: "-",
+        operator: ((row as any).signedQuantity ?? 0) >= 0 ? "+" : "-",
         quantity: row.quantity,
+        signedQuantity: (row as any).signedQuantity ?? 0,
+        reversal: !!(row as any).reversal,
         created_at: row.created_at,
         item: resolveItemMeta(row.item),
         counterparty: row.sessionNumber,
@@ -129,11 +145,13 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
       ...(records.adjustments ?? []).map((row) => ({
         id: row.id,
         type: "adjustment",
-        operator: row.quantity >= 0 ? "+" : "-",
-        quantity: Math.abs(row.quantity),
+        operator: Number(row.quantity) >= 0 ? "+" : "-",
+        quantity: Math.abs(Number(row.quantity) || 0),
+        signedQuantity: Number(row.quantity) || 0,
+        reversal: !!(row as any).reversal,
         created_at: row.created_at,
         item: resolveItemMeta(row.item),
-        counterparty: row.notes,
+        counterparty: (row as any).notes,
       })),
     ];
 
@@ -224,15 +242,14 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
               </thead>
               <tbody>
               {unified.map((unifiedItem) => {
-                if (isDebitType(unifiedItem.type, unifiedItem.operator === "-" ? -unifiedItem.quantity : unifiedItem.quantity)) {
-                  total -= unifiedItem.quantity;
-                } else {
-                  total += unifiedItem.quantity;
-                }
+                total += unifiedItem.signedQuantity;
 
                 return (
-                  <tr key={`${unifiedItem.type}-${unifiedItem.id}`}>
-                    <td className="capitalize">{unifiedItem.type.replace(/_/g, " ")}</td>
+                  <tr key={`${unifiedItem.type}-${unifiedItem.id}`} className={unifiedItem.reversal ? "opacity-60 line-through" : ""}>
+                    <td className="capitalize">
+                      {unifiedItem.type.replace(/_/g, " ")}
+                      {unifiedItem.reversal ? ` (${t("status.voided")})` : ""}
+                    </td>
                     <td>{unifiedItem.created_at ? toLuxonDateTime(unifiedItem.created_at).toFormat(import.meta.env.VITE_DATE_FORMAT) : ""}</td>
                     <td>
                       {unifiedItem.item?.name}-{unifiedItem.item?.code}
@@ -271,22 +288,16 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
                           </thead>
                           <tbody>
                           {rows.map((splitItem: any) => {
-                            const rowType = splitItem.type ?? type.toLowerCase().replace(/ /g, "_");
-                            const signedQty = rowType === "adjustment"
-                              ? Number(splitItem.quantity) || 0
-                              : undefined;
-                            if (isDebitType(rowType, signedQty) || type.includes(t("stockTransfer.transferOut"))) {
-                              sectionTotal -= Math.abs(Number(splitItem.quantity) || 0);
-                            } else if (rowType === "adjustment") {
-                              sectionTotal += Number(splitItem.quantity) || 0;
-                            } else {
-                              sectionTotal += splitItem.quantity;
-                            }
+                            const signedQty = (splitItem.signedQuantity ?? Number(splitItem.quantity)) || 0;
+                            sectionTotal += signedQty;
+
+                            const displayQty = Math.abs(Number(splitItem.quantity) || 0);
+                            const displayOp = signedQty >= 0 ? "+" : "-";
 
                             return (
-                              <tr key={splitItem.id}>
+                              <tr key={splitItem.id} className={splitItem.reversal ? "opacity-60 line-through" : ""}>
                                 <td>{splitItem.created_at ? toLuxonDateTime(splitItem.created_at).toFormat(import.meta.env.VITE_DATE_FORMAT) : splitItem.created_at}</td>
-                                <td>{splitItem.quantity} {splitItem.item?.uom || item?.uom}</td>
+                                <td>{displayOp}{displayQty} {splitItem.item?.uom || item?.uom}</td>
                               </tr>
                             );
                           })}

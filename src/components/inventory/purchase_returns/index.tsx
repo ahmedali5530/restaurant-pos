@@ -149,6 +149,9 @@ export const InventoryPurchaseReturns = () => {
             Purchase return
           </Button>
         ]}
+        defaultSort={[
+          {id: 'invoice_number', desc: true}
+        ]}
       />
 
       {formModal && (

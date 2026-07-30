@@ -529,7 +529,8 @@
     "latestTransfers": "Son transferler",
     "latestProduction": "Son üretim",
     "latestBuffet": "Son büfe oturumları",
-    "latestAdjustments": "Son düzeltmeler"
+    "latestAdjustments": "Son düzeltmeler",
+    "inventoryNeededForPeriodHelp": "{{range}} için ortalama günlük teorik ihtiyaç, mevcut stokla karşılaştırılır."
   },
   "metrics": {
     "gross": "Brüt",
