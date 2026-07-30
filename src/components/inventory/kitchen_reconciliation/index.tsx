@@ -352,6 +352,7 @@ export const KitchenReconciliationScreen = () => {
         onExport={() =>
           (reconciliation?.items ?? []).map((line) => ({
             item_code: line.item?.code ?? "",
+            item_name: line.item?.name ?? "",
             physical_count: line.physical_count != null ? String(line.physical_count) : "",
             waste: String(line.waste_qty ?? 0),
             staff_meal: String(line.staff_meal_qty ?? 0),

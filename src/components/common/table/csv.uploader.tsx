@@ -40,6 +40,8 @@ export type CsvFieldConfig = {
   label: string;
   /** Optional: default CSV header name to preselect */
   defaultCsvHeader?: string;
+  /** Optional: when true, this field is not required to be mapped on import */
+  optional?: boolean;
 };
 
 type MatchOption = { label: string; value: string };
@@ -185,10 +187,12 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
 
   const allRequiredMapped = useMemo(
     () =>
-      fields.every(
-        (field) =>
-          mapping[field.name] && mapping[field.name]!.trim() !== ""
-      ),
+      fields
+        .filter((f) => !f.optional)
+        .every(
+          (field) =>
+            mapping[field.name] && mapping[field.name]!.trim() !== ""
+        ),
     [fields, mapping]
   );
 
