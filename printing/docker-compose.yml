@@ -1,14 +1,18 @@
+# Minimal standalone HTTP print server.
+# Usage (from printing/):
+#   docker compose up -d --build
+# Set PRINT_TIMEZONE (or TZ) to the venue IANA zone, e.g. Asia/Karachi.
 services:
   print-server:
     build:
       context: .
-      dockerfile: Dockerfile.https
-    image: posr-print-https:latest
+      dockerfile: Dockerfile
+    image: posr-print:latest
     ports:
-      - "3132:443"
-    volumes:
-      - ./certs:/certs:ro
+      - "3132:3132"
     environment:
+      - PRINT_PORT=3132
+      - PRINT_HOST=0.0.0.0
       - TZ=${PRINT_TIMEZONE:-${TZ:-UTC}}
       - PRINT_TIMEZONE=${PRINT_TIMEZONE:-${TZ:-UTC}}
       - GATEWAY_JWT_SECRET=${GATEWAY_JWT_SECRET:-dev-only-change-me-posr-gateway}

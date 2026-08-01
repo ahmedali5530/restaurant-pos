@@ -108,8 +108,24 @@ function normalizeConfig(c = {}) {
     decimal_place: c.decimal_place,
     labels: c.labels && typeof c.labels === 'object' ? c.labels : {},
     locale: typeof c.locale === 'string' && c.locale ? c.locale : 'en-US',
-    timezone: typeof c.timezone === 'string' && c.timezone.trim() ? c.timezone.trim() : undefined,
+    timezone: resolveTimezone(c.timezone),
   };
+}
+
+/**
+ * Prefer request config.timezone; else PRINT_TIMEZONE / TZ for standalone deploys.
+ * @param {unknown} fromConfig
+ * @returns {string|undefined}
+ */
+function resolveTimezone(fromConfig) {
+  if (typeof fromConfig === 'string' && fromConfig.trim()) {
+    return fromConfig.trim();
+  }
+  const fromEnv =
+    (typeof process.env.PRINT_TIMEZONE === 'string' && process.env.PRINT_TIMEZONE.trim()) ||
+    (typeof process.env.TZ === 'string' && process.env.TZ.trim()) ||
+    '';
+  return fromEnv || undefined;
 }
 
 function getEffectiveLineWidth(size) {

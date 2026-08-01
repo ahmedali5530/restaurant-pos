@@ -12,6 +12,31 @@ npm start
 
 Server listens on `http://localhost:3132` (or `PRINT_PORT`).
 
+## Timezone
+
+Receipt times (KOT, bills, refunds, summary) use:
+
+1. `config.timezone` from the print request (POS app sends `VITE_APP_TIMEZONE` when present)
+2. else `PRINT_TIMEZONE`
+3. else `TZ`
+4. else the container/host local timezone
+
+For standalone deploys, set an IANA zone, e.g. `PRINT_TIMEZONE=Asia/Karachi`.
+
+## Standalone HTTP (Docker)
+
+Minimal HTTP print server (no TLS):
+
+```bash
+cd printing
+# optional: export PRINT_TIMEZONE=Asia/Karachi
+docker compose up -d --build
+```
+
+- **URL:** `http://localhost:3132`
+- **Health:** `curl http://localhost:3132/health`
+- Compose file: [`docker-compose.yml`](docker-compose.yml)
+
 ## Standalone HTTPS (Docker)
 
 Run the print server alone over **trusted HTTPS** on localhost (no browser certificate warnings). TLS is handled by Caddy in front of the same Express app — `server.js` stays HTTP-only inside the container.
@@ -172,6 +197,8 @@ docker compose -f docker-compose.standalone.yml up -d --build
 # Windows (PowerShell) — same command
 docker compose -f docker-compose.standalone.yml up -d --build
 ```
+
+Set `PRINT_TIMEZONE` (or `TZ`) the same way as the HTTP compose so KOT/bill times match the venue when the client omits `config.timezone`.
 
 - **URL (same machine):** `https://localhost:3132`
 - **URL (LAN IP):** `https://192.168.1.50:3132` (after including that IP when generating certs)
