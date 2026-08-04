@@ -354,7 +354,9 @@
     "batch": "Parti",
     "session": "Oturum",
     "menu": "Menü",
-    "issue": "Çıkış"
+    "issue": "Çıkış",
+    "employee": "Çalışan",
+    "turnTime": "Dönüş süresi (dk)"
   },
   "labels": {
     "modifiers": "Değiştiriciler",
@@ -530,7 +532,12 @@
     "latestProduction": "Son üretim",
     "latestBuffet": "Son büfe oturumları",
     "latestAdjustments": "Son düzeltmeler",
-    "inventoryNeededForPeriodHelp": "{{range}} için ortalama günlük teorik ihtiyaç, mevcut stokla karşılaştırılır."
+    "inventoryNeededForPeriodHelp": "{{range}} için ortalama günlük teorik ihtiyaç, mevcut stokla karşılaştırılır.",
+    "saleByOrderType": "Sipariş türüne göre satış",
+    "saleByDayPart": "Günün dilimine göre satış",
+    "saleByEmployees": "Çalışanlara göre satış",
+    "expandAll": "Tümünü genişlet",
+    "collapseAll": "Tümünü daralt"
   },
   "metrics": {
     "gross": "Brüt",
@@ -627,6 +634,7 @@
   "empty": {
     "noDiscountTypes": "Seçilen aralık için indirim türü yok.",
     "noDiscountsByUsers": "Seçilen aralık için kullanıcıya göre indirim yok.",
-    "noDiscountRows": "Seçilen aralık için indirim satırı bulunamadı."
+    "noDiscountRows": "Seçilen aralık için indirim satırı bulunamadı.",
+    "noEmployeeSales": "Çalışan satış verisi yok"
   }
 }

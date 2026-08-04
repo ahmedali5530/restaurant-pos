@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-08-04',
+    title: 'Sales Summary 2 enhancements',
+    items: [
+      'Sales Summary 2 now includes a Sale by Employees section with the same metrics as order type and day part breakdowns.',
+      'Turn time is calculated as the average minutes between order time (created_at) and completion time (completed_at).',
+    ],
+  },
+  {
     date: '2026-08-03',
     title: 'QuickBooks Online Integration',
     items: [

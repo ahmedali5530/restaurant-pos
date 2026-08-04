@@ -354,7 +354,9 @@
     "batch": "Lotto",
     "session": "Sessione",
     "menu": "Menu",
-    "issue": "Uscita"
+    "issue": "Uscita",
+    "employee": "Dipendente",
+    "turnTime": "Tempo di rotazione (min)"
   },
   "labels": {
     "modifiers": "Modificatori",
@@ -530,7 +532,12 @@
     "latestProduction": "Ultima produzione",
     "latestBuffet": "Ultime sessioni buffet",
     "latestAdjustments": "Ultime rettifiche",
-    "inventoryNeededForPeriodHelp": "Fabbisogno teorico medio giornaliero per {{range}}, confrontato con le scorte attuali."
+    "inventoryNeededForPeriodHelp": "Fabbisogno teorico medio giornaliero per {{range}}, confrontato con le scorte attuali.",
+    "saleByOrderType": "Vendite per tipo ordine",
+    "saleByDayPart": "Vendite per fascia oraria",
+    "saleByEmployees": "Vendite per dipendenti",
+    "expandAll": "Espandi tutto",
+    "collapseAll": "Comprimi tutto"
   },
   "metrics": {
     "gross": "Lordo",
@@ -627,6 +634,7 @@
   "empty": {
     "noDiscountTypes": "Nessun tipo di sconto per l'intervallo selezionato.",
     "noDiscountsByUsers": "Nessuno sconto per utente per l'intervallo selezionato.",
-    "noDiscountRows": "Nessuna riga sconto trovata per l'intervallo selezionato."
+    "noDiscountRows": "Nessuna riga sconto trovata per l'intervallo selezionato.",
+    "noEmployeeSales": "Nessun dato di vendita per dipendente disponibile"
   }
 }

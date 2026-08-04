@@ -354,7 +354,9 @@
     "batch": "Charge",
     "session": "Sitzung",
     "menu": "Menü",
-    "issue": "Ausgabe"
+    "issue": "Ausgabe",
+    "employee": "Mitarbeiter",
+    "turnTime": "Turn-Time (Min.)"
   },
   "labels": {
     "modifiers": "Modifikatoren",
@@ -530,7 +532,12 @@
     "latestProduction": "Neueste Produktion",
     "latestBuffet": "Neueste Buffet-Sitzungen",
     "latestAdjustments": "Neueste Korrekturen",
-    "inventoryNeededForPeriodHelp": "Durchschnittlicher täglicher theoretischer Bedarf für {{range}}, verglichen mit dem aktuellen Bestand."
+    "inventoryNeededForPeriodHelp": "Durchschnittlicher täglicher theoretischer Bedarf für {{range}}, verglichen mit dem aktuellen Bestand.",
+    "saleByOrderType": "Verkauf nach Bestellart",
+    "saleByDayPart": "Verkauf nach Tageszeit",
+    "saleByEmployees": "Verkauf nach Mitarbeitern",
+    "expandAll": "Alle erweitern",
+    "collapseAll": "Alle einklappen"
   },
   "metrics": {
     "gross": "Brutto",
@@ -627,6 +634,7 @@
   "empty": {
     "noDiscountTypes": "Keine Rabattarten für den ausgewählten Zeitraum.",
     "noDiscountsByUsers": "Keine Rabatte nach Benutzer für den ausgewählten Zeitraum.",
-    "noDiscountRows": "Keine Rabattzeilen für den ausgewählten Zeitraum gefunden."
+    "noDiscountRows": "Keine Rabattzeilen für den ausgewählten Zeitraum gefunden.",
+    "noEmployeeSales": "Keine Mitarbeiterverkaufsdaten verfügbar"
   }
 }

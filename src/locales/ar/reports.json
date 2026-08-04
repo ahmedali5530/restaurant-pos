@@ -354,7 +354,9 @@
     "batch": "دفعة",
     "session": "جلسة",
     "menu": "قائمة",
-    "issue": "صرف"
+    "issue": "صرف",
+    "employee": "الموظف",
+    "turnTime": "وقت الالتفاف (دقيقة)"
   },
   "labels": {
     "modifiers": "الإضافات",
@@ -530,7 +532,12 @@
     "latestProduction": "أحدث الإنتاج",
     "latestBuffet": "أحدث جلسات البوفيه",
     "latestAdjustments": "أحدث التسويات",
-    "inventoryNeededForPeriodHelp": "متوسط الحاجة اليومية النظرية لـ {{range}}، مقارنة بالمخزون الحالي."
+    "inventoryNeededForPeriodHelp": "متوسط الحاجة اليومية النظرية لـ {{range}}، مقارنة بالمخزون الحالي.",
+    "saleByOrderType": "المبيعات حسب نوع الطلب",
+    "saleByDayPart": "المبيعات حسب فترة اليوم",
+    "saleByEmployees": "المبيعات حسب الموظفين",
+    "expandAll": "توسيع الكل",
+    "collapseAll": "طي الكل"
   },
   "metrics": {
     "gross": "إجمالي",
@@ -627,6 +634,7 @@
   "empty": {
     "noDiscountTypes": "لا توجد أنواع خصم للنطاق المحدد.",
     "noDiscountsByUsers": "لا توجد خصومات حسب المستخدمين للنطاق المحدد.",
-    "noDiscountRows": "لا توجد صفوف خصم للنطاق المحدد."
+    "noDiscountRows": "لا توجد صفوف خصم للنطاق المحدد.",
+    "noEmployeeSales": "لا توجد بيانات مبيعات حسب الموظفين"
   }
 }

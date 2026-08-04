@@ -1,5 +1,7 @@
 import {useEffect, useMemo, useRef, useState} from "react";
 import { useTranslation } from 'react-i18next';
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faChevronDown, faChevronRight} from "@fortawesome/free-solid-svg-icons";
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -12,6 +14,7 @@ import {getOrdersTaxBreakdown} from "@/lib/tax-calculator.ts";
 import {aggregateOrderDiscountBreakdown, getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures} from "@/lib/order.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 import {DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
+import {recordIdToString} from "@/api/reports/shared/records.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -101,8 +104,8 @@ const getModifierRows = (modifiers: any[] = []): ModifierRow[] => {
   return rows;
 };
 
-interface OrderTypeMetrics {
-  orderType: string;
+interface SegmentMetrics {
+  name: string;
   salePriceWithoutTax: number;
   taxes: number;
   amountDue: number;
@@ -116,7 +119,127 @@ interface OrderTypeMetrics {
   avgGuest: number;
   checks: number;
   avgCheck: number;
-  turnTime: number; // in minutes
+  turnTime: number; // running sum until finalized as average minutes
+  turnTimeSamples: number;
+}
+
+const emptySegmentMetrics = (name: string): SegmentMetrics => ({
+  name,
+  salePriceWithoutTax: 0,
+  taxes: 0,
+  amountDue: 0,
+  serviceCharges: 0,
+  tips: 0,
+  discounts: 0,
+  coupons: 0,
+  net: 0,
+  percentOfTotal: 0,
+  guests: 0,
+  avgGuest: 0,
+  checks: 0,
+  avgCheck: 0,
+  turnTime: 0,
+  turnTimeSamples: 0,
+});
+
+const getOrderEmployeeName = (order: Order): string => {
+  const user = order.user as {first_name?: string; last_name?: string; login?: string} | string | undefined;
+  if (!user || typeof user === "string") {
+    return user?.trim() || "Unknown";
+  }
+  const name = `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim();
+  return name || user.login || "Unknown";
+};
+
+const getOrderEmployeeKey = (order: Order): string => {
+  return recordIdToString(order.user) || "unknown";
+};
+
+const timestampMs = (value: unknown): number | null => {
+  if (value == null || value === "") {
+    return null;
+  }
+  const ms = toJsDate(value as Parameters<typeof toJsDate>[0]).getTime();
+  return Number.isFinite(ms) ? ms : null;
+};
+
+/** Turn time in minutes: completion time − order (created) time. */
+const getOrderTurnTimeMinutes = (order: Order): number => {
+  const created = timestampMs(order.created_at);
+  if (created == null) {
+    return 0;
+  }
+
+  // Prefer completed_at; for older paid rows without it, use updated_at.
+  let completed = timestampMs(order.completed_at);
+  if (completed == null) {
+    completed = timestampMs((order as Order & {updated_at?: unknown}).updated_at);
+  }
+
+  if (completed == null || completed < created) {
+    return 0;
+  }
+
+  return (completed - created) / (1000 * 60);
+};
+
+const formatTurnTime = (minutes: number) =>
+  new Intl.NumberFormat(import.meta.env.VITE_LOCALE, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+    useGrouping: false,
+  }).format(safeNumber(minutes));
+
+const finalizeSegmentMetrics = (metrics: SegmentMetrics, totalNet: number) => {
+  const safeNet = safeNumber(metrics.net);
+  const safeGuests = safeNumber(metrics.guests);
+  const safeChecks = safeNumber(metrics.checks);
+  const safeTotalNet = safeNumber(totalNet);
+  const safeTurnTime = safeNumber(metrics.turnTime);
+  const samples = safeNumber(metrics.turnTimeSamples);
+
+  metrics.avgGuest = safeGuests > 0 ? safeNumber(safeNet / safeGuests) : 0;
+  metrics.avgCheck = safeChecks > 0 ? safeNumber(safeNet / safeChecks) : 0;
+  metrics.percentOfTotal = safeTotalNet > 0 ? safeNumber((safeNet / safeTotalNet) * 100) : 0;
+  metrics.turnTime = samples > 0 ? safeNumber(safeTurnTime / samples) : 0;
+};
+
+const accumulateSegmentMetrics = (metrics: SegmentMetrics, order: Order, orderMetrics: ReturnType<typeof calculateOrderMetrics>) => {
+  metrics.salePriceWithoutTax = safeNumber(metrics.salePriceWithoutTax + safeNumber(orderMetrics.salePriceWithoutTax));
+  metrics.taxes = safeNumber(metrics.taxes + safeNumber(orderMetrics.taxes));
+  metrics.amountDue = safeNumber(metrics.amountDue + safeNumber(orderMetrics.amountDue));
+  metrics.serviceCharges = safeNumber(metrics.serviceCharges + safeNumber(orderMetrics.serviceCharges));
+  metrics.tips = safeNumber(metrics.tips + safeNumber(orderMetrics.tips));
+  metrics.discounts = safeNumber(metrics.discounts + safeNumber(orderMetrics.discounts));
+  metrics.coupons = safeNumber(metrics.coupons + safeNumber(orderMetrics.coupons));
+  metrics.net = safeNumber(metrics.net + safeNumber(orderMetrics.net));
+  metrics.guests = safeNumber(metrics.guests + safeNumber(order.covers));
+  metrics.checks += 1;
+  if (orderMetrics.turnTime > 0) {
+    metrics.turnTime = safeNumber(metrics.turnTime + orderMetrics.turnTime);
+    metrics.turnTimeSamples += 1;
+  }
+};
+
+// Hoisted so accumulateSegmentMetrics can reference its return type shape without circular TDZ issues in useMemo bodies.
+function calculateOrderMetrics(order: Order) {
+  const figures = getOrderSettlementFigures(order);
+  const paymentTotals = getOrderPaymentTotals(order);
+  const amountCollected = paymentTotals.amountCollected;
+  const net = safeNumber(amountCollected - figures.serviceCharges - figures.tax);
+  const turnTime = getOrderTurnTimeMinutes(order);
+
+  return {
+    salePriceWithoutTax: figures.itemsTotal,
+    taxes: figures.tax,
+    amountDue: getOrderAmountDueFromPayments(order),
+    serviceCharges: figures.serviceCharges,
+    tips: figures.tips,
+    discounts: safeNumber(figures.lineDiscounts + figures.cartDiscount),
+    coupons: figures.couponDiscount,
+    net,
+    turnTime,
+  };
 }
 
 export const SalesSummary2Report = () => {
@@ -128,6 +251,7 @@ export const SalesSummary2Report = () => {
   const [orderVoids, setOrderVoids] = useState<OrderVoid[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(() => new Set());
 
   const filters = useMemo(parseFilters, []);
   const subtitle = filters.startDate && filters.endDate ? `${filters.startDate} to ${filters.endDate}` : undefined;
@@ -230,31 +354,6 @@ export const SalesSummary2Report = () => {
     fetchData();
   }, [filters.startDate, filters.endDate]);
 
-  // Calculate metrics for a single order
-  const calculateOrderMetrics = (order: Order) => {
-    const figures = getOrderSettlementFigures(order);
-    const paymentTotals = getOrderPaymentTotals(order);
-    const amountCollected = paymentTotals.amountCollected;
-    const net = safeNumber(amountCollected - figures.serviceCharges - figures.tax);
-
-    // Calculate turn time: for paid orders, estimate based on payment time
-    // Since we don't have payment timestamps, we'll use 0 for now
-    // In a real system, you'd calculate: payment_time - created_at
-    const turnTime = 0;
-
-    return {
-      salePriceWithoutTax: figures.itemsTotal,
-      taxes: figures.tax,
-      amountDue: getOrderAmountDueFromPayments(order),
-      serviceCharges: figures.serviceCharges,
-      tips: figures.tips,
-      discounts: safeNumber(figures.lineDiscounts + figures.cartDiscount),
-      coupons: figures.couponDiscount,
-      net,
-      turnTime,
-    };
-  };
-
   // First section: Financial calculations
   const financialMetrics = useMemo(() => {
     const settlementFigures = orders.map(order => getOrderSettlementFigures(order));
@@ -318,61 +417,20 @@ export const SalesSummary2Report = () => {
   // Second section: Sale by order type
   const orderTypeMetrics = useMemo(() => {
     const totalNet = financialMetrics.net;
-    const map = new Map<string, OrderTypeMetrics>();
+    const map = new Map<string, SegmentMetrics>();
 
     orders.forEach(order => {
       const orderTypeName =
         order.order_type?.name || (typeof order.order_type === "string" ? order.order_type : "Unknown");
 
       if (!map.has(orderTypeName)) {
-        map.set(orderTypeName, {
-          orderType: orderTypeName,
-          salePriceWithoutTax: 0,
-          taxes: 0,
-          amountDue: 0,
-          serviceCharges: 0,
-          tips: 0,
-          discounts: 0,
-          coupons: 0,
-          net: 0,
-          percentOfTotal: 0,
-          guests: 0,
-          avgGuest: 0,
-          checks: 0,
-          avgCheck: 0,
-          turnTime: 0,
-        });
+        map.set(orderTypeName, emptySegmentMetrics(orderTypeName));
       }
 
-      const metrics = map.get(orderTypeName)!;
-      const orderMetrics = calculateOrderMetrics(order);
-
-      metrics.salePriceWithoutTax = safeNumber(metrics.salePriceWithoutTax + safeNumber(orderMetrics.salePriceWithoutTax));
-      metrics.taxes = safeNumber(metrics.taxes + safeNumber(orderMetrics.taxes));
-      metrics.amountDue = safeNumber(metrics.amountDue + safeNumber(orderMetrics.amountDue));
-      metrics.serviceCharges = safeNumber(metrics.serviceCharges + safeNumber(orderMetrics.serviceCharges));
-      metrics.tips = safeNumber(metrics.tips + safeNumber(orderMetrics.tips));
-      metrics.discounts = safeNumber(metrics.discounts + safeNumber(orderMetrics.discounts));
-      metrics.coupons = safeNumber(metrics.coupons + safeNumber(orderMetrics.coupons));
-      metrics.net = safeNumber(metrics.net + safeNumber(orderMetrics.net));
-      metrics.guests = safeNumber(metrics.guests + safeNumber(order.covers));
-      metrics.checks += 1;
-      metrics.turnTime = safeNumber(metrics.turnTime + safeNumber(orderMetrics.turnTime));
+      accumulateSegmentMetrics(map.get(orderTypeName)!, order, calculateOrderMetrics(order));
     });
 
-    // Calculate averages and percentages
-    map.forEach(metrics => {
-      const safeNet = safeNumber(metrics.net);
-      const safeGuests = safeNumber(metrics.guests);
-      const safeChecks = safeNumber(metrics.checks);
-      const safeTotalNet = safeNumber(totalNet);
-      const safeTurnTime = safeNumber(metrics.turnTime);
-
-      metrics.avgGuest = safeGuests > 0 ? safeNumber(safeNet / safeGuests) : 0;
-      metrics.avgCheck = safeChecks > 0 ? safeNumber(safeNet / safeChecks) : 0;
-      metrics.percentOfTotal = safeTotalNet > 0 ? safeNumber((safeNet / safeTotalNet) * 100) : 0;
-      metrics.turnTime = safeChecks > 0 ? safeNumber(safeTurnTime / safeChecks) : 0;
-    });
+    map.forEach(metrics => finalizeSegmentMetrics(metrics, totalNet));
 
     return Array.from(map.values()).sort((a, b) => b.net - a.net);
   }, [orders, financialMetrics.net]);
@@ -380,61 +438,40 @@ export const SalesSummary2Report = () => {
   // Third section: Sale by day part
   const dayPartMetrics = useMemo(() => {
     const totalNet = financialMetrics.net;
-    const map = new Map<DayPartLabel, OrderTypeMetrics>();
+    const map = new Map<DayPartLabel, SegmentMetrics>();
 
     DAY_PARTS.forEach(part => {
-      map.set(part.label, {
-        orderType: part.label,
-        salePriceWithoutTax: 0,
-        taxes: 0,
-        amountDue: 0,
-        serviceCharges: 0,
-        tips: 0,
-        discounts: 0,
-        coupons: 0,
-        net: 0,
-        percentOfTotal: 0,
-        guests: 0,
-        avgGuest: 0,
-        checks: 0,
-        avgCheck: 0,
-        turnTime: 0,
-      });
+      map.set(part.label, emptySegmentMetrics(part.label));
     });
 
     orders.forEach(order => {
       const dayPart = getDayPartLabel(toJsDate(order.created_at));
-      const metrics = map.get(dayPart)!;
-      const orderMetrics = calculateOrderMetrics(order);
-
-      metrics.salePriceWithoutTax = safeNumber(metrics.salePriceWithoutTax + safeNumber(orderMetrics.salePriceWithoutTax));
-      metrics.taxes = safeNumber(metrics.taxes + safeNumber(orderMetrics.taxes));
-      metrics.amountDue = safeNumber(metrics.amountDue + safeNumber(orderMetrics.amountDue));
-      metrics.serviceCharges = safeNumber(metrics.serviceCharges + safeNumber(orderMetrics.serviceCharges));
-      metrics.tips = safeNumber(metrics.tips + safeNumber(orderMetrics.tips));
-      metrics.discounts = safeNumber(metrics.discounts + safeNumber(orderMetrics.discounts));
-      metrics.coupons = safeNumber(metrics.coupons + safeNumber(orderMetrics.coupons));
-      metrics.net = safeNumber(metrics.net + safeNumber(orderMetrics.net));
-      metrics.guests = safeNumber(metrics.guests + safeNumber(order.covers));
-      metrics.checks += 1;
-      metrics.turnTime = safeNumber(metrics.turnTime + safeNumber(orderMetrics.turnTime));
+      accumulateSegmentMetrics(map.get(dayPart)!, order, calculateOrderMetrics(order));
     });
 
-    // Calculate averages and percentages
-    map.forEach(metrics => {
-      const safeNet = safeNumber(metrics.net);
-      const safeGuests = safeNumber(metrics.guests);
-      const safeChecks = safeNumber(metrics.checks);
-      const safeTotalNet = safeNumber(totalNet);
-      const safeTurnTime = safeNumber(metrics.turnTime);
-
-      metrics.avgGuest = safeGuests > 0 ? safeNumber(safeNet / safeGuests) : 0;
-      metrics.avgCheck = safeChecks > 0 ? safeNumber(safeNet / safeChecks) : 0;
-      metrics.percentOfTotal = safeTotalNet > 0 ? safeNumber((safeNet / safeTotalNet) * 100) : 0;
-      metrics.turnTime = safeChecks > 0 ? safeNumber(safeTurnTime / safeChecks) : 0;
-    });
+    map.forEach(metrics => finalizeSegmentMetrics(metrics, totalNet));
 
     return Array.from(map.values());
+  }, [orders, financialMetrics.net]);
+
+  // Sale by employees (order takers / servers)
+  const employeeMetrics = useMemo(() => {
+    const totalNet = financialMetrics.net;
+    const map = new Map<string, SegmentMetrics>();
+
+    orders.forEach(order => {
+      const key = getOrderEmployeeKey(order);
+      if (!map.has(key)) {
+        map.set(key, emptySegmentMetrics(getOrderEmployeeName(order)));
+      }
+      accumulateSegmentMetrics(map.get(key)!, order, calculateOrderMetrics(order));
+    });
+
+    map.forEach(metrics => finalizeSegmentMetrics(metrics, totalNet));
+
+    return Array.from(map.entries())
+      .map(([id, metrics]) => ({id, ...metrics}))
+      .sort((a, b) => b.net - a.net);
   }, [orders, financialMetrics.net]);
 
   // Additional metrics for first section subsections
@@ -703,6 +740,26 @@ export const SalesSummary2Report = () => {
         .sort((a, b) => b.total - a.total),
     };
   }, [orders]);
+
+  const toggleCategory = (categoryName: string) => {
+    setExpandedCategories(prev => {
+      const next = new Set(prev);
+      if (next.has(categoryName)) {
+        next.delete(categoryName);
+      } else {
+        next.add(categoryName);
+      }
+      return next;
+    });
+  };
+
+  const expandAllCategories = () => {
+    setExpandedCategories(new Set(breakdownMetrics.categoryMix.map(category => category.name)));
+  };
+
+  const collapseAllCategories = () => {
+    setExpandedCategories(new Set());
+  };
 
   if (loading) {
     return (
@@ -1060,7 +1117,7 @@ export const SalesSummary2Report = () => {
 
         {/* Second section: Sale by order type */}
         <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 font-semibold text-neutral-700">Sale by Order Type</h3>
+          <h3 className="bg-neutral-100 px-6 py-3 font-semibold text-neutral-700">{t('labels.saleByOrderType')}</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200">
               <thead className="bg-neutral-50">
@@ -1079,13 +1136,13 @@ export const SalesSummary2Report = () => {
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.avgGuest')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.checks')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.avgCheck')}</th>
-                  <th className="py-3 pr-6 text-right  font-semibold text-neutral-700">Turn Time (min)</th>
+                  <th className="py-3 pr-6 text-right  font-semibold text-neutral-700">{t('columns.turnTime')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100 bg-white">
                 {orderTypeMetrics.map(metrics => (
-                  <tr key={metrics.orderType}>
-                    <td className="py-3 pl-6 pr-3 font-medium text-neutral-900">{metrics.orderType}</td>
+                  <tr key={metrics.name}>
+                    <td className="py-3 pl-6 pr-3 font-medium text-neutral-900">{metrics.name}</td>
                     <td className="py-3 px-3 text-right text-neutral-700">
                       {withCurrency(metrics.salePriceWithoutTax)}
                     </td>
@@ -1109,7 +1166,7 @@ export const SalesSummary2Report = () => {
                     </td>
                     <td className="py-3 px-3 text-right text-neutral-700">{formatNumber(metrics.checks)}</td>
                     <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.avgCheck)}</td>
-                    <td className="py-3 pr-6 text-right text-neutral-700">{formatNumber(metrics.turnTime)}</td>
+                    <td className="py-3 pr-6 text-right text-neutral-700">{formatTurnTime(metrics.turnTime)}</td>
                   </tr>
                 ))}
                 {orderTypeMetrics.length === 0 && (
@@ -1126,7 +1183,7 @@ export const SalesSummary2Report = () => {
 
         {/* Third section: Sale by day part */}
         <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 font-semibold text-neutral-700">Sale by Day Part</h3>
+          <h3 className="bg-neutral-100 px-6 py-3 font-semibold text-neutral-700">{t('labels.saleByDayPart')}</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200">
               <thead className="bg-neutral-50">
@@ -1145,16 +1202,16 @@ export const SalesSummary2Report = () => {
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.avgGuest')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.checks')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.avgCheck')}</th>
-                  <th className="py-3 pr-6 text-right  font-semibold text-neutral-700">Turn Time (min)</th>
+                  <th className="py-3 pr-6 text-right  font-semibold text-neutral-700">{t('columns.turnTime')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100 bg-white">
                 {dayPartMetrics.map(metrics => (
-                  <tr key={metrics.orderType}>
+                  <tr key={metrics.name}>
                     <td className="py-3 pl-6 pr-3 font-medium text-neutral-900">
-                      <div>{metrics.orderType}</div>
+                      <div>{metrics.name}</div>
                       <div className="text-xs font-normal text-neutral-500">
-                        {getDayPartTimeRangeLabel(metrics.orderType as DayPartLabel)}
+                        {getDayPartTimeRangeLabel(metrics.name as DayPartLabel)}
                       </div>
                     </td>
                     <td className="py-3 px-3 text-right text-neutral-700">
@@ -1180,9 +1237,75 @@ export const SalesSummary2Report = () => {
                     </td>
                     <td className="py-3 px-3 text-right text-neutral-700">{formatNumber(metrics.checks)}</td>
                     <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.avgCheck)}</td>
-                    <td className="py-3 pr-6 text-right text-neutral-700">{formatNumber(metrics.turnTime)}</td>
+                    <td className="py-3 pr-6 text-right text-neutral-700">{formatTurnTime(metrics.turnTime)}</td>
                   </tr>
                 ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Sale by employees */}
+        <div className="overflow-hidden rounded-lg border border-neutral-200">
+          <h3 className="bg-neutral-100 px-6 py-3 font-semibold text-neutral-700">{t('labels.saleByEmployees')}</h3>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-neutral-200">
+              <thead className="bg-neutral-50">
+                <tr>
+                  <th className="py-3 pl-6 pr-3 text-left  font-semibold text-neutral-700">{t('columns.employee')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Sale Price w/o Tax</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Taxes</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('labels.amountDue')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Service Charges</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('reports.tips')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('metrics.discounts')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('metrics.coupons')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('metrics.net')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">% of Total</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.guests')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.avgGuest')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.checks')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.avgCheck')}</th>
+                  <th className="py-3 pr-6 text-right  font-semibold text-neutral-700">{t('columns.turnTime')}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-100 bg-white">
+                {employeeMetrics.map(metrics => (
+                  <tr key={metrics.id}>
+                    <td className="py-3 pl-6 pr-3 font-medium text-neutral-900">{metrics.name}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">
+                      {withCurrency(metrics.salePriceWithoutTax)}
+                    </td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.taxes)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.amountDue)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">
+                      {withCurrency(metrics.serviceCharges)}
+                    </td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.tips)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.discounts)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.coupons)}</td>
+                    <td className="py-3 px-3 text-right font-semibold text-neutral-900">
+                      {withCurrency(metrics.net)}
+                    </td>
+                    <td className="py-3 px-3 text-right text-neutral-700">
+                      {formatNumber(metrics.percentOfTotal)}%
+                    </td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{formatNumber(metrics.guests)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">
+                      {withCurrency(metrics.avgGuest)}
+                    </td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{formatNumber(metrics.checks)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.avgCheck)}</td>
+                    <td className="py-3 pr-6 text-right text-neutral-700">{formatTurnTime(metrics.turnTime)}</td>
+                  </tr>
+                ))}
+                {employeeMetrics.length === 0 && (
+                  <tr>
+                    <td colSpan={15} className="py-6 text-center text-neutral-500">
+                      {t('empty.noEmployeeSales')}
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -1194,7 +1317,28 @@ export const SalesSummary2Report = () => {
           <div className="grid grid-cols-3 divide-x divide-neutral-200">
             {/* 1st subsection: Categories with dishes and modifiers */}
             <div className="p-4">
-              <h4 className="mb-3  font-semibold text-neutral-600">{t('filters.categories')}</h4>
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <h4 className="font-semibold text-neutral-600">{t('filters.categories')}</h4>
+                {breakdownMetrics.categoryMix.length > 0 && (
+                  <div className="flex items-center gap-2 text-xs">
+                    <button
+                      type="button"
+                      className="text-neutral-500 hover:text-neutral-800"
+                      onClick={expandAllCategories}
+                    >
+                      {t('labels.expandAll')}
+                    </button>
+                    <span className="text-neutral-300">|</span>
+                    <button
+                      type="button"
+                      className="text-neutral-500 hover:text-neutral-800"
+                      onClick={collapseAllCategories}
+                    >
+                      {t('labels.collapseAll')}
+                    </button>
+                  </div>
+                )}
+              </div>
               {breakdownMetrics.categoryMix.length > 0 ? (
                 <div>
                   <div className="border-b border-neutral-300 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-600">
@@ -1205,59 +1349,76 @@ export const SalesSummary2Report = () => {
                       <span className="w-1/6 text-right">Share</span>
                     </div>
                   </div>
-                  {breakdownMetrics.categoryMix.map(category => (
-                    <div key={category.name}>
-                      <div className="border-b border-neutral-200 bg-neutral-50 py-2 text-sm font-semibold">
-                        <div className="flex">
-                          <span className="w-1/2">{category.name}</span>
+                  {breakdownMetrics.categoryMix.map(category => {
+                    const isExpanded = expandedCategories.has(category.name);
+                    const hasDetails = category.dishes.length > 0;
+                    const categoryShare =
+                      financialMetrics.salePriceWithoutTax > 0
+                        ? (category.total / financialMetrics.salePriceWithoutTax) * 100
+                        : 0;
+
+                    return (
+                      <div key={category.name}>
+                        <button
+                          type="button"
+                          className="flex w-full border-b border-neutral-200 bg-neutral-50 py-2 text-left text-sm font-semibold hover:bg-neutral-100"
+                          onClick={() => hasDetails && toggleCategory(category.name)}
+                          aria-expanded={hasDetails ? isExpanded : undefined}
+                          disabled={!hasDetails}
+                        >
+                          <span className="flex w-1/2 items-center gap-1.5 pr-1">
+                            {hasDetails ? (
+                              <FontAwesomeIcon
+                                icon={isExpanded ? faChevronDown : faChevronRight}
+                                className="w-3 shrink-0 text-neutral-500"
+                              />
+                            ) : (
+                              <span className="inline-block w-3 shrink-0" />
+                            )}
+                            <span className="truncate">{category.name}</span>
+                          </span>
                           <span className="w-1/6 text-right tabular-nums">{formatNumber(category.quantity)}</span>
                           <span className="w-1/6 text-right tabular-nums">{withCurrency(category.total)}</span>
-                          <span className="w-1/6 text-right tabular-nums">
-                            {formatNumber(
-                              financialMetrics.salePriceWithoutTax > 0
-                                ? (category.total / financialMetrics.salePriceWithoutTax) * 100
-                                : 0,
-                            )}
-                            %
-                          </span>
-                        </div>
-                      </div>
-                      {category.dishes.map(dish => (
-                        <div key={`${category.name}-${dish.key}`} className="border-b border-neutral-200 py-2 text-sm">
-                          <div className="flex">
-                            <div className="w-1/2 pr-2">
-                              <div className="pl-4">{dish.name}</div>
-                              {dish.modifiers.map(modifier => (
-                                <div
-                                  key={`${category.name}-${dish.key}-${modifier.path}`}
-                                  className="flex text-xs text-neutral-500"
-                                >
-                                  <div
-                                    className="w-4/6"
-                                    style={{paddingLeft: `${modifier.depth + 1}rem`}}
-                                  >
-                                    - {modifier.name}
-                                  </div>
-                                  <div className="w-1/6">{formatNumber(modifier.quantity)}</div>
-                                  <div className="w-1/6">{formatNumber(modifier.price)}</div>
+                          <span className="w-1/6 text-right tabular-nums">{formatNumber(categoryShare)}%</span>
+                        </button>
+                        {isExpanded &&
+                          category.dishes.map(dish => (
+                            <div key={`${category.name}-${dish.key}`} className="border-b border-neutral-200 py-2 text-sm">
+                              <div className="flex">
+                                <div className="w-1/2 pr-2">
+                                  <div className="pl-6">{dish.name}</div>
+                                  {dish.modifiers.map(modifier => (
+                                    <div
+                                      key={`${category.name}-${dish.key}-${modifier.path}`}
+                                      className="flex text-xs text-neutral-500"
+                                    >
+                                      <div
+                                        className="w-4/6"
+                                        style={{paddingLeft: `${modifier.depth + 1.5}rem`}}
+                                      >
+                                        - {modifier.name}
+                                      </div>
+                                      <div className="w-1/6">{formatNumber(modifier.quantity)}</div>
+                                      <div className="w-1/6">{formatNumber(modifier.price)}</div>
+                                    </div>
+                                  ))}
                                 </div>
-                              ))}
+                                <span className="w-1/6 text-right tabular-nums">{formatNumber(dish.quantity)}</span>
+                                <span className="w-1/6 text-right tabular-nums">{withCurrency(dish.total)}</span>
+                                <span className="w-1/6 text-right tabular-nums">
+                                  {formatNumber(
+                                    financialMetrics.salePriceWithoutTax > 0
+                                      ? (dish.total / financialMetrics.salePriceWithoutTax) * 100
+                                      : 0,
+                                  )}
+                                  %
+                                </span>
+                              </div>
                             </div>
-                            <span className="w-1/6 text-right tabular-nums">{formatNumber(dish.quantity)}</span>
-                            <span className="w-1/6 text-right tabular-nums">{withCurrency(dish.total)}</span>
-                            <span className="w-1/6 text-right tabular-nums">
-                              {formatNumber(
-                                financialMetrics.salePriceWithoutTax > 0
-                                  ? (dish.total / financialMetrics.salePriceWithoutTax) * 100
-                                  : 0,
-                              )}
-                              %
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ))}
+                          ))}
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
                 <div className=" text-neutral-500">No categories data</div>

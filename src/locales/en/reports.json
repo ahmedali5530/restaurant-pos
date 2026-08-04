@@ -358,7 +358,9 @@
     "batch": "Batch",
     "session": "Session",
     "menu": "Menu",
-    "issue": "Issue"
+    "issue": "Issue",
+    "employee": "Employee",
+    "turnTime": "Turn Time (min)"
   },
   "labels": {
     "modifiers": "Modifiers",
@@ -534,7 +536,12 @@
     "latestTransfers": "Latest Transfers",
     "latestProduction": "Latest Production",
     "latestBuffet": "Latest Buffet Sessions",
-    "latestAdjustments": "Latest Adjustments"
+    "latestAdjustments": "Latest Adjustments",
+    "saleByOrderType": "Sale by Order Type",
+    "saleByDayPart": "Sale by Day Part",
+    "saleByEmployees": "Sale by Employees",
+    "expandAll": "Expand all",
+    "collapseAll": "Collapse all"
   },
   "metrics": {
     "gross": "Gross",
@@ -631,6 +638,7 @@
   "empty": {
     "noDiscountTypes": "No discount types for selected range.",
     "noDiscountsByUsers": "No discounts by users for selected range.",
-    "noDiscountRows": "No discount rows found for selected range."
+    "noDiscountRows": "No discount rows found for selected range.",
+    "noEmployeeSales": "No employee sales data available"
   }
 }

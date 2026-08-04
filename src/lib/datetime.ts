@@ -15,6 +15,46 @@ export const isSurrealDateTime = (value: unknown): value is SurrealDateTime => {
   return value instanceof SurrealDateTime;
 };
 
+/** Duck-type Surreal DateTime so multi-bundle `instanceof` mismatches still convert correctly. */
+const surrealDateTimeToJsDate = (value: unknown): Date | null => {
+  if (isSurrealDateTime(value)) {
+    return value.toDate();
+  }
+
+  if (
+    value &&
+    typeof value === "object" &&
+    typeof (value as {toDate?: unknown}).toDate === "function"
+  ) {
+    try {
+      const date = (value as {toDate: () => Date}).toDate();
+      if (date instanceof Date && Number.isFinite(date.getTime())) {
+        return date;
+      }
+    } catch {
+      // fall through
+    }
+  }
+
+  if (
+    value &&
+    typeof value === "object" &&
+    typeof (value as {toISOString?: unknown}).toISOString === "function"
+  ) {
+    try {
+      const iso = (value as {toISOString: () => string}).toISOString();
+      const parsed = Date.parse(iso);
+      if (Number.isFinite(parsed)) {
+        return new Date(parsed);
+      }
+    } catch {
+      // fall through
+    }
+  }
+
+  return null;
+};
+
 export const toSurrealDateTime = (value?: DateInput): SurrealDateTime => {
   if (value === undefined || value === null) {
     return new SurrealDateTime(LuxonDateTime.now().toJSDate());
@@ -117,8 +157,9 @@ export const toLuxonDateTime = (value?: DateInput): LuxonDateTime => {
     return value.setZone(getAppTimezone());
   }
 
-  if (isSurrealDateTime(value)) {
-    return LuxonDateTime.fromJSDate(value.toDate(), { zone: getAppTimezone() });
+  const fromSurreal = surrealDateTimeToJsDate(value);
+  if (fromSurreal) {
+    return LuxonDateTime.fromJSDate(fromSurreal, { zone: getAppTimezone() });
   }
 
   if (value instanceof Date) {
@@ -145,8 +186,9 @@ export const toJsDate = (value?: DateInput): Date => {
     return new Date();
   }
 
-  if (isSurrealDateTime(value)) {
-    return value.toDate();
+  const fromSurreal = surrealDateTimeToJsDate(value);
+  if (fromSurreal) {
+    return fromSurreal;
   }
 
   if (LuxonDateTime.isDateTime(value)) {

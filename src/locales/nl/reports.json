@@ -354,7 +354,9 @@
     "batch": "Batch",
     "session": "Sessie",
     "menu": "Menu",
-    "issue": "Uitgifte"
+    "issue": "Uitgifte",
+    "employee": "Medewerker",
+    "turnTime": "Omlooptijd (min)"
   },
   "labels": {
     "modifiers": "Modifiers",
@@ -530,7 +532,12 @@
     "latestProduction": "Laatste productie",
     "latestBuffet": "Laatste buffetsessies",
     "latestAdjustments": "Laatste correcties",
-    "inventoryNeededForPeriodHelp": "Gemiddelde dagelijkse theoretische behoefte voor {{range}}, vergeleken met de huidige voorraad."
+    "inventoryNeededForPeriodHelp": "Gemiddelde dagelijkse theoretische behoefte voor {{range}}, vergeleken met de huidige voorraad.",
+    "saleByOrderType": "Verkoop per ordertype",
+    "saleByDayPart": "Verkoop per dagdeel",
+    "saleByEmployees": "Verkoop per medewerker",
+    "expandAll": "Alles uitvouwen",
+    "collapseAll": "Alles invouwen"
   },
   "metrics": {
     "gross": "Bruto",
@@ -627,6 +634,7 @@
   "empty": {
     "noDiscountTypes": "Geen kortingstypes voor geselecteerd bereik.",
     "noDiscountsByUsers": "Geen kortingen per gebruiker voor geselecteerd bereik.",
-    "noDiscountRows": "Geen kortingsregels gevonden voor geselecteerd bereik."
+    "noDiscountRows": "Geen kortingsregels gevonden voor geselecteerd bereik.",
+    "noEmployeeSales": "Geen verkoopgegevens per medewerker beschikbaar"
   }
 }
