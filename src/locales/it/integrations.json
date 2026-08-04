@@ -43,5 +43,26 @@
     "Failed": "Non riuscito",
     "Cancelled": "Annullato",
     "DeadLetter": "Fallito definitivamente"
+  },
+  "connect": "Connetti",
+  "disconnect": "Disconnetti",
+  "reconnect": "Riconnetti",
+  "initialSync": "Avvia sincronizzazione iniziale",
+  "connectionRequired": "Connetti prima un'azienda QuickBooks.",
+  "connectedTo": "Connesso a {{company}}",
+  "notConnected": "Non connesso",
+  "connecting": "Connessione in corso...",
+  "disconnecting": "Disconnessione in corso...",
+  "syncing": "Sincronizzazione in corso...",
+  "syncComplete": "Sincronizzazione completata — {{count}} entità importate.",
+  "syncFailed": "Sincronizzazione fallita",
+  "lastSync": "Ultima sincronizzazione",
+  "nextSync": "Prossima sincronizzazione",
+  "syncProgress": "Avanzamento sincronizzazione",
+  "failedItems": "Elementi falliti",
+  "oauth": {
+    "start": "Autorizza con QuickBooks",
+    "callbackError": "Callback OAuth fallito. Riprova.",
+    "disconnected": "Disconnesso da QuickBooks"
   }
 }

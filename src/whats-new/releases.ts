@@ -7,6 +7,16 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-08-03',
+    title: 'QuickBooks Online Integration',
+    items: [
+      'Connect your QuickBooks Online company via OAuth and sync sales, payments, customers, and refunds automatically.',
+      'Post inventory, payroll, and waste events as QuickBooks journal entries from your configured chart of accounts.',
+      'Import your QuickBooks chart of accounts, customers, vendors, tax codes, and payment methods in one click.',
+      'Built on the shared integrations framework — works alongside internal accounting and ready for future providers like Xero.',
+    ],
+  },
+  {
     date: '2026-07-30',
     title: 'Inventory dashboard issuance date filters',
     items: [

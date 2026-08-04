@@ -43,5 +43,26 @@
     "Failed": "Ошибка",
     "Cancelled": "Отменено",
     "DeadLetter": "Окончательный сбой"
+  },
+  "connect": "Подключить",
+  "disconnect": "Отключить",
+  "reconnect": "Переподключить",
+  "initialSync": "Запустить начальную синхронизацию",
+  "connectionRequired": "Сначала подключите компанию QuickBooks.",
+  "connectedTo": "Подключено к {{company}}",
+  "notConnected": "Не подключено",
+  "connecting": "Подключение...",
+  "disconnecting": "Отключение...",
+  "syncing": "Синхронизация...",
+  "syncComplete": "Синхронизация завершена — импортировано {{count}} записей.",
+  "syncFailed": "Ошибка синхронизации",
+  "lastSync": "Последняя синхр.",
+  "nextSync": "Следующая синхр.",
+  "syncProgress": "Прогресс синхронизации",
+  "failedItems": "Неудачные записи",
+  "oauth": {
+    "start": "Авторизовать через QuickBooks",
+    "callbackError": "Ошибка обратного вызова OAuth. Попробуйте снова.",
+    "disconnected": "Отключено от QuickBooks"
   }
 }

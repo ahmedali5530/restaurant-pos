@@ -25,17 +25,20 @@ export const saveIntegrationProviderConfig = async (
   providerId: string,
   values: Record<string, unknown>
 ) => {
+  const key = integrationProviderConfigKey(providerId);
   const [rows] = await db.query<Array<{ id: string }>>(
     `SELECT id FROM ${Tables.settings} WHERE key = $key AND is_global = true LIMIT 1`,
-    { key: integrationProviderConfigKey(providerId) }
+    { key }
   );
   if (rows?.[0]?.id) {
-    await db.merge(rows[0].id, { values });
+    await db.query(
+      `UPDATE $id MERGE { values: $values }`,
+      { id: rows[0].id, values }
+    );
     return;
   }
-  await db.create(Tables.settings, {
-    key: integrationProviderConfigKey(providerId),
-    values,
-    is_global: true,
-  });
+  await db.query(
+    `CREATE ${Tables.settings} CONTENT { key: $key, values: $values, is_global: true }`,
+    { key, values }
+  );
 };

@@ -3,6 +3,7 @@ import { FbrProvider } from '@/integrations/providers/fiscal/fbr/provider.ts';
 import { PraProvider } from '@/integrations/providers/fiscal/pra/provider.ts';
 import { InternalAccountingProvider } from '@/integrations/providers/accounting/internal/provider.ts';
 import { InternalInventoryProvider } from '@/integrations/providers/inventory/internal/provider.ts';
+import { QuickBooksProvider } from '@/integrations/providers/accounting/quickbooks/provider.ts';
 
 export type ProviderFactory = () => IntegrationProvider;
 
@@ -11,4 +12,5 @@ export const PROVIDER_CATALOG: Record<string, ProviderFactory> = {
   'provider:pra': () => new PraProvider(),
   'provider:internal-accounting': () => new InternalAccountingProvider(),
   'provider:internal-inventory': () => new InternalInventoryProvider(),
+  'provider:quickbooks': () => new QuickBooksProvider(),
 };

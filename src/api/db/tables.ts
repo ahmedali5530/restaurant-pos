@@ -113,6 +113,11 @@ export enum Tables {
   integration_schedules = 'integration_schedule',
   integration_execution_history = 'integration_execution_history',
   integration_order_fiscals = 'integration_order_fiscal',
+  integration_entity_mappings = 'integration_entity_mapping',
+  integration_oauth_credentials = 'integration_oauth_credential',
+  integration_oauth_states = 'integration_oauth_state',
+  integration_sync_runs = 'integration_sync_run',
+  integration_sync_failures = 'integration_sync_failure',
 
   auth_permission = 'auth_permission',
   tracking = 'tracking',

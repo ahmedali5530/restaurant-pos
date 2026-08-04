@@ -43,5 +43,29 @@
     "Failed": "Échoué",
     "Cancelled": "Annulé",
     "DeadLetter": "Échec définitif"
-  }
+  },
+  "connect": "Connecter",
+  "disconnect": "Déconnecter",
+  "reconnect": "Reconnecter",
+  "initialSync": "Lancer la synchronisation initiale",
+  "connectionRequired": "Connectez d'abord le fournisseur.",
+  "connectedTo": "Connecté à {{company}}",
+  "notConnected": "Non connecté",
+  "connecting": "Connexion...",
+  "disconnecting": "Déconnexion...",
+  "syncing": "Synchronisation...",
+  "syncComplete": "Synchronisation terminée — {{count}} entités importées.",
+  "syncFailed": "Échec de la synchronisation",
+  "lastSync": "Dernière synchronisation",
+  "nextSync": "Prochaine synchronisation",
+  "syncProgress": "Progression",
+  "failedItems": "Éléments échoués",
+  "oauth": {
+    "start": "Autoriser avec QuickBooks",
+    "callbackError": "Échec du rappel OAuth. Veuillez réessayer.",
+    "connected": "Connecté à QuickBooks",
+    "disconnected": "Déconnecté de QuickBooks"
+  },
+  "connectNotSupported": "La connexion n'est pas prise en charge par ce fournisseur",
+  "disconnectNotSupported": "La déconnexion n'est pas prise en charge par ce fournisseur"
 }

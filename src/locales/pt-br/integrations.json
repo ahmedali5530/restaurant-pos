@@ -43,5 +43,26 @@
     "Failed": "Falhou",
     "Cancelled": "Cancelado",
     "DeadLetter": "Falha permanente"
+  },
+  "connect": "Conectar",
+  "disconnect": "Desconectar",
+  "reconnect": "Reconectar",
+  "initialSync": "Executar sincronização inicial",
+  "connectionRequired": "Conecte uma empresa QuickBooks primeiro.",
+  "connectedTo": "Conectado a {{company}}",
+  "notConnected": "Não conectado",
+  "connecting": "Conectando...",
+  "disconnecting": "Desconectando...",
+  "syncing": "Sincronizando...",
+  "syncComplete": "Sincronização concluída — {{count}} entidades importadas.",
+  "syncFailed": "Falha na sincronização",
+  "lastSync": "Última sincronização",
+  "nextSync": "Próxima sincronização",
+  "syncProgress": "Progresso da sincronização",
+  "failedItems": "Itens com falha",
+  "oauth": {
+    "start": "Autorizar com QuickBooks",
+    "callbackError": "Falha no callback OAuth. Tente novamente.",
+    "disconnected": "Desconectado do QuickBooks"
   }
 }

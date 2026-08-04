@@ -54,8 +54,14 @@ app.get('/health', (req, res) => {
 });
 
 for (const module of modules) {
-  // Protect module routes with POS session JWT (same secret as auth gateway).
-  app.use(module.basePath, requireSession, module.router);
+  // Mount webhook/public routes first — no session auth (vendor signature or OAuth redirects).
+  if (module.webhookRouter) {
+    app.use(module.basePath, module.webhookRouter);
+  }
+  // Protect session-authenticated module routes with POS session JWT.
+  if (module.router) {
+    app.use(module.basePath, requireSession, module.router);
+  }
 }
 
 app.use((err, req, res, next) => {

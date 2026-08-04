@@ -20,6 +20,12 @@ const modules = [
     basePath: '/fiscal',
     router: require('./fiscal/fiscal.routes'),
   },
+  {
+    name: 'integrations',
+    basePath: '/integrations',
+    router: require('./integrations/integrations.routes'),
+    webhookRouter: require('./integrations/integrations.webhook.routes').webhookRouter,
+  },
 ];
 
 module.exports = { modules };

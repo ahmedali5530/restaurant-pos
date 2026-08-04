@@ -92,7 +92,8 @@ export type ProviderManifestFieldType =
   | 'certificate'
   | 'json'
   | 'dynamic'
-  | 'account';
+  | 'account'
+  | 'externalEntity';
 
 export interface ProviderManifestField {
   key: string;
@@ -103,6 +104,7 @@ export interface ProviderManifestField {
   defaultValue?: unknown;
   placeholder?: string;
   helpText?: string;
+  entityType?: string;
   options?: ProviderManifestFieldOption[];
   validation?: {
     pattern?: string;

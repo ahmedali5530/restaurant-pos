@@ -43,5 +43,29 @@
     "Failed": "Failed",
     "Cancelled": "Cancelled",
     "DeadLetter": "Failed permanently"
-  }
+  },
+  "connect": "Connect",
+  "disconnect": "Disconnect",
+  "reconnect": "Reconnect",
+  "initialSync": "Run Initial Sync",
+  "connectionRequired": "Connect to the provider first.",
+  "connectedTo": "Connected to {{company}}",
+  "notConnected": "Not connected",
+  "connecting": "Connecting...",
+  "disconnecting": "Disconnecting...",
+  "syncing": "Syncing...",
+  "syncComplete": "Sync complete — {{count}} entities imported.",
+  "syncFailed": "Synchronization failed",
+  "lastSync": "Last sync",
+  "nextSync": "Next sync",
+  "syncProgress": "Sync progress",
+  "failedItems": "Failed items",
+  "oauth": {
+    "start": "Authorize with QuickBooks",
+    "callbackError": "OAuth callback failed. Please try again.",
+    "connected": "Connected to QuickBooks",
+    "disconnected": "Disconnected from QuickBooks"
+  },
+  "connectNotSupported": "Connect is not supported by this provider",
+  "disconnectNotSupported": "Disconnect is not supported by this provider"
 }

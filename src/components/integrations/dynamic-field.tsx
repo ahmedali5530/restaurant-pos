@@ -15,6 +15,7 @@ interface DynamicFieldProps {
   field: ProviderManifestField;
   value: unknown;
   onChange: (next: unknown) => void;
+  providerId?: string;
 }
 
 const AccountField = ({
@@ -76,7 +77,69 @@ const AccountField = ({
   );
 };
 
-export const DynamicField = ({ field, value, onChange }: DynamicFieldProps) => {
+const ExternalEntityField = ({
+  field,
+  value,
+  onChange,
+  providerId,
+}: DynamicFieldProps) => {
+  const db = useDB();
+  const [options, setOptions] = useState<SelectOption[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!providerId) {
+      setLoading(false);
+      return;
+    }
+    let mounted = true;
+    const load = async () => {
+      try {
+        const [rows] = await db.query<Array<{ external_id: string; external_payload?: { name?: string; code?: string; type?: string } }>>(
+          `SELECT external_id, external_payload FROM ${Tables.integration_entity_mappings}
+           WHERE provider_id = $providerId AND entity_type = $entityType
+           ORDER BY external_id ASC`,
+          { providerId, entityType: field.entityType ?? 'account' }
+        );
+        if (!mounted) return;
+        const items = Array.isArray(rows) ? rows : [];
+        setOptions(
+          items.map((item) => {
+            const payload = item.external_payload;
+            const name = payload?.name ?? payload?.code ?? item.external_id;
+            const code = payload?.code ?? '';
+            const label = code ? `${code} — ${name}` : name;
+            return { label: label || item.external_id, value: item.external_id };
+          })
+        );
+      } catch (error) {
+        console.warn('Failed loading external entities for integration config', error);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    void load();
+    return () => { mounted = false; };
+  }, [providerId, field.entityType]);
+
+  const selected = useMemo(
+    () => options.find((option) => String(option.value) === String(value)) ?? null,
+    [options, value]
+  );
+
+  return (
+    <ReactSelect<SelectOption, false>
+      options={options}
+      value={selected}
+      isLoading={loading}
+      isClearable={!field.required}
+      onChange={(option) => onChange(option?.value ?? '')}
+      placeholder={field.placeholder ?? `Select ${field.entityType ?? 'entity'}`}
+    />
+  );
+};
+
+export const DynamicField = ({ field, value, onChange, providerId }: DynamicFieldProps) => {
   switch (field.type) {
     case 'number':
       return (
@@ -131,6 +194,8 @@ export const DynamicField = ({ field, value, onChange }: DynamicFieldProps) => {
       );
     case 'account':
       return <AccountField field={field} value={value} onChange={onChange} />;
+    case 'externalEntity':
+      return <ExternalEntityField field={field} value={value} onChange={onChange} providerId={providerId} />;
     case 'json':
       return (
         <Textarea

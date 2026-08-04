@@ -86,6 +86,35 @@ export const IntegrationsScreen = () => {
     setSelected('configuration');
   };
 
+  const handleConnect = async (providerId: string) => {
+    const provider = manager.getOrCreateProvider(providerId);
+    if (!provider?.connect) {
+      throw new Error(t('connectNotSupported'));
+    }
+    await provider.connect();
+    toast.success(t('oauth.connected'));
+  };
+
+  const handleDisconnect = async (providerId: string) => {
+    const provider = manager.getOrCreateProvider(providerId);
+    if (!provider?.disconnect) {
+      throw new Error(t('disconnectNotSupported'));
+    }
+    await provider.disconnect();
+    toast.success(t('oauth.disconnected'));
+  };
+
+  const handleInitialSync = async (providerId: string) => {
+    // First-time setup: wire the provider with config/db loaders but skip validation
+    // (account mappings don't exist yet — the sync creates them).
+    const provider = await manager.prepareAndEnableForSync(providerId);
+    if (!provider?.sync) {
+      throw new Error('Sync not supported');
+    }
+    await provider.sync();
+    toast.success(t('syncComplete', { count: 0 }));
+  };
+
   const handleToggleProvider = async (providerId: string, enabled: boolean) => {
     try {
       await setProviderEnabled(providerId, enabled);
@@ -133,6 +162,9 @@ export const IntegrationsScreen = () => {
             providers={providers}
             selectedProviderId={selectedProviderId}
             onProviderChange={setSelectedProviderId}
+            onConnect={handleConnect}
+            onDisconnect={handleDisconnect}
+            onInitialSync={handleInitialSync}
           />
         </TabPanel>
 

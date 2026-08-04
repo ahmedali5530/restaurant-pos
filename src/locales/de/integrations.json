@@ -43,5 +43,29 @@
     "Failed": "Fehlgeschlagen",
     "Cancelled": "Abgebrochen",
     "DeadLetter": "Dauerhaft fehlgeschlagen"
-  }
+  },
+  "connect": "Verbinden",
+  "disconnect": "Trennen",
+  "reconnect": "Neu verbinden",
+  "initialSync": "Erst-Synchronisation starten",
+  "connectionRequired": "Verbinden Sie zuerst den Anbieter.",
+  "connectedTo": "Verbunden mit {{company}}",
+  "notConnected": "Nicht verbunden",
+  "connecting": "Verbinde...",
+  "disconnecting": "Trenne...",
+  "syncing": "Synchronisiere...",
+  "syncComplete": "Synchronisation abgeschlossen — {{count}} Einträge importiert.",
+  "syncFailed": "Synchronisation fehlgeschlagen",
+  "lastSync": "Letzte Sync",
+  "nextSync": "Nächste Sync",
+  "syncProgress": "Sync-Fortschritt",
+  "failedItems": "Fehlgeschlagene Einträge",
+  "oauth": {
+    "start": "Mit QuickBooks autorisieren",
+    "callbackError": "OAuth-Callback fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "connected": "Verbunden mit QuickBooks",
+    "disconnected": "Von QuickBooks getrennt"
+  },
+  "connectNotSupported": "Verbinden wird von diesem Anbieter nicht unterstützt",
+  "disconnectNotSupported": "Trennen wird von diesem Anbieter nicht unterstützt"
 }

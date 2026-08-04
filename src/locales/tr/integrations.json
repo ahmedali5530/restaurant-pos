@@ -43,5 +43,26 @@
     "Failed": "Başarısız",
     "Cancelled": "İptal",
     "DeadLetter": "Kalıcı hata"
+  },
+  "connect": "Bağlan",
+  "disconnect": "Bağlantıyı Kes",
+  "reconnect": "Yeniden Bağlan",
+  "initialSync": "İlk senkronizasyonu başlat",
+  "connectionRequired": "Önce bir QuickBooks şirketi bağlayın.",
+  "connectedTo": "{{company}} şirketine bağlı",
+  "notConnected": "Bağlı değil",
+  "connecting": "Bağlanıyor...",
+  "disconnecting": "Bağlantı kesiliyor...",
+  "syncing": "Senkronize ediliyor...",
+  "syncComplete": "Senkronizasyon tamamlandı — {{count}} kayıt içe aktarıldı.",
+  "syncFailed": "Senkronizasyon başarısız",
+  "lastSync": "Son senkronizasyon",
+  "nextSync": "Sonraki senkronizasyon",
+  "syncProgress": "Senkronizasyon ilerlemesi",
+  "failedItems": "Başarısız kayıtlar",
+  "oauth": {
+    "start": "QuickBooks ile yetkilendir",
+    "callbackError": "OAuth geri çağrısı başarısız. Lütfen tekrar deneyin.",
+    "disconnected": "QuickBooks bağlantısı kesildi"
   }
 }

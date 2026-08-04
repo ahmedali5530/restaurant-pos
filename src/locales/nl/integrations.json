@@ -43,5 +43,26 @@
     "Failed": "Mislukt",
     "Cancelled": "Geannuleerd",
     "DeadLetter": "Permanent mislukt"
+  },
+  "connect": "Verbinden",
+  "disconnect": "Verbreken",
+  "reconnect": "Opnieuw verbinden",
+  "initialSync": "Start initiële synchronisatie",
+  "connectionRequired": "Verbind eerst een QuickBooks-bedrijf.",
+  "connectedTo": "Verbonden met {{company}}",
+  "notConnected": "Niet verbonden",
+  "connecting": "Verbinden...",
+  "disconnecting": "Verbreken...",
+  "syncing": "Synchroniseren...",
+  "syncComplete": "Synchronisatie voltooid — {{count}} entiteiten geïmporteerd.",
+  "syncFailed": "Synchronisatie mislukt",
+  "lastSync": "Laatste sync",
+  "nextSync": "Volgende sync",
+  "syncProgress": "Sync-voortgang",
+  "failedItems": "Mislukte items",
+  "oauth": {
+    "start": "Autoriseren met QuickBooks",
+    "callbackError": "OAuth-callback mislukt. Probeer opnieuw.",
+    "disconnected": "Verbroken van QuickBooks"
   }
 }

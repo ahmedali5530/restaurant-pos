@@ -28,12 +28,14 @@ type ConfigurableProvider = IntegrationProvider & {
   setConfigLoader?: (loader: () => Promise<Record<string, unknown>>) => void;
   setDbLoader?: (loader: () => any) => void;
   setJobEnqueuer?: (enqueuer: (request: IntegrationExecutionRequest) => Promise<unknown>) => void;
+  setConfigSaver?: (saver: (values: Record<string, unknown>) => Promise<void>) => void;
 };
 
 export class IntegrationManager {
   private catalog: ProviderCatalog | null = null;
   private readonly enabledProviderIds = new Set<string>();
   private configLoader: ProviderConfigLoader = async () => ({});
+  private configSaver: (providerId: string, values: Record<string, unknown>) => Promise<void> = async () => {};
 
   constructor(
     private readonly registry: ProviderRegistry,
@@ -46,6 +48,10 @@ export class IntegrationManager {
 
   setConfigLoader(loader: ProviderConfigLoader) {
     this.configLoader = loader;
+  }
+
+  setConfigSaver(saver: (providerId: string, values: Record<string, unknown>) => Promise<void>) {
+    this.configSaver = saver;
   }
 
   private dbLoader: (() => any) | null = null;
@@ -64,9 +70,25 @@ export class IntegrationManager {
       configurable.setDbLoader(this.dbLoader);
     }
     if (typeof configurable.setJobEnqueuer === 'function') {
-      // Prefer immediate execute so accounting drafts are created synchronously
-      // when domain events fire (queue still used for fiscal offline retries).
-      configurable.setJobEnqueuer((request) => this.executeImmediate(providerId, request));
+      // External accounting providers (QBO, Xero) always go through the queue
+      // so the sale settlement thread is never blocked by external API calls.
+      if (provider.getManifest().category === 'accounting' && provider.getManifest().id !== 'provider:internal-accounting') {
+        configurable.setJobEnqueuer((request) =>
+          this.queue.enqueue({
+            providerId,
+            action: request.action,
+            payload: request.payload ?? {},
+            dedupeKey: request.idempotencyKey,
+            priority: 0,
+            maxRetries: 5,
+          })
+        );
+      } else {
+        configurable.setJobEnqueuer((request) => this.executeImmediate(providerId, request));
+      }
+    }
+    if (typeof configurable.setConfigSaver === 'function') {
+      configurable.setConfigSaver((values) => this.configSaver(providerId, values));
     }
   }
 
@@ -122,6 +144,55 @@ export class IntegrationManager {
 
   getEnabledProvidersByCategory(category: IntegrationCategory) {
     return this.getEnabledProviders().filter((provider) => provider.category === category);
+  }
+
+  /** Returns the raw provider instance so callers can use connect/disconnect/sync directly. */
+  getProvider(providerId: string) {
+    return this.registry.get(providerId);
+  }
+
+  /**
+   * Wire and enable a provider for the first time, skipping validation
+   * (mappings don't exist yet — the initial sync creates them).
+   * Use this when the user clicks "Run Initial Sync" after OAuth connect.
+   */
+  async prepareAndEnableForSync(providerId: string): Promise<IntegrationProvider> {
+    if (!this.catalog?.isKnownProvider(providerId)) {
+      throw new ProviderNotFoundError(providerId);
+    }
+
+    // If already enabled, just return it
+    const existing = this.registry.get(providerId);
+    if (existing) return existing;
+
+    if (!this.catalog) {
+      throw new Error('Provider catalog is not initialized');
+    }
+
+    const provider = this.catalog.createProvider(providerId);
+    this.wireProviderConfig(provider);
+    await provider.initialize();
+    this.registry.register(provider);
+    this.enabledProviderIds.add(providerId);
+
+    await this.auditLogger.log({
+      action: 'ProviderUpdated',
+      providerId,
+      payload: { enabled: true },
+    });
+
+    return provider;
+  }
+
+  /**
+   * Returns the enabled provider instance, or creates a temporary one from the catalog.
+   * OAuth connect/disconnect needs to work even before the provider is enabled.
+   */
+  getOrCreateProvider(providerId: string): IntegrationProvider | undefined {
+    const existing = this.registry.get(providerId);
+    if (existing) return existing;
+    if (!this.catalog?.isKnownProvider(providerId)) return undefined;
+    return this.catalog.createProvider(providerId);
   }
 
   async setProviderEnabled(providerId: string, enabled: boolean) {

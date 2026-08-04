@@ -43,5 +43,29 @@
     "Failed": "فشل",
     "Cancelled": "ملغى",
     "DeadLetter": "فشل نهائي"
-  }
+  },
+  "connect": "اتصل",
+  "disconnect": "قطع الاتصال",
+  "reconnect": "إعادة الاتصال",
+  "initialSync": "تشغيل المزامنة الأولية",
+  "connectionRequired": "قم بتوصيل المزود أولاً.",
+  "connectedTo": "متصل بـ {{company}}",
+  "notConnected": "غير متصل",
+  "connecting": "جارٍ الاتصال...",
+  "disconnecting": "جارٍ قطع الاتصال...",
+  "syncing": "جارٍ المزامنة...",
+  "syncComplete": "اكتملت المزامنة — تم استيراد {{count}} عنصر.",
+  "syncFailed": "فشلت المزامنة",
+  "lastSync": "آخر مزامنة",
+  "nextSync": "المزامنة التالية",
+  "syncProgress": "تقدم المزامنة",
+  "failedItems": "العناصر الفاشلة",
+  "oauth": {
+    "start": "تفويض مع QuickBooks",
+    "callbackError": "فشل رد الاتصال OAuth. الرجاء المحاولة مرة أخرى.",
+    "connected": "متصل بـ QuickBooks",
+    "disconnected": "تم قطع الاتصال من QuickBooks"
+  },
+  "connectNotSupported": "الاتصال غير مدعوم من هذا المزود",
+  "disconnectNotSupported": "قطع الاتصال غير مدعوم من هذا المزود"
 }

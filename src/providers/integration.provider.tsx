@@ -13,7 +13,7 @@ import { IntegrationAuditLogger } from '@/integrations/audit/audit-logger.ts';
 import { BundledProviderDiscovery } from '@/integrations/registry/discovery.ts';
 import { useIntegrationRepositories } from '@/integrations/storage/integration-repositories.ts';
 import { AvailableProviderEntry } from '@/integrations/core/integration-manager.ts';
-import { getIntegrationProviderConfig } from '@/integrations/configuration/configuration-store.ts';
+import { getIntegrationProviderConfig, saveIntegrationProviderConfig } from '@/integrations/configuration/configuration-store.ts';
 
 interface IntegrationContextValue {
   manager: IntegrationManager;
@@ -57,6 +57,9 @@ export const IntegrationProvider = ({ children }: PropsWithChildren) => {
 
     const next = new IntegrationManager(registry, eventBus, queueEngine, scheduler, healthMonitor, auditLogger);
     next.setConfigLoader((providerId) => getIntegrationProviderConfig(dbRef.current, providerId));
+    next.setConfigSaver(async (providerId, values) => {
+      await saveIntegrationProviderConfig(dbRef.current, providerId, values);
+    });
     next.setDbLoader(() => dbRef.current);
     return next;
   }, []);

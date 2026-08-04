@@ -43,5 +43,29 @@
     "Failed": "Fallido",
     "Cancelled": "Cancelado",
     "DeadLetter": "Fallo permanente"
-  }
+  },
+  "connect": "Conectar",
+  "disconnect": "Desconectar",
+  "reconnect": "Reconectar",
+  "initialSync": "Ejecutar sincronización inicial",
+  "connectionRequired": "Conecta primero al proveedor.",
+  "connectedTo": "Conectado a {{company}}",
+  "notConnected": "No conectado",
+  "connecting": "Conectando...",
+  "disconnecting": "Desconectando...",
+  "syncing": "Sincronizando...",
+  "syncComplete": "Sincronización completa — {{count}} entidades importadas.",
+  "syncFailed": "Error de sincronización",
+  "lastSync": "Última sincronización",
+  "nextSync": "Próxima sincronización",
+  "syncProgress": "Progreso de sincronización",
+  "failedItems": "Elementos fallidos",
+  "oauth": {
+    "start": "Autorizar con QuickBooks",
+    "callbackError": "Error en la devolución de OAuth. Inténtalo de nuevo.",
+    "connected": "Conectado a QuickBooks",
+    "disconnected": "Desconectado de QuickBooks"
+  },
+  "connectNotSupported": "Conectar no es compatible con este proveedor",
+  "disconnectNotSupported": "Desconectar no es compatible con este proveedor"
 }
