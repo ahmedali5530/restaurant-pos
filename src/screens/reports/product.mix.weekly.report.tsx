@@ -56,12 +56,16 @@ const parseWeekParams = (weekParam?: string) => {
   }
   weekStart = weekStart.startOf('week');
   const weekEnd = weekStart.plus({days: 6});
+  const dateTimeFormat = import.meta.env.VITE_DATE_TIME_FORMAT as string;
 
   return {
     weekStart,
     weekEnd,
     weekStartISO: weekStart.toISODate() || '',
     weekEndISO: weekEnd.toISODate() || '',
+    // Full day bounds for time::format string compare (date-only end excludes the last day)
+    queryStart: weekStart.startOf('day').toFormat(dateTimeFormat),
+    queryEnd: weekEnd.endOf('day').toFormat(dateTimeFormat),
   };
 };
 
@@ -86,7 +90,7 @@ export const ProductMixWeeklyReport = () => {
   const [error, setError] = useState<string | null>(null);
 
   const filters = useMemo(parseFilters, []);
-  const {weekStart, weekEnd, weekStartISO, weekEndISO} = useMemo(() => parseWeekParams(filters.week), [filters.week]);
+  const {weekStart, weekStartISO, weekEndISO, queryStart, queryEnd} = useMemo(() => parseWeekParams(filters.week), [filters.week]);
   const subtitle = filters.week ? `${weekStartISO} to ${weekEndISO}` : undefined;
 
   useEffect(() => {
@@ -101,8 +105,8 @@ export const ProductMixWeeklyReport = () => {
 
         const conditions: string[] = [];
         const params: Record<string, any> = {
-          start: weekStartISO,
-          end: weekEndISO,
+          start: queryStart,
+          end: queryEnd,
         };
 
         // Week date range filter
@@ -150,7 +154,7 @@ export const ProductMixWeeklyReport = () => {
     };
 
     fetchData();
-  }, [weekStartISO, weekEndISO, filters.orderTakerIds, filters.orderTypeIds, filters.categoryIds, filters.menuItemIds]);
+  }, [queryStart, queryEnd, filters.orderTakerIds, filters.orderTypeIds, filters.categoryIds, filters.menuItemIds]);
 
   // Orders already filtered in SurrealQL; keep item-level filtering for aggregation
   const filteredOrders = orders;

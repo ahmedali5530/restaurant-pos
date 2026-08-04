@@ -50,12 +50,16 @@ const parseWeekParams = () => {
   }
   weekStart = weekStart.startOf('week');
   const weekEnd = weekStart.plus({days: 6});
+  const dateTimeFormat = import.meta.env.VITE_DATE_TIME_FORMAT as string;
 
   return {
     weekStart,
     weekEnd,
     weekStartISO: weekStart.toISODate(),
     weekEndISO: weekEnd.toISODate(),
+    // Full day bounds for time::format string compare (date-only end excludes the last day)
+    queryStart: weekStart.startOf('day').toFormat(dateTimeFormat),
+    queryEnd: weekEnd.endOf('day').toFormat(dateTimeFormat),
   };
 };
 
@@ -81,7 +85,7 @@ export const SalesHourlyLabourWeeklyReport = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const {weekStart, weekEnd, weekStartISO, weekEndISO} = useMemo(parseWeekParams, []);
+  const {weekStart, weekEnd, weekStartISO, weekEndISO, queryStart, queryEnd} = useMemo(parseWeekParams, []);
 
   useEffect(() => {
     queryRef.current = db.query;
@@ -93,7 +97,7 @@ export const SalesHourlyLabourWeeklyReport = () => {
         setLoading(true);
         setError(null);
 
-        const params = {start: weekStartISO, end: weekEndISO};
+        const params = {start: queryStart, end: queryEnd};
 
         const ordersQuery = `
           SELECT * FROM ${Tables.orders}
@@ -126,7 +130,7 @@ export const SalesHourlyLabourWeeklyReport = () => {
     };
 
     fetchData();
-  }, [weekStartISO, weekEndISO]);
+  }, [queryStart, queryEnd]);
 
   const dayHeaders = useMemo(() => {
     return WEEK_DAYS.map((day, index) => ({
