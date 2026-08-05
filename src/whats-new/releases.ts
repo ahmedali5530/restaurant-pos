@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-08-05',
+    title: 'Floor bill amount and cart tax previews',
+    items: [
+      'Occupied floor tables now show the full bill amount including tax, discounts, service charge, extras, and tips.',
+      'Before an order is created, the cart shows a projected total for each configured tax (e.g. Total with GST 8%).',
+    ],
+  },
+  {
     date: '2026-08-04',
     title: 'Sales Summary 2 enhancements',
     items: [

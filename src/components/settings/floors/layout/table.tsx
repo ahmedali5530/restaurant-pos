@@ -18,13 +18,12 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Slider } from "@/components/common/react-aria/slider.tsx";
 import { Order } from "@/api/model/order.ts";
-import { getOrderDisplayItemsTotal } from "@/lib/order-item-display.ts";
+import { getOrderSettlementFigures } from "@/lib/order.ts";
 import { Countdown } from "@/components/floor/countdown.tsx";
 import { DateTime } from "luxon";
 import { Input } from "@/components/common/input/input.tsx";
 import {useTranslation} from 'react-i18next';
 import { toLuxonDateTime } from "@/lib/datetime.ts";
-import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
 
 interface Props {
   table: Table
@@ -60,7 +59,6 @@ export const FloorTable = ({
   onGroupMoveEnd,
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
-  const { enabled: showInclusive } = useShowInclusivePrices();
 
   const db = useDB();
   const canMove = canMoveProp ?? isEditing;
@@ -169,7 +167,7 @@ export const FloorTable = ({
     onRemove && onRemove();
   }
 
-  const total = getOrderDisplayItemsTotal(order, showInclusive);
+  const total = order ? getOrderSettlementFigures(order).grandTotalDue : 0;
   const isLateOrder = useMemo(() => {
     if( order ) {
       const diff = DateTime.now().diff(toLuxonDateTime(order.created_at)).as('hours');

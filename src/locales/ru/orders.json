@@ -54,6 +54,7 @@
     "tip": "Чаевые",
     "tipPercent": "Чаевые %",
     "total": "Итого",
+    "totalWithTax": "Итого с {{name}} {{rate}}%",
     "change": "Сдача",
     "sc": "СС ({{value}}%)",
     "extras": "Дополнения"

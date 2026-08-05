@@ -54,6 +54,7 @@
     "tip": "Tip",
     "tipPercent": "Tip %",
     "total": "Total",
+    "totalWithTax": "Total with {{name}} {{rate}}%",
     "change": "Change",
     "sc": "SC ({{value}}%)",
     "extras": "Extras"

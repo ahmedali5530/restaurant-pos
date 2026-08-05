@@ -270,6 +270,63 @@ export const calculateCartItemPaymentTax = (
 };
 
 /**
+ * Taxable (net) line total for cart items — same base settlement uses before exclusive order tax.
+ */
+export const calculateCartItemsBaseTotal = (cart: MenuItem[]): number => {
+  return roundTax(
+    cart
+      .filter(item => !item.deleted_at)
+      .reduce((sum, item) => {
+        const quantity = safeNumber(item.quantity || 1);
+        return sum + getCartItemTaxableUnitBase(item) * quantity;
+      }, 0),
+  );
+};
+
+/**
+ * Cart grand total as if `orderTax` were applied as exclusive % on the whole cart base.
+ * Used for pre-order previews so each system tax rate produces a distinct total.
+ */
+export const calculateCartTotalWithOrderTax = (
+  cart: MenuItem[],
+  orderTax?: Tax | null,
+): number => {
+  const base = calculateCartItemsBaseTotal(cart);
+  if (!orderTax) {
+    return base;
+  }
+  const rate = safeNumber(orderTax.rate);
+  return roundTax(base + (base * rate) / 100);
+};
+
+export interface CartTaxPreviewTotal {
+  tax: Tax;
+  total: number;
+  taxAmount: number;
+}
+
+/**
+ * Projected totals for each system tax applied as exclusive % on the cart items base.
+ */
+export const calculateCartTotalsWithTaxes = (
+  cart: MenuItem[],
+  taxes: Tax[],
+): CartTaxPreviewTotal[] => {
+  const active = (taxes ?? []).filter((tax): tax is Tax => Boolean(tax));
+  const base = calculateCartItemsBaseTotal(cart);
+
+  return active.map(tax => {
+    const rate = safeNumber(tax.rate);
+    const taxAmount = roundTax((base * rate) / 100);
+    return {
+      tax,
+      taxAmount,
+      total: roundTax(base + taxAmount),
+    };
+  });
+};
+
+/**
  * Sum of payment taxes for an order and optional pending cart items.
  */
 export const calculateOrderPaymentTaxAmount = (

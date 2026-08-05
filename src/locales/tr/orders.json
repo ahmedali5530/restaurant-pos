@@ -54,6 +54,7 @@
     "tip": "Bahşiş",
     "tipPercent": "Bahşiş %",
     "total": "Toplam",
+    "totalWithTax": "{{name}} {{rate}}% ile toplam",
     "change": "Para üstü",
     "sc": "SU ({{value}}%)",
     "extras": "Ekstralar"

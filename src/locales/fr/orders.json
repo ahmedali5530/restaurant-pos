@@ -54,6 +54,7 @@
     "tip": "Pourboire",
     "tipPercent": "Pourboire %",
     "total": "Total",
+    "totalWithTax": "Total avec {{name}} {{rate}} %",
     "change": "Monnaie",
     "sc": "FS ({{value}} %)",
     "extras": "Suppléments"

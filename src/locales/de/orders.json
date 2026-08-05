@@ -54,6 +54,7 @@
     "tip": "Trinkgeld",
     "tipPercent": "Trinkgeld %",
     "total": "Gesamt",
+    "totalWithTax": "Gesamt mit {{name}} {{rate}}%",
     "change": "Wechselgeld",
     "sc": "SG ({{value}}%)",
     "extras": "Extras"

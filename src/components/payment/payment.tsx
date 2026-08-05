@@ -424,7 +424,7 @@ export const Payment = () => {
         )}
         {!order && (
           <div className="p-3">
-            <CartTotals itemCount={cartItemCount} total={total} />
+            <CartTotals itemCount={cartItemCount} cart={state.cart} />
           </div>
         )}
 

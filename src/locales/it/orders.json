@@ -54,6 +54,7 @@
     "tip": "Mancia",
     "tipPercent": "Mancia %",
     "total": "Totale",
+    "totalWithTax": "Totale con {{name}} {{rate}}%",
     "change": "Resto",
     "sc": "CS ({{value}}%)",
     "extras": "Extra"

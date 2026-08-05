@@ -54,6 +54,7 @@
     "tip": "Propina",
     "tipPercent": "Propina %",
     "total": "Total",
+    "totalWithTax": "Total con {{name}} {{rate}}%",
     "change": "Cambio",
     "sc": "CS ({{value}}%)",
     "extras": "Extras"

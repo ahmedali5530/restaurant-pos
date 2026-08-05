@@ -2,34 +2,64 @@ import {Order as OrderModel} from "@/api/model/order.ts";
 import {MenuItem} from "@/api/model/cart_item.ts";
 import React, {CSSProperties, useMemo} from "react";
 import {calculateOrderExtrasTotal, calculateOrderTotal, calculateOrderTotalsPreview} from "@/lib/cart.ts";
-import {getOrderTaxAmount, getOrderTaxBreakdown} from "@/lib/tax-calculator.ts";
+import {
+  calculateCartItemsBaseTotal,
+  calculateCartTotalsWithTaxes,
+  getOrderTaxAmount,
+  getOrderTaxBreakdown,
+} from "@/lib/tax-calculator.ts";
 import {withCurrency, cn} from "@/lib/utils.ts";
 import {DiscountType} from "@/api/model/discount.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import {useTranslation} from "react-i18next";
+import useApi, {SettingsData} from "@/api/db/use.api.ts";
+import {Tables} from "@/api/db/tables.ts";
+import {Tax} from "@/api/model/tax.ts";
 
 const separatorStyle = {'--size': '10px', '--space': '5px'} as CSSProperties;
 
 interface CartTotalsProps {
+  cart: MenuItem[]
   itemCount: number
-  total: number
   className?: string
 }
 
-export const CartTotals = ({itemCount, total, className}: CartTotalsProps) => {
+export const CartTotals = ({cart, itemCount, className}: CartTotalsProps) => {
   const {t} = useTranslation('orders');
+  const {data: taxesData} = useApi<SettingsData<Tax>>(
+    Tables.taxes,
+    ['deleted_at = none'],
+    ['priority asc'],
+    0,
+    99999,
+  );
+
+  const itemsBase = useMemo(() => calculateCartItemsBaseTotal(cart), [cart]);
+  const taxPreviewTotals = useMemo(
+    () => calculateCartTotalsWithTaxes(cart, taxesData?.data ?? []),
+    [cart, taxesData?.data],
+  );
 
   return (
     <div className={cn("flex flex-col gap-1", className)}>
       <div className="flex font-bold">
         <div className="flex-1">{t('totals.items', {count: itemCount})}</div>
-        <div className="text-right">{withCurrency(total)}</div>
+        <div className="text-right">{withCurrency(itemsBase)}</div>
       </div>
       <div className="separator h-[2px]" style={separatorStyle}></div>
-      <div className="flex font-bold text-2xl text-success-900">
-        <div className="flex-1">{t('totals.total')}</div>
-        <div className="text-right">{withCurrency(total)}</div>
-      </div>
+      {taxPreviewTotals.length > 0 ? (
+        taxPreviewTotals.map(({tax, total}) => (
+          <div className="flex font-bold text-2xl text-success-900" key={tax.id?.toString() ?? `${tax.name}-${tax.rate}`}>
+            <div className="flex-1">{t('totals.totalWithTax', {name: tax.name, rate: tax.rate})}</div>
+            <div className="text-right">{withCurrency(total)}</div>
+          </div>
+        ))
+      ) : (
+        <div className="flex font-bold text-2xl text-success-900">
+          <div className="flex-1">{t('totals.total')}</div>
+          <div className="text-right">{withCurrency(itemsBase)}</div>
+        </div>
+      )}
     </div>
   );
 };

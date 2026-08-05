@@ -54,6 +54,7 @@
     "tip": "Fooi",
     "tipPercent": "Fooi %",
     "total": "Totaal",
+    "totalWithTax": "Totaal met {{name}} {{rate}}%",
     "change": "Wisselgeld",
     "sc": "SK ({{value}}%)",
     "extras": "Extra's"

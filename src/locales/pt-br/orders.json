@@ -54,6 +54,7 @@
     "tip": "Gorjeta",
     "tipPercent": "Gorjeta %",
     "total": "Total",
+    "totalWithTax": "Total com {{name}} {{rate}}%",
     "change": "Troco",
     "sc": "TS ({{value}}%)",
     "extras": "Extras"
