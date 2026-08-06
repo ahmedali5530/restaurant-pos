@@ -417,6 +417,7 @@
       "orders.refund": "Rembourser la commande",
       "orders.print_final": "Imprimer la copie finale",
       "orders.print_temp": "Imprimer la note provisoire",
+      "orders.print_kot": "Imprimer la copie KOT",
       "orders.override_print_limit": "Contourner la limite d'impression",
       "orders.open_cash_drawer": "Open cash drawer",
       "orders.apply_tax": "Appliquer la taxe",

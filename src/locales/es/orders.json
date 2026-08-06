@@ -71,7 +71,8 @@
     "printFinalBillCopy": "Imprimir copia de factura final",
     "openCashDrawer": "Abrir cajón de efectivo",
     "tempBill": "Factura temporal",
-    "payNow": "Pagar ahora"
+    "payNow": "Pagar ahora",
+    "printKotCopy": "Imprimir copia de KOT"
   },
   "cancel": {
     "title": "Cancelar pedido",

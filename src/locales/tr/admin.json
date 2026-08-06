@@ -417,6 +417,7 @@
       "orders.refund": "Siparişi iade et",
       "orders.print_final": "Final kopyayı yazdır",
       "orders.print_temp": "Geçici faturayı yazdır",
+      "orders.print_kot": "KOT kopyasını yazdır",
       "orders.override_print_limit": "Yazdırma limitini geçersiz kıl",
       "orders.open_cash_drawer": "Open cash drawer",
       "orders.apply_tax": "Vergi uygula",

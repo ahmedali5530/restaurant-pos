@@ -417,6 +417,7 @@
       "orders.refund": "استرداد الطلب",
       "orders.print_final": "طباعة النسخة النهائية",
       "orders.print_temp": "طباعة الفاتورة المؤقتة",
+      "orders.print_kot": "طباعة نسخة KOT",
       "orders.override_print_limit": "تجاوز حد الطباعة",
       "orders.open_cash_drawer": "Open cash drawer",
       "orders.apply_tax": "تطبيق الضريبة",

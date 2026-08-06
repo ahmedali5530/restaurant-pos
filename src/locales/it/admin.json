@@ -417,6 +417,7 @@
       "orders.refund": "Rimborso ordine",
       "orders.print_final": "Stampa copia finale",
       "orders.print_temp": "Stampa preconto",
+      "orders.print_kot": "Stampa copia KOT",
       "orders.override_print_limit": "Superare limite di stampa",
       "orders.open_cash_drawer": "Open cash drawer",
       "orders.apply_tax": "Applica IVA",

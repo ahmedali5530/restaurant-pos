@@ -71,7 +71,8 @@
     "printFinalBillCopy": "Print final bill copy",
     "openCashDrawer": "Open cash drawer",
     "tempBill": "Temp bill",
-    "payNow": "Pay Now"
+    "payNow": "Pay Now",
+    "printKotCopy": "Print KOT copy"
   },
   "print": {
     "tempAlreadyPrinted": "Temp bill already printed"

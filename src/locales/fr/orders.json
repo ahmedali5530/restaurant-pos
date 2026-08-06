@@ -71,7 +71,8 @@
     "printFinalBillCopy": "Imprimer une copie de la note finale",
     "openCashDrawer": "Ouvrir le tiroir-caisse",
     "tempBill": "Note provisoire",
-    "payNow": "Payer maintenant"
+    "payNow": "Payer maintenant",
+    "printKotCopy": "Imprimer une copie KOT"
   },
   "cancel": {
     "title": "Annuler la commande",

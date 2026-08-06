@@ -71,7 +71,8 @@
     "printFinalBillCopy": "Печать копии финального счёта",
     "openCashDrawer": "Открыть кассовый ящик",
     "tempBill": "Предварительный счёт",
-    "payNow": "Оплатить"
+    "payNow": "Оплатить",
+    "printKotCopy": "Печать копии KOT"
   },
   "cancel": {
     "title": "Отмена заказа",

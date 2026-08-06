@@ -417,6 +417,7 @@
       "orders.refund": "Возврат заказа",
       "orders.print_final": "Печать финальной копии",
       "orders.print_temp": "Печать предварительного счёта",
+      "orders.print_kot": "Печать копии KOT",
       "orders.override_print_limit": "Превысить лимит печати",
       "orders.open_cash_drawer": "Open cash drawer",
       "orders.apply_tax": "Применение налога",

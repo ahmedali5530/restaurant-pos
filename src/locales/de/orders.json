@@ -71,7 +71,8 @@
     "printFinalBillCopy": "Endrechnungskopie drucken",
     "openCashDrawer": "Kassenschublade öffnen",
     "tempBill": "Zwischenrechnung",
-    "payNow": "Jetzt bezahlen"
+    "payNow": "Jetzt bezahlen",
+    "printKotCopy": "KOT-Kopie drucken"
   },
   "cancel": {
     "title": "Bestellung stornieren",

@@ -71,7 +71,8 @@
     "printFinalBillCopy": "طباعة نسخة الفاتورة النهائية",
     "openCashDrawer": "فتح درج النقود",
     "tempBill": "فاتورة مؤقتة",
-    "payNow": "ادفع الآن"
+    "payNow": "ادفع الآن",
+    "printKotCopy": "طباعة نسخة KOT"
   },
   "cancel": {
     "title": "إلغاء الطلب",

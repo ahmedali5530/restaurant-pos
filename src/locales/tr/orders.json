@@ -71,7 +71,8 @@
     "printFinalBillCopy": "Final fatura kopyasını yazdır",
     "openCashDrawer": "Nakit çekmecesini aç",
     "tempBill": "Geçici fatura",
-    "payNow": "Şimdi Öde"
+    "payNow": "Şimdi Öde",
+    "printKotCopy": "KOT kopyasını yazdır"
   },
   "cancel": {
     "title": "Siparişi iptal et",

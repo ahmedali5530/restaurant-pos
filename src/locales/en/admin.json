@@ -586,6 +586,7 @@
       "orders.refund": "Refund order",
       "orders.print_final": "Print final copy",
       "orders.print_temp": "Print temp bill",
+      "orders.print_kot": "Print KOT copy",
       "orders.override_print_limit": "Override print limit",
       "orders.open_cash_drawer": "Open cash drawer",
       "orders.apply_tax": "Apply tax",

@@ -417,6 +417,7 @@
       "orders.refund": "Bestelling terugbetalen",
       "orders.print_final": "Definitieve kopie afdrukken",
       "orders.print_temp": "Tijdelijke rekening afdrukken",
+      "orders.print_kot": "KOT-kopie afdrukken",
       "orders.override_print_limit": "Afdruklimiet overschrijven",
       "orders.open_cash_drawer": "Open cash drawer",
       "orders.apply_tax": "Belasting toepassen",

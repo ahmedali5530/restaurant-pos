@@ -71,7 +71,8 @@
     "printFinalBillCopy": "Definitieve rekening afdrukken",
     "openCashDrawer": "Kassalade openen",
     "tempBill": "Tijdelijke rekening",
-    "payNow": "Nu betalen"
+    "payNow": "Nu betalen",
+    "printKotCopy": "KOT-kopie afdrukken"
   },
   "cancel": {
     "title": "Bestelling annuleren",

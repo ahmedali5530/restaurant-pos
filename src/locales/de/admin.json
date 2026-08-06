@@ -417,6 +417,7 @@
       "orders.refund": "Bestellung erstatten",
       "orders.print_final": "Endrechnungskopie drucken",
       "orders.print_temp": "Zwischenrechnung drucken",
+      "orders.print_kot": "KOT-Kopie drucken",
       "orders.override_print_limit": "Drucklimit überschreiben",
       "orders.open_cash_drawer": "Open cash drawer",
       "orders.apply_tax": "Steuer anwenden",

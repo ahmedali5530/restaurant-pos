@@ -37,6 +37,7 @@ import {useSecurity} from "@/hooks/useSecurity.ts";
 import {useTranslation} from "react-i18next";
 import { getFiscalQrcodesForOrderPrint } from "@/integrations/providers/fiscal/settlement.ts";
 import { hasTempPrint, requestBillPrint } from "@/lib/order-print.ts";
+import { printDuplicateKotForOrder } from "@/lib/kitchen/print-duplicate-kot.ts";
 
 interface Props {
   order: OrderModel
@@ -135,6 +136,25 @@ export const OrderBox = ({
     });
   };
 
+  const printKotCopy = () => {
+    void protectAction(() => {
+      void printDuplicateKotForOrder({
+        db,
+        order,
+        userId: page?.user?.id,
+        title: t("actions.printKotCopy"),
+      }).catch((error) => {
+        console.error("Order KOT reprint failed", error);
+      });
+    }, {
+      module: "orders.print_kot",
+      description: t("actions.printKotCopy"),
+      payload: {
+        order: order.id.toString(),
+      },
+    });
+  };
+
   const [pageState] = useAtom(appPage);
   const {
     showTotalInOrderCard = false,
@@ -195,6 +215,10 @@ export const OrderBox = ({
 
                   if (key === 'final_bill') {
                     printFinalCopy();
+                  }
+
+                  if (key === 'kot_copy') {
+                    printKotCopy();
                   }
 
                   if (key === 'split_by_seats' && hasSeats) {
@@ -297,6 +321,10 @@ export const OrderBox = ({
                     <DropdownItem isDisabled={mutationsBlocked} id="merge" key="merge" className="min-w-[50px]">
                       <FontAwesomeIcon icon={faObjectGroup}/> {t('actions.mergeOrders')}
                     </DropdownItem>
+                    <DropdownSeparator/>
+                    <DropdownItem id="kot_copy" key="kot_copy" className="min-w-[50px]">
+                      <FontAwesomeIcon icon={faPrint}/> {t('actions.printKotCopy')}
+                    </DropdownItem>
                   </>
                 )}
 
@@ -308,6 +336,9 @@ export const OrderBox = ({
                     <DropdownSeparator/>
                     <DropdownItem id="final_bill" key="final_bill" className="min-w-[50px]">
                       <FontAwesomeIcon icon={faPrint}/> {t('actions.printFinalBillCopy')}
+                    </DropdownItem>
+                    <DropdownItem id="kot_copy" key="kot_copy" className="min-w-[50px]">
+                      <FontAwesomeIcon icon={faPrint}/> {t('actions.printKotCopy')}
                     </DropdownItem>
                   </>
                 )}

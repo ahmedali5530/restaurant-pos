@@ -71,7 +71,8 @@
     "printFinalBillCopy": "Imprimir cópia da conta final",
     "openCashDrawer": "Abrir gaveta de dinheiro",
     "tempBill": "Conta provisória",
-    "payNow": "Pagar Agora"
+    "payNow": "Pagar Agora",
+    "printKotCopy": "Imprimir cópia do KOT"
   },
   "cancel": {
     "title": "Cancelar pedido",

@@ -14,6 +14,7 @@ import { dispatchPrint } from "@/lib/print.service.ts";
 import { useAtom } from "jotai";
 import { appPage } from "@/store/jotai.ts";
 import { useTranslation } from "react-i18next";
+import { useSecurity } from "@/hooks/useSecurity.ts";
 
 export type KitchenBoardTicket = {
   order: Order
@@ -46,6 +47,7 @@ export const KitchenOrder = ({
   const db = useDB();
   const [page] = useAtom(appPage);
   const { t } = useTranslation(["kitchen", "payment"]);
+  const { protectAction } = useSecurity();
   const [printing, setPrinting] = useState(false);
 
   const { order, batch, reprintItems, isAddon, isContinued, showKindLabel, groupColor } = ticket;
@@ -65,7 +67,7 @@ export const KitchenOrder = ({
     await completeStage(db, item, page?.user?.id);
   };
 
-  const reprint = async () => {
+  const doReprint = async () => {
     if (!kitchen?.printers?.length || printing) {
       return;
     }
@@ -100,6 +102,18 @@ export const KitchenOrder = ({
     } finally {
       setPrinting(false);
     }
+  };
+
+  const reprint = () => {
+    void protectAction(() => {
+      void doReprint();
+    }, {
+      module: "orders.print_kot",
+      description: t("actions.reprint"),
+      payload: {
+        order: order?.id?.toString(),
+      },
+    });
   };
 
   return (

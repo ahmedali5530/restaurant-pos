@@ -417,6 +417,7 @@
       "orders.refund": "Reembolsar pedido",
       "orders.print_final": "Imprimir cópia final",
       "orders.print_temp": "Imprimir conta provisória",
+      "orders.print_kot": "Imprimir cópia do KOT",
       "orders.override_print_limit": "Substituir limite de impressão",
       "orders.open_cash_drawer": "Open cash drawer",
       "orders.apply_tax": "Aplicar imposto",

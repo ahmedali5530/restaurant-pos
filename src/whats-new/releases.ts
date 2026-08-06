@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-08-06',
+    title: 'Copy KOT print with permission',
+    items: [
+      'Print a KOT copy from the orders screen (in progress and paid orders), routed to each kitchen\'s printers.',
+      'Re-print KOT on the kitchen board and copy KOT from orders now require the Print KOT copy permission (manager PIN when missing).',
+    ],
+  },
+  {
+    date: '2026-08-06',
     title: 'Kitchen board: grouped addons, denser grid, voice alerts',
     items: [
       'Kitchen tickets for the same order group together; addon fires appear as sections under the original ticket with ADDON labels.',
