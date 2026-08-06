@@ -1,6 +1,6 @@
 import {Button} from "@/components/common/input/button.tsx";
 import {faCancel, faCheck, faCreditCard, faTimes} from "@fortawesome/free-solid-svg-icons";
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {useAtom} from "jotai";
 import {appPage, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {calculateCartItemPrice} from "@/lib/cart.ts";
@@ -40,6 +40,8 @@ export const Payment = () => {
   const orderTakingBlocked = enforcement.orderTakingBlocked;
 
   const [isLoading, setLoading] = useState(false);
+  /** Sync re-entry guard: React isLoading alone cannot stop double-click before re-render. */
+  const createInFlightRef = useRef(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [order, setOrder] = useState<Order>();
   const [paymentOrder, setPaymentOrder] = useState<Order>();
@@ -125,135 +127,137 @@ export const Payment = () => {
       return state?.order?.order ?? { id: state?.order?.id };
     }
 
-    await assertOrderTakingAllowed(db);
-
+    // Hard re-entry guard (sync) before any await / setState.
+    // Callers must not treat this as success (e.g. do not reset cart).
+    if (createInFlightRef.current) {
+      return 'busy' as const;
+    }
+    createInFlightRef.current = true;
     setLoading(true);
-    const date = DateTime.now().toJSDate();
-
-    let invoiceNumber = 1;
-
-    if (isNewOrder) {
-      invoiceNumber = await generateNextInvoiceNumber(db);
-    } else {
-      invoiceNumber = state?.order?.order?.invoice_number;
-    }
-
-    const kitchenItems: Record<string, any[]> = {};
-    const items: any[] = [];
-    const newItemIds: any[] = [];
-
-    for (const item of state.cart) {
-      if (isPersistedCartItem(item)) {
-        items.push(toRecordId(item.id));
-        continue;
-      }
-
-      const pricing = buildOrderItemPayload(item);
-      const itemData: any = {
-        tax: pricing.tax,
-        item: new StringRecordId(item.dish.id.toString()),
-        price: pricing.price,
-        quantity: item.quantity,
-        position: 0,
-        comments: item.comments,
-        service_charges: 0,
-        discount: 0,
-        modifiers: pricing.modifiers,
-        seat: item.seat,
-        is_suspended: item.isHold,
-        level: item.level,
-        category: item.category,
-        category_id: item.category_id ? toRecordId(item.category_id) : null,
-        is_addition: !isNewOrder,
-        menu: item.menu_name,
-        tax_mode: pricing.tax_mode,
-        created_at: date,
-        created_by: toRecordId(page?.user?.id),
-      };
-
-      if (pricing.original_price !== undefined) {
-        itemData.original_price = pricing.original_price;
-      }
-
-      if (pricing.taxes && pricing.taxes.length > 0) {
-        itemData.taxes = pricing.taxes.map(t => toRecordId(t.id));
-      }
-
-      const record = await db.create(Tables.order_items, itemData);
-      items.push(record[0].id);
-      newItemIds.push(record[0].id);
-
-      // Held items stay off kitchen until Fire; route everything else now.
-      if (!item.isHold) {
-        await createStageRows(db, {
-          orderItem: record[0],
-          dish: item.dish,
-          kitchenItems,
-        });
-      }
-    }
-
-    let customer = null;
-    if(state?.customer && state.customer.id){
-      customer = toRecordId(state.customer.id);
-    }
-
-    if(state?.customer && state.customer.id === undefined){
-      // create customer and get id
-      const [cus] = await db.insert(Tables.customers, {
-        ...state.customer
-      });
-
-      customer = cus.id
-    }
-
-    const data: any = {
-      floor: toRecordId(state?.floor?.id),
-      covers: parseInt(state?.persons),
-      tax: null,
-      tax_amount: 0,
-      tags: ['Normal'],
-      discount: null,
-      discount_amount: 0,
-      customer: customer,
-      order_type: toRecordId(state?.orderType?.id),
-      status: OrderStatus["In Progress"],
-      invoice_number: invoiceNumber,
-      items: items,
-      table: toRecordId(state?.table?.id),
-      user: toRecordId(page?.user?.id),
-      service_charge: 0,
-      service_charge_amount: 0,
-      service_charge_type: DiscountType.Percent,
-    };
-
-    if (isNewOrder && state?.orderType?.allow_service_charges) {
-      const [serviceChargeSettingResult] = await db.query(
-        `SELECT *
-         FROM ${Tables.settings}
-         WHERE key = $key AND is_global = true LIMIT 1 FETCH
-         values`,
-        {key: "service_charges"}
-      );
-      const serviceChargeSetting = serviceChargeSettingResult.length > 0 ? serviceChargeSettingResult?.[0]?.values : null;
-      const defaultTypeRaw = serviceChargeSetting?.type?.value ?? serviceChargeSetting?.type;
-      const defaultValueRaw = serviceChargeSetting?.value?.value ?? serviceChargeSetting?.value;
-      const normalizedType = String(defaultTypeRaw || DiscountType.Percent);
-      const normalizedValue = Number(defaultValueRaw || 0);
-
-      data.service_charge = normalizedValue;
-      data.service_charge_type = normalizedType;
-      data.service_charge_amount = normalizedType === DiscountType.Fixed ? normalizedValue : (total * normalizedValue / 100);
-    }
-
-    if (isNewOrder) {
-      data.auto_id = await getNextAutoId(db);
-    }
 
     let orderObj: any;
 
     try {
+      await assertOrderTakingAllowed(db);
+
+      const date = DateTime.now().toJSDate();
+
+      const kitchenItems: Record<string, any[]> = {};
+      const items: any[] = [];
+      const newItemIds: any[] = [];
+
+      for (const item of state.cart) {
+        if (isPersistedCartItem(item)) {
+          items.push(toRecordId(item.id));
+          continue;
+        }
+
+        const pricing = buildOrderItemPayload(item);
+        const itemData: any = {
+          tax: pricing.tax,
+          item: new StringRecordId(item.dish.id.toString()),
+          price: pricing.price,
+          quantity: item.quantity,
+          position: 0,
+          comments: item.comments,
+          service_charges: 0,
+          discount: 0,
+          modifiers: pricing.modifiers,
+          seat: item.seat,
+          is_suspended: item.isHold,
+          level: item.level,
+          category: item.category,
+          category_id: item.category_id ? toRecordId(item.category_id) : null,
+          is_addition: !isNewOrder,
+          menu: item.menu_name,
+          tax_mode: pricing.tax_mode,
+          created_at: date,
+          created_by: toRecordId(page?.user?.id),
+        };
+
+        if (pricing.original_price !== undefined) {
+          itemData.original_price = pricing.original_price;
+        }
+
+        if (pricing.taxes && pricing.taxes.length > 0) {
+          itemData.taxes = pricing.taxes.map(t => toRecordId(t.id));
+        }
+
+        const record = await db.create(Tables.order_items, itemData);
+        items.push(record[0].id);
+        newItemIds.push(record[0].id);
+
+        // Held items stay off kitchen until Fire; route everything else now.
+        if (!item.isHold) {
+          await createStageRows(db, {
+            orderItem: record[0],
+            dish: item.dish,
+            kitchenItems,
+          });
+        }
+      }
+
+      let customer = null;
+      if (state?.customer && state.customer.id) {
+        customer = toRecordId(state.customer.id);
+      }
+
+      if (state?.customer && state.customer.id === undefined) {
+        // create customer and get id
+        const [cus] = await db.insert(Tables.customers, {
+          ...state.customer
+        });
+
+        customer = cus.id
+      }
+
+      // Allocate numbers immediately before insert so the race window stays minimal.
+      let invoiceNumber = state?.order?.order?.invoice_number ?? 1;
       if (isNewOrder) {
+        invoiceNumber = await generateNextInvoiceNumber(db);
+      }
+
+      const data: any = {
+        floor: toRecordId(state?.floor?.id),
+        covers: parseInt(state?.persons),
+        tax: null,
+        tax_amount: 0,
+        tags: ['Normal'],
+        discount: null,
+        discount_amount: 0,
+        customer: customer,
+        order_type: toRecordId(state?.orderType?.id),
+        status: OrderStatus["In Progress"],
+        invoice_number: invoiceNumber,
+        items: items,
+        table: toRecordId(state?.table?.id),
+        user: toRecordId(page?.user?.id),
+        service_charge: 0,
+        service_charge_amount: 0,
+        service_charge_type: DiscountType.Percent,
+      };
+
+      if (isNewOrder && state?.orderType?.allow_service_charges) {
+        const [serviceChargeSettingResult] = await db.query(
+          `SELECT *
+           FROM ${Tables.settings}
+           WHERE key = $key AND is_global = true LIMIT 1 FETCH
+           values`,
+          {key: "service_charges"}
+        );
+        const serviceChargeSetting = serviceChargeSettingResult.length > 0 ? serviceChargeSettingResult?.[0]?.values : null;
+        const defaultTypeRaw = serviceChargeSetting?.type?.value ?? serviceChargeSetting?.type;
+        const defaultValueRaw = serviceChargeSetting?.value?.value ?? serviceChargeSetting?.value;
+        const normalizedType = String(defaultTypeRaw || DiscountType.Percent);
+        const normalizedValue = Number(defaultValueRaw || 0);
+
+        data.service_charge = normalizedValue;
+        data.service_charge_type = normalizedType;
+        data.service_charge_amount = normalizedType === DiscountType.Fixed ? normalizedValue : (total * normalizedValue / 100);
+      }
+
+      if (isNewOrder) {
+        data.auto_id = await getNextAutoId(db);
         data.created_at = date;
         orderObj = await db.create(Tables.orders, data);
 
@@ -320,19 +324,22 @@ export const Payment = () => {
         }
       }
 
+      return orderObj;
     } catch (e) {
       throw e;
     } finally {
+      createInFlightRef.current = false;
       setLoading(false);
     }
-
-    return orderObj;
   }
 
   const createOrderAndBack = async () => {
     try {
       if (hasNewCartItems()) {
-        await createOrder();
+        const result = await createOrder();
+        if (result === 'busy') {
+          return;
+        }
       }
       await reset();
     } catch (error) {
@@ -376,7 +383,7 @@ export const Payment = () => {
       let orderId: unknown = state?.order?.id;
       if (!isExistingOrderOnly) {
         const result = await createOrder();
-        if (!result) {
+        if (!result || result === 'busy') {
           return;
         }
         orderId = result?.id;

@@ -61,6 +61,7 @@ const MIGRATION_PLAN = [
     backfill: 'backfill-ledger-business-date.cjs',
   },
   { id: '2026_08_03_external_accounting_integration', file: '2026_08_03_external_accounting_integration.surql' },
+  { id: '2026_08_06_order_number_seq', file: '2026_08_06_order_number_seq.surql' },
 ];
 
 const rows = (result) => {

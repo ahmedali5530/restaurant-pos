@@ -185,8 +185,6 @@ export const SplitAmount = ({
     setIsSaving(true);
     try {
       await assertOrderMutationsAllowed(db);
-      let nextInvoiceNumber = await generateNextInvoiceNumber(db);
-      let nextAutoId = await getNextAutoId(db);
       const createdAt = new Date();
       const createdOrders = [];
       const oldOrderId = order.id.toString();
@@ -243,19 +241,10 @@ export const SplitAmount = ({
           // Create the new order item
           const [createdItem] = await db.create(Tables.order_items, itemData);
           newItemIds.push(createdItem.id);
-
-          // Create kitchen entries if needed
-          // const kitchen: any = await db.query(`SELECT * from ${Tables.kitchens} where items ?= ${originalItem.item.id.toString()}`);
-          // if (kitchen[0] && kitchen[0].length > 0) {
-          //   for (const k of kitchen[0]) {
-          //     await db.create(Tables.order_items_kitchen, {
-          //       created_at: DateTime.now().toJSDate(),
-          //       kitchen: new StringRecordId(k.id.toString()),
-          //       order_item: new StringRecordId(createdItem.id.toString())
-          //     });
-          //   }
-          // }
         }
+
+        const nextInvoiceNumber = await generateNextInvoiceNumber(db);
+        const nextAutoId = await getNextAutoId(db);
 
         // Create the split order
         const orderData = {
@@ -285,8 +274,6 @@ export const SplitAmount = ({
         const splitOrder = await db.create(Tables.orders, orderData);
         createdOrders.push(splitOrder[0]);
         newItems[splitOrder[0].id.toString()] = newItemIds.map(item => item.toString());
-        nextAutoId += 1;
-        nextInvoiceNumber += 1;
       }
 
       // Mark original order as split

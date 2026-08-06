@@ -34,6 +34,8 @@ export enum Tables {
   order_refunds = 'order_refund',
   order_prints = 'order_print',
   order_taxes = 'order_tax',
+  /** Atomic day/global counters for POS invoice_number and auto_id. */
+  order_number_seq = 'order_number_seq',
 
   order_types = 'order_type',
   extras = 'extra',

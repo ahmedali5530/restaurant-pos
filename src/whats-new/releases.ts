@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-08-06',
+    title: 'Safer order invoice and auto ID allocation',
+    items: [
+      'Invoice numbers and auto IDs are allocated with an atomic database counter so double-clicks or multiple tabs cannot create two orders with the same numbers.',
+      'POS send/pay buttons block re-entry immediately while an order create is already in flight.',
+    ],
+  },
+  {
     date: '2026-08-05',
     title: 'Floor bill amount and cart tax previews',
     items: [

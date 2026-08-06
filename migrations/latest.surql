@@ -1683,6 +1683,14 @@ DEFINE FIELD payments_data ON notes TYPE string | null PERMISSIONS FULL;
 
 
 -- ------------------------------
+-- TABLE: order_number_seq
+-- Atomic invoice / auto_id counters for concurrent-safe POS order creates
+-- ------------------------------
+
+DEFINE TABLE order_number_seq TYPE NORMAL SCHEMAFULL PERMISSIONS FULL;
+DEFINE FIELD value ON order_number_seq TYPE int DEFAULT 0 PERMISSIONS FULL;
+
+-- ------------------------------
 -- TABLE: order
 -- ------------------------------
 

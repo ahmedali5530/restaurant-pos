@@ -185,8 +185,6 @@ export const SplitItems = ({
     setIsSaving(true);
     try {
       await assertOrderMutationsAllowed(db);
-      let nextInvoiceNumber = await generateNextInvoiceNumber(db);
-      let nextAutoId = await getNextAutoId(db);
       const createdAt = new Date();
       const createdOrders = [];
       const oldOrderId = order.id.toString();
@@ -201,6 +199,10 @@ export const SplitItems = ({
 
         // Create order items for this split
         const items = split.items.map(item => item.id);
+
+        // Atomic allocate per create — never locally ++ after a single max read.
+        const nextInvoiceNumber = await generateNextInvoiceNumber(db);
+        const nextAutoId = await getNextAutoId(db);
 
         // Create the split order
         const orderData = {
@@ -226,8 +228,6 @@ export const SplitItems = ({
         const splitOrder = await db.create(Tables.orders, orderData);
         createdOrders.push(splitOrder[0]);
         newItems[splitOrder[0].id.toString()] = items.map(item => item.toString());
-        nextAutoId += 1;
-        nextInvoiceNumber += 1;
 
         for ( const item of items ) {
           await db.merge(item, {
