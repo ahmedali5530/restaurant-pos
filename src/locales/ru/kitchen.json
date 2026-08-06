@@ -11,8 +11,17 @@
     "avgTime": "Среднее время: {{time}}",
     "avgTimeMins": "{{count}} мин",
     "addon": "ДОПОЛНЕНИЕ",
+    "original": "ОСНОВНОЙ",
     "completed": "Завершено: {{time}}",
-    "items": "Позиций: {{count}}"
+    "items": "Позиций: {{count}}",
+    "continued": "ПРОДОЛЖЕНИЕ"
+  },
+  "announcements": {
+    "newOrder": "Новый заказ. {{context}}. {{number}}.",
+    "addon": "Дополнение. {{context}}. {{number}}.",
+    "itemAdded": "Позиция добавлена. {{item}}. {{context}}. {{number}}.",
+    "itemRemoved": "Позиция отменена. {{item}}. {{context}}. {{number}}.",
+    "itemFallback": "Позиция"
   },
   "modal": {
     "completedOrdersTitle": "{{kitchen}} — завершённые заказы (сегодня)",

@@ -4,13 +4,18 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faClose} from "@fortawesome/free-solid-svg-icons";
 import ScrollContainer from "react-indiana-drag-scroll";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
-import {Kitchen, KitchenOrder as KitchenOrderModel} from "@/api/model/kitchen.ts";
+import {
+  Kitchen,
+  KitchenOrder as KitchenOrderModel,
+  KitchenOrderBatch,
+  KitchenOrderTicket,
+} from "@/api/model/kitchen.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order} from "@/api/model/order.ts";
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDB} from "@/api/db/db.ts";
 import {OrderItemKitchen} from "@/api/model/order_item_kitchen.ts";
-import {KitchenOrder} from "@/components/kitchen/kitchen.order.tsx";
+import {KitchenBoardTicket, KitchenOrder} from "@/components/kitchen/kitchen.order.tsx";
 import {cn, toRecordId} from "@/lib/utils.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {LiveSubscription} from "surrealdb";
@@ -24,6 +29,137 @@ import {completeStages, recallStage} from "@/lib/kitchen/workflow.service.ts";
 import {useTranslation} from "react-i18next";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
+import {useKitchenOrderAnnouncements} from "@/hooks/useKitchenOrderAnnouncements.ts";
+import {unlockSpeech} from "@/lib/order-ready-announcement.ts";
+
+/** Approximate vertical budget (px) for chrome around item rows on a ticket. */
+const CARD_CHROME_PX = 168;
+/** Approximate height of one dish row on the ticket. */
+const ITEM_ROW_PX = 44;
+const MIN_ITEMS_PER_CARD = 3;
+
+/** Bright borders for multi-part orders (original + addons / continued). */
+const ORDER_GROUP_COLORS = [
+  '#ff1744', // vivid red
+  '#00e676', // neon green
+  '#2979ff', // electric blue
+  '#ff9100', // bright orange
+  '#d500f9', // vivid magenta
+  '#00e5ff', // cyan
+  '#ffea00', // pure yellow
+  '#76ff03', // lime
+  '#f50057', // hot pink
+  '#651fff', // deep bright purple
+  '#ff6d00', // deep orange
+  '#1de9b6', // teal accent
+];
+
+/**
+ * Assign sequential colors to multi-part orders in board order so neighboring
+ * multi-part tickets rarely share a border (avoids hash collisions).
+ */
+const assignOrderGroupColors = (
+  multiPartOrderIds: string[]
+): Map<string, string> => {
+  const colorByOrder = new Map<string, string>();
+  const n = ORDER_GROUP_COLORS.length;
+
+  multiPartOrderIds.forEach((orderId, index) => {
+    let color = ORDER_GROUP_COLORS[index % n];
+    const prevColor = index > 0
+      ? colorByOrder.get(multiPartOrderIds[index - 1])
+      : undefined;
+    // Avoid same color as previous multi-part order on the board.
+    if (color === prevColor) {
+      color = ORDER_GROUP_COLORS[(index + 1) % n];
+    }
+    // Also try not to match second-previous when palette wraps.
+    const prev2 = index > 1
+      ? colorByOrder.get(multiPartOrderIds[index - 2])
+      : undefined;
+    if (color === prev2 || color === prevColor) {
+      color = ORDER_GROUP_COLORS[(index + 2) % n];
+    }
+    colorByOrder.set(orderId, color);
+  });
+
+  return colorByOrder;
+};
+
+const batchIsAddon = (batch: KitchenOrderBatch) =>
+  batch.items.some((item) => item.order_item?.is_addition);
+
+const isMultiPartGroup = (
+  group: KitchenOrderModel,
+  maxItemsPerCard: number
+) => {
+  const multiBatch = group.batches.length > 1;
+  const hasAddon = group.batches.some(batchIsAddon);
+  const totalChunks = group.batches.reduce(
+    (sum, batch) => sum + Math.max(1, Math.ceil(batch.items.length / maxItemsPerCard)),
+    0
+  );
+  return multiBatch || hasAddon || totalChunks > 1;
+};
+
+const buildBoardTickets = (
+  orders: KitchenOrderModel[],
+  maxItemsPerCard: number
+): KitchenBoardTicket[] => {
+  const tickets: KitchenBoardTicket[] = [];
+
+  const multiPartOrderIds: string[] = [];
+  for (const group of orders) {
+    if (!isMultiPartGroup(group, maxItemsPerCard)) {
+      continue;
+    }
+    const orderId = group.order?.id?.toString()
+      ?? group.batches[0]?.batchKey
+      ?? '';
+    if (orderId && !multiPartOrderIds.includes(orderId)) {
+      multiPartOrderIds.push(orderId);
+    }
+  }
+  const colorByOrder = assignOrderGroupColors(multiPartOrderIds);
+
+  for (const group of orders) {
+    const multiBatch = group.batches.length > 1;
+    const orderId = group.order?.id?.toString()
+      ?? group.batches[0]?.batchKey
+      ?? '';
+    const groupColor = isMultiPartGroup(group, maxItemsPerCard)
+      ? colorByOrder.get(orderId)
+      : undefined;
+
+    for (const batch of group.batches) {
+      const isAddon = batchIsAddon(batch);
+      const items = batch.items;
+      const chunkTotal = Math.max(1, Math.ceil(items.length / maxItemsPerCard));
+
+      for (let chunkIndex = 0; chunkIndex < chunkTotal; chunkIndex++) {
+        const start = chunkIndex * maxItemsPerCard;
+        const slice = items.slice(start, start + maxItemsPerCard);
+
+        tickets.push({
+          order: group.order,
+          batch: {
+            ...batch,
+            items: slice,
+          },
+          reprintItems: items,
+          isAddon,
+          isContinued: chunkIndex > 0,
+          chunkIndex,
+          chunkTotal,
+          showKindLabel: multiBatch || isAddon || chunkTotal > 1,
+          groupColor,
+        });
+      }
+    }
+  }
+
+  return tickets;
+};
 
 
 export const KitchenScreen = () => {
@@ -39,16 +175,51 @@ export const KitchenScreen = () => {
     data: kitchens
   } = useApi<SettingsData<Kitchen>>(Tables.kitchens, ['deleted_at = none'], ['priority asc'], 0, 10, ['items', 'printers']);
   const [allOrders, setOrders] = useState<KitchenOrderModel[]>([]);
+  const [ordersHydrated, setOrdersHydrated] = useState(false);
   const orders = useMemo(() => {
-    // Items already completed by the current user are excluded at query time;
-    // here we just drop groups that have no remaining non-deleted items.
-    return allOrders.filter(item => {
-      return item.items.some(iitem => !iitem.order_item?.deleted_at);
-    })
+    // Drop groups that have no remaining non-deleted items (voided lines stay visible
+    // inside a batch if other items remain).
+    return allOrders.filter((group) =>
+      group.batches.some((batch) =>
+        batch.items.some((iitem) => !iitem.order_item?.deleted_at)
+      )
+    );
   }, [allOrders]);
+
+  const {highlightedBatchKeys} = useKitchenOrderAnnouncements(
+    orders,
+    kitchen?.id?.toString(),
+    ordersHydrated
+  );
+
+  const boardAreaRef = useRef<HTMLDivElement | null>(null);
+  const [maxItemsPerCard, setMaxItemsPerCard] = useState(12);
+
+  useEffect(() => {
+    const el = boardAreaRef.current;
+    if (!el) {
+      return;
+    }
+
+    const update = () => {
+      const available = Math.max(120, el.clientHeight - CARD_CHROME_PX);
+      setMaxItemsPerCard(Math.max(MIN_ITEMS_PER_CARD, Math.floor(available / ITEM_ROW_PX)));
+    };
+
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [kitchen?.id]);
+
+  const boardTickets = useMemo(
+    () => buildBoardTickets(orders, maxItemsPerCard),
+    [orders, maxItemsPerCard]
+  );
+
   const [avgTime, setAvgTime] = useState('-');
   const [showCompletedOrdersModal, setShowCompletedOrdersModal] = useState(false);
-  const [completedOrders, setCompletedOrders] = useState<KitchenOrderModel[]>([]);
+  const [completedOrders, setCompletedOrders] = useState<KitchenOrderTicket[]>([]);
   const [loadingCompletedOrders, setLoadingCompletedOrders] = useState(false);
   const [recallingOrderKey, setRecallingOrderKey] = useState<string | null>(null);
   const loadOrdersTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -66,31 +237,82 @@ export const KitchenScreen = () => {
     return candidate;
   };
 
-  const groupKitchenOrderItems = useCallback((records: OrderItemKitchen[] = []) => {
-    const groupedOrders = new Map<string, KitchenOrderModel>();
+  const groupIntoBatches = useCallback((records: OrderItemKitchen[] = []): KitchenOrderTicket[] => {
+    const batches = new Map<string, KitchenOrderTicket>();
 
     for (const item of records ?? []) {
       const order = resolveFetchedOrder(item.order_item?.order);
       const orderId = order?.id?.toString() ?? String(item.order_item?.order ?? '');
       const createdAtKey = (item as any).batch_created_at ?? '';
-      const groupKey = `${orderId}_${createdAtKey}`;
+      const batchKey = `${orderId}_${createdAtKey}`;
 
-      if (!groupedOrders.has(groupKey)) {
-        groupedOrders.set(groupKey, {
-          order,
-          items: []
+      if (!batches.has(batchKey)) {
+        batches.set(batchKey, {
+          order: order as Order,
+          batchKey,
+          createdAt: item.created_at ?? createdAtKey,
+          items: [],
         });
       }
 
-      const group = groupedOrders.get(groupKey);
-      group?.items.push(item);
-      if (order && group && !group.order) {
-        group.order = order;
+      const batch = batches.get(batchKey);
+      batch?.items.push(item);
+      if (order && batch && !batch.order) {
+        batch.order = order;
       }
     }
 
-    return Array.from(groupedOrders.values());
+    return Array.from(batches.values());
   }, []);
+
+  const nestBatchesByOrder = useCallback((tickets: KitchenOrderTicket[]): KitchenOrderModel[] => {
+    const groups = new Map<string, KitchenOrderModel>();
+
+    for (const ticket of tickets) {
+      const orderId = ticket.order?.id?.toString()
+        ?? ticket.items[0]?.order_item?.order?.toString()
+        ?? ticket.batchKey;
+
+      if (!groups.has(orderId)) {
+        groups.set(orderId, {
+          order: ticket.order,
+          batches: [],
+        });
+      }
+
+      const group = groups.get(orderId)!;
+      if (ticket.order && !group.order) {
+        group.order = ticket.order;
+      }
+
+      const batch: KitchenOrderBatch = {
+        batchKey: ticket.batchKey,
+        createdAt: ticket.createdAt,
+        items: ticket.items,
+      };
+      group.batches.push(batch);
+    }
+
+    for (const group of groups.values()) {
+      group.batches.sort((a, b) => {
+        const aTime = toLuxonDateTime(a.createdAt ?? a.items[0]?.created_at).toMillis();
+        const bTime = toLuxonDateTime(b.createdAt ?? b.items[0]?.created_at).toMillis();
+        return aTime - bTime;
+      });
+    }
+
+    return Array.from(groups.values()).sort((a, b) => {
+      const aNewest = a.batches[a.batches.length - 1];
+      const bNewest = b.batches[b.batches.length - 1];
+      const aTime = toLuxonDateTime(aNewest?.createdAt ?? aNewest?.items[0]?.created_at).toMillis();
+      const bTime = toLuxonDateTime(bNewest?.createdAt ?? bNewest?.items[0]?.created_at).toMillis();
+      return bTime - aTime;
+    });
+  }, []);
+
+  const groupKitchenOrderItems = useCallback((records: OrderItemKitchen[] = []) => {
+    return nestBatchesByOrder(groupIntoBatches(records));
+  }, [groupIntoBatches, nestBatchesByOrder]);
 
   const loadOrders = useCallback(async (kitchenId: string) => {
     const currentUser = page?.user?.id;
@@ -114,6 +336,7 @@ export const KitchenScreen = () => {
     });
 
     setOrders(groupKitchenOrderItems(kitchenOrderItemsRecord ?? []));
+    setOrdersHydrated(true);
 
     await calculateAverageTime(kitchenId);
   }, [groupKitchenOrderItems, page?.user?.id]);
@@ -138,12 +361,18 @@ export const KitchenScreen = () => {
         startDate: getAppStartOfDaySurreal()
       });
 
-      const groupedCompletedOrders = groupKitchenOrderItems(kitchenOrderItemsRecord ?? []);
-      setCompletedOrders(groupedCompletedOrders);
+      // Keep recall list at batch level (not nested by order).
+      const tickets = groupIntoBatches(kitchenOrderItemsRecord ?? []);
+      tickets.sort((a, b) => {
+        const aDone = a.items[0]?.completed_at ?? a.items[0]?.created_at;
+        const bDone = b.items[0]?.completed_at ?? b.items[0]?.created_at;
+        return toLuxonDateTime(bDone).toMillis() - toLuxonDateTime(aDone).toMillis();
+      });
+      setCompletedOrders(tickets);
     } finally {
       setLoadingCompletedOrders(false);
     }
-  }, [groupKitchenOrderItems, page?.user?.id]);
+  }, [groupIntoBatches, page?.user?.id]);
 
   const openCompletedOrdersModal = async () => {
     if (!kitchen?.id) {
@@ -154,18 +383,17 @@ export const KitchenScreen = () => {
     await loadCompletedOrders(kitchen.id);
   }
 
-  const recallCompletedOrder = async (order: KitchenOrderModel, index: number) => {
+  const recallCompletedOrder = async (ticket: KitchenOrderTicket) => {
     if (!kitchen?.id) {
       return;
     }
 
-    const recallableItems = order.items;
+    const recallableItems = ticket.items;
     if (recallableItems.length === 0) {
       return;
     }
 
-    const orderKey = `${order.order?.id ?? index}_${order.items[0]?.created_at?.toString() ?? ''}`;
-    setRecallingOrderKey(orderKey);
+    setRecallingOrderKey(ticket.batchKey);
 
     try {
       await assertOrderMutationsAllowed(db);
@@ -237,6 +465,7 @@ export const KitchenScreen = () => {
 
   useEffect(() => {
     if (kitchen) {
+      setOrdersHydrated(false);
       loadOrders(kitchen.id);
       runLiveQuery();
     }
@@ -304,9 +533,11 @@ export const KitchenScreen = () => {
   const completeAllOrders = async () => {
     const userId = page?.user?.id;
     const ids = orders.flatMap((group) =>
-      group.items
-        .filter((item) => !item.order_item?.deleted_at)
-        .map((item) => item.id.toString())
+      group.batches.flatMap((batch) =>
+        batch.items
+          .filter((item) => !item.order_item?.deleted_at)
+          .map((item) => item.id.toString())
+      )
     );
     await completeStages(db, ids, userId);
 
@@ -317,22 +548,37 @@ export const KitchenScreen = () => {
 
   const allDishes = useMemo(() => {
     const itemsMap = new Map();
-    orders.forEach(item => {
-      item.items.forEach(orderItem => {
-        const itemName = orderItem.order_item.item.name;
-        itemsMap.set(itemName, (itemsMap.get(itemName) ?? 0) + orderItem.order_item.quantity);
-      })
+    orders.forEach(group => {
+      group.batches.forEach(batch => {
+        batch.items.forEach(orderItem => {
+          const itemName = orderItem.order_item.item.name;
+          itemsMap.set(itemName, (itemsMap.get(itemName) ?? 0) + orderItem.order_item.quantity);
+        })
+      });
     });
 
     return Array.from(itemsMap);
   }, [orders]);
 
   const [dishesModal, setDishesModal] = useState(false);
+  const speechUnlockedRef = useRef(false);
+
+  const unlockKitchenSpeech = useCallback(() => {
+    if (speechUnlockedRef.current) {
+      return;
+    }
+    speechUnlockedRef.current = true;
+    unlockSpeech();
+  }, []);
 
   return (
     <Layout containerClassName="overflow-hidden">
       <DocumentTitle parts={[tNav('sidebar.kitchen')]} />
-      <div className="flex gap-5 p-3 flex-col">
+      <div
+        className="flex gap-5 p-3 flex-col"
+        onPointerDown={unlockKitchenSpeech}
+        onClick={unlockKitchenSpeech}
+      >
         <div className="h-[60px] flex-0 flex items-center gap-3 justify-between">
           <div className="input-group flex-1">
             {kitchens?.data?.map(item => (
@@ -366,20 +612,31 @@ export const KitchenScreen = () => {
           <div className="input-group flex-1 justify-end flex gap-3 items-center h-full">
             <span
               className="rounded-xl bg-neutral-900 text-warning-500 text-2xl h-full flex items-center px-3">{t("kitchen:labels.avgTime", {time: avgTime})}</span>
-            {/*<span>timer</span>*/}
           </div>
         </div>
         <div className="grid grid-cols-5 gap-5">
-          <ScrollContainer className={cn(
-            'h-[calc(100vh_-_110px)] select-none',
-            dishesModal ? 'col-span-4' : 'col-span-5'
-          )}>
-            <div className="flex-1 rounded-xl flex gap-3 flex-row">
-              {orders.map((item, index) => (
-                <div className="w-[400px] flex-shrink-0" key={index}>
-                  <KitchenOrder order={item} kitchen={kitchen}/>
-                </div>
-              ))}
+          <ScrollContainer
+            className={cn(
+              'h-[calc(100vh_-_110px)] select-none overflow-y-hidden',
+              dishesModal ? 'col-span-4' : 'col-span-5'
+            )}
+          >
+            <div
+              ref={boardAreaRef}
+              className="flex flex-col flex-wrap gap-3 h-full content-start items-start"
+            >
+              {boardTickets.map((ticket) => {
+                const ticketKey = `${ticket.batch.batchKey}_${ticket.chunkIndex}`;
+                return (
+                  <div key={ticketKey} className="w-[280px] max-h-full shrink-0">
+                    <KitchenOrder
+                      ticket={ticket}
+                      kitchen={kitchen}
+                      isNew={highlightedBatchKeys.has(ticket.batch.batchKey)}
+                    />
+                  </div>
+                );
+              })}
             </div>
           </ScrollContainer>
 
@@ -420,12 +677,11 @@ export const KitchenScreen = () => {
             </div>
           )}
 
-          {completedOrders.map((item, index) => {
-            const orderKey = `${item.order?.id ?? index}_${item.items[0]?.created_at?.toString() ?? ''}`;
+          {completedOrders.map((item) => {
             const completedAt = item.items?.[0]?.completed_at ?? item.items?.[0]?.created_at;
 
             return (
-              <div key={orderKey} className="bg-white rounded-lg p-4 flex justify-between gap-4 items-center">
+              <div key={item.batchKey} className="bg-white rounded-lg p-4 flex justify-between gap-4 items-center">
                 <div className="flex flex-col">
                   <strong className="text-lg">
                     {item.order?.order_type?.name} / {item.order ? getInvoiceNumber(item.order) : '-'}
@@ -441,8 +697,8 @@ export const KitchenScreen = () => {
                   variant="warning"
                   filled
                   isDisabled={mutationsBlocked}
-                  isLoading={recallingOrderKey === orderKey}
-                  onClick={() => recallCompletedOrder(item, index)}
+                  isLoading={recallingOrderKey === item.batchKey}
+                  onClick={() => recallCompletedOrder(item)}
                 >
                   {t("kitchen:actions.recall")}
                 </Button>

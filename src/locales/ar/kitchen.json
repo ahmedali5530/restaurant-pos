@@ -11,8 +11,17 @@
     "avgTime": "متوسط الوقت: {{time}}",
     "avgTimeMins": "{{count}} دقيقة",
     "addon": "إضافة",
+    "original": "أصلي",
     "completed": "مكتمل: {{time}}",
-    "items": "الأصناف: {{count}}"
+    "items": "الأصناف: {{count}}",
+    "continued": "متابعة"
+  },
+  "announcements": {
+    "newOrder": "طلب جديد. {{context}}. {{number}}.",
+    "addon": "إضافة. {{context}}. {{number}}.",
+    "itemAdded": "تمت إضافة صنف. {{item}}. {{context}}. {{number}}.",
+    "itemRemoved": "تم إلغاء صنف. {{item}}. {{context}}. {{number}}.",
+    "itemFallback": "صنف"
   },
   "modal": {
     "completedOrdersTitle": "طلبات {{kitchen}} المكتملة (اليوم)",

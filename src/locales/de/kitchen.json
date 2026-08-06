@@ -11,8 +11,17 @@
     "avgTime": "Ø Zeit: {{time}}",
     "avgTimeMins": "{{count}} Min.",
     "addon": "ZUSATZ",
+    "original": "ORIGINAL",
     "completed": "Abgeschlossen: {{time}}",
-    "items": "Artikel: {{count}}"
+    "items": "Artikel: {{count}}",
+    "continued": "FORTSETZUNG"
+  },
+  "announcements": {
+    "newOrder": "Neue Bestellung. {{context}}. {{number}}.",
+    "addon": "Zusatz. {{context}}. {{number}}.",
+    "itemAdded": "Artikel hinzugefügt. {{item}}. {{context}}. {{number}}.",
+    "itemRemoved": "Artikel storniert. {{item}}. {{context}}. {{number}}.",
+    "itemFallback": "Artikel"
   },
   "modal": {
     "completedOrdersTitle": "{{kitchen}} Abgeschlossene Bestellungen (Heute)",

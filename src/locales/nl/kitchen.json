@@ -11,8 +11,17 @@
     "avgTime": "Gem. tijd: {{time}}",
     "avgTimeMins": "{{count}} min",
     "addon": "EXTRA",
+    "original": "ORIGINEEL",
     "completed": "Voltooid: {{time}}",
-    "items": "Artikelen: {{count}}"
+    "items": "Artikelen: {{count}}",
+    "continued": "VERDER"
+  },
+  "announcements": {
+    "newOrder": "Nieuwe bestelling. {{context}}. {{number}}.",
+    "addon": "Extra. {{context}}. {{number}}.",
+    "itemAdded": "Artikel toegevoegd. {{item}}. {{context}}. {{number}}.",
+    "itemRemoved": "Artikel geannuleerd. {{item}}. {{context}}. {{number}}.",
+    "itemFallback": "Artikel"
   },
   "modal": {
     "completedOrdersTitle": "{{kitchen}} voltooide bestellingen (vandaag)",

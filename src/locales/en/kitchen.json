@@ -11,8 +11,17 @@
     "avgTime": "Avg time: {{time}}",
     "avgTimeMins": "{{count}} mins",
     "addon": "ADDON",
+    "original": "ORIGINAL",
     "completed": "Completed: {{time}}",
-    "items": "Items: {{count}}"
+    "items": "Items: {{count}}",
+    "continued": "CONTINUED"
+  },
+  "announcements": {
+    "newOrder": "New order. {{context}}. {{number}}.",
+    "addon": "Addon. {{context}}. {{number}}.",
+    "itemAdded": "Item added. {{item}}. {{context}}. {{number}}.",
+    "itemRemoved": "Item cancelled. {{item}}. {{context}}. {{number}}.",
+    "itemFallback": "Item"
   },
   "modal": {
     "completedOrdersTitle": "{{kitchen}} Completed Orders (Today)",

@@ -1019,15 +1019,35 @@ table th {
   animation-duration: 350ms;
   animation-iteration-count: infinite;
 }
+.kitchen-new-order{
+  animation: kitchen-new-pulse 1.2s ease-in-out 3;
+}
+.kitchen-new-order-batch{
+  animation: kitchen-new-batch-flash 1.2s ease-in-out 3;
+}
+
+@keyframes kitchen-new-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.15);
+  }
+}
+
+@keyframes kitchen-new-batch-flash {
+  0%, 100% {
+    background-color: #eff6ff;
+  }
+  50% {
+    background-color: #dbeafe;
+  }
+}
 
 @keyframes blink {
   0% {
     transform-origin: top;
     transform: scale(1);
-  }
-  50%{
-    transform-origin: top;
-    transform: scale(1.03);
   }
   80%{
     transform-origin: top;

@@ -8,6 +8,15 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-08-06',
+    title: 'Kitchen board: grouped addons, denser grid, voice alerts',
+    items: [
+      'Kitchen tickets for the same order group together; addon fires appear as sections under the original ticket with ADDON labels.',
+      'Tickets wrap in a denser multi-column grid instead of one fixed-width column each.',
+      'New orders and addons are highlighted and spoken aloud so kitchen staff notice changes without watching the screen constantly.',
+    ],
+  },
+  {
+    date: '2026-08-06',
     title: 'Safer order invoice and auto ID allocation',
     items: [
       'Invoice numbers and auto IDs are allocated with an atomic database counter so double-clicks or multiple tabs cannot create two orders with the same numbers.',

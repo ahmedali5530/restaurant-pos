@@ -12,8 +12,24 @@ export interface Kitchen extends ID, Name, Priority{
   deleted_at?: DateTime
 }
 
+/** One fire/batch of kitchen stage rows (same order + same created_at second). */
+export interface KitchenOrderBatch {
+  batchKey: string
+  createdAt?: DateTime | string
+  items: OrderItemKitchen[]
+}
+
+/** Order ticket on the KDS: one or more batches (original + addons). */
 export interface KitchenOrder {
   order: Order
+  batches: KitchenOrderBatch[]
+}
+
+/** Flat single-batch ticket (completed list / recall). */
+export interface KitchenOrderTicket {
+  order: Order
+  batchKey: string
+  createdAt?: DateTime | string
   items: OrderItemKitchen[]
 }
 
