@@ -7,6 +7,13 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-08-07',
+    title: 'Fiscal provider logos on receipts',
+    items: [
+      'Upload a receipt logo in FBR/PRA integration settings; it prints beside the fiscal QR (100×100 each) on final receipts.',
+    ],
+  },
+  {
     date: '2026-08-06',
     title: 'Menu dish number search',
     items: [

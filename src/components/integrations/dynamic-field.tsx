@@ -1,13 +1,20 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ProviderManifestField } from '@/integrations/core/types.ts';
 import { Input } from '@/components/common/input/input.tsx';
 import { Textarea } from '@/components/common/input/textarea.tsx';
 import { Switch } from '@/components/common/input/switch.tsx';
 import { Checkbox } from '@/components/common/input/checkbox.tsx';
 import { ReactSelect } from '@/components/common/input/custom.react.select.tsx';
+import { Button } from '@/components/common/input/button.tsx';
 import { useDB } from '@/api/db/db.ts';
 import { Tables } from '@/api/db/tables.ts';
 import { Account } from '@/api/model/account.ts';
+import {
+  assertFileWithinLimit,
+  formatFileSize,
+  MAX_UPLOAD_BYTES,
+} from '@/utils/files.ts';
+import { toast } from 'sonner';
 
 type SelectOption = { label: string; value: string | number | boolean };
 
@@ -139,8 +146,72 @@ const ExternalEntityField = ({
   );
 };
 
+const fileToDataUri = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') resolve(reader.result);
+      else reject(new Error('Failed to read image'));
+    };
+    reader.onerror = () => reject(reader.error ?? new Error('Failed to read image'));
+    reader.readAsDataURL(file);
+  });
+
+const ImageField = ({ value, onChange, field }: DynamicFieldProps) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const preview =
+    typeof value === 'string' && value.trim().startsWith('data:') ? value.trim() : null;
+
+  const onFile = async (file: File | null | undefined) => {
+    if (!file) return;
+    try {
+      assertFileWithinLimit(file);
+      const dataUri = await fileToDataUri(file);
+      onChange(dataUri);
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : `File exceeds the maximum size of ${formatFileSize(MAX_UPLOAD_BYTES)}.`
+      );
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      {preview && (
+        <div className="flex items-start gap-3">
+          <img
+            src={preview}
+            alt={field.label}
+            className="h-20 w-20 object-contain rounded border border-neutral-200 bg-white"
+          />
+          <Button type="button" variant="secondary" size="lg" onClick={() => onChange('')}>
+            Remove
+          </Button>
+        </div>
+      )}
+      <div>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          className="block w-full text-sm text-neutral-600 file:mr-3 file:rounded file:border-0 file:bg-neutral-100 file:px-3 file:py-1.5 file:text-sm file:font-medium hover:file:bg-neutral-200"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            void onFile(file);
+            if (inputRef.current) inputRef.current.value = '';
+          }}
+        />
+      </div>
+    </div>
+  );
+};
+
 export const DynamicField = ({ field, value, onChange, providerId }: DynamicFieldProps) => {
   switch (field.type) {
+    case 'image':
+      return <ImageField field={field} value={value} onChange={onChange} providerId={providerId} />;
     case 'number':
       return (
         <Input

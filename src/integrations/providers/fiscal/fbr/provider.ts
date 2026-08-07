@@ -43,6 +43,19 @@ const schema: ProviderConfigurationSchema = {
       ],
     },
     {
+      id: 'receipt',
+      title: 'Receipt',
+      fields: [
+        {
+          key: 'receiptLogo',
+          label: 'Receipt Logo',
+          type: 'image',
+          required: false,
+          helpText: 'Printed beside the fiscal QR on receipts (100×100).',
+        },
+      ],
+    },
+    {
       id: 'runtime',
       title: 'Runtime',
       fields: [

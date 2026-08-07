@@ -12,12 +12,24 @@ import {
   resolveFiscalQrcodeForPrint,
   resolveFiscalQrcodesForPrint,
 } from '@/integrations/storage/order-fiscal-repository.ts';
-import { FiscalQrPrintItem } from '@/integrations/providers/fiscal/shared/runtime-config.ts';
+import {
+  attachFiscalReceiptLogos,
+  FiscalQrPrintItem,
+} from '@/integrations/providers/fiscal/shared/runtime-config.ts';
 
 type DbLike = {
   query: <R extends unknown[] = any[]>(sql: string, parameters?: Record<string, unknown>) => Promise<R>;
   create: (thing: string, data: Record<string, unknown>) => Promise<unknown>;
   merge: (thing: unknown, data: Record<string, unknown>) => Promise<unknown>;
+};
+
+const withReceiptLogos = async (
+  db: DbLike,
+  items: FiscalQrPrintItem[]
+): Promise<FiscalQrPrintItem[]> => {
+  return attachFiscalReceiptLogos(items, (providerId) =>
+    getIntegrationProviderConfig(db, providerId)
+  );
 };
 
 export const loadOrderForFiscal = async (db: DbLike, orderId: string): Promise<Order | undefined> => {
@@ -38,11 +50,16 @@ export const persistFiscalSettlement = async (
     result.fiscalProviderId
   );
 
+  // Prefer settlement-time qrcodes (already may include logos); re-attach logos so
+  // rebuilds after persist still print provider branding.
+  const baseQrcodes = (result.qrcodes?.length ? result.qrcodes : persisted.qrcodes) ?? [];
+  const qrcodes = await withReceiptLogos(db, baseQrcodes);
+
   return {
     ...result,
-    qrcode: persisted.qrcode ?? result.qrcode,
-    qrcodes: persisted.qrcodes ?? result.qrcodes,
-    fiscalInvoiceNumber: persisted.qrcode ?? result.fiscalInvoiceNumber,
+    qrcode: persisted.qrcode ?? result.qrcode ?? qrcodes[0]?.value,
+    qrcodes,
+    fiscalInvoiceNumber: persisted.qrcode ?? result.fiscalInvoiceNumber ?? qrcodes[0]?.value,
     fiscalProviderId: persisted.selected?.provider_id ?? result.fiscalProviderId,
   } satisfies FiscalSettlementResult;
 };
@@ -73,7 +90,8 @@ export const getFiscalQrcodesForOrderPrint = async (
   db: DbLike,
   orderId: unknown
 ): Promise<FiscalQrPrintItem[]> => {
-  return resolveFiscalQrcodesForPrint(db, orderId);
+  const items = await resolveFiscalQrcodesForPrint(db, orderId);
+  return withReceiptLogos(db, items);
 };
 
 export const getFiscalQrcodeForOrderPrint = async (db: DbLike, orderId: unknown) => {

@@ -13,6 +13,7 @@ const {
   hardResetLayout,
   printFixedLine,
   printDivider,
+  printFiscalQrRow,
 } = require('./receipt-helpers');
 
 /**
@@ -207,7 +208,7 @@ function printBillLayout(printer, bill, config, opts) {
 /**
  * @param {unknown} qrcodes
  * @param {unknown} qrcode
- * @returns {{ value: string, description: string }[]}
+ * @returns {{ value: string, description: string, logo?: string }[]}
  */
 function normalizeQrItems(qrcodes, qrcode) {
   if (Array.isArray(qrcodes) && qrcodes.length > 0) {
@@ -221,7 +222,10 @@ function normalizeQrItems(qrcodes, qrcode) {
         const value = String(item.value ?? item.qrcode ?? '').trim();
         if (!value) return null;
         const description = String(item.description ?? '').trim();
-        return { value, description };
+        const logoRaw = item.logo ?? item.image;
+        const logo =
+          logoRaw != null && String(logoRaw).trim() ? String(logoRaw).trim() : undefined;
+        return { value, description, ...(logo ? { logo } : {}) };
       })
       .filter(Boolean);
   }
@@ -245,7 +249,7 @@ function printQrCodes(printer, items) {
 
   return items.reduce((chain, item, index) => {
     return chain.then(() =>
-      printQrCode(printer, item.value).then(() => {
+      printQrCode(printer, item.value, item.logo).then(() => {
         printQrDescription(printer, item.description);
         if (index < items.length - 1) {
           printer.feed(2);
@@ -255,51 +259,67 @@ function printQrCodes(printer, items) {
   }, Promise.resolve());
 }
 
-/** Compact thermal QR — avoid dhdw (2×) raster which fills 80mm paper. */
+/** Compact thermal QR fallback options (when canvas compose fails). */
 const QR_IMAGE_OPTIONS = { type: 'png', mode: 'normal', size: 3, margin: 1 };
 /** ESC/POS native QR module size (1–16; library default 6). */
 const QR_NATIVE_SIZE = 4;
 
-function printQrCode(printer, value) {
+/**
+ * Prefer composed 100×100 logo|QR row; fall back to native QR.
+ * @param {Object} printer
+ * @param {string} value
+ * @param {string} [logo]
+ */
+function printQrCode(printer, value, logo) {
   if (!value) return Promise.resolve();
 
-  return new Promise((resolve) => {
-    let settled = false;
-    const done = () => {
-      if (settled) return;
-      settled = true;
-      hardResetLayout(printer);
-      resolve();
-    };
-
-    const finalize = () => {
+  return printFiscalQrRow(printer, value, logo).then((printed) => {
+    if (printed) {
       try {
         printer.feed(1);
       } catch (e) {
         // ignore
       }
-      done();
-    };
+      return;
+    }
 
-    try {
-      hardResetLayout(printer);
-      if (typeof printer.qrimage === 'function') {
-        printer.align('ct').qrimage(value, QR_IMAGE_OPTIONS, () => finalize());
-        setTimeout(finalize, 2000);
-        return;
+    return new Promise((resolve) => {
+      let settled = false;
+      const done = () => {
+        if (settled) return;
+        settled = true;
+        hardResetLayout(printer);
+        resolve();
+      };
+
+      const finalize = () => {
+        try {
+          printer.feed(1);
+        } catch (e) {
+          // ignore
+        }
+        done();
+      };
+
+      try {
+        hardResetLayout(printer);
+        if (typeof printer.qrimage === 'function') {
+          printer.align('ct').qrimage(value, QR_IMAGE_OPTIONS, () => finalize());
+          setTimeout(finalize, 2000);
+          return;
+        }
+      } catch (e) {
+        // fallback below
       }
-    } catch (e) {
-      // fallback below
-    }
 
-    try {
-      hardResetLayout(printer);
-      // qrcode(code, version, level, size)
-      printer.align('ct').qrcode(value, undefined, 'M', QR_NATIVE_SIZE);
-    } catch (e) {
-      // ignore
-    }
-    finalize();
+      try {
+        hardResetLayout(printer);
+        printer.align('ct').qrcode(value, undefined, 'M', QR_NATIVE_SIZE);
+      } catch (e) {
+        // ignore
+      }
+      finalize();
+    });
   });
 }
 

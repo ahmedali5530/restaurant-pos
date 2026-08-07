@@ -1,9 +1,31 @@
 import { describe, expect, it } from 'vitest';
 import {
   collectFiscalQrsForPrint,
+  getFiscalProviderReceiptLogo,
   parseFiscalRuntimeConfig,
   pickPreferredFiscalQr,
 } from '@/integrations/providers/fiscal/shared/runtime-config.ts';
+
+describe('getFiscalProviderReceiptLogo', () => {
+  it('returns data URI strings as-is', () => {
+    expect(
+      getFiscalProviderReceiptLogo({
+        receiptLogo: 'data:image/png;base64,AAAA',
+      })
+    ).toBe('data:image/png;base64,AAAA');
+  });
+
+  it('wraps bare base64 as png data URI', () => {
+    expect(getFiscalProviderReceiptLogo({ receiptLogo: 'AAAA' })).toBe(
+      'data:image/png;base64,AAAA'
+    );
+  });
+
+  it('returns undefined when empty', () => {
+    expect(getFiscalProviderReceiptLogo({})).toBeUndefined();
+    expect(getFiscalProviderReceiptLogo({ receiptLogo: '' })).toBeUndefined();
+  });
+});
 
 describe('parseFiscalRuntimeConfig', () => {
   it('defaults offline buffering on, block settlement off, qrPriority 0', () => {
@@ -111,5 +133,21 @@ describe('collectFiscalQrsForPrint', () => {
         qrPriority: 80,
       },
     ]);
+  });
+
+  it('preserves optional logo on items', () => {
+    const items = collectFiscalQrsForPrint({
+      'provider:fbr': {
+        success: true,
+        invoiceNumber: 'FBR-1',
+        qrPriority: 50,
+        description: 'FBR',
+        logo: 'data:image/png;base64,abc',
+      },
+    });
+    expect(items[0]).toMatchObject({
+      value: 'FBR-1',
+      logo: 'data:image/png;base64,abc',
+    });
   });
 });

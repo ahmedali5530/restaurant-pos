@@ -5,13 +5,19 @@ import { getIntegrationProviderConfig } from '@/integrations/configuration/confi
 import {
   collectFiscalQrsForPrint,
   FiscalQrPrintItem,
+  getFiscalProviderReceiptLogo,
   pickPreferredFiscalQr,
   parseFiscalRuntimeConfig,
 } from '@/integrations/providers/fiscal/shared/runtime-config.ts';
 import { getFiscalProviderPrintDescription } from '@/integrations/storage/order-fiscal-repository.ts';
 import { nowSurrealDateTime, toJsDate } from '@/lib/datetime.ts';
 
-export { pickPreferredFiscalQr, collectFiscalQrsForPrint } from '@/integrations/providers/fiscal/shared/runtime-config.ts';
+export {
+  pickPreferredFiscalQr,
+  collectFiscalQrsForPrint,
+  getFiscalProviderReceiptLogo,
+  attachFiscalReceiptLogos,
+} from '@/integrations/providers/fiscal/shared/runtime-config.ts';
 export type { FiscalQrPrintItem } from '@/integrations/providers/fiscal/shared/runtime-config.ts';
 
 export interface FiscalSubmissionRecord {
@@ -93,7 +99,13 @@ export const submitFiscalInvoices = async (
   const resultsByProvider: Record<string, FiscalSubmissionRecord> = {};
   const successMap: Record<
     string,
-    { invoiceNumber?: string; qrcode?: string; success: boolean; qrPriority: number }
+    {
+      invoiceNumber?: string;
+      qrcode?: string;
+      success: boolean;
+      qrPriority: number;
+      logo?: string;
+    }
   > = {};
   let blocked = false;
   let blockedError: string | undefined;
@@ -107,6 +119,7 @@ export const submitFiscalInvoices = async (
     };
     const runtime = parseFiscalRuntimeConfig(config);
     const blockOnFailure = runtime.blockSettlementOnFailure;
+    const receiptLogo = getFiscalProviderReceiptLogo(config);
 
     try {
       const response: IntegrationExecutionResponse<{
@@ -138,6 +151,7 @@ export const submitFiscalInvoices = async (
         qrcode,
         success: Boolean(response.success && (qrcode || invoiceNumber)),
         qrPriority: runtime.qrPriority,
+        ...(receiptLogo ? { logo: receiptLogo } : {}),
       };
 
       if (!response.success && blockOnFailure) {
@@ -152,7 +166,11 @@ export const submitFiscalInvoices = async (
         submittedAt,
         qrPriority: runtime.qrPriority,
       };
-      successMap[providerId] = { success: false, qrPriority: runtime.qrPriority };
+      successMap[providerId] = {
+        success: false,
+        qrPriority: runtime.qrPriority,
+        ...(receiptLogo ? { logo: receiptLogo } : {}),
+      };
       if (blockOnFailure) {
         blocked = true;
         blockedError = message;

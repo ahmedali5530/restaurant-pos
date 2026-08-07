@@ -93,7 +93,8 @@ export type ProviderManifestFieldType =
   | 'json'
   | 'dynamic'
   | 'account'
-  | 'externalEntity';
+  | 'externalEntity'
+  | 'image';
 
 export interface ProviderManifestField {
   key: string;

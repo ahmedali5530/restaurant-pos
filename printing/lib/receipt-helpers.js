@@ -581,6 +581,167 @@ function sendCashDrawerPulse(printer) {
   printer.buffer.write('\x1B\x70\x00\x19\xFA');
 }
 
+const FISCAL_LOGO_PX = 100;
+const FISCAL_QR_PX = 100;
+const FISCAL_QR_GAP_PX = 8;
+
+/**
+ * Decode data URI / raw base64 into a Buffer + mime.
+ * @param {string} logo
+ * @returns {{ buf: Buffer, mime: string } | null}
+ */
+function decodeImagePayload(logo) {
+  if (!logo || typeof logo !== 'string' || !logo.trim()) return null;
+  let mime = 'image/png';
+  let b64 = logo.trim();
+  const dataUri = /^data:([^;]+);base64,(.+)$/i.exec(b64);
+  if (dataUri) {
+    mime = (dataUri[1] || 'image/png').toLowerCase();
+    b64 = dataUri[2];
+  }
+  try {
+    const buf = Buffer.from(b64, 'base64');
+    if (!buf.length) return null;
+    return { buf, mime };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Draw source image into a white square (contain fit, centered).
+ * @param {import('canvas').CanvasRenderingContext2D} ctx
+ * @param {import('canvas').Image} img
+ * @param {number} x
+ * @param {number} y
+ * @param {number} size
+ */
+function drawContainInSquare(ctx, img, x, y, size) {
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(x, y, size, size);
+  if (!img || !img.width || !img.height) return;
+  const scale = Math.min(size / img.width, size / img.height);
+  const w = Math.max(1, Math.round(img.width * scale));
+  const h = Math.max(1, Math.round(img.height * scale));
+  const dx = x + Math.floor((size - w) / 2);
+  const dy = y + Math.floor((size - h) / 2);
+  ctx.drawImage(img, dx, dy, w, h);
+}
+
+/**
+ * Build PNG buffer: optional 100×100 logo + 100×100 QR side by side.
+ * @param {string} qrValue
+ * @param {string} [logoDataUri]
+ * @returns {Promise<Buffer|null>}
+ */
+function composeFiscalQrRowBuffer(qrValue, logoDataUri) {
+  return new Promise((resolve) => {
+    try {
+      const qr = require('qr-image');
+      const { loadImage, createCanvas } = require('canvas');
+
+      // High-res QR matrix; we scale into 100×100 on canvas.
+      const qrPng = qr.imageSync(String(qrValue), { type: 'png', size: 4, margin: 1 });
+
+      const hasLogo = Boolean(logoDataUri && String(logoDataUri).trim());
+      const width = hasLogo
+        ? FISCAL_LOGO_PX + FISCAL_QR_GAP_PX + FISCAL_QR_PX
+        : FISCAL_QR_PX;
+      const height = Math.max(FISCAL_LOGO_PX, FISCAL_QR_PX);
+      const canvas = createCanvas(width, height);
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
+
+      const finish = (logoImg) => {
+        loadImage(qrPng)
+          .then((qrImg) => {
+            if (hasLogo) {
+              if (logoImg) drawContainInSquare(ctx, logoImg, 0, 0, FISCAL_LOGO_PX);
+              else {
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, FISCAL_LOGO_PX, FISCAL_LOGO_PX);
+              }
+              drawContainInSquare(
+                ctx,
+                qrImg,
+                FISCAL_LOGO_PX + FISCAL_QR_GAP_PX,
+                0,
+                FISCAL_QR_PX
+              );
+            } else {
+              drawContainInSquare(ctx, qrImg, 0, 0, FISCAL_QR_PX);
+            }
+            resolve(canvas.toBuffer('image/png'));
+          })
+          .catch(() => resolve(null));
+      };
+
+      if (!hasLogo) {
+        finish(null);
+        return;
+      }
+      const decoded = decodeImagePayload(logoDataUri);
+      if (!decoded) {
+        finish(null);
+        return;
+      }
+      loadImage(decoded.buf)
+        .then((img) => finish(img))
+        .catch(() => finish(null));
+    } catch (e) {
+      resolve(null);
+    }
+  });
+}
+
+/**
+ * Print a buffer via escpos Image (s24 density, no double-width).
+ * @param {Object} printer
+ * @param {Buffer} buf
+ * @param {string} [mime='image/png']
+ * @param {string} [align='center']
+ * @returns {Promise<void>}
+ */
+function printImageBuffer(printer, buf, mime, align) {
+  if (!buf || !buf.length) return Promise.resolve();
+  return new Promise((resolve) => {
+    Image.load(buf, mime || 'image/png', (...cbArgs) => {
+      const hasErrStyle = cbArgs.length >= 2;
+      const loadErr = hasErrStyle ? cbArgs[0] : null;
+      const img = hasErrStyle ? cbArgs[1] : cbArgs[0];
+      if (loadErr || !img) return resolve();
+      (async () => {
+        try {
+          hardResetLayout(printer);
+          printer.align(escposAlign(align || 'center'));
+          await printer.image(img, 's24');
+        } catch (e) {
+          // ignore
+        }
+        hardResetLayout(printer);
+        resolve();
+      })();
+    });
+  });
+}
+
+/**
+ * Fiscal QR row: logo | QR at 100×100 each when logo present; else QR-only 100×100.
+ * Falls back to false so caller can use native qrimage/qrcode.
+ * @param {Object} printer
+ * @param {string} qrValue
+ * @param {string} [logoDataUri]
+ * @returns {Promise<boolean>} true if printed
+ */
+function printFiscalQrRow(printer, qrValue, logoDataUri) {
+  if (!qrValue) return Promise.resolve(false);
+  return composeFiscalQrRowBuffer(qrValue, logoDataUri).then((buf) => {
+    if (!buf) return false;
+    return printImageBuffer(printer, buf, 'image/png', 'center').then(() => true);
+  });
+}
+
 module.exports = {
   normalizeConfig,
   normalizeLogo,
@@ -609,5 +770,7 @@ module.exports = {
   formatMoney,
   printLineLeftRight,
   sendCashDrawerPulse,
+  printFiscalQrRow,
+  composeFiscalQrRowBuffer,
   PRINTER_WIDTH,
 };
