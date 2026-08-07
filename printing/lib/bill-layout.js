@@ -230,15 +230,23 @@ function normalizeQrItems(qrcodes, qrcode) {
   return qrValue ? [{ value: qrValue, description: '' }] : [];
 }
 
+function printQrDescription(printer, description) {
+  if (!description) return;
+  // Multi-line captions e.g. invoice number + verification line.
+  String(description)
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .forEach((line) => printCenteredText(printer, line));
+}
+
 function printQrCodes(printer, items) {
   if (!items || items.length === 0) return Promise.resolve();
 
   return items.reduce((chain, item, index) => {
     return chain.then(() =>
       printQrCode(printer, item.value).then(() => {
-        if (item.description) {
-          printCenteredText(printer, item.description);
-        }
+        printQrDescription(printer, item.description);
         if (index < items.length - 1) {
           printer.feed(2);
         }
@@ -246,6 +254,11 @@ function printQrCodes(printer, items) {
     );
   }, Promise.resolve());
 }
+
+/** Compact thermal QR — avoid dhdw (2×) raster which fills 80mm paper. */
+const QR_IMAGE_OPTIONS = { type: 'png', mode: 'normal', size: 3, margin: 1 };
+/** ESC/POS native QR module size (1–16; library default 6). */
+const QR_NATIVE_SIZE = 4;
 
 function printQrCode(printer, value) {
   if (!value) return Promise.resolve();
@@ -271,7 +284,7 @@ function printQrCode(printer, value) {
     try {
       hardResetLayout(printer);
       if (typeof printer.qrimage === 'function') {
-        printer.align('lt').qrimage(value, { type: 'png', mode: 'dhdw' }, () => finalize());
+        printer.align('ct').qrimage(value, QR_IMAGE_OPTIONS, () => finalize());
         setTimeout(finalize, 2000);
         return;
       }
@@ -281,7 +294,8 @@ function printQrCode(printer, value) {
 
     try {
       hardResetLayout(printer);
-      printer.align('lt').qrcode(value);
+      // qrcode(code, version, level, size)
+      printer.align('ct').qrcode(value, undefined, 'M', QR_NATIVE_SIZE);
     } catch (e) {
       // ignore
     }

@@ -32,7 +32,8 @@ export interface CreateOrderFiscalSubmissionInput {
   qrPriority?: number;
 }
 
-export const getFiscalProviderPrintDescription = (providerId: string): string => {
+/** Provider label for receipt QR captions (authority short name when available). */
+export const getFiscalProviderLabel = (providerId: string): string => {
   const factory = PROVIDER_CATALOG[providerId];
   if (!factory) return providerId;
   try {
@@ -41,6 +42,20 @@ export const getFiscalProviderPrintDescription = (providerId: string): string =>
   } catch {
     return providerId;
   }
+};
+
+/**
+ * Receipt caption under a fiscal QR:
+ * `{invoiceNumber}\nQR Code generated for {provider} verification`
+ */
+export const getFiscalProviderPrintDescription = (
+  providerId: string,
+  invoiceNumber?: string
+): string => {
+  const provider = getFiscalProviderLabel(providerId);
+  const verificationLine = `QR Code generated for ${provider} verification`;
+  const invoice = String(invoiceNumber ?? '').trim();
+  return invoice ? `${invoice}\n${verificationLine}` : verificationLine;
 };
 
 export const listOrderFiscalSubmissions = async (
@@ -150,7 +165,10 @@ export const buildFiscalQrcodesForPrint = (
           qrcode: row.qrcode ?? undefined,
           invoiceNumber: row.invoice_number ?? undefined,
           qrPriority: row.qr_priority ?? 0,
-          description: getFiscalProviderPrintDescription(providerId),
+          description: getFiscalProviderPrintDescription(
+            providerId,
+            row.invoice_number ?? row.qrcode ?? undefined
+          ),
         },
       ])
     )

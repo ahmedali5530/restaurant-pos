@@ -88,12 +88,12 @@ describe('buildFiscalQrcodesForPrint', () => {
     expect(items.map((i) => i.providerId)).toEqual(['provider:pra', 'provider:fbr']);
     expect(items[0]).toMatchObject({
       value: 'PRA-3',
-      description: 'PRA',
+      description: 'PRA-3\nQR Code generated for PRA verification',
       qrPriority: 100,
     });
     expect(items[1]).toMatchObject({
       value: 'FBR-1',
-      description: 'FBR',
+      description: 'FBR-1\nQR Code generated for FBR verification',
       qrPriority: 50,
     });
   });

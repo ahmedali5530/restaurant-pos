@@ -167,7 +167,10 @@ export const submitFiscalInvoices = async (
         providerId,
         {
           ...candidate,
-          description: getFiscalProviderPrintDescription(providerId),
+          description: getFiscalProviderPrintDescription(
+            providerId,
+            candidate.invoiceNumber ?? candidate.qrcode
+          ),
         },
       ])
     )
