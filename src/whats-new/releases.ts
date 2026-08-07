@@ -11,6 +11,7 @@ export const RELEASES: ReleaseNotes[] = [
     title: 'Fiscal provider logos on receipts',
     items: [
       'Upload a receipt logo in FBR/PRA integration settings; it prints beside the fiscal QR (100×100 each) on final receipts.',
+      'Receipt images (store logo, header/footer images, fiscal strip) print with correct aspect ratio and more reliable JPEG/PNG handling.',
     ],
   },
   {

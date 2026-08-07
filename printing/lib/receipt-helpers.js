@@ -4,7 +4,10 @@ const escpos = require('escpos');
 const Image = escpos.Image;
 
 const PRINTER_WIDTH = 42;
-const MAX_LOGO_WIDTH_PX = 320;
+/** Max image width for store logo / header-footer (≈58–80mm thermal-friendly). */
+const MAX_IMAGE_WIDTH_PX = 384;
+/** @deprecated use MAX_IMAGE_WIDTH_PX */
+const MAX_LOGO_WIDTH_PX = MAX_IMAGE_WIDTH_PX;
 
 const DEFAULTS = {
   bottomMargin: 0,
@@ -34,6 +37,77 @@ const TEXT_SIZE_MAP = {
 };
 
 /**
+ * Detect image MIME from magic bytes.
+ * @param {Buffer} buf
+ * @returns {string}
+ */
+function detectImageMime(buf) {
+  if (!buf || !buf.length) return 'image/png';
+  if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) return 'image/png';
+  if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return 'image/jpeg';
+  if (buf[0] === 0x47 && buf[1] === 0x49 && buf[2] === 0x46) return 'image/gif';
+  if (
+    buf.length >= 12 &&
+    buf[0] === 0x52 && buf[1] === 0x49 && buf[2] === 0x46 && buf[3] === 0x46 &&
+    buf[8] === 0x57 && buf[9] === 0x45 && buf[10] === 0x42 && buf[11] === 0x50
+  ) {
+    return 'image/webp';
+  }
+  return 'image/png';
+}
+
+/**
+ * Decode data URI / base64 / Buffer / byte array into Buffer + mime.
+ * @param {*} input
+ * @returns {{ buf: Buffer, mime: string } | null}
+ */
+function decodeImageInput(input) {
+  if (input == null || input === '') return null;
+
+  if (Buffer.isBuffer(input)) {
+    if (!input.length) return null;
+    return { buf: input, mime: detectImageMime(input) };
+  }
+  if (input instanceof Uint8Array) {
+    const buf = Buffer.from(input);
+    if (!buf.length) return null;
+    return { buf, mime: detectImageMime(buf) };
+  }
+  if (input instanceof ArrayBuffer) {
+    const buf = Buffer.from(input);
+    if (!buf.length) return null;
+    return { buf, mime: detectImageMime(buf) };
+  }
+  if (Array.isArray(input)) {
+    const buf = Buffer.from(input);
+    if (!buf.length) return null;
+    return { buf, mime: detectImageMime(buf) };
+  }
+
+  if (typeof input !== 'string') return null;
+  let mime = 'image/png';
+  let b64 = input.trim();
+  if (!b64) return null;
+
+  const dataUri = /^data:([^;]+);base64,([\s\S]+)$/i.exec(b64);
+  if (dataUri) {
+    mime = (dataUri[1] || 'image/png').toLowerCase().split(';')[0].trim() || 'image/png';
+    b64 = dataUri[2].replace(/\s+/g, '');
+  } else {
+    b64 = b64.replace(/\s+/g, '');
+  }
+
+  try {
+    const buf = Buffer.from(b64, 'base64');
+    if (!buf.length) return null;
+    // Prefer magic bytes over claimed data-URI mime (JPEG often labeled as PNG)
+    return { buf, mime: detectImageMime(buf) || mime };
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Normalize logo to a base64 or data URI string. Handles array (from DB), string, or buffer-like.
  * @param {*} logo
  * @returns {string}
@@ -41,14 +115,9 @@ const TEXT_SIZE_MAP = {
 function normalizeLogo(logo) {
   if (logo == null || logo === '') return '';
   if (typeof logo === 'string') return logo.trim();
-  let buf;
-  if (Buffer.isBuffer(logo)) buf = logo;
-  else if (logo instanceof Uint8Array) buf = Buffer.from(logo);
-  else if (logo instanceof ArrayBuffer) buf = Buffer.from(logo);
-  else if (Array.isArray(logo)) buf = Buffer.from(logo);
-  else return '';
-  if (buf.length === 0) return '';
-  return `data:image/png;base64,${buf.toString('base64')}`;
+  const decoded = decodeImageInput(logo);
+  if (!decoded) return '';
+  return `data:${decoded.mime};base64,${decoded.buf.toString('base64')}`;
 }
 
 function normalizeSection(section) {
@@ -294,86 +363,65 @@ function applyMargins(printer, config) {
 }
 
 /**
- * Scale logo down to fit thermal width while preserving aspect ratio.
+ * Resize/re-encode image for thermal: max width, width multiple of 8, white bg, optional mono.
+ * Always returns PNG so get-pixels / escpos Image.load get a consistent format.
  * @param {Buffer} buf
- * @param {string} mime
- * @returns {Promise<{ buf: Buffer, mime: string }>}
+ * @param {string} [mime]
+ * @param {{ maxWidth?: number, forceMono?: boolean }} [opts]
+ * @returns {Promise<Buffer|null>}
  */
-function resizeLogoBuffer(buf, mime) {
+function prepareImageForPrint(buf, mime, opts) {
+  const options = opts || {};
+  const maxWidth = Math.max(8, options.maxWidth || MAX_IMAGE_WIDTH_PX);
+  const forceMono = options.forceMono !== false;
+
   return new Promise((resolve) => {
     try {
       const { loadImage, createCanvas } = require('canvas');
-      loadImage(buf).then((img) => {
-        if (!img || img.width <= MAX_LOGO_WIDTH_PX) {
-          return resolve({ buf, mime });
-        }
-        const scale = MAX_LOGO_WIDTH_PX / img.width;
-        const w = MAX_LOGO_WIDTH_PX;
-        const h = Math.max(1, Math.round(img.height * scale));
-        const canvas = createCanvas(w, h);
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, w, h);
-        ctx.drawImage(img, 0, 0, w, h);
-        resolve({ buf: canvas.toBuffer('image/png'), mime: 'image/png' });
-      }).catch(() => resolve({ buf, mime }));
+      loadImage(buf)
+        .then((img) => {
+          if (!img || !img.width || !img.height) {
+            resolve(null);
+            return;
+          }
+          let outW = img.width;
+          let outH = img.height;
+          if (outW > maxWidth) {
+            const scale = maxWidth / outW;
+            outW = maxWidth;
+            outH = Math.max(1, Math.round(img.height * scale));
+          }
+          // ESC/POS bit-image / raster expects width as multiple of 8
+          const canvasW = Math.max(8, Math.ceil(outW / 8) * 8);
+          const canvas = createCanvas(canvasW, outH);
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, canvasW, outH);
+          const dx = Math.floor((canvasW - outW) / 2);
+          ctx.drawImage(img, dx, 0, outW, outH);
+          if (forceMono) forceCanvasMono(ctx, canvasW, outH);
+          resolve(canvas.toBuffer('image/png'));
+        })
+        .catch((err) => {
+          console.warn('[print] prepareImageForPrint load failed', err && err.message);
+          resolve(null);
+        });
     } catch (e) {
-      resolve({ buf, mime });
+      console.warn('[print] prepareImageForPrint error', e && e.message);
+      resolve(null);
     }
   });
 }
 
 /**
- * Print image from base64 or data URI.
+ * Print image from base64, data URI, Buffer, or byte array via unified D24 pipeline.
  * @param {Object} printer - escpos Printer
- * @param {string} logo - base64 string, or data:image/...;base64,...
+ * @param {*} logo
  * @param {{ align?: string }} opts
  * @returns {Promise<void>}
  */
 function printLogo(printer, logo, opts) {
-  if (!logo || typeof logo !== 'string' || logo.trim() === '') {
-    return Promise.resolve();
-  }
-
-  const align = (opts && opts.align) || 'center';
-  let mime = 'image/png';
-  let b64 = logo.trim();
-
-  const dataUri = /^data:([^;]+);base64,(.+)$/i.exec(b64);
-  if (dataUri) {
-    mime = (dataUri[1] || 'image/png').toLowerCase();
-    b64 = dataUri[2];
-  }
-
-  return new Promise((resolve) => {
-    let buf;
-    try {
-      buf = Buffer.from(b64, 'base64');
-    } catch (e) {
-      return resolve();
-    }
-    if (buf.length === 0) return resolve();
-
-    resizeLogoBuffer(buf, mime).then(({ buf: resizedBuf, mime: resizedMime }) => {
-      Image.load(resizedBuf, resizedMime, (...cbArgs) => {
-        const hasErrStyle = cbArgs.length >= 2;
-        const loadErr = hasErrStyle ? cbArgs[0] : null;
-        const img = hasErrStyle ? cbArgs[1] : cbArgs[0];
-        if (loadErr || !img) return resolve();
-        (async () => {
-          try {
-            hardResetLayout(printer);
-            printer.align(escposAlign(align));
-            await printer.image(img, 's24');
-          } catch (e) {
-            // ignore
-          }
-          hardResetLayout(printer);
-          resolve();
-        })();
-      });
-    });
-  });
+  return printEscposImage(printer, logo, opts).then(() => {});
 }
 
 /**
@@ -589,28 +637,11 @@ const FISCAL_STRIP_WIDTH_PX = 384;
 
 /**
  * Decode data URI / raw base64 into a Buffer + mime.
- * @param {string} logo
+ * @param {*} logo
  * @returns {{ buf: Buffer, mime: string } | null}
  */
 function decodeImagePayload(logo) {
-  if (!logo || typeof logo !== 'string' || !logo.trim()) return null;
-  let mime = 'image/png';
-  let b64 = logo.trim();
-  // Allow whitespace/newlines inside long data URIs from JSON pretty-print
-  const dataUri = /^data:([^;]+);base64,([\s\S]+)$/i.exec(b64);
-  if (dataUri) {
-    mime = (dataUri[1] || 'image/png').toLowerCase();
-    b64 = dataUri[2].replace(/\s+/g, '');
-  } else {
-    b64 = b64.replace(/\s+/g, '');
-  }
-  try {
-    const buf = Buffer.from(b64, 'base64');
-    if (!buf.length) return null;
-    return { buf, mime };
-  } catch {
-    return null;
-  }
+  return decodeImageInput(logo);
 }
 
 /**
@@ -725,7 +756,6 @@ function composeFiscalQrRowBuffer(qrValue, logoDataUri) {
       const raw = String(logoDataUri).trim();
       let loadPromise;
       if (raw.startsWith('data:')) {
-        // Strip whitespace inside base64 payload for canvas compatibility
         const m = /^data:([^;]+);base64,([\s\S]+)$/i.exec(raw);
         if (m) {
           const cleaned = `data:${m[1]};base64,${m[2].replace(/\s+/g, '')}`;
@@ -734,7 +764,7 @@ function composeFiscalQrRowBuffer(qrValue, logoDataUri) {
           loadPromise = loadImage(raw);
         }
       } else {
-        const decoded = decodeImagePayload(raw);
+        const decoded = decodeImageInput(raw);
         if (!decoded) {
           console.warn('[print] fiscal logo decode failed');
           finish(null);
@@ -747,8 +777,7 @@ function composeFiscalQrRowBuffer(qrValue, logoDataUri) {
         .then((img) => finish(img))
         .catch((err) => {
           console.warn('[print] fiscal logo load failed', err && err.message);
-          // second try via decoded buffer
-          const decoded = decodeImagePayload(raw);
+          const decoded = decodeImageInput(raw);
           if (!decoded) {
             finish(null);
             return;
@@ -765,12 +794,14 @@ function composeFiscalQrRowBuffer(qrValue, logoDataUri) {
 }
 
 /**
- * Synchronous ESC * s24 bit-image write (avoids escpos.image async forEach bug).
+ * Synchronous ESC * d24 bit-image write (double density, correct aspect ratio).
+ * m=33 = 24-dot double density (~180 dpi H and V). m=32 (s24) is single density
+ * horizontally (~90 dpi) and stretches images ~2× wide.
  * @param {Object} printer
  * @param {Object} image - escpos Image instance
  */
-function writeBitmapS24(printer, image) {
-  const header = '\x1b\x2a\x20'; // ESC * 32 (24-dot double density)
+function writeBitmapD24(printer, image) {
+  const header = '\x1b\x2a\x21'; // ESC * 33 (24-dot double density)
   const n = 3;
   const bitmap = image.toBitmap(24);
   try {
@@ -791,6 +822,11 @@ function writeBitmapS24(printer, image) {
   }
 }
 
+/** @deprecated use writeBitmapD24 */
+function writeBitmapS24(printer, image) {
+  return writeBitmapD24(printer, image);
+}
+
 /**
  * Load PNG buffer into escpos Image.
  * @param {Buffer} buf
@@ -800,7 +836,6 @@ function writeBitmapS24(printer, image) {
 function loadEscposImage(buf, mime) {
   return new Promise((resolve) => {
     Image.load(buf, mime || 'image/png', (arg0, arg1) => {
-      // callback(err) OR callback(image)
       if (!arg0) {
         resolve(null);
         return;
@@ -824,30 +859,61 @@ function loadEscposImage(buf, mime) {
 }
 
 /**
- * Print a PNG buffer using GS v0 raster + ESC * s24 (max compatibility).
+ * Unified ESC/POS image print: decode → prepare → D24 bit-image (raster fallback).
  * @param {Object} printer
- * @param {Buffer} buf
- * @param {string} [mime='image/png']
+ * @param {*} input - data URI, base64, Buffer, byte array
+ * @param {{ align?: string, maxWidth?: number, forceMono?: boolean, mime?: string, skipPrepare?: boolean }} [opts]
  * @returns {Promise<boolean>}
  */
-async function printImageBuffer(printer, buf, mime) {
-  if (!buf || !buf.length) return false;
-  const img = await loadEscposImage(buf, mime || 'image/png');
-  if (!img) return false;
+async function printEscposImage(printer, input, opts) {
+  const options = opts || {};
+  if (input == null || input === '') return false;
 
+  let buf;
+  let mime = options.mime || 'image/png';
+
+  if (Buffer.isBuffer(input)) {
+    buf = input;
+    mime = options.mime || detectImageMime(input);
+  } else {
+    const decoded = decodeImageInput(input);
+    if (!decoded) {
+      console.warn('[print] printEscposImage: decode failed');
+      return false;
+    }
+    buf = decoded.buf;
+    mime = decoded.mime;
+  }
+
+  let pngBuf = buf;
+  if (!options.skipPrepare) {
+    pngBuf = await prepareImageForPrint(buf, mime, {
+      maxWidth: options.maxWidth || MAX_IMAGE_WIDTH_PX,
+      forceMono: options.forceMono !== false,
+    });
+    if (!pngBuf || !pngBuf.length) {
+      console.warn('[print] printEscposImage: prepare failed');
+      return false;
+    }
+  }
+
+  const img = await loadEscposImage(pngBuf, 'image/png');
+  if (!img) {
+    console.warn('[print] printEscposImage: Image.load failed');
+    return false;
+  }
+
+  const align = options.align || 'center';
   try {
     hardResetLayout(printer);
-    // Left-align: some firmware mis-centers GS v 0 images
-    printer.align('lt');
+    printer.align(escposAlign(align));
 
-    // Prefer ESC * s24 (same as store printLogo) — most reliable for network TM / clone printers.
-    // Raster (GS v 0) is used only if s24 fails; some devices ignore one command type.
     let wrote = false;
     try {
-      writeBitmapS24(printer, img);
+      writeBitmapD24(printer, img);
       wrote = true;
     } catch (e) {
-      console.warn('[print] s24 bitmap failed', e && e.message);
+      console.warn('[print] D24 bitmap failed', e && e.message);
     }
 
     if (!wrote && typeof printer.raster === 'function') {
@@ -855,14 +921,17 @@ async function printImageBuffer(printer, buf, mime) {
         printer.raster(img, 'normal');
         wrote = true;
       } catch (e) {
-        console.warn('[print] raster failed', e && e.message);
+        console.warn('[print] raster fallback failed', e && e.message);
       }
     }
 
     hardResetLayout(printer);
+    if (!wrote) {
+      console.warn('[print] printEscposImage: no image command written');
+    }
     return wrote;
   } catch (e) {
-    console.warn('[print] printImageBuffer failed', e && e.message);
+    console.warn('[print] printEscposImage failed', e && e.message);
     try {
       hardResetLayout(printer);
     } catch (e2) {
@@ -870,6 +939,23 @@ async function printImageBuffer(printer, buf, mime) {
     }
     return false;
   }
+}
+
+/**
+ * Print a PNG/JPEG buffer via unified pipeline.
+ * @param {Object} printer
+ * @param {Buffer} buf
+ * @param {string} [mime='image/png']
+ * @returns {Promise<boolean>}
+ */
+async function printImageBuffer(printer, buf, mime) {
+  if (!buf || !buf.length) return false;
+  return printEscposImage(printer, buf, {
+    mime: mime || detectImageMime(buf),
+    align: 'lt',
+    // Fiscal strips are already composed mono; still run prepare for width pad
+    forceMono: true,
+  });
 }
 
 /**
@@ -895,7 +981,12 @@ async function printFiscalQrRow(printer, qrValue, logoDataUri) {
     return false;
   }
 
-  const ok = await printImageBuffer(printer, buf, 'image/png');
+  const ok = await printEscposImage(printer, buf, {
+    mime: 'image/png',
+    align: 'lt',
+    maxWidth: FISCAL_STRIP_WIDTH_PX,
+    forceMono: true,
+  });
   if (!ok) {
     console.warn('[print] fiscal strip image write failed');
   }
@@ -913,10 +1004,9 @@ async function printFiscalQrRow(printer, qrValue, logoDataUri) {
 async function printFiscalLogoThenQrFallback(printer, qrValue, logoDataUri) {
   if (logoDataUri && String(logoDataUri).trim()) {
     console.info('[print] fiscal stacked fallback: logo then QR');
-    // Build a mono square logo PNG and print via same escpos path
     try {
       const { loadImage, createCanvas } = require('canvas');
-      const decoded = decodeImagePayload(logoDataUri);
+      const decoded = decodeImageInput(logoDataUri);
       if (decoded) {
         const img = await loadImage(decoded.buf);
         const size = FISCAL_LOGO_PX;
@@ -924,18 +1014,23 @@ async function printFiscalLogoThenQrFallback(printer, qrValue, logoDataUri) {
         const ctx = canvas.getContext('2d');
         drawContainInSquare(ctx, img, 0, 0, size);
         forceCanvasMono(ctx, size, size);
-        await printImageBuffer(printer, canvas.toBuffer('image/png'), 'image/png');
+        await printEscposImage(printer, canvas.toBuffer('image/png'), {
+          mime: 'image/png',
+          align: 'center',
+          maxWidth: size,
+          forceMono: true,
+        });
         try {
           printer.feed(1);
         } catch (e) {
           // ignore
         }
       } else {
-        await printLogo(printer, logoDataUri, { align: 'center' });
+        await printEscposImage(printer, logoDataUri, { align: 'center' });
       }
     } catch (e) {
       console.warn('[print] stacked logo failed', e && e.message);
-      await printLogo(printer, logoDataUri, { align: 'center' });
+      await printEscposImage(printer, logoDataUri, { align: 'center' });
     }
   }
 
@@ -978,6 +1073,7 @@ module.exports = {
   normalizeSections,
   applyMargins,
   printLogo,
+  printEscposImage,
   printVatLine,
   feedBottomMargin,
   printReceiptHeader,
@@ -1003,5 +1099,10 @@ module.exports = {
   printFiscalQrRow,
   printFiscalLogoThenQrFallback,
   composeFiscalQrRowBuffer,
+  detectImageMime,
+  decodeImageInput,
+  prepareImageForPrint,
+  writeBitmapD24,
   PRINTER_WIDTH,
+  MAX_IMAGE_WIDTH_PX,
 };
