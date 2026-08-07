@@ -581,9 +581,11 @@ function sendCashDrawerPulse(printer) {
   printer.buffer.write('\x1B\x70\x00\x19\xFA');
 }
 
-const FISCAL_LOGO_PX = 100;
-const FISCAL_QR_PX = 100;
-const FISCAL_QR_GAP_PX = 8;
+const FISCAL_LOGO_PX = 120;
+const FISCAL_QR_PX = 120;
+const FISCAL_QR_GAP_PX = 12;
+/** Target total strip width (≈58mm @ ~203dpi). Padded so GS v0 / bitmaps centre better. */
+const FISCAL_STRIP_WIDTH_PX = 384;
 
 /**
  * Decode data URI / raw base64 into a Buffer + mime.
@@ -594,10 +596,13 @@ function decodeImagePayload(logo) {
   if (!logo || typeof logo !== 'string' || !logo.trim()) return null;
   let mime = 'image/png';
   let b64 = logo.trim();
-  const dataUri = /^data:([^;]+);base64,(.+)$/i.exec(b64);
+  // Allow whitespace/newlines inside long data URIs from JSON pretty-print
+  const dataUri = /^data:([^;]+);base64,([\s\S]+)$/i.exec(b64);
   if (dataUri) {
     mime = (dataUri[1] || 'image/png').toLowerCase();
-    b64 = dataUri[2];
+    b64 = dataUri[2].replace(/\s+/g, '');
+  } else {
+    b64 = b64.replace(/\s+/g, '');
   }
   try {
     const buf = Buffer.from(b64, 'base64');
@@ -628,9 +633,31 @@ function drawContainInSquare(ctx, img, x, y, size) {
   ctx.drawImage(img, dx, dy, w, h);
 }
 
+/** Force pure B/W for thermal thresholding. */
+function forceCanvasMono(ctx, width, height) {
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const d = imageData.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const a = d[i + 3];
+    if (a < 16) {
+      d[i] = 255;
+      d[i + 1] = 255;
+      d[i + 2] = 255;
+      d[i + 3] = 255;
+      continue;
+    }
+    const lum = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+    const v = lum < 210 ? 0 : 255;
+    d[i] = v;
+    d[i + 1] = v;
+    d[i + 2] = v;
+    d[i + 3] = 255;
+  }
+  ctx.putImageData(imageData, 0, 0);
+}
+
 /**
- * Build PNG buffer: optional 100×100 logo + 100×100 QR side by side.
- * Forces high-contrast mono so light brand colors still burn on thermal paper.
+ * Build PNG buffer: optional logo + QR side by side, padded to strip width.
  * @param {string} qrValue
  * @param {string} [logoDataUri]
  * @returns {Promise<Buffer|null>}
@@ -641,67 +668,47 @@ function composeFiscalQrRowBuffer(qrValue, logoDataUri) {
       const qr = require('qr-image');
       const { loadImage, createCanvas } = require('canvas');
 
-      // High-res QR matrix; we scale into 100×100 on canvas.
-      const qrPng = qr.imageSync(String(qrValue), { type: 'png', size: 4, margin: 1 });
-
+      const qrPng = qr.imageSync(String(qrValue), { type: 'png', size: 6, margin: 1 });
       const hasLogo = Boolean(logoDataUri && String(logoDataUri).trim());
-      const width = hasLogo
+
+      const contentW = hasLogo
         ? FISCAL_LOGO_PX + FISCAL_QR_GAP_PX + FISCAL_QR_PX
         : FISCAL_QR_PX;
       const height = Math.max(FISCAL_LOGO_PX, FISCAL_QR_PX);
+      // Width as multiple of 8 for clean raster packing
+      const width = Math.max(
+        contentW,
+        Math.ceil(FISCAL_STRIP_WIDTH_PX / 8) * 8
+      );
+      const offsetX = Math.floor((width - contentW) / 2);
+
       const canvas = createCanvas(width, height);
       const ctx = canvas.getContext('2d');
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, width, height);
-
-      /** Thermal printers need near B/W — raise contrast for soft brand colors. */
-      const forceMono = () => {
-        const imageData = ctx.getImageData(0, 0, width, height);
-        const d = imageData.data;
-        for (let i = 0; i < d.length; i += 4) {
-          const a = d[i + 3];
-          if (a < 16) {
-            d[i] = 255;
-            d[i + 1] = 255;
-            d[i + 2] = 255;
-            d[i + 3] = 255;
-            continue;
-          }
-          const lum = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-          // Ink if clearly darker than paper (threshold high enough for light greys/pinks)
-          const ink = lum < 220;
-          const v = ink ? 0 : 255;
-          d[i] = v;
-          d[i + 1] = v;
-          d[i + 2] = v;
-          d[i + 3] = 255;
-        }
-        ctx.putImageData(imageData, 0, 0);
-      };
 
       const finish = (logoImg) => {
         loadImage(qrPng)
           .then((qrImg) => {
             if (hasLogo) {
               if (logoImg) {
-                drawContainInSquare(ctx, logoImg, 0, 0, FISCAL_LOGO_PX);
+                drawContainInSquare(ctx, logoImg, offsetX, 0, FISCAL_LOGO_PX);
               } else {
-                // Visible empty box so missing logo is obvious in tests (and not silent white)
                 ctx.strokeStyle = '#000000';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(1, 1, FISCAL_LOGO_PX - 2, FISCAL_LOGO_PX - 2);
+                ctx.lineWidth = 3;
+                ctx.strokeRect(offsetX + 2, 2, FISCAL_LOGO_PX - 4, FISCAL_LOGO_PX - 4);
               }
               drawContainInSquare(
                 ctx,
                 qrImg,
-                FISCAL_LOGO_PX + FISCAL_QR_GAP_PX,
+                offsetX + FISCAL_LOGO_PX + FISCAL_QR_GAP_PX,
                 0,
                 FISCAL_QR_PX
               );
             } else {
-              drawContainInSquare(ctx, qrImg, 0, 0, FISCAL_QR_PX);
+              drawContainInSquare(ctx, qrImg, offsetX, 0, FISCAL_QR_PX);
             }
-            forceMono();
+            forceCanvasMono(ctx, width, height);
             resolve(canvas.toBuffer('image/png'));
           })
           .catch((err) => {
@@ -715,21 +722,40 @@ function composeFiscalQrRowBuffer(qrValue, logoDataUri) {
         return;
       }
 
-      // Prefer data-URI path; canvas handles it better than a raw buffer for large PNGs
       const raw = String(logoDataUri).trim();
-      const loadPromise = raw.startsWith('data:')
-        ? loadImage(raw)
-        : (() => {
-            const decoded = decodeImagePayload(raw);
-            if (!decoded) return Promise.reject(new Error('invalid logo payload'));
-            return loadImage(decoded.buf);
-          })();
+      let loadPromise;
+      if (raw.startsWith('data:')) {
+        // Strip whitespace inside base64 payload for canvas compatibility
+        const m = /^data:([^;]+);base64,([\s\S]+)$/i.exec(raw);
+        if (m) {
+          const cleaned = `data:${m[1]};base64,${m[2].replace(/\s+/g, '')}`;
+          loadPromise = loadImage(cleaned);
+        } else {
+          loadPromise = loadImage(raw);
+        }
+      } else {
+        const decoded = decodeImagePayload(raw);
+        if (!decoded) {
+          console.warn('[print] fiscal logo decode failed');
+          finish(null);
+          return;
+        }
+        loadPromise = loadImage(decoded.buf);
+      }
 
       loadPromise
         .then((img) => finish(img))
         .catch((err) => {
           console.warn('[print] fiscal logo load failed', err && err.message);
-          finish(null);
+          // second try via decoded buffer
+          const decoded = decodeImagePayload(raw);
+          if (!decoded) {
+            finish(null);
+            return;
+          }
+          loadImage(decoded.buf)
+            .then((img) => finish(img))
+            .catch(() => finish(null));
         });
     } catch (e) {
       console.warn('[print] fiscal QR compose error', e && e.message);
@@ -739,68 +765,210 @@ function composeFiscalQrRowBuffer(qrValue, logoDataUri) {
 }
 
 /**
- * Print a buffer via escpos Image.
- * Prefer GS v 0 raster (same as qrimage) — more reliable than bit-image s24 on many network printers.
+ * Synchronous ESC * s24 bit-image write (avoids escpos.image async forEach bug).
  * @param {Object} printer
- * @param {Buffer} buf
- * @param {string} [mime='image/png']
- * @param {string} [align='center']
- * @returns {Promise<boolean>} true if image commands were buffered
+ * @param {Object} image - escpos Image instance
  */
-function printImageBuffer(printer, buf, mime, align) {
-  if (!buf || !buf.length) return Promise.resolve(false);
+function writeBitmapS24(printer, image) {
+  const header = '\x1b\x2a\x20'; // ESC * 32 (24-dot double density)
+  const n = 3;
+  const bitmap = image.toBitmap(24);
+  try {
+    if (typeof printer.lineSpace === 'function') printer.lineSpace(0);
+  } catch (e) {
+    // ignore
+  }
+  bitmap.data.forEach((line) => {
+    printer.buffer.write(header);
+    printer.buffer.writeUInt16LE(line.length / n);
+    printer.buffer.write(line);
+    printer.buffer.write('\n');
+  });
+  try {
+    if (typeof printer.lineSpace === 'function') printer.lineSpace();
+  } catch (e) {
+    // ignore
+  }
+}
+
+/**
+ * Load PNG buffer into escpos Image.
+ * @param {Buffer} buf
+ * @param {string} mime
+ * @returns {Promise<Object|null>}
+ */
+function loadEscposImage(buf, mime) {
   return new Promise((resolve) => {
-    Image.load(buf, mime || 'image/png', (errOrImg, maybeImg) => {
-      // get-pixels: callback(err) OR callback(null is not used) — escpos Image.load does callback(err) or callback(image)
-      const img = errOrImg instanceof Error || (errOrImg && errOrImg.message && !errOrImg.pixels)
-        ? null
-        : errOrImg && errOrImg.pixels
-          ? errOrImg
-          : maybeImg;
-      const loadErr =
-        errOrImg instanceof Error
-          ? errOrImg
-          : !img
-            ? new Error('Image.load returned empty')
-            : null;
-      if (loadErr || !img) {
-        console.warn('[print] Image.load failed', loadErr && loadErr.message);
-        return resolve(false);
+    Image.load(buf, mime || 'image/png', (arg0, arg1) => {
+      // callback(err) OR callback(image)
+      if (!arg0) {
+        resolve(null);
+        return;
       }
-      try {
-        hardResetLayout(printer);
-        printer.align(escposAlign(align || 'center'));
-        // Raster is used by escpos.qrimage and is most compatible for full-width strips
-        if (typeof printer.raster === 'function') {
-          printer.raster(img, 'normal');
-        } else {
-          // fire-and-forget async image — still buffer-writes sync before first await
-          void printer.image(img, 's24');
-        }
-        hardResetLayout(printer);
-        resolve(true);
-      } catch (e) {
-        console.warn('[print] image/raster failed', e && e.message);
-        hardResetLayout(printer);
-        resolve(false);
+      if (arg0 instanceof Error) {
+        console.warn('[print] Image.load error', arg0.message);
+        resolve(null);
+        return;
       }
+      if (arg0.pixels) {
+        resolve(arg0);
+        return;
+      }
+      if (arg1 && arg1.pixels) {
+        resolve(arg1);
+        return;
+      }
+      resolve(null);
     });
   });
 }
 
 /**
- * Fiscal QR row: logo | QR at 100×100 each when logo present; else QR-only 100×100.
- * Falls back to false so caller can use native qrimage/qrcode.
+ * Print a PNG buffer using GS v0 raster + ESC * s24 (max compatibility).
+ * @param {Object} printer
+ * @param {Buffer} buf
+ * @param {string} [mime='image/png']
+ * @returns {Promise<boolean>}
+ */
+async function printImageBuffer(printer, buf, mime) {
+  if (!buf || !buf.length) return false;
+  const img = await loadEscposImage(buf, mime || 'image/png');
+  if (!img) return false;
+
+  try {
+    hardResetLayout(printer);
+    // Left-align: some firmware mis-centers GS v 0 images
+    printer.align('lt');
+
+    // Prefer ESC * s24 (same as store printLogo) — most reliable for network TM / clone printers.
+    // Raster (GS v 0) is used only if s24 fails; some devices ignore one command type.
+    let wrote = false;
+    try {
+      writeBitmapS24(printer, img);
+      wrote = true;
+    } catch (e) {
+      console.warn('[print] s24 bitmap failed', e && e.message);
+    }
+
+    if (!wrote && typeof printer.raster === 'function') {
+      try {
+        printer.raster(img, 'normal');
+        wrote = true;
+      } catch (e) {
+        console.warn('[print] raster failed', e && e.message);
+      }
+    }
+
+    hardResetLayout(printer);
+    return wrote;
+  } catch (e) {
+    console.warn('[print] printImageBuffer failed', e && e.message);
+    try {
+      hardResetLayout(printer);
+    } catch (e2) {
+      // ignore
+    }
+    return false;
+  }
+}
+
+/**
+ * Fiscal QR row: logo | QR side by side.
  * @param {Object} printer
  * @param {string} qrValue
  * @param {string} [logoDataUri]
- * @returns {Promise<boolean>} true if printed
+ * @returns {Promise<boolean>}
  */
-function printFiscalQrRow(printer, qrValue, logoDataUri) {
-  if (!qrValue) return Promise.resolve(false);
-  return composeFiscalQrRowBuffer(qrValue, logoDataUri).then((buf) => {
-    if (!buf) return false;
-    return printImageBuffer(printer, buf, 'image/png', 'center');
+async function printFiscalQrRow(printer, qrValue, logoDataUri) {
+  if (!qrValue) return false;
+  const hasLogo = Boolean(logoDataUri && String(logoDataUri).trim());
+  console.info(
+    '[print] fiscal QR row',
+    hasLogo ? `with logo (${String(logoDataUri).length} chars)` : 'without logo',
+    'value=',
+    String(qrValue).slice(0, 32)
+  );
+
+  const buf = await composeFiscalQrRowBuffer(qrValue, logoDataUri);
+  if (!buf) {
+    console.warn('[print] fiscal compose produced empty buffer');
+    return false;
+  }
+
+  const ok = await printImageBuffer(printer, buf, 'image/png');
+  if (!ok) {
+    console.warn('[print] fiscal strip image write failed');
+  }
+  return ok;
+}
+
+/**
+ * Stacked fallback: provider logo (if any) then native QR.
+ * Used when side-by-side raster fails so logo is still printed.
+ * @param {Object} printer
+ * @param {string} qrValue
+ * @param {string} [logoDataUri]
+ * @returns {Promise<void>}
+ */
+async function printFiscalLogoThenQrFallback(printer, qrValue, logoDataUri) {
+  if (logoDataUri && String(logoDataUri).trim()) {
+    console.info('[print] fiscal stacked fallback: logo then QR');
+    // Build a mono square logo PNG and print via same escpos path
+    try {
+      const { loadImage, createCanvas } = require('canvas');
+      const decoded = decodeImagePayload(logoDataUri);
+      if (decoded) {
+        const img = await loadImage(decoded.buf);
+        const size = FISCAL_LOGO_PX;
+        const canvas = createCanvas(size, size);
+        const ctx = canvas.getContext('2d');
+        drawContainInSquare(ctx, img, 0, 0, size);
+        forceCanvasMono(ctx, size, size);
+        await printImageBuffer(printer, canvas.toBuffer('image/png'), 'image/png');
+        try {
+          printer.feed(1);
+        } catch (e) {
+          // ignore
+        }
+      } else {
+        await printLogo(printer, logoDataUri, { align: 'center' });
+      }
+    } catch (e) {
+      console.warn('[print] stacked logo failed', e && e.message);
+      await printLogo(printer, logoDataUri, { align: 'center' });
+    }
+  }
+
+  // Native QR
+  await new Promise((resolve) => {
+    let settled = false;
+    const done = () => {
+      if (settled) return;
+      settled = true;
+      try {
+        hardResetLayout(printer);
+      } catch (e) {
+        // ignore
+      }
+      resolve();
+    };
+    try {
+      hardResetLayout(printer);
+      if (typeof printer.qrimage === 'function') {
+        printer.align('ct').qrimage(qrValue, { type: 'png', mode: 'normal', size: 3, margin: 1 }, () => done());
+        setTimeout(done, 2500);
+        return;
+      }
+    } catch (e) {
+      // fall through
+    }
+    try {
+      hardResetLayout(printer);
+      printer.align('ct').qrcode(qrValue, undefined, 'M', 4);
+    } catch (e) {
+      // ignore
+    }
+    done();
   });
 }
 
@@ -833,6 +1001,7 @@ module.exports = {
   printLineLeftRight,
   sendCashDrawerPulse,
   printFiscalQrRow,
+  printFiscalLogoThenQrFallback,
   composeFiscalQrRowBuffer,
   PRINTER_WIDTH,
 };

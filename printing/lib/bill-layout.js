@@ -14,6 +14,7 @@ const {
   printFixedLine,
   printDivider,
   printFiscalQrRow,
+  printFiscalLogoThenQrFallback,
 } = require('./receipt-helpers');
 
 /**
@@ -259,13 +260,8 @@ function printQrCodes(printer, items) {
   }, Promise.resolve());
 }
 
-/** Compact thermal QR fallback options (when canvas compose fails). */
-const QR_IMAGE_OPTIONS = { type: 'png', mode: 'normal', size: 3, margin: 1 };
-/** ESC/POS native QR module size (1–16; library default 6). */
-const QR_NATIVE_SIZE = 4;
-
 /**
- * Prefer composed 100×100 logo|QR row; fall back to native QR.
+ * Prefer composed logo|QR strip; fall back to stacked logo + native QR so logos are never dropped.
  * @param {Object} printer
  * @param {string} value
  * @param {string} [logo]
@@ -273,7 +269,7 @@ const QR_NATIVE_SIZE = 4;
 function printQrCode(printer, value, logo) {
   if (!value) return Promise.resolve();
 
-  return printFiscalQrRow(printer, value, logo).then((printed) => {
+  return printFiscalQrRow(printer, value, logo).then(async (printed) => {
     if (printed) {
       try {
         printer.feed(1);
@@ -283,43 +279,12 @@ function printQrCode(printer, value, logo) {
       return;
     }
 
-    return new Promise((resolve) => {
-      let settled = false;
-      const done = () => {
-        if (settled) return;
-        settled = true;
-        hardResetLayout(printer);
-        resolve();
-      };
-
-      const finalize = () => {
-        try {
-          printer.feed(1);
-        } catch (e) {
-          // ignore
-        }
-        done();
-      };
-
-      try {
-        hardResetLayout(printer);
-        if (typeof printer.qrimage === 'function') {
-          printer.align('ct').qrimage(value, QR_IMAGE_OPTIONS, () => finalize());
-          setTimeout(finalize, 2000);
-          return;
-        }
-      } catch (e) {
-        // fallback below
-      }
-
-      try {
-        hardResetLayout(printer);
-        printer.align('ct').qrcode(value, undefined, 'M', QR_NATIVE_SIZE);
-      } catch (e) {
-        // ignore
-      }
-      finalize();
-    });
+    await printFiscalLogoThenQrFallback(printer, value, logo);
+    try {
+      printer.feed(1);
+    } catch (e) {
+      // ignore
+    }
   });
 }
 
