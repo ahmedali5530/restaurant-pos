@@ -8,12 +8,15 @@ import {
 class HttpTransportAdapter implements TransportAdapter {
   async send<TBody = unknown>(request: TransportRequest): Promise<TransportResponse<TBody>> {
     try {
+      // Content-Type must win over auth/header bags so express.json can parse the body.
+      // (A missing/empty Content-Type leaves req.body empty → "url ... missing".)
+      const headers: Record<string, string> = {
+        ...(request.headers ?? {}),
+        'Content-Type': 'application/json',
+      };
       const response = await fetch(request.endpoint, {
         method: request.method ?? 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(request.headers ?? {}),
-        },
+        headers,
         body: request.body !== undefined ? JSON.stringify(request.body) : undefined,
       });
       const body = (await response.json().catch(() => undefined)) as TBody | undefined;

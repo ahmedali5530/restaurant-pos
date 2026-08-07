@@ -34,24 +34,84 @@ function isHttpUrl(value) {
 }
 
 function pickUpstreamUrl(body) {
-  if (!body || typeof body !== 'object') return '';
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return '';
   // Accept several aliases — clients / manual tests may use any of these.
   return normalizeUpstreamUrl(
     body.url ?? body.apiBaseUrl ?? body.upstreamUrl ?? body.endpoint ?? ''
   );
 }
 
+function isPlainObject(value) {
+  return value != null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function bodyHasKeys(body) {
+  return isPlainObject(body) && Object.keys(body).length > 0;
+}
+
+/**
+ * When Content-Type is missing or not application/json, express.json() skips parsing
+ * and leaves the stream unread. Recover the JSON body for those requests.
+ */
+function readRawJsonBody(req) {
+  return new Promise((resolve) => {
+    if (req.readableEnded || req.complete) {
+      resolve(null);
+      return;
+    }
+    const chunks = [];
+    let settled = false;
+    const finish = (value) => {
+      if (settled) return;
+      settled = true;
+      resolve(value);
+    };
+    req.on('data', (chunk) => chunks.push(chunk));
+    req.on('end', () => {
+      const raw = Buffer.concat(chunks).toString('utf8').trim();
+      if (!raw) {
+        finish(null);
+        return;
+      }
+      try {
+        const parsed = JSON.parse(raw);
+        finish(isPlainObject(parsed) ? parsed : null);
+      } catch {
+        finish(null);
+      }
+    });
+    req.on('error', () => finish(null));
+  });
+}
+
+async function resolveRequestBody(req) {
+  if (bodyHasKeys(req.body)) {
+    return req.body;
+  }
+  // Common mis-config: body present but Content-Type omitted → Express left it unparsed.
+  const recovered = await readRawJsonBody(req);
+  if (recovered) {
+    req.body = recovered;
+    return recovered;
+  }
+  return isPlainObject(req.body) ? req.body : {};
+}
+
 async function proxyInvoice(req, res, next) {
   try {
-    const body = req.body || {};
+    const body = await resolveRequestBody(req);
     const { bearerToken, payload } = body;
     const url = pickUpstreamUrl(body);
 
     if (!isHttpUrl(url)) {
-      const raw = body.url ?? body.apiBaseUrl ?? body.upstreamUrl ?? body.endpoint;
+      const raw = isPlainObject(body)
+        ? body.url ?? body.apiBaseUrl ?? body.upstreamUrl ?? body.endpoint
+        : undefined;
+      const contentType = req.get('content-type') || '';
       logger.warn('fiscal', 'invalid upstream url', {
-        typeof: typeof raw,
-        keys: body && typeof body === 'object' ? Object.keys(body) : [],
+        typeof: raw == null ? 'missing' : typeof raw,
+        keys: isPlainObject(body) ? Object.keys(body) : [],
+        contentType: contentType || null,
         preview: raw == null ? null : String(raw).slice(0, 120),
       });
       return sendError(
@@ -60,7 +120,10 @@ async function proxyInvoice(req, res, next) {
         'url must be a valid http(s) URL',
         {
           receivedType: raw == null ? 'missing' : typeof raw,
-          hint: 'Set Integrations → API Base URL to a full URL like https://ims.fbr.gov.pk/api/Live/PostData/ (no quotes).',
+          contentType: contentType || null,
+          bodyKeys: isPlainObject(body) ? Object.keys(body) : [],
+          hint:
+            'POST JSON to /fiscal/invoice with Content-Type: application/json and fields url (or apiBaseUrl), bearerToken, payload. Example url: https://ims.fbr.gov.pk/api/Live/PostData/',
         }
       );
     }
@@ -115,4 +178,10 @@ async function proxyInvoice(req, res, next) {
   }
 }
 
-module.exports = { proxyInvoice, normalizeUpstreamUrl, isHttpUrl, pickUpstreamUrl };
+module.exports = {
+  proxyInvoice,
+  normalizeUpstreamUrl,
+  isHttpUrl,
+  pickUpstreamUrl,
+  resolveRequestBody,
+};
