@@ -430,7 +430,7 @@ function renderKitchenToHtml(data, config) {
   const orderPart = orderId ? `Order# ${orderId}` : '';
   const orderBannerLine =
     orderPart && bannerLabel
-      ? `${orderPart}  ·  ${bannerLabel}`
+      ? `${orderPart} | ${bannerLabel}`
       : orderPart || bannerLabel;
   if (orderBannerLine) {
     parts.push(`<div class="center size-medium bold">${escapeHtml(orderBannerLine)}</div>`);

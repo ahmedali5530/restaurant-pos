@@ -47,12 +47,12 @@ function printKotHeader(printer, opts) {
   printCenteredText(printer, kitchenName || kotLabel, { style: 'bold-underline', size: 'medium' });
   printDivider(printer);
 
-  // One line: "Order# 42  ·  New Order" (or either part alone)
+  // One line: "Order# 42 | New Order" (ASCII separator only — middot garble on thermal printers)
   const orderPart = orderId ? `${orderNumberLabel} ${orderId}` : '';
   const bannerPart = bannerLabel ? String(bannerLabel) : '';
   let orderBannerLine = '';
   if (orderPart && bannerPart) {
-    orderBannerLine = `${orderPart}  ·  ${bannerPart}`;
+    orderBannerLine = `${orderPart} | ${bannerPart}`;
   } else {
     orderBannerLine = orderPart || bannerPart;
   }
