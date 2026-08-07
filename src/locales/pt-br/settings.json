@@ -138,6 +138,12 @@
   "visibilityConfig": {
     "title": "Configuração de visibilidade dos itens",
     "description": "Atualize a configuração deste dispositivo para exibir ou ocultar colunas dos itens. Aplica-se somente a este dispositivo.",
+    "menu": "Cardápio",
+    "enableDishSearch": "Ativar busca por número do prato no cardápio",
+    "showDishNumber": "Mostrar números do prato nos cartões do cardápio",
+    "dishSearchType": "Modo de busca de pratos",
+    "dishSearchTypeNumber": "Somente número",
+    "dishSearchTypeBoth": "Nome e número",
     "cart": "Carrinho",
     "showTotalsInCart": "Exibir totais dos itens no carrinho",
     "orders": "Pedidos",

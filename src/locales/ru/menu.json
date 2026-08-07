@@ -7,6 +7,11 @@
     "search": "Поиск",
     "split": "Разделить"
   },
+  "search": {
+    "placeholderNumber": "Введите номер блюда",
+    "placeholderBoth": "Поиск по номеру или названию",
+    "backspace": "Удалить"
+  },
   "header": {
     "newOrder": "Новый заказ",
     "orderNumber": "Заказ № {{number}}",

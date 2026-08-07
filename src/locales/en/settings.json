@@ -138,6 +138,12 @@
   "visibilityConfig": {
     "title": "Items visibility config",
     "description": "Update config for this device for which columns for items you want to show or hide. Only applies to this device.",
+    "menu": "Menu",
+    "enableDishSearch": "Enable dish number search on menu",
+    "showDishNumber": "Show dish numbers on menu tiles",
+    "dishSearchType": "Dish search mode",
+    "dishSearchTypeNumber": "Number only",
+    "dishSearchTypeBoth": "Name and number",
     "cart": "Cart",
     "showTotalsInCart": "Show totals for items in cart item",
     "orders": "Orders",

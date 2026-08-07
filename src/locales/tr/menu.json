@@ -7,6 +7,11 @@
     "search": "Ara",
     "split": "Böl"
   },
+  "search": {
+    "placeholderNumber": "Yemek numarasını girin",
+    "placeholderBoth": "Numara veya ada göre ara",
+    "backspace": "Geri sil"
+  },
   "header": {
     "newOrder": "Yeni Sipariş",
     "orderNumber": "Sipariş# {{number}}",

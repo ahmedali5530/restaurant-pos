@@ -138,6 +138,12 @@
   "visibilityConfig": {
     "title": "Konfiguration der Artikelsichtbarkeit",
     "description": "Konfiguration für dieses Gerät aktualisieren, welche Spalten für Artikel angezeigt oder ausgeblendet werden sollen. Gilt nur für dieses Gerät.",
+    "menu": "Menü",
+    "enableDishSearch": "Gerichtsnummernsuche im Menü aktivieren",
+    "showDishNumber": "Gerichtsnummern auf Menükacheln anzeigen",
+    "dishSearchType": "Gerichtssuchmodus",
+    "dishSearchTypeNumber": "Nur Nummer",
+    "dishSearchTypeBoth": "Name und Nummer",
     "cart": "Warenkorb",
     "showTotalsInCart": "Summen für Artikel im Warenkorb anzeigen",
     "orders": "Bestellungen",

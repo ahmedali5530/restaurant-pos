@@ -7,6 +7,11 @@
     "search": "بحث",
     "split": "تقسيم"
   },
+  "search": {
+    "placeholderNumber": "أدخل رقم الطبق",
+    "placeholderBoth": "البحث بالرقم أو الاسم",
+    "backspace": "رجوع"
+  },
   "header": {
     "newOrder": "طلب جديد",
     "orderNumber": "طلب رقم {{number}}",

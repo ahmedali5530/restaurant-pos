@@ -1,5 +1,4 @@
 import {Layout} from "@/screens/partials/layout.tsx";
-import {MenuCategories} from "@/components/menu/categories.tsx";
 import {MenuDishes} from "@/components/menu/dishes.tsx";
 import {MenuActions} from "@/components/menu/actions.tsx";
 import {MenuCart} from "@/components/cart/cart.tsx";
@@ -185,19 +184,16 @@ export const Menu = () => {
 
     return (
       <div className="grid grid-cols-[minmax(0,1fr)_440px] gap-3 pl-3 h-[100vh] overflow-hidden">
-        <div>
-          <div className="h-[70px] flex items-center gap-3 mb-3">
+        <div className="flex min-h-0 flex-col overflow-hidden">
+          <div className="mb-3 flex h-[70px] shrink-0 items-center gap-3">
             <MenuHeader/>
           </div>
-          <div className="mb-3 rounded-xl">
-            <MenuCategories/>
-          </div>
-          <div className="rounded-xl">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
             <MenuDishes/>
           </div>
-          <div className="mt-3 hidden">
+          {/*<div className="mt-3">
             <MenuActions/>
-          </div>
+          </div>*/}
         </div>
         <div className="bg-white rounded-xl flex flex-col h-full min-h-0 overflow-hidden">
           <MenuCart/>

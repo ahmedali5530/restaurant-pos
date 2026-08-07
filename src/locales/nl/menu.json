@@ -7,6 +7,11 @@
     "search": "Zoeken",
     "split": "Splitsen"
   },
+  "search": {
+    "placeholderNumber": "Voer gerechtnummer in",
+    "placeholderBoth": "Zoek op nummer of naam",
+    "backspace": "Backspace"
+  },
   "header": {
     "newOrder": "Nieuwe bestelling",
     "orderNumber": "Bestelling# {{number}}",

@@ -7,6 +7,11 @@
     "search": "Suchen",
     "split": "Aufteilen"
   },
+  "search": {
+    "placeholderNumber": "Gerichtsnummer eingeben",
+    "placeholderBoth": "Nach Nummer oder Name suchen",
+    "backspace": "Zurück"
+  },
   "header": {
     "newOrder": "Neue Bestellung",
     "orderNumber": "Bestellung# {{number}}",

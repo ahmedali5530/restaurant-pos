@@ -1089,7 +1089,7 @@ DEFINE FIELD voided_by ON inventory_purchase TYPE none | record<user> | null PER
 DEFINE FIELD tax_rate ON inventory_purchase TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD tax_amount ON inventory_purchase TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD extras ON inventory_purchase TYPE none | array | null PERMISSIONS FULL;
-DEFINE FIELD cost_allocation_snapshot ON inventory_purchase TYPE none | any | null PERMISSIONS FULL;
+DEFINE FIELD cost_allocation_snapshot ON inventory_purchase TYPE any PERMISSIONS FULL;
 
 DEFINE INDEX invoice_number ON inventory_purchase FIELDS invoice_number UNIQUE;
 

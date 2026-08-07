@@ -7,6 +7,11 @@
     "search": "Buscar",
     "split": "Dividir"
   },
+  "search": {
+    "placeholderNumber": "Digite o número do prato",
+    "placeholderBoth": "Buscar por número ou nome",
+    "backspace": "Apagar"
+  },
   "header": {
     "newOrder": "Novo Pedido",
     "orderNumber": "Pedido# {{number}}",

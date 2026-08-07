@@ -138,6 +138,12 @@
   "visibilityConfig": {
     "title": "Configurazione visibilità articoli",
     "description": "Aggiorna la configurazione di questo dispositivo per mostrare o nascondere le colonne degli articoli. Si applica solo a questo dispositivo.",
+    "menu": "Menu",
+    "enableDishSearch": "Abilita ricerca per numero piatto nel menu",
+    "showDishNumber": "Mostra numeri piatto sulle tessere del menu",
+    "dishSearchType": "Modalità ricerca piatti",
+    "dishSearchTypeNumber": "Solo numero",
+    "dishSearchTypeBoth": "Nome e numero",
     "cart": "Carrello",
     "showTotalsInCart": "Mostra totali articoli nel carrello",
     "orders": "Ordini",

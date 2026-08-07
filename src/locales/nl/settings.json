@@ -138,6 +138,12 @@
   "visibilityConfig": {
     "title": "Zichtbaarheid artikelen configureren",
     "description": "Werk de configuratie voor dit apparaat bij om te bepalen welke kolommen voor artikelen worden weergegeven of verborgen. Geldt alleen voor dit apparaat.",
+    "menu": "Menu",
+    "enableDishSearch": "Zoeken op gerechtnummer in menu inschakelen",
+    "showDishNumber": "Gerechtnummers tonen op menutegels",
+    "dishSearchType": "Zoekmodus gerechten",
+    "dishSearchTypeNumber": "Alleen nummer",
+    "dishSearchTypeBoth": "Naam en nummer",
     "cart": "Winkelwagen",
     "showTotalsInCart": "Totalen voor artikelen in winkelwagen weergeven",
     "orders": "Bestellingen",

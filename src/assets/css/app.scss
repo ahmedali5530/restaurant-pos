@@ -870,6 +870,36 @@ table th {
     box-sizing: border-box;
   }
 }
+/** When nested in flex column, fill remaining space instead of 100vh calc. */
+.flex-1 > .dishes-swiper,
+.min-h-0.flex-1 .dishes-swiper,
+.dishes-search-stack .dishes-swiper--search{
+  height: 100%;
+}
+/** Search mode: fill remaining column; keyboard natural size at bottom. */
+.dishes-search-stack{
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  overflow: hidden;
+}
+.dishes-search-stack .dishes-search-dishes{
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.dishes-search-stack .dishes-swiper--search{
+  flex: 1 1 auto;
+  height: 100% !important;
+  min-height: 0;
+}
+.dishes-search-keyboard{
+  flex: 0 0 auto;
+}
 .modifiers-swiper{
   height: calc(100vh - 140px);
   .swiper-slide{

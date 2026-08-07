@@ -138,6 +138,12 @@
   "visibilityConfig": {
     "title": "Ürün görünürlük ayarları",
     "description": "Bu cihaz için hangi ürün sütunlarının gösterileceğini veya gizleneceğini ayarlayın. Yalnızca bu cihaza uygulanır.",
+    "menu": "Menü",
+    "enableDishSearch": "Menüde yemek numarası aramasını etkinleştir",
+    "showDishNumber": "Menü kartlarında yemek numaralarını göster",
+    "dishSearchType": "Yemek arama modu",
+    "dishSearchTypeNumber": "Yalnızca numara",
+    "dishSearchTypeBoth": "Ad ve numara",
     "cart": "Sepet",
     "showTotalsInCart": "Sepetteki ürünlerin toplamlarını göster",
     "orders": "Siparişler",

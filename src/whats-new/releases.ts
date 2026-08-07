@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-08-06',
+    title: 'Menu dish number search',
+    items: [
+      'Optional dish search on the POS menu (Settings → Items visibility): enable search, choose number-only or name+number, and show or hide dish numbers on tiles.',
+      'Full QWERTY keyboard with digit keys sits under the dish grid; results filter live across all menu dishes as you type.',
+    ],
+  },
+  {
+    date: '2026-08-06',
     title: 'Copy KOT print with permission',
     items: [
       'Print a KOT copy from the orders screen (in progress and paid orders), routed to each kitchen\'s printers.',

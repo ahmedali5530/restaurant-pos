@@ -2,7 +2,7 @@ import {withCurrency} from "@/lib/utils.ts";
 import {Dish} from "@/api/model/dish.ts";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {useAtom} from "jotai";
-import {appSettings, appState} from "@/store/jotai.ts";
+import {appSettings, appState, appPage} from "@/store/jotai.ts";
 import {MenuDishModifiers} from "@/components/menu/modifiers.tsx";
 import {CartModifierGroup, MenuItem, MenuItemType} from "@/api/model/cart_item.ts";
 import {nanoid} from "nanoid";
@@ -46,7 +46,9 @@ export const MenuDish = ({
 }: Props) => {
   const [state] = useAtom(appState);
   const [{groups_dishes}] = useAtom(appSettings);
+  const [page] = useAtom(appPage);
   const db = useDB();
+  const showDishNumber = page.menuConfig?.showDishNumber !== false;
 
   const [modifiersModal, setModifiersModal] = useState(false);
   const [imageSrc, setImageSrc] = useState(defaultImage);
@@ -212,7 +214,15 @@ export const MenuDish = ({
               className="rounded-xl rounded-r-none pointer-events-none h-full w-[80px] xl:w-[110px] object-cover"/>
           </div>
           <div className="flex flex-1 flex-col px-3 py-2">
-            <span className="flex flex-row gap-2 mb-1">
+            <span className="flex flex-row gap-2 mb-1 flex-wrap">
+              {showDishNumber && item.number != null && String(item.number).trim() !== '' && (
+                <span
+                  className="bg-primary-100 text-primary-700 rounded-full border-2 border-primary-300 py-1 px-3 text-sm font-bold"
+                  title={String(item.number)}
+                >
+                  #{String(item.number).trim()}
+                </span>
+              )}
               <span
                 className="bg-neutral-900 text-warning-500 rounded-full border-2 border-warning-500 py-1 px-3 text-sm font-bold">{withCurrency(price)}</span>
             </span>

@@ -74,6 +74,8 @@ export const appState = atomWithStorage<AppStateInterface>(
   }
 );
 
+export type DishSearchType = 'number' | 'both';
+
 export interface MenuConfigInterface {
   showTotalInCart?: boolean
 
@@ -83,6 +85,12 @@ export interface MenuConfigInterface {
   showPriceInOrderCard?: boolean
   showModifierPriceInOrderCard?: boolean
   showModifiersInOrderCard?: boolean
+  /** Show touch dish search on the POS menu (this device). */
+  enableDishSearch?: boolean
+  /** Show #number badge on dish tiles. */
+  showDishNumber?: boolean
+  /** Search by dish number only, or by name and number. */
+  dishSearchType?: DishSearchType
 }
 
 export interface AppPageInterface {
@@ -115,7 +123,10 @@ export const appPage = atomWithStorage<AppPageInterface>(
       showQuantityInOrderCard: false,
       showPriceInOrderCard: false,
       showModifierPriceInOrderCard: false,
-      showModifiersInOrderCard: false
+      showModifiersInOrderCard: false,
+      enableDishSearch: false,
+      showDishNumber: true,
+      dishSearchType: 'number',
     }
   },
   createJSONStorage<AppPageInterface>(),

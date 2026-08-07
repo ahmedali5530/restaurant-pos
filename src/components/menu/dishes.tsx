@@ -2,26 +2,47 @@ import {Swiper, SwiperSlide} from "swiper/react";
 import _ from "lodash";
 import {cn} from "@/lib/utils.ts";
 import {useAtom} from "jotai";
-import {appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
-import {useEffect, useMemo} from "react";
+import {
+  appPage,
+  appSettings,
+  appState,
+  closingEnforcementAtom,
+  type DishSearchType,
+} from "@/store/jotai.ts";
+import {useEffect, useMemo, useState} from "react";
 import {useMediaQuery} from "react-responsive";
 import {MenuDish} from "@/components/menu/dish.tsx";
 import {CartModifierGroup, MenuItem} from "@/api/model/cart_item.ts";
 import {resolveMenuAwareData} from "@/lib/menu.resolver.ts";
 import {toast} from "sonner";
 import i18n from "@/lib/i18n.ts";
+import {useTranslation} from "react-i18next";
+import {Button} from "@/components/common/input/button.tsx";
+import {faSearch} from "@fortawesome/free-solid-svg-icons";
+import {MenuCategories} from "@/components/menu/categories.tsx";
+import {DishSearchKeyboard} from "@/components/menu/dish.search.keyboard.tsx";
 
 export const MenuDishes = () => {
+  const {t} = useTranslation('menu');
   const isTablet = useMediaQuery({maxWidth: 1024});
-
-  const ITEMS_PER_SLIDE = useMemo(() => {
-    return isTablet ? 15 : 20;
-  }, [isTablet]);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchBuffer, setSearchBuffer] = useState('');
 
   const [state, setState] = useAtom(appState);
   const [settings] = useAtom(appSettings);
+  const [page] = useAtom(appPage);
   const [enforcement] = useAtom(closingEnforcementAtom);
   const orderTakingBlocked = enforcement.orderTakingBlocked;
+  const enableDishSearch = !!page.menuConfig?.enableDishSearch;
+  const dishSearchType: DishSearchType = page.menuConfig?.dishSearchType ?? 'number';
+
+  const ITEMS_PER_SLIDE = useMemo(() => {
+    if (searchOpen && enableDishSearch) {
+      return isTablet ? 9 : 12;
+    }
+    return isTablet ? 15 : 20;
+  }, [isTablet, searchOpen, enableDishSearch]);
+
   const {dishes: allDishes} = useMemo(() => (
     resolveMenuAwareData({
       categories: settings.categories,
@@ -30,17 +51,38 @@ export const MenuDishes = () => {
     })
   ), [settings.categories, settings.dishes, settings.menus]);
 
-  const dishes = useMemo(() => {
+  const categoryDishes = useMemo(() => {
     if (state.category) {
       return allDishes?.filter(item =>
         item.categories.filter(cat => cat.id.toString() === state?.category?.id.toString()).length > 0
-      );
+      ) || [];
     }
 
     return allDishes || [];
   }, [allDishes, state.category]);
 
-  const slides = Math.ceil(dishes?.length / (ITEMS_PER_SLIDE));
+  const dishes = useMemo(() => {
+    if (!searchOpen || !enableDishSearch) {
+      return categoryDishes;
+    }
+    const buffer = searchBuffer.trim();
+    if (!buffer) {
+      return allDishes || [];
+    }
+    const q = buffer.toLowerCase();
+    return (allDishes || []).filter(item => {
+      const number = String(item.number ?? '').trim();
+      const numberMatch = number.startsWith(buffer) || number.toLowerCase().startsWith(q);
+      if (dishSearchType === 'number') {
+        return numberMatch;
+      }
+      const nameMatch = (item.name ?? '').toLowerCase().includes(q);
+      return numberMatch || nameMatch;
+    });
+  }, [searchOpen, enableDishSearch, searchBuffer, allDishes, categoryDishes, dishSearchType]);
+
+  const slides = Math.ceil((dishes?.length || 0) / ITEMS_PER_SLIDE) || 1;
+  const isSearchMode = enableDishSearch && searchOpen;
 
   const onClick = (item: MenuItem, selectedGroups?: CartModifierGroup[]) => {
     if (orderTakingBlocked) {
@@ -58,43 +100,101 @@ export const MenuDishes = () => {
         ...prev.cart,
       ]
     }));
-  }
+  };
+
+  const toggleSearch = () => {
+    setSearchOpen(prev => {
+      if (prev) {
+        setSearchBuffer('');
+      }
+      return !prev;
+    });
+  };
+
+  useEffect(() => {
+    if (!enableDishSearch && searchOpen) {
+      setSearchOpen(false);
+      setSearchBuffer('');
+    }
+  }, [enableDishSearch, searchOpen]);
 
   useEffect(() => {
     return () => {
       setState(prev => ({
         ...prev,
         category: undefined
-      }))
-    }
+      }));
+    };
   }, []);
 
+  const dishGrid = (
+    <Swiper
+      slidesPerView={1}
+      className={cn(
+        "dishes-swiper",
+        isSearchMode && "dishes-swiper--search",
+        orderTakingBlocked && "opacity-50 pointer-events-none"
+      )}
+      direction="vertical"
+    >
+      {_.range(0, slides).map(rowId => (
+        <SwiperSlide
+          key={rowId}
+          className={cn(
+            "!grid sm:grid-cols-3 md:grid-cols-4 md:grid-rows-5 sm:grid-rows-4",
+            isSearchMode && "md:grid-rows-3 sm:grid-rows-3"
+          )}
+        >
+          {dishes.slice(rowId * ITEMS_PER_SLIDE, ((rowId * ITEMS_PER_SLIDE) + ITEMS_PER_SLIDE)).map((item) => (
+            <MenuDish
+              onClick={onClick}
+              item={item}
+              key={item.id?.toString() ?? item.number}
+              level={0}
+              price={item.price}
+            />
+          ))}
+        </SwiperSlide>
+      ))}
+    </Swiper>
+  );
+
   return (
-    <>
-      <Swiper
-        slidesPerView={1}
-        className={cn("dishes-swiper", orderTakingBlocked && "opacity-50 pointer-events-none")}
-        direction="vertical"
-      >
-        {_.range(0, slides).map(rowId => (
-          <SwiperSlide
-            key={rowId}
-            className={cn(
-              "!grid sm:grid-cols-3 md:grid-cols-4 md:grid-rows-5 sm:grid-rows-4"
-            )}
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="mb-3 flex shrink-0 items-center gap-2">
+        <div className="min-w-0 flex-1 rounded-xl">
+          <MenuCategories/>
+        </div>
+        {enableDishSearch && (
+          <Button
+            size="lg"
+            variant="primary"
+            icon={faSearch}
+            active={searchOpen}
+            onClick={toggleSearch}
+            className="flex-shrink-0 h-[56px]"
           >
-            {dishes.slice(rowId * ITEMS_PER_SLIDE, ((rowId * ITEMS_PER_SLIDE) + ITEMS_PER_SLIDE)).map((item, index) => (
-              <MenuDish
-                onClick={onClick}
-                item={item}
-                key={index}
-                level={0}
-                price={item.price}
-              />
-            ))}
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    </>
-  )
-}
+            {t('actions.search')}
+          </Button>
+        )}
+      </div>
+
+      {isSearchMode ? (
+        <div className="dishes-search-stack">
+          <div className="dishes-search-dishes min-w-0 rounded-xl">
+            {dishGrid}
+          </div>
+          <DishSearchKeyboard
+            value={searchBuffer}
+            onChange={setSearchBuffer}
+            searchType={dishSearchType}
+          />
+        </div>
+      ) : (
+        <div className="min-h-0 flex-1 rounded-xl">
+          {dishGrid}
+        </div>
+      )}
+    </div>
+  );
+};

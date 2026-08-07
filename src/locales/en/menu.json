@@ -7,6 +7,11 @@
     "search": "Search",
     "split": "Split"
   },
+  "search": {
+    "placeholderNumber": "Enter dish number",
+    "placeholderBoth": "Search by number or name",
+    "backspace": "Backspace"
+  },
   "header": {
     "newOrder": "New Order",
     "orderNumber": "Order# {{number}}",

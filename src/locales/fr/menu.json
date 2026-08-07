@@ -7,6 +7,11 @@
     "search": "Rechercher",
     "split": "Diviser"
   },
+  "search": {
+    "placeholderNumber": "Saisir le numéro du plat",
+    "placeholderBoth": "Rechercher par numéro ou nom",
+    "backspace": "Retour"
+  },
   "header": {
     "newOrder": "Nouvelle commande",
     "orderNumber": "Commande n° {{number}}",
