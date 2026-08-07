@@ -426,12 +426,27 @@ function renderKitchenToHtml(data, config) {
   if (brandingHeader) parts.push(brandingHeader);
   parts.push(`<div class="title size-medium">${escapeHtml(kitchenName)}</div>`);
   parts.push('<hr/>');
-  parts.push(`<div class="center size-medium bold">${escapeHtml(isAddOn ? 'ADDON' : 'New Order')}</div>`);
-  if (orderId) parts.push(`<div class="center size-medium bold">Order# ${escapeHtml(orderId)}</div>`);
-  if (table) parts.push(`<div class="row"><span>Table:</span><span>${escapeHtml(table)}</span></div>`);
-  if (orderType) parts.push(`<div class="row"><span>Order Type:</span><span>${escapeHtml(orderType)}</span></div>`);
-  if (orderTaker) parts.push(`<div class="row"><span>Order Taker:</span><span>${escapeHtml(orderTaker)}</span></div>`);
-  parts.push(`<div class="row"><span>Time:</span><span>${escapeHtml(createdAt)}</span></div>`);
+  const bannerLabel = isAddOn ? 'ADDON' : 'New Order';
+  const orderPart = orderId ? `Order# ${orderId}` : '';
+  const orderBannerLine =
+    orderPart && bannerLabel
+      ? `${orderPart}  ·  ${bannerLabel}`
+      : orderPart || bannerLabel;
+  if (orderBannerLine) {
+    parts.push(`<div class="center size-medium bold">${escapeHtml(orderBannerLine)}</div>`);
+  }
+  if (table || orderType) {
+    parts.push(
+      `<div class="row"><span>${table ? `Table: ${escapeHtml(table)}` : ''}</span>` +
+        `<span>${orderType ? `Order Type: ${escapeHtml(orderType)}` : ''}</span></div>`
+    );
+  }
+  if (orderTaker || createdAt) {
+    parts.push(
+      `<div class="row"><span>${orderTaker ? `Order Taker: ${escapeHtml(orderTaker)}` : ''}</span>` +
+        `<span>${createdAt ? `Time: ${escapeHtml(createdAt)}` : ''}</span></div>`
+    );
+  }
   parts.push('<hr/>');
   items.forEach((it) => {
     const dish = it.item || it.dish || {};
@@ -449,6 +464,9 @@ function renderKitchenToHtml(data, config) {
     body { margin: 0; padding: 16px; background: #f0f0f0; font-family: 'Courier New', Consolas, monospace; }
     .receipt { width: 280px; margin: 0 auto; padding: 12px; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.15); font-size: 12px; line-height: 1.4; }
     .title { text-align: center; font-weight: bold; margin-bottom: 8px; }
+    .center { text-align: center; }
+    .bold { font-weight: bold; }
+    .size-medium { font-size: 14px; }
     .row { display: flex; justify-content: space-between; gap: 12px; }
     .indent { padding-left: 8px; }
     hr { border: none; border-top: 1px dashed #333; margin: 6px 0; }

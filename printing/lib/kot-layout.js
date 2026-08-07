@@ -3,6 +3,7 @@
 const {
   printCenteredText,
   printFixedLine,
+  printLineLeftRight,
   hardResetLayout,
   printDivider,
 } = require('./receipt-helpers');
@@ -46,16 +47,31 @@ function printKotHeader(printer, opts) {
   printCenteredText(printer, kitchenName || kotLabel, { style: 'bold-underline', size: 'medium' });
   printDivider(printer);
 
-  if (bannerLabel) {
-    printCenteredText(printer, bannerLabel, { style: 'bold', size: 'medium' });
+  // One line: "Order# 42  ·  New Order" (or either part alone)
+  const orderPart = orderId ? `${orderNumberLabel} ${orderId}` : '';
+  const bannerPart = bannerLabel ? String(bannerLabel) : '';
+  let orderBannerLine = '';
+  if (orderPart && bannerPart) {
+    orderBannerLine = `${orderPart}  ·  ${bannerPart}`;
+  } else {
+    orderBannerLine = orderPart || bannerPart;
   }
-  if (orderId) {
-    printCenteredText(printer, `${orderNumberLabel} ${orderId}`, { style: 'bold', size: 'medium' });
+  if (orderBannerLine) {
+    printCenteredText(printer, orderBannerLine, { style: 'bold', size: 'medium' });
   }
-  if (table) printFixedLine(printer, `${tableLabel}: ${table}`, { align: 'left' });
-  if (orderType) printFixedLine(printer, `${orderTypeLabel}: ${orderType}`, { align: 'left' });
-  if (orderTaker) printFixedLine(printer, `${orderTakerLabel}: ${orderTaker}`, { align: 'left' });
-  printFixedLine(printer, `${timeLabel}: ${createdAt}`, { align: 'left' });
+
+  // Two meta lines: Table | Order Type, Order Taker | Time
+  const tableLeft = table ? `${tableLabel}: ${table}` : '';
+  const typeRight = orderType ? `${orderTypeLabel}: ${orderType}` : '';
+  if (tableLeft || typeRight) {
+    printLineLeftRight(printer, tableLeft, typeRight);
+  }
+
+  const takerLeft = orderTaker ? `${orderTakerLabel}: ${orderTaker}` : '';
+  const timeRight = createdAt != null && createdAt !== '' ? `${timeLabel}: ${createdAt}` : '';
+  if (takerLeft || timeRight) {
+    printLineLeftRight(printer, takerLeft, timeRight);
+  }
 
   extraLines.forEach((line) => {
     if (line && line.value) {
