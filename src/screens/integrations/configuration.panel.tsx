@@ -206,7 +206,13 @@ export const ConfigurationPanel = ({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-          {fields.map((field) => (
+          {fields
+            .filter((field) => {
+              if (!field.dependsOn) return true;
+              const current = formValues[field.dependsOn.field];
+              return current === field.dependsOn.equals;
+            })
+            .map((field) => (
             <div key={field.key}>
               {field.type !== 'switch' && field.type !== 'checkbox' && (
                 <label className="block text-sm font-medium mb-1">{field.label}</label>

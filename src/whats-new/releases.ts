@@ -8,6 +8,13 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-08-08',
+    title: 'Event Logger integration',
+    items: [
+      'New Event Logger provider logs all integration events to the browser console by default, or to an HTTP API with bearer, API key, basic, or JWT authentication.',
+    ],
+  },
+  {
+    date: '2026-08-08',
     title: 'Integration event emission',
     items: [
       'Domain operations now publish integration events (sales, payments, inventory, HR, accounts, and master-data EntityChanged) so future providers and a logger can plug in without rewiring POS screens.',

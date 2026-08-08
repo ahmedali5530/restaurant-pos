@@ -168,6 +168,25 @@ Publish with `entityAfterWrite` / `emitEntityCrudSave` / `publishEntityChanged`.
 - Implement `handleEvent(event)` — payload is self-describing; no domain coupling.
 - Do not block the POS thread with slow I/O; prefer queue actions if needed.
 
+### Built-in Event Logger (`provider:event-logger`)
+
+Bundled provider under `src/integrations/providers/logging/`.
+
+| Setting | Purpose |
+|---------|---------|
+| Destination | `console` (default) or `http` |
+| Event filter | `all` · `entityOnly` · `businessOnly` |
+| includePayload | Include full event payload in the log body |
+| HTTP endpoint / method | Target URL (POST or PUT) |
+| Auth type | `none` · `bearer` · `apiKey` · `basic` · `jwt` |
+
+- Subscribes with `supportedEvents: ['*']` so every published integration event is eligible.
+- Console path: `console.log('[EventLogger]', …)`.
+- HTTP path: JSON body `{ event, loggedAt }` via `TransportRouter`, with auth headers from config. Failures are warned and health becomes `degraded`; they do not throw into POS flows.
+- Enable from **Integrations** and save configuration. Secrets use encrypted password fields.
+
+Emit with `entityAfterWrite` / other publishers remains independent of this sink.
+
 ### Emission matrix (selected)
 
 | Event | Source hooks |
