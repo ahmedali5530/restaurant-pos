@@ -5,6 +5,7 @@ const {
   printReceiptHeader,
   printFooterSections,
   feedBottomMargin,
+  printPrintingTimestamp,
 } = require('../lib/receipt-helpers');
 
 function isCell(v) {
@@ -106,6 +107,7 @@ function build(printer, data = {}, config = {}) {
     return printFooterSections(printer, cfg).then(() => {
       feedBottomMargin(printer, cfg);
       if (feed > 0) printer.feed(feed);
+      printPrintingTimestamp(printer, cfg);
       if (shouldCut) printer.cut();
       return printer;
     });

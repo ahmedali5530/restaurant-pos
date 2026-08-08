@@ -4,8 +4,15 @@ const escpos = require('escpos');
 const Image = escpos.Image;
 
 const PRINTER_WIDTH = 42;
-/** Max image width for store logo / header-footer (≈58–80mm thermal-friendly). */
+/**
+ * Printable bit-image width for ESC $ horizontal positioning (80mm @ ~180–203 dpi).
+ * 58mm printers typically clamp positions past ~384; centering a 150px logo still lands correctly.
+ */
+const PAPER_IMAGE_WIDTH_PX = 576;
+/** Max content width when scaling full-bleed images (safe for 58mm). */
 const MAX_IMAGE_WIDTH_PX = 384;
+/** Store logo + header/footer + provider logos: fixed contain box (no stretch). */
+const STORE_LOGO_BOX_PX = 150;
 /** @deprecated use MAX_IMAGE_WIDTH_PX */
 const MAX_LOGO_WIDTH_PX = MAX_IMAGE_WIDTH_PX;
 
@@ -57,6 +64,42 @@ function detectImageMime(buf) {
 }
 
 /**
+ * Coerce Surreal / JSON byte shapes into a Buffer.
+ * Handles Buffer, TypedArray, ArrayBuffer, number[], { type:'Buffer', data:[] }, numeric-key objects.
+ * @param {*} input
+ * @returns {Buffer|null}
+ */
+function coerceToImageBuffer(input) {
+  if (input == null || input === '') return null;
+  if (Buffer.isBuffer(input)) return input.length ? input : null;
+  if (input instanceof Uint8Array) return input.length ? Buffer.from(input) : null;
+  if (input instanceof ArrayBuffer) return input.byteLength ? Buffer.from(input) : null;
+  if (Array.isArray(input)) {
+    if (!input.length) return null;
+    if (typeof input[0] === 'number') return Buffer.from(input);
+    return null;
+  }
+  if (typeof input === 'object') {
+    if (Array.isArray(input.data) && (input.type === 'Buffer' || input.type === 'buffer')) {
+      return input.data.length ? Buffer.from(input.data) : null;
+    }
+    const keys = Object.keys(input);
+    if (
+      keys.length > 0 &&
+      keys.every((k) => /^\d+$/.test(k)) &&
+      keys.every((k) => typeof input[k] === 'number')
+    ) {
+      const arr = keys
+        .map((k) => Number(k))
+        .sort((a, b) => a - b)
+        .map((k) => input[k]);
+      return arr.length ? Buffer.from(arr) : null;
+    }
+  }
+  return null;
+}
+
+/**
  * Decode data URI / base64 / Buffer / byte array into Buffer + mime.
  * @param {*} input
  * @returns {{ buf: Buffer, mime: string } | null}
@@ -64,24 +107,9 @@ function detectImageMime(buf) {
 function decodeImageInput(input) {
   if (input == null || input === '') return null;
 
-  if (Buffer.isBuffer(input)) {
-    if (!input.length) return null;
-    return { buf: input, mime: detectImageMime(input) };
-  }
-  if (input instanceof Uint8Array) {
-    const buf = Buffer.from(input);
-    if (!buf.length) return null;
-    return { buf, mime: detectImageMime(buf) };
-  }
-  if (input instanceof ArrayBuffer) {
-    const buf = Buffer.from(input);
-    if (!buf.length) return null;
-    return { buf, mime: detectImageMime(buf) };
-  }
-  if (Array.isArray(input)) {
-    const buf = Buffer.from(input);
-    if (!buf.length) return null;
-    return { buf, mime: detectImageMime(buf) };
+  const coerced = coerceToImageBuffer(input);
+  if (coerced) {
+    return { buf: coerced, mime: detectImageMime(coerced) };
   }
 
   if (typeof input !== 'string') return null;
@@ -125,14 +153,21 @@ function normalizeSection(section) {
   const align = ['left', 'center', 'right'].includes(section.align) ? section.align : 'center';
   const size = ['normal', 'medium', 'large'].includes(section.size) ? section.size : 'normal';
   const type = section.type === 'image' ? 'image' : 'text';
+  let content;
+  if (type === 'image') {
+    content = normalizeLogo(section.content) || '';
+    if (section.enabled !== false && section.content && !content) {
+      console.warn('[print] image section content empty after normalize');
+    }
+  } else {
+    content = String(section.content || '').slice(0, PRINTER_WIDTH);
+  }
   return {
     enabled: section.enabled !== false,
     type,
     align,
     size,
-    content: type === 'image'
-      ? (normalizeLogo(section.content) || '')
-      : String(section.content || '').slice(0, PRINTER_WIDTH),
+    content,
   };
 }
 
@@ -363,17 +398,21 @@ function applyMargins(printer, config) {
 }
 
 /**
- * Resize/re-encode image for thermal: max width, width multiple of 8, white bg, optional mono.
+ * Resize/re-encode image for thermal.
+ * - boxSize: tight N×N contain square (no stretch). Horizontal center is done at print via ESC $.
+ * - maxWidth only: scale preserving aspect, pad width to multiple of 8
  * Always returns PNG so get-pixels / escpos Image.load get a consistent format.
  * @param {Buffer} buf
  * @param {string} [mime]
- * @param {{ maxWidth?: number, forceMono?: boolean }} [opts]
+ * @param {{ maxWidth?: number, forceMono?: boolean, boxSize?: number, paperWidth?: number, hAlign?: string }} [opts]
  * @returns {Promise<Buffer|null>}
  */
 function prepareImageForPrint(buf, mime, opts) {
   const options = opts || {};
   const maxWidth = Math.max(8, options.maxWidth || MAX_IMAGE_WIDTH_PX);
   const forceMono = options.forceMono !== false;
+  const boxSize = options.boxSize != null ? Math.max(8, Number(options.boxSize) || 0) : 0;
+  const hAlign = options.hAlign === 'left' || options.hAlign === 'right' ? options.hAlign : 'center';
 
   return new Promise((resolve) => {
     try {
@@ -384,6 +423,21 @@ function prepareImageForPrint(buf, mime, opts) {
             resolve(null);
             return;
           }
+
+          if (boxSize > 0) {
+            // Tight square only — padding left/right white on a full paper canvas left-aligns
+            // on 80mm printers (paper wider than 384). Centering is applyAbsoluteHorizontalPosition.
+            const side = Math.max(8, Math.ceil(boxSize / 8) * 8);
+            const canvas = createCanvas(side, side);
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, side, side);
+            drawContainInSquare(ctx, img, 0, 0, side);
+            if (forceMono) forceCanvasMono(ctx, side, side);
+            resolve(canvas.toBuffer('image/png'));
+            return;
+          }
+
           let outW = img.width;
           let outH = img.height;
           if (outW > maxWidth) {
@@ -391,13 +445,15 @@ function prepareImageForPrint(buf, mime, opts) {
             outW = maxWidth;
             outH = Math.max(1, Math.round(img.height * scale));
           }
-          // ESC/POS bit-image / raster expects width as multiple of 8
           const canvasW = Math.max(8, Math.ceil(outW / 8) * 8);
           const canvas = createCanvas(canvasW, outH);
           const ctx = canvas.getContext('2d');
           ctx.fillStyle = '#ffffff';
           ctx.fillRect(0, 0, canvasW, outH);
-          const dx = Math.floor((canvasW - outW) / 2);
+          // Image starts at left of its own canvas; print time ESC $ does centering
+          let dx = 0;
+          if (hAlign === 'center') dx = Math.floor((canvasW - outW) / 2);
+          else if (hAlign === 'right') dx = canvasW - outW;
           ctx.drawImage(img, dx, 0, outW, outH);
           if (forceMono) forceCanvasMono(ctx, canvasW, outH);
           resolve(canvas.toBuffer('image/png'));
@@ -414,14 +470,33 @@ function prepareImageForPrint(buf, mime, opts) {
 }
 
 /**
- * Print image from base64, data URI, Buffer, or byte array via unified D24 pipeline.
+ * Print store / header / footer image: 150×150 contain, paper-padded, D24.
  * @param {Object} printer - escpos Printer
  * @param {*} logo
- * @param {{ align?: string }} opts
+ * @param {{ align?: string, hAlign?: string }} opts
  * @returns {Promise<void>}
  */
 function printLogo(printer, logo, opts) {
-  return printEscposImage(printer, logo, opts).then(() => {});
+  const options = opts || {};
+  const hAlign = options.hAlign || options.align || 'center';
+  return printEscposImage(printer, logo, {
+    boxSize: STORE_LOGO_BOX_PX,
+    paperWidth: PAPER_IMAGE_WIDTH_PX,
+    hAlign,
+    align: 'lt',
+    forceMono: true,
+  }).then((ok) => {
+    if (ok) {
+      try {
+        hardResetLayout(printer);
+        if (typeof printer.feed === 'function') printer.feed(1);
+      } catch (e) {
+        // ignore
+      }
+    } else {
+      console.warn('[print] printLogo failed');
+    }
+  });
 }
 
 /**
@@ -432,6 +507,63 @@ function printLogo(printer, logo, opts) {
 function printVatLine(printer, config) {
   if (!config.showVatNumber || !config.vatNumber) return;
   printCenteredText(printer, `${config.vatName}: ${config.vatNumber}`);
+}
+
+/**
+ * Format current print time like the final bill footer (app timezone + locale).
+ * @param {Object} [config]
+ * @returns {string}
+ */
+function formatPrintingTimestamp(config) {
+  const cfg = config || {};
+  const now = new Date();
+  const locale = cfg.locale || 'en-US';
+  const formatOpts = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  };
+  if (cfg.timezone) formatOpts.timeZone = cfg.timezone;
+  try {
+    return now.toLocaleString(locale, formatOpts);
+  } catch (e) {
+    try {
+      return now.toLocaleString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+      });
+    } catch (e2) {
+      return now.toISOString();
+    }
+  }
+}
+
+/**
+ * Centered print timestamp at bottom of receipts (matches final bill).
+ * @param {Object} printer
+ * @param {Object} [config]
+ */
+function printPrintingTimestamp(printer, config) {
+  const ts = formatPrintingTimestamp(config);
+  if (!ts) return;
+  try {
+    if (typeof printer.feed === 'function') printer.feed(2);
+  } catch (e) {
+    // ignore
+  }
+  printCenteredText(printer, ts);
+  try {
+    if (typeof printer.feed === 'function') printer.feed(2);
+  } catch (e) {
+    // ignore
+  }
 }
 
 /**
@@ -456,8 +588,13 @@ function printSections(printer, sections) {
 
   list.forEach((section) => {
     chain = chain.then(() => {
-      if (section.type === 'image' && section.content) {
-        return printLogo(printer, section.content, { align: section.align });
+      if (section.type === 'image') {
+        if (!section.content) {
+          console.warn('[print] skipping empty image section');
+          return Promise.resolve();
+        }
+        // Same pipeline as store logo: 150×150 contain + paper pad + feed after
+        return printLogo(printer, section.content, { align: section.align, hAlign: section.align });
       }
       if (section.type === 'text' && section.content) {
         printAlignedText(printer, section.content, section.align, {
@@ -629,11 +766,11 @@ function sendCashDrawerPulse(printer) {
   printer.buffer.write('\x1B\x70\x00\x19\xFA');
 }
 
-const FISCAL_LOGO_PX = 120;
-const FISCAL_QR_PX = 120;
+const FISCAL_LOGO_PX = STORE_LOGO_BOX_PX;
+const FISCAL_QR_PX = 150;
 const FISCAL_QR_GAP_PX = 12;
 /** Target total strip width (≈58mm @ ~203dpi). Padded so GS v0 / bitmaps centre better. */
-const FISCAL_STRIP_WIDTH_PX = 384;
+const FISCAL_STRIP_WIDTH_PX = PAPER_IMAGE_WIDTH_PX;
 
 /**
  * Decode data URI / raw base64 into a Buffer + mime.
@@ -794,13 +931,42 @@ function composeFiscalQrRowBuffer(qrValue, logoDataUri) {
 }
 
 /**
+ * ESC $ nL nH — absolute horizontal print position (in dots).
+ * Required so bit-images can sit in the center of the paper (ESC a does not move graphics on most firmware).
+ * @param {Object} printer
+ * @param {number} dots
+ */
+function setAbsoluteHorizontalPosition(printer, dots) {
+  const n = Math.max(0, Math.min(65535, Math.floor(Number(dots) || 0)));
+  try {
+    printer.buffer.write('\x1b\x24');
+    printer.buffer.writeUInt16LE(n);
+  } catch (e) {
+    // ignore
+  }
+}
+
+/**
  * Synchronous ESC * d24 bit-image write (double density, correct aspect ratio).
  * m=33 = 24-dot double density (~180 dpi H and V). m=32 (s24) is single density
  * horizontally (~90 dpi) and stretches images ~2× wide.
+ * Horizontally centers (or left/right) via ESC $ on each strip — bitmaps always start
+ * at the current print head position, and white canvas padding alone is wrong for 80mm paper.
  * @param {Object} printer
  * @param {Object} image - escpos Image instance
+ * @param {{ paperWidth?: number, hAlign?: string }} [opts]
  */
-function writeBitmapD24(printer, image) {
+function writeBitmapD24(printer, image, opts) {
+  const options = opts || {};
+  const paperWidth = Math.max(8, options.paperWidth || PAPER_IMAGE_WIDTH_PX);
+  const hAlign = options.hAlign === 'left' || options.hAlign === 'right' ? options.hAlign : 'center';
+  const imgW = image && image.size && image.size.width ? image.size.width : 0;
+  let offset = 0;
+  if (imgW > 0 && paperWidth > imgW) {
+    if (hAlign === 'center') offset = Math.floor((paperWidth - imgW) / 2);
+    else if (hAlign === 'right') offset = paperWidth - imgW;
+  }
+
   const header = '\x1b\x2a\x21'; // ESC * 33 (24-dot double density)
   const n = 3;
   const bitmap = image.toBitmap(24);
@@ -810,11 +976,14 @@ function writeBitmapD24(printer, image) {
     // ignore
   }
   bitmap.data.forEach((line) => {
+    // Re-position every band — LF returns head to left margin
+    if (offset > 0) setAbsoluteHorizontalPosition(printer, offset);
     printer.buffer.write(header);
     printer.buffer.writeUInt16LE(line.length / n);
     printer.buffer.write(line);
     printer.buffer.write('\n');
   });
+  setAbsoluteHorizontalPosition(printer, 0);
   try {
     if (typeof printer.lineSpace === 'function') printer.lineSpace();
   } catch (e) {
@@ -862,7 +1031,7 @@ function loadEscposImage(buf, mime) {
  * Unified ESC/POS image print: decode → prepare → D24 bit-image (raster fallback).
  * @param {Object} printer
  * @param {*} input - data URI, base64, Buffer, byte array
- * @param {{ align?: string, maxWidth?: number, forceMono?: boolean, mime?: string, skipPrepare?: boolean }} [opts]
+ * @param {{ align?: string, maxWidth?: number, forceMono?: boolean, mime?: string, skipPrepare?: boolean, boxSize?: number, paperWidth?: number, hAlign?: string }} [opts]
  * @returns {Promise<boolean>}
  */
 async function printEscposImage(printer, input, opts) {
@@ -890,6 +1059,9 @@ async function printEscposImage(printer, input, opts) {
     pngBuf = await prepareImageForPrint(buf, mime, {
       maxWidth: options.maxWidth || MAX_IMAGE_WIDTH_PX,
       forceMono: options.forceMono !== false,
+      boxSize: options.boxSize,
+      paperWidth: options.paperWidth || PAPER_IMAGE_WIDTH_PX,
+      hAlign: options.hAlign || 'center',
     });
     if (!pngBuf || !pngBuf.length) {
       console.warn('[print] printEscposImage: prepare failed');
@@ -910,7 +1082,10 @@ async function printEscposImage(printer, input, opts) {
 
     let wrote = false;
     try {
-      writeBitmapD24(printer, img);
+      writeBitmapD24(printer, img, {
+        paperWidth: options.paperWidth || PAPER_IMAGE_WIDTH_PX,
+        hAlign: options.hAlign || 'center',
+      });
       wrote = true;
     } catch (e) {
       console.warn('[print] D24 bitmap failed', e && e.message);
@@ -942,7 +1117,7 @@ async function printEscposImage(printer, input, opts) {
 }
 
 /**
- * Print a PNG/JPEG buffer via unified pipeline.
+ * Print a PNG/JPEG buffer via unified box pipeline.
  * @param {Object} printer
  * @param {Buffer} buf
  * @param {string} [mime='image/png']
@@ -953,13 +1128,84 @@ async function printImageBuffer(printer, buf, mime) {
   return printEscposImage(printer, buf, {
     mime: mime || detectImageMime(buf),
     align: 'lt',
-    // Fiscal strips are already composed mono; still run prepare for width pad
+    boxSize: STORE_LOGO_BOX_PX,
+    paperWidth: PAPER_IMAGE_WIDTH_PX,
+    hAlign: 'center',
     forceMono: true,
   });
 }
 
 /**
- * Fiscal QR row: logo | QR side by side.
+ * Print QR via native escpos, or QR PNG + same image pipeline as logos.
+ * @param {Object} printer
+ * @param {string} qrValue
+ * @returns {Promise<boolean>}
+ */
+async function printFiscalQrOnly(printer, qrValue) {
+  if (!qrValue) return false;
+
+  // Prefer raster QR image so it uses the same reliable D24 path when native fails
+  try {
+    const qr = require('qr-image');
+    const qrPng = qr.imageSync(String(qrValue), { type: 'png', size: 6, margin: 1 });
+    const ok = await printEscposImage(printer, qrPng, {
+      mime: 'image/png',
+      align: 'lt',
+      boxSize: FISCAL_QR_PX,
+      paperWidth: PAPER_IMAGE_WIDTH_PX,
+      hAlign: 'center',
+      forceMono: true,
+    });
+    if (ok) {
+      try {
+        hardResetLayout(printer);
+        if (typeof printer.feed === 'function') printer.feed(1);
+      } catch (e) {
+        // ignore
+      }
+      return true;
+    }
+  } catch (e) {
+    console.warn('[print] QR PNG path failed', e && e.message);
+  }
+
+  // Native fallback
+  return new Promise((resolve) => {
+    let settled = false;
+    const done = (ok) => {
+      if (settled) return;
+      settled = true;
+      try {
+        hardResetLayout(printer);
+      } catch (e) {
+        // ignore
+      }
+      resolve(Boolean(ok));
+    };
+    try {
+      hardResetLayout(printer);
+      if (typeof printer.qrimage === 'function') {
+        printer.align('ct').qrimage(qrValue, { type: 'png', mode: 'normal', size: 3, margin: 1 }, () => done(true));
+        setTimeout(() => done(true), 2500);
+        return;
+      }
+    } catch (e) {
+      // fall through
+    }
+    try {
+      hardResetLayout(printer);
+      printer.align('ct').qrcode(qrValue, undefined, 'M', 4);
+      done(true);
+      return;
+    } catch (e) {
+      console.warn('[print] native QR failed', e && e.message);
+    }
+    done(false);
+  });
+}
+
+/**
+ * Fiscal QR: provider logo then QR on consecutive lines (same image path as store logo).
  * @param {Object} printer
  * @param {string} qrValue
  * @param {string} [logoDataUri]
@@ -969,102 +1215,48 @@ async function printFiscalQrRow(printer, qrValue, logoDataUri) {
   if (!qrValue) return false;
   const hasLogo = Boolean(logoDataUri && String(logoDataUri).trim());
   console.info(
-    '[print] fiscal QR row',
-    hasLogo ? `with logo (${String(logoDataUri).length} chars)` : 'without logo',
+    '[print] fiscal stacked',
+    hasLogo ? `logo then QR (${String(logoDataUri).length} chars)` : 'QR only',
     'value=',
     String(qrValue).slice(0, 32)
   );
 
-  const buf = await composeFiscalQrRowBuffer(qrValue, logoDataUri);
-  if (!buf) {
-    console.warn('[print] fiscal compose produced empty buffer');
-    return false;
+  if (hasLogo) {
+    const logoOk = await printEscposImage(printer, logoDataUri, {
+      boxSize: STORE_LOGO_BOX_PX,
+      paperWidth: PAPER_IMAGE_WIDTH_PX,
+      hAlign: 'center',
+      align: 'lt',
+      forceMono: true,
+    });
+    if (!logoOk) {
+      console.warn('[print] fiscal provider logo print failed');
+    }
+    try {
+      hardResetLayout(printer);
+      if (typeof printer.feed === 'function') printer.feed(1);
+    } catch (e) {
+      // ignore
+    }
   }
 
-  const ok = await printEscposImage(printer, buf, {
-    mime: 'image/png',
-    align: 'lt',
-    maxWidth: FISCAL_STRIP_WIDTH_PX,
-    forceMono: true,
-  });
-  if (!ok) {
-    console.warn('[print] fiscal strip image write failed');
+  const qrOk = await printFiscalQrOnly(printer, qrValue);
+  if (!qrOk) {
+    console.warn('[print] fiscal QR print failed');
   }
-  return ok;
+  // Still true if QR printed (description follows regardless)
+  return qrOk;
 }
 
 /**
- * Stacked fallback: provider logo (if any) then native QR.
- * Used when side-by-side raster fails so logo is still printed.
+ * @deprecated Alias — stacked logo + QR is now the primary path (`printFiscalQrRow`).
  * @param {Object} printer
  * @param {string} qrValue
  * @param {string} [logoDataUri]
  * @returns {Promise<void>}
  */
 async function printFiscalLogoThenQrFallback(printer, qrValue, logoDataUri) {
-  if (logoDataUri && String(logoDataUri).trim()) {
-    console.info('[print] fiscal stacked fallback: logo then QR');
-    try {
-      const { loadImage, createCanvas } = require('canvas');
-      const decoded = decodeImageInput(logoDataUri);
-      if (decoded) {
-        const img = await loadImage(decoded.buf);
-        const size = FISCAL_LOGO_PX;
-        const canvas = createCanvas(size, size);
-        const ctx = canvas.getContext('2d');
-        drawContainInSquare(ctx, img, 0, 0, size);
-        forceCanvasMono(ctx, size, size);
-        await printEscposImage(printer, canvas.toBuffer('image/png'), {
-          mime: 'image/png',
-          align: 'center',
-          maxWidth: size,
-          forceMono: true,
-        });
-        try {
-          printer.feed(1);
-        } catch (e) {
-          // ignore
-        }
-      } else {
-        await printEscposImage(printer, logoDataUri, { align: 'center' });
-      }
-    } catch (e) {
-      console.warn('[print] stacked logo failed', e && e.message);
-      await printEscposImage(printer, logoDataUri, { align: 'center' });
-    }
-  }
-
-  // Native QR
-  await new Promise((resolve) => {
-    let settled = false;
-    const done = () => {
-      if (settled) return;
-      settled = true;
-      try {
-        hardResetLayout(printer);
-      } catch (e) {
-        // ignore
-      }
-      resolve();
-    };
-    try {
-      hardResetLayout(printer);
-      if (typeof printer.qrimage === 'function') {
-        printer.align('ct').qrimage(qrValue, { type: 'png', mode: 'normal', size: 3, margin: 1 }, () => done());
-        setTimeout(done, 2500);
-        return;
-      }
-    } catch (e) {
-      // fall through
-    }
-    try {
-      hardResetLayout(printer);
-      printer.align('ct').qrcode(qrValue, undefined, 'M', 4);
-    } catch (e) {
-      // ignore
-    }
-    done();
-  });
+  await printFiscalQrRow(printer, qrValue, logoDataUri);
 }
 
 module.exports = {
@@ -1075,6 +1267,8 @@ module.exports = {
   printLogo,
   printEscposImage,
   printVatLine,
+  formatPrintingTimestamp,
+  printPrintingTimestamp,
   feedBottomMargin,
   printReceiptHeader,
   printFooterSections,
@@ -1098,6 +1292,7 @@ module.exports = {
   sendCashDrawerPulse,
   printFiscalQrRow,
   printFiscalLogoThenQrFallback,
+  printFiscalQrOnly,
   composeFiscalQrRowBuffer,
   detectImageMime,
   decodeImageInput,
@@ -1105,4 +1300,6 @@ module.exports = {
   writeBitmapD24,
   PRINTER_WIDTH,
   MAX_IMAGE_WIDTH_PX,
+  PAPER_IMAGE_WIDTH_PX,
+  STORE_LOGO_BOX_PX,
 };

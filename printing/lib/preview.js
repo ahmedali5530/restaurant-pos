@@ -1,6 +1,6 @@
 'use strict';
 
-const { formatMoney, normalizeConfig, normalizeSections } = require('./receipt-helpers');
+const { formatMoney, normalizeConfig, normalizeSections, formatPrintingTimestamp } = require('./receipt-helpers');
 const { mapOrderToTemp, mapOrderToFinal, mapOrderToDelivery, mapOrderToRefund } = require('./order-mapping');
 const { computeSummary, formatNum } = require('./summary-mapping');
 
@@ -46,7 +46,7 @@ function renderSectionsToHtml(sections) {
     const alignCls = sectionAlignClass(section.align);
     if (section.type === 'image' && section.content) {
       const src = /^data:/.test(section.content) ? section.content : `data:image/png;base64,${section.content}`;
-      parts.push(`<div class="section ${alignCls}"><img src="${escapeHtml(src)}" alt="" style="max-width:120px;max-height:60px;" /></div>`);
+      parts.push(`<div class="section ${alignCls}"><img class="receipt-img" src="${escapeHtml(src)}" alt="" /></div>`);
     } else if (section.type === 'text' && section.content) {
       parts.push(`<div class="section ${alignCls} ${sectionSizeClass(section.size)}">${escapeHtml(section.content)}</div>`);
     }
@@ -54,11 +54,56 @@ function renderSectionsToHtml(sections) {
   return parts.join('\n  ');
 }
 
+/**
+ * Stacked fiscal logos + QR placeholders (matches print: logo then QR).
+ * @param {Array|{value?:string,description?:string,logo?:string}|string|undefined} qrcodes
+ * @param {string|undefined} qrcode
+ */
+function renderFiscalQrToHtml(qrcodes, qrcode) {
+  const items = [];
+  if (Array.isArray(qrcodes) && qrcodes.length) {
+    qrcodes.forEach((item) => {
+      if (item == null) return;
+      if (typeof item === 'string') {
+        const v = item.trim();
+        if (v) items.push({ value: v, description: '', logo: '' });
+        return;
+      }
+      const value = String(item.value ?? item.qrcode ?? '').trim();
+      if (!value) return;
+      items.push({
+        value,
+        description: String(item.description ?? '').trim(),
+        logo: item.logo != null ? String(item.logo).trim() : '',
+      });
+    });
+  } else if (qrcode != null && String(qrcode).trim()) {
+    items.push({ value: String(qrcode).trim(), description: '', logo: '' });
+  }
+  if (!items.length) return '';
+
+  return items.map((item) => {
+    const logoHtml = item.logo
+      ? `<div class="center fiscal-logo"><img class="receipt-img" src="${escapeHtml(/^data:/.test(item.logo) ? item.logo : `data:image/png;base64,${item.logo}`)}" alt="Provider" /></div>`
+      : '';
+    const qrPlaceholder = `<div class="center fiscal-qr">[QR] ${escapeHtml(item.value.slice(0, 28))}${item.value.length > 28 ? '…' : ''}</div>`;
+    const desc = item.description
+      ? String(item.description)
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => `<div class="center">${escapeHtml(line)}</div>`)
+        .join('')
+      : '';
+    return `<div class="fiscal-block">${logoHtml}${qrPlaceholder}${desc}</div>`;
+  }).join('');
+}
+
 function renderBrandingHeader(cfg) {
   const parts = [];
   if (cfg.showLogo && cfg.logo && String(cfg.logo).trim()) {
     const src = /^data:/.test(cfg.logo) ? cfg.logo : `data:image/png;base64,${cfg.logo}`;
-    parts.push(`<div class="logo"><img src="${escapeHtml(src)}" alt="Logo" style="max-width:120px;max-height:60px;" /></div>`);
+    parts.push(`<div class="logo"><img class="receipt-img" src="${escapeHtml(src)}" alt="Logo" /></div>`);
   }
   const headerSections = renderSectionsToHtml(cfg.headerSections);
   if (headerSections) parts.push(headerSections);
@@ -83,6 +128,10 @@ const receiptPreviewStyles = `
     .size-large { font-size: 16px; font-weight: bold; }
     hr { border: none; border-top: 1px dashed #333; margin: 6px 0; }
     .logo { text-align: center; margin-bottom: 4px; }
+    .receipt-img { width: 150px; height: 150px; max-width: 100%; object-fit: contain; display: inline-block; vertical-align: middle; }
+    .fiscal-block { margin: 8px 0; text-align: center; }
+    .fiscal-qr { font-size: 10px; border: 1px solid #999; padding: 12px 8px; margin: 4px auto; max-width: 150px; }
+    .fiscal-logo { margin-bottom: 4px; }
 `;
 
 function escapeHtml(s) {
@@ -206,8 +255,11 @@ function renderBillToHtml(bill, config, opts) {
   if (thankYou) {
     parts.push(`<div class="center thankyou">${escapeHtml(thankYou)}</div>`);
   }
+  const fiscalHtml = renderFiscalQrToHtml(opts && opts.qrcodes, opts && opts.qrcode);
+  if (fiscalHtml) parts.push(fiscalHtml);
   const footerSections = renderSectionsToHtml(cfg.footerSections);
   if (footerSections) parts.push(footerSections);
+  parts.push(`<div class="center thankyou">${escapeHtml(formatPrintingTimestamp(cfg))}</div>`);
 
   return `<!DOCTYPE html>
 <html>
@@ -370,6 +422,7 @@ function renderSummaryToHtml(data, config) {
     parts.push('<hr/>');
     parts.push(footerSections);
   }
+  parts.push(`<div class="center">${escapeHtml(formatPrintingTimestamp(cfg))}</div>`);
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -433,7 +486,7 @@ function renderKitchenToHtml(data, config) {
       ? `${orderPart} | ${bannerLabel}`
       : orderPart || bannerLabel;
   if (orderBannerLine) {
-    parts.push(`<div class="center size-medium bold">${escapeHtml(orderBannerLine)}</div>`);
+    parts.push(`<div class="center bold">${escapeHtml(orderBannerLine)}</div>`);
   }
   if (table || orderType) {
     parts.push(
@@ -455,6 +508,7 @@ function renderKitchenToHtml(data, config) {
     parts.push(`<div class="row"><span>${escapeHtml(name)} x${qty}</span></div>`);
     if (it.comments) parts.push(`<div class="indent">>> ${escapeHtml(String(it.comments).slice(0, 26))}</div>`);
   });
+  parts.push(`<div class="center" style="margin-top:8px">${escapeHtml(formatPrintingTimestamp(cfg))}</div>`);
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -544,6 +598,7 @@ function renderRefundToHtml(data, config) {
   parts.push(`<div class="row bold"><span>${escapeHtml(refundTotalLabel)}</span><span>${escapeHtml(formatMoney(bill.total, sym))}</span></div>`);
   const footerSections = renderSectionsToHtml(cfg.footerSections);
   if (footerSections) parts.push(footerSections);
+  parts.push(`<div class="center thankyou">${escapeHtml(formatPrintingTimestamp(cfg))}</div>`);
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -584,6 +639,8 @@ function renderPreview(printType, data, config) {
       showPayments: false,
       showChange: false,
       showDeliveryLine: false,
+      qrcodes: data && data.qrcodes,
+      qrcode: data && data.qrcode,
     });
   }
 
@@ -603,6 +660,8 @@ function renderPreview(printType, data, config) {
       showPayments: true,
       showChange: true,
       showDeliveryLine: false,
+      qrcodes: data && data.qrcodes,
+      qrcode: data && data.qrcode,
     });
   }
 
@@ -623,6 +682,8 @@ function renderPreview(printType, data, config) {
       showPayments: true,
       showChange: true,
       showDeliveryLine: true,
+      qrcodes: data && data.qrcodes,
+      qrcode: data && data.qrcode,
     });
   }
 

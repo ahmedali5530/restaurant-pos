@@ -8,6 +8,7 @@ const {
   buildItemHeaderString,
   printModifierLines,
   printFixedLine,
+  printPrintingTimestamp,
 } = require('../lib/receipt-helpers');
 const { printKotHeader } = require('../lib/kot-layout');
 const {
@@ -63,8 +64,8 @@ function build(printer, data = {}, config = {}) {
 
   const L = cfg.labels || {};
   const bannerLabel = isDuplicate
-    ? (L.duplicateKot || 'DUPLICATE')
-    : (isAddOn ? (L.addon || 'ADDON') : (L.newOrder || 'New Order'));
+    ? (L.duplicateKot || 'COPY')
+    : (isAddOn ? (L.addon || 'ADDON') : (L.newOrder || 'NEW'));
 
   return printReceiptHeader(printer, cfg).then(() => {
     printKotHeader(printer, {
@@ -88,7 +89,8 @@ function build(printer, data = {}, config = {}) {
     });
 
     feedBottomMargin(printer, cfg);
-    printer.feed(2).cut();
+    printPrintingTimestamp(printer, cfg);
+    printer.cut();
     return printer;
   });
 }

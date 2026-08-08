@@ -955,7 +955,7 @@ DEFINE FIELD name ON inventory_item TYPE string PERMISSIONS FULL;
 DEFINE FIELD price ON inventory_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD taxable ON inventory_item TYPE none | bool | null PERMISSIONS FULL;
 DEFINE FIELD reorder_levels ON inventory_item TYPE any DEFAULT {  } PERMISSIONS FULL;
-DEFINE FIELD stores ON inventory_item TYPE array<record<inventory_store>> PERMISSIONS FULL;
+DEFINE FIELD stores ON inventory_item TYPE option<array<record<inventory_store>>|null> PERMISSIONS FULL;
 DEFINE FIELD locations ON inventory_item TYPE none | array<record<inventory_location>> | null PERMISSIONS FULL;
 DEFINE FIELD suppliers ON inventory_item TYPE array<record<inventory_supplier>> PERMISSIONS FULL;
 DEFINE FIELD uom ON inventory_item TYPE none | string | null PERMISSIONS FULL;

@@ -14,7 +14,7 @@ const {
   printFixedLine,
   printDivider,
   printFiscalQrRow,
-  printFiscalLogoThenQrFallback,
+  printPrintingTimestamp,
 } = require('./receipt-helpers');
 
 /**
@@ -186,21 +186,7 @@ function printBillLayout(printer, bill, config, opts) {
     }
 
     return printQrCodes(printer, qrItems).then(() => {
-      const now = new Date();
-      const locale = cfg.locale || 'en-US';
-      const formatOpts = {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-      };
-      if (cfg.timezone) formatOpts.timeZone = cfg.timezone;
-      const ts = now.toLocaleString(locale, formatOpts);
-      printer.feed(2);
-      printCenteredText(printer, ts);
-      printer.feed(2);
+      printPrintingTimestamp(printer, cfg);
       printer.cut();
     });
   });
@@ -261,7 +247,7 @@ function printQrCodes(printer, items) {
 }
 
 /**
- * Prefer composed logo|QR strip; fall back to stacked logo + native QR so logos are never dropped.
+ * Provider logo then QR on consecutive lines (always stacked).
  * @param {Object} printer
  * @param {string} value
  * @param {string} [logo]
@@ -269,17 +255,7 @@ function printQrCodes(printer, items) {
 function printQrCode(printer, value, logo) {
   if (!value) return Promise.resolve();
 
-  return printFiscalQrRow(printer, value, logo).then(async (printed) => {
-    if (printed) {
-      try {
-        printer.feed(1);
-      } catch (e) {
-        // ignore
-      }
-      return;
-    }
-
-    await printFiscalLogoThenQrFallback(printer, value, logo);
+  return printFiscalQrRow(printer, value, logo).then(() => {
     try {
       printer.feed(1);
     } catch (e) {

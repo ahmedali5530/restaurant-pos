@@ -7,6 +7,7 @@ const {
   formatMoney,
   printVatLine,
   feedBottomMargin,
+  printPrintingTimestamp,
 } = require('../lib/receipt-helpers');
 const { computeSummary, formatNum } = require('../lib/summary-mapping');
 
@@ -197,7 +198,8 @@ function printDailySalesSummary(printer, data, cfg) {
 
   printVatLine(printer, cfg);
   feedBottomMargin(printer, cfg);
-  printer.feed(2).cut();
+  printPrintingTimestamp(printer, cfg);
+  printer.cut();
 }
 
 function build(printer, data = {}, config = {}) {

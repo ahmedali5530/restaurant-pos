@@ -7,11 +7,18 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-08-08',
+    title: 'Buy X Get Y discount value',
+    items: [
+      'Buy X Get Y discounts now include a get value field for percent or fixed-amount offers (for example 50% off the second item).',
+    ],
+  },
+  {
     date: '2026-08-07',
     title: 'Fiscal provider logos on receipts',
     items: [
-      'Upload a receipt logo in FBR/PRA integration settings; it prints beside the fiscal QR (100×100 each) on final receipts.',
-      'Receipt images (store logo, header/footer images, fiscal strip) print with correct aspect ratio and more reliable JPEG/PNG handling.',
+      'Upload a receipt logo in FBR/PRA integration settings; it prints above the fiscal QR on final receipts (stacked lines).',
+      'Store logo and header/footer images print as a centered 150×150 box with no stretch; JPEG/PNG decoding is more reliable.',
     ],
   },
   {

@@ -52,12 +52,13 @@ function printKotHeader(printer, opts) {
   const bannerPart = bannerLabel ? String(bannerLabel) : '';
   let orderBannerLine = '';
   if (orderPart && bannerPart) {
-    orderBannerLine = `${orderPart} | ${bannerPart}`;
+    orderBannerLine = `${orderPart} - ${bannerPart}`;
   } else {
     orderBannerLine = orderPart || bannerPart;
   }
   if (orderBannerLine) {
-    printCenteredText(printer, orderBannerLine, { style: 'bold', size: 'medium' });
+    // Normal size so Order# + New/ADDON/COPY/DELETION fit cleanly on thermal paper
+    printCenteredText(printer, orderBannerLine, { style: 'bold', size: 'normal' });
   }
 
   // Two meta lines: Table | Order Type, Order Taker | Time
