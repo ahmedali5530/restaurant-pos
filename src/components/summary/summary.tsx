@@ -123,7 +123,7 @@ export const Summary = ({
     return safeNumber(
       orders?.reduce((sum, order) => {
         return sum + safeNumber(
-          order?.extras?.reduce((extraSum, extra) => extraSum + safeNumber(extra.value), 0) ?? 0
+          order?.extras?.reduce((extraSum, extra) => extraSum + safeNumber(extra?.value), 0) ?? 0
         );
       }, 0) ?? 0
     );
@@ -264,11 +264,14 @@ export const Summary = ({
     const list = {};
     orders?.forEach(order => {
       order?.extras?.forEach(extra => {
+        if (!extra?.name) {
+          return;
+        }
         if (!list[extra.name]) {
           list[extra.name] = 0;
         }
 
-        list[extra.name] += safeNumber(extra.value);
+        list[extra.name] += safeNumber(extra?.value);
       });
     });
     return list;

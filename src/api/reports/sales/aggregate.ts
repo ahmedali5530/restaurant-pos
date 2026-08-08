@@ -23,7 +23,7 @@ import {DAY_PARTS, getDayPartLabel, type DayPartLabel} from "@/utils/dayParts";
 export const getOrderFigures = (order: Order): OrderFigures => {
   const filteredItems = getOrderFilteredItems(order) ?? [];
   const exclusiveSales = filteredItems.reduce((sum, item) => sum + safeNumber(calculateOrderItemPrice(item)), 0);
-  const extras = (order.extras ?? []).reduce((sum, extra) => sum + safeNumber(extra.value), 0);
+  const extras = (order.extras ?? []).reduce((sum, extra) => sum + safeNumber(extra?.value), 0);
   const grossSales = safeNumber(exclusiveSales + extras);
 
   const lineDiscounts = getOrderLineDiscountTotal(order);

@@ -217,7 +217,7 @@ export const Clock = () => {
     return safeNumber(
       orders?.filter(order => order.status === OrderStatus.Paid).reduce((sum, order) => {
         return sum + safeNumber(
-          order?.extras?.reduce((extraSum, extra) => extraSum + safeNumber(extra.value), 0) ?? 0
+          order?.extras?.reduce((extraSum, extra) => extraSum + safeNumber(extra?.value), 0) ?? 0
         );
       }, 0) ?? 0
     );

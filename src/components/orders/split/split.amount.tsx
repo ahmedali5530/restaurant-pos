@@ -45,7 +45,7 @@ export const SplitAmount = ({
   // Calculate total order amount (same as order.box.tsx)
   const itemsTotal = useMemo(() => calculateOrderTotal(order), [order]);
   const orderTotal = useMemo(() => {
-    const extrasTotal = order?.extras ? order?.extras?.reduce((prev, item) => prev + item.value, 0) : 0;
+    const extrasTotal = order?.extras ? order?.extras?.reduce((prev, item) => prev + Number(item?.value || 0), 0) : 0;
     return itemsTotal + extrasTotal + Number(order?.tax_amount ?? 0) - Number(order?.discount_amount ?? 0) + Number(order.service_charge_amount ?? 0) + Number(order?.tip_amount ?? 0);
   }, [itemsTotal, order]);
 
@@ -265,10 +265,12 @@ export const SplitAmount = ({
           service_charge_amount: splitServiceChargeAmount,
           tip_amount: splitTipAmount,
           // Distribute extras proportionally if any
-          extras: order.extras?.map(extra => ({
-            name: extra.name,
-            value: extra.value * splitRatio
-          }))
+          extras: order.extras
+            ?.filter((extra): extra is NonNullable<typeof extra> => !!extra)
+            .map(extra => ({
+              name: extra.name,
+              value: Number(extra.value || 0) * splitRatio
+            }))
         };
 
         const splitOrder = await db.create(Tables.orders, orderData);

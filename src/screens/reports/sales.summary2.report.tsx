@@ -626,6 +626,9 @@ export const SalesSummary2Report = () => {
 
     const extrasBreakdown = orders.reduce((acc, order) => {
       order.extras?.forEach(extra => {
+        if (!extra) {
+          return;
+        }
         const name = extra.name || "Extra";
         const value = safeNumber(extra.value);
         acc[name] = (acc[name] || 0) + value;

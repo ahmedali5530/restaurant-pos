@@ -76,7 +76,7 @@ export function formatCountdown(seconds: number): string {
 export function computeOrderGrandTotalFromOrder(order: Order): number {
   const itemsTotal = calculateOrderTotal(order);
   const extrasTotal = (order.extras ?? []).reduce(
-    (sum, extra) => sum + Number(extra.value || 0),
+    (sum, extra) => sum + Number(extra?.value || 0),
     0
   );
   const couponAmount = order.coupon?.discount ?? 0;
@@ -222,7 +222,7 @@ async function settleOrder(
 
   const paymentId = getCreatedRecordId(orderPaymentResult);
 
-  const extraOptions = (order.extras ?? []).map((extra) => extra.id);
+  const extraOptions = (order.extras ?? []).filter(Boolean).map((extra) => extra.id);
 
   const mergePayload: Record<string, unknown> = {
     status: OrderStatus.Paid,

@@ -142,7 +142,7 @@ function computeSummary(props) {
   }, 0);
 
   const totalExtras = list.reduce((sum, order) => {
-    const extras = (order.extras || []).reduce((s, extra) => s + safeNumber(extra.value), 0);
+    const extras = (order.extras || []).reduce((s, extra) => s + safeNumber(extra?.value), 0);
     return sum + extras;
   }, 0);
 
@@ -261,8 +261,9 @@ function computeSummary(props) {
   const extrasMap = {};
   list.forEach((order) => {
     (order?.extras || []).forEach((extra) => {
+      if (!extra?.name) return;
       if (!extrasMap[extra.name]) extrasMap[extra.name] = 0;
-      extrasMap[extra.name] += safeNumber(extra.value);
+      extrasMap[extra.name] += safeNumber(extra?.value);
     });
   });
   const extrasList = Object.entries(extrasMap)

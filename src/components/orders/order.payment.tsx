@@ -574,10 +574,18 @@ export const OrderPayment = ({
       setPaymentTypes(syncedPayments);
     }
 
-    // remove previously attached extras from order
-    for (const ext of order?.extras ?? []) {
-      if(ext !== undefined) {
-        await db.delete(ext.id);
+    // Clear denorm refs first so concurrent FETCH cannot resolve deleted extras.
+    await db.merge(order.id, { extras: [] });
+
+    const previousExtraIds = (order?.extras ?? [])
+      .filter((ext): ext is NonNullable<typeof ext> => !!ext?.id)
+      .map((ext) => ext.id);
+
+    for (const extraId of previousExtraIds) {
+      try {
+        await db.delete(extraId);
+      } catch {
+        // Orphan / already-deleted id after a prior race — continue.
       }
     }
 

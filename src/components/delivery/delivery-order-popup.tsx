@@ -55,7 +55,9 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
   const itemsTotal = useMemo(() => calculateOrderTotal(order), [order]);
 
   const total = useMemo(() => {
-    const extrasTotal = order?.extras ? order.extras.reduce((prev, item) => prev + Number(item.value), 0) : 0;
+    const extrasTotal = order?.extras
+      ? order.extras.reduce((prev, item) => prev + Number(item?.value || 0), 0)
+      : 0;
     const couponDiscount = order?.coupon ? Number(order.coupon.discount || 0) : 0;
 
     return (
@@ -505,7 +507,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
                   <div className="flex justify-between">
                     <span className="text-sm font-medium">Extras:</span>
                     <span className="text-base">
-                    {order.extras.reduce((prev, item) => prev + Number(item.value), 0).toFixed(2)}
+                    {order.extras.reduce((prev, item) => prev + Number(item?.value || 0), 0).toFixed(2)}
                   </span>
                   </div>
                 ) : null}

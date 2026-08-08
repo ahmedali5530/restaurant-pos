@@ -251,7 +251,7 @@ function getOrderTotals(order) {
     : order.items.filter((it) => !it.deleted_at && it.is_refunded !== true && it.is_suspended !== true);
   const itemsTotal = filteredItems.reduce((s, it) => s + calculateOrderItemPricePrint(it), 0);
   const discountAmount = Number(order.discount_amount || 0);
-  const extrasTotal = (order.extras || []).reduce((s, e) => s + Number(e.value || 0), 0);
+  const extrasTotal = (order.extras || []).reduce((s, e) => s + Number(e?.value || 0), 0);
   
   // Handle multiple taxes from order items
   let tax = Number(order.tax_amount || 0);
@@ -538,7 +538,7 @@ function mapOrderToBill(order, opts) {
     taxLabel: getOrderTaxLabel(order),
     serviceChargeLabel: getOrderServiceChargeLabel(order),
     serviceChargeAmount: tot.service,
-    extras: order.extras || [],
+    extras: (order.extras || []).filter(Boolean),
     tipAmount: tot.tip,
     tipLabel,
     deliveryCharges: tot.deliveryCharges,
@@ -661,7 +661,7 @@ function mapOrderToRefund(refundOrder, originalOrder, options) {
   const discountAmount = Number(refundOrder.discount_amount ?? 0);
   const serviceChargeAmount = Number(refundOrder.service_charge_amount ?? 0);
   const tipAmount = Number(refundOrder.tip_amount ?? 0);
-  const extrasTotal = (refundOrder.extras || []).reduce((s, e) => s + Number(e.value || 0), 0);
+  const extrasTotal = (refundOrder.extras || []).reduce((s, e) => s + Number(e?.value || 0), 0);
   const total = itemsTotal + taxAmount + serviceChargeAmount + tipAmount + extrasTotal + discountAmount;
   const orig = originalOrder || refundOrder;
   const serviceChargeLabel = getOrderServiceChargeLabel(refundOrder);

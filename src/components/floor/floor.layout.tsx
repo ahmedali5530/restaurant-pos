@@ -70,7 +70,7 @@ export const FloorLayout = () => {
       'covers', 'created_at', 'floor', 'id', 'invoice_number', 'order_type', 'status', 'table', 'tags', 'user',
       'items.*', 'customer',
       'tax', 'tax_amount', 'order_taxes',
-      'discount_amount', 'order_discounts',
+      'discount_amount', 'order_discounts', 'order_discounts.discount',
       'service_charge', 'service_charge_amount', 'service_charge_type',
       'tip', 'tip_amount', 'tip_type',
       'extras', 'coupon',

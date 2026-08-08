@@ -62,7 +62,7 @@ const resolveOrderFetches = (deliveryOnly?: boolean, statuses?: string[]) => {
 const formatOrderRow = (order: Order) => {
   const figures = getOrderFigures(order);
   const itemsTotal = calculateOrderTotal(order);
-  const extrasTotal = (order.extras ?? []).reduce((sum, extra) => sum + safeNumber(extra.value), 0);
+  const extrasTotal = (order.extras ?? []).reduce((sum, extra) => sum + safeNumber(extra?.value), 0);
   const displayTotal = calculateOrderGrandTotal({
     itemsTotal,
     extrasTotal,

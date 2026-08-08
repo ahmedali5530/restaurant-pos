@@ -232,10 +232,13 @@ function useDailySalesFigures(orders: Order[] | undefined) {
     const extrasMap: Record<string, number> = {};
     list.forEach(order => {
       (order?.extras ?? []).forEach(extra => {
+        if (!extra?.name) {
+          return;
+        }
         if (!extrasMap[extra.name]) {
           extrasMap[extra.name] = 0;
         }
-        extrasMap[extra.name] += safeNumber(extra.value);
+        extrasMap[extra.name] += safeNumber(extra?.value);
       });
     });
     const extrasList: BreakdownEntry[] = Object.entries(extrasMap)

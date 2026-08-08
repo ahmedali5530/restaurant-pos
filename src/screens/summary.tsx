@@ -55,7 +55,7 @@ const getOrderSale = (order: OrderModel): number => {
   const itemsTotal = (getOrderFilteredItems(order) || []).reduce((sum, item) => {
     return sum + safeNumber(calculateOrderItemPrice(item));
   }, 0);
-  const extrasTotal = (order.extras || []).reduce((sum, extra) => sum + safeNumber(extra.value), 0);
+  const extrasTotal = (order.extras || []).reduce((sum, extra) => sum + safeNumber(extra?.value), 0);
   const taxAmount = getOrderTaxAmount(order);
   const serviceAmount = safeNumber(order.service_charge_amount);
   const discountAmount = safeNumber(order.discount_amount);

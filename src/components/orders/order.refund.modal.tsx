@@ -90,10 +90,14 @@ export const OrderRefundModal = ({
     const discountAmount = order.discount_amount ? Number(order.discount_amount) * ratio : 0;
     const serviceChargeAmount = order.service_charge_amount ? Number(order.service_charge_amount) * ratio : 0;
     const tipAmount = order.tip_amount ? Number(order.tip_amount) * ratio : 0;
-    const extras = order.extras ? order.extras.map(extra => ({
-      name: extra.name,
-      value: extra.value * ratio
-    })) : [];
+    const extras = order.extras
+      ? order.extras
+          .filter((extra): extra is NonNullable<typeof extra> => !!extra)
+          .map(extra => ({
+            name: extra.name,
+            value: Number(extra.value || 0) * ratio,
+          }))
+      : [];
 
     const extrasTotal = extras.reduce((sum, extra) => sum + extra.value, 0);
     const total = selectedItemsTotal + taxAmount + serviceChargeAmount + tipAmount + extrasTotal - discountAmount;

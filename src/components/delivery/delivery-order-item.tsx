@@ -26,7 +26,7 @@ export const DeliveryOrderItem: React.FC<DeliveryOrderItemProps> = ({
   const itemsTotal = useMemo(() => calculateOrderTotal(order), [order]);
 
   const total = useMemo(() => {
-    const extrasTotal = order?.extras ? order.extras.reduce((prev, item) => prev + Number(item.value), 0) : 0;
+    const extrasTotal = order?.extras ? order.extras.reduce((prev, item) => prev + Number(item?.value || 0), 0) : 0;
     return itemsTotal + extrasTotal + Number(order?.tax_amount || 0) - Number(order?.discount_amount || 0) + Number(order.service_charge_amount ?? 0);
   }, [itemsTotal, order]);
 

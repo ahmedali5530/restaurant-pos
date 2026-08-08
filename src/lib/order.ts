@@ -1,4 +1,4 @@
-import {Order as OrderModel, OrderStatus} from '@/api/model/order';
+import {Order as OrderModel, OrderExtra, OrderStatus} from '@/api/model/order';
 import {OrderDiscount} from '@/api/model/order_discount.ts';
 import {getDiscountValueType} from '@/api/model/discount.ts';
 import {OrderPayment} from "@/api/model/order_payment.ts";
@@ -22,6 +22,14 @@ export const getOrderFilteredItems = (order: OrderModel) => {
     .filter(item => item?.is_refunded !== true)
     .filter(item => item?.is_suspended !== true);
 }
+
+/** Resolved extras only — drops null/undefined FETCH holes from stale order.extras IDs. */
+export const getOrderExtras = (order?: OrderModel | null): OrderExtra[] =>
+  (order?.extras ?? []).filter((extra): extra is OrderExtra => !!extra && extra.value != null);
+
+/** Sum of active order extras (safe against undefined array holes). */
+export const getOrderExtrasTotal = (order?: OrderModel | null): number =>
+  getOrderExtras(order).reduce((sum, extra) => sum + safeNumber(extra.value), 0);
 
 /** Active order_discounts lines (junction-first source). Drops null/undefined FETCH holes. */
 export const getActiveOrderDiscounts = (order: OrderModel): OrderDiscount[] =>
@@ -204,10 +212,7 @@ export const calculateOrderNetSales = (order: OrderModel): number => {
     (sum, item) => sum + safeNumber(calculateOrderItemPrice(item)),
     0,
   );
-  const extrasTotal = (order.extras ?? []).reduce(
-    (sum, extra) => sum + safeNumber(extra.value),
-    0,
-  );
+  const extrasTotal = getOrderExtrasTotal(order);
   const grossSales = safeNumber(grossTotal + extrasTotal);
   const net = grossSales - getOrderDiscountTotal(order);
   return net > 0 ? net : 0;
@@ -294,7 +299,7 @@ export interface OrderSettlementFigures {
 export const getOrderSettlementFigures = (order: OrderModel): OrderSettlementFigures => {
   const items = getOrderFilteredItems(order);
   const itemsTotal = items.reduce((sum, item) => sum + safeNumber(calculateOrderItemPrice(item)), 0);
-  const extrasTotal = (order.extras ?? []).reduce((sum, extra) => sum + safeNumber(extra.value), 0);
+  const extrasTotal = getOrderExtrasTotal(order);
   const lineDiscounts = getOrderLineDiscountTotal(order);
   const orderDiscount = getOrderCartDiscountAmount(order);
   const cartDiscount = Math.max(0, orderDiscount - lineDiscounts);

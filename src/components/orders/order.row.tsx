@@ -25,7 +25,9 @@ export const OrderRow = ({
   };
 
   const total = useMemo(() => {
-    const extrasTotal = order?.extras ? order?.extras?.reduce((prev, item) => prev + Number(item.value), 0) : 0;
+    const extrasTotal = order?.extras
+      ? order.extras.reduce((prev, item) => prev + Number(item?.value || 0), 0)
+      : 0;
     return itemsTotal + extrasTotal + Number(order?.tax_amount || 0) - Number(order?.discount_amount || 0) + Number(order.service_charge_amount ?? 0);
   }, [itemsTotal, order]);
 
@@ -89,7 +91,7 @@ export const OrderRow = ({
             <>
               <div className="flex-1">{t('totals.extras')}</div>
               <div
-                className="text-right">{withCurrency(order?.extras?.reduce((prev, item) => prev + Number(item.value), 0))}</div>
+                className="text-right">{withCurrency(order?.extras?.reduce((prev, item) => prev + Number(item?.value || 0), 0))}</div>
             </>
           )}
         </div>
