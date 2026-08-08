@@ -14,7 +14,12 @@
   "noPendingJobs": "Bekleyen iş yok.",
   "security": {
     "accessTab": "{{module}} erişimi",
-    "saveConfiguration": "Entegrasyon yapılandırmasını kaydet"
+    "saveConfiguration": "Entegrasyon yapılandırmasını kaydet",
+    "openConfiguration": "Entegrasyon yapılandırmasını aç",
+    "toggleProvider": "Entegrasyon sağlayıcısını etkinleştir veya devre dışı bırak",
+    "connect": "Entegrasyon sağlayıcısını bağla",
+    "disconnect": "Entegrasyon sağlayıcısının bağlantısını kes",
+    "initialSync": "Entegrasyon ilk senkronizasyonunu çalıştır"
   },
   "fields": {
     "status": "Durum",

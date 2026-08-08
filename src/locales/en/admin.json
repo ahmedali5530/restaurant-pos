@@ -849,7 +849,10 @@
       "integrations.providers": "Integration providers",
       "integrations.configuration": "Integration configuration",
       "integrations.health": "Integration health",
-      "integrations.queue": "Integration queue"
+      "integrations.queue": "Integration queue",
+      "integrations.toggle_provider": "Toggle integration provider",
+      "integrations.open_configuration": "Open integration configuration",
+      "integrations.save_configuration": "Save integration configuration"
     }
   }
 }

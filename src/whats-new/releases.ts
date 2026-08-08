@@ -8,6 +8,13 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-08-08',
+    title: 'Integration settings permissions',
+    items: [
+      'New role modules: Toggle provider, Open configuration, and Save configuration. Enable/disable, opening config, saving settings, and connect/disconnect/sync require those modules (manager PIN when missing).',
+    ],
+  },
+  {
+    date: '2026-08-08',
     title: 'All applied discounts on orders and receipts',
     items: [
       'Order cards and bills show every applied discount line, not only the first primary discount.',

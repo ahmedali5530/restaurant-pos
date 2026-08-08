@@ -82,8 +82,13 @@ export const IntegrationsScreen = () => {
   }, [initialized, manager, selected]);
 
   const handleConfigure = (providerId: string) => {
-    setSelectedProviderId(providerId);
-    setSelected('configuration');
+    void protectAction(() => {
+      setSelectedProviderId(providerId);
+      setSelected('configuration');
+    }, {
+      module: 'integrations.open_configuration',
+      description: t('security.openConfiguration'),
+    });
   };
 
   const handleConnect = async (providerId: string) => {
@@ -115,19 +120,24 @@ export const IntegrationsScreen = () => {
     toast.success(t('syncComplete', { count: 0 }));
   };
 
-  const handleToggleProvider = async (providerId: string, enabled: boolean) => {
-    try {
-      await setProviderEnabled(providerId, enabled);
-      toast.success(enabled ? t('providerEnabled') : t('providerDisabled'));
-      const health = await manager.refreshHealth();
-      const queue = await manager.getQueueSnapshot();
-      setHealthRows(health);
-      setQueueRows(queue);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : t('enableFailed');
-      toast.error(message || t('enableFailed'));
-      console.error(error);
-    }
+  const handleToggleProvider = (providerId: string, enabled: boolean) => {
+    void protectAction(async () => {
+      try {
+        await setProviderEnabled(providerId, enabled);
+        toast.success(enabled ? t('providerEnabled') : t('providerDisabled'));
+        const health = await manager.refreshHealth();
+        const queue = await manager.getQueueSnapshot();
+        setHealthRows(health);
+        setQueueRows(queue);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : t('enableFailed');
+        toast.error(message || t('enableFailed'));
+        console.error(error);
+      }
+    }, {
+      module: 'integrations.toggle_provider',
+      description: t('security.toggleProvider'),
+    });
   };
 
   return (

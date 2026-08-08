@@ -677,7 +677,10 @@
       "integrations.providers": "Integrationsanbieter",
       "integrations.configuration": "Integrationskonfiguration",
       "integrations.health": "Integrationsstatus",
-      "integrations.queue": "Integrationswarteschlange"
+      "integrations.queue": "Integrationswarteschlange",
+      "integrations.toggle_provider": "Integrationsanbieter umschalten",
+      "integrations.open_configuration": "Integrationskonfiguration öffnen",
+      "integrations.save_configuration": "Integrationskonfiguration speichern"
     }
   },
   "discountEngine": {

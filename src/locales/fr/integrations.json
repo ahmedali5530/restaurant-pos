@@ -14,7 +14,12 @@
   "noPendingJobs": "Aucune tâche en attente.",
   "security": {
     "accessTab": "Accéder à {{module}}",
-    "saveConfiguration": "Enregistrer la configuration d'intégration"
+    "saveConfiguration": "Enregistrer la configuration d'intégration",
+    "openConfiguration": "Ouvrir la configuration d'intégration",
+    "toggleProvider": "Activer ou désactiver le fournisseur d'intégration",
+    "connect": "Connecter le fournisseur d'intégration",
+    "disconnect": "Déconnecter le fournisseur d'intégration",
+    "initialSync": "Lancer la synchronisation initiale d'intégration"
   },
   "fields": {
     "status": "État",

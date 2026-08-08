@@ -21,7 +21,12 @@
   "noPendingJobs": "No pending jobs.",
   "security": {
     "accessTab": "Access {{module}}",
-    "saveConfiguration": "Save integration configuration"
+    "saveConfiguration": "Save integration configuration",
+    "openConfiguration": "Open integration configuration",
+    "toggleProvider": "Enable or disable integration provider",
+    "connect": "Connect integration provider",
+    "disconnect": "Disconnect integration provider",
+    "initialSync": "Run integration initial sync"
   },
   "fields": {
     "status": "Status",

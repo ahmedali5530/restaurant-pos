@@ -677,7 +677,10 @@
       "integrations.providers": "Fornitori di integrazione",
       "integrations.configuration": "Configurazione integrazione",
       "integrations.health": "Stato integrazione",
-      "integrations.queue": "Coda integrazione"
+      "integrations.queue": "Coda integrazione",
+      "integrations.toggle_provider": "Attiva o disattiva fornitore di integrazione",
+      "integrations.open_configuration": "Apri configurazione integrazione",
+      "integrations.save_configuration": "Salva configurazione integrazione"
     }
   },
   "discountEngine": {

@@ -677,7 +677,10 @@
       "integrations.providers": "Provedores de integração",
       "integrations.configuration": "Configuração de integração",
       "integrations.health": "Status de integração",
-      "integrations.queue": "Fila de integração"
+      "integrations.queue": "Fila de integração",
+      "integrations.toggle_provider": "Ativar ou desativar provedor de integração",
+      "integrations.open_configuration": "Abrir configuração de integração",
+      "integrations.save_configuration": "Salvar configuração de integração"
     }
   },
   "discountEngine": {

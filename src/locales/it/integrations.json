@@ -14,7 +14,12 @@
   "noPendingJobs": "Nessun lavoro in sospeso.",
   "security": {
     "accessTab": "Accedi a {{module}}",
-    "saveConfiguration": "Salva configurazione integrazione"
+    "saveConfiguration": "Salva configurazione integrazione",
+    "openConfiguration": "Apri configurazione integrazione",
+    "toggleProvider": "Abilita o disabilita il fornitore di integrazione",
+    "connect": "Collega il fornitore di integrazione",
+    "disconnect": "Disconnetti il fornitore di integrazione",
+    "initialSync": "Esegui sincronizzazione iniziale integrazione"
   },
   "fields": {
     "status": "Stato",

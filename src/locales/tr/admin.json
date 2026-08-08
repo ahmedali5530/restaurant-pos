@@ -677,7 +677,10 @@
       "integrations.providers": "Entegrasyon sağlayıcıları",
       "integrations.configuration": "Entegrasyon yapılandırması",
       "integrations.health": "Entegrasyon durumu",
-      "integrations.queue": "Entegrasyon kuyruğu"
+      "integrations.queue": "Entegrasyon kuyruğu",
+      "integrations.toggle_provider": "Entegrasyon sağlayıcısını aç/kapat",
+      "integrations.open_configuration": "Entegrasyon yapılandırmasını aç",
+      "integrations.save_configuration": "Entegrasyon yapılandırmasını kaydet"
     }
   },
   "discountEngine": {

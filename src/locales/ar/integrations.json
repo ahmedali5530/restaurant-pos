@@ -14,7 +14,12 @@
   "noPendingJobs": "لا توجد مهام معلقة.",
   "security": {
     "accessTab": "الوصول إلى {{module}}",
-    "saveConfiguration": "حفظ إعداد التكامل"
+    "saveConfiguration": "حفظ إعداد التكامل",
+    "openConfiguration": "فتح إعداد التكامل",
+    "toggleProvider": "تفعيل أو تعطيل مزود التكامل",
+    "connect": "ربط مزود التكامل",
+    "disconnect": "قطع اتصال مزود التكامل",
+    "initialSync": "تشغيل المزامنة الأولية للتكامل"
   },
   "fields": {
     "status": "الحالة",

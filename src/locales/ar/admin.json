@@ -677,7 +677,10 @@
       "integrations.providers": "مزودو التكامل",
       "integrations.configuration": "إعداد التكامل",
       "integrations.health": "حالة التكامل",
-      "integrations.queue": "قائمة انتظار التكامل"
+      "integrations.queue": "قائمة انتظار التكامل",
+      "integrations.toggle_provider": "تفعيل أو تعطيل مزود التكامل",
+      "integrations.open_configuration": "فتح إعداد التكامل",
+      "integrations.save_configuration": "حفظ إعداد التكامل"
     }
   },
   "discountEngine": {

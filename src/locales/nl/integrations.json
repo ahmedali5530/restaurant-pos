@@ -14,7 +14,12 @@
   "noPendingJobs": "Geen openstaande taken.",
   "security": {
     "accessTab": "Toegang tot {{module}}",
-    "saveConfiguration": "Integratieconfiguratie opslaan"
+    "saveConfiguration": "Integratieconfiguratie opslaan",
+    "openConfiguration": "Integratieconfiguratie openen",
+    "toggleProvider": "Integratieprovider in- of uitschakelen",
+    "connect": "Integratieprovider verbinden",
+    "disconnect": "Integratieprovider verbreken",
+    "initialSync": "Initiële integratiesynchronisatie uitvoeren"
   },
   "fields": {
     "status": "Status",

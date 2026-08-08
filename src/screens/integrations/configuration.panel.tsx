@@ -29,7 +29,7 @@ export const ConfigurationPanel = ({
 }: ConfigurationPanelProps) => {
   const { t } = useTranslation('integrations');
   const { getConfiguration, saveConfiguration } = useIntegrationConfigurationManager();
-  const { protectFormSubmit } = useSecurity();
+  const { protectAction, protectFormSubmit } = useSecurity();
   const [formValues, setFormValues] = useState<Record<string, unknown>>({});
   const [connecting, setConnecting] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
@@ -96,46 +96,61 @@ export const ConfigurationPanel = ({
     toast.success(t('configurationSaved'));
   };
 
-  const handleConnect = async () => {
+  const handleConnect = () => {
     if (!onConnect || !selectedProviderId) return;
-    setConnecting(true);
-    try {
-      await onConnect(selectedProviderId);
-    } catch (err: any) {
-      toast.error(err?.message || t('syncFailed'));
-    } finally {
-      setConnecting(false);
-    }
+    void protectAction(async () => {
+      setConnecting(true);
+      try {
+        await onConnect(selectedProviderId);
+      } catch (err: any) {
+        toast.error(err?.message || t('syncFailed'));
+      } finally {
+        setConnecting(false);
+      }
+    }, {
+      module: 'integrations.save_configuration',
+      description: t('security.connect'),
+    });
   };
 
-  const handleDisconnect = async () => {
+  const handleDisconnect = () => {
     if (!onDisconnect || !selectedProviderId) return;
-    setDisconnecting(true);
-    try {
-      await onDisconnect(selectedProviderId);
-      setFormValues((prev) => ({ ...prev, tenantId: '', realmId: '' }));
-      toast.success(t('oauth.disconnected'));
-    } catch (err: any) {
-      toast.error(err?.message || 'Disconnect failed');
-    } finally {
-      setDisconnecting(false);
-    }
+    void protectAction(async () => {
+      setDisconnecting(true);
+      try {
+        await onDisconnect(selectedProviderId);
+        setFormValues((prev) => ({ ...prev, tenantId: '', realmId: '' }));
+        toast.success(t('oauth.disconnected'));
+      } catch (err: any) {
+        toast.error(err?.message || 'Disconnect failed');
+      } finally {
+        setDisconnecting(false);
+      }
+    }, {
+      module: 'integrations.save_configuration',
+      description: t('security.disconnect'),
+    });
   };
 
-  const handleInitialSync = async () => {
+  const handleInitialSync = () => {
     if (!onInitialSync || !selectedProviderId) return;
-    setSyncing(true);
-    try {
-      await onInitialSync(selectedProviderId);
-      toast.success(t('syncComplete', { count: 0 }));
-      // Reload config to pick up any new values
-      const values = await getConfiguration(selectedProviderId);
-      setFormValues(values);
-    } catch (err: any) {
-      toast.error(err?.message || t('syncFailed'));
-    } finally {
-      setSyncing(false);
-    }
+    void protectAction(async () => {
+      setSyncing(true);
+      try {
+        await onInitialSync(selectedProviderId);
+        toast.success(t('syncComplete', { count: 0 }));
+        // Reload config to pick up any new values
+        const values = await getConfiguration(selectedProviderId);
+        setFormValues(values);
+      } catch (err: any) {
+        toast.error(err?.message || t('syncFailed'));
+      } finally {
+        setSyncing(false);
+      }
+    }, {
+      module: 'integrations.save_configuration',
+      description: t('security.initialSync'),
+    });
   };
 
   if (!selectedProvider) {
@@ -177,7 +192,7 @@ export const ConfigurationPanel = ({
         onSubmit={protectFormSubmit(() => {
           void save();
         }, {
-          module: 'integrations.configuration',
+          module: 'integrations.save_configuration',
           description: t('security.saveConfiguration'),
         })}
       >

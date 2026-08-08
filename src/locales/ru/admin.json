@@ -677,7 +677,10 @@
       "integrations.providers": "Провайдеры интеграции",
       "integrations.configuration": "Конфигурация интеграции",
       "integrations.health": "Состояние интеграции",
-      "integrations.queue": "Очередь интеграции"
+      "integrations.queue": "Очередь интеграции",
+      "integrations.toggle_provider": "Включить или отключить провайдера интеграции",
+      "integrations.open_configuration": "Открыть конфигурацию интеграции",
+      "integrations.save_configuration": "Сохранить конфигурацию интеграции"
     }
   },
   "discountEngine": {

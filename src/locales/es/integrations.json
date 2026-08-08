@@ -14,7 +14,12 @@
   "noPendingJobs": "No hay trabajos pendientes.",
   "security": {
     "accessTab": "Acceder a {{module}}",
-    "saveConfiguration": "Guardar configuración de integración"
+    "saveConfiguration": "Guardar configuración de integración",
+    "openConfiguration": "Abrir configuración de integración",
+    "toggleProvider": "Activar o desactivar proveedor de integración",
+    "connect": "Conectar proveedor de integración",
+    "disconnect": "Desconectar proveedor de integración",
+    "initialSync": "Ejecutar sincronización inicial de integración"
   },
   "fields": {
     "status": "Estado",

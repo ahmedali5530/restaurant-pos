@@ -14,7 +14,12 @@
   "noPendingJobs": "Keine ausstehenden Aufträge.",
   "security": {
     "accessTab": "Zugriff auf {{module}}",
-    "saveConfiguration": "Integrationskonfiguration speichern"
+    "saveConfiguration": "Integrationskonfiguration speichern",
+    "openConfiguration": "Integrationskonfiguration öffnen",
+    "toggleProvider": "Integrationsanbieter aktivieren oder deaktivieren",
+    "connect": "Integrationsanbieter verbinden",
+    "disconnect": "Integrationsanbieter trennen",
+    "initialSync": "Initiale Integration-Synchronisation ausführen"
   },
   "fields": {
     "status": "Status",

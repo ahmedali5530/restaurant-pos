@@ -677,7 +677,10 @@
       "integrations.providers": "Integratieproviders",
       "integrations.configuration": "Integratieconfiguratie",
       "integrations.health": "Integratiestatus",
-      "integrations.queue": "Integratiewachtrij"
+      "integrations.queue": "Integratiewachtrij",
+      "integrations.toggle_provider": "Integratieprovider in- of uitschakelen",
+      "integrations.open_configuration": "Integratieconfiguratie openen",
+      "integrations.save_configuration": "Integratieconfiguratie opslaan"
     }
   },
   "discountEngine": {

@@ -172,7 +172,7 @@ export const InventoryItemForm = ({
           value: data.uom ?? ''
         },
         price: Number(data?.price),
-        average_price: Number(data?.average_price),
+        // average_price: Number(data?.average_price),
         item_types: itemTypesToSelectOptions(getItemTypesFromRecord(data), itemTypeOptions),
         category: data?.category ? {
           label: data.category.name,
@@ -205,7 +205,7 @@ export const InventoryItemForm = ({
         category: values?.category ? toRecordId(values.category.value) : undefined,
         uom: values.uom.value,
         price: values.price !== undefined && values.price !== null && values.price !== '' ? parseFloat(values.price) : undefined,
-        average_price: values.average_price !== undefined && values.average_price !== null && values.average_price !== '' ? parseFloat(values.average_price) : undefined,
+        // average_price: values.average_price !== undefined && values.average_price !== null && values.average_price !== '' ? parseFloat(values.average_price) : undefined,
         item_types: itemTypes,
       };
 
@@ -229,7 +229,7 @@ export const InventoryItemForm = ({
         suppliers: datum.suppliers,
         locations: datum.locations,
         price: datum.price,
-        average_price: datum.average_price,
+        // average_price: datum.average_price,
         item_types: datum.item_types,
         reorder_levels: reorderLevelsPayload,
         taxable: !!values.taxable,
@@ -357,21 +357,21 @@ export const InventoryItemForm = ({
               )} name="price" control={control} />
 
             </div>
-            <div className="flex-1">
-              <Controller
-                name="average_price"
-                control={control}
-                render={({field}) => (
-                  <Input
-                    type="number"
-                    label={t('columns.averagePrice')}
-                    {...field}
-                    value={field.value ?? ""}
-                    error={errors?.average_price?.message}
-                  />
-                )}
-              />
-            </div>
+            {/*<div className="flex-1">*/}
+            {/*  <Controller*/}
+            {/*    name="average_price"*/}
+            {/*    control={control}*/}
+            {/*    render={({field}) => (*/}
+            {/*      <Input*/}
+            {/*        type="number"*/}
+            {/*        label={t('columns.averagePrice')}*/}
+            {/*        {...field}*/}
+            {/*        value={field.value ?? ""}*/}
+            {/*        error={errors?.average_price?.message}*/}
+            {/*      />*/}
+            {/*    )}*/}
+            {/*  />*/}
+            {/*</div>*/}
           </div>
 
           <div className="mb-3">

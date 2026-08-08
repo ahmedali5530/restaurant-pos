@@ -342,6 +342,9 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
       "integrations.configuration",
       "integrations.health",
       "integrations.queue",
+      "integrations.toggle_provider",
+      "integrations.open_configuration",
+      "integrations.save_configuration",
     ],
   },
 };
@@ -585,6 +588,9 @@ export const LEGACY_MODULE_MAP: Record<string, string | string[]> = {
   "Integration configuration": "integrations.configuration",
   "Integration health": "integrations.health",
   "Integration queue": "integrations.queue",
+  "Integration toggle provider": "integrations.toggle_provider",
+  "Integration open configuration": "integrations.open_configuration",
+  "Integration save configuration": "integrations.save_configuration",
 };
 
 const KNOWN_MODULE_IDS = new Set<string>([

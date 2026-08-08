@@ -677,7 +677,10 @@
       "integrations.providers": "Proveedores de integración",
       "integrations.configuration": "Configuración de integración",
       "integrations.health": "Estado de integración",
-      "integrations.queue": "Cola de integración"
+      "integrations.queue": "Cola de integración",
+      "integrations.toggle_provider": "Activar o desactivar proveedor de integración",
+      "integrations.open_configuration": "Abrir configuración de integración",
+      "integrations.save_configuration": "Guardar configuración de integración"
     }
   },
   "discountEngine": {

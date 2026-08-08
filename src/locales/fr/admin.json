@@ -677,7 +677,10 @@
       "integrations.providers": "Fournisseurs d'intégration",
       "integrations.configuration": "Configuration d'intégration",
       "integrations.health": "État d'intégration",
-      "integrations.queue": "File d'attente d'intégration"
+      "integrations.queue": "File d'attente d'intégration",
+      "integrations.toggle_provider": "Activer ou désactiver le fournisseur d'intégration",
+      "integrations.open_configuration": "Ouvrir la configuration d'intégration",
+      "integrations.save_configuration": "Enregistrer la configuration d'intégration"
     }
   },
   "discountEngine": {
