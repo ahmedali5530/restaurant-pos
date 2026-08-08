@@ -15,7 +15,10 @@ import {useTranslation} from 'react-i18next';
 import i18n from '@/lib/i18n.ts';
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import { DiscountScheduleEditor } from "@/components/settings/discounts/schedule.editor.tsx";
-import { DiscountConditionsEditor } from "@/components/settings/discounts/conditions.editor.tsx";
+import {
+  DiscountConditionsEditor,
+  normalizeBxgyConditions,
+} from "@/components/settings/discounts/conditions.editor.tsx";
 import { DiscountTargetsEditor } from "@/components/settings/discounts/targets.editor.tsx";
 import { refreshDiscountCache } from "@/hooks/useDiscountCache.ts";
 import {
@@ -113,7 +116,7 @@ export const DiscountForm = ({
         min_order_amount: data.min_order_amount ?? '',
       });
       setSchedules(data.schedules || []);
-      setConditions(data.conditions);
+      setConditions(data.conditions ? normalizeBxgyConditions(data.conditions) : undefined);
       setTargets(mergeTargetsFromRecord(data));
     }
   }, [data]);
@@ -150,7 +153,9 @@ export const DiscountForm = ({
     vals.min_value = vals.min_rate;
     vals.max_value = vals.max_rate;
     vals.schedules = schedules;
-    vals.conditions = conditions || null;
+    vals.conditions = vals.category === 'buy_x_get_y'
+      ? normalizeBxgyConditions(conditions)
+      : null;
     vals.targets = sanitizeTargetsForSave(targets);
     if (vals.min_order_amount === '' || vals.min_order_amount === null || vals.min_order_amount === undefined) {
       vals.min_order_amount = null;
