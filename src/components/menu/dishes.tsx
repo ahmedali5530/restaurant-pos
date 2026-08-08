@@ -1,4 +1,5 @@
 import {Swiper, SwiperSlide} from "swiper/react";
+import type {Swiper as SwiperInstance} from "swiper";
 import _ from "lodash";
 import {cn} from "@/lib/utils.ts";
 import {useAtom} from "jotai";
@@ -9,7 +10,7 @@ import {
   closingEnforcementAtom,
   type DishSearchType,
 } from "@/store/jotai.ts";
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {useMediaQuery} from "react-responsive";
 import {MenuDish} from "@/components/menu/dish.tsx";
 import {CartModifierGroup, MenuItem} from "@/api/model/cart_item.ts";
@@ -27,6 +28,8 @@ export const MenuDishes = () => {
   const isTablet = useMediaQuery({maxWidth: 1024});
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchBuffer, setSearchBuffer] = useState('');
+  const [activeSlide, setActiveSlide] = useState(0);
+  const swiperRef = useRef<SwiperInstance | null>(null);
 
   const [state, setState] = useAtom(appState);
   const [settings] = useAtom(appSettings);
@@ -83,6 +86,12 @@ export const MenuDishes = () => {
 
   const slides = Math.ceil((dishes?.length || 0) / ITEMS_PER_SLIDE) || 1;
   const isSearchMode = enableDishSearch && searchOpen;
+  const categoryId = state.category?.id?.toString();
+
+  useEffect(() => {
+    setActiveSlide(0);
+    swiperRef.current?.slideTo(0, 0);
+  }, [categoryId, searchOpen, searchBuffer, slides]);
 
   const onClick = (item: MenuItem, selectedGroups?: CartModifierGroup[]) => {
     if (orderTakingBlocked) {
@@ -128,35 +137,68 @@ export const MenuDishes = () => {
   }, []);
 
   const dishGrid = (
-    <Swiper
-      slidesPerView={1}
-      className={cn(
-        "dishes-swiper",
-        isSearchMode && "dishes-swiper--search",
-        orderTakingBlocked && "opacity-50 pointer-events-none"
-      )}
-      direction="vertical"
-    >
-      {_.range(0, slides).map(rowId => (
-        <SwiperSlide
-          key={rowId}
+    <div className="relative min-h-0 h-full">
+      <Swiper
+        slidesPerView={1}
+        className={cn(
+          "dishes-swiper",
+          isSearchMode && "dishes-swiper--search",
+          orderTakingBlocked && "opacity-50 pointer-events-none"
+        )}
+        direction="vertical"
+        onSwiper={(swiper) => {
+          swiperRef.current = swiper;
+        }}
+        onSlideChange={(swiper) => {
+          setActiveSlide(swiper.activeIndex);
+        }}
+      >
+        {_.range(0, slides).map(rowId => (
+          <SwiperSlide
+            key={rowId}
+            className={cn(
+              "!grid sm:grid-cols-3 md:grid-cols-4 md:grid-rows-5 sm:grid-rows-4",
+              isSearchMode && "md:grid-rows-3 sm:grid-rows-3"
+            )}
+          >
+            {dishes.slice(rowId * ITEMS_PER_SLIDE, ((rowId * ITEMS_PER_SLIDE) + ITEMS_PER_SLIDE)).map((item) => (
+              <MenuDish
+                onClick={onClick}
+                item={item}
+                key={item.id?.toString() ?? item.number}
+                level={0}
+                price={item.price}
+              />
+            ))}
+          </SwiperSlide>
+        ))}
+      </Swiper>
+
+      {slides > 1 && (
+        <div
           className={cn(
-            "!grid sm:grid-cols-3 md:grid-cols-4 md:grid-rows-5 sm:grid-rows-4",
-            isSearchMode && "md:grid-rows-3 sm:grid-rows-3"
+            "absolute right-1 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-1.5",
+            orderTakingBlocked && "pointer-events-none opacity-50"
           )}
         >
-          {dishes.slice(rowId * ITEMS_PER_SLIDE, ((rowId * ITEMS_PER_SLIDE) + ITEMS_PER_SLIDE)).map((item) => (
-            <MenuDish
-              onClick={onClick}
-              item={item}
-              key={item.id?.toString() ?? item.number}
-              level={0}
-              price={item.price}
+          {_.range(0, slides).map((index) => (
+            <button
+              key={index}
+              type="button"
+              aria-label={`Slide ${index + 1} of ${slides}`}
+              aria-current={activeSlide === index ? "true" : undefined}
+              onClick={() => swiperRef.current?.slideTo(index)}
+              className={cn(
+                "rounded-full transition-all",
+                activeSlide === index
+                  ? "h-2.5 w-2.5 bg-warning-500"
+                  : "h-1.5 w-1.5 bg-neutral-400 hover:bg-neutral-500"
+              )}
             />
           ))}
-        </SwiperSlide>
-      ))}
-    </Swiper>
+        </div>
+      )}
+    </div>
   );
 
   return (
