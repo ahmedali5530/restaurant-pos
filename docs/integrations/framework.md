@@ -132,8 +132,56 @@ sequenceDiagram
 
 - Framework supports normalized events (`IntegrationEvent`) and provider subscriptions.
 - POS publishes business events via `createPosEvent` + `IntegrationManager.publish` (optionally with a **stable event id** for idempotency).
-- Providers handle only events they declare in `manifest.supportedEvents`.
-- Accounting: Domain modules must **never** create journal entries directly. Publish helpers live in `src/integrations/accounting/events/publish.ts` (`publishSaleCompleted`, `publishSaleRefunded`, `publishOrderCancelled`, `publishPayrollPosted`, inventory helpers, etc.).
+- Public helpers live under `src/integrations/events/` (re-exported from accounting/inventory publish paths for compatibility).
+- Providers handle events declared in `manifest.supportedEvents`, or `*` for all events. Fan-out skips disabled providers; handler failures are isolated per provider.
+- Deep services can publish without React via `setIntegrationEventManager` / `getIntegrationEventManager` (wired by `IntegrationProvider`).
+
+### Hybrid model
+
+| Layer | Purpose | Consumer examples |
+|-------|---------|-------------------|
+| Typed business events | Money / stock / payroll / journals | Internal accounting, QuickBooks |
+| `EntityChanged` | Master-data + entity CRUD / status | Future logger / webhook / audit |
+
+#### `EntityChanged` payload
+
+```ts
+{
+  domain: 'manage' | 'hr' | 'inventory' | 'accounts' | 'pos' | 'ops',
+  table: string,
+  entityId: string,
+  action: 'create' | 'update' | 'delete' | 'deactivate' | 'status_change',
+  before?: any | null,  // secrets redacted
+  after?: any | null,
+  changedBy?: string,
+  source: string,
+  correlationId?: string,
+  label?: string,
+}
+```
+
+Publish with `entityAfterWrite` / `emitEntityCrudSave` / `publishEntityChanged`.
+
+#### Logger provider contract
+
+- `supportedEvents: ['EntityChanged']` or `['*']`
+- Implement `handleEvent(event)` — payload is self-describing; no domain coupling.
+- Do not block the POS thread with slow I/O; prefer queue actions if needed.
+
+### Emission matrix (selected)
+
+| Event | Source hooks |
+|-------|--------------|
+| `EntityChanged` | settings forms, settings-delete, HR forms, labor-engine audit, inventory forms/posting, journals, closing |
+| `SaleCompleted` / `InvoiceCreated` / `PaymentCompleted` | Payment settle, auto-check-close |
+| `OrderCreated` / `CustomerCreated` | Order create / inline customer |
+| `DayClosed` | Day closing complete |
+| `StockCountCompleted` | Kitchen reconciliation stock counts |
+| `JournalPosted` / `JournalReversed` | Journal publish / reverse |
+| Inventory value events | Inventory posting service (unchanged) |
+| `ApplicationStarted` / `ApplicationShutdown` | Integration provider bootstrap |
+
+Accounting: Domain modules must **never** create journal entries directly. Prefer typed publishers from `src/integrations/events` or compat re-exports in `src/integrations/accounting/events/publish.ts`.
 
 ## Accounting integration (draft-first)
 

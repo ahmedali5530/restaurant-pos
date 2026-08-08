@@ -20,6 +20,7 @@ import {TimePicker} from "@/components/common/antd/time.picker.tsx";
 import {DateTimePicker, jsDateToDayjs} from "@/components/common/antd/datetime.picker.tsx";
 import {dayjsToSurreal} from "@/components/hr/shared/form.utils.ts";
 
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -174,6 +175,15 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
           updated_at: now,
         });
       }
+
+      
+      await emitEntityCrudSave({
+        domain: 'manage',
+        table: Tables.coupons,
+        entityId: data?.id ? String(data.id) : Tables.coupons,
+        isUpdate: Boolean(data?.id),
+        source: 'settings-form',
+      });
 
       closeModal();
       toast.success(t('toast:admin.couponSaved', { code: values.code }));

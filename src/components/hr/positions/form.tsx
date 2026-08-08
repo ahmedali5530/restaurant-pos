@@ -16,6 +16,7 @@ import {HrCheckboxField, HrInputField, HrSelectField} from "@/components/hr/shar
 import {SelectOption, toRecordId, toSelectOption} from "@/components/hr/shared/form.utils.ts";
 import {DepartmentForm} from "@/components/hr/departments/form.tsx";
 import {CostCenterForm} from "@/components/hr/cost_centers/form.tsx";
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 
 interface FormValues {
   id?: string;
@@ -95,6 +96,15 @@ export const PositionForm = ({open, onClose, data}: Props) => {
       } else {
         await db.create(Tables.positions, payload);
       }
+
+      await emitEntityCrudSave({
+        domain: 'hr',
+        table: Tables.positions,
+        entityId: data?.id ? String(data.id) : Tables.positions,
+        isUpdate: Boolean(data?.id),
+        after: payload,
+        source: 'entity-form',
+      });
 
       toast.success(t("buttons.save"));
       closeModal();

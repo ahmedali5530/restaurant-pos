@@ -21,6 +21,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown, faArrowUp, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import _ from "lodash";
 
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 interface Props {
   open: boolean
   onClose: () => void;
@@ -127,6 +128,15 @@ export const WorkflowForm = ({
           is_terminal: i === lastIndex
         });
       }
+
+      
+      await emitEntityCrudSave({
+        domain: 'manage',
+        table: Tables.workflows,
+        entityId: data?.id ? String(data.id) : Tables.workflows,
+        isUpdate: Boolean(data?.id),
+        source: 'settings-form',
+      });
 
       closeModal();
       toast.success(t('toast:admin.workflowSaved', { name: values.name }));

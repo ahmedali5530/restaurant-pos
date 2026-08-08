@@ -5,6 +5,11 @@ import { getSessionToken, isGatewayAuthEnabled } from '@/lib/session.ts';
 import { IntegrationManager } from '@/integrations/core/integration-manager.ts';
 import { ProviderRegistry } from '@/integrations/registry/provider-registry.ts';
 import { IntegrationEventBus } from '@/integrations/events/event-bus.ts';
+import {
+  publishApplicationShutdown,
+  publishApplicationStarted,
+  setIntegrationEventManager,
+} from '@/integrations/events/index.ts';
 import { IndexedDbQueueStore } from '@/integrations/storage/indexeddb-queue-store.ts';
 import { IntegrationQueueEngine } from '@/integrations/queue/queue-engine.ts';
 import { SchedulerEngine } from '@/integrations/scheduler/scheduler-engine.ts';
@@ -61,8 +66,16 @@ export const IntegrationProvider = ({ children }: PropsWithChildren) => {
       await saveIntegrationProviderConfig(dbRef.current, providerId, values);
     });
     next.setDbLoader(() => dbRef.current);
+    setIntegrationEventManager(next);
     return next;
   }, []);
+
+  useEffect(() => {
+    setIntegrationEventManager(manager);
+    return () => {
+      setIntegrationEventManager(null);
+    };
+  }, [manager]);
 
   useEffect(() => {
     if (!isGatewayAuthEnabled()) {
@@ -115,6 +128,7 @@ export const IntegrationProvider = ({ children }: PropsWithChildren) => {
 
       await manager.bootstrapFromCatalog(catalog, enabledProviderIds);
       await manager.refreshHealth();
+      await publishApplicationStarted(manager);
       await refreshProviderStates();
       if (mounted) {
         setInitialized(true);
@@ -127,7 +141,9 @@ export const IntegrationProvider = ({ children }: PropsWithChildren) => {
       if (bootstrappedRef.current) {
         bootstrappedRef.current = false;
         setInitialized(false);
-        void manager.shutdown();
+        void publishApplicationShutdown(manager).finally(() => {
+          void manager.shutdown();
+        });
       }
       const discovery = new BundledProviderDiscovery();
       const catalogManifests = discovery.discoverCatalog().listCatalogManifests();
@@ -153,7 +169,9 @@ export const IntegrationProvider = ({ children }: PropsWithChildren) => {
       if (queueTimer) {
         clearInterval(queueTimer);
       }
-      void manager.shutdown();
+      void publishApplicationShutdown(manager).finally(() => {
+        void manager.shutdown();
+      });
       bootstrappedRef.current = false;
     };
   }, [manager, isConnected, sessionReady]);

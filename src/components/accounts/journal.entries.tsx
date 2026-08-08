@@ -20,7 +20,10 @@ import { StringRecordId } from "surrealdb";
 import { appPage } from "@/store/jotai.ts";
 import { useAtom } from "jotai";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
-import { publishJournalEntry } from "@/integrations/storage/account-journal-repository.ts";
+import {
+  emitJournalReversed,
+  publishJournalEntry,
+} from "@/integrations/storage/account-journal-repository.ts";
 
 export const JournalEntries = () => {
   const { t } = useTranslation(['accounts', 'common']);
@@ -106,6 +109,8 @@ export const JournalEntries = () => {
       await db.merge(new StringRecordId(entry.id.toString()), {
         status: 'reversed',
       });
+
+      await emitJournalReversed(String(entry.id), String(newEntry.id));
 
       toast.success(t('messages.reverseSuccess', 'Journal entry reversed successfully'));
       await journalHook.fetchData();

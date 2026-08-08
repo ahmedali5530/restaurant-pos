@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-08-08',
+    title: 'Integration event emission',
+    items: [
+      'Domain operations now publish integration events (sales, payments, inventory, HR, accounts, and master-data EntityChanged) so future providers and a logger can plug in without rewiring POS screens.',
+      'IntegrationManager fans out only to enabled providers that declare an event (or *), isolates handler failures, and emits ApplicationStarted/ApplicationShutdown on bootstrap.',
+    ],
+  },
+  {
+    date: '2026-08-08',
     title: 'Integration settings permissions',
     items: [
       'New role modules: Toggle provider, Open configuration, and Save configuration. Enable/disable, opening config, saving settings, and connect/disconnect/sync require those modules (manager PIN when missing).',

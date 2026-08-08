@@ -13,6 +13,7 @@ import {useTranslation} from 'react-i18next';
 import i18n from '@/lib/i18n.ts';
 import { Tax } from "@/api/model/tax.ts";
 
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 interface Props {
   open: boolean
   onClose: () => void;
@@ -70,6 +71,15 @@ export const TaxForm = ({
           ...vals
         });
       }
+
+      
+      await emitEntityCrudSave({
+        domain: 'manage',
+        table: Tables.taxes,
+        entityId: data?.id ? String(data.id) : Tables.taxes,
+        isUpdate: Boolean(data?.id),
+        source: 'settings-form',
+      });
 
       closeModal();
       toast.success(t('toast:admin.taxSaved', { name: values.name }));

@@ -33,6 +33,7 @@ import {
 } from "@/lib/discount-engine/types.ts";
 import { translatedSelectOptions } from "@/lib/discount-engine/i18n-options.ts";
 
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 interface Props {
   open: boolean
   onClose: () => void;
@@ -177,6 +178,15 @@ export const DiscountForm = ({
       }
 
       await refreshDiscountCache(db);
+      
+      await emitEntityCrudSave({
+        domain: 'manage',
+        table: Tables.discounts,
+        entityId: data?.id ? String(data.id) : Tables.discounts,
+        isUpdate: Boolean(data?.id),
+        source: 'settings-form',
+      });
+
       closeModal();
       toast.success(t('toast:admin.discountSaved', { name: values.name }));
     } catch ( e ) {

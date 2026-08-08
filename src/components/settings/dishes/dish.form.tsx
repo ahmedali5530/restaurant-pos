@@ -30,6 +30,7 @@ import {detectMimeType, formatFileSize, MAX_UPLOAD_BYTES} from "@/utils/files";
 import {Workflow} from "@/api/model/workflow.ts";
 import {Kitchen} from "@/api/model/kitchen.ts";
 import {WorkflowForm} from "@/components/settings/workflows/workflow.form.tsx";
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 
 interface Props {
   open: boolean
@@ -409,6 +410,15 @@ export const DishForm = ({
         });
       }
 
+      await emitEntityCrudSave({
+        domain: 'manage',
+        table: Tables.dishes,
+        entityId: String(menuId),
+        isUpdate: Boolean(data?.id),
+        after: dishData,
+        source: 'settings-form',
+        label: values.name,
+      });
 
       closeModal();
       toast.success(t('toast:admin.dishSaved', { name: values.name }));

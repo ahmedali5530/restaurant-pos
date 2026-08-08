@@ -18,7 +18,7 @@ import { nowSurrealDateTime, toAppBusinessDate } from "@/lib/datetime.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
 import {
-  publishInventoryAdjusted,
+  publishInventoryDocumentAdjusted,
   publishInventoryPosted,
   publishInventoryReversed,
 } from "@/lib/inventory/events/publish.ts";
@@ -27,6 +27,7 @@ import {
   publishInventoryIssued,
   publishPurchaseReceived,
 } from "@/integrations/accounting/events/publish.ts";
+import { entityAfterWrite } from "@/integrations/events/publish/entity.ts";
 import {
   InventoryPostingDocumentType,
   POSTING_STRATEGIES,
@@ -279,6 +280,20 @@ export const reverseDocument = async (
       referenceId: documentId,
       ledgerEntryCount: reversalEntries.length,
       reversedBy: input.userId,
+    });
+    await entityAfterWrite({
+      manager: input.integrationManager,
+      domain: "inventory",
+      table: strategy.table,
+      entityId: String(documentId),
+      action: "status_change",
+      after: {
+        status: input.stampVoided !== false ? "voided" : "reversed",
+        ledgerEntryCount: reversalEntries.length,
+      },
+      changedBy: input.userId,
+      source: "posting.service",
+      label: "reverse",
     });
   } catch (error) {
     console.warn("Failed publishing InventoryReversed event", error);
@@ -548,7 +563,7 @@ export const postDocument = async (
 
   try {
     if (input.documentType === "adjustment") {
-      await publishInventoryAdjusted(input.integrationManager, {
+      await publishInventoryDocumentAdjusted(input.integrationManager, {
         referenceType: strategy.referenceType,
         referenceId: documentId,
         documentNumber: doc.invoice_number,
@@ -652,6 +667,22 @@ export const postDocument = async (
         }
       }
     }
+
+    await entityAfterWrite({
+      manager: input.integrationManager,
+      domain: "inventory",
+      table: strategy.table,
+      entityId: String(documentId),
+      action: "status_change",
+      after: {
+        status: "posted",
+        documentType: input.documentType,
+        ledgerEntryCount: newEntries.length,
+      },
+      changedBy: input.userId,
+      source: "posting.service",
+      label: "post",
+    });
   } catch (error) {
     console.warn("Failed publishing inventory posting event", error);
   }

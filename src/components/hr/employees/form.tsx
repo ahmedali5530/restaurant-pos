@@ -29,6 +29,7 @@ import {EmploymentStatus, EmploymentType} from "@/api/model/hr.types.ts";
 import {DepartmentForm} from "@/components/hr/departments/form.tsx";
 import {PositionForm} from "@/components/hr/positions/form.tsx";
 import {CostCenterForm} from "@/components/hr/cost_centers/form.tsx";
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 
 interface FormValues {
   id?: string;
@@ -228,6 +229,15 @@ export const EmployeeForm = ({open, onClose, data}: Props) => {
       } else {
         await db.create(Tables.employees, payload);
       }
+
+      await emitEntityCrudSave({
+        domain: 'hr',
+        table: Tables.employees,
+        entityId: data?.id ? String(data.id) : Tables.employees,
+        isUpdate: Boolean(data?.id),
+        after: payload,
+        source: 'entity-form',
+      });
 
       toast.success(t("buttons.save"));
       closeModal();

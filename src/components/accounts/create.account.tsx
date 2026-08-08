@@ -21,6 +21,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import {CreateAccountGroup} from "@/components/accounts/create.account.group.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 
 interface CreateAccountProps {
   addModal: boolean;
@@ -164,6 +165,15 @@ export const CreateAccount: FC<CreateAccountProps> = ({
           is_active: true,
         });
       }
+
+      await emitEntityCrudSave({
+        domain: 'accounts',
+        table: Tables.accounts,
+        entityId: entity?.id ? String(entity.id) : Tables.accounts,
+        isUpdate: Boolean(entity?.id),
+        after: payload,
+        source: 'entity-form',
+      });
 
       onModalClose();
     } catch (error: any) {

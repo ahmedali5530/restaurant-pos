@@ -14,6 +14,7 @@ import i18n from '@/lib/i18n.ts';
 import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
 import { InputField, TimeField } from "@/components/common/form/rhf-fields.tsx";
 
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 interface Props {
   open: boolean
   onClose: () => void;
@@ -115,6 +116,15 @@ export const MenuForm = ({
           items: []
         });
       }
+
+      
+      await emitEntityCrudSave({
+        domain: 'manage',
+        table: Tables.menus,
+        entityId: data?.id ? String(data.id) : Tables.menus,
+        isUpdate: Boolean(data?.id),
+        source: 'settings-form',
+      });
 
       closeModal();
       toast.success(t('toast:admin.menuSaved', { name: values.name }));

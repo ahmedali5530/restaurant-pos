@@ -19,6 +19,7 @@ import {
   toCalendarDateValue,
 } from "@/components/hr/shared/form.utils.ts";
 import {PayrollPeriodStatus, PayrollPeriodType} from "@/api/model/hr.types.ts";
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 
 const PERIOD_TYPES: PayrollPeriodType[] = ["weekly", "biweekly", "monthly", "custom"];
 const PERIOD_STATUSES: PayrollPeriodStatus[] = ["open", "locked", "closed", "paid"];
@@ -101,6 +102,15 @@ export const PayrollPeriodForm = ({open, onClose, data}: Props) => {
       } else {
         await db.create(Tables.payroll_periods, payload);
       }
+
+      await emitEntityCrudSave({
+        domain: 'hr',
+        table: Tables.payroll_periods,
+        entityId: data?.id ? String(data.id) : Tables.payroll_periods,
+        isUpdate: Boolean(data?.id),
+        after: payload,
+        source: 'entity-form',
+      });
 
       toast.success(t("buttons.save"));
       closeModal();

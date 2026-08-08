@@ -28,6 +28,7 @@ import {
 } from "@/utils/inventoryItemTypes.ts";
 import {InventoryItemType} from "@/api/model/inventory_item.ts";
 import {getReorderLevelForStore} from "@/utils/inventory.ts";
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 import {Switch} from "@/components/common/input/switch.tsx";
 import {useInventoryLocations} from "@/hooks/useInventoryLocations.ts";
 import {toRecordId} from "@/lib/utils.ts";
@@ -240,6 +241,15 @@ export const InventoryItemForm = ({
       } else {
         await db.create(Tables.inventory_items, itemsData);
       }
+
+      await emitEntityCrudSave({
+        domain: 'inventory',
+        table: Tables.inventory_items,
+        entityId: data?.id ? String(data.id) : Tables.inventory_items,
+        isUpdate: Boolean(data?.id),
+        after: itemsData,
+        source: 'entity-form',
+      });
 
       closeModal();
       toast.success(t('toast:inventory.itemSaved', { name: values.name }));

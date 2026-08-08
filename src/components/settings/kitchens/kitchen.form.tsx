@@ -26,6 +26,7 @@ import { PrinterForm } from "@/components/settings/printers/printer.form.tsx";
 import { ensureLocationForKitchen } from "@/lib/inventory/location.service.ts";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
 
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 interface Props {
   open: boolean
   onClose: () => void;
@@ -135,6 +136,15 @@ export const KitchenForm = ({
           type: "Kitchen",
         });
       }
+
+      
+      await emitEntityCrudSave({
+        domain: 'manage',
+        table: Tables.kitchens,
+        entityId: data?.id ? String(data.id) : Tables.kitchens,
+        isUpdate: Boolean(data?.id),
+        source: 'settings-form',
+      });
 
       closeModal();
       toast.success(t('toast:admin.kitchenSaved', { name: values.name }));

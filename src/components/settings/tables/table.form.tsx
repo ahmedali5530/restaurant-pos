@@ -28,6 +28,7 @@ import { CategoryForm } from "@/components/settings/categories/category.form.tsx
 import { OrderTypeForm } from "@/components/settings/order_types/order_type.form.tsx";
 import { PaymentTypeForm } from "@/components/settings/payment_types/payment_type.form.tsx";
 
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 interface Props {
   open: boolean
   onClose: () => void;
@@ -171,6 +172,15 @@ export const TableForm = ({
           ...val
         });
       }
+
+      
+      await emitEntityCrudSave({
+        domain: 'manage',
+        table: Tables.tables,
+        entityId: data?.id ? String(data.id) : Tables.tables,
+        isUpdate: Boolean(data?.id),
+        source: 'settings-form',
+      });
 
       closeModal();
       toast.success(t('toast:admin.tableSaved', { name: `${values.name}${values.number}` }));

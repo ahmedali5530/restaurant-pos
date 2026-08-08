@@ -45,6 +45,10 @@ import {
   runFiscalSettlementForOrder,
 } from "@/integrations/providers/fiscal/settlement.ts";
 import { publishSaleCompleted } from "@/integrations/accounting/events/publish.ts";
+import {
+  publishInvoiceCreated,
+  publishPaymentCompleted,
+} from "@/integrations/events/publish/payments.ts";
 import {toast} from "sonner";
 
 interface Props {
@@ -332,8 +336,32 @@ const OrderPaymentReceivingContent = ({
       if (saleOrder && integrationManager) {
         try {
           await publishSaleCompleted(integrationManager, saleOrder);
+          await publishInvoiceCreated(integrationManager, {
+            orderId: String(saleOrder.id),
+            invoiceNumber: saleOrder.invoice_number,
+            total: Number(saleOrder.payments?.reduce((s, p) => s + Number(p?.amount || 0), 0) || total),
+            totalCollected: Number(saleOrder.payments?.reduce((s, p) => s + Number(p?.amount || 0), 0) || total),
+            taxAmount: Number(saleOrder.tax_amount || taxAmount || 0),
+            customerId: saleOrder.customer?.id
+              ? String(saleOrder.customer.id)
+              : undefined,
+            completedAt: new Date().toISOString(),
+          });
+          for (const payment of syncedPayments) {
+            if (!payment?.id) continue;
+            await publishPaymentCompleted(integrationManager, {
+              paymentId: String(payment.id),
+              orderId: String(order.id),
+              amount: Number(payment.amount || 0),
+              paymentTypeId: payment.payment_type?.id
+                ? String(payment.payment_type.id)
+                : undefined,
+              paymentTypeName: payment.payment_type?.name,
+              tipAmount: tipAmount,
+            });
+          }
         } catch (publishError) {
-          console.warn('Failed publishing SaleCompleted event', publishError);
+          console.warn('Failed publishing settlement integration events', publishError);
         }
       }
 

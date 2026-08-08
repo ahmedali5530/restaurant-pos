@@ -31,6 +31,8 @@ import {safeNumber} from "@/lib/utils.ts";
 import {fetchNextSequentialNumber} from "@/utils/recordNumbers.ts";
 import {postDocument} from "@/lib/inventory/posting.service.ts";
 import {toLocationRecordId} from "@/lib/inventory/location.service.ts";
+import { publishStockCountCompleted } from "@/integrations/events/publish/ops.ts";
+import { entityAfterWrite } from "@/integrations/events/publish/entity.ts";
 
 type DatabaseClient = ReturnType<typeof useDB>;
 
@@ -1215,6 +1217,23 @@ const upsertManualTables = async (
   await insertChunks(Tables.kitchen_wastes, wasteRows);
   await insertChunks(Tables.kitchen_staff_meals, staffRows);
   await insertChunks(Tables.kitchen_complimentary_items, complimentaryRows);
+
+  if (stockRows.length > 0) {
+    await publishStockCountCompleted(undefined, {
+      countId: String(reconciliationId),
+      lineCount: stockRows.length,
+      completedBy: countedBy ? String(countedBy) : undefined,
+    });
+    await entityAfterWrite({
+      domain: "inventory",
+      table: Tables.kitchen_stock_counts,
+      entityId: String(reconciliationId),
+      action: "status_change",
+      after: { lineCount: stockRows.length },
+      source: "kitchen-reconciliation",
+      label: "stock_count",
+    });
+  }
 };
 
 export const saveManualInputs = async (

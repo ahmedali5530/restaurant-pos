@@ -47,6 +47,7 @@ const manifest: ProviderManifest = {
     'InventoryPosted',
     'InventoryReversed',
     'InventoryAdjusted',
+    'InventoryDocumentAdjusted',
     'PurchaseReceived',
     'PurchaseReturned',
     'WasteRecorded',

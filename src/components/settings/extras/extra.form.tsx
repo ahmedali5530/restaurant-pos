@@ -26,6 +26,7 @@ import { PaymentTypeForm } from "@/components/settings/payment_types/payment_typ
 import { OrderTypeForm } from "@/components/settings/order_types/order_type.form.tsx";
 import { TableForm } from "@/components/settings/tables/table.form.tsx";
 
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 interface Props {
   open: boolean
   onClose: () => void
@@ -149,6 +150,15 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
       } else {
         await db.create(Tables.extras, val);
       }
+
+      
+      await emitEntityCrudSave({
+        domain: 'manage',
+        table: Tables.extras,
+        entityId: data?.id ? String(data.id) : Tables.extras,
+        isUpdate: Boolean(data?.id),
+        source: 'settings-form',
+      });
 
       closeModal();
       toast.success(t('toast:admin.extraSaved', { name: values.name }));

@@ -31,6 +31,7 @@ export type ProviderCapability =
 export type IntegrationEventName =
   | 'ApplicationStarted'
   | 'ApplicationShutdown'
+  | 'EntityChanged'
   | 'InvoiceCreated'
   | 'InvoicePaid'
   | 'InvoiceRefunded'
@@ -44,6 +45,8 @@ export type IntegrationEventName =
   | 'PayrollPosted'
   | 'WasteRecorded'
   | 'InventoryAdjusted'
+  /** Ledger lifecycle for adjustment documents (not accounting value event). */
+  | 'InventoryDocumentAdjusted'
   | 'InventoryIssued'
   | 'IssueReturned'
   | 'StockCountCompleted'
@@ -63,6 +66,8 @@ export type IntegrationEventName =
   | 'OrderCancelled'
   | 'CustomerCreated'
   | 'PaymentCompleted'
+  | 'JournalPosted'
+  | 'JournalReversed'
   | 'PrinterConnected'
   | 'InternetConnected'
   | 'InternetDisconnected'

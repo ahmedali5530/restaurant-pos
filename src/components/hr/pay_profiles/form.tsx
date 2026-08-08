@@ -23,6 +23,7 @@ import {
   toRecordId,
 } from "@/components/hr/shared/form.utils.ts";
 import {PayType} from "@/api/model/hr.types.ts";
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 
 const PAY_TYPES: PayType[] = ["hourly", "monthly_salary", "weekly_salary", "daily_wage", "contract", "commission", "mixed"];
 
@@ -137,6 +138,15 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
       } else {
         await db.create(Tables.employee_pay_profiles, payload);
       }
+
+      await emitEntityCrudSave({
+        domain: 'hr',
+        table: Tables.employee_pay_profiles,
+        entityId: data?.id ? String(data.id) : Tables.employee_pay_profiles,
+        isUpdate: Boolean(data?.id),
+        after: payload,
+        source: 'entity-form',
+      });
 
       toast.success(t("buttons.save"));
       closeModal();

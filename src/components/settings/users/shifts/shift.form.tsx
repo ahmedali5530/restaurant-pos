@@ -13,6 +13,7 @@ import { Tables } from "@/api/db/tables.ts";
 import { Shift } from "@/api/model/shift.ts";
 import { isOvernightShift, shiftDisplayTime } from "@/lib/shift.utils.ts";
 
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 interface Props {
   open: boolean
   onClose: () => void
@@ -69,6 +70,15 @@ export const ShiftForm = ({ open, onClose, data }: Props) => {
       } else {
         await db.create(Tables.shifts, payload);
       }
+      
+      await emitEntityCrudSave({
+        domain: 'manage',
+        table: Tables.shifts,
+        entityId: data?.id ? String(data.id) : Tables.shifts,
+        isUpdate: Boolean(data?.id),
+        source: 'settings-form',
+      });
+
       closeModal();
       toast.success(t('toast:admin.shiftSaved', { name: values.name }));
     } catch (e) {

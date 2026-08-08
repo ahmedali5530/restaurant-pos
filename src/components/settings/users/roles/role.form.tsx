@@ -17,6 +17,7 @@ import { getAccessRuleChildLabel, getAccessRuleModuleLabel } from "@/lib/access.
 import { Checkbox } from "@/components/common/input/checkbox.tsx";
 import { useTranslation } from "react-i18next";
 
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -322,6 +323,15 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
       } else {
         await db.create(Tables.user_roles, payload);
       }
+      
+      await emitEntityCrudSave({
+        domain: 'manage',
+        table: Tables.user_roles,
+        entityId: data?.id ? String(data.id) : Tables.user_roles,
+        isUpdate: Boolean(data?.id),
+        source: 'settings-form',
+      });
+
       closeModal();
       toast.success(t("toast:admin.roleSaved", { name: values.name }));
     } catch (e) {

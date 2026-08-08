@@ -15,6 +15,7 @@ import * as z from "zod";
 import { transformValue } from "@/lib/utils.ts";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 interface Props {
   open: boolean
   onClose: () => void;
@@ -80,6 +81,15 @@ export const PrinterForm = ({
           ...vals
         });
       }
+
+      
+      await emitEntityCrudSave({
+        domain: 'manage',
+        table: Tables.printers,
+        entityId: data?.id ? String(data.id) : Tables.printers,
+        isUpdate: Boolean(data?.id),
+        source: 'settings-form',
+      });
 
       closeModal();
       toast.success(t('toast:admin.printerSaved', { name: values.name }));

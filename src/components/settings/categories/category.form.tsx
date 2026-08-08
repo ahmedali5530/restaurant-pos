@@ -14,6 +14,7 @@ import {useTranslation} from 'react-i18next';
 import i18n from '@/lib/i18n.ts';
 import {Switch} from "@/components/common/input/switch.tsx";
 
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 interface Props {
   open: boolean
   onClose: () => void;
@@ -71,6 +72,15 @@ export const CategoryForm = ({
           ...vals
         });
       }
+
+      
+      await emitEntityCrudSave({
+        domain: 'manage',
+        table: Tables.categories,
+        entityId: data?.id ? String(data.id) : Tables.categories,
+        isUpdate: Boolean(data?.id),
+        source: 'settings-form',
+      });
 
       closeModal();
       toast.success(t('toast:admin.categorySaved', { name: values.name }));

@@ -32,6 +32,8 @@ import {useSecurity} from "@/hooks/useSecurity.ts";
 import {useTranslation} from "react-i18next";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { DocumentTitle } from "@/components/common/document-title.tsx";
+import { publishDayClosed } from "@/integrations/events/publish/ops.ts";
+import { entityAfterWrite } from "@/integrations/events/publish/entity.ts";
 
 const DEFAULT_TERMINALS: TerminalCash[] = [
   {terminal_id: "terminal_1", terminal_name: "Terminal 1", cash_amount: 0},
@@ -439,6 +441,37 @@ export const Closing = () => {
         await db.update(existingClosing.id, closingData);
       } else {
         await db.create(Tables.closings, closingData);
+      }
+
+      const closingId = existingClosing?.id
+        ? String(existingClosing.id)
+        : Tables.closings;
+
+      await entityAfterWrite({
+        domain: 'ops',
+        table: Tables.closings,
+        entityId: closingId,
+        action: complete ? 'status_change' : existingClosing?.id ? 'update' : 'create',
+        after: {
+          status: closingData.status,
+          net_amount: closingData.net_amount,
+        },
+        source: 'closing',
+      });
+
+      if (complete) {
+        await publishDayClosed(undefined, {
+          closingId,
+          businessDate: windowForSave.date_to
+            ? new Date(windowForSave.date_to).toISOString()
+            : undefined,
+          totals: {
+            net_amount: Number(netAmount) || 0,
+            total_cash: Number(totalCash) || 0,
+            total_other_payments: Number(totalOtherPayments) || 0,
+            expenses: Number(totalExpenses) || 0,
+          },
+        });
       }
 
       toast.success(complete ? t("toast:closing.completed") : t("toast:closing.savedDraft"));

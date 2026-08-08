@@ -404,11 +404,47 @@ export class IntegrationManager {
     });
   }
 
+  private providerSupportsEvent(
+    supportedEvents: string[] | undefined,
+    eventName: string
+  ): boolean {
+    if (!supportedEvents || supportedEvents.length === 0) {
+      return false;
+    }
+    return supportedEvents.includes('*') || supportedEvents.includes(eventName);
+  }
+
   async publish(event: IntegrationEvent<any>) {
     await this.eventBus.publish(event);
+
     for (const provider of this.registry.getAll()) {
       if (!provider.handleEvent) continue;
-      await provider.handleEvent(event);
+      const manifest = provider.getManifest();
+      if (!this.enabledProviderIds.has(manifest.id)) continue;
+      if (!this.providerSupportsEvent(manifest.supportedEvents, event.name)) {
+        continue;
+      }
+      try {
+        await provider.handleEvent(event);
+      } catch (error) {
+        console.warn(
+          `Integration provider ${manifest.id} failed handling ${event.name}`,
+          error
+        );
+        try {
+          await this.auditLogger.log({
+            action: 'Failure',
+            providerId: manifest.id,
+            payload: {
+              eventName: event.name,
+              eventId: event.id,
+              error: error instanceof Error ? error.message : String(error),
+            },
+          });
+        } catch {
+          // ignore audit secondary failures
+        }
+      }
     }
   }
 

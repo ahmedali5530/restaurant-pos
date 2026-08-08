@@ -30,6 +30,11 @@ import {createStageRows} from "@/lib/kitchen/workflow.service.ts";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {useTranslation} from "react-i18next";
 import {DateTime} from "luxon";
+import {
+  publishCustomerCreated,
+  publishOrderCreated,
+} from "@/integrations/events/index.ts";
+import { entityAfterWrite } from "@/integrations/events/publish/entity.ts";
 
 export const Payment = () => {
   const {t} = useTranslation(["payment", "toast"]);
@@ -209,6 +214,20 @@ export const Payment = () => {
         });
 
         customer = cus.id
+        await publishCustomerCreated(undefined, {
+          customerId: String(cus.id),
+          name: state.customer.name,
+          phone: state.customer.phone != null ? String(state.customer.phone) : undefined,
+          email: state.customer.email != null ? String(state.customer.email) : undefined,
+        });
+        await entityAfterWrite({
+          domain: 'pos',
+          table: Tables.customers,
+          entityId: String(cus.id),
+          action: 'create',
+          after: state.customer,
+          source: 'payment',
+        });
       }
 
       // Allocate numbers immediately before insert so the race window stays minimal.
@@ -292,6 +311,30 @@ export const Payment = () => {
         },
         user: page?.user,
       });
+
+      if (isNewOrder && normalizedOrder?.id) {
+        await publishOrderCreated(undefined, {
+          orderId: String(normalizedOrder.id),
+          invoiceNumber: normalizedOrder.invoice_number,
+          orderTypeId: state?.orderType?.id ? String(state.orderType.id) : undefined,
+          tableId: state?.table?.id ? String(state.table.id) : undefined,
+          customerId: customer ? String(customer) : undefined,
+          itemCount: items.length,
+          createdBy: page?.user?.id ? String(page.user.id) : undefined,
+        });
+        await entityAfterWrite({
+          domain: 'pos',
+          table: Tables.orders,
+          entityId: String(normalizedOrder.id),
+          action: 'create',
+          after: {
+            invoice_number: normalizedOrder.invoice_number,
+            status: OrderStatus["In Progress"],
+          },
+          source: 'payment',
+          changedBy: page?.user?.id ? String(page.user.id) : undefined,
+        });
+      }
 
       const hasKitchenPrintItems = Object.keys(kitchenItems).length > 0;
       if (hasKitchenPrintItems) {

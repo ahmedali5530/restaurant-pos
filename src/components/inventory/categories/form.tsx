@@ -11,6 +11,7 @@ import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input} from "@/components/common/input/input.tsx";
 import {InputField} from "@/components/common/form/rhf-fields.tsx";
 import {Button} from "@/components/common/input/button.tsx";
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 
 interface InventoryCategoryFormValues {
   name: string;
@@ -66,6 +67,15 @@ export const InventoryCategoryForm = ({open, onClose, data}: Props) => {
       } else {
         await db.create(Tables.inventory_categories, payload);
       }
+
+      await emitEntityCrudSave({
+        domain: 'inventory',
+        table: Tables.inventory_categories,
+        entityId: data?.id ? String(data.id) : Tables.inventory_categories,
+        isUpdate: Boolean(data?.id),
+        after: payload,
+        source: 'entity-form',
+      });
 
       toast.success(t('toast:inventory.categorySaved', { name: values.name }));
       closeModal();

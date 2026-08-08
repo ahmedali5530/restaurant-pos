@@ -27,6 +27,7 @@ import {
   runFiscalSettlementForOrder,
 } from "@/integrations/providers/fiscal/settlement.ts";
 import { publishSaleCompleted } from "@/integrations/accounting/events/publish.ts";
+import { publishInvoiceCreated } from "@/integrations/events/publish/payments.ts";
 
 type DBLike = {
   query: (sql: string, params?: Record<string, unknown>) => Promise<unknown[][]>;
@@ -355,6 +356,11 @@ export async function closeOpenChecks(options: {
         if (saleOrder) {
           try {
             await publishSaleCompleted(integrationManager, saleOrder);
+            await publishInvoiceCreated(integrationManager, {
+              orderId: String(saleOrder.id),
+              invoiceNumber: saleOrder.invoice_number,
+              completedAt: new Date().toISOString(),
+            });
           } catch (publishError) {
             console.warn('Failed publishing SaleCompleted event', publishError);
           }

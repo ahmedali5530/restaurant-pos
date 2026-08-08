@@ -13,6 +13,7 @@ import {useTranslation} from 'react-i18next';
 import i18n from '@/lib/i18n.ts';
 import { Floor } from "@/api/model/floor.ts";
 
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 interface Props {
   open: boolean
   onClose: () => void;
@@ -73,6 +74,15 @@ export const FloorForm = ({
           ...vals
         });
       }
+
+      
+      await emitEntityCrudSave({
+        domain: 'manage',
+        table: Tables.floors,
+        entityId: data?.id ? String(data.id) : Tables.floors,
+        isUpdate: Boolean(data?.id),
+        source: 'settings-form',
+      });
 
       closeModal();
       toast.success(t('toast:admin.floorSaved', { name: values.name }));

@@ -12,6 +12,7 @@ import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {HrCheckboxField, HrDateField, HrInputField} from "@/components/hr/shared/form-field.tsx";
 import {calendarDateToSurreal, toCalendarDateValue} from "@/components/hr/shared/form.utils.ts";
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 
 interface FormValues {
   id?: string;
@@ -79,6 +80,15 @@ export const HolidayForm = ({open, onClose, data}: Props) => {
       } else {
         await db.create(Tables.public_holidays, payload);
       }
+
+      await emitEntityCrudSave({
+        domain: 'hr',
+        table: Tables.public_holidays,
+        entityId: data?.id ? String(data.id) : Tables.public_holidays,
+        isUpdate: Boolean(data?.id),
+        after: payload,
+        source: 'entity-form',
+      });
 
       toast.success(t("buttons.save"));
       closeModal();

@@ -25,6 +25,7 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { TaxForm } from "@/components/settings/taxes/tax.form.tsx";
 import { DiscountForm } from "@/components/settings/discounts/discount.form.tsx";
 
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 interface Props {
   open: boolean
   onClose: () => void;
@@ -233,6 +234,15 @@ export const PaymentTypeForm = ({
           ...vals
         });
       }
+
+      
+      await emitEntityCrudSave({
+        domain: 'manage',
+        table: Tables.payment_types,
+        entityId: data?.id ? String(data.id) : Tables.payment_types,
+        isUpdate: Boolean(data?.id),
+        source: 'settings-form',
+      });
 
       closeModal();
       toast.success(t('toast:admin.paymentTypeSaved', { name: values.name }));

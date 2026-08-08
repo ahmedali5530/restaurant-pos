@@ -34,6 +34,7 @@ import {
   ModifierNextGroupOverrideItem,
 } from "@/api/model/modifier.ts";
 
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 interface Props {
   open: boolean
   onClose: () => void;
@@ -366,6 +367,15 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
           ...vals
         });
       }
+
+      
+      await emitEntityCrudSave({
+        domain: 'manage',
+        table: Tables.modifier_groups,
+        entityId: data?.id ? String(data.id) : Tables.modifier_groups,
+        isUpdate: Boolean(data?.id),
+        source: 'settings-form',
+      });
 
       closeModal();
       toast.success(t('toast:admin.modifierGroupSaved', { name: values.name }));

@@ -2,6 +2,12 @@ import { Tables } from '@/api/db/tables.ts';
 import { JournalDraftRequest } from '@/integrations/accounting/types.ts';
 import { nowSurrealDateTime } from '@/lib/datetime.ts';
 import { toRecordId } from '@/lib/utils.ts';
+import {
+  publishJournalPosted,
+  publishJournalReversed,
+} from '@/integrations/events/publish/accounts.ts';
+import { entityAfterWrite } from '@/integrations/events/publish/entity.ts';
+import type { ManagerLike } from '@/integrations/events/publish/safe.ts';
 
 export type JournalDbClient = {
   query: <R extends unknown[] = any[]>(sql: string, parameters?: Record<string, unknown>) => Promise<R>;
@@ -117,6 +123,31 @@ export const createJournalFromDraft = async (
 
   await db.merge(toRecordId(entryId), { lines: lineIds });
 
+  await entityAfterWrite({
+    domain: 'accounts',
+    table: Tables.account_journal_entries,
+    entityId: entryId,
+    action: 'create',
+    after: {
+      entryNumber,
+      status: draft.status,
+      lineCount: lineIds.length,
+      originEvent: draft.originEvent,
+    },
+    source: 'account-journal-repository',
+    label: 'journal_create',
+  });
+
+  if (draft.status === 'posted') {
+    await publishJournalPosted(undefined, {
+      entryId,
+      entryNumber,
+      sourceModule: draft.sourceModule ?? draft.originModule,
+      originEvent: draft.originEvent,
+      lineCount: lineIds.length,
+    });
+  }
+
   return {
     entryId,
     entryNumber,
@@ -127,7 +158,37 @@ export const createJournalFromDraft = async (
 
 export const publishJournalEntry = async (
   db: JournalDbClient,
-  entryId: string
+  entryId: string,
+  manager?: ManagerLike
 ): Promise<void> => {
   await db.merge(toRecordId(entryId), { status: 'posted' });
+  await publishJournalPosted(manager, { entryId });
+  await entityAfterWrite({
+    manager,
+    domain: 'accounts',
+    table: Tables.account_journal_entries,
+    entityId: entryId,
+    action: 'status_change',
+    after: { status: 'posted' },
+    source: 'account-journal-repository',
+    label: 'journal_publish',
+  });
+};
+
+export const emitJournalReversed = async (
+  entryId: string,
+  reverseEntryId?: string,
+  manager?: ManagerLike
+): Promise<void> => {
+  await publishJournalReversed(manager, { entryId, reverseEntryId });
+  await entityAfterWrite({
+    manager,
+    domain: 'accounts',
+    table: Tables.account_journal_entries,
+    entityId: entryId,
+    action: 'status_change',
+    after: { status: 'reversed', reverseEntryId },
+    source: 'account-journal-repository',
+    label: 'journal_reverse',
+  });
 };

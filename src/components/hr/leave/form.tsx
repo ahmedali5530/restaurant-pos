@@ -24,6 +24,7 @@ import {
 import {createRequest} from "@/lib/labor-engine/leave/leave.service.ts";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
+import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 
 interface LeaveTypeFormValues {
   id?: string;
@@ -125,6 +126,15 @@ export const LeaveTypeForm = ({open, onClose, data}: LeaveTypeFormProps) => {
       } else {
         await db.create(Tables.leave_types, payload);
       }
+
+      await emitEntityCrudSave({
+        domain: 'hr',
+        table: Tables.leave_types,
+        entityId: data?.id ? String(data.id) : Tables.leave_types,
+        isUpdate: Boolean(data?.id),
+        after: payload,
+        source: 'entity-form',
+      });
 
       toast.success(t("buttons.save"));
       closeModal();
