@@ -46,7 +46,7 @@ export const getDiscountSummary = async (
 
   discountedOrders.forEach(order => {
     const billTotal = getOrderSettlementFigures(order).grandTotalDue;
-    const activeLines = (order.order_discounts ?? []).filter(line => !line.removed_at);
+    const activeLines = (order.order_discounts ?? []).filter(line => line && !line.removed_at);
 
     if (activeLines.length > 0) {
       activeLines.forEach(line => {

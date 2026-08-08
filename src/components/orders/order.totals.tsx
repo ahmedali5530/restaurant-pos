@@ -10,7 +10,7 @@ import {
 } from "@/lib/tax-calculator.ts";
 import {withCurrency, cn} from "@/lib/utils.ts";
 import {DiscountType} from "@/api/model/discount.ts";
-import {getOrderFilteredItems} from "@/lib/order.ts";
+import {getActiveOrderDiscounts, getOrderFilteredItems} from "@/lib/order.ts";
 import {useTranslation} from "react-i18next";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -135,7 +135,7 @@ export const OrderTotals = ({order, cart, className}: Props) => {
     return label;
   };
 
-  const activeDiscountLines = (order?.order_discounts || []).filter((od) => !od.removed_at);
+  const activeDiscountLines = getActiveOrderDiscounts(order);
   const showLegacyDiscount = activeDiscountLines.length === 0 && (!!order?.discount || preview.discountAmount > 0);
 
   return (

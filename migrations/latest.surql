@@ -1715,6 +1715,7 @@ DEFINE FIELD invoice_prefix ON order TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD items ON order TYPE array<record<order_item>> PERMISSIONS FULL;
 DEFINE FIELD notes ON order TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD order_taxes ON order TYPE none | array<record<order_tax>> | null PERMISSIONS FULL;
+DEFINE FIELD order_discounts ON order TYPE none | array<record<order_discount>> | null PERMISSIONS FULL;
 DEFINE FIELD order_type ON order TYPE record<order_type> PERMISSIONS FULL;
 DEFINE FIELD payments ON order TYPE none | array<record<order_payment>> | null PERMISSIONS FULL;
 DEFINE FIELD service_charge ON order TYPE none | float | null PERMISSIONS FULL;

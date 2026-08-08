@@ -618,8 +618,13 @@ export const OrderPayment = ({
     const allLines = cartTotals.discountLines;
     const resolvedDiscountAmount = allLines.reduce((s, l) => s + l.appliedAmount, 0);
 
+    let orderDiscountRecordIds: unknown[] | undefined;
     try {
-      await persistOrderDiscounts(db, order.id, allLines, page?.user, orderDiscountIds);
+      const created = await persistOrderDiscounts(db, order.id, allLines, page?.user, orderDiscountIds);
+      orderDiscountRecordIds = created
+        .map(r => r?.id)
+        .filter(Boolean)
+        .map(id => toRecordId(id as string));
       const freshRows = await loadActiveOrderDiscounts(db, order.id);
       setOrderDiscountIds(freshRows.map(r => r.id));
       await syncOrderDiscountDenorm(db, order.id, allLines);
@@ -644,8 +649,15 @@ export const OrderPayment = ({
       coupon: orderCouponId,
     };
 
+    if (orderDiscountRecordIds !== undefined) {
+      // Final write keeps denorm IDs aligned with junction rows after delete/recreate.
+      progressMerge.order_discounts = orderDiscountRecordIds;
+    }
+
     if (allLines[0]?.discountId) {
       progressMerge.discount = toRecordId(allLines[0].discountId);
+    } else {
+      progressMerge.discount = null;
     }
 
     await db.merge(order.id, progressMerge);

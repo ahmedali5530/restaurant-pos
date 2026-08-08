@@ -511,7 +511,7 @@ function mapOrderToBill(order, opts) {
   const items = getOrderItems(order, showInclusivePrices);
   const tipLabel = order && order.tip_type === 'Percent' ? 'Tip %' : 'Tip';
   const discountLines = (order.order_discounts || [])
-    .filter((od) => !od.removed_at)
+    .filter((od) => od && !od.removed_at)
     .map((od) => ({
       name: formatDiscountDetail(od.name, od.value_type, od.applied_rate),
       rawName: od.name || '',

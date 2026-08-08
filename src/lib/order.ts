@@ -23,9 +23,11 @@ export const getOrderFilteredItems = (order: OrderModel) => {
     .filter(item => item?.is_suspended !== true);
 }
 
-/** Active order_discounts lines (junction-first source). */
+/** Active order_discounts lines (junction-first source). Drops null/undefined FETCH holes. */
 export const getActiveOrderDiscounts = (order: OrderModel): OrderDiscount[] =>
-  (order.order_discounts ?? []).filter(line => !line.removed_at);
+  (order.order_discounts ?? []).filter(
+    (line): line is OrderDiscount => !!line && !line.removed_at,
+  );
 
 /** Sum of applied_amount from active order_discounts; 0 when none. */
 export const getOrderEngineDiscountTotal = (order: OrderModel): number =>

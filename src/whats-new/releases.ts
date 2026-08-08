@@ -8,6 +8,13 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-08-08',
+    title: 'All applied discounts on orders and receipts',
+    items: [
+      'Order cards and bills show every applied discount line, not only the first primary discount.',
+    ],
+  },
+  {
+    date: '2026-08-08',
     title: 'Buy X Get Y discount value',
     items: [
       'Buy X Get Y discounts now include a get value field for percent or fixed-amount offers (for example 50% off the second item).',

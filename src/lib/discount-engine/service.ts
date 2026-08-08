@@ -23,6 +23,10 @@ const dedupeAppliedLines = (lines: AppliedDiscountLine[]): AppliedDiscountLine[]
 /**
  * Delete every order_discount for an order, then insert the new set.
  * History lives in the tracking/log table — do not soft-delete with removed_at.
+ *
+ * Clears order.order_discounts before DELETE so live/list refetches never FETCH
+ * stale junction IDs that were already removed (that produced undefined entries
+ * and blanked order totals UI).
  */
 export const persistOrderDiscounts = async (
   db: DbClient,
@@ -35,12 +39,18 @@ export const persistOrderDiscounts = async (
   const now = nowSurrealDateTime()
   const uniqueLines = dedupeAppliedLines(lines)
 
+  // Drop denorm refs first so concurrent FETCH cannot resolve deleted records.
+  await db.merge(orderRecordId, {
+    order_discounts: [],
+  })
+
   await db.query(
     `DELETE ${Tables.order_discounts} WHERE order = $orderId`,
     { orderId: orderRecordId }
   )
 
   const created: OrderDiscount[] = []
+  const orderDiscountRecordIds: unknown[] = []
   for (const line of uniqueLines) {
     const inserted = await db.create(Tables.order_discounts, {
       order: orderRecordId,
@@ -65,7 +75,15 @@ export const persistOrderDiscounts = async (
     })
     const record = (Array.isArray(inserted) ? inserted[0] : inserted) as unknown as OrderDiscount
     created.push(record)
+    if (record?.id) {
+      orderDiscountRecordIds.push(toRecordId(record.id))
+    }
   }
+
+  // Mirror order_taxes: store junction IDs on the order so FETCH order_discounts works.
+  await db.merge(orderRecordId, {
+    order_discounts: orderDiscountRecordIds,
+  })
 
   return created
 }
