@@ -8,7 +8,6 @@ import {Order} from "@/api/model/order.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {getOrderSettlementFigures} from "@/lib/order.ts";
-import {getOrderTaxAmount, getOrderTaxBreakdown} from "@/lib/tax-calculator.ts";
 import {
   buildCreatedAtDateConditions,
   buildStringInsideCondition,
@@ -18,11 +17,6 @@ import {
 const PROVIDER_LABELS: Record<string, string> = {
   'provider:fbr': 'FBR',
   'provider:pra': 'PRA',
-};
-
-const safeNumber = (value: unknown) => {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : 0;
 };
 
 const providerLabel = (providerId?: string | null): string => {
@@ -37,19 +31,6 @@ const cashierName = (order?: Order): string => {
   const cashier = order?.cashier;
   if (!cashier) return '—';
   return `${cashier.first_name ?? ''} ${cashier.last_name ?? ''}`.trim() || cashier.login || '—';
-};
-
-const formatTaxPercent = (order?: Order): string => {
-  if (!order) return '—';
-  const breakdown = getOrderTaxBreakdown(order);
-  if (breakdown.length === 0) {
-    const legacyRate = safeNumber((order.tax as any)?.rate);
-    return legacyRate > 0 ? `${legacyRate}%` : '—';
-  }
-  if (breakdown.length === 1) {
-    return `${breakdown[0].rate}%`;
-  }
-  return breakdown.map(entry => `${entry.name} ${entry.rate}%`).join(', ');
 };
 
 interface ReportFilters {
@@ -193,12 +174,16 @@ export const OrderFiscalReport = () => {
         const order = getOrder(sub);
         if (!order) return acc;
         const figures = getOrderSettlementFigures(order);
-        acc.gross += figures.netSales;
+        // items only so: gross + tax - discount + service + extras (+ tips) = grand
+        acc.gross += figures.itemsTotal;
         acc.tax += figures.tax;
+        acc.discount += figures.discounts;
+        acc.serviceCharges += figures.serviceCharges;
+        acc.extras += figures.extrasTotal;
         acc.total += figures.grandTotalDue;
         return acc;
       },
-      {gross: 0, tax: 0, total: 0},
+      {gross: 0, tax: 0, discount: 0, serviceCharges: 0, extras: 0, total: 0},
     );
   }, [submissions]);
 
@@ -307,8 +292,10 @@ export const OrderFiscalReport = () => {
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.status')}</th>
                   <th className="py-3 px-3 text-center text-xs font-semibold text-neutral-700">{t('orderFiscal.qr')}</th>
                   <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('orderFiscal.grossTotal')}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.taxPercent')}</th>
                   <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.tax')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.discount')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.serviceCharges')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.extras')}</th>
                   <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.grandTotal')}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('metrics.cashier')}</th>
                   <th className="py-3 pr-6 text-left text-xs font-semibold text-neutral-700">{t('orderFiscal.error')}</th>
@@ -317,7 +304,7 @@ export const OrderFiscalReport = () => {
               <tbody className="divide-y divide-neutral-100 bg-white">
                 {submissions.length === 0 ? (
                   <tr>
-                    <td colSpan={13} className="py-6 text-center text-sm text-neutral-500">{t('orderFiscal.noRecords')}</td>
+                    <td colSpan={15} className="py-6 text-center text-sm text-neutral-500">{t('orderFiscal.noRecords')}</td>
                   </tr>
                 ) : (
                   submissions.map(sub => {
@@ -343,11 +330,19 @@ export const OrderFiscalReport = () => {
                           {sub.qrcode ? t('orderFiscal.available') : t('orderFiscal.notAvailable')}
                         </td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">
-                          {figures ? withCurrency(figures.netSales) : '—'}
+                          {figures ? withCurrency(figures.itemsTotal) : '—'}
                         </td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatTaxPercent(order)}</td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">
-                          {order ? withCurrency(getOrderTaxAmount(order)) : '—'}
+                          {figures ? withCurrency(figures.tax) : '—'}
+                        </td>
+                        <td className="py-3 px-3 text-right text-sm text-neutral-700">
+                          {figures ? withCurrency(figures.discounts) : '—'}
+                        </td>
+                        <td className="py-3 px-3 text-right text-sm text-neutral-700">
+                          {figures ? withCurrency(figures.serviceCharges) : '—'}
+                        </td>
+                        <td className="py-3 px-3 text-right text-sm text-neutral-700">
+                          {figures ? withCurrency(figures.extrasTotal) : '—'}
                         </td>
                         <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">
                           {figures ? withCurrency(figures.grandTotalDue) : '—'}
@@ -366,8 +361,10 @@ export const OrderFiscalReport = () => {
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{formatNumber(submissions.length)}</td>
                     <td colSpan={4}></td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(detailTotals.gross)}</td>
-                    <td></td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(detailTotals.tax)}</td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(detailTotals.discount)}</td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(detailTotals.serviceCharges)}</td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(detailTotals.extras)}</td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(detailTotals.total)}</td>
                     <td colSpan={2}></td>
                   </tr>

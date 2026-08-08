@@ -308,6 +308,7 @@
     "covers": "Coperti",
     "tax": "IVA",
     "extras": "Extra",
+    "serviceCharges": "Costo servizio",
     "subtotal": "Subtotale",
     "grandTotal": "Totale generale",
     "taxable": "Imponibile",

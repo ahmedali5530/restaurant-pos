@@ -308,6 +308,7 @@
     "covers": "Cubiertos",
     "tax": "Impuesto",
     "extras": "Extras",
+    "serviceCharges": "Cargos por servicio",
     "subtotal": "Subtotal",
     "grandTotal": "Total general",
     "taxable": "Gravable",

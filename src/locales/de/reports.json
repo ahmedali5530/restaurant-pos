@@ -308,6 +308,7 @@
     "covers": "Gäste",
     "tax": "Steuer",
     "extras": "Zuschläge",
+    "serviceCharges": "Servicegebühren",
     "subtotal": "Zwischensumme",
     "grandTotal": "Gesamtsumme",
     "taxable": "Steuerpflichtig",
