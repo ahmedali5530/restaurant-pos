@@ -751,7 +751,9 @@
       "targetFloorsOptional": "İsteğe bağlı — sepet indirimini belirli katlarla sınırla",
       "customerTags": "Müşteri etiketleri",
       "customerTagsHint": "Virgülle ayrılmış etiketler (örn. vip, corporate). Müşterinin en az bir etiketi olmalı.",
-      "minOrderAmount": "Minimum sipariş tutarı"
+      "minOrderAmount": "Minimum sipariş tutarı",
+      "targetPaymentTypes": "Ödeme türleri",
+      "targetPaymentTypesHint": "İsteğe bağlı — yalnızca ödemede bu ödeme türlerinden biri seçildiğinde uygula (örn. banka kartı kampanyaları)."
     },
     "categories": {
       "manager": "Yönetici",

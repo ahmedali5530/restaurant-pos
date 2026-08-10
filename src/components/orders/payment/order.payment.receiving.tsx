@@ -11,7 +11,7 @@ import {Order, OrderStatus} from "@/api/model/order.ts";
 import {useDB} from "@/api/db/db.ts";
 import {Table} from "@/api/model/table.ts";
 import {Tax} from "@/api/model/tax.ts";
-import {Discount, DiscountType} from "@/api/model/discount.ts";
+import {DiscountType} from "@/api/model/discount.ts";
 import {Coupon} from "@/api/model/coupon.ts";
 import {OrderPayment} from "@/api/model/order_payment.ts";
 import {nanoid} from "nanoid";
@@ -33,9 +33,6 @@ import {
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
-import {computeScopedDiscount} from "@/lib/discount-engine/calculator.ts";
-import {orderItemToEvaluable} from "@/lib/discount-engine/context.ts";
-import {getOrderFilteredItems} from "@/lib/order.ts";
 import {useTranslation} from "react-i18next";
 import {useIntegrationManager} from "@/providers/integration.provider.tsx";
 import { hasTempPrint, requestBillPrint } from "@/lib/order-print.ts";
@@ -54,7 +51,7 @@ import {toast} from "sonner";
 interface Props {
   order: Order
   total: number
-  resolvePayable: (taxOverride?: Tax | null) => number
+  resolvePayable: (taxOverride?: Tax | null, paymentTypeId?: string) => number
   onComplete: () => void
 
   extras: Record<string, number>
@@ -64,7 +61,8 @@ interface Props {
   taxAmount?: number
 
   discountAmount?: number
-  onPaymentTypeDiscount?: (discount: Discount, amount: number) => void
+  /** Notify parent of selected tender so payment-gated discounts can evaluate */
+  onPaymentTypeSelected?: (paymentTypeId: string) => void
 
   tip: number
   tipType?: DiscountType
@@ -121,7 +119,7 @@ const OrderPaymentReceivingContent = ({
   tax,
   taxAmount,
   discountAmount,
-  onPaymentTypeDiscount,
+  onPaymentTypeSelected,
   tipType,
   tip,
   tipAmount,
@@ -159,13 +157,13 @@ const OrderPaymentReceivingContent = ({
 
   const {
     data: allPaymentTypes
-  } = useApi<SettingsData<PaymentType>>(Tables.payment_types, ['deleted_at = none'], ['priority asc'], 0, 99999, ['tax', 'discounts']);
+  } = useApi<SettingsData<PaymentType>>(Tables.payment_types, ['deleted_at = none'], ['priority asc'], 0, 99999, ['tax']);
 
   const tableId = order?.table?.id?.toString();
 
   const {
     data: table
-  } = useApi<SettingsData<Table>>(tableId, ['deleted_at = none'], [], 0, 1, ['payment_types', 'payment_types.tax', 'payment_types.discounts'], {enabled: !!tableId});
+  } = useApi<SettingsData<Table>>(tableId, ['deleted_at = none'], [], 0, 1, ['payment_types', 'payment_types.tax'], {enabled: !!tableId});
 
   const paymentTypes: PaymentType[] = useMemo(() => {
     if (table?.data?.[0]?.payment_types && table?.data?.[0]?.payment_types?.length > 0) {
@@ -385,26 +383,11 @@ const OrderPaymentReceivingContent = ({
     }
   }
 
-  // Track auto-applied discount originating from a payment type
-  const [autoDiscountMeta, setAutoDiscountMeta] = useState<{
-    paymentTypeId?: string
-    discountId?: string
-  }>();
-
   useEffect(() => {
-    if (paymentTypes?.length > 0 && payments.length === 0) {
-      // setPayments([{
-      //   id: nanoid(),
-      //   payment_type: paymentTypes[0],
-      //   payable: total,
-      //   amount: total
-      // }]);
-    }
-
     if (payments.length > 0) {
       // find largest tax and apply it
       const paymentsWithTaxes = payments.filter(item => !!getPaymentTypeTax(item.payment_type));
-      let tax: Tax | undefined;
+      let highest: Tax | undefined;
       if (paymentsWithTaxes.length > 0) {
         paymentsWithTaxes.forEach(pt => {
           const paymentTax = getPaymentTypeTax(pt.payment_type);
@@ -412,21 +395,21 @@ const OrderPaymentReceivingContent = ({
             return;
           }
 
-          if (!tax) {
-            tax = paymentTax;
+          if (!highest) {
+            highest = paymentTax;
           }
 
-          if (tax.rate < paymentTax.rate) {
-            tax = paymentTax;
+          if (highest.rate < paymentTax.rate) {
+            highest = paymentTax;
           }
         });
 
-        if (tax) {
-          setTax && setTax(tax);
+        if (highest) {
+          setTax && setTax(highest);
         }
       }
     }
-  }, [setTax, paymentTypes, payments]);
+  }, [setTax, payments]);
 
   const tendered = useMemo(() => {
     return payments.reduce((prev, item) => prev + item.amount, 0)
@@ -499,58 +482,15 @@ const OrderPaymentReceivingContent = ({
   }
 
   const applyPaymentTypeTaxAndDiscount = (paymentType: PaymentType): number => {
+    const paymentTypeId = String(paymentType.id);
+    onPaymentTypeSelected?.(paymentTypeId);
     const candidateTax = getPaymentTypeTax(paymentType);
     const hasTax = !!candidateTax;
     const highestTax = hasTax ? getHighestTaxObject(candidateTax) : getHighestTaxObject(undefined);
     if (hasTax) {
       setTax && setTax(highestTax);
     }
-    applyPaymentTypeDiscountIfAny(paymentType);
-    return resolvePayable(hasTax ? highestTax : undefined);
-  }
-
-  const selectBestDiscount = (discounts?: Discount[]): Discount | undefined => {
-    if (!discounts || discounts.length === 0) {
-      return undefined;
-    }
-    // Prefer lowest priority value if provided, fallback to first
-    const withPriority = discounts.filter(d => (d as any).priority !== undefined) as (Discount & {
-      priority: number
-    })[];
-    if (withPriority.length > 0) {
-      return withPriority.sort((a, b) => a.priority - b.priority)[0];
-    }
-    return discounts[0];
-  }
-
-  const computeDiscountAmountFor = (d?: Discount): number | undefined => {
-    if (!d) {
-      return undefined;
-    }
-    const items = getOrderFilteredItems(order).map(orderItemToEvaluable);
-    const computed = computeScopedDiscount(d, items);
-    return computed.appliedAmount;
-  }
-
-  const clearAutoDiscountIfNeeded = (newPaymentTypeId?: string) => {
-    if (autoDiscountMeta?.paymentTypeId && autoDiscountMeta.paymentTypeId !== newPaymentTypeId) {
-      setAutoDiscountMeta(undefined);
-    }
-  }
-
-  const applyPaymentTypeDiscountIfAny = (paymentType: PaymentType): number | undefined => {
-    clearAutoDiscountIfNeeded(paymentType.id.toString());
-    const d = selectBestDiscount(paymentType.discounts);
-    const amount = computeDiscountAmountFor(d);
-    if (d && amount !== undefined) {
-      onPaymentTypeDiscount?.(d, amount);
-      setAutoDiscountMeta({paymentTypeId: paymentType.id.toString(), discountId: d.id.toString()});
-    } else {
-      if (autoDiscountMeta) {
-        setAutoDiscountMeta(undefined);
-      }
-    }
-    return amount;
+    return resolvePayable(hasTax ? highestTax : undefined, paymentTypeId);
   }
 
   const {

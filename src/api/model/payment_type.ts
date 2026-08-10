@@ -21,7 +21,9 @@ export interface PaymentGatewayConfig {
 export interface PaymentTypeGatewayConfig extends ID, PaymentGatewayConfig {}
 
 export interface PaymentType extends ID, Name, Priority{
+  /** @deprecated Prefer discount.targets.payment_type_ids; cleared by payment-type discounts backfill */
   discounts?: Discount[]
+  /** @deprecated unused after discount engine payment targets */
   has_discount: boolean
   type: string
   tax?: Tax
@@ -33,5 +35,5 @@ export interface PaymentType extends ID, Name, Priority{
 }
 
 export const PAYMENT_TYPE_FETCHES = [
-  'discounts', 'tax'
+  'tax'
 ];

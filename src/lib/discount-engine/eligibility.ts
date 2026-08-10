@@ -114,6 +114,14 @@ export const matchesCustomer = (discount: Discount, ctx: EvaluationContext): boo
   return true
 }
 
+/** Empty payment_type_ids = any tender; non-empty requires matching ctx.paymentTypeId. */
+export const matchesPaymentType = (discount: Discount, ctx: EvaluationContext): boolean => {
+  const paymentTypeIds = discount.targets?.payment_type_ids
+  if (!paymentTypeIds?.length) return true
+  if (!ctx.paymentTypeId) return false
+  return paymentTypeIds.some(id => toTargetId(id) === toTargetId(ctx.paymentTypeId))
+}
+
 export const isEligibleForAuto = (discount: Discount, ctx: EvaluationContext): boolean => {
   if (!isDiscountActive(discount)) return false
   if (!matchesApplicationMode(discount, 'automatic')) return false
@@ -122,6 +130,7 @@ export const isEligibleForAuto = (discount: Discount, ctx: EvaluationContext): b
   if (!matchesFloor(discount, ctx)) return false
   if (!matchesMinOrderAmount(discount, ctx.itemsTotal)) return false
   if (!matchesCustomer(discount, ctx)) return false
+  if (!matchesPaymentType(discount, ctx)) return false
   return true
 }
 
@@ -131,5 +140,6 @@ export const isEligibleForManual = (discount: Discount, ctx: EvaluationContext):
   if (!matchesFloor(discount, ctx)) return false
   if (!matchesMinOrderAmount(discount, ctx.itemsTotal)) return false
   if (!matchesCustomer(discount, ctx)) return false
+  if (!matchesPaymentType(discount, ctx)) return false
   return true
 }

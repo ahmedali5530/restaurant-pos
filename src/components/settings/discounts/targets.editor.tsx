@@ -20,9 +20,11 @@ export const DiscountTargetsEditor = ({ open, scope, value, onChange }: Props) =
     categoryOptions,
     dishOptions,
     floorOptions,
+    paymentTypeOptions,
     categoryLabelById,
     dishLabelById,
     floorLabelById,
+    paymentTypeLabelById,
     loading,
   } = useDiscountEntityOptions(open)
 
@@ -41,83 +43,121 @@ export const DiscountTargetsEditor = ({ open, scope, value, onChange }: Props) =
     [value.floor_ids, floorLabelById]
   )
 
+  const paymentTypeSelected = useMemo(
+    () => optionsFromIds(value.payment_type_ids, paymentTypeLabelById),
+    [value.payment_type_ids, paymentTypeLabelById]
+  )
+
   const patch = (partial: Partial<DiscountTargets>) => onChange({ ...value, ...partial })
+
+  const paymentTypesBlock = (
+    <div className="flex flex-col gap-1">
+      <label>{t('discountEngine.fields.targetPaymentTypes')}</label>
+      <p className="text-sm text-neutral-500 mb-1">{t('discountEngine.fields.targetPaymentTypesHint')}</p>
+      <ReactSelect
+        isMulti
+        isLoading={loading}
+        options={paymentTypeOptions}
+        value={paymentTypeSelected}
+        onChange={opts => patch({
+          payment_type_ids: idsFromOptions(opts as { value: string; label: string }[]),
+        })}
+      />
+    </div>
+  )
 
   if (scope === 'item') {
     return (
-      <div>
-        <label>{t('discountEngine.fields.targetItems')}</label>
-        <ReactSelect
-          isMulti
-          isLoading={loading}
-          options={dishOptions}
-          value={itemSelected}
-          onChange={opts => patch({ item_ids: idsFromOptions(opts as { value: string; label: string }[]) })}
-        />
+      <div className="flex flex-col gap-3">
+        <div>
+          <label>{t('discountEngine.fields.targetItems')}</label>
+          <ReactSelect
+            isMulti
+            isLoading={loading}
+            options={dishOptions}
+            value={itemSelected}
+            onChange={opts => patch({ item_ids: idsFromOptions(opts as { value: string; label: string }[]) })}
+          />
+        </div>
+        {paymentTypesBlock}
       </div>
     )
   }
 
   if (scope === 'category') {
     return (
-      <div>
-        <label>{t('discountEngine.fields.targetCategories')}</label>
-        <ReactSelect
-          isMulti
-          isLoading={loading}
-          options={categoryOptions}
-          value={categorySelected}
-          onChange={opts => patch({ category_ids: idsFromOptions(opts as { value: string; label: string }[]) })}
-        />
+      <div className="flex flex-col gap-3">
+        <div>
+          <label>{t('discountEngine.fields.targetCategories')}</label>
+          <ReactSelect
+            isMulti
+            isLoading={loading}
+            options={categoryOptions}
+            value={categorySelected}
+            onChange={opts => patch({ category_ids: idsFromOptions(opts as { value: string; label: string }[]) })}
+          />
+        </div>
+        {paymentTypesBlock}
       </div>
     )
   }
 
   if (scope === 'floor') {
     return (
-      <div>
-        <label>{t('discountEngine.fields.targetFloors')}</label>
-        <ReactSelect
-          isMulti
-          isLoading={loading}
-          options={floorOptions}
-          value={floorSelected}
-          onChange={opts => patch({ floor_ids: idsFromOptions(opts as { value: string; label: string }[]) })}
-        />
+      <div className="flex flex-col gap-3">
+        <div>
+          <label>{t('discountEngine.fields.targetFloors')}</label>
+          <ReactSelect
+            isMulti
+            isLoading={loading}
+            options={floorOptions}
+            value={floorSelected}
+            onChange={opts => patch({ floor_ids: idsFromOptions(opts as { value: string; label: string }[]) })}
+          />
+        </div>
+        {paymentTypesBlock}
       </div>
     )
   }
 
   if (scope === 'customer') {
     return (
-      <div className="flex flex-col gap-2">
-        <Input
-          label={t('discountEngine.fields.customerTags')}
-          value={(value.customer_tags || []).join(', ')}
-          onChange={e => patch({
-            customer_tags: e.target.value.split(',').map(s => s.trim()).filter(Boolean),
-          })}
-        />
-        <p className="text-sm text-neutral-500">{t('discountEngine.fields.customerTagsHint')}</p>
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
+          <div>
+            <Input
+              label={t('discountEngine.fields.customerTags')}
+              value={(value.customer_tags || []).join(', ')}
+              onChange={e => patch({
+                customer_tags: e.target.value.split(',').map(s => s.trim()).filter(Boolean),
+              })}
+            />
+          </div>
+          <p className="text-sm text-neutral-500">{t('discountEngine.fields.customerTagsHint')}</p>
+        </div>
+        {paymentTypesBlock}
       </div>
     )
   }
 
   if (scope === 'cart') {
     return (
-      <div>
-        <label>{t('discountEngine.fields.targetFloors')}</label>
-        <p className="text-sm text-neutral-500 mb-2">{t('discountEngine.fields.targetFloorsOptional')}</p>
-        <ReactSelect
-          isMulti
-          isLoading={loading}
-          options={floorOptions}
-          value={floorSelected}
-          onChange={opts => patch({ floor_ids: idsFromOptions(opts as { value: string; label: string }[]) })}
-        />
+      <div className="flex flex-col gap-3">
+        <div>
+          <label>{t('discountEngine.fields.targetFloors')}</label>
+          <p className="text-sm text-neutral-500 mb-2">{t('discountEngine.fields.targetFloorsOptional')}</p>
+          <ReactSelect
+            isMulti
+            isLoading={loading}
+            options={floorOptions}
+            value={floorSelected}
+            onChange={opts => patch({ floor_ids: idsFromOptions(opts as { value: string; label: string }[]) })}
+          />
+        </div>
+        {paymentTypesBlock}
       </div>
     )
   }
 
-  return null
+  return paymentTypesBlock
 }

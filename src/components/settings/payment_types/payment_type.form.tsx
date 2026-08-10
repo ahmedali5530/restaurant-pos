@@ -15,7 +15,6 @@ import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { Tax } from "@/api/model/tax.ts";
 import { StringRecordId } from "surrealdb";
-import {Discount} from "@/api/model/discount.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {useTranslation} from 'react-i18next';
 import i18n from '@/lib/i18n.ts';
@@ -23,7 +22,6 @@ import {GATEWAY_CATALOG, getGatewayDescriptor} from "@/lib/payment/gateway-catal
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { TaxForm } from "@/components/settings/taxes/tax.form.tsx";
-import { DiscountForm } from "@/components/settings/discounts/discount.form.tsx";
 
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 interface Props {
@@ -60,10 +58,6 @@ const validationSchema = z.object({
     label: z.string(),
     value: z.string()
   }).optional().nullable(),
-  discounts: z.array(z.object({
-    label: z.string(),
-    value: z.string()
-  })).optional().nullable()
 });
 
 const EMPTY_GATEWAY_CONFIG = {
@@ -117,7 +111,6 @@ export const PaymentTypeForm = ({
       gateway_config: { ...EMPTY_GATEWAY_CONFIG },
       priority: null,
       tax: null,
-      discounts: []
     });
   }
 
@@ -144,10 +137,6 @@ export const PaymentTypeForm = ({
           label: `${data?.tax?.name} ${data?.tax?.rate}%`,
           value: data?.tax?.id?.toString()
         } : undefined),
-        discounts: data?.discounts?.map(item => ({
-          label: item.name,
-          value: item.id.toString()
-        })),
       });
     }
   }, [data]);
@@ -158,13 +147,6 @@ export const PaymentTypeForm = ({
     data: taxes,
     fetch: fetchTaxes
   } = useApi<SettingsData<Tax>>(Tables.taxes, [], ['priority asc'], 0, 99999, [], {
-    enabled: false
-  });
-
-  const {
-    data: discounts,
-    fetch: fetchDiscounts
-  } = useApi<SettingsData<Discount>>(Tables.discounts, ['max_rate = min_rate'], ['priority asc'], 0, 99999, [], {
     enabled: false
   });
 
@@ -218,11 +200,13 @@ export const PaymentTypeForm = ({
 
     if(values.tax){
       vals.tax = new StringRecordId(values.tax.value);
+    } else {
+      vals.tax = null;
     }
 
-    if(values.discounts){
-      vals.discounts = values.discounts.map(item => new StringRecordId(item.value));
-    }
+    // Discounts are configured on discount records (targets.payment_type_ids)
+    vals.discounts = null;
+    vals.has_discount = false;
 
     try {
       if(data?.id){
@@ -255,14 +239,10 @@ export const PaymentTypeForm = ({
   useEffect(() => {
     if(open){
       fetchTaxes();
-      fetchDiscounts();
     }
   }, [open]);
 
   const [taxModal, setTaxModal] = useState(false);
-  const [discountsModal, setDiscountsModal] = useState(false);
-
-  console.log(errors);
 
   return (
     <>
@@ -402,29 +382,6 @@ export const PaymentTypeForm = ({
             <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setTaxModal(true)}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
           </div>
 
-          <div className="flex gap-2 items-end mb-3">
-            <div className="flex-1">
-              <label htmlFor="">Discounts</label>
-              <Controller
-                render={({ field }) => (
-                  <ReactSelect
-                    value={field.value}
-                    onChange={field.onChange}
-                    options={discounts?.data?.map(item => ({
-                      label: item.name,
-                      value: item.id.toString()
-                    }))}
-                    isMulti
-                  />
-                )}
-                name="discounts"
-                control={control}
-              />
-              <span className="text-sm text-neutral-500">Only fixed amount discounts can be applied</span>
-            </div>
-            <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setDiscountsModal(true)}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
-          </div>
-
           <div>
             <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
           </div>
@@ -437,15 +394,6 @@ export const PaymentTypeForm = ({
           onClose={() => {
             fetchTaxes();
             setTaxModal(false);
-          }}
-        />
-      )}
-      {discountsModal && (
-        <DiscountForm
-          open={true}
-          onClose={() => {
-            fetchDiscounts();
-            setDiscountsModal(false);
           }}
         />
       )}

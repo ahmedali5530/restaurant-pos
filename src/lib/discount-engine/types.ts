@@ -20,6 +20,8 @@ export interface EvaluationContext {
   customer?: Customer
   orderType?: OrderType
   floorId?: string
+  /** Selected / last tendered payment type (pay-time only) */
+  paymentTypeId?: string
   now: Date
   taxRate?: number
   rules: Discount[]

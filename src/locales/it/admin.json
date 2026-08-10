@@ -751,7 +751,9 @@
       "targetFloorsOptional": "Opzionale — limita questo sconto carrello a piani specifici",
       "customerTags": "Tag cliente",
       "customerTagsHint": "Tag separati da virgola (es. vip, corporate). Il cliente deve averne almeno uno.",
-      "minOrderAmount": "Importo minimo ordine"
+      "minOrderAmount": "Importo minimo ordine",
+      "targetPaymentTypes": "Tipi di pagamento",
+      "targetPaymentTypesHint": "Opzionale — applica solo quando uno di questi tipi di pagamento è selezionato al pagamento (es. promozioni carta)."
     },
     "categories": {
       "manager": "Manager",

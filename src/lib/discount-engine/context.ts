@@ -59,6 +59,7 @@ export const buildEvaluationContext = (
     manualRequests?: EvaluationContext['manualRequests']
     policies?: EvaluationContext['policies']
     currentUser?: EvaluationContext['currentUser']
+    paymentTypeId?: string
   }
 ): EvaluationContext => {
   const orderItems = getOrderFilteredItems(order).map(orderItemToEvaluable)
@@ -74,6 +75,7 @@ export const buildEvaluationContext = (
     customer: order.customer,
     orderType: order.order_type,
     floorId: order.floor?.id?.toString(),
+    paymentTypeId: options.paymentTypeId,
     now: options.now || new Date(),
     taxRate: options.taxRate ?? order.tax?.rate,
     rules: options.rules,

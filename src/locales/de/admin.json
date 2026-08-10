@@ -751,7 +751,9 @@
       "targetFloorsOptional": "Optional — Warenkorb-Rabatt auf bestimmte Etagen beschränken",
       "customerTags": "Kunden-Tags",
       "customerTagsHint": "Kommagetrennte Tags (z. B. vip, corporate). Kunde muss mindestens ein Tag haben.",
-      "minOrderAmount": "Mindestbestellwert"
+      "minOrderAmount": "Mindestbestellwert",
+      "targetPaymentTypes": "Zahlungsarten",
+      "targetPaymentTypesHint": "Optional — nur anwenden, wenn eine dieser Zahlungsarten bei der Zahlung gewählt wird (z. B. Bankkarten-Aktionen)."
     },
     "categories": {
       "manager": "Manager",

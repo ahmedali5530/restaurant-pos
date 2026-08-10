@@ -751,7 +751,9 @@
       "targetFloorsOptional": "Opcional — limitar este descuento de carrito a pisos específicos",
       "customerTags": "Etiquetas de cliente",
       "customerTagsHint": "Etiquetas separadas por coma (ej. vip, corporate). El cliente debe tener al menos una.",
-      "minOrderAmount": "Importe mínimo del pedido"
+      "minOrderAmount": "Importe mínimo del pedido",
+      "targetPaymentTypes": "Tipos de pago",
+      "targetPaymentTypesHint": "Opcional — aplicar solo cuando se seleccione uno de estos tipos de pago al cobrar (p. ej. promos de tarjeta bancaria)."
     },
     "categories": {
       "manager": "Gerente",

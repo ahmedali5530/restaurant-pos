@@ -4,6 +4,7 @@ import { Tables } from '@/api/db/tables.ts'
 import { Category } from '@/api/model/category.ts'
 import { Dish } from '@/api/model/dish.ts'
 import { Floor } from '@/api/model/floor.ts'
+import { PaymentType } from '@/api/model/payment_type.ts'
 import { toTargetId } from '@/lib/discount-engine/target-ids.ts'
 
 export type DiscountEntityOption = { label: string; value: string }
@@ -32,13 +33,28 @@ export const useDiscountEntityOptions = (open: boolean) => {
     isFetching: loadingFloors,
   } = useApi<SettingsData<Floor>>(Tables.floors, [], ['name asc'], 0, 99999, [], { enabled: false })
 
+  const {
+    data: paymentTypes,
+    fetchData: fetchPaymentTypes,
+    isFetching: loadingPaymentTypes,
+  } = useApi<SettingsData<PaymentType>>(
+    Tables.payment_types,
+    ['deleted_at = none'],
+    ['priority asc'],
+    0,
+    99999,
+    [],
+    { enabled: false }
+  )
+
   useEffect(() => {
     if (open) {
       fetchCategories()
       fetchDishes()
       fetchFloors()
+      fetchPaymentTypes()
     }
-  }, [open, fetchCategories, fetchDishes, fetchFloors])
+  }, [open, fetchCategories, fetchDishes, fetchFloors, fetchPaymentTypes])
 
   const categoryOptions = useMemo(
     () => (categories?.data || []).map(c => toOption(c.id, c.name)),
@@ -53,6 +69,11 @@ export const useDiscountEntityOptions = (open: boolean) => {
   const floorOptions = useMemo(
     () => (floors?.data || []).map(f => toOption(f.id, f.name)),
     [floors]
+  )
+
+  const paymentTypeOptions = useMemo(
+    () => (paymentTypes?.data || []).map(p => toOption(p.id, p.name)),
+    [paymentTypes]
   )
 
   const categoryLabelById = useMemo(() => {
@@ -79,13 +100,23 @@ export const useDiscountEntityOptions = (open: boolean) => {
     return map
   }, [floors])
 
+  const paymentTypeLabelById = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const p of paymentTypes?.data || []) {
+      map.set(toTargetId(p.id), p.name)
+    }
+    return map
+  }, [paymentTypes])
+
   return {
     categoryOptions,
     dishOptions,
     floorOptions,
+    paymentTypeOptions,
     categoryLabelById,
     dishLabelById,
     floorLabelById,
-    loading: loadingCategories || loadingDishes || loadingFloors,
+    paymentTypeLabelById,
+    loading: loadingCategories || loadingDishes || loadingFloors || loadingPaymentTypes,
   }
 }

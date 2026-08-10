@@ -109,12 +109,6 @@ export const AdminDiscounts = () => {
       usageChecks: [
         {
           query: `SELECT count() AS count
-                  FROM ${Tables.payment_types}
-                  WHERE discounts ?= $idRecord
-                  GROUP ALL`
-        },
-        {
-          query: `SELECT count() AS count
                   FROM ${Tables.orders}
                   WHERE discount = $idRecord
                   GROUP ALL`

@@ -53,6 +53,8 @@ export interface DiscountTargets {
   customer_ids?: string[]
   customer_tags?: string[]
   floor_ids?: string[]
+  /** When set, discount only applies when this payment type is selected at pay time */
+  payment_type_ids?: string[]
 }
 
 export interface BuyXGetYCondition {

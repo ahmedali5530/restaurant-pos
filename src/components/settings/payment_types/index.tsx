@@ -18,7 +18,7 @@ import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 export const AdminPaymentTypes = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
-  const loadHook = useApi<SettingsData<PaymentType>>(Tables.payment_types, ['deleted_at = none'], ['priority asc'], 0, 10, ['tax', 'discounts', 'gateway_config']);
+  const loadHook = useApi<SettingsData<PaymentType>>(Tables.payment_types, ['deleted_at = none'], ['priority asc'], 0, 10, ['tax', 'gateway_config']);
   const db = useDB();
   const { protectAction } = useSecurity();
 
@@ -45,14 +45,6 @@ export const AdminPaymentTypes = () => {
     columnHelper.accessor("tax", {
       header: t('columns.tax'),
       cell: info => info.getValue() && <div className="flex gap-2 flex-wrap"><span className="tag">{info.getValue()?.name} {info.getValue()?.rate}%</span></div>
-    }),
-    columnHelper.accessor("discounts", {
-      header: t('columns.discounts'),
-      cell: info => <div className="flex gap-2 flex-wrap">
-        {info.getValue()?.map((item, index) => (
-          <span className="tag" key={`${item.id}-${index}`}>{item.name}</span>
-        ))}
-      </div>,
     }),
     columnHelper.accessor("priority", {
       header: t('columns.priority')

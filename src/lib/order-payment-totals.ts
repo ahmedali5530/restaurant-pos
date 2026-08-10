@@ -17,6 +17,8 @@ export interface OrderPaymentTotalsParams {
   tip: number;
   tipType: DiscountType;
   itemsTotal: number;
+  /** Last selected payment type — enables payment-gated automatic discounts */
+  paymentTypeId?: string;
 }
 
 export interface OrderPaymentTotalsResult {
@@ -43,6 +45,7 @@ export const computeOrderPaymentTotals = (
     tip,
     tipType,
     itemsTotal,
+    paymentTypeId,
   } = params;
 
   const extrasTotal = Object.values(extras).reduce((prev, item) => prev + item, 0);
@@ -61,6 +64,7 @@ export const computeOrderPaymentTotals = (
     tipAmount,
     taxRate: resolvedTax?.rate,
     rules: getDiscountCache().all,
+    paymentTypeId,
   });
 
   const resolvedTaxAmount = calculateOrderPaymentTaxAmount(order, resolvedTax);

@@ -435,6 +435,8 @@
       "targetItems": "Menu items",
       "targetFloors": "Floors",
       "targetFloorsOptional": "Optional — limit this cart discount to specific floors",
+      "targetPaymentTypes": "Payment types",
+      "targetPaymentTypesHint": "Optional — apply only when one of these payment types is selected at pay time (e.g. bank card promos).",
       "customerTags": "Customer tags",
       "customerTagsHint": "Comma-separated tags (e.g. vip, corporate). Order customer must have at least one tag.",
       "minOrderAmount": "Minimum order amount",

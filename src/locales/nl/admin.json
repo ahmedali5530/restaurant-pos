@@ -751,7 +751,9 @@
       "targetFloorsOptional": "Optioneel — beperk deze winkelwagenkorting tot specifieke verdiepingen",
       "customerTags": "Klanttags",
       "customerTagsHint": "Kommagescheiden tags (bijv. vip, corporate). Klant moet minstens één tag hebben.",
-      "minOrderAmount": "Minimum bestelbedrag"
+      "minOrderAmount": "Minimum bestelbedrag",
+      "targetPaymentTypes": "Betaalmethoden",
+      "targetPaymentTypesHint": "Optioneel — alleen toepassen wanneer een van deze betaalmethoden bij betalen is geselecteerd (bijv. bankkaartacties)."
     },
     "categories": {
       "manager": "Manager",

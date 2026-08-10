@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { roundCurrency, allocateProportionally } from '@/lib/discount-engine/rounding.ts'
 import { computeDiscountAmount, computeScopedDiscount } from '@/lib/discount-engine/calculator.ts'
 import { resolveDiscountConflicts } from '@/lib/discount-engine/resolver.ts'
-import { isDiscountScheduleActive, matchesFloor, matchesCustomer } from '@/lib/discount-engine/eligibility.ts'
+import { isDiscountScheduleActive, matchesFloor, matchesCustomer, matchesPaymentType, isEligibleForAuto } from '@/lib/discount-engine/eligibility.ts'
 import type { Discount } from '@/api/model/discount.ts'
 import type { DiscountCandidate } from '@/lib/discount-engine/types.ts'
 import { evaluateDiscounts } from '@/lib/discount-engine/evaluator.ts'
@@ -207,6 +207,49 @@ describe('eligibility', () => {
     })
     expect(matchesCustomer(d, { customer: { id: 'customer:1', tags: ['vip'] } } as any)).toBe(true)
     expect(matchesCustomer(d, { customer: { id: 'customer:2', tags: ['regular'] } } as any)).toBe(false)
+  })
+
+  it('payment type gate ignores rules without paymentTypeId then applies when matching', () => {
+    const d = baseDiscount({
+      targets: { payment_type_ids: ['payment_type:bank_x'] },
+    })
+    expect(matchesPaymentType(d, {} as any)).toBe(false)
+    expect(matchesPaymentType(d, { paymentTypeId: 'payment_type:other' } as any)).toBe(false)
+    expect(matchesPaymentType(d, { paymentTypeId: 'payment_type:bank_x' } as any)).toBe(true)
+  })
+
+  it('payment type unrestricted when targets.payment_type_ids empty', () => {
+    const d = baseDiscount({ targets: {} })
+    expect(matchesPaymentType(d, {} as any)).toBe(true)
+    expect(matchesPaymentType(d, { paymentTypeId: 'payment_type:cash' } as any)).toBe(true)
+  })
+
+  it('auto eval applies payment-gated discount only when payment context matches', () => {
+    const items = [{ id: 'line:1', lineTotal: 100, quantity: 1 }]
+    const rule = baseDiscount({
+      id: 'discount:bank',
+      value: 10,
+      min_rate: 10,
+      max_rate: 10,
+      targets: { payment_type_ids: ['payment_type:bank_x'] },
+    })
+    const baseCtx = {
+      items,
+      itemsTotal: 100,
+      now: new Date(),
+      rules: [rule],
+      existingApplications: [],
+    }
+
+    expect(isEligibleForAuto(rule, baseCtx as any)).toBe(false)
+    const without = evaluateDiscounts(baseCtx as any)
+    expect(without.discountTotal).toBe(0)
+
+    const withPt = evaluateDiscounts({ ...baseCtx, paymentTypeId: 'payment_type:bank_x' } as any)
+    expect(withPt.discountTotal).toBe(10)
+
+    const wrongPt = evaluateDiscounts({ ...baseCtx, paymentTypeId: 'payment_type:cash' } as any)
+    expect(wrongPt.discountTotal).toBe(0)
   })
 })
 

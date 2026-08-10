@@ -86,6 +86,7 @@ export const OrderPayment = ({
   const [discountLines, setDiscountLines] = useState<AppliedDiscountLine[]>([]);
   const [discountAmount, setDiscountAmount] = useState<number>(0);
   const [orderDiscountIds, setOrderDiscountIds] = useState<string[]>([]);
+  const [selectedPaymentTypeId, setSelectedPaymentTypeId] = useState<string | undefined>();
   const saveInFlightRef = useRef(false);
   const savePendingRef = useRef(false);
 
@@ -214,7 +215,8 @@ export const OrderPayment = ({
     tip,
     tipType,
     itemsTotal,
-  }), [tax, order.tax, discountLines, extras, serviceCharge, serviceChargeType, couponAmount, tip, tipType, itemsTotal]);
+    paymentTypeId: selectedPaymentTypeId,
+  }), [tax, order.tax, discountLines, extras, serviceCharge, serviceChargeType, couponAmount, tip, tipType, itemsTotal, selectedPaymentTypeId]);
 
   const paymentTotals = useMemo(
     () => computeOrderPaymentTotals(order, paymentTotalsParams),
@@ -268,6 +270,12 @@ export const OrderPayment = ({
     setPaymentTypes((order?.payments ?? []).filter((payment) => payment != null));
     setTax(order?.tax);
     setTaxAmount(order?.tax_amount ?? 0);
+
+    const existingPayments = (order?.payments ?? []).filter((payment) => payment != null);
+    const lastPt = existingPayments[existingPayments.length - 1]?.payment_type?.id;
+    if (lastPt) {
+      setSelectedPaymentTypeId(toTargetId(lastPt));
+    }
 
     void (async () => {
       try {
@@ -336,10 +344,11 @@ export const OrderPayment = ({
 
   const total = paymentTotals.total;
 
-  const resolvePayable = useCallback((taxOverride?: Tax | null) => {
+  const resolvePayable = useCallback((taxOverride?: Tax | null, paymentTypeId?: string) => {
     return computeOrderPaymentTotals(order, {
       ...paymentTotalsParams,
       tax: taxOverride !== undefined ? taxOverride : paymentTotalsParams.tax,
+      paymentTypeId: paymentTypeId ?? paymentTotalsParams.paymentTypeId,
     }).total;
   }, [order, paymentTotalsParams]);
 
@@ -985,21 +994,8 @@ export const OrderPayment = ({
             extras={extras}
             setTax={setTax}
             discountAmount={cartTotals.discountTotal}
-            onPaymentTypeDiscount={(d, amount) => {
-              const line: AppliedDiscountLine = {
-                discountId: toTargetId(d.id),
-                name: d.name,
-                appliedAmount: amount,
-                scope: (d.scope || 'cart') as AppliedDiscountLine['scope'],
-                valueType: (d.value_type || 'percent') as AppliedDiscountLine['valueType'],
-                taxTreatment: (d.tax_treatment || 'tax_before_discount') as AppliedDiscountLine['taxTreatment'],
-                applicationType: 'automatic',
-              };
-              setDiscountLines(prev => {
-                const discountId = toTargetId(d.id);
-                const withoutPt = prev.filter(l => l.applicationType !== 'automatic' || toTargetId(l.discountId) !== discountId);
-                return [...withoutPt, line];
-              });
+            onPaymentTypeSelected={(paymentTypeId) => {
+              setSelectedPaymentTypeId(toTargetId(paymentTypeId));
             }}
             tax={tax}
             taxAmount={taxAmount}

@@ -63,6 +63,10 @@ const MIGRATION_PLAN = [
   { id: '2026_08_03_external_accounting_integration', file: '2026_08_03_external_accounting_integration.surql' },
   { id: '2026_08_06_order_number_seq', file: '2026_08_06_order_number_seq.surql' },
   { id: '2026_08_08_order_discounts', file: '2026_08_08_order_discounts.surql' },
+  {
+    id: '2026_08_09_payment_type_discounts_backfill',
+    backfill: 'backfill-payment-type-discounts.cjs',
+  },
 ];
 
 const rows = (result) => {

@@ -42,6 +42,9 @@ export const mergeTargetsFromRecord = (discount: Discount): DiscountTargets => {
   if (targets.customer_tags?.length) {
     targets.customer_tags = [...targets.customer_tags]
   }
+  if (targets.payment_type_ids?.length) {
+    targets.payment_type_ids = targets.payment_type_ids.map(toTargetId)
+  }
 
   return targets
 }
@@ -63,6 +66,9 @@ export const sanitizeTargetsForSave = (targets: DiscountTargets): DiscountTarget
   }
   if (targets.customer_tags?.length) {
     result.customer_tags = targets.customer_tags.map(t => t.trim()).filter(Boolean)
+  }
+  if (targets.payment_type_ids?.length) {
+    result.payment_type_ids = targets.payment_type_ids.map(toTargetId).filter(Boolean)
   }
 
   return Object.keys(result).length ? result : null

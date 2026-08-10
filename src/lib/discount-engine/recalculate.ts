@@ -25,6 +25,7 @@ export const recalculateCart = (
     taxRate?: number
     now?: Date
     rules?: EvaluationContext['rules']
+    paymentTypeId?: string
   }
 ): CartTotals => {
   const rules = options?.rules ?? getDiscountCache().all
@@ -35,6 +36,7 @@ export const recalculateCart = (
     manualRequests: options?.manualRequests,
     now: options?.now,
     taxRate: options?.taxRate,
+    paymentTypeId: options?.paymentTypeId,
   })
 
   const result = evaluateDiscounts(ctx)

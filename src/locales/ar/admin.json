@@ -751,7 +751,9 @@
       "targetFloorsOptional": "اختياري — حدّ خصم السلة لطوابق محددة",
       "customerTags": "وسوم العميل",
       "customerTagsHint": "وسوم مفصولة بفاصلة (مثل vip، corporate). يجب أن يكون للعميل وسم واحد على الأقل.",
-      "minOrderAmount": "الحد الأدنى لمبلغ الطلب"
+      "minOrderAmount": "الحد الأدنى لمبلغ الطلب",
+      "targetPaymentTypes": "أنواع الدفع",
+      "targetPaymentTypesHint": "اختياري — يُطبَّق فقط عند اختيار أحد أنواع الدفع هذه عند الدفع (مثل عروض بطاقات البنوك)."
     },
     "categories": {
       "manager": "مدير",

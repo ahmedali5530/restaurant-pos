@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-08-09',
+    title: 'Payment type discounts in one place',
+    items: [
+      'Bank and card payment promos are configured on discounts (payment types target), not on payment type records.',
+      'Selecting a payment type at pay time applies matching automatic discounts through the discount engine.',
+    ],
+  },
+  {
     date: '2026-08-08',
     title: 'Event Logger integration',
     items: [

@@ -751,7 +751,9 @@
       "targetFloorsOptional": "Optionnel — limiter cette remise panier à certains étages",
       "customerTags": "Tags client",
       "customerTagsHint": "Tags séparés par virgule (ex. vip, corporate). Le client doit avoir au moins un tag.",
-      "minOrderAmount": "Montant minimum de commande"
+      "minOrderAmount": "Montant minimum de commande",
+      "targetPaymentTypes": "Types de paiement",
+      "targetPaymentTypesHint": "Optionnel — appliquer uniquement lorsque l'un de ces types de paiement est sélectionné au règlement (p. ex. promotions carte bancaire)."
     },
     "categories": {
       "manager": "Manager",
