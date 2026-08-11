@@ -1,0 +1,16 @@
+{
+  "title": "Guida utente POSR",
+  "subtitle": "Accesso, impostazioni, menu, carrello, pagamento, ordini e sessione",
+  "intro": "Guida POSR: accesso, impostazioni, ordine, pagamento, elenco ordini e sessione.",
+  "toc": "Indice",
+  "footer": "",
+  "chapters": {
+    "login": "Accesso",
+    "settings": "Impostazioni",
+    "menu": "Menu",
+    "cart": "Carrello",
+    "payment": "Pagamento",
+    "orders": "Ordini",
+    "session": "Sessione"
+  }
+}

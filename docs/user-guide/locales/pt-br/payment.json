@@ -1,0 +1,221 @@
+{
+  "title": "Tela de pagamento",
+  "intro": "Pagar agora abre tela cheia: resumo à esquerda, editor no meio (imposto/desconto/cupom/serviço/gorjeta/notas) e recebimento à direita.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Layout do pagamento",
+      "steps": [
+        "Esquerda: cabeçalho, itens, imposto, desconto, cupom, serviço, gorjeta, extras, notas e total.",
+        "Meio: editor da linha. Alterações ficam rascunho até OK ou Aplicar (exceto notas e extras).",
+        "Direita: recebido, restante/troco, valores rápidos, tipos, teclado, conta temp, Concluir e lista."
+      ],
+      "image": "payment-overview.png",
+      "caption": "Tela completa.",
+      "intro": "Três zonas: revisar, ajustar e receber."
+    },
+    {
+      "id": "summary",
+      "title": "Resumo do pedido",
+      "steps": [
+        "Confirme mesa, pessoas, tipo e fatura.",
+        "Role se a lista for longa.",
+        "Toque numa linha de totais (lápis) para editar."
+      ],
+      "image": "payment-order-summary.png",
+      "caption": "Coluna de resumo.",
+      "intro": "Cartão esquerdo com mesa e itens."
+    },
+    {
+      "id": "totals",
+      "title": "Detalhe dos totais",
+      "steps": [
+        "Subtotal dos itens, depois imposto, desconto, cupom, serviço, gorjeta, extras e notas.",
+        "Toque Imposto, Desconto, Cupom, Serviço, Gorjeta ou Notas.",
+        "Rascunho sozinho não muda a conta — confirme com OK ou Aplicar.",
+        "Algumas linhas pedem PIN de gerente."
+      ],
+      "image": "payment-totals.png",
+      "caption": "Linhas de totais.",
+      "intro": "Cada linha alimenta o total.",
+      "note": "Extras só se aplicáveis; ligar/desligar na linha (sem painel do meio)."
+    },
+    {
+      "id": "adjust-tax",
+      "title": "Ajustar imposto",
+      "steps": [
+        "Toque Imposto se o painel não estiver aberto.",
+        "Selecione Sem imposto ou uma alíquota — só rascunho.",
+        "Toque OK embaixo para aplicar.",
+        "Sem OK permanece o imposto anterior.",
+        "Tipos de pagamento também podem aplicar imposto no recebimento."
+      ],
+      "image": "payment-adjust-tax.png",
+      "caption": "Painel de imposto com OK.",
+      "intro": "Escolha sem imposto ou alíquota e confirme com OK. A esquerda só muda após OK."
+    },
+    {
+      "id": "adjust-discount",
+      "title": "Aplicar descontos",
+      "steps": [
+        "Toque Desconto (PIN possível).",
+        "Opção Sem desconto.",
+        "Escolha o desconto; teclado se houver faixa.",
+        "Escopo de item: selecione linhas; motivo se obrigatório.",
+        "Toque Aplicar. Só a seleção não atualiza o total."
+      ],
+      "image": "payment-adjust-discount.png",
+      "caption": "Editor de desconto; confirme com Aplicar.",
+      "intro": "Desconto manual: escolha, defina valor se preciso, Aplicar."
+    },
+    {
+      "id": "adjust-coupon",
+      "title": "Cupons",
+      "steps": [
+        "Toque Cupom (PIN possível).",
+        "Digite o código.",
+        "Toque Aplicar.",
+        "Limpar remove o cupom. Código inválido = total igual."
+      ],
+      "image": "payment-adjust-coupon.png",
+      "caption": "Código com Aplicar e Limpar.",
+      "intro": "Digite o código e confirme com Aplicar (não OK)."
+    },
+    {
+      "id": "adjust-service",
+      "title": "Taxa de serviço",
+      "steps": [
+        "Toque Serviço (PIN possível).",
+        "Banner pode mostrar padrão do Gerenciar.",
+        "Sem serviço, % / Fixo, valores rápidos ou teclado.",
+        "OK para aplicar.",
+        "Se o tipo de pedido não permitir, costuma ficar 0."
+      ],
+      "image": "payment-adjust-service.png",
+      "caption": "Painel de serviço; OK.",
+      "intro": "Rascunho % ou fixo, depois OK."
+    },
+    {
+      "id": "adjust-tip",
+      "title": "Gorjetas",
+      "steps": [
+        "Toque Gorjeta (PIN possível).",
+        "Sem gorjeta ou % / Fixo.",
+        "Atalhos ou teclado.",
+        "OK para aplicar.",
+        "Aumenta o total a receber."
+      ],
+      "image": "payment-adjust-tip.png",
+      "caption": "Painel de gorjeta; OK.",
+      "intro": "Mesmo padrão rascunho → OK."
+    },
+    {
+      "id": "extras",
+      "title": "Extras",
+      "steps": [
+        "Nome e valor nos totais se aplicáveis.",
+        "Toque para ligar/desligar.",
+        "PIN possível; imediato.",
+        "Sem linhas = sem extras."
+      ],
+      "image": "payment-extras.png",
+      "caption": "Linhas de extras (se configurados).",
+      "intro": "Extras configurados sob a gorjeta. Sem editor no meio."
+    },
+    {
+      "id": "adjust-notes",
+      "title": "Notas do pedido",
+      "steps": [
+        "Toque Notas.",
+        "Digite no meio.",
+        "Salvas ao concluir."
+      ],
+      "image": "payment-adjust-notes.png",
+      "caption": "Editor de notas.",
+      "intro": "Texto livre; atualiza ao digitar (sem OK)."
+    },
+    {
+      "id": "receiving",
+      "title": "Receber pagamento",
+      "steps": [
+        "Número grande = recebido.",
+        "Restante (vermelho) ou troco (verde).",
+        "Valores rápidos, teclado e tipos."
+      ],
+      "image": "payment-receiving.png",
+      "caption": "Painel de recebimento.",
+      "intro": "Com totais corretos, receba à direita."
+    },
+    {
+      "id": "tender-display",
+      "title": "Recebido e restante",
+      "steps": [
+        "Começa em zero.",
+        "Restante 0 (ou troco ≥ 0) para Concluir.",
+        "Após imposto/desconto/gorjeta, revise pagamentos.",
+        "Divida com várias linhas."
+      ],
+      "image": "payment-tender-display.png",
+      "caption": "Recebido e restante/troco."
+    },
+    {
+      "id": "types",
+      "title": "Tipos de pagamento",
+      "steps": [
+        "Tipo para o saldo, ou valor e depois o tipo.",
+        "Chips rápidos usam o primeiro tipo.",
+        "Cartão em geral não supera o restante."
+      ],
+      "image": "payment-types.png",
+      "caption": "Botões de tipo.",
+      "intro": "Do Gerenciar ou da mesa.",
+      "note": "Tipos remotos abrem o próprio fluxo."
+    },
+    {
+      "id": "keypad",
+      "title": "Teclado",
+      "steps": [
+        "Digite o valor e escolha o tipo.",
+        "C limpa.",
+        "Chip do total exato cobre o saldo."
+      ],
+      "image": "payment-keypad.png",
+      "caption": "Teclado numérico."
+    },
+    {
+      "id": "finish",
+      "title": "Conta temp e Concluir",
+      "steps": [
+        "Conta temp se permitido.",
+        "Concluir marca como pago.",
+        "Desativado com restante ou remoto em andamento."
+      ],
+      "image": "payment-finish-actions.png",
+      "caption": "Temp e Concluir.",
+      "note": "Esc fecha sem pagar."
+    },
+    {
+      "id": "lines",
+      "title": "Linhas de pagamento",
+      "steps": [
+        "Revise tipo e valor.",
+        "Toque × para remover.",
+        "Saldo coberto → Concluir ativo."
+      ],
+      "image": "payment-lines.png",
+      "caption": "Linhas após valor exato.",
+      "intro": "Cada recebimento à direita."
+    },
+    {
+      "id": "complete-ready",
+      "title": "Pronto para concluir",
+      "steps": [
+        "Confirme restante zero ou troco.",
+        "Toque Concluir (PIN possível).",
+        "Pedido pago."
+      ],
+      "image": "payment-complete-ready.png",
+      "caption": "Concluir habilitado."
+    }
+  ]
+}

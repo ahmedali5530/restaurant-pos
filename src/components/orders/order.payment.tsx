@@ -763,14 +763,14 @@ export const OrderPayment = ({
       onClose={closeModal}
       size="full"
     >
-      <div className="grid grid-cols-4 gap-5 mb-0 select-none">
-        <div className="bg-white rounded-xl flex flex-col overflow-auto h-[calc(100vh_-_120px)]">
+      <div className="grid grid-cols-4 gap-5 mb-0 select-none" data-testid="payment-screen">
+        <div className="bg-white rounded-xl flex flex-col overflow-auto h-[calc(100vh_-_120px)]" data-testid="payment-order-summary">
           <div className="p-3 flex gap-3 flex-col">
             <OrderHeader order={order} tempPrinted={tempPrinted}/>
             <OrderTimes order={order}/>
             <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
             <ScrollContainer className="gap-1 flex flex-col">
-              <div className="overflow-ellipsis max-h-[170px]">
+              <div className="overflow-ellipsis max-h-[170px]" data-testid="payment-line-items">
                 {getOrderFilteredItems(order).map(item => (
                   <OrderItemName
                     key={item.id}
@@ -795,12 +795,14 @@ export const OrderPayment = ({
             </ScrollContainer>
             <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
           </div>
-          <div className="flex flex-col font-bold text-lg">
+          <div className="flex flex-col font-bold text-lg" data-testid="payment-totals">
             <div className="flex justify-between p-3">
               <div>{t('totals.items', {count: getOrderFilteredItems(order).length})}</div>
               <div className="text-right">{withCurrency(itemsTotal)}</div>
             </div>
-            <div className={
+            <div
+              data-testid="payment-row-tax"
+              className={
               cn(
                 "flex justify-between p-3 cursor-pointer",
                 mode === PaymentOptions.Tax && 'bg-neutral-900 text-warning-500'
@@ -823,7 +825,9 @@ export const OrderPayment = ({
               <div className="text-right">{withCurrency(taxAmount)}</div>
             </div>
 
-            <div className={
+            <div
+              data-testid="payment-row-discount"
+              className={
               cn(
                 "flex justify-between p-3 cursor-pointer",
                 mode === PaymentOptions.Discount && 'bg-neutral-900 text-warning-500'
@@ -845,7 +849,9 @@ export const OrderPayment = ({
               <div className="text-right">{withCurrency(cartTotals.discountTotal)}</div>
             </div>
 
-            <div className={
+            <div
+              data-testid="payment-row-coupon"
+              className={
               cn(
                 "flex justify-between p-3 cursor-pointer",
                 mode === PaymentOptions.Coupon && 'bg-neutral-900 text-warning-500'
@@ -863,7 +869,9 @@ export const OrderPayment = ({
               <div className="text-right">{withCurrency(couponAmount)}</div>
             </div>
 
-            <div className={
+            <div
+              data-testid="payment-row-service-charges"
+              className={
               cn(
                 "flex justify-between p-3 cursor-pointer",
                 mode === PaymentOptions['Service Charges'] && 'bg-neutral-900 text-warning-500'
@@ -885,7 +893,9 @@ export const OrderPayment = ({
               <div className="text-right">{withCurrency(serviceChargeAmount)}</div>
             </div>
 
-            <div className={
+            <div
+              data-testid="payment-row-tip"
+              className={
               cn(
                 "flex justify-between p-3 cursor-pointer",
                 mode === PaymentOptions.Tip && 'bg-neutral-900 text-warning-500'
@@ -913,6 +923,7 @@ export const OrderPayment = ({
                   )
                 }
                 key={extra}
+                data-testid="payment-row-extra"
                 onClick={() => {
                   protectAction(() => setExtraToggles(prev => ({
                     ...prev,
@@ -930,7 +941,9 @@ export const OrderPayment = ({
                 <div className="text-right">{withCurrency(extras[extra])}</div>
               </div>
             ))}
-            <div className={
+            <div
+              data-testid="payment-row-notes"
+              className={
               cn(
                 "flex justify-between p-3 cursor-pointer",
                 mode === PaymentOptions.Notes && 'bg-neutral-900 text-warning-500'
@@ -940,13 +953,13 @@ export const OrderPayment = ({
               <div className="text-right">{notes}</div>
             </div>
 
-            <div className="flex justify-between p-3">
+            <div className="flex justify-between p-3" data-testid="payment-total-row">
               <div className="text-2xl">{t('tabs.total')}</div>
               <div className="text-right text-2xl">{withCurrency(total)}</div>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl flex flex-col p-3 h-[calc(100vh_-_120px)]">
+        <div className="bg-white rounded-xl flex flex-col p-3 h-[calc(100vh_-_120px)]" data-testid="payment-adjust-panel">
           {mode === PaymentOptions.Tax && (
             <OrderPaymentTax tax={tax} setTax={setTax}/>
           )}
@@ -985,7 +998,7 @@ export const OrderPayment = ({
             <OrderPaymentNotes setNotes={setNotes} notes={notes}/>
           )}
         </div>
-        <div className="flex flex-col bg-neutral-100 rounded-xl col-span-2">
+        <div className="flex flex-col bg-neutral-100 rounded-xl col-span-2" data-testid="payment-receiving-column">
           <OrderPaymentReceiving
             order={order}
             total={total}

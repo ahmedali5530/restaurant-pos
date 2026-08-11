@@ -1,0 +1,221 @@
+{
+  "title": "Schermata pagamento",
+  "intro": "Paga ora apre a schermo intero: riepilogo a sinistra, editor al centro (tassa/sconto/coupon/servizio/mancia/note), incasso a destra.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Layout pagamento",
+      "steps": [
+        "Sinistra: intestazione, righe, tassa, sconto, coupon, servizio, mancia, extra, note, totale.",
+        "Centro: editor della riga. Le modifiche restano bozza fino a OK o Applica (tranne note ed extra).",
+        "Destra: versato, resto, importi rapidi, tipi, tastierino, conto temp, Completa, elenco."
+      ],
+      "image": "payment-overview.png",
+      "caption": "Schermo intero.",
+      "intro": "Tre zone: controlla, regola, incassa."
+    },
+    {
+      "id": "summary",
+      "title": "Riepilogo ordine",
+      "steps": [
+        "Conferma tavolo, coperti, tipo e fattura.",
+        "Scorri se ci sono molte righe.",
+        "Tocca una riga totali (matita) per modificare."
+      ],
+      "image": "payment-order-summary.png",
+      "caption": "Colonna riepilogo.",
+      "intro": "Scheda sinistra con tavolo e articoli."
+    },
+    {
+      "id": "totals",
+      "title": "Dettaglio totali",
+      "steps": [
+        "Subtotale articoli, poi tassa, sconto, coupon, servizio, mancia, extra e note.",
+        "Tocca Tassa, Sconto, Coupon, Servizio, Mancia o Note.",
+        "La bozza da sola non cambia il conto — conferma con OK o Applica.",
+        "Alcune righe richiedono PIN manager."
+      ],
+      "image": "payment-totals.png",
+      "caption": "Righe totali.",
+      "intro": "Ogni riga alimenta il totale.",
+      "note": "Extra solo se configurati; toggle sulla riga (niente pannello centrale)."
+    },
+    {
+      "id": "adjust-tax",
+      "title": "Regola tassa",
+      "steps": [
+        "Tocca Tassa se il pannello non è aperto.",
+        "Seleziona nessuna tassa o aliquota — solo bozza.",
+        "Tocca OK in basso per applicare.",
+        "Senza OK resta la tassa precedente.",
+        "I tipi di pagamento possono applicare tassa al tender."
+      ],
+      "image": "payment-adjust-tax.png",
+      "caption": "Pannello tassa con OK.",
+      "intro": "Scegli nessuna tassa o aliquota, poi OK. A sinistra cambia solo dopo OK."
+    },
+    {
+      "id": "adjust-discount",
+      "title": "Applica sconti",
+      "steps": [
+        "Tocca Sconto (PIN possibile).",
+        "Opzione Nessuno sconto per azzerare manuali.",
+        "Scegli sconto; tastierino se intervallo.",
+        "Ambito riga: seleziona; motivo se richiesto.",
+        "Tocca Applica. Solo la selezione non aggiorna il totale."
+      ],
+      "image": "payment-adjust-discount.png",
+      "caption": "Editor sconto; conferma con Applica.",
+      "intro": "Sconto manuale: scegli, imposta importo se serve, Applica."
+    },
+    {
+      "id": "adjust-coupon",
+      "title": "Coupon",
+      "steps": [
+        "Tocca Coupon (PIN possibile).",
+        "Digita il codice.",
+        "Tocca Applica.",
+        "Cancella rimuove il coupon. Codice non valido = totale invariato."
+      ],
+      "image": "payment-adjust-coupon.png",
+      "caption": "Codice con Applica e Cancella.",
+      "intro": "Inserisci codice e conferma con Applica (non OK)."
+    },
+    {
+      "id": "adjust-service",
+      "title": "Costi di servizio",
+      "steps": [
+        "Tocca Servizio (PIN possibile).",
+        "Banner possible con default Manage.",
+        "Nessun servizio, % / Fisso, importi rapidi o tastierino.",
+        "OK per applicare.",
+        "Se l’order type non consente, spesso 0."
+      ],
+      "image": "payment-adjust-service.png",
+      "caption": "Pannello servizio; OK.",
+      "intro": "Bozza % o fisso, poi OK."
+    },
+    {
+      "id": "adjust-tip",
+      "title": "Mance",
+      "steps": [
+        "Tocca Mancia (PIN possibile).",
+        "Nessuna mancia o % / Fisso.",
+        "Scorciatoie o tastierino.",
+        "OK per applicare.",
+        "Aumenta il totale da incassare."
+      ],
+      "image": "payment-adjust-tip.png",
+      "caption": "Pannello mancia; OK.",
+      "intro": "Stesso schema bozza → OK."
+    },
+    {
+      "id": "extras",
+      "title": "Extra",
+      "steps": [
+        "Nome e importo in totali se applicabili.",
+        "Tocca per on/off.",
+        "PIN possibile; toggle immediato.",
+        "Senza righe = nessun extra."
+      ],
+      "image": "payment-extras.png",
+      "caption": "Righe extra (se configurati).",
+      "intro": "Extra configurati sotto la mancia. Nessun editor centrale."
+    },
+    {
+      "id": "adjust-notes",
+      "title": "Note ordine",
+      "steps": [
+        "Tocca Note.",
+        "Scrivi al centro.",
+        "Salvate a chiusura."
+      ],
+      "image": "payment-adjust-notes.png",
+      "caption": "Editor note.",
+      "intro": "Testo libero; update immediato (no OK)."
+    },
+    {
+      "id": "receiving",
+      "title": "Incassa",
+      "steps": [
+        "Cifra grande = versato.",
+        "Restante (rosso) o resto (verde).",
+        "Importi rapidi, tastierino, tipi."
+      ],
+      "image": "payment-receiving.png",
+      "caption": "Pannello incasso.",
+      "intro": "Con totali corretti, incassa a destra."
+    },
+    {
+      "id": "tender-display",
+      "title": "Versato e restante",
+      "steps": [
+        "Parte da zero.",
+        "Restante 0 (o resto ≥ 0) per Completa.",
+        "Dopo tassa/sconto/mancia rivedi i tender.",
+        "Split con più righe."
+      ],
+      "image": "payment-tender-display.png",
+      "caption": "Versato e resto."
+    },
+    {
+      "id": "types",
+      "title": "Tipi di pagamento",
+      "steps": [
+        "Tipo per residuo, o importo poi tipo.",
+        "Chip rapidi = primo tipo.",
+        "Carta di solito non oltre il residuale."
+      ],
+      "image": "payment-types.png",
+      "caption": "Pulsanti tipo.",
+      "intro": "Da Gestisci o dal tavolo.",
+      "note": "Tipi remoti: flusso proprio."
+    },
+    {
+      "id": "keypad",
+      "title": "Tastierino",
+      "steps": [
+        "Importo poi tipo.",
+        "C cancella.",
+        "Chip totale esatto."
+      ],
+      "image": "payment-keypad.png",
+      "caption": "Tastierino."
+    },
+    {
+      "id": "finish",
+      "title": "Conto temp e Completa",
+      "steps": [
+        "Conto temp con permessi.",
+        "Completa = pagato.",
+        "Disabilitato con residuale o remoto in corso."
+      ],
+      "image": "payment-finish-actions.png",
+      "caption": "Temp e Completa.",
+      "note": "Esc chiude senza pagare."
+    },
+    {
+      "id": "lines",
+      "title": "Righe pagamento",
+      "steps": [
+        "Controlla tipo e importo.",
+        "× per rimuovere.",
+        "Saldo coperto → Completa attiva."
+      ],
+      "image": "payment-lines.png",
+      "caption": "Righe dopo importo esatto.",
+      "intro": "Ogni tender a destra."
+    },
+    {
+      "id": "complete-ready",
+      "title": "Pronto a completare",
+      "steps": [
+        "Residuo zero o resto.",
+        "Completa (PIN possibile).",
+        "Ordine pagato."
+      ],
+      "image": "payment-complete-ready.png",
+      "caption": "Completa abilitato."
+    }
+  ]
+}

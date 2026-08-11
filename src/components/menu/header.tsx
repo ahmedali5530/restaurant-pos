@@ -181,15 +181,15 @@ export const MenuHeader = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center w-full">
+      <div className="flex justify-between items-center w-full" data-testid="menu-header">
         <div className="flex items-center gap-2">
           {!hideTableSelection && (
-            <Button variant="primary" icon={faArrowLeft} onClick={reset} size="lg">{state?.floor?.name}</Button>
+            <Button variant="primary" icon={faArrowLeft} onClick={reset} size="lg" data-testid="menu-back-floor">{state?.floor?.name}</Button>
           )}
           {state?.orders?.length > 0 ? (
             <>
               <ScrollContainer className="max-w-[300px] flex flex-nowrap gap-3">
-                <div className="input-group">
+                <div className="input-group" data-testid="menu-order-tabs">
                   {state?.orders?.map((order, index) => (
                     <Button
                       key={index}
@@ -212,6 +212,7 @@ export const MenuHeader = () => {
                 disabled={orderTakingBlocked}
                 onClick={() => onOrderClick('new')}
                 icon={faPlus}
+                data-testid="menu-new-order"
               >{t('header.newOrder')}</Button>
             </>
           ) : null}
@@ -222,28 +223,31 @@ export const MenuHeader = () => {
               className="btn btn-primary lg btn-flat min-w-[50px]"
               onClick={switchTable}
               icon={faTable}
+              data-testid="menu-table"
             >{state?.table?.name}{state?.table?.number}</Button>
           )}
           <Button type="button"
                   className="btn btn-primary lg btn-flat"
                   onClick={openPersons}
                   icon={faUsers}
+                  data-testid="menu-persons"
           >
             {t('header.pax', { count: Number(state?.persons) || 0 })}
           </Button>
 
           <div className="input-group">
-            <Button flat variant="primary" size="lg" icon={faUser} onClick={() => setCustomerModal(true)}>
+            <Button flat variant="primary" size="lg" icon={faUser} onClick={() => setCustomerModal(true)} data-testid="menu-customer">
               {state?.customer ? state.customer?.name : t('header.customer')}
             </Button>
           </div>
           {state.cart.filter(item => item.newOrOld === MenuItemType.new).length > 0 && (
             <Button variant="danger" className="flex-1" size="lg" icon={faTimes} onClick={clear}
+                    data-testid="menu-clear-cart"
             >{t('header.clear')}</Button>
           )}
         </div>
 
-        <div className="flex input-group rounded-full">
+        <div className="flex input-group rounded-full" data-testid="menu-order-types">
           {setting?.order_types?.map((item, index) => (
             <Button
               variant="primary"
@@ -262,6 +266,7 @@ export const MenuHeader = () => {
               }}
               key={index}
               flat
+              data-testid={`menu-order-type-${index}`}
             >
               {item.name}
             </Button>

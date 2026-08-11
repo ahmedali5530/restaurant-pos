@@ -1,0 +1,29 @@
+{
+  "title": "Cart",
+  "intro": "The cart holds items for the current seat or guest. From the cart you send lines to the kitchen or open the full payment screen.",
+  "sections": [
+    {
+      "id": "panel",
+      "title": "Cart panel",
+      "intro": "The right-hand cart lists new lines (not yet sent) and previously ordered lines for the open check.",
+      "steps": [
+        "New lines appear at the top; sent (old) lines appear below a separator.",
+        "Tap a line to select it for cart actions (quantity, hold, void new lines, etc.).",
+        "Use seats when splitting one table check across guests."
+      ],
+      "image": "cart-panel.png",
+      "caption": "Cart panel with payment actions."
+    },
+    {
+      "id": "actions",
+      "title": "To kitchen, Pay now, Cancel",
+      "steps": [
+        "To kitchen saves the order and sends new items to kitchen workflows/print when configured, then returns to the floor when tables are used.",
+        "Pay now saves the order if needed and opens the full payment screen (see the Payment chapter).",
+        "Cancel drops new cart lines (or returns) according to current cart rules."
+      ],
+      "image": "cart-payment-actions.png",
+      "caption": "Cart action buttons (highlighted)."
+    }
+  ]
+}

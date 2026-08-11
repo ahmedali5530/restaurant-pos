@@ -1,0 +1,86 @@
+{
+  "title": "Bestellingen",
+  "intro": "Bestellingen toont open en recente rekeningen om te betalen, printen, splitsen, samenvoegen, annuleren of terugbetalen.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Bestelling-layout",
+      "steps": [
+        "Open Bestellingen.",
+        "Filter op status, type, verdieping, gebruiker, datum.",
+        "Blokken of Tabel."
+      ],
+      "image": "orders-overview.png",
+      "caption": "Orders screen with filters and cards.",
+      "intro": "Open Bestellingen in de zijbalk. Filters boven; kaarten of rijen."
+    },
+    {
+      "id": "filters",
+      "title": "Filters",
+      "steps": [
+        "Status: In uitvoering, Betaald, Geannuleerd, Gesplitst, Samengevoegd.",
+        "Type, verdieping, gebruiker.",
+        "Datum voor de dag; In uitvoering kan blijven."
+      ],
+      "image": "orders-filters.png",
+      "caption": "Orders filter bar."
+    },
+    {
+      "id": "toolbar",
+      "title": "Werkbalk",
+      "steps": [
+        "Kassalade openen (PIN mogelijk).",
+        "Blokken = kaarten.",
+        "Tabel = lijst."
+      ],
+      "image": "orders-toolbar.png",
+      "caption": "Cash drawer and view toggles."
+    },
+    {
+      "id": "card",
+      "title": "Orderkaart",
+      "steps": [
+        "Controleer factuur, tafel, status en items.",
+        "Temp-rekening en Betalen bij In uitvoering.",
+        "⋯ annuleren, splitsen, mergen, KOT."
+      ],
+      "image": "orders-card.png",
+      "caption": "Order card with items and actions.",
+      "intro": "Kop, tijden, regels, totalen en acties."
+    },
+    {
+      "id": "card-actions",
+      "title": "Kaartacties",
+      "steps": [
+        "Temp print voorlopig.",
+        "Betalen opent betaling.",
+        "⋯ meer acties."
+      ],
+      "image": "orders-card-actions.png",
+      "caption": "Print, Pay, and more on a card."
+    },
+    {
+      "id": "menu",
+      "title": "Menu ⋯ (In uitvoering)",
+      "steps": [
+        "Annuleren.",
+        "Splitsen zitplaatsen/items/bedrag.",
+        "Samenvoegen.",
+        "KOT-kopie printen."
+      ],
+      "image": "orders-card-menu.png",
+      "caption": "Order more-actions menu.",
+      "intro": "Beveiligde acties kunnen PIN vragen."
+    },
+    {
+      "id": "table-view",
+      "title": "Tabelweergave",
+      "steps": [
+        "Tabelweergave.",
+        "Tik In uitvoering om te betalen."
+      ],
+      "image": "orders-table-view.png",
+      "caption": "Orders table view."
+    }
+  ]
+}

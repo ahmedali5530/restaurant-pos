@@ -1,0 +1,29 @@
+{
+  "title": "Warenkorb",
+  "intro": "Der Warenkorb hält Positionen für den aktuellen Gast. Von hier senden Sie in die Küche oder öffnen die Zahlung.",
+  "sections": [
+    {
+      "id": "panel",
+      "title": "Warenkorb-Panel",
+      "intro": "Neue und bereits gesendete Zeilen.",
+      "steps": [
+        "Neue oben; gesendete unter dem Trenner.",
+        "Zeile tippen für Aktionen.",
+        "Sitze zum Aufteilen nutzen."
+      ],
+      "image": "cart-panel.png",
+      "caption": "Warenkorb."
+    },
+    {
+      "id": "actions",
+      "title": "Küche, Bezahlen, Abbrechen",
+      "steps": [
+        "Zur Küche speichert und sendet neue Zeilen.",
+        "Jetzt bezahlen öffnet den Zahlungsbildschirm (Kapitel Zahlung).",
+        "Abbrechen entfernt neue Zeilen nach Regeln."
+      ],
+      "image": "cart-payment-actions.png",
+      "caption": "Aktionsbuttons."
+    }
+  ]
+}

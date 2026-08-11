@@ -1,0 +1,221 @@
+{
+  "title": "Ödeme ekranı",
+  "intro": "Şimdi öde tam ekran açar: sol özet, orta düzenleyici (vergi/indirim/kupon/servis/bahşiş/notlar), sağ tahsilat.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Ödeme düzeni",
+      "steps": [
+        "Sol: başlık, kalemler, vergi, indirim, kupon, servis, bahşiş, ekstra, notlar, toplam.",
+        "Orta: seçilen satırın düzenleyicisi. Değişiklikler OK veya Uygula’ya kadar taslaktır (notlar ve ekstralar hariç).",
+        "Sağ: ödenen, kalan/para üstü, hızlı tutarlar, türler, tuş takımı, geçici fiş, Tamamla, liste."
+      ],
+      "image": "payment-overview.png",
+      "caption": "Tam ekran.",
+      "intro": "Üç bölge: gözden geçir, ayarla, tahsil et."
+    },
+    {
+      "id": "summary",
+      "title": "Sipariş özeti",
+      "steps": [
+        "Masa, kişi, sipariş türü ve faturayı doğrula.",
+        "Uzun listelerde kaydır.",
+        "Toplam satırına (kalem) dokunarak ortada düzenle."
+      ],
+      "image": "payment-order-summary.png",
+      "caption": "Özet sütunu.",
+      "intro": "Sol kart: masa ve kalemler."
+    },
+    {
+      "id": "totals",
+      "title": "Toplam dökümü",
+      "steps": [
+        "Önce ara toplam; sonra vergi, indirim, kupon, servis, bahşiş, ekstra, notlar.",
+        "Vergi, İndirim, Kupon, Servis, Bahşiş veya Notlar’a dokun.",
+        "Taslak seçim tek başına fişi değiştirmez — OK veya Uygula ile onayla.",
+        "Bazı satırlar yönetici PIN’i ister."
+      ],
+      "image": "payment-totals.png",
+      "caption": "Toplam satırları.",
+      "intro": "Her satır genel toplama yansır.",
+      "note": "Ekstralar yalnızca uygulanabilirken görünür; satırda aç/kapa (orta panel yok)."
+    },
+    {
+      "id": "adjust-tax",
+      "title": "Vergiyi ayarla",
+      "steps": [
+        "Panel açık değilse Vergi’ye dokun.",
+        "Vergisiz veya oran seç — yalnızca taslak.",
+        "Alttaki OK ile uygula.",
+        "OK’suz önceki vergi kalır.",
+        "Ödeme türleri tender’de vergi de ekleyebilir."
+      ],
+      "image": "payment-adjust-tax.png",
+      "caption": "Vergi paneli; OK.",
+      "intro": "Vergisiz veya oran seç, sonra OK. Sol tutar OK’e kadar değişmez."
+    },
+    {
+      "id": "adjust-discount",
+      "title": "İndirim uygula",
+      "steps": [
+        "İndirim satırına dokun (PIN olabilir).",
+        "İsteğe bağlı İndirim yok.",
+        "İndirim seç; aralıkta tuş takımı.",
+        "Kalem kapsamıysa satır seç; gerekçе gerekebilir.",
+        "Uygula’ya bas. Sadece seçim toplamı güncellemez."
+      ],
+      "image": "payment-adjust-discount.png",
+      "caption": "İndirim düzenleyici; Uygula.",
+      "intro": "Manuel indirim: seç, gerekirse tutar gir, Uygula."
+    },
+    {
+      "id": "adjust-coupon",
+      "title": "Kuponlar",
+      "steps": [
+        "Kupon satırına dokun (PIN olabilir).",
+        "Kodu yaz.",
+        "Uygula.",
+        "Temizle kuponu kaldırır. Geçersiz kod = toplam aynı."
+      ],
+      "image": "payment-adjust-coupon.png",
+      "caption": "Kod; Uygula ve Temizle.",
+      "intro": "Kodu gir ve Uygula ile onayla (OK değil)."
+    },
+    {
+      "id": "adjust-service",
+      "title": "Servis ücreti",
+      "steps": [
+        "Servis satırına dokun (PIN olabilir).",
+        "Banner Manage varsayılanını gösterebilir.",
+        "Servis yok, % / Sabit, hızlı tutarlar veya tuş.",
+        "OK ile uygula.",
+        "Sipariş türü izin vermezse genelde 0."
+      ],
+      "image": "payment-adjust-service.png",
+      "caption": "Servis paneli; OK.",
+      "intro": "% veya sabit taslak, sonra OK."
+    },
+    {
+      "id": "adjust-tip",
+      "title": "Bahşiş",
+      "steps": [
+        "Bahşiş satırına dokun (PIN olabilir).",
+        "Bahşiş yok veya % / Sabit.",
+        "Hızlı seçim veya tuş.",
+        "OK ile uygula.",
+        "Tahsil edilecek toplam artar."
+      ],
+      "image": "payment-adjust-tip.png",
+      "caption": "Bahşiş paneli; OK.",
+      "intro": "Aynı taslak → OK deseni."
+    },
+    {
+      "id": "extras",
+      "title": "Ekstralar",
+      "steps": [
+        "Uygulanabilirse ad ve tutar listede.",
+        "Satıra dokunarak aç/kapa.",
+        "PIN olabilir; anında geçer.",
+        "Satır yoksa ekstra yok."
+      ],
+      "image": "payment-extras.png",
+      "caption": "Ekstra satırları (yapılandırıldıysa).",
+      "intro": "Yapılandırılmış ekstralar bahşiş altında. Orta editör yok."
+    },
+    {
+      "id": "adjust-notes",
+      "title": "Sipariş notları",
+      "steps": [
+        "Notlar’a dokun.",
+        "Orta panele yaz.",
+        "Tamamlanınca kaydedilir."
+      ],
+      "image": "payment-adjust-notes.png",
+      "caption": "Not düzenleyici.",
+      "intro": "Serbest metin; yazınca güncellenir (OK yok)."
+    },
+    {
+      "id": "receiving",
+      "title": "Tahsilat",
+      "steps": [
+        "Büyük rakam = ödenen.",
+        "Kalan (kırmızı) veya para üstü (yeşil).",
+        "Hızlı tutar, tuş, türler."
+      ],
+      "image": "payment-receiving.png",
+      "caption": "Tahsil paneli.",
+      "intro": "Toplamlar doğruysa sağda tahsil et."
+    },
+    {
+      "id": "tender-display",
+      "title": "Tahsil ve kalan",
+      "steps": [
+        "Sıfırdan başlar.",
+        "Kalan 0 (veya para üstü ≥ 0) için Tamamla.",
+        "Vergi/indirim/bahşiş sonrası ödemeleri kontrol et.",
+        "Birden fazla satırla böl."
+      ],
+      "image": "payment-tender-display.png",
+      "caption": "Tahsil ve kalan/para üstü."
+    },
+    {
+      "id": "types",
+      "title": "Ödeme türleri",
+      "steps": [
+        "Kalan için tür veya tutar sonra tür.",
+        "Hızlı çipler ilk türü kullanır.",
+        "Kart genelde kalanı aşamaz."
+      ],
+      "image": "payment-types.png",
+      "caption": "Tür düğmeleri.",
+      "intro": "Yönet veya masadan.",
+      "note": "Uzak türler kendi akışını açar."
+    },
+    {
+      "id": "keypad",
+      "title": "Tuş takımı",
+      "steps": [
+        "Tutar gir, tür seç.",
+        "C temizler.",
+        "Tam toplam çipi bakiyeyi kapatır."
+      ],
+      "image": "payment-keypad.png",
+      "caption": "Sayı tuş takımı."
+    },
+    {
+      "id": "finish",
+      "title": "Geçici fiş ve Tamamla",
+      "steps": [
+        "Geçici fiş izin varsa.",
+        "Tamamla = ödendi.",
+        "Kalan veya uzak işlem varken kapalı."
+      ],
+      "image": "payment-finish-actions.png",
+      "caption": "Geçici ve Tamamla.",
+      "note": "Escape tamamlanmadan kapatır."
+    },
+    {
+      "id": "lines",
+      "title": "Ödeme satırları",
+      "steps": [
+        "Tür ve tutarı kontrol et.",
+        "× ile kaldır.",
+        "Bakiye kapanınca Tamamla açılır."
+      ],
+      "image": "payment-lines.png",
+      "caption": "Tam tutar sonrası satırlar.",
+      "intro": "Her tahsil sağda."
+    },
+    {
+      "id": "complete-ready",
+      "title": "Tamamlamaya hazır",
+      "steps": [
+        "Kalan 0 veya para üstü.",
+        "Tamamla (PIN gerekebilir).",
+        "Sipariş ödendi."
+      ],
+      "image": "payment-complete-ready.png",
+      "caption": "Tamamla etkin."
+    }
+  ]
+}

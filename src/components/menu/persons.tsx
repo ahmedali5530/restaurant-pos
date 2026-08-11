@@ -103,7 +103,7 @@ export const MenuPersons = () => {
   const btnClasses = 'size-[85px] sm:size-[100px] md:size-[120px] p-0 text-neutral-900 active:scale-[0.95] transition-all duration-75 bg-neutral-100 active:text-neutral-100 active:bg-neutral-900 rounded-full text-3xl';
 
   return (
-    <div className="flex h-screen w-full justify-center items-center flex-col gap-5 bg-white">
+    <div className="flex h-screen w-full justify-center items-center flex-col gap-5 bg-white" data-testid="menu-persons-screen">
       <h3 className={
         cn("text-4xl", error && 'login-error')
       }>{t('persons.chooseCount')}</h3>
@@ -146,7 +146,7 @@ export const MenuPersons = () => {
         <button type="button" onClick={() => onKey('0')}
                 className={btnClasses}>0
         </button>
-        <button type="button" onClick={onOk}
+        <button type="button" onClick={onOk} data-testid="menu-persons-ok"
                 className="size-[85px] sm:size-[100px] md:size-[120px] p-0 text-white active:scale-[0.95] transition-all duration-75 bg-success-500 active:bg-success-900 rounded-full text-3xl">OK
         </button>
       </div>

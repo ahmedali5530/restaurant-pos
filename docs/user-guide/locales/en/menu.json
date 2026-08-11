@@ -1,0 +1,84 @@
+{
+  "title": "Menu and order taking",
+  "intro": "Use Menu to seat guests on the floor plan, enter covers when asked, choose an order type, browse categories and dishes, and add items to the cart.",
+  "sections": [
+    {
+      "id": "floor",
+      "title": "Open a table from the floor plan",
+      "intro": "When table selection is enabled on this device, Menu opens on the floor plan first. Do not start an order without selecting a table unless your manager set up tableless mode.",
+      "steps": [
+        "From the left sidebar after login, open Menu (or land on it after sign-in).",
+        "Select a floor at the bottom if the venue has more than one floor.",
+        "Tap an available table on the floor plan to start or continue an order."
+      ],
+      "image": "menu-floor.png",
+      "caption": "Floor plan with tables."
+    },
+    {
+      "id": "covers",
+      "title": "Enter covers (party size)",
+      "intro": "Some tables ask for the number of guests before the menu appears.",
+      "steps": [
+        "Use the number pad to enter the party size.",
+        "Tap OK to continue to the dish menu.",
+        "Tap C if you need to clear and re-enter the number."
+      ],
+      "image": "menu-covers.png",
+      "caption": "Covers / guests number pad."
+    },
+    {
+      "id": "overview",
+      "title": "Menu ordering layout",
+      "intro": "The ordering screen shows a menu header and dishes on the left, and the cart on the right. The selected table appears in the header.",
+      "steps": [
+        "Use the header for table, covers, customer, and order type.",
+        "Choose categories, then tap dishes to add them.",
+        "Watch the cart fill on the right before kitchen or payment."
+      ],
+      "image": "menu-overview.png",
+      "caption": "Menu header and order types (highlighted)."
+    },
+    {
+      "id": "order-type",
+      "title": "Choose an order type",
+      "steps": [
+        "On the right side of the header, select Dine-in, Takeaway, Delivery, or other configured types.",
+        "The active order type applies to kitchen routing and pricing rules when configured."
+      ],
+      "image": "menu-overview.png",
+      "caption": "Order type buttons in the header."
+    },
+    {
+      "id": "categories",
+      "title": "Browse categories",
+      "steps": [
+        "Tap a category pill above the dish grid.",
+        "The dish grid updates to show items in that category."
+      ],
+      "image": "menu-categories.png",
+      "caption": "Category row."
+    },
+    {
+      "id": "dishes",
+      "title": "Add a dish",
+      "steps": [
+        "Tap a dish tile to add it to the cart.",
+        "If the dish has required modifiers, complete the modifier dialog, then confirm.",
+        "Repeat for other items. Use Clear in the header only if you need to drop new (unsaved) lines."
+      ],
+      "image": "menu-dishes.png",
+      "caption": "Dish grid with items.",
+      "note": "Some devices enable dish number search from Settings → Items visibility."
+    },
+    {
+      "id": "dish-tile",
+      "title": "Dish tile",
+      "steps": [
+        "Each tile shows name, price, and optional dish number.",
+        "A badge may show how many of that dish are already in the current cart."
+      ],
+      "image": "menu-dish-tile.png",
+      "caption": "Single dish tile (highlighted)."
+    }
+  ]
+}

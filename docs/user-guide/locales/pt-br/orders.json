@@ -1,0 +1,86 @@
+{
+  "title": "Pedidos",
+  "intro": "A tela Pedidos lista contas abertas e recentes para pagar, imprimir, dividir, mesclar, cancelar ou reembolsar.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Layout de pedidos",
+      "steps": [
+        "Abra Pedidos.",
+        "Filtre por status, tipo, andar, usuário e data.",
+        "Blocos ou Tabela."
+      ],
+      "image": "orders-overview.png",
+      "caption": "Orders screen with filters and cards.",
+      "intro": "Abra Pedidos na barra. Filtros no topo; cartões ou linhas."
+    },
+    {
+      "id": "filters",
+      "title": "Filtros",
+      "steps": [
+        "Status: Em andamento, Pago, Cancelado, Dividido, Mesclado.",
+        "Tipo, andar e usuário.",
+        "Data do dia; Em andamento pode permanecer."
+      ],
+      "image": "orders-filters.png",
+      "caption": "Orders filter bar."
+    },
+    {
+      "id": "toolbar",
+      "title": "Barra de ferramentas",
+      "steps": [
+        "Abrir gaveta (PIN possível).",
+        "Blocos = cartões.",
+        "Tabela = lista."
+      ],
+      "image": "orders-toolbar.png",
+      "caption": "Cash drawer and view toggles."
+    },
+    {
+      "id": "card",
+      "title": "Cartão do pedido",
+      "steps": [
+        "Confira fatura, mesa, status e itens.",
+        "Conta temp e Pagar em andamento.",
+        "⋯ cancelar, dividir, mesclar, KOT."
+      ],
+      "image": "orders-card.png",
+      "caption": "Order card with items and actions.",
+      "intro": "Cabeçalho, horários, itens, totais e ações."
+    },
+    {
+      "id": "card-actions",
+      "title": "Ações do cartão",
+      "steps": [
+        "Temp imprime provisória.",
+        "Pagar abre pagamento.",
+        "⋯ mais ações."
+      ],
+      "image": "orders-card-actions.png",
+      "caption": "Print, Pay, and more on a card."
+    },
+    {
+      "id": "menu",
+      "title": "Menu ⋯ (Em andamento)",
+      "steps": [
+        "Cancelar.",
+        "Dividir assentos/itens/valor.",
+        "Mesclar.",
+        "Imprimir cópia KOT."
+      ],
+      "image": "orders-card-menu.png",
+      "caption": "Order more-actions menu.",
+      "intro": "Ações protegidas podem pedir PIN."
+    },
+    {
+      "id": "table-view",
+      "title": "Vista em tabela",
+      "steps": [
+        "Vista tabela.",
+        "Toque Em andamento para pagar."
+      ],
+      "image": "orders-table-view.png",
+      "caption": "Orders table view."
+    }
+  ]
+}

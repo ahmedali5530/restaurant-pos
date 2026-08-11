@@ -120,7 +120,7 @@ export const AutoCheckCloseSettingsCard = () => {
   }, [settings, paymentTypeOptions, reset]);
 
   return (
-    <div className="shadow p-5 rounded-xl bg-white">
+    <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-auto-check-close">
       <h2 className="text-xl font-semibold mb-1">{t('settings:autoCheckClose.title')}</h2>
       <p className="text-sm text-neutral-500 mb-5">
         {t('settings:autoCheckClose.description')}

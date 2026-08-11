@@ -1,0 +1,29 @@
+{
+  "title": "Sepet",
+  "intro": "Sepet mevcut misafirin kalemlerini tutar. Mutfağa gönderin veya ödeme ekranını açın.",
+  "sections": [
+    {
+      "id": "panel",
+      "title": "Sepet paneli",
+      "intro": "Yeni ve gönderilmiş satırlar.",
+      "steps": [
+        "Yeniler üstte; gönderilenler ayırıcının altında.",
+        "Eylem için satıra dokunun.",
+        "Bölmek için koltukları kullanın."
+      ],
+      "image": "cart-panel.png",
+      "caption": "Sepet."
+    },
+    {
+      "id": "actions",
+      "title": "Mutfak, Öde, İptal",
+      "steps": [
+        "Mutfağa kaydeder ve gönderir.",
+        "Şimdi öde ödeme ekranını açar (Ödeme bölümü).",
+        "İptal yeni satırları kurallara göre siler."
+      ],
+      "image": "cart-payment-actions.png",
+      "caption": "Eylem düğmeleri."
+    }
+  ]
+}

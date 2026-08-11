@@ -1,0 +1,73 @@
+{
+  "title": "Menú y toma de pedidos",
+  "intro": "Use Menú para sentar a los clientes (si hay mesas), elegir el tipo de pedido, navegar categorías y platos, y añadir artículos al carrito.",
+  "sections": [
+    {
+      "id": "floor",
+      "title": "Abrir una mesa del plano",
+      "intro": "Si la selección de mesas está activa, Menú abre el plano primero.",
+      "steps": [
+        "Abra Menú desde la barra lateral.",
+        "Elija el piso si hay varios.",
+        "Toque una mesa disponible.",
+        "Si se piden comensales, introduzca el número y OK."
+      ],
+      "image": "menu-floor.png",
+      "caption": "Plano de mesas (resaltado)."
+    },
+    {
+      "id": "overview",
+      "title": "Pantalla de pedido",
+      "intro": "A la izquierda menú y platos; a la derecha el carrito.",
+      "steps": [
+        "Use la cabecera para mesa, comensales, cliente y tipo.",
+        "Elija categorías y platos.",
+        "Revise el carrito antes de cocina o pago."
+      ],
+      "image": "menu-overview.png",
+      "caption": "Cabecera y tipos de pedido."
+    },
+    {
+      "id": "order-type",
+      "title": "Elegir tipo de pedido",
+      "steps": [
+        "Seleccione el tipo en la cabecera.",
+        "El tipo puede afectar cocina y precios."
+      ],
+      "image": "menu-overview.png",
+      "caption": "Botones de tipo de pedido."
+    },
+    {
+      "id": "categories",
+      "title": "Categorías",
+      "steps": [
+        "Toque una categoría.",
+        "La rejilla de platos se actualiza."
+      ],
+      "image": "menu-categories.png",
+      "caption": "Fila de categorías."
+    },
+    {
+      "id": "dishes",
+      "title": "Añadir un plato",
+      "steps": [
+        "Toque el plato.",
+        "Complete modificadores si se piden.",
+        "Repita. Use Borrar solo para líneas nuevas no guardadas."
+      ],
+      "image": "menu-dishes.png",
+      "caption": "Rejilla de platos.",
+      "note": "La búsqueda por número se activa en Ajustes → Visibilidad de artículos."
+    },
+    {
+      "id": "dish-tile",
+      "title": "Tarjeta de plato",
+      "steps": [
+        "Muestra nombre, precio y número opcional.",
+        "Una insignia puede indicar cantidad en el carrito."
+      ],
+      "image": "menu-dish-tile.png",
+      "caption": "Tarjeta de plato."
+    }
+  ]
+}

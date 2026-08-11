@@ -1,0 +1,86 @@
+{
+  "title": "الطلبات",
+  "intro": "شاشة الطلبات تعرض الشيكات المفتوحة والأخيرة للدفع والطباعة والتقسيم والدمج والإلغاء والاسترداد.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "تخطيط الطلبات",
+      "steps": [
+        "افتح الطلبات.",
+        "صفِّ حسب الحالة والنوع والطابق والمستخدم والتاريخ.",
+        "كتل أو جدول."
+      ],
+      "image": "orders-overview.png",
+      "caption": "Orders screen with filters and cards.",
+      "intro": "افتح الطلبات من الشريط. الفلاتر أعلى؛ بطاقات أو صفوف."
+    },
+    {
+      "id": "filters",
+      "title": "عوامل التصفية",
+      "steps": [
+        "الحالة: قيد التنفيذ، مدفوع، ملغى، مقسوم، مدمج.",
+        "النوع والطابق والمستخدم.",
+        "التاريخ لليوم؛ قد يبقى قيد التنفيذ."
+      ],
+      "image": "orders-filters.png",
+      "caption": "Orders filter bar."
+    },
+    {
+      "id": "toolbar",
+      "title": "شريط الأدوات",
+      "steps": [
+        "فتح درج النقد (قد يلزم PIN).",
+        "كتل = بطاقات.",
+        "جدول = قائمة."
+      ],
+      "image": "orders-toolbar.png",
+      "caption": "Cash drawer and view toggles."
+    },
+    {
+      "id": "card",
+      "title": "بطاقة الطلب",
+      "steps": [
+        "راجع الفاتورة والطاولة والحالة والبنود.",
+        "فاتورة مؤقتة وادفع لقيد التنفيذ.",
+        "⋯ إلغاء وتقسيم ودمج وKOT."
+      ],
+      "image": "orders-card.png",
+      "caption": "Order card with items and actions.",
+      "intro": "رأس وأوقات وبنود وإجماليات وإجراءات."
+    },
+    {
+      "id": "card-actions",
+      "title": "إجراءات البطاقة",
+      "steps": [
+        "المؤقتة تطبع مؤقتًا.",
+        "ادفع يفتح الدفع.",
+        "⋯ المزيد."
+      ],
+      "image": "orders-card-actions.png",
+      "caption": "Print, Pay, and more on a card."
+    },
+    {
+      "id": "menu",
+      "title": "قائمة ⋯ (قيد التنفيذ)",
+      "steps": [
+        "إلغاء.",
+        "تقسيم مقاعد/بنود/مبلغ.",
+        "دمج.",
+        "طباعة نسخة KOT."
+      ],
+      "image": "orders-card-menu.png",
+      "caption": "Order more-actions menu.",
+      "intro": "قد تطلب الإجراءات المحمية رقم PIN."
+    },
+    {
+      "id": "table-view",
+      "title": "عرض الجدول",
+      "steps": [
+        "عرض الجدول.",
+        "اضغط قيد التنفيذ للدفع."
+      ],
+      "image": "orders-table-view.png",
+      "caption": "Orders table view."
+    }
+  ]
+}

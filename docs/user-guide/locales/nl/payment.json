@@ -1,0 +1,221 @@
+{
+  "title": "Betalingsscherm",
+  "intro": "Nu betalen opent volledig scherm: overzicht links, editor midden (btw/korting/coupon/service/fooi/notities), kas rechts.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Betalingslay-out",
+      "steps": [
+        "Links: kop, regels, btw, korting, coupon, service, fooi, extras, notities, totaal.",
+        "Midden: editor van de rij. Wijzigingen zijn concept tot OK of Toepassen (behalve notities en extras).",
+        "Rechts: betaald, rest/wisselgeld, snelle bedragen, types, toetsenbord, temp-rekening, Voltooien, lijst."
+      ],
+      "image": "payment-overview.png",
+      "caption": "Volledig scherm.",
+      "intro": "Drie zones: controleren, bijstellen, afrekenen."
+    },
+    {
+      "id": "summary",
+      "title": "Ordersamenvatting",
+      "steps": [
+        "Controleer tafel, covers, type en factuur.",
+        "Scroll bij lange lijsten.",
+        "Tik een totalenrij (potlood) om te bewerken."
+      ],
+      "image": "payment-order-summary.png",
+      "caption": "Samenvattingskolom.",
+      "intro": "Linkerkaart met tafel en items."
+    },
+    {
+      "id": "totals",
+      "title": "Totalenoverzicht",
+      "steps": [
+        "Subtotal, dan btw, korting, coupon, service, fooi, extras en notities.",
+        "Tik Btw, Korting, Coupon, Service, Fooi of Notities.",
+        "Concept alleen verandert de rekening niet — bevestig met OK of Toepassen.",
+        "Sommige rijen vragen manager-PIN."
+      ],
+      "image": "payment-totals.png",
+      "caption": "Totalenrijen.",
+      "intro": "Elke regel voedt het eindtotaal.",
+      "note": "Extras alleen indien van toepassing; toggle op de rij (geen middenpaneel)."
+    },
+    {
+      "id": "adjust-tax",
+      "title": "Btw aanpassen",
+      "steps": [
+        "Tik Btw als paneel niet open is.",
+        "Kies Geen btw of tarief — alleen concept.",
+        "Tik OK onderaan om toe te passen.",
+        "Zonder OK blijft vorige btw.",
+        "Betaaltypes kunnen ook btw bij tenderen zetten."
+      ],
+      "image": "payment-adjust-tax.png",
+      "caption": "Btw-paneel met OK.",
+      "intro": "Kies geen btw of tarief, daarna OK. Links wijzigt pas na OK."
+    },
+    {
+      "id": "adjust-discount",
+      "title": "Kortingen toepassen",
+      "steps": [
+        "Tik Kortingen (PIN mogelijk).",
+        "Geen korting wist handmatige.",
+        "Kies korting; toetsenbord bij bereik.",
+        "Item-scope: selecteer regels; reden indien verplicht.",
+        "Tik Toepassen. Alleen selectie werkt het totaal niet bij."
+      ],
+      "image": "payment-adjust-discount.png",
+      "caption": "Kortingseditor; bevestig met Toepassen.",
+      "intro": "Handmatige korting: kies, stel bedrag in zo nodig, Toepassen."
+    },
+    {
+      "id": "adjust-coupon",
+      "title": "Coupons",
+      "steps": [
+        "Tik Coupon (PIN mogelijk).",
+        "Typ de code.",
+        "Tik Toepassen.",
+        "Wissen verwijdert coupon. Ongeldige code = totaal ongewijzigd."
+      ],
+      "image": "payment-adjust-coupon.png",
+      "caption": "Code met Toepassen en Wissen.",
+      "intro": "Code invoeren en bevestigen met Toepassen (niet OK)."
+    },
+    {
+      "id": "adjust-service",
+      "title": "Servicekosten",
+      "steps": [
+        "Tik Service (PIN mogelijk).",
+        "Banner kan default uit Beheer tonen.",
+        "Geen service, % / Vast, snelle bedragen of toetsenbord.",
+        "OK om toe te passen.",
+        "Zonder order type-rechten vaak 0."
+      ],
+      "image": "payment-adjust-service.png",
+      "caption": "Servicepaneel; OK.",
+      "intro": "Concept % of vast, daarna OK."
+    },
+    {
+      "id": "adjust-tip",
+      "title": "Fooien",
+      "steps": [
+        "Tik Fooi (PIN mogelijk).",
+        "Geen fooi of % / Vast.",
+        "Snelkeuze of toetsenbord.",
+        "OK om toe te passen.",
+        "Verhoogt te betalen totaal."
+      ],
+      "image": "payment-adjust-tip.png",
+      "caption": "Fooipaneel; OK.",
+      "intro": "Zelfde patroon concept → OK."
+    },
+    {
+      "id": "extras",
+      "title": "Extras",
+      "steps": [
+        "Naam en bedrag in totalen indien van toepassing.",
+        "Tik om aan/uit.",
+        "PIN mogelijk; toggle direct.",
+        "Geen rijen = geen extras."
+      ],
+      "image": "payment-extras.png",
+      "caption": "Extrarijen (indien geconfigureerd).",
+      "intro": "Geconfigureerde extras onder fooi. Geen mid-editor."
+    },
+    {
+      "id": "adjust-notes",
+      "title": "Ordernotities",
+      "steps": [
+        "Tik Notities.",
+        "Typ in het midden.",
+        "Opgeslagen bij afronden."
+      ],
+      "image": "payment-adjust-notes.png",
+      "caption": "Notitie-editor.",
+      "intro": "Vrije tekst; direct (geen OK)."
+    },
+    {
+      "id": "receiving",
+      "title": "Ontvangen",
+      "steps": [
+        "Groot getal = betaald.",
+        "Rest (rood) of wisselgeld (groen).",
+        "Snelle bedragen, toetsenbord, types."
+      ],
+      "image": "payment-receiving.png",
+      "caption": "Kas-paneel.",
+      "intro": "Met correcte totalen rechts afrekenen."
+    },
+    {
+      "id": "tender-display",
+      "title": "Betaald en rest",
+      "steps": [
+        "Start op nul.",
+        "Rest 0 (of wisselgeld ≥ 0) voor Voltooien.",
+        "Na btw/korting/fooi tender controleren.",
+        "Splits met meerdere regels."
+      ],
+      "image": "payment-tender-display.png",
+      "caption": "Betaald en rest/wisselgeld."
+    },
+    {
+      "id": "types",
+      "title": "Betaaltypes",
+      "steps": [
+        "Type voor rest, of bedrag dan type.",
+        "Snelle chips = eerste type.",
+        "Kaart mag rest meestal niet overschrijden."
+      ],
+      "image": "payment-types.png",
+      "caption": "Typeknoppen.",
+      "intro": "Uit Beheer of tafel.",
+      "note": "Externe types: eigen flow."
+    },
+    {
+      "id": "keypad",
+      "title": "Numeriek toetsenbord",
+      "steps": [
+        "Bedrag dan type.",
+        "C wist.",
+        "Chip exact totaal."
+      ],
+      "image": "payment-keypad.png",
+      "caption": "Toetsenbord."
+    },
+    {
+      "id": "finish",
+      "title": "Temp-rekening en Voltooien",
+      "steps": [
+        "Temp-rekening bij rechten.",
+        "Voltooien = betaald.",
+        "Uit bij open rest of externe betaling."
+      ],
+      "image": "payment-finish-actions.png",
+      "caption": "Temp en Voltooien.",
+      "note": "Escape sluit zonder te betalen."
+    },
+    {
+      "id": "lines",
+      "title": "Betalingsregels",
+      "steps": [
+        "Controleer type en bedrag.",
+        "× om te verwijderen.",
+        "Saldo gedekt → Voltooien actief."
+      ],
+      "image": "payment-lines.png",
+      "caption": "Regels na exact bedrag.",
+      "intro": "Elke tender rechts."
+    },
+    {
+      "id": "complete-ready",
+      "title": "Klaar om te voltooien",
+      "steps": [
+        "Rest 0 of wisselgeld.",
+        "Voltooien (PIN mogelijk).",
+        "Order betaald."
+      ],
+      "image": "payment-complete-ready.png",
+      "caption": "Voltooien actief."
+    }
+  ]
+}

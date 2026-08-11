@@ -1,0 +1,75 @@
+{
+  "title": "Vergrendelen, uitloggen en klok",
+  "intro": "Onderin de zijbalk: vergrendelen, uitloggen, klok en Instellingen. Idle via sessiebeveiliging.",
+  "sections": [
+    {
+      "id": "controls",
+      "title": "Sessieknoppen",
+      "steps": [
+        "Sleutel: Instellingen.",
+        "Gebruiker: Klok.",
+        "Slot: vergrendelen.",
+        "Power: uitloggen."
+      ],
+      "image": "session-sidebar-controls.png",
+      "caption": "Settings, clock, lock, and logout on the sidebar."
+    },
+    {
+      "id": "lock",
+      "title": "Terminal vergrendelen",
+      "steps": [
+        "Tik Vergrendelen.",
+        "Vergrendeld-banner.",
+        "Ontgrendel met dezelfde PIN/wachtwoord."
+      ],
+      "image": "session-locked.png",
+      "caption": "System locked banner on login.",
+      "intro": "Korte pauze; alleen dezelfde gebruiker ontgrendelt."
+    },
+    {
+      "id": "clock",
+      "title": "Klokscherm",
+      "steps": [
+        "Open Klok.",
+        "Actieve clock-in nodig.",
+        "Controleer verkoop en inkloktijd."
+      ],
+      "image": "session-clock.png",
+      "caption": "Clock screen overview.",
+      "intro": "Tijdregistratie, shift, verstreken tijd en metrics."
+    },
+    {
+      "id": "clock-detail",
+      "title": "Gebruiker, shift en uitklokken",
+      "steps": [
+        "Gebruiker en shift.",
+        "Verstreken tijd.",
+        "Uitklokken aan einde shift."
+      ],
+      "image": "session-clock-detail.png",
+      "caption": "Session panel with Clock Out."
+    },
+    {
+      "id": "clock-sales",
+      "title": "Sessieverkoopoverzicht",
+      "steps": [
+        "Sessie-metrics.",
+        "Check vóór uitklokken."
+      ],
+      "image": "session-clock-sales.png",
+      "caption": "Sale summary metrics."
+    },
+    {
+      "id": "idle",
+      "title": "Idle-vergrendeling of uitloggen",
+      "steps": [
+        "Instellingen → Sessiebeveiliging.",
+        "Idle-minuten en actie.",
+        "Opslaan."
+      ],
+      "image": "session-idle-settings.png",
+      "caption": "Session security card.",
+      "intro": "Instellingen → Sessiebeveiliging."
+    }
+  ]
+}

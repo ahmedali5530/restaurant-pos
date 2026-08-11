@@ -1,0 +1,16 @@
+{
+  "title": "POSR gebruikershandleiding",
+  "subtitle": "Inloggen, instellingen, menu, winkelwagen, betaling, bestellingen en sessie",
+  "intro": "POSR-handleiding: inloggen, instellingen, bestellen, betalen, orderlijst en sessie.",
+  "toc": "Inhoud",
+  "footer": "",
+  "chapters": {
+    "login": "Inloggen",
+    "settings": "Instellingen",
+    "menu": "Menu",
+    "cart": "Winkelwagen",
+    "payment": "Betaling",
+    "orders": "Bestellingen",
+    "session": "Sessie"
+  }
+}

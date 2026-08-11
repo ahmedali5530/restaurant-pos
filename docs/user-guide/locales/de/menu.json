@@ -1,0 +1,73 @@
+{
+  "title": "Menü und Bestellaufnahme",
+  "intro": "Unter Menü setzen Sie Gäste (bei Tischen), wählen den Bestelltyp, browsen Kategorien und Gerichte und legen Positionen in den Warenkorb.",
+  "sections": [
+    {
+      "id": "floor",
+      "title": "Tisch aus dem Raumplan öffnen",
+      "intro": "Bei aktivierter Tischauswahl öffnet Menü zuerst den Raumplan.",
+      "steps": [
+        "Menü in der Seitenleiste öffnen.",
+        "Etage wählen.",
+        "Freien Tisch antippen.",
+        "Personenanzahl ggf. bestätigen."
+      ],
+      "image": "menu-floor.png",
+      "caption": "Raumplan (hervorgehoben)."
+    },
+    {
+      "id": "overview",
+      "title": "Bestellansicht",
+      "intro": "Links Menü und Gerichte, rechts Warenkorb.",
+      "steps": [
+        "Kopfzeile: Tisch, Personen, Gast, Bestelltyp.",
+        "Kategorien und Gerichte wählen.",
+        "Warenkorb prüfen."
+      ],
+      "image": "menu-overview.png",
+      "caption": "Kopfzeile und Bestelltypen."
+    },
+    {
+      "id": "order-type",
+      "title": "Bestelltyp wählen",
+      "steps": [
+        "Bestelltyp rechts in der Kopfzeile wählen.",
+        "Beeinflusst Küche und Preise, wenn konfiguriert."
+      ],
+      "image": "menu-overview.png",
+      "caption": "Bestelltyp-Schaltflächen."
+    },
+    {
+      "id": "categories",
+      "title": "Kategorien",
+      "steps": [
+        "Kategorie antippen.",
+        "Gerichtsgitter aktualisiert sich."
+      ],
+      "image": "menu-categories.png",
+      "caption": "Kategoriezeile."
+    },
+    {
+      "id": "dishes",
+      "title": "Gericht hinzufügen",
+      "steps": [
+        "Kachel antippen.",
+        "Modifier ausfüllen.",
+        "Wiederholen. Löschen entfernt nur neue Zeilen."
+      ],
+      "image": "menu-dishes.png",
+      "caption": "Gerichtsgitter.",
+      "note": "Numbernsuche ggf. in Einstellungen."
+    },
+    {
+      "id": "dish-tile",
+      "title": "Gerichtskachel",
+      "steps": [
+        "Name, Preis, optionale Nummer.",
+        "Badge zeigt Menge im Warenkorb."
+      ],
+      "image": "menu-dish-tile.png",
+      "caption": "Gerichtskachel."
+    }
+  ]
+}

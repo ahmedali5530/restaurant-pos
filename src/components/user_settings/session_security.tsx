@@ -120,7 +120,7 @@ export const SessionSecuritySettingsCard = () => {
   }, [settings, reset]);
 
   return (
-    <div className="shadow p-5 rounded-xl bg-white">
+    <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-session-security">
       <h2 className="text-xl font-semibold mb-1">{t('settings:sessionSecurity.title')}</h2>
       <p className="text-sm text-neutral-500 mb-5">
         {t('settings:sessionSecurity.description')}

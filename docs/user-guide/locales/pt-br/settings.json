@@ -1,0 +1,246 @@
+{
+  "title": "Configurações",
+  "intro": "Preferências do dispositivo e do local ficam em Configurações. Abra com o ícone de chave na parte inferior da barra lateral esquerda após o login. Alguns cartões valem só para este navegador; outros são globais e podem pedir PIN de gerente ao salvar.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Abrir configurações",
+      "steps": [
+        "Entre com um usuário que possa acessar Configurações.",
+        "Na barra lateral esquerda, toque no botão de chave.",
+        "A página mostra cartões de configuração em colunas."
+      ],
+      "image": "settings-nav.png",
+      "caption": "Controle de chave que abre Configurações (destacado)."
+    },
+    {
+      "id": "overview",
+      "title": "Visão geral",
+      "intro": "Cada cartão controla uma área. A visibilidade pode depender das permissões.",
+      "steps": [
+        "Role a página para achar o cartão.",
+        "Altere valores e salve quando houver Salvar.",
+        "Alguns cartões são só deste dispositivo; outros são globais ou do usuário."
+      ],
+      "image": "settings-overview.png",
+      "caption": "Página de Configurações com cartões."
+    },
+    {
+      "id": "whats-new",
+      "title": "Novidades",
+      "steps": [
+        "Abra Novidades para ver a data da última versão.",
+        "Toque em Abrir para ver as notas de atualização de novo."
+      ],
+      "image": "settings-whats-new.png",
+      "caption": "Cartão Novidades — reabrir notas."
+    },
+    {
+      "id": "cache",
+      "title": "Cache",
+      "steps": [
+        "Abra Cache se menus ou dados parecerem desatualizados.",
+        "Toque em Recarregar cache para atualizar o catálogo."
+      ],
+      "image": "settings-cache.png",
+      "caption": "Recarregar cache."
+    },
+    {
+      "id": "language",
+      "title": "Idioma e direção do texto",
+      "steps": [
+        "Abra o cartão Idioma.",
+        "Selecione o idioma deste dispositivo.",
+        "Escolha LTR ou RTL se necessário.",
+        "Aplica-se imediatamente neste terminal."
+      ],
+      "image": "settings-language.png",
+      "caption": "Idioma e direção."
+    },
+    {
+      "id": "translate-receipts",
+      "title": "Traduzir recibos",
+      "intro": "Quando ativo, o texto impresso segue o idioma do terminal quando suportado.",
+      "steps": [
+        "Abra o cartão.",
+        "Ative ou desative.",
+        "Salve (pode pedir aprovação)."
+      ],
+      "image": "settings-translate-receipts.png",
+      "caption": "Traduzir recibos."
+    },
+    {
+      "id": "printers",
+      "title": "Impressoras padrão",
+      "steps": [
+        "Abra Impressoras padrão.",
+        "Opcionalmente ative impressoras do sistema.",
+        "Atribua impressoras para temp, final, reembolso, entrega e resumo.",
+        "Salve."
+      ],
+      "image": "settings-printers.png",
+      "caption": "Impressoras padrão."
+    },
+    {
+      "id": "print-options",
+      "title": "Opções de impressão",
+      "steps": [
+        "Abra Opções de impressão.",
+        "Defina cópias por tipo.",
+        "Defina tentativas máximas temp/final por pedido (0 = ilimitado).",
+        "Salve."
+      ],
+      "image": "settings-print-options.png",
+      "caption": "Cópias e tentativas."
+    },
+    {
+      "id": "menus",
+      "title": "Menus ativos",
+      "intro": "Escolha quais menus este local/dispositivo pode vender. Só os selecionados aparecem no pedido.",
+      "steps": [
+        "Abra Menus.",
+        "Selecione um ou mais menus.",
+        "Salve (pode pedir aprovação)."
+      ],
+      "image": "settings-menus.png",
+      "caption": "Menus disponíveis para pedidos."
+    },
+    {
+      "id": "service-charges",
+      "title": "Taxas de serviço",
+      "intro": "Taxa de serviço padrão no pagamento (percentual ou fixa).",
+      "steps": [
+        "Abra o cartão.",
+        "Escolha tipo e valor.",
+        "Salve (pode pedir aprovação)."
+      ],
+      "image": "settings-service-charges.png",
+      "caption": "Taxa de serviço."
+    },
+    {
+      "id": "closing-cycle",
+      "title": "Ciclo de fechamento",
+      "intro": "Janela do dia de negócio para fechamentos (ex.: operação após meia-noite).",
+      "steps": [
+        "Abra o cartão.",
+        "Ative ou desative o ciclo.",
+        "Defina início e fim.",
+        "Salve (pode pedir aprovação)."
+      ],
+      "image": "settings-closing-cycle.png",
+      "caption": "Janela do ciclo de fechamento."
+    },
+    {
+      "id": "auto-check-close",
+      "title": "Fechamento automático de contas",
+      "intro": "Fecha automaticamente contas abertas no fim do ciclo com um tipo de pagamento padrão.",
+      "steps": [
+        "Abra o cartão.",
+        "Ative e escolha se imprime ao fechar.",
+        "Selecione o tipo de pagamento.",
+        "Salve (pode pedir aprovação)."
+      ],
+      "image": "settings-auto-check-close.png",
+      "caption": "Fechamento automático."
+    },
+    {
+      "id": "session-security",
+      "title": "Segurança da sessão",
+      "steps": [
+        "Abra o cartão.",
+        "Ative proteção de ociosidade para bloquear ou sair.",
+        "Defina minutos e a ação.",
+        "Salve (pode pedir aprovação)."
+      ],
+      "image": "settings-session-security.png",
+      "caption": "Bloqueio/logout por ociosidade."
+    },
+    {
+      "id": "auto-clock-out",
+      "title": "Saída automática",
+      "intro": "Bate o ponto de saída no fim do turno e/ou em um horário definido.",
+      "steps": [
+        "Abra o cartão.",
+        "Ative.",
+        "Escolha gatilhos: fim do turno, horário definido ou ambos.",
+        "Se usar horário definido, configure-o.",
+        "Salve (pode pedir aprovação)."
+      ],
+      "image": "settings-auto-clock-out.png",
+      "caption": "Gatilhos de saída automática."
+    },
+    {
+      "id": "show-inclusive-prices",
+      "title": "Mostrar preços com impostos",
+      "intro": "Quando ativo, a UI pode mostrar preços com impostos conforme a configuração fiscal.",
+      "steps": [
+        "Abra o cartão.",
+        "Ative ou desative.",
+        "Salve (pode pedir aprovação)."
+      ],
+      "image": "settings-show-inclusive-prices.png",
+      "caption": "Preços com impostos."
+    },
+    {
+      "id": "currency-symbol",
+      "title": "Símbolo da moeda",
+      "intro": "Controla se o símbolo da moeda aparece na UI e nos recibos.",
+      "steps": [
+        "Abra o cartão.",
+        "Alterne UI e/ou recibos.",
+        "Salve (pode pedir aprovação)."
+      ],
+      "image": "settings-currency-symbol.png",
+      "caption": "Símbolo na UI e recibos."
+    },
+    {
+      "id": "touch",
+      "title": "Teclado na tela",
+      "steps": [
+        "Abra o cartão.",
+        "Ative ou desative o teclado virtual neste dispositivo."
+      ],
+      "image": "settings-touch.png",
+      "caption": "Teclado virtual."
+    },
+    {
+      "id": "table-selection",
+      "title": "Seleção de mesa",
+      "intro": "Quando ativa, a equipe escolhe mesa antes de pedir. Quando desativada, o passo do salão some neste terminal.",
+      "steps": [
+        "Abra o cartão.",
+        "Toque no botão para ativar ou desativar.",
+        "Aplica-se imediatamente."
+      ],
+      "image": "settings-table-selection.png",
+      "caption": "Mostrar/ocultar seleção de mesa.",
+      "note": "A captura de documentação exige seleção de mesa ativada."
+    },
+    {
+      "id": "inventory",
+      "title": "Configurações de estoque",
+      "intro": "Comportamento global de estoque: ledger, lote/validade, custo, compras.",
+      "steps": [
+        "Abra o cartão.",
+        "Ajuste as opções.",
+        "Escolha método de custo e alocação/impostos.",
+        "Salve (pode pedir aprovação)."
+      ],
+      "image": "settings-inventory.png",
+      "caption": "Configuração de estoque."
+    },
+    {
+      "id": "items-visibility",
+      "title": "Visibilidade de itens",
+      "intro": "Opções de exibição de busca no menu, totais do carrinho e cartões de pedido neste terminal.",
+      "steps": [
+        "Abra o cartão.",
+        "Menu: busca e números de prato.",
+        "Carrinho: totais.",
+        "Pedidos: totais e campos."
+      ],
+      "image": "settings-items-visibility.png",
+      "caption": "Visibilidade de menu, carrinho e pedidos."
+    }
+  ]
+}

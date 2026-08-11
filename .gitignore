@@ -39,6 +39,12 @@ database/LOCK
 
 .orchids
 
+# End-user guide generated artifacts (MD/HTML/PDF) and Playwright output
+docs/user-guide/dist
+docs-automation/.output
+docs-automation/test-results
+docs-automation/playwright-report
+
 # Print service persisted logo (written at runtime)
 printing/data
 # API AI usage counters (written at runtime)

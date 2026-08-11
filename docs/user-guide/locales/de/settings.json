@@ -1,0 +1,246 @@
+{
+  "title": "Einstellungen",
+  "intro": "Geräte- und Standort­einstellungen finden Sie unter Einstellungen. Öffnen Sie sie über das Schraubenschlüssel-Symbol unten in der linken Seitenleiste nach der Anmeldung. Manche Karten gelten nur für diesen Browser; andere sind global und können beim Speichern eine Manager-PIN verlangen.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Einstellungen öffnen",
+      "steps": [
+        "Mit einem Benutzer anmelden, der Zugriff hat.",
+        "In der linken Seitenleiste auf den Schraubenschlüssel tippen.",
+        "Die Seite zeigt Konfigurationskarten in mehreren Spalten."
+      ],
+      "image": "settings-nav.png",
+      "caption": "Schraubenschlüssel zum Öffnen der Einstellungen."
+    },
+    {
+      "id": "overview",
+      "title": "Überblick",
+      "intro": "Jede Karte steuert einen Bereich. Sichtbarkeit kann von Rechten abhängen.",
+      "steps": [
+        "Scrollen, um die gewünschte Karte zu finden.",
+        "Werte ändern und speichern, wenn die Karte Speichern bietet.",
+        "Manche Karten gelten nur für dieses Gerät; andere global oder benutzerbezogen."
+      ],
+      "image": "settings-overview.png",
+      "caption": "Einstellungsseite mit Karten."
+    },
+    {
+      "id": "whats-new",
+      "title": "Neuigkeiten",
+      "steps": [
+        "Karte Neuigkeiten öffnen, um das aktuelle Releasedatum zu sehen.",
+        "Öffnen tippen, um die Versionshinweise erneut anzuzeigen."
+      ],
+      "image": "settings-whats-new.png",
+      "caption": "Neuigkeiten — Versionshinweise erneut öffnen."
+    },
+    {
+      "id": "cache",
+      "title": "Cache",
+      "steps": [
+        "Cache öffnen, wenn Menüs oder Daten veraltet wirken.",
+        "Cache neu laden tippen, um Katalogdaten zu aktualisieren."
+      ],
+      "image": "settings-cache.png",
+      "caption": "Cache neu laden."
+    },
+    {
+      "id": "language",
+      "title": "Sprache und Textrichtung",
+      "steps": [
+        "Sprachenkarte öffnen.",
+        "Anzeigesprache wählen.",
+        "Bei Bedarf LTR oder RTL wählen.",
+        "Gilt sofort für dieses Terminal."
+      ],
+      "image": "settings-language.png",
+      "caption": "Sprache und Richtung."
+    },
+    {
+      "id": "translate-receipts",
+      "title": "Belege übersetzen",
+      "intro": "Wenn aktiv, folgt gedruckter Belegtext nach Möglichkeit der Terminalsprache.",
+      "steps": [
+        "Karte öffnen.",
+        "Aktiviert ein/aus.",
+        "Speichern (ggf. Genehmigung)."
+      ],
+      "image": "settings-translate-receipts.png",
+      "caption": "Belege übersetzen."
+    },
+    {
+      "id": "printers",
+      "title": "Standarddrucker",
+      "steps": [
+        "Standarddrucker öffnen.",
+        "Optional Systemdrucker aktivieren.",
+        "Drucker für Temp, Final, Rückerstattung, Lieferung und Übersicht zuweisen.",
+        "Speichern."
+      ],
+      "image": "settings-printers.png",
+      "caption": "Standarddrucker."
+    },
+    {
+      "id": "print-options",
+      "title": "Druckoptionen",
+      "steps": [
+        "Druckoptionen öffnen.",
+        "Kopien pro Drucktyp setzen.",
+        "Max. Temp-/Final-Versuche pro Bestellung (0 = unbegrenzt).",
+        "Speichern."
+      ],
+      "image": "settings-print-options.png",
+      "caption": "Kopien und Versuche."
+    },
+    {
+      "id": "menus",
+      "title": "Aktive Menüs",
+      "intro": "Welche Menüs dieses Gerät verkaufen darf. Nur ausgewählte Menüs erscheinen bei Bestellungen.",
+      "steps": [
+        "Menüs öffnen.",
+        "Ein oder mehrere Menüs wählen.",
+        "Speichern (ggf. Genehmigung)."
+      ],
+      "image": "settings-menus.png",
+      "caption": "Verfügbare Menüs."
+    },
+    {
+      "id": "service-charges",
+      "title": "Servicegebühren",
+      "intro": "Standard-Servicegebühr in der Zahlung (Prozent oder Festbetrag).",
+      "steps": [
+        "Karte öffnen.",
+        "Typ und Wert setzen.",
+        "Speichern (ggf. Genehmigung)."
+      ],
+      "image": "settings-service-charges.png",
+      "caption": "Servicegebühr."
+    },
+    {
+      "id": "closing-cycle",
+      "title": "Abschlusszyklus",
+      "intro": "Geschäfts­tagesfenster für Abschluss und Tages­bereiche (z. B. über Mitternacht).",
+      "steps": [
+        "Karte öffnen.",
+        "Zyklus ein/aus.",
+        "Start- und Endzeit setzen.",
+        "Speichern (ggf. Genehmigung)."
+      ],
+      "image": "settings-closing-cycle.png",
+      "caption": "Zeitfenster des Abschlusszyklus."
+    },
+    {
+      "id": "auto-check-close",
+      "title": "Automatischer Rechnungsabschluss",
+      "intro": "Offene Checks am Zyklusende mit Standard­zahlungsart abschließen.",
+      "steps": [
+        "Karte öffnen.",
+        "Aktivieren und ggf. Drucken beim Schließen.",
+        "Zahlungsart wählen.",
+        "Speichern (ggf. Genehmigung)."
+      ],
+      "image": "settings-auto-check-close.png",
+      "caption": "Auto-Check schließen."
+    },
+    {
+      "id": "session-security",
+      "title": "Sitzungssicherheit",
+      "steps": [
+        "Karte öffnen.",
+        "Idle-Schutz für Sperre oder Logout.",
+        "Minuten und Aktion setzen.",
+        "Speichern (ggf. Genehmigung)."
+      ],
+      "image": "settings-session-security.png",
+      "caption": "Idle-Sperre/Logout."
+    },
+    {
+      "id": "auto-clock-out",
+      "title": "Automatisches Ausstempeln",
+      "intro": "Stempelt Personal am Schichtende und/oder zu einer festgelegten Uhrzeit aus.",
+      "steps": [
+        "Karte öffnen.",
+        "Aktivieren.",
+        "Auslöser wählen: Schichtende, feste Zeit oder beides.",
+        "Bei fester Zeit die Uhrzeit setzen.",
+        "Speichern (ggf. Genehmigung)."
+      ],
+      "image": "settings-auto-clock-out.png",
+      "caption": "Ausstampeln-Auslöser."
+    },
+    {
+      "id": "show-inclusive-prices",
+      "title": "Inklusive Preise anzeigen",
+      "intro": "UI kann steuerinklusive Preise gemäß Steuerkonfiguration anzeigen.",
+      "steps": [
+        "Karte öffnen.",
+        "Aktivieren/deaktivieren.",
+        "Speichern (ggf. Genehmigung)."
+      ],
+      "image": "settings-show-inclusive-prices.png",
+      "caption": "Inklusive Preise."
+    },
+    {
+      "id": "currency-symbol",
+      "title": "Währungssymbol",
+      "intro": "Ob das Währungssymbol in der UI und auf Belegen erscheint.",
+      "steps": [
+        "Karte öffnen.",
+        "UI und/oder Belege umschalten.",
+        "Speichern (ggf. Genehmigung)."
+      ],
+      "image": "settings-currency-symbol.png",
+      "caption": "Symbol in UI und Belegen."
+    },
+    {
+      "id": "touch",
+      "title": "Bildschirmtastatur",
+      "steps": [
+        "Karte öffnen.",
+        "Virtuelle Tastatur für dieses Gerät ein/aus."
+      ],
+      "image": "settings-touch.png",
+      "caption": "Bildschirmtastatur."
+    },
+    {
+      "id": "table-selection",
+      "title": "Tischauswahl",
+      "intro": "Wenn aktiv, wählen Mitarbeitende vor der Bestellung einen Tisch. Wenn deaktiviert, entfällt der Raum­plan auf diesem Terminal.",
+      "steps": [
+        "Karte öffnen.",
+        "Mit der Schaltfläche ein- oder ausschalten.",
+        "Gilt sofort."
+      ],
+      "image": "settings-table-selection.png",
+      "caption": "Tischauswahl ein/aus.",
+      "note": "Dokumentations­aufnahmen erfordern aktivierte Tischauswahl."
+    },
+    {
+      "id": "inventory",
+      "title": "Lagereinstellungen",
+      "intro": "Globales Lagerverhalten: Ledger, Chargen/Ablauf, Kalkulation, Einkauf und Standardwerte.",
+      "steps": [
+        "Karte öffnen.",
+        "Optionen setzen.",
+        "Kostenmethode und Zuordnung/Steuer wählen.",
+        "Speichern (ggf. Genehmigung)."
+      ],
+      "image": "settings-inventory.png",
+      "caption": "Lagerkonfiguration."
+    },
+    {
+      "id": "items-visibility",
+      "title": "Elementsichtbarkeit",
+      "intro": "Darstellung von Menüsuche, Warenkorb­summen und Bestellkarten auf diesem Gerät.",
+      "steps": [
+        "Karte öffnen.",
+        "Menü: Suche und Gerichtenummern.",
+        "Warenkorb: Summen.",
+        "Bestellungen: Summen und Kartenelemente."
+      ],
+      "image": "settings-items-visibility.png",
+      "caption": "Menü-, Warenkorb- und Bestellsichtbarkeit."
+    }
+  ]
+}

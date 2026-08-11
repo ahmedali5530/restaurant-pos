@@ -231,7 +231,7 @@ export const Printersettings = () => {
   };
 
   return (
-    <div className="shadow p-5 rounded-xl bg-white">
+    <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-printers">
       <h2 className="text-xl font-semibold mb-1">{t('settings:printers.title')}</h2>
       <p className="text-sm text-neutral-500 mb-4">
         {t('settings:printers.description')}

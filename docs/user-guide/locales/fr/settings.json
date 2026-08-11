@@ -1,0 +1,246 @@
+{
+  "title": "Paramètres",
+  "intro": "Les préférences opérationnelles se trouvent dans Paramètres. Ouvrez-les avec l’icône clé à molette en bas de la barre latérale gauche après connexion. Certaines cartes ne concernent que ce navigateur ; d’autres sont globales et peuvent exiger un code manager à l’enregistrement.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Ouvrir les paramètres",
+      "steps": [
+        "Connectez-vous avec un utilisateur autorisé.",
+        "Touchez l’icône clé dans la barre latérale gauche.",
+        "La page affiche des cartes de configuration en colonnes."
+      ],
+      "image": "settings-nav.png",
+      "caption": "Contrôle clé pour ouvrir Paramètres."
+    },
+    {
+      "id": "overview",
+      "title": "Vue d’ensemble",
+      "intro": "Chaque carte contrôle un domaine. La visibilité peut dépendre des droits.",
+      "steps": [
+        "Faites défiler pour trouver la carte.",
+        "Modifiez puis enregistrez si un bouton Enregistrer est présent.",
+        "Certaines cartes sont locales à l’appareil ; d’autres sont globales."
+      ],
+      "image": "settings-overview.png",
+      "caption": "Page Paramètres."
+    },
+    {
+      "id": "whats-new",
+      "title": "Nouveautés",
+      "steps": [
+        "Ouvrez Nouveautés pour voir la date de version.",
+        "Touchez Ouvrir pour réafficher les notes de version."
+      ],
+      "image": "settings-whats-new.png",
+      "caption": "Carte Nouveautés."
+    },
+    {
+      "id": "cache",
+      "title": "Cache",
+      "steps": [
+        "Ouvrez Cache si les menus semblent obsolètes.",
+        "Touchez Recharger le cache."
+      ],
+      "image": "settings-cache.png",
+      "caption": "Rechargement du cache."
+    },
+    {
+      "id": "language",
+      "title": "Langue et direction",
+      "steps": [
+        "Ouvrez Langue.",
+        "Choisissez la langue.",
+        "Choisissez LTR ou RTL si besoin.",
+        "S’applique immédiatement."
+      ],
+      "image": "settings-language.png",
+      "caption": "Langue et direction."
+    },
+    {
+      "id": "translate-receipts",
+      "title": "Traduire les tickets",
+      "intro": "Quand c’est activé, le texte imprimé suit la langue du terminal si possible.",
+      "steps": [
+        "Ouvrez la carte.",
+        "Activez ou non.",
+        "Enregistrez (approbation éventuelle)."
+      ],
+      "image": "settings-translate-receipts.png",
+      "caption": "Traduire les tickets."
+    },
+    {
+      "id": "printers",
+      "title": "Imprimantes par défaut",
+      "steps": [
+        "Ouvrez Imprimantes par défaut.",
+        "Activez éventuellement les imprimantes système.",
+        "Assignez temp, final, remboursement, livraison, résumé.",
+        "Enregistrez."
+      ],
+      "image": "settings-printers.png",
+      "caption": "Imprimantes par défaut."
+    },
+    {
+      "id": "print-options",
+      "title": "Options d’impression",
+      "steps": [
+        "Ouvrez Options d’impression.",
+        "Définissez le nombre de copies.",
+        "Définissez les tentatives max (0 = illimité).",
+        "Enregistrez."
+      ],
+      "image": "settings-print-options.png",
+      "caption": "Copies et tentatives."
+    },
+    {
+      "id": "menus",
+      "title": "Menus actifs",
+      "intro": "Menus disponibles à la vente sur cet appareil.",
+      "steps": [
+        "Ouvrez Menus.",
+        "Sélectionnez un ou plusieurs menus.",
+        "Enregistrez (approbation éventuelle)."
+      ],
+      "image": "settings-menus.png",
+      "caption": "Menus pour la prise de commande."
+    },
+    {
+      "id": "service-charges",
+      "title": "Frais de service",
+      "intro": "Service par défaut au paiement (pourcentage ou fixe).",
+      "steps": [
+        "Ouvrez la carte.",
+        "Choisissez le type et la valeur.",
+        "Enregistrez (approbation éventuelle)."
+      ],
+      "image": "settings-service-charges.png",
+      "caption": "Frais de service."
+    },
+    {
+      "id": "closing-cycle",
+      "title": "Cycle de clôture",
+      "intro": "Fenêtre du jour d’exploitation pour les clôtures (ex. après minuit).",
+      "steps": [
+        "Ouvrez la carte.",
+        "Activez le cycle.",
+        "Définissez début et fin.",
+        "Enregistrez (approbation éventuelle)."
+      ],
+      "image": "settings-closing-cycle.png",
+      "caption": "Fenêtre du cycle de clôture."
+    },
+    {
+      "id": "auto-check-close",
+      "title": "Clôture auto des notes",
+      "intro": "Règle automatiquement les notes ouvertes en fin de cycle avec un mode de paiement par défaut.",
+      "steps": [
+        "Ouvrez la carte.",
+        "Activez et choisissez l’impression.",
+        "Sélectionnez le type de paiement.",
+        "Enregistrez (approbation éventuelle)."
+      ],
+      "image": "settings-auto-check-close.png",
+      "caption": "Clôture automatique des notes."
+    },
+    {
+      "id": "session-security",
+      "title": "Sécurité de session",
+      "steps": [
+        "Ouvrez la carte.",
+        "Activez la protection d’inactivité.",
+        "Minutes et action verrouiller / se déconnecter.",
+        "Enregistrez (approbation éventuelle)."
+      ],
+      "image": "settings-session-security.png",
+      "caption": "Verrouillage / déconnexion d’inactivité."
+    },
+    {
+      "id": "auto-clock-out",
+      "title": "Pointage de sortie auto",
+      "intro": "Pointe la sortie à la fin de service et/ou à une heure définie.",
+      "steps": [
+        "Ouvrez la carte.",
+        "Activez.",
+        "Choisissez les déclencheurs.",
+        "Si heure définie, réglez-la.",
+        "Enregistrez (approbation éventuelle)."
+      ],
+      "image": "settings-auto-clock-out.png",
+      "caption": "Déclencheurs de sortie auto."
+    },
+    {
+      "id": "show-inclusive-prices",
+      "title": "Prix TTC",
+      "intro": "Affiche des prix TTC selon la config des taxes.",
+      "steps": [
+        "Ouvrez la carte.",
+        "Activez ou non.",
+        "Enregistrez (approbation éventuelle)."
+      ],
+      "image": "settings-show-inclusive-prices.png",
+      "caption": "Prix TTC."
+    },
+    {
+      "id": "currency-symbol",
+      "title": "Symbole monétaire",
+      "intro": "Afficher le symbole monétaire à l’écran et/ou sur les tickets.",
+      "steps": [
+        "Ouvrez la carte.",
+        "Basculez UI et/ou tickets.",
+        "Enregistrez (approbation éventuelle)."
+      ],
+      "image": "settings-currency-symbol.png",
+      "caption": "Symbole monétaire."
+    },
+    {
+      "id": "touch",
+      "title": "Clavier à l’écran",
+      "steps": [
+        "Ouvrez la carte.",
+        "Activez ou non le clavier virtuel."
+      ],
+      "image": "settings-touch.png",
+      "caption": "Clavier virtuel."
+    },
+    {
+      "id": "table-selection",
+      "title": "Sélection de table",
+      "intro": "Si activée, le personnel choisit une table avant de commander. Si désactivée, l’étape plan de salle est masquée sur ce terminal.",
+      "steps": [
+        "Ouvrez la carte.",
+        "Activez ou désactivez.",
+        "Prend effet immédiatement."
+      ],
+      "image": "settings-table-selection.png",
+      "caption": "Sélection de table.",
+      "note": "La capture doc nécessite la sélection de table activée."
+    },
+    {
+      "id": "inventory",
+      "title": "Paramètres inventaire",
+      "intro": "Comportement stock global : ledger, lots/péremption, coût, achats.",
+      "steps": [
+        "Ouvrez la carte.",
+        "Réglez les options.",
+        "Choisissez coût et allocations.",
+        "Enregistrez (approbation éventuelle)."
+      ],
+      "image": "settings-inventory.png",
+      "caption": "Configuration inventaire."
+    },
+    {
+      "id": "items-visibility",
+      "title": "Visibilité des éléments",
+      "intro": "Affichage recherche menu, totaux panier et cartes commande sur ce terminal.",
+      "steps": [
+        "Ouvrez la carte.",
+        "Menu : recherche et numéros.",
+        "Panier : totaux.",
+        "Commandes : totaux et champs."
+      ],
+      "image": "settings-items-visibility.png",
+      "caption": "Visibilité menu, panier, commandes."
+    }
+  ]
+}

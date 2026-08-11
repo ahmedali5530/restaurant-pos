@@ -1,0 +1,16 @@
+{
+  "title": "Guide utilisateur POSR",
+  "subtitle": "Connexion, paramètres, menu, panier, paiement, commandes et session",
+  "intro": "Guide POSR : connexion, paramètres, commande, paiement, liste des commandes et session.",
+  "toc": "Sommaire",
+  "footer": "",
+  "chapters": {
+    "login": "Connexion",
+    "settings": "Paramètres",
+    "menu": "Menu",
+    "cart": "Panier",
+    "payment": "Paiement",
+    "orders": "Commandes",
+    "session": "Session"
+  }
+}

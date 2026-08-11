@@ -1,0 +1,86 @@
+{
+  "title": "Siparişler",
+  "intro": "Siparişler ekranı açık ve son hesapları listeler: ödeme, yazdırma, bölme, birleştirme, iptal, iade.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Sipariş düzeni",
+      "steps": [
+        "Siparişler’i açın.",
+        "Durum, tür, kat, kullanıcı, tarih ile filtreleyin.",
+        "Bloklar veya Tablo."
+      ],
+      "image": "orders-overview.png",
+      "caption": "Orders screen with filters and cards.",
+      "intro": "Kenar çubuğundan Siparişler. Üstte filtreler; kartlar veya satırlar."
+    },
+    {
+      "id": "filters",
+      "title": "Filtreler",
+      "steps": [
+        "Durum: Devam ediyor, Ödendi, İptal, Bölündü, Birleşti.",
+        "Tür, kat, kullanıcı.",
+        "Tarih günü süzgeçler; Devam edebilir."
+      ],
+      "image": "orders-filters.png",
+      "caption": "Orders filter bar."
+    },
+    {
+      "id": "toolbar",
+      "title": "Araç çubuğu",
+      "steps": [
+        "Kasa çekmecesi (PIN olabilir).",
+        "Bloklar = kartlar.",
+        "Tablo = liste."
+      ],
+      "image": "orders-toolbar.png",
+      "caption": "Cash drawer and view toggles."
+    },
+    {
+      "id": "card",
+      "title": "Sipariş kartı",
+      "steps": [
+        "Fatura, masa, durum ve kalemler.",
+        "Geçici fiş ve Öde devam edenlerde.",
+        "⋯ iptal, böl, birleştir, KOT."
+      ],
+      "image": "orders-card.png",
+      "caption": "Order card with items and actions.",
+      "intro": "Başlık, zamanlar, kalemler, toplamlar ve eylemler."
+    },
+    {
+      "id": "card-actions",
+      "title": "Kart eylemleri",
+      "steps": [
+        "Geçici basar.",
+        "Öde ödeme açar.",
+        "⋯ daha fazla."
+      ],
+      "image": "orders-card-actions.png",
+      "caption": "Print, Pay, and more on a card."
+    },
+    {
+      "id": "menu",
+      "title": "⋯ menü (Devam ediyor)",
+      "steps": [
+        "İptal.",
+        "Koltuk/kalem/tutar böl.",
+        "Birleştir.",
+        "KOT kopyası bas."
+      ],
+      "image": "orders-card-menu.png",
+      "caption": "Order more-actions menu.",
+      "intro": "Korumalı eylemler PIN isteyebilir."
+    },
+    {
+      "id": "table-view",
+      "title": "Tablo görünümü",
+      "steps": [
+        "Tablo görünümü.",
+        "Devam edene dokunup ödeyin."
+      ],
+      "image": "orders-table-view.png",
+      "caption": "Orders table view."
+    }
+  ]
+}

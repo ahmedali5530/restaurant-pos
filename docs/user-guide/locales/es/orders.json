@@ -1,0 +1,86 @@
+{
+  "title": "Pedidos",
+  "intro": "La pantalla Pedidos lista cheques abiertos y recientes para pagar, imprimir, dividir, fusionar, cancelar o reembolsar sin volver al plano.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Diseño de pedidos",
+      "steps": [
+        "Toque Pedidos en la barra lateral.",
+        "Use filtros (estado, tipo, piso, usuario, fecha).",
+        "Cambie entre Bloques y Tabla."
+      ],
+      "image": "orders-overview.png",
+      "caption": "Orders screen with filters and cards.",
+      "intro": "Abra Pedidos desde la barra lateral. Filtros arriba; tarjetas o filas abajo."
+    },
+    {
+      "id": "filters",
+      "title": "Filtros",
+      "steps": [
+        "Estado: En curso, Pagado, Cancelado, Dividido, Fusionado.",
+        "Tipo, piso y usuario acotan la lista.",
+        "La fecha filtra por día; En curso puede seguir visible."
+      ],
+      "image": "orders-filters.png",
+      "caption": "Orders filter bar."
+    },
+    {
+      "id": "toolbar",
+      "title": "Barra de herramientas",
+      "steps": [
+        "Abrir cajón (puede pedir PIN).",
+        "Bloques = tarjetas.",
+        "Tabla = lista compacta."
+      ],
+      "image": "orders-toolbar.png",
+      "caption": "Cash drawer and view toggles."
+    },
+    {
+      "id": "card",
+      "title": "Tarjeta de pedido",
+      "steps": [
+        "Revise factura, mesa, estado e ítems.",
+        "Cuenta temp y Pagar en pedidos En curso.",
+        "⋯ para cancelar, dividir, fusionar, KOT."
+      ],
+      "image": "orders-card.png",
+      "caption": "Order card with items and actions.",
+      "intro": "Cada tarjeta muestra cabecera, tiempos, líneas, totales y acciones."
+    },
+    {
+      "id": "card-actions",
+      "title": "Acciones de la tarjeta",
+      "steps": [
+        "Temp imprime provisional.",
+        "Pagar abre el pago completo.",
+        "⋯ más acciones."
+      ],
+      "image": "orders-card-actions.png",
+      "caption": "Print, Pay, and more on a card."
+    },
+    {
+      "id": "menu",
+      "title": "Menú ⋯ (En curso)",
+      "steps": [
+        "Cancelar anula.",
+        "Dividir por asientos/ítems/importe.",
+        "Fusionar inicia el merge.",
+        "Imprimir copia KOT."
+      ],
+      "image": "orders-card-menu.png",
+      "caption": "Order more-actions menu.",
+      "intro": "Acciones protegidas pueden pedir PIN de manager."
+    },
+    {
+      "id": "table-view",
+      "title": "Vista tabla",
+      "steps": [
+        "Vista Tabla densa.",
+        "Toque En curso para pagar."
+      ],
+      "image": "orders-table-view.png",
+      "caption": "Orders table view."
+    }
+  ]
+}

@@ -9,7 +9,7 @@ export const WhatsNewSettingsCard = () => {
   const setForceOpen = useSetAtom(whatsNewOpenRequest);
 
   return (
-    <div className="shadow p-5 rounded-xl bg-white">
+    <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-whats-new">
       <div className="flex items-start mb-5">
         <div>
           <h2 className="text-xl font-semibold mb-1">{t('whatsNew.title')}</h2>

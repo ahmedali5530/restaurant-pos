@@ -1,0 +1,73 @@
+{
+  "title": "Menu en order opnemen",
+  "intro": "Gebruik Menu voor tafels, ordertype, categorieën en gerechten, en vul de winkelwagen.",
+  "sections": [
+    {
+      "id": "floor",
+      "title": "Tafel openen",
+      "intro": "Met tafelkeuze opent eerst de plattegrond.",
+      "steps": [
+        "Open Menu.",
+        "Kies verdieping.",
+        "Tik een vrije tafel.",
+        "Voer aantal gasten in indien gevraagd."
+      ],
+      "image": "menu-floor.png",
+      "caption": "Plattegrond."
+    },
+    {
+      "id": "overview",
+      "title": "Bestelscherm",
+      "intro": "Menu links, winkelwagen rechts.",
+      "steps": [
+        "Kop: tafel, gasten, klant, type.",
+        "Categorieën en gerechten.",
+        "Controleer winkelwagen."
+      ],
+      "image": "menu-overview.png",
+      "caption": "Kop en ordertypes."
+    },
+    {
+      "id": "order-type",
+      "title": "Ordertype",
+      "steps": [
+        "Kies type in de kop.",
+        "Beïnvloedt keuken en prijzen."
+      ],
+      "image": "menu-overview.png",
+      "caption": "Typeknoppen."
+    },
+    {
+      "id": "categories",
+      "title": "Categorieën",
+      "steps": [
+        "Tik een categorie.",
+        "Raster wordt bijgewerkt."
+      ],
+      "image": "menu-categories.png",
+      "caption": "Categorieën."
+    },
+    {
+      "id": "dishes",
+      "title": "Gerecht toevoegen",
+      "steps": [
+        "Tik een tegel.",
+        "Vul modifiers in.",
+        "Herhaal."
+      ],
+      "image": "menu-dishes.png",
+      "caption": "Gerechtenraster.",
+      "note": "Zoeken via Instellingen."
+    },
+    {
+      "id": "dish-tile",
+      "title": "Gerechttegel",
+      "steps": [
+        "Naam, prijs, nummer.",
+        "Badge hoeveelheid."
+      ],
+      "image": "menu-dish-tile.png",
+      "caption": "Tegel."
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "title": "Bestellungen",
+  "intro": "Der Bestellbildschirm listet offene und aktuelle Checks zum Zahlen, Drucken, Teilen, Zusammenführen, Stornieren oder Erstatten.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Bestell-Layout",
+      "steps": [
+        "Tippen Sie Bestellungen in der Seitenleiste.",
+        "Filtern nach Status, Typ, Etage, Benutzer und Datum.",
+        "Zwischen Blöcken und Tabelle umschalten."
+      ],
+      "image": "orders-overview.png",
+      "caption": "Orders screen with filters and cards.",
+      "intro": "Bestellungen in der Seitenleiste. Filter oben; Karten oder Zeilen darunter."
+    },
+    {
+      "id": "filters",
+      "title": "Filter",
+      "steps": [
+        "Status: In Bearbeitung, Bezahlt, Storniert, Geteilt, Zusammengeführt.",
+        "Typ, Etage und Benutzer grenzen ein.",
+        "Datum filtert den Tag; In Bearbeitung bleibt sichtbar wenn relevant."
+      ],
+      "image": "orders-filters.png",
+      "caption": "Orders filter bar."
+    },
+    {
+      "id": "toolbar",
+      "title": "Werkzeugleiste",
+      "steps": [
+        "Kassenschublade öffnen (ggf. PIN).",
+        "Blöcke = große Karten.",
+        "Tabelle = kompakte Liste."
+      ],
+      "image": "orders-toolbar.png",
+      "caption": "Cash drawer and view toggles."
+    },
+    {
+      "id": "card",
+      "title": "Bestellkarte",
+      "steps": [
+        "Rechnung, Tisch, Status und Positionen prüfen.",
+        "Temp-Rechnung und Bezahlen bei In Bearbeitung.",
+        "⋯ für Storno, Teilen, Merge, KOT."
+      ],
+      "image": "orders-card.png",
+      "caption": "Order card with items and actions.",
+      "intro": "Kopf, Zeiten, Positionen, Totale und Aktionen."
+    },
+    {
+      "id": "card-actions",
+      "title": "Kartenaktionen",
+      "steps": [
+        "Temp druckt vorläufig.",
+        "Bezahlen öffnet Zahlung.",
+        "⋯ weitere Aktionen."
+      ],
+      "image": "orders-card-actions.png",
+      "caption": "Print, Pay, and more on a card."
+    },
+    {
+      "id": "menu",
+      "title": "Mehr-Menü (In Bearbeitung)",
+      "steps": [
+        "Storno.",
+        "Teilen nach Sitzplätzen/Positionen/Betrag.",
+        "Merge startet.",
+        "KOT-Kopie drucken."
+      ],
+      "image": "orders-card-menu.png",
+      "caption": "Order more-actions menu.",
+      "intro": "Geschützte Aktionen können PIN fordern."
+    },
+    {
+      "id": "table-view",
+      "title": "Tabellenansicht",
+      "steps": [
+        "Tabellenansicht.",
+        "In Bearbeitung antippen zum Zahlen."
+      ],
+      "image": "orders-table-view.png",
+      "caption": "Orders table view."
+    }
+  ]
+}

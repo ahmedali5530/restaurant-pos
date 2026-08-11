@@ -1,0 +1,73 @@
+{
+  "title": "Menu e tomada de pedido",
+  "intro": "Use o Menu para mesas, tipo de pedido, categorias e pratos, e preencher o carrinho.",
+  "sections": [
+    {
+      "id": "floor",
+      "title": "Abrir uma mesa",
+      "intro": "Com seleção de mesas, o plano aparece primeiro.",
+      "steps": [
+        "Abra Menu.",
+        "Escolha o piso.",
+        "Toque numa mesa livre.",
+        "Informe pessoas se pedido."
+      ],
+      "image": "menu-floor.png",
+      "caption": "Planta."
+    },
+    {
+      "id": "overview",
+      "title": "Tela de pedido",
+      "intro": "Menu à esquerda, carrinho à direita.",
+      "steps": [
+        "Cabeçalho: mesa, pessoas, cliente, tipo.",
+        "Categorias e pratos.",
+        "Revise o carrinho."
+      ],
+      "image": "menu-overview.png",
+      "caption": "Cabeçalho e tipos."
+    },
+    {
+      "id": "order-type",
+      "title": "Tipo de pedido",
+      "steps": [
+        "Escolha o tipo.",
+        "Afeta cozinha e preços."
+      ],
+      "image": "menu-overview.png",
+      "caption": "Botões de tipo."
+    },
+    {
+      "id": "categories",
+      "title": "Categorias",
+      "steps": [
+        "Toque numa categoria.",
+        "A grade atualiza."
+      ],
+      "image": "menu-categories.png",
+      "caption": "Categorias."
+    },
+    {
+      "id": "dishes",
+      "title": "Adicionar prato",
+      "steps": [
+        "Toque no prato.",
+        "Complete modificadores.",
+        "Repita."
+      ],
+      "image": "menu-dishes.png",
+      "caption": "Grade de pratos.",
+      "note": "Busca em Configurações."
+    },
+    {
+      "id": "dish-tile",
+      "title": "Cartão do prato",
+      "steps": [
+        "Nome, preço, número.",
+        "Badge de quantidade."
+      ],
+      "image": "menu-dish-tile.png",
+      "caption": "Cartão."
+    }
+  ]
+}

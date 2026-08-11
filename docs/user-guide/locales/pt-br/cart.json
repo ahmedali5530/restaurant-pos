@@ -1,0 +1,29 @@
+{
+  "title": "Carrinho",
+  "intro": "O carrinho guarda itens do assento ou pedido. Daqui envie à cozinha ou abra o pagamento.",
+  "sections": [
+    {
+      "id": "panel",
+      "title": "Painel do carrinho",
+      "intro": "Linhas novas e já enviadas.",
+      "steps": [
+        "Novas em cima; enviadas abaixo do separador.",
+        "Toque numa linha para ações.",
+        "Use assentos para dividir."
+      ],
+      "image": "cart-panel.png",
+      "caption": "Carrinho."
+    },
+    {
+      "id": "actions",
+      "title": "Cozinha, Pagar, Cancelar",
+      "steps": [
+        "Para cozinha grava e envia.",
+        "Pagar agora abre o pagamento (capítulo Pagamento).",
+        "Cancelar remove linhas novas."
+      ],
+      "image": "cart-payment-actions.png",
+      "caption": "Botões de ação."
+    }
+  ]
+}

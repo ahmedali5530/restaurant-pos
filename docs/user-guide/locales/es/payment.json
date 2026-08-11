@@ -1,0 +1,221 @@
+{
+  "title": "Pantalla de pago",
+  "intro": "Pagar ahora abre un diseño a pantalla completa: resumen y totales a la izquierda, editor en el centro (impuesto/descuento/cupón/servicio/propina/notas) y cobro a la derecha.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Diseño del pago",
+      "steps": [
+        "Columna izquierda: cabecera, líneas, impuesto, descuento, cupón, servicio, propina, extras, notas y total.",
+        "Columna central: editor de la fila elegida. Los cambios son borrador hasta OK o Aplicar (excepto notas y extras).",
+        "Derecha: tender, restante/cambio, importes rápidos, tipos, teclado, cuenta temp, Completar y listado."
+      ],
+      "image": "payment-overview.png",
+      "caption": "Pantalla de pago completa.",
+      "intro": "Tres zonas: revisar, ajustar y cobrar."
+    },
+    {
+      "id": "summary",
+      "title": "Resumen del pedido",
+      "steps": [
+        "Confirme mesa, cubiertos, tipo de pedido y factura.",
+        "Desplace la lista si hay muchas líneas.",
+        "Toque una fila de totales (lápiz) para editarla en el centro."
+      ],
+      "image": "payment-order-summary.png",
+      "caption": "Columna de resumen.",
+      "intro": "La tarjeta izquierda muestra mesa, tipos y artículos."
+    },
+    {
+      "id": "totals",
+      "title": "Desglose de totales",
+      "steps": [
+        "Subtotal de artículos, luego impuesto, descuento, cupón, servicio, propina, extras y notas.",
+        "Toque Impuesto, Descuento, Cupón, Servicio, Propina o Notas para el editor central.",
+        "Elegir un valor en borrador no cambia la cuenta hasta confirmar con OK o Aplicar.",
+        "Algunas filas piden PIN de manager si la seguridad lo exige."
+      ],
+      "image": "payment-totals.png",
+      "caption": "Filas de totales.",
+      "intro": "Cada línea alimenta el total a cobrar.",
+      "note": "Los extras solo aparecen si aplican a este pedido; se activan/desactivan en la propia fila (sin panel central)."
+    },
+    {
+      "id": "adjust-tax",
+      "title": "Ajustar impuesto",
+      "steps": [
+        "Toque Impuesto si el panel no está abierto.",
+        "Seleccione Sin impuesto o un impuesto (nombre y %). Es solo borrador.",
+        "Toque OK abajo del panel central para aplicarlo a la cuenta.",
+        "Cerrar sin OK deja el impuesto anterior.",
+        "Los tipos de pago también pueden asignar impuesto al tender."
+      ],
+      "image": "payment-adjust-tax.png",
+      "caption": "Panel de impuesto con OK.",
+      "intro": "Elija sin impuesto o un tipo y confirme con OK. El importe izquierdo no cambia hasta OK."
+    },
+    {
+      "id": "adjust-discount",
+      "title": "Aplicar descuentos",
+      "steps": [
+        "Toque la fila Descuento (puede pedir PIN).",
+        "Opcionalmente Sin descuento para borrar manuales.",
+        "Toque un descuento. Si admite rango, use el teclado para % o fijo.",
+        "Si es por ítem, elija líneas; si exige motivo, selecciónelo.",
+        "Toque Aplicar. La selección en borrador sola no actualiza el total."
+      ],
+      "image": "payment-adjust-discount.png",
+      "caption": "Editor de descuento; confirme con Aplicar.",
+      "intro": "Descuentos manuales: elija uno, ajuste el importe si hace falta y pulse Aplicar."
+    },
+    {
+      "id": "adjust-coupon",
+      "title": "Cupones",
+      "steps": [
+        "Toque la fila Cupón (puede pedir PIN).",
+        "Escriba el código (teclado en pantalla disponible).",
+        "Toque Aplicar para validar y adjuntar el descuento.",
+        "Use Limpiar para quitar el cupón. Códigos inválidos dejan el total igual."
+      ],
+      "image": "payment-adjust-coupon.png",
+      "caption": "Código con Aplicar y Limpiar.",
+      "intro": "Introduzca el código y confirme con Aplicar (no OK)."
+    },
+    {
+      "id": "adjust-service",
+      "title": "Cargos de servicio",
+      "steps": [
+        "Toque la fila de servicio (puede pedir PIN).",
+        "Un aviso puede mostrar el valor por defecto de Manage; el borrador puede iniciar ahí si el tipo de pedido lo permite.",
+        "Elija Sin cargo, % / Fijo, importes rápidos o teclado.",
+        "Toque OK para aplicarlo a la izquierda; sin OK permanece el valor anterior.",
+        "Si el tipo de pedido no admite servicio, la política puede dejarlo en cero."
+      ],
+      "image": "payment-adjust-service.png",
+      "caption": "Panel de servicio; confirme con OK.",
+      "intro": "El servicio se borra en % o fijo y se confirma con OK."
+    },
+    {
+      "id": "adjust-tip",
+      "title": "Propinas",
+      "steps": [
+        "Toque la fila Propina (puede pedir PIN).",
+        "Elija Sin propina o Porcentaje / Fijo.",
+        "Elija un atajo (p. ej. 10 %, 15 %) o el teclado.",
+        "Toque OK. Sin OK se mantiene la propina anterior.",
+        "La propina aumenta el total a cobrar."
+      ],
+      "image": "payment-adjust-tip.png",
+      "caption": "Panel de propina; confirme con OK.",
+      "intro": "Mismo patrón borrador → OK que impuesto y servicio."
+    },
+    {
+      "id": "extras",
+      "title": "Extras",
+      "steps": [
+        "Si hay extras aplicables, verá nombre e importe en la lista de totales.",
+        "Toque la fila del extra para desactivarlo (tachado / cero) o reactivarlo.",
+        "Puede pedir PIN. El cambio rige al conmutar — no hay botón OK.",
+        "Si no hay filas, ninguno aplica a esta mesa, tipo o combinación de pago."
+      ],
+      "image": "payment-extras.png",
+      "caption": "Filas de extras (si están configurados).",
+      "intro": "Extras configurados (p. ej. por mesa o tipo de pago) aparecen bajo la propina. No hay editor central."
+    },
+    {
+      "id": "adjust-notes",
+      "title": "Notas del pedido",
+      "steps": [
+        "Toque Notas en la lista de totales.",
+        "Escriba en el panel central (teclado en pantalla).",
+        "La nota se ve en la fila y se guarda al completar el pago."
+      ],
+      "image": "payment-adjust-notes.png",
+      "caption": "Editor de notas.",
+      "intro": "Texto libre. Escribir actualiza la nota al momento (sin OK)."
+    },
+    {
+      "id": "receiving",
+      "title": "Cobrar",
+      "steps": [
+        "La cifra grande es el total cobrado.",
+        "Debajo: restante (rojo) o cambio (verde).",
+        "Use importes rápidos, teclado y tipos de pago."
+      ],
+      "image": "payment-receiving.png",
+      "caption": "Panel de cobro.",
+      "intro": "Con totales correctos (impuesto, descuento, cupón, servicio, propina y extras aplicados), use el panel de cobro."
+    },
+    {
+      "id": "tender-display",
+      "title": "Tender y restante",
+      "steps": [
+        "Comienza en cero hasta añadir un pago.",
+        "El restante debe ser cero (o cambio ≥ 0) para Completar.",
+        "Si cambia impuesto, propina o descuentos tras tender, revise el restante y los pagos.",
+        "Divida el pago con varias líneas."
+      ],
+      "image": "payment-tender-display.png",
+      "caption": "Tender y cambio/restante."
+    },
+    {
+      "id": "types",
+      "title": "Tipos de pago",
+      "steps": [
+        "Toque un tipo para el saldo, o importe y luego tipo.",
+        "Los chips rápidos usan el primer tipo disponible.",
+        "Tarjeta no suele superar el restante."
+      ],
+      "image": "payment-types.png",
+      "caption": "Botones de tipo de pago.",
+      "intro": "Definidos en Manage o en la mesa.",
+      "note": "Tipos remotos (Stripe, PayPal, M-Pesa…) abren su propio flujo."
+    },
+    {
+      "id": "keypad",
+      "title": "Teclado numérico",
+      "steps": [
+        "Introduzca un importe y elija el tipo de pago.",
+        "C borra la entrada.",
+        "El chip del total exacto cubre el saldo."
+      ],
+      "image": "payment-keypad.png",
+      "caption": "Teclado."
+    },
+    {
+      "id": "finish",
+      "title": "Cuenta temp y Completar",
+      "steps": [
+        "Cuenta temp imprime un ticket provisional si hay permiso.",
+        "Completar cierra el pedido como pagado.",
+        "Completar se desactiva con saldo pendiente o pago remoto en curso."
+      ],
+      "image": "payment-finish-actions.png",
+      "caption": "Cuenta temp y Completar.",
+      "note": "Escape cierra sin pagar si no ha completado."
+    },
+    {
+      "id": "lines",
+      "title": "Líneas de pago",
+      "steps": [
+        "Revise tipo e importe.",
+        "Toque × para quitar y volver a tender.",
+        "Cuando el saldo cubre, Completar se habilita."
+      ],
+      "image": "payment-lines.png",
+      "caption": "Líneas tras un importe exacto.",
+      "intro": "Cada tender aparece a la derecha."
+    },
+    {
+      "id": "complete-ready",
+      "title": "Listo para completar",
+      "steps": [
+        "Confirme restante cero o cambio correcto.",
+        "Toque Completar (puede pedir PIN).",
+        "El pedido pasa a pagado."
+      ],
+      "image": "payment-complete-ready.png",
+      "caption": "Completar habilitado."
+    }
+  ]
+}

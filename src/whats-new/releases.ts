@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-08-15',
+    title: 'End-user guides for Login and Settings',
+    items: [
+      'PDF and screenshot user guides for Login (PIN and form) and Settings are generated under docs/user-guide (regenerate with npm run docs:guide).',
+      'Guides include multi-language prose for all app languages and reusable Playwright capture scripts for highlighted field screenshots.',
+    ],
+  },
+  {
+    date: '2026-08-15',
     title: 'Smart Import rollout',
     items: [
       'Smart Import is available across master data (categories, tables, dishes, ingredients, modifier groups, inventory items, chart of accounts), inventory document lines, kitchen reconciliation, journal entries, and HR scheduled shifts.',

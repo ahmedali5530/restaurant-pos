@@ -202,7 +202,7 @@ export const MenuDishes = () => {
   );
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden" data-testid="menu-dishes-panel">
       <div className="mb-3 flex shrink-0 items-center gap-2">
         <div className="min-w-0 flex-1 rounded-xl">
           <MenuCategories/>
@@ -215,6 +215,7 @@ export const MenuDishes = () => {
             active={searchOpen}
             onClick={toggleSearch}
             className="flex-shrink-0 h-[56px]"
+            data-testid="menu-dish-search"
           >
             {t('actions.search')}
           </Button>

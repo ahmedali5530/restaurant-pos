@@ -167,7 +167,7 @@ export const OrderBox = ({
 
   return (
     <>
-      <div className="rounded-xl p-3 bg-white gap-5 flex flex-col shadow select-none">
+      <div className="rounded-xl p-3 bg-white gap-5 flex flex-col shadow select-none" data-testid="order-card">
         <OrderHeader order={order} tempPrinted={tempPrinted}/>
         <OrderTimes order={order}/>
         <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
@@ -189,7 +189,7 @@ export const OrderBox = ({
         </ScrollContainer>
         <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
         <OrderTotals order={order} />
-        <div className="flex gap-5">
+        <div className="flex gap-5" data-testid="order-card-actions">
           {merging && (order.status === OrderStatus['In Progress']) ? (
             <>
               <Checkbox onChange={() => {
@@ -208,6 +208,7 @@ export const OrderBox = ({
                 btnSize="lg"
                 btnFlat={true}
                 className="flex-1"
+                data-testid="order-card-menu"
                 onAction={(key) => {
                   if (key === 'temp_bill') {
                     printTempBill();
@@ -353,10 +354,18 @@ export const OrderBox = ({
                       size="lg"
                       className="flex-1"
                       icon={faPrint}
+                      data-testid="order-card-temp-bill"
                     ></Button>
                   </span>
-                  <Button variant="warning" filled size="lg" className="flex-1" onClick={() => setPaymentOrder(order)}
-                          icon={faCreditCard}>
+                  <Button
+                    variant="warning"
+                    filled
+                    size="lg"
+                    className="flex-1"
+                    onClick={() => setPaymentOrder(order)}
+                    icon={faCreditCard}
+                    data-testid="order-card-pay"
+                  >
                   </Button>
                 </>
               )}

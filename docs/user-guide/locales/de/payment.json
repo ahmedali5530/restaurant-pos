@@ -1,0 +1,221 @@
+{
+  "title": "Zahlungsbildschirm",
+  "intro": "Jetzt bezahlen öffnet die Vollbild-Zahlung: Übersicht links, Editor in der Mitte (Steuer/Rabatt/Gutschein/Service/Trinkgeld/Notizen), Kasse rechts.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Zahlungs-Layout",
+      "steps": [
+        "Linke Spalte: Kopf, Positionen, Steuer, Rabatt, Gutschein, Service, Trinkgeld, Extras, Notizen, Summe.",
+        "Mitte: Editor der gewählten Zeile. Änderungen sind Entwurf bis OK oder Übernehmen (außer Notizen und Extras).",
+        "Rechts: Gegeben, Rest/Wechselgeld, Schnellbeträge, Zahlarten, Tastatur, Temp-Rechnung, Abschließen, Liste."
+      ],
+      "image": "payment-overview.png",
+      "caption": "Vollständiger Zahlungsbildschirm.",
+      "intro": "Drei Zonen: prüfen, anpassen, kassieren."
+    },
+    {
+      "id": "summary",
+      "title": "Bestellübersicht",
+      "steps": [
+        "Tisch, Gäste, Bestellart und Rechnung im Kopf prüfen.",
+        "Liste scrollen bei vielen Zeilen.",
+        "Total-Zeile tippen (Stift), um mittig zu bearbeiten."
+      ],
+      "image": "payment-order-summary.png",
+      "caption": "Übersichtsspalte.",
+      "intro": "Linke Karte mit Tisch und Positionen."
+    },
+    {
+      "id": "totals",
+      "title": "Total-Aufschlüsselung",
+      "steps": [
+        "Zuerst Positionssumme, dann Steuer, Rabatt, Gutschein, Service, Trinkgeld, Extras und Notizen.",
+        "Steuer, Rabatt, Gutschein, Service, Trinkgeld oder Notizen tippen für den Editor.",
+        "Entwurf allein ändert die Rechnung nicht — mit OK oder Übernehmen bestätigen.",
+        "Manche Zeilen fordern eine Manager-PIN."
+      ],
+      "image": "payment-totals.png",
+      "caption": "Total-Zeilen.",
+      "intro": "Jede Zeile speist das Endtotal.",
+      "note": "Extras nur wenn konfiguriert; Umschalten auf der Zeile (kein Mittelpanel)."
+    },
+    {
+      "id": "adjust-tax",
+      "title": "Steuer anpassen",
+      "steps": [
+        "Steuer-Zeile tippen, falls das Panel nicht offen ist.",
+        "Keine Steuer oder Steuersatz wählen — nur Entwurf.",
+        "Unten OK tippen, um die Steuer zu übernehmen.",
+        "Ohne OK bleibt die bisherige Steuer.",
+        "Zahlarten können beim Tender ebenfalls Steuer setzen."
+      ],
+      "image": "payment-adjust-tax.png",
+      "caption": "Steuer-Panel mit OK.",
+      "intro": "Keine Steuer oder Satz wählen, dann OK. Links ändert sich erst nach OK."
+    },
+    {
+      "id": "adjust-discount",
+      "title": "Rabatte anwenden",
+      "steps": [
+        "Rabatt-Zeile tippen (ggf. PIN).",
+        "Optional Kein Rabatt zum Löschen manueller Rabatte.",
+        "Rabatt wählen; bei Bereich Tastatur für % oder Festbetrag nutzen.",
+        "Bei Positionsumfang Zeilen wählen; bei Pflichtgrund Grund wählen.",
+        "Übernehmen tippen. Nur Auswahl ändert den Total nicht."
+      ],
+      "image": "payment-adjust-discount.png",
+      "caption": "Rabatt-Editor; mit Übernehmen bestätigen.",
+      "intro": "Manueller Rabatt: wählen, Betrag ggf. setzen, Übernehmen tippen."
+    },
+    {
+      "id": "adjust-coupon",
+      "title": "Gutscheine",
+      "steps": [
+        "Gutschein-Zeile tippen (ggf. PIN).",
+        "Code eingeben (Bildschirmtastatur möglich).",
+        "Übernehmen tippen zur Prüfung und Anwendung.",
+        "Löschen entfernt den Gutschein. Ungültige Codes lassen den Total unverändert."
+      ],
+      "image": "payment-adjust-coupon.png",
+      "caption": "Code mit Übernehmen und Löschen.",
+      "intro": "Code eingeben und mit Übernehmen bestätigen (nicht OK)."
+    },
+    {
+      "id": "adjust-service",
+      "title": "Servicegebühren",
+      "steps": [
+        "Service-Zeile tippen (ggf. PIN).",
+        "Banner kann Standard aus Manage zeigen; Entwurf kann dort starten, wenn Bestellart Service erlaubt.",
+        "Kein Service, % / Fest, Schnellwerte oder Tastatur wählen.",
+        "OK tippen zum Übernehmen — ohne OK bleibt der alte Wert.",
+        "Ohne erlaubte Servicegebühr laut Bestellart oft 0."
+      ],
+      "image": "payment-adjust-service.png",
+      "caption": "Service-Panel; mit OK bestätigen.",
+      "intro": "Entwurf mit % oder Fest, dann OK."
+    },
+    {
+      "id": "adjust-tip",
+      "title": "Trinkgeld",
+      "steps": [
+        "Trinkgeld-Zeile tippen (ggf. PIN).",
+        "Kein Trinkgeld oder % / Fest wählen.",
+        "Schnellwert (z. B. 10 %, 15 %) oder Tastatur.",
+        "OK tippen. Ohne OK bleibt das alte Trinkgeld.",
+        "Trinkgeld erhöht den Zahlungsbetrag."
+      ],
+      "image": "payment-adjust-tip.png",
+      "caption": "Trinkgeld-Panel; mit OK bestätigen.",
+      "intro": "Gleiches Muster Entwurf → OK."
+    },
+    {
+      "id": "extras",
+      "title": "Extras",
+      "steps": [
+        "Anwendbare Extras erscheinen mit Name und Betrag.",
+        "Zeile tippen zum Aus (durchgestrichen / null) oder Ein.",
+        "PIN möglich. Toggle wirkt sofort — kein OK.",
+        "Ohne Zeilen: keine Extras für Tisch/Typ/Zahlung."
+      ],
+      "image": "payment-extras.png",
+      "caption": "Extra-Zeilen (falls konfiguriert).",
+      "intro": "Konfigurierte Extras unter Trinkgeld. Kein Mittel-Editor."
+    },
+    {
+      "id": "adjust-notes",
+      "title": "Bestellnotizen",
+      "steps": [
+        "Notizen tippen.",
+        "Im Mittelpanel schreiben.",
+        "Notiz erscheint in der Zeile und speichert beim Abschließen."
+      ],
+      "image": "payment-adjust-notes.png",
+      "caption": "Notizen-Editor.",
+      "intro": "Freitext. Tippen aktualisiert sofort (kein OK)."
+    },
+    {
+      "id": "receiving",
+      "title": "Zahlung annehmen",
+      "steps": [
+        "Große Zahl = gegeben.",
+        "Darunter Rest (rot) oder Wechselgeld (grün).",
+        "Schnellbeträge, Tastatur und Zahlarten."
+      ],
+      "image": "payment-receiving.png",
+      "caption": "Kassier-Panel.",
+      "intro": "Nach korrekten Totals die Kasse rechts nutzen."
+    },
+    {
+      "id": "tender-display",
+      "title": "Gegeben und Rest",
+      "steps": [
+        "Startet bei null.",
+        "Rest 0 (oder Wechselgeld ≥ 0) für Abschließen.",
+        "Nach Änderung von Steuer/Rabatt/Trinkgeld Zahlungen prüfen.",
+        "Split mit mehreren Zeilen."
+      ],
+      "image": "payment-tender-display.png",
+      "caption": "Gegeben und Rest/Wechselgeld."
+    },
+    {
+      "id": "types",
+      "title": "Zahlarten",
+      "steps": [
+        "Zahlart für Rest, oder Betrag dann Zahlart.",
+        "Schnellchips = erste Art.",
+        "Karte überschreitet Rest meist nicht."
+      ],
+      "image": "payment-types.png",
+      "caption": "Zahlart-Buttons.",
+      "intro": "Aus Verwalten oder Tisch.",
+      "note": "Remote-Arten öffnen eigenen Flow."
+    },
+    {
+      "id": "keypad",
+      "title": "Zifferntastatur",
+      "steps": [
+        "Betrag tippen, dann Zahlart.",
+        "C löscht.",
+        "Exact-Total-Chip deckt Rest."
+      ],
+      "image": "payment-keypad.png",
+      "caption": "Zifferntastatur."
+    },
+    {
+      "id": "finish",
+      "title": "Temp-Rechnung und Abschließen",
+      "steps": [
+        "Temp-Rechnung druckt vorläufig bei Rechte.",
+        "Abschließen markiert bezahlt.",
+        "Deaktiviert bei offenem Rest oder Remote in Arbeit."
+      ],
+      "image": "payment-finish-actions.png",
+      "caption": "Temp und Abschließen.",
+      "note": "Escape schließt ohne Zahlung."
+    },
+    {
+      "id": "lines",
+      "title": "Zahlungszeilen",
+      "steps": [
+        "Art und Betrag prüfen.",
+        "× zum Entfernen.",
+        "Bei ausgeglichenem Saldo Abschließen aktiv."
+      ],
+      "image": "payment-lines.png",
+      "caption": "Zeilen nach Exact.",
+      "intro": "Jeder Tender rechts."
+    },
+    {
+      "id": "complete-ready",
+      "title": "Bereit zum Abschließen",
+      "steps": [
+        "Rest 0 oder Wechselgeld prüfen.",
+        "Abschließen tippen (ggf. PIN).",
+        "Auftrag bezahlt."
+      ],
+      "image": "payment-complete-ready.png",
+      "caption": "Abschließen aktiv."
+    }
+  ]
+}

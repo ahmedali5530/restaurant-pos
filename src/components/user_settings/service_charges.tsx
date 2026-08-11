@@ -83,7 +83,7 @@ export const ServiceChargesSettings = () => {
   }, [reset, settings]);
 
   return (
-    <div className="shadow p-5 rounded-xl bg-white">
+    <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-service-charges">
       <h2 className="text-xl font-semibold mb-1">{t('settings:serviceCharges.title')}</h2>
       <form onSubmit={protectFormSubmit((handleSubmit(saveSettings)), {
         module: 'settings.service_charges',

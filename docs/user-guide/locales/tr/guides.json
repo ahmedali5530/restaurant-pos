@@ -1,0 +1,36 @@
+{
+  "title": "POSR Dokümantasyonu",
+  "intro": "POSR için role göre kılavuzlar. Görevinize uygun kılavuzu seçin: salon personeli, yönetici, stok, muhasebe, İK veya yönetici (admin).",
+  "toc": "Kılavuzlar",
+  "openGuide": "Kılavuzu aç",
+  "statusReady": "Hazır",
+  "statusPlanned": "Planlandı",
+  "comingSoon": "Yakında — bu bölüm planlandı ancak henüz belgelenmedi.",
+  "plannedLabel": "Planlandı",
+  "guides": {
+    "employee": {
+      "title": "Personel Kılavuzu",
+      "intro": "Salon personeli için günlük POS işleri: giriş, sipariş alma, sepet ve ödeme, açık hesaplar, kilitleme ve çıkış."
+    },
+    "manager": {
+      "title": "Yönetici Kılavuzu",
+      "intro": "Vardiya yönetimi: satış özeti, mutfak, teslimat, kapanış ve operasyon raporları."
+    },
+    "inventory": {
+      "title": "Stok Kılavuzu",
+      "intro": "Depo rolü için stok, alımlar, çıkışlar, fire ve sayımlar."
+    },
+    "accounts": {
+      "title": "Muhasebe Kılavuzu",
+      "intro": "Defterler, giderler ve muhasebe ile ilgili POS araçları."
+    },
+    "hr": {
+      "title": "İK Kılavuzu",
+      "intro": "İnsan kaynakları: çalışanlar, devam, izin ve bahşiş dağıtımı."
+    },
+    "admin": {
+      "title": "Yönetici (Admin) Kılavuzu",
+      "intro": "İşletme ayarları: Manage, entegrasyonlar ve gelişmiş ayarlar."
+    }
+  }
+}

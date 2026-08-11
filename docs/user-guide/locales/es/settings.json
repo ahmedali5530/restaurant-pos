@@ -1,0 +1,246 @@
+{
+  "title": "Ajustes",
+  "intro": "Las preferencias operativas del dispositivo y del local están en Ajustes. Ábralos con el icono de llave inglesa al final de la barra lateral izquierda tras iniciar sesión. Algunas tarjetas solo afectan a este navegador; otras son globales y pueden requerir PIN de gerente al guardar.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Abrir Ajustes",
+      "steps": [
+        "Inicie sesión con un usuario que pueda acceder a Ajustes.",
+        "En la barra lateral izquierda, pulse el botón de llave inglesa.",
+        "La página muestra tarjetas de configuración en varias columnas."
+      ],
+      "image": "settings-nav.png",
+      "caption": "Control de llave que abre Ajustes (resaltado)."
+    },
+    {
+      "id": "overview",
+      "title": "Vista general de Ajustes",
+      "intro": "Cada tarjeta controla un área. Pueden vaciarse o restringirse según permisos.",
+      "steps": [
+        "Desplácese para encontrar la tarjeta que necesita.",
+        "Cambie valores y guarde cuando la tarjeta tenga Guardar.",
+        "Algunas tarjetas son solo de este dispositivo; otras son globales o de su usuario."
+      ],
+      "image": "settings-overview.png",
+      "caption": "Página de Ajustes con tarjetas."
+    },
+    {
+      "id": "whats-new",
+      "title": "Novedades",
+      "steps": [
+        "Abra la tarjeta Novedades para ver la fecha de la última versión.",
+        "Pulse Abrir para mostrar de nuevo las notas de actualización."
+      ],
+      "image": "settings-whats-new.png",
+      "caption": "Tarjeta Novedades — reabrir notas de versión."
+    },
+    {
+      "id": "cache",
+      "title": "Caché",
+      "steps": [
+        "Abra Caché si menús u otros datos parecen desactualizados.",
+        "Pulse Recargar caché para refrescar el catálogo desde la base de datos."
+      ],
+      "image": "settings-cache.png",
+      "caption": "Tarjeta de recarga de caché."
+    },
+    {
+      "id": "language",
+      "title": "Idioma y dirección del texto",
+      "steps": [
+        "Abra la tarjeta Idioma.",
+        "Elija el idioma de visualización de este dispositivo.",
+        "Elija LTR o RTL si hace falta (por ejemplo árabe).",
+        "El cambio se aplica de inmediato en este terminal."
+      ],
+      "image": "settings-language.png",
+      "caption": "Tarjeta de idioma y dirección."
+    },
+    {
+      "id": "translate-receipts",
+      "title": "Traducir tickets",
+      "intro": "Si está activo, el texto impreso sigue el idioma del terminal cuando es posible.",
+      "steps": [
+        "Abra Traducir tickets.",
+        "Active o desactive Habilitado.",
+        "Guarde (puede pedirse aprobación)."
+      ],
+      "image": "settings-translate-receipts.png",
+      "caption": "Tarjeta Traducir tickets."
+    },
+    {
+      "id": "printers",
+      "title": "Impresoras predeterminadas",
+      "steps": [
+        "Abra Impresoras predeterminadas.",
+        "Opcionalmente active impresoras del sistema en este navegador.",
+        "Asigne impresoras para temp, final, reembolso, delivery y resumen.",
+        "Guarde al terminar."
+      ],
+      "image": "settings-printers.png",
+      "caption": "Tarjeta de impresoras predeterminadas."
+    },
+    {
+      "id": "print-options",
+      "title": "Opciones de impresión",
+      "steps": [
+        "Abra Opciones de impresión.",
+        "Indique cuántas copias físicas produce cada tipo de impresión.",
+        "Defina intentos máximos de impresión temp/final por pedido (0 = ilimitado).",
+        "Guarde al terminar."
+      ],
+      "image": "settings-print-options.png",
+      "caption": "Copias e intentos máximos."
+    },
+    {
+      "id": "menus",
+      "title": "Menús activos",
+      "intro": "Elija qué menús puede vender este local/dispositivo. Solo los menús seleccionados aparecen al tomar pedidos.",
+      "steps": [
+        "Abra la tarjeta Menús.",
+        "Seleccione uno o más menús activos.",
+        "Guarde (puede pedirse aprobación)."
+      ],
+      "image": "settings-menus.png",
+      "caption": "Menús disponibles para pedidos."
+    },
+    {
+      "id": "service-charges",
+      "title": "Cargos por servicio",
+      "intro": "Cargo de servicio predeterminado en el pago (porcentaje o fijo).",
+      "steps": [
+        "Abra Cargos por servicio.",
+        "Elija tipo (Porcentaje o Fijo) e ingrese el valor.",
+        "Guarde (puede pedirse aprobación)."
+      ],
+      "image": "settings-service-charges.png",
+      "caption": "Tipo y valor del cargo de servicio."
+    },
+    {
+      "id": "closing-cycle",
+      "title": "Ciclo de cierre",
+      "intro": "Define la ventana del día de negocio para cierres y rangos diarios (p. ej. locales que operan pasada medianoche).",
+      "steps": [
+        "Abra Ciclo de cierre.",
+        "Active o desactive el ciclo personalizado.",
+        "Defina hora de inicio y fin del día de negocio.",
+        "Guarde (puede pedirse aprobación)."
+      ],
+      "image": "settings-closing-cycle.png",
+      "caption": "Ventana horaria del ciclo de cierre."
+    },
+    {
+      "id": "auto-check-close",
+      "title": "Cierre automático de cuentas",
+      "intro": "Cierra automáticamente cuentas abiertas al final del ciclo con un tipo de pago predeterminado.",
+      "steps": [
+        "Abra Cierre automático de cuentas.",
+        "Active la función y elija si imprimir al cerrar.",
+        "Seleccione el tipo de pago del cierre automático.",
+        "Guarde (puede pedirse aprobación)."
+      ],
+      "image": "settings-auto-check-close.png",
+      "caption": "Opciones de cierre automático."
+    },
+    {
+      "id": "session-security",
+      "title": "Seguridad de sesión",
+      "steps": [
+        "Abra Seguridad de sesión.",
+        "Active la protección por inactividad si el terminal debe bloquearse o cerrar sesión.",
+        "Defina minutos de inactividad y si la acción es bloquear o cerrar sesión.",
+        "Guarde (puede pedirse aprobación)."
+      ],
+      "image": "settings-session-security.png",
+      "caption": "Bloqueo/cierre por inactividad."
+    },
+    {
+      "id": "auto-clock-out",
+      "title": "Fichaje de salida automático",
+      "intro": "Ficha la salida del personal al acabar el turno y/o a una hora definida.",
+      "steps": [
+        "Abra Fichaje de salida automático.",
+        "Active la función.",
+        "Elija disparadores: fin de turno, hora definida, o ambos.",
+        "Si usa hora definida, indíquela.",
+        "Guarde (puede pedirse aprobación)."
+      ],
+      "image": "settings-auto-clock-out.png",
+      "caption": "Disparadores de salida automática."
+    },
+    {
+      "id": "show-inclusive-prices",
+      "title": "Mostrar precios con impuestos",
+      "intro": "Cuando está activo, la UI puede mostrar precios con impuestos incluidos según la configuración fiscal.",
+      "steps": [
+        "Abra Mostrar precios con impuestos.",
+        "Active o desactive.",
+        "Guarde (puede pedirse aprobación)."
+      ],
+      "image": "settings-show-inclusive-prices.png",
+      "caption": "Mostrar precios inclusivos."
+    },
+    {
+      "id": "currency-symbol",
+      "title": "Símbolo de moneda",
+      "intro": "Controla si se muestra el símbolo de moneda en pantalla y en tickets.",
+      "steps": [
+        "Abra Símbolo de moneda.",
+        "Active mostrar en UI y/o en tickets.",
+        "Guarde (puede pedirse aprobación)."
+      ],
+      "image": "settings-currency-symbol.png",
+      "caption": "Símbolo en UI y tickets."
+    },
+    {
+      "id": "touch",
+      "title": "Teclado en pantalla",
+      "steps": [
+        "Abra Teclado en pantalla.",
+        "Active o desactive el teclado virtual en este dispositivo."
+      ],
+      "image": "settings-touch.png",
+      "caption": "Teclado virtual."
+    },
+    {
+      "id": "table-selection",
+      "title": "Selección de mesa",
+      "intro": "Si está habilitada, el personal elige mesa antes de pedir. Si está deshabilitada, se oculta el paso de planta en este terminal (útil en servicio rápido).",
+      "steps": [
+        "Abra Selección de mesa.",
+        "Pulse el botón para activar o desactivar en este dispositivo.",
+        "El cambio se aplica de inmediato."
+      ],
+      "image": "settings-table-selection.png",
+      "caption": "Mostrar u ocultar selección de mesa.",
+      "note": "La captura de documentación requiere la selección de mesa habilitada."
+    },
+    {
+      "id": "inventory",
+      "title": "Ajustes de inventario",
+      "intro": "Comportamiento global de inventario: libro mayor, lotes/caducidad, coste, descuentos/impuestos de compra y valores por defecto. Usado con módulos de inventario activos.",
+      "steps": [
+        "Abra Ajustes de inventario.",
+        "Configure libro mayor, lotes, caducidad, fechas de fabricación y opciones de compra.",
+        "Elija método de coste y valores por defecto de asignación e impuestos.",
+        "Guarde (puede pedirse aprobación)."
+      ],
+      "image": "settings-inventory.png",
+      "caption": "Tarjeta de configuración de inventario."
+    },
+    {
+      "id": "items-visibility",
+      "title": "Visibilidad de elementos",
+      "intro": "Opciones de visualización del menú, carrito y pedidos en este terminal. Los cambios son inmediatos.",
+      "steps": [
+        "Abra Visibilidad de elementos.",
+        "En Menú: búsqueda de platos, tipo de búsqueda y números de plato.",
+        "En Carrito: totales del carrito.",
+        "En Pedidos: totales y campos de la tarjeta de pedido."
+      ],
+      "image": "settings-items-visibility.png",
+      "caption": "Opciones de menú, carrito y pedidos."
+    }
+  ]
+}

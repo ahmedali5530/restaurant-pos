@@ -237,20 +237,21 @@ export const Payment = () => {
       }
 
       const data: any = {
-        floor: toRecordId(state?.floor?.id),
-        covers: parseInt(state?.persons),
+        floor: state?.floor?.id ? toRecordId(state.floor.id) : null,
+        covers: parseInt(state?.persons) || 1,
         tax: null,
         tax_amount: 0,
         tags: ['Normal'],
         discount: null,
         discount_amount: 0,
         customer: customer,
-        order_type: toRecordId(state?.orderType?.id),
+        order_type: state?.orderType?.id ? toRecordId(state.orderType.id) : null,
         status: OrderStatus["In Progress"],
         invoice_number: invoiceNumber,
         items: items,
-        table: toRecordId(state?.table?.id),
-        user: toRecordId(page?.user?.id),
+        // NONE when tableless; never pass undefined (Surreal error "undefined doesn't exist")
+        table: state?.table?.id ? toRecordId(state.table.id) : null,
+        user: page?.user?.id ? toRecordId(page.user.id) : null,
         service_charge: 0,
         service_charge_amount: 0,
         service_charge_type: DiscountType.Percent,
@@ -479,14 +480,16 @@ export const Payment = () => {
         )}
 
 
-        <div className="p-3">
+        <div className="p-3" data-testid="cart-payment-actions">
           <div className="flex gap-3 mt-3">
             <Button variant="success" className="flex-1" size="lg" icon={faCheck} onClick={createOrderAndBack}
-                    disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}>{t("payment:actions.toKitchen")}</Button>
+                    disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}
+                    data-testid="cart-to-kitchen">{t("payment:actions.toKitchen")}</Button>
             <Button variant="warning" filled className="flex-1" size="lg" icon={faCreditCard} onClick={openPayment}
-                    disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}>{t("payment:actions.payNow")}</Button>
+                    disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}
+                    data-testid="cart-pay-now">{t("payment:actions.payNow")}</Button>
             <Button variant="danger" className="flex-1" size="lg" icon={faCancel} onClick={cancel}
-                    disabled={isLoading}>{t("payment:actions.cancel")}</Button>
+                    disabled={isLoading} data-testid="cart-cancel">{t("payment:actions.cancel")}</Button>
           </div>
         </div>
       </div>

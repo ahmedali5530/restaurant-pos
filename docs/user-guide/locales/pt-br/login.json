@@ -1,0 +1,53 @@
+{
+  "title": "Login",
+  "intro": "Abra o POSR no navegador. A tela de login aparece quando você não está autenticado ou o terminal está bloqueado.",
+  "sections": [
+    {
+      "id": "methods",
+      "title": "Escolha o método de login",
+      "intro": "Você pode entrar com PIN ou com usuário e senha. Use o método atribuído à sua conta.",
+      "steps": [
+        "No topo, escolha Pin ou Formulário.",
+        "PIN é ideal para terminais compartilhados.",
+        "Formulário é ideal para contas individuais."
+      ],
+      "image": "login-pin.png",
+      "caption": "Tela de login com Pin selecionado."
+    },
+    {
+      "id": "pin",
+      "title": "Entrar com PIN",
+      "steps": [
+        "Selecione Pin.",
+        "Digite o PIN de 4 dígitos.",
+        "No quarto dígito o sistema entra automaticamente.",
+        "Use backspace ou C para corrigir.",
+        "Se solicitado, complete o ponto (clock in)."
+      ],
+      "image": "login-method-toggle.png",
+      "caption": "Botões Pin e Formulário.",
+      "note": "Em demos costuma-se usar PIN 1234, 0000 ou 5555 (super admin)."
+    },
+    {
+      "id": "form",
+      "title": "Entrar com usuário e senha",
+      "steps": [
+        "Selecione Formulário.",
+        "Informe usuário e senha.",
+        "Toque em Login.",
+        "Conclua o ponto se for pedido."
+      ],
+      "image": "login-form.png",
+      "caption": "Login em formulário com campos destacados."
+    },
+    {
+      "id": "after",
+      "title": "Após o login bem-sucedido",
+      "steps": [
+        "Você chega ao Menu, salvo redirecionamento.",
+        "Use a barra lateral nos módulos permitidos.",
+        "Use Bloquear ao se afastar."
+      ]
+    }
+  ]
+}

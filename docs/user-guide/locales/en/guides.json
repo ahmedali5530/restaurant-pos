@@ -1,0 +1,36 @@
+{
+  "title": "POSR Documentation",
+  "intro": "Role-based guides for POSR. Choose a guide that matches your job: floor staff, manager, inventory, accounts, HR, or administrator.",
+  "toc": "Guides",
+  "openGuide": "Open guide",
+  "statusReady": "Ready",
+  "statusPlanned": "Planned",
+  "comingSoon": "Coming soon — this chapter is planned and not documented yet.",
+  "plannedLabel": "Planned",
+  "guides": {
+    "employee": {
+      "title": "Employee Guide",
+      "intro": "Day-to-day POS work for floor staff: sign-in, take orders, cart and payment, manage open checks, lock the terminal, and clock out."
+    },
+    "manager": {
+      "title": "Manager Guide",
+      "intro": "Shift leadership: sales summary, kitchen board, delivery, closing, and operational reports."
+    },
+    "inventory": {
+      "title": "Inventory Guide",
+      "intro": "Stock, purchases, issues, wastes, and inventory counts for the warehouse role."
+    },
+    "accounts": {
+      "title": "Accounts Guide",
+      "intro": "Financial ledgers, expenses, and accounting-related POS tools."
+    },
+    "hr": {
+      "title": "HR Guide",
+      "intro": "People operations: employees, attendance, leave, and tip distribution."
+    },
+    "admin": {
+      "title": "Administrator Guide",
+      "intro": "Venue configuration: Manage, integrations, and advanced settings."
+    }
+  }
+}

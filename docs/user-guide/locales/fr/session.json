@@ -1,0 +1,75 @@
+{
+  "title": "Verrouillage, déconnexion et pointeuse",
+  "intro": "Bas de barre latérale : verrouiller, déconnecter, pointeuse et Paramètres. Verrouillage d’inactivité dans sécurité de session.",
+  "sections": [
+    {
+      "id": "controls",
+      "title": "Contrôles de session",
+      "steps": [
+        "Clé : Paramètres.",
+        "Utilisateur : Pointeuse.",
+        "Cadenas : verrouiller.",
+        "Marche : déconnexion."
+      ],
+      "image": "session-sidebar-controls.png",
+      "caption": "Settings, clock, lock, and logout on the sidebar."
+    },
+    {
+      "id": "lock",
+      "title": "Verrouiller le terminal",
+      "steps": [
+        "Touchez Verrouiller.",
+        "Bannière verrouillée.",
+        "Déverrouillez avec le même PIN/mot de passe."
+      ],
+      "image": "session-locked.png",
+      "caption": "System locked banner on login.",
+      "intro": "Pauses courtes ; seul le même utilisateur déverrouille."
+    },
+    {
+      "id": "clock",
+      "title": "Écran pointeuse",
+      "steps": [
+        "Ouvrez la pointeuse.",
+        "Pointage ouvert requis.",
+        "Vérifiez ventes et heure d’entrée."
+      ],
+      "image": "session-clock.png",
+      "caption": "Clock screen overview.",
+      "intro": "Pointage, service, temps écoulé et métriques."
+    },
+    {
+      "id": "clock-detail",
+      "title": "Utilisateur, service et dépointage",
+      "steps": [
+        "Utilisateur et service.",
+        "Temps écoulé.",
+        "Dépointer en fin de service."
+      ],
+      "image": "session-clock-detail.png",
+      "caption": "Session panel with Clock Out."
+    },
+    {
+      "id": "clock-sales",
+      "title": "Résumé des ventes de session",
+      "steps": [
+        "Métriques de session.",
+        "Contrôlez avant dépointage."
+      ],
+      "image": "session-clock-sales.png",
+      "caption": "Sale summary metrics."
+    },
+    {
+      "id": "idle",
+      "title": "Verrouillage ou déconnexion d’inactivité",
+      "steps": [
+        "Paramètres → Sécurité de session.",
+        "Minutes d’inactivité et action.",
+        "Enregistrer."
+      ],
+      "image": "session-idle-settings.png",
+      "caption": "Session security card.",
+      "intro": "Paramètres → Sécurité de session."
+    }
+  ]
+}

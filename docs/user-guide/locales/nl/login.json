@@ -1,0 +1,53 @@
+{
+  "title": "Inloggen",
+  "intro": "Open POSR in de browser. Het inlogscherm verschijnt als u niet bent aangemeld of als de terminal vergrendeld is.",
+  "sections": [
+    {
+      "id": "methods",
+      "title": "Kies een inlogmethode",
+      "intro": "U kunt inloggen met PIN of met gebruikersnaam en wachtwoord. Gebruik de methode die aan uw account is toegewezen.",
+      "steps": [
+        "Kies bovenin Pin of Formulier.",
+        "PIN is geschikt voor gedeelde terminals.",
+        "Formulier is geschikt voor persoonlijke accounts."
+      ],
+      "image": "login-pin.png",
+      "caption": "Inlogscherm met Pin geselecteerd."
+    },
+    {
+      "id": "pin",
+      "title": "Inloggen met PIN",
+      "steps": [
+        "Selecteer Pin.",
+        "Voer uw 4-cijferige PIN in.",
+        "Bij het vierde cijfer logt het systeem in.",
+        "Gebruik backspace of C om te corrigeren.",
+        "Voltooi inklokken indien gevraagd."
+      ],
+      "image": "login-method-toggle.png",
+      "caption": "Knoppen Pin en Formulier.",
+      "note": "In demo’s vaak PIN 1234, 0000 of 5555 (superbeheerder)."
+    },
+    {
+      "id": "form",
+      "title": "Inloggen met gebruikersnaam en wachtwoord",
+      "steps": [
+        "Selecteer Formulier.",
+        "Vul gebruikersnaam en wachtwoord in.",
+        "Tik op Inloggen.",
+        "Rond inklokken af indien gevraagd."
+      ],
+      "image": "login-form.png",
+      "caption": "Formulierinlog met gemarkeerde velden."
+    },
+    {
+      "id": "after",
+      "title": "Na succesvol inloggen",
+      "steps": [
+        "U komt op het Menu tenzij u wordt omgeleid.",
+        "Gebruik de zijbalk voor toegestane modules.",
+        "Vergrendel als u de post verlaat."
+      ]
+    }
+  ]
+}

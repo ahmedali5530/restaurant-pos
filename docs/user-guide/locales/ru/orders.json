@@ -1,0 +1,86 @@
+{
+  "title": "Заказы",
+  "intro": "Экран «Заказы» показывает открытые и недавние чеки: оплата, печать, разделение, слияние, отмена, возврат.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Макет заказов",
+      "steps": [
+        "Откройте Заказы.",
+        "Фильтр: статус, тип, этаж, пользователь, дата.",
+        "Карточки или таблица."
+      ],
+      "image": "orders-overview.png",
+      "caption": "Orders screen with filters and cards.",
+      "intro": "Откройте Заказы в панели. Фильтры сверху; карточки или строки."
+    },
+    {
+      "id": "filters",
+      "title": "Фильтры",
+      "steps": [
+        "Статус: В процессе, Оплачен, Отменён, Разделён, Объединён.",
+        "Тип, этаж, пользователь.",
+        "Дата — день; «В процессе» может оставаться."
+      ],
+      "image": "orders-filters.png",
+      "caption": "Orders filter bar."
+    },
+    {
+      "id": "toolbar",
+      "title": "Панель инструментов",
+      "steps": [
+        "Открыть ящик (возможен PIN).",
+        "Карточки.",
+        "Таблица."
+      ],
+      "image": "orders-toolbar.png",
+      "caption": "Cash drawer and view toggles."
+    },
+    {
+      "id": "card",
+      "title": "Карточка заказа",
+      "steps": [
+        "Счёт, стол, статус и позиции.",
+        "Врем. счёт и Оплата для «В процессе».",
+        "⋯ отмена, сплит, merge, KOT."
+      ],
+      "image": "orders-card.png",
+      "caption": "Order card with items and actions.",
+      "intro": "Шапка, время, позиции, итоги и действия."
+    },
+    {
+      "id": "card-actions",
+      "title": "Действия карточки",
+      "steps": [
+        "Врем. — черновик счёта.",
+        "Оплата открывает оплату.",
+        "⋯ ещё."
+      ],
+      "image": "orders-card-actions.png",
+      "caption": "Print, Pay, and more on a card."
+    },
+    {
+      "id": "menu",
+      "title": "Меню ⋯ (В процессе)",
+      "steps": [
+        "Отмена.",
+        "Сплит места/позиции/сумма.",
+        "Merge.",
+        "Копия KOT."
+      ],
+      "image": "orders-card-menu.png",
+      "caption": "Order more-actions menu.",
+      "intro": "Защищённые действия могут требовать PIN."
+    },
+    {
+      "id": "table-view",
+      "title": "Таблица",
+      "steps": [
+        "Таблица.",
+        "Нажмите «В процессе», чтобы платить."
+      ],
+      "image": "orders-table-view.png",
+      "caption": "Orders table view."
+    }
+  ]
+}

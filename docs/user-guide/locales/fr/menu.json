@@ -1,0 +1,73 @@
+{
+  "title": "Menu et prise de commande",
+  "intro": "Utilisez Menu pour installer les clients (si tables), choisir le type de commande, parcourir catégories et plats, et remplir le panier.",
+  "sections": [
+    {
+      "id": "floor",
+      "title": "Ouvrir une table",
+      "intro": "Si la sélection de tables est active, le plan s’affiche d’abord.",
+      "steps": [
+        "Ouvrir Menu.",
+        "Choisir l’étage.",
+        "Toucher une table libre.",
+        "Saisir le nombre de couverts si demandé."
+      ],
+      "image": "menu-floor.png",
+      "caption": "Plan de salle."
+    },
+    {
+      "id": "overview",
+      "title": "Écran de commande",
+      "intro": "Menu à gauche, panier à droite.",
+      "steps": [
+        "En-tête : table, couverts, client, type.",
+        "Catégories et plats.",
+        "Vérifier le panier."
+      ],
+      "image": "menu-overview.png",
+      "caption": "En-tête et types."
+    },
+    {
+      "id": "order-type",
+      "title": "Type de commande",
+      "steps": [
+        "Choisir le type dans l’en-tête.",
+        "Influence cuisine et tarifs."
+      ],
+      "image": "menu-overview.png",
+      "caption": "Boutons de type."
+    },
+    {
+      "id": "categories",
+      "title": "Catégories",
+      "steps": [
+        "Toucher une catégorie.",
+        "La grille se met à jour."
+      ],
+      "image": "menu-categories.png",
+      "caption": "Catégories."
+    },
+    {
+      "id": "dishes",
+      "title": "Ajouter un plat",
+      "steps": [
+        "Toucher le plat.",
+        "Compléter les modificateurs.",
+        "Répéter."
+      ],
+      "image": "menu-dishes.png",
+      "caption": "Grille des plats.",
+      "note": "Recherche possible via Paramètres."
+    },
+    {
+      "id": "dish-tile",
+      "title": "Tuile plat",
+      "steps": [
+        "Nom, prix, numéro optionnel.",
+        "Badge de quantité."
+      ],
+      "image": "menu-dish-tile.png",
+      "caption": "Tuile."
+    }
+  ]
+}

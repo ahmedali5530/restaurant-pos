@@ -17,8 +17,8 @@ export const Seats = () => {
 
   return (
     <ScrollContainer>
-      <div className="flex gap-2">
-        <Button variant="warning" size="lg" icon={faPlus} onClick={() => {
+      <div className="flex gap-2" data-testid="cart-seats">
+        <Button variant="warning" size="lg" icon={faPlus} data-testid="cart-add-seat" onClick={() => {
           const newSeat = nanoid();
           setState(prev => ({
             ...prev,

@@ -309,12 +309,14 @@ export const Login = () => {
   }
 
   return (
-    <div className="relative">
+    <div className="relative" data-testid="login-page">
       <DocumentTitle parts={[t('login.title')]} />
       <div className="bg-neutral-900 flex justify-center items-center h-screen flex-col gap-8">
         <h4 className="text-4xl text-neutral-100">{t('login.title')}</h4>
         <div className="flex gap-3">
           <button
+            type="button"
+            data-testid="login-method-pin"
             className={cn(
               "w-56 border-2 transition-all duration-150 btn btn-filled lg",
               loginMethod === 'pin'
@@ -332,6 +334,8 @@ export const Login = () => {
             {t('login.pin')}
           </button>
           <button
+            type="button"
+            data-testid="login-method-form"
             className={cn(
               "w-56 border-2 transition-all duration-150 btn btn-filled lg",
               loginMethod === 'form'
@@ -350,7 +354,7 @@ export const Login = () => {
           </button>
         </div>
         {page.locked && (
-          <div className="alert alert-warning">{t('login.systemLocked', {
+          <div className="alert alert-warning" data-testid="login-locked-banner">{t('login.systemLocked', {
             name: `${page?.lockedBy?.first_name ?? ''} ${page?.lockedBy?.last_name ?? ''}`.trim()
           })}</div>
         )}
@@ -367,7 +371,7 @@ export const Login = () => {
               <FontAwesomeIcon size="lg" icon={code.trim().length >= 3 ? faCircle : circleRegular} />
               <FontAwesomeIcon size="lg" icon={code.trim().length === 4 ? faCircle : circleRegular} />
             </div>
-            <div className="wrapper w-[400px]">
+            <div className="wrapper w-[400px]" data-testid="login-pin-pad">
               <div className="grid grid-cols-3 gap-2 sm:gap-5 place-items-center">
                 <button type="button" onClick={() => onKey('1')} className="btn-login">1</button>
                 <button type="button" onClick={() => onKey('2')} className="btn-login">2</button>
@@ -389,6 +393,7 @@ export const Login = () => {
         {loginMethod === 'form' && (
           <form
             className="w-[400px] flex flex-col gap-3"
+            data-testid="login-form"
             onSubmit={async (event) => {
               event.preventDefault();
               await checkLogin(username, password, 'form');
@@ -398,6 +403,7 @@ export const Login = () => {
               <label className="text-white" htmlFor="username">{t('login.username')}</label>
               <Input
                 id="username"
+                data-testid="login-username"
                 value={username}
                 onChange={(event) => setUsername(event.target.value)}
               />
@@ -407,12 +413,13 @@ export const Login = () => {
               <label className="text-white" htmlFor="password">{t('login.password')}</label>
               <Input
                 id="password"
+                data-testid="login-password"
                 type="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
               />
             </div>
-            <Button type="submit" variant="primary">{t('login.submit')}</Button>
+            <Button type="submit" variant="primary" data-testid="login-submit">{t('login.submit')}</Button>
           </form>
         )}
         {error && loginMethod === 'form' && (
@@ -446,6 +453,7 @@ export const Login = () => {
                 onClick={handleClockIn}
                 icon={faClock}
                 size="xl"
+                data-testid="login-clock-in"
               >
                 {t('clockIn.action')}
               </Button>

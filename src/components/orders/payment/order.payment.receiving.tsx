@@ -498,12 +498,14 @@ const OrderPaymentReceivingContent = ({
   } = useApi<SettingsData<Tax>>(Tables.taxes, ['deleted_at = none'])
 
   return (
-    <div className="grid grid-cols-2 gap-5 h-[calc(100vh_-_120px)]">
-      <div className="bg-white rounded-xl h-full">
-        <div className="mb-3 text-5xl p-5 text-center ">
+    <div className="grid grid-cols-2 gap-5 h-[calc(100vh_-_120px)]" data-testid="payment-receiving">
+      <div className="bg-white rounded-xl h-full" data-testid="payment-tender-panel">
+        <div className="mb-3 text-5xl p-5 text-center " data-testid="payment-tendered">
           {withCurrency(tendered)}
         </div>
-        <div className={
+        <div
+          data-testid="payment-change-due"
+          className={
           cn(
             "mb-3 text-3xl p-5 text-center",
             changeDue < 0 && 'text-danger-700',
@@ -513,9 +515,10 @@ const OrderPaymentReceivingContent = ({
           {changeDue < 0 ? t('receiving.remaining') : t('receiving.change')}: <span className="">{withCurrency(changeDue)}</span>
         </div>
         <div className="relative">
-          <ScrollContainer className="gap-3 flex overflow-x-auto mb-5">
+          <ScrollContainer className="gap-3 flex overflow-x-auto mb-5" data-testid="payment-quick-amounts">
           <span
             className="btn btn-primary w-[100px] lg"
+            data-testid="payment-quick-exact"
             onClick={() => {
               if (!paymentTypes || paymentTypes.length === 0) {
                 return;
@@ -545,12 +548,13 @@ const OrderPaymentReceivingContent = ({
           {/*{!isCash && <div className="payment-disabled absolute w-full z-10 top-0 bg-neutral-100/50 h-[48px]"></div>}*/}
         </div>
 
-        <ScrollContainer className="gap-5 flex overflow-x-auto mb-5">
+        <ScrollContainer className="gap-5 flex overflow-x-auto mb-5" data-testid="payment-types">
           {paymentTypes?.map(item => (
             <Button
               className="min-w-[150px]"
               variant="primary"
               key={item.id}
+              data-testid="payment-type"
               onClick={() => {
                 const payable = applyPaymentTypeTaxAndDiscount(item);
 
@@ -572,13 +576,13 @@ const OrderPaymentReceivingContent = ({
           ))}
         </ScrollContainer>
 
-        <div className="flex justify-center items-center mb-3 text-xl h-[28px]">
+        <div className="flex justify-center items-center mb-3 text-xl h-[28px]" data-testid="payment-amount-entry">
           {selectedAmount.trim().length > 0 && selectedAmount}
         </div>
 
         <div className="flex">
           <div className="flex-1">
-            <div className="grid grid-cols-3 gap-3 mb-3">
+            <div className="grid grid-cols-3 gap-3 mb-3" data-testid="payment-keypad">
               {keyboardKeys.map(item => (
                 <Button key={item} size="xl" flat variant="primary" onClick={() => {
                   if (mode === 'button') {
@@ -600,7 +604,7 @@ const OrderPaymentReceivingContent = ({
                 C
               </Button>
             </div>
-            <div className="flex gap-5">
+            <div className="flex gap-5" data-testid="payment-finish-actions">
               <span title={tempPrinted ? t('receiving.tempAlreadyPrinted') : undefined} className="flex-1 flex">
                 <Button
                   variant={tempPrinted ? "warning" : "primary"}
@@ -608,6 +612,7 @@ const OrderPaymentReceivingContent = ({
                   flat
                   icon={faPrint}
                   size="lg"
+                  data-testid="payment-temp-bill"
                   onClick={() => {
                     void requestBillPrint({
                       db,
@@ -632,6 +637,7 @@ const OrderPaymentReceivingContent = ({
                 className="flex-1"
                 filled
                 size="lg"
+                data-testid="payment-complete"
                 onClick={async () => {
                   await protectAction(async () => await closeOrder(), {
                     module: 'orders.complete',
@@ -648,12 +654,13 @@ const OrderPaymentReceivingContent = ({
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-2 p-3 bg-white rounded-xl h-full">
+      <div className="flex flex-col gap-2 p-3 bg-white rounded-xl h-full" data-testid="payment-lines">
         <RemotePaymentPendingSlot/>
         {payments.map(payment => (
           <div
             className="flex justify-between text-lg cursor-pointer"
             key={payment.id}
+            data-testid="payment-line"
             onClick={() => {
               setPayments(prev => prev.filter(item => item.id !== payment.id))
             }}

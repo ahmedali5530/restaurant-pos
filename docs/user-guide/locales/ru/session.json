@@ -1,0 +1,75 @@
+{
+  "title": "Блокировка, выход и часы",
+  "intro": "Низ боковой панели: блокировка, выход, часы и Настройки. Idle — в безопасности сессии.",
+  "sections": [
+    {
+      "id": "controls",
+      "title": "Управление сессией",
+      "steps": [
+        "Ключ: Настройки.",
+        "Пользователь: Часы.",
+        "Замок: блокировка.",
+        "Питание: выход."
+      ],
+      "image": "session-sidebar-controls.png",
+      "caption": "Settings, clock, lock, and logout on the sidebar."
+    },
+    {
+      "id": "lock",
+      "title": "Заблокировать терминал",
+      "steps": [
+        "Нажмите Блокировать.",
+        "Баннер блокировки.",
+        "Разблокируйте тем же PIN/паролем."
+      ],
+      "image": "session-locked.png",
+      "caption": "System locked banner on login.",
+      "intro": "Короткий перерыв; только тот же пользователь."
+    },
+    {
+      "id": "clock",
+      "title": "Экран часов",
+      "steps": [
+        "Откройте Часы.",
+        "Нужен открытый вход.",
+        "Проверьте продажи и время."
+      ],
+      "image": "session-clock.png",
+      "caption": "Clock screen overview.",
+      "intro": "Отметка, смена, время и метрики."
+    },
+    {
+      "id": "clock-detail",
+      "title": "Пользователь, смена и выход",
+      "steps": [
+        "Пользователь и смена.",
+        "Прошедшее время.",
+        "Выход в конце смены."
+      ],
+      "image": "session-clock-detail.png",
+      "caption": "Session panel with Clock Out."
+    },
+    {
+      "id": "clock-sales",
+      "title": "Сводка продаж сессии",
+      "steps": [
+        "Метрики сессии.",
+        "Перед выходом проверьте."
+      ],
+      "image": "session-clock-sales.png",
+      "caption": "Sale summary metrics."
+    },
+    {
+      "id": "idle",
+      "title": "Блокировка или выход по бездействию",
+      "steps": [
+        "Настройки → Безопасность сессии.",
+        "Минуты простоя и действие.",
+        "Сохранить."
+      ],
+      "image": "session-idle-settings.png",
+      "caption": "Session security card.",
+      "intro": "Настройки → Безопасность сессии."
+    }
+  ]
+}

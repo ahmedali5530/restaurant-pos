@@ -181,6 +181,8 @@ export const FloorTable = ({
     <div
       {...moveProps}
       tabIndex={0}
+      data-testid="floor-table"
+      data-table-name={`${table.name ?? ''}${table.number ?? ''}`}
       style={{
         background: settings.background,
         color: settings.color,

@@ -106,6 +106,14 @@ export const Sidebar = () => {
           <div className="p-2 flex flex-col">
             {sidebarItems.map(item => (
               <button
+                type="button"
+                data-testid={
+                  item.link === MENU
+                    ? 'nav-menu'
+                    : item.link === ORDERS
+                      ? 'nav-orders'
+                      : undefined
+                }
                 onClick={() => {
                   protectedNavigate(item.link, item.role);
                 }}
@@ -128,6 +136,8 @@ export const Sidebar = () => {
       <div className="flex flex-col gap-2 w-full p-2">
         <div className="input-group">
           <button
+            type="button"
+            data-testid="nav-settings"
             onClick={() => protectedNavigate(SETTINGS, 'settings')}
             className={cn(
               'btn btn-primary lg flex-1',
@@ -142,6 +152,7 @@ export const Sidebar = () => {
           </button>
           <NavLink
             to={CLOCK}
+            data-testid="nav-clock"
             className={cn(
               'btn btn-primary lg flex-1',
               pathInfo === CLOCK ? 'active' : ''
@@ -154,10 +165,24 @@ export const Sidebar = () => {
           </NavLink>
         </div>
         <div className="input-group">
-          <IconTooltipButton label={t('common:actions.lock')} className="flex-1" variant="primary" onClick={lock} size="lg">
+          <IconTooltipButton
+            label={t('common:actions.lock')}
+            className="flex-1"
+            variant="primary"
+            onClick={lock}
+            size="lg"
+            data-testid="nav-lock"
+          >
             <FontAwesomeIcon icon={faLock} />
           </IconTooltipButton>
-          <IconTooltipButton label={t('common:actions.logout')} className="flex-1" variant="danger" onClick={logout} size="lg">
+          <IconTooltipButton
+            label={t('common:actions.logout')}
+            className="flex-1"
+            variant="danger"
+            onClick={logout}
+            size="lg"
+            data-testid="nav-logout"
+          >
             <FontAwesomeIcon icon={faPowerOff} />
           </IconTooltipButton>
         </div>

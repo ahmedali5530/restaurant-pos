@@ -1,0 +1,86 @@
+{
+  "title": "Commandes",
+  "intro": "L’écran Commandes liste les additions ouvertes et récentes pour payer, imprimer, scinder, fusionner, annuler ou rembourser.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Disposition des commandes",
+      "steps": [
+        "Ouvrez Commandes.",
+        "Filtrez par statut, type, étage, utilisateur, date.",
+        "Basculz Blocs / Tableau."
+      ],
+      "image": "orders-overview.png",
+      "caption": "Orders screen with filters and cards.",
+      "intro": "Ouvrez Commandes dans la barre. Filtres en haut ; cartes ou lignes."
+    },
+    {
+      "id": "filters",
+      "title": "Filtres",
+      "steps": [
+        "Statut : En cours, Payé, Annulé, Scindé, Fusionné.",
+        "Type, étage et utilisateur.",
+        "Date pour le jour ; En cours peut rester visible."
+      ],
+      "image": "orders-filters.png",
+      "caption": "Orders filter bar."
+    },
+    {
+      "id": "toolbar",
+      "title": "Barre d’outils",
+      "steps": [
+        "Ouvrir caisse (PIN possible).",
+        "Blocs = cartes.",
+        "Tableau = liste."
+      ],
+      "image": "orders-toolbar.png",
+      "caption": "Cash drawer and view toggles."
+    },
+    {
+      "id": "card",
+      "title": "Carte commande",
+      "steps": [
+        "Vérifiez facture, table, statut et articles.",
+        "Addition temp et Payer en cours.",
+        "⋯ annuler, scinder, fusionner, KOT."
+      ],
+      "image": "orders-card.png",
+      "caption": "Order card with items and actions.",
+      "intro": "En-tête, horaires, lignes, totaux et actions."
+    },
+    {
+      "id": "card-actions",
+      "title": "Actions de carte",
+      "steps": [
+        "Temp imprime provisoire.",
+        "Payer ouvre le paiement.",
+        "⋯ plus d’actions."
+      ],
+      "image": "orders-card-actions.png",
+      "caption": "Print, Pay, and more on a card."
+    },
+    {
+      "id": "menu",
+      "title": "Menu ⋯ (En cours)",
+      "steps": [
+        "Annuler.",
+        "Scinder sièges/articles/montant.",
+        "Fusionner.",
+        "Imprimer copie KOT."
+      ],
+      "image": "orders-card-menu.png",
+      "caption": "Order more-actions menu.",
+      "intro": "Les actions protégées peuvent demander un PIN."
+    },
+    {
+      "id": "table-view",
+      "title": "Vue tableau",
+      "steps": [
+        "Vue tableau.",
+        "Toucher En cours pour payer."
+      ],
+      "image": "orders-table-view.png",
+      "caption": "Orders table view."
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "title": "Ordini",
+  "intro": "La schermata Ordini elenca conti aperti e recenti per pagare, stampare, dividere, unire, annullare o rimborsare.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Layout ordini",
+      "steps": [
+        "Apri Ordini.",
+        "Filtra per stato, tipo, piano, utente, data.",
+        "Blocchi o Tabella."
+      ],
+      "image": "orders-overview.png",
+      "caption": "Orders screen with filters and cards.",
+      "intro": "Apri Ordini dalla sidebar. Filtri in alto; card o righe."
+    },
+    {
+      "id": "filters",
+      "title": "Filtri",
+      "steps": [
+        "Stato: In corso, Pagato, Annullato, Diviso, Unito.",
+        "Tipo, piano e utente.",
+        "Data del giorno; In corso può restare."
+      ],
+      "image": "orders-filters.png",
+      "caption": "Orders filter bar."
+    },
+    {
+      "id": "toolbar",
+      "title": "Barra strumenti",
+      "steps": [
+        "Apri cassetto (PIN possibile).",
+        "Blocchi = card.",
+        "Tabella = lista."
+      ],
+      "image": "orders-toolbar.png",
+      "caption": "Cash drawer and view toggles."
+    },
+    {
+      "id": "card",
+      "title": "Card ordine",
+      "steps": [
+        "Controlla fattura, tavolo, stato e voci.",
+        "Conto temp e Paga se In corso.",
+        "⋯ annulla, dividi, unisci, KOT."
+      ],
+      "image": "orders-card.png",
+      "caption": "Order card with items and actions.",
+      "intro": "Intestazione, tempi, righe, totali e azioni."
+    },
+    {
+      "id": "card-actions",
+      "title": "Azioni card",
+      "steps": [
+        "Temp stampa provvisorio.",
+        "Paga apre pagamento.",
+        "⋯ altre azioni."
+      ],
+      "image": "orders-card-actions.png",
+      "caption": "Print, Pay, and more on a card."
+    },
+    {
+      "id": "menu",
+      "title": "Menu ⋯ (In corso)",
+      "steps": [
+        "Annulla.",
+        "Dividi posti/voci/importo.",
+        "Unisci.",
+        "Stampa copia KOT."
+      ],
+      "image": "orders-card-menu.png",
+      "caption": "Order more-actions menu.",
+      "intro": "Azioni protette possono richiedere PIN."
+    },
+    {
+      "id": "table-view",
+      "title": "Vista tabella",
+      "steps": [
+        "Vista tabella.",
+        "Tocca In corso per pagare."
+      ],
+      "image": "orders-table-view.png",
+      "caption": "Orders table view."
+    }
+  ]
+}
