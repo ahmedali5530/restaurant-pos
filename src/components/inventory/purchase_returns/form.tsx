@@ -26,8 +26,8 @@ import {fetchNextSequentialNumber, isUniqueRecordNumber} from "@/utils/recordNum
 import {fetchNetQuantity} from "@/utils/inventory.ts";
 import {DatePicker} from "@/components/common/antd/datepicker.tsx";
 import {DateValue} from "react-aria-components";
-import {dateToCalendarDate, calendarDateToDate, getToday} from "@/utils/date.ts";
-import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
+import {dateToCalendarDate, getToday} from "@/utils/date.ts";
+import { documentCreatedAtFromDateValue, toJsDate } from "@/lib/datetime.ts";
 import {InventoryFormPricedLineTotal} from "@/components/inventory/common/form.line.total.tsx";
 import { useInventoryLocations } from "@/hooks/useInventoryLocations.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
@@ -352,7 +352,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
         purchase: values.purchase ? toRecordId(values.purchase.value) : undefined,
         documents: documentRefs.length > 0 ? documentRefs : undefined,
         items: [],
-        created_at: values.date ? toSurrealDateTime(calendarDateToDate(values.date) || undefined) : nowSurrealDateTime(),
+        created_at: documentCreatedAtFromDateValue(values.date ?? null),
         created_by: toRecordId(state.user.id),
         status: data?.id
           ? (data.status && data.status !== "posted" ? data.status : "draft")

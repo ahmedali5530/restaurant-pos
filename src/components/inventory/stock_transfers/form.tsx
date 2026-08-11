@@ -21,8 +21,8 @@ import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
 import {DatePicker} from "@/components/common/antd/datepicker.tsx";
 import {DateValue} from "react-aria-components";
-import {dateToCalendarDate, calendarDateToDate, getToday} from "@/utils/date.ts";
-import {toJsDate} from "@/lib/datetime.ts";
+import {dateToCalendarDate, getToday} from "@/utils/date.ts";
+import {documentCreatedAtFromDateValue, toJsDate} from "@/lib/datetime.ts";
 import {
   createStockTransfer,
   updateStockTransfer,
@@ -287,7 +287,9 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
         type: "location" as const,
         fromLocationId: values.fromLocation?.value,
         toLocationId: values.toLocation?.value,
-        createdAt: calendarDateToDate(values.date) ?? undefined,
+        createdAt: values.date
+          ? toJsDate(documentCreatedAtFromDateValue(values.date))
+          : undefined,
         notes: values.notes,
         items: values.items.map((line) => ({
           itemId: line.item!.value,

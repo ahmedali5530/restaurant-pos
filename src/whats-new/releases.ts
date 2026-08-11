@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-08-11',
+    title: 'Dish recipe costs and inventory dates',
+    items: [
+      'Dish recipe lines auto-fill unit cost when selecting an inventory item, show UOM, and display a quantity × unit cost total.',
+      'Inventory document created_at uses the app timezone (and wall-clock time when the document date is today), so dates no longer appear one day earlier than posted_at.',
+    ],
+  },
+  {
     date: '2026-08-09',
     title: 'Payment type discounts in one place',
     items: [

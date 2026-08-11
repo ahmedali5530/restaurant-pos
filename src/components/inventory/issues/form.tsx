@@ -25,9 +25,9 @@ import {useAtom} from "jotai";
 import {fetchNextSequentialNumber, isUniqueRecordNumber} from "@/utils/recordNumbers.ts";
 import {DatePicker} from "@/components/common/antd/datepicker.tsx";
 import {DateValue} from "react-aria-components";
-import {dateToCalendarDate, calendarDateToDate, getToday} from "@/utils/date.ts";
+import {dateToCalendarDate, getToday} from "@/utils/date.ts";
 import {Switch} from "@/components/common/input/switch.tsx";
-import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
+import { documentCreatedAtFromDateValue, toJsDate } from "@/lib/datetime.ts";
 import {fetchNetQuantity} from "@/utils/inventory.ts";
 import {syncDishRecipeCostsForItems} from "@/lib/inventory/dish.recipe.cost.ts";
 import {InventoryFormLineTotal} from "@/components/inventory/common/form.line.total.tsx";
@@ -482,7 +482,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
       };
 
       if (!data?.id) {
-        payload.created_at = values.date ? toSurrealDateTime(calendarDateToDate(values.date) || undefined) : nowSurrealDateTime();
+        payload.created_at = documentCreatedAtFromDateValue(values.date ?? null);
         if (state?.user?.id) {
           payload.created_by = toRecordId(state.user.id);
         }

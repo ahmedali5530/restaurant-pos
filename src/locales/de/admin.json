@@ -327,7 +327,12 @@
     "reset": "Zurücksetzen",
     "importDishesTitle": "Gerichte per CSV importieren",
     "importIngredientsTitle": "Gerichtszutaten per CSV importieren",
-    "importModifierGroupsTitle": "Modifier-Gruppen für Gerichte per CSV importieren"
+    "importModifierGroupsTitle": "Modifier-Gruppen für Gerichte per CSV importieren",
+    "inventoryItem": "Lagerartikel",
+    "uom": "ME",
+    "unitCost": "Stückkosten",
+    "lineTotal": "Gesamt",
+    "priceLocked": "Preis gesperrt"
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",

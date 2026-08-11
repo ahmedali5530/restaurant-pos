@@ -30,7 +30,7 @@ import {DatePicker} from "@/components/common/antd/datepicker.tsx";
 import {DateValue} from "react-aria-components";
 import {calendarDateToDate, dateToCalendarDate, getToday} from "@/utils/date.ts";
 import {Switch} from "@/components/common/input/switch.tsx";
-import {nowSurrealDateTime, toJsDate, toSurrealDateTime} from "@/lib/datetime.ts";
+import {documentCreatedAtFromDateValue, toJsDate} from "@/lib/datetime.ts";
 import {withCurrency} from "@/lib/utils.ts";
 import {computePurchaseTotals} from "@/lib/inventory/purchase.totals.ts";
 import {InventoryFormLineTotal} from "@/components/inventory/common/form.line.total.tsx";
@@ -572,7 +572,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
         tax_amount: totals.taxAmount,
         extras: extrasPayload.length > 0 ? extrasPayload : null,
         items: [],
-        created_at: values.date ? toSurrealDateTime(calendarDateToDate(values.date) || undefined) : nowSurrealDateTime(),
+        created_at: documentCreatedAtFromDateValue(values.date ?? null),
         created_by: toRecordId(state.user.id),
         // New docs start as draft; edits of draft/approved keep current status
         status: data?.id ? (data.status && data.status !== "posted" ? data.status : "draft") : "draft",

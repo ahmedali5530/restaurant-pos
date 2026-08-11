@@ -327,7 +327,12 @@
     "reset": "Sıfırla",
     "importDishesTitle": "CSV ile yemekleri içe aktar",
     "importIngredientsTitle": "CSV ile yemek malzemelerini içe aktar",
-    "importModifierGroupsTitle": "CSV ile yemek modifikatör gruplarını içe aktar"
+    "importModifierGroupsTitle": "CSV ile yemek modifikatör gruplarını içe aktar",
+    "inventoryItem": "Stok kalemi",
+    "uom": "Birim",
+    "unitCost": "Birim maliyet",
+    "lineTotal": "Toplam",
+    "priceLocked": "Fiyat kilitli"
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",

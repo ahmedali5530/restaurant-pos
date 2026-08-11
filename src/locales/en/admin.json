@@ -347,7 +347,12 @@
     "showCategoryInMenu": "Show this category in menu",
     "importDishesTitle": "Import dishes from CSV",
     "importIngredientsTitle": "Import dish ingredients from CSV",
-    "importModifierGroupsTitle": "Import dish modifier groups from CSV"
+    "importModifierGroupsTitle": "Import dish modifier groups from CSV",
+    "inventoryItem": "Inventory item",
+    "uom": "UOM",
+    "unitCost": "Unit cost",
+    "lineTotal": "Total",
+    "priceLocked": "Price locked"
   },
   "dishView": {
     "detailsTitle": "Dish details",

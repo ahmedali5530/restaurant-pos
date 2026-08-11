@@ -327,7 +327,12 @@
     "reset": "Reset",
     "importDishesTitle": "Gerechten importeren via CSV",
     "importIngredientsTitle": "Gerechtingrediënten importeren via CSV",
-    "importModifierGroupsTitle": "Modifiergroepen van gerechten importeren via CSV"
+    "importModifierGroupsTitle": "Modifiergroepen van gerechten importeren via CSV",
+    "inventoryItem": "Voorraadartikel",
+    "uom": "Eenh.",
+    "unitCost": "Eenheidsprijs",
+    "lineTotal": "Totaal",
+    "priceLocked": "Prijs vergrendeld"
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",

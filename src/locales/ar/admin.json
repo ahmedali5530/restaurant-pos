@@ -327,7 +327,12 @@
     "reset": "إعادة",
     "importDishesTitle": "استيراد الأطباق من CSV",
     "importIngredientsTitle": "استيراد مكونات الأطباق من CSV",
-    "importModifierGroupsTitle": "استيراد مجموعات معدّلات الأطباق من CSV"
+    "importModifierGroupsTitle": "استيراد مجموعات معدّلات الأطباق من CSV",
+    "inventoryItem": "صنف المخزون",
+    "uom": "وحدة القياس",
+    "unitCost": "تكلفة الوحدة",
+    "lineTotal": "الإجمالي",
+    "priceLocked": "السعر مقفل"
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",

@@ -327,7 +327,12 @@
     "reset": "Restablecer",
     "importDishesTitle": "Importar platos desde CSV",
     "importIngredientsTitle": "Importar ingredientes de platos desde CSV",
-    "importModifierGroupsTitle": "Importar grupos de modificadores de platos desde CSV"
+    "importModifierGroupsTitle": "Importar grupos de modificadores de platos desde CSV",
+    "inventoryItem": "Artículo de inventario",
+    "uom": "UdM",
+    "unitCost": "Costo unitario",
+    "lineTotal": "Total",
+    "priceLocked": "Precio bloqueado"
   },
   "dishView": {
     "detailsTitle": "Detalles del plato",

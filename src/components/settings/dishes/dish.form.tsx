@@ -31,6 +31,16 @@ import {Workflow} from "@/api/model/workflow.ts";
 import {Kitchen} from "@/api/model/kitchen.ts";
 import {WorkflowForm} from "@/components/settings/workflows/workflow.form.tsx";
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
+import { withCurrency } from "@/lib/utils.ts";
+
+const inventoryItemOptionLabel = (item: InventoryItem) =>
+  item.uom ? `${item.name} (${item.uom})` : item.name;
+
+const inventoryItemUnitCost = (item: InventoryItem) =>
+  Number(item.price ?? item.average_price ?? 0) || 0;
+
+const findInventoryItem = (items: InventoryItem[] | undefined, id?: string | null) =>
+  items?.find((i) => String(i.id) === String(id));
 
 interface Props {
   open: boolean
@@ -823,25 +833,30 @@ export const DishForm = ({
               </div>
 
               {recipeFields.map((item, index) => {
-                const currentItemValue = watch(`recipes.${index}.item`)?.value;
+                const selectedItemId = watch(`recipes.${index}.item`)?.value;
+                const selectedInvItem = findInventoryItem(inventoryItems?.data, selectedItemId);
+                const rowQuantity = parseFloat(String(watch(`recipes.${index}.quantity`) ?? 0)) || 0;
+                const rowCost = parseFloat(String(watch(`recipes.${index}.cost`) ?? 0)) || 0;
+                const rowTotal = rowQuantity * rowCost;
                 const availableOptions = inventoryItems?.data
                   ?.filter(invItem => canUseInDishRecipe(invItem))
                   ?.filter(invItem => {
                     // Filter out items that are already selected in other recipe fields
                     const allSelectedItems = watch('recipes')
                       ?.map((r: any, idx: number) => idx !== index ? r?.item?.value : null)
-                      .filter(Boolean);
-                    return !allSelectedItems?.includes(invItem.id);
+                      .filter(Boolean)
+                      .map((id: any) => String(id));
+                    return !allSelectedItems?.includes(String(invItem.id));
                   })
                   ?.map(invItem => ({
-                    label: invItem.name,
+                    label: inventoryItemOptionLabel(invItem),
                     value: invItem.id.toString()
                   })) || [];
 
                 return (
                   <div className="flex gap-3 mb-3" key={item.id}>
-                    <div className="flex-1">
-                      <label htmlFor="recipe-item">Inventory Item</label>
+                    <div className="flex-[2]">
+                      <label htmlFor="recipe-item">{t('forms.inventoryItem')}</label>
                       <Controller
                         name={`recipes.${index}.item`}
                         control={control}
@@ -851,10 +866,10 @@ export const DishForm = ({
                             onChange={(selected) => {
                               field.onChange(selected);
                               // Auto-fill cost from inventory item if available
-                              if (selected && inventoryItems?.data) {
-                                const invItem = inventoryItems.data.find(i => i.id === selected.value);
+                              if (selected) {
+                                const invItem = findInventoryItem(inventoryItems?.data, selected.value);
                                 if (invItem) {
-                                  setValue(`recipes.${index}.cost`, invItem.price || 0);
+                                  setValue(`recipes.${index}.cost`, inventoryItemUnitCost(invItem));
                                 }
                               }
                             }}
@@ -864,6 +879,15 @@ export const DishForm = ({
                         )}
                       />
                       <InputError error={_.get(errors, ['recipes', index, 'item', 'message'])}/>
+                    </div>
+                    <div className="w-20">
+                      <Input
+                        type="text"
+                        value={selectedInvItem?.uom ?? ''}
+                        label={t('forms.uom')}
+                        readOnly
+                        disabled
+                      />
                     </div>
                     <div className="flex-1">
                       <Controller
@@ -889,10 +913,19 @@ export const DishForm = ({
                             type="number"
                             value={field.value}
                             onChange={field.onChange}
-                            label={t('forms.cost')}
+                            label={t('forms.unitCost')}
                             error={_.get(errors, ['recipes', index, 'cost', 'message'])}
                           />
                         )}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Input
+                        type="text"
+                        value={withCurrency(rowTotal)}
+                        label={t('forms.lineTotal')}
+                        readOnly
+                        disabled
                       />
                     </div>
                     <div className="flex-1 self-end">
@@ -901,7 +934,7 @@ export const DishForm = ({
                         control={control}
                         render={({field}) => (
                           <Switch checked={field.value} onChange={field.onChange}>
-                            Price locked
+                            {t('forms.priceLocked')}
                           </Switch>
                         )}
                       />

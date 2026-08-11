@@ -28,6 +28,16 @@ import {canUseInDishRecipe} from "@/utils/inventoryItemTypes.ts";
 import {StringRecordId, type RecordId} from "surrealdb";
 import React, {useEffect, useState} from "react";
 import {formatFileSize, MAX_UPLOAD_BYTES} from "@/utils/files";
+import {withCurrency} from "@/lib/utils.ts";
+
+const inventoryItemOptionLabel = (item: InventoryItem) =>
+  item.uom ? `${item.name} (${item.uom})` : item.name;
+
+const inventoryItemUnitCost = (item: InventoryItem) =>
+  Number(item.price ?? item.average_price ?? 0) || 0;
+
+const findInventoryItem = (items: InventoryItem[] | undefined, id?: string | null) =>
+  items?.find((i) => String(i.id) === String(id));
 
 interface Props {
   open: boolean
@@ -118,7 +128,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
     onClose();
   };
 
-  const {control, handleSubmit, formState: {errors}, reset, watch} = useForm({
+  const {control, handleSubmit, formState: {errors}, reset, watch, setValue} = useForm({
     resolver: yupResolver(validationSchema),
     // defaultValues
   });
@@ -644,24 +654,37 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
               </div>
 
               {recipeFields.map((item, index) => {
+                const selectedItemId = watch(`recipes.${index}.item`)?.value;
+                const selectedInvItem = findInventoryItem(inventoryItems?.data, selectedItemId);
+                const rowQuantity = parseFloat(String(watch(`recipes.${index}.quantity`) ?? 0)) || 0;
+                const rowCost = parseFloat(String(watch(`recipes.${index}.cost`) ?? 0)) || 0;
+                const rowTotal = rowQuantity * rowCost;
                 const availableOptions = inventoryItems?.data
                   ?.filter((inventoryItem) => canUseInDishRecipe(inventoryItem))
                   ?.map((inventoryItem) => ({
-                  label: inventoryItem.name,
+                  label: inventoryItemOptionLabel(inventoryItem),
                   value: inventoryItem.id.toString()
                 })) || [];
 
                 return (
                   <div className="flex gap-3 mb-3" key={item.id}>
-                    <div className="flex-1">
-                      <label>Inventory item</label>
+                    <div className="flex-[2]">
+                      <label>{t('forms.inventoryItem')}</label>
                       <Controller
                         name={`recipes.${index}.item`}
                         control={control}
                         render={({field}) => (
                           <ReactSelect
                             value={field.value}
-                            onChange={field.onChange}
+                            onChange={(selected) => {
+                              field.onChange(selected);
+                              if (selected) {
+                                const invItem = findInventoryItem(inventoryItems?.data, selected.value);
+                                if (invItem) {
+                                  setValue(`recipes.${index}.cost`, inventoryItemUnitCost(invItem));
+                                }
+                              }
+                            }}
                             isLoading={loadingInventoryItems}
                             options={availableOptions}
                             isDisabled={!replaceRecipes}
@@ -669,6 +692,15 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                         )}
                       />
                       <InputError error={_.get(errors, ["recipes", index, "item", "message"])}/>
+                    </div>
+                    <div className="w-20">
+                      <Input
+                        type="text"
+                        value={selectedInvItem?.uom ?? ''}
+                        label={t('forms.uom')}
+                        readOnly
+                        disabled
+                      />
                     </div>
                     <div className="flex-1">
                       <Controller
@@ -695,11 +727,20 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                             type="number"
                             value={field.value}
                             onChange={field.onChange}
-                            label={t('forms.cost')}
+                            label={t('forms.unitCost')}
                             disabled={!replaceRecipes}
                             error={_.get(errors, ["recipes", index, "cost", "message"])}
                           />
                         )}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Input
+                        type="text"
+                        value={withCurrency(rowTotal)}
+                        label={t('forms.lineTotal')}
+                        readOnly
+                        disabled
                       />
                     </div>
                     <div className="flex-1 self-end">
@@ -708,7 +749,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                         control={control}
                         render={({field}) => (
                           <Switch checked={field.value} onChange={field.onChange} disabled={!replaceRecipes}>
-                            Price locked
+                            {t('forms.priceLocked')}
                           </Switch>
                         )}
                       />

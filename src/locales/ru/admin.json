@@ -327,7 +327,12 @@
     "reset": "Сбросить",
     "importDishesTitle": "Импорт блюд из CSV",
     "importIngredientsTitle": "Импорт ингредиентов блюд из CSV",
-    "importModifierGroupsTitle": "Импорт групп модификаторов блюд из CSV"
+    "importModifierGroupsTitle": "Импорт групп модификаторов блюд из CSV",
+    "inventoryItem": "Товар склада",
+    "uom": "Ед. изм.",
+    "unitCost": "Цена за единицу",
+    "lineTotal": "Итого",
+    "priceLocked": "Цена заблокирована"
   },
   "dishView": {
     "detailsTitle": "Детали блюда",

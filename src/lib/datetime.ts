@@ -216,3 +216,34 @@ export const toJsDate = (value?: DateInput): Date => {
 
 export const formatDateTime = (value?: DateInput): string =>
   toLuxonDateTime(value).toFormat(import.meta.env.VITE_DATE_TIME_FORMAT as string);
+
+/** Start of a calendar day in the app timezone. */
+export const calendarDateToAppDateTime = (dateValue: {
+  year: number;
+  month: number;
+  day: number;
+}): LuxonDateTime => {
+  return LuxonDateTime.fromObject(
+    { year: dateValue.year, month: dateValue.month, day: dateValue.day },
+    { zone: getAppTimezone() }
+  ).startOf("day");
+};
+
+/**
+ * Inventory document created_at: wall-clock now when the selected day is today
+ * in app TZ; otherwise start of the selected day in app TZ.
+ */
+export const documentCreatedAtFromDateValue = (
+  dateValue?: { year: number; month: number; day: number } | null
+): SurrealDateTime => {
+  if (!dateValue) {
+    return nowSurrealDateTime();
+  }
+
+  const selected = `${dateValue.year}-${String(dateValue.month).padStart(2, "0")}-${String(dateValue.day).padStart(2, "0")}`;
+  if (selected === toAppBusinessDate()) {
+    return nowSurrealDateTime();
+  }
+
+  return toSurrealDateTime(calendarDateToAppDateTime(dateValue));
+};

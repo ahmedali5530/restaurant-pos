@@ -24,8 +24,8 @@ import {appPage} from "@/store/jotai.ts";
 import {fetchNextSequentialNumber, isUniqueRecordNumber} from "@/utils/recordNumbers.ts";
 import {DatePicker} from "@/components/common/antd/datepicker.tsx";
 import {DateValue} from "react-aria-components";
-import {dateToCalendarDate, calendarDateToDate, getToday} from "@/utils/date.ts";
-import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
+import {dateToCalendarDate, getToday} from "@/utils/date.ts";
+import { documentCreatedAtFromDateValue, toJsDate } from "@/lib/datetime.ts";
 import {InventoryFormLineTotal} from "@/components/inventory/common/form.line.total.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {getLastPurchasePrice} from "@/lib/inventory/last.purchase.price.ts";
@@ -286,7 +286,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
         po_number: Number(values.po_number),
         supplier: values.supplier ? toRecordId(values.supplier.value) : undefined,
         items: [],
-        created_at: values.date ? toSurrealDateTime(calendarDateToDate(values.date) || undefined) : nowSurrealDateTime(),
+        created_at: documentCreatedAtFromDateValue(values.date ?? null),
         created_by: toRecordId(state.user.id),
         status: PurchaseOrderStatus.draft,
         documents: documentRefs.length > 0 ? documentRefs : undefined,
