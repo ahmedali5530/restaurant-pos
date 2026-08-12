@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import * as yup from "yup";
 import {Controller, useFieldArray, useForm, useWatch} from "react-hook-form";
@@ -14,9 +14,9 @@ import {Button} from "@/components/common/input/button.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {InventoryWaste} from "@/api/model/inventory_waste.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
-import {InventoryPurchase} from "@/api/model/inventory_purchase.ts";
-import {InventoryIssue} from "@/api/model/inventory_issue.ts";
-import {RecordId, StringRecordId} from "surrealdb";
+import {InventoryLocation} from "@/api/model/inventory_location.ts";
+import {InventoryPurchaseItem} from "@/api/model/inventory_purchase.ts";
+import {RecordId} from "surrealdb";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTrash, faPlus} from "@fortawesome/free-solid-svg-icons";
 import _ from "lodash";
@@ -26,21 +26,44 @@ import {fetchNextSequentialNumber, isUniqueRecordNumber} from "@/utils/recordNum
 import {DatePicker} from "@/components/common/antd/datepicker.tsx";
 import {DateValue} from "react-aria-components";
 import {dateToCalendarDate, getToday} from "@/utils/date.ts";
-import { documentCreatedAtFromDateValue, toJsDate } from "@/lib/datetime.ts";
+import { documentCreatedAtFromDateValue, toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
 import {InventoryFormPricedLineTotal} from "@/components/inventory/common/form.line.total.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { useIntegrationManager } from "@/providers/integration.provider.tsx";
 import { publishWasteRecorded } from "@/integrations/accounting/events/publish.ts";
 import { postDocument } from "@/lib/inventory/posting.service.ts";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
+import { useInventoryLocations } from "@/hooks/useInventoryLocations.ts";
+import { useInventorySettings } from "@/hooks/useInventorySettings.ts";
+import { fetchNetQuantity } from "@/utils/inventory.ts";
+import { resolveCatalogUnitCost } from "@/lib/inventory/line.cost.ts";
+import { toRecordId } from "@/lib/utils.ts";
 
-type SourceType = "purchase" | "issue";
+type SelectOption = { label: string; value: string } | null;
+
+interface WasteItemFormValue {
+  item: SelectOption;
+  quantity: number | string;
+  comments?: string;
+  purchase_item_id?: string | null;
+  expiry_date?: string | null;
+}
+
+interface WasteFormValues {
+  invoice_number: number | string;
+  location: SelectOption;
+  date?: DateValue | null;
+  documents?: FileList;
+  items: WasteItemFormValue[];
+}
 
 interface Props {
   open: boolean;
   onClose: () => void;
   data?: InventoryWaste;
 }
+
+const LOT_PREFIX = "lot:";
 
 const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string) => yup.object({
   invoice_number: yup.number().typeError("This should be a number").required("This is required").test(
@@ -69,55 +92,52 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
       return true;
     }
   ),
+  location: yup.object({
+    label: yup.string(),
+    value: yup.string(),
+  }).required("This is required").nullable(),
   date: yup.mixed().nullable().optional(),
   documents: yup.mixed().optional(),
   items: yup.array().of(
     yup.object({
-      source_type: yup.string().oneOf(["purchase", "issue"]).required("Select source type"),
-      source_id: yup.string().required("Select a source"),
       item: yup.object({
         label: yup.string(),
         value: yup.string()
       }).required("This is required").nullable(),
-      quantity: yup.number().typeError("This should be a number").required("This is required"),
+      quantity: yup.number().typeError("This should be a number").required("This is required").moreThan(0, "Quantity must be greater than 0"),
       comments: yup.string().nullable().optional(),
       purchase_item_id: yup.string().nullable().optional(),
-      issue_item_id: yup.string().nullable().optional(),
+      expiry_date: yup.string().nullable().optional(),
     })
   ).min(1, "Add at least one item"),
 }).required();
 
+const toIdString = (value?: string | { toString(): string }) => {
+  if (!value) return "";
+  return typeof value === "string" ? value : value.toString();
+};
+
 export const InventoryWasteForm = ({open, onClose, data}: Props) => {
-  const { t } = useTranslation(['inventory', 'common']);
+  const { t } = useTranslation(['inventory', 'common', 'toast']);
   const db = useDB();
   const [state, ] = useAtom(appPage);
   const { manager: integrationManager } = useIntegrationManager();
-  const validationSchema = useMemo(() => createValidationSchema(db, data?.id), [db, data?.id]);
+  const { settings } = useInventorySettings();
+  const validationSchema = useMemo(() => createValidationSchema(db, data?.id), [data?.id]);
   const resolver = useMemo(() => yupResolver(validationSchema), [validationSchema]);
 
   const {
     data: items,
     fetchData: fetchItems,
     isFetching: loadingItems,
-  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 9999, [], {
+  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 9999, ["locations"], {
     enabled: false
   });
 
   const {
-    data: purchases,
-    fetchData: fetchPurchases,
-    isFetching: loadingPurchases,
-  } = useApi<SettingsData<InventoryPurchase>>(Tables.inventory_purchases, [], [], 0, 9999, ["items", "items.item"], {
-    enabled: false
-  });
-
-  const {
-    data: issues,
-    fetchData: fetchIssues,
-    isFetching: loadingIssues,
-  } = useApi<SettingsData<InventoryIssue>>(Tables.inventory_issues, [], [], 0, 9999, ["items", "items.item"], {
-    enabled: false
-  });
+    options: locationOptions,
+    loading: loadingLocations,
+  } = useInventoryLocations(open);
 
   const {
     control,
@@ -125,71 +145,147 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
     handleSubmit,
     formState: {errors},
     reset,
-    watch,
     setValue,
-  } = useForm({
-    resolver,
+    setError,
+    clearErrors,
+  } = useForm<WasteFormValues>({
+    resolver: resolver as any,
+    defaultValues: {
+      invoice_number: 1,
+      location: null,
+      date: getToday(),
+      documents: undefined,
+      items: [],
+    },
   });
 
-  const {fields, append, remove, replace} = useFieldArray({
+  const {fields, append, remove} = useFieldArray({
     control,
     name: "items"
   });
   const watchedItems = useWatch({control, name: "items"});
+  const watchedLocation = useWatch({control, name: "location"});
+
+  const [rowNetQuantities, setRowNetQuantities] = useState<Record<number, number | undefined>>({});
+  const netQuantityCacheRef = useRef<Record<string, number>>({});
+  const [expiredLots, setExpiredLots] = useState<InventoryPurchaseItem[]>([]);
+  const [loadingExpired, setLoadingExpired] = useState(false);
+
+  const itemsList = (items?.data ?? []) as (InventoryItem & { locations?: InventoryLocation[] })[];
+
   const pricedLines = useMemo(
     () =>
-      (watchedItems ?? []).map((line: any) => {
-        let price = 0;
-        if (line.source_type === "purchase" && line.purchase_item_id) {
-          const purchase = purchases?.data?.find((p) => p.id === line.source_id);
-          const purchaseItem = purchase?.items?.find((pi) => pi.id === line.purchase_item_id);
-          price = purchaseItem?.price ?? 0;
-        } else if (line.source_type === "issue" && line.issue_item_id) {
-          const issue = issues?.data?.find((i) => i.id === line.source_id);
-          const issueItem = issue?.items?.find((ii) => ii.id === line.issue_item_id);
-          price = issueItem?.price ?? 0;
-        } else if (data?.items) {
-          const existing = data.items.find(
-            (wi) =>
-              wi.purchase_item?.id === line.purchase_item_id ||
-              wi.issue_item?.id === line.issue_item_id,
-          );
-          price = existing?.price ?? existing?.purchase_item?.price ?? existing?.issue_item?.price ?? 0;
-        }
+      (watchedItems ?? []).map((line) => {
+        const catalogItem = itemsList.find((ci) => String(ci.id) === String(line.item?.value));
+        const expiredLot = line.purchase_item_id
+          ? expiredLots.find((lot) => String(lot.id) === String(line.purchase_item_id))
+          : undefined;
+        const existing = data?.items?.find(
+          (wi) =>
+            String(wi.item?.id) === String(line.item?.value) ||
+            String(wi.purchase_item?.id) === String(line.purchase_item_id)
+        );
+        const price =
+          Number(expiredLot?.price) ||
+          Number(existing?.price) ||
+          resolveCatalogUnitCost(catalogItem) ||
+          Number(catalogItem?.price) ||
+          0;
         return {quantity: line.quantity, price};
       }),
-    [watchedItems, purchases?.data, issues?.data, data?.items],
+    [watchedItems, itemsList, expiredLots, data?.items],
   );
 
   useEffect(() => {
     if (open) {
       fetchItems();
-      fetchPurchases();
-      fetchIssues();
     }
-  }, [open, fetchItems, fetchPurchases, fetchIssues]);
+  }, [open, fetchItems]);
 
   useEffect(() => {
+    if (!open || !settings.enableExpiryTracking || !watchedLocation?.value) {
+      setExpiredLots((prev) => (prev.length === 0 ? prev : []));
+      return;
+    }
+
+    let cancelled = false;
+    setLoadingExpired(true);
+
+    const loadExpired = async () => {
+      try {
+        const today = new Date();
+        today.setHours(23, 59, 59, 999);
+        const [rows] = await db.query(
+          `SELECT * FROM ${Tables.inventory_purchase_items}
+           WHERE location = $location
+             AND expiry_date != NONE
+             AND expiry_date <= $today
+           FETCH item, location`,
+          {
+            location: toRecordId(watchedLocation.value),
+            today,
+          }
+        );
+        if (!cancelled) {
+          setExpiredLots(Array.isArray(rows) ? (rows as InventoryPurchaseItem[]) : []);
+        }
+      } catch (error) {
+        console.error("Failed to load expired purchase lots", error);
+        if (!cancelled) setExpiredLots([]);
+      } finally {
+        if (!cancelled) setLoadingExpired(false);
+      }
+    };
+
+    void loadExpired();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, settings.enableExpiryTracking, watchedLocation?.value]);
+
+  useEffect(() => {
+    if (!open) return;
+
     if (data) {
+      const firstLocation = data.items?.find((item) => item.location || item.purchase_item?.location || item.issue_item?.location);
+      const loc = firstLocation?.location || firstLocation?.purchase_item?.location || firstLocation?.issue_item?.location;
       reset({
         invoice_number: data.invoice_number,
+        location: loc ? {
+          label: loc.name ?? "",
+          value: toIdString(loc.id),
+        } : null,
         date: data.created_at ? dateToCalendarDate(toJsDate(data.created_at)) : getToday(),
         documents: undefined,
         items: data.items?.map(item => ({
-          source_type: data.purchase ? "purchase" : data.issue ? "issue" : "purchase",
-          source_id: data.purchase?.id ?? data.issue?.id ?? "",
           item: item.item ? {
-            label: item.item.name,
-            value: item.item.id
+            label: item.item.code ? `${item.item.name}-${item.item.code}` : item.item.name,
+            value: toIdString(item.item.id),
           } : null,
-          purchase_item_id: item.purchase_item?.id,
-          issue_item_id: item.issue_item?.id,
+          purchase_item_id: item.purchase_item?.id ? toIdString(item.purchase_item.id) : null,
+          expiry_date: (item.purchase_item as any)?.expiry_date
+            ? String((item.purchase_item as any).expiry_date)
+            : null,
           quantity: item.quantity ?? 1,
           comments: item.comments ?? "",
-        }))
+        })) ?? [],
+      });
+    } else {
+      reset({
+        invoice_number: 1,
+        location: null,
+        date: getToday(),
+        documents: undefined,
+        items: [{
+          item: null,
+          quantity: 1,
+          comments: "",
+          purchase_item_id: null,
+          expiry_date: null,
+        }],
       });
     }
-  }, [data, open, reset]);
+  }, [data?.id, open, reset]);
 
   useEffect(() => {
     if (!open || data?.id) {
@@ -212,22 +308,65 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
     return () => {
       isMounted = false;
     };
-  }, [open, data?.id, db, setValue]);
+  }, [open, data?.id, setValue, t]);
+
+  useEffect(() => {
+    const locationId = watchedLocation?.value;
+    if (!locationId) {
+      setRowNetQuantities((prev) => (Object.keys(prev).length === 0 ? prev : {}));
+      return;
+    }
+
+    watchedItems?.forEach((row, index) => {
+      const itemId = row?.item?.value;
+      if (!itemId) {
+        setRowNetQuantities((prev) => {
+          if (prev[index] === undefined) return prev;
+          const next = {...prev};
+          delete next[index];
+          return next;
+        });
+        return;
+      }
+
+      const cacheKey = `${itemId}:${locationId}`;
+      const cached = netQuantityCacheRef.current[cacheKey];
+      if (cached !== undefined) {
+        setRowNetQuantities((prev) => {
+          if (prev[index] === cached) return prev;
+          return {...prev, [index]: cached};
+        });
+        return;
+      }
+
+      void fetchNetQuantity(db, itemId, locationId).then((value) => {
+        netQuantityCacheRef.current[cacheKey] = value;
+        setRowNetQuantities((prev) => {
+          if (prev[index] === value) return prev;
+          return {...prev, [index]: value};
+        });
+      }).catch(() => {
+        netQuantityCacheRef.current[cacheKey] = 0;
+        setRowNetQuantities((prev) => {
+          if (prev[index] === 0) return prev;
+          return {...prev, [index]: 0};
+        });
+      });
+    });
+  }, [watchedLocation?.value, watchedItems]);
 
   const closeModal = () => {
     onClose();
     reset({
       invoice_number: 1,
+      location: null,
       date: getToday(),
       documents: undefined,
       items: []
     });
-  };
-
-  const toRecordId = (value?: string | { toString(): string }) => {
-    if (!value) return undefined;
-    const stringValue = typeof value === "string" ? value : value.toString();
-    return new StringRecordId(stringValue);
+    setRowNetQuantities({});
+    netQuantityCacheRef.current = {};
+    setExpiredLots([]);
   };
 
   const convertFilesToDocuments = async (files: FileList | null | undefined): Promise<RecordId[]> => {
@@ -254,16 +393,69 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
     return documentRefs;
   };
 
-  const onSubmit = async (values: any) => {
+  const validateAvailableStock = useCallback(async (formValues: WasteFormValues) => {
+    let isValid = true;
+    const locationId = formValues.location?.value;
+    if (!locationId) return false;
+
+    for (let index = 0; index < formValues.items.length; index++) {
+      const row = formValues.items[index];
+      const itemId = row.item?.value;
+      if (!itemId) continue;
+
+      const desiredQuantity = Number(row.quantity) || 0;
+      if (desiredQuantity <= 0) continue;
+
+      const cacheKey = `${itemId}:${locationId}`;
+      let available = rowNetQuantities[index] ?? netQuantityCacheRef.current[cacheKey];
+
+      if (available === undefined) {
+        try {
+          available = await fetchNetQuantity(db, itemId, locationId);
+          netQuantityCacheRef.current[cacheKey] = available;
+          setRowNetQuantities((prev) => ({...prev, [index]: available}));
+        } catch {
+          available = 0;
+        }
+      }
+
+      if ((available ?? 0) < desiredQuantity) {
+        setError(`items.${index}.quantity` as const, {
+          type: "manual",
+          message: t("stockTransfer.insufficientStock", {
+            available: available ?? 0,
+            requested: desiredQuantity,
+          }),
+        });
+        isValid = false;
+      } else {
+        clearErrors(`items.${index}.quantity` as const);
+      }
+    }
+
+    return isValid;
+  }, [rowNetQuantities, setError, clearErrors, t]);
+
+  const onSubmit = async (values: WasteFormValues) => {
     try {
-      const purchaseId = values.items?.find((item: any) => item.source_type === "purchase")?.source_id;
-      const issueId = values.items?.find((item: any) => item.source_type === "issue")?.source_id;
+      const hasAvailableStock = await validateAvailableStock(values);
+      if (!hasAvailableStock) {
+        toast.error(t('toast:inventory.itemsExceedQuantity'));
+        return;
+      }
+
+      const locationId = values.location?.value;
+      if (!locationId) {
+        toast.error(t('validation.selectLocation'));
+        return;
+      }
+
       const documentRefs = await convertFilesToDocuments(values.documents);
 
       const payload = {
         invoice_number: Number(values.invoice_number),
-        purchase: purchaseId ? toRecordId(purchaseId) : undefined,
-        issue: issueId ? toRecordId(issueId) : undefined,
+        purchase: undefined,
+        issue: undefined,
         documents: documentRefs.length > 0 ? documentRefs : undefined,
         items: [],
         created_at: documentCreatedAtFromDateValue(values.date ?? null),
@@ -301,31 +493,33 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
 
       const itemsRefs = [];
       await Promise.all(
-        values.items.map(async (item: any) => {
-          const sourcePurchaseItem = item.purchase_item_id
-            ? purchases?.data
-              ?.flatMap((p: any) => p.items ?? [])
-              ?.find((pi: any) => String(pi.id) === String(item.purchase_item_id))
+        values.items.map(async (item) => {
+          const catalogItem = itemsList.find((ci) => String(ci.id) === String(item.item?.value));
+          const expiredLot = item.purchase_item_id
+            ? expiredLots.find((lot) => String(lot.id) === String(item.purchase_item_id))
             : undefined;
-          const sourceIssueItem = item.issue_item_id
-            ? issues?.data
-              ?.flatMap((i: any) => i.items ?? [])
-              ?.find((ii: any) => String(ii.id) === String(item.issue_item_id))
-            : undefined;
-          const snapshotPrice = sourcePurchaseItem?.price ?? sourceIssueItem?.price;
+          const existing = data?.items?.find(
+            (wi) => String(wi.item?.id) === String(item.item?.value)
+          );
+          const snapshotPrice =
+            Number(expiredLot?.price) ||
+            Number(existing?.price) ||
+            resolveCatalogUnitCost(catalogItem) ||
+            Number(catalogItem?.price) ||
+            0;
 
           const [created] = await db.create(Tables.inventory_waste_items, {
             item: item.item ? toRecordId(item.item.value) : undefined,
+            location: toRecordId(locationId),
             purchase_item: item.purchase_item_id ? toRecordId(item.purchase_item_id) : undefined,
-            issue_item: item.issue_item_id ? toRecordId(item.issue_item_id) : undefined,
             quantity: Number(item.quantity),
-            price: snapshotPrice != null ? Number(snapshotPrice) : undefined,
+            price: snapshotPrice > 0 ? snapshotPrice : undefined,
             comments: item.comments?.trim() ? item.comments.trim() : undefined,
-            waste: toRecordId(wasteId)
+            waste: toRecordId(wasteId),
           });
 
           if (created?.id) {
-            itemsRefs.push((created.id));
+            itemsRefs.push(created.id);
           }
         })
       );
@@ -345,19 +539,17 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
 
       const inventoryValue = Number(
         values.items
-          .reduce((sum: number, item: any) => {
+          .reduce((sum, item) => {
             const qty = Number(item.quantity || 0);
-            const sourcePurchaseItem = item.purchase_item_id
-              ? purchases?.data
-                ?.flatMap((p: any) => p.items ?? [])
-                ?.find((pi: any) => String(pi.id) === String(item.purchase_item_id))
+            const catalogItem = itemsList.find((ci) => String(ci.id) === String(item.item?.value));
+            const expiredLot = item.purchase_item_id
+              ? expiredLots.find((lot) => String(lot.id) === String(item.purchase_item_id))
               : undefined;
-            const sourceIssueItem = item.issue_item_id
-              ? issues?.data
-                ?.flatMap((i: any) => i.items ?? [])
-                ?.find((ii: any) => String(ii.id) === String(item.issue_item_id))
-              : undefined;
-            const price = Number(sourcePurchaseItem?.price ?? sourceIssueItem?.price ?? 0);
+            const price =
+              Number(expiredLot?.price) ||
+              resolveCatalogUnitCost(catalogItem) ||
+              Number(catalogItem?.price) ||
+              0;
             return sum + qty * price;
           }, 0)
           .toFixed(2)
@@ -377,34 +569,98 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
     }
   };
 
-  const itemOptions = items?.data?.map(item => ({
-    label: item.name,
-    value: item.id
-  })) ?? [];
+  const getItemOptionsForLocation = useCallback((locationId?: string) => {
+    if (!locationId) {
+      return [];
+    }
+    const filtered = itemsList.filter((item) => {
+      const locs = item.locations;
+      if (!locs?.length) return true;
+      return locs.some((loc) => loc.id.toString() === locationId.toString());
+    });
+    return filtered.map(item => ({
+      label: item.code ? `${item.name}-${item.code}` : item.name,
+      value: toIdString(item.id),
+    }));
+  }, [itemsList]);
 
-  const purchaseOptions = purchases?.data?.map(purchase => ({
-    label: `Invoice #${purchase.invoice_number}`,
-    value: purchase.id
-  })) ?? [];
+  const itemOptions = useMemo(() => {
+    const locationId = watchedLocation?.value;
+    const base = getItemOptionsForLocation(locationId);
+    if (!settings.enableExpiryTracking || expiredLots.length === 0) {
+      return base;
+    }
 
-  const issueOptions = issues?.data?.map(issue => ({
-    label: `Issue #${issue.id}`,
-    value: issue.id
-  })) ?? [];
+    const lotOptions = expiredLots
+      .filter((lot) => lot.item?.id)
+      .map((lot) => {
+        const expiryLabel = lot.expiry_date
+          ? toLuxonDateTime(lot.expiry_date as any).toFormat(import.meta.env.VITE_DATE_FORMAT)
+          : "";
+        const name = lot.item?.code
+          ? `${lot.item.name}-${lot.item.code}`
+          : lot.item?.name ?? String(lot.id);
+        return {
+          label: `${name} (${t("forms.expiredLot", { date: expiryLabel })})`,
+          value: `${LOT_PREFIX}${toIdString(lot.id)}`,
+        };
+      });
 
-  const sourceTypeOptions = [
-    { label: t('sourceType.purchase'), value: "purchase" },
-    { label: t('sourceType.issue'), value: "issue" }
-  ];
+    return [...lotOptions, ...base];
+  }, [getItemOptionsForLocation, watchedLocation?.value, settings.enableExpiryTracking, expiredLots, t]);
+
+  const resolveItemSelection = (option: SelectOption, index: number) => {
+    if (!option?.value) {
+      setValue(`items.${index}.item`, null);
+      setValue(`items.${index}.purchase_item_id`, null);
+      setValue(`items.${index}.expiry_date`, null);
+      return;
+    }
+
+    if (option.value.startsWith(LOT_PREFIX)) {
+      const purchaseItemId = option.value.slice(LOT_PREFIX.length);
+      const lot = expiredLots.find((l) => toIdString(l.id) === purchaseItemId);
+      const itemId = lot?.item?.id ? toIdString(lot.item.id) : "";
+      const itemLabel = lot?.item?.code
+        ? `${lot.item.name}-${lot.item.code}`
+        : lot?.item?.name ?? option.label;
+      setValue(`items.${index}.item`, itemId ? { label: itemLabel, value: itemId } : null);
+      setValue(`items.${index}.purchase_item_id`, purchaseItemId);
+      setValue(
+        `items.${index}.expiry_date`,
+        lot?.expiry_date ? String(lot.expiry_date) : null
+      );
+      return;
+    }
+
+    setValue(`items.${index}.item`, option);
+    setValue(`items.${index}.purchase_item_id`, null);
+    setValue(`items.${index}.expiry_date`, null);
+  };
+
+  const selectedOptionForRow = (index: number): SelectOption => {
+    const row = watchedItems?.[index];
+    if (!row?.item) return null;
+    if (row.purchase_item_id) {
+      const lotValue = `${LOT_PREFIX}${row.purchase_item_id}`;
+      const match = itemOptions.find((opt) => opt.value === lotValue);
+      if (match) return match;
+      return {
+        label: row.item.label,
+        value: lotValue,
+      };
+    }
+    return row.item;
+  };
 
   return (
     <Modal
-      title={data ? `Update waste #${data?.invoice_number}` : "Create new waste"}
+      title={data ? t('forms.updateWaste', { number: data.invoice_number }) : t('forms.createWaste')}
       open={open}
       onClose={closeModal}
       size="xl"
     >
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit as any)}>
         <div className="flex flex-col gap-3 mb-3">
           <div className="flex gap-3">
             <div className="flex-1">
@@ -421,6 +677,32 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                   />
                 )}
               />
+            </div>
+            <div className="flex-1">
+              <label>{t('columns.location')}</label>
+              <Controller
+                name="location"
+                control={control}
+                render={({field}) => (
+                  <ReactSelect
+                    value={field.value}
+                    onChange={(option) => {
+                      field.onChange(option);
+                      (watchedItems ?? []).forEach((_, index) => {
+                        setValue(`items.${index}.item`, null);
+                        setValue(`items.${index}.purchase_item_id`, null);
+                        setValue(`items.${index}.expiry_date`, null);
+                      });
+                      netQuantityCacheRef.current = {};
+                      setRowNetQuantities({});
+                    }}
+                    options={locationOptions}
+                    isLoading={loadingLocations}
+                    isClearable={false}
+                  />
+                )}
+              />
+              <InputError error={_.get(errors, ["location", "message"])}/>
             </div>
             <div className="flex-1">
               <Controller
@@ -442,7 +724,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
 
           <div className="flex gap-3">
             <div className="flex-1">
-              <label>Documents</label>
+              <label>{t('upload.attachDocuments')}</label>
               <input
                 type="file"
                 multiple
@@ -461,115 +743,41 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                 icon={faPlus}
                 variant="primary"
                 onClick={() => append({
-                  source_type: "purchase",
-                  source_id: "",
                   item: null,
                   quantity: 1,
                   comments: "",
-                  purchase_item_id: undefined,
-                  issue_item_id: undefined,
+                  purchase_item_id: null,
+                  expiry_date: null,
                 })}
+                disabled={!watchedLocation?.value}
               >
-                Add item
+                {t('common:actions.add')}
               </Button>
             </div>
 
             {fields.map((field, index) => {
-              const sourceType = watch(`items.${index}.source_type`) as SourceType;
-              const sourceId = watch(`items.${index}.source_id`) as string | undefined;
-              
-              const selectedPurchase = purchases?.data?.find(p => p.id.toString() === sourceId?.toString());
-              const selectedIssue = issues?.data?.find(i => i.id.toString() === sourceId?.toString());
-              
-              const availableItems = sourceType === "purchase" 
-                ? selectedPurchase?.items ?? []
-                : selectedIssue?.items ?? [];
+              const availableQuantity = rowNetQuantities[index];
 
               return (
                 <div className="flex flex-col mb-3" key={field.id}>
                   <input type="hidden" {...register(`items.${index}.purchase_item_id` as const)} />
-                  <input type="hidden" {...register(`items.${index}.issue_item_id` as const)} />
-                  
+                  <input type="hidden" {...register(`items.${index}.expiry_date` as const)} />
+
                   <div className="flex gap-3">
-                    <div className="flex-1">
-                      <label>Source type</label>
-                      <Controller
-                        name={`items.${index}.source_type`}
-                        control={control}
-                        render={({field}) => (
-                          <ReactSelect
-                            value={sourceTypeOptions.find(opt => opt.value === field.value) ?? sourceTypeOptions[0]}
-                            onChange={(option) => {
-                              field.onChange(option?.value ?? "purchase");
-                              setValue(`items.${index}.source_id`, "");
-                              setValue(`items.${index}.item`, null);
-                              setValue(`items.${index}.purchase_item_id`, undefined);
-                              setValue(`items.${index}.issue_item_id`, undefined);
-                            }}
-                            options={sourceTypeOptions}
-                            isClearable={false}
-                          />
-                        )}
-                      />
-                      <InputError error={_.get(errors, ["items", index, "source_type", "message"])}/>
-                    </div>
-                    <div className="flex-1">
-                      <label>{sourceType === "purchase" ? "Purchase" : "Issue"}</label>
-                      <Controller
-                        name={`items.${index}.source_id`}
-                        control={control}
-                        render={({field}) => (
-                          <ReactSelect
-                            value={sourceType === "purchase"
-                              ? purchaseOptions.find(opt => opt.value === field.value)
-                              : issueOptions.find(opt => opt.value === field.value)}
-                            onChange={(option) => {
-                              field.onChange(option?.value ?? "");
-                              setValue(`items.${index}.item`, null);
-                              setValue(`items.${index}.purchase_item_id`, undefined);
-                              setValue(`items.${index}.issue_item_id`, undefined);
-                            }}
-                            options={sourceType === "purchase" ? purchaseOptions : issueOptions}
-                            isLoading={sourceType === "purchase" ? loadingPurchases : loadingIssues}
-                            isClearable
-                          />
-                        )}
-                      />
-                      <InputError error={_.get(errors, ["items", index, "source_id", "message"])}/>
-                    </div>
                     <div className="flex-1">
                       <label>{t('buttons.item')}</label>
                       <Controller
                         name={`items.${index}.item`}
                         control={control}
-                        render={({field}) => {
-                          const itemOptionsFromSource = availableItems.map((sourceItem: any) => ({
-                            label: sourceItem.item?.name ? `${sourceItem.item.name} (${sourceItem.quantity})` : sourceItem.id,
-                            value: sourceItem.item?.id ?? sourceItem.id
-                          }));
-
-                          return (
-                            <ReactSelect
-                              value={field.value}
-                              onChange={(option) => {
-                                field.onChange(option);
-                                const selectedSourceItem = availableItems.find((si: any) => 
-                                  (si.item?.id ?? si.id) === option?.value
-                                );
-                                if (selectedSourceItem) {
-                                  if (sourceType === "purchase") {
-                                    setValue(`items.${index}.purchase_item_id`, selectedSourceItem.id?.toString());
-                                  } else {
-                                    setValue(`items.${index}.issue_item_id`, selectedSourceItem.id?.toString());
-                                  }
-                                }
-                              }}
-                              options={itemOptionsFromSource}
-                              isLoading={loadingItems}
-                              isDisabled={!sourceId || availableItems.length === 0}
-                            />
-                          );
-                        }}
+                        render={() => (
+                          <ReactSelect
+                            value={selectedOptionForRow(index)}
+                            onChange={(option) => resolveItemSelection(option as SelectOption, index)}
+                            options={itemOptions}
+                            isLoading={loadingItems || loadingExpired}
+                            isDisabled={!watchedLocation?.value}
+                          />
+                        )}
                       />
                       <InputError error={_.get(errors, ["items", index, "item", "message"])}/>
                     </div>
@@ -577,12 +785,16 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                       <Controller
                         name={`items.${index}.quantity`}
                         control={control}
-                        render={({field}) => (
+                        render={({field: qtyField}) => (
                           <Input
-                            label={t('forms.quantity')}
+                            label={
+                              availableQuantity === undefined
+                                ? t('forms.quantity')
+                                : t('stockTransfer.available', { qty: availableQuantity })
+                            }
                             type="number"
-                            value={field.value as number | string}
-                            onChange={field.onChange}
+                            value={qtyField.value as number | string}
+                            onChange={qtyField.onChange}
                             error={_.get(errors, ["items", index, "quantity", "message"])}
                           />
                         )}
@@ -599,7 +811,6 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                       <IconTooltipButton label={t('common:actions.remove')}
                         type="button"
                         variant="danger"
-                       
                         onClick={() => remove(index)}
                       >
                         <FontAwesomeIcon icon={faTrash}/>
@@ -620,4 +831,3 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
     </Modal>
   );
 };
-

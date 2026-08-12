@@ -92,7 +92,8 @@
     "linkedStore": "Linked store",
     "linkedKitchen": "Linked kitchen",
     "active": "Active",
-    "previousPrice": "Предыдущая цена"
+    "previousPrice": "Предыдущая цена",
+    "reference": "Ссылка"
   },
   "buttons": {
     "item": "Товар",
@@ -138,7 +139,10 @@
     "notes": "Notes",
     "reason": "Reason",
     "lines": "Lines",
-    "previousPrice": "Предыдущая цена"
+    "previousPrice": "Предыдущая цена",
+    "updateWaste": "Обновить списание #{{number}}",
+    "updatePurchaseReturn": "Обновить возврат #{{number}}",
+    "expiredLot": "Истёк {{date}}"
   },
   "validation": {
     "required": "Обязательное поле",

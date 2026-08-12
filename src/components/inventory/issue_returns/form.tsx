@@ -132,7 +132,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
 export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
   const { t } = useTranslation(['inventory', 'common']);
   const db = useDB();
-  const validationSchema = useMemo(() => createValidationSchema(db, data?.id), [db, data?.id]);
+  const validationSchema = useMemo(() => createValidationSchema(db, data?.id), [data?.id]);
   const resolver = useMemo(() => yupResolver(validationSchema), [validationSchema]);
 
   const {
@@ -292,7 +292,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
     return () => {
       cancelled = true;
     };
-  }, [data, open, reset, db]);
+  }, [data?.id, open, reset]);
 
   useEffect(() => {
     if (!open || data?.id) {
@@ -315,7 +315,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
     return () => {
       isMounted = false;
     };
-  }, [open, data?.id, db, setValue]);
+  }, [open, data?.id, setValue, t]);
 
   const issuanceSelection = useWatch({control, name: "issuance"});
   const watchedItems = useWatch({control, name: "items"});
@@ -339,74 +339,82 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
 
   // Load items and populate fields when issuance is selected
   useEffect(() => {
-    if (selectedIssuance && !data) {
-      if (selectedIssuance.issued_to) {
-        setValue("issued_to", {
-          label: `${selectedIssuance.issued_to.first_name} ${selectedIssuance.issued_to.last_name}`,
-          value: selectedIssuance.issued_to.id
-        });
-      }
+    if (data?.id) {
+      return;
+    }
 
-      const populateLocation = async () => {
-        if (selectedIssuance.location) {
+    if (!selectedIssuance) {
+      return;
+    }
+
+    if (selectedIssuance.issued_to) {
+      setValue("issued_to", {
+        label: `${selectedIssuance.issued_to.first_name} ${selectedIssuance.issued_to.last_name}`,
+        value: selectedIssuance.issued_to.id
+      });
+    }
+
+    const populateLocation = async () => {
+      if (selectedIssuance.location) {
+        setValue("location", {
+          label: selectedIssuance.location.name,
+          value: recordIdToString(selectedIssuance.location.id),
+        });
+        return;
+      }
+      if (selectedIssuance.kitchen?.id) {
+        try {
+          const locationId = await ensureLocationForKitchen(
+            db,
+            recordIdToString(selectedIssuance.kitchen.id)
+          );
           setValue("location", {
-            label: selectedIssuance.location.name,
-            value: recordIdToString(selectedIssuance.location.id),
+            label: selectedIssuance.kitchen.name,
+            value: locationId,
           });
-          return;
-        }
-        if (selectedIssuance.kitchen?.id) {
-          try {
-            const locationId = await ensureLocationForKitchen(
-              db,
-              recordIdToString(selectedIssuance.kitchen.id)
-            );
-            setValue("location", {
-              label: selectedIssuance.kitchen.name,
-              value: locationId,
-            });
-          } catch (error) {
-            console.error("Failed to resolve location for kitchen", error);
-            setValue("location", null);
-          }
-        } else {
+        } catch (error) {
+          console.error("Failed to resolve location for kitchen", error);
           setValue("location", null);
         }
-      };
-      void populateLocation();
-
-      if (selectedIssuance.items && selectedIssuance.items.length > 0) {
-        const newItems = selectedIssuance.items.map((issueItem) => {
-          const loc = issueItem.location;
-          return {
-            item: issueItem.item ? {
-              label: `${issueItem.item.name}-${issueItem.item.code}`,
-              value: issueItem.item.id
-            } : null,
-            issued_item: {
-              label: issueItem.item?.name ? `${issueItem.item.name} (${issueItem.quantity})` : issueItem.id,
-              value: issueItem.id
-            },
-            location: loc ? {
-              label: loc.name,
-              value: loc.id
-            } : null,
-            issued: issueItem.quantity ?? undefined,
-            quantity: issueItem.quantity ?? 1,
-            comments: "",
-          };
-        });
-        replace(newItems);
       } else {
-        replace([]);
+        setValue("location", null);
       }
-    } else if (!selectedIssuance && !data) {
-      setValue("issued_to", null);
-      setValue("location", null);
+    };
+    void populateLocation();
 
-      replace([]);
+    if (selectedIssuance.items && selectedIssuance.items.length > 0) {
+      const newItems = selectedIssuance.items.map((issueItem) => {
+        const loc = issueItem.location;
+        return {
+          item: issueItem.item ? {
+            label: `${issueItem.item.name}-${issueItem.item.code}`,
+            value: issueItem.item.id
+          } : null,
+          issued_item: {
+            label: issueItem.item?.name ? `${issueItem.item.name} (${issueItem.quantity})` : issueItem.id,
+            value: issueItem.id
+          },
+          location: loc ? {
+            label: loc.name,
+            value: loc.id
+          } : null,
+          issued: issueItem.quantity ?? undefined,
+          quantity: issueItem.quantity ?? 1,
+          comments: "",
+        };
+      });
+      replace(newItems);
+    } else {
+      replace([{
+        item: null,
+        issued_item: null,
+        location: null,
+        issued: undefined,
+        quantity: 1,
+        comments: "",
+      }]);
     }
-  }, [selectedIssuance?.id, data, setValue, replace, db]);
+  }, [selectedIssuance?.id, data?.id, setValue, replace]);
 
   const closeModal = () => {
     onClose();
@@ -641,7 +649,21 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
                 render={({field}) => (
                   <ReactSelect
                     value={field.value}
-                    onChange={field.onChange}
+                    onChange={(option) => {
+                      field.onChange(option);
+                      if (!option) {
+                        setValue("issued_to", null);
+                        setValue("location", null);
+                        replace([{
+                          item: null,
+                          issued_item: null,
+                          location: null,
+                          issued: undefined,
+                          quantity: 1,
+                          comments: "",
+                        }]);
+                      }
+                    }}
                     options={issueOptions}
                     isLoading={loadingIssues}
                     isClearable

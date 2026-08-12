@@ -12,6 +12,8 @@ export const RELEASES: ReleaseNotes[] = [
     items: [
       'Dish recipe lines auto-fill unit cost when selecting an inventory item, show UOM, and display a quantity × unit cost total.',
       'Inventory document created_at uses the app timezone (and wall-clock time when the document date is today), so dates no longer appear one day earlier than posted_at.',
+      'Waste and purchase returns pick items from a selected store with current stock; waste can include expired lots when expiry tracking is on.',
+      'Unified store inventory history shows document to/from references (invoice, supplier, transfer locations, and more).',
     ],
   },
   {

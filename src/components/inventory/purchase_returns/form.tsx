@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState, useCallback, useRef} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import * as yup from "yup";
 import {Controller, useFieldArray, useForm, useWatch} from "react-hook-form";
@@ -16,7 +16,7 @@ import {InventoryPurchaseReturn} from "@/api/model/inventory_purchase_return.ts"
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {InventoryPurchase} from "@/api/model/inventory_purchase.ts";
 import {InventoryLocation} from "@/api/model/inventory_location.ts";
-import {RecordId, StringRecordId} from "surrealdb";
+import {RecordId} from "surrealdb";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTrash, faPlus} from "@fortawesome/free-solid-svg-icons";
 import _ from "lodash";
@@ -35,7 +35,26 @@ import { useIntegrationManager } from "@/providers/integration.provider.tsx";
 import { publishPurchaseReturned } from "@/integrations/accounting/events/publish.ts";
 import { postDocument } from "@/lib/inventory/posting.service.ts";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
+import { toRecordId } from "@/lib/utils.ts";
+import { resolveCatalogUnitCost } from "@/lib/inventory/line.cost.ts";
 
+type SelectOption = { label: string; value: string } | null;
+
+interface PurchaseReturnItemFormValue {
+  item: SelectOption;
+  quantity: number | string;
+  comments?: string;
+  purchase_item_id?: string | null;
+}
+
+interface PurchaseReturnFormValues {
+  invoice_number: number | string;
+  purchase?: SelectOption;
+  location: SelectOption;
+  date?: DateValue | null;
+  documents?: FileList;
+  items: PurchaseReturnItemFormValue[];
+}
 
 interface Props {
   open: boolean;
@@ -54,6 +73,11 @@ const resolvePurchaseLineUnitCost = (pi?: any): number => {
     pi.final_unit_cost ?? pi.purchase_price ?? pi.price ?? 0
   );
   return Number.isFinite(unit) ? Math.abs(unit) : 0;
+};
+
+const toIdString = (value?: string | { toString(): string }) => {
+  if (!value) return "";
+  return typeof value === "string" ? value : value.toString();
 };
 
 const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string) => yup.object({
@@ -87,23 +111,19 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
     label: yup.string(),
     value: yup.string()
   }).nullable().optional(),
+  location: yup.object({
+    label: yup.string(),
+    value: yup.string()
+  }).required("This is required").nullable(),
   date: yup.mixed().nullable().optional(),
   documents: yup.mixed().optional(),
   items: yup.array().of(
     yup.object({
-      location: yup.object({
-        label: yup.string(),
-        value: yup.string()
-      }).required("This is required"),
       item: yup.object({
         label: yup.string(),
         value: yup.string()
-      }).required("This is required"),
+      }).required("This is required").nullable(),
       quantity: yup.number().typeError("This should be a number").required("This is required").min(1, "Quantity must be at least 1"),
-      supplier: yup.object({
-        label: yup.string(),
-        value: yup.string()
-      }).nullable().optional(),
       comments: yup.string().nullable().optional(),
       purchase_item_id: yup.string().nullable().optional(),
     })
@@ -111,11 +131,11 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
 }).required();
 
 export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
-  const { t } = useTranslation(['inventory', 'common']);
+  const { t } = useTranslation(['inventory', 'common', 'toast']);
   const db = useDB();
   const [state, ] = useAtom(appPage);
   const { manager: integrationManager } = useIntegrationManager();
-  const validationSchema = useMemo(() => createValidationSchema(db, data?.id), [db, data?.id]);
+  const validationSchema = useMemo(() => createValidationSchema(db, data?.id), [data?.id]);
   const resolver = useMemo(() => yupResolver(validationSchema), [validationSchema]);
 
   const {
@@ -153,23 +173,30 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
     handleSubmit,
     formState: {errors},
     reset,
-    watch,
     setValue,
     setError,
     clearErrors,
-  } = useForm({
-    resolver
+  } = useForm<PurchaseReturnFormValues>({
+    resolver: resolver as any,
+    defaultValues: {
+      invoice_number: 1,
+      purchase: null,
+      location: null,
+      date: getToday(),
+      documents: undefined,
+      items: [],
+    },
   });
 
-  const {fields, append, remove, replace} = useFieldArray({
+  const {fields, append, remove} = useFieldArray({
     control,
     name: "items"
   });
 
-  const [syncedPurchaseId, setSyncedPurchaseId] = useState<string | undefined>();
   const [rowNetQuantities, setRowNetQuantities] = useState<Record<number, number>>({});
   const netQuantityCacheRef = useRef<Record<string, number>>({});
   const watchedItems = useWatch({control, name: "items"});
+  const watchedLocation = useWatch({control, name: "location"});
   const selectedPurchaseId = useWatch({control, name: "purchase"})?.value;
   const selectedPurchase = useMemo(
     () =>
@@ -179,9 +206,14 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
     [purchases?.data, selectedPurchaseId],
   );
 
+  const itemsList = (items?.data ?? []) as (InventoryItem & {
+    locations?: InventoryLocation[];
+    suppliers?: { id: string; name: string }[];
+  })[];
+
   const pricedLines = useMemo(
     () =>
-      (watchedItems ?? []).map((line: any) => {
+      (watchedItems ?? []).map((line) => {
         const matchedPurchaseItem =
           selectedPurchase?.items?.find(
             (pi) => String(pi.id) === String(line.purchase_item_id)
@@ -194,7 +226,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
             String(ri.purchase_item?.id) === String(line.purchase_item_id) ||
             String(ri.item?.id) === String(line.item?.value)
         );
-        const catalogItem = (items?.data ?? []).find(
+        const catalogItem = itemsList.find(
           (ci) => String(ci.id) === String(line.item?.value)
         );
         return {
@@ -203,11 +235,12 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
             resolvePurchaseLineUnitCost(matchedPurchaseItem) ||
             Number(matchedReturnItem?.price) ||
             resolvePurchaseLineUnitCost(matchedReturnItem?.purchase_item) ||
+            resolveCatalogUnitCost(catalogItem) ||
             Number(catalogItem?.price) ||
             0,
         };
       }),
-    [watchedItems, selectedPurchase, data?.items, items?.data],
+    [watchedItems, selectedPurchase, data?.items, itemsList],
   );
 
   useEffect(() => {
@@ -217,58 +250,51 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
     }
   }, [open, fetchItems, fetchPurchases]);
 
-
   useEffect(() => {
+    if (!open) return;
+
     if (data) {
+      const firstLoc = data.location
+        ?? data.items?.find((item) => item.location)?.location
+        ?? data.items?.find((item) => item.purchase_item?.location)?.purchase_item?.location;
       reset({
         invoice_number: data.invoice_number,
         purchase: data.purchase ? {
           label: `Invoice #${data.purchase.invoice_number}`,
-          value: data.purchase.id
+          value: toIdString(data.purchase.id),
+        } : null,
+        location: firstLoc ? {
+          label: firstLoc.name ?? "",
+          value: toIdString(firstLoc.id),
         } : null,
         date: data.created_at ? dateToCalendarDate(toJsDate(data.created_at)) : getToday(),
         documents: undefined,
-        items: data.items?.map(item => {
-          const loc = item.location || item.purchase_item?.location;
-          return {
-            location: loc ? {
-              label: loc?.name ?? "",
-              value: loc?.id ?? ""
-            } : null,
-            item: item.item ? {
-              label: `${item.item.name}-${item.item.code}`,
-              value: item.item.id
-            } : null,
-            purchase_item_id: item.purchase_item?.id,
-            quantity: item.quantity ?? 1,
-            supplier: (item.supplier || item.purchase_item?.supplier) ? {
-              label: (item.supplier || item.purchase_item?.supplier)?.name ?? "",
-              value: (item.supplier || item.purchase_item?.supplier)?.id ?? ""
-            } : null,
-            comments: item.comments ?? "",
-          };
-        })
+        items: data.items?.map(item => ({
+          item: item.item ? {
+            label: `${item.item.name}-${item.item.code}`,
+            value: toIdString(item.item.id),
+          } : null,
+          purchase_item_id: item.purchase_item?.id ? toIdString(item.purchase_item.id) : null,
+          quantity: item.quantity ?? 1,
+          comments: item.comments ?? "",
+        })) ?? [],
       });
-
-      setSyncedPurchaseId(data.purchase?.id);
-    } else if (open && fields.length === 0) {
+    } else {
       reset({
         invoice_number: 1,
         purchase: null,
+        location: null,
         date: getToday(),
         documents: undefined,
-        items: []
-      });
-      append({
-        location: null,
-        item: null,
-        quantity: 1,
-        supplier: null,
-        comments: "",
-        purchase_item_id: null,
+        items: [{
+          item: null,
+          quantity: 1,
+          comments: "",
+          purchase_item_id: null,
+        }],
       });
     }
-  }, [data, open, reset, append, fields.length]);
+  }, [data?.id, open, reset]);
 
   useEffect(() => {
     if (!open || data?.id) {
@@ -291,26 +317,69 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
     return () => {
       isMounted = false;
     };
-  }, [open, data?.id, db]);
+  }, [open, data?.id, setValue, t]);
+
+  useEffect(() => {
+    const locationId = watchedLocation?.value;
+    if (!locationId) {
+      setRowNetQuantities((prev) => (Object.keys(prev).length === 0 ? prev : {}));
+      return;
+    }
+
+    watchedItems?.forEach((item, index) => {
+      const itemId = item?.item?.value;
+
+      if (!itemId) {
+        setRowNetQuantities(prev => {
+          if (prev[index] === undefined) return prev;
+          const next = {...prev};
+          delete next[index];
+          return next;
+        });
+        return;
+      }
+
+      const cacheKey = `${itemId}-${locationId}`;
+      const cached = netQuantityCacheRef.current[cacheKey];
+      if (cached !== undefined) {
+        setRowNetQuantities(prev => {
+          if (prev[index] === cached) return prev;
+          return {...prev, [index]: cached};
+        });
+        return;
+      }
+
+      fetchNetQuantity(db, itemId, locationId)
+        .then((value) => {
+          netQuantityCacheRef.current[cacheKey] = value;
+          setRowNetQuantities(prev => {
+            if (prev[index] === value) return prev;
+            return { ...prev, [index]: value };
+          });
+        })
+        .catch((error) => {
+          console.error("Failed to fetch net quantity", error);
+          netQuantityCacheRef.current[cacheKey] = 0;
+          setRowNetQuantities(prev => {
+            if (prev[index] === 0) return prev;
+            return { ...prev, [index]: 0 };
+          });
+        });
+    });
+  }, [watchedItems, watchedLocation?.value]);
 
   const closeModal = () => {
     onClose();
     reset({
       invoice_number: 1,
       purchase: null,
+      location: null,
       date: getToday(),
       documents: undefined,
       items: []
     });
-    setSyncedPurchaseId(undefined);
     setRowNetQuantities({});
     netQuantityCacheRef.current = {};
-  };
-
-  const toRecordId = (value?: string | { toString(): string }) => {
-    if (!value) return undefined;
-    const stringValue = typeof value === "string" ? value : value.toString();
-    return new StringRecordId(stringValue);
   };
 
   const convertFilesToDocuments = async (files: FileList | null | undefined): Promise<RecordId[]> => {
@@ -337,7 +406,52 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
     return documentRefs;
   };
 
-  const onSubmit = async (values: any) => {
+  const validateAvailableStock = useCallback(async (formValues: PurchaseReturnFormValues) => {
+    let isValid = true;
+    const locationId = formValues.location?.value;
+    if (!locationId) return false;
+
+    for (let index = 0; index < formValues.items.length; index++) {
+      const row = formValues.items[index];
+      const itemId = row.item?.value;
+
+      if (!itemId) continue;
+
+      const desiredQuantity = Number(row.quantity) || 0;
+      if (desiredQuantity <= 0) continue;
+
+      const cacheKey = `${itemId}-${locationId}`;
+      let available = rowNetQuantities[index] ?? netQuantityCacheRef.current[cacheKey];
+
+      if (available === undefined) {
+        try {
+          available = await fetchNetQuantity(db, itemId, locationId);
+          netQuantityCacheRef.current[cacheKey] = available;
+          setRowNetQuantities(prev => ({ ...prev, [index]: available }));
+        } catch (error) {
+          console.error("Failed to validate inventory", error);
+          available = 0;
+        }
+      }
+
+      if ((available ?? 0) < desiredQuantity) {
+        setError(`items.${index}.quantity` as const, {
+          type: "manual",
+          message: t("stockTransfer.insufficientStock", {
+            available: available ?? 0,
+            requested: desiredQuantity,
+          }),
+        });
+        isValid = false;
+      } else {
+        clearErrors(`items.${index}.quantity` as const);
+      }
+    }
+
+    return isValid;
+  }, [rowNetQuantities, setError, clearErrors, t]);
+
+  const onSubmit = async (values: PurchaseReturnFormValues) => {
     try {
       const hasAvailableStock = await validateAvailableStock(values);
       if (!hasAvailableStock) {
@@ -345,11 +459,21 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
         return;
       }
 
+      const locationId = values.location?.value;
+      if (!locationId) {
+        toast.error(t('validation.selectLocation'));
+        return;
+      }
+
       const documentRefs = await convertFilesToDocuments(values.documents);
+      const defaultSupplierId = selectedPurchase?.supplier?.id
+        ? toIdString(selectedPurchase.supplier.id)
+        : undefined;
 
       const payload = {
         invoice_number: Number(values.invoice_number),
         purchase: values.purchase ? toRecordId(values.purchase.value) : undefined,
+        location: toRecordId(locationId),
         documents: documentRefs.length > 0 ? documentRefs : undefined,
         items: [],
         created_at: documentCreatedAtFromDateValue(values.date ?? null),
@@ -388,9 +512,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
       const itemsRefs = [];
       const purchaseId = values.purchase?.value
         ? String(values.purchase.value)
-        : values.purchase
-          ? String(values.purchase)
-          : undefined;
+        : undefined;
 
       let purchaseLineItems =
         purchases?.data?.find((p) => String(p.id) === String(purchaseId))?.items ??
@@ -409,51 +531,55 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
         }
       }
 
-      const matchPurchaseLine = (item: any) =>
+      const matchPurchaseLine = (item: PurchaseReturnItemFormValue) =>
         purchaseLineItems.find(
           (pi: any) =>
             String(pi.id) === String(item.purchase_item_id) ||
             String(pi.item?.id) === String(item.item?.value)
         );
 
-      const resolveReturnLineUnitCost = (item: any, matched?: any): number => {
-        if (item.price != null && item.price !== "") {
-          const formPrice = Number(item.price);
-          if (Number.isFinite(formPrice) && formPrice !== 0) {
-            return Math.abs(formPrice);
-          }
-        }
+      const resolveReturnLineUnitCost = (item: PurchaseReturnItemFormValue, matched?: any): number => {
         const fromPurchase = resolvePurchaseLineUnitCost(matched);
         if (fromPurchase > 0) return fromPurchase;
-        const catalog = (items?.data ?? []).find(
+        const catalog = itemsList.find(
           (ci) => String(ci.id) === String(item.item?.value)
         );
-        const catalogPrice = Number(catalog?.price ?? 0);
-        return Number.isFinite(catalogPrice) ? Math.abs(catalogPrice) : 0;
+        return resolveCatalogUnitCost(catalog) || Number(catalog?.price ?? 0) || 0;
+      };
+
+      const resolveLineSupplier = (item: PurchaseReturnItemFormValue, matched?: any) => {
+        if (matched?.supplier?.id) return toIdString(matched.supplier.id);
+        if (defaultSupplierId) return defaultSupplierId;
+        const catalog = itemsList.find((ci) => String(ci.id) === String(item.item?.value));
+        const firstSupplier = catalog?.suppliers?.[0];
+        return firstSupplier?.id ? toIdString(firstSupplier.id) : undefined;
       };
 
       await Promise.all(
         values.items.map(async (item) => {
           const matchedPurchaseItem = matchPurchaseLine(item);
           const snapshotPrice = resolveReturnLineUnitCost(item, matchedPurchaseItem);
+          const purchaseItemId = item.purchase_item_id
+            || (matchedPurchaseItem?.id ? toIdString(matchedPurchaseItem.id) : undefined);
+          const supplierId = resolveLineSupplier(item, matchedPurchaseItem);
 
           const [created] = await db.create(Tables.inventory_purchase_return_items, {
             purchase_return: toRecordId(purchaseReturnId),
             item: item.item ? toRecordId(item.item.value) : undefined,
-            location: item.location ? toRecordId(item.location.value) : undefined,
-            supplier: item.supplier ? toRecordId(item.supplier.value) : undefined,
-            purchase_item: item.purchase_item_id ? toRecordId(item.purchase_item_id) : undefined,
+            location: toRecordId(locationId),
+            supplier: supplierId ? toRecordId(supplierId) : undefined,
+            purchase_item: purchaseItemId ? toRecordId(purchaseItemId) : undefined,
             quantity: Number(item.quantity),
             price: snapshotPrice > 0 ? snapshotPrice : undefined,
             comments: item.comments?.trim() ? item.comments.trim() : undefined,
           });
 
           if (created?.id) {
-            itemsRefs.push((created.id));
+            itemsRefs.push(created.id);
           }
 
-          if(item.purchase_item_id) {
-            await db.merge(toRecordId(item.purchase_item_id), {
+          if (purchaseItemId) {
+            await db.merge(toRecordId(purchaseItemId), {
               is_done: true
             });
           }
@@ -538,90 +664,6 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
     }
   };
 
-  useEffect(() => {
-    watchedItems?.forEach((item, index) => {
-      const itemId = item?.item?.value;
-      const locationId = item?.location?.value;
-      
-      if (!itemId || !locationId) {
-        setRowNetQuantities(prev => {
-          if (prev[index] === undefined) return prev;
-          const next = {...prev};
-          delete next[index];
-          return next;
-        });
-        return;
-      }
-
-      const cacheKey = `${itemId}-${locationId}`;
-      const cached = netQuantityCacheRef.current[cacheKey];
-      if (cached !== undefined) {
-        setRowNetQuantities(prev => {
-          if (prev[index] === cached) return prev;
-          return {...prev, [index]: cached};
-        });
-        return;
-      }
-
-      fetchNetQuantity(db, itemId, locationId)
-        .then((value) => {
-          netQuantityCacheRef.current[cacheKey] = value;
-          setRowNetQuantities(prev => ({ ...prev, [index]: value }));
-        })
-        .catch((error) => {
-          console.error("Failed to fetch net quantity", error);
-          netQuantityCacheRef.current[cacheKey] = 0;
-          setRowNetQuantities(prev => ({ ...prev, [index]: 0 }));
-        });
-    });
-  }, [watchedItems]);
-
-  const validateAvailableStock = useCallback(async (formValues: any) => {
-    let isValid = true;
-
-    for (let index = 0; index < formValues.items.length; index++) {
-      const row = formValues.items[index];
-      const itemId = row.item?.value;
-      const locationId = row.location?.value;
-      
-      if (!itemId || !locationId) continue;
-
-      const desiredQuantity = Number(row.quantity) || 0;
-      if (desiredQuantity <= 0) continue;
-
-      const cacheKey = `${itemId}-${locationId}`;
-      let available = rowNetQuantities[index] ?? netQuantityCacheRef.current[cacheKey];
-
-      if (available === undefined) {
-        try {
-          available = await fetchNetQuantity(db, itemId, locationId);
-          netQuantityCacheRef.current[cacheKey] = available;
-          setRowNetQuantities(prev => ({ ...prev, [index]: available }));
-        } catch (error) {
-          console.error("Failed to validate inventory", error);
-          available = 0;
-        }
-      }
-
-      if (available < desiredQuantity) {
-        setError(`items.${index}.quantity` as const, {
-          type: "manual",
-          message: `Only ${available} available`
-        });
-        isValid = false;
-      } else {
-        clearErrors(`items.${index}.quantity` as const);
-      }
-    }
-
-    return isValid;
-  }, [rowNetQuantities, setError, clearErrors]);
-
-  const itemsList = (items?.data ?? []) as (InventoryItem & {
-    locations?: InventoryLocation[];
-    suppliers?: { id: string; name: string }[];
-  })[];
-
   const getItemOptionsForLocation = useCallback((locationId?: string) => {
     if (!locationId) {
       return [];
@@ -634,36 +676,28 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
       })
       .map(item => ({
         label: item.code ? `${item.name}-${item.code}` : item.name,
-        value: item.id
+        value: toIdString(item.id),
       }));
   }, [itemsList]);
 
-  const itemSuppliersMap = useMemo(() => {
-    const map: Record<string, { label: string; value: string }[]> = {};
-    for (const item of itemsList) {
-      const key = item.id?.toString();
-      if (!key) continue;
-      map[key] = (item.suppliers ?? []).map((s) => ({
-        label: s.name,
-        value: s.id
-      }));
-    }
-    return map;
-  }, [itemsList]);
+  const itemOptions = useMemo(
+    () => getItemOptionsForLocation(watchedLocation?.value),
+    [getItemOptionsForLocation, watchedLocation?.value]
+  );
 
   const purchaseOptions = purchases?.data?.map(purchase => ({
     label: `Invoice #${purchase.invoice_number}`,
-    value: purchase.id
+    value: toIdString(purchase.id),
   })) ?? [];
 
   return (
     <Modal
-      title={data ? `Update return #${data?.invoice_number}` : "Create new purchase return"}
+      title={data ? t('forms.updatePurchaseReturn', { number: data.invoice_number }) : t('forms.createPurchaseReturn')}
       open={open}
       onClose={closeModal}
       size="xl"
     >
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit as any)}>
         <div className="flex flex-col gap-3 mb-3">
           <div className="flex gap-3">
             <div className="flex-1">
@@ -701,6 +735,31 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
               <InputError error={_.get(errors, ["purchase", "message"])}/>
             </div>
             <div className="flex-1">
+              <label>{t('columns.location')}</label>
+              <Controller
+                name="location"
+                control={control}
+                render={({field}) => (
+                  <ReactSelect
+                    value={field.value}
+                    onChange={(option) => {
+                      field.onChange(option);
+                      (watchedItems ?? []).forEach((_, index) => {
+                        setValue(`items.${index}.item`, null);
+                        setValue(`items.${index}.purchase_item_id`, null);
+                      });
+                      netQuantityCacheRef.current = {};
+                      setRowNetQuantities({});
+                    }}
+                    options={locationOptions}
+                    isLoading={loadingLocations}
+                    isClearable={false}
+                  />
+                )}
+              />
+              <InputError error={_.get(errors, ["location", "message"])}/>
+            </div>
+            <div className="flex-1">
               <Controller
                 name="date"
                 control={control}
@@ -720,7 +779,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
 
           <div className="flex gap-3">
             <div className="flex-1">
-              <label>Documents</label>
+              <label>{t('upload.attachDocuments')}</label>
               <input
                 type="file"
                 multiple
@@ -739,64 +798,45 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
                 icon={faPlus}
                 variant="primary"
                 onClick={() => append({
-                  location: null,
                   item: null,
                   quantity: 1,
-                  supplier: null,
                   comments: "",
                   purchase_item_id: null,
                 })}
+                disabled={!watchedLocation?.value}
               >
-                Add item
+                {t('common:actions.add')}
               </Button>
               <InputError error={_.get(errors, ["items", "message"])}/>
             </div>
             {fields.map((field, index) => {
-              const rowLocationId = watchedItems?.[index]?.location?.value;
-              const rowItemId = watchedItems?.[index]?.item?.value;
-              const rowItemOptions = getItemOptionsForLocation(rowLocationId);
-              const supplierOptionsForItem = rowItemId && itemSuppliersMap[rowItemId] ? itemSuppliersMap[rowItemId] : [];
               const availableQuantity = rowNetQuantities[index] ?? 0;
-              
+
               return (
                 <div className="flex flex-col gap-3 mb-3" key={field.id}>
                   <input type="hidden" {...register(`items.${index}.purchase_item_id` as const)} />
                   <div className="flex gap-3">
                     <div className="flex-1">
-                      <label>{t('columns.location')}</label>
-                      <Controller
-                        name={`items.${index}.location`}
-                        control={control}
-                        render={({field}) => (
-                          <ReactSelect
-                            value={field.value}
-                            onChange={(value) => {
-                              field.onChange(value);
-                              setValue(`items.${index}.item`, null);
-                              setValue(`items.${index}.supplier`, null);
-                            }}
-                            options={locationOptions}
-                            isLoading={loadingLocations}
-                          />
-                        )}
-                      />
-                      <InputError error={_.get(errors, ["items", index, "location", "message"])}/>
-                    </div>
-                    <div className="flex-1">
                       <label>{t('buttons.item')}</label>
                       <Controller
                         name={`items.${index}.item`}
                         control={control}
-                        render={({field}) => (
+                        render={({field: itemField}) => (
                           <ReactSelect
-                            value={field.value}
+                            value={itemField.value}
                             onChange={(value) => {
-                              field.onChange(value);
-                              setValue(`items.${index}.supplier`, null);
+                              itemField.onChange(value);
+                              const matched = selectedPurchase?.items?.find(
+                                (pi) => String(pi.item?.id) === String(value?.value)
+                              );
+                              setValue(
+                                `items.${index}.purchase_item_id`,
+                                matched?.id ? toIdString(matched.id) : null
+                              );
                             }}
-                            options={rowItemOptions}
+                            options={itemOptions}
                             isLoading={loadingItems}
-                            isDisabled={!rowLocationId}
+                            isDisabled={!watchedLocation?.value}
                           />
                         )}
                       />
@@ -806,33 +846,16 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
                       <Controller
                         name={`items.${index}.quantity`}
                         control={control}
-                        render={({field}) => (
+                        render={({field: qtyField}) => (
                           <Input
-                            label={`Quantity (Available: ${availableQuantity})`}
+                            label={t('stockTransfer.available', { qty: availableQuantity })}
                             type="number"
-                            value={field.value as number | string}
-                            onChange={field.onChange}
+                            value={qtyField.value as number | string}
+                            onChange={qtyField.onChange}
                             error={_.get(errors, ["items", index, "quantity", "message"])}
                           />
                         )}
                       />
-                    </div>
-                    <div className="flex-1">
-                      <label>Supplier</label>
-                      <Controller
-                        name={`items.${index}.supplier`}
-                        control={control}
-                        render={({field}) => (
-                          <ReactSelect
-                            value={field.value}
-                            onChange={field.onChange}
-                            options={supplierOptionsForItem}
-                            isDisabled={!rowItemId}
-                            isClearable
-                          />
-                        )}
-                      />
-                      <InputError error={_.get(errors, ["items", index, "supplier", "message"])}/>
                     </div>
                     <div className="flex-1">
                       <InputField
@@ -846,7 +869,6 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
                         <IconTooltipButton label={t('common:actions.remove')}
                           type="button"
                           variant="danger"
-                         
                           onClick={() => remove(index)}
                         >
                           <FontAwesomeIcon icon={faTrash}/>
@@ -868,4 +890,3 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
     </Modal>
   );
 };
-

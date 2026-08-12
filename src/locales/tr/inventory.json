@@ -92,7 +92,8 @@
     "linkedStore": "Linked store",
     "linkedKitchen": "Linked kitchen",
     "active": "Active",
-    "previousPrice": "Önceki fiyat"
+    "previousPrice": "Önceki fiyat",
+    "reference": "Referans"
   },
   "buttons": {
     "item": "Ürün",
@@ -138,7 +139,10 @@
     "notes": "Notes",
     "reason": "Reason",
     "lines": "Lines",
-    "previousPrice": "Önceki fiyat"
+    "previousPrice": "Önceki fiyat",
+    "updateWaste": "Fireyi güncelle #{{number}}",
+    "updatePurchaseReturn": "İadeyi güncelle #{{number}}",
+    "expiredLot": "Süresi dolmuş {{date}}"
   },
   "validation": {
     "required": "Bu alan zorunludur",

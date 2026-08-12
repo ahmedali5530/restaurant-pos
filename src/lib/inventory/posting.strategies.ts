@@ -564,6 +564,13 @@ export const wastePostingStrategy: InventoryPostingStrategy = {
       const unitCost = resolveUnitCost(item);
       const referenceItem = toIdString(item.id);
 
+      const expiryDate =
+        (item as any).expiry_date ??
+        (item.purchase_item as any)?.expiry_date;
+      const batchCode =
+        (item as any).batch_code ??
+        (item.purchase_item as any)?.batch_code;
+
       entries.push({
         created_by: userId,
         business_date: businessDate,
@@ -577,6 +584,8 @@ export const wastePostingStrategy: InventoryPostingStrategy = {
         reference_item: referenceItem,
         notes: item.source ? `source:${item.source}` : undefined,
         ledger_key: buildLedgerKey("waste", referenceItem),
+        ...(expiryDate ? { expiry_date: String(expiryDate) } : {}),
+        ...(batchCode ? { batch_code: String(batchCode) } : {}),
       });
     }
 

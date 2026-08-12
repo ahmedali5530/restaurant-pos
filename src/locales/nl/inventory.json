@@ -92,7 +92,8 @@
     "linkedStore": "Linked store",
     "linkedKitchen": "Linked kitchen",
     "active": "Active",
-    "previousPrice": "Vorige prijs"
+    "previousPrice": "Vorige prijs",
+    "reference": "Referentie"
   },
   "buttons": {
     "item": "Artikel",
@@ -138,7 +139,10 @@
     "notes": "Notes",
     "reason": "Reason",
     "lines": "Lines",
-    "previousPrice": "Vorige prijs"
+    "previousPrice": "Vorige prijs",
+    "updateWaste": "Afval bijwerken #{{number}}",
+    "updatePurchaseReturn": "Retour bijwerken #{{number}}",
+    "expiredLot": "Verlopen {{date}}"
   },
   "validation": {
     "required": "Dit is verplicht",

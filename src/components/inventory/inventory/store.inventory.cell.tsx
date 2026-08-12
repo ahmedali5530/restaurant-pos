@@ -46,6 +46,7 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
         reversal: !!row.reversal,
         created_at: row.created_at instanceof Date ? row.created_at : new Date(row.created_at),
         item: resolveItemMeta(row.item),
+        counterparty: row.counterparty,
       })),
       ...records.returns.map((row: any) => ({
         id: String(row.id),
@@ -56,6 +57,7 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
         reversal: !!row.reversal,
         created_at: row.created_at instanceof Date ? row.created_at : new Date(row.created_at),
         item: resolveItemMeta(row.item),
+        counterparty: row.counterparty,
       })),
       ...records.issues.map((row: any) => ({
         id: String(row.id),
@@ -66,6 +68,7 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
         reversal: !!row.reversal,
         created_at: row.created_at instanceof Date ? row.created_at : new Date(row.created_at),
         item: resolveItemMeta(row.item),
+        counterparty: row.counterparty,
       })),
       ...records.issueReturns.map((row: any) => ({
         id: String(row.id),
@@ -76,6 +79,7 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
         reversal: !!row.reversal,
         created_at: row.created_at instanceof Date ? row.created_at : new Date(row.created_at),
         item: resolveItemMeta(row.item),
+        counterparty: row.counterparty,
       })),
       ...records.waste.map((row: any) => ({
         id: String(row.id),
@@ -86,6 +90,7 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
         reversal: !!row.reversal,
         created_at: row.created_at instanceof Date ? row.created_at : new Date(row.created_at),
         item: resolveItemMeta(row.item),
+        counterparty: row.counterparty,
       })),
       ...records.transfersIn.map((row) => ({
         id: row.id,
@@ -118,7 +123,7 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
         reversal: !!(row as any).reversal,
         created_at: row.created_at,
         item: resolveItemMeta(row.item),
-        counterparty: row.batchNumber,
+        counterparty: row.counterparty ?? row.batchNumber,
       })),
       ...records.productionInputs.map((row) => ({
         id: row.id,
@@ -129,7 +134,7 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
         reversal: !!(row as any).reversal,
         created_at: row.created_at,
         item: resolveItemMeta(row.item),
-        counterparty: row.batchNumber,
+        counterparty: row.counterparty ?? row.batchNumber,
       })),
       ...records.buffetConsumption.map((row) => ({
         id: row.id,
@@ -140,7 +145,7 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
         reversal: !!(row as any).reversal,
         created_at: row.created_at,
         item: resolveItemMeta(row.item),
-        counterparty: row.sessionNumber,
+        counterparty: row.counterparty ?? row.sessionNumber,
       })),
       ...(records.adjustments ?? []).map((row) => ({
         id: row.id,
@@ -151,7 +156,7 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
         reversal: !!(row as any).reversal,
         created_at: row.created_at,
         item: resolveItemMeta(row.item),
-        counterparty: (row as any).notes,
+        counterparty: row.counterparty ?? (row as any).notes,
       })),
     ];
 
@@ -236,6 +241,7 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
                 <th>{t('common:actions.type')}</th>
                 <th>{t('forms.date')}</th>
                 <th>{t('buttons.item')}</th>
+                <th>{t('columns.reference')}</th>
                 <th>{t('forms.quantity')}</th>
                 <th>{t('common:actions.total')}</th>
               </tr>
@@ -253,7 +259,9 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
                     <td>{unifiedItem.created_at ? toLuxonDateTime(unifiedItem.created_at).toFormat(import.meta.env.VITE_DATE_FORMAT) : ""}</td>
                     <td>
                       {unifiedItem.item?.name}-{unifiedItem.item?.code}
-                      {unifiedItem.counterparty ? ` → ${unifiedItem.counterparty}` : ""}
+                    </td>
+                    <td className="text-neutral-600">
+                      {unifiedItem.counterparty || "—"}
                     </td>
                     <td>{unifiedItem.operator}{unifiedItem.quantity} {unifiedItem.item?.uom}</td>
                     <td>{total} {unifiedItem.item?.uom}</td>
@@ -263,7 +271,7 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
               </tbody>
               <tfoot>
               <tr>
-                <th className="text-left" colSpan={4}>{t('common:actions.total')}</th>
+                <th className="text-left" colSpan={5}>{t('common:actions.total')}</th>
                 <th className="text-left">{total}</th>
               </tr>
               </tfoot>

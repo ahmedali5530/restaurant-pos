@@ -92,7 +92,8 @@
     "linkedStore": "المخزن المرتبط",
     "linkedKitchen": "المطبخ المرتبط",
     "active": "نشط",
-    "previousPrice": "السعر السابق"
+    "previousPrice": "السعر السابق",
+    "reference": "المرجع"
   },
   "buttons": {
     "item": "صنف",
@@ -138,7 +139,10 @@
     "notes": "ملاحظات",
     "reason": "السبب",
     "lines": "الأسطر",
-    "previousPrice": "السعر السابق"
+    "previousPrice": "السعر السابق",
+    "updateWaste": "تحديث الهدر #{{number}}",
+    "updatePurchaseReturn": "تحديث المرتجع #{{number}}",
+    "expiredLot": "منتهي الصلاحية {{date}}"
   },
   "validation": {
     "required": "هذا الحقل مطلوب",

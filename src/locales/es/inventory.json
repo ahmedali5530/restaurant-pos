@@ -92,7 +92,8 @@
     "linkedStore": "Almacén vinculado",
     "linkedKitchen": "Cocina vinculada",
     "active": "Activo",
-    "previousPrice": "Precio anterior"
+    "previousPrice": "Precio anterior",
+    "reference": "Referencia"
   },
   "buttons": {
     "item": "Artículo",
@@ -138,7 +139,10 @@
     "notes": "Notas",
     "reason": "Motivo",
     "lines": "Líneas",
-    "previousPrice": "Precio anterior"
+    "previousPrice": "Precio anterior",
+    "updateWaste": "Actualizar merma #{{number}}",
+    "updatePurchaseReturn": "Actualizar devolución #{{number}}",
+    "expiredLot": "Caducado {{date}}"
   },
   "validation": {
     "required": "Este campo es obligatorio",

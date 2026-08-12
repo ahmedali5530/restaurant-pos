@@ -31,7 +31,7 @@ export const InventoryWasteViewModal = ({open, waste, onClose}: Props) => {
       setLoading(true);
       try {
         const [result] = await db.query<[InventoryWaste]>(
-          `SELECT * FROM ONLY ${waste.id} FETCH purchase, purchase.items, purchase.items.item, issue, issue.items, issue.items.item, created_by, items, items.item, documents`
+          `SELECT * FROM ONLY ${waste.id} FETCH purchase, issue, created_by, items, items.item, items.location, items.purchase_item, items.purchase_item.location, items.issue_item, items.issue_item.location, documents`
         );
         setViewWaste(result as InventoryWaste);
       } catch (e) {
@@ -75,13 +75,17 @@ export const InventoryWasteViewModal = ({open, waste, onClose}: Props) => {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-neutral-700">
               <div>
-                <div className="text-neutral-500 text-xs uppercase">{t('columns.source')}</div>
+                <div className="text-neutral-500 text-xs uppercase">{t('columns.location')}</div>
                 <div>
-                  {viewWaste.purchase
-                    ? `Purchase #${viewWaste.purchase.invoice_number}`
-                    : viewWaste.issue
-                      ? `Issue #${viewWaste.issue.id}`
-                      : "—"}
+                  {(() => {
+                    const loc = viewWaste.items?.find((item) => item.location)?.location
+                      ?? viewWaste.items?.find((item) => item.purchase_item?.location)?.purchase_item?.location
+                      ?? viewWaste.items?.find((item) => item.issue_item?.location)?.issue_item?.location;
+                    if (loc?.name) return loc.name;
+                    if (viewWaste.purchase) return `Purchase #${viewWaste.purchase.invoice_number}`;
+                    if (viewWaste.issue) return `Issue #${viewWaste.issue.invoice_number ?? viewWaste.issue.id}`;
+                    return "—";
+                  })()}
                 </div>
               </div>
               <div>

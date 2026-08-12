@@ -92,7 +92,8 @@
     "linkedStore": "Magasin lié",
     "linkedKitchen": "Cuisine liée",
     "active": "Actif",
-    "previousPrice": "Prix précédent"
+    "previousPrice": "Prix précédent",
+    "reference": "Référence"
   },
   "buttons": {
     "item": "Article",
@@ -138,7 +139,10 @@
     "notes": "Notes",
     "reason": "Motif",
     "lines": "Lignes",
-    "previousPrice": "Prix précédent"
+    "previousPrice": "Prix précédent",
+    "updateWaste": "Mettre à jour le déchet #{{number}}",
+    "updatePurchaseReturn": "Mettre à jour le retour #{{number}}",
+    "expiredLot": "Expiré {{date}}"
   },
   "validation": {
     "required": "Ce champ est obligatoire",

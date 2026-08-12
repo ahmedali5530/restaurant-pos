@@ -27,7 +27,7 @@ export const InventoryWastes = () => {
     ["created_at DESC"],
     0,
     10,
-    ["purchase", "purchase.items", "purchase.items.item", "issue", "issue.items", "issue.items.item", "items", "items.item", "items.purchase_item", "items.issue_item", "created_by"]
+    ["purchase", "issue", "items", "items.item", "items.location", "items.purchase_item", "items.purchase_item.location", "items.issue_item", "items.issue_item.location", "created_by"]
   );
   const db = useDB();
   const { protectAction } = useSecurity();
@@ -43,19 +43,18 @@ export const InventoryWastes = () => {
     columnHelper.accessor("invoice_number", {
       header: t('columns.invoiceNumber')
     }),
-    columnHelper.accessor(row => row.purchase?.invoice_number ?? row.issue?.id ?? "", {
-      id: "source",
-      header: t('columns.source'),
-      cell: info => {
-        const waste = info.row.original;
-        if (waste.purchase) {
-          return `Purchase #${waste.purchase.invoice_number}`;
-        }
-        if (waste.issue) {
-          return `Issue #${waste.issue.id}`;
-        }
-        return "";
-      }
+    columnHelper.accessor(row => {
+      const loc = row.items?.find((item) => item.location)?.location
+        ?? row.items?.find((item) => item.purchase_item?.location)?.purchase_item?.location
+        ?? row.items?.find((item) => item.issue_item?.location)?.issue_item?.location;
+      if (loc?.name) return loc.name;
+      if (row.purchase) return `Purchase #${row.purchase.invoice_number}`;
+      if (row.issue) return `Issue #${row.issue.invoice_number ?? row.issue.id}`;
+      return "";
+    }, {
+      id: "location",
+      header: t('columns.location'),
+      cell: info => info.getValue() || "—",
     }),
     columnHelper.accessor("created_at", {
       header: t('columns.createdAt'),

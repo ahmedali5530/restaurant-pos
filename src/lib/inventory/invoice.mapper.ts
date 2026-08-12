@@ -349,12 +349,16 @@ export const mapWasteToInvoice = (waste: InventoryWaste): InventoryInvoiceDoc =>
     fileBaseName: `waste-${waste.invoice_number ?? "receipt"}`,
     meta: [
       {
-        label: "Source",
-        value: waste.purchase
-          ? `Purchase #${waste.purchase.invoice_number}`
-          : waste.issue
-            ? `Issue #${waste.issue.invoice_number ?? waste.issue.id}`
-            : "—",
+        label: "Location",
+        value: (() => {
+          const loc = waste.items?.find((item) => item.location)?.location
+            ?? waste.items?.find((item) => item.purchase_item?.location)?.purchase_item?.location
+            ?? waste.items?.find((item) => item.issue_item?.location)?.issue_item?.location;
+          if (loc?.name) return loc.name;
+          if (waste.purchase) return `Purchase #${waste.purchase.invoice_number}`;
+          if (waste.issue) return `Issue #${waste.issue.invoice_number ?? waste.issue.id}`;
+          return "—";
+        })(),
       },
       {label: "Created by", value: personName(waste.created_by)},
     ],
