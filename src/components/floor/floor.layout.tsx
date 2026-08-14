@@ -334,12 +334,13 @@ export const FloorLayout = () => {
             </>
           )}
         </div>
-        <div className="floor-btns flex gap-3 p-3">
+        <div className="floor-btns flex gap-3 p-3" data-testid="menu-floor-switcher">
           {floors?.map(item => (
             <Button
               variant="custom"
               key={item.id}
               size="lg"
+              data-testid="menu-floor-btn"
               className={
                 cn(
                   "flex-1 relative outline-none pressable",

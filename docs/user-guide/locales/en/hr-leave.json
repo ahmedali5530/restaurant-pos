@@ -1,0 +1,99 @@
+{
+  "title": "Leave",
+  "intro": "Manage time-off requests and public holidays that affect schedules and payroll.",
+  "sections": [
+    {
+      "id": "leave",
+      "title": "Leave requests",
+      "steps": [
+        "Open the Leave tab.",
+        "Review pending and approved leave for employees.",
+        "Approve or reject requests according to your HR role."
+      ],
+      "image": "hr-leave.png",
+      "caption": "Leave tab."
+    },
+    {
+      "id": "holidays",
+      "title": "Holidays",
+      "intro": "Holidays mark non-working or premium-pay calendar days for the venue.",
+      "steps": [
+        "Open the Holidays tab.",
+        "Add venue holidays for the year.",
+        "Holiday dates feed scheduling and pay-rule calculations when configured."
+      ],
+      "image": "hr-holidays.png",
+      "caption": "Holidays tab."
+    },
+    {
+      "id": "leave-form",
+      "title": "Leave request form",
+      "intro": "Submit or edit time-off requests against configured leave types.",
+      "steps": [
+        "On Leave tab click Add request.",
+        "Select employee, leave type, and date range.",
+        "Enter day count and reason if required by the type.",
+        "Save — routes for approval when the type requires it."
+      ],
+      "image": "hr-form-leave.png",
+      "caption": "Leave request form.",
+      "fields": [
+        {
+          "name": "Employee",
+          "effect": "Staff requesting time off."
+        },
+        {
+          "name": "Leave type",
+          "effect": "Determines paid/unpaid, approval, and accrual rules."
+        },
+        {
+          "name": "Start / end date",
+          "effect": "Inclusive dates of the absence."
+        },
+        {
+          "name": "Days",
+          "effect": "Working days consumed (may auto-calculate)."
+        },
+        {
+          "name": "Reason",
+          "effect": "Optional note for approvers."
+        }
+      ]
+    },
+    {
+      "id": "holiday-form",
+      "title": "Public holiday form",
+      "intro": "Public holidays interact with pay rules and scheduling.",
+      "steps": [
+        "Open Holidays under Leave.",
+        "Add name, date, and country code.",
+        "Mark recurring for annual fixed dates.",
+        "Save — holiday appears in pay rule filters."
+      ],
+      "image": "hr-form-holiday.png",
+      "caption": "Public holiday form.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Holiday label in calendars and rules."
+        },
+        {
+          "name": "Date",
+          "effect": "Calendar date observed."
+        },
+        {
+          "name": "Country code",
+          "effect": "Optional ISO code for multi-country venues."
+        },
+        {
+          "name": "Is recurring",
+          "effect": "Repeats every year on the same month/day."
+        },
+        {
+          "name": "Is active",
+          "effect": "Inactive holidays are ignored by new rules."
+        }
+      ]
+    }
+  ]
+}

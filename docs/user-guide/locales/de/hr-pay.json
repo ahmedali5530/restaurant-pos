@@ -1,0 +1,123 @@
+{
+  "title": "Gehaltsprofile & Regeln",
+  "intro": "Profile speichern Basissätze; Regeln wenden Zuschläge, Boni und Abzüge nach Zeitplan oder Kontext an.",
+  "sections": [
+    {
+      "id": "pay-profiles",
+      "title": "Gehaltsprofile",
+      "steps": [
+        "Öffnen Sie HR → Gehalt → Profile.",
+        "Basissatz mit Gültigkeitsdaten pro Mitarbeiter pflegen.",
+        "Profile speisen die Abrechnung der aktiven Periode."
+      ],
+      "image": "hr-pay-profiles.png",
+      "caption": "Liste Gehaltsprofile.",
+      "fields": []
+    },
+    {
+      "id": "pay-profile-form",
+      "title": "Gehaltsprofilformular",
+      "steps": [
+        "Profil für Mitarbeiter hinzufügen oder bearbeiten.",
+        "Gehaltstyp und Basissatz mit Gültigkeitsdaten wählen.",
+        "Speichern — Abrechnung nutzt gültiges Profil je Arbeitstag."
+      ],
+      "image": "hr-form-pay-profile.png",
+      "caption": "Gehaltsprofilformular.",
+      "fields": [
+        {
+          "name": "Mitarbeiter",
+          "effect": "Personal mit dieser Basisvergütung."
+        },
+        {
+          "name": "Gehaltstyp",
+          "effect": "Stündlich, Gehalt, Vertrag, Provision oder gemischt."
+        },
+        {
+          "name": "Basissatz",
+          "effect": "Hauptsatz oder Gehaltsbetrag in gewählter Währung."
+        },
+        {
+          "name": "Währung",
+          "effect": "ISO-Währung des Satzes."
+        },
+        {
+          "name": "Gültig ab",
+          "effect": "Erster Tag dieses Profils."
+        },
+        {
+          "name": "Gültig bis",
+          "effect": "Optionales Ende bei neuem Profil."
+        }
+      ]
+    },
+    {
+      "id": "pay-rules",
+      "title": "Gehaltsregeln",
+      "steps": [
+        "Öffnen Sie Gehalt → Regeln.",
+        "Regeln stapeln nach Priorität: erlauben, verhindern, höchster gewinnt oder Priorität.",
+        "Ziel: Mitarbeiter, Abteilungen, Feiertage oder Zeitfenster."
+      ],
+      "image": "hr-pay-rules.png",
+      "caption": "Liste Lohnregeln.",
+      "fields": []
+    },
+    {
+      "id": "pay-rule-form",
+      "title": "Gehaltsregelformular",
+      "intro": "Jede Regel hat Effekte (Multiplikator, fester/prozentualer Bonus/Abzug) und Eignungsfilter.",
+      "steps": [
+        "Regel mit Code und Name hinzufügen oder bearbeiten.",
+        "Effekte und Anwendung auf reguläre, Überstunden oder alle Stunden definieren.",
+        "Datum-, Zeit-, Wochentags- und Feiertagsfilter setzen.",
+        "Mitarbeiter, Abteilungen, Positionen oder Kostenstellen zuweisen.",
+        "Speichern — Motor wertet bei Stundenberechnung aus."
+      ],
+      "image": "hr-form-pay-rule.png",
+      "caption": "Regelformular mit Effekten und Filtern.",
+      "fields": [
+        {
+          "name": "Code",
+          "effect": "Eindeutige Regel-ID für Exporte."
+        },
+        {
+          "name": "Name",
+          "effect": "Beschreibende Bezeichnung in Admin-Listen."
+        },
+        {
+          "name": "Priorität",
+          "effect": "Reihenfolge bei Stapelmodus Priorität."
+        },
+        {
+          "name": "Stapelmodus",
+          "effect": "Interaktion mit anderen passenden Regeln."
+        },
+        {
+          "name": "Effekte",
+          "effect": "Multiplikator oder Betragsanpassungen auf qualifizierende Stunden."
+        },
+        {
+          "name": "Mitarbeiter-/Abteilungs-/Positions-/Kostenstellenfilter",
+          "effect": "Begrenzt betroffenes Personal."
+        },
+        {
+          "name": "Datum- und Zeitfenster",
+          "effect": "Optionales Start-/Enddatum und Tageszeit."
+        },
+        {
+          "name": "Wochentage / Monate",
+          "effect": "Beschränkt auf gewählte Kalendermuster."
+        },
+        {
+          "name": "Feiertage",
+          "effect": "Nur an ausgewählten Feiertagen."
+        },
+        {
+          "name": "Nach Stunden (Tag/Woche)",
+          "effect": "Bei Überschreitung täglicher/wöchentlicher Schwellen."
+        }
+      ]
+    }
+  ]
+}

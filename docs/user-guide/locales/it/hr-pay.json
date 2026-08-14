@@ -1,0 +1,123 @@
+{
+  "title": "Profili e regole retribuzione",
+  "intro": "Tariffe base e regole di premi e detrazioni.",
+  "sections": [
+    {
+      "id": "pay-profiles",
+      "title": "Profili retribuzione",
+      "steps": [
+        "HR → Retribuzione → Profili.",
+        "Tariffa base per dipendente.",
+        "Alimenta paghe."
+      ],
+      "image": "hr-pay-profiles.png",
+      "caption": "Elenco profili.",
+      "fields": []
+    },
+    {
+      "id": "pay-profile-form",
+      "title": "Modulo profilo retribuzione",
+      "steps": [
+        "Aggiungi/modifica profilo.",
+        "Tipo e tariffa base.",
+        "Salva."
+      ],
+      "image": "hr-form-pay-profile.png",
+      "caption": "Modulo profilo.",
+      "fields": [
+        {
+          "name": "Dipendente",
+          "effect": "Riceve questa base."
+        },
+        {
+          "name": "Tipo retribuzione",
+          "effect": "Orario, stipendio, contratto, commissione o misto."
+        },
+        {
+          "name": "Tariffa base",
+          "effect": "Tariffa principale o stipendio."
+        },
+        {
+          "name": "Valuta",
+          "effect": "Valuta ISO."
+        },
+        {
+          "name": "Valido da",
+          "effect": "Primo giorno profilo."
+        },
+        {
+          "name": "Valido fino",
+          "effect": "Fine opzionale."
+        }
+      ]
+    },
+    {
+      "id": "pay-rules",
+      "title": "Regole retribuzione",
+      "steps": [
+        "Retribuzione → Regole.",
+        "Impilamento per priorità.",
+        "Filtri dipendente/reparto."
+      ],
+      "image": "hr-pay-rules.png",
+      "caption": "Elenco regole.",
+      "fields": []
+    },
+    {
+      "id": "pay-rule-form",
+      "title": "Modulo regola retribuzione",
+      "intro": "Effetti e filtri idoneità.",
+      "steps": [
+        "Aggiungi regola.",
+        "Definisci effetti.",
+        "Filtri data/ora.",
+        "Assegna dipendenti.",
+        "Salva."
+      ],
+      "image": "hr-form-pay-rule.png",
+      "caption": "Modulo regola.",
+      "fields": [
+        {
+          "name": "Codice",
+          "effect": "ID univoco."
+        },
+        {
+          "name": "Nome",
+          "effect": "Etichetta admin."
+        },
+        {
+          "name": "Priorità",
+          "effect": "Ordine impilamento."
+        },
+        {
+          "name": "Modalità impilamento",
+          "effect": "Interazione regole."
+        },
+        {
+          "name": "Effetti",
+          "effect": "Moltiplicatori o importi."
+        },
+        {
+          "name": "Filtri dipendente/reparto/ruolo/centro costo",
+          "effect": "Limita ambito."
+        },
+        {
+          "name": "Finestra data/ora",
+          "effect": "Intervallo opzionale."
+        },
+        {
+          "name": "Giorni settimana / mesi",
+          "effect": "Pattern calendario."
+        },
+        {
+          "name": "Festivi",
+          "effect": "Festivi selezionati."
+        },
+        {
+          "name": "Straordinari (giorno/settimana)",
+          "effect": "Oltre soglie."
+        }
+      ]
+    }
+  ]
+}

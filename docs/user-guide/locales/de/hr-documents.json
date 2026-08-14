@@ -1,0 +1,52 @@
+{
+  "title": "Mitarbeiterdokumente",
+  "intro": "Speichern Sie Verträge, Ausweise, Lizenzen und andere Dateien mit Ablaufverfolgung.",
+  "sections": [
+    {
+      "id": "documents",
+      "title": "Dokumentenliste",
+      "steps": [
+        "Öffnen Sie HR → Dokumente.",
+        "Nach Mitarbeiter oder Kategorie filtern.",
+        "Neue Dateien hochladen oder Metadaten aktualisieren."
+      ],
+      "image": "hr-documents-list.png",
+      "caption": "Registerkarte Mitarbeiterdokumente.",
+      "fields": []
+    },
+    {
+      "id": "document-form",
+      "title": "Dokumentenformular",
+      "steps": [
+        "Dokument hinzufügen klicken.",
+        "Mitarbeiter, Titel und Kategorie wählen.",
+        "Datei anhängen und optional Ablaufdatum setzen.",
+        "Speichern — Datei wird gespeichert und mit Profil verknüpft."
+      ],
+      "image": "hr-form-document.png",
+      "caption": "Formular Dokumenten-Upload.",
+      "fields": [
+        {
+          "name": "Mitarbeiter",
+          "effect": "Eigentümer des Dokumenteneintrags."
+        },
+        {
+          "name": "Titel",
+          "effect": "Anzeigename in Listen und Erinnerungen."
+        },
+        {
+          "name": "Kategorie",
+          "effect": "Vertrag, Zertifikat, Lizenz, Ausweis, medizinisch, Verwarnung oder sonstiges."
+        },
+        {
+          "name": "Läuft ab am",
+          "effect": "Optionales Datum für Erneuerungsalarme."
+        },
+        {
+          "name": "Datei anhängen",
+          "effect": "Pflicht bei Erstellung; speichert Binär in Bibliothek."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+{
+  "title": "Payment types, taxes, and order types",
+  "intro": "Configure how orders are classified and settled: payment methods, tax rules, and service types (dine-in, delivery, etc.).",
+  "sections": [
+    {
+      "id": "payment-types",
+      "title": "Payment types",
+      "steps": [
+        "Open the Payment types tab.",
+        "Define Cash, Card, and custom tenders shown on the payment screen.",
+        "Set sort order and whether a type requires reference or change calculation."
+      ],
+      "image": "admin-payments-types.png",
+      "caption": "Payment types tab."
+    },
+    {
+      "id": "taxes",
+      "title": "Taxes",
+      "intro": "Taxes apply to dishes and appear on receipts and reports.",
+      "steps": [
+        "Open the Taxes tab.",
+        "Create tax rates and link them to applicable items or order types.",
+        "Save so new orders calculate tax correctly."
+      ],
+      "image": "admin-payments-taxes.png",
+      "caption": "Taxes tab."
+    },
+    {
+      "id": "order-types",
+      "title": "Order types",
+      "steps": [
+        "Open the Order types tab.",
+        "Configure dine-in, takeaway, delivery, and other service modes.",
+        "Order types drive kitchen routing, reporting, and default behaviors."
+      ],
+      "image": "admin-payments-order-types.png",
+      "caption": "Order types tab."
+    },
+    {
+      "id": "extras",
+      "title": "Extras",
+      "intro": "Extras are automatic surcharges linked to payment types, order types, or tables (e.g. service fees or cover charges).",
+      "steps": [
+        "Open the Extras tab.",
+        "Create extras with name, amount, and applicability rules.",
+        "Save so qualifying orders include the surcharge on payment."
+      ],
+      "image": "admin-extras.png",
+      "caption": "Extras tab."
+    },
+    {
+      "id": "payment-type-form",
+      "title": "Betaaltypeformulier",
+      "intro": "Lokaal en Remote Stripe, PayPal.",
+      "steps": [
+        "Admin → Betalingen → Types.",
+        "Naam, prioriteit, type.",
+        "Remote: gateway, modus, keys.",
+        "Opslaan."
+      ],
+      "image": "admin-payments-type-form.png",
+      "caption": "Formulier remote gateway.",
+      "fields": [
+        {
+          "name": "Naam",
+          "effect": "Label betaalknoppen."
+        },
+        {
+          "name": "Prioriteit",
+          "effect": "Volgorde."
+        },
+        {
+          "name": "Type",
+          "effect": "Remote toont gateway."
+        },
+        {
+          "name": "Gateway provider",
+          "effect": "Stripe, PayPal etc."
+        },
+        {
+          "name": "Gateway modus",
+          "effect": "Test vs live."
+        },
+        {
+          "name": "public_key",
+          "effect": "Client publishable key."
+        },
+        {
+          "name": "secret_key",
+          "effect": "Server secret."
+        },
+        {
+          "name": "webhook_secret",
+          "effect": "Valideert callbacks."
+        },
+        {
+          "name": "client_id / client_secret",
+          "effect": "OAuth gateways."
+        },
+        {
+          "name": "merchant_id / integrity_salt",
+          "effect": "Merchant velden."
+        },
+        {
+          "name": "Belasting",
+          "effect": "Standaard belastingregel."
+        },
+        {
+          "name": "Kortingen",
+          "effect": "Auto-regels."
+        }
+      ]
+    },
+    {
+      "id": "tax-form",
+      "title": "Belastingformulier",
+      "steps": [
+        "Betalingen → Belastingen.",
+        "Naam, tarief, inclusief/exclusief.",
+        "Opslaan."
+      ],
+      "image": "admin-payments-tax-form.png",
+      "caption": "Belastingformulier.",
+      "fields": [
+        {
+          "name": "Naam",
+          "effect": "Label bon."
+        },
+        {
+          "name": "Tarief",
+          "effect": "Percentage belastbaar."
+        },
+        {
+          "name": "Inclusief",
+          "effect": "Indien true, in prijs."
+        }
+      ]
+    },
+    {
+      "id": "order-type-form",
+      "title": "Ordertypeformulier",
+      "steps": [
+        "Betalingen → Ordertypes.",
+        "Naam en flags.",
+        "Opslaan."
+      ],
+      "image": "admin-payments-order-type-form.png",
+      "caption": "Ordertypeformulier.",
+      "fields": [
+        {
+          "name": "Naam",
+          "effect": "Type op bonnen."
+        },
+        {
+          "name": "Prioriteit",
+          "effect": "Volgorde selectors."
+        },
+        {
+          "name": "Standaard",
+          "effect": "Vooraf geselecteerd nieuw."
+        }
+      ]
+    },
+    {
+      "id": "extra-form",
+      "title": "Extra (servicekosten) formulier",
+      "intro": "Voegt automatische toeslagen toe.",
+      "steps": [
+        "Betalingen → Extras.",
+        "Naam en bedrag/tarief.",
+        "Toepassingsregels.",
+        "Opslaan."
+      ],
+      "image": "admin-payments-extra-form.png",
+      "caption": "Toeslagformulier.",
+      "fields": [
+        {
+          "name": "Naam",
+          "effect": "Label gastbon."
+        },
+        {
+          "name": "Bedrag / tarief",
+          "effect": "Vast of procent."
+        },
+        {
+          "name": "Belastbaar",
+          "effect": "BTW op toeslag."
+        },
+        {
+          "name": "Auto-toepassen regels",
+          "effect": "Ordertype/betaaltype."
+        }
+      ]
+    }
+  ]
+}

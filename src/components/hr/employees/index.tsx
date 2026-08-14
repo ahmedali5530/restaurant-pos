@@ -73,7 +73,7 @@ export const HrEmployees = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button key="employee-create" variant="primary" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
+          <Button key="employee-create" variant="primary" data-testid="hr-add-employees" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
             {t("buttons.employee")}
           </Button>,
         ]}

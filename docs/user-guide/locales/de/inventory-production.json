@@ -1,0 +1,126 @@
+{
+  "title": "Rezepte & Produktion",
+  "intro": "Definieren Sie Chargenrezepte, führen Sie Produktion aus und prüfen Sie die Historie.",
+  "sections": [
+    {
+      "id": "recipes",
+      "title": "Rezeptliste",
+      "steps": [
+        "Öffnen Sie Inventar → Rezepte.",
+        "Durchsuchen Sie aktive Rezepte mit Chargengröße und Output-Artikeln.",
+        "Rezepte für Küchenvorbereitung und Kalkulation pflegen."
+      ],
+      "image": "inventory-recipes.png",
+      "caption": "Registerkarte Rezeptpflege.",
+      "fields": []
+    },
+    {
+      "id": "recipe-form",
+      "title": "Rezeptformular",
+      "intro": "Definiert Input-Artikel, Output-Erträge und Kostenverteilung auf Outputs.",
+      "steps": [
+        "Klicken Sie Rezept hinzufügen oder Zeile bearbeiten.",
+        "Name, Code und Basis-Chargenmenge eingeben.",
+        "Input-Zeilen mit Artikel und Menge hinzufügen.",
+        "Output-Zeilen mit Ertrag %, Disposition und Primary-Flag.",
+        "Speichern für Produktionschargen."
+      ],
+      "image": "inventory-recipe-form.png",
+      "caption": "Rezeptformular mit Inputs und Outputs.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Anzeigename in Produktion und Berichten."
+        },
+        {
+          "name": "Code",
+          "effect": "Optionaler Kurzcode für die Küche."
+        },
+        {
+          "name": "Basis-Chargenmenge",
+          "effect": "Standardchargengröße zum Skalieren der Zutaten."
+        },
+        {
+          "name": "Kostenverteilung",
+          "effect": "Methode zur Verteilung der Input-Kosten auf Outputs."
+        },
+        {
+          "name": "Input-Artikel",
+          "effect": "Verbrauchte Artikel und Mengen pro Charge."
+        },
+        {
+          "name": "Output-Artikel",
+          "effect": "Produzierte Artikel mit Ertrag % und Primary-Output."
+        },
+        {
+          "name": "Aktiv",
+          "effect": "Inaktive Rezepte erscheinen nicht in neuen Produktionsläufen."
+        }
+      ]
+    },
+    {
+      "id": "production",
+      "title": "Produktionsläufe",
+      "steps": [
+        "Öffnen Sie die Produktions-Registerkarte.",
+        "Starten Sie eine neue Charge aus aktivem Rezept.",
+        "Skalierte Zutaten in Vorschau, dann abschließen für Bestandsbuchungen."
+      ],
+      "image": "inventory-production.png",
+      "caption": "Produktionstab mit Chargenliste.",
+      "fields": []
+    },
+    {
+      "id": "production-form",
+      "title": "Produktionschargenformular",
+      "intro": "Beim Abschluss werden Inputs abgebucht und Outputs am gewählten Standort gutgeschrieben.",
+      "steps": [
+        "Klicken Sie Neue Produktion.",
+        "Rezept, Standort und produzierte Menge wählen.",
+        "Vorschau skalierter Inputs/Outputs prüfen.",
+        "Optional Artikelkosten aus Charge aktualisieren.",
+        "Abschließen für Charge und Historie."
+      ],
+      "image": "inventory-production-form.png",
+      "caption": "Chargenformular mit Vorschau.",
+      "fields": [
+        {
+          "name": "Rezept",
+          "effect": "Bestimmt Zutaten und Outputs der Charge."
+        },
+        {
+          "name": "Standort",
+          "effect": "Lager für Verbrauch und Produktion."
+        },
+        {
+          "name": "Produzierte Menge",
+          "effect": "Skaliert Rezept von Basis-Chargengröße."
+        },
+        {
+          "name": "Chargennummer",
+          "effect": "Optionale Referenz auf Etiketten/Historie."
+        },
+        {
+          "name": "Artikelkosten aktualisieren",
+          "effect": "Berechnet Output-Kosten aus Chargentotalen neu."
+        },
+        {
+          "name": "Notizen",
+          "effect": "Freitext im Produktionsdatensatz."
+        }
+      ]
+    },
+    {
+      "id": "production-history",
+      "title": "Produktionshistorie",
+      "steps": [
+        "Öffnen Sie Produktionshistorie für abgeschlossene Chargen.",
+        "Filtern nach Datum, Rezept oder Standort.",
+        "Zeile öffnen für Inputs, Outputs und Buchungsbenutzer."
+      ],
+      "image": "inventory-production-history.png",
+      "caption": "Liste Produktionshistorie.",
+      "fields": []
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "title": "Kitchens and workflows",
+  "intro": "Route fired items to the right kitchen stations and define how orders move through preparation stages.",
+  "sections": [
+    {
+      "id": "kitchens",
+      "title": "Kitchens",
+      "intro": "Kitchens group dishes and link to printers for kitchen tickets.",
+      "steps": [
+        "Open the Kitchens tab.",
+        "Create kitchen stations (e.g. Grill, Bar, Pastry).",
+        "Assign dishes and printers so tickets route to the correct station."
+      ],
+      "image": "admin-kitchens.png",
+      "caption": "Kitchens maintenance table."
+    },
+    {
+      "id": "workflows",
+      "title": "Workflows",
+      "intro": "Workflows define order-status steps used by kitchen and order-display screens.",
+      "steps": [
+        "Open the Workflows tab.",
+        "Create or edit workflow steps and transitions.",
+        "Link workflows to order types or kitchens as required by your venue setup."
+      ],
+      "image": "admin-workflows.png",
+      "caption": "Workflows tab."
+    },
+    {
+      "id": "kitchen-form",
+      "title": "Mutfak formu",
+      "intro": "Yemekleri yazıcı ve envanter konumlarına yönlendirir.",
+      "steps": [
+        "Admin → Mutfak → Mutfaklar.",
+        "Ad, öncelik, yazıcılar, yemekler.",
+        "Kaydet."
+      ],
+      "image": "admin-kitchen-kitchen-form.png",
+      "caption": "Mutfak istasyon formu.",
+      "fields": [
+        {
+          "name": "Ad",
+          "effect": "KOT ve sipariş ekranında etiket."
+        },
+        {
+          "name": "Öncelik",
+          "effect": "Eşleşen mutfaklarda sıra."
+        },
+        {
+          "name": "Yazıcılar",
+          "effect": "Bu mutfak için ticket yazdıran cihazlar."
+        },
+        {
+          "name": "Kalemler (yemekler)",
+          "effect": "Bu istasyona yönlendirilen yemekler."
+        }
+      ]
+    },
+    {
+      "id": "workflow-form",
+      "title": "İş akışı formu",
+      "intro": "Mutfak aşamalarını zincirler.",
+      "steps": [
+        "Mutfak → İş akışları.",
+        "Ad ve sıralı aşamalar.",
+        "Her aşamaya mutfak ata.",
+        "Yemeklere bağla."
+      ],
+      "image": "admin-kitchen-workflow-form.png",
+      "caption": "Aşama düzenleyici.",
+      "fields": [
+        {
+          "name": "Ad",
+          "effect": "Yemeklerde tanımlayıcı."
+        },
+        {
+          "name": "Aşamalar",
+          "effect": "Sıralı hazırlık adımları."
+        },
+        {
+          "name": "Aşama mutfağı",
+          "effect": "Her aşamanın istasyonu."
+        }
+      ]
+    }
+  ]
+}

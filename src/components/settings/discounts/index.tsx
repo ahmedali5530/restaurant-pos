@@ -123,10 +123,10 @@ export const AdminDiscounts = () => {
   return (
     <>
       <Tabs selectedKey={tab} onSelectionChange={key => setTab(String(key))}>
-        <TabList className="flex gap-3 p-3 bg-white border-b border-neutral-200">
-          <Tab id="rules">{t('discountEngine.tabs.rules')}</Tab>
-          <Tab id="reasons">{t('discountEngine.tabs.reasons')}</Tab>
-          <Tab id="permissions">{t('discountEngine.tabs.permissions')}</Tab>
+        <TabList className="flex gap-3 p-3 bg-white border-b border-neutral-200" data-testid="admin-discounts-tabs">
+          <Tab id="rules" data-testid="admin-discounts-tab-rules">{t('discountEngine.tabs.rules')}</Tab>
+          <Tab id="reasons" data-testid="admin-discounts-tab-reasons">{t('discountEngine.tabs.reasons')}</Tab>
+          <Tab id="permissions" data-testid="admin-discounts-tab-permissions">{t('discountEngine.tabs.permissions')}</Tab>
         </TabList>
 
         <TabPanel id="rules">
@@ -135,7 +135,7 @@ export const AdminDiscounts = () => {
             loaderHook={loadHook}
             loaderLineItems={columns.length}
             buttons={[
-              <Button key="add" variant="primary" onClick={() => protectAction(() => {
+              <Button key="add" variant="primary" data-testid="admin-add-discounts" onClick={() => protectAction(() => {
                 setData(undefined);
                 setFormModal(true);
               }, {

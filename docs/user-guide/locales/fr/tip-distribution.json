@@ -1,0 +1,39 @@
+{
+  "title": "Répartition des pourboires",
+  "intro": "Calcule la répartition des pourboires du shift et enregistre le résultat.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Écran de répartition",
+      "steps": [
+        "Appuyez sur Répartition des pourboires.",
+        "Sélectionnez shift et date.",
+        "Charger calcule les totaux."
+      ],
+      "image": "tips-overview.png",
+      "caption": "Écran de répartition."
+    },
+    {
+      "id": "filters",
+      "title": "Shift et date",
+      "steps": [
+        "Choisissez le shift.",
+        "Choisissez la date.",
+        "Appuyez sur Charger."
+      ],
+      "image": "tips-filters.png",
+      "caption": "Shift, date et chargement."
+    },
+    {
+      "id": "table",
+      "title": "Tableau de répartition",
+      "steps": [
+        "Le total montre le montant du shift.",
+        "Chaque ligne : utilisateur, rôle, poids et part.",
+        "Envoyer enregistre après contrôle."
+      ],
+      "image": "tips-table.png",
+      "caption": "Totaux et tableau."
+    }
+  ]
+}

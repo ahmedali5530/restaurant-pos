@@ -1,0 +1,75 @@
+{
+  "title": "Intégrations",
+  "intro": "Les intégrations connectent POSR à des fournisseurs externes (comptabilité, fiscal, logging, inventaire). Activez, configurez et surveillez santé et file.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Ouvrir Intégrations",
+      "steps": [
+        "Connectez-vous avec accès intégrations.",
+        "Appuyez sur Intégrations.",
+        "S'ouvre sur Fournisseurs."
+      ],
+      "image": "integrations-overview.png",
+      "caption": "Écran Intégrations."
+    },
+    {
+      "id": "tabs",
+      "title": "Navigation par onglets",
+      "intro": "Onglets : liste, configuration, santé et file.",
+      "steps": [
+        "Fournisseurs liste les connecteurs.",
+        "Configuration stocke les identifiants.",
+        "Santé et File montrent l'état et les jobs."
+      ],
+      "image": "integrations-tabs.png",
+      "caption": "Barre d'onglets Intégrations."
+    },
+    {
+      "id": "providers",
+      "title": "Fournisseurs",
+      "steps": [
+        "Examinez chaque carte : nom, catégorie, version.",
+        "Activez ou désactivez avec le switch.",
+        "Appuyez sur Configurer."
+      ],
+      "image": "integrations-providers.png",
+      "caption": "Liste des fournisseurs."
+    },
+    {
+      "id": "configuration",
+      "title": "Configuration",
+      "intro": "Secrets et options de mapping du fournisseur.",
+      "steps": [
+        "Sélectionnez un fournisseur.",
+        "Remplissez les champs requis.",
+        "Connectez ou lancez la synchro initiale."
+      ],
+      "image": "integrations-configuration.png",
+      "caption": "Panneau de configuration."
+    },
+    {
+      "id": "health",
+      "title": "Santé",
+      "steps": [
+        "Ouvrez Santé pour les statuts.",
+        "Les fournisseurs sains envoient des événements.",
+        "Actualisé à l'ouverture ou au bascule."
+      ],
+      "image": "integrations-health.png",
+      "caption": "Panneau santé."
+    },
+    {
+      "id": "queue",
+      "title": "File",
+      "intro": "Jobs sortants vers systèmes externes.",
+      "steps": [
+        "Ouvrez File pour voir en attente ou échecs.",
+        "Les jobs se mettent à jour onglet ouvert.",
+        "Les échecs se résolvent après correction."
+      ],
+      "image": "integrations-queue.png",
+      "caption": "Panneau file."
+    }
+  ]
+}

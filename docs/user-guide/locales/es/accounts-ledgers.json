@@ -1,0 +1,68 @@
+{
+  "title": "Libros, PyG y flujo de caja",
+  "intro": "Review posted activity and period balances: general ledger detail, trial balance, and balance sheet.",
+  "sections": [
+    {
+      "id": "ledger",
+      "title": "General ledger",
+      "steps": [
+        "Open the General ledger tab.",
+        "Filter by account and date range to inspect posted lines.",
+        "Use this view to drill into journal activity for an account."
+      ],
+      "image": "accounts-ledger.png",
+      "caption": "General ledger tab."
+    },
+    {
+      "id": "trial",
+      "title": "Trial balance",
+      "intro": "Trial balance lists debit and credit totals by account for a period.",
+      "steps": [
+        "Open the Trial balance tab.",
+        "Choose the period or as-of date your venue uses.",
+        "Confirm debits equal credits before relying on statements."
+      ],
+      "image": "accounts-trial-balance.png",
+      "caption": "Trial balance tab."
+    },
+    {
+      "id": "balance-sheet",
+      "title": "Balance sheet",
+      "steps": [
+        "Open the Balance sheet tab.",
+        "Review assets, liabilities, and equity for the selected date.",
+        "Other statement tabs (Profit & loss, Cash flow) follow the same pattern."
+      ],
+      "image": "accounts-balance-sheet.png",
+      "caption": "Balance sheet tab."
+    },
+    {
+      "id": "profit-loss",
+      "title": "Pérdidas y ganancias",
+      "intro": "Estado de resultados del período: ingresos, costo de ventas y gastos operativos.",
+      "steps": [
+        "Abra Cuentas y la pestaña Pérdidas y ganancias.",
+        "Defina rango de fechas o período según su ciclo de informes.",
+        "Expanda grupos de cuentas para revisar totales por categoría.",
+        "Exporte o imprima cuando el período esté cerrado."
+      ],
+      "image": "accounts-profit-loss.png",
+      "caption": "Pestaña de estado de pérdidas y ganancias.",
+      "fields": []
+    },
+    {
+      "id": "cash-flow",
+      "title": "Flujo de caja",
+      "intro": "Resume movimientos de efectivo operativos, de inversión y financiación del período.",
+      "steps": [
+        "Abra la pestaña Flujo de caja en Cuentas.",
+        "Use el mismo período que otros estados.",
+        "Revise saldo inicial, cambio neto y efectivo final.",
+        "Úselo junto al P&G para explicar diferencias de caja vs. devengo."
+      ],
+      "image": "accounts-cash-flow.png",
+      "caption": "Pestaña de flujo de caja.",
+      "fields": []
+    }
+  ]
+}

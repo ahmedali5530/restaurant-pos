@@ -143,49 +143,65 @@ export const IntegrationsScreen = () => {
   return (
     <Layout>
       <DocumentTitle parts={[pages[selected as keyof typeof pages]?.title, tNav('sidebar.integrations')]} />
-      <Tabs
-        className="w-full flex flex-col rounded-xl"
-        selectedKey={selected}
-        onSelectionChange={(key: string) => {
-          protectAction(() => setSelected(key), {
-            module: INTEGRATION_TAB_MODULES[key],
-            description: t('security.accessTab', { module: pages[key as keyof typeof pages].title }),
-          });
-        }}
-      >
-        <TabList aria-label="Integrations tabs" className="flex flex-row gap-3 px-1 py-3 flex-nowrap">
-          {Object.keys(pages).map((key) => (
-            <Tab id={key} key={key}>{pages[key as keyof typeof pages].title}</Tab>
-          ))}
-        </TabList>
+      <div data-testid="integrations-page">
+        <Tabs
+          className="w-full flex flex-col rounded-xl"
+          selectedKey={selected}
+          onSelectionChange={(key: string) => {
+            protectAction(() => setSelected(key), {
+              module: INTEGRATION_TAB_MODULES[key],
+              description: t('security.accessTab', { module: pages[key as keyof typeof pages].title }),
+            });
+          }}
+        >
+          <TabList
+            aria-label="Integrations tabs"
+            className="flex flex-row gap-3 px-1 py-3 flex-nowrap"
+            data-testid="integrations-tabs"
+          >
+            {Object.keys(pages).map((key) => (
+              <Tab id={key} key={key} data-testid={`integrations-tab-${key}`}>
+                {pages[key as keyof typeof pages].title}
+              </Tab>
+            ))}
+          </TabList>
 
-        <TabPanel id="providers" className="bg-white shadow flex-grow flex-shrink-0">
-          <ProvidersPanel
-            providers={providerEntries}
-            onConfigure={handleConfigure}
-            onToggleProvider={handleToggleProvider}
-          />
-        </TabPanel>
+          <TabPanel id="providers" className="bg-white shadow flex-grow flex-shrink-0">
+            <div data-testid="integrations-panel-providers">
+              <ProvidersPanel
+                providers={providerEntries}
+                onConfigure={handleConfigure}
+                onToggleProvider={handleToggleProvider}
+              />
+            </div>
+          </TabPanel>
 
-        <TabPanel id="configuration" className="bg-white shadow flex-grow flex-shrink-0">
-          <ConfigurationPanel
-            providers={providers}
-            selectedProviderId={selectedProviderId}
-            onProviderChange={setSelectedProviderId}
-            onConnect={handleConnect}
-            onDisconnect={handleDisconnect}
-            onInitialSync={handleInitialSync}
-          />
-        </TabPanel>
+          <TabPanel id="configuration" className="bg-white shadow flex-grow flex-shrink-0">
+            <div data-testid="integrations-panel-configuration">
+              <ConfigurationPanel
+                providers={providers}
+                selectedProviderId={selectedProviderId}
+                onProviderChange={setSelectedProviderId}
+                onConnect={handleConnect}
+                onDisconnect={handleDisconnect}
+                onInitialSync={handleInitialSync}
+              />
+            </div>
+          </TabPanel>
 
-        <TabPanel id="health" className="bg-white shadow flex-grow flex-shrink-0">
-          <HealthPanel rows={healthRows} />
-        </TabPanel>
+          <TabPanel id="health" className="bg-white shadow flex-grow flex-shrink-0">
+            <div data-testid="integrations-panel-health">
+              <HealthPanel rows={healthRows} />
+            </div>
+          </TabPanel>
 
-        <TabPanel id="queue" className="bg-white shadow flex-grow flex-shrink-0">
-          <QueuePanel rows={queueRows} />
-        </TabPanel>
-      </Tabs>
+          <TabPanel id="queue" className="bg-white shadow flex-grow flex-shrink-0">
+            <div data-testid="integrations-panel-queue">
+              <QueuePanel rows={queueRows} />
+            </div>
+          </TabPanel>
+        </Tabs>
+      </div>
     </Layout>
   );
 };

@@ -13,47 +13,58 @@ POSR Documentation
 │   ├── Orders
 │   ├── Session lock, logout, and clock
 │   ├── Settings
-│   ├── Tables and dine-in (deep dive) [planned]
-│   └── Security re-authentication [planned]
+│   ├── Tables and dine-in
+│   └── Security re-authentication
 │
 ├── 📗 Manager Guide
-│   ├── Summary [planned]
-│   ├── Kitchen [planned]
-│   ├── Order display [planned]
-│   ├── Delivery [planned]
-│   ├── Closing [planned]
-│   ├── Reports (operations) [planned]
-│   └── Tip oversight [planned]
+│   ├── Summary
+│   ├── Kitchen
+│   ├── Order display
+│   ├── Delivery
+│   ├── Closing
+│   ├── Reports (operations)
+│   └── Tip oversight
 │
 ├── 📙 Inventory Guide
-│   ├── Inventory overview [planned]
-│   ├── Items and stock [planned]
-│   ├── Purchases [planned]
-│   ├── Issues and returns [planned]
-│   ├── Wastes [planned]
-│   └── Stock counts [planned]
+│   ├── Inventory overview
+│   ├── Items and stock master data
+│   ├── Purchases
+│   ├── Issues and returns
+│   ├── Wastes
+│   ├── Stock counts and transfers
+│   ├── Kitchen reconciliation
+│   ├── Recipes & production
+│   └── Buffet menus & sessions
 │
 ├── 📕 Accounts Guide
-│   ├── Accounts overview [planned]
-│   ├── Expenses [planned]
-│   └── Ledgers and balances [planned]
+│   ├── Accounts overview
+│   ├── Journal entries and account groups
+│   └── Ledgers, P&L, and cash flow
 │
 ├── 📒 HR Guide
-│   ├── HR overview [planned]
-│   ├── Employees [planned]
-│   ├── Attendance [planned]
-│   ├── Leave [planned]
-│   └── Tip distribution [planned]
+│   ├── HR overview
+│   ├── Employees
+│   ├── Cost centers
+│   ├── Attendance
+│   ├── Leave
+│   ├── Pay profiles & rules
+│   ├── Payroll periods & runs
+│   ├── Employee documents
+│   ├── Performance notes
+│   └── Tip distribution
 │
 └── 📓 Administrator Guide
-    ├── Manage overview [planned]
-    ├── Menus, categories, dishes [planned]
-    ├── Floors and tables [planned]
-    ├── Users and roles [planned]
-    ├── Payment types and taxes [planned]
-    ├── Integrations [planned]
-    ├── Advanced device settings [planned]
-    └── Reports hub [planned]
+    ├── Manage overview
+    ├── Menus, categories, and dishes
+    ├── Floors and tables
+    ├── Discounts and coupons
+    ├── Kitchens and workflows
+    ├── Printers and print settings
+    ├── Payment types, taxes, and order types
+    ├── Users and roles
+    ├── Reports hub (administrator packs)
+    ├── Integrations
+    └── Advanced device settings
 ```
 
 ## Build output

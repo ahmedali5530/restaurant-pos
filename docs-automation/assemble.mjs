@@ -73,6 +73,27 @@ function imageHrefFromHub(relFromRoot) {
   return `../../images/${relFromRoot}`;
 }
 
+function renderFieldsMarkdown(section) {
+  if (!Array.isArray(section.fields) || !section.fields.length) return '';
+  const lines = ['**Fields**', ''];
+  for (const f of section.fields) {
+    lines.push(`- **${f.name}** — ${f.effect}`);
+  }
+  lines.push('');
+  return lines.join('\n');
+}
+
+function renderFieldsHtml(section) {
+  if (!Array.isArray(section.fields) || !section.fields.length) return '';
+  const items = section.fields
+    .map(
+      (f) =>
+        `<li><strong>${escapeHtml(f.name)}</strong> — ${escapeHtml(f.effect)}</li>`
+    )
+    .join('\n');
+  return `<p><strong>Fields</strong></p><ul class="field-list">${items}</ul>`;
+}
+
 function sectionToMarkdown(section, langFolder, imageHrefFn) {
   const lines = [];
   lines.push(`### ${section.title}`, '');
@@ -81,6 +102,8 @@ function sectionToMarkdown(section, langFolder, imageHrefFn) {
     section.steps.forEach((step, i) => lines.push(`${i + 1}. ${step}`));
     lines.push('');
   }
+  const fieldsMd = renderFieldsMarkdown(section);
+  if (fieldsMd) lines.push(fieldsMd);
   if (section.image) {
     const resolved = resolveImage(langFolder, section.image);
     if (resolved) {
@@ -113,6 +136,8 @@ function sectionToHtml(section, langFolder, imageHrefFn) {
     for (const step of section.steps) parts.push(`<li>${escapeHtml(step)}</li>`);
     parts.push('</ol>');
   }
+  const fieldsHtml = renderFieldsHtml(section);
+  if (fieldsHtml) parts.push(fieldsHtml);
   if (section.image) {
     const resolved = resolveImage(langFolder, section.image);
     if (resolved) {
@@ -215,6 +240,8 @@ function sharedCss() {
     figcaption { font-size: 9.5pt; color: #52525b; margin-top: 0.35em; }
     ol { padding-inline-start: 1.25em; }
     li { margin: 0.25em 0; }
+    .field-list { margin: 0.5em 0 1em; padding-inline-start: 1.25em; }
+    .field-list li { margin: 0.35em 0; }
     blockquote {
       margin: 0.5em 0;
       padding: 0.5em 0.75em;
@@ -288,7 +315,9 @@ function buildGuideHtml(guideMeta, guideDef, chapters, lang, langFolder) {
   body.push(`<nav><h2>${escapeHtml(guideMeta.toc)}</h2><ul>`);
   for (const ch of chapters) {
     const suffix = ch.ready ? '' : ` (${guideMeta.plannedLabel})`;
-    body.push(`<li>${escapeHtml(ch.title)}${escapeHtml(suffix)}</li>`);
+    body.push(
+      `<li><a href="#${escapeHtml(ch.key)}">${escapeHtml(ch.title)}${escapeHtml(suffix)}</a></li>`
+    );
   }
   body.push('</ul></nav>');
 
@@ -372,7 +401,7 @@ function buildHubHtml(hub, guidesMeta, chaptersByGuide, lang) {
       const cls = ch.ready ? 'status-ready' : 'status-planned';
       const label = ch.ready ? hub.statusReady || 'Ready' : hub.statusPlanned || 'Planned';
       body.push(
-        `<li>${escapeHtml(ch.title)} <span class="${cls}">(${escapeHtml(label)})</span></li>`
+        `<li><a href="./${g.folder}/user-guide.html#${escapeHtml(ch.key)}">${escapeHtml(ch.title)}</a> <span class="${cls}">(${escapeHtml(label)})</span></li>`
       );
     }
     body.push('</ul></div>');
@@ -465,11 +494,15 @@ function assembleLang(lang) {
         `<p><em>Legacy combined file — prefer <a href="./index.html">POSR Documentation hub</a>.</em></p></header>`
       );
       body.push(`<nav><h2>${escapeHtml(meta.toc)}</h2><ul>`);
-      for (const ch of chapters) body.push(`<li>${escapeHtml(ch.title)}</li>`);
+      for (const ch of chapters) {
+        body.push(`<li><a href="#${escapeHtml(ch.key)}">${escapeHtml(ch.title)}</a></li>`);
+      }
       body.push('</ul></nav>');
       chapters.forEach((ch, index) => {
         const pageBreak = index > 0 ? ' page-break' : '';
-        body.push(`<article class="chapter${pageBreak}"><h2>${escapeHtml(ch.title)}</h2>`);
+        body.push(
+          `<article class="chapter${pageBreak}" id="${escapeHtml(ch.key)}"><h2>${escapeHtml(ch.title)}</h2>`
+        );
         if (ch.intro) body.push(`<p>${escapeHtml(ch.intro)}</p>`);
         for (const section of ch.sections || []) {
           body.push(sectionToHtml(section, lang.folder, imageHrefFromHub));

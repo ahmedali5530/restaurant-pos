@@ -1,0 +1,68 @@
+{
+  "title": "دفاتر الأستاذ والربح والخسارة والتدفقات النقدية",
+  "intro": "Review posted activity and period balances: general ledger detail, trial balance, and balance sheet.",
+  "sections": [
+    {
+      "id": "ledger",
+      "title": "General ledger",
+      "steps": [
+        "Open the General ledger tab.",
+        "Filter by account and date range to inspect posted lines.",
+        "Use this view to drill into journal activity for an account."
+      ],
+      "image": "accounts-ledger.png",
+      "caption": "General ledger tab."
+    },
+    {
+      "id": "trial",
+      "title": "Trial balance",
+      "intro": "Trial balance lists debit and credit totals by account for a period.",
+      "steps": [
+        "Open the Trial balance tab.",
+        "Choose the period or as-of date your venue uses.",
+        "Confirm debits equal credits before relying on statements."
+      ],
+      "image": "accounts-trial-balance.png",
+      "caption": "Trial balance tab."
+    },
+    {
+      "id": "balance-sheet",
+      "title": "Balance sheet",
+      "steps": [
+        "Open the Balance sheet tab.",
+        "Review assets, liabilities, and equity for the selected date.",
+        "Other statement tabs (Profit & loss, Cash flow) follow the same pattern."
+      ],
+      "image": "accounts-balance-sheet.png",
+      "caption": "Balance sheet tab."
+    },
+    {
+      "id": "profit-loss",
+      "title": "الأرباح والخسائر",
+      "intro": "قائمة الدخل للفترة: الإيرادات وتكلفة المبيعات والمصروفات.",
+      "steps": [
+        "افتح الحسابات → الأرباح والخسائر.",
+        "حدد نطاق التاريخ أو الفترة.",
+        "وسّع مجموعات الحسابات.",
+        "صدّر عند إغلاق الفترة."
+      ],
+      "image": "accounts-profit-loss.png",
+      "caption": "تبويب الأرباح والخسائر.",
+      "fields": []
+    },
+    {
+      "id": "cash-flow",
+      "title": "التدفق النقدي",
+      "intro": "يلخص حركة النقد التشغيلية والاستثمارية والتمويلية.",
+      "steps": [
+        "افتح تبويب التدفق النقدي.",
+        "استخدم نفس فترة البيانات الأخرى.",
+        "راجع الرصيد الافتتاحي والتغير والختام.",
+        "استخدمه مع الأرباح والخسائر لفروق النقد والاستحقاق."
+      ],
+      "image": "accounts-cash-flow.png",
+      "caption": "تبويب التدفق النقدي.",
+      "fields": []
+    }
+  ]
+}

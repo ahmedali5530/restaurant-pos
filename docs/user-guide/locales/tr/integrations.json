@@ -1,0 +1,75 @@
+{
+  "title": "Entegrasyonlar",
+  "intro": "Entegrasyonlar POSR'yi muhasebe, mali, günlük ve envanter sağlayıcılarına bağlar. Sağlayıcıları etkinleştirin, kimlik bilgilerini yapılandırın, sağlık ve kuyruğu izleyin.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Entegrasyonları aç",
+      "steps": [
+        "Entegrasyon erişimiyle giriş yapın.",
+        "Yan menüde Entegrasyonlar'a dokunun.",
+        "Varsayılan olarak Sağlayıcılar sekmesi açılır."
+      ],
+      "image": "integrations-overview.png",
+      "caption": "Entegrasyonlar ekranı."
+    },
+    {
+      "id": "tabs",
+      "title": "Sekme gezinmesi",
+      "intro": "Sekmeler liste, yapılandırma, sağlık ve kuyruğu kapsar.",
+      "steps": [
+        "Sağlayıcılar bağlayıcıları listeler.",
+        "Yapılandırma kimlik bilgilerini tutar.",
+        "Sağlık ve Kuyruk durum ve işleri gösterir."
+      ],
+      "image": "integrations-tabs.png",
+      "caption": "Entegrasyonlar sekme çubuğu."
+    },
+    {
+      "id": "providers",
+      "title": "Sağlayıcılar",
+      "steps": [
+        "Her kartı inceleyin: ad, kategori, sürüm.",
+        "Anahtarla etkinleştirin veya kapatın.",
+        "Yapılandır ile Yapılandırma sekmesine gidin."
+      ],
+      "image": "integrations-providers.png",
+      "caption": "Sağlayıcı listesi."
+    },
+    {
+      "id": "configuration",
+      "title": "Yapılandırma",
+      "intro": "Seçili sağlayıcı için gizli anahtarlar ve eşlemeler.",
+      "steps": [
+        "Sağlayıcı seçin.",
+        "Gerekli alanları doldurun.",
+        "OAuth veya ilk senkronizasyonu çalıştırın."
+      ],
+      "image": "integrations-configuration.png",
+      "caption": "Yapılandırma paneli."
+    },
+    {
+      "id": "health",
+      "title": "Sağlık",
+      "steps": [
+        "Sağlık sekmesini açın.",
+        "Sağlıklı sağlayıcılar olay gönderebilir.",
+        "Açılışta veya etkinleştirmede yenilenir."
+      ],
+      "image": "integrations-health.png",
+      "caption": "Sağlık paneli."
+    },
+    {
+      "id": "queue",
+      "title": "Kuyruk",
+      "intro": "Dış sistemlere giden işleri tutar.",
+      "steps": [
+        "Kuyruk sekmesini açın.",
+        "Sekme açıkken işler güncellenir.",
+        "Başarısız işler yapılandırma sonrası düzelir."
+      ],
+      "image": "integrations-queue.png",
+      "caption": "Kuyruk paneli."
+    }
+  ]
+}

@@ -1,7 +1,10 @@
 import { test, expect } from '@playwright/test';
 import { clearHighlights, highlightAndReady } from '../helpers/highlight.ts';
 import {
+  clickOrderMenuAction,
+  closeAllModals,
   loginWithPin,
+  openOrderCardMenu,
   openOrdersPage,
   reloadAppCache,
   resetSession,
@@ -17,11 +20,13 @@ test('capture orders list, filters, and order card', async ({ page }) => {
   await loginWithPin(page);
   await reloadAppCache(page);
 
-  // Ensure at least one open order for the card shot
-  await sendOrderToKitchen(page);
-
   await openOrdersPage(page);
-  await page.waitForTimeout(1_500);
+  await page.waitForTimeout(1_000);
+  if ((await page.getByTestId('order-card').count()) === 0) {
+    await sendOrderToKitchen(page);
+    await openOrdersPage(page);
+    await page.waitForTimeout(1_500);
+  }
 
   await highlightAndReady(page, page.getByTestId('orders-page'));
   await capturePage(page, 'orders-overview', { fullPage: false });
@@ -36,10 +41,7 @@ test('capture orders list, filters, and order card', async ({ page }) => {
   await clearHighlights(page);
 
   const card = page.getByTestId('order-card').first();
-  await expect(card, {
-    message:
-      'No order cards for docs. Send at least one order To kitchen, then re-run capture.',
-  }).toBeVisible({ timeout: 45_000 });
+  await expect(card).toBeVisible({ timeout: 45_000 });
 
   await highlightAndReady(page, card);
   await captureLocator(card, 'orders-card');
@@ -49,28 +51,64 @@ test('capture orders list, filters, and order card', async ({ page }) => {
   await captureLocator(card, 'orders-card-actions');
   await clearHighlights(page);
 
-  // Open more menu for in-progress actions (cancel, split, merge…)
-  await card.scrollIntoViewIfNeeded();
-  const moreBtn = card.getByTestId('order-card-menu');
-  await moreBtn.click({ force: true });
-  await page.waitForTimeout(500);
+  await openOrderCardMenu(page);
   const menu = page.locator('[role="menu"]').last();
   if (await menu.isVisible().catch(() => false)) {
     await highlightAndReady(page, menu);
     await captureLocator(menu, 'orders-card-menu');
     await clearHighlights(page);
-  } else {
-    // Full viewport with open menu / card context if popover structure differs
-    await highlightAndReady(page, card);
-    await capturePage(page, 'orders-card-menu', { fullPage: false });
-    await clearHighlights(page);
   }
   await page.keyboard.press('Escape');
-  await page.waitForTimeout(200);
-  await page.keyboard.press('Escape');
+  await closeAllModals(page);
   await page.waitForTimeout(300);
 
-  // Table view (optional — capture if view actually switches)
+  // Cancel / void modal
+  await openOrderCardMenu(page);
+  await clickOrderMenuAction(page, 'cancel');
+  const cancelModal = page.getByTestId('order-cancel-modal');
+  if (await cancelModal.isVisible().catch(() => false)) {
+    await highlightAndReady(page, cancelModal);
+    await capturePage(page, 'orders-cancel-modal', { fullPage: false });
+    await clearHighlights(page);
+    await closeAllModals(page);
+  }
+
+  // Split modals (seats often disabled when items have no seat numbers)
+  for (const [action, shot, testId] of [
+    ['split_by_items', 'orders-split-items', 'order-split-items'],
+    ['split_by_amount', 'orders-split-amount', 'order-split-amount'],
+    ['split_by_seats', 'orders-split-seats', 'order-split-seats'],
+  ] as const) {
+    await openOrderCardMenu(page);
+    const menuItem = page.getByTestId(`order-menu-${action}`);
+    if ((await menuItem.getAttribute('aria-disabled')) === 'true' || await menuItem.isDisabled().catch(() => false)) {
+      await page.keyboard.press('Escape');
+      continue;
+    }
+    await clickOrderMenuAction(page, action);
+    const modal = page.getByTestId(testId);
+    if (await modal.isVisible().catch(() => false)) {
+      await highlightAndReady(page, modal);
+      await capturePage(page, shot, { fullPage: false });
+      await clearHighlights(page);
+      await closeAllModals(page);
+    } else {
+      await closeAllModals(page);
+    }
+  }
+
+  // Merge mode
+  await openOrderCardMenu(page);
+  await clickOrderMenuAction(page, 'merge');
+  const mergeBar = page.getByTestId('orders-merge-bar');
+  await expect(mergeBar).toBeVisible({ timeout: 15_000 });
+  await highlightAndReady(page, mergeBar);
+  await capturePage(page, 'orders-merge-bar', { fullPage: false });
+  await clearHighlights(page);
+  await mergeBar.getByTestId('orders-merge-cancel').click();
+  await page.waitForTimeout(400);
+
+  // Table view
   await page.getByTestId('orders-view-table').evaluate((el: HTMLElement) => el.click());
   await page.waitForTimeout(600);
   const tableList = page.getByTestId('orders-list-table');
@@ -78,14 +116,5 @@ test('capture orders list, filters, and order card', async ({ page }) => {
     await highlightAndReady(page, tableList);
     await captureLocator(tableList, 'orders-table-view');
     await clearHighlights(page);
-    await page.getByTestId('orders-view-blocks').evaluate((el: HTMLElement) => el.click());
-  } else {
-    // Fallback: document blocks list as dense view context
-    const blocks = page.getByTestId('orders-list-blocks');
-    if (await blocks.isVisible().catch(() => false)) {
-      await highlightAndReady(page, blocks);
-      await captureLocator(blocks, 'orders-table-view');
-      await clearHighlights(page);
-    }
   }
 });

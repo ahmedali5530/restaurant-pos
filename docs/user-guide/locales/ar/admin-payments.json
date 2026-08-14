@@ -1,0 +1,196 @@
+{
+  "title": "Payment types, taxes, and order types",
+  "intro": "Configure how orders are classified and settled: payment methods, tax rules, and service types (dine-in, delivery, etc.).",
+  "sections": [
+    {
+      "id": "payment-types",
+      "title": "Payment types",
+      "steps": [
+        "Open the Payment types tab.",
+        "Define Cash, Card, and custom tenders shown on the payment screen.",
+        "Set sort order and whether a type requires reference or change calculation."
+      ],
+      "image": "admin-payments-types.png",
+      "caption": "Payment types tab."
+    },
+    {
+      "id": "taxes",
+      "title": "Taxes",
+      "intro": "Taxes apply to dishes and appear on receipts and reports.",
+      "steps": [
+        "Open the Taxes tab.",
+        "Create tax rates and link them to applicable items or order types.",
+        "Save so new orders calculate tax correctly."
+      ],
+      "image": "admin-payments-taxes.png",
+      "caption": "Taxes tab."
+    },
+    {
+      "id": "order-types",
+      "title": "Order types",
+      "steps": [
+        "Open the Order types tab.",
+        "Configure dine-in, takeaway, delivery, and other service modes.",
+        "Order types drive kitchen routing, reporting, and default behaviors."
+      ],
+      "image": "admin-payments-order-types.png",
+      "caption": "Order types tab."
+    },
+    {
+      "id": "extras",
+      "title": "Extras",
+      "intro": "Extras are automatic surcharges linked to payment types, order types, or tables (e.g. service fees or cover charges).",
+      "steps": [
+        "Open the Extras tab.",
+        "Create extras with name, amount, and applicability rules.",
+        "Save so qualifying orders include the surcharge on payment."
+      ],
+      "image": "admin-extras.png",
+      "caption": "Extras tab."
+    },
+    {
+      "id": "payment-type-form",
+      "title": "نموذج نوع الدفع",
+      "intro": "محلي وRemote مع Stripe وPayPal.",
+      "steps": [
+        "Admin → المدفوعات → الأنواع.",
+        "الاسم والأولوية والنوع.",
+        "Remote: البوابة والوضع والمفاتيح.",
+        "احفظ."
+      ],
+      "image": "admin-payments-type-form.png",
+      "caption": "نموذج بوابة Remote.",
+      "fields": [
+        {
+          "name": "الاسم",
+          "effect": "تسمية أزرار الدفع."
+        },
+        {
+          "name": "الأولوية",
+          "effect": "الترتيب."
+        },
+        {
+          "name": "النوع",
+          "effect": "Remote يفعّل حقول البوابة."
+        },
+        {
+          "name": "مزود البوابة",
+          "effect": "Stripe أو PayPal."
+        },
+        {
+          "name": "وضع البوابة",
+          "effect": "test مقابل live."
+        },
+        {
+          "name": "public_key",
+          "effect": "مفتاح العميل القابل للنشر."
+        },
+        {
+          "name": "secret_key",
+          "effect": "سر الخادم لتحصيل المدفوعات."
+        },
+        {
+          "name": "webhook_secret",
+          "effect": "يتحقق من callbacks."
+        },
+        {
+          "name": "client_id / client_secret",
+          "effect": "بوابات OAuth."
+        },
+        {
+          "name": "merchant_id / integrity_salt",
+          "effect": "حقول التاجر."
+        },
+        {
+          "name": "الضريبة",
+          "effect": "قاعدة ضريبية افتراضية."
+        },
+        {
+          "name": "الخصومات",
+          "effect": "قواعد تطبق تلقائياً."
+        }
+      ]
+    },
+    {
+      "id": "tax-form",
+      "title": "نموذج الضريبة",
+      "steps": [
+        "المدفوعات → الضرائب.",
+        "الاسم والنسبة inclusive/exclusive.",
+        "احفظ."
+      ],
+      "image": "admin-payments-tax-form.png",
+      "caption": "نموذج الضريبة.",
+      "fields": [
+        {
+          "name": "الاسم",
+          "effect": "تسمية الإيصال."
+        },
+        {
+          "name": "النسبة",
+          "effect": "نسبة المبالغ الخاضعة."
+        },
+        {
+          "name": "Inclusive",
+          "effect": "إن true تُضمّن في السعر."
+        }
+      ]
+    },
+    {
+      "id": "order-type-form",
+      "title": "نموذج نوع الطلب",
+      "steps": [
+        "المدفوعات → أنواع الطلب.",
+        "الاسم والأعلام.",
+        "احفظ."
+      ],
+      "image": "admin-payments-order-type-form.png",
+      "caption": "نموذج نوع الطلب.",
+      "fields": [
+        {
+          "name": "الاسم",
+          "effect": "النوع على الحسابات."
+        },
+        {
+          "name": "الأولوية",
+          "effect": "ترتيب المحددات."
+        },
+        {
+          "name": "افتراضي",
+          "effect": "محدّد مسبقاً للطلبات الجديدة."
+        }
+      ]
+    },
+    {
+      "id": "extra-form",
+      "title": "نموذج الإضافة (رسوم الخدمة)",
+      "intro": "يضيف رسوماً تلقائية.",
+      "steps": [
+        "المدفوعات → الإضافات.",
+        "الاسم والمبلغ/النسبة.",
+        "قواعد التطبيق.",
+        "احفظ."
+      ],
+      "image": "admin-payments-extra-form.png",
+      "caption": "نموذج الرسوم الإضافية.",
+      "fields": [
+        {
+          "name": "الاسم",
+          "effect": "التسمية على إيصال الضيف."
+        },
+        {
+          "name": "المبلغ / النسبة",
+          "effect": "ثابت أو نسبة."
+        },
+        {
+          "name": "خاضع للضريبة",
+          "effect": "هل تُحسب ضريبة على الرسوم."
+        },
+        {
+          "name": "قواعد التطبيق التلقائي",
+          "effect": "أنواع الطلب/الدفع."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "title": "Informes (operaciones)",
+  "intro": "El hub de Informes lista reportes por categoría. Elija categoría, reporte y filtros.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Hub de informes",
+      "steps": [
+        "Pulse Informes en la barra lateral.",
+        "Columna izquierda: categorías.",
+        "Centro: reportes de la categoría.",
+        "Derecha: filtros del reporte elegido."
+      ],
+      "image": "reports-overview.png",
+      "caption": "Layout de tres columnas."
+    },
+    {
+      "id": "categories",
+      "title": "Categorías",
+      "intro": "Agrupan dashboards, ventas, órdenes, cierre, operaciones, productos, inventario y labor.",
+      "steps": [
+        "Pulse una categoría para ver reportes.",
+        "Marca de verificación en la categoría activa.",
+        "Algunos reportes pueden pedir PIN de gerente."
+      ],
+      "image": "reports-categories.png",
+      "caption": "Lista de categorías."
+    },
+    {
+      "id": "subreports",
+      "title": "Elegir un reporte",
+      "steps": [
+        "Tras la categoría, elija un reporte en el centro.",
+        "El panel de filtros se actualiza.",
+        "Reportes operativos: dashboard de ventas, actividad, gastos, cierre de caja."
+      ],
+      "image": "reports-subreports.png",
+      "caption": "Sub-reportes y filtros."
+    }
+  ]
+}

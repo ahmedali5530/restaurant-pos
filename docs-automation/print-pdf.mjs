@@ -25,6 +25,8 @@ async function printHtml(browser, htmlPath, pdfPath) {
     format: 'A4',
     printBackground: true,
     margin: { top: '12mm', right: '12mm', bottom: '14mm', left: '12mm' },
+    // Preserve Contents → chapter jumps; also add sidebar bookmarks from headings
+    outline: true,
   });
   await page.close();
   console.log(`PDF → ${path.relative(process.cwd(), pdfPath)}`);

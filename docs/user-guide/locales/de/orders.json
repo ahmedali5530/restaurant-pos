@@ -1,86 +1,202 @@
 {
-  "title": "Bestellungen",
-  "intro": "Der Bestellbildschirm listet offene und aktuelle Checks zum Zahlen, Drucken, Teilen, Zusammenführen, Stornieren oder Erstatten.",
+  "title": "Orders",
+  "intro": "The Orders screen lists open and recent checks so you can pay, print, split, merge, cancel, or refund without returning to the floor plan.",
   "sections": [
     {
       "id": "overview",
-      "title": "Bestell-Layout",
+      "title": "Orders layout",
+      "intro": "Open Orders from the left sidebar. Filters sit at the top; order cards (or table rows) fill the main area.",
       "steps": [
-        "Tippen Sie Bestellungen in der Seitenleiste.",
-        "Filtern nach Status, Typ, Etage, Benutzer und Datum.",
-        "Zwischen Blöcken und Tabelle umschalten."
+        "Tap Orders in the sidebar.",
+        "Use filters to narrow by status, order type, floor, user, and date.",
+        "Switch between Blocks and Table views with the toolbar buttons."
       ],
       "image": "orders-overview.png",
-      "caption": "Orders screen with filters and cards.",
-      "intro": "Bestellungen in der Seitenleiste. Filter oben; Karten oder Zeilen darunter."
+      "caption": "Orders screen with filters and cards."
     },
     {
       "id": "filters",
-      "title": "Filter",
+      "title": "Filters",
       "steps": [
-        "Status: In Bearbeitung, Bezahlt, Storniert, Geteilt, Zusammengeführt.",
-        "Typ, Etage und Benutzer grenzen ein.",
-        "Datum filtert den Tag; In Bearbeitung bleibt sichtbar wenn relevant."
+        "Status: In Progress, Paid, Cancelled, Split, Merged (multi-select).",
+        "Order type, floor, and user filters limit who and where.",
+        "The date picker shows paid/historical checks for that day; In Progress still appears when relevant."
       ],
       "image": "orders-filters.png",
       "caption": "Orders filter bar."
     },
     {
       "id": "toolbar",
-      "title": "Werkzeugleiste",
+      "title": "Toolbar",
       "steps": [
-        "Kassenschublade öffnen (ggf. PIN).",
-        "Blöcke = große Karten.",
-        "Tabelle = kompakte Liste."
+        "Open cash drawer pulses the cash drawer when printing and permissions allow it (may require manager PIN).",
+        "Blocks shows large order cards.",
+        "Table shows a compact list (tap an In Progress row to pay)."
       ],
       "image": "orders-toolbar.png",
       "caption": "Cash drawer and view toggles."
     },
     {
       "id": "card",
-      "title": "Bestellkarte",
+      "title": "Order card",
+      "intro": "Each card shows header, times, line items, totals, and action buttons for In Progress checks.",
       "steps": [
-        "Rechnung, Tisch, Status und Positionen prüfen.",
-        "Temp-Rechnung und Bezahlen bei In Bearbeitung.",
-        "⋯ für Storno, Teilen, Merge, KOT."
+        "Review invoice number, table, status, server, and items.",
+        "Temp bill (print) and Pay (card icon) appear for In Progress orders.",
+        "Use the ⋯ menu for cancel, split, merge, and kitchen print."
       ],
       "image": "orders-card.png",
-      "caption": "Order card with items and actions.",
-      "intro": "Kopf, Zeiten, Positionen, Totale und Aktionen."
+      "caption": "Order card with items and actions."
     },
     {
       "id": "card-actions",
-      "title": "Kartenaktionen",
+      "title": "Card actions",
       "steps": [
-        "Temp druckt vorläufig.",
-        "Bezahlen öffnet Zahlung.",
-        "⋯ weitere Aktionen."
+        "Temp bill prints a provisional check when allowed.",
+        "Pay opens the full payment screen for that order.",
+        "⋯ opens more actions (see next section)."
       ],
       "image": "orders-card-actions.png",
       "caption": "Print, Pay, and more on a card."
     },
     {
       "id": "menu",
-      "title": "Mehr-Menü (In Bearbeitung)",
+      "title": "More menu (In Progress)",
+      "intro": "Protected actions may ask for a manager PIN.",
       "steps": [
-        "Storno.",
-        "Teilen nach Sitzplätzen/Positionen/Betrag.",
-        "Merge startet.",
-        "KOT-Kopie drucken."
+        "Cancel order voids the check through the cancel flow.",
+        "Split by seats, items, or amount divides one check into multiple.",
+        "Merge selects this order for multi-table merge (finish with Choose table on the bottom bar).",
+        "Print KOT copy re-fires kitchen tickets when needed."
       ],
       "image": "orders-card-menu.png",
-      "caption": "Order more-actions menu.",
-      "intro": "Geschützte Aktionen können PIN fordern."
+      "caption": "Order more-actions menu."
     },
     {
       "id": "table-view",
-      "title": "Tabellenansicht",
+      "title": "Table view",
       "steps": [
-        "Tabellenansicht.",
-        "In Bearbeitung antippen zum Zahlen."
+        "Switch to Table for a dense list of today’s matching orders.",
+        "Tap an In Progress row to open payment quickly."
       ],
       "image": "orders-table-view.png",
       "caption": "Orders table view."
+    },
+    {
+      "id": "cancel-void",
+      "title": "Bestellung stornieren oder annullieren",
+      "intro": "Annulliert einen laufenden Bon. Vollständige Annullierung aller Positionen; teilweise nur ausgewählte. Manager-PIN kann erforderlich sein.",
+      "steps": [
+        "Öffnen Sie ⋯ auf einer laufenden Bestellkarte und wählen Sie Bestellung stornieren.",
+        "Wählen Sie einen Annullierungsgrund (Pflicht für Berichte).",
+        "Alle Positionen auswählen für vollständige Annullierung, oder abwählen und einzelne Zeilen wählen.",
+        "Bestätigen Sie, um den Bon zu annullieren und ggf. den Tisch freizugeben."
+      ],
+      "image": "orders-cancel-modal.png",
+      "caption": "Modal Stornierung mit Grund und Positionsauswahl.",
+      "fields": [
+        {
+          "name": "Grund",
+          "effect": "Pflicht-Annullierungsgrund auf der Bestellung für Audit und Berichte."
+        },
+        {
+          "name": "Alle Positionen auswählen",
+          "effect": "Angehakt annulliert den gesamten Bon; abgehakt ermöglicht Zeilenauswahl."
+        },
+        {
+          "name": "Teilannullierung",
+          "effect": "Einzelne Positionen annullieren, Rest des Bons bleibt offen."
+        }
+      ]
+    },
+    {
+      "id": "refund",
+      "title": "Bezahlte Bestellung erstatten",
+      "intro": "Erstattet einen bezahlten Bon, optional nur für ausgewählte Positionen.",
+      "steps": [
+        "Öffnen Sie eine bezahlte Bestellung und wählen Sie Erstattung im Aktionsmenü.",
+        "Wählen Sie Positionen und Mengen zur Erstattung.",
+        "Wählen Sie einen Erstattungsgrund und bestätigen Sie.",
+        "Das System bucht die Erstattung und aktualisiert Zahlungssummen."
+      ],
+      "image": "orders-refund-modal.png",
+      "caption": "Erstattungsmodal mit Positionsauswahl und Grund.",
+      "fields": [
+        {
+          "name": "Zu erstattende Positionen",
+          "effect": "Bezahlte Zeilen und Mengen, die dem Kunden zurückgegeben werden."
+        },
+        {
+          "name": "Grund",
+          "effect": "Dokumentiert die Erstattung für Managerprüfung und Berichte."
+        }
+      ]
+    },
+    {
+      "id": "split-seats",
+      "title": "Nach Sitzplätzen teilen",
+      "intro": "Teilt einen Bon in separate Bons nach Sitznummern auf den Positionen.",
+      "steps": [
+        "Wählen Sie ⋯ → Nach Sitzplätzen teilen bei laufender Bestellung.",
+        "Prüfen Sie die Gruppierung pro Sitz.",
+        "Bestätigen Sie — ein Kindbon pro Sitz mit gemeinsamem Tischkontext."
+      ],
+      "image": "orders-split-seats.png",
+      "caption": "Vorschau Aufteilung nach Sitzplätzen.",
+      "fields": []
+    },
+    {
+      "id": "split-items",
+      "title": "Nach Positionen teilen",
+      "intro": "Weist Zeilen manuell neuen Bons zu, unabhängig vom Sitz.",
+      "steps": [
+        "Wählen Sie ⋯ → Nach Positionen teilen.",
+        "Verschieben Sie jede Zeile in eine neue Bonspalte.",
+        "Bestätigen Sie für separate laufende Bons."
+      ],
+      "image": "orders-split-items.png",
+      "caption": "Zuweisungsraster nach Positionen.",
+      "fields": []
+    },
+    {
+      "id": "split-amount",
+      "title": "Nach Betrag teilen",
+      "intro": "Teilt den Bonbetrag in feste oder gleiche Teile für separate Zahlung.",
+      "steps": [
+        "Wählen Sie ⋯ → Nach Betrag teilen.",
+        "Geben Sie Anzahl der Teile oder eigene Beträge ein.",
+        "Bestätigen Sie — Kindbons mit je einem Anteil."
+      ],
+      "image": "orders-split-amount.png",
+      "caption": "Dialog Aufteilung nach Betrag.",
+      "fields": []
+    },
+    {
+      "id": "merge",
+      "title": "Bestellungen zusammenführen",
+      "intro": "Führt mehrere laufende Bons an einem Tisch zusammen. Start an jeder Karte, Abschluss in der unteren Leiste.",
+      "steps": [
+        "Öffnen Sie ⋯ beim ersten Bon und wählen Sie Zusammenführen.",
+        "Wiederholen Sie für weitere Bestellungen.",
+        "Tippen Sie Tisch wählen und wählen Sie den Zieltisch.",
+        "Bestätigen Sie die Zusammenführung."
+      ],
+      "image": "orders-merge-bar.png",
+      "caption": "Zusammenführungsleiste mit Auswahl und Tischpicker.",
+      "fields": [
+        {
+          "name": "Bestellungen auswählen",
+          "effect": "Markiert eine Bestellung für die ausstehende Zusammenführung."
+        },
+        {
+          "name": "Tisch wählen",
+          "effect": "Setzt den Tisch für den zusammengeführten Bon."
+        },
+        {
+          "name": "Zusammenführung bestätigen",
+          "effect": "Führt alle ausgewählten Bons in einen laufenden Bon am gewählten Tisch."
+        }
+      ]
     }
   ]
 }

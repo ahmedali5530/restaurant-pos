@@ -1,0 +1,133 @@
+{
+  "title": "Periodi e run paghe",
+  "intro": "Chiudi periodi, genera run con anteprima e rettifiche.",
+  "sections": [
+    {
+      "id": "payroll-periods",
+      "title": "Periodi paghe",
+      "steps": [
+        "HR → Paghe → Periodi.",
+        "Crea periodi ciclo.",
+        "Blocca prima del finale."
+      ],
+      "image": "hr-payroll-periods.png",
+      "caption": "Elenco periodi paghe.",
+      "fields": []
+    },
+    {
+      "id": "payroll-period-form",
+      "title": "Modulo periodo paghe",
+      "steps": [
+        "Nome, tipo, date.",
+        "Stato Aperto.",
+        "Passa a Bloccato/Chiuso/Pagato."
+      ],
+      "image": "hr-form-payroll-period.png",
+      "caption": "Modulo periodo.",
+      "fields": [
+        {
+          "name": "Nome periodo",
+          "effect": "Etichetta run ed export."
+        },
+        {
+          "name": "Tipo periodo",
+          "effect": "Settimanale, bisettimanale, mensile o custom."
+        },
+        {
+          "name": "Data inizio",
+          "effect": "Primo giorno incluso."
+        },
+        {
+          "name": "Data fine",
+          "effect": "Ultimo giorno incluso."
+        },
+        {
+          "name": "Stato",
+          "effect": "Aperto consente modifiche; bloccato limita."
+        }
+      ]
+    },
+    {
+      "id": "payroll-runs",
+      "title": "Run paghe",
+      "steps": [
+        "Paghe → Run.",
+        "Genera anteprima lordo.",
+        "Rivedi snapshot."
+      ],
+      "image": "hr-payroll-runs.png",
+      "caption": "Run del periodo.",
+      "fields": []
+    },
+    {
+      "id": "payroll-run-form",
+      "title": "Genera run paghe",
+      "steps": [
+        "Nuovo run.",
+        "Periodo aperto.",
+        "Genera anteprima."
+      ],
+      "image": "hr-form-payroll-run.png",
+      "caption": "Modulo nuovo run.",
+      "fields": [
+        {
+          "name": "Periodo paghe",
+          "effect": "Regola ore e rettifiche incluse."
+        },
+        {
+          "name": "N. run",
+          "effect": "ID sequenziale nel periodo."
+        }
+      ]
+    },
+    {
+      "id": "adjustments",
+      "title": "Rettifiche paghe",
+      "steps": [
+        "Paghe → Rettifiche.",
+        "Aggiungi bonus/penali.",
+        "Collega al periodo."
+      ],
+      "image": "hr-payroll-adjustments.png",
+      "caption": "Elenco rettifiche.",
+      "fields": []
+    },
+    {
+      "id": "adjustment-form",
+      "title": "Modulo rettifica",
+      "steps": [
+        "Dipendente, tipo, importo, data.",
+        "Periodo opzionale.",
+        "Salva."
+      ],
+      "image": "hr-form-adjustment.png",
+      "caption": "Modulo rettifica paghe.",
+      "fields": [
+        {
+          "name": "Dipendente",
+          "effect": "Riceve la rettifica."
+        },
+        {
+          "name": "Periodo paghe",
+          "effect": "Collegamento opzionale al run."
+        },
+        {
+          "name": "Tipo",
+          "effect": "Bonus, penalità, indennità, rimborso, anticipo, prestito, correzione o detrazione."
+        },
+        {
+          "name": "Importo",
+          "effect": "Valore sul lordo."
+        },
+        {
+          "name": "Data effettiva",
+          "effect": "Determina quale run include."
+        },
+        {
+          "name": "Descrizione",
+          "effect": "Dettaglio busta e audit."
+        }
+      ]
+    }
+  ]
+}

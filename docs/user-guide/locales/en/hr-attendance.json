@@ -1,0 +1,211 @@
+{
+  "title": "Attendance",
+  "intro": "Track clock times and build schedules so labor hours stay accurate for payroll and reporting.",
+  "sections": [
+    {
+      "id": "attendance",
+      "title": "Attendance records",
+      "steps": [
+        "Open the Attendance tab.",
+        "Review clock-in and clock-out events for staff.",
+        "Correct or approve exceptions when your role allows."
+      ],
+      "image": "hr-attendance.png",
+      "caption": "Attendance tab."
+    },
+    {
+      "id": "scheduling",
+      "title": "Scheduling",
+      "intro": "Schedules plan who works which shifts.",
+      "steps": [
+        "Open the Scheduling tab.",
+        "Build or adjust shifts for upcoming days.",
+        "Published schedules guide floor staffing and attendance expectations."
+      ],
+      "image": "hr-scheduling.png",
+      "caption": "Scheduling tab."
+    },
+    {
+      "id": "attendance-form",
+      "title": "Manual attendance entry",
+      "intro": "Correct missing punches or backfill time when terminals were unavailable.",
+      "steps": [
+        "On Attendance tab click Manual entry.",
+        "Select employee and enter clock-in and clock-out datetimes.",
+        "Add notes and save — hours feed payroll and reports."
+      ],
+      "image": "hr-form-attendance.png",
+      "caption": "Manual attendance entry modal.",
+      "fields": [
+        {
+          "name": "Employee",
+          "effect": "Whose time record is being created or corrected."
+        },
+        {
+          "name": "Clock in",
+          "effect": "Start of the worked interval."
+        },
+        {
+          "name": "Clock out",
+          "effect": "End of the worked interval; must be after clock in."
+        },
+        {
+          "name": "Notes",
+          "effect": "Reason for manual entry on audit trail."
+        }
+      ]
+    },
+    {
+      "id": "schedule-form",
+      "title": "Work schedule form",
+      "intro": "A schedule is a named date range containing draft or published shifts.",
+      "steps": [
+        "Open Scheduling and add a schedule.",
+        "Set name, period start, and period end.",
+        "Add shifts or generate from templates while status is draft."
+      ],
+      "image": "hr-form-schedule.png",
+      "caption": "Work schedule form.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Label for the schedule period (e.g. Week 12)."
+        },
+        {
+          "name": "Period start",
+          "effect": "First datetime covered by the schedule."
+        },
+        {
+          "name": "Period end",
+          "effect": "Last datetime covered by the schedule."
+        }
+      ]
+    },
+    {
+      "id": "shift-form",
+      "title": "Scheduled shift form",
+      "intro": "Assigns one employee to a time block within a draft schedule.",
+      "steps": [
+        "From a draft schedule click Add shift.",
+        "Pick work schedule, employee, and start/end times.",
+        "Optionally apply shift template, department, position, and cost center.",
+        "Save — conflicts warn if overlaps exist."
+      ],
+      "image": "hr-form-shift.png",
+      "caption": "Scheduled shift form.",
+      "fields": [
+        {
+          "name": "Work schedule",
+          "effect": "Parent schedule that must be in draft to edit."
+        },
+        {
+          "name": "Employee",
+          "effect": "Staff assigned to the shift."
+        },
+        {
+          "name": "Shift template",
+          "effect": "Optional preset from Admin → Users → Shifts."
+        },
+        {
+          "name": "Department / position / cost center",
+          "effect": "Override org tags for this shift."
+        },
+        {
+          "name": "Start at / end at",
+          "effect": "Scheduled clock window."
+        }
+      ]
+    },
+    {
+      "id": "schedule-template",
+      "title": "Schedule template form",
+      "intro": "Reusable weekly pattern used to bulk-generate shifts.",
+      "steps": [
+        "Open Templates under Scheduling.",
+        "Name the template and pick weekdays with start/end times.",
+        "Optionally link shift template and org defaults.",
+        "Save for use with Generate schedule."
+      ],
+      "image": "hr-form-schedule-template.png",
+      "caption": "Schedule template form.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Template label in generate dialog."
+        },
+        {
+          "name": "Days of week",
+          "effect": "Which weekdays receive shifts."
+        },
+        {
+          "name": "Start / end time",
+          "effect": "Daily shift window applied on selected days."
+        },
+        {
+          "name": "Break minutes",
+          "effect": "Unpaid break duration subtracted from scheduled hours."
+        },
+        {
+          "name": "Shift template",
+          "effect": "Links to POS shift definition for reporting."
+        }
+      ]
+    },
+    {
+      "id": "schedule-generate",
+      "title": "Generate schedule from template",
+      "steps": [
+        "Click Generate on Scheduling.",
+        "Select draft work schedule and template.",
+        "Multi-select employees to receive generated shifts.",
+        "Generate — creates shifts, skipping conflicts where configured."
+      ],
+      "image": "hr-form-schedule-generate.png",
+      "caption": "Generate schedule dialog.",
+      "fields": [
+        {
+          "name": "Work schedule",
+          "effect": "Target draft schedule receiving new shifts."
+        },
+        {
+          "name": "Template",
+          "effect": "Weekly pattern defining days and times."
+        },
+        {
+          "name": "Employees",
+          "effect": "Staff who each get a copy of the template shifts."
+        }
+      ]
+    },
+    {
+      "id": "schedule-swap",
+      "title": "Shift swap request",
+      "steps": [
+        "Click Request swap on Scheduling.",
+        "Select the scheduled shift and requesting employee.",
+        "Optionally name a target employee and proposed swap shift.",
+        "Submit — creates a pending swap for manager approval."
+      ],
+      "image": "hr-form-schedule-swap.png",
+      "caption": "Shift swap request form.",
+      "fields": [
+        {
+          "name": "Scheduled shift",
+          "effect": "Shift the requester wants to give up or exchange."
+        },
+        {
+          "name": "Requesting employee",
+          "effect": "Employee initiating the swap."
+        },
+        {
+          "name": "Target employee",
+          "effect": "Optional coworker to take or exchange the shift."
+        },
+        {
+          "name": "Proposed shift",
+          "effect": "Optional counter-shift offered in exchange."
+        }
+      ]
+    }
+  ]
+}

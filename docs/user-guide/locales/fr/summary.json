@@ -1,0 +1,52 @@
+{
+  "title": "Summary",
+  "intro": "The Summary screen shows paid sales for a chosen business day: totals, payment mix, and quick print actions for shift leaders.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Open Summary",
+      "steps": [
+        "Tap Summary in the left sidebar (manager access).",
+        "The page shows a date calendar on the left and the daily sales report on the right.",
+        "Paid orders for the selected date drive all figures."
+      ],
+      "image": "summary-overview.png",
+      "caption": "Summary screen with calendar and daily report."
+    },
+    {
+      "id": "calendar",
+      "title": "Pick a business date",
+      "steps": [
+        "Use the calendar to select the day you want to review.",
+        "Previous date and Next date jump one day backward or forward.",
+        "You cannot select future dates."
+      ],
+      "image": "summary-calendar.png",
+      "caption": "Date calendar and day navigation."
+    },
+    {
+      "id": "print",
+      "title": "Print actions",
+      "intro": "Print buttons may require manager PIN approval depending on your role.",
+      "steps": [
+        "Print summary sends the full daily sales summary to the configured printer.",
+        "Product mix report lists items sold with quantity and share of sales.",
+        "Server sales breaks down checks, guests, time on floor, and sales per server."
+      ],
+      "image": "summary-print-actions.png",
+      "caption": "Print summary, product mix, and server sales."
+    },
+    {
+      "id": "report",
+      "title": "Daily sales report",
+      "intro": "The scrollable report panel shows net sales, taxes, discounts, payment types, and other day totals.",
+      "steps": [
+        "Scroll the right panel to review all sections.",
+        "Figures update when you change the selected date.",
+        "If the day has no paid orders yet, sections may show zeros or empty lists."
+      ],
+      "image": "summary-report.png",
+      "caption": "Daily sales summary report panel."
+    }
+  ]
+}

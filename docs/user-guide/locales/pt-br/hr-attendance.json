@@ -1,0 +1,211 @@
+{
+  "title": "Attendance",
+  "intro": "Track clock times and build schedules so labor hours stay accurate for payroll and reporting.",
+  "sections": [
+    {
+      "id": "attendance",
+      "title": "Attendance records",
+      "steps": [
+        "Open the Attendance tab.",
+        "Review clock-in and clock-out events for staff.",
+        "Correct or approve exceptions when your role allows."
+      ],
+      "image": "hr-attendance.png",
+      "caption": "Attendance tab."
+    },
+    {
+      "id": "scheduling",
+      "title": "Scheduling",
+      "intro": "Schedules plan who works which shifts.",
+      "steps": [
+        "Open the Scheduling tab.",
+        "Build or adjust shifts for upcoming days.",
+        "Published schedules guide floor staffing and attendance expectations."
+      ],
+      "image": "hr-scheduling.png",
+      "caption": "Scheduling tab."
+    },
+    {
+      "id": "attendance-form",
+      "title": "Entrada manual presença",
+      "intro": "Corrige punches faltantes ou preenche tempo.",
+      "steps": [
+        "Presença → Entrada manual.",
+        "Funcionário e horários.",
+        "Notas e salvar."
+      ],
+      "image": "hr-form-attendance.png",
+      "caption": "Modal presença manual.",
+      "fields": [
+        {
+          "name": "Funcionário",
+          "effect": "De quem é o registro."
+        },
+        {
+          "name": "Entrada",
+          "effect": "Início do intervalo."
+        },
+        {
+          "name": "Saída",
+          "effect": "Fim após entrada."
+        },
+        {
+          "name": "Notas",
+          "effect": "Motivo manual."
+        }
+      ]
+    },
+    {
+      "id": "schedule-form",
+      "title": "Formulário escala",
+      "intro": "Intervalo de datas com turnos rascunho ou publicados.",
+      "steps": [
+        "Escalas → adicionar.",
+        "Nome e início/fim.",
+        "Turnos ou gerar de modelo."
+      ],
+      "image": "hr-form-schedule.png",
+      "caption": "Formulário escala.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Rótulo do período."
+        },
+        {
+          "name": "Início período",
+          "effect": "Primeiro datetime coberto."
+        },
+        {
+          "name": "Fim período",
+          "effect": "Último datetime coberto."
+        }
+      ]
+    },
+    {
+      "id": "shift-form",
+      "title": "Formulário turno agendado",
+      "intro": "Atribui funcionário a bloco em escala rascunho.",
+      "steps": [
+        "Rascunho → adicionar turno.",
+        "Escala, funcionário, horários.",
+        "Template/org opcional.",
+        "Salvar."
+      ],
+      "image": "hr-form-shift.png",
+      "caption": "Formulário turno.",
+      "fields": [
+        {
+          "name": "Escala",
+          "effect": "Pai deve estar rascunho."
+        },
+        {
+          "name": "Funcionário",
+          "effect": "Atribuído ao turno."
+        },
+        {
+          "name": "Template turno",
+          "effect": "Preset Admin → Usuários → Turnos."
+        },
+        {
+          "name": "Dept / cargo / centro custo",
+          "effect": "Override org neste turno."
+        },
+        {
+          "name": "Início / fim",
+          "effect": "Janela horária."
+        }
+      ]
+    },
+    {
+      "id": "schedule-template",
+      "title": "Formulário template escala",
+      "intro": "Padrão semanal reutilizável.",
+      "steps": [
+        "Escalas → Templates.",
+        "Nome e dias/horários.",
+        "Template turno opcional.",
+        "Salvar."
+      ],
+      "image": "hr-form-schedule-template.png",
+      "caption": "Formulário template.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Rótulo gerar."
+        },
+        {
+          "name": "Dias semana",
+          "effect": "Dias com turnos."
+        },
+        {
+          "name": "Hora início/fim",
+          "effect": "Janela diária."
+        },
+        {
+          "name": "Minutos pausa",
+          "effect": "Pausa não paga."
+        },
+        {
+          "name": "Template turno",
+          "effect": "Definição POS."
+        }
+      ]
+    },
+    {
+      "id": "schedule-generate",
+      "title": "Gerar escala do template",
+      "steps": [
+        "Escalas → Gerar.",
+        "Rascunho e template.",
+        "Selecione funcionários.",
+        "Gerar."
+      ],
+      "image": "hr-form-schedule-generate.png",
+      "caption": "Diálogo gerar escala.",
+      "fields": [
+        {
+          "name": "Escala",
+          "effect": "Rascunho destino."
+        },
+        {
+          "name": "Template",
+          "effect": "Padrão semanal."
+        },
+        {
+          "name": "Funcionários",
+          "effect": "Recebem cópia dos turnos."
+        }
+      ]
+    },
+    {
+      "id": "schedule-swap",
+      "title": "Pedido troca turno",
+      "steps": [
+        "Escalas → Solicitar troca.",
+        "Turno e solicitante.",
+        "Colega alvo opcional.",
+        "Enviar."
+      ],
+      "image": "hr-form-schedule-swap.png",
+      "caption": "Formulário troca.",
+      "fields": [
+        {
+          "name": "Turno agendado",
+          "effect": "Turno a ceder/trocar."
+        },
+        {
+          "name": "Solicitante",
+          "effect": "Inicia a troca."
+        },
+        {
+          "name": "Colega alvo",
+          "effect": "Opcional."
+        },
+        {
+          "name": "Turno proposto",
+          "effect": "Contra-turno."
+        }
+      ]
+    }
+  ]
+}

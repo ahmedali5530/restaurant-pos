@@ -1,0 +1,157 @@
+{
+  "title": "Employees",
+  "intro": "Maintain employee records and the organizational structure: departments and positions.",
+  "sections": [
+    {
+      "id": "employees",
+      "title": "Employee list",
+      "steps": [
+        "Open the Employees tab.",
+        "Add or edit employees with role, department, and contact details.",
+        "Employee records feed attendance, leave, and payroll tabs."
+      ],
+      "image": "hr-employees-list.png",
+      "caption": "Employees tab."
+    },
+    {
+      "id": "departments",
+      "title": "Departments",
+      "intro": "Departments group staff for reporting and cost allocation.",
+      "steps": [
+        "Open the Departments tab.",
+        "Create departments that match how the venue organizes teams.",
+        "Assign employees to departments on their employee form."
+      ],
+      "image": "hr-employees-departments.png",
+      "caption": "Departments tab."
+    },
+    {
+      "id": "positions",
+      "title": "Positions",
+      "steps": [
+        "Open the Positions tab.",
+        "Define job titles used on employee records and schedules.",
+        "Keep positions aligned with pay profiles when payroll is enabled."
+      ],
+      "image": "hr-employees-positions.png",
+      "caption": "Positions tab."
+    },
+    {
+      "id": "employee-form",
+      "title": "نموذج الموظف",
+      "intro": "سجل HR يربط مستخدم POS والهيكل التنظيمي.",
+      "steps": [
+        "الموظفون → إضافة/تعديل.",
+        "الرقم والاسم والتفاصيل.",
+        "اربط POS والقسم والمنصب.",
+        "احفظ."
+      ],
+      "image": "hr-form-employee.png",
+      "caption": "نافذة إنشاء/تعديل الموظف.",
+      "fields": [
+        {
+          "name": "رقم الموظف",
+          "effect": "معرّف فريد في الجداول."
+        },
+        {
+          "name": "الاسم / العائلة",
+          "effect": "الاسم القانوني أو المفضل."
+        },
+        {
+          "name": "المستخدم المرتبط",
+          "effect": "تسجيل POS اختياري."
+        },
+        {
+          "name": "القسم",
+          "effect": "الوحدة التنظيمية."
+        },
+        {
+          "name": "المنصب",
+          "effect": "المسمى في الجداول."
+        },
+        {
+          "name": "مركز التكلفة",
+          "effect": "تخصيص العمالة الافتراضي."
+        },
+        {
+          "name": "المدير",
+          "effect": "خط الموافقات."
+        },
+        {
+          "name": "حالة التوظيف",
+          "effect": "نشط أو غير نشط أو منتهٍ أو إجازة أو موقوف."
+        },
+        {
+          "name": "نوع التوظيف",
+          "effect": "بالساعة أو راتب أو عقد إلخ."
+        },
+        {
+          "name": "تاريخ التعيين / الإنهاء",
+          "effect": "الأقدمية والأهلية."
+        }
+      ]
+    },
+    {
+      "id": "department-form",
+      "title": "نموذج القسم",
+      "steps": [
+        "الأقسام أو إضافة مضمنة.",
+        "الرمز والاسم والوصف.",
+        "احفظ."
+      ],
+      "image": "hr-form-department.png",
+      "caption": "نموذج القسم.",
+      "fields": [
+        {
+          "name": "الرمز",
+          "effect": "معرّف قصير للتكاملات."
+        },
+        {
+          "name": "الاسم",
+          "effect": "الاسم في القوائم."
+        },
+        {
+          "name": "الوصف",
+          "effect": "ملاحظات اختيارية."
+        },
+        {
+          "name": "نشط",
+          "effect": "غير النشط مخفي في التعيينات الجديدة."
+        }
+      ]
+    },
+    {
+      "id": "position-form",
+      "title": "نموذج المنصب",
+      "steps": [
+        "المناصب أو إضافة مضمنة.",
+        "الرمز والاسم والقسم ومركز التكلفة.",
+        "احفظ."
+      ],
+      "image": "hr-form-position.png",
+      "caption": "نموذج المنصب.",
+      "fields": [
+        {
+          "name": "الرمز",
+          "effect": "رمز الوظيفة للتصدير."
+        },
+        {
+          "name": "الاسم",
+          "effect": "المسمى في HR والجداول."
+        },
+        {
+          "name": "القسم",
+          "effect": "الوحدة الافتراضية."
+        },
+        {
+          "name": "مركز التكلفة الافتراضي",
+          "effect": "يُملأ مسبقاً في الجداول."
+        },
+        {
+          "name": "نشط",
+          "effect": "يُ retire المناصب غير المستخدمة."
+        }
+      ]
+    }
+  ]
+}

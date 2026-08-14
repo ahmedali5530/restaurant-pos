@@ -1,0 +1,77 @@
+{
+  "title": "Mutfak mutabakatı",
+  "intro": "Teorik mutfak kullanımını fiziksel sayımlarla karşılaştırın.",
+  "sections": [
+    {
+      "id": "reconciliation",
+      "title": "Mutabakat sekmesi",
+      "intro": "POS satışları ve tarifelerden ızgara oluşturun, gerçek sayımları girin veya içe aktarın.",
+      "steps": [
+        "Envanter → Mutfak mutabakatı.",
+        "Konum ve iş tarihi seçin.",
+        "Üret ile teorik satırları oluşturun.",
+        "Gerçek miktarları girin veya CSV içe aktarın.",
+        "Taslak kaydedin, farkları inceleyin, Doğrulayın."
+      ],
+      "image": "inventory-reconciliation-overview.png",
+      "caption": "Araç çubuğu, ızgara ve fark paneli.",
+      "fields": [
+        {
+          "name": "Konum",
+          "effect": "Mutabakatı yapılan mutfak veya depo."
+        },
+        {
+          "name": "İş tarihi",
+          "effect": "Teorik kullanım ve sayımların geçerli olduğu gün."
+        },
+        {
+          "name": "Üret",
+          "effect": "Satış ve tarifelerden satırları oluşturur/günceller."
+        },
+        {
+          "name": "Gerçek miktar",
+          "effect": "Kalem başına fiziksel sayım; farkı belirler."
+        },
+        {
+          "name": "Doğrula",
+          "effect": "Yönetici onayı sonrası mutabakatı kilitler."
+        }
+      ]
+    },
+    {
+      "id": "reconciliation-form",
+      "title": "Manuel sayım girişi",
+      "intro": "Izgara düzenleme ve CSV içe aktarma aynı satır yapısını kullanır.",
+      "steps": [
+        "Gerçek sütununda hücreye tıklayıp sayım girin.",
+        "Doğrulamadan taslak kaydedin.",
+        "CSV ile toplu yükleme.",
+        "Doğrulamadan önce fark panelini inceleyin."
+      ],
+      "image": "inventory-reconciliation-form.png",
+      "caption": "Gerçek miktar düzenlemeli ızgara.",
+      "fields": [
+        {
+          "name": "Kalem",
+          "effect": "Satırdaki envanter kalemi."
+        },
+        {
+          "name": "Teorik",
+          "effect": "Tarif ve satışlardan hesaplanan kullanım."
+        },
+        {
+          "name": "Gerçek",
+          "effect": "Girdiğiniz sayım veya kullanım miktarı."
+        },
+        {
+          "name": "Fark",
+          "effect": "Gerçek ile teorik arasındaki fark."
+        },
+        {
+          "name": "Notlar",
+          "effect": "Satırda isteğe bağlı açıklama."
+        }
+      ]
+    }
+  ]
+}

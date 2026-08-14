@@ -1,0 +1,40 @@
+{
+  "title": "Vue d'ensemble Comptabilité",
+  "intro": "Comptabilité est le hub financier : plan comptable, journaux, grands livres et états.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Ouvrir Comptabilité",
+      "steps": [
+        "Connectez-vous avec accès comptabilité.",
+        "Appuyez sur Comptabilité.",
+        "S'ouvre sur le Plan comptable."
+      ],
+      "image": "accounts-overview.png",
+      "caption": "Écran Comptabilité."
+    },
+    {
+      "id": "tabs",
+      "title": "Navigation par onglets",
+      "intro": "Onglets : paramétrage, écritures et rapports.",
+      "steps": [
+        "Faites défiler horizontalement.",
+        "Paramétrage : Plan et Groupes.",
+        "Rapports : Grand livre, Balance, Bilan."
+      ],
+      "image": "accounts-tabs.png",
+      "caption": "Barre d'onglets."
+    },
+    {
+      "id": "chart",
+      "title": "Plan comptable",
+      "steps": [
+        "Maintenez les comptes GL.",
+        "Ajoutez ou modifiez codes et types.",
+        "La structure alimente livres et états."
+      ],
+      "image": "accounts-chart.png",
+      "caption": "Panneau Plan comptable."
+    }
+  ]
+}

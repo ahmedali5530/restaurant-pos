@@ -1,0 +1,40 @@
+{
+  "title": "Acquisti",
+  "intro": "Entra scorte con ordini d'acquisto, ricevimenti e resi.",
+  "sections": [
+    {
+      "id": "orders",
+      "title": "Ordini d'acquisto",
+      "steps": [
+        "Apri Ordini d'acquisto.",
+        "Crea un OA verso fornitore con righe.",
+        "Invia e approva prima di ricevere."
+      ],
+      "image": "inventory-purchases-orders.png",
+      "caption": "Lista ordini d'acquisto."
+    },
+    {
+      "id": "purchases",
+      "title": "Acquisti (ricezione)",
+      "intro": "Gli acquisti caricano scorte e aggiornano il costo medio.",
+      "steps": [
+        "Apri Acquisti.",
+        "Registra fattura e righe ricevute.",
+        "Collega a un OA se esiste e salva."
+      ],
+      "image": "inventory-purchases-list.png",
+      "caption": "Lista acquisti."
+    },
+    {
+      "id": "returns",
+      "title": "Resi acquisto",
+      "steps": [
+        "Apri Resi acquisto.",
+        "Restituisci merce danneggiata o errata.",
+        "Salvare riduce la quantità."
+      ],
+      "image": "inventory-purchases-returns.png",
+      "caption": "Scheda Resi acquisto."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "title": "İK genel bakış",
+  "intro": "İK personel işlemlerini kapsar: çalışanlar, devam, izin, vardiya ve bordro.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "İK'yı aç",
+      "steps": [
+        "İK erişimiyle giriş yapın.",
+        "Yan menüde İK'ya dokunun.",
+        "Varsayılan olarak Gösterge paneli açılır."
+      ],
+      "image": "hr-overview.png",
+      "caption": "İK ekranı."
+    },
+    {
+      "id": "tabs",
+      "title": "Sekme gezinmesi",
+      "intro": "Sekmeler kurulum ve günlük süreçleri gruplar.",
+      "steps": [
+        "Yatay kaydırın.",
+        "Kişiler: Çalışanlar, Departmanlar, Pozisyonlar.",
+        "Zaman: Devam, Vardiya, İzin, Tatiller."
+      ],
+      "image": "hr-tabs.png",
+      "caption": "İK sekme çubuğu."
+    },
+    {
+      "id": "dashboard",
+      "title": "Gösterge paneli",
+      "steps": [
+        "Önemli İK metriklerini özetler.",
+        "Başlangıç noktası olarak kullanın.",
+        "Diğer sekmeler veri ve işlemleri yönetir."
+      ],
+      "image": "hr-dashboard.png",
+      "caption": "İK paneli."
+    }
+  ]
+}

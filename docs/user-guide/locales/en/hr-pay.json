@@ -1,0 +1,123 @@
+{
+  "title": "Pay profiles & rules",
+  "intro": "Pay profiles store base rates per employee; pay rules apply premiums, bonuses, and deductions by schedule or context.",
+  "sections": [
+    {
+      "id": "pay-profiles",
+      "title": "Pay profiles",
+      "steps": [
+        "Open HR → Pay → Profiles.",
+        "Maintain effective-dated base pay per employee.",
+        "Profiles feed payroll calculation for the active period."
+      ],
+      "image": "hr-pay-profiles.png",
+      "caption": "Employee pay profiles list.",
+      "fields": []
+    },
+    {
+      "id": "pay-profile-form",
+      "title": "Pay profile form",
+      "steps": [
+        "Add or edit a profile for an employee.",
+        "Choose pay type and base rate with effective dates.",
+        "Save — payroll uses the profile valid on each work date."
+      ],
+      "image": "hr-form-pay-profile.png",
+      "caption": "Pay profile form.",
+      "fields": [
+        {
+          "name": "Employee",
+          "effect": "Staff member receiving this base compensation."
+        },
+        {
+          "name": "Pay type",
+          "effect": "Hourly, salary, contract, commission, or mixed — drives payroll math."
+        },
+        {
+          "name": "Base rate",
+          "effect": "Primary rate or salary amount in the chosen currency."
+        },
+        {
+          "name": "Currency",
+          "effect": "ISO currency for the rate."
+        },
+        {
+          "name": "Effective from",
+          "effect": "First day this profile applies."
+        },
+        {
+          "name": "Effective to",
+          "effect": "Optional end date when superseded by a newer profile."
+        }
+      ]
+    },
+    {
+      "id": "pay-rules",
+      "title": "Pay rules",
+      "steps": [
+        "Open Pay → Rules.",
+        "Rules stack by priority with modes: allow, prevent, highest wins, or priority.",
+        "Target employees, departments, holidays, or time windows."
+      ],
+      "image": "hr-pay-rules.png",
+      "caption": "Labor pay rules list.",
+      "fields": []
+    },
+    {
+      "id": "pay-rule-form",
+      "title": "Pay rule form",
+      "intro": "Each rule has one or more effects (multiplier, fixed bonus/deduction, percent bonus/deduction) and eligibility filters.",
+      "steps": [
+        "Add or edit a rule with code and name.",
+        "Define effects and whether they apply to regular, overtime, or all hours.",
+        "Set date, time, weekday, and holiday filters.",
+        "Assign employees, departments, positions, or cost centers.",
+        "Save — the payroll engine evaluates rules when clocked hours are calculated."
+      ],
+      "image": "hr-form-pay-rule.png",
+      "caption": "Pay rule form with effects and filters.",
+      "fields": [
+        {
+          "name": "Code",
+          "effect": "Unique rule identifier for exports."
+        },
+        {
+          "name": "Name",
+          "effect": "Descriptive label in admin lists."
+        },
+        {
+          "name": "Priority",
+          "effect": "Order when stacking mode is priority."
+        },
+        {
+          "name": "Stacking mode",
+          "effect": "How this rule interacts with other matching rules."
+        },
+        {
+          "name": "Effects",
+          "effect": "Multiplier or amount adjustments applied to qualifying hours."
+        },
+        {
+          "name": "Employee / department / position / cost center filters",
+          "effect": "Limits which staff the rule can affect."
+        },
+        {
+          "name": "Date and time window",
+          "effect": "Optional start/end date and daily time range."
+        },
+        {
+          "name": "Days of week / months",
+          "effect": "Restricts rule to selected calendar patterns."
+        },
+        {
+          "name": "Holidays",
+          "effect": "Apply only on selected public holidays."
+        },
+        {
+          "name": "After hours (day/week)",
+          "effect": "Triggers when daily or weekly hour thresholds are exceeded."
+        }
+      ]
+    }
+  ]
+}

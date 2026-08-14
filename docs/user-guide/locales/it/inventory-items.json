@@ -1,0 +1,40 @@
+{
+  "title": "Articoli e anagrafiche",
+  "intro": "Mantieni articoli, categorie e ubicazioni per valorizzazione e documenti.",
+  "sections": [
+    {
+      "id": "items",
+      "title": "Articoli",
+      "steps": [
+        "Apri scheda Articoli.",
+        "Crea o modifica articoli con codice, unità e fornitori.",
+        "Gli articoli compaiono in acquisti, uscite e riepilogo."
+      ],
+      "image": "inventory-items-list.png",
+      "caption": "Tabella articoli."
+    },
+    {
+      "id": "categories",
+      "title": "Categorie articoli",
+      "intro": "Le categorie raggruppano articoli per filtri e report.",
+      "steps": [
+        "Apri Categorie articoli.",
+        "Aggiungi categorie per cucina e magazzino.",
+        "Assegna nel form articolo."
+      ],
+      "image": "inventory-items-categories.png",
+      "caption": "Scheda Categorie articoli."
+    },
+    {
+      "id": "locations",
+      "title": "Ubicazioni",
+      "steps": [
+        "Apri Ubicazioni.",
+        "Definisci magazzini, frigoriferi o cucine.",
+        "I documenti referenziano sempre un'ubicazione."
+      ],
+      "image": "inventory-items-locations.png",
+      "caption": "Scheda Ubicazioni."
+    }
+  ]
+}

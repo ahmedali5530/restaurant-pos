@@ -1,0 +1,56 @@
+{
+  "title": "Leistungsnotizen",
+  "intro": "Erfassen Sie Verwarnungen, Lob, Beurteilungen und Vorfälle in der Personalakte.",
+  "sections": [
+    {
+      "id": "performance",
+      "title": "Leistungsliste",
+      "steps": [
+        "Öffnen Sie HR → Leistung.",
+        "Notizen nach Mitarbeiter, Typ und Schwere durchsuchen.",
+        "Einträge nach Vorfällen oder Beurteilungen hinzufügen."
+      ],
+      "image": "hr-performance-list.png",
+      "caption": "Registerkarte Leistungsnotizen.",
+      "fields": []
+    },
+    {
+      "id": "performance-form",
+      "title": "Leistungsnotizformular",
+      "steps": [
+        "Mitarbeiter, Typ, Titel und Text wählen.",
+        "Schweregrad für Vorfälle und Verwarnungen setzen.",
+        "Sichtbar für Mitarbeiter aktivieren wenn Self-Service erlaubt.",
+        "Speichern für HR-Akte."
+      ],
+      "image": "hr-form-performance.png",
+      "caption": "Formular Leistungsnotiz.",
+      "fields": [
+        {
+          "name": "Mitarbeiter",
+          "effect": "Betreff der Notiz."
+        },
+        {
+          "name": "Typ",
+          "effect": "Verwarnung, Lob, Beurteilung oder Vorfall."
+        },
+        {
+          "name": "Titel",
+          "effect": "Kurzfassung in Listen."
+        },
+        {
+          "name": "Inhalt",
+          "effect": "Vollständige Schilderung des Ereignisses."
+        },
+        {
+          "name": "Schweregrad",
+          "effect": "Niedrig, mittel, hoch oder kritisch."
+        },
+        {
+          "name": "Für Mitarbeiter sichtbar",
+          "effect": "Wenn aktiv, kann Notiz dem Mitarbeiter angezeigt werden."
+        }
+      ]
+    }
+  ]
+}

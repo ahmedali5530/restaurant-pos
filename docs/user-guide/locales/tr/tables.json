@@ -1,0 +1,74 @@
+{
+  "title": "Masalar ve salon",
+  "intro": "Salon hizmeti kat planıyla başlar: kat, masa, kişi sayısı ve sipariş.",
+  "sections": [
+    {
+      "id": "floor",
+      "title": "Kat planı",
+      "steps": [
+        "Menü'yü açın (kat modu açık olmalı).",
+        "Aktif katın masaları görünür.",
+        "Dolu veya kilitli masalar farklı görünebilir."
+      ],
+      "image": "tables-floor.png",
+      "caption": "Masa karolarıyla kat planı."
+    },
+    {
+      "id": "switcher",
+      "title": "Kat değiştir",
+      "intro": "Birden fazla alan alt düğmelerle seçilir.",
+      "steps": [
+        "Kat düğmesine dokunun.",
+        "Aktif kat vurgulanır.",
+        "Her katın kendi düzeni olabilir."
+      ],
+      "image": "tables-floor-switcher.png",
+      "caption": "Kat düğmeleri."
+    },
+    {
+      "id": "table",
+      "title": "Masa seç",
+      "steps": [
+        "Boş masaya dokunun.",
+        "Kilitliyse onay gerekebilir.",
+        "Sonra kişi ve menüye geçilir."
+      ],
+      "image": "tables-table-tile.png",
+      "caption": "Masa karosu."
+    },
+    {
+      "id": "covers",
+      "title": "Kişi sayısı",
+      "intro": "Gerektiğinde misafir sayısını girin.",
+      "steps": [
+        "Sayı padini kullanın.",
+        "OK ile menüye geçin.",
+        "Kişiler adisyon ve mutfakta görünebilir."
+      ],
+      "image": "tables-covers.png",
+      "caption": "Kişi ekranı."
+    },
+    {
+      "id": "active",
+      "title": "Menüde aktif masa",
+      "steps": [
+        "Başlık aktif masayı gösterir.",
+        "İzin varsa masa/kişi kontrollerini kullanın.",
+        "Siparişler masaya bağlı kalır."
+      ],
+      "image": "tables-active-table.png",
+      "caption": "Aktif masa göstergesi."
+    },
+    {
+      "id": "back",
+      "title": "Kata dön",
+      "steps": [
+        "Başlıktaki geri/kat kontrolüne dokunun.",
+        "Başka masa seçmek için plana dönersiniz.",
+        "Açık hesaplar Siparişler'de kalır."
+      ],
+      "image": "tables-back-floor.png",
+      "caption": "Kata dön kontrolü."
+    }
+  ]
+}

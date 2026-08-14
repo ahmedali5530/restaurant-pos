@@ -1,0 +1,56 @@
+{
+  "title": "Notes de performance",
+  "intro": "Enregistrez avertissements, compliments et incidents.",
+  "sections": [
+    {
+      "id": "performance",
+      "title": "Liste performance",
+      "steps": [
+        "RH → Performance.",
+        "Parcourez par employé/type.",
+        "Ajoutez après incidents."
+      ],
+      "image": "hr-performance-list.png",
+      "caption": "Onglet notes performance.",
+      "fields": []
+    },
+    {
+      "id": "performance-form",
+      "title": "Formulaire note performance",
+      "steps": [
+        "Employé, type, titre, texte.",
+        "Sévérité si besoin.",
+        "Visible employé.",
+        "Enregistrer."
+      ],
+      "image": "hr-form-performance.png",
+      "caption": "Formulaire note performance.",
+      "fields": [
+        {
+          "name": "Employé",
+          "effect": "Sujet de la note."
+        },
+        {
+          "name": "Type",
+          "effect": "Avertissement, compliment, revue ou incident."
+        },
+        {
+          "name": "Titre",
+          "effect": "Résumé court."
+        },
+        {
+          "name": "Contenu",
+          "effect": "Récit complet."
+        },
+        {
+          "name": "Sévérité",
+          "effect": "Faible, moyenne, élevée ou critique."
+        },
+        {
+          "name": "Visible employé",
+          "effect": "Peut être montré à l'employé."
+        }
+      ]
+    }
+  ]
+}

@@ -77,3 +77,95 @@ Protected actions may ask for a manager PIN.
 ![Orders table view.](images/en/orders-table-view.png)
 
 *Orders table view.*
+
+### Cancel or void order
+
+Voids an In Progress check. Full void cancels every line; partial void removes selected items only. Manager PIN may be required.
+
+1. Open ⋯ on an In Progress order card and choose Cancel order.
+2. Pick a void reason from the list (required for reporting).
+3. Leave Select all items checked for a full void, or uncheck and choose specific lines for a partial void.
+4. Confirm to void the check and release the table when applicable.
+
+**Fields**
+
+- **Reason** — Required void reason recorded on the order for audit and reporting.
+- **Select all items** — When checked, voids the entire check; when unchecked, enables per-line selection.
+- **Partial void** — Check individual line items to void only those quantities while keeping the rest of the check open.
+
+![Cancel order modal with reason and item selection.](images/en/orders-cancel-modal.png)
+
+*Cancel order modal with reason and item selection.*
+
+### Refund paid order
+
+Issues a refund against a paid check, optionally for selected items only.
+
+1. Open a Paid order and choose Refund from the actions menu.
+2. Select the line items and quantities to refund.
+3. Choose a refund reason and confirm.
+4. The system posts the refund and updates payment totals.
+
+**Fields**
+
+- **Items to refund** — Choose which paid lines and quantities are returned to the customer.
+- **Reason** — Documents why the refund was issued for manager review and reports.
+
+![Refund modal with item picker and reason.](images/en/orders-refund-modal.png)
+
+*Refund modal with item picker and reason.*
+
+### Split by seats
+
+Divides one check into separate checks by seat number already assigned on line items.
+
+1. From ⋯ choose Split by seats on an In Progress order.
+2. Review how items group under each seat.
+3. Confirm to create one child check per seat with shared table context.
+
+![Split-by-seats preview before confirming.](images/en/orders-split-seats.png)
+
+*Split-by-seats preview before confirming.*
+
+### Split by items
+
+Manually assigns line items to new checks regardless of seat.
+
+1. From ⋯ choose Split by items.
+2. Move or assign each line to a new check column.
+3. Confirm to create separate In Progress checks from the original.
+
+![Split-by-items assignment grid.](images/en/orders-split-items.png)
+
+*Split-by-items assignment grid.*
+
+### Split by amount
+
+Splits the check total into fixed or equal parts for separate payment.
+
+1. From ⋯ choose Split by amount.
+2. Enter the number of parts or custom amounts.
+3. Confirm to generate child checks each owing a portion of the total.
+
+![Split-by-amount dialog.](images/en/orders-split-amount.png)
+
+*Split-by-amount dialog.*
+
+### Merge orders
+
+Combines multiple In Progress checks onto one table. Start from each order card, then finish on the bottom bar.
+
+1. On the first order, open ⋯ and choose Merge (or tick Select on the merge bar).
+2. Repeat for each additional order to include.
+3. Tap Choose table and pick the destination table.
+4. Tap Confirm merge to combine lines into one check.
+
+**Fields**
+
+- **Select orders checkbox** — Marks an order for inclusion in the pending merge set.
+- **Choose table** — Sets the floor table that will host the merged check.
+- **Confirm merge** — Combines all selected checks into one In Progress order on the chosen table.
+
+![Merge bar with selected orders and table picker.](images/en/orders-merge-bar.png)
+
+*Merge bar with selected orders and table picker.*

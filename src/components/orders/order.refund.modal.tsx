@@ -214,6 +214,7 @@ export const OrderRefundModal = ({
 
   return (
     <Modal
+      testId="order-refund-modal"
       open={open}
       onClose={handleClose}
       title={t('refund.title')}

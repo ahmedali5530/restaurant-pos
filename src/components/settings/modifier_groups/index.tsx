@@ -121,7 +121,7 @@ export const AdminModifierGroups = () => {
               module: 'admin.modifier_groups.create',
               description: getAccessRuleChildLabel('admin.modifier_groups.create'),
             });
-          }} icon={faPlus}>{t('buttons.modifierGroup')}</Button>
+          }} icon={faPlus} data-testid="admin-add-modifier_groups">{t('buttons.modifierGroup')}</Button>
         ]}
       />
 

@@ -1,0 +1,48 @@
+{
+  "title": "Kostenplaatsen",
+  "intro": "Labelen arbeid en loon voor locaties en afdelingen.",
+  "sections": [
+    {
+      "id": "cost-centers",
+      "title": "Kostenplaatsenlijst",
+      "steps": [
+        "HR → Kostenplaatsen.",
+        "Bekijk codes.",
+        "Toevoegen/bewerken."
+      ],
+      "image": "hr-cost-centers-list.png",
+      "caption": "Tab kostenplaatsen.",
+      "fields": []
+    },
+    {
+      "id": "cost-center-form",
+      "title": "Kostenplaatsformulier",
+      "steps": [
+        "Toevoegen/bewerken.",
+        "Code, naam, beschrijving.",
+        "Actief/inactief.",
+        "Opslaan."
+      ],
+      "image": "hr-form-cost-center.png",
+      "caption": "Modal kostenplaats.",
+      "fields": [
+        {
+          "name": "Code",
+          "effect": "Unieke korte id."
+        },
+        {
+          "name": "Naam",
+          "effect": "Label in dropdowns."
+        },
+        {
+          "name": "Beschrijving",
+          "effect": "Optionele notities."
+        },
+        {
+          "name": "Actief",
+          "effect": "Inactief niet op nieuwe records."
+        }
+      ]
+    }
+  ]
+}

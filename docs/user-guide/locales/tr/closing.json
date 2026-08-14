@@ -1,0 +1,51 @@
+{
+  "title": "Closing",
+  "intro": "Closing is the end-of-day cash and payment reconciliation screen. Count terminal cash, record expenses, review payment totals, then save a draft or complete the closing cycle.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Closing overview",
+      "steps": [
+        "Tap Closing in the sidebar.",
+        "The title shows today’s date and the active closing window (business day cycle).",
+        "Alerts warn if the cycle is disabled or already completed."
+      ],
+      "image": "closing-overview.png",
+      "caption": "Closing screen header and cycle window."
+    },
+    {
+      "id": "cash",
+      "title": "Balances and terminal cash",
+      "steps": [
+        "Enter previous day balance and petty cash added today.",
+        "For each terminal, count notes and coins or enter a total cash amount.",
+        "Add or remove terminals with the Add terminal control."
+      ],
+      "image": "closing-terminal-cash.png",
+      "caption": "Terminal cash counting section."
+    },
+    {
+      "id": "payments-expenses",
+      "title": "Payments and expenses",
+      "steps": [
+        "Payment summary lists each payment type with system totals (editable when not completed).",
+        "Add expenses with description, category, and amount.",
+        "Net amount summarizes cash, other payments, expenses, and balances."
+      ],
+      "image": "closing-payments.png",
+      "caption": "Payment summaries and expenses."
+    },
+    {
+      "id": "actions",
+      "title": "Save, complete, and print",
+      "steps": [
+        "Save closing stores a draft without locking the day.",
+        "Close closing completes the cycle (open orders in the cycle must be settled first).",
+        "Print closing sends a summary slip to the printer.",
+        "Reopen appears after completion if your role can edit closings."
+      ],
+      "image": "closing-actions.png",
+      "caption": "Save, close, print, and reopen actions."
+    }
+  ]
+}

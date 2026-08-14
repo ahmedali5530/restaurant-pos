@@ -1,0 +1,106 @@
+{
+  "title": "Erweiterte Geräteeinstellungen",
+  "intro": "Administratoren steuern Abschlusszyklus, Auto-Check, Session-Sicherheit, Auto-Ausstempeln, Service, Menüs, Inventar und Drucker.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Einstellungen für Admins",
+      "steps": [
+        "Mit Rechten anmelden.",
+        "Einstellungen (Schlüssel) öffnen.",
+        "Standort-Karten fokussieren."
+      ],
+      "image": "settings-adv-overview.png",
+      "caption": "Erweiterte Karten."
+    },
+    {
+      "id": "closing-cycle",
+      "title": "Abschlusszyklus",
+      "intro": "Geschäftsfenster.",
+      "steps": [
+        "Custom-Zyklus bei Nachtbetrieb.",
+        "Start/Ende setzen.",
+        "Speichern."
+      ],
+      "image": "settings-adv-closing-cycle.png",
+      "caption": "Abschlusszyklus-Karte."
+    },
+    {
+      "id": "auto-check-close",
+      "title": "Auto-Check schließen",
+      "steps": [
+        "Auto-Abrechnung am Zyklusende.",
+        "Druck und Zahlungsart.",
+        "Speichern."
+      ],
+      "image": "settings-adv-auto-check-close.png",
+      "caption": "Auto-Check-Karte."
+    },
+    {
+      "id": "session-security",
+      "title": "Session-Sicherheit",
+      "steps": [
+        "Idle-Sperre oder Logout.",
+        "Minuten und Aktion.",
+        "Speichern."
+      ],
+      "image": "settings-adv-session-security.png",
+      "caption": "Session-Sicherheitskarte."
+    },
+    {
+      "id": "auto-clock-out",
+      "title": "Auto-Ausstempeln",
+      "steps": [
+        "Auto-Ausstempeln an.",
+        "Schichtende, Uhrzeit oder beides.",
+        "Speichern."
+      ],
+      "image": "settings-adv-auto-clock-out.png",
+      "caption": "Auto-Ausstempel-Karte."
+    },
+    {
+      "id": "service-charges",
+      "title": "Servicegebühren",
+      "steps": [
+        "Standardtyp und Wert.",
+        "Bei Zahlung.",
+        "Speichern."
+      ],
+      "image": "settings-adv-service-charges.png",
+      "caption": "Servicegebühren-Karte."
+    },
+    {
+      "id": "menus",
+      "title": "Aktive Menüs",
+      "steps": [
+        "Menüs des Terminals wählen.",
+        "Speichern.",
+        "Mit Verwalten → Menüs."
+      ],
+      "image": "settings-adv-menus.png",
+      "caption": "Menü-Karte."
+    },
+    {
+      "id": "inventory",
+      "title": "Inventareinstellungen",
+      "steps": [
+        "Bestandspräferenzen.",
+        "Speichern.",
+        "Docs unter Inventar."
+      ],
+      "image": "settings-adv-inventory.png",
+      "caption": "Inventar-Karte."
+    },
+    {
+      "id": "printers",
+      "title": "Drucker",
+      "steps": [
+        "Drucker zuweisen.",
+        "Speichern.",
+        "Druckoptionen daneben."
+      ],
+      "image": "settings-adv-printers.png",
+      "caption": "Drucker-Karte."
+    }
+  ]
+}

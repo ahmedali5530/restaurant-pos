@@ -1,0 +1,99 @@
+{
+  "title": "Leave",
+  "intro": "Manage time-off requests and public holidays that affect schedules and payroll.",
+  "sections": [
+    {
+      "id": "leave",
+      "title": "Leave requests",
+      "steps": [
+        "Open the Leave tab.",
+        "Review pending and approved leave for employees.",
+        "Approve or reject requests according to your HR role."
+      ],
+      "image": "hr-leave.png",
+      "caption": "Leave tab."
+    },
+    {
+      "id": "holidays",
+      "title": "Holidays",
+      "intro": "Holidays mark non-working or premium-pay calendar days for the venue.",
+      "steps": [
+        "Open the Holidays tab.",
+        "Add venue holidays for the year.",
+        "Holiday dates feed scheduling and pay-rule calculations when configured."
+      ],
+      "image": "hr-holidays.png",
+      "caption": "Holidays tab."
+    },
+    {
+      "id": "leave-form",
+      "title": "Formulário pedido licença",
+      "intro": "Envia/edita pedidos conforme tipos.",
+      "steps": [
+        "Licenças → Adicionar.",
+        "Funcionário, tipo, datas.",
+        "Dias e motivo.",
+        "Salvar."
+      ],
+      "image": "hr-form-leave.png",
+      "caption": "Formulário licença.",
+      "fields": [
+        {
+          "name": "Funcionário",
+          "effect": "Solicitante."
+        },
+        {
+          "name": "Tipo licença",
+          "effect": "Pago/não pago e aprovação."
+        },
+        {
+          "name": "Data início/fim",
+          "effect": "Datas inclusivas."
+        },
+        {
+          "name": "Dias",
+          "effect": "Dias úteis consumidos."
+        },
+        {
+          "name": "Motivo",
+          "effect": "Nota opcional."
+        }
+      ]
+    },
+    {
+      "id": "holiday-form",
+      "title": "Formulário feriado",
+      "intro": "Interage com regras pagamento e escalas.",
+      "steps": [
+        "Licenças → Feriados.",
+        "Nome, data, país.",
+        "Recorrente se anual.",
+        "Salvar."
+      ],
+      "image": "hr-form-holiday.png",
+      "caption": "Formulário feriado.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Rótulo calendários."
+        },
+        {
+          "name": "Data",
+          "effect": "Data observada."
+        },
+        {
+          "name": "Código país",
+          "effect": "ISO opcional."
+        },
+        {
+          "name": "Recorrente",
+          "effect": "Repete anualmente."
+        },
+        {
+          "name": "Ativo",
+          "effect": "Inativos ignorados em regras novas."
+        }
+      ]
+    }
+  ]
+}

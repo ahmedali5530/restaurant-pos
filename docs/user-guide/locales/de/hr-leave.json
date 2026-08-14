@@ -1,0 +1,99 @@
+{
+  "title": "Leave",
+  "intro": "Manage time-off requests and public holidays that affect schedules and payroll.",
+  "sections": [
+    {
+      "id": "leave",
+      "title": "Leave requests",
+      "steps": [
+        "Open the Leave tab.",
+        "Review pending and approved leave for employees.",
+        "Approve or reject requests according to your HR role."
+      ],
+      "image": "hr-leave.png",
+      "caption": "Leave tab."
+    },
+    {
+      "id": "holidays",
+      "title": "Holidays",
+      "intro": "Holidays mark non-working or premium-pay calendar days for the venue.",
+      "steps": [
+        "Open the Holidays tab.",
+        "Add venue holidays for the year.",
+        "Holiday dates feed scheduling and pay-rule calculations when configured."
+      ],
+      "image": "hr-holidays.png",
+      "caption": "Holidays tab."
+    },
+    {
+      "id": "leave-form",
+      "title": "Urlaubsantragsformular",
+      "intro": "Stellen oder bearbeiten Sie Freistellungsanträge nach konfigurierten Urlaubsarten.",
+      "steps": [
+        "Unter Urlaub Antrag hinzufügen klicken.",
+        "Mitarbeiter, Urlaubsart und Datumsbereich wählen.",
+        "Tage und ggf. Grund eingeben.",
+        "Speichern — leitet zur Genehmigung wenn erforderlich."
+      ],
+      "image": "hr-form-leave.png",
+      "caption": "Formular Urlaubsantrag.",
+      "fields": [
+        {
+          "name": "Mitarbeiter",
+          "effect": "Personal das Freistellung beantragt."
+        },
+        {
+          "name": "Urlaubsart",
+          "effect": "Bestimmt bezahlt/unbezahlt, Genehmigung und Ansammlung."
+        },
+        {
+          "name": "Start- / Enddatum",
+          "effect": "Inklusive Abwesenheitstage."
+        },
+        {
+          "name": "Tage",
+          "effect": "Verbrauchte Arbeitstage (ggf. auto-berechnet)."
+        },
+        {
+          "name": "Grund",
+          "effect": "Optionale Notiz für Genehmiger."
+        }
+      ]
+    },
+    {
+      "id": "holiday-form",
+      "title": "Feiertagsformular",
+      "intro": "Feiertage wirken auf Gehaltsregeln und Planung.",
+      "steps": [
+        "Feiertage unter Urlaub öffnen.",
+        "Name, Datum und Ländercode hinzufügen.",
+        "Wiederkehrend für jährliche feste Termine markieren.",
+        "Speichern — erscheint in Regelfiltern."
+      ],
+      "image": "hr-form-holiday.png",
+      "caption": "Formular Feiertag.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Bezeichnung in Kalendern und Regeln."
+        },
+        {
+          "name": "Datum",
+          "effect": "Beobachtetes Kalenderdatum."
+        },
+        {
+          "name": "Ländercode",
+          "effect": "Optionaler ISO-Code für Multi-Country-Standorte."
+        },
+        {
+          "name": "Wiederkehrend",
+          "effect": "Jährliche Wiederholung am gleichen Tag/Monat."
+        },
+        {
+          "name": "Aktiv",
+          "effect": "Inaktive Feiertage von neuen Regeln ignoriert."
+        }
+      ]
+    }
+  ]
+}

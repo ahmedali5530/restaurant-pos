@@ -1,0 +1,102 @@
+{
+  "title": "Buffet menus & sessions",
+  "intro": "Plan per-guest recipes for buffet service and run sessions that forecast usage, track guests, and close with waste and cost.",
+  "sections": [
+    {
+      "id": "buffet-menus",
+      "title": "Buffet menus",
+      "steps": [
+        "Open Inventory → Buffet → Menus.",
+        "Maintain menu templates tied to breakfast, lunch, or dinner.",
+        "Each menu lists recipes with per-guest quantities."
+      ],
+      "image": "inventory-buffet-menus.png",
+      "caption": "Buffet menus list.",
+      "fields": []
+    },
+    {
+      "id": "buffet-menu-form",
+      "title": "Buffet menu form",
+      "steps": [
+        "Add or edit a buffet menu.",
+        "Set session type and add recipe lines with per-guest qty.",
+        "Save active menus for use when opening sessions."
+      ],
+      "image": "inventory-buffet-menu-form.png",
+      "caption": "Buffet menu form.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Menu label shown when starting a session."
+        },
+        {
+          "name": "Code",
+          "effect": "Optional kitchen shorthand."
+        },
+        {
+          "name": "Session type",
+          "effect": "Breakfast, lunch, or dinner — filters compatible sessions."
+        },
+        {
+          "name": "Recipe lines",
+          "effect": "Each line links a recipe and quantity expected per guest."
+        },
+        {
+          "name": "Is active",
+          "effect": "Only active menus appear in session setup."
+        }
+      ]
+    },
+    {
+      "id": "buffet-sessions",
+      "title": "Buffet sessions",
+      "steps": [
+        "Open Buffet → Sessions.",
+        "Start a session from a menu with expected guests and price.",
+        "Monitor production vs. forecast during service.",
+        "Close the session to record waste, leftovers, and final cost."
+      ],
+      "image": "inventory-buffet-sessions.png",
+      "caption": "Buffet sessions dashboard.",
+      "fields": []
+    },
+    {
+      "id": "buffet-session-form",
+      "title": "Start buffet session",
+      "steps": [
+        "Click New session.",
+        "Pick menu, location, business date, and session type.",
+        "Enter expected guests and buffet price per guest.",
+        "Save to open the live session dashboard."
+      ],
+      "image": "inventory-buffet-session-form.png",
+      "caption": "New buffet session form.",
+      "fields": [
+        {
+          "name": "Menu",
+          "effect": "Loads recipe lines and per-guest forecasts."
+        },
+        {
+          "name": "Location",
+          "effect": "Kitchen store receiving inventory movements."
+        },
+        {
+          "name": "Business date",
+          "effect": "Trading day attributed to the session."
+        },
+        {
+          "name": "Session type",
+          "effect": "Must align with the selected menu service period."
+        },
+        {
+          "name": "Expected guests",
+          "effect": "Drives initial quantity forecasts for each recipe."
+        },
+        {
+          "name": "Buffet price",
+          "effect": "Revenue per guest used in session reporting."
+        }
+      ]
+    }
+  ]
+}

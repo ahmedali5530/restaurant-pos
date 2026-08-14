@@ -125,6 +125,7 @@ export const BuffetSessions = () => {
             variant="primary"
             onClick={() => setFormOpen(true)}
             icon={faPlus}
+            data-testid="inventory-add-buffet-sessions"
           >
             {t("buffet.createSession")}
           </Button>,

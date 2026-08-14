@@ -1,0 +1,17 @@
+{
+  "title": "Scarti",
+  "intro": "Registra deterioramento e altre perdite per report accurati.",
+  "sections": [
+    {
+      "id": "list",
+      "title": "Documenti scarto",
+      "steps": [
+        "Apri Scarti.",
+        "Crea documento con ubicazione, motivo e quantità.",
+        "Salvare riduce scorte e registra il costo."
+      ],
+      "image": "inventory-wastes-list.png",
+      "caption": "Lista scarti."
+    }
+  ]
+}

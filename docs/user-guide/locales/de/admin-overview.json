@@ -1,0 +1,41 @@
+{
+  "title": "Verwalten Übersicht",
+  "intro": "Verwalten ist das Konfigurationszentrum für Gerichte, Menüs, Etagen, Benutzer, Steuern, Rabatte, Küchen und Drucker.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Verwalten öffnen",
+      "steps": [
+        "Mit Administratorzugang anmelden.",
+        "Verwalten in der Seitenleiste tippen.",
+        "Standardmäßig öffnet sich der Tab Gerichte."
+      ],
+      "image": "admin-overview.png",
+      "caption": "Verwalten-Bildschirm mit Tabs."
+    },
+    {
+      "id": "tabs",
+      "title": "Tab-Navigation",
+      "intro": "Tabs gruppieren Einstellungen. Wechsel kann Manager-PIN erfordern.",
+      "steps": [
+        "Bei vielen Tabs horizontal scrollen.",
+        "Tabs decken Menüs, Saal, Aktionen, Küche, Druck, Zahlung und Benutzer ab.",
+        "Jeder Tab öffnet seine Tabelle.",
+        "Aktiver Tab ist hervorgehoben."
+      ],
+      "image": "admin-tabs.png",
+      "caption": "Verwalten-Tableiste."
+    },
+    {
+      "id": "dishes",
+      "title": "Tab Gerichte (Standard)",
+      "steps": [
+        "Gerichte listet verkaufbare Artikel.",
+        "Hinzufügen, Bearbeiten, Import bei Berechtigung.",
+        "Suche und Paginierung für große Menüs."
+      ],
+      "image": "admin-dishes.png",
+      "caption": "Gerichte-Wartungstabelle."
+    }
+  ]
+}

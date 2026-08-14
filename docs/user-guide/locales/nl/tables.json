@@ -1,0 +1,74 @@
+{
+  "title": "Tafels en zaal",
+  "intro": "Zaalservice begint op de plattegrond: verdieping, tafel, covers, bestelling.",
+  "sections": [
+    {
+      "id": "floor",
+      "title": "Plattegrond",
+      "steps": [
+        "Open Menu (vloermodus aan).",
+        "Toont tafels van actieve verdieping.",
+        "Bezet of vergrendeld kan anders ogen."
+      ],
+      "image": "tables-floor.png",
+      "caption": "Plattegrond met tafels."
+    },
+    {
+      "id": "switcher",
+      "title": "Verdieping wisselen",
+      "intro": "Meerdere zones via knoppen onderaan.",
+      "steps": [
+        "Tik op een verdieping.",
+        "Actieve is gemarkeerd.",
+        "Elke verdieping heeft eigen layout."
+      ],
+      "image": "tables-floor-switcher.png",
+      "caption": "Verdiepingsknoppen."
+    },
+    {
+      "id": "table",
+      "title": "Tafel kiezen",
+      "steps": [
+        "Tik op vrije tafel.",
+        "Vergrendeld kan goedkeuring vragen.",
+        "Daarna covers en menu."
+      ],
+      "image": "tables-table-tile.png",
+      "caption": "Tafeltegel."
+    },
+    {
+      "id": "covers",
+      "title": "Covers (gasten)",
+      "intro": "Voer aantal gasten in indien vereist.",
+      "steps": [
+        "Gebruik cijferpad.",
+        "OK naar menu.",
+        "Covers op rekeningen/keuken."
+      ],
+      "image": "tables-covers.png",
+      "caption": "Coversscherm."
+    },
+    {
+      "id": "active",
+      "title": "Actieve tafel op menu",
+      "steps": [
+        "Header toont actieve tafel.",
+        "Gebruik controles indien toegestaan.",
+        "Orders blijven gekoppeld."
+      ],
+      "image": "tables-active-table.png",
+      "caption": "Actieve-tafelindicator."
+    },
+    {
+      "id": "back",
+      "title": "Terug naar plattegrond",
+      "steps": [
+        "Tik terug/verdieping.",
+        "Kies andere tafel.",
+        "Open checks in Orders."
+      ],
+      "image": "tables-back-floor.png",
+      "caption": "Terug-controle."
+    }
+  ]
+}

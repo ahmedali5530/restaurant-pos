@@ -1,0 +1,52 @@
+{
+  "title": "Documentos del empleado",
+  "intro": "Almacene contratos, identificaciones, licencias y otros archivos con seguimiento de vencimiento.",
+  "sections": [
+    {
+      "id": "documents",
+      "title": "Lista de documentos",
+      "steps": [
+        "Abra RR. HH. → Documentos.",
+        "Filtre por empleado o categoría.",
+        "Suba archivos nuevos o actualice metadatos en documentos existentes."
+      ],
+      "image": "hr-documents-list.png",
+      "caption": "Pestaña documentos del empleado.",
+      "fields": []
+    },
+    {
+      "id": "document-form",
+      "title": "Formulario de documento",
+      "steps": [
+        "Haga clic en Agregar documento.",
+        "Seleccione empleado, título y categoría.",
+        "Adjunte el archivo y establezca vencimiento si aplica.",
+        "Guarde — el archivo se almacena y vincula al perfil del empleado."
+      ],
+      "image": "hr-form-document.png",
+      "caption": "Formulario de carga de documento.",
+      "fields": [
+        {
+          "name": "Empleado",
+          "effect": "Propietario del registro de documento."
+        },
+        {
+          "name": "Título",
+          "effect": "Nombre mostrado en listas y recordatorios."
+        },
+        {
+          "name": "Categoría",
+          "effect": "Contrato, certificado, licencia, ID, médico, advertencia u otro."
+        },
+        {
+          "name": "Vence el",
+          "effect": "Fecha opcional para alertas de renovación."
+        },
+        {
+          "name": "Adjuntar archivo",
+          "effect": "Obligatorio al crear; almacena el binario en la biblioteca."
+        }
+      ]
+    }
+  ]
+}

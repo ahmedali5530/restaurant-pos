@@ -58,7 +58,7 @@ export const HrHolidays = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button key="holiday-create" variant="primary" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
+          <Button key="holiday-create" variant="primary" data-testid="hr-add-holidays" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
             {t("buttons.holiday")}
           </Button>,
         ]}

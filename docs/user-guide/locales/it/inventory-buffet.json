@@ -1,0 +1,102 @@
+{
+  "title": "Menu e sessioni buffet",
+  "intro": "Pianifica ricette per ospite e gestisci sessioni buffet.",
+  "sections": [
+    {
+      "id": "buffet-menus",
+      "title": "Menu buffet",
+      "steps": [
+        "Magazzino → Buffet → Menu.",
+        "Modelli colazione/pranzo/cena.",
+        "Ricette per ospite."
+      ],
+      "image": "inventory-buffet-menus.png",
+      "caption": "Elenco menu buffet.",
+      "fields": []
+    },
+    {
+      "id": "buffet-menu-form",
+      "title": "Modulo menu buffet",
+      "steps": [
+        "Aggiungi/modifica menu.",
+        "Tipo sessione e righe ricetta.",
+        "Salva."
+      ],
+      "image": "inventory-buffet-menu-form.png",
+      "caption": "Modulo menu buffet.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Etichetta avvio sessione."
+        },
+        {
+          "name": "Codice",
+          "effect": "Sigla cucina opzionale."
+        },
+        {
+          "name": "Tipo sessione",
+          "effect": "Colazione/pranzo/cena."
+        },
+        {
+          "name": "Righe ricetta",
+          "effect": "Ricetta e qty per ospite."
+        },
+        {
+          "name": "Attivo",
+          "effect": "Solo menu attivi in setup."
+        }
+      ]
+    },
+    {
+      "id": "buffet-sessions",
+      "title": "Sessioni buffet",
+      "steps": [
+        "Buffet → Sessioni.",
+        "Avvia da menu.",
+        "Monitora produzione vs previsione.",
+        "Chiudi sessione."
+      ],
+      "image": "inventory-buffet-sessions.png",
+      "caption": "Dashboard sessioni buffet.",
+      "fields": []
+    },
+    {
+      "id": "buffet-session-form",
+      "title": "Avvia sessione buffet",
+      "steps": [
+        "Nuova sessione.",
+        "Menu, sede, data, tipo.",
+        "Ospiti e prezzo.",
+        "Salva."
+      ],
+      "image": "inventory-buffet-session-form.png",
+      "caption": "Modulo nuova sessione.",
+      "fields": [
+        {
+          "name": "Menu",
+          "effect": "Carica righe e previsioni."
+        },
+        {
+          "name": "Sede",
+          "effect": "Magazzino movimenti."
+        },
+        {
+          "name": "Data operativa",
+          "effect": "Giorno commerciale."
+        },
+        {
+          "name": "Tipo sessione",
+          "effect": "Allineato al menu."
+        },
+        {
+          "name": "Ospiti attesi",
+          "effect": "Previsioni iniziali."
+        },
+        {
+          "name": "Prezzo buffet",
+          "effect": "Ricavo per ospite."
+        }
+      ]
+    }
+  ]
+}

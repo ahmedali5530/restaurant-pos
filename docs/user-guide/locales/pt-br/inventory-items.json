@@ -1,0 +1,40 @@
+{
+  "title": "Itens e cadastros",
+  "intro": "Mantenha itens, categorias e locais que alimentam valorização e documentos.",
+  "sections": [
+    {
+      "id": "items",
+      "title": "Itens",
+      "steps": [
+        "Abra a aba Itens.",
+        "Crie ou edite itens com código, unidade e fornecedores.",
+        "Itens aparecem em compras, saídas e no resumo."
+      ],
+      "image": "inventory-items-list.png",
+      "caption": "Tabela de itens."
+    },
+    {
+      "id": "categories",
+      "title": "Categorias de itens",
+      "intro": "Categorias agrupam itens para filtros e relatórios.",
+      "steps": [
+        "Abra Categorias de itens.",
+        "Adicione categorias alinhadas à cozinha e ao depósito.",
+        "Atribua no formulário do item."
+      ],
+      "image": "inventory-items-categories.png",
+      "caption": "Aba Categorias de itens."
+    },
+    {
+      "id": "locations",
+      "title": "Locais",
+      "steps": [
+        "Abra a aba Locais.",
+        "Defina depósitos, geladeiras ou cozinhas.",
+        "Documentos sempre referenciam um local."
+      ],
+      "image": "inventory-items-locations.png",
+      "caption": "Aba Locais."
+    }
+  ]
+}

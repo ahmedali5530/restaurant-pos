@@ -1,0 +1,133 @@
+{
+  "title": "Loonperiodes en runs",
+  "intro": "Sluit periodes af, genereer runs met preview.",
+  "sections": [
+    {
+      "id": "payroll-periods",
+      "title": "Loonperiodes",
+      "steps": [
+        "HR → Loon → Periodes.",
+        "Maak periodes aan.",
+        "Vergrendel voor final run."
+      ],
+      "image": "hr-payroll-periods.png",
+      "caption": "Lijst loonperiodes.",
+      "fields": []
+    },
+    {
+      "id": "payroll-period-form",
+      "title": "Loonperiodeformulier",
+      "steps": [
+        "Naam, type, datums.",
+        "Status Open.",
+        "Wijzig naar Vergrendeld/Gesloten/Betaald."
+      ],
+      "image": "hr-form-payroll-period.png",
+      "caption": "Periodeformulier.",
+      "fields": [
+        {
+          "name": "Periodenaam",
+          "effect": "Label op runs en exports."
+        },
+        {
+          "name": "Periodetype",
+          "effect": "Wekelijks, tweewekelijks, maandelijks of custom."
+        },
+        {
+          "name": "Startdatum",
+          "effect": "Eerste dag inclusief."
+        },
+        {
+          "name": "Einddatum",
+          "effect": "Laatste dag inclusief."
+        },
+        {
+          "name": "Status",
+          "effect": "Open staat edits toe; vergrendeld beperkt."
+        }
+      ]
+    },
+    {
+      "id": "payroll-runs",
+      "title": "Loonruns",
+      "steps": [
+        "Loon → Runs.",
+        "Genereer preview.",
+        "Controleer snapshots."
+      ],
+      "image": "hr-payroll-runs.png",
+      "caption": "Loonruns per periode.",
+      "fields": []
+    },
+    {
+      "id": "payroll-run-form",
+      "title": "Loonrun genereren",
+      "steps": [
+        "Nieuwe run.",
+        "Open periode.",
+        "Preview genereren."
+      ],
+      "image": "hr-form-payroll-run.png",
+      "caption": "Formulier nieuwe run.",
+      "fields": [
+        {
+          "name": "Loonperiode",
+          "effect": "Bepaalt uren en aanpassingen."
+        },
+        {
+          "name": "Runnummer",
+          "effect": "Sequentieel id in periode."
+        }
+      ]
+    },
+    {
+      "id": "adjustments",
+      "title": "Loonaanpassingen",
+      "steps": [
+        "Loon → Aanpassingen.",
+        "Voeg bonussen/boetes toe.",
+        "Koppel aan periode."
+      ],
+      "image": "hr-payroll-adjustments.png",
+      "caption": "Lijst aanpassingen.",
+      "fields": []
+    },
+    {
+      "id": "adjustment-form",
+      "title": "Aanpassingsformulier",
+      "steps": [
+        "Medewerker, type, bedrag, datum.",
+        "Optionele periode.",
+        "Opslaan."
+      ],
+      "image": "hr-form-adjustment.png",
+      "caption": "Loonaanpassingsformulier.",
+      "fields": [
+        {
+          "name": "Medewerker",
+          "effect": "Ontvangt aanpassing."
+        },
+        {
+          "name": "Loonperiode",
+          "effect": "Optionele run-koppeling."
+        },
+        {
+          "name": "Type",
+          "effect": "Bonus, boete, toelage, vergoeding, voorschot, lening, correctie of inhouding."
+        },
+        {
+          "name": "Bedrag",
+          "effect": "Valuta op bruto."
+        },
+        {
+          "name": "Ingangsdatum",
+          "effect": "Bepaalt welke run opneemt."
+        },
+        {
+          "name": "Beschrijving",
+          "effect": "Loonstrookdetail en audit."
+        }
+      ]
+    }
+  ]
+}

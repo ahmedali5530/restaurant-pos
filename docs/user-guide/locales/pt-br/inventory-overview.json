@@ -1,0 +1,40 @@
+{
+  "title": "Visão geral do Estoque",
+  "intro": "Estoque é o hub do depósito: saldos, itens, compras, saídas, perdas e contagens. Abra pela barra lateral com acesso de estoque.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Abrir Estoque",
+      "steps": [
+        "Entre com usuário de acesso a estoque.",
+        "Toque em Estoque na barra lateral.",
+        "A tela abre no resumo de estoque atual."
+      ],
+      "image": "inventory-overview.png",
+      "caption": "Tela Estoque com abas e painel."
+    },
+    {
+      "id": "tabs",
+      "title": "Navegação por abas",
+      "intro": "Abas agrupam cadastros e documentos. Trocar pode exigir PIN de gerente.",
+      "steps": [
+        "Role a barra horizontalmente.",
+        "Cada aba abre sua lista.",
+        "A aba selecionada fica destacada."
+      ],
+      "image": "inventory-tabs.png",
+      "caption": "Barra de abas do Estoque."
+    },
+    {
+      "id": "summary",
+      "title": "Resumo do estoque atual",
+      "steps": [
+        "A aba Estoque mostra quantidades por item e local.",
+        "Use busca e filtros para estoque baixo.",
+        "Outras abas tratam compras, saídas, perdas e ajustes."
+      ],
+      "image": "inventory-summary.png",
+      "caption": "Tabela de resumo do estoque."
+    }
+  ]
+}

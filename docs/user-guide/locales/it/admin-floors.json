@@ -1,0 +1,90 @@
+{
+  "title": "Floors and tables",
+  "intro": "Floors and tables define the dine-in layout used when staff select a table before taking orders.",
+  "sections": [
+    {
+      "id": "floors",
+      "title": "Floors",
+      "steps": [
+        "Open the Floors tab.",
+        "Create floor plans for each dining area (e.g. Main, Patio).",
+        "Floors appear on the table-selection step when floor mode is enabled."
+      ],
+      "image": "admin-floors-floors.png",
+      "caption": "Floors tab."
+    },
+    {
+      "id": "tables",
+      "title": "Tables",
+      "intro": "Each table belongs to a floor and carries a name or number used on checks and kitchen tickets.",
+      "steps": [
+        "Open the Tables tab.",
+        "Add tables with capacity and floor assignment.",
+        "Edit or deactivate tables when the floor plan changes."
+      ],
+      "image": "admin-floors-tables.png",
+      "caption": "Tables tab."
+    },
+    {
+      "id": "floor-form",
+      "title": "Modulo piano",
+      "steps": [
+        "Admin → Piani.",
+        "Nome, priorità, colori.",
+        "Salva."
+      ],
+      "image": "admin-floors-floor-form.png",
+      "caption": "Modulo piano.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Etichetta selettore piano."
+        },
+        {
+          "name": "Priorità",
+          "effect": "Ordine lista."
+        },
+        {
+          "name": "Sfondo / colore",
+          "effect": "Stile tile piano."
+        }
+      ]
+    },
+    {
+      "id": "table-form",
+      "title": "Modulo tavolo",
+      "intro": "Appartiene a piano; restrizioni opzionali.",
+      "steps": [
+        "Seleziona piano.",
+        "Numero, nome, colori.",
+        "Restrizioni opzionali.",
+        "Chiedi coperti.",
+        "Salva."
+      ],
+      "image": "admin-floors-table-form.png",
+      "caption": "Modulo tavolo.",
+      "fields": [
+        {
+          "name": "Nome / numero",
+          "effect": "Etichetta planimetria."
+        },
+        {
+          "name": "Piano",
+          "effect": "Piano padre."
+        },
+        {
+          "name": "Priorità",
+          "effect": "Ordine."
+        },
+        {
+          "name": "Categorie / tipi ordine / pagamento",
+          "effect": "Restrizioni."
+        },
+        {
+          "name": "Chiedi coperti",
+          "effect": "Prompt commensali."
+        }
+      ]
+    }
+  ]
+}

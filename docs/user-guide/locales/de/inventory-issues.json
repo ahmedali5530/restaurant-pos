@@ -1,0 +1,29 @@
+{
+  "title": "Ausgaben und Rückgaben",
+  "intro": "Bestand an Küchen ausgeben und ungenutzten Bestand zurückbuchen.",
+  "sections": [
+    {
+      "id": "issues",
+      "title": "Ausgaben",
+      "steps": [
+        "Tab Ausgaben öffnen.",
+        "Beleg mit Ziel und Positionen erstellen.",
+        "Speichern mindert Quellstandort."
+      ],
+      "image": "inventory-issues-list.png",
+      "caption": "Ausgabenliste."
+    },
+    {
+      "id": "returns",
+      "title": "Ausgabenrückgaben",
+      "intro": "Ungenutzte ausgegebene Artikel zurückgeben.",
+      "steps": [
+        "Tab Ausgabenrückgaben öffnen.",
+        "Originalausgabe wählen oder Positionen eingeben.",
+        "Speichern erhöht wieder den Bestand."
+      ],
+      "image": "inventory-issues-returns.png",
+      "caption": "Tab Ausgabenrückgaben."
+    }
+  ]
+}

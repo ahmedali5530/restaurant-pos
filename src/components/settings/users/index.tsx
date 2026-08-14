@@ -127,7 +127,7 @@ const AdminUsersList = () => {
               module: 'admin.users.create',
               description: getAccessRuleChildLabel('admin.users.create'),
             });
-          }} icon={faPlus}>{t('buttons.user')}</Button>
+          }} icon={faPlus} data-testid="admin-add-users">{t('buttons.user')}</Button>
         ]}
       />
 
@@ -174,11 +174,11 @@ export const AdminUsers = () => {
         });
       }}
     >
-      <TabList aria-label={t('users.manageTabs')} className="flex gap-3 p-3 bg-white border-b border-neutral-200">
-        <Tab id="admin.users">{t('tabs.users')}</Tab>
-        <Tab id="admin.roles">{t('tabs.roles')}</Tab>
-        <Tab id="admin.shifts">{t('tabs.shifts')}</Tab>
-        <Tab id="admin.tips_definition">{t('tabs.tipsDefinition')}</Tab>
+      <TabList aria-label={t('users.manageTabs')} className="flex gap-3 p-3 bg-white border-b border-neutral-200" data-testid="admin-users-tabs">
+        <Tab id="admin.users" data-testid="admin-users-tab-users">{t('tabs.users')}</Tab>
+        <Tab id="admin.roles" data-testid="admin-users-tab-roles">{t('tabs.roles')}</Tab>
+        <Tab id="admin.shifts" data-testid="admin-users-tab-shifts">{t('tabs.shifts')}</Tab>
+        <Tab id="admin.tips_definition" data-testid="admin-users-tab-tips_definition">{t('tabs.tipsDefinition')}</Tab>
       </TabList>
       <TabPanel id="admin.users" className="bg-white">
         <AdminUsersList />

@@ -71,31 +71,37 @@ export const HrScreen = () => {
   return (
     <Layout containerClassName="">
       <DocumentTitle parts={[pages[selected]?.title, tNav("sidebar.hr")]} />
-      <Tabs
-        className="w-full flex flex-col rounded-xl"
-        selectedKey={selected}
-        onSelectionChange={(key: string) => {
-          protectAction(() => {
-            setSelected(key);
-          }, {
-            module: HR_TAB_MODULES[key],
-            description: t("security.accessTab", {module: pages[key].title}),
-          });
-        }}
-      >
-        <ScrollContainer mouseScroll hideScrollbars={false} className="flex-grow-0 flex-shrink">
-          <TabList aria-label="HR Tabs" className="flex flex-row gap-3 px-1 py-3 flex-nowrap">
-            {Object.keys(pages).map((key) => (
-              <Tab id={key} key={key}>{pages[key].title}</Tab>
-            ))}
-          </TabList>
-        </ScrollContainer>
-        {Object.keys(pages).map((key) => (
-          <TabPanel id={key} key={key} className="bg-white shadow flex-grow flex-shrink-0">
-            <div>{pages[key].component}</div>
-          </TabPanel>
-        ))}
-      </Tabs>
+      <div data-testid="hr-page">
+        <Tabs
+          className="w-full flex flex-col rounded-xl"
+          selectedKey={selected}
+          onSelectionChange={(key: string) => {
+            protectAction(() => {
+              setSelected(key);
+            }, {
+              module: HR_TAB_MODULES[key],
+              description: t("security.accessTab", {module: pages[key].title}),
+            });
+          }}
+        >
+          <ScrollContainer mouseScroll hideScrollbars={false} className="flex-grow-0 flex-shrink">
+            <TabList
+              aria-label="HR Tabs"
+              className="flex flex-row gap-3 px-1 py-3 flex-nowrap"
+              data-testid="hr-tabs"
+            >
+              {Object.keys(pages).map((key) => (
+                <Tab id={key} key={key} data-testid={`hr-tab-${key}`}>{pages[key].title}</Tab>
+              ))}
+            </TabList>
+          </ScrollContainer>
+          {Object.keys(pages).map((key) => (
+            <TabPanel id={key} key={key} className="bg-white shadow flex-grow flex-shrink-0">
+              <div data-testid={`hr-panel-${key}`}>{pages[key].component}</div>
+            </TabPanel>
+          ))}
+        </Tabs>
+      </div>
     </Layout>
   );
 };

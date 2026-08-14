@@ -45,6 +45,23 @@ import ScrollContainer from "react-indiana-drag-scroll";
 import { useTranslation } from "react-i18next";
 import { lockSession, logoutSession } from "@/lib/session.actions.ts";
 
+const SIDEBAR_NAV_TEST_IDS: Partial<Record<string, string>> = {
+  [MENU]: 'nav-menu',
+  [ORDERS]: 'nav-orders',
+  [SUMMARY]: 'nav-summary',
+  [KITCHEN]: 'nav-kitchen',
+  [ORDER_DISPLAY]: 'nav-order-display',
+  [DELIVERY]: 'nav-delivery',
+  [CLOSING]: 'nav-closing',
+  [INVENTORY]: 'nav-inventory',
+  [ADMIN]: 'nav-admin',
+  [REPORTS]: 'nav-reports',
+  [TIP_DISTRIBUTION]: 'nav-tip-distribution',
+  [ACCOUNTS]: 'nav-accounts',
+  [HR]: 'nav-hr',
+  [INTEGRATIONS]: 'nav-integrations',
+};
+
 export const Sidebar = () => {
   const [page, setPage] = useAtom(appPage);
   const { t } = useTranslation(['navigation', 'common']);
@@ -74,7 +91,7 @@ export const Sidebar = () => {
     { title: t('sidebar.orders'), icon: <FontAwesomeIcon icon={faList} size="lg"/>, link: ORDERS, role: 'orders' },
     { title: t('sidebar.summary'), icon: <FontAwesomeIcon icon={faClipboardList} size="lg"/>, link: SUMMARY, role: 'summary' },
     { title: t('sidebar.kitchen'), icon: <FontAwesomeIcon icon={faUtensils} size="lg"/>, link: KITCHEN, role: 'kitchen' },
-    // { title: t('sidebar.orderDisplay'), icon: <FontAwesomeIcon icon={faDisplay} size="lg"/>, link: ORDER_DISPLAY, role: 'order_display' },
+    { title: t('sidebar.orderDisplay'), icon: <FontAwesomeIcon icon={faDisplay} size="lg"/>, link: ORDER_DISPLAY, role: 'order_display' },
     { title: t('sidebar.delivery'), icon: <FontAwesomeIcon icon={faMotorcycle} size="lg"/>, link: DELIVERY, role: 'delivery' },
     { title: t('sidebar.closing'), icon: <FontAwesomeIcon icon={faStore} size="lg"/>, link: CLOSING, role: 'closing' },
     { title: t('sidebar.inventory'), icon: <FontAwesomeIcon icon={faWarehouse} size="lg"/>, link: INVENTORY, role: 'inventory' },
@@ -107,13 +124,7 @@ export const Sidebar = () => {
             {sidebarItems.map(item => (
               <button
                 type="button"
-                data-testid={
-                  item.link === MENU
-                    ? 'nav-menu'
-                    : item.link === ORDERS
-                      ? 'nav-orders'
-                      : undefined
-                }
+                data-testid={SIDEBAR_NAV_TEST_IDS[item.link] ?? undefined}
                 onClick={() => {
                   protectedNavigate(item.link, item.role);
                 }}

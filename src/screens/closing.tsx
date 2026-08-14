@@ -519,7 +519,7 @@ export const Closing = () => {
     return (
       <Layout overflowHidden>
         <DocumentTitle parts={[tNav('sidebar.closing')]} />
-        <div className="h-[calc(100vh_-_30px)] flex justify-center items-center text-xl font-semibold">
+        <div data-testid="closing-page" className="h-[calc(100vh_-_30px)] flex justify-center items-center text-xl font-semibold">
           {t("closing:loading")}
         </div>
       </Layout>
@@ -530,7 +530,7 @@ export const Closing = () => {
     <Layout overflowHidden>
       <DocumentTitle parts={[tNav('sidebar.closing')]} />
       <ScrollContainer className="overflow-y-auto h-[calc(100vh_-_30px)] select-none">
-        <div className="p-6">
+        <div className="p-6" data-testid="closing-page">
           <h1 className="text-3xl font-bold mb-3 text-center">{t("closing:title", {date: today})}</h1>
           <div className="text-center mb-6 text-sm text-neutral-600">{closingWindowLabel}</div>
 
@@ -582,7 +582,7 @@ export const Closing = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <div className="bg-white rounded-lg shadow-md p-6 mb-8" data-testid="closing-terminal-cash-section">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold mb-4">{t("closing:sections.terminalCash")}</h2>
               <Button onClick={addTerminal} variant="primary" size="lg" type="button" disabled={isReadOnly}>
@@ -671,7 +671,7 @@ export const Closing = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <div className="bg-white rounded-lg shadow-md p-6 mb-8" data-testid="closing-expenses-section">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">{t("closing:sections.expenses")}</h2>
               <Button onClick={addExpense} variant="primary" size="lg" type="button" disabled={isReadOnly}>
@@ -770,7 +770,7 @@ export const Closing = () => {
             </div>
           )}
 
-          <div className="text-center flex justify-center items-center gap-4">
+          <div className="text-center flex justify-center items-center gap-4" data-testid="closing-actions">
             {!isClosingCompleted && (
               <>
                 <Button

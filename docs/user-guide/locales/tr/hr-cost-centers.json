@@ -1,0 +1,48 @@
+{
+  "title": "Maliyet merkezleri",
+  "intro": "Emek ve bordroyu raporlama birimlerine etiketleyin.",
+  "sections": [
+    {
+      "id": "cost-centers",
+      "title": "Maliyet merkezi listesi",
+      "steps": [
+        "İK → Maliyet merkezleri.",
+        "Kodları inceleyin.",
+        "Ekle/düzenle."
+      ],
+      "image": "hr-cost-centers-list.png",
+      "caption": "Maliyet merkezleri sekmesi.",
+      "fields": []
+    },
+    {
+      "id": "cost-center-form",
+      "title": "Maliyet merkezi formu",
+      "steps": [
+        "Ekle veya düzenle.",
+        "Kod, ad, açıklama.",
+        "Aktif/pasif.",
+        "Kaydet."
+      ],
+      "image": "hr-form-cost-center.png",
+      "caption": "Maliyet merkezi modalı.",
+      "fields": [
+        {
+          "name": "Kod",
+          "effect": "Benzersiz kısa tanımlayıcı."
+        },
+        {
+          "name": "Ad",
+          "effect": "Açılır listede etiket."
+        },
+        {
+          "name": "Açıklama",
+          "effect": "İsteğe bağlı notlar."
+        },
+        {
+          "name": "Aktif",
+          "effect": "Pasif yeni kayıtlarda seçilemez."
+        }
+      ]
+    }
+  ]
+}

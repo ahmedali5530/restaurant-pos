@@ -1,0 +1,56 @@
+{
+  "title": "Performance notes",
+  "intro": "Record warnings, compliments, reviews, and incidents on employee files.",
+  "sections": [
+    {
+      "id": "performance",
+      "title": "Performance list",
+      "steps": [
+        "Open HR → Performance.",
+        "Browse notes by employee, type, and severity.",
+        "Add entries after incidents or scheduled reviews."
+      ],
+      "image": "hr-performance-list.png",
+      "caption": "Performance notes tab.",
+      "fields": []
+    },
+    {
+      "id": "performance-form",
+      "title": "Performance note form",
+      "steps": [
+        "Choose employee, type, title, and body text.",
+        "Set severity for incidents and warnings.",
+        "Toggle visible to employee if staff may view the note in self-service.",
+        "Save to append the note to the HR file."
+      ],
+      "image": "hr-form-performance.png",
+      "caption": "Performance note form.",
+      "fields": [
+        {
+          "name": "Employee",
+          "effect": "Subject of the note."
+        },
+        {
+          "name": "Type",
+          "effect": "Warning, compliment, review, or incident."
+        },
+        {
+          "name": "Title",
+          "effect": "Short summary in lists."
+        },
+        {
+          "name": "Content",
+          "effect": "Full narrative of the event or review."
+        },
+        {
+          "name": "Severity",
+          "effect": "Low, medium, high, or critical — mainly for warnings and incidents."
+        },
+        {
+          "name": "Visible to employee",
+          "effect": "When enabled, the note may be shown to the employee user."
+        }
+      ]
+    }
+  ]
+}

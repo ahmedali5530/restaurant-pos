@@ -100,6 +100,7 @@ export const InventoryRecipes = () => {
               setFormModal(true);
             }}
             icon={faPlus}
+            data-testid="inventory-add-recipes"
           >
             {t("production.createRecipe")}
           </Button>,

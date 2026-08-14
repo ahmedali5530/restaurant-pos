@@ -1,0 +1,29 @@
+{
+  "title": "Stock counts and transfers",
+  "intro": "Reconcile physical counts with system stock using adjustments, and move stock between locations with transfers.",
+  "sections": [
+    {
+      "id": "adjustments",
+      "title": "Adjustments (counts)",
+      "steps": [
+        "Open the Adjustments tab.",
+        "Enter counted quantities by item and location.",
+        "Submit, approve, and post according to your role so variances update inventory."
+      ],
+      "image": "inventory-counts-adjustments.png",
+      "caption": "Adjustments (stock count) list."
+    },
+    {
+      "id": "transfers",
+      "title": "Stock transfers",
+      "intro": "Move stock from one location to another without changing total company quantity.",
+      "steps": [
+        "Open the Stock Transfers tab.",
+        "Choose source and destination locations and transfer lines.",
+        "Save to decrease source and increase destination quantities."
+      ],
+      "image": "inventory-counts-transfers.png",
+      "caption": "Stock transfers tab."
+    }
+  ]
+}

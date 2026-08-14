@@ -1,0 +1,157 @@
+{
+  "title": "Users and roles",
+  "intro": "Manage staff accounts, PINs, role permissions, shifts, and tip-pool definitions that control who can access each screen and tab.",
+  "sections": [
+    {
+      "id": "list",
+      "title": "User list",
+      "steps": [
+        "Open the Users tab.",
+        "Browse active users with name, role, and contact fields.",
+        "Use Add user to create a new account or Edit to update an existing one."
+      ],
+      "image": "admin-users-list.png",
+      "caption": "Users maintenance table."
+    },
+    {
+      "id": "roles",
+      "title": "Roles",
+      "intro": "Roles bundle permission modules that gate sidebar screens, Manage tabs, and protected actions.",
+      "steps": [
+        "Switch to the Roles sub-tab under Users.",
+        "Create roles and open the module list to enable or disable access.",
+        "Assign roles to users so permissions stay consistent across staff."
+      ],
+      "image": "admin-users-roles.png",
+      "caption": "Roles sub-tab."
+    },
+    {
+      "id": "shifts",
+      "title": "Shifts",
+      "intro": "Shifts define work windows used for labor reporting and automatic clock-out rules.",
+      "steps": [
+        "Switch to the Shifts sub-tab.",
+        "Add shift names with start and end times.",
+        "Assign shifts to users for scheduling and tip-distribution context."
+      ],
+      "image": "admin-users-shifts.png",
+      "caption": "Shifts sub-tab."
+    },
+    {
+      "id": "tips-definition",
+      "title": "Définition pourboires (distribution)",
+      "intro": "Pondère pourboires poolés par rôles et utilisateurs.",
+      "steps": [
+        "Utilisateurs → Définition pourboires.",
+        "Lignes rôle avec poids.",
+        "Overrides utilisateur.",
+        "Enregistrer."
+      ],
+      "image": "admin-users-tips-definition.png",
+      "caption": "Panneau distribution pourboires.",
+      "fields": [
+        {
+          "name": "Poids rôle",
+          "effect": "Part du pool par rôle."
+        },
+        {
+          "name": "Poids utilisateur",
+          "effect": "Override optionnel."
+        }
+      ]
+    },
+    {
+      "id": "user-form",
+      "title": "Formulaire utilisateur",
+      "intro": "Opérateurs POS avec PIN ou mot de passe.",
+      "steps": [
+        "Admin → Utilisateurs.",
+        "Méthode login, nom, identifiants, rôle, shift.",
+        "Créer employé optionnel.",
+        "Enregistrer."
+      ],
+      "image": "admin-users-user-form.png",
+      "caption": "Formulaire compte utilisateur.",
+      "fields": [
+        {
+          "name": "Méthode login",
+          "effect": "PIN (4 chiffres) ou mot de passe."
+        },
+        {
+          "name": "Prénom / nom",
+          "effect": "Nom sur additions."
+        },
+        {
+          "name": "Login / PIN",
+          "effect": "Identifiants."
+        },
+        {
+          "name": "Mot de passe",
+          "effect": "Obligatoire si mot de passe."
+        },
+        {
+          "name": "Rôle",
+          "effect": "Paquet permissions."
+        },
+        {
+          "name": "Shift",
+          "effect": "Shift par défaut."
+        },
+        {
+          "name": "Créer employé",
+          "effect": "Auto-création HR lié."
+        }
+      ]
+    },
+    {
+      "id": "role-form",
+      "title": "Formulaire rôle",
+      "intro": "Accorde accès modules et actions.",
+      "steps": [
+        "Utilisateurs → Rôles.",
+        "Nom et arbre modules.",
+        "Cochez permissions.",
+        "Enregistrer."
+      ],
+      "image": "admin-users-role-form.png",
+      "caption": "Éditeur permissions rôle.",
+      "fields": [
+        {
+          "name": "Nom",
+          "effect": "Libellé formulaire utilisateur."
+        },
+        {
+          "name": "Permissions module",
+          "effect": "Cases hiérarchiques."
+        }
+      ]
+    },
+    {
+      "id": "shift-form",
+      "title": "Formulaire modèle shift",
+      "intro": "Définit fenêtres horaires.",
+      "steps": [
+        "Utilisateurs → Shifts.",
+        "Nom et horaires.",
+        "Nuit active lendemain.",
+        "Enregistrer."
+      ],
+      "image": "admin-users-shift-form.png",
+      "caption": "Formulaire shift.",
+      "fields": [
+        {
+          "name": "Nom",
+          "effect": "Libellé shift."
+        },
+        {
+          "name": "Heure début",
+          "effect": "Début planifié."
+        },
+        {
+          "name": "Heure fin",
+          "effect": "Fin planifiée."
+        }
+      ]
+    }
+  ]
+}

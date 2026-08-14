@@ -122,7 +122,7 @@ export const PayrollRunForm = ({open, onClose, onSuccess}: Props) => {
 
   return (
     <>
-      <Modal title={t("buttons.runPayroll")} open={open} onClose={closeModal}>
+      <Modal title={t("buttons.runPayroll")} testId="hr-form-payroll-run" open={open} onClose={closeModal}>
         <form
           onSubmit={handleSubmit(onSubmit, (errs) => {
             const message = firstFormError(errs);

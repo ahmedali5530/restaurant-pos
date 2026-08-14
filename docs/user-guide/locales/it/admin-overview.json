@@ -1,0 +1,41 @@
+{
+  "title": "Panoramica Gestione",
+  "intro": "Gestione è l'hub per piatti, menu, piani, utenti, tasse, sconti, cucine e stampanti.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Apri Gestione",
+      "steps": [
+        "Accedi con accesso amministratore.",
+        "Tocca Gestione nella barra laterale.",
+        "Si apre sulla scheda Piatti."
+      ],
+      "image": "admin-overview.png",
+      "caption": "Schermata Gestione con schede."
+    },
+    {
+      "id": "tabs",
+      "title": "Navigazione schede",
+      "intro": "Le schede raggruppano impostazioni correlate. Il cambio può richiedere PIN manager.",
+      "steps": [
+        "Scorri orizzontalmente con molte schede.",
+        "Le schede coprono menu, sala, promozioni, cucina, stampa, pagamenti e utenti.",
+        "Ogni scheda apre la sua tabella.",
+        "La scheda attiva è evidenziata."
+      ],
+      "image": "admin-tabs.png",
+      "caption": "Barra schede Gestione."
+    },
+    {
+      "id": "dishes",
+      "title": "Scheda Piatti (predefinita)",
+      "steps": [
+        "Piatti elenca articoli vendibili.",
+        "Usa Aggiungi, Modifica, Importa se consentito.",
+        "Ricerca e paginazione per menu grandi."
+      ],
+      "image": "admin-dishes.png",
+      "caption": "Tabella manutenzione piatti."
+    }
+  ]
+}

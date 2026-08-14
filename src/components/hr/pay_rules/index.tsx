@@ -69,7 +69,7 @@ export const HrPayRules = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button key="pay-rule-create" variant="primary" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
+          <Button key="pay-rule-create" variant="primary" data-testid="hr-add-pay-rules" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
             {t("buttons.payRule")}
           </Button>,
         ]}

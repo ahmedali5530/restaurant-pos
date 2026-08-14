@@ -278,6 +278,7 @@ export const SplitItems = ({
   return (
     <>
       <Modal
+        testId="order-split-items"
         title={t('split.title', {invoice: getInvoiceNumber(order)})}
         open={true}
         size="full"

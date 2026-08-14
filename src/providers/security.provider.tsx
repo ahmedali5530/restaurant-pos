@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import {User} from "@/api/model/user.ts";
+import { nanoid } from 'nanoid';
 
 export type AuthType = 'pin' | 'password' | 'qrcode';
 export type SecurityManager = Partial<User> | null;
@@ -88,6 +89,27 @@ export const SecurityProvider: React.FC<SecurityProviderProps> = ({
   const setAuthenticated = useCallback((authenticated: boolean) => {
     setIsAuthenticated(authenticated);
   }, []);
+
+  // Docs / Playwright capture: open manager re-auth UI without a real protected click.
+  useEffect(() => {
+    const api = {
+      open: (description = 'Manager approval required') => {
+        requestSecurity({
+          id: nanoid(),
+          description,
+          forceAuth: true,
+          onConfirm: () => undefined,
+        });
+      },
+      close: () => {
+        closeModal();
+      },
+    };
+    (window as Window & { __POSR_DOCS_SECURITY__?: typeof api }).__POSR_DOCS_SECURITY__ = api;
+    return () => {
+      delete (window as Window & { __POSR_DOCS_SECURITY__?: typeof api }).__POSR_DOCS_SECURITY__;
+    };
+  }, [requestSecurity, closeModal]);
 
   const value: SecurityContextType = {
     isModalOpen,

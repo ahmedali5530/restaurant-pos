@@ -377,6 +377,7 @@ export const PayRuleForm = ({open, onClose, data}: Props) => {
     <>
     <Modal
       title={data ? t("forms.payRule.update") : t("forms.payRule.create")}
+      testId="hr-form-pay-rule"
       open={open}
       onClose={closeModal}
       size="xl"

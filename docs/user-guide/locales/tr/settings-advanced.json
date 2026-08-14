@@ -1,0 +1,106 @@
+{
+  "title": "Gelişmiş cihaz ayarları",
+  "intro": "Yöneticiler Ayarlar'da kapanış döngüsü, otomatik hesap kapatma, oturum güvenliği, otomatik çıkış, servis ücreti, menüler, stok ve yazıcıları yönetir.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Yönetici ayarları",
+      "steps": [
+        "Ayar yetkisiyle giriş yapın.",
+        "Anahtar ile Ayarlar'ı açın.",
+        "Mekân kartlarına odaklanın."
+      ],
+      "image": "settings-adv-overview.png",
+      "caption": "Gelişmiş ayar kartları."
+    },
+    {
+      "id": "closing-cycle",
+      "title": "Kapanış döngüsü",
+      "intro": "İş günü penceresini tanımlar.",
+      "steps": [
+        "Gece açık işletmelerde özel döngü açın.",
+        "Başlangıç ve bitiş ayarlayın.",
+        "Kaydedin."
+      ],
+      "image": "settings-adv-closing-cycle.png",
+      "caption": "Kapanış döngüsü kartı."
+    },
+    {
+      "id": "auto-check-close",
+      "title": "Otomatik hesap kapatma",
+      "steps": [
+        "Döngü sonunda otomatik tahsilatı açın.",
+        "Yazdırma ve ödeme türünü seçin.",
+        "Kaydedin."
+      ],
+      "image": "settings-adv-auto-check-close.png",
+      "caption": "Otomatik kapatma kartı."
+    },
+    {
+      "id": "session-security",
+      "title": "Oturum güvenliği",
+      "steps": [
+        "Boşta kilit veya çıkış açın.",
+        "Dakika ve eylemi ayarlayın.",
+        "Kaydedin."
+      ],
+      "image": "settings-adv-session-security.png",
+      "caption": "Oturum güvenlik kartı."
+    },
+    {
+      "id": "auto-clock-out",
+      "title": "Otomatik çıkış",
+      "steps": [
+        "Otomatik çıkışı açın.",
+        "Vardiya sonu, sabit saat veya ikisi.",
+        "Kaydedin."
+      ],
+      "image": "settings-adv-auto-clock-out.png",
+      "caption": "Otomatik çıkış kartı."
+    },
+    {
+      "id": "service-charges",
+      "title": "Servis ücretleri",
+      "steps": [
+        "Varsayılan tür ve değeri ayarlayın.",
+        "Ödemede servis kullanıldığında uygulanır.",
+        "Kaydedin."
+      ],
+      "image": "settings-adv-service-charges.png",
+      "caption": "Servis ücreti kartı."
+    },
+    {
+      "id": "menus",
+      "title": "Aktif menüler",
+      "steps": [
+        "Bu terminalin menülerini seçin.",
+        "Kaydedin.",
+        "Yönetim → Menüler ile birlikte kullanın."
+      ],
+      "image": "settings-adv-menus.png",
+      "caption": "Menüler kartı."
+    },
+    {
+      "id": "inventory",
+      "title": "Stok ayarları",
+      "steps": [
+        "Stok tercihlerini yapılandırın.",
+        "Kaydedin.",
+        "Derin belgeler Stok menüsünde."
+      ],
+      "image": "settings-adv-inventory.png",
+      "caption": "Stok ayarları kartı."
+    },
+    {
+      "id": "printers",
+      "title": "Yazıcılar",
+      "steps": [
+        "Bu cihazın yazıcılarını atayın.",
+        "Kaydedin.",
+        "Yazdırma seçenekleri komşu kartlarda."
+      ],
+      "image": "settings-adv-printers.png",
+      "caption": "Yazıcılar kartı."
+    }
+  ]
+}

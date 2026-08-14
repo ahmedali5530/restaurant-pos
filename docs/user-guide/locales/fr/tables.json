@@ -1,0 +1,74 @@
+{
+  "title": "Tables et salle",
+  "intro": "Le service en salle commence sur le plan : étage, table, couverts, puis commande.",
+  "sections": [
+    {
+      "id": "floor",
+      "title": "Plan de salle",
+      "steps": [
+        "Ouvrez Menu (mode étage activé).",
+        "Le plan montre les tables de l'étage actif.",
+        "Occupées ou verrouillées peuvent différer."
+      ],
+      "image": "tables-floor.png",
+      "caption": "Plan avec tables."
+    },
+    {
+      "id": "switcher",
+      "title": "Changer d'étage",
+      "intro": "Plusieurs zones via boutons en bas.",
+      "steps": [
+        "Appuyez sur un étage.",
+        "L'actif est mis en surbrillance.",
+        "Chaque étage a son layout."
+      ],
+      "image": "tables-floor-switcher.png",
+      "caption": "Boutons d'étage."
+    },
+    {
+      "id": "table",
+      "title": "Sélectionner une table",
+      "steps": [
+        "Appuyez sur une table libre.",
+        "Verrouillée peut exiger une approbation.",
+        "Puis couverts et commande."
+      ],
+      "image": "tables-table-tile.png",
+      "caption": "Tuile de table."
+    },
+    {
+      "id": "covers",
+      "title": "Couverts",
+      "intro": "Saisissez le nombre de convives si requis.",
+      "steps": [
+        "Utilisez le pavé.",
+        "OK pour le menu.",
+        "Les couverts apparaissent sur tickets."
+      ],
+      "image": "tables-covers.png",
+      "caption": "Écran couverts."
+    },
+    {
+      "id": "active",
+      "title": "Table active sur le menu",
+      "steps": [
+        "L'en-tête montre la table.",
+        "Utilisez les contrôles si autorisé.",
+        "Commandes liées à la table."
+      ],
+      "image": "tables-active-table.png",
+      "caption": "Indicateur table active."
+    },
+    {
+      "id": "back",
+      "title": "Retour au plan",
+      "steps": [
+        "Appuyez sur retour / étage.",
+        "Revenez au plan.",
+        "Les notes ouvertes restent dans Commandes."
+      ],
+      "image": "tables-back-floor.png",
+      "caption": "Contrôle retour."
+    }
+  ]
+}

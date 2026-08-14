@@ -92,7 +92,7 @@ export const AttendanceManualForm = ({open, onClose}: Props) => {
   };
 
   return (
-    <Modal title={t("buttons.manualEntry")} open={open} onClose={closeModal} size="lg">
+    <Modal title={t("buttons.manualEntry")} testId="hr-form-attendance" open={open} onClose={closeModal} size="lg">
       <form onSubmit={handleSubmit(onSubmit, (errs) => {
         const message = firstFormError(errs);
         if (message) toast.error(message);

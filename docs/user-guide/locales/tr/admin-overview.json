@@ -1,0 +1,41 @@
+{
+  "title": "Yönetim genel bakış",
+  "intro": "Yönetim, mekan yapılandırması için yönetici merkezidir. Yemekler, menüler, katlar, kullanıcılar, vergiler, indirimler, mutfaklar ve yazıcıları yönetin.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Yönetimi aç",
+      "steps": [
+        "Yönetici erişimi olan bir kullanıcıyla giriş yapın.",
+        "Yan menüde Yönetim'e dokunun.",
+        "Ekran varsayılan olarak Yemekler sekmesinde açılır."
+      ],
+      "image": "admin-overview.png",
+      "caption": "Sekme çubuğu ve içerik paneliyle Yönetim ekranı."
+    },
+    {
+      "id": "tabs",
+      "title": "Sekme gezinmesi",
+      "intro": "Sekmeler ilgili ayarları gruplar. Sekme değiştirmek rolünüze göre yönetici PIN'i gerektirebilir.",
+      "steps": [
+        "Çok sekme varken yatay kaydırın.",
+        "Sekmeler menü, salon planı, promosyon, mutfak, yazdırma, ödeme ve kullanıcıları kapsar.",
+        "Her sekme kendi bakım tablosunu açar.",
+        "Seçili sekme birincil gradyanla vurgulanır."
+      ],
+      "image": "admin-tabs.png",
+      "caption": "Yönetim sekme çubuğu."
+    },
+    {
+      "id": "dishes",
+      "title": "Yemekler sekmesi (varsayılan)",
+      "steps": [
+        "Yemekler satılabilir tüm ürünleri numara, ad ve fiyatla listeler.",
+        "Rolünüz izin veriyorsa Ekle, Düzenle, İçe aktar kullanın.",
+        "Arama ve sayfalama büyük menülerde yardımcı olur."
+      ],
+      "image": "admin-dishes.png",
+      "caption": "Yemek bakım tablosu."
+    }
+  ]
+}

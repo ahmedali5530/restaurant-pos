@@ -1,0 +1,102 @@
+{
+  "title": "Buffetmenu's en sessies",
+  "intro": "Plan recepten per gast en beheer buffet sessies.",
+  "sections": [
+    {
+      "id": "buffet-menus",
+      "title": "Buffetmenu's",
+      "steps": [
+        "Voorraad → Buffet → Menu's.",
+        "Sjablonen ontbijt/lunch/diner.",
+        "Recepten per gast."
+      ],
+      "image": "inventory-buffet-menus.png",
+      "caption": "Buffetmenulijst.",
+      "fields": []
+    },
+    {
+      "id": "buffet-menu-form",
+      "title": "Buffetmenuformulier",
+      "steps": [
+        "Menu toevoegen/bewerken.",
+        "Sessietype en receptregels.",
+        "Opslaan."
+      ],
+      "image": "inventory-buffet-menu-form.png",
+      "caption": "Buffetmenuformulier.",
+      "fields": [
+        {
+          "name": "Naam",
+          "effect": "Label bij sessiestart."
+        },
+        {
+          "name": "Code",
+          "effect": "Optionele keukencode."
+        },
+        {
+          "name": "Sessietype",
+          "effect": "Ontbijt/lunch/diner."
+        },
+        {
+          "name": "Receptregels",
+          "effect": "Recept en qty per gast."
+        },
+        {
+          "name": "Actief",
+          "effect": "Alleen actieve menu's."
+        }
+      ]
+    },
+    {
+      "id": "buffet-sessions",
+      "title": "Buffetsessies",
+      "steps": [
+        "Buffet → Sessies.",
+        "Start sessie van menu.",
+        "Monitor productie vs prognose.",
+        "Sluit sessie."
+      ],
+      "image": "inventory-buffet-sessions.png",
+      "caption": "Buffetsessiedashboard.",
+      "fields": []
+    },
+    {
+      "id": "buffet-session-form",
+      "title": "Buffetsessie starten",
+      "steps": [
+        "Nieuwe sessie.",
+        "Menu, locatie, datum, type.",
+        "Gasten en prijs.",
+        "Opslaan."
+      ],
+      "image": "inventory-buffet-session-form.png",
+      "caption": "Formulier nieuwe sessie.",
+      "fields": [
+        {
+          "name": "Menu",
+          "effect": "Laadt regels en prognoses."
+        },
+        {
+          "name": "Locatie",
+          "effect": "Magazijn voor mutaties."
+        },
+        {
+          "name": "Bedrijfsdatum",
+          "effect": "Handelsdag."
+        },
+        {
+          "name": "Sessietype",
+          "effect": "Past bij menu."
+        },
+        {
+          "name": "Verwachte gasten",
+          "effect": "Initiële prognoses."
+        },
+        {
+          "name": "Buffetprijs",
+          "effect": "Omzet per gast."
+        }
+      ]
+    }
+  ]
+}

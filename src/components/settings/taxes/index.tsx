@@ -108,7 +108,7 @@ export const AdminTaxes = () => {
               module: 'admin.taxes.create',
               description: getAccessRuleChildLabel('admin.taxes.create'),
             });
-          }} icon={faPlus}>{t('buttons.tax')}</Button>
+          }} icon={faPlus} data-testid="admin-add-taxes">{t('buttons.tax')}</Button>
         ]}
       />
 

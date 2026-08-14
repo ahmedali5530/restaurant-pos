@@ -1,0 +1,133 @@
+{
+  "title": "Payroll periods & runs",
+  "intro": "Close labor into payroll periods, generate runs with previews, and post adjustments.",
+  "sections": [
+    {
+      "id": "payroll-periods",
+      "title": "Payroll periods",
+      "steps": [
+        "Open HR → Payroll → Periods.",
+        "Create periods matching your pay cycle (weekly, biweekly, monthly, custom).",
+        "Lock or close periods before final runs."
+      ],
+      "image": "hr-payroll-periods.png",
+      "caption": "Payroll periods list.",
+      "fields": []
+    },
+    {
+      "id": "payroll-period-form",
+      "title": "Payroll period form",
+      "steps": [
+        "Add a period with name, type, and date range.",
+        "Leave status Open while collecting time and adjustments.",
+        "Change to Locked/Closed/Paid as the cycle progresses."
+      ],
+      "image": "hr-form-payroll-period.png",
+      "caption": "Payroll period form.",
+      "fields": [
+        {
+          "name": "Period name",
+          "effect": "Label shown on runs and payslip exports."
+        },
+        {
+          "name": "Period type",
+          "effect": "Weekly, biweekly, monthly, or custom cadence."
+        },
+        {
+          "name": "Start date",
+          "effect": "First day included in the period."
+        },
+        {
+          "name": "End date",
+          "effect": "Last day included in the period."
+        },
+        {
+          "name": "Status",
+          "effect": "Open allows edits; locked/closed restrict changes; paid marks completion."
+        }
+      ]
+    },
+    {
+      "id": "payroll-runs",
+      "title": "Payroll runs",
+      "steps": [
+        "Open Payroll → Runs for an open period.",
+        "Generate a run to preview gross pay from attendance and rules.",
+        "Review snapshots before marking the run complete."
+      ],
+      "image": "hr-payroll-runs.png",
+      "caption": "Payroll runs for a period.",
+      "fields": []
+    },
+    {
+      "id": "payroll-run-form",
+      "title": "Generate payroll run",
+      "steps": [
+        "Click New run and select an open payroll period.",
+        "Confirm the auto-suggested run number.",
+        "Generate preview to calculate lines from time, profiles, and rules."
+      ],
+      "image": "hr-form-payroll-run.png",
+      "caption": "New payroll run form.",
+      "fields": [
+        {
+          "name": "Payroll period",
+          "effect": "Date range and status governing which hours and adjustments are included."
+        },
+        {
+          "name": "Run number",
+          "effect": "Sequential identifier for multiple previews within the same period."
+        }
+      ]
+    },
+    {
+      "id": "adjustments",
+      "title": "Payroll adjustments",
+      "steps": [
+        "Open Payroll → Adjustments.",
+        "Add bonuses, penalties, allowances, or corrections per employee.",
+        "Link to a payroll period when the amount should appear on a run."
+      ],
+      "image": "hr-payroll-adjustments.png",
+      "caption": "Labor adjustments list.",
+      "fields": []
+    },
+    {
+      "id": "adjustment-form",
+      "title": "Adjustment form",
+      "steps": [
+        "Choose employee, type, amount, and effective date.",
+        "Optionally tie to a payroll period.",
+        "Save — included on the next run covering that date."
+      ],
+      "image": "hr-form-adjustment.png",
+      "caption": "Payroll adjustment form.",
+      "fields": [
+        {
+          "name": "Employee",
+          "effect": "Staff receiving the adjustment."
+        },
+        {
+          "name": "Payroll period",
+          "effect": "Optional link so the amount rolls into a specific run."
+        },
+        {
+          "name": "Type",
+          "effect": "Bonus, penalty, allowance, reimbursement, advance, loan, correction, or deduction."
+        },
+        {
+          "name": "Amount",
+          "effect": "Currency value added or subtracted from gross pay."
+        },
+        {
+          "name": "Effective date",
+          "effect": "Date used to determine which run picks up the adjustment."
+        },
+        {
+          "name": "Description",
+          "effect": "Explanation on payslip detail and audit trail."
+        }
+      ]
+    }
+  ]
+}

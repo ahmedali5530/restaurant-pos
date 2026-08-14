@@ -1,0 +1,29 @@
+{
+  "title": "Tellingen en transfers",
+  "intro": "Stem fysieke tellingen af via correcties en verplaats voorraad tussen locaties.",
+  "sections": [
+    {
+      "id": "adjustments",
+      "title": "Correcties (tellingen)",
+      "steps": [
+        "Open Correcties.",
+        "Voer getelde hoeveelheden in.",
+        "Dien in, keur goed en boek volgens rol."
+      ],
+      "image": "inventory-counts-adjustments.png",
+      "caption": "Lijst correcties."
+    },
+    {
+      "id": "transfers",
+      "title": "Voorraadtransfers",
+      "intro": "Verplaats voorraad zonder het bedrijfstotaal te wijzigen.",
+      "steps": [
+        "Open Voorraadtransfers.",
+        "Kies bron, bestemming en regels.",
+        "Sla op om hoeveelheden bij te werken."
+      ],
+      "image": "inventory-counts-transfers.png",
+      "caption": "Tabblad Transfers."
+    }
+  ]
+}

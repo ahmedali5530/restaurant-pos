@@ -1,0 +1,74 @@
+{
+  "title": "Tische und Gastraum",
+  "intro": "Gastraumservice beginnt am Grundriss: Etage, Tisch, Couverts, Bestellung.",
+  "sections": [
+    {
+      "id": "floor",
+      "title": "Grundriss",
+      "steps": [
+        "Menü öffnen (Etagenmodus an).",
+        "Zeigt Tische der aktiven Etage.",
+        "Belegt/gesperrt kann anders aussehen."
+      ],
+      "image": "tables-floor.png",
+      "caption": "Grundriss mit Tischen."
+    },
+    {
+      "id": "switcher",
+      "title": "Etage wechseln",
+      "intro": "Mehrere Bereiche über untere Buttons.",
+      "steps": [
+        "Etage tippen.",
+        "Aktive hervorgehoben.",
+        "Jede Etage eigenes Layout."
+      ],
+      "image": "tables-floor-switcher.png",
+      "caption": "Etagen-Buttons."
+    },
+    {
+      "id": "table",
+      "title": "Tisch wählen",
+      "steps": [
+        "Freien Tisch tippen.",
+        "Gesperrt kann Freigabe brauchen.",
+        "Dann Couverts und Menü."
+      ],
+      "image": "tables-table-tile.png",
+      "caption": "Tischkachel."
+    },
+    {
+      "id": "covers",
+      "title": "Couverts",
+      "intro": "Gastanzahl eingeben wenn nötig.",
+      "steps": [
+        "Ziffernblock nutzen.",
+        "OK zum Menü.",
+        "Couverts auf Tickets."
+      ],
+      "image": "tables-covers.png",
+      "caption": "Couvert-Screen."
+    },
+    {
+      "id": "active",
+      "title": "Aktiver Tisch im Menü",
+      "steps": [
+        "Header zeigt Tisch.",
+        "Kontrollen nutzen wenn erlaubt.",
+        "Bestellungen bleiben verknüpft."
+      ],
+      "image": "tables-active-table.png",
+      "caption": "Aktiver-Tisch-Anzeige."
+    },
+    {
+      "id": "back",
+      "title": "Zurück zum Grundriss",
+      "steps": [
+        "Zurück/Etage tippen.",
+        "Anderen Tisch wählen.",
+        "Offene Checks in Bestellungen."
+      ],
+      "image": "tables-back-floor.png",
+      "caption": "Zurück-Steuerung."
+    }
+  ]
+}

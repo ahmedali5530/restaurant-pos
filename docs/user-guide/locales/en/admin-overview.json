@@ -1,0 +1,41 @@
+{
+  "title": "Manage overview",
+  "intro": "Manage is the administrator hub for venue configuration. Open it from the sidebar to maintain dishes, menus, floors, users, taxes, discounts, kitchens, printers, and more.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Open Manage",
+      "steps": [
+        "Sign in with a user that has administrator access.",
+        "Tap Manage in the sidebar (gear icon area for admin roles).",
+        "The screen opens on the Dishes tab by default."
+      ],
+      "image": "admin-overview.png",
+      "caption": "Manage screen with tab bar and content panel."
+    },
+    {
+      "id": "tabs",
+      "title": "Tab navigation",
+      "intro": "Tabs group related settings. Switching tabs may require manager PIN approval depending on your role.",
+      "steps": [
+        "Scroll the tab bar horizontally when many tabs are visible.",
+        "Tabs cover menus, floor plan, promotions, kitchen routing, printing, payments, and users.",
+        "Each tab opens its own maintenance table or form list.",
+        "The selected tab is highlighted with the primary gradient."
+      ],
+      "image": "admin-tabs.png",
+      "caption": "Manage tab bar."
+    },
+    {
+      "id": "dishes",
+      "title": "Dishes tab (default)",
+      "steps": [
+        "Dishes lists every sellable item with number, name, and price.",
+        "Use Add, Edit, Import, or bulk actions when your role allows.",
+        "Search and pagination help find items in large menus."
+      ],
+      "image": "admin-dishes.png",
+      "caption": "Dishes maintenance table."
+    }
+  ]
+}

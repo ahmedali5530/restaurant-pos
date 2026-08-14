@@ -1,0 +1,29 @@
+{
+  "title": "Issues and returns",
+  "intro": "Issue stock from storage to kitchens or cost centers, and return unused stock back to inventory.",
+  "sections": [
+    {
+      "id": "issues",
+      "title": "Issues",
+      "steps": [
+        "Open the Issues tab.",
+        "Create an issue document with destination (kitchen or department) and lines.",
+        "Saving removes quantity from the source location."
+      ],
+      "image": "inventory-issues-list.png",
+      "caption": "Issues list."
+    },
+    {
+      "id": "returns",
+      "title": "Issue returns",
+      "intro": "Return unused issued items so stock is available again.",
+      "steps": [
+        "Open the Issue Returns tab.",
+        "Select the original issue or enter return lines.",
+        "Saving adds quantity back to the inventory location."
+      ],
+      "image": "inventory-issues-returns.png",
+      "caption": "Issue returns tab."
+    }
+  ]
+}

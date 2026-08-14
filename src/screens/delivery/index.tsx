@@ -31,6 +31,7 @@ export const Index = () => {
   return (
     <Layout>
       <DocumentTitle parts={[pages[selected]?.title, tNav('sidebar.delivery')]} />
+      <div data-testid="delivery-page">
       <Tabs
         className="w-full flex flex-col rounded-xl"
         selectedKey={selected}
@@ -42,9 +43,10 @@ export const Index = () => {
         }}
       >
         <TabList aria-label="Tabs"
-                 className="flex flex-row gap-3 px-1 py-3 flex-nowrap">
+                 className="flex flex-row gap-3 px-1 py-3 flex-nowrap"
+                 data-testid="delivery-tabs">
           {Object.keys(pages).map(key => (
-            <Tab id={key} key={key}>{pages[key].title}</Tab>
+            <Tab id={key} key={key} data-testid={`delivery-tab-${key}`}>{pages[key].title}</Tab>
           ))}
         </TabList>
         {Object.keys(pages).map((key) => (
@@ -55,6 +57,7 @@ export const Index = () => {
           </TabPanel>
         ))}
       </Tabs>
+      </div>
     </Layout>
   )
 }

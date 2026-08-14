@@ -1,0 +1,157 @@
+{
+  "title": "Employees",
+  "intro": "Maintain employee records and the organizational structure: departments and positions.",
+  "sections": [
+    {
+      "id": "employees",
+      "title": "Employee list",
+      "steps": [
+        "Open the Employees tab.",
+        "Add or edit employees with role, department, and contact details.",
+        "Employee records feed attendance, leave, and payroll tabs."
+      ],
+      "image": "hr-employees-list.png",
+      "caption": "Employees tab."
+    },
+    {
+      "id": "departments",
+      "title": "Departments",
+      "intro": "Departments group staff for reporting and cost allocation.",
+      "steps": [
+        "Open the Departments tab.",
+        "Create departments that match how the venue organizes teams.",
+        "Assign employees to departments on their employee form."
+      ],
+      "image": "hr-employees-departments.png",
+      "caption": "Departments tab."
+    },
+    {
+      "id": "positions",
+      "title": "Positions",
+      "steps": [
+        "Open the Positions tab.",
+        "Define job titles used on employee records and schedules.",
+        "Keep positions aligned with pay profiles when payroll is enabled."
+      ],
+      "image": "hr-employees-positions.png",
+      "caption": "Positions tab."
+    },
+    {
+      "id": "employee-form",
+      "title": "Çalışan formu",
+      "intro": "POS kullanıcısı ve org yapısını bağlayan temel İK kaydı.",
+      "steps": [
+        "Çalışanlar → Ekle/düzenle.",
+        "Numara, ad, istihdam detayları.",
+        "POS kullanıcı, departman, pozisyon bağla.",
+        "Kaydet."
+      ],
+      "image": "hr-form-employee.png",
+      "caption": "Çalışan oluştur/düzenle modalı.",
+      "fields": [
+        {
+          "name": "Çalışan no",
+          "effect": "Program ve exportlarda benzersiz id."
+        },
+        {
+          "name": "Ad / soyad",
+          "effect": "İK belgelerinde görünen ad."
+        },
+        {
+          "name": "Bağlı kullanıcı",
+          "effect": "İsteğe bağlı POS girişi."
+        },
+        {
+          "name": "Departman",
+          "effect": "Raporlama birimi."
+        },
+        {
+          "name": "Pozisyon",
+          "effect": "Program ve ödeme kurallarında unvan."
+        },
+        {
+          "name": "Maliyet merkezi",
+          "effect": "Varsayılan işçilik maliyeti."
+        },
+        {
+          "name": "Yönetici",
+          "effect": "Onay hattı."
+        },
+        {
+          "name": "İstihdam durumu",
+          "effect": "Aktif, pasif, ayrılmış, izinli veya askıda."
+        },
+        {
+          "name": "İstihdam tipi",
+          "effect": "Saatlik, maaş, sözleşme vb."
+        },
+        {
+          "name": "İşe giriş / ayrılış",
+          "effect": "Kıdem ve uygunluk."
+        }
+      ]
+    },
+    {
+      "id": "department-form",
+      "title": "Departman formu",
+      "steps": [
+        "Departmanlar veya satır içi ekle.",
+        "Kod, ad, açıklama.",
+        "Kaydet."
+      ],
+      "image": "hr-form-department.png",
+      "caption": "Departman formu.",
+      "fields": [
+        {
+          "name": "Kod",
+          "effect": "Entegrasyonlar için kısa id."
+        },
+        {
+          "name": "Ad",
+          "effect": "Listelerde görünen ad."
+        },
+        {
+          "name": "Açıklama",
+          "effect": "İsteğe bağlı notlar."
+        },
+        {
+          "name": "Aktif",
+          "effect": "Pasif departmanlar yeni atamalarda gizli."
+        }
+      ]
+    },
+    {
+      "id": "position-form",
+      "title": "Pozisyon formu",
+      "steps": [
+        "Pozisyonlar veya inline.",
+        "Kod, ad, departman, maliyet merkezi.",
+        "Kaydet."
+      ],
+      "image": "hr-form-position.png",
+      "caption": "Pozisyon formu.",
+      "fields": [
+        {
+          "name": "Kod",
+          "effect": "Bordro export iş kodu."
+        },
+        {
+          "name": "Ad",
+          "effect": "İK ve programlarda unvan."
+        },
+        {
+          "name": "Departman",
+          "effect": "Varsayılan org birimi."
+        },
+        {
+          "name": "Varsayılan maliyet merkezi",
+          "effect": "Programlarda önceden doldurulur."
+        },
+        {
+          "name": "Aktif",
+          "effect": "Artık işe alınmayan unvanları kaldırır."
+        }
+      ]
+    }
+  ]
+}

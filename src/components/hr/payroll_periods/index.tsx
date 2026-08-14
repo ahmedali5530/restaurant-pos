@@ -68,7 +68,7 @@ export const HrPayrollPeriods = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button key="payroll-period-create" variant="primary" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
+          <Button key="payroll-period-create" variant="primary" data-testid="hr-add-payroll-periods" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
             {t("buttons.payrollPeriod")}
           </Button>,
         ]}

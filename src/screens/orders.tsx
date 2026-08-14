@@ -483,7 +483,7 @@ export const Orders = () => {
                 {mergingOrders.length <= 1 ? t('merge.selectTwoOrMore') : t('merge.confirmMerging', {count: mergingOrders.length})}
               </Button>
 
-              <Button flat size="lg" variant="danger" onClick={() => {
+              <Button flat size="lg" variant="danger" data-testid="orders-merge-cancel" onClick={() => {
                 setMerging(false);
                 setMergingOrders([]);
               }}>

@@ -1,0 +1,29 @@
+{
+  "title": "Conteos y transferencias",
+  "intro": "Conciliar conteos físicos con el sistema mediante ajustes, y mover stock entre ubicaciones.",
+  "sections": [
+    {
+      "id": "adjustments",
+      "title": "Ajustes (conteos)",
+      "steps": [
+        "Abra la pestaña Ajustes.",
+        "Ingrese cantidades contadas por artículo y ubicación.",
+        "Envíe, apruebe y publique según su rol para actualizar inventario."
+      ],
+      "image": "inventory-counts-adjustments.png",
+      "caption": "Lista de ajustes (conteo)."
+    },
+    {
+      "id": "transfers",
+      "title": "Transferencias de stock",
+      "intro": "Mueva stock entre ubicaciones sin cambiar el total de la empresa.",
+      "steps": [
+        "Abra la pestaña Transferencias de stock.",
+        "Elija origen, destino y líneas.",
+        "Guarde para disminuir origen y aumentar destino."
+      ],
+      "image": "inventory-counts-transfers.png",
+      "caption": "Pestaña Transferencias de stock."
+    }
+  ]
+}

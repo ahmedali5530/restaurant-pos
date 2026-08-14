@@ -81,6 +81,122 @@
       ],
       "image": "orders-table-view.png",
       "caption": "Orders table view."
+    },
+    {
+      "id": "cancel-void",
+      "title": "Cancel or void order",
+      "intro": "Voids an In Progress check. Full void cancels every line; partial void removes selected items only. Manager PIN may be required.",
+      "steps": [
+        "Open ⋯ on an In Progress order card and choose Cancel order.",
+        "Pick a void reason from the list (required for reporting).",
+        "Leave Select all items checked for a full void, or uncheck and choose specific lines for a partial void.",
+        "Confirm to void the check and release the table when applicable."
+      ],
+      "image": "orders-cancel-modal.png",
+      "caption": "Cancel order modal with reason and item selection.",
+      "fields": [
+        {
+          "name": "Reason",
+          "effect": "Required void reason recorded on the order for audit and reporting."
+        },
+        {
+          "name": "Select all items",
+          "effect": "When checked, voids the entire check; when unchecked, enables per-line selection."
+        },
+        {
+          "name": "Partial void",
+          "effect": "Check individual line items to void only those quantities while keeping the rest of the check open."
+        }
+      ]
+    },
+    {
+      "id": "refund",
+      "title": "Refund paid order",
+      "intro": "Issues a refund against a paid check, optionally for selected items only.",
+      "steps": [
+        "Open a Paid order and choose Refund from the actions menu.",
+        "Select the line items and quantities to refund.",
+        "Choose a refund reason and confirm.",
+        "The system posts the refund and updates payment totals."
+      ],
+      "image": "orders-refund-modal.png",
+      "caption": "Refund modal with item picker and reason.",
+      "fields": [
+        {
+          "name": "Items to refund",
+          "effect": "Choose which paid lines and quantities are returned to the customer."
+        },
+        {
+          "name": "Reason",
+          "effect": "Documents why the refund was issued for manager review and reports."
+        }
+      ]
+    },
+    {
+      "id": "split-seats",
+      "title": "Split by seats",
+      "intro": "Divides one check into separate checks by seat number already assigned on line items.",
+      "steps": [
+        "From ⋯ choose Split by seats on an In Progress order.",
+        "Review how items group under each seat.",
+        "Confirm to create one child check per seat with shared table context."
+      ],
+      "image": "orders-split-seats.png",
+      "caption": "Split-by-seats preview before confirming.",
+      "fields": []
+    },
+    {
+      "id": "split-items",
+      "title": "Split by items",
+      "intro": "Manually assigns line items to new checks regardless of seat.",
+      "steps": [
+        "From ⋯ choose Split by items.",
+        "Move or assign each line to a new check column.",
+        "Confirm to create separate In Progress checks from the original."
+      ],
+      "image": "orders-split-items.png",
+      "caption": "Split-by-items assignment grid.",
+      "fields": []
+    },
+    {
+      "id": "split-amount",
+      "title": "Split by amount",
+      "intro": "Splits the check total into fixed or equal parts for separate payment.",
+      "steps": [
+        "From ⋯ choose Split by amount.",
+        "Enter the number of parts or custom amounts.",
+        "Confirm to generate child checks each owing a portion of the total."
+      ],
+      "image": "orders-split-amount.png",
+      "caption": "Split-by-amount dialog.",
+      "fields": []
+    },
+    {
+      "id": "merge",
+      "title": "Merge orders",
+      "intro": "Combines multiple In Progress checks onto one table. Start from each order card, then finish on the bottom bar.",
+      "steps": [
+        "On the first order, open ⋯ and choose Merge (or tick Select on the merge bar).",
+        "Repeat for each additional order to include.",
+        "Tap Choose table and pick the destination table.",
+        "Tap Confirm merge to combine lines into one check."
+      ],
+      "image": "orders-merge-bar.png",
+      "caption": "Merge bar with selected orders and table picker.",
+      "fields": [
+        {
+          "name": "Select orders checkbox",
+          "effect": "Marks an order for inclusion in the pending merge set."
+        },
+        {
+          "name": "Choose table",
+          "effect": "Sets the floor table that will host the merged check."
+        },
+        {
+          "name": "Confirm merge",
+          "effect": "Combines all selected checks into one In Progress order on the chosen table."
+        }
+      ]
     }
   ]
 }

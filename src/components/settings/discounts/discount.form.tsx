@@ -197,6 +197,7 @@ export const DiscountForm = ({
 
   return (
     <Modal
+      testId="admin-form-discount"
       title={data ? t('forms.updateDiscount', { name: data?.name }) : t('forms.createDiscount')}
       open={open}
       onClose={closeModal}

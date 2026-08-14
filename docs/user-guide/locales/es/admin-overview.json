@@ -1,0 +1,41 @@
+{
+  "title": "Resumen de Administración",
+  "intro": "Administración es el centro de configuración del local. Ábralo desde la barra lateral para mantener platos, menús, pisos, usuarios, impuestos, descuentos, cocinas, impresoras y más.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Abrir Administración",
+      "steps": [
+        "Inicie sesión con un usuario con acceso de administrador.",
+        "Pulse Administración en la barra lateral.",
+        "La pantalla se abre en la pestaña Platos por defecto."
+      ],
+      "image": "admin-overview.png",
+      "caption": "Pantalla Administración con pestañas y panel."
+    },
+    {
+      "id": "tabs",
+      "title": "Navegación por pestañas",
+      "intro": "Las pestañas agrupan ajustes relacionados. Cambiar de pestaña puede requerir PIN de gerente según su rol.",
+      "steps": [
+        "Desplace la barra de pestañas horizontalmente cuando hay muchas.",
+        "Las pestañas cubren menús, plano de sala, promociones, cocina, impresión, pagos y usuarios.",
+        "Cada pestaña abre su tabla o lista de mantenimiento.",
+        "La pestaña seleccionada se resalta con el degradado principal."
+      ],
+      "image": "admin-tabs.png",
+      "caption": "Barra de pestañas de Administración."
+    },
+    {
+      "id": "dishes",
+      "title": "Pestaña Platos (predeterminada)",
+      "steps": [
+        "Platos lista cada artículo vendible con número, nombre y precio.",
+        "Use Agregar, Editar, Importar o acciones masivas si su rol lo permite.",
+        "Búsqueda y paginación ayudan a encontrar artículos en menús grandes."
+      ],
+      "image": "admin-dishes.png",
+      "caption": "Tabla de mantenimiento de platos."
+    }
+  ]
+}

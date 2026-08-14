@@ -157,7 +157,7 @@ export const AdminMenus = () => {
               module: 'admin.menus.create',
               description: getAccessRuleChildLabel('admin.menus.create'),
             });
-          }} icon={faPlus}>{t('buttons.menu')}</Button>
+          }} icon={faPlus} data-testid="admin-add-menus">{t('buttons.menu')}</Button>
         ]}
       />
 

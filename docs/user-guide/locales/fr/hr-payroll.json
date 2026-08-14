@@ -1,0 +1,133 @@
+{
+  "title": "Périodes et exécutions de paie",
+  "intro": "Clôturez les périodes, générez des exécutions avec aperçu.",
+  "sections": [
+    {
+      "id": "payroll-periods",
+      "title": "Périodes de paie",
+      "steps": [
+        "RH → Paie → Périodes.",
+        "Créez selon cycle.",
+        "Verrouillez avant final."
+      ],
+      "image": "hr-payroll-periods.png",
+      "caption": "Liste périodes paie.",
+      "fields": []
+    },
+    {
+      "id": "payroll-period-form",
+      "title": "Formulaire période paie",
+      "steps": [
+        "Nom, type, dates.",
+        "Statut Ouvert.",
+        "Passez Verrouillé/Fermé/Payé."
+      ],
+      "image": "hr-form-payroll-period.png",
+      "caption": "Formulaire période.",
+      "fields": [
+        {
+          "name": "Nom période",
+          "effect": "Libellé runs et exports."
+        },
+        {
+          "name": "Type période",
+          "effect": "Hebdo, bihebdo, mensuel ou custom."
+        },
+        {
+          "name": "Date début",
+          "effect": "Premier jour inclus."
+        },
+        {
+          "name": "Date fin",
+          "effect": "Dernier jour inclus."
+        },
+        {
+          "name": "Statut",
+          "effect": "Ouvert autorise edits; verrouillé restreint."
+        }
+      ]
+    },
+    {
+      "id": "payroll-runs",
+      "title": "Exécutions paie",
+      "steps": [
+        "Paie → Exécutions.",
+        "Générez aperçu brut.",
+        "Vérifiez snapshots."
+      ],
+      "image": "hr-payroll-runs.png",
+      "caption": "Exécutions de période.",
+      "fields": []
+    },
+    {
+      "id": "payroll-run-form",
+      "title": "Générer exécution paie",
+      "steps": [
+        "Nouvelle exécution.",
+        "Période ouverte.",
+        "Générer aperçu."
+      ],
+      "image": "hr-form-payroll-run.png",
+      "caption": "Formulaire nouvelle exécution.",
+      "fields": [
+        {
+          "name": "Période paie",
+          "effect": "Gouverne heures et ajustements."
+        },
+        {
+          "name": "N° exécution",
+          "effect": "ID séquentiel dans période."
+        }
+      ]
+    },
+    {
+      "id": "adjustments",
+      "title": "Ajustements paie",
+      "steps": [
+        "Paie → Ajustements.",
+        "Ajoutez bonus/pénalités.",
+        "Liez à période."
+      ],
+      "image": "hr-payroll-adjustments.png",
+      "caption": "Liste ajustements.",
+      "fields": []
+    },
+    {
+      "id": "adjustment-form",
+      "title": "Formulaire ajustement",
+      "steps": [
+        "Employé, type, montant, date.",
+        "Période optionnelle.",
+        "Enregistrer."
+      ],
+      "image": "hr-form-adjustment.png",
+      "caption": "Formulaire ajustement paie.",
+      "fields": [
+        {
+          "name": "Employé",
+          "effect": "Reçoit l'ajustement."
+        },
+        {
+          "name": "Période paie",
+          "effect": "Lien optionnel au run."
+        },
+        {
+          "name": "Type",
+          "effect": "Bonus, pénalité, allocation, remboursement, avance, prêt, correction ou retenue."
+        },
+        {
+          "name": "Montant",
+          "effect": "Valeur ajoutée/soustraite du brut."
+        },
+        {
+          "name": "Date effective",
+          "effect": "Détermine quel run inclut."
+        },
+        {
+          "name": "Description",
+          "effect": "Détail bulletin et audit."
+        }
+      ]
+    }
+  ]
+}

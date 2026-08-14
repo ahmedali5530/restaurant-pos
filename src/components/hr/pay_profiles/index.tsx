@@ -67,7 +67,7 @@ export const HrPayProfiles = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button key="pay-profile-create" variant="primary" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
+          <Button key="pay-profile-create" variant="primary" data-testid="hr-add-pay-profiles" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
             {t("buttons.payProfile")}
           </Button>,
         ]}

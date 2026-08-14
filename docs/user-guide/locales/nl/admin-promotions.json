@@ -1,0 +1,178 @@
+{
+  "title": "Discounts and coupons",
+  "intro": "Configure promotional pricing: discount rules with reasons and role permissions, plus coupon codes staff can apply at payment.",
+  "sections": [
+    {
+      "id": "discount-rules",
+      "title": "Discount rules",
+      "intro": "Discount rules define automatic or manual reductions by category, scope, and eligibility.",
+      "steps": [
+        "Open the Discounts tab in Manage.",
+        "Select the Rules sub-tab.",
+        "Add or edit rules; set type, value, scope, and when the discount applies."
+      ],
+      "image": "admin-discounts-rules.png",
+      "caption": "Discount rules list."
+    },
+    {
+      "id": "discount-reasons",
+      "title": "Discount reasons",
+      "intro": "Reasons appear when staff apply manual discounts so reporting can track why a reduction was given.",
+      "steps": [
+        "Open Discounts and switch to the Reasons sub-tab.",
+        "Create reasons staff can pick at the payment or cart screen.",
+        "Deactivate reasons you no longer want offered."
+      ],
+      "image": "admin-discounts-reasons.png",
+      "caption": "Discount reasons maintenance."
+    },
+    {
+      "id": "discount-permissions",
+      "title": "Discount permissions",
+      "intro": "Control which roles may apply each discount type or exceed limits without manager approval.",
+      "steps": [
+        "Open Discounts and switch to the Permissions sub-tab.",
+        "Review the matrix of roles versus discount capabilities.",
+        "Adjust permissions so only authorized roles can grant large or sensitive discounts."
+      ],
+      "image": "admin-discounts-permissions.png",
+      "caption": "Discount permission matrix."
+    },
+    {
+      "id": "coupons",
+      "title": "Coupons",
+      "steps": [
+        "Open the Coupons tab.",
+        "Create coupon codes with value, validity window, and usage limits.",
+        "Staff enter coupons on the payment screen when the order qualifies."
+      ],
+      "image": "admin-coupons.png",
+      "caption": "Coupons tab."
+    },
+    {
+      "id": "discount-form",
+      "title": "Kortingsregelformulier",
+      "intro": "14 categorieën; scope item/category/cart/customer/floor.",
+      "steps": [
+        "Admin → Promoties → Kortingen.",
+        "Categorie, scope, modus.",
+        "Doelen en waarde.",
+        "Opslaan."
+      ],
+      "image": "admin-promotions-discount-form.png",
+      "caption": "Kortingsregelformulier.",
+      "fields": [
+        {
+          "name": "Categorie",
+          "effect": "Een van 14 types."
+        },
+        {
+          "name": "Scope",
+          "effect": "item, category, cart, customer, floor."
+        },
+        {
+          "name": "Toepassingsmodus",
+          "effect": "manual, automatic, both."
+        },
+        {
+          "name": "Doelen",
+          "effect": "In aanmerking komende items."
+        },
+        {
+          "name": "Type (percent/vast)",
+          "effect": "Min/max als % of bedrag."
+        },
+        {
+          "name": "Min / max tarief",
+          "effect": "Toegestaan bereik."
+        },
+        {
+          "name": "Max plafond",
+          "effect": "Limiet bij % kortingen."
+        },
+        {
+          "name": "Prioriteit",
+          "effect": "Volgorde auto-regels."
+        },
+        {
+          "name": "Min orderbedrag",
+          "effect": "Subtotaal drempel."
+        },
+        {
+          "name": "Stapelmodus",
+          "effect": "allow, prevent, highest_wins, priority."
+        },
+        {
+          "name": "Belastingbehandeling",
+          "effect": "tax_before/after_discount etc."
+        },
+        {
+          "name": "Schema's",
+          "effect": "Dag/uur vensters."
+        },
+        {
+          "name": "Voorwaarden",
+          "effect": "Buy X Get Y."
+        },
+        {
+          "name": "Reden/goedkeuring vereist",
+          "effect": "Manager-PIN handmatig."
+        }
+      ]
+    },
+    {
+      "id": "coupon-form",
+      "title": "Couponformulier",
+      "steps": [
+        "Promoties → Coupons.",
+        "Code, type/waarde, limieten.",
+        "Geldige dagen en datums.",
+        "Opslaan."
+      ],
+      "image": "admin-promotions-coupon-form.png",
+      "caption": "Couponformulier.",
+      "fields": [
+        {
+          "name": "Code",
+          "effect": "String bij checkout."
+        },
+        {
+          "name": "Coupontype",
+          "effect": "Eenmalig/meervoudig."
+        },
+        {
+          "name": "Kortingstype/waarde",
+          "effect": "Procent of vast."
+        },
+        {
+          "name": "Min orderbedrag",
+          "effect": "Subtotaal drempel."
+        },
+        {
+          "name": "Max korting",
+          "effect": "Plafond %."
+        },
+        {
+          "name": "Gebruikslimiet",
+          "effect": "Totaal inwisselingen."
+        },
+        {
+          "name": "Limiet per gebruiker",
+          "effect": "Per klant."
+        },
+        {
+          "name": "Geldige dagen / tijden",
+          "effect": "Tijdrestrictie."
+        },
+        {
+          "name": "Start/eind datum",
+          "effect": "Algemene geldigheid."
+        },
+        {
+          "name": "Stapelbaar / alleen eerste order",
+          "effect": "Combinatieregels."
+        }
+      ]
+    }
+  ]
+}

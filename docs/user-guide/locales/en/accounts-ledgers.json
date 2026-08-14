@@ -1,0 +1,68 @@
+{
+  "title": "Ledgers, P&L, and cash flow",
+  "intro": "Review posted activity and period balances: general ledger detail, trial balance, and balance sheet.",
+  "sections": [
+    {
+      "id": "ledger",
+      "title": "General ledger",
+      "steps": [
+        "Open the General ledger tab.",
+        "Filter by account and date range to inspect posted lines.",
+        "Use this view to drill into journal activity for an account."
+      ],
+      "image": "accounts-ledger.png",
+      "caption": "General ledger tab."
+    },
+    {
+      "id": "trial",
+      "title": "Trial balance",
+      "intro": "Trial balance lists debit and credit totals by account for a period.",
+      "steps": [
+        "Open the Trial balance tab.",
+        "Choose the period or as-of date your venue uses.",
+        "Confirm debits equal credits before relying on statements."
+      ],
+      "image": "accounts-trial-balance.png",
+      "caption": "Trial balance tab."
+    },
+    {
+      "id": "balance-sheet",
+      "title": "Balance sheet",
+      "steps": [
+        "Open the Balance sheet tab.",
+        "Review assets, liabilities, and equity for the selected date.",
+        "Other statement tabs (Profit & loss, Cash flow) follow the same pattern."
+      ],
+      "image": "accounts-balance-sheet.png",
+      "caption": "Balance sheet tab."
+    },
+    {
+      "id": "profit-loss",
+      "title": "Profit & loss",
+      "intro": "Income statement for the selected period: revenue, cost of sales, and operating expenses.",
+      "steps": [
+        "Open Accounts and the Profit & loss tab.",
+        "Set the date range or period to match your reporting cycle.",
+        "Expand account groups to review category totals.",
+        "Export or print when the period is closed."
+      ],
+      "image": "accounts-profit-loss.png",
+      "caption": "Profit & loss statement tab.",
+      "fields": []
+    },
+    {
+      "id": "cash-flow",
+      "title": "Cash flow",
+      "intro": "Summarizes cash movement from operations, investing, and financing for the period.",
+      "steps": [
+        "Open the Cash flow tab in Accounts.",
+        "Choose the same period used for other statements.",
+        "Review opening balance, net change, and closing cash position.",
+        "Use alongside P&L to explain cash vs. accrual differences."
+      ],
+      "image": "accounts-cash-flow.png",
+      "caption": "Cash flow statement tab.",
+      "fields": []
+    }
+  ]
+}

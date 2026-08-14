@@ -1,0 +1,211 @@
+{
+  "title": "Attendance",
+  "intro": "Track clock times and build schedules so labor hours stay accurate for payroll and reporting.",
+  "sections": [
+    {
+      "id": "attendance",
+      "title": "Attendance records",
+      "steps": [
+        "Open the Attendance tab.",
+        "Review clock-in and clock-out events for staff.",
+        "Correct or approve exceptions when your role allows."
+      ],
+      "image": "hr-attendance.png",
+      "caption": "Attendance tab."
+    },
+    {
+      "id": "scheduling",
+      "title": "Scheduling",
+      "intro": "Schedules plan who works which shifts.",
+      "steps": [
+        "Open the Scheduling tab.",
+        "Build or adjust shifts for upcoming days.",
+        "Published schedules guide floor staffing and attendance expectations."
+      ],
+      "image": "hr-scheduling.png",
+      "caption": "Scheduling tab."
+    },
+    {
+      "id": "attendance-form",
+      "title": "Inserimento presenza manuale",
+      "intro": "Corregge timbrature mancanti o integra ore.",
+      "steps": [
+        "Presenze → Inserimento manuale.",
+        "Dipendente e orari.",
+        "Note e salva."
+      ],
+      "image": "hr-form-attendance.png",
+      "caption": "Modal presenza manuale.",
+      "fields": [
+        {
+          "name": "Dipendente",
+          "effect": "Soggetto del record."
+        },
+        {
+          "name": "Entrata",
+          "effect": "Inizio intervallo."
+        },
+        {
+          "name": "Uscita",
+          "effect": "Fine dopo entrata."
+        },
+        {
+          "name": "Note",
+          "effect": "Motivo inserimento manuale."
+        }
+      ]
+    },
+    {
+      "id": "schedule-form",
+      "title": "Modulo programma lavoro",
+      "intro": "Intervallo date con turni bozza o pubblicati.",
+      "steps": [
+        "Pianificazione → aggiungi.",
+        "Nome e inizio/fine periodo.",
+        "Turni o genera da template."
+      ],
+      "image": "hr-form-schedule.png",
+      "caption": "Modulo programma.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Etichetta periodo."
+        },
+        {
+          "name": "Inizio periodo",
+          "effect": "Primo datetime coperto."
+        },
+        {
+          "name": "Fine periodo",
+          "effect": "Ultimo datetime coperto."
+        }
+      ]
+    },
+    {
+      "id": "shift-form",
+      "title": "Modulo turno programmato",
+      "intro": "Assegna dipendente a blocco in bozza.",
+      "steps": [
+        "Bozza → aggiungi turno.",
+        "Programma, dipendente, orari.",
+        "Template/org opzionale.",
+        "Salva."
+      ],
+      "image": "hr-form-shift.png",
+      "caption": "Modulo turno.",
+      "fields": [
+        {
+          "name": "Programma lavoro",
+          "effect": "Genitore in bozza."
+        },
+        {
+          "name": "Dipendente",
+          "effect": "Assegnato al turno."
+        },
+        {
+          "name": "Template turno",
+          "effect": "Preset Admin → Utenti → Turni."
+        },
+        {
+          "name": "Reparto / ruolo / centro costo",
+          "effect": "Override org."
+        },
+        {
+          "name": "Inizio / fine",
+          "effect": "Finestra oraria."
+        }
+      ]
+    },
+    {
+      "id": "schedule-template",
+      "title": "Modulo template programma",
+      "intro": "Schema settimanale riutilizzabile.",
+      "steps": [
+        "Pianificazione → Template.",
+        "Nome e giorni/orari.",
+        "Template turno opzionale.",
+        "Salva."
+      ],
+      "image": "hr-form-schedule-template.png",
+      "caption": "Modulo template.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Etichetta genera."
+        },
+        {
+          "name": "Giorni settimana",
+          "effect": "Giorni con turni."
+        },
+        {
+          "name": "Ora inizio/fine",
+          "effect": "Finestra giornaliera."
+        },
+        {
+          "name": "Minuti pausa",
+          "effect": "Pausa non retribuita."
+        },
+        {
+          "name": "Template turno",
+          "effect": "Definizione POS."
+        }
+      ]
+    },
+    {
+      "id": "schedule-generate",
+      "title": "Genera programma da template",
+      "steps": [
+        "Pianificazione → Genera.",
+        "Bozza e template.",
+        "Seleziona dipendenti.",
+        "Genera."
+      ],
+      "image": "hr-form-schedule-generate.png",
+      "caption": "Dialogo genera.",
+      "fields": [
+        {
+          "name": "Programma",
+          "effect": "Bozza destinazione."
+        },
+        {
+          "name": "Template",
+          "effect": "Schema settimanale."
+        },
+        {
+          "name": "Dipendenti",
+          "effect": "Ricevono copia turni."
+        }
+      ]
+    },
+    {
+      "id": "schedule-swap",
+      "title": "Richiesta scambio turno",
+      "steps": [
+        "Pianificazione → Richiedi scambio.",
+        "Turno e richiedente.",
+        "Collega target opzionale.",
+        "Invia."
+      ],
+      "image": "hr-form-schedule-swap.png",
+      "caption": "Formulario scambio.",
+      "fields": [
+        {
+          "name": "Turno programmato",
+          "effect": "Turno da cedere/scambiare."
+        },
+        {
+          "name": "Richiedente",
+          "effect": "Avvia scambio."
+        },
+        {
+          "name": "Collega target",
+          "effect": "Opzionale."
+        },
+        {
+          "name": "Turno proposto",
+          "effect": "Contro-turno."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "title": "Sayımlar ve transferler",
+  "intro": "Fiziksel sayımları düzeltmelerle sisteme işleyin; lokasyonlar arası transfer yapın.",
+  "sections": [
+    {
+      "id": "adjustments",
+      "title": "Düzeltmeler (sayımlar)",
+      "steps": [
+        "Düzeltmeler sekmesini açın.",
+        "Ürün ve lokasyona göre sayılan miktarları girin.",
+        "Rolünüze göre gönderin, onaylayın ve kaydedin."
+      ],
+      "image": "inventory-counts-adjustments.png",
+      "caption": "Düzeltmeler (sayım) listesi."
+    },
+    {
+      "id": "transfers",
+      "title": "Stok transferleri",
+      "intro": "Toplam şirket miktarını değiştirmeden lokasyonlar arası taşıyın.",
+      "steps": [
+        "Stok Transferleri sekmesini açın.",
+        "Kaynak, hedef ve satırları seçin.",
+        "Kaydetmek kaynağı azaltır, hedefi artırır."
+      ],
+      "image": "inventory-counts-transfers.png",
+      "caption": "Stok transferleri sekmesi."
+    }
+  ]
+}

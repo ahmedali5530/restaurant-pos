@@ -1,0 +1,29 @@
+{
+  "title": "Journaalposten en rekeninggroepen",
+  "intro": "Boek transacties via journaal en organiseer het schema met groepen.",
+  "sections": [
+    {
+      "id": "journal",
+      "title": "Journaalposten",
+      "steps": [
+        "Open Journaalposten.",
+        "Maak gebalanceerde debet/credit regels.",
+        "Sla op om naar het grootboek te boeken."
+      ],
+      "image": "accounts-journal.png",
+      "caption": "Tabblad Journaalposten."
+    },
+    {
+      "id": "groups",
+      "title": "Rekeninggroepen",
+      "intro": "Groepen organiseren rekeningen voor overzichten.",
+      "steps": [
+        "Open Rekeninggroepen.",
+        "Maak groepen voor rapportage.",
+        "Wijs rekeningen toe."
+      ],
+      "image": "accounts-groups.png",
+      "caption": "Tabblad Rekeninggroepen."
+    }
+  ]
+}

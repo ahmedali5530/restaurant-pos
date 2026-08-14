@@ -1,0 +1,52 @@
+{
+  "title": "Employee documents",
+  "intro": "Store contracts, IDs, licenses, and other files against employee records with expiry tracking.",
+  "sections": [
+    {
+      "id": "documents",
+      "title": "Documents list",
+      "steps": [
+        "Open HR → Documents.",
+        "Filter by employee or category.",
+        "Upload new files or update metadata on existing documents."
+      ],
+      "image": "hr-documents-list.png",
+      "caption": "Employee documents tab.",
+      "fields": []
+    },
+    {
+      "id": "document-form",
+      "title": "Document form",
+      "steps": [
+        "Click Add document.",
+        "Select employee, title, and category.",
+        "Attach the file and set expiry if applicable.",
+        "Save — file is stored and linked to the employee profile."
+      ],
+      "image": "hr-form-document.png",
+      "caption": "Employee document upload form.",
+      "fields": [
+        {
+          "name": "Employee",
+          "effect": "Owner of the document record."
+        },
+        {
+          "name": "Title",
+          "effect": "Display name in lists and reminders."
+        },
+        {
+          "name": "Category",
+          "effect": "Contract, certificate, license, ID, medical, warning, or other."
+        },
+        {
+          "name": "Expires at",
+          "effect": "Optional date for renewal alerts."
+        },
+        {
+          "name": "Attach file",
+          "effect": "Required on create; stores the binary in the document library."
+        }
+      ]
+    }
+  ]
+}

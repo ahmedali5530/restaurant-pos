@@ -1,0 +1,40 @@
+{
+  "title": "Achats",
+  "intro": "Entrez du stock via commandes d'achat, réceptions et retours fournisseurs.",
+  "sections": [
+    {
+      "id": "orders",
+      "title": "Commandes d'achat",
+      "steps": [
+        "Ouvrez Commandes d'achat.",
+        "Créez une CA fournisseur avec lignes.",
+        "Soumettez et approuvez avant réception."
+      ],
+      "image": "inventory-purchases-orders.png",
+      "caption": "Liste des commandes d'achat."
+    },
+    {
+      "id": "purchases",
+      "title": "Achats (réception)",
+      "intro": "Les achats enregistrent le stock et mettent à jour le coût moyen.",
+      "steps": [
+        "Ouvrez Achats.",
+        "Saisissez facture et lignes reçues.",
+        "Liez à une CA si besoin et enregistrez."
+      ],
+      "image": "inventory-purchases-list.png",
+      "caption": "Liste des achats."
+    },
+    {
+      "id": "returns",
+      "title": "Retours d'achat",
+      "steps": [
+        "Ouvrez Retours d'achat.",
+        "Retournez marchandises endommagées ou incorrectes.",
+        "Enregistrer réduit la quantité."
+      ],
+      "image": "inventory-purchases-returns.png",
+      "caption": "Onglet Retours d'achat."
+    }
+  ]
+}

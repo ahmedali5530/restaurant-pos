@@ -1,0 +1,75 @@
+{
+  "title": "Integrationen",
+  "intro": "Integrationen verbinden POSR mit externen Buchhaltungs-, Fiskal-, Logging- und Inventaranbietern. Aktivieren, konfigurieren und Gesundheit sowie Warteschlange überwachen.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Integrationen öffnen",
+      "steps": [
+        "Mit Integrationszugriff anmelden.",
+        "Integrationen tippen.",
+        "Öffnet Anbieter."
+      ],
+      "image": "integrations-overview.png",
+      "caption": "Integrationen-Bildschirm."
+    },
+    {
+      "id": "tabs",
+      "title": "Tab-Navigation",
+      "intro": "Tabs: Liste, Konfiguration, Gesundheit und Warteschlange.",
+      "steps": [
+        "Anbieter listet Konnektoren.",
+        "Konfiguration speichert Zugangsdaten.",
+        "Gesundheit und Warteschlange zeigen Status und Jobs."
+      ],
+      "image": "integrations-tabs.png",
+      "caption": "Integrationen-Tableiste."
+    },
+    {
+      "id": "providers",
+      "title": "Anbieter",
+      "steps": [
+        "Jede Karte prüfen: Name, Kategorie, Version.",
+        "Mit Schalter aktivieren oder deaktivieren.",
+        "Konfigurieren tippen."
+      ],
+      "image": "integrations-providers.png",
+      "caption": "Anbieterliste."
+    },
+    {
+      "id": "configuration",
+      "title": "Konfiguration",
+      "intro": "Geheimnisse und Mapping des Anbieters.",
+      "steps": [
+        "Anbieter wählen.",
+        "Pflichtfelder ausfüllen.",
+        "Verbinden oder Erstsync starten."
+      ],
+      "image": "integrations-configuration.png",
+      "caption": "Konfigurationspanel."
+    },
+    {
+      "id": "health",
+      "title": "Gesundheit",
+      "steps": [
+        "Gesundheit öffnen für Status.",
+        "Gesunde Anbieter senden Events.",
+        "Aktualisiert beim Öffnen oder Umschalten."
+      ],
+      "image": "integrations-health.png",
+      "caption": "Gesundheitspanel."
+    },
+    {
+      "id": "queue",
+      "title": "Warteschlange",
+      "intro": "Ausgehende Jobs zu externen Systemen.",
+      "steps": [
+        "Warteschlange öffnen.",
+        "Jobs aktualisieren bei offenem Tab.",
+        "Fehlgeschlagene Jobs nach Config-Fix."
+      ],
+      "image": "integrations-queue.png",
+      "caption": "Warteschlangenpanel."
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "title": "Sorties et retours",
+  "intro": "Sortez du stock vers les cuisines et retournez le non utilisé.",
+  "sections": [
+    {
+      "id": "issues",
+      "title": "Sorties",
+      "steps": [
+        "Ouvrez Sorties.",
+        "Créez un document avec destination et lignes.",
+        "Enregistrer diminue la quantité source."
+      ],
+      "image": "inventory-issues-list.png",
+      "caption": "Liste des sorties."
+    },
+    {
+      "id": "returns",
+      "title": "Retours de sortie",
+      "intro": "Retournez les articles sortis non utilisés.",
+      "steps": [
+        "Ouvrez Retours de sortie.",
+        "Sélectionnez la sortie ou saisissez les lignes.",
+        "Enregistrer remet la quantité en stock."
+      ],
+      "image": "inventory-issues-returns.png",
+      "caption": "Onglet Retours de sortie."
+    }
+  ]
+}

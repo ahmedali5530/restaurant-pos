@@ -62,7 +62,7 @@ export const HrPositions = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button key="position-create" variant="primary" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
+          <Button key="position-create" variant="primary" data-testid="hr-add-positions" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
             {t("buttons.position")}
           </Button>,
         ]}

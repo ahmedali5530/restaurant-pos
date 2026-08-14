@@ -1,0 +1,40 @@
+{
+  "title": "Visão geral de Contas",
+  "intro": "Contas é o hub financeiro: plano de contas, diários, razão e demonstrações.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Abrir Contas",
+      "steps": [
+        "Entre com acesso a contas.",
+        "Toque em Contas na barra lateral.",
+        "Abre no Plano de contas."
+      ],
+      "image": "accounts-overview.png",
+      "caption": "Tela Contas."
+    },
+    {
+      "id": "tabs",
+      "title": "Navegação por abas",
+      "intro": "Abas agrupam setup, lançamentos e relatórios.",
+      "steps": [
+        "Role horizontalmente.",
+        "Setup: Plano e Grupos.",
+        "Relatórios: Razão, Balancete, Balanço."
+      ],
+      "image": "accounts-tabs.png",
+      "caption": "Barra de abas Contas."
+    },
+    {
+      "id": "chart",
+      "title": "Plano de contas",
+      "steps": [
+        "Mantenha contas GL.",
+        "Adicione ou edite códigos e tipos.",
+        "A estrutura alimenta razão e demonstrações."
+      ],
+      "image": "accounts-chart.png",
+      "caption": "Painel Plano de contas."
+    }
+  ]
+}

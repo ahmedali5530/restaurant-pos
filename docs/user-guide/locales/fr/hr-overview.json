@@ -1,0 +1,40 @@
+{
+  "title": "Vue d'ensemble RH",
+  "intro": "RH couvre le personnel : employés, présence, congés, plannings et paie.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Ouvrir RH",
+      "steps": [
+        "Connectez-vous avec accès RH.",
+        "Appuyez sur RH.",
+        "S'ouvre sur le Tableau de bord."
+      ],
+      "image": "hr-overview.png",
+      "caption": "Écran RH."
+    },
+    {
+      "id": "tabs",
+      "title": "Navigation par onglets",
+      "intro": "Onglets de paramétrage et processus RH.",
+      "steps": [
+        "Faites défiler horizontalement.",
+        "Personnes : Employés, Départements, Postes.",
+        "Temps : Présence, Planning, Congés, Jours fériés."
+      ],
+      "image": "hr-tabs.png",
+      "caption": "Barre d'onglets RH."
+    },
+    {
+      "id": "dashboard",
+      "title": "Tableau de bord",
+      "steps": [
+        "Résume les indicateurs RH.",
+        "Point de départ avant les onglets détaillés.",
+        "Les autres onglets gèrent données et opérations."
+      ],
+      "image": "hr-dashboard.png",
+      "caption": "Tableau de bord RH."
+    }
+  ]
+}

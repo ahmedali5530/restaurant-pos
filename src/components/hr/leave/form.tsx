@@ -144,7 +144,7 @@ export const LeaveTypeForm = ({open, onClose, data}: LeaveTypeFormProps) => {
   };
 
   return (
-    <Modal title={data ? t("forms.leave.updateType") : t("forms.leave.createType")} open={open} onClose={closeModal} size="lg">
+    <Modal title={data ? t("forms.leave.updateType") : t("forms.leave.createType")} testId="hr-form-leave" open={open} onClose={closeModal} size="lg">
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-3 mb-3">
           <div>
@@ -278,7 +278,7 @@ export const LeaveRequestForm = ({open, onClose, data}: LeaveRequestFormProps) =
 
   return (
     <>
-      <Modal title={data ? t("forms.leave.update") : t("forms.leave.create")} open={open} onClose={closeModal} size="lg">
+      <Modal title={data ? t("forms.leave.update") : t("forms.leave.create")} testId="hr-form-leave" open={open} onClose={closeModal} size="lg">
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col gap-3 mb-3">
             <HrSelectField

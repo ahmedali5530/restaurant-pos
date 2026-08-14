@@ -1,0 +1,29 @@
+{
+  "title": "Uscite e resi",
+  "intro": "Emetti scorte alle cucine e restituisci quelle non usate.",
+  "sections": [
+    {
+      "id": "issues",
+      "title": "Uscite",
+      "steps": [
+        "Apri Uscite.",
+        "Crea documento con destinazione e righe.",
+        "Salvare riduce la quantità origine."
+      ],
+      "image": "inventory-issues-list.png",
+      "caption": "Lista uscite."
+    },
+    {
+      "id": "returns",
+      "title": "Resi uscita",
+      "intro": "Restituisci articoli emessi non usati.",
+      "steps": [
+        "Apri Resi uscita.",
+        "Seleziona l'uscita originale o inserisci righe.",
+        "Salvare aggiunge quantità all'ubicazione."
+      ],
+      "image": "inventory-issues-returns.png",
+      "caption": "Scheda Resi uscita."
+    }
+  ]
+}

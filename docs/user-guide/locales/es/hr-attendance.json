@@ -1,0 +1,211 @@
+{
+  "title": "Attendance",
+  "intro": "Track clock times and build schedules so labor hours stay accurate for payroll and reporting.",
+  "sections": [
+    {
+      "id": "attendance",
+      "title": "Attendance records",
+      "steps": [
+        "Open the Attendance tab.",
+        "Review clock-in and clock-out events for staff.",
+        "Correct or approve exceptions when your role allows."
+      ],
+      "image": "hr-attendance.png",
+      "caption": "Attendance tab."
+    },
+    {
+      "id": "scheduling",
+      "title": "Scheduling",
+      "intro": "Schedules plan who works which shifts.",
+      "steps": [
+        "Open the Scheduling tab.",
+        "Build or adjust shifts for upcoming days.",
+        "Published schedules guide floor staffing and attendance expectations."
+      ],
+      "image": "hr-scheduling.png",
+      "caption": "Scheduling tab."
+    },
+    {
+      "id": "attendance-form",
+      "title": "Entrada manual de asistencia",
+      "intro": "Corrija fichajes faltantes o complete tiempo cuando los terminales no estuvieron disponibles.",
+      "steps": [
+        "En Asistencia haga clic en Entrada manual.",
+        "Seleccione empleado e ingrese fechas/horas de entrada y salida.",
+        "Agregue notas y guarde — las horas alimentan nómina e informes."
+      ],
+      "image": "hr-form-attendance.png",
+      "caption": "Modal entrada manual de asistencia.",
+      "fields": [
+        {
+          "name": "Empleado",
+          "effect": "De quién se crea o corrige el registro."
+        },
+        {
+          "name": "Entrada",
+          "effect": "Inicio del intervalo trabajado."
+        },
+        {
+          "name": "Salida",
+          "effect": "Fin del intervalo; debe ser posterior a la entrada."
+        },
+        {
+          "name": "Notas",
+          "effect": "Motivo de entrada manual en auditoría."
+        }
+      ]
+    },
+    {
+      "id": "schedule-form",
+      "title": "Formulario de horario de trabajo",
+      "intro": "Un horario es un rango de fechas con turnos en borrador o publicados.",
+      "steps": [
+        "Abra Programación y agregue un horario.",
+        "Defina nombre, inicio y fin del período.",
+        "Agregue turnos o genere desde plantillas mientras esté en borrador."
+      ],
+      "image": "hr-form-schedule.png",
+      "caption": "Formulario de horario de trabajo.",
+      "fields": [
+        {
+          "name": "Nombre",
+          "effect": "Etiqueta del período (p. ej., Semana 12)."
+        },
+        {
+          "name": "Inicio del período",
+          "effect": "Primera fecha/hora cubierta."
+        },
+        {
+          "name": "Fin del período",
+          "effect": "Última fecha/hora cubierta."
+        }
+      ]
+    },
+    {
+      "id": "shift-form",
+      "title": "Formulario de turno programado",
+      "intro": "Asigna un empleado a un bloque horario dentro de un horario en borrador.",
+      "steps": [
+        "Desde un horario en borrador haga clic en Agregar turno.",
+        "Elija horario, empleado y horas inicio/fin.",
+        "Opcionalmente aplique plantilla, departamento, puesto y centro de costo.",
+        "Guarde — advierte si hay conflictos."
+      ],
+      "image": "hr-form-shift.png",
+      "caption": "Formulario de turno programado.",
+      "fields": [
+        {
+          "name": "Horario de trabajo",
+          "effect": "Horario padre que debe estar en borrador."
+        },
+        {
+          "name": "Empleado",
+          "effect": "Personal asignado al turno."
+        },
+        {
+          "name": "Plantilla de turno",
+          "effect": "Preset opcional de Admin → Usuarios → Turnos."
+        },
+        {
+          "name": "Departamento / puesto / centro de costo",
+          "effect": "Anula etiquetas org para este turno."
+        },
+        {
+          "name": "Inicio / fin",
+          "effect": "Ventana horaria programada."
+        }
+      ]
+    },
+    {
+      "id": "schedule-template",
+      "title": "Formulario de plantilla de horario",
+      "intro": "Patrón semanal reutilizable para generar turnos en masa.",
+      "steps": [
+        "Abra Plantillas bajo Programación.",
+        "Nombre la plantilla y elija días con horas inicio/fin.",
+        "Opcionalmente vincule plantilla de turno y org predeterminada.",
+        "Guarde para usar con Generar horario."
+      ],
+      "image": "hr-form-schedule-template.png",
+      "caption": "Formulario de plantilla de horario.",
+      "fields": [
+        {
+          "name": "Nombre",
+          "effect": "Etiqueta en diálogo generar."
+        },
+        {
+          "name": "Días de la semana",
+          "effect": "Qué días reciben turnos."
+        },
+        {
+          "name": "Hora inicio / fin",
+          "effect": "Ventana diaria en días seleccionados."
+        },
+        {
+          "name": "Minutos de descanso",
+          "effect": "Descanso no pagado restado de horas."
+        },
+        {
+          "name": "Plantilla de turno",
+          "effect": "Vincula definición POS para informes."
+        }
+      ]
+    },
+    {
+      "id": "schedule-generate",
+      "title": "Generar horario desde plantilla",
+      "steps": [
+        "Haga clic en Generar en Programación.",
+        "Seleccione horario borrador y plantilla.",
+        "Multi-seleccione empleados que recibirán turnos.",
+        "Genere — crea turnos omitiendo conflictos si está configurado."
+      ],
+      "image": "hr-form-schedule-generate.png",
+      "caption": "Diálogo generar horario.",
+      "fields": [
+        {
+          "name": "Horario de trabajo",
+          "effect": "Horario borrador destino."
+        },
+        {
+          "name": "Plantilla",
+          "effect": "Patrón semanal de días y horas."
+        },
+        {
+          "name": "Empleados",
+          "effect": "Personal que recibe copia de turnos de plantilla."
+        }
+      ]
+    },
+    {
+      "id": "schedule-swap",
+      "title": "Solicitud de intercambio de turno",
+      "steps": [
+        "Haga clic en Solicitar intercambio en Programación.",
+        "Seleccione el turno programado y el empleado solicitante.",
+        "Opcionalmente nombre un empleado objetivo y turno propuesto.",
+        "Envíe — crea intercambio pendiente para aprobación gerencial."
+      ],
+      "image": "hr-form-schedule-swap.png",
+      "caption": "Formulario solicitud de intercambio.",
+      "fields": [
+        {
+          "name": "Turno programado",
+          "effect": "Turno que el solicitante quiere ceder o intercambiar."
+        },
+        {
+          "name": "Empleado solicitante",
+          "effect": "Empleado que inicia el intercambio."
+        },
+        {
+          "name": "Empleado objetivo",
+          "effect": "Compañero opcional para tomar o intercambiar."
+        },
+        {
+          "name": "Turno propuesto",
+          "effect": "Contra-turno opcional ofrecido."
+        }
+      ]
+    }
+  ]
+}

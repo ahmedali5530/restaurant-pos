@@ -1,0 +1,40 @@
+{
+  "title": "Inventory overview",
+  "intro": "Inventory is the warehouse hub for stock levels, items, purchases, issues, wastes, and counts. Open it from the sidebar when your role includes inventory access.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Open Inventory",
+      "steps": [
+        "Sign in with a user that has inventory (warehouse) access.",
+        "Tap Inventory in the sidebar.",
+        "The screen opens on the current stock summary tab by default."
+      ],
+      "image": "inventory-overview.png",
+      "caption": "Inventory screen with tab bar and summary panel."
+    },
+    {
+      "id": "tabs",
+      "title": "Tab navigation",
+      "intro": "Tabs group master data and stock documents. Switching tabs may require manager PIN approval depending on your role.",
+      "steps": [
+        "Scroll the tab bar horizontally when many tabs are visible.",
+        "Each tab opens its own list or form for that inventory process.",
+        "The selected tab is highlighted with the primary gradient."
+      ],
+      "image": "inventory-tabs.png",
+      "caption": "Inventory tab bar."
+    },
+    {
+      "id": "summary",
+      "title": "Current inventory summary",
+      "steps": [
+        "The Inventory tab shows on-hand quantities by item and location.",
+        "Use search and filters to find low-stock or specific items.",
+        "Other tabs handle purchases, issues, wastes, and adjustments."
+      ],
+      "image": "inventory-summary.png",
+      "caption": "Current inventory summary table."
+    }
+  ]
+}

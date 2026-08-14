@@ -1,0 +1,51 @@
+{
+  "title": "Sicherheits-Reauthentifizierung",
+  "intro": "Geschützte Aktionen können Manager-PIN, Passwort oder QR verlangen.",
+  "sections": [
+    {
+      "id": "when",
+      "title": "Wann sichtbar",
+      "steps": [
+        "Aktion ohne Auto-Freigabe.",
+        "Modal mit Beschreibung.",
+        "Idle-Sperre ist getrennt."
+      ],
+      "image": "security-session-card.png",
+      "caption": "Session-Sicherheitskarte."
+    },
+    {
+      "id": "modal",
+      "title": "Freigabe-Modal",
+      "steps": [
+        "Titel lesen.",
+        "PIN, Passwort oder QR.",
+        "Auth oder Abbruch."
+      ],
+      "image": "security-modal.png",
+      "caption": "Freigabe-Modal."
+    },
+    {
+      "id": "methods",
+      "title": "Methoden",
+      "intro": "Mehrere Methoden möglich.",
+      "steps": [
+        "PIN-Pad.",
+        "Passwort wenn an.",
+        "QR wenn unterstützt."
+      ],
+      "image": "security-auth-types.png",
+      "caption": "Methodenwahl."
+    },
+    {
+      "id": "pin",
+      "title": "PIN-Eingabe",
+      "steps": [
+        "4-stellige PIN.",
+        "Validierung bei vier Ziffern.",
+        "Ungültig = Fehler."
+      ],
+      "image": "security-pin-pad.png",
+      "caption": "Sicherheits-PIN-Pad."
+    }
+  ]
+}

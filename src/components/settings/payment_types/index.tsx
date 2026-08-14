@@ -117,7 +117,7 @@ export const AdminPaymentTypes = () => {
               module: 'admin.payment_types.create',
               description: getAccessRuleChildLabel('admin.payment_types.create'),
             });
-          }} icon={faPlus}>{t('buttons.paymentType')}</Button>
+          }} icon={faPlus} data-testid="admin-add-payment_types">{t('buttons.paymentType')}</Button>
         ]}
       />
 

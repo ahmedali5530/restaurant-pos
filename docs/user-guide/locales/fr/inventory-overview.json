@@ -1,0 +1,40 @@
+{
+  "title": "Vue d'ensemble Inventaire",
+  "intro": "Inventaire est le hub entrepôt : stocks, articles, achats, sorties, pertes et inventaires. Ouvrez-le depuis la barre latérale avec accès inventaire.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Ouvrir Inventaire",
+      "steps": [
+        "Connectez-vous avec accès inventaire.",
+        "Appuyez sur Inventaire dans la barre latérale.",
+        "L'écran s'ouvre sur le résumé des stocks."
+      ],
+      "image": "inventory-overview.png",
+      "caption": "Écran Inventaire avec onglets."
+    },
+    {
+      "id": "tabs",
+      "title": "Navigation par onglets",
+      "intro": "Les onglets regroupent données et documents. Changer peut exiger un PIN manager.",
+      "steps": [
+        "Faites défiler la barre horizontalement.",
+        "Chaque onglet ouvre sa liste.",
+        "L'onglet actif est mis en surbrillance."
+      ],
+      "image": "inventory-tabs.png",
+      "caption": "Barre d'onglets Inventaire."
+    },
+    {
+      "id": "summary",
+      "title": "Résumé du stock actuel",
+      "steps": [
+        "L'onglet Inventaire montre les quantités par article et emplacement.",
+        "Utilisez recherche et filtres.",
+        "Les autres onglets gèrent achats, sorties, pertes et ajustements."
+      ],
+      "image": "inventory-summary.png",
+      "caption": "Tableau résumé du stock."
+    }
+  ]
+}

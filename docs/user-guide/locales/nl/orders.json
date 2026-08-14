@@ -1,86 +1,202 @@
 {
-  "title": "Bestellingen",
-  "intro": "Bestellingen toont open en recente rekeningen om te betalen, printen, splitsen, samenvoegen, annuleren of terugbetalen.",
+  "title": "Orders",
+  "intro": "The Orders screen lists open and recent checks so you can pay, print, split, merge, cancel, or refund without returning to the floor plan.",
   "sections": [
     {
       "id": "overview",
-      "title": "Bestelling-layout",
+      "title": "Orders layout",
+      "intro": "Open Orders from the left sidebar. Filters sit at the top; order cards (or table rows) fill the main area.",
       "steps": [
-        "Open Bestellingen.",
-        "Filter op status, type, verdieping, gebruiker, datum.",
-        "Blokken of Tabel."
+        "Tap Orders in the sidebar.",
+        "Use filters to narrow by status, order type, floor, user, and date.",
+        "Switch between Blocks and Table views with the toolbar buttons."
       ],
       "image": "orders-overview.png",
-      "caption": "Orders screen with filters and cards.",
-      "intro": "Open Bestellingen in de zijbalk. Filters boven; kaarten of rijen."
+      "caption": "Orders screen with filters and cards."
     },
     {
       "id": "filters",
       "title": "Filters",
       "steps": [
-        "Status: In uitvoering, Betaald, Geannuleerd, Gesplitst, Samengevoegd.",
-        "Type, verdieping, gebruiker.",
-        "Datum voor de dag; In uitvoering kan blijven."
+        "Status: In Progress, Paid, Cancelled, Split, Merged (multi-select).",
+        "Order type, floor, and user filters limit who and where.",
+        "The date picker shows paid/historical checks for that day; In Progress still appears when relevant."
       ],
       "image": "orders-filters.png",
       "caption": "Orders filter bar."
     },
     {
       "id": "toolbar",
-      "title": "Werkbalk",
+      "title": "Toolbar",
       "steps": [
-        "Kassalade openen (PIN mogelijk).",
-        "Blokken = kaarten.",
-        "Tabel = lijst."
+        "Open cash drawer pulses the cash drawer when printing and permissions allow it (may require manager PIN).",
+        "Blocks shows large order cards.",
+        "Table shows a compact list (tap an In Progress row to pay)."
       ],
       "image": "orders-toolbar.png",
       "caption": "Cash drawer and view toggles."
     },
     {
       "id": "card",
-      "title": "Orderkaart",
+      "title": "Order card",
+      "intro": "Each card shows header, times, line items, totals, and action buttons for In Progress checks.",
       "steps": [
-        "Controleer factuur, tafel, status en items.",
-        "Temp-rekening en Betalen bij In uitvoering.",
-        "⋯ annuleren, splitsen, mergen, KOT."
+        "Review invoice number, table, status, server, and items.",
+        "Temp bill (print) and Pay (card icon) appear for In Progress orders.",
+        "Use the ⋯ menu for cancel, split, merge, and kitchen print."
       ],
       "image": "orders-card.png",
-      "caption": "Order card with items and actions.",
-      "intro": "Kop, tijden, regels, totalen en acties."
+      "caption": "Order card with items and actions."
     },
     {
       "id": "card-actions",
-      "title": "Kaartacties",
+      "title": "Card actions",
       "steps": [
-        "Temp print voorlopig.",
-        "Betalen opent betaling.",
-        "⋯ meer acties."
+        "Temp bill prints a provisional check when allowed.",
+        "Pay opens the full payment screen for that order.",
+        "⋯ opens more actions (see next section)."
       ],
       "image": "orders-card-actions.png",
       "caption": "Print, Pay, and more on a card."
     },
     {
       "id": "menu",
-      "title": "Menu ⋯ (In uitvoering)",
+      "title": "More menu (In Progress)",
+      "intro": "Protected actions may ask for a manager PIN.",
       "steps": [
-        "Annuleren.",
-        "Splitsen zitplaatsen/items/bedrag.",
-        "Samenvoegen.",
-        "KOT-kopie printen."
+        "Cancel order voids the check through the cancel flow.",
+        "Split by seats, items, or amount divides one check into multiple.",
+        "Merge selects this order for multi-table merge (finish with Choose table on the bottom bar).",
+        "Print KOT copy re-fires kitchen tickets when needed."
       ],
       "image": "orders-card-menu.png",
-      "caption": "Order more-actions menu.",
-      "intro": "Beveiligde acties kunnen PIN vragen."
+      "caption": "Order more-actions menu."
     },
     {
       "id": "table-view",
-      "title": "Tabelweergave",
+      "title": "Table view",
       "steps": [
-        "Tabelweergave.",
-        "Tik In uitvoering om te betalen."
+        "Switch to Table for a dense list of today’s matching orders.",
+        "Tap an In Progress row to open payment quickly."
       ],
       "image": "orders-table-view.png",
       "caption": "Orders table view."
+    },
+    {
+      "id": "cancel-void",
+      "title": "Bestelling annuleren of voiden",
+      "intro": "Void een lopende rekening. Volledige void annuleert alle regels; gedeeltelijk alleen geselecteerde items.",
+      "steps": [
+        "Open ⋯ op een lopende order en kies Bestelling annuleren.",
+        "Kies een void-reden (verplicht voor rapportage).",
+        "Laat Alles selecteren aan voor volledige void of kies specifieke regels.",
+        "Bevestig om te voiden en tafel vrij te geven indien van toepassing."
+      ],
+      "image": "orders-cancel-modal.png",
+      "caption": "Annuleermodal met reden en itemselectie.",
+      "fields": [
+        {
+          "name": "Reden",
+          "effect": "Verplichte void-reden voor audit en rapporten."
+        },
+        {
+          "name": "Alle items selecteren",
+          "effect": "Aangevinkt void hele rekening; uitgevinkt per regel."
+        },
+        {
+          "name": "Gedeeltelijke void",
+          "effect": "Void alleen geselecteerde hoeveelheden."
+        }
+      ]
+    },
+    {
+      "id": "refund",
+      "title": "Betaalde bestelling terugbetalen",
+      "intro": "Doet terugbetaling op betaalde rekening, optioneel per geselecteerde items.",
+      "steps": [
+        "Open betaalde order en kies Terugbetaling.",
+        "Selecteer regels en hoeveelheden.",
+        "Kies reden en bevestig.",
+        "Systeem boekt terugbetaling en werkt totalen bij."
+      ],
+      "image": "orders-refund-modal.png",
+      "caption": "Terugbetalingsmodal met itemkeuze.",
+      "fields": [
+        {
+          "name": "Te restitueren items",
+          "effect": "Betaalde regels en hoeveelheden aan klant."
+        },
+        {
+          "name": "Reden",
+          "effect": "Documenteert terugbetaling voor management en rapporten."
+        }
+      ]
+    },
+    {
+      "id": "split-seats",
+      "title": "Splitsen op stoelen",
+      "intro": "Deelt rekening in aparte bonnen per stoelnummer.",
+      "steps": [
+        "Kies ⋯ → Splitsen op stoelen.",
+        "Controleer groepering per stoel.",
+        "Bevestig voor één kindbon per stoel."
+      ],
+      "image": "orders-split-seats.png",
+      "caption": "Voorvertoning splitsen op stoelen.",
+      "fields": []
+    },
+    {
+      "id": "split-items",
+      "title": "Splitsen op items",
+      "intro": "Wijst regels handmatig toe aan nieuwe rekeningen.",
+      "steps": [
+        "Kies ⋯ → Splitsen op items.",
+        "Verplaats elke regel naar een kolom.",
+        "Bevestig voor aparte lopende bonnen."
+      ],
+      "image": "orders-split-items.png",
+      "caption": "Toewijzingsraster per item.",
+      "fields": []
+    },
+    {
+      "id": "split-amount",
+      "title": "Splitsen op bedrag",
+      "intro": "Deelt totaal in vaste of gelijke delen.",
+      "steps": [
+        "Kies ⋯ → Splitsen op bedrag.",
+        "Voer aantal delen of bedragen in.",
+        "Bevestig voor kindbonnen per deel."
+      ],
+      "image": "orders-split-amount.png",
+      "caption": "Dialoog splitsen op bedrag.",
+      "fields": []
+    },
+    {
+      "id": "merge",
+      "title": "Bestellingen samenvoegen",
+      "intro": "Combineert meerdere lopende rekeningen op één tafel.",
+      "steps": [
+        "Open ⋯ op eerste order → Samenvoegen.",
+        "Herhaal voor extra orders.",
+        "Tik Tafel kiezen en selecteer bestemming.",
+        "Bevestig samenvoeging."
+      ],
+      "image": "orders-merge-bar.png",
+      "caption": "Samenvoegbalk met tafelkiezer.",
+      "fields": [
+        {
+          "name": "Orders selecteren",
+          "effect": "Markeert order voor pending merge."
+        },
+        {
+          "name": "Tafel kiezen",
+          "effect": "Stelt tafel in voor samengevoegde rekening."
+        },
+        {
+          "name": "Samenvoeging bevestigen",
+          "effect": "Voegt geselecteerde bonnen samen tot één lopende order."
+        }
+      ]
     }
   ]
 }

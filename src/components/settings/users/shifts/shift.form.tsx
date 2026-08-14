@@ -89,6 +89,7 @@ export const ShiftForm = ({ open, onClose, data }: Props) => {
 
   return (
     <Modal
+      testId="admin-form-shift"
       title={data ? t('forms.updateShift', { name: data.name }) : t('forms.createShift')}
       open={open}
       onClose={closeModal}

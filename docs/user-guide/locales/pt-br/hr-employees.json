@@ -1,0 +1,157 @@
+{
+  "title": "Employees",
+  "intro": "Maintain employee records and the organizational structure: departments and positions.",
+  "sections": [
+    {
+      "id": "employees",
+      "title": "Employee list",
+      "steps": [
+        "Open the Employees tab.",
+        "Add or edit employees with role, department, and contact details.",
+        "Employee records feed attendance, leave, and payroll tabs."
+      ],
+      "image": "hr-employees-list.png",
+      "caption": "Employees tab."
+    },
+    {
+      "id": "departments",
+      "title": "Departments",
+      "intro": "Departments group staff for reporting and cost allocation.",
+      "steps": [
+        "Open the Departments tab.",
+        "Create departments that match how the venue organizes teams.",
+        "Assign employees to departments on their employee form."
+      ],
+      "image": "hr-employees-departments.png",
+      "caption": "Departments tab."
+    },
+    {
+      "id": "positions",
+      "title": "Positions",
+      "steps": [
+        "Open the Positions tab.",
+        "Define job titles used on employee records and schedules.",
+        "Keep positions aligned with pay profiles when payroll is enabled."
+      ],
+      "image": "hr-employees-positions.png",
+      "caption": "Positions tab."
+    },
+    {
+      "id": "employee-form",
+      "title": "Formulário funcionário",
+      "intro": "Registro HR ligando usuário POS e estrutura org.",
+      "steps": [
+        "Funcionários → Adicionar/editar.",
+        "Número, nome, detalhes.",
+        "Vincule POS, dept, cargo.",
+        "Salvar."
+      ],
+      "image": "hr-form-employee.png",
+      "caption": "Modal funcionário.",
+      "fields": [
+        {
+          "name": "Nº funcionário",
+          "effect": "ID único em escalas."
+        },
+        {
+          "name": "Nome / sobrenome",
+          "effect": "Nome legal/preferido."
+        },
+        {
+          "name": "Usuário vinculado",
+          "effect": "Login POS opcional."
+        },
+        {
+          "name": "Departamento",
+          "effect": "Unidade org."
+        },
+        {
+          "name": "Cargo",
+          "effect": "Título em escalas."
+        },
+        {
+          "name": "Centro custo",
+          "effect": "Alocação laboral padrão."
+        },
+        {
+          "name": "Gerente",
+          "effect": "Linha de aprovação."
+        },
+        {
+          "name": "Status emprego",
+          "effect": "Ativo, inativo, demitido, licença ou suspenso."
+        },
+        {
+          "name": "Tipo emprego",
+          "effect": "Horista, salário, contrato etc."
+        },
+        {
+          "name": "Admissão / demissão",
+          "effect": "Tempo de casa e elegibilidade."
+        }
+      ]
+    },
+    {
+      "id": "department-form",
+      "title": "Formulário departamento",
+      "steps": [
+        "Departamentos ou inline.",
+        "Código, nome, descrição.",
+        "Salvar."
+      ],
+      "image": "hr-form-department.png",
+      "caption": "Formulário departamento.",
+      "fields": [
+        {
+          "name": "Código",
+          "effect": "ID curto integrações."
+        },
+        {
+          "name": "Nome",
+          "effect": "Nome em listas."
+        },
+        {
+          "name": "Descrição",
+          "effect": "Notas opcionais."
+        },
+        {
+          "name": "Ativo",
+          "effect": "Inativos ocultos em novas atribuições."
+        }
+      ]
+    },
+    {
+      "id": "position-form",
+      "title": "Formulário cargo",
+      "steps": [
+        "Cargos ou inline.",
+        "Código, nome, dept, centro custo.",
+        "Salvar."
+      ],
+      "image": "hr-form-position.png",
+      "caption": "Formulário cargo.",
+      "fields": [
+        {
+          "name": "Código",
+          "effect": "Código folha export."
+        },
+        {
+          "name": "Nome",
+          "effect": "Título em RH e escalas."
+        },
+        {
+          "name": "Departamento",
+          "effect": "Unidade org padrão."
+        },
+        {
+          "name": "Centro custo padrão",
+          "effect": "Pré-preenchido em escalas."
+        },
+        {
+          "name": "Ativo",
+          "effect": "Retira títulos não usados."
+        }
+      ]
+    }
+  ]
+}

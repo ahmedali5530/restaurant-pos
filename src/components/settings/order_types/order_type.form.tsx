@@ -92,6 +92,7 @@ export const OrderTypeForm = ({
   return (
     <>
       <Modal
+        testId="admin-form-order-type"
         title={data ? t('forms.updateOrderType', { name: data?.name }) : t('forms.createOrderType')}
         open={open}
         onClose={closeModal}

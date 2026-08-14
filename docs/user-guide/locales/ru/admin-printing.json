@@ -1,0 +1,95 @@
+{
+  "title": "Printers and print settings",
+  "intro": "Define printer records in Manage, configure what each print job contains, then assign printers to devices in Settings.",
+  "sections": [
+    {
+      "id": "printers",
+      "title": "Printers",
+      "intro": "Printer records store connection details used across receipt, kitchen, and report printing.",
+      "steps": [
+        "Open the Printers tab.",
+        "Add printers with name, type, and connection settings.",
+        "Link printers to kitchens and device Settings so tickets reach the right hardware."
+      ],
+      "image": "admin-printers.png",
+      "caption": "Printers master list in Manage."
+    },
+    {
+      "id": "print-settings",
+      "title": "Print settings",
+      "intro": "Print settings control templates and options for temp bills, final receipts, kitchen tickets, summaries, and delivery slips.",
+      "steps": [
+        "Open the Print settings tab.",
+        "Edit each print type (Temp, Final, Kitchen, Summary, Delivery).",
+        "Save so new orders use the updated layout and fields."
+      ],
+      "image": "admin-print-settings.png",
+      "caption": "Print settings tab."
+    },
+    {
+      "id": "printer-form",
+      "title": "Printer form",
+      "steps": [
+        "Admin → Printing → Printers.",
+        "Name and IP/USB connection.",
+        "Type receipt/kitchen/label.",
+        "Save."
+      ],
+      "image": "admin-printing-printer-form.png",
+      "caption": "Printer form.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Friendly name in admin."
+        },
+        {
+          "name": "Type",
+          "effect": "Receipt, kitchen, or label profile."
+        },
+        {
+          "name": "IP address / port",
+          "effect": "Network ESC/POS."
+        },
+        {
+          "name": "VID / PID",
+          "effect": "USB vendor/product IDs."
+        }
+      ]
+    },
+    {
+      "id": "print-setting-form",
+      "title": "Print setting form",
+      "intro": "Each print job type has its own template.",
+      "steps": [
+        "Print settings tab.",
+        "Pick job type.",
+        "Logo, header/footer, VAT, margins.",
+        "Save."
+      ],
+      "image": "admin-printing-print-setting-form.png",
+      "caption": "Print template editor.",
+      "fields": [
+        {
+          "name": "Show logo",
+          "effect": "Includes uploaded logo."
+        },
+        {
+          "name": "Header / footer sections",
+          "effect": "Rich text or image blocks."
+        },
+        {
+          "name": "VAT name / number",
+          "effect": "Tax block on receipts."
+        },
+        {
+          "name": "Margins",
+          "effect": "Spacing in printer dots."
+        },
+        {
+          "name": "Item columns",
+          "effect": "Toggle number, name, qty, price, total."
+        }
+      ]
+    }
+  ]
+}

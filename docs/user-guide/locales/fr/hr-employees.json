@@ -1,0 +1,157 @@
+{
+  "title": "Employees",
+  "intro": "Maintain employee records and the organizational structure: departments and positions.",
+  "sections": [
+    {
+      "id": "employees",
+      "title": "Employee list",
+      "steps": [
+        "Open the Employees tab.",
+        "Add or edit employees with role, department, and contact details.",
+        "Employee records feed attendance, leave, and payroll tabs."
+      ],
+      "image": "hr-employees-list.png",
+      "caption": "Employees tab."
+    },
+    {
+      "id": "departments",
+      "title": "Departments",
+      "intro": "Departments group staff for reporting and cost allocation.",
+      "steps": [
+        "Open the Departments tab.",
+        "Create departments that match how the venue organizes teams.",
+        "Assign employees to departments on their employee form."
+      ],
+      "image": "hr-employees-departments.png",
+      "caption": "Departments tab."
+    },
+    {
+      "id": "positions",
+      "title": "Positions",
+      "steps": [
+        "Open the Positions tab.",
+        "Define job titles used on employee records and schedules.",
+        "Keep positions aligned with pay profiles when payroll is enabled."
+      ],
+      "image": "hr-employees-positions.png",
+      "caption": "Positions tab."
+    },
+    {
+      "id": "employee-form",
+      "title": "Formulaire employé",
+      "intro": "Dossier RH liant utilisateur POS et structure org.",
+      "steps": [
+        "Employés → Ajouter/modifier.",
+        "Numéro, nom, détails.",
+        "Lier POS, dept, poste.",
+        "Enregistrer."
+      ],
+      "image": "hr-form-employee.png",
+      "caption": "Modal employé.",
+      "fields": [
+        {
+          "name": "N° employé",
+          "effect": "ID unique plannings."
+        },
+        {
+          "name": "Prénom / nom",
+          "effect": "Nom légal ou préféré."
+        },
+        {
+          "name": "Utilisateur lié",
+          "effect": "Login POS optionnel."
+        },
+        {
+          "name": "Département",
+          "effect": "Unité org."
+        },
+        {
+          "name": "Poste",
+          "effect": "Intitulé plannings."
+        },
+        {
+          "name": "Centre coûts",
+          "effect": "Affectation main-d'œuvre."
+        },
+        {
+          "name": "Manager",
+          "effect": "Ligne approbation."
+        },
+        {
+          "name": "Statut emploi",
+          "effect": "Actif, inactif, terminé, congé ou suspendu."
+        },
+        {
+          "name": "Type emploi",
+          "effect": "Horaire, salaire, contrat etc."
+        },
+        {
+          "name": "Embauche / fin",
+          "effect": "Ancienneté et éligibilité."
+        }
+      ]
+    },
+    {
+      "id": "department-form",
+      "title": "Formulaire département",
+      "steps": [
+        "Départements ou inline.",
+        "Code, nom, description.",
+        "Enregistrer."
+      ],
+      "image": "hr-form-department.png",
+      "caption": "Formulaire département.",
+      "fields": [
+        {
+          "name": "Code",
+          "effect": "ID court intégrations."
+        },
+        {
+          "name": "Nom",
+          "effect": "Nom affiché."
+        },
+        {
+          "name": "Description",
+          "effect": "Notes optionnelles."
+        },
+        {
+          "name": "Actif",
+          "effect": "Inactifs masqués nouvelles affectations."
+        }
+      ]
+    },
+    {
+      "id": "position-form",
+      "title": "Formulaire poste",
+      "steps": [
+        "Postes ou inline.",
+        "Code, nom, dept, centre coûts.",
+        "Enregistrer."
+      ],
+      "image": "hr-form-position.png",
+      "caption": "Formulaire poste.",
+      "fields": [
+        {
+          "name": "Code",
+          "effect": "Code job exports paie."
+        },
+        {
+          "name": "Nom",
+          "effect": "Intitulé RH et plannings."
+        },
+        {
+          "name": "Département",
+          "effect": "Unité org par défaut."
+        },
+        {
+          "name": "Centre coûts défaut",
+          "effect": "Prérempli plannings."
+        },
+        {
+          "name": "Actif",
+          "effect": "Retire titres non recrutés."
+        }
+      ]
+    }
+  ]
+}

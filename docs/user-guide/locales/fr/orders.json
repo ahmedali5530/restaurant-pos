@@ -1,86 +1,202 @@
 {
-  "title": "Commandes",
-  "intro": "L’écran Commandes liste les additions ouvertes et récentes pour payer, imprimer, scinder, fusionner, annuler ou rembourser.",
+  "title": "Orders",
+  "intro": "The Orders screen lists open and recent checks so you can pay, print, split, merge, cancel, or refund without returning to the floor plan.",
   "sections": [
     {
       "id": "overview",
-      "title": "Disposition des commandes",
+      "title": "Orders layout",
+      "intro": "Open Orders from the left sidebar. Filters sit at the top; order cards (or table rows) fill the main area.",
       "steps": [
-        "Ouvrez Commandes.",
-        "Filtrez par statut, type, étage, utilisateur, date.",
-        "Basculz Blocs / Tableau."
+        "Tap Orders in the sidebar.",
+        "Use filters to narrow by status, order type, floor, user, and date.",
+        "Switch between Blocks and Table views with the toolbar buttons."
       ],
       "image": "orders-overview.png",
-      "caption": "Orders screen with filters and cards.",
-      "intro": "Ouvrez Commandes dans la barre. Filtres en haut ; cartes ou lignes."
+      "caption": "Orders screen with filters and cards."
     },
     {
       "id": "filters",
-      "title": "Filtres",
+      "title": "Filters",
       "steps": [
-        "Statut : En cours, Payé, Annulé, Scindé, Fusionné.",
-        "Type, étage et utilisateur.",
-        "Date pour le jour ; En cours peut rester visible."
+        "Status: In Progress, Paid, Cancelled, Split, Merged (multi-select).",
+        "Order type, floor, and user filters limit who and where.",
+        "The date picker shows paid/historical checks for that day; In Progress still appears when relevant."
       ],
       "image": "orders-filters.png",
       "caption": "Orders filter bar."
     },
     {
       "id": "toolbar",
-      "title": "Barre d’outils",
+      "title": "Toolbar",
       "steps": [
-        "Ouvrir caisse (PIN possible).",
-        "Blocs = cartes.",
-        "Tableau = liste."
+        "Open cash drawer pulses the cash drawer when printing and permissions allow it (may require manager PIN).",
+        "Blocks shows large order cards.",
+        "Table shows a compact list (tap an In Progress row to pay)."
       ],
       "image": "orders-toolbar.png",
       "caption": "Cash drawer and view toggles."
     },
     {
       "id": "card",
-      "title": "Carte commande",
+      "title": "Order card",
+      "intro": "Each card shows header, times, line items, totals, and action buttons for In Progress checks.",
       "steps": [
-        "Vérifiez facture, table, statut et articles.",
-        "Addition temp et Payer en cours.",
-        "⋯ annuler, scinder, fusionner, KOT."
+        "Review invoice number, table, status, server, and items.",
+        "Temp bill (print) and Pay (card icon) appear for In Progress orders.",
+        "Use the ⋯ menu for cancel, split, merge, and kitchen print."
       ],
       "image": "orders-card.png",
-      "caption": "Order card with items and actions.",
-      "intro": "En-tête, horaires, lignes, totaux et actions."
+      "caption": "Order card with items and actions."
     },
     {
       "id": "card-actions",
-      "title": "Actions de carte",
+      "title": "Card actions",
       "steps": [
-        "Temp imprime provisoire.",
-        "Payer ouvre le paiement.",
-        "⋯ plus d’actions."
+        "Temp bill prints a provisional check when allowed.",
+        "Pay opens the full payment screen for that order.",
+        "⋯ opens more actions (see next section)."
       ],
       "image": "orders-card-actions.png",
       "caption": "Print, Pay, and more on a card."
     },
     {
       "id": "menu",
-      "title": "Menu ⋯ (En cours)",
+      "title": "More menu (In Progress)",
+      "intro": "Protected actions may ask for a manager PIN.",
       "steps": [
-        "Annuler.",
-        "Scinder sièges/articles/montant.",
-        "Fusionner.",
-        "Imprimer copie KOT."
+        "Cancel order voids the check through the cancel flow.",
+        "Split by seats, items, or amount divides one check into multiple.",
+        "Merge selects this order for multi-table merge (finish with Choose table on the bottom bar).",
+        "Print KOT copy re-fires kitchen tickets when needed."
       ],
       "image": "orders-card-menu.png",
-      "caption": "Order more-actions menu.",
-      "intro": "Les actions protégées peuvent demander un PIN."
+      "caption": "Order more-actions menu."
     },
     {
       "id": "table-view",
-      "title": "Vue tableau",
+      "title": "Table view",
       "steps": [
-        "Vue tableau.",
-        "Toucher En cours pour payer."
+        "Switch to Table for a dense list of today’s matching orders.",
+        "Tap an In Progress row to open payment quickly."
       ],
       "image": "orders-table-view.png",
       "caption": "Orders table view."
+    },
+    {
+      "id": "cancel-void",
+      "title": "Annuler ou void commande",
+      "intro": "Annule une addition En cours. Void total annule toutes les lignes; partiel supprime les lignes choisies.",
+      "steps": [
+        "Ouvrez ⋯ sur une carte En cours et choisissez Annuler commande.",
+        "Choisissez un motif de void (obligatoire pour les rapports).",
+        "Cochez Tout sélectionner pour un void total ou choisissez des lignes.",
+        "Confirmez pour void et libérer la table si applicable."
+      ],
+      "image": "orders-cancel-modal.png",
+      "caption": "Modal annulation avec motif et sélection.",
+      "fields": [
+        {
+          "name": "Motif",
+          "effect": "Motif de void obligatoire enregistré sur la commande."
+        },
+        {
+          "name": "Tout sélectionner",
+          "effect": "Coché void toute l'addition; décoché active la sélection par ligne."
+        },
+        {
+          "name": "Void partiel",
+          "effect": "Void uniquement les quantités sélectionnées."
+        }
+      ]
+    },
+    {
+      "id": "refund",
+      "title": "Rembourser commande payée",
+      "intro": "Émet un remboursement sur une addition payée, éventuellement par lignes.",
+      "steps": [
+        "Ouvrez une commande Payée et choisissez Rembourser.",
+        "Sélectionnez lignes et quantités.",
+        "Choisissez un motif et confirmez.",
+        "Le système enregistre le remboursement et met à jour les totaux."
+      ],
+      "image": "orders-refund-modal.png",
+      "caption": "Modal remboursement avec sélection et motif.",
+      "fields": [
+        {
+          "name": "Articles à rembourser",
+          "effect": "Lignes payées et quantités rendues au client."
+        },
+        {
+          "name": "Motif",
+          "effect": "Documente le remboursement pour la gestion et les rapports."
+        }
+      ]
+    },
+    {
+      "id": "split-seats",
+      "title": "Diviser par sièges",
+      "intro": "Divise l'addition en additions séparées par numéro de siège.",
+      "steps": [
+        "Dans ⋯ choisissez Diviser par sièges.",
+        "Vérifiez le regroupement par siège.",
+        "Confirmez pour créer une addition enfant par siège."
+      ],
+      "image": "orders-split-seats.png",
+      "caption": "Aperçu division par sièges.",
+      "fields": []
+    },
+    {
+      "id": "split-items",
+      "title": "Diviser par articles",
+      "intro": "Assigne manuellement les lignes à de nouvelles additions.",
+      "steps": [
+        "Dans ⋯ choisissez Diviser par articles.",
+        "Déplacez chaque ligne vers une colonne.",
+        "Confirmez pour des additions En cours séparées."
+      ],
+      "image": "orders-split-items.png",
+      "caption": "Grille d'assignation par articles.",
+      "fields": []
+    },
+    {
+      "id": "split-amount",
+      "title": "Diviser par montant",
+      "intro": "Divise le total en parts fixes ou égales.",
+      "steps": [
+        "Dans ⋯ choisissez Diviser par montant.",
+        "Saisissez parts ou montants.",
+        "Confirmez pour additions enfants par part."
+      ],
+      "image": "orders-split-amount.png",
+      "caption": "Dialogue division par montant.",
+      "fields": []
+    },
+    {
+      "id": "merge",
+      "title": "Fusionner commandes",
+      "intro": "Combine plusieurs additions En cours sur une table.",
+      "steps": [
+        "Sur la première commande, ⋯ → Fusionner.",
+        "Répétez pour chaque commande.",
+        "Appuyez Choisir table et sélectionnez.",
+        "Confirmez la fusion."
+      ],
+      "image": "orders-merge-bar.png",
+      "caption": "Barre fusion avec sélecteur de table.",
+      "fields": [
+        {
+          "name": "Sélectionner commandes",
+          "effect": "Marque une commande pour fusion en attente."
+        },
+        {
+          "name": "Choisir table",
+          "effect": "Définit la table hôte de l'addition fusionnée."
+        },
+        {
+          "name": "Confirmer fusion",
+          "effect": "Combine les additions en une commande En cours."
+        }
+      ]
     }
   ]
 }

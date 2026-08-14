@@ -1,0 +1,40 @@
+{
+  "title": "Panoramica Contabilità",
+  "intro": "Contabilità è l'hub finanziario: piano dei conti, giornali, mastri e bilanci.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Apri Contabilità",
+      "steps": [
+        "Accedi con accesso contabilità.",
+        "Tocca Contabilità.",
+        "Si apre sul Piano dei conti."
+      ],
+      "image": "accounts-overview.png",
+      "caption": "Schermata Contabilità."
+    },
+    {
+      "id": "tabs",
+      "title": "Navigazione schede",
+      "intro": "Schede di setup, registrazioni e report.",
+      "steps": [
+        "Scorri orizzontalmente.",
+        "Setup: Piano e Gruppi.",
+        "Report: Mastro, Bilancio di verifica, Stato patrimoniale."
+      ],
+      "image": "accounts-tabs.png",
+      "caption": "Barra schede Contabilità."
+    },
+    {
+      "id": "chart",
+      "title": "Piano dei conti",
+      "steps": [
+        "Mantieni i conti GL.",
+        "Aggiungi o modifica codici e tipi.",
+        "La struttura alimenta mastri e bilanci."
+      ],
+      "image": "accounts-chart.png",
+      "caption": "Pannello Piano dei conti."
+    }
+  ]
+}

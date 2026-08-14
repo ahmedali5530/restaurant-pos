@@ -166,6 +166,7 @@ export const KitchenForm = ({
   return (
     <>
       <Modal
+        testId="admin-form-kitchen"
         title={data ? t('forms.updateKitchen', { name: data?.name }) : t('forms.createKitchen')}
         open={open}
         onClose={closeModal}

@@ -1,0 +1,95 @@
+{
+  "title": "Printers and print settings",
+  "intro": "Define printer records in Manage, configure what each print job contains, then assign printers to devices in Settings.",
+  "sections": [
+    {
+      "id": "printers",
+      "title": "Printers",
+      "intro": "Printer records store connection details used across receipt, kitchen, and report printing.",
+      "steps": [
+        "Open the Printers tab.",
+        "Add printers with name, type, and connection settings.",
+        "Link printers to kitchens and device Settings so tickets reach the right hardware."
+      ],
+      "image": "admin-printers.png",
+      "caption": "Printers master list in Manage."
+    },
+    {
+      "id": "print-settings",
+      "title": "Print settings",
+      "intro": "Print settings control templates and options for temp bills, final receipts, kitchen tickets, summaries, and delivery slips.",
+      "steps": [
+        "Open the Print settings tab.",
+        "Edit each print type (Temp, Final, Kitchen, Summary, Delivery).",
+        "Save so new orders use the updated layout and fields."
+      ],
+      "image": "admin-print-settings.png",
+      "caption": "Print settings tab."
+    },
+    {
+      "id": "printer-form",
+      "title": "Yazıcı formu",
+      "steps": [
+        "Admin → Yazdırma → Yazıcılar.",
+        "Ad ve bağlantı (IP/USB).",
+        "Tip seç (fiş, mutfak, etiket).",
+        "Kaydet."
+      ],
+      "image": "admin-printing-printer-form.png",
+      "caption": "Yazıcı formu.",
+      "fields": [
+        {
+          "name": "Ad",
+          "effect": "Admin ve seçicilerde ad."
+        },
+        {
+          "name": "Tip",
+          "effect": "Fiş, mutfak veya etiket profili."
+        },
+        {
+          "name": "IP / port",
+          "effect": "Ağ ESC/POS bağlantısı."
+        },
+        {
+          "name": "VID / PID",
+          "effect": "USB tanımlayıcıları."
+        }
+      ]
+    },
+    {
+      "id": "print-setting-form",
+      "title": "Yazdırma ayarı formu",
+      "intro": "Her iş tipinin kendi şablonu vardır.",
+      "steps": [
+        "Yazdırma ayarları.",
+        "İş tipi seç.",
+        "Logo, üst/alt, KDV, kenar boşlukları.",
+        "Kaydet."
+      ],
+      "image": "admin-printing-print-setting-form.png",
+      "caption": "Şablon düzenleyici.",
+      "fields": [
+        {
+          "name": "Logo göster",
+          "effect": "Yüklenen logo ticket'ta."
+        },
+        {
+          "name": "Üst / alt bölümler",
+          "effect": "Metin veya görsel bloklar."
+        },
+        {
+          "name": "KDV ad/no",
+          "effect": "Vergi bloğu."
+        },
+        {
+          "name": "Kenar boşlukları",
+          "effect": "Üst/alt/sol/sağ nokta."
+        },
+        {
+          "name": "Kalem sütunları",
+          "effect": "No, ad, miktar, fiyat, toplam."
+        }
+      ]
+    }
+  ]
+}

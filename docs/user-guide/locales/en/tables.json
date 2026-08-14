@@ -1,0 +1,74 @@
+{
+  "title": "Tables and dine-in",
+  "intro": "Dine-in service starts on the floor plan: pick a floor, select a table, optionally enter covers, then take the order. This chapter walks through that flow in detail.",
+  "sections": [
+    {
+      "id": "floor",
+      "title": "Floor plan",
+      "steps": [
+        "Open Menu from the sidebar (floor mode must be enabled in Settings → Table selection).",
+        "The floor plan shows tables for the active floor.",
+        "Occupied or locked tables may look different from free tables."
+      ],
+      "image": "tables-floor.png",
+      "caption": "Floor plan with table tiles."
+    },
+    {
+      "id": "switcher",
+      "title": "Switch floors",
+      "intro": "Venues with multiple dining areas use floor buttons at the bottom of the plan.",
+      "steps": [
+        "Tap a floor button to show that area's tables.",
+        "The active floor uses the primary highlight.",
+        "Each floor can have its own background and table layout."
+      ],
+      "image": "tables-floor-switcher.png",
+      "caption": "Floor switcher buttons."
+    },
+    {
+      "id": "table",
+      "title": "Select a table",
+      "steps": [
+        "Tap a free table tile to start or resume service at that table.",
+        "If the table is locked by another user, you may need manager approval or wait.",
+        "Selecting a table moves you toward covers and the ordering screen."
+      ],
+      "image": "tables-table-tile.png",
+      "caption": "A table tile on the floor plan."
+    },
+    {
+      "id": "covers",
+      "title": "Covers (guests)",
+      "intro": "When covers are required, enter how many guests are seated before ordering.",
+      "steps": [
+        "Use the number pad to set the guest count.",
+        "Tap OK to continue to the menu.",
+        "Covers can appear later on checks and kitchen tickets."
+      ],
+      "image": "tables-covers.png",
+      "caption": "Covers / persons screen."
+    },
+    {
+      "id": "active",
+      "title": "Active table on the menu",
+      "steps": [
+        "After selection, the menu header shows the active table.",
+        "Use the table or covers controls in the header to review or change when allowed.",
+        "Orders and kitchen tickets stay linked to this table until the check is closed."
+      ],
+      "image": "tables-active-table.png",
+      "caption": "Active table indicator on the menu header."
+    },
+    {
+      "id": "back",
+      "title": "Return to the floor",
+      "steps": [
+        "Tap the floor name / back control in the menu header to leave the table view.",
+        "You return to the floor plan to pick another table or switch floors.",
+        "Open checks remain available from Orders if you left an unfinished table."
+      ],
+      "image": "tables-back-floor.png",
+      "caption": "Back to floor control."
+    }
+  ]
+}

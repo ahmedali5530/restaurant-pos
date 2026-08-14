@@ -1,0 +1,157 @@
+{
+  "title": "Users and roles",
+  "intro": "Manage staff accounts, PINs, role permissions, shifts, and tip-pool definitions that control who can access each screen and tab.",
+  "sections": [
+    {
+      "id": "list",
+      "title": "User list",
+      "steps": [
+        "Open the Users tab.",
+        "Browse active users with name, role, and contact fields.",
+        "Use Add user to create a new account or Edit to update an existing one."
+      ],
+      "image": "admin-users-list.png",
+      "caption": "Users maintenance table."
+    },
+    {
+      "id": "roles",
+      "title": "Roles",
+      "intro": "Roles bundle permission modules that gate sidebar screens, Manage tabs, and protected actions.",
+      "steps": [
+        "Switch to the Roles sub-tab under Users.",
+        "Create roles and open the module list to enable or disable access.",
+        "Assign roles to users so permissions stay consistent across staff."
+      ],
+      "image": "admin-users-roles.png",
+      "caption": "Roles sub-tab."
+    },
+    {
+      "id": "shifts",
+      "title": "Shifts",
+      "intro": "Shifts define work windows used for labor reporting and automatic clock-out rules.",
+      "steps": [
+        "Switch to the Shifts sub-tab.",
+        "Add shift names with start and end times.",
+        "Assign shifts to users for scheduling and tip-distribution context."
+      ],
+      "image": "admin-users-shifts.png",
+      "caption": "Shifts sub-tab."
+    },
+    {
+      "id": "tips-definition",
+      "title": "Fooidefinitie (verdeling)",
+      "intro": "Weegt gepoolde fooien per rol en gebruiker.",
+      "steps": [
+        "Gebruikers → Fooidefinitie.",
+        "Rolregels met gewichten.",
+        "Gebruiker overrides.",
+        "Opslaan."
+      ],
+      "image": "admin-users-tips-definition.png",
+      "caption": "Fooiverdeling admin.",
+      "fields": [
+        {
+          "name": "Rolgewicht",
+          "effect": "Poolaandeel per rol."
+        },
+        {
+          "name": "Gebruikersgewicht",
+          "effect": "Optionele override."
+        }
+      ]
+    },
+    {
+      "id": "user-form",
+      "title": "Gebruikersformulier",
+      "intro": "POS-operators met PIN of wachtwoord.",
+      "steps": [
+        "Admin → Gebruikers.",
+        "Loginmethode, naam, credentials, rol, dienst.",
+        "Optioneel medewerker.",
+        "Opslaan."
+      ],
+      "image": "admin-users-user-form.png",
+      "caption": "Gebruikersaccountformulier.",
+      "fields": [
+        {
+          "name": "Loginmethode",
+          "effect": "PIN (4 cijfers) of wachtwoord."
+        },
+        {
+          "name": "Voor- / achternaam",
+          "effect": "Naam op bonnen."
+        },
+        {
+          "name": "Login / PIN",
+          "effect": "Inloggegevens."
+        },
+        {
+          "name": "Wachtwoord",
+          "effect": "Verplicht bij wachtwoord."
+        },
+        {
+          "name": "Gebruikersrol",
+          "effect": "Permissiepakket."
+        },
+        {
+          "name": "Gebruikersdienst",
+          "effect": "Standaard dienst."
+        },
+        {
+          "name": "Medewerker aanmaken",
+          "effect": "Auto HR-koppeling."
+        }
+      ]
+    },
+    {
+      "id": "role-form",
+      "title": "Rolformulier",
+      "intro": "Verleent module- en actietoegang.",
+      "steps": [
+        "Gebruikers → Rollen.",
+        "Naam en moduleboom.",
+        "Vink permissies.",
+        "Opslaan."
+      ],
+      "image": "admin-users-role-form.png",
+      "caption": "Rol permissie-editor.",
+      "fields": [
+        {
+          "name": "Naam",
+          "effect": "Label gebruikersformulier."
+        },
+        {
+          "name": "Module permissies",
+          "effect": "Hiërarchische checkboxes."
+        }
+      ]
+    },
+    {
+      "id": "shift-form",
+      "title": "Dienstsjabloonformulier",
+      "intro": "Definieert tijdvensters.",
+      "steps": [
+        "Gebruikers → Diensten.",
+        "Naam en tijden.",
+        "Nacht activeert volgende dag.",
+        "Opslaan."
+      ],
+      "image": "admin-users-shift-form.png",
+      "caption": "Dienstsjabloon.",
+      "fields": [
+        {
+          "name": "Naam",
+          "effect": "Dienstlabel."
+        },
+        {
+          "name": "Starttijd",
+          "effect": "Geplande start."
+        },
+        {
+          "name": "Eindtijd",
+          "effect": "Gepland einde."
+        }
+      ]
+    }
+  ]
+}

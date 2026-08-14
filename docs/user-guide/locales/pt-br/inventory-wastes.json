@@ -1,0 +1,17 @@
+{
+  "title": "Perdas",
+  "intro": "Registre estragos e outras perdas para relatórios precisos.",
+  "sections": [
+    {
+      "id": "list",
+      "title": "Documentos de perda",
+      "steps": [
+        "Abra Perdas.",
+        "Crie documento com local, motivo e quantidades.",
+        "Salvar reduz estoque e registra custo."
+      ],
+      "image": "inventory-wastes-list.png",
+      "caption": "Lista de perdas."
+    }
+  ]
+}

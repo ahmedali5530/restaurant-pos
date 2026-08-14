@@ -1,0 +1,157 @@
+{
+  "title": "Users and roles",
+  "intro": "Manage staff accounts, PINs, role permissions, shifts, and tip-pool definitions that control who can access each screen and tab.",
+  "sections": [
+    {
+      "id": "list",
+      "title": "User list",
+      "steps": [
+        "Open the Users tab.",
+        "Browse active users with name, role, and contact fields.",
+        "Use Add user to create a new account or Edit to update an existing one."
+      ],
+      "image": "admin-users-list.png",
+      "caption": "Users maintenance table."
+    },
+    {
+      "id": "roles",
+      "title": "Roles",
+      "intro": "Roles bundle permission modules that gate sidebar screens, Manage tabs, and protected actions.",
+      "steps": [
+        "Switch to the Roles sub-tab under Users.",
+        "Create roles and open the module list to enable or disable access.",
+        "Assign roles to users so permissions stay consistent across staff."
+      ],
+      "image": "admin-users-roles.png",
+      "caption": "Roles sub-tab."
+    },
+    {
+      "id": "shifts",
+      "title": "Shifts",
+      "intro": "Shifts define work windows used for labor reporting and automatic clock-out rules.",
+      "steps": [
+        "Switch to the Shifts sub-tab.",
+        "Add shift names with start and end times.",
+        "Assign shifts to users for scheduling and tip-distribution context."
+      ],
+      "image": "admin-users-shifts.png",
+      "caption": "Shifts sub-tab."
+    },
+    {
+      "id": "tips-definition",
+      "title": "تعريف الإكراميات (التوزيع)",
+      "intro": "يضبط أوزان الإكراميات المجمّعة حسب الأدوار والمستخدمين.",
+      "steps": [
+        "المستخدمون → تعريف الإكراميات.",
+        "صفوف الأدوار بالأوزان.",
+        "تجاوزات المستخدم.",
+        "احفظ."
+      ],
+      "image": "admin-users-tips-definition.png",
+      "caption": "لوحة توزيع الإكراميات.",
+      "fields": [
+        {
+          "name": "وزن الدور",
+          "effect": "حصة المجموعة لكل دور."
+        },
+        {
+          "name": "وزن المستخدم",
+          "effect": "تجاوز اختياري."
+        }
+      ]
+    },
+    {
+      "id": "user-form",
+      "title": "نموذج المستخدم",
+      "intro": "مشغلو POS يسجلون الدخول بـ PIN أو كلمة مرور.",
+      "steps": [
+        "Admin → المستخدمون.",
+        "طريقة الدخول والاسم والبيانات والدور والوردية.",
+        "إنشاء موظف اختياري.",
+        "احفظ."
+      ],
+      "image": "admin-users-user-form.png",
+      "caption": "نموذج حساب المستخدم.",
+      "fields": [
+        {
+          "name": "طريقة الدخول",
+          "effect": "PIN (4 أرقام) أو كلمة مرور."
+        },
+        {
+          "name": "الاسم / العائلة",
+          "effect": "الاسم على الحسابات."
+        },
+        {
+          "name": "Login / PIN",
+          "effect": "بيانات الدخول."
+        },
+        {
+          "name": "كلمة المرور",
+          "effect": "إلزامية عند كلمة المرور."
+        },
+        {
+          "name": "دور المستخدم",
+          "effect": "حزمة الصلاحيات."
+        },
+        {
+          "name": "وردية المستخدم",
+          "effect": "الوردية الافتراضية."
+        },
+        {
+          "name": "إنشاء موظف",
+          "effect": "ينشئ موظف HR مرتبطاً."
+        }
+      ]
+    },
+    {
+      "id": "role-form",
+      "title": "نموذج الدور",
+      "intro": "يمنح الوصول للوحدات والإجراءات.",
+      "steps": [
+        "المستخدمون → الأدوار.",
+        "الاسم وشجرة الوحدات.",
+        "حدّد الصلاحيات.",
+        "احفظ."
+      ],
+      "image": "admin-users-role-form.png",
+      "caption": "محرر صلاحيات الدور.",
+      "fields": [
+        {
+          "name": "الاسم",
+          "effect": "التسمية في نموذج المستخدم."
+        },
+        {
+          "name": "صلاحيات الوحدة",
+          "effect": "مربعات اختيار هرمية."
+        }
+      ]
+    },
+    {
+      "id": "shift-form",
+      "title": "نموذج قالب الوردية",
+      "intro": "يحدّد نوافذ الوقت للورديات.",
+      "steps": [
+        "المستخدمون → الورديات.",
+        "الاسم وأوقات البداية/النهاية.",
+        "الليلي يفعّل اليوم التالي.",
+        "احفظ."
+      ],
+      "image": "admin-users-shift-form.png",
+      "caption": "نموذج قالب الوردية.",
+      "fields": [
+        {
+          "name": "الاسم",
+          "effect": "تسمية الوردية."
+        },
+        {
+          "name": "وقت البداية",
+          "effect": "بداية مجدولة."
+        },
+        {
+          "name": "وقت النهاية",
+          "effect": "نهاية مجدولة."
+        }
+      ]
+    }
+  ]
+}

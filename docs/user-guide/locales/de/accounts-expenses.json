@@ -1,0 +1,29 @@
+{
+  "title": "Journalbuchungen und Kontengruppen",
+  "intro": "Buchen Sie Transaktionen per Journal und organisieren Sie den Plan mit Gruppen.",
+  "sections": [
+    {
+      "id": "journal",
+      "title": "Journalbuchungen",
+      "steps": [
+        "Tab Journal öffnen.",
+        "Ausgeglichene Soll/Haben-Zeilen erstellen.",
+        "Speichern zum Buchen ins Hauptbuch."
+      ],
+      "image": "accounts-journal.png",
+      "caption": "Tab Journal."
+    },
+    {
+      "id": "groups",
+      "title": "Kontengruppen",
+      "intro": "Gruppen organisieren Konten für Abschlüsse.",
+      "steps": [
+        "Tab Kontengruppen öffnen.",
+        "Gruppen für die Berichtsstruktur anlegen.",
+        "Konten zuweisen."
+      ],
+      "image": "accounts-groups.png",
+      "caption": "Tab Kontengruppen."
+    }
+  ]
+}

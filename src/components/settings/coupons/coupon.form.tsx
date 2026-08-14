@@ -196,6 +196,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
 
   return (
     <Modal
+      testId="admin-form-coupon"
       title={data ? t('forms.updateCoupon', { code: data.code }) : t('forms.createCoupon')}
       open={open}
       onClose={closeModal}

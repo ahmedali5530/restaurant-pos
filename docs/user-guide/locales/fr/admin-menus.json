@@ -1,0 +1,182 @@
+{
+  "title": "Menus, categories, and dishes",
+  "intro": "Configure what appears on the ordering screen: dishes, menu groupings, and categories.",
+  "sections": [
+    {
+      "id": "dishes",
+      "title": "Dishes",
+      "steps": [
+        "Open the Dishes tab.",
+        "Create or edit dishes with price, categories, modifiers, and recipes.",
+        "Import CSV files for bulk dish or ingredient updates when needed."
+      ],
+      "image": "admin-menus-dishes.png",
+      "caption": "Dishes tab."
+    },
+    {
+      "id": "menus",
+      "title": "Menus",
+      "intro": "Menus control which dishes are visible on each service period or channel.",
+      "steps": [
+        "Open the Menus tab.",
+        "Assign dishes to menus and set availability windows.",
+        "Save changes so floor staff see updated items on the Menu screen."
+      ],
+      "image": "admin-menus-menus.png",
+      "caption": "Menus tab."
+    },
+    {
+      "id": "categories",
+      "title": "Categories",
+      "steps": [
+        "Open the Categories tab.",
+        "Group dishes for navigation on the ordering screen.",
+        "Reorder categories to match how staff browse the menu."
+      ],
+      "image": "admin-menus-categories.png",
+      "caption": "Categories tab."
+    },
+    {
+      "id": "modifier-groups",
+      "title": "Modifier groups",
+      "intro": "Modifier groups define optional add-ons, sizes, and nested choices shown when staff customize a dish.",
+      "steps": [
+        "Open the Modifier groups tab.",
+        "Create groups with modifiers, prices, and optional next-group rules.",
+        "Assign groups to dishes so the cart shows the correct customization flow."
+      ],
+      "image": "admin-modifier-groups.png",
+      "caption": "Modifier groups tab."
+    },
+    {
+      "id": "dish-form",
+      "title": "Formulaire plat",
+      "intro": "Articles vendables avec prix, catégories, modificateurs et cuisine.",
+      "steps": [
+        "Admin → Menus → Plats.",
+        "Numéro, nom, prix, catégories.",
+        "Modificateurs, recette, cuisine.",
+        "Enregistrer."
+      ],
+      "image": "admin-menus-dish-form.png",
+      "caption": "Formulaire maintenance plat.",
+      "fields": [
+        {
+          "name": "Numéro / nom",
+          "effect": "ID POS et nom affiché."
+        },
+        {
+          "name": "Prix / coût",
+          "effect": "Prix vente et coût théorique."
+        },
+        {
+          "name": "Catégories",
+          "effect": "Regroupement menu."
+        },
+        {
+          "name": "Groupes modificateurs",
+          "effect": "Flux personnalisation."
+        },
+        {
+          "name": "Lignes recette",
+          "effect": "Déplétion stock."
+        },
+        {
+          "name": "Cuisine / workflow",
+          "effect": "Routage KOT."
+        }
+      ]
+    },
+    {
+      "id": "menu-form",
+      "title": "Formulaire menu",
+      "intro": "Limite catégories POS par horaire.",
+      "steps": [
+        "Onglet Menus.",
+        "Nom et horaires.",
+        "Actif et fin lendemain.",
+        "Enregistrer."
+      ],
+      "image": "admin-menus-menu-form.png",
+      "caption": "Formulaire menu.",
+      "fields": [
+        {
+          "name": "Nom",
+          "effect": "Libellé sélecteur POS."
+        },
+        {
+          "name": "Début / fin",
+          "effect": "Fenêtre disponibilité."
+        },
+        {
+          "name": "Fin lendemain",
+          "effect": "Service après minuit."
+        },
+        {
+          "name": "Actif",
+          "effect": "Inactifs masqués."
+        }
+      ]
+    },
+    {
+      "id": "category-form",
+      "title": "Formulaire catégorie",
+      "steps": [
+        "Catégories.",
+        "Nom, priorité, afficher menu.",
+        "Enregistrer."
+      ],
+      "image": "admin-menus-category-form.png",
+      "caption": "Formulaire catégorie.",
+      "fields": [
+        {
+          "name": "Nom",
+          "effect": "En-tête POS."
+        },
+        {
+          "name": "Priorité",
+          "effect": "Ordre."
+        },
+        {
+          "name": "Afficher menu",
+          "effect": "Masqué si off."
+        }
+      ]
+    },
+    {
+      "id": "modifier-group-form",
+      "title": "Formulaire groupe modificateur",
+      "intro": "Modificateurs, prix et groupes imbriqués.",
+      "steps": [
+        "Groupes modificateurs.",
+        "Nom, priorité, prix.",
+        "Groupes suivants.",
+        "Enregistrer."
+      ],
+      "image": "admin-menus-modifier-group-form.png",
+      "caption": "Formulaire groupes imbriqués.",
+      "fields": [
+        {
+          "name": "Nom / priorité",
+          "effect": "Libellé et ordre."
+        },
+        {
+          "name": "Modificateur",
+          "effect": "Option sélectionnable."
+        },
+        {
+          "name": "Prix",
+          "effect": "Supplément."
+        },
+        {
+          "name": "Groupes suivants autorisés",
+          "effect": "Après choix."
+        },
+        {
+          "name": "Overrides groupe suivant",
+          "effect": "Masquer ou repricing."
+        }
+      ]
+    }
+  ]
+}

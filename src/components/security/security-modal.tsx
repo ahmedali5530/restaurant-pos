@@ -93,11 +93,11 @@ export const SecurityModal = () => {
       onClose={handleAuthCancel}
       title={currentAction.description}
     >
-      <div className="bg-white rounded-lg p-6 max-w-full mx-4">
+      <div className="bg-white rounded-lg p-6 max-w-full mx-4" data-testid="security-modal">
         <div className="mb-4">
           {/* Auth Type Selector */}
           {availableAuthTypes.length > 1 && (
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex flex-wrap gap-2 mb-4" data-testid="security-auth-types">
               {availableAuthTypes.map((authType) => (
                 <Button
                   key={authType}
@@ -106,6 +106,7 @@ export const SecurityModal = () => {
                   size="lg"
                   active={selectedAuthType === authType}
                   className="min-w-[120px] flex-1"
+                  data-testid={`security-auth-type-${authType}`}
                 >
                   {getAuthTypeLabel(authType)}
                 </Button>
@@ -115,7 +116,7 @@ export const SecurityModal = () => {
         </div>
 
         {/* Auth Component */}
-        <div className="mb-4">
+        <div className="mb-4" data-testid="security-auth-body">
           {renderAuthComponent()}
         </div>
       </div>

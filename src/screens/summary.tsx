@@ -306,10 +306,10 @@ export const Summary = () => {
   return (
     <Layout overflowHidden>
       <DocumentTitle parts={[tNav('sidebar.summary')]} />
-      <div className="flex gap-5 p-3 flex-col">
+      <div className="flex gap-5 p-3 flex-col" data-testid="summary-page">
         <div className="bg-white rounded-xl flex gap-10 justify-center px-5">
           <div className="flex justify-center items-center flex-col flex-1">
-            <div className="w-[450px]">
+            <div className="w-[450px]" data-testid="summary-calendar">
               <Calendar
                 onChange={setDate}
                 value={date}
@@ -340,7 +340,7 @@ export const Summary = () => {
               >
                 {t("summary:screen.nextDate")}</Button>
             </div>
-            <div className="flex gap-3 mt-3 flex-wrap">
+            <div className="flex gap-3 mt-3 flex-wrap" data-testid="summary-print-actions">
               <Button
                 icon={faPrint}
                 variant="lg"
@@ -379,7 +379,7 @@ export const Summary = () => {
               </Button>
             </div>
           </div>
-          <ScrollContainer className="max-h-[calc(100vh_-_30px)] overflow-y-auto flex-1 flex-basis-[500px] py-10 select-none">
+          <ScrollContainer className="max-h-[calc(100vh_-_30px)] overflow-y-auto flex-1 flex-basis-[500px] py-10 select-none" data-testid="summary-report">
             {isLoading ? (
               <div className="flex h-screen w-full justify-center items-center flex-1">
                 <FontAwesomeIcon icon={faSpinner} spin size="5x"/>

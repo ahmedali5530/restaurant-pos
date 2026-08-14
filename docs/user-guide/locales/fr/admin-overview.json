@@ -1,0 +1,41 @@
+{
+  "title": "Vue d'ensemble Gérer",
+  "intro": "Gérer est le hub de configuration : plats, menus, étages, utilisateurs, taxes, remises, cuisines et imprimantes.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Ouvrir Gérer",
+      "steps": [
+        "Connectez-vous avec un accès administrateur.",
+        "Appuyez sur Gérer dans la barre latérale.",
+        "L'écran s'ouvre sur l'onglet Plats par défaut."
+      ],
+      "image": "admin-overview.png",
+      "caption": "Écran Gérer avec onglets et panneau."
+    },
+    {
+      "id": "tabs",
+      "title": "Navigation par onglets",
+      "intro": "Les onglets regroupent les réglages. Changer d'onglet peut exiger un PIN manager.",
+      "steps": [
+        "Faites défiler la barre d'onglets.",
+        "Les onglets couvrent menus, salle, promotions, cuisine, impression, paiements et utilisateurs.",
+        "Chaque onglet ouvre sa table.",
+        "L'onglet actif est mis en surbrillance."
+      ],
+      "image": "admin-tabs.png",
+      "caption": "Barre d'onglets Gérer."
+    },
+    {
+      "id": "dishes",
+      "title": "Onglet Plats (par défaut)",
+      "steps": [
+        "Plats liste chaque article vendable.",
+        "Utilisez Ajouter, Modifier, Importer si autorisé.",
+        "Recherche et pagination pour grands menus."
+      ],
+      "image": "admin-dishes.png",
+      "caption": "Table de maintenance des plats."
+    }
+  ]
+}

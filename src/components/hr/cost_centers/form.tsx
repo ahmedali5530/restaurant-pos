@@ -92,7 +92,7 @@ export const CostCenterForm = ({open, onClose, data}: Props) => {
   };
 
   return (
-    <Modal title={data ? t("forms.costCenter.update") : t("forms.costCenter.create")} open={open} onClose={closeModal} size="lg">
+    <Modal title={data ? t("forms.costCenter.update") : t("forms.costCenter.create")} testId="hr-form-cost-center" open={open} onClose={closeModal} size="lg">
       <form onSubmit={handleSubmit(onSubmit)}>
         {/*<input type="hidden" {...register("id")} />*/}
         <div className="flex flex-col gap-3 mb-3">

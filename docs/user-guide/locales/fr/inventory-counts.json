@@ -1,0 +1,29 @@
+{
+  "title": "Inventaires et transferts",
+  "intro": "Réconciliez les comptages physiques via ajustements et déplacez le stock entre emplacements.",
+  "sections": [
+    {
+      "id": "adjustments",
+      "title": "Ajustements (comptages)",
+      "steps": [
+        "Ouvrez Ajustements.",
+        "Saisissez les quantités comptées.",
+        "Soumettez, approuvez et postez selon votre rôle."
+      ],
+      "image": "inventory-counts-adjustments.png",
+      "caption": "Liste des ajustements."
+    },
+    {
+      "id": "transfers",
+      "title": "Transferts de stock",
+      "intro": "Déplacez le stock sans changer le total entreprise.",
+      "steps": [
+        "Ouvrez Transferts.",
+        "Choisissez source, destination et lignes.",
+        "Enregistrez pour mettre à jour les quantités."
+      ],
+      "image": "inventory-counts-transfers.png",
+      "caption": "Onglet Transferts."
+    }
+  ]
+}

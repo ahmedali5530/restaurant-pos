@@ -342,6 +342,7 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
 
   return (
     <Modal
+      testId="admin-form-role"
       title={data ? t("forms.updateRole", { name: data.name }) : t("forms.createRole")}
       open={open}
       onClose={closeModal}

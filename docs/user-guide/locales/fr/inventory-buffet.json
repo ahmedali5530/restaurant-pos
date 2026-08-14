@@ -1,0 +1,102 @@
+{
+  "title": "Menus et sessions buffet",
+  "intro": "Planifiez des recettes par convive et gérez les sessions buffet.",
+  "sections": [
+    {
+      "id": "buffet-menus",
+      "title": "Menus buffet",
+      "steps": [
+        "Inventaire → Buffet → Menus.",
+        "Modèles petit-déj/déjeuner/dîner.",
+        "Recettes par convive."
+      ],
+      "image": "inventory-buffet-menus.png",
+      "caption": "Liste menus buffet.",
+      "fields": []
+    },
+    {
+      "id": "buffet-menu-form",
+      "title": "Formulaire menu buffet",
+      "steps": [
+        "Ajouter/modifier menu.",
+        "Type session et lignes recette.",
+        "Enregistrer."
+      ],
+      "image": "inventory-buffet-menu-form.png",
+      "caption": "Formulaire menu buffet.",
+      "fields": [
+        {
+          "name": "Nom",
+          "effect": "Libellé au démarrage session."
+        },
+        {
+          "name": "Code",
+          "effect": "Sigle cuisine optionnel."
+        },
+        {
+          "name": "Type session",
+          "effect": "Petit-déj/déjeuner/dîner."
+        },
+        {
+          "name": "Lignes recette",
+          "effect": "Recette et qty par convive."
+        },
+        {
+          "name": "Actif",
+          "effect": "Seuls menus actifs visibles."
+        }
+      ]
+    },
+    {
+      "id": "buffet-sessions",
+      "title": "Sessions buffet",
+      "steps": [
+        "Buffet → Sessions.",
+        "Démarrez depuis menu.",
+        "Suivez production vs prévision.",
+        "Clôturez session."
+      ],
+      "image": "inventory-buffet-sessions.png",
+      "caption": "Tableau sessions buffet.",
+      "fields": []
+    },
+    {
+      "id": "buffet-session-form",
+      "title": "Démarrer session buffet",
+      "steps": [
+        "Nouvelle session.",
+        "Menu, site, date, type.",
+        "Convives et prix.",
+        "Enregistrer."
+      ],
+      "image": "inventory-buffet-session-form.png",
+      "caption": "Formulaire nouvelle session.",
+      "fields": [
+        {
+          "name": "Menu",
+          "effect": "Charge lignes et prévisions."
+        },
+        {
+          "name": "Emplacement",
+          "effect": "Stock des mouvements."
+        },
+        {
+          "name": "Date opérationnelle",
+          "effect": "Jour d'activité."
+        },
+        {
+          "name": "Type session",
+          "effect": "Aligné au menu."
+        },
+        {
+          "name": "Convives attendus",
+          "effect": "Prévisions initiales."
+        },
+        {
+          "name": "Prix buffet",
+          "effect": "Revenu par convive."
+        }
+      ]
+    }
+  ]
+}

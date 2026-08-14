@@ -119,6 +119,7 @@ export const AdminUserRoles = () => {
               });
             }}
             icon={faPlus}
+            data-testid="admin-add-roles"
           >
             Role
           </Button>,

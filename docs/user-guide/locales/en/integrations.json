@@ -1,0 +1,75 @@
+{
+  "title": "Integrations",
+  "intro": "Integrations connect POSR to external accounting, fiscal, logging, and inventory providers. Enable providers, configure credentials, and monitor health and the outbound queue.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Open Integrations",
+      "steps": [
+        "Sign in with a user that has integrations access.",
+        "Tap Integrations in the sidebar.",
+        "The screen opens on the Providers tab by default."
+      ],
+      "image": "integrations-overview.png",
+      "caption": "Integrations screen with tabs and providers list."
+    },
+    {
+      "id": "tabs",
+      "title": "Tab navigation",
+      "intro": "Tabs cover provider list, configuration, health checks, and the sync queue. Switching tabs may require manager PIN approval.",
+      "steps": [
+        "Providers lists available connectors and enable/disable switches.",
+        "Configuration holds credentials and provider-specific settings.",
+        "Health and Queue show runtime status and pending jobs."
+      ],
+      "image": "integrations-tabs.png",
+      "caption": "Integrations tab bar."
+    },
+    {
+      "id": "providers",
+      "title": "Providers",
+      "steps": [
+        "Review each provider card: name, category, version, and enabled state.",
+        "Use the switch to enable or disable a provider (approval may be required).",
+        "Tap Configure to open that provider on the Configuration tab."
+      ],
+      "image": "integrations-providers.png",
+      "caption": "Providers list with enable switches."
+    },
+    {
+      "id": "configuration",
+      "title": "Configuration",
+      "intro": "Configuration stores secrets and mapping options for the selected provider.",
+      "steps": [
+        "Select a provider from the dropdown or arrive via Configure.",
+        "Fill required fields (API keys, company IDs, account mappings, etc.).",
+        "Connect or run initial sync when the provider supports OAuth or bulk sync."
+      ],
+      "image": "integrations-configuration.png",
+      "caption": "Configuration panel for a provider."
+    },
+    {
+      "id": "health",
+      "title": "Health",
+      "steps": [
+        "Open the Health tab to see provider status snapshots.",
+        "Healthy providers can send events; failing ones need configuration or network checks.",
+        "Refresh happens when you open Integrations or after enable/disable."
+      ],
+      "image": "integrations-health.png",
+      "caption": "Health status panel."
+    },
+    {
+      "id": "queue",
+      "title": "Queue",
+      "intro": "The queue holds outbound jobs waiting to sync to external systems.",
+      "steps": [
+        "Open the Queue tab to inspect pending, retrying, or failed jobs.",
+        "Jobs update automatically while the tab is open.",
+        "Failed jobs usually clear after fixing configuration and retrying."
+      ],
+      "image": "integrations-queue.png",
+      "caption": "Integration queue panel."
+    }
+  ]
+}

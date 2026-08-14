@@ -1,0 +1,77 @@
+{
+  "title": "Keukenafstemming",
+  "intro": "Vergelijk theoretisch keukengebruik met fysieke tellingen per locatie en datum.",
+  "sections": [
+    {
+      "id": "reconciliation",
+      "title": "Tab Afstemming",
+      "intro": "Genereer raster uit POS-verkopen en recepten; voer tellingen in of importeer CSV.",
+      "steps": [
+        "Voorraad → Keukenafstemming.",
+        "Kies locatie en bedrijfsdatum.",
+        "Klik Genereren.",
+        "Voer werkelijke hoeveelheden in of importeer CSV.",
+        "Concept opslaan, afwijkingen controleren, Verifiëren."
+      ],
+      "image": "inventory-reconciliation-overview.png",
+      "caption": "Werkbalk, raster en afwijkingspaneel.",
+      "fields": [
+        {
+          "name": "Locatie",
+          "effect": "Keuken of magazijn dat wordt afgestemd."
+        },
+        {
+          "name": "Bedrijfsdatum",
+          "effect": "Handelsdag voor theoretisch gebruik."
+        },
+        {
+          "name": "Genereren",
+          "effect": "Maakt regels uit verkopen en recepten."
+        },
+        {
+          "name": "Werkelijke hoeveelheid",
+          "effect": "Fysieke telling per artikel."
+        },
+        {
+          "name": "Verifiëren",
+          "effect": "Vergrendelt na managergoedkeuring."
+        }
+      ]
+    },
+    {
+      "id": "reconciliation-form",
+      "title": "Handmatige telling",
+      "intro": "Rasterbewerking en CSV-import delen dezelfde regelstructuur.",
+      "steps": [
+        "Klik Werkl.-cel voor telling.",
+        "Concept opslaan zonder verifiëren.",
+        "CSV-import voor bulk.",
+        "Controleer afwijkingen voor verificatie."
+      ],
+      "image": "inventory-reconciliation-form.png",
+      "caption": "Raster met werkelijke hoeveelheid.",
+      "fields": [
+        {
+          "name": "Artikel",
+          "effect": "Voorraadartikel op regel."
+        },
+        {
+          "name": "Theoretisch",
+          "effect": "Berekend gebruik uit recepten en verkopen."
+        },
+        {
+          "name": "Werkelijk",
+          "effect": "Ingevoerde telling."
+        },
+        {
+          "name": "Afwijking",
+          "effect": "Verschil werkelijk vs. theoretisch."
+        },
+        {
+          "name": "Notities",
+          "effect": "Optionele toelichting."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "title": "Resumen",
+  "intro": "La pantalla Resumen muestra ventas pagadas del día elegido: totales, mix de pagos e impresiones rápidas para líderes de turno.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Abrir Resumen",
+      "steps": [
+        "Pulse Resumen en la barra lateral (acceso de gerente).",
+        "El calendario está a la izquierda y el informe diario a la derecha.",
+        "Las órdenes pagadas del día seleccionado alimentan todas las cifras."
+      ],
+      "image": "summary-overview.png",
+      "caption": "Pantalla Resumen con calendario e informe diario."
+    },
+    {
+      "id": "calendar",
+      "title": "Elegir fecha de negocio",
+      "steps": [
+        "Use el calendario para el día a revisar.",
+        "Fecha anterior y siguiente saltan un día.",
+        "No puede seleccionar fechas futuras."
+      ],
+      "image": "summary-calendar.png",
+      "caption": "Calendario y navegación de días."
+    },
+    {
+      "id": "print",
+      "title": "Acciones de impresión",
+      "intro": "Imprimir puede requerir PIN de gerente según su rol.",
+      "steps": [
+        "Imprimir resumen envía el resumen diario a la impresora configurada.",
+        "Informe de mix de productos lista artículos vendidos.",
+        "Ventas por servidor desglosa cuentas, comensales y ventas."
+      ],
+      "image": "summary-print-actions.png",
+      "caption": "Imprimir resumen, mix y ventas por servidor."
+    },
+    {
+      "id": "report",
+      "title": "Informe diario de ventas",
+      "intro": "El panel derecho muestra ventas netas, impuestos, descuentos y totales del día.",
+      "steps": [
+        "Desplácese en el panel derecho para ver todas las secciones.",
+        "Las cifras cambian al cambiar la fecha.",
+        "Sin órdenes pagadas, las secciones pueden mostrar ceros."
+      ],
+      "image": "summary-report.png",
+      "caption": "Panel del informe diario de ventas."
+    }
+  ]
+}

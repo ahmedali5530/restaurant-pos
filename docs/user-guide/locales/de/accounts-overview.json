@@ -1,0 +1,40 @@
+{
+  "title": "Buchhaltung Übersicht",
+  "intro": "Buchhaltung ist das Finanz-Hub: Kontenplan, Journale, Bücher und Abschlüsse.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Buchhaltung öffnen",
+      "steps": [
+        "Mit Buchhaltungszugriff anmelden.",
+        "Buchhaltung tippen.",
+        "Öffnet den Kontenplan."
+      ],
+      "image": "accounts-overview.png",
+      "caption": "Buchhaltungsbildschirm."
+    },
+    {
+      "id": "tabs",
+      "title": "Tab-Navigation",
+      "intro": "Tabs gruppieren Setup, Buchungen und Berichte.",
+      "steps": [
+        "Horizontal scrollen.",
+        "Setup: Kontenplan und Gruppen.",
+        "Berichte: Hauptbuch, Saldenliste, Bilanz."
+      ],
+      "image": "accounts-tabs.png",
+      "caption": "Buchhaltung-Tableiste."
+    },
+    {
+      "id": "chart",
+      "title": "Kontenplan",
+      "steps": [
+        "GL-Konten pflegen.",
+        "Konten mit Code und Typ anlegen.",
+        "Struktur speist Bücher und Abschlüsse."
+      ],
+      "image": "accounts-chart.png",
+      "caption": "Kontenplan-Panel."
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "title": "Kitchens and workflows",
+  "intro": "Route fired items to the right kitchen stations and define how orders move through preparation stages.",
+  "sections": [
+    {
+      "id": "kitchens",
+      "title": "Kitchens",
+      "intro": "Kitchens group dishes and link to printers for kitchen tickets.",
+      "steps": [
+        "Open the Kitchens tab.",
+        "Create kitchen stations (e.g. Grill, Bar, Pastry).",
+        "Assign dishes and printers so tickets route to the correct station."
+      ],
+      "image": "admin-kitchens.png",
+      "caption": "Kitchens maintenance table."
+    },
+    {
+      "id": "workflows",
+      "title": "Workflows",
+      "intro": "Workflows define order-status steps used by kitchen and order-display screens.",
+      "steps": [
+        "Open the Workflows tab.",
+        "Create or edit workflow steps and transitions.",
+        "Link workflows to order types or kitchens as required by your venue setup."
+      ],
+      "image": "admin-workflows.png",
+      "caption": "Workflows tab."
+    },
+    {
+      "id": "kitchen-form",
+      "title": "Modulo cucina",
+      "intro": "Instrada piatti a stampanti e magazzini.",
+      "steps": [
+        "Admin → Cucina → Cucine.",
+        "Nome, priorità, stampanti, piatti.",
+        "Salva."
+      ],
+      "image": "admin-kitchen-kitchen-form.png",
+      "caption": "Modulo stazione cucina.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Etichetta KOT e display."
+        },
+        {
+          "name": "Priorità",
+          "effect": "Ordine con più cucine."
+        },
+        {
+          "name": "Stampanti",
+          "effect": "Dispositivi ticket."
+        },
+        {
+          "name": "Articoli (piatti)",
+          "effect": "Piatti instradati."
+        }
+      ]
+    },
+    {
+      "id": "workflow-form",
+      "title": "Modulo workflow",
+      "intro": "Concatena fasi cucina.",
+      "steps": [
+        "Cucina → Workflow.",
+        "Nome e fasi.",
+        "Cucina per fase.",
+        "Collega ai piatti."
+      ],
+      "image": "admin-kitchen-workflow-form.png",
+      "caption": "Editor fasi workflow.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "ID su piatti."
+        },
+        {
+          "name": "Fasi",
+          "effect": "Passi ordinati."
+        },
+        {
+          "name": "Cucina fase",
+          "effect": "Stazione per fase."
+        }
+      ]
+    }
+  ]
+}

@@ -113,7 +113,7 @@ export const SwapRequestForm = ({open, onClose}: Props) => {
   };
 
   return (
-    <Modal title={t("forms.swap.create")} open={open} onClose={closeModal} size="lg">
+    <Modal title={t("forms.swap.create")} testId="hr-form-schedule-swap" open={open} onClose={closeModal} size="lg">
       <form onSubmit={handleSubmit(onSubmit, (errs) => {
         const message = firstFormError(errs);
         if (message) toast.error(message);

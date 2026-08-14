@@ -374,16 +374,16 @@ export const HrScheduling = () => {
   return (
     <div className="p-2 space-y-4">
       <div className="flex flex-wrap gap-2 px-2">
-        <Button variant="primary" active={subTab === "schedules"} onClick={() => setSubTab("schedules")}>
+        <Button variant="primary" active={subTab === "schedules"} data-testid="hr-scheduling-tab-schedules" onClick={() => setSubTab("schedules")}>
           {t("tabs.scheduling")}
         </Button>
-        <Button variant="primary" active={subTab === "shifts"} onClick={() => setSubTab("shifts")}>
+        <Button variant="primary" active={subTab === "shifts"} data-testid="hr-scheduling-tab-shifts" onClick={() => setSubTab("shifts")}>
           {t("scheduling.assignedShifts")}
         </Button>
-        <Button variant="primary" active={subTab === "templates"} onClick={() => setSubTab("templates")}>
+        <Button variant="primary" active={subTab === "templates"} data-testid="hr-scheduling-tab-templates" onClick={() => setSubTab("templates")}>
           {t("scheduling.templates")}
         </Button>
-        <Button variant="primary" active={subTab === "swaps"} onClick={() => setSubTab("swaps")}>
+        <Button variant="primary" active={subTab === "swaps"} data-testid="hr-scheduling-tab-swaps" onClick={() => setSubTab("swaps")}>
           {t("scheduling.swapRequests")}
         </Button>
       </div>
@@ -394,10 +394,10 @@ export const HrScheduling = () => {
           loaderHook={schedulesHook}
           loaderLineItems={scheduleColumns.length}
           buttons={[
-            <Button key="schedule-create" variant="primary" onClick={() => { setSchedule(undefined); setScheduleModal(true); }} icon={faPlus}>
+            <Button key="schedule-create" variant="primary" data-testid="hr-add-schedule" onClick={() => { setSchedule(undefined); setScheduleModal(true); }} icon={faPlus}>
               {t("buttons.schedule")}
             </Button>,
-            <Button key="generate-shifts" variant="warning" onClick={() => setGenerateModal(true)}>
+            <Button key="generate-shifts" variant="warning" data-testid="hr-add-schedule-generate" onClick={() => setGenerateModal(true)}>
               {t("scheduling.generateFromTemplate")}
             </Button>,
           ]}
@@ -413,7 +413,7 @@ export const HrScheduling = () => {
             <Button key="shift-import" variant="secondary" onClick={() => setImportModal(true)} icon={faUpload}>
               {t("common:actions.smartImport", {defaultValue: "Smart Import"})}
             </Button>,
-            <Button key="shift-create" variant="primary" onClick={() => { setShift(undefined); setSchedule(undefined); setShiftModal(true); }} icon={faPlus}>
+            <Button key="shift-create" variant="primary" data-testid="hr-add-schedule-shift" onClick={() => { setShift(undefined); setSchedule(undefined); setShiftModal(true); }} icon={faPlus}>
               {t("buttons.scheduledShift")}
             </Button>,
           ]}
@@ -426,7 +426,7 @@ export const HrScheduling = () => {
           loaderHook={templatesHook}
           loaderLineItems={templateColumns.length}
           buttons={[
-            <Button key="template-create" variant="primary" onClick={() => { setTemplate(undefined); setTemplateModal(true); }} icon={faPlus}>
+            <Button key="template-create" variant="primary" data-testid="hr-add-schedule-template" onClick={() => { setTemplate(undefined); setTemplateModal(true); }} icon={faPlus}>
               {t("buttons.scheduleTemplate")}
             </Button>,
           ]}
@@ -439,7 +439,7 @@ export const HrScheduling = () => {
           loaderHook={swapsHook}
           loaderLineItems={swapColumns.length}
           buttons={[
-            <Button key="swap-create" variant="primary" onClick={() => setSwapModal(true)} icon={faPlus}>
+            <Button key="swap-create" variant="primary" data-testid="hr-add-schedule-swap" onClick={() => setSwapModal(true)} icon={faPlus}>
               {t("buttons.requestSwap")}
             </Button>,
           ]}

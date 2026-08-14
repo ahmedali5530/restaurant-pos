@@ -171,6 +171,7 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
   return (
     <>
       <Modal
+        testId="admin-form-extra"
         title={data ? t('forms.updateExtra', { name: data?.name }) : t('forms.createExtra')}
         open={open}
         onClose={closeModal}

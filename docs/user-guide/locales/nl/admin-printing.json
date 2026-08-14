@@ -1,0 +1,95 @@
+{
+  "title": "Printers and print settings",
+  "intro": "Define printer records in Manage, configure what each print job contains, then assign printers to devices in Settings.",
+  "sections": [
+    {
+      "id": "printers",
+      "title": "Printers",
+      "intro": "Printer records store connection details used across receipt, kitchen, and report printing.",
+      "steps": [
+        "Open the Printers tab.",
+        "Add printers with name, type, and connection settings.",
+        "Link printers to kitchens and device Settings so tickets reach the right hardware."
+      ],
+      "image": "admin-printers.png",
+      "caption": "Printers master list in Manage."
+    },
+    {
+      "id": "print-settings",
+      "title": "Print settings",
+      "intro": "Print settings control templates and options for temp bills, final receipts, kitchen tickets, summaries, and delivery slips.",
+      "steps": [
+        "Open the Print settings tab.",
+        "Edit each print type (Temp, Final, Kitchen, Summary, Delivery).",
+        "Save so new orders use the updated layout and fields."
+      ],
+      "image": "admin-print-settings.png",
+      "caption": "Print settings tab."
+    },
+    {
+      "id": "printer-form",
+      "title": "Printerformulier",
+      "steps": [
+        "Admin → Afdrukken → Printers.",
+        "Naam en IP/USB.",
+        "Type bon/keuken/label.",
+        "Opslaan."
+      ],
+      "image": "admin-printing-printer-form.png",
+      "caption": "Printerformulier.",
+      "fields": [
+        {
+          "name": "Naam",
+          "effect": "Vriendelijke naam."
+        },
+        {
+          "name": "Type",
+          "effect": "Bon/keuken/label profiel."
+        },
+        {
+          "name": "IP / poort",
+          "effect": "Netwerk ESC/POS."
+        },
+        {
+          "name": "VID / PID",
+          "effect": "USB-ids."
+        }
+      ]
+    },
+    {
+      "id": "print-setting-form",
+      "title": "Afdrukinstellingformulier",
+      "intro": "Elke job heeft eigen sjabloon.",
+      "steps": [
+        "Afdrukinstellingen.",
+        "Jobtype.",
+        "Logo, kop/voet, BTW, marges.",
+        "Opslaan."
+      ],
+      "image": "admin-printing-print-setting-form.png",
+      "caption": "Sjablooneditor.",
+      "fields": [
+        {
+          "name": "Logo tonen",
+          "effect": "Logo op ticket."
+        },
+        {
+          "name": "Kop/voet secties",
+          "effect": "Tekst/afbeelding blokken."
+        },
+        {
+          "name": "BTW naam/nummer",
+          "effect": "Fiscaal blok."
+        },
+        {
+          "name": "Marges",
+          "effect": "Ruimte in punten."
+        },
+        {
+          "name": "Itemkolommen",
+          "effect": "Nr, naam, qty, prijs, totaal."
+        }
+      ]
+    }
+  ]
+}

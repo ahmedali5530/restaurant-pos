@@ -207,6 +207,7 @@ export const TableForm = ({
   return (
     <>
       <Modal
+        testId="admin-form-table"
         title={data ? t('forms.updateTable', { name: `${data?.name}${data?.number}` }) : t('forms.createTable')}
         open={open}
         onClose={closeModal}

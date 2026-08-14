@@ -1,0 +1,52 @@
+{
+  "title": "Medewerkerdocumenten",
+  "intro": "Bewaar contracten, ID's en licenties met vervaldatum.",
+  "sections": [
+    {
+      "id": "documents",
+      "title": "Documentenlijst",
+      "steps": [
+        "HR → Documenten.",
+        "Filter medewerker/categorie.",
+        "Upload of werk bij."
+      ],
+      "image": "hr-documents-list.png",
+      "caption": "Tab medewerkerdocumenten.",
+      "fields": []
+    },
+    {
+      "id": "document-form",
+      "title": "Documentformulier",
+      "steps": [
+        "Document toevoegen.",
+        "Medewerker, titel, categorie.",
+        "Bestand en vervaldatum.",
+        "Opslaan."
+      ],
+      "image": "hr-form-document.png",
+      "caption": "Uploadformulier document.",
+      "fields": [
+        {
+          "name": "Medewerker",
+          "effect": "Eigenaar record."
+        },
+        {
+          "name": "Titel",
+          "effect": "Weergavenaam."
+        },
+        {
+          "name": "Categorie",
+          "effect": "Contract, certificaat, licentie, ID, medisch, waarschuwing of overig."
+        },
+        {
+          "name": "Verloopt op",
+          "effect": "Optionele herinneringsdatum."
+        },
+        {
+          "name": "Bestand bijvoegen",
+          "effect": "Verplicht bij aanmaken."
+        }
+      ]
+    }
+  ]
+}

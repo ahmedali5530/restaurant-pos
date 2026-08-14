@@ -1,0 +1,211 @@
+{
+  "title": "Attendance",
+  "intro": "Track clock times and build schedules so labor hours stay accurate for payroll and reporting.",
+  "sections": [
+    {
+      "id": "attendance",
+      "title": "Attendance records",
+      "steps": [
+        "Open the Attendance tab.",
+        "Review clock-in and clock-out events for staff.",
+        "Correct or approve exceptions when your role allows."
+      ],
+      "image": "hr-attendance.png",
+      "caption": "Attendance tab."
+    },
+    {
+      "id": "scheduling",
+      "title": "Scheduling",
+      "intro": "Schedules plan who works which shifts.",
+      "steps": [
+        "Open the Scheduling tab.",
+        "Build or adjust shifts for upcoming days.",
+        "Published schedules guide floor staffing and attendance expectations."
+      ],
+      "image": "hr-scheduling.png",
+      "caption": "Scheduling tab."
+    },
+    {
+      "id": "attendance-form",
+      "title": "Handmatige aanweigheid",
+      "intro": "Corrigeert missende punches of vult tijd aan.",
+      "steps": [
+        "Aanwezigheid → Handmatig.",
+        "Medewerker en tijden.",
+        "Notities en opslaan."
+      ],
+      "image": "hr-form-attendance.png",
+      "caption": "Modal handmatige aanwezigheid.",
+      "fields": [
+        {
+          "name": "Medewerker",
+          "effect": "Wiens record wordt gemaakt."
+        },
+        {
+          "name": "Inklokken",
+          "effect": "Start werktinterval."
+        },
+        {
+          "name": "Uitklokken",
+          "effect": "Einde na inklokken."
+        },
+        {
+          "name": "Notities",
+          "effect": "Reden handmatige invoer."
+        }
+      ]
+    },
+    {
+      "id": "schedule-form",
+      "title": "Werkroosterformulier",
+      "intro": "Datumbereik met concept- of gepubliceerde diensten.",
+      "steps": [
+        "Planning → rooster toevoegen.",
+        "Naam en periode start/eind.",
+        "Diensten of genereren uit sjabloon."
+      ],
+      "image": "hr-form-schedule.png",
+      "caption": "Werkroosterformulier.",
+      "fields": [
+        {
+          "name": "Naam",
+          "effect": "Label roosterperiode."
+        },
+        {
+          "name": "Periode start",
+          "effect": "Eerste datetime."
+        },
+        {
+          "name": "Periode einde",
+          "effect": "Laatste datetime."
+        }
+      ]
+    },
+    {
+      "id": "shift-form",
+      "title": "Geplande dienstformulier",
+      "intro": "Wijst medewerker toe aan tijdblok in conceptrooster.",
+      "steps": [
+        "Concept → dienst toevoegen.",
+        "Rooster, medewerker, tijden.",
+        "Sjabloon/org optioneel.",
+        "Opslaan."
+      ],
+      "image": "hr-form-shift.png",
+      "caption": "Dienstformulier.",
+      "fields": [
+        {
+          "name": "Werkrooster",
+          "effect": "Ouder moet concept zijn."
+        },
+        {
+          "name": "Medewerker",
+          "effect": "Toegewezen aan dienst."
+        },
+        {
+          "name": "Dienstsjabloon",
+          "effect": "Preset Admin → Gebruikers → Diensten."
+        },
+        {
+          "name": "Afd / functie / kostenplaats",
+          "effect": "Org override."
+        },
+        {
+          "name": "Start / einde",
+          "effect": "Gepland venster."
+        }
+      ]
+    },
+    {
+      "id": "schedule-template",
+      "title": "Rooster sjabloonformulier",
+      "intro": "Herbruikbaar weekpatroon.",
+      "steps": [
+        "Planning → Sjablonen.",
+        "Naam en dagen/tijden.",
+        "Dienstsjabloon optioneel.",
+        "Opslaan."
+      ],
+      "image": "hr-form-schedule-template.png",
+      "caption": "Sjabloonformulier.",
+      "fields": [
+        {
+          "name": "Naam",
+          "effect": "Label genereren."
+        },
+        {
+          "name": "Weekdagen",
+          "effect": "Dagen met diensten."
+        },
+        {
+          "name": "Start/eind tijd",
+          "effect": "Dagelijks venster."
+        },
+        {
+          "name": "Pauzeminuten",
+          "effect": "Onbetaalde pauze."
+        },
+        {
+          "name": "Dienstsjabloon",
+          "effect": "POS shift definitie."
+        }
+      ]
+    },
+    {
+      "id": "schedule-generate",
+      "title": "Rooster genereren uit sjabloon",
+      "steps": [
+        "Planning → Genereren.",
+        "Concept en sjabloon.",
+        "Selecteer medewerkers.",
+        "Genereren."
+      ],
+      "image": "hr-form-schedule-generate.png",
+      "caption": "Dialoog genereren.",
+      "fields": [
+        {
+          "name": "Werkrooster",
+          "effect": "Doelconcept."
+        },
+        {
+          "name": "Sjabloon",
+          "effect": "Weekpatroon."
+        },
+        {
+          "name": "Medewerkers",
+          "effect": "Krijgen kopie diensten."
+        }
+      ]
+    },
+    {
+      "id": "schedule-swap",
+      "title": "Dienst ruil verzoek",
+      "steps": [
+        "Planning → Ruil aanvragen.",
+        "Dienst en aanvrager.",
+        "Doelcollega optioneel.",
+        "Indienen."
+      ],
+      "image": "hr-form-schedule-swap.png",
+      "caption": "Ruilformulier.",
+      "fields": [
+        {
+          "name": "Geplande dienst",
+          "effect": "Dienst om te ruilen."
+        },
+        {
+          "name": "Aanvrager",
+          "effect": "Initieert ruil."
+        },
+        {
+          "name": "Doelmedewerker",
+          "effect": "Optioneel."
+        },
+        {
+          "name": "Voorgestelde dienst",
+          "effect": "Tegen-dienst."
+        }
+      ]
+    }
+  ]
+}

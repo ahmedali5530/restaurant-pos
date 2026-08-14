@@ -1,0 +1,133 @@
+{
+  "title": "Períodos e execuções de folha",
+  "intro": "Feche períodos, gere execuções com prévia e ajustes.",
+  "sections": [
+    {
+      "id": "payroll-periods",
+      "title": "Períodos folha",
+      "steps": [
+        "RH → Folha → Períodos.",
+        "Crie períodos do ciclo.",
+        "Bloqueie antes do final."
+      ],
+      "image": "hr-payroll-periods.png",
+      "caption": "Lista períodos folha.",
+      "fields": []
+    },
+    {
+      "id": "payroll-period-form",
+      "title": "Formulário período folha",
+      "steps": [
+        "Nome, tipo, datas.",
+        "Status Aberto.",
+        "Altere para Bloqueado/Fechado/Pago."
+      ],
+      "image": "hr-form-payroll-period.png",
+      "caption": "Formulário período.",
+      "fields": [
+        {
+          "name": "Nome período",
+          "effect": "Rótulo em runs e exportações."
+        },
+        {
+          "name": "Tipo período",
+          "effect": "Semanal, quinzenal, mensal ou custom."
+        },
+        {
+          "name": "Data início",
+          "effect": "Primeiro dia incluído."
+        },
+        {
+          "name": "Data fim",
+          "effect": "Último dia incluído."
+        },
+        {
+          "name": "Status",
+          "effect": "Aberto permite edições; bloqueado restringe."
+        }
+      ]
+    },
+    {
+      "id": "payroll-runs",
+      "title": "Execuções folha",
+      "steps": [
+        "Folha → Execuções.",
+        "Gere execução com prévia.",
+        "Revise snapshots."
+      ],
+      "image": "hr-payroll-runs.png",
+      "caption": "Execuções do período.",
+      "fields": []
+    },
+    {
+      "id": "payroll-run-form",
+      "title": "Gerar execução folha",
+      "steps": [
+        "Nova execução.",
+        "Período aberto.",
+        "Gerar prévia."
+      ],
+      "image": "hr-form-payroll-run.png",
+      "caption": "Formulário nova execução.",
+      "fields": [
+        {
+          "name": "Período folha",
+          "effect": "Define horas e ajustes incluídos."
+        },
+        {
+          "name": "Nº execução",
+          "effect": "ID sequencial no período."
+        }
+      ]
+    },
+    {
+      "id": "adjustments",
+      "title": "Ajustes folha",
+      "steps": [
+        "Folha → Ajustes.",
+        "Adicione bônus/penalidades.",
+        "Vincule ao período."
+      ],
+      "image": "hr-payroll-adjustments.png",
+      "caption": "Lista ajustes.",
+      "fields": []
+    },
+    {
+      "id": "adjustment-form",
+      "title": "Formulário ajuste",
+      "steps": [
+        "Funcionário, tipo, valor, data.",
+        "Período opcional.",
+        "Salvar."
+      ],
+      "image": "hr-form-adjustment.png",
+      "caption": "Formulário ajuste folha.",
+      "fields": [
+        {
+          "name": "Funcionário",
+          "effect": "Recebe o ajuste."
+        },
+        {
+          "name": "Período folha",
+          "effect": "Vínculo opcional ao run."
+        },
+        {
+          "name": "Tipo",
+          "effect": "Bônus, penalidade, verba, reembolso, adiantamento, empréstimo, correção ou dedução."
+        },
+        {
+          "name": "Valor",
+          "effect": "Montante no bruto."
+        },
+        {
+          "name": "Data efetiva",
+          "effect": "Define qual run inclui."
+        },
+        {
+          "name": "Descrição",
+          "effect": "Detalhe holerite e auditoria."
+        }
+      ]
+    }
+  ]
+}

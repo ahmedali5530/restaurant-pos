@@ -1,0 +1,178 @@
+{
+  "title": "Discounts and coupons",
+  "intro": "Configure promotional pricing: discount rules with reasons and role permissions, plus coupon codes staff can apply at payment.",
+  "sections": [
+    {
+      "id": "discount-rules",
+      "title": "Discount rules",
+      "intro": "Discount rules define automatic or manual reductions by category, scope, and eligibility.",
+      "steps": [
+        "Open the Discounts tab in Manage.",
+        "Select the Rules sub-tab.",
+        "Add or edit rules; set type, value, scope, and when the discount applies."
+      ],
+      "image": "admin-discounts-rules.png",
+      "caption": "Discount rules list."
+    },
+    {
+      "id": "discount-reasons",
+      "title": "Discount reasons",
+      "intro": "Reasons appear when staff apply manual discounts so reporting can track why a reduction was given.",
+      "steps": [
+        "Open Discounts and switch to the Reasons sub-tab.",
+        "Create reasons staff can pick at the payment or cart screen.",
+        "Deactivate reasons you no longer want offered."
+      ],
+      "image": "admin-discounts-reasons.png",
+      "caption": "Discount reasons maintenance."
+    },
+    {
+      "id": "discount-permissions",
+      "title": "Discount permissions",
+      "intro": "Control which roles may apply each discount type or exceed limits without manager approval.",
+      "steps": [
+        "Open Discounts and switch to the Permissions sub-tab.",
+        "Review the matrix of roles versus discount capabilities.",
+        "Adjust permissions so only authorized roles can grant large or sensitive discounts."
+      ],
+      "image": "admin-discounts-permissions.png",
+      "caption": "Discount permission matrix."
+    },
+    {
+      "id": "coupons",
+      "title": "Coupons",
+      "steps": [
+        "Open the Coupons tab.",
+        "Create coupon codes with value, validity window, and usage limits.",
+        "Staff enter coupons on the payment screen when the order qualifies."
+      ],
+      "image": "admin-coupons.png",
+      "caption": "Coupons tab."
+    },
+    {
+      "id": "discount-form",
+      "title": "نموذج قاعدة الخصم",
+      "intro": "14 فئة؛ النطاق item/category/cart/customer/floor.",
+      "steps": [
+        "Admin → العروض → الخصومات.",
+        "الفئة والنطاق والوضع.",
+        "الأهداف والقيمة.",
+        "احفظ."
+      ],
+      "image": "admin-promotions-discount-form.png",
+      "caption": "نموذج قاعدة الخصم.",
+      "fields": [
+        {
+          "name": "الفئة",
+          "effect": "أحد 14 نوعاً."
+        },
+        {
+          "name": "النطاق",
+          "effect": "item, category, cart, customer, floor."
+        },
+        {
+          "name": "وضع التطبيق",
+          "effect": "manual, automatic, both."
+        },
+        {
+          "name": "الأهداف",
+          "effect": "العناصر/الفئات المؤهلة."
+        },
+        {
+          "name": "النوع (نسبة/ثابت)",
+          "effect": "min/max كنسبة أو مبلغ."
+        },
+        {
+          "name": "الحد الأدنى/الأقصى",
+          "effect": "النطاق المسموح."
+        },
+        {
+          "name": "الحد الأقصى",
+          "effect": "سقف الخصومات النسبية."
+        },
+        {
+          "name": "الأولوية",
+          "effect": "ترتيب القواعد التلقائية."
+        },
+        {
+          "name": "الحد الأدنى للطلب",
+          "effect": "المجموع الفرعي المطلوب."
+        },
+        {
+          "name": "وضع التراكم",
+          "effect": "allow, prevent, highest_wins, priority."
+        },
+        {
+          "name": "المعاملة الضريبية",
+          "effect": "tax_before/after_discount إلخ."
+        },
+        {
+          "name": "الجداول",
+          "effect": "نوافذ اليوم/الوقت."
+        },
+        {
+          "name": "الشروط",
+          "effect": "Buy X Get Y."
+        },
+        {
+          "name": "يتطلب سبب/موافقة",
+          "effect": "PIN المدير يدوياً."
+        }
+      ]
+    },
+    {
+      "id": "coupon-form",
+      "title": "نموذج القسيمة",
+      "steps": [
+        "العروض → القسائم.",
+        "الرمز والنوع/القيمة والحدود.",
+        "الأيام والتواريخ.",
+        "احفظ."
+      ],
+      "image": "admin-promotions-coupon-form.png",
+      "caption": "نموذج القسيمة.",
+      "fields": [
+        {
+          "name": "الرمز",
+          "effect": "النص عند الدفع."
+        },
+        {
+          "name": "نوع القسيمة",
+          "effect": "استخدام واحد/متعدد."
+        },
+        {
+          "name": "نوع/قيمة الخصم",
+          "effect": "نسبة أو ثابت."
+        },
+        {
+          "name": "الحد الأدنى للطلب",
+          "effect": "المجموع الفرعي."
+        },
+        {
+          "name": "الحد الأقصى للخصم",
+          "effect": "سقف النسبة."
+        },
+        {
+          "name": "حد الاستخدام",
+          "effect": "إجمالي الاسترداد."
+        },
+        {
+          "name": "حد لكل مستخدم",
+          "effect": "لكل عميل."
+        },
+        {
+          "name": "الأيام/الأوقات الصالحة",
+          "effect": "قيود زمنية."
+        },
+        {
+          "name": "تاريخ البداية/النهاية",
+          "effect": "الصلاحية العامة."
+        },
+        {
+          "name": "قابل للتراكم / الطلب الأول فقط",
+          "effect": "قواعد الدمج."
+        }
+      ]
+    }
+  ]
+}

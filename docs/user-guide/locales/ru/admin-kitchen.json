@@ -1,0 +1,87 @@
+{
+  "title": "Kitchens and workflows",
+  "intro": "Route fired items to the right kitchen stations and define how orders move through preparation stages.",
+  "sections": [
+    {
+      "id": "kitchens",
+      "title": "Kitchens",
+      "intro": "Kitchens group dishes and link to printers for kitchen tickets.",
+      "steps": [
+        "Open the Kitchens tab.",
+        "Create kitchen stations (e.g. Grill, Bar, Pastry).",
+        "Assign dishes and printers so tickets route to the correct station."
+      ],
+      "image": "admin-kitchens.png",
+      "caption": "Kitchens maintenance table."
+    },
+    {
+      "id": "workflows",
+      "title": "Workflows",
+      "intro": "Workflows define order-status steps used by kitchen and order-display screens.",
+      "steps": [
+        "Open the Workflows tab.",
+        "Create or edit workflow steps and transitions.",
+        "Link workflows to order types or kitchens as required by your venue setup."
+      ],
+      "image": "admin-workflows.png",
+      "caption": "Workflows tab."
+    },
+    {
+      "id": "kitchen-form",
+      "title": "Kitchen form",
+      "intro": "Routes dishes to printers and inventory locations.",
+      "steps": [
+        "Admin → Kitchen → Kitchens.",
+        "Name, priority, printers, dishes.",
+        "Save."
+      ],
+      "image": "admin-kitchen-kitchen-form.png",
+      "caption": "Kitchen station form.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Label on KOT and order display."
+        },
+        {
+          "name": "Priority",
+          "effect": "Order when multiple kitchens match."
+        },
+        {
+          "name": "Printers",
+          "effect": "Devices printing tickets."
+        },
+        {
+          "name": "Items (dishes)",
+          "effect": "Dishes routed here."
+        }
+      ]
+    },
+    {
+      "id": "workflow-form",
+      "title": "Workflow form",
+      "intro": "Chains kitchen stages for displays.",
+      "steps": [
+        "Kitchen → Workflows.",
+        "Name and ordered stages.",
+        "Kitchen per stage.",
+        "Link on dishes."
+      ],
+      "image": "admin-kitchen-workflow-form.png",
+      "caption": "Workflow stages editor.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Identifier on dishes."
+        },
+        {
+          "name": "Stages",
+          "effect": "Ordered prep steps."
+        },
+        {
+          "name": "Stage kitchen",
+          "effect": "Station owning each stage."
+        }
+      ]
+    }
+  ]
+}

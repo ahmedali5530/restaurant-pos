@@ -1,0 +1,39 @@
+{
+  "title": "Distribuzione mance",
+  "intro": "Calcola come dividere le mance del turno e salva il record.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Schermata distribuzione",
+      "steps": [
+        "Tocca Distribuzione mance.",
+        "Seleziona turno e data.",
+        "Carica mance calcola i totali."
+      ],
+      "image": "tips-overview.png",
+      "caption": "Schermata distribuzione."
+    },
+    {
+      "id": "filters",
+      "title": "Turno e data",
+      "steps": [
+        "Scegli il turno.",
+        "Scegli la data.",
+        "Tocca Carica mance."
+      ],
+      "image": "tips-filters.png",
+      "caption": "Turno, data e carica."
+    },
+    {
+      "id": "table",
+      "title": "Tabella distribuzione",
+      "steps": [
+        "Il totale mostra l'importo del turno.",
+        "Ogni riga: utente, ruolo, peso e quota.",
+        "Invia salva dopo il controllo."
+      ],
+      "image": "tips-table.png",
+      "caption": "Totali e tabella."
+    }
+  ]
+}

@@ -1,0 +1,178 @@
+{
+  "title": "Discounts and coupons",
+  "intro": "Configure promotional pricing: discount rules with reasons and role permissions, plus coupon codes staff can apply at payment.",
+  "sections": [
+    {
+      "id": "discount-rules",
+      "title": "Discount rules",
+      "intro": "Discount rules define automatic or manual reductions by category, scope, and eligibility.",
+      "steps": [
+        "Open the Discounts tab in Manage.",
+        "Select the Rules sub-tab.",
+        "Add or edit rules; set type, value, scope, and when the discount applies."
+      ],
+      "image": "admin-discounts-rules.png",
+      "caption": "Discount rules list."
+    },
+    {
+      "id": "discount-reasons",
+      "title": "Discount reasons",
+      "intro": "Reasons appear when staff apply manual discounts so reporting can track why a reduction was given.",
+      "steps": [
+        "Open Discounts and switch to the Reasons sub-tab.",
+        "Create reasons staff can pick at the payment or cart screen.",
+        "Deactivate reasons you no longer want offered."
+      ],
+      "image": "admin-discounts-reasons.png",
+      "caption": "Discount reasons maintenance."
+    },
+    {
+      "id": "discount-permissions",
+      "title": "Discount permissions",
+      "intro": "Control which roles may apply each discount type or exceed limits without manager approval.",
+      "steps": [
+        "Open Discounts and switch to the Permissions sub-tab.",
+        "Review the matrix of roles versus discount capabilities.",
+        "Adjust permissions so only authorized roles can grant large or sensitive discounts."
+      ],
+      "image": "admin-discounts-permissions.png",
+      "caption": "Discount permission matrix."
+    },
+    {
+      "id": "coupons",
+      "title": "Coupons",
+      "steps": [
+        "Open the Coupons tab.",
+        "Create coupon codes with value, validity window, and usage limits.",
+        "Staff enter coupons on the payment screen when the order qualifies."
+      ],
+      "image": "admin-coupons.png",
+      "caption": "Coupons tab."
+    },
+    {
+      "id": "discount-form",
+      "title": "İndirim kuralı formu",
+      "intro": "14 kategori ve scope: item, category, cart, customer, floor.",
+      "steps": [
+        "Admin → Promosyonlar → İndirimler.",
+        "Kategori, kapsam, mod.",
+        "Hedefler ve değer.",
+        "Kaydet."
+      ],
+      "image": "admin-promotions-discount-form.png",
+      "caption": "Kategori ve hedefli form.",
+      "fields": [
+        {
+          "name": "Kategori",
+          "effect": "14 tipten biri."
+        },
+        {
+          "name": "Kapsam",
+          "effect": "item, category, cart, customer, floor."
+        },
+        {
+          "name": "Uygulama modu",
+          "effect": "manual, automatic, both."
+        },
+        {
+          "name": "Hedefler",
+          "effect": "Uygun ürün/kategori/müşteri/kat."
+        },
+        {
+          "name": "Tip (yüzde / sabit)",
+          "effect": "Min/max türü."
+        },
+        {
+          "name": "Min / max oran",
+          "effect": "İzin verilen aralık."
+        },
+        {
+          "name": "Max tavan",
+          "effect": "Yüzde indirimlerde üst limit."
+        },
+        {
+          "name": "Öncelik",
+          "effect": "Otomatik kurallarda sıra."
+        },
+        {
+          "name": "Min sipariş tutarı",
+          "effect": "Alt toplam eşiği."
+        },
+        {
+          "name": "Yığınlama modu",
+          "effect": "allow, prevent, highest_wins, priority."
+        },
+        {
+          "name": "Vergi muamelesi",
+          "effect": "tax_before/after_discount, inclusive, exclusive."
+        },
+        {
+          "name": "Programlar",
+          "effect": "Gün/saat pencereleri."
+        },
+        {
+          "name": "Koşullar",
+          "effect": "Buy X Get Y."
+        },
+        {
+          "name": "Neden / onay gerekir",
+          "effect": "Manuel uygulamada PIN."
+        }
+      ]
+    },
+    {
+      "id": "coupon-form",
+      "title": "Kupon formu",
+      "steps": [
+        "Promosyonlar → Kuponlar.",
+        "Kod, indirim tip/değer, limitler.",
+        "Geçerli günler ve tarihler.",
+        "Kaydet."
+      ],
+      "image": "admin-promotions-coupon-form.png",
+      "caption": "Kupon formu.",
+      "fields": [
+        {
+          "name": "Kod",
+          "effect": "Ödemede girilen dize."
+        },
+        {
+          "name": "Kupon tipi",
+          "effect": "Tek/çok kullanım."
+        },
+        {
+          "name": "İndirim tip/değer",
+          "effect": "Yüzde veya sabit."
+        },
+        {
+          "name": "Min sipariş tutarı",
+          "effect": "Alt toplam eşiği."
+        },
+        {
+          "name": "Max indirim",
+          "effect": "Yüzde kuponlarda tavan."
+        },
+        {
+          "name": "Kullanım limiti",
+          "effect": "Toplam kullanım."
+        },
+        {
+          "name": "Kullanıcı başına limit",
+          "effect": "Müşteri profili başına."
+        },
+        {
+          "name": "Geçerli günler / saatler",
+          "effect": "Gün ve saat kısıtı."
+        },
+        {
+          "name": "Başlangıç / bitiş tarihi",
+          "effect": "Genel geçerlilik."
+        },
+        {
+          "name": "Yığılabilir / sadece ilk sipariş",
+          "effect": "Kombinasyon kuralları."
+        }
+      ]
+    }
+  ]
+}

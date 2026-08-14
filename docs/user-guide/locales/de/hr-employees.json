@@ -1,0 +1,157 @@
+{
+  "title": "Employees",
+  "intro": "Maintain employee records and the organizational structure: departments and positions.",
+  "sections": [
+    {
+      "id": "employees",
+      "title": "Employee list",
+      "steps": [
+        "Open the Employees tab.",
+        "Add or edit employees with role, department, and contact details.",
+        "Employee records feed attendance, leave, and payroll tabs."
+      ],
+      "image": "hr-employees-list.png",
+      "caption": "Employees tab."
+    },
+    {
+      "id": "departments",
+      "title": "Departments",
+      "intro": "Departments group staff for reporting and cost allocation.",
+      "steps": [
+        "Open the Departments tab.",
+        "Create departments that match how the venue organizes teams.",
+        "Assign employees to departments on their employee form."
+      ],
+      "image": "hr-employees-departments.png",
+      "caption": "Departments tab."
+    },
+    {
+      "id": "positions",
+      "title": "Positions",
+      "steps": [
+        "Open the Positions tab.",
+        "Define job titles used on employee records and schedules.",
+        "Keep positions aligned with pay profiles when payroll is enabled."
+      ],
+      "image": "hr-employees-positions.png",
+      "caption": "Positions tab."
+    },
+    {
+      "id": "employee-form",
+      "title": "Mitarbeiterformular",
+      "intro": "Zentraler HR-Datensatz mit POS-Benutzer, Org-Struktur und Beschäftigungsdaten.",
+      "steps": [
+        "Unter Mitarbeiter Hinzufügen oder Zeile bearbeiten.",
+        "Personalnummer, Name und Beschäftigungsdetails ausfüllen.",
+        "POS-Benutzer, Abteilung, Position, Kostenstelle und Vorgesetzten verknüpfen.",
+        "Speichern — speist Anwesenheit, Urlaub und Abrechnung."
+      ],
+      "image": "hr-form-employee.png",
+      "caption": "Modal Mitarbeiter anlegen/bearbeiten.",
+      "fields": [
+        {
+          "name": "Personalnummer",
+          "effect": "Eindeutige Kennung auf Plänen und Exporten."
+        },
+        {
+          "name": "Vor- / Nachname",
+          "effect": "Rechtlicher oder bevorzugter Name."
+        },
+        {
+          "name": "Verknüpfter Benutzer",
+          "effect": "Optionaler POS-Login für Zeiterfassung."
+        },
+        {
+          "name": "Abteilung",
+          "effect": "Organisationseinheit für Berichte."
+        },
+        {
+          "name": "Position",
+          "effect": "Stellenbezeichnung für Pläne und Regeln."
+        },
+        {
+          "name": "Kostenstelle",
+          "effect": "Standard-Lohnkosten-Zuordnung."
+        },
+        {
+          "name": "Vorgesetzter",
+          "effect": "Berichtslinie für Genehmigungen."
+        },
+        {
+          "name": "Beschäftigungsstatus",
+          "effect": "Aktiv, inaktiv, gekündigt, beurlaubt oder suspendiert."
+        },
+        {
+          "name": "Beschäftigungsart",
+          "effect": "Stündlich, Gehalt, Vertrag usw."
+        },
+        {
+          "name": "Einstellungs- / Kündigungsdatum",
+          "effect": "Betriebszugehörigkeit und Berechtigung."
+        }
+      ]
+    },
+    {
+      "id": "department-form",
+      "title": "Abteilungsformular",
+      "steps": [
+        "Unter Abteilungen oder inline beim Mitarbeiter.",
+        "Code, Name und Beschreibung eingeben.",
+        "Speichern — erscheint auf Mitarbeitern und Positionen."
+      ],
+      "image": "hr-form-department.png",
+      "caption": "Abteilungsformular.",
+      "fields": [
+        {
+          "name": "Code",
+          "effect": "Kurzkennung für Integrationen."
+        },
+        {
+          "name": "Name",
+          "effect": "Anzeigename in Dropdowns."
+        },
+        {
+          "name": "Beschreibung",
+          "effect": "Optionale Admin-Notizen."
+        },
+        {
+          "name": "Aktiv",
+          "effect": "Inaktive Abteilungen bei neuen Zuweisungen ausgeblendet."
+        }
+      ]
+    },
+    {
+      "id": "position-form",
+      "title": "Positionsformular",
+      "steps": [
+        "Unter Positionen oder inline beim Mitarbeiter.",
+        "Code, Name, Abteilung und Standard-Kostenstelle definieren.",
+        "Speichern — wählbar auf Mitarbeitern und Plänen."
+      ],
+      "image": "hr-form-position.png",
+      "caption": "Positionsformular.",
+      "fields": [
+        {
+          "name": "Code",
+          "effect": "Jobcode für Lohnexporte."
+        },
+        {
+          "name": "Name",
+          "effect": "Stellenbezeichnung in HR und Plänen."
+        },
+        {
+          "name": "Abteilung",
+          "effect": "Standard-Org-Einheit der Rolle."
+        },
+        {
+          "name": "Standard-Kostenstelle",
+          "effect": "Vorausgefüllt auf Plänen für diese Position."
+        },
+        {
+          "name": "Aktiv",
+          "effect": "Stellt nicht mehr besetzte Titel außer Dienst."
+        }
+      ]
+    }
+  ]
+}

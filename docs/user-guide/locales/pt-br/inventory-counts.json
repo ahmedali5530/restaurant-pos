@@ -1,0 +1,29 @@
+{
+  "title": "Contagens e transferências",
+  "intro": "Concilie contagens físicas com ajustes e mova estoque entre locais.",
+  "sections": [
+    {
+      "id": "adjustments",
+      "title": "Ajustes (contagens)",
+      "steps": [
+        "Abra Ajustes.",
+        "Informe quantidades contadas por item e local.",
+        "Envie, aprove e poste conforme seu papel."
+      ],
+      "image": "inventory-counts-adjustments.png",
+      "caption": "Lista de ajustes."
+    },
+    {
+      "id": "transfers",
+      "title": "Transferências de estoque",
+      "intro": "Mova estoque entre locais sem alterar o total da empresa.",
+      "steps": [
+        "Abra Transferências.",
+        "Escolha origem, destino e linhas.",
+        "Salve para atualizar as quantidades."
+      ],
+      "image": "inventory-counts-transfers.png",
+      "caption": "Aba Transferências."
+    }
+  ]
+}

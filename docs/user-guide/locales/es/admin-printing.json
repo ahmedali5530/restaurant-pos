@@ -1,0 +1,95 @@
+{
+  "title": "Printers and print settings",
+  "intro": "Define printer records in Manage, configure what each print job contains, then assign printers to devices in Settings.",
+  "sections": [
+    {
+      "id": "printers",
+      "title": "Printers",
+      "intro": "Printer records store connection details used across receipt, kitchen, and report printing.",
+      "steps": [
+        "Open the Printers tab.",
+        "Add printers with name, type, and connection settings.",
+        "Link printers to kitchens and device Settings so tickets reach the right hardware."
+      ],
+      "image": "admin-printers.png",
+      "caption": "Printers master list in Manage."
+    },
+    {
+      "id": "print-settings",
+      "title": "Print settings",
+      "intro": "Print settings control templates and options for temp bills, final receipts, kitchen tickets, summaries, and delivery slips.",
+      "steps": [
+        "Open the Print settings tab.",
+        "Edit each print type (Temp, Final, Kitchen, Summary, Delivery).",
+        "Save so new orders use the updated layout and fields."
+      ],
+      "image": "admin-print-settings.png",
+      "caption": "Print settings tab."
+    },
+    {
+      "id": "printer-form",
+      "title": "Formulario de impresora",
+      "steps": [
+        "Abra Admin → Impresión → Impresoras.",
+        "Agregue nombre y conexión: IP/puerto de red o identificadores USB.",
+        "Elija tipo (recibo, cocina, etiqueta).",
+        "Guarde — asigne en cocinas y ajustes del dispositivo."
+      ],
+      "image": "admin-printing-printer-form.png",
+      "caption": "Formulario de impresora.",
+      "fields": [
+        {
+          "name": "Nombre",
+          "effect": "Nombre amigable en admin y selectores."
+        },
+        {
+          "name": "Tipo",
+          "effect": "Perfil recibo, cocina o etiqueta."
+        },
+        {
+          "name": "Dirección IP / puerto",
+          "effect": "Conexión de red ESC/POS."
+        },
+        {
+          "name": "VID / PID",
+          "effect": "IDs USB para impresoras directas."
+        }
+      ]
+    },
+    {
+      "id": "print-setting-form",
+      "title": "Formulario de ajuste de impresión",
+      "intro": "Cada tipo de trabajo (cuenta provisional, recibo final, cocina, resumen, delivery) tiene plantilla propia.",
+      "steps": [
+        "Abra Ajustes de impresión y elija tipo de trabajo.",
+        "Configure logo, encabezado/pie, bloque IVA y márgenes.",
+        "Active columnas de líneas en recibos.",
+        "Guarde — la próxima impresión usa el diseño actualizado."
+      ],
+      "image": "admin-printing-print-setting-form.png",
+      "caption": "Editor de plantilla de impresión.",
+      "fields": [
+        {
+          "name": "Mostrar logo",
+          "effect": "Incluye logo cargado en el ticket."
+        },
+        {
+          "name": "Secciones encabezado / pie",
+          "effect": "Bloques de texto o imagen arriba/abajo."
+        },
+        {
+          "name": "Nombre / número IVA",
+          "effect": "Bloque fiscal en recibos."
+        },
+        {
+          "name": "Márgenes",
+          "effect": "Espaciado superior/inferior/izquierdo/derecho en puntos."
+        },
+        {
+          "name": "Columnas de ítem",
+          "effect": "Alternar número, nombre, cant., precio y total."
+        }
+      ]
+    }
+  ]
+}

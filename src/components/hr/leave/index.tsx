@@ -175,7 +175,7 @@ export const HrLeave = () => {
           loaderHook={typesHook}
           loaderLineItems={typeColumns.length}
           buttons={[
-            <Button key="leave-type-create" variant="primary" onClick={() => { setLeaveType(undefined); setTypeModal(true); }} icon={faPlus}>
+            <Button key="leave-type-create" variant="primary" data-testid="hr-add-leave" onClick={() => { setLeaveType(undefined); setTypeModal(true); }} icon={faPlus}>
               {t("buttons.leaveType")}
             </Button>,
           ]}
@@ -186,7 +186,7 @@ export const HrLeave = () => {
           loaderHook={requestsHook}
           loaderLineItems={requestColumns.length}
           buttons={[
-            <Button key="leave-request-create" variant="primary" onClick={() => { setLeaveRequest(undefined); setRequestModal(true); }} icon={faPlus}>
+            <Button key="leave-request-create" variant="primary" data-testid="hr-add-leave" onClick={() => { setLeaveRequest(undefined); setRequestModal(true); }} icon={faPlus}>
               {t("buttons.leaveRequest")}
             </Button>,
           ]}

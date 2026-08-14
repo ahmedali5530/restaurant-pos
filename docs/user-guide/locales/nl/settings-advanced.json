@@ -1,0 +1,106 @@
+{
+  "title": "Geavanceerde apparaatinstellingen",
+  "intro": "Beheerders gebruiken Instellingen voor sluitcyclus, auto-check, sessiebeveiliging, auto-uitklokken, servicekosten, menu's, voorraad en printers.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Instellingen voor beheerders",
+      "steps": [
+        "Log in met rechten.",
+        "Open Instellingen (sleutel).",
+        "Focus op locatiekaarten."
+      ],
+      "image": "settings-adv-overview.png",
+      "caption": "Geavanceerde kaarten."
+    },
+    {
+      "id": "closing-cycle",
+      "title": "Sluitcyclus",
+      "intro": "Definieert de bedrijfsdag.",
+      "steps": [
+        "Custom cyclus bij nachtwerk.",
+        "Start en eind.",
+        "Opslaan."
+      ],
+      "image": "settings-adv-closing-cycle.png",
+      "caption": "Sluitcycluskaart."
+    },
+    {
+      "id": "auto-check-close",
+      "title": "Auto check sluiten",
+      "steps": [
+        "Automatische afrekening aan.",
+        "Print en betaaltype.",
+        "Opslaan."
+      ],
+      "image": "settings-adv-auto-check-close.png",
+      "caption": "Auto-sluitkaart."
+    },
+    {
+      "id": "session-security",
+      "title": "Sessiebeveiliging",
+      "steps": [
+        "Idle-vergrendeling of logout.",
+        "Minuten en actie.",
+        "Opslaan."
+      ],
+      "image": "settings-adv-session-security.png",
+      "caption": "Sessiebeveiligingskaart."
+    },
+    {
+      "id": "auto-clock-out",
+      "title": "Auto uitklokken",
+      "steps": [
+        "Auto uitklokken aan.",
+        "Shift-einde, tijd of beide.",
+        "Opslaan."
+      ],
+      "image": "settings-adv-auto-clock-out.png",
+      "caption": "Auto-uitklokkaart."
+    },
+    {
+      "id": "service-charges",
+      "title": "Servicekosten",
+      "steps": [
+        "Standaard type en waarde.",
+        "Bij betaling.",
+        "Opslaan."
+      ],
+      "image": "settings-adv-service-charges.png",
+      "caption": "Servicekostenkaart."
+    },
+    {
+      "id": "menus",
+      "title": "Actieve menu's",
+      "steps": [
+        "Selecteer menu's van terminal.",
+        "Opslaan.",
+        "Met Beheer → Menu's."
+      ],
+      "image": "settings-adv-menus.png",
+      "caption": "Menu's-kaart."
+    },
+    {
+      "id": "inventory",
+      "title": "Voorraadinstellingen",
+      "steps": [
+        "Voorraadvoorkeuren.",
+        "Opslaan.",
+        "Docs onder Voorraad."
+      ],
+      "image": "settings-adv-inventory.png",
+      "caption": "Voorraadkaart."
+    },
+    {
+      "id": "printers",
+      "title": "Printers",
+      "steps": [
+        "Wijs printers toe.",
+        "Opslaan.",
+        "Printopties ernaast."
+      ],
+      "image": "settings-adv-printers.png",
+      "caption": "Printerskaart."
+    }
+  ]
+}

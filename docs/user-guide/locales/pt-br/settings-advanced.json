@@ -1,0 +1,106 @@
+{
+  "title": "Configurações avançadas do dispositivo",
+  "intro": "Administradores usam Configurações para ciclo de fechamento, fechamento automático, segurança de sessão, saída automática, taxas, menus, estoque e impressoras.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Configurações para administradores",
+      "steps": [
+        "Entre com permissão.",
+        "Abra Configurações pela chave.",
+        "Foque nos cartões do estabelecimento."
+      ],
+      "image": "settings-adv-overview.png",
+      "caption": "Cartões avançados."
+    },
+    {
+      "id": "closing-cycle",
+      "title": "Ciclo de fechamento",
+      "intro": "Define a janela do dia de negócio.",
+      "steps": [
+        "Ative ciclo custom se operar de madrugada.",
+        "Defina início e fim.",
+        "Salve."
+      ],
+      "image": "settings-adv-closing-cycle.png",
+      "caption": "Cartão ciclo de fechamento."
+    },
+    {
+      "id": "auto-check-close",
+      "title": "Fechamento automático de contas",
+      "steps": [
+        "Ative liquidação no fim do ciclo.",
+        "Escolha impressão e tipo de pagamento.",
+        "Salve."
+      ],
+      "image": "settings-adv-auto-check-close.png",
+      "caption": "Cartão fechamento automático."
+    },
+    {
+      "id": "session-security",
+      "title": "Segurança de sessão",
+      "steps": [
+        "Ative bloqueio ou logout ocioso.",
+        "Defina minutos e ação.",
+        "Salve."
+      ],
+      "image": "settings-adv-session-security.png",
+      "caption": "Cartão segurança de sessão."
+    },
+    {
+      "id": "auto-clock-out",
+      "title": "Saída automática",
+      "steps": [
+        "Ative saída automática.",
+        "Escolha fim de turno, horário ou ambos.",
+        "Salve."
+      ],
+      "image": "settings-adv-auto-clock-out.png",
+      "caption": "Cartão saída automática."
+    },
+    {
+      "id": "service-charges",
+      "title": "Taxas de serviço",
+      "steps": [
+        "Defina tipo e valor padrão.",
+        "Aplicam-se no pagamento.",
+        "Salve."
+      ],
+      "image": "settings-adv-service-charges.png",
+      "caption": "Cartão taxas."
+    },
+    {
+      "id": "menus",
+      "title": "Menus ativos",
+      "steps": [
+        "Selecione menus deste terminal.",
+        "Salve.",
+        "Combine com Gerenciar → Menus."
+      ],
+      "image": "settings-adv-menus.png",
+      "caption": "Cartão menus."
+    },
+    {
+      "id": "inventory",
+      "title": "Configurações de estoque",
+      "steps": [
+        "Configure preferências de estoque.",
+        "Salve.",
+        "Documentos em Estoque."
+      ],
+      "image": "settings-adv-inventory.png",
+      "caption": "Cartão estoque."
+    },
+    {
+      "id": "printers",
+      "title": "Impressoras",
+      "steps": [
+        "Atribua impressoras do dispositivo.",
+        "Salve.",
+        "Opções de impressão em cartões vizinhos."
+      ],
+      "image": "settings-adv-printers.png",
+      "caption": "Cartão impressoras."
+    }
+  ]
+}

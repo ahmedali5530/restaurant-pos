@@ -1,0 +1,182 @@
+{
+  "title": "Menus, categories, and dishes",
+  "intro": "Configure what appears on the ordering screen: dishes, menu groupings, and categories.",
+  "sections": [
+    {
+      "id": "dishes",
+      "title": "Dishes",
+      "steps": [
+        "Open the Dishes tab.",
+        "Create or edit dishes with price, categories, modifiers, and recipes.",
+        "Import CSV files for bulk dish or ingredient updates when needed."
+      ],
+      "image": "admin-menus-dishes.png",
+      "caption": "Dishes tab."
+    },
+    {
+      "id": "menus",
+      "title": "Menus",
+      "intro": "Menus control which dishes are visible on each service period or channel.",
+      "steps": [
+        "Open the Menus tab.",
+        "Assign dishes to menus and set availability windows.",
+        "Save changes so floor staff see updated items on the Menu screen."
+      ],
+      "image": "admin-menus-menus.png",
+      "caption": "Menus tab."
+    },
+    {
+      "id": "categories",
+      "title": "Categories",
+      "steps": [
+        "Open the Categories tab.",
+        "Group dishes for navigation on the ordering screen.",
+        "Reorder categories to match how staff browse the menu."
+      ],
+      "image": "admin-menus-categories.png",
+      "caption": "Categories tab."
+    },
+    {
+      "id": "modifier-groups",
+      "title": "Modifier groups",
+      "intro": "Modifier groups define optional add-ons, sizes, and nested choices shown when staff customize a dish.",
+      "steps": [
+        "Open the Modifier groups tab.",
+        "Create groups with modifiers, prices, and optional next-group rules.",
+        "Assign groups to dishes so the cart shows the correct customization flow."
+      ],
+      "image": "admin-modifier-groups.png",
+      "caption": "Modifier groups tab."
+    },
+    {
+      "id": "dish-form",
+      "title": "نموذج الطبق",
+      "intro": "أصناف قابلة للبيع مع السعر والفئات والمعدّلات والمطبخ.",
+      "steps": [
+        "Admin → القوائم → الأطباق.",
+        "الرقم والاسم والسعر والفئات.",
+        "المعدّلات والوصفة والمطبخ.",
+        "احفظ."
+      ],
+      "image": "admin-menus-dish-form.png",
+      "caption": "نموذج صيانة الطبق.",
+      "fields": [
+        {
+          "name": "الرقم / الاسم",
+          "effect": "معرّف POS والاسم المعروض."
+        },
+        {
+          "name": "السعر / التكلفة",
+          "effect": "سعر البيع والتكلفة النظرية."
+        },
+        {
+          "name": "الفئات",
+          "effect": "تجميع القائمة."
+        },
+        {
+          "name": "مجموعات المعدّلات",
+          "effect": "تدفق التخصيص."
+        },
+        {
+          "name": "أسطر الوصفة",
+          "effect": "استهلاك المخزون."
+        },
+        {
+          "name": "المطبخ / سير العمل",
+          "effect": "توجيه KOT."
+        }
+      ]
+    },
+    {
+      "id": "menu-form",
+      "title": "نموذج القائمة",
+      "intro": "يحدّد الفئات على POS حسب الوقت.",
+      "steps": [
+        "تبويب القوائم.",
+        "الاسم والأوقات.",
+        "نشط وينتهي اليوم التالي.",
+        "احفظ."
+      ],
+      "image": "admin-menus-menu-form.png",
+      "caption": "نموذج القائمة.",
+      "fields": [
+        {
+          "name": "الاسم",
+          "effect": "التسمية في مبدّل POS."
+        },
+        {
+          "name": "من / إلى",
+          "effect": "نافذة التوفر."
+        },
+        {
+          "name": "ينتهي اليوم التالي",
+          "effect": "خدمة بعد منتصف الليل."
+        },
+        {
+          "name": "نشط",
+          "effect": "غير النشط مخفي."
+        }
+      ]
+    },
+    {
+      "id": "category-form",
+      "title": "نموذج الفئة",
+      "steps": [
+        "الفئات.",
+        "الاسم والأولوية وإظهار في القائمة.",
+        "احفظ."
+      ],
+      "image": "admin-menus-category-form.png",
+      "caption": "نموذج الفئة.",
+      "fields": [
+        {
+          "name": "الاسم",
+          "effect": "عنوان الفئة على POS."
+        },
+        {
+          "name": "الأولوية",
+          "effect": "ترتيب الفرز."
+        },
+        {
+          "name": "إظهار في القائمة",
+          "effect": "يخفى إن أُوقف."
+        }
+      ]
+    },
+    {
+      "id": "modifier-group-form",
+      "title": "نموذج مجموعة المعدّلات",
+      "intro": "المعدّلات والأسعار والمجموعات المتداخلة.",
+      "steps": [
+        "مجموعات المعدّلات.",
+        "الاسم والأولوية والأسعار.",
+        "المجموعات التالية.",
+        "احفظ."
+      ],
+      "image": "admin-menus-modifier-group-form.png",
+      "caption": "نموذج مجموعات متداخلة.",
+      "fields": [
+        {
+          "name": "الاسم / الأولوية",
+          "effect": "التسمية والترتيب."
+        },
+        {
+          "name": "المعدّل",
+          "effect": "خيار قابل للاختيار."
+        },
+        {
+          "name": "السعر",
+          "effect": "رسوم إضافية."
+        },
+        {
+          "name": "المجموعات التالية المسموحة",
+          "effect": "بعد الاختيار."
+        },
+        {
+          "name": "تجاوزات المجموعة التالية",
+          "effect": "إخفاء أو تغيير السعر."
+        }
+      ]
+    }
+  ]
+}

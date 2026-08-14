@@ -1,0 +1,102 @@
+{
+  "title": "Menus e sessões de buffet",
+  "intro": "Planeje receitas por convidado e gerencie sessões de buffet.",
+  "sections": [
+    {
+      "id": "buffet-menus",
+      "title": "Menus buffet",
+      "steps": [
+        "Inventário → Buffet → Menus.",
+        "Modelos café/almoço/jantar.",
+        "Receitas por convidado."
+      ],
+      "image": "inventory-buffet-menus.png",
+      "caption": "Lista menus buffet.",
+      "fields": []
+    },
+    {
+      "id": "buffet-menu-form",
+      "title": "Formulário menu buffet",
+      "steps": [
+        "Adicionar/editar menu.",
+        "Tipo sessão e linhas receita.",
+        "Salvar."
+      ],
+      "image": "inventory-buffet-menu-form.png",
+      "caption": "Formulário menu buffet.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Rótulo ao iniciar sessão."
+        },
+        {
+          "name": "Código",
+          "effect": "Sigla opcional."
+        },
+        {
+          "name": "Tipo sessão",
+          "effect": "Café/almoço/jantar."
+        },
+        {
+          "name": "Linhas receita",
+          "effect": "Receita e qty por convidado."
+        },
+        {
+          "name": "Ativo",
+          "effect": "Só menus ativos na configuração."
+        }
+      ]
+    },
+    {
+      "id": "buffet-sessions",
+      "title": "Sessões buffet",
+      "steps": [
+        "Buffet → Sessões.",
+        "Inicie sessão do menu.",
+        "Monitore produção vs previsão.",
+        "Feche sessão."
+      ],
+      "image": "inventory-buffet-sessions.png",
+      "caption": "Painel sessões buffet.",
+      "fields": []
+    },
+    {
+      "id": "buffet-session-form",
+      "title": "Iniciar sessão buffet",
+      "steps": [
+        "Nova sessão.",
+        "Menu, local, data, tipo.",
+        "Convidados e preço.",
+        "Salvar."
+      ],
+      "image": "inventory-buffet-session-form.png",
+      "caption": "Formulário nova sessão.",
+      "fields": [
+        {
+          "name": "Menu",
+          "effect": "Carrega linhas e previsões."
+        },
+        {
+          "name": "Local",
+          "effect": "Depósito de movimentos."
+        },
+        {
+          "name": "Data operacional",
+          "effect": "Dia comercial."
+        },
+        {
+          "name": "Tipo sessão",
+          "effect": "Alinha ao menu."
+        },
+        {
+          "name": "Convidados esperados",
+          "effect": "Previsões iniciais."
+        },
+        {
+          "name": "Preço buffet",
+          "effect": "Receita por convidado."
+        }
+      ]
+    }
+  ]
+}

@@ -108,7 +108,7 @@ export const AdminPrinters = () => {
               module: 'admin.printers.create',
               description: getAccessRuleChildLabel('admin.printers.create'),
             });
-          }} icon={faPlus}>{t('buttons.printer')}</Button>
+          }} icon={faPlus} data-testid="admin-add-printers">{t('buttons.printer')}</Button>
         ]}
       />
 

@@ -1,0 +1,123 @@
+{
+  "title": "Ödeme profilleri ve kuralları",
+  "intro": "Temel ücretler ve prim kuralları.",
+  "sections": [
+    {
+      "id": "pay-profiles",
+      "title": "Ödeme profilleri",
+      "steps": [
+        "İK → Ödeme → Profiller.",
+        "Çalışan bazlı temel ücret.",
+        "Bordro hesaplamasını besler."
+      ],
+      "image": "hr-pay-profiles.png",
+      "caption": "Ödeme profili listesi.",
+      "fields": []
+    },
+    {
+      "id": "pay-profile-form",
+      "title": "Ödeme profili formu",
+      "steps": [
+        "Profil ekle/düzenle.",
+        "Ödeme tipi ve temel ücret.",
+        "Kaydet."
+      ],
+      "image": "hr-form-pay-profile.png",
+      "caption": "Ödeme profili formu.",
+      "fields": [
+        {
+          "name": "Çalışan",
+          "effect": "Bu temel ücreti alan personel."
+        },
+        {
+          "name": "Ödeme tipi",
+          "effect": "Saatlik, maaş, sözleşme, komisyon veya karma."
+        },
+        {
+          "name": "Temel ücret",
+          "effect": "Ana ücret veya maaş tutarı."
+        },
+        {
+          "name": "Para birimi",
+          "effect": "ISO para birimi."
+        },
+        {
+          "name": "Geçerlilik başlangıcı",
+          "effect": "Profilin ilk günü."
+        },
+        {
+          "name": "Geçerlilik bitişi",
+          "effect": "İsteğe bağlı bitiş."
+        }
+      ]
+    },
+    {
+      "id": "pay-rules",
+      "title": "Ödeme kuralları",
+      "steps": [
+        "Ödeme → Kurallar.",
+        "Öncelik ve yığınlama modları.",
+        "Çalışan/departman/tatil filtreleri."
+      ],
+      "image": "hr-pay-rules.png",
+      "caption": "Ödeme kuralları listesi.",
+      "fields": []
+    },
+    {
+      "id": "pay-rule-form",
+      "title": "Ödeme kuralı formu",
+      "intro": "Etkiler ve uygunluk filtreleri içerir.",
+      "steps": [
+        "Kod ve ad ile kural ekle.",
+        "Etkileri tanımla.",
+        "Tarih/saat filtreleri.",
+        "Çalışan/departman ata.",
+        "Kaydet."
+      ],
+      "image": "hr-form-pay-rule.png",
+      "caption": "Etkili kural formu.",
+      "fields": [
+        {
+          "name": "Kod",
+          "effect": "Benzersiz kural kimliği."
+        },
+        {
+          "name": "Ad",
+          "effect": "Admin listede etiket."
+        },
+        {
+          "name": "Öncelik",
+          "effect": "Yığınlama önceliği."
+        },
+        {
+          "name": "Yığınlama modu",
+          "effect": "Diğer kurallarla etkileşim."
+        },
+        {
+          "name": "Etkiler",
+          "effect": "Çarpan veya tutar ayarları."
+        },
+        {
+          "name": "Çalışan/departman/pozisyon/maliyet merkezi filtreleri",
+          "effect": "Kapsamı sınırlar."
+        },
+        {
+          "name": "Tarih ve saat penceresi",
+          "effect": "İsteğe bağlı aralık."
+        },
+        {
+          "name": "Haftanın günleri / aylar",
+          "effect": "Takvim kısıtları."
+        },
+        {
+          "name": "Tatiller",
+          "effect": "Seçili resmi tatiller."
+        },
+        {
+          "name": "Fazla mesai (gün/hafta)",
+          "effect": "Eşik aşımında tetiklenir."
+        }
+      ]
+    }
+  ]
+}

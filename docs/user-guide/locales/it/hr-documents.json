@@ -1,0 +1,52 @@
+{
+  "title": "Documenti dipendente",
+  "intro": "Archivia contratti, documenti e licenze con scadenze.",
+  "sections": [
+    {
+      "id": "documents",
+      "title": "Elenco documenti",
+      "steps": [
+        "HR → Documenti.",
+        "Filtra dipendente/categoria.",
+        "Carica o aggiorna."
+      ],
+      "image": "hr-documents-list.png",
+      "caption": "Scheda documenti dipendente.",
+      "fields": []
+    },
+    {
+      "id": "document-form",
+      "title": "Modulo documento",
+      "steps": [
+        "Aggiungi documento.",
+        "Dipendente, titolo, categoria.",
+        "Allega file e scadenza.",
+        "Salva."
+      ],
+      "image": "hr-form-document.png",
+      "caption": "Modulo upload documento.",
+      "fields": [
+        {
+          "name": "Dipendente",
+          "effect": "Proprietario record."
+        },
+        {
+          "name": "Titolo",
+          "effect": "Nome in elenchi."
+        },
+        {
+          "name": "Categoria",
+          "effect": "Contratto, certificato, licenza, ID, medico, avviso o altro."
+        },
+        {
+          "name": "Scade il",
+          "effect": "Data opzionale promemoria."
+        },
+        {
+          "name": "Allega file",
+          "effect": "Obbligatorio in creazione."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,157 @@
+{
+  "title": "Users and roles",
+  "intro": "Manage staff accounts, PINs, role permissions, shifts, and tip-pool definitions that control who can access each screen and tab.",
+  "sections": [
+    {
+      "id": "list",
+      "title": "User list",
+      "steps": [
+        "Open the Users tab.",
+        "Browse active users with name, role, and contact fields.",
+        "Use Add user to create a new account or Edit to update an existing one."
+      ],
+      "image": "admin-users-list.png",
+      "caption": "Users maintenance table."
+    },
+    {
+      "id": "roles",
+      "title": "Roles",
+      "intro": "Roles bundle permission modules that gate sidebar screens, Manage tabs, and protected actions.",
+      "steps": [
+        "Switch to the Roles sub-tab under Users.",
+        "Create roles and open the module list to enable or disable access.",
+        "Assign roles to users so permissions stay consistent across staff."
+      ],
+      "image": "admin-users-roles.png",
+      "caption": "Roles sub-tab."
+    },
+    {
+      "id": "shifts",
+      "title": "Shifts",
+      "intro": "Shifts define work windows used for labor reporting and automatic clock-out rules.",
+      "steps": [
+        "Switch to the Shifts sub-tab.",
+        "Add shift names with start and end times.",
+        "Assign shifts to users for scheduling and tip-distribution context."
+      ],
+      "image": "admin-users-shifts.png",
+      "caption": "Shifts sub-tab."
+    },
+    {
+      "id": "tips-definition",
+      "title": "Definición de propinas (distribución)",
+      "intro": "Configure cómo se ponderan las propinas agrupadas por roles y usuarios para informes de liquidación.",
+      "steps": [
+        "Usuarios → Definición de propinas.",
+        "Agregue filas de rol con porcentajes o puntos de peso.",
+        "Opcionalmente agregue anulaciones por usuario.",
+        "Guarde — informes de distribución usan estos pesos."
+      ],
+      "image": "admin-users-tips-definition.png",
+      "caption": "Panel admin distribución de propinas.",
+      "fields": [
+        {
+          "name": "Peso por rol",
+          "effect": "Participación del fondo por rol (p. ej., mesero 70%, busser 30%)."
+        },
+        {
+          "name": "Peso por usuario",
+          "effect": "Anulación opcional del default del rol."
+        }
+      ]
+    },
+    {
+      "id": "user-form",
+      "title": "Formulario de usuario",
+      "intro": "Operadores POS inician con PIN o contraseña y heredan permisos de rol.",
+      "steps": [
+        "Admin → Usuarios y agregue o edite.",
+        "Defina método login, nombre, credenciales, rol y turno.",
+        "Opcionalmente cree empleado RR. HH. vinculado.",
+        "Guarde — puede iniciar sesión con permisos asignados."
+      ],
+      "image": "admin-users-user-form.png",
+      "caption": "Formulario de cuenta de usuario.",
+      "fields": [
+        {
+          "name": "Método de login",
+          "effect": "PIN (4 dígitos) o contraseña."
+        },
+        {
+          "name": "Nombre / apellido",
+          "effect": "Nombre en cuentas e informes."
+        },
+        {
+          "name": "Login / PIN",
+          "effect": "Credencial de inicio de sesión."
+        },
+        {
+          "name": "Contraseña",
+          "effect": "Obligatoria si login es contraseña."
+        },
+        {
+          "name": "Rol de usuario",
+          "effect": "Paquete de permisos de módulos."
+        },
+        {
+          "name": "Turno de usuario",
+          "effect": "Turno predeterminado para informes laborales."
+        },
+        {
+          "name": "Crear empleado",
+          "effect": "Auto-crea empleado HR vinculado."
+        }
+      ]
+    },
+    {
+      "id": "role-form",
+      "title": "Formulario de rol",
+      "intro": "Los roles otorgan acceso a módulos y acciones vía protectAction.",
+      "steps": [
+        "Usuarios → Roles.",
+        "Nombre el rol y busque en el árbol de módulos.",
+        "Marque módulos padre o acciones individuales.",
+        "Guarde — asigne el rol en usuarios."
+      ],
+      "image": "admin-users-role-form.png",
+      "caption": "Editor de permisos de rol.",
+      "fields": [
+        {
+          "name": "Nombre",
+          "effect": "Etiqueta del rol en formulario de usuario."
+        },
+        {
+          "name": "Permisos de módulo",
+          "effect": "Casillas jerárquicas de pantallas y sub-acciones."
+        }
+      ]
+    },
+    {
+      "id": "shift-form",
+      "title": "Formulario de plantilla de turno",
+      "intro": "Turnos en Admin → Usuarios definen ventanas horarias para turno predeterminado y plantillas RR. HH.",
+      "steps": [
+        "Usuarios → Turnos.",
+        "Ingrese nombre, hora inicio y fin.",
+        "Turnos nocturnos activan ends_next_day automáticamente.",
+        "Guarde — seleccionable en usuarios y horarios."
+      ],
+      "image": "admin-users-shift-form.png",
+      "caption": "Formulario plantilla de turno.",
+      "fields": [
+        {
+          "name": "Nombre",
+          "effect": "Etiqueta (p. ej., Mañana, Cierre)."
+        },
+        {
+          "name": "Hora inicio",
+          "effect": "Inicio programado."
+        },
+        {
+          "name": "Hora fin",
+          "effect": "Fin programado; puede pasar al día siguiente."
+        }
+      ]
+    }
+  ]
+}

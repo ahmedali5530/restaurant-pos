@@ -1,0 +1,40 @@
+{
+  "title": "Boekhouding overzicht",
+  "intro": "Boekhouding is het financiële hub: rekeningschema, journaal, grootboek en overzichten.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Boekhouding openen",
+      "steps": [
+        "Log in met boekhoudtoegang.",
+        "Tik op Boekhouding.",
+        "Opent op Rekeningschema."
+      ],
+      "image": "accounts-overview.png",
+      "caption": "Boekhoudscherm."
+    },
+    {
+      "id": "tabs",
+      "title": "Tabnavigatie",
+      "intro": "Tabs groeperen setup, boekingen en rapporten.",
+      "steps": [
+        "Scroll horizontaal.",
+        "Setup: Schema en Groepen.",
+        "Rapporten: Grootboek, Proefbalans, Balans."
+      ],
+      "image": "accounts-tabs.png",
+      "caption": "Boekhouding tabbalk."
+    },
+    {
+      "id": "chart",
+      "title": "Rekeningschema",
+      "steps": [
+        "Beheer GL-rekeningen.",
+        "Voeg codes en typen toe.",
+        "Structuur voedt boeken en staten."
+      ],
+      "image": "accounts-chart.png",
+      "caption": "Rekeningschema-paneel."
+    }
+  ]
+}

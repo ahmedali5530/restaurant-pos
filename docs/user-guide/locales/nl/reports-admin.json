@@ -1,0 +1,75 @@
+{
+  "title": "Rapporteragehub (beheerderspakketten)",
+  "intro": "Beheerders gebruiken dezelfde Rapporthub, met diepere pakketten: voorraad, arbeid, producten en belasting.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Beheerder rapportlayout",
+      "steps": [
+        "Tik op Rapporten.",
+        "Categorieën omvatten Voorraad, Arbeid, Producten, Verkoop.",
+        "Middenkolom toont rapporten; rechterpaneel filters."
+      ],
+      "image": "reports-admin-overview.png",
+      "caption": "Rapporthub voor beheerderspakketten."
+    },
+    {
+      "id": "inventory",
+      "title": "Voorraadpakket",
+      "intro": "Dekt voorraad, inkopen, uitgiftes, afval, verbruik, productie en buffet.",
+      "steps": [
+        "Selecteer Voorraad.",
+        "Kies Huidige voorraad of Inkopen.",
+        "Stel locatie en datums in en voer uit."
+      ],
+      "image": "reports-admin-inventory.png",
+      "caption": "Voorraad rapportpakket."
+    },
+    {
+      "id": "inventory-filters",
+      "title": "Voorraadfilters",
+      "steps": [
+        "Na rapportkeuze toont het paneel filters.",
+        "Pas datums, locaties of artikelen aan.",
+        "Voer uit of exporteer wanneer filters kloppen."
+      ],
+      "image": "reports-admin-inventory-filters.png",
+      "caption": "Voorraad filterpaneel."
+    },
+    {
+      "id": "labor",
+      "title": "Arbeidspakket",
+      "intro": "Vat kosten, overwerk, aanwezigheid, payroll en gepland vs werkelijk samen.",
+      "steps": [
+        "Selecteer Arbeid.",
+        "Open Dashboard of Dagelijkse kosten.",
+        "Gebruik Aanwezigheid of Payrollsamenvatting voor detail."
+      ],
+      "image": "reports-admin-labor.png",
+      "caption": "Arbeid rapportpakket."
+    },
+    {
+      "id": "products",
+      "title": "Productenpakket",
+      "steps": [
+        "Selecteer Producten.",
+        "Gebruik productmix samenvatting of wekelijks.",
+        "Producten per uur toont snelheid."
+      ],
+      "image": "reports-admin-products.png",
+      "caption": "Producten rapportpakket."
+    },
+    {
+      "id": "tax",
+      "title": "Belastingfilters",
+      "intro": "Belasting zit onder Verkoop; voor reconciliatie van geïnde belasting.",
+      "steps": [
+        "Open Verkoop, dan Belasting.",
+        "Stel de periode in.",
+        "Voer uit voor audit."
+      ],
+      "image": "reports-admin-tax-filters.png",
+      "caption": "Belasting filterpaneel."
+    }
+  ]
+}

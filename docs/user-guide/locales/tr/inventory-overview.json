@@ -1,0 +1,40 @@
+{
+  "title": "Stok genel bakış",
+  "intro": "Stok, depo merkezi: mevcut miktarlar, ürünler, satın almalar, çıkışlar, fireler ve sayımlar. Stok erişimi olan roller yan menüden açar.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Stoku aç",
+      "steps": [
+        "Stok (depo) erişimi olan kullanıcıyla giriş yapın.",
+        "Yan menüde Stok'a dokunun.",
+        "Ekran varsayılan olarak mevcut stok özetinde açılır."
+      ],
+      "image": "inventory-overview.png",
+      "caption": "Sekme çubuğu ve özet paneliyle Stok ekranı."
+    },
+    {
+      "id": "tabs",
+      "title": "Sekme gezinmesi",
+      "intro": "Sekmeler ana verileri ve stok belgelerini gruplar. Değiştirmek yönetici PIN'i gerektirebilir.",
+      "steps": [
+        "Çok sekme varken yatay kaydırın.",
+        "Her sekme kendi listesini açar.",
+        "Seçili sekme birincil gradyanla vurgulanır."
+      ],
+      "image": "inventory-tabs.png",
+      "caption": "Stok sekme çubuğu."
+    },
+    {
+      "id": "summary",
+      "title": "Mevcut stok özeti",
+      "steps": [
+        "Stok sekmesi ürün ve lokasyona göre eldeki miktarları gösterir.",
+        "Düşük stok veya belirli ürünler için arama kullanın.",
+        "Diğer sekmeler satın alma, çıkış, fire ve düzeltmeleri yönetir."
+      ],
+      "image": "inventory-summary.png",
+      "caption": "Mevcut stok özet tablosu."
+    }
+  ]
+}

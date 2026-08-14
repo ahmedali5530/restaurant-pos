@@ -254,7 +254,7 @@ export const AdminDishes = () => {
               module: 'admin.dishes.create',
               description: getAccessRuleChildLabel('admin.dishes.create'),
             });
-          }} icon={faPlus}>{t('buttons.dish')}</Button>
+          }} icon={faPlus} data-testid="admin-add-dishes">{t('buttons.dish')}</Button>
         ]}
         customSearch
         customSearchHandler={(value) => {

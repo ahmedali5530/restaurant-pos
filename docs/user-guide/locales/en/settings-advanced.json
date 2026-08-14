@@ -1,0 +1,106 @@
+{
+  "title": "Advanced device settings",
+  "intro": "Administrators use Settings for venue-wide operational controls: closing cycle, auto check close, session security, auto clock-out, service charges, active menus, inventory preferences, and printers. Open Settings with the wrench on the sidebar.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Settings for administrators",
+      "steps": [
+        "Sign in with a user that can change venue settings.",
+        "Open Settings from the wrench control.",
+        "Focus on cards that affect the whole venue, not only this browser's language or touch preference."
+      ],
+      "image": "settings-adv-overview.png",
+      "caption": "Settings page — advanced / venue cards."
+    },
+    {
+      "id": "closing-cycle",
+      "title": "Closing cycle",
+      "intro": "Defines the business-day window used for closing and day-range operations.",
+      "steps": [
+        "Enable a custom cycle when the venue runs overnight.",
+        "Set start and end times for the business day.",
+        "Save (manager approval may be required)."
+      ],
+      "image": "settings-adv-closing-cycle.png",
+      "caption": "Closing cycle card."
+    },
+    {
+      "id": "auto-check-close",
+      "title": "Auto check close",
+      "steps": [
+        "Enable automatic settlement of open checks at cycle end.",
+        "Choose whether to print and which payment type to use.",
+        "Save when finished."
+      ],
+      "image": "settings-adv-auto-check-close.png",
+      "caption": "Auto check close card."
+    },
+    {
+      "id": "session-security",
+      "title": "Session security",
+      "steps": [
+        "Enable idle lock or logout for unattended terminals.",
+        "Set idle minutes and the action (lock vs logout).",
+        "Save (manager approval may be required)."
+      ],
+      "image": "settings-adv-session-security.png",
+      "caption": "Session security card."
+    },
+    {
+      "id": "auto-clock-out",
+      "title": "Auto clock-out",
+      "steps": [
+        "Enable automatic clock-out for labor accuracy.",
+        "Choose triggers: shift end, defined time, or both.",
+        "Save when finished."
+      ],
+      "image": "settings-adv-auto-clock-out.png",
+      "caption": "Auto clock-out card."
+    },
+    {
+      "id": "service-charges",
+      "title": "Service charges",
+      "steps": [
+        "Set default service charge type (percent or fixed) and value.",
+        "These defaults apply when service charge is used on payment.",
+        "Save (manager approval may be required)."
+      ],
+      "image": "settings-adv-service-charges.png",
+      "caption": "Service charges card."
+    },
+    {
+      "id": "menus",
+      "title": "Active menus",
+      "steps": [
+        "Select which menus this terminal can sell from.",
+        "Save so floor staff see the correct categories and dishes.",
+        "Combine with Manage → Menus for full menu maintenance."
+      ],
+      "image": "settings-adv-menus.png",
+      "caption": "Menus card."
+    },
+    {
+      "id": "inventory",
+      "title": "Inventory settings",
+      "steps": [
+        "Configure inventory-related device preferences used by stock flows.",
+        "Save when finished.",
+        "Deep inventory documents live under the Inventory sidebar."
+      ],
+      "image": "settings-adv-inventory.png",
+      "caption": "Inventory settings card."
+    },
+    {
+      "id": "printers",
+      "title": "Printers",
+      "steps": [
+        "Assign receipt, kitchen, and other printers for this device.",
+        "Save so tickets and receipts print to the correct hardware.",
+        "Print options on neighboring cards control what is printed."
+      ],
+      "image": "settings-adv-printers.png",
+      "caption": "Printers card."
+    }
+  ]
+}

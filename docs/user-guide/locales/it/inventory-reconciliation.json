@@ -1,0 +1,77 @@
+{
+  "title": "Riconciliazione cucina",
+  "intro": "Confronta l'uso teorico con conteggi fisici per sede e data operativa.",
+  "sections": [
+    {
+      "id": "reconciliation",
+      "title": "Scheda Riconciliazione",
+      "intro": "Genera griglia da vendite POS e ricette; inserisci o importa conteggi.",
+      "steps": [
+        "Magazzino → Riconciliazione cucina.",
+        "Seleziona sede e data operativa.",
+        "Clicca Genera.",
+        "Inserisci quantità reali o importa CSV.",
+        "Salva bozza, rivedi scostamenti, Verifica."
+      ],
+      "image": "inventory-reconciliation-overview.png",
+      "caption": "Barra, griglia e pannello scostamenti.",
+      "fields": [
+        {
+          "name": "Sede",
+          "effect": "Cucina o deposito riconciliato."
+        },
+        {
+          "name": "Data operativa",
+          "effect": "Giorno commerciale del rapprochement."
+        },
+        {
+          "name": "Genera",
+          "effect": "Crea righe da vendite e ricette."
+        },
+        {
+          "name": "Quantità reale",
+          "effect": "Conteggio fisico per articolo."
+        },
+        {
+          "name": "Verifica",
+          "effect": "Blocca dopo approvazione manager."
+        }
+      ]
+    },
+    {
+      "id": "reconciliation-form",
+      "title": "Inserimento conteggio manuale",
+      "intro": "Modifica griglia e import CSV condividono struttura righe.",
+      "steps": [
+        "Clicca cella Reale per conteggio.",
+        "Salva bozza senza verificare.",
+        "Import CSV massivo.",
+        "Rivedi scostamenti prima di verificare."
+      ],
+      "image": "inventory-reconciliation-form.png",
+      "caption": "Griglia con modifica quantità reale.",
+      "fields": [
+        {
+          "name": "Articolo",
+          "effect": "Articolo magazzino sulla riga."
+        },
+        {
+          "name": "Teorico",
+          "effect": "Uso calcolato da ricette e vendite."
+        },
+        {
+          "name": "Reale",
+          "effect": "Quantità contata inserita."
+        },
+        {
+          "name": "Scostamento",
+          "effect": "Differenza reale vs teorico."
+        },
+        {
+          "name": "Note",
+          "effect": "Spiegazione opzionale."
+        }
+      ]
+    }
+  ]
+}

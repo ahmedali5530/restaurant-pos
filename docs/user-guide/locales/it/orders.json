@@ -1,86 +1,202 @@
 {
-  "title": "Ordini",
-  "intro": "La schermata Ordini elenca conti aperti e recenti per pagare, stampare, dividere, unire, annullare o rimborsare.",
+  "title": "Orders",
+  "intro": "The Orders screen lists open and recent checks so you can pay, print, split, merge, cancel, or refund without returning to the floor plan.",
   "sections": [
     {
       "id": "overview",
-      "title": "Layout ordini",
+      "title": "Orders layout",
+      "intro": "Open Orders from the left sidebar. Filters sit at the top; order cards (or table rows) fill the main area.",
       "steps": [
-        "Apri Ordini.",
-        "Filtra per stato, tipo, piano, utente, data.",
-        "Blocchi o Tabella."
+        "Tap Orders in the sidebar.",
+        "Use filters to narrow by status, order type, floor, user, and date.",
+        "Switch between Blocks and Table views with the toolbar buttons."
       ],
       "image": "orders-overview.png",
-      "caption": "Orders screen with filters and cards.",
-      "intro": "Apri Ordini dalla sidebar. Filtri in alto; card o righe."
+      "caption": "Orders screen with filters and cards."
     },
     {
       "id": "filters",
-      "title": "Filtri",
+      "title": "Filters",
       "steps": [
-        "Stato: In corso, Pagato, Annullato, Diviso, Unito.",
-        "Tipo, piano e utente.",
-        "Data del giorno; In corso può restare."
+        "Status: In Progress, Paid, Cancelled, Split, Merged (multi-select).",
+        "Order type, floor, and user filters limit who and where.",
+        "The date picker shows paid/historical checks for that day; In Progress still appears when relevant."
       ],
       "image": "orders-filters.png",
       "caption": "Orders filter bar."
     },
     {
       "id": "toolbar",
-      "title": "Barra strumenti",
+      "title": "Toolbar",
       "steps": [
-        "Apri cassetto (PIN possibile).",
-        "Blocchi = card.",
-        "Tabella = lista."
+        "Open cash drawer pulses the cash drawer when printing and permissions allow it (may require manager PIN).",
+        "Blocks shows large order cards.",
+        "Table shows a compact list (tap an In Progress row to pay)."
       ],
       "image": "orders-toolbar.png",
       "caption": "Cash drawer and view toggles."
     },
     {
       "id": "card",
-      "title": "Card ordine",
+      "title": "Order card",
+      "intro": "Each card shows header, times, line items, totals, and action buttons for In Progress checks.",
       "steps": [
-        "Controlla fattura, tavolo, stato e voci.",
-        "Conto temp e Paga se In corso.",
-        "⋯ annulla, dividi, unisci, KOT."
+        "Review invoice number, table, status, server, and items.",
+        "Temp bill (print) and Pay (card icon) appear for In Progress orders.",
+        "Use the ⋯ menu for cancel, split, merge, and kitchen print."
       ],
       "image": "orders-card.png",
-      "caption": "Order card with items and actions.",
-      "intro": "Intestazione, tempi, righe, totali e azioni."
+      "caption": "Order card with items and actions."
     },
     {
       "id": "card-actions",
-      "title": "Azioni card",
+      "title": "Card actions",
       "steps": [
-        "Temp stampa provvisorio.",
-        "Paga apre pagamento.",
-        "⋯ altre azioni."
+        "Temp bill prints a provisional check when allowed.",
+        "Pay opens the full payment screen for that order.",
+        "⋯ opens more actions (see next section)."
       ],
       "image": "orders-card-actions.png",
       "caption": "Print, Pay, and more on a card."
     },
     {
       "id": "menu",
-      "title": "Menu ⋯ (In corso)",
+      "title": "More menu (In Progress)",
+      "intro": "Protected actions may ask for a manager PIN.",
       "steps": [
-        "Annulla.",
-        "Dividi posti/voci/importo.",
-        "Unisci.",
-        "Stampa copia KOT."
+        "Cancel order voids the check through the cancel flow.",
+        "Split by seats, items, or amount divides one check into multiple.",
+        "Merge selects this order for multi-table merge (finish with Choose table on the bottom bar).",
+        "Print KOT copy re-fires kitchen tickets when needed."
       ],
       "image": "orders-card-menu.png",
-      "caption": "Order more-actions menu.",
-      "intro": "Azioni protette possono richiedere PIN."
+      "caption": "Order more-actions menu."
     },
     {
       "id": "table-view",
-      "title": "Vista tabella",
+      "title": "Table view",
       "steps": [
-        "Vista tabella.",
-        "Tocca In corso per pagare."
+        "Switch to Table for a dense list of today’s matching orders.",
+        "Tap an In Progress row to open payment quickly."
       ],
       "image": "orders-table-view.png",
       "caption": "Orders table view."
+    },
+    {
+      "id": "cancel-void",
+      "title": "Annulla o void ordine",
+      "intro": "Annulla uno scontrino In corso. Void totale cancella tutte le righe; parziale solo quelle selezionate.",
+      "steps": [
+        "Apri ⋯ su ordine In corso e scegli Annulla ordine.",
+        "Scegli un motivo void (obbligatorio per report).",
+        "Lascia Seleziona tutti per void totale o scegli righe specifiche.",
+        "Conferma per void e liberare il tavolo se applicabile."
+      ],
+      "image": "orders-cancel-modal.png",
+      "caption": "Modal annullamento con motivo e selezione.",
+      "fields": [
+        {
+          "name": "Motivo",
+          "effect": "Motivo void obbligatorio registrato sull'ordine."
+        },
+        {
+          "name": "Seleziona tutti gli articoli",
+          "effect": "Selezionato void intero scontrino; deselezionato per riga."
+        },
+        {
+          "name": "Void parziale",
+          "effect": "Void solo quantità selezionate mantenendo il resto aperto."
+        }
+      ]
+    },
+    {
+      "id": "refund",
+      "title": "Rimborsare ordine pagato",
+      "intro": "Emette rimborso su scontrino pagato, opzionalmente per righe selezionate.",
+      "steps": [
+        "Apri ordine Pagato e scegli Rimborso.",
+        "Seleziona righe e quantità.",
+        "Scegli motivo e conferma.",
+        "Il sistema registra il rimborso e aggiorna i totali."
+      ],
+      "image": "orders-refund-modal.png",
+      "caption": "Modal rimborso con selezione articoli.",
+      "fields": [
+        {
+          "name": "Articoli da rimborsare",
+          "effect": "Righe pagate e quantità restituite al cliente."
+        },
+        {
+          "name": "Motivo",
+          "effect": "Documenta il rimborso per revisione e report."
+        }
+      ]
+    },
+    {
+      "id": "split-seats",
+      "title": "Dividi per posti",
+      "intro": "Divide lo scontrino in conti separati per numero posto.",
+      "steps": [
+        "Da ⋯ scegli Dividi per posti.",
+        "Rivedi raggruppamento per posto.",
+        "Conferma per uno scontrino figlio per posto."
+      ],
+      "image": "orders-split-seats.png",
+      "caption": "Anteprima divisione per posti.",
+      "fields": []
+    },
+    {
+      "id": "split-items",
+      "title": "Dividi per articoli",
+      "intro": "Assegna manualmente righe a nuovi conti.",
+      "steps": [
+        "Da ⋯ scegli Dividi per articoli.",
+        "Sposta ogni riga in una colonna.",
+        "Conferma per scontrini In corso separati."
+      ],
+      "image": "orders-split-items.png",
+      "caption": "Griglia assegnazione articoli.",
+      "fields": []
+    },
+    {
+      "id": "split-amount",
+      "title": "Dividi per importo",
+      "intro": "Divide il totale in parti fisse o uguali.",
+      "steps": [
+        "Da ⋯ scegli Dividi per importo.",
+        "Inserisci parti o importi.",
+        "Conferma per scontrini figli per quota."
+      ],
+      "image": "orders-split-amount.png",
+      "caption": "Dialogo divisione per importo.",
+      "fields": []
+    },
+    {
+      "id": "merge",
+      "title": "Unisci ordini",
+      "intro": "Combina più conti In corso su un tavolo.",
+      "steps": [
+        "Sul primo ordine, ⋯ → Unisci.",
+        "Ripeti per ogni ordine aggiuntivo.",
+        "Tocca Scegli tavolo e seleziona.",
+        "Conferma unione."
+      ],
+      "image": "orders-merge-bar.png",
+      "caption": "Barra unione con selettore tavolo.",
+      "fields": [
+        {
+          "name": "Seleziona ordini",
+          "effect": "Segna ordine per unione in sospeso."
+        },
+        {
+          "name": "Scegli tavolo",
+          "effect": "Imposta tavolo per conto unito."
+        },
+        {
+          "name": "Conferma unione",
+          "effect": "Unisce conti selezionati in un ordine In corso."
+        }
+      ]
     }
   ]
 }

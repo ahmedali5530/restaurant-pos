@@ -1,0 +1,40 @@
+{
+  "title": "Visão geral de RH",
+  "intro": "RH cobre pessoas: funcionários, ponto, férias, escalas e folha.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Abrir RH",
+      "steps": [
+        "Entre com acesso RH.",
+        "Toque em RH na barra lateral.",
+        "Abre no Painel."
+      ],
+      "image": "hr-overview.png",
+      "caption": "Tela RH."
+    },
+    {
+      "id": "tabs",
+      "title": "Navegação por abas",
+      "intro": "Abas agrupam cadastros e processos.",
+      "steps": [
+        "Role horizontalmente.",
+        "Pessoas: Funcionários, Departamentos, Cargos.",
+        "Tempo: Ponto, Escalas, Férias, Feriados."
+      ],
+      "image": "hr-tabs.png",
+      "caption": "Barra de abas RH."
+    },
+    {
+      "id": "dashboard",
+      "title": "Painel",
+      "steps": [
+        "Resume métricas de RH.",
+        "Use como ponto de partida.",
+        "Outras abas gerenciam dados e operações."
+      ],
+      "image": "hr-dashboard.png",
+      "caption": "Painel RH."
+    }
+  ]
+}

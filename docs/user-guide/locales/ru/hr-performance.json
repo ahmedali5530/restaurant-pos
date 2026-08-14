@@ -1,0 +1,56 @@
+{
+  "title": "Заметки об эффективности",
+  "intro": "Фиксируйте предупреждения, похвалу и инциденты.",
+  "sections": [
+    {
+      "id": "performance",
+      "title": "Список performance",
+      "steps": [
+        "HR → Performance.",
+        "Просмотр по сотруднику/типу.",
+        "Добавляйте после инцидентов."
+      ],
+      "image": "hr-performance-list.png",
+      "caption": "Вкладка заметок.",
+      "fields": []
+    },
+    {
+      "id": "performance-form",
+      "title": "Форма заметки performance",
+      "steps": [
+        "Сотрудник, тип, заголовок, текст.",
+        "Severity при необходимости.",
+        "Visible to employee.",
+        "Сохранить."
+      ],
+      "image": "hr-form-performance.png",
+      "caption": "Форма performance note.",
+      "fields": [
+        {
+          "name": "Сотрудник",
+          "effect": "Субъект заметки."
+        },
+        {
+          "name": "Тип",
+          "effect": "Warning, compliment, review или incident."
+        },
+        {
+          "name": "Заголовок",
+          "effect": "Краткое резюме."
+        },
+        {
+          "name": "Содержание",
+          "effect": "Полный текст."
+        },
+        {
+          "name": "Severity",
+          "effect": "Low, medium, high или critical."
+        },
+        {
+          "name": "Visible to employee",
+          "effect": "Может показываться сотруднику."
+        }
+      ]
+    }
+  ]
+}

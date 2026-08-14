@@ -1,0 +1,40 @@
+{
+  "title": "Artikelen en stamgegevens",
+  "intro": "Beheer artikelen, categorieën en locaties voor waardering en documenten.",
+  "sections": [
+    {
+      "id": "items",
+      "title": "Artikelen",
+      "steps": [
+        "Open tabblad Artikelen.",
+        "Maak of bewerk artikelen met code, eenheid en leveranciers.",
+        "Artikelen verschijnen in inkopen, uitgiftes en samenvatting."
+      ],
+      "image": "inventory-items-list.png",
+      "caption": "Artikelen onderhoudstabel."
+    },
+    {
+      "id": "categories",
+      "title": "Artikelcategorieën",
+      "intro": "Categorieën groeperen artikelen voor filters en rapporten.",
+      "steps": [
+        "Open Artikelcategorieën.",
+        "Voeg categorieën toe voor keuken en magazijn.",
+        "Wijs toe op het artikelformulier."
+      ],
+      "image": "inventory-items-categories.png",
+      "caption": "Tabblad Artikelcategorieën."
+    },
+    {
+      "id": "locations",
+      "title": "Locaties",
+      "steps": [
+        "Open Locaties.",
+        "Definieer magazijnen, koelkasten of keukens.",
+        "Documenten verwijzen altijd naar een locatie."
+      ],
+      "image": "inventory-items-locations.png",
+      "caption": "Tabblad Locaties."
+    }
+  ]
+}

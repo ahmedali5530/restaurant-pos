@@ -1,0 +1,29 @@
+{
+  "title": "Salidas y devoluciones",
+  "intro": "Salga stock del almacén a cocinas o centros de costo, y devuelva stock no usado.",
+  "sections": [
+    {
+      "id": "issues",
+      "title": "Salidas",
+      "steps": [
+        "Abra la pestaña Salidas.",
+        "Cree un documento con destino (cocina o departamento) y líneas.",
+        "Guardar resta cantidad de la ubicación origen."
+      ],
+      "image": "inventory-issues-list.png",
+      "caption": "Lista de salidas."
+    },
+    {
+      "id": "returns",
+      "title": "Devoluciones de salida",
+      "intro": "Devuelva artículos emitidos no usados para que vuelvan al inventario.",
+      "steps": [
+        "Abra la pestaña Devoluciones de salida.",
+        "Seleccione la salida original o ingrese líneas de devolución.",
+        "Guardar suma cantidad de nuevo a la ubicación."
+      ],
+      "image": "inventory-issues-returns.png",
+      "caption": "Pestaña Devoluciones de salida."
+    }
+  ]
+}

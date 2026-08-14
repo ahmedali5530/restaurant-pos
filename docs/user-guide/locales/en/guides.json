@@ -18,7 +18,7 @@
     },
     "inventory": {
       "title": "Inventory Guide",
-      "intro": "Stock, purchases, issues, wastes, and inventory counts for the warehouse role."
+      "intro": "Stock, purchases, issues, wastes, counts, kitchen reconciliation, production, and buffet."
     },
     "accounts": {
       "title": "Accounts Guide",
@@ -26,7 +26,7 @@
     },
     "hr": {
       "title": "HR Guide",
-      "intro": "People operations: employees, attendance, leave, and tip distribution."
+      "intro": "People operations: employees, attendance, leave, payroll, documents, performance, and tip distribution."
     },
     "admin": {
       "title": "Administrator Guide",

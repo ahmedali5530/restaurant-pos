@@ -1,0 +1,123 @@
+{
+  "title": "Profils et règles de paie",
+  "intro": "Profils de base et règles de primes et retenues.",
+  "sections": [
+    {
+      "id": "pay-profiles",
+      "title": "Profils de paie",
+      "steps": [
+        "RH → Paie → Profils.",
+        "Taux de base par employé.",
+        "Alimente la paie."
+      ],
+      "image": "hr-pay-profiles.png",
+      "caption": "Liste profils paie.",
+      "fields": []
+    },
+    {
+      "id": "pay-profile-form",
+      "title": "Formulaire profil paie",
+      "steps": [
+        "Ajouter/modifier profil.",
+        "Type et taux de base.",
+        "Enregistrer."
+      ],
+      "image": "hr-form-pay-profile.png",
+      "caption": "Formulaire profil paie.",
+      "fields": [
+        {
+          "name": "Employé",
+          "effect": "Personnel recevant cette base."
+        },
+        {
+          "name": "Type paie",
+          "effect": "Horaire, salaire, contrat, commission ou mixte."
+        },
+        {
+          "name": "Taux base",
+          "effect": "Taux principal ou salaire."
+        },
+        {
+          "name": "Devise",
+          "effect": "Devise ISO."
+        },
+        {
+          "name": "Effectif du",
+          "effect": "Premier jour du profil."
+        },
+        {
+          "name": "Effectif au",
+          "effect": "Fin optionnelle."
+        }
+      ]
+    },
+    {
+      "id": "pay-rules",
+      "title": "Règles de paie",
+      "steps": [
+        "Paie → Règles.",
+        "Empilement par priorité.",
+        "Filtres employés/départements."
+      ],
+      "image": "hr-pay-rules.png",
+      "caption": "Liste règles paie.",
+      "fields": []
+    },
+    {
+      "id": "pay-rule-form",
+      "title": "Formulaire règle paie",
+      "intro": "Effets et filtres d'éligibilité.",
+      "steps": [
+        "Ajouter règle.",
+        "Définir effets.",
+        "Filtres date/heure.",
+        "Assigner employés.",
+        "Enregistrer."
+      ],
+      "image": "hr-form-pay-rule.png",
+      "caption": "Formulaire règle.",
+      "fields": [
+        {
+          "name": "Code",
+          "effect": "ID unique."
+        },
+        {
+          "name": "Nom",
+          "effect": "Libellé admin."
+        },
+        {
+          "name": "Priorité",
+          "effect": "Ordre empilement."
+        },
+        {
+          "name": "Mode empilement",
+          "effect": "Interaction règles."
+        },
+        {
+          "name": "Effets",
+          "effect": "Multiplicateurs ou montants."
+        },
+        {
+          "name": "Filtres employé/département/poste/centre coûts",
+          "effect": "Limite portée."
+        },
+        {
+          "name": "Fenêtre date/heure",
+          "effect": "Plage optionnelle."
+        },
+        {
+          "name": "Jours semaine / mois",
+          "effect": "Motifs calendrier."
+        },
+        {
+          "name": "Jours fériés",
+          "effect": "Fériés sélectionnés."
+        },
+        {
+          "name": "Heures sup (jour/semaine)",
+          "effect": "Seuils dépassés."
+        }
+      ]
+    }
+  ]
+}

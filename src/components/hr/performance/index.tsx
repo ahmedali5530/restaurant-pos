@@ -75,7 +75,7 @@ export const HrPerformance = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button key="performance-create" variant="primary" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
+          <Button key="performance-create" variant="primary" data-testid="hr-add-performance" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
             {t("buttons.performanceNote")}
           </Button>,
         ]}

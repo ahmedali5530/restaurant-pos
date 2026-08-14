@@ -1,0 +1,157 @@
+{
+  "title": "Employees",
+  "intro": "Maintain employee records and the organizational structure: departments and positions.",
+  "sections": [
+    {
+      "id": "employees",
+      "title": "Employee list",
+      "steps": [
+        "Open the Employees tab.",
+        "Add or edit employees with role, department, and contact details.",
+        "Employee records feed attendance, leave, and payroll tabs."
+      ],
+      "image": "hr-employees-list.png",
+      "caption": "Employees tab."
+    },
+    {
+      "id": "departments",
+      "title": "Departments",
+      "intro": "Departments group staff for reporting and cost allocation.",
+      "steps": [
+        "Open the Departments tab.",
+        "Create departments that match how the venue organizes teams.",
+        "Assign employees to departments on their employee form."
+      ],
+      "image": "hr-employees-departments.png",
+      "caption": "Departments tab."
+    },
+    {
+      "id": "positions",
+      "title": "Positions",
+      "steps": [
+        "Open the Positions tab.",
+        "Define job titles used on employee records and schedules.",
+        "Keep positions aligned with pay profiles when payroll is enabled."
+      ],
+      "image": "hr-employees-positions.png",
+      "caption": "Positions tab."
+    },
+    {
+      "id": "employee-form",
+      "title": "Medewerkerformulier",
+      "intro": "HR-record met POS-gebruiker en org-structuur.",
+      "steps": [
+        "Medewerkers → Toevoegen/bewerken.",
+        "Nummer, naam, details.",
+        "Koppel POS, afdeling, functie.",
+        "Opslaan."
+      ],
+      "image": "hr-form-employee.png",
+      "caption": "Modal medewerker.",
+      "fields": [
+        {
+          "name": "Medewerkernummer",
+          "effect": "Unieke id op roosters."
+        },
+        {
+          "name": "Voor- / achternaam",
+          "effect": "Juridische of voorkeursnaam."
+        },
+        {
+          "name": "Gekoppelde gebruiker",
+          "effect": "Optionele POS-login."
+        },
+        {
+          "name": "Afdeling",
+          "effect": "Org-eenheid."
+        },
+        {
+          "name": "Functie",
+          "effect": "Titel op roosters."
+        },
+        {
+          "name": "Kostenplaats",
+          "effect": "Standaard arbeidskosten."
+        },
+        {
+          "name": "Manager",
+          "effect": "Goedkeuringslijn."
+        },
+        {
+          "name": "Dienstverbandstatus",
+          "effect": "Actief, inactief, beëindigd, verlof of geschorst."
+        },
+        {
+          "name": "Dienstverbandtype",
+          "effect": "Uur, salaris, contract etc."
+        },
+        {
+          "name": "In dienst / uit",
+          "effect": "Diensttijd en geschiktheid."
+        }
+      ]
+    },
+    {
+      "id": "department-form",
+      "title": "Afdelingsformulier",
+      "steps": [
+        "Afdelingen of inline.",
+        "Code, naam, beschrijving.",
+        "Opslaan."
+      ],
+      "image": "hr-form-department.png",
+      "caption": "Afdelingsformulier.",
+      "fields": [
+        {
+          "name": "Code",
+          "effect": "Korte id integraties."
+        },
+        {
+          "name": "Naam",
+          "effect": "Weergavenaam."
+        },
+        {
+          "name": "Beschrijving",
+          "effect": "Optionele notities."
+        },
+        {
+          "name": "Actief",
+          "effect": "Inactief verborgen bij nieuwe toewijzingen."
+        }
+      ]
+    },
+    {
+      "id": "position-form",
+      "title": "Functieformulier",
+      "steps": [
+        "Functies of inline.",
+        "Code, naam, afdeling, kostenplaats.",
+        "Opslaan."
+      ],
+      "image": "hr-form-position.png",
+      "caption": "Functieformulier.",
+      "fields": [
+        {
+          "name": "Code",
+          "effect": "Jobcode loonexport."
+        },
+        {
+          "name": "Naam",
+          "effect": "Titel HR en roosters."
+        },
+        {
+          "name": "Afdeling",
+          "effect": "Standaard org-eenheid."
+        },
+        {
+          "name": "Standaard kostenplaats",
+          "effect": "Vooringevuld op roosters."
+        },
+        {
+          "name": "Actief",
+          "effect": "Pensioneert niet meer gebruikte titels."
+        }
+      ]
+    }
+  ]
+}

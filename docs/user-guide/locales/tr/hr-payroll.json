@@ -1,0 +1,133 @@
+{
+  "title": "Bordro dönemleri ve çalıştırmalar",
+  "intro": "Dönemleri kapatın, önizlemeli bordro oluşturun.",
+  "sections": [
+    {
+      "id": "payroll-periods",
+      "title": "Bordro dönemleri",
+      "steps": [
+        "İK → Bordro → Dönemler.",
+        "Ödeme döngüsüne göre dönem oluşturun.",
+        "Final öncesi kilitleyin."
+      ],
+      "image": "hr-payroll-periods.png",
+      "caption": "Bordro dönem listesi.",
+      "fields": []
+    },
+    {
+      "id": "payroll-period-form",
+      "title": "Bordro dönemi formu",
+      "steps": [
+        "Ad, tip, tarih aralığı.",
+        "Açık durumda bırakın.",
+        "Kilitli/Kapalı/Ödendi değiştirin."
+      ],
+      "image": "hr-form-payroll-period.png",
+      "caption": "Bordro dönemi formu.",
+      "fields": [
+        {
+          "name": "Dönem adı",
+          "effect": "Run ve dışa aktarmalarda etiket."
+        },
+        {
+          "name": "Dönem tipi",
+          "effect": "Haftalık, iki haftalık, aylık veya özel."
+        },
+        {
+          "name": "Başlangıç",
+          "effect": "Dönemin ilk günü."
+        },
+        {
+          "name": "Bitiş",
+          "effect": "Dönemin son günü."
+        },
+        {
+          "name": "Durum",
+          "effect": "Açık düzenlemeye izin verir; kilitli/kapalı kısıtlar."
+        }
+      ]
+    },
+    {
+      "id": "payroll-runs",
+      "title": "Bordro çalıştırmaları",
+      "steps": [
+        "Bordro → Çalıştırmalar.",
+        "Önizleme oluşturun.",
+        "Anlık görüntüleri inceleyin."
+      ],
+      "image": "hr-payroll-runs.png",
+      "caption": "Dönem bordro çalıştırmaları.",
+      "fields": []
+    },
+    {
+      "id": "payroll-run-form",
+      "title": "Bordro çalıştırması oluştur",
+      "steps": [
+        "Yeni çalıştırma.",
+        "Açık dönem seçin.",
+        "Önizleme oluşturun."
+      ],
+      "image": "hr-form-payroll-run.png",
+      "caption": "Yeni bordro çalıştırma formu.",
+      "fields": [
+        {
+          "name": "Bordro dönemi",
+          "effect": "Dahil saat ve düzeltmeleri belirler."
+        },
+        {
+          "name": "Çalıştırma no",
+          "effect": "Aynı dönemde sıralı kimlik."
+        }
+      ]
+    },
+    {
+      "id": "adjustments",
+      "title": "Bordro düzeltmeleri",
+      "steps": [
+        "Bordro → Düzeltmeler.",
+        "Bonus/ceza/ödenek ekleyin.",
+        "Döneme bağlayın."
+      ],
+      "image": "hr-payroll-adjustments.png",
+      "caption": "İş gücü düzeltme listesi.",
+      "fields": []
+    },
+    {
+      "id": "adjustment-form",
+      "title": "Düzeltme formu",
+      "steps": [
+        "Çalışan, tip, tutar, tarih.",
+        "İsteğe bağlı dönem.",
+        "Kaydet."
+      ],
+      "image": "hr-form-adjustment.png",
+      "caption": "Bordro düzeltme formu.",
+      "fields": [
+        {
+          "name": "Çalışan",
+          "effect": "Düzeltmeyi alan personel."
+        },
+        {
+          "name": "Bordro dönemi",
+          "effect": "İsteğe bağlı run bağlantısı."
+        },
+        {
+          "name": "Tip",
+          "effect": "Bonus, ceza, ödenek, iade, avans, kredi, düzeltme veya kesinti."
+        },
+        {
+          "name": "Tutar",
+          "effect": "Brüte eklenen/çıkarılan tutar."
+        },
+        {
+          "name": "Geçerlilik tarihi",
+          "effect": "Hangi run'a dahil olacağını belirler."
+        },
+        {
+          "name": "Açıklama",
+          "effect": "Bordro detayı ve denetim."
+        }
+      ]
+    }
+  ]
+}

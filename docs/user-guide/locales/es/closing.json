@@ -1,0 +1,51 @@
+{
+  "title": "Cierre",
+  "intro": "Cierre reconcilia efectivo y pagos al final del día. Cuente terminales, registre gastos y complete el ciclo.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Vista general de cierre",
+      "steps": [
+        "Pulse Cierre en la barra lateral.",
+        "El título muestra la fecha y la ventana del ciclo.",
+        "Alertas si el ciclo está desactivado o completado."
+      ],
+      "image": "closing-overview.png",
+      "caption": "Encabezado y ventana de cierre."
+    },
+    {
+      "id": "cash",
+      "title": "Saldos y efectivo en terminal",
+      "steps": [
+        "Ingrese saldo del día anterior y caja chica.",
+        "Cuente billetes y monedas por terminal.",
+        "Agregue o quite terminales según necesite."
+      ],
+      "image": "closing-terminal-cash.png",
+      "caption": "Sección de conteo de efectivo."
+    },
+    {
+      "id": "payments-expenses",
+      "title": "Pagos y gastos",
+      "steps": [
+        "Resumen de pagos lista cada tipo con totales del sistema.",
+        "Agregue gastos con descripción y monto.",
+        "Importe neto resume efectivo, otros pagos y gastos."
+      ],
+      "image": "closing-payments.png",
+      "caption": "Pagos y gastos."
+    },
+    {
+      "id": "actions",
+      "title": "Guardar, cerrar e imprimir",
+      "steps": [
+        "Guardar cierre almacena borrador sin cerrar el día.",
+        "Cerrar cierre completa el ciclo (sin órdenes abiertas).",
+        "Imprimir cierre envía resumen a impresora.",
+        "Reabrir aparece tras completar si su rol permite."
+      ],
+      "image": "closing-actions.png",
+      "caption": "Guardar, cerrar, imprimir y reabrir."
+    }
+  ]
+}

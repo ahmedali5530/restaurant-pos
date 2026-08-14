@@ -1,0 +1,40 @@
+{
+  "title": "Hesaplar genel bakış",
+  "intro": "Hesaplar finansal merkezdir: hesap planı, yevmiye, defterler ve tablolar. Hesap erişimiyle yan menüden açın.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Hesapları aç",
+      "steps": [
+        "Hesap erişimiyle giriş yapın.",
+        "Yan menüde Hesaplar'a dokunun.",
+        "Varsayılan olarak Hesap planı açılır."
+      ],
+      "image": "accounts-overview.png",
+      "caption": "Hesaplar ekranı."
+    },
+    {
+      "id": "tabs",
+      "title": "Sekme gezinmesi",
+      "intro": "Sekmeler kurulum, kayıt ve raporları gruplar.",
+      "steps": [
+        "Yatay kaydırın.",
+        "Kurulum: Hesap planı ve Gruplar.",
+        "Raporlar: Defter, Mizan, Bilanço."
+      ],
+      "image": "accounts-tabs.png",
+      "caption": "Hesaplar sekme çubuğu."
+    },
+    {
+      "id": "chart",
+      "title": "Hesap planı",
+      "steps": [
+        "Yevmiye ve raporlarda kullanılan GL hesaplarını yönetin.",
+        "Kod, ad ve türle hesap ekleyin.",
+        "Yapı defter ve tabloları besler."
+      ],
+      "image": "accounts-chart.png",
+      "caption": "Hesap planı paneli."
+    }
+  ]
+}

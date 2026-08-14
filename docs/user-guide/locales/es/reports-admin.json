@@ -1,0 +1,75 @@
+{
+  "title": "Centro de informes (paquetes de administrador)",
+  "intro": "Los administradores usan el mismo centro de Informes que los gerentes, con acceso a paquetes más profundos: inventario, labor, productos e impuestos.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Diseño de informes de administrador",
+      "steps": [
+        "Pulse Informes en la barra lateral.",
+        "Las categorías incluyen Inventario, Labor, Productos, Ventas y más.",
+        "La columna central lista reportes; el panel derecho tiene filtros."
+      ],
+      "image": "reports-admin-overview.png",
+      "caption": "Centro de informes para paquetes de administrador."
+    },
+    {
+      "id": "inventory",
+      "title": "Paquete Inventario",
+      "intro": "Cubre existencias, compras, salidas, mermas, consumo, producción y buffet.",
+      "steps": [
+        "Seleccione Inventario.",
+        "Elija un reporte como Inventario actual o Compras.",
+        "Configure ubicación y fechas, luego ejecute."
+      ],
+      "image": "reports-admin-inventory.png",
+      "caption": "Paquete de informes de inventario."
+    },
+    {
+      "id": "inventory-filters",
+      "title": "Filtros de inventario",
+      "steps": [
+        "Tras elegir el reporte, el panel derecho muestra filtros.",
+        "Ajuste fechas, ubicaciones o artículos.",
+        "Ejecute o exporte cuando los filtros respondan su pregunta."
+      ],
+      "image": "reports-admin-inventory-filters.png",
+      "caption": "Panel de filtros de inventario."
+    },
+    {
+      "id": "labor",
+      "title": "Paquete Labor",
+      "intro": "Resume costo, horas extra, asistencia, nómina y planificado vs real.",
+      "steps": [
+        "Seleccione Labor.",
+        "Abra Panel laboral o Costo diario.",
+        "Use Asistencia o Resumen de nómina para detalle."
+      ],
+      "image": "reports-admin-labor.png",
+      "caption": "Paquete de informes laborales."
+    },
+    {
+      "id": "products",
+      "title": "Paquete Productos",
+      "steps": [
+        "Seleccione Productos.",
+        "Use Mix de productos semanal o resumen.",
+        "Productos por hora muestra velocidad para personal y prep."
+      ],
+      "image": "reports-admin-products.png",
+      "caption": "Paquete de informes de productos."
+    },
+    {
+      "id": "tax",
+      "title": "Filtros de impuestos",
+      "intro": "Impuestos está bajo Ventas. Sirve para conciliar impuestos cobrados.",
+      "steps": [
+        "Abra Ventas y luego Impuestos.",
+        "Defina el rango de fechas.",
+        "Ejecute para auditoría o declaraciones."
+      ],
+      "image": "reports-admin-tax-filters.png",
+      "caption": "Panel de filtros de impuestos."
+    }
+  ]
+}

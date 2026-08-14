@@ -1,0 +1,40 @@
+{
+  "title": "Einkäufe",
+  "intro": "Bestand einbuchen über Bestellungen, Wareneingänge und Retouren.",
+  "sections": [
+    {
+      "id": "orders",
+      "title": "Bestellungen",
+      "steps": [
+        "Tab Bestellungen öffnen.",
+        "Bestellung beim Lieferanten mit Positionen anlegen.",
+        "Vor Wareneingang einreichen und genehmigen."
+      ],
+      "image": "inventory-purchases-orders.png",
+      "caption": "Bestellungsliste."
+    },
+    {
+      "id": "purchases",
+      "title": "Einkäufe (Wareneingang)",
+      "intro": "Einkäufe buchen Bestand und aktualisieren Durchschnittskosten.",
+      "steps": [
+        "Tab Einkäufe öffnen.",
+        "Lieferantenrechnung und Positionen erfassen.",
+        "Mit Bestellung verknüpfen und speichern."
+      ],
+      "image": "inventory-purchases-list.png",
+      "caption": "Einkaufsliste."
+    },
+    {
+      "id": "returns",
+      "title": "Einkaufsretouren",
+      "steps": [
+        "Tab Einkaufsretouren öffnen.",
+        "Beschädigte oder falsche Ware zurückgeben.",
+        "Speichern mindert die Menge."
+      ],
+      "image": "inventory-purchases-returns.png",
+      "caption": "Tab Einkaufsretouren."
+    }
+  ]
+}

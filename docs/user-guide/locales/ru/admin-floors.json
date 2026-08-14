@@ -1,0 +1,90 @@
+{
+  "title": "Floors and tables",
+  "intro": "Floors and tables define the dine-in layout used when staff select a table before taking orders.",
+  "sections": [
+    {
+      "id": "floors",
+      "title": "Floors",
+      "steps": [
+        "Open the Floors tab.",
+        "Create floor plans for each dining area (e.g. Main, Patio).",
+        "Floors appear on the table-selection step when floor mode is enabled."
+      ],
+      "image": "admin-floors-floors.png",
+      "caption": "Floors tab."
+    },
+    {
+      "id": "tables",
+      "title": "Tables",
+      "intro": "Each table belongs to a floor and carries a name or number used on checks and kitchen tickets.",
+      "steps": [
+        "Open the Tables tab.",
+        "Add tables with capacity and floor assignment.",
+        "Edit or deactivate tables when the floor plan changes."
+      ],
+      "image": "admin-floors-tables.png",
+      "caption": "Tables tab."
+    },
+    {
+      "id": "floor-form",
+      "title": "Floor form",
+      "steps": [
+        "Admin → Floors.",
+        "Name, priority, colors.",
+        "Save."
+      ],
+      "image": "admin-floors-floor-form.png",
+      "caption": "Floor form.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Floor picker label."
+        },
+        {
+          "name": "Priority",
+          "effect": "Sort order."
+        },
+        {
+          "name": "Background / color",
+          "effect": "Default tile styling."
+        }
+      ]
+    },
+    {
+      "id": "table-form",
+      "title": "Table form",
+      "intro": "Belongs to floor; optional restrictions.",
+      "steps": [
+        "Select floor.",
+        "Number, name, colors.",
+        "Optional limits.",
+        "Ask for covers.",
+        "Save."
+      ],
+      "image": "admin-floors-table-form.png",
+      "caption": "Table form.",
+      "fields": [
+        {
+          "name": "Name / number",
+          "effect": "Floor plan label."
+        },
+        {
+          "name": "Floor",
+          "effect": "Parent floor plan."
+        },
+        {
+          "name": "Priority",
+          "effect": "Sort on dense layouts."
+        },
+        {
+          "name": "Categories / order types / payment types",
+          "effect": "Optional restrictions."
+        },
+        {
+          "name": "Ask for covers",
+          "effect": "Prompts guest count."
+        }
+      ]
+    }
+  ]
+}

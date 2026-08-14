@@ -1,0 +1,87 @@
+{
+  "title": "Kitchens and workflows",
+  "intro": "Route fired items to the right kitchen stations and define how orders move through preparation stages.",
+  "sections": [
+    {
+      "id": "kitchens",
+      "title": "Kitchens",
+      "intro": "Kitchens group dishes and link to printers for kitchen tickets.",
+      "steps": [
+        "Open the Kitchens tab.",
+        "Create kitchen stations (e.g. Grill, Bar, Pastry).",
+        "Assign dishes and printers so tickets route to the correct station."
+      ],
+      "image": "admin-kitchens.png",
+      "caption": "Kitchens maintenance table."
+    },
+    {
+      "id": "workflows",
+      "title": "Workflows",
+      "intro": "Workflows define order-status steps used by kitchen and order-display screens.",
+      "steps": [
+        "Open the Workflows tab.",
+        "Create or edit workflow steps and transitions.",
+        "Link workflows to order types or kitchens as required by your venue setup."
+      ],
+      "image": "admin-workflows.png",
+      "caption": "Workflows tab."
+    },
+    {
+      "id": "kitchen-form",
+      "title": "Formulario de cocina",
+      "intro": "Las cocinas enrutan platos a impresoras y ubicaciones de inventario.",
+      "steps": [
+        "Abra Admin → Cocina → Cocinas.",
+        "Agregue nombre, prioridad, impresoras vinculadas y platos.",
+        "Guarde — ítems nuevos imprimen en esta estación cuando se asignan."
+      ],
+      "image": "admin-kitchen-kitchen-form.png",
+      "caption": "Formulario de estación de cocina.",
+      "fields": [
+        {
+          "name": "Nombre",
+          "effect": "Etiqueta en KOT y pantalla de pedidos."
+        },
+        {
+          "name": "Prioridad",
+          "effect": "Orden cuando coinciden varias cocinas."
+        },
+        {
+          "name": "Impresoras",
+          "effect": "Dispositivos que imprimen tickets de esta cocina."
+        },
+        {
+          "name": "Ítems (platos)",
+          "effect": "Platos enrutados a esta estación."
+        }
+      ]
+    },
+    {
+      "id": "workflow-form",
+      "title": "Formulario de flujo de trabajo",
+      "intro": "Los flujos encadenan etapas de cocina para pantallas y bump bars.",
+      "steps": [
+        "Abra Cocina → Flujos.",
+        "Nombre el flujo y agregue etapas ordenadas.",
+        "Asigne cocina a cada etapa.",
+        "Vincule el flujo en platos con prep multi-paso."
+      ],
+      "image": "admin-kitchen-workflow-form.png",
+      "caption": "Editor de etapas de flujo.",
+      "fields": [
+        {
+          "name": "Nombre",
+          "effect": "Identificador en platos y pantallas."
+        },
+        {
+          "name": "Etapas",
+          "effect": "Pasos ordenados (p. ej., Parrilla → Expo)."
+        },
+        {
+          "name": "Cocina de etapa",
+          "effect": "Estación dueña de cada etapa para routing y KPIs."
+        }
+      ]
+    }
+  ]
+}

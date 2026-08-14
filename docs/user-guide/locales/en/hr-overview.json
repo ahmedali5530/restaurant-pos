@@ -1,0 +1,40 @@
+{
+  "title": "HR overview",
+  "intro": "HR covers people operations: employees, attendance, leave, scheduling, and payroll-related tabs. Open it from the sidebar when your role includes HR access.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Open HR",
+      "steps": [
+        "Sign in with a user that has HR access.",
+        "Tap HR in the sidebar.",
+        "The screen opens on the Dashboard tab by default."
+      ],
+      "image": "hr-overview.png",
+      "caption": "HR screen with tab bar and dashboard."
+    },
+    {
+      "id": "tabs",
+      "title": "Tab navigation",
+      "intro": "Tabs group workforce setup and day-to-day people processes. Switching may require manager PIN approval.",
+      "steps": [
+        "Scroll the tab bar horizontally when many tabs are visible.",
+        "People tabs include Employees, Departments, and Positions.",
+        "Time tabs include Attendance, Scheduling, Leave, and Holidays."
+      ],
+      "image": "hr-tabs.png",
+      "caption": "HR tab bar."
+    },
+    {
+      "id": "dashboard",
+      "title": "Dashboard",
+      "steps": [
+        "The Dashboard summarizes key HR metrics for the venue.",
+        "Use it as a starting point before opening detailed tabs.",
+        "Other tabs manage master data and transactional HR work."
+      ],
+      "image": "hr-dashboard.png",
+      "caption": "HR dashboard panel."
+    }
+  ]
+}

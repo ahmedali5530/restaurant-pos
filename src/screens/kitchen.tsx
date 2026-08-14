@@ -576,10 +576,11 @@ export const KitchenScreen = () => {
       <DocumentTitle parts={[tNav('sidebar.kitchen')]} />
       <div
         className="flex gap-5 p-3 flex-col"
+        data-testid="kitchen-page"
         onPointerDown={unlockKitchenSpeech}
         onClick={unlockKitchenSpeech}
       >
-        <div className="h-[60px] flex-0 flex items-center gap-3 justify-between">
+        <div className="h-[60px] flex-0 flex items-center gap-3 justify-between" data-testid="kitchen-toolbar">
           <div className="input-group flex-1">
             {kitchens?.data?.map(item => (
               <Button
@@ -624,6 +625,7 @@ export const KitchenScreen = () => {
             <div
               ref={boardAreaRef}
               className="flex flex-col flex-wrap gap-3 h-full content-start items-start"
+              data-testid="kitchen-board"
             >
               {boardTickets.map((ticket) => {
                 const ticketKey = `${ticket.batch.batchKey}_${ticket.chunkIndex}`;

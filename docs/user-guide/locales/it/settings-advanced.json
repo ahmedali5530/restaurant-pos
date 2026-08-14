@@ -1,0 +1,106 @@
+{
+  "title": "Impostazioni dispositivo avanzate",
+  "intro": "Gli amministratori gestiscono ciclo di chiusura, auto-chiusura, sicurezza sessione, uscita automatica, servizio, menu, inventario e stampanti.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Impostazioni per amministratori",
+      "steps": [
+        "Accedi con diritti.",
+        "Apri Impostazioni (chiave).",
+        "Concentrati sulle card della sede."
+      ],
+      "image": "settings-adv-overview.png",
+      "caption": "Card avanzate."
+    },
+    {
+      "id": "closing-cycle",
+      "title": "Ciclo di chiusura",
+      "intro": "Finestra del giorno operativo.",
+      "steps": [
+        "Ciclo custom se notturno.",
+        "Inizio e fine.",
+        "Salva."
+      ],
+      "image": "settings-adv-closing-cycle.png",
+      "caption": "Card ciclo di chiusura."
+    },
+    {
+      "id": "auto-check-close",
+      "title": "Chiusura automatica conti",
+      "steps": [
+        "Liquidazione a fine ciclo.",
+        "Stampa e tipo pagamento.",
+        "Salva."
+      ],
+      "image": "settings-adv-auto-check-close.png",
+      "caption": "Card chiusura automatica."
+    },
+    {
+      "id": "session-security",
+      "title": "Sicurezza sessione",
+      "steps": [
+        "Blocco o logout idle.",
+        "Minuti e azione.",
+        "Salva."
+      ],
+      "image": "settings-adv-session-security.png",
+      "caption": "Card sicurezza sessione."
+    },
+    {
+      "id": "auto-clock-out",
+      "title": "Uscita automatica",
+      "steps": [
+        "Attiva uscita automatica.",
+        "Fine turno, orario o entrambi.",
+        "Salva."
+      ],
+      "image": "settings-adv-auto-clock-out.png",
+      "caption": "Card uscita automatica."
+    },
+    {
+      "id": "service-charges",
+      "title": "Costi di servizio",
+      "steps": [
+        "Tipo e valore predefiniti.",
+        "In pagamento.",
+        "Salva."
+      ],
+      "image": "settings-adv-service-charges.png",
+      "caption": "Card servizio."
+    },
+    {
+      "id": "menus",
+      "title": "Menu attivi",
+      "steps": [
+        "Seleziona i menu del terminale.",
+        "Salva.",
+        "Con Gestione → Menu."
+      ],
+      "image": "settings-adv-menus.png",
+      "caption": "Card menu."
+    },
+    {
+      "id": "inventory",
+      "title": "Impostazioni inventario",
+      "steps": [
+        "Preferenze stock.",
+        "Salva.",
+        "Doc in Magazzino."
+      ],
+      "image": "settings-adv-inventory.png",
+      "caption": "Card inventario."
+    },
+    {
+      "id": "printers",
+      "title": "Stampanti",
+      "steps": [
+        "Assegna stampanti.",
+        "Salva.",
+        "Opzioni stampa accanto."
+      ],
+      "image": "settings-adv-printers.png",
+      "caption": "Card stampanti."
+    }
+  ]
+}

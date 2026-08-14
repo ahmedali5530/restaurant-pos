@@ -1,0 +1,75 @@
+{
+  "title": "Integraciones",
+  "intro": "Las integraciones conectan POSR con proveedores externos de contabilidad, fiscalidad, logging e inventario. Active proveedores, configure credenciales y supervise salud y cola.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Abrir Integraciones",
+      "steps": [
+        "Inicie sesión con acceso a integraciones.",
+        "Pulse Integraciones en la barra lateral.",
+        "Se abre en la pestaña Proveedores por defecto."
+      ],
+      "image": "integrations-overview.png",
+      "caption": "Pantalla Integraciones con pestañas y lista de proveedores."
+    },
+    {
+      "id": "tabs",
+      "title": "Navegación por pestañas",
+      "intro": "Las pestañas cubren lista, configuración, salud y cola. Cambiar puede requerir PIN de gerente.",
+      "steps": [
+        "Proveedores lista conectores y switches.",
+        "Configuración guarda credenciales y opciones.",
+        "Salud y Cola muestran estado y trabajos pendientes."
+      ],
+      "image": "integrations-tabs.png",
+      "caption": "Barra de pestañas de Integraciones."
+    },
+    {
+      "id": "providers",
+      "title": "Proveedores",
+      "steps": [
+        "Revise cada tarjeta: nombre, categoría, versión y estado.",
+        "Use el switch para activar o desactivar (puede pedir aprobación).",
+        "Pulse Configurar para abrir ese proveedor en Configuración."
+      ],
+      "image": "integrations-providers.png",
+      "caption": "Lista de proveedores con switches."
+    },
+    {
+      "id": "configuration",
+      "title": "Configuración",
+      "intro": "Guarda secretos y opciones de mapeo del proveedor seleccionado.",
+      "steps": [
+        "Seleccione un proveedor o llegue vía Configurar.",
+        "Complete campos requeridos (API keys, IDs, mapeos).",
+        "Conecte o ejecute sincronización inicial si aplica."
+      ],
+      "image": "integrations-configuration.png",
+      "caption": "Panel de configuración de un proveedor."
+    },
+    {
+      "id": "health",
+      "title": "Salud",
+      "steps": [
+        "Abra Salud para ver estados de proveedores.",
+        "Los sanos pueden enviar eventos; los fallidos necesitan revisión.",
+        "Se actualiza al abrir Integraciones o al activar/desactivar."
+      ],
+      "image": "integrations-health.png",
+      "caption": "Panel de estado de salud."
+    },
+    {
+      "id": "queue",
+      "title": "Cola",
+      "intro": "La cola guarda trabajos salientes hacia sistemas externos.",
+      "steps": [
+        "Abra Cola para ver pendientes, reintentos o fallidos.",
+        "Los trabajos se actualizan con la pestaña abierta.",
+        "Los fallidos suelen limpiarse tras corregir la configuración."
+      ],
+      "image": "integrations-queue.png",
+      "caption": "Panel de cola de integración."
+    }
+  ]
+}
