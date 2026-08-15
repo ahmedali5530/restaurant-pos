@@ -2,6 +2,7 @@
 
 const { chatCompletion } = require('./ai.provider');
 const { assertAllowed, recordUse, getUsage } = require('./ai.quota');
+const { getPublicConfig } = require('./ai.profiles');
 const logger = require('../../lib/logger');
 
 function sendQuotaError(res, err) {
@@ -19,8 +20,8 @@ async function createChatCompletion(req, res, next) {
   try {
     assertAllowed();
 
-    const { messages, tools } = req.body || {};
-    const data = await chatCompletion({ messages, tools });
+    const { task, messages, tools } = req.body || {};
+    const data = await chatCompletion({ task, messages, tools });
 
     await recordUse();
 
@@ -44,7 +45,12 @@ async function createChatCompletion(req, res, next) {
 
 async function getAiUsage(req, res, next) {
   try {
-    res.status(200).json(getUsage());
+    const usage = getUsage();
+    const config = getPublicConfig();
+    res.status(200).json({
+      ...usage,
+      ...config,
+    });
   } catch (err) {
     logger.error('ai', 'usage read failed', { message: err.message });
     next(err);

@@ -32,10 +32,36 @@ import {
 import {forecastFromPoints} from "@/lib/ai/forecast.ts";
 import {getTimeSeries} from "@/api/reports/time-series.ts";
 import {getConsumptionSummary} from "@/api/reports/inventory/index.ts";
-import {callOpenAIChat, type OpenAIChatMessage} from "@/lib/openai.service.ts";
+import {
+  callOpenAIChat,
+  type AiTask,
+  type OpenAIChatMessage,
+} from "@/lib/openai.service.ts";
 
 const MAX_ITERATIONS = 10;
 const COMPACT_HISTORY_TURNS = 2;
+
+const messageText = (content: OpenAIChatMessage["content"]): string => {
+  if (typeof content === "string") {
+    return content.trim();
+  }
+  if (!Array.isArray(content)) {
+    return "";
+  }
+  return content
+    .filter((part): part is {type: "text"; text: string} => part.type === "text")
+    .map(part => part.text)
+    .join("\n")
+    .trim();
+};
+
+/** Map report format / code path to an AI task for profile routing. */
+const resolveAiTask = (format: AiReportFormat, kind: "default" | "forecast" = "default"): AiTask => {
+  if (kind === "forecast") {
+    return "forecast";
+  }
+  return format === "analysis" ? "analysis" : "reporting";
+};
 
 export interface AiReportAgentResult {
   answer: string;
@@ -79,7 +105,8 @@ export const runAiReportAgent = async (
   }
 
   const format = options.format ?? "table";
-  const compact = isLocalAiReportCompactMode();
+  const task = resolveAiTask(format);
+  const compact = isLocalAiReportCompactMode(task);
   const {tools, domains} = selectToolsForPrompt(
     trimmedPrompt,
     format,
@@ -123,11 +150,12 @@ export const runAiReportAgent = async (
         },
       ],
       tools: [],
+      task,
     });
 
-    const answer = response.choices[0]?.message?.content?.trim();
+    const answer = messageText(response.choices[0]?.message?.content);
     if (!answer) {
-      throw new Error("OpenAI returned an empty response.");
+      throw new Error("AI returned an empty response.");
     }
 
     return finish(answer);
@@ -149,11 +177,12 @@ export const runAiReportAgent = async (
         },
       ],
       tools: [],
+      task,
     });
 
-    const answer = response.choices[0]?.message?.content?.trim();
+    const answer = messageText(response.choices[0]?.message?.content);
     if (!answer) {
-      throw new Error("OpenAI returned an empty response.");
+      throw new Error("AI returned an empty response.");
     }
 
     return finish(answer);
@@ -175,11 +204,12 @@ export const runAiReportAgent = async (
         },
       ],
       tools: [],
+      task,
     });
 
-    const answer = response.choices[0]?.message?.content?.trim();
+    const answer = messageText(response.choices[0]?.message?.content);
     if (!answer) {
-      throw new Error("OpenAI returned an empty response.");
+      throw new Error("AI returned an empty response.");
     }
 
     return finish(answer);
@@ -208,11 +238,12 @@ export const runAiReportAgent = async (
         },
       ],
       tools: [],
+      task,
     });
 
-    const answer = response.choices[0]?.message?.content?.trim();
+    const answer = messageText(response.choices[0]?.message?.content);
     if (!answer) {
-      throw new Error("OpenAI returned an empty response.");
+      throw new Error("AI returned an empty response.");
     }
 
     return finish(answer);
@@ -233,11 +264,12 @@ export const runAiReportAgent = async (
         },
       ],
       tools: [],
+      task,
     });
 
-    const answer = response.choices[0]?.message?.content?.trim();
+    const answer = messageText(response.choices[0]?.message?.content);
     if (!answer) {
-      throw new Error("OpenAI returned an empty response.");
+      throw new Error("AI returned an empty response.");
     }
 
     return finish(answer);
@@ -287,11 +319,12 @@ export const runAiReportAgent = async (
         },
       ],
       tools: [],
+      task: resolveAiTask(format, "forecast"),
     });
 
-    const answer = response.choices[0]?.message?.content?.trim();
+    const answer = messageText(response.choices[0]?.message?.content);
     if (!answer) {
-      throw new Error("OpenAI returned an empty response.");
+      throw new Error("AI returned an empty response.");
     }
     return finish(answer);
   }
@@ -311,11 +344,12 @@ export const runAiReportAgent = async (
         },
       ],
       tools: [],
+      task,
     });
 
-    const answer = response.choices[0]?.message?.content?.trim();
+    const answer = messageText(response.choices[0]?.message?.content);
     if (!answer) {
-      throw new Error("OpenAI returned an empty response.");
+      throw new Error("AI returned an empty response.");
     }
     return finish(answer);
   }
@@ -335,11 +369,12 @@ export const runAiReportAgent = async (
         },
       ],
       tools: [],
+      task,
     });
 
-    const answer = response.choices[0]?.message?.content?.trim();
+    const answer = messageText(response.choices[0]?.message?.content);
     if (!answer) {
-      throw new Error("OpenAI returned an empty response.");
+      throw new Error("AI returned an empty response.");
     }
     return finish(answer);
   }
@@ -352,17 +387,17 @@ export const runAiReportAgent = async (
   messages.push({role: "user", content: trimmedPrompt + fraudWorkflowHint});
 
   for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
-    const response = await callOpenAIChat({messages, tools});
+    const response = await callOpenAIChat({messages, tools, task});
     const choice = response.choices[0]?.message;
 
     if (!choice) {
-      throw new Error("OpenAI returned an empty response.");
+      throw new Error("AI returned an empty response.");
     }
 
     if (!choice.tool_calls?.length) {
-      const answer = choice.content?.trim();
+      const answer = messageText(choice.content);
       if (!answer) {
-        throw new Error("OpenAI returned an empty response.");
+        throw new Error("AI returned an empty response.");
       }
 
       return finish(answer);

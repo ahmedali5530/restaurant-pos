@@ -8,6 +8,39 @@ const dotenv = require('dotenv');
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 dotenv.config({ path: path.resolve(__dirname, '.env.local'), override: true });
 
+/**
+ * Expand ${VAR} references in process.env (dotenv does not do this by itself).
+ * Lets .env.local reuse shared keys, e.g. AI_CHEAP_KEY=${DEEPSEEK_API_KEY}.
+ * Unresolved names are left unchanged so misconfig is easier to spot.
+ */
+function expandEnvVars(maxPasses = 5) {
+  const pattern = /\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g;
+  for (let pass = 0; pass < maxPasses; pass += 1) {
+    let changed = false;
+    for (const [key, value] of Object.entries(process.env)) {
+      if (typeof value !== 'string' || !value.includes('${')) {
+        continue;
+      }
+      const next = value.replace(pattern, (match, name) => {
+        const replacement = process.env[name];
+        if (replacement === undefined || replacement === null) {
+          return match;
+        }
+        changed = true;
+        return String(replacement);
+      });
+      if (next !== value) {
+        process.env[key] = next;
+      }
+    }
+    if (!changed) {
+      break;
+    }
+  }
+}
+
+expandEnvVars();
+
 const express = require('express');
 const cors = require('cors');
 const { handleError } = require('./src/lib/response');
