@@ -486,7 +486,8 @@
       "7": "Pazar"
     },
     "shiftsGenerated": "{{created}} vardiya oluşturuldu, {{skipped}} atlandı.",
-    "conflictsDetected": "Bazı vardiyalar çakışmalar nedeniyle oluşturulamadı."
+    "conflictsDetected": "Bazı vardiyalar çakışmalar nedeniyle oluşturulamadı.",
+    "smartImportShiftsTitle": "Planlanmış vardiyaları akıllı içe aktar"
   },
   "leave": {
     "vacation": "Tatil",

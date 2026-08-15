@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import * as yup from "yup";
 import {Controller, useFieldArray, useForm, useWatch} from "react-hook-form";
@@ -18,7 +18,7 @@ import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {User} from "@/api/model/user.ts";
 import {RecordId, StringRecordId} from "surrealdb";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faPlus, faTrash, faUpload} from "@fortawesome/free-solid-svg-icons";
 import _ from "lodash";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
@@ -34,6 +34,8 @@ import { publishIssueReturned } from "@/integrations/accounting/events/publish.t
 import { postDocument } from "@/lib/inventory/posting.service.ts";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
 import { ensureLocationForKitchen, toLocationRecordId } from "@/lib/inventory/location.service.ts";
+import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
+import {createIssueReturnImportConfig} from "@/components/inventory/issue_returns/issue-return.import.config.ts";
 
 interface InventoryIssueReturnItemFormValue {
   item: { label: string; value: string } | null;
@@ -190,6 +192,12 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
     control,
     name: "items"
   });
+
+  const [importModal, setImportModal] = useState(false);
+  const issueReturnImportConfig = useMemo(
+    () => createIssueReturnImportConfig({db, t, append}),
+    [db, t, append]
+  );
 
   useEffect(() => {
     if (open) {
@@ -615,6 +623,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
   })) ?? [];
 
   return (
+    <>
     <Modal
       title={data ? `Update return ${data?.id}` : "Create new issue return"}
       open={open}
@@ -740,6 +749,16 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
 
           <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
             <legend>{t('tabs.items')}</legend>
+            <div className="mb-3 flex gap-2">
+              <Button
+                type="button"
+                icon={faUpload}
+                variant="secondary"
+                onClick={() => setImportModal(true)}
+              >
+                {t('common:actions.smartImport', {defaultValue: 'Smart Import'})}
+              </Button>
+            </div>
             {fields.map((field, index) => (
               <div className="flex flex-col gap-3 mb-3" key={field.id}>
                 {/* Hidden input for issued_item value */}
@@ -831,6 +850,16 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
         </div>
       </form>
     </Modal>
+    {importModal && (
+      <DataImportModal
+        isOpen
+        onClose={() => setImportModal(false)}
+        config={issueReturnImportConfig}
+        title={t('forms.smartImportIssueReturnTitle', {defaultValue: 'Smart import return lines'})}
+        onDone={() => setImportModal(false)}
+      />
+    )}
+    </>
   );
 };
 

@@ -7,6 +7,16 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-08-15',
+    title: 'Smart Import rollout',
+    items: [
+      'Smart Import is available across master data (categories, tables, dishes, ingredients, modifier groups, inventory items, chart of accounts), inventory document lines, kitchen reconciliation, journal entries, and HR scheduled shifts.',
+      'Document imports fill lines on the open form so you can review and save as usual; uploads still support CSV, Excel, PDF, images, and clipboard paste.',
+      'Dishes Smart Import (replaces CSV Import) extracts structured rows with AI/OCR when needed and lets you review and edit them before create/update/upsert.',
+      'On the upload step, paste with Ctrl+V / Cmd+V to import a file, image, or Excel/Sheets cell range from the clipboard.',
+    ],
+  },
+  {
     date: '2026-08-11',
     title: 'Dish recipe costs and inventory dates',
     items: [

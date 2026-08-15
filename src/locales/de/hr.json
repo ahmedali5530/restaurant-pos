@@ -486,7 +486,8 @@
       "7": "Sonntag"
     },
     "shiftsGenerated": "{{created}} Schicht(en) erstellt, {{skipped}} übersprungen.",
-    "conflictsDetected": "Einige Schichten konnten wegen Konflikten nicht erstellt werden."
+    "conflictsDetected": "Einige Schichten konnten wegen Konflikten nicht erstellt werden.",
+    "smartImportShiftsTitle": "Geplante Schichten Smart-Import"
   },
   "leave": {
     "vacation": "Urlaub",

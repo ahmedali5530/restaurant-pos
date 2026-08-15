@@ -140,7 +140,11 @@
     "arrangeTables": "ترتيب الطاولات",
     "updateSelected": "تحديث المحدد",
     "importIngredients": "استيراد المكونات",
-    "importModifierGroups": "استيراد مجموعات المعدّلات"
+    "importModifierGroups": "استيراد مجموعات المعدّلات",
+    "smartImportDishes": "استيراد ذكي",
+    "smartImport": "استيراد ذكي",
+    "smartImportIngredients": "استيراد ذكي للمكونات",
+    "smartImportModifierGroups": "استيراد ذكي لمجموعات المعدّلات"
   },
   "delete": {
     "dish": "حذف الصنف {{name}}",
@@ -332,7 +336,12 @@
     "uom": "وحدة القياس",
     "unitCost": "تكلفة الوحدة",
     "lineTotal": "الإجمالي",
-    "priceLocked": "السعر مقفل"
+    "priceLocked": "السعر مقفل",
+    "smartImportDishesTitle": "استيراد ذكي للأطباق (CSV وExcel وPDF وصورة)",
+    "smartImportCategoriesTitle": "استيراد ذكي للفئات (CSV وExcel وPDF وصورة)",
+    "smartImportTablesTitle": "استيراد ذكي للطاولات (CSV وExcel وPDF وصورة)",
+    "smartImportIngredientsTitle": "استيراد ذكي لمكونات الأطباق",
+    "smartImportModifierGroupsTitle": "استيراد ذكي لمجموعات معدّلات الأطباق"
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",

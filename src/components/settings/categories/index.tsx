@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useMemo, useState} from "react";
 import {Tables} from "@/api/db/tables.ts";
 import {Category} from "@/api/model/category.ts";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
@@ -12,17 +12,11 @@ import {CategoryForm} from "@/components/settings/categories/category.form.tsx";
 import {CategoryBulkForm} from "@/components/settings/categories/category.bulk.form.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
-import {truthy} from "@/lib/utils.ts";
-import {CsvUploadModal} from "@/components/common/table/csv.uploader.tsx";
+import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
+import {createCategoryImportConfig} from "@/components/settings/categories/category.import.config.ts";
 import {Checkbox} from "@/components/common/input/checkbox";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
-import {
-  assertCsvMatchValues,
-  buildMatchConditions,
-  findCsvImportMatches,
-  writeCsvImportRow,
-} from "@/utils/csv-import.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
@@ -39,6 +33,12 @@ export const AdminCategories = () => {
     state: false,
     data: [] as Category[]
   });
+  const [importModal, setImportModal] = useState(false);
+
+  const smartImportConfig = useMemo(
+    () => createCategoryImportConfig({db, t}),
+    [db, t]
+  );
 
   const columnHelper = createColumnHelper<Category>();
 
@@ -49,7 +49,7 @@ export const AdminCategories = () => {
         <Checkbox
           checked={table.getIsAllRowsSelected()}
           indeterminate={table.getIsSomeRowsSelected()}
-          onChange={table.getToggleAllRowsSelectedHandler()} //or getToggleAllPageRowsSelectedHandler
+          onChange={table.getToggleAllRowsSelectedHandler()}
         />
       ),
       cell: ({row}) => (
@@ -116,8 +116,6 @@ export const AdminCategories = () => {
     }),
   ];
 
-  const [importModal, setImportModal] = useState(false);
-
   return (
     <>
       <TableComponent
@@ -130,7 +128,7 @@ export const AdminCategories = () => {
               module: 'admin.categories.import',
               description: getAccessRuleChildLabel('admin.categories.import'),
             });
-          }} icon={faUpload}>{t('buttons.importCategories')}</Button>,
+          }} icon={faUpload}>{t('buttons.smartImport')}</Button>,
           <Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
@@ -166,55 +164,13 @@ export const AdminCategories = () => {
       />
 
       {importModal && (
-        <CsvUploadModal
-          isOpen={true}
+        <DataImportModal
+          isOpen
           onClose={() => setImportModal(false)}
+          config={smartImportConfig}
+          title={t('forms.smartImportCategoriesTitle')}
           enableImportModes
           defaultMatchFields={['name']}
-          fields={[{
-            name: 'name',
-            label: t('columns.name')
-          }, {
-            name: 'show_in_menu',
-            label: t('columns.showInMenu')
-          }, {
-            name: 'priority',
-            label: t('columns.priority')
-          }]}
-          onImportRow={async (rowData, { mode, matchFields }) => {
-            const dishData: any = {
-              name: rowData.name,
-              show_in_menu: truthy(rowData.show_in_menu),
-              priority: Number(rowData.priority),
-            };
-
-            assertCsvMatchValues(rowData, matchFields, (field) =>
-              t('common:csvImport.emptyMatchValue', { field })
-            );
-
-            const conditions = buildMatchConditions(rowData, matchFields, (field, value) => {
-              if (field === 'priority') {
-                return { column: 'priority', value: Number(value) };
-              }
-              if (field === 'show_in_menu') {
-                return { column: 'show_in_menu', value: truthy(value) };
-              }
-              return { column: field, value };
-            });
-
-            const existing = mode === 'create'
-              ? []
-              : await findCsvImportMatches(db, Tables.categories, conditions);
-
-            await writeCsvImportRow(db, {
-              mode,
-              table: Tables.categories,
-              existing,
-              payload: dishData,
-              notFoundMessage: t('common:csvImport.recordNotFound'),
-              multipleMatchesMessage: t('common:csvImport.multipleMatches'),
-            });
-          }}
           onExport={async () => {
             const [categories] = await db.query(
               `SELECT * FROM ${Tables.categories} WHERE deleted_at = none`

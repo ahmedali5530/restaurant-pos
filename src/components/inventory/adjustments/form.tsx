@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
@@ -19,7 +19,7 @@ import {
   InventoryAdjustment,
 } from "@/api/model/inventory_adjustment.ts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faTrash, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { fetchNextSequentialNumber } from "@/utils/recordNumbers.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import { nowSurrealDateTime } from "@/lib/datetime.ts";
@@ -30,6 +30,8 @@ import { canEdit } from "@/lib/inventory/lifecycle.ts";
 import { postDocument } from "@/lib/inventory/posting.service.ts";
 import { useIntegrationManager } from "@/providers/integration.provider.tsx";
 import { useInventoryLocations } from "@/hooks/useInventoryLocations.ts";
+import { DataImportModal } from "@/components/common/data-import/data-import-modal.tsx";
+import { createAdjustmentImportConfig } from "@/components/inventory/adjustments/adjustment.import.config.ts";
 
 type Option = { label: string; value: string };
 
@@ -120,6 +122,12 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
   });
 
   const { fields, append, remove } = useFieldArray({ control, name: "items" });
+
+  const [importModal, setImportModal] = useState(false);
+  const adjustmentImportConfig = useMemo(
+    () => createAdjustmentImportConfig({ db, t, append }),
+    [db, t, append]
+  );
 
   useEffect(() => {
     if (!open) return;
@@ -314,16 +322,26 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
           <div className="flex justify-between items-center">
             <h3 className="font-medium">{t("forms.lines")}</h3>
             {!locked && (
-              <Button
-                type="button"
-                variant="secondary"
-                icon={faPlus}
-                onClick={() =>
-                  append({ item: null, quantity_change: 0, unit_cost: "", comments: "" })
-                }
-              >
-                {t("buttons.line")}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  icon={faUpload}
+                  onClick={() => setImportModal(true)}
+                >
+                  {t("common:actions.smartImport", { defaultValue: "Smart Import" })}
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  icon={faPlus}
+                  onClick={() =>
+                    append({ item: null, quantity_change: 0, unit_cost: "", comments: "" })
+                  }
+                >
+                  {t("buttons.line")}
+                </Button>
+              </div>
             )}
           </div>
           {fields.map((field, index) => (
@@ -397,6 +415,15 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
           </div>
         )}
       </form>
+      {importModal && (
+        <DataImportModal
+          isOpen
+          onClose={() => setImportModal(false)}
+          config={adjustmentImportConfig}
+          title={t("forms.smartImportAdjustmentTitle", { defaultValue: "Smart import adjustment lines" })}
+          onDone={() => setImportModal(false)}
+        />
+      )}
     </Modal>
   );
 };

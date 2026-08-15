@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useMemo, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {createColumnHelper} from "@tanstack/react-table";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
@@ -10,7 +10,7 @@ import {ShiftSwapRequest} from "@/api/model/shift_swap_request.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {IconTooltipButton} from "@/components/common/input/icon.tooltip.button.tsx";
-import {faCheck, faPencil, faPlus, faTrash, faXmark} from "@fortawesome/free-solid-svg-icons";
+import {faCheck, faPencil, faPlus, faTrash, faUpload, faXmark} from "@fortawesome/free-solid-svg-icons";
 import {formatDisplayDate, entityLabel} from "@/components/hr/shared/form.utils.ts";
 import {useDB} from "@/api/db/db.ts";
 import {useAtom} from "jotai";
@@ -28,6 +28,8 @@ import {ScheduleTemplateForm} from "@/components/hr/scheduling/template.form.tsx
 import {GenerateScheduleForm} from "@/components/hr/scheduling/generate.form.tsx";
 import {SwapRequestForm} from "@/components/hr/scheduling/swap.form.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
+import {createScheduledShiftImportConfig} from "@/components/hr/scheduling/scheduled-shift.import.config.ts";
 
 type SubTab = "schedules" | "shifts" | "templates" | "swaps";
 
@@ -81,8 +83,14 @@ export const HrScheduling = () => {
   const [templateModal, setTemplateModal] = useState(false);
   const [generateModal, setGenerateModal] = useState(false);
   const [swapModal, setSwapModal] = useState(false);
+  const [importModal, setImportModal] = useState(false);
   const [publishingId, setPublishingId] = useState<string>();
   const [actionId, setActionId] = useState<string>();
+
+  const shiftImportConfig = useMemo(
+    () => createScheduledShiftImportConfig({db, t}),
+    [db, t]
+  );
 
   const scheduleHelper = createColumnHelper<WorkSchedule>();
   const shiftHelper = createColumnHelper<ScheduledShift>();
@@ -402,6 +410,9 @@ export const HrScheduling = () => {
           loaderHook={shiftsHook}
           loaderLineItems={shiftColumns.length}
           buttons={[
+            <Button key="shift-import" variant="secondary" onClick={() => setImportModal(true)} icon={faUpload}>
+              {t("common:actions.smartImport", {defaultValue: "Smart Import"})}
+            </Button>,
             <Button key="shift-create" variant="primary" onClick={() => { setShift(undefined); setSchedule(undefined); setShiftModal(true); }} icon={faPlus}>
               {t("buttons.scheduledShift")}
             </Button>,
@@ -489,6 +500,19 @@ export const HrScheduling = () => {
           onClose={() => {
             setSwapModal(false);
             swapsHook.fetchData();
+          }}
+        />
+      )}
+
+      {importModal && (
+        <DataImportModal
+          isOpen
+          onClose={() => setImportModal(false)}
+          config={shiftImportConfig}
+          title={t("scheduling.smartImportShiftsTitle", {defaultValue: "Smart import scheduled shifts"})}
+          onDone={() => {
+            setImportModal(false);
+            shiftsHook.fetchData();
           }}
         />
       )}

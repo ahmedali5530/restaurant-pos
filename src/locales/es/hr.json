@@ -486,7 +486,8 @@
       "7": "Domingo"
     },
     "shiftsGenerated": "{{created}} turno(s) creado(s), {{skipped}} omitido(s).",
-    "conflictsDetected": "Algunos turnos no se pudieron crear por conflictos."
+    "conflictsDetected": "Algunos turnos no se pudieron crear por conflictos.",
+    "smartImportShiftsTitle": "Importación inteligente de turnos programados"
   },
   "leave": {
     "vacation": "Vacaciones",

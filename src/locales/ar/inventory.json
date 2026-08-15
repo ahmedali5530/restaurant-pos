@@ -142,7 +142,15 @@
     "previousPrice": "السعر السابق",
     "updateWaste": "تحديث الهدر #{{number}}",
     "updatePurchaseReturn": "تحديث المرتجع #{{number}}",
-    "expiredLot": "منتهي الصلاحية {{date}}"
+    "expiredLot": "منتهي الصلاحية {{date}}",
+    "smartImportItemsTitle": "استيراد ذكي للأصناف",
+    "smartImportPurchaseTitle": "استيراد ذكي لأسطر المشتريات",
+    "smartImportPurchaseOrderTitle": "استيراد ذكي لأسطر أوامر الشراء",
+    "smartImportIssueTitle": "استيراد ذكي لأسطر الصرف",
+    "smartImportIssueReturnTitle": "استيراد ذكي لأسطر المرتجع",
+    "smartImportWasteTitle": "استيراد ذكي لأسطر الهدر",
+    "smartImportAdjustmentTitle": "استيراد ذكي لأسطر التسوية",
+    "smartImportPurchaseReturnTitle": "استيراد ذكي لأسطر مرتجع المشتريات"
   },
   "validation": {
     "required": "هذا الحقل مطلوب",
@@ -287,7 +295,8 @@
       "verified": "متحقق",
       "missed": "فائت"
     },
-    "keyboardHint": "Ctrl/Cmd + مفاتيح الأسهم للتنقل بين الخلايا القابلة للتعديل."
+    "keyboardHint": "Ctrl/Cmd + مفاتيح الأسهم للتنقل بين الخلايا القابلة للتعديل.",
+    "smartImportTitle": "استيراد ذكي لمطابقة المطبخ"
   },
   "stockTransfer": {
     "type": "نوع التحويل",

@@ -113,6 +113,7 @@
   "buttons": {
     "dish": "Dish",
     "importDishes": "Import Dishes",
+    "smartImportDishes": "Smart Import",
     "importCategories": "Import Categories",
     "importTables": "Import tables",
     "category": "Category",
@@ -140,7 +141,10 @@
     "arrangeTables": "Arrange tables",
     "updateSelected": "Update selected",
     "importIngredients": "Import Ingredients",
-    "importModifierGroups": "Import Modifier Groups"
+    "importModifierGroups": "Import Modifier Groups",
+    "smartImport": "Smart Import",
+    "smartImportIngredients": "Smart Import Ingredients",
+    "smartImportModifierGroups": "Smart Import Modifier Groups"
   },
   "delete": {
     "dish": "Delete item {{name}}",
@@ -346,13 +350,18 @@
     "applyToAllSwitch": "Apply to all",
     "showCategoryInMenu": "Show this category in menu",
     "importDishesTitle": "Import dishes from CSV",
+    "smartImportDishesTitle": "Smart import dishes (CSV, Excel, PDF, image)",
     "importIngredientsTitle": "Import dish ingredients from CSV",
     "importModifierGroupsTitle": "Import dish modifier groups from CSV",
     "inventoryItem": "Inventory item",
     "uom": "UOM",
     "unitCost": "Unit cost",
     "lineTotal": "Total",
-    "priceLocked": "Price locked"
+    "priceLocked": "Price locked",
+    "smartImportCategoriesTitle": "Smart import categories (CSV, Excel, PDF, image)",
+    "smartImportTablesTitle": "Smart import tables (CSV, Excel, PDF, image)",
+    "smartImportIngredientsTitle": "Smart import dish ingredients",
+    "smartImportModifierGroupsTitle": "Smart import dish modifier groups"
   },
   "dishView": {
     "detailsTitle": "Dish details",

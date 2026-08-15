@@ -6,12 +6,11 @@
  * - Grid save draft / CSV import → saveManualInputs(lines, user)
  * - Verify → verifyReconciliation(id, user) with manager gate
  */
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {useAtom} from "jotai";
 import {toast} from "sonner";
 import {faCheck, faPlus, faTrash, faUpload} from "@fortawesome/free-solid-svg-icons";
-import {Tables} from "@/api/db/tables.ts";
 import {useDB} from "@/api/db/db.ts";
 import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {appPage} from "@/store/jotai.ts";
@@ -27,9 +26,13 @@ import {DateValue} from "react-aria-components";
 import {MissedDaysBanner} from "@/components/inventory/kitchen_reconciliation/missed-days.banner.tsx";
 import {ReconciliationGrid} from "@/components/inventory/kitchen_reconciliation/reconciliation.grid.tsx";
 import {VariancePanel} from "@/components/inventory/kitchen_reconciliation/variance.panel.tsx";
-import {ReconciliationCsvImportModal} from "@/components/inventory/kitchen_reconciliation/csv.import.tsx";
 import {RevisionHistory} from "@/components/inventory/kitchen_reconciliation/revision.history.tsx";
 import {listInventoryLocations, toLocationOptions} from "@/lib/inventory/location.service.ts";
+import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
+import {
+  createKitchenReconImportConfig,
+  type KitchenReconLine,
+} from "@/components/inventory/kitchen_reconciliation/kitchen-recon.import.config.ts";
 
 type LocationOption = {
   label: string;
@@ -47,6 +50,17 @@ export const KitchenReconciliationScreen = () => {
   const [locationRows, setLocationRows] = useState<InventoryLocation[]>([]);
   const [loadingLocations, setLoadingLocations] = useState(false);
   const [csvOpen, setCsvOpen] = useState(false);
+  const batchRef = useRef<KitchenReconLine[]>([]);
+
+  const kitchenReconImportConfig = useMemo(
+    () =>
+      createKitchenReconImportConfig({
+        db,
+        t,
+        collect: (line) => batchRef.current.push(line),
+      }),
+    [db, t]
+  );
 
   const locationId = selectedLocation?.value ?? null;
 
@@ -159,35 +173,13 @@ export const KitchenReconciliationScreen = () => {
     });
   };
 
-  const handleCsvImport = async (rows: Array<Record<string, string>>) => {
+  const handleSmartImportDone = async () => {
     if (!userId) return;
-
-    const lines: ManualLineInput[] = [];
-
-    for (const row of rows) {
-      const code = row.item_code?.trim();
-      if (!code) continue;
-
-      const [itemRows] = await db.query(
-        `SELECT id FROM ${Tables.inventory_items} WHERE code = $code LIMIT 1`,
-        {code}
-      );
-      const item = (itemRows as Array<{id: string}> | undefined)?.[0];
-      if (!item?.id) {
-        toast.error(t("kitchenReconciliation.unknownItemCode", {code}));
-        continue;
-      }
-
-      lines.push({
-        itemId: String(item.id),
-        physicalCount: row.physical_count?.trim() ? Number(row.physical_count) : null,
-        wasteQty: Number(row.waste) || 0,
-        staffMealQty: Number(row.staff_meal) || 0,
-        complimentaryQty: Number(row.complimentary) || 0,
-      });
+    const lines = batchRef.current.splice(0, batchRef.current.length);
+    if (lines.length === 0) {
+      setCsvOpen(false);
+      return;
     }
-
-    if (lines.length === 0) return;
 
     try {
       await saveLines(lines, userId, "csv_import");
@@ -345,21 +337,32 @@ export const KitchenReconciliationScreen = () => {
         </div>
       )}
 
-      <ReconciliationCsvImportModal
-        isOpen={csvOpen}
-        onClose={() => setCsvOpen(false)}
-        onImportRows={handleCsvImport}
-        onExport={() =>
-          (reconciliation?.items ?? []).map((line) => ({
-            item_code: line.item?.code ?? "",
-            item_name: line.item?.name ?? "",
-            physical_count: line.physical_count != null ? String(line.physical_count) : "",
-            waste: String(line.waste_qty ?? 0),
-            staff_meal: String(line.staff_meal_qty ?? 0),
-            complimentary: String(line.complimentary_qty ?? 0),
-          }))
-        }
-      />
+      {csvOpen && (
+        <DataImportModal
+          isOpen
+          onClose={() => {
+            batchRef.current = [];
+            setCsvOpen(false);
+          }}
+          config={kitchenReconImportConfig}
+          title={t("kitchenReconciliation.smartImportTitle", {
+            defaultValue: t("kitchenReconciliation.csvImportTitle", {defaultValue: "Smart Import"}),
+          })}
+          onExport={() =>
+            (reconciliation?.items ?? []).map((line) => ({
+              item_code: line.item?.code ?? "",
+              item_name: line.item?.name ?? "",
+              physical_count: line.physical_count != null ? String(line.physical_count) : "",
+              waste: String(line.waste_qty ?? 0),
+              staff_meal: String(line.staff_meal_qty ?? 0),
+              complimentary: String(line.complimentary_qty ?? 0),
+            }))
+          }
+          onDone={() => {
+            void handleSmartImportDone();
+          }}
+        />
+      )}
     </div>
   );
 };

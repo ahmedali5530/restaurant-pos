@@ -140,7 +140,11 @@
     "arrangeTables": "Расставить столы",
     "updateSelected": "Обновить выбранные",
     "importIngredients": "Импорт ингредиентов",
-    "importModifierGroups": "Импорт групп модификаторов"
+    "importModifierGroups": "Импорт групп модификаторов",
+    "smartImportDishes": "Умный импорт",
+    "smartImport": "Умный импорт",
+    "smartImportIngredients": "Умный импорт ингредиентов",
+    "smartImportModifierGroups": "Умный импорт групп модификаторов"
   },
   "delete": {
     "dish": "Удалить позицию {{name}}",
@@ -332,7 +336,12 @@
     "uom": "Ед. изм.",
     "unitCost": "Цена за единицу",
     "lineTotal": "Итого",
-    "priceLocked": "Цена заблокирована"
+    "priceLocked": "Цена заблокирована",
+    "smartImportDishesTitle": "Умный импорт блюд (CSV, Excel, PDF, изображение)",
+    "smartImportCategoriesTitle": "Умный импорт категорий (CSV, Excel, PDF, изображение)",
+    "smartImportTablesTitle": "Умный импорт столов (CSV, Excel, PDF, изображение)",
+    "smartImportIngredientsTitle": "Умный импорт ингредиентов блюд",
+    "smartImportModifierGroupsTitle": "Умный импорт групп модификаторов"
   },
   "dishView": {
     "detailsTitle": "Детали блюда",

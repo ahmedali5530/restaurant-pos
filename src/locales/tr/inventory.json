@@ -142,7 +142,15 @@
     "previousPrice": "Önceki fiyat",
     "updateWaste": "Fireyi güncelle #{{number}}",
     "updatePurchaseReturn": "İadeyi güncelle #{{number}}",
-    "expiredLot": "Süresi dolmuş {{date}}"
+    "expiredLot": "Süresi dolmuş {{date}}",
+    "smartImportItemsTitle": "Kalemleri akıllı içe aktar",
+    "smartImportPurchaseTitle": "Satın alma satırlarını akıllı içe aktar",
+    "smartImportPurchaseOrderTitle": "Sipariş satırlarını akıllı içe aktar",
+    "smartImportIssueTitle": "Çıkış satırlarını akıllı içe aktar",
+    "smartImportIssueReturnTitle": "İade satırlarını akıllı içe aktar",
+    "smartImportWasteTitle": "Fire satırlarını akıllı içe aktar",
+    "smartImportAdjustmentTitle": "Düzeltme satırlarını akıllı içe aktar",
+    "smartImportPurchaseReturnTitle": "Satın alma iade satırlarını akıllı içe aktar"
   },
   "validation": {
     "required": "Bu alan zorunludur",
@@ -287,7 +295,8 @@
       "verified": "Doğrulandı",
       "missed": "Kaçırıldı"
     },
-    "keyboardHint": "Düzenlenebilir hücreler arasında gezinmek için Ctrl/Cmd + ok tuşları."
+    "keyboardHint": "Düzenlenebilir hücreler arasında gezinmek için Ctrl/Cmd + ok tuşları.",
+    "smartImportTitle": "Mutfak mutabakatını akıllı içe aktar"
   },
   "stockTransfer": {
     "type": "Transfer türü",

@@ -172,14 +172,24 @@ export const fetchAiUsage = async (): Promise<AiUsageStatus | null> => {
   }
 };
 
+export type OpenAIResponseFormat = {
+  type: "json_object" | "text" | (string & {});
+  [key: string]: unknown;
+};
+
 export const callOpenAIChat = async ({
   messages,
   tools,
   task,
+  responseFormat,
+  signal,
 }: {
   messages: OpenAIChatMessage[];
   tools?: OpenAIToolDefinition[];
   task?: AiTask;
+  /** Optional OpenAI-compatible response_format (e.g. json_object). */
+  responseFormat?: OpenAIResponseFormat;
+  signal?: AbortSignal;
 }): Promise<OpenAIChatResponse> => {
   const response = await fetch(apiUrl(CHAT_COMPLETIONS_PATH), {
     method: "POST",
@@ -188,7 +198,9 @@ export const callOpenAIChat = async ({
       messages,
       tools,
       ...(task ? {task} : {}),
+      ...(responseFormat ? {response_format: responseFormat} : {}),
     }),
+    signal,
   });
 
   if (!response.ok) {

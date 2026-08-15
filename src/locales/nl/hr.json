@@ -486,7 +486,8 @@
       "7": "Zondag"
     },
     "shiftsGenerated": "{{created}} dienst(en) aangemaakt, {{skipped}} overgeslagen.",
-    "conflictsDetected": "Sommige diensten konden niet worden aangemaakt vanwege conflicten."
+    "conflictsDetected": "Sommige diensten konden niet worden aangemaakt vanwege conflicten.",
+    "smartImportShiftsTitle": "Geplande diensten slim importeren"
   },
   "leave": {
     "vacation": "Vakantie",

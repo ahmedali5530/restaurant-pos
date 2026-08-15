@@ -140,7 +140,11 @@
     "arrangeTables": "Masaları düzenle",
     "updateSelected": "Seçilenleri güncelle",
     "importIngredients": "Malzemeleri İçe Aktar",
-    "importModifierGroups": "Modifikatör Gruplarını İçe Aktar"
+    "importModifierGroups": "Modifikatör Gruplarını İçe Aktar",
+    "smartImportDishes": "Akıllı içe aktarma",
+    "smartImport": "Akıllı içe aktarma",
+    "smartImportIngredients": "Malzemeleri akıllı içe aktar",
+    "smartImportModifierGroups": "Modifikatör gruplarını akıllı içe aktar"
   },
   "delete": {
     "dish": "{{name}} ürününü sil",
@@ -332,7 +336,12 @@
     "uom": "Birim",
     "unitCost": "Birim maliyet",
     "lineTotal": "Toplam",
-    "priceLocked": "Fiyat kilitli"
+    "priceLocked": "Fiyat kilitli",
+    "smartImportDishesTitle": "Akıllı yemek içe aktarma (CSV, Excel, PDF, görsel)",
+    "smartImportCategoriesTitle": "Kategorileri akıllı içe aktar (CSV, Excel, PDF, görsel)",
+    "smartImportTablesTitle": "Masaları akıllı içe aktar (CSV, Excel, PDF, görsel)",
+    "smartImportIngredientsTitle": "Yemek malzemelerini akıllı içe aktar",
+    "smartImportModifierGroupsTitle": "Modifikatör gruplarını akıllı içe aktar"
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",

@@ -8,7 +8,7 @@ const { resolveProfile, buildHeaders } = require('./ai.profiles');
  * profile key/URL/model from env. Returns the raw upstream response for the browser.
  * Messages are passed through unchanged (including vision image_url parts).
  */
-async function chatCompletion({ task, messages, tools }) {
+async function chatCompletion({ task, messages, tools, response_format }) {
   const profile = resolveProfile(task);
 
   if (!Array.isArray(messages) || messages.length === 0) {
@@ -21,6 +21,11 @@ async function chatCompletion({ task, messages, tools }) {
   if (Array.isArray(tools) && tools.length) {
     body.tools = tools;
     body.tool_choice = 'auto';
+  }
+  // Pass through optional response_format (e.g. { type: 'json_object' }) for
+  // structured extraction. Not all upstreams support it; callers should handle errors.
+  if (response_format && typeof response_format === 'object') {
+    body.response_format = response_format;
   }
 
   logger.debug('ai', 'forwarding chat completion', {

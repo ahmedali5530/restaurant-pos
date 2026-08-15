@@ -16,7 +16,7 @@ import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {InventorySupplier} from "@/api/model/inventory_supplier.ts";
 import {RecordId, StringRecordId} from "surrealdb";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faPlus, faTrash, faUpload} from "@fortawesome/free-solid-svg-icons";
 import _ from "lodash";
 import {SupplierForm} from "@/components/inventory/suppliers/form.tsx";
 import {useAtom} from "jotai";
@@ -28,6 +28,8 @@ import {dateToCalendarDate, getToday} from "@/utils/date.ts";
 import { documentCreatedAtFromDateValue, toJsDate } from "@/lib/datetime.ts";
 import {InventoryFormLineTotal} from "@/components/inventory/common/form.line.total.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
+import {createPurchaseOrderImportConfig} from "@/components/inventory/purchase_orders/purchase-order.import.config.ts";
 import {getLastPurchasePrice} from "@/lib/inventory/last.purchase.price.ts";
 import {withCurrency} from "@/lib/utils.ts";
 
@@ -143,6 +145,11 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
     control,
     name: "items"
   });
+  const [importModal, setImportModal] = useState(false);
+  const purchaseOrderImportConfig = useMemo(
+    () => createPurchaseOrderImportConfig({db, t, append}),
+    [db, t, append]
+  );
   const watchedItems = useWatch({
     control,
     name: "items"
@@ -480,6 +487,14 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                 >
                   Add item
                 </Button>
+                <Button
+                  type="button"
+                  icon={faUpload}
+                  variant="secondary"
+                  onClick={() => setImportModal(true)}
+                >
+                  {t('common:actions.smartImport', {defaultValue: 'Smart Import'})}
+                </Button>
               </div>
 
               <InputError error={_.get(errors, ["items", "message"])}/>
@@ -612,6 +627,16 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
             setSupplierModal(false);
             fetchSuppliers();
           }}
+        />
+      )}
+
+      {importModal && (
+        <DataImportModal
+          isOpen
+          onClose={() => setImportModal(false)}
+          config={purchaseOrderImportConfig}
+          title={t('forms.smartImportPurchaseOrderTitle', {defaultValue: 'Smart import PO lines'})}
+          onDone={() => setImportModal(false)}
         />
       )}
     </>

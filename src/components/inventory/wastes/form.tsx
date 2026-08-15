@@ -18,7 +18,7 @@ import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {InventoryPurchaseItem} from "@/api/model/inventory_purchase.ts";
 import {RecordId} from "surrealdb";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faTrash, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faTrash, faPlus, faUpload} from "@fortawesome/free-solid-svg-icons";
 import _ from "lodash";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
@@ -38,6 +38,8 @@ import { useInventorySettings } from "@/hooks/useInventorySettings.ts";
 import { fetchNetQuantity } from "@/utils/inventory.ts";
 import { resolveCatalogUnitCost } from "@/lib/inventory/line.cost.ts";
 import { toRecordId } from "@/lib/utils.ts";
+import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
+import {createWasteImportConfig} from "@/components/inventory/wastes/waste.import.config.ts";
 
 type SelectOption = { label: string; value: string } | null;
 
@@ -163,6 +165,20 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
     control,
     name: "items"
   });
+
+  const [importModal, setImportModal] = useState(false);
+  const wasteImportConfig = useMemo(
+    () => createWasteImportConfig({
+      db,
+      t,
+      append: (line) => append({
+        ...line,
+        purchase_item_id: null,
+        expiry_date: null,
+      }),
+    }),
+    [db, t, append]
+  );
   const watchedItems = useWatch({control, name: "items"});
   const watchedLocation = useWatch({control, name: "location"});
 
@@ -654,6 +670,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
   };
 
   return (
+    <>
     <Modal
       title={data ? t('forms.updateWaste', { number: data.invoice_number }) : t('forms.createWaste')}
       open={open}
@@ -737,7 +754,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
 
           <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
             <legend>{t('tabs.items')}</legend>
-            <div className="mb-3">
+            <div className="mb-3 flex gap-2">
               <Button
                 type="button"
                 icon={faPlus}
@@ -752,6 +769,15 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                 disabled={!watchedLocation?.value}
               >
                 {t('common:actions.add')}
+              </Button>
+              <Button
+                type="button"
+                icon={faUpload}
+                variant="secondary"
+                onClick={() => setImportModal(true)}
+                disabled={!watchedLocation?.value}
+              >
+                {t('common:actions.smartImport', {defaultValue: 'Smart Import'})}
               </Button>
             </div>
 
@@ -829,5 +855,15 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
         </div>
       </form>
     </Modal>
+    {importModal && (
+      <DataImportModal
+        isOpen
+        onClose={() => setImportModal(false)}
+        config={wasteImportConfig}
+        title={t('forms.smartImportWasteTitle', {defaultValue: 'Smart import waste lines'})}
+        onDone={() => setImportModal(false)}
+      />
+    )}
+    </>
   );
 };

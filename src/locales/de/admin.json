@@ -140,7 +140,11 @@
     "arrangeTables": "Tische anordnen",
     "updateSelected": "Ausgewählte aktualisieren",
     "importIngredients": "Zutaten importieren",
-    "importModifierGroups": "Modifier-Gruppen importieren"
+    "importModifierGroups": "Modifier-Gruppen importieren",
+    "smartImportDishes": "Intelligenter Import",
+    "smartImport": "Smart-Import",
+    "smartImportIngredients": "Zutaten Smart-Import",
+    "smartImportModifierGroups": "Modifiergruppen Smart-Import"
   },
   "delete": {
     "dish": "Artikel {{name}} löschen",
@@ -332,7 +336,12 @@
     "uom": "ME",
     "unitCost": "Stückkosten",
     "lineTotal": "Gesamt",
-    "priceLocked": "Preis gesperrt"
+    "priceLocked": "Preis gesperrt",
+    "smartImportDishesTitle": "Intelligenter Gerichte-Import (CSV, Excel, PDF, Bild)",
+    "smartImportCategoriesTitle": "Kategorien Smart-Import (CSV, Excel, PDF, Bild)",
+    "smartImportTablesTitle": "Tische Smart-Import (CSV, Excel, PDF, Bild)",
+    "smartImportIngredientsTitle": "Gerichtszutaten Smart-Import",
+    "smartImportModifierGroupsTitle": "Modifiergruppen Smart-Import"
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",

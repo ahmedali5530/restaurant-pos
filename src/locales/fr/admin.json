@@ -140,7 +140,11 @@
     "arrangeTables": "Disposer les tables",
     "updateSelected": "Mettre à jour la sélection",
     "importIngredients": "Importer des ingrédients",
-    "importModifierGroups": "Importer des groupes de modificateurs"
+    "importModifierGroups": "Importer des groupes de modificateurs",
+    "smartImportDishes": "Import intelligent",
+    "smartImport": "Importation intelligente",
+    "smartImportIngredients": "Importer les ingrédients",
+    "smartImportModifierGroups": "Importer les groupes de modificateurs"
   },
   "delete": {
     "dish": "Supprimer l'article {{name}}",
@@ -332,7 +336,12 @@
     "uom": "UdM",
     "unitCost": "Coût unitaire",
     "lineTotal": "Total",
-    "priceLocked": "Prix verrouillé"
+    "priceLocked": "Prix verrouillé",
+    "smartImportDishesTitle": "Import intelligent de plats (CSV, Excel, PDF, image)",
+    "smartImportCategoriesTitle": "Importation intelligente des catégories (CSV, Excel, PDF, image)",
+    "smartImportTablesTitle": "Importation intelligente des tables (CSV, Excel, PDF, image)",
+    "smartImportIngredientsTitle": "Importation intelligente des ingrédients",
+    "smartImportModifierGroupsTitle": "Importation intelligente des groupes de modificateurs"
   },
   "dishView": {
     "detailsTitle": "Détails du plat",
