@@ -308,7 +308,6 @@ function buildGuideMarkdown(guideMeta, guideDef, chapters, langFolder) {
 
 function buildGuideHtml(guideMeta, guideDef, chapters, lang, langFolder) {
   const body = [];
-  body.push(`<p><a href="../index.html">← POSR Documentation</a></p>`);
   body.push(`<header><h1>${escapeHtml(guideMeta.emoji)} ${escapeHtml(guideMeta.title)}</h1>`);
   body.push(`<p>${escapeHtml(guideMeta.intro)}</p></header>`);
 
