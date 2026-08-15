@@ -1,0 +1,123 @@
+{
+  "title": "Ricette e produzione",
+  "intro": "Definisci ricette batch, esegui produzione e rivedi lo storico.",
+  "sections": [
+    {
+      "id": "recipes",
+      "title": "Elenco ricette",
+      "steps": [
+        "Magazzino → Ricette.",
+        "Sfoglia ricette attive.",
+        "Aggiungi o modifica ricette."
+      ],
+      "image": "inventory-recipes.png",
+      "caption": "Scheda manutenzione ricette.",
+      "fields": []
+    },
+    {
+      "id": "recipe-form",
+      "title": "Modulo ricetta",
+      "intro": "Definisce input, resa output e allocazione costi.",
+      "steps": [
+        "Aggiungi o modifica ricetta.",
+        "Nome, codice e qty lotto base.",
+        "Righe input e output.",
+        "Salva."
+      ],
+      "image": "inventory-recipe-form.png",
+      "caption": "Modulo input/output.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Nome in produzione e report."
+        },
+        {
+          "name": "Codice",
+          "effect": "Codice breve opzionale."
+        },
+        {
+          "name": "Qty lotto base",
+          "effect": "Dimensione batch standard."
+        },
+        {
+          "name": "Allocazione costo",
+          "effect": "Ripartisce costo input."
+        },
+        {
+          "name": "Input",
+          "effect": "Consumati per batch."
+        },
+        {
+          "name": "Output",
+          "effect": "Prodotti con resa %."
+        },
+        {
+          "name": "Attivo",
+          "effect": "Inattive nascoste nelle nuove produzioni."
+        }
+      ]
+    },
+    {
+      "id": "production",
+      "title": "Run produzione",
+      "steps": [
+        "Scheda Produzione.",
+        "Nuovo batch da ricetta attiva.",
+        "Anteprima e completa."
+      ],
+      "image": "inventory-production.png",
+      "caption": "Scheda Produzione.",
+      "fields": []
+    },
+    {
+      "id": "production-form",
+      "title": "Modulo batch produzione",
+      "intro": "Al completamento deduce input e aggiunge output.",
+      "steps": [
+        "Nuova produzione.",
+        "Ricetta, sede, qty.",
+        "Anteprima e completa."
+      ],
+      "image": "inventory-production-form.png",
+      "caption": "Modulo con anteprima.",
+      "fields": [
+        {
+          "name": "Ricetta",
+          "effect": "Definisce ingredienti e output."
+        },
+        {
+          "name": "Sede",
+          "effect": "Magazzino consumo/produzione."
+        },
+        {
+          "name": "Qty prodotta",
+          "effect": "Scala da lotto base."
+        },
+        {
+          "name": "N. batch",
+          "effect": "Riferimento opzionale."
+        },
+        {
+          "name": "Aggiorna costo articolo",
+          "effect": "Ricalcola costo output."
+        },
+        {
+          "name": "Note",
+          "effect": "Nota libera."
+        }
+      ]
+    },
+    {
+      "id": "production-history",
+      "title": "Storico produzione",
+      "steps": [
+        "Verifica batch completati.",
+        "Filtra data/ricetta/sede.",
+        "Apri riga per dettagli."
+      ],
+      "image": "inventory-production-history.png",
+      "caption": "Elenco storico.",
+      "fields": []
+    }
+  ]
+}

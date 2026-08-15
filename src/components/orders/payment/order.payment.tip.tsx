@@ -32,7 +32,7 @@ export const OrderPaymentTip = ({
   }, [tip, tipType]);
 
   return (
-    <div className="flex flex-col justify-between h-full">
+    <div className="flex flex-col justify-between h-full" data-testid="payment-panel-tip">
       <div className="mb-5 flex justify-between flex-col gap-5">
         <Button variant="danger" active={draftTip === 0} onClick={() => setDraftTip(0)} size="lg">{t('tip.noTip')}</Button>
         <div className="input-group">
@@ -107,6 +107,7 @@ export const OrderPaymentTip = ({
       <Button
         variant="success"
         size="lg"
+        data-testid="payment-ok"
         onClick={() => {
           setTipType(draftTipType);
           setTip(draftTip);

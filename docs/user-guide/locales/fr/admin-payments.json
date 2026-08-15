@@ -1,0 +1,196 @@
+{
+  "title": "Payment types, taxes, and order types",
+  "intro": "Configure how orders are classified and settled: payment methods, tax rules, and service types (dine-in, delivery, etc.).",
+  "sections": [
+    {
+      "id": "payment-types",
+      "title": "Payment types",
+      "steps": [
+        "Open the Payment types tab.",
+        "Define Cash, Card, and custom tenders shown on the payment screen.",
+        "Set sort order and whether a type requires reference or change calculation."
+      ],
+      "image": "admin-payments-types.png",
+      "caption": "Payment types tab."
+    },
+    {
+      "id": "taxes",
+      "title": "Taxes",
+      "intro": "Taxes apply to dishes and appear on receipts and reports.",
+      "steps": [
+        "Open the Taxes tab.",
+        "Create tax rates and link them to applicable items or order types.",
+        "Save so new orders calculate tax correctly."
+      ],
+      "image": "admin-payments-taxes.png",
+      "caption": "Taxes tab."
+    },
+    {
+      "id": "order-types",
+      "title": "Order types",
+      "steps": [
+        "Open the Order types tab.",
+        "Configure dine-in, takeaway, delivery, and other service modes.",
+        "Order types drive kitchen routing, reporting, and default behaviors."
+      ],
+      "image": "admin-payments-order-types.png",
+      "caption": "Order types tab."
+    },
+    {
+      "id": "extras",
+      "title": "Extras",
+      "intro": "Extras are automatic surcharges linked to payment types, order types, or tables (e.g. service fees or cover charges).",
+      "steps": [
+        "Open the Extras tab.",
+        "Create extras with name, amount, and applicability rules.",
+        "Save so qualifying orders include the surcharge on payment."
+      ],
+      "image": "admin-extras.png",
+      "caption": "Extras tab."
+    },
+    {
+      "id": "payment-type-form",
+      "title": "Formulaire type paiement",
+      "intro": "Local et Remote Stripe, PayPal.",
+      "steps": [
+        "Admin → Paiements → Types.",
+        "Nom, priorité, type.",
+        "Remote: gateway, mode, clés.",
+        "Enregistrer."
+      ],
+      "image": "admin-payments-type-form.png",
+      "caption": "Formulaire gateway remote.",
+      "fields": [
+        {
+          "name": "Nom",
+          "effect": "Libellé boutons paiement."
+        },
+        {
+          "name": "Priorité",
+          "effect": "Ordre."
+        },
+        {
+          "name": "Type",
+          "effect": "Remote active gateway."
+        },
+        {
+          "name": "Fournisseur gateway",
+          "effect": "Stripe, PayPal etc."
+        },
+        {
+          "name": "Mode gateway",
+          "effect": "Test vs live."
+        },
+        {
+          "name": "public_key",
+          "effect": "Clé publiable client."
+        },
+        {
+          "name": "secret_key",
+          "effect": "Secret serveur."
+        },
+        {
+          "name": "webhook_secret",
+          "effect": "Valide callbacks."
+        },
+        {
+          "name": "client_id / client_secret",
+          "effect": "Gateways OAuth."
+        },
+        {
+          "name": "merchant_id / integrity_salt",
+          "effect": "Champs marchand."
+        },
+        {
+          "name": "Taxe",
+          "effect": "Règle fiscale défaut."
+        },
+        {
+          "name": "Remises",
+          "effect": "Règles auto."
+        }
+      ]
+    },
+    {
+      "id": "tax-form",
+      "title": "Formulaire taxe",
+      "steps": [
+        "Paiements → Taxes.",
+        "Nom, taux, inclusif/exclusif.",
+        "Enregistrer."
+      ],
+      "image": "admin-payments-tax-form.png",
+      "caption": "Formulaire taxe.",
+      "fields": [
+        {
+          "name": "Nom",
+          "effect": "Libellé reçu."
+        },
+        {
+          "name": "Taux",
+          "effect": "Pourcentage taxable."
+        },
+        {
+          "name": "Inclusif",
+          "effect": "Si true, inclus dans prix."
+        }
+      ]
+    },
+    {
+      "id": "order-type-form",
+      "title": "Formulaire type commande",
+      "steps": [
+        "Paiements → Types commande.",
+        "Nom et drapeaux.",
+        "Enregistrer."
+      ],
+      "image": "admin-payments-order-type-form.png",
+      "caption": "Formulaire type commande.",
+      "fields": [
+        {
+          "name": "Nom",
+          "effect": "Type sur additions."
+        },
+        {
+          "name": "Priorité",
+          "effect": "Ordre sélecteurs."
+        },
+        {
+          "name": "Par défaut",
+          "effect": "Présélectionné nouveaux."
+        }
+      ]
+    },
+    {
+      "id": "extra-form",
+      "title": "Formulaire extra (service)",
+      "intro": "Ajoute surcharges automatiques.",
+      "steps": [
+        "Paiements → Extras.",
+        "Nom et montant/taux.",
+        "Règles application.",
+        "Enregistrer."
+      ],
+      "image": "admin-payments-extra-form.png",
+      "caption": "Formulaire surcharge.",
+      "fields": [
+        {
+          "name": "Nom",
+          "effect": "Libellé reçu client."
+        },
+        {
+          "name": "Montant / taux",
+          "effect": "Fixe ou pourcent."
+        },
+        {
+          "name": "Taxable",
+          "effect": "TVA sur surcharge."
+        },
+        {
+          "name": "Règles auto",
+          "effect": "Types commande/paiement."
+        }
+      ]
+    }
+  ]
+}

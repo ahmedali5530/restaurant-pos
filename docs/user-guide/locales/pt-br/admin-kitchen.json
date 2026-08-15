@@ -1,0 +1,87 @@
+{
+  "title": "Kitchens and workflows",
+  "intro": "Route fired items to the right kitchen stations and define how orders move through preparation stages.",
+  "sections": [
+    {
+      "id": "kitchens",
+      "title": "Kitchens",
+      "intro": "Kitchens group dishes and link to printers for kitchen tickets.",
+      "steps": [
+        "Open the Kitchens tab.",
+        "Create kitchen stations (e.g. Grill, Bar, Pastry).",
+        "Assign dishes and printers so tickets route to the correct station."
+      ],
+      "image": "admin-kitchens.png",
+      "caption": "Kitchens maintenance table."
+    },
+    {
+      "id": "workflows",
+      "title": "Workflows",
+      "intro": "Workflows define order-status steps used by kitchen and order-display screens.",
+      "steps": [
+        "Open the Workflows tab.",
+        "Create or edit workflow steps and transitions.",
+        "Link workflows to order types or kitchens as required by your venue setup."
+      ],
+      "image": "admin-workflows.png",
+      "caption": "Workflows tab."
+    },
+    {
+      "id": "kitchen-form",
+      "title": "Formulário cozinha",
+      "intro": "Roteia pratos a impressoras e locais.",
+      "steps": [
+        "Admin → Cozinha → Cozinhas.",
+        "Nome, prioridade, impressoras, pratos.",
+        "Salvar."
+      ],
+      "image": "admin-kitchen-kitchen-form.png",
+      "caption": "Formulário estação cozinha.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Rótulo KOT e display."
+        },
+        {
+          "name": "Prioridade",
+          "effect": "Ordem quando várias cozinhas."
+        },
+        {
+          "name": "Impressoras",
+          "effect": "Dispositivos de ticket."
+        },
+        {
+          "name": "Itens (pratos)",
+          "effect": "Pratos roteados."
+        }
+      ]
+    },
+    {
+      "id": "workflow-form",
+      "title": "Formulário workflow",
+      "intro": "Encadeia etapas de cozinha.",
+      "steps": [
+        "Cozinha → Workflows.",
+        "Nome e etapas.",
+        "Cozinha por etapa.",
+        "Vincule a pratos."
+      ],
+      "image": "admin-kitchen-workflow-form.png",
+      "caption": "Editor etapas workflow.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "ID em pratos."
+        },
+        {
+          "name": "Etapas",
+          "effect": "Passos ordenados."
+        },
+        {
+          "name": "Cozinha etapa",
+          "effect": "Estação de cada etapa."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "title": "POSR End-User Guide",
+  "subtitle": "Login, Settings, Menu, Cart, Payment, Orders, and Session",
+  "intro": "This guide covers signing in, device settings, taking orders, cart and payment, the Orders list, and session lock, logout, and clock.",
+  "toc": "Contents",
+  "footer": "",
+  "chapters": {
+    "login": "Login",
+    "settings": "Settings",
+    "menu": "Menu",
+    "cart": "Cart",
+    "payment": "Payment",
+    "orders": "Orders",
+    "session": "Session"
+  }
+}

@@ -106,7 +106,7 @@ export const AdminKitchens = () => {
               module: 'admin.kitchens.create',
               description: getAccessRuleChildLabel('admin.kitchens.create'),
             });
-          }} icon={faPlus}>{t('buttons.kitchen')}</Button>
+          }} icon={faPlus} data-testid="admin-add-kitchens">{t('buttons.kitchen')}</Button>
         ]}
       />
 

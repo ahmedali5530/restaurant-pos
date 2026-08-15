@@ -1,0 +1,36 @@
+{
+  "title": "POSR-Dokumentation",
+  "intro": "Rollenbasierte Anleitungen für POSR. Wählen Sie den Leitfaden zu Ihrer Rolle: Service, Management, Lager, Buchhaltung, HR oder Administrator.",
+  "toc": "Anleitungen",
+  "openGuide": "Anleitung öffnen",
+  "statusReady": "Fertig",
+  "statusPlanned": "Geplant",
+  "comingSoon": "Demnächst — dieses Kapitel ist geplant und noch nicht dokumentiert.",
+  "plannedLabel": "Geplant",
+  "guides": {
+    "employee": {
+      "title": "Mitarbeiterleitfaden",
+      "intro": "Tägliche Kassenarbeit: Anmeldung, Bestellungen, Warenkorb und Zahlung, offene Checks, Sperre und Ausstempeln."
+    },
+    "manager": {
+      "title": "Managerleitfaden",
+      "intro": "Schichtführung: Umsatzübersicht, Küche, Lieferung, Abschluss und operative Berichte."
+    },
+    "inventory": {
+      "title": "Lagerleitfaden",
+      "intro": "Bestand, Einkäufe, Ausgaben, Schwund und Inventuren für die Lagerrolle."
+    },
+    "accounts": {
+      "title": "Buchhaltungsleitfaden",
+      "intro": "Finanzbücher, Ausgaben und buchhalterische POS-Werkzeuge."
+    },
+    "hr": {
+      "title": "HR-Leitfaden",
+      "intro": "Personal: Mitarbeitende, Anwesenheit, Urlaub, Lohnabrechnung, Dokumente, Leistung und Trinkgeldverteilung."
+    },
+    "admin": {
+      "title": "Administratorleitfaden",
+      "intro": "Standortkonfiguration: Manage, Integrationen und erweiterte Einstellungen."
+    }
+  }
+}

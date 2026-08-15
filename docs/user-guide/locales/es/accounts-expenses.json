@@ -1,0 +1,29 @@
+{
+  "title": "Asientos y grupos de cuentas",
+  "intro": "Registre transacciones con asientos y organice el plan con grupos. Los gastos de caja del cierre son independientes de estos diarios GL.",
+  "sections": [
+    {
+      "id": "journal",
+      "title": "Asientos de diario",
+      "steps": [
+        "Abra Asientos de diario.",
+        "Cree líneas débito/crédito equilibradas.",
+        "Guarde para contabilizar en el mayor (puede requerir aprobación)."
+      ],
+      "image": "accounts-journal.png",
+      "caption": "Pestaña Asientos de diario."
+    },
+    {
+      "id": "groups",
+      "title": "Grupos de cuentas",
+      "intro": "Los grupos organizan cuentas para estados e informes.",
+      "steps": [
+        "Abra Grupos de cuentas.",
+        "Cree grupos según su estructura de informes.",
+        "Asigne cuentas desde el plan o formularios de grupo."
+      ],
+      "image": "accounts-groups.png",
+      "caption": "Pestaña Grupos de cuentas."
+    }
+  ]
+}

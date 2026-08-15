@@ -1,0 +1,99 @@
+{
+  "title": "Leave",
+  "intro": "Manage time-off requests and public holidays that affect schedules and payroll.",
+  "sections": [
+    {
+      "id": "leave",
+      "title": "Leave requests",
+      "steps": [
+        "Open the Leave tab.",
+        "Review pending and approved leave for employees.",
+        "Approve or reject requests according to your HR role."
+      ],
+      "image": "hr-leave.png",
+      "caption": "Leave tab."
+    },
+    {
+      "id": "holidays",
+      "title": "Holidays",
+      "intro": "Holidays mark non-working or premium-pay calendar days for the venue.",
+      "steps": [
+        "Open the Holidays tab.",
+        "Add venue holidays for the year.",
+        "Holiday dates feed scheduling and pay-rule calculations when configured."
+      ],
+      "image": "hr-holidays.png",
+      "caption": "Holidays tab."
+    },
+    {
+      "id": "leave-form",
+      "title": "İzin talep formu",
+      "intro": "Yapılandırılmış izin türlerine göre talep gönderir.",
+      "steps": [
+        "İzin → Talep ekle.",
+        "Çalışan, tip, tarih aralığı.",
+        "Gün ve neden.",
+        "Kaydet."
+      ],
+      "image": "hr-form-leave.png",
+      "caption": "İzin talep formu.",
+      "fields": [
+        {
+          "name": "Çalışan",
+          "effect": "İzin isteyen personel."
+        },
+        {
+          "name": "İzin tipi",
+          "effect": "Ücretli/ücretsiz ve onay kuralları."
+        },
+        {
+          "name": "Başlangıç / bitiş",
+          "effect": "Kapsayıcı tarihler."
+        },
+        {
+          "name": "Günler",
+          "effect": "Tüketilen iş günleri."
+        },
+        {
+          "name": "Neden",
+          "effect": "Onaylayıcılar için not."
+        }
+      ]
+    },
+    {
+      "id": "holiday-form",
+      "title": "Resmi tatil formu",
+      "intro": "Ödeme kuralları ve planlamayla etkileşir.",
+      "steps": [
+        "İzin → Tatiller.",
+        "Ad, tarih, ülke kodu.",
+        "Yinelenen işaretle.",
+        "Kaydet."
+      ],
+      "image": "hr-form-holiday.png",
+      "caption": "Resmi tatil formu.",
+      "fields": [
+        {
+          "name": "Ad",
+          "effect": "Takvim ve kurallarda etiket."
+        },
+        {
+          "name": "Tarih",
+          "effect": "Gözlemlenen tarih."
+        },
+        {
+          "name": "Ülke kodu",
+          "effect": "ISO kodu isteğe bağlı."
+        },
+        {
+          "name": "Yinelenen",
+          "effect": "Her yıl aynı gün."
+        },
+        {
+          "name": "Aktif",
+          "effect": "Pasif tatiller yeni kurallarda yok sayılır."
+        }
+      ]
+    }
+  ]
+}

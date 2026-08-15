@@ -179,6 +179,8 @@ export const MenuDish = ({
         className="flex justify-center p-1 relative select-none"
         role="button"
         tabIndex={0}
+        data-testid="menu-dish"
+        data-dish-name={item.name}
         onClick={() => {
           if (modifierGroups.length > 0 && hasAutoOpen) {
             setModifiersModal(true)
@@ -211,7 +213,7 @@ export const MenuDish = ({
               loading="lazy"
               src={imageSrc}
               alt={item.name}
-              className="rounded-xl rounded-r-none pointer-events-none h-full w-[80px] xl:w-[110px] object-cover"/>
+              className="rounded-xl rounded-r-none pointer-events-none h-full sm:w-[50px] md:w-[60px] lg:w-[90px] xl:w-[100px] object-cover"/>
           </div>
           <div className="flex flex-1 flex-col px-3 py-2">
             <span className="flex flex-row gap-2 mb-1 flex-wrap">

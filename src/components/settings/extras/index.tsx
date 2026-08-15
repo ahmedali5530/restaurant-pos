@@ -105,6 +105,7 @@ export const AdminExtras = () => {
         buttons={[
           <Button
             variant="primary"
+            data-testid="admin-add-extras"
             onClick={() => {
               protectAction(() => {
                 setData(undefined);

@@ -1,0 +1,106 @@
+{
+  "title": "Paramètres appareil avancés",
+  "intro": "Les administrateurs gèrent cycle de clôture, clôture auto, sécurité session, pointage auto, service, menus, inventaire et imprimantes.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Paramètres administrateur",
+      "steps": [
+        "Connexion avec droits.",
+        "Ouvrez Paramètres (clé).",
+        "Cartes du site, pas seulement langue."
+      ],
+      "image": "settings-adv-overview.png",
+      "caption": "Cartes avancées."
+    },
+    {
+      "id": "closing-cycle",
+      "title": "Cycle de clôture",
+      "intro": "Fenêtre du jour d'exploitation.",
+      "steps": [
+        "Activez un cycle custom si nuit.",
+        "Définissez début/fin.",
+        "Enregistrez."
+      ],
+      "image": "settings-adv-closing-cycle.png",
+      "caption": "Carte cycle de clôture."
+    },
+    {
+      "id": "auto-check-close",
+      "title": "Clôture auto des notes",
+      "steps": [
+        "Activez le règlement en fin de cycle.",
+        "Impression et type de paiement.",
+        "Enregistrez."
+      ],
+      "image": "settings-adv-auto-check-close.png",
+      "caption": "Carte clôture auto."
+    },
+    {
+      "id": "session-security",
+      "title": "Sécurité de session",
+      "steps": [
+        "Verrou ou déconnexion idle.",
+        "Minutes et action.",
+        "Enregistrez."
+      ],
+      "image": "settings-adv-session-security.png",
+      "caption": "Carte sécurité session."
+    },
+    {
+      "id": "auto-clock-out",
+      "title": "Pointage sortie auto",
+      "steps": [
+        "Activez la sortie auto.",
+        "Fin de shift, heure fixe ou les deux.",
+        "Enregistrez."
+      ],
+      "image": "settings-adv-auto-clock-out.png",
+      "caption": "Carte sortie auto."
+    },
+    {
+      "id": "service-charges",
+      "title": "Frais de service",
+      "steps": [
+        "Type et valeur par défaut.",
+        "Appliqués au paiement.",
+        "Enregistrez."
+      ],
+      "image": "settings-adv-service-charges.png",
+      "caption": "Carte frais de service."
+    },
+    {
+      "id": "menus",
+      "title": "Menus actifs",
+      "steps": [
+        "Sélectionnez les menus du terminal.",
+        "Enregistrez.",
+        "Avec Gérer → Menus."
+      ],
+      "image": "settings-adv-menus.png",
+      "caption": "Carte menus."
+    },
+    {
+      "id": "inventory",
+      "title": "Paramètres inventaire",
+      "steps": [
+        "Préférences stock.",
+        "Enregistrez.",
+        "Docs sous Inventaire."
+      ],
+      "image": "settings-adv-inventory.png",
+      "caption": "Carte inventaire."
+    },
+    {
+      "id": "printers",
+      "title": "Imprimantes",
+      "steps": [
+        "Assignez les imprimantes.",
+        "Enregistrez.",
+        "Options d'impression à côté."
+      ],
+      "image": "settings-adv-printers.png",
+      "caption": "Carte imprimantes."
+    }
+  ]
+}

@@ -25,7 +25,7 @@ export const OrderPaymentTax = ({
   }, [tax]);
 
   return (
-    <div className="flex flex-col justify-between h-full gap-5">
+    <div className="flex flex-col justify-between h-full gap-5" data-testid="payment-panel-tax">
       <div className="flex flex-col gap-5">
         <Button
           className="min-w-[150px]"
@@ -51,7 +51,14 @@ export const OrderPaymentTax = ({
           ))}
         </div>
       </div>
-      <Button variant="success" size="lg" className="w-full" filled onClick={() => setTax(draftTax)}>
+      <Button
+        variant="success"
+        size="lg"
+        className="w-full"
+        filled
+        data-testid="payment-ok"
+        onClick={() => setTax(draftTax)}
+      >
         {t('common:actions.ok')}
       </Button>
     </div>

@@ -95,6 +95,7 @@ export const FloorForm = ({
   return (
     <>
       <Modal
+        testId="admin-form-floor"
         title={data ? t('forms.updateFloor', { name: data?.name }) : t('forms.createFloor')}
         open={open}
         onClose={closeModal}

@@ -1,0 +1,29 @@
+{
+  "title": "Yevmiye kayıtları ve hesap grupları",
+  "intro": "Yevmiye ile işlem kaydedin; gruplarla planı düzenleyin. Kasa kapanış giderleri bu GL kayıtlarından ayrıdır.",
+  "sections": [
+    {
+      "id": "journal",
+      "title": "Yevmiye kayıtları",
+      "steps": [
+        "Yevmiye sekmesini açın.",
+        "Dengeli borç/alacak satırları oluşturun.",
+        "Deftere kaydetmek için kaydedin."
+      ],
+      "image": "accounts-journal.png",
+      "caption": "Yevmiye sekmesi."
+    },
+    {
+      "id": "groups",
+      "title": "Hesap grupları",
+      "intro": "Gruplar raporlama için hesapları düzenler.",
+      "steps": [
+        "Hesap grupları sekmesini açın.",
+        "Rapor yapınıza uygun gruplar oluşturun.",
+        "Hesapları gruplara atayın."
+      ],
+      "image": "accounts-groups.png",
+      "caption": "Hesap grupları sekmesi."
+    }
+  ]
+}

@@ -72,7 +72,7 @@ export const WhatsNewDialog = () => {
         )}
 
         <div className="flex justify-end pt-2">
-          <Button variant="primary" size="lg" onClick={dismiss}>
+          <Button variant="primary" size="lg" data-testid="whats-new-dismiss" onClick={dismiss}>
             {t('whatsNew.dismiss')}
           </Button>
         </div>

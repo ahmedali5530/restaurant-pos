@@ -116,32 +116,39 @@ export const Admin = () => {
   return (
     <Layout>
       <DocumentTitle parts={[pages[selected].title, tNav('sidebar.manage')]} />
-      <Tabs
-        className="w-full flex flex-col"
-        selectedKey={selected}
-        onSelectionChange={(key: string) => protectAction(() => setSelected(key as AdminTabKey), {
-          module: ADMIN_TAB_MODULES[key as AdminTabKey],
-          description: t('tabs.accessTab', { title: pages[key as AdminTabKey].title }),
-        })}
-      >
-        <ScrollContainer mouseScroll hideScrollbars={false} className="flex-grow-0 flex-shrink">
-          <TabList aria-label={t('tabs.ariaLabel')} className="flex flex-row gap-3 px-1 py-3 flex-nowrap">
-            {ADMIN_TAB_KEYS.map(key => (
-              <Tab
-                id={key}
-                key={key}
-              >{t(TAB_I18N_KEYS[key])}</Tab>
-            ))}
-          </TabList>
-        </ScrollContainer>
-        {ADMIN_TAB_KEYS.map((key) => (
-          <TabPanel id={key} key={key} className="bg-white shadow flex-grow flex-shrink-0">
-            <div>
-              {pages[key].component}
-            </div>
-          </TabPanel>
-        ))}
-      </Tabs>
+      <div data-testid="admin-page">
+        <Tabs
+          className="w-full flex flex-col"
+          selectedKey={selected}
+          onSelectionChange={(key: string) => protectAction(() => setSelected(key as AdminTabKey), {
+            module: ADMIN_TAB_MODULES[key as AdminTabKey],
+            description: t('tabs.accessTab', { title: pages[key as AdminTabKey].title }),
+          })}
+        >
+          <ScrollContainer mouseScroll hideScrollbars={false} className="flex-grow-0 flex-shrink">
+            <TabList
+              aria-label={t('tabs.ariaLabel')}
+              className="flex flex-row gap-3 px-1 py-3 flex-nowrap"
+              data-testid="admin-tabs"
+            >
+              {ADMIN_TAB_KEYS.map(key => (
+                <Tab
+                  id={key}
+                  key={key}
+                  data-testid={`admin-tab-${key}`}
+                >{t(TAB_I18N_KEYS[key])}</Tab>
+              ))}
+            </TabList>
+          </ScrollContainer>
+          {ADMIN_TAB_KEYS.map((key) => (
+            <TabPanel id={key} key={key} className="bg-white shadow flex-grow flex-shrink-0">
+              <div data-testid={`admin-panel-${key}`}>
+                {pages[key].component}
+              </div>
+            </TabPanel>
+          ))}
+        </Tabs>
+      </div>
     </Layout>
   )
 }

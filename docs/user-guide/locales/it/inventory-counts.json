@@ -1,0 +1,29 @@
+{
+  "title": "Conteggi e trasferimenti",
+  "intro": "Riconcilia conteggi fisici con rettifiche e sposta scorte tra ubicazioni.",
+  "sections": [
+    {
+      "id": "adjustments",
+      "title": "Rettifiche (conteggi)",
+      "steps": [
+        "Apri Rettifiche.",
+        "Inserisci quantità contate.",
+        "Invia, approva e registra secondo il ruolo."
+      ],
+      "image": "inventory-counts-adjustments.png",
+      "caption": "Lista rettifiche."
+    },
+    {
+      "id": "transfers",
+      "title": "Trasferimenti scorte",
+      "intro": "Sposta scorte senza cambiare il totale aziendale.",
+      "steps": [
+        "Apri Trasferimenti.",
+        "Scegli origine, destinazione e righe.",
+        "Salva per aggiornare le quantità."
+      ],
+      "image": "inventory-counts-transfers.png",
+      "caption": "Scheda Trasferimenti."
+    }
+  ]
+}

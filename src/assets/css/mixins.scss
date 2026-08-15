@@ -3,7 +3,7 @@
     transform: scale(0.9);
   }
 
-  --border: 3px;
+  --border: 2px;
   --padding: 0.75rem;
   --overlay: rgba(255, 255, 255, 0.9);
   --color: theme('colors.neutral.900');
@@ -37,8 +37,9 @@
                           theme('colors.success.500'),
                           theme('colors.info.500'),
                           theme('colors.warning.500'),
-                          theme('colors.danger.500'),
+                          theme('colors.danger.500')
           )
           border-box;
   animation: bg-angle-spin var(--duration) infinite linear;
 }
+

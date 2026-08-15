@@ -1,0 +1,29 @@
+{
+  "title": "Çıkışlar ve iadeler",
+  "intro": "Depodan mutfaklara stok çıkarın ve kullanılmayan stoğu iade edin.",
+  "sections": [
+    {
+      "id": "issues",
+      "title": "Çıkışlar",
+      "steps": [
+        "Çıkışlar sekmesini açın.",
+        "Hedef (mutfak veya departman) ve satırlarla belge oluşturun.",
+        "Kaydetmek kaynak lokasyondan miktar düşer."
+      ],
+      "image": "inventory-issues-list.png",
+      "caption": "Çıkışlar listesi."
+    },
+    {
+      "id": "returns",
+      "title": "Çıkış iadeleri",
+      "intro": "Kullanılmayan çıkışları stoğa geri alın.",
+      "steps": [
+        "Çıkış İadeleri sekmesini açın.",
+        "Orijinal çıkışı seçin veya iade satırları girin.",
+        "Kaydetmek miktarı lokasyona ekler."
+      ],
+      "image": "inventory-issues-returns.png",
+      "caption": "Çıkış iadeleri sekmesi."
+    }
+  ]
+}

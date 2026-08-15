@@ -135,6 +135,7 @@ export const AdminCoupons = () => {
         buttons={[
           <Button
             variant="primary"
+            data-testid="admin-add-coupons"
             onClick={() => {
               protectAction(() => {
                 setData(undefined);

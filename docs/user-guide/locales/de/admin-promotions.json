@@ -1,0 +1,179 @@
+{
+  "title": "Discounts and coupons",
+  "intro": "Configure promotional pricing: discount rules with reasons and role permissions, plus coupon codes staff can apply at payment.",
+  "sections": [
+    {
+      "id": "discount-rules",
+      "title": "Discount rules",
+      "intro": "Discount rules define automatic or manual reductions by category, scope, and eligibility.",
+      "steps": [
+        "Open the Discounts tab in Manage.",
+        "Select the Rules sub-tab.",
+        "Add or edit rules; set type, value, scope, and when the discount applies."
+      ],
+      "image": "admin-discounts-rules.png",
+      "caption": "Discount rules list."
+    },
+    {
+      "id": "discount-reasons",
+      "title": "Discount reasons",
+      "intro": "Reasons appear when staff apply manual discounts so reporting can track why a reduction was given.",
+      "steps": [
+        "Open Discounts and switch to the Reasons sub-tab.",
+        "Create reasons staff can pick at the payment or cart screen.",
+        "Deactivate reasons you no longer want offered."
+      ],
+      "image": "admin-discounts-reasons.png",
+      "caption": "Discount reasons maintenance."
+    },
+    {
+      "id": "discount-permissions",
+      "title": "Discount permissions",
+      "intro": "Control which roles may apply each discount type or exceed limits without manager approval.",
+      "steps": [
+        "Open Discounts and switch to the Permissions sub-tab.",
+        "Review the matrix of roles versus discount capabilities.",
+        "Adjust permissions so only authorized roles can grant large or sensitive discounts."
+      ],
+      "image": "admin-discounts-permissions.png",
+      "caption": "Discount permission matrix."
+    },
+    {
+      "id": "coupons",
+      "title": "Coupons",
+      "steps": [
+        "Open the Coupons tab.",
+        "Create coupon codes with value, validity window, and usage limits.",
+        "Staff enter coupons on the payment screen when the order qualifies."
+      ],
+      "image": "admin-coupons.png",
+      "caption": "Coupons tab."
+    },
+    {
+      "id": "discount-form",
+      "title": "Rabattregelformular",
+      "intro": "Kategorien: manager, staff, vip, corporate, happy_hour, category, product, floor, damage_wastage, service_recovery, bulk_order, manual, scheduled, buy_x_get_y. Umfang: item, category, cart, customer, floor.",
+      "steps": [
+        "Admin → Aktionen → Rabatte → Regeln.",
+        "Kategorie, Umfang und Modus (manuell, automatisch oder beides) setzen.",
+        "Ziele je Umfang konfigurieren.",
+        "Wert, Stapelung, Steuern und Zeitpläne definieren.",
+        "Speichern — Cache aktualisiert, Regel im POS verfügbar."
+      ],
+      "image": "admin-promotions-discount-form.png",
+      "caption": "Formular mit Kategorie und Zielen.",
+      "fields": [
+        {
+          "name": "Kategorie",
+          "effect": "Einer von 14 Typen für Berechtigungen und Analytics."
+        },
+        {
+          "name": "Umfang",
+          "effect": "item, category, cart, customer oder floor."
+        },
+        {
+          "name": "Anwendungsmodus",
+          "effect": "manual, automatic oder both."
+        },
+        {
+          "name": "Ziele",
+          "effect": "Berechtigte Artikel, Kategorien, Kunden oder Etagen."
+        },
+        {
+          "name": "Typ (Prozent / fest)",
+          "effect": "Ob Min/Max Prozente oder Beträge sind."
+        },
+        {
+          "name": "Min / Max Satz",
+          "effect": "Erlaubter Bereich für manuell oder auto."
+        },
+        {
+          "name": "Max-Obergrenze",
+          "effect": "Währungslimit nur bei Prozentrabatten."
+        },
+        {
+          "name": "Priorität",
+          "effect": "Reihenfolge bei konkurrierenden Auto-Regeln."
+        },
+        {
+          "name": "Mindestbestellwert",
+          "effect": "Zwischensumme vor Anwendung."
+        },
+        {
+          "name": "Stapelmodus",
+          "effect": "allow, prevent, highest_wins oder priority."
+        },
+        {
+          "name": "Steuerbehandlung",
+          "effect": "tax_before_discount, tax_after_discount, inclusive oder exclusive."
+        },
+        {
+          "name": "Zeitpläne",
+          "effect": "Tag/Uhr-Fenster für scheduled und happy_hour."
+        },
+        {
+          "name": "Bedingungen",
+          "effect": "Buy X Get Y Schwellen."
+        },
+        {
+          "name": "Grund / Genehmigung erforderlich",
+          "effect": "Grund oder Manager-PIN bei manueller Anwendung."
+        }
+      ]
+    },
+    {
+      "id": "coupon-form",
+      "title": "Gutscheinformular",
+      "steps": [
+        "Aktionen → Gutscheine öffnen.",
+        "Code, Rabatttyp/-wert und Nutzungslimits setzen.",
+        "Gültige Tage, Zeitfenster und Datumsbereich konfigurieren.",
+        "Speichern — Kassierer geben Code an der Kasse ein."
+      ],
+      "image": "admin-promotions-coupon-form.png",
+      "caption": "Gutscheinformular.",
+      "fields": [
+        {
+          "name": "Code",
+          "effect": "Zeichenkette die Kunden/Personal an der Kasse eingeben."
+        },
+        {
+          "name": "Gutscheintyp",
+          "effect": "Einmal-, Mehrfachnutzung oder anderes Verhalten."
+        },
+        {
+          "name": "Rabatttyp / -wert",
+          "effect": "Prozent oder fester Abzug."
+        },
+        {
+          "name": "Mindestbestellwert",
+          "effect": "Mindest-Zwischensumme vor Anwendung."
+        },
+        {
+          "name": "Maximaler Rabatt",
+          "effect": "Obergrenze bei Prozent-Gutscheinen."
+        },
+        {
+          "name": "Nutzungslimit",
+          "effect": "Gesamte Einlösungen erlaubt."
+        },
+        {
+          "name": "Limit pro Benutzer",
+          "effect": "Einlösungen pro Kundenprofil."
+        },
+        {
+          "name": "Gültige Tage / Start- & Endzeit",
+          "effect": "Beschränkt auf Wochentage und Stunden."
+        },
+        {
+          "name": "Start- / Enddatum",
+          "effect": "Gesamtes Gültigkeitsfenster."
+        },
+        {
+          "name": "Stapelbar / nur Erstbestellung",
+          "effect": "Kombination mit anderen Rabatten oder Neukunden."
+        }
+      ]
+    }
+  ]
+}

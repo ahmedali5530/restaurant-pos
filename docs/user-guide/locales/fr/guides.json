@@ -1,0 +1,36 @@
+{
+  "title": "Documentation POSR",
+  "intro": "Guides par rôle dans POSR. Choisissez le guide adapté : personnel de salle, manager, stocks, comptabilité, RH ou administrateur.",
+  "toc": "Guides",
+  "openGuide": "Ouvrir le guide",
+  "statusReady": "Prêt",
+  "statusPlanned": "Planifié",
+  "comingSoon": "Bientôt — ce chapitre est planifié et pas encore documenté.",
+  "plannedLabel": "Planifié",
+  "guides": {
+    "employee": {
+      "title": "Guide employé",
+      "intro": "Travail quotidien en caisse : connexion, commandes, panier et paiement, notes ouvertes, verrouillage et pointage de sortie."
+    },
+    "manager": {
+      "title": "Guide manager",
+      "intro": "Pilotage de service : résumé des ventes, cuisine, livraison, clôture et rapports opérationnels."
+    },
+    "inventory": {
+      "title": "Guide inventaire",
+      "intro": "Stocks, achats, sorties, pertes et inventaires pour le rôle entrepôt."
+    },
+    "accounts": {
+      "title": "Guide comptabilité",
+      "intro": "Grand livre, dépenses et outils financiers du POS."
+    },
+    "hr": {
+      "title": "Guide RH",
+      "intro": "RH : employés, présence, congés, paie, documents, performance et répartition des pourboires."
+    },
+    "admin": {
+      "title": "Guide administrateur",
+      "intro": "Configuration de l’établissement : Manage, intégrations et paramètres avancés."
+    }
+  }
+}

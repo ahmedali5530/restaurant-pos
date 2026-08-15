@@ -76,7 +76,7 @@ export const ShowInclusivePricesSettingsCard = () => {
   }, [settings, reset]);
 
   return (
-    <div className="shadow p-5 rounded-xl bg-white">
+    <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-show-inclusive-prices">
       <h2 className="text-xl font-semibold mb-1">{t("settings:showInclusivePrices.title")}</h2>
       <p className="text-sm text-neutral-500 mb-5">
         {t("settings:showInclusivePrices.description")}

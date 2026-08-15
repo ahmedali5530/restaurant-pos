@@ -271,6 +271,7 @@ export const UserForm = ({
   return (
     <>
       <Modal
+        testId="admin-form-user"
         title={data ? t('forms.updateUser', { name: `${data?.first_name} ${data?.last_name}` }) : t('forms.createUser')}
         open={open}
         onClose={closeModal}

@@ -1,0 +1,41 @@
+{
+  "title": "Beheer overzicht",
+  "intro": "Beheer is het configuratiehub voor menu's, vloeren, gebruikers, belastingen, kortingen, keukens en printers.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Beheer openen",
+      "steps": [
+        "Log in met beheerderstoegang.",
+        "Tik op Beheer in de zijbalk.",
+        "Het scherm opent standaard op het tabblad Gerechten."
+      ],
+      "image": "admin-overview.png",
+      "caption": "Beheerscherm met tabbladen."
+    },
+    {
+      "id": "tabs",
+      "title": "Tabnavigatie",
+      "intro": "Tabbladen groeperen gerelateerde instellingen. Wisselen kan een manager-PIN vereisen.",
+      "steps": [
+        "Scroll horizontaal bij veel tabbladen.",
+        "Tabbladen dekken menu, zaal, promoties, keuken, printen, betalingen en gebruikers.",
+        "Elk tabblad opent zijn tabel.",
+        "Geselecteerd tabblad is gemarkeerd."
+      ],
+      "image": "admin-tabs.png",
+      "caption": "Beheer tabbalk."
+    },
+    {
+      "id": "dishes",
+      "title": "Tabblad Gerechten (standaard)",
+      "steps": [
+        "Gerechten toont verkoopbare items met nummer, naam en prijs.",
+        "Gebruik Toevoegen, Bewerken, Importeren indien toegestaan.",
+        "Zoeken en paginering helpen bij grote menu's."
+      ],
+      "image": "admin-dishes.png",
+      "caption": "Gerechten onderhoudstabel."
+    }
+  ]
+}

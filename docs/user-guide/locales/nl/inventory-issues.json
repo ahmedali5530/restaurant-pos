@@ -1,0 +1,29 @@
+{
+  "title": "Uitgiftes en retouren",
+  "intro": "Geef voorraad uit naar keukens en retourneer ongebruikte voorraad.",
+  "sections": [
+    {
+      "id": "issues",
+      "title": "Uitgiftes",
+      "steps": [
+        "Open Uitgiftes.",
+        "Maak document met bestemming en regels.",
+        "Opslaan vermindert bronlocatie."
+      ],
+      "image": "inventory-issues-list.png",
+      "caption": "Lijst uitgiftes."
+    },
+    {
+      "id": "returns",
+      "title": "Uitgifteretouren",
+      "intro": "Retourneer ongebruikte uitgegeven artikelen.",
+      "steps": [
+        "Open Uitgifteretouren.",
+        "Selecteer oorspronkelijke uitgifte of voer regels in.",
+        "Opslaan voegt hoeveelheid terug toe."
+      ],
+      "image": "inventory-issues-returns.png",
+      "caption": "Tabblad Uitgifteretouren."
+    }
+  ]
+}

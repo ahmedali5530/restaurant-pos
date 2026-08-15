@@ -1,0 +1,157 @@
+{
+  "title": "Users and roles",
+  "intro": "Manage staff accounts, PINs, role permissions, shifts, and tip-pool definitions that control who can access each screen and tab.",
+  "sections": [
+    {
+      "id": "list",
+      "title": "User list",
+      "steps": [
+        "Open the Users tab.",
+        "Browse active users with name, role, and contact fields.",
+        "Use Add user to create a new account or Edit to update an existing one."
+      ],
+      "image": "admin-users-list.png",
+      "caption": "Users maintenance table."
+    },
+    {
+      "id": "roles",
+      "title": "Roles",
+      "intro": "Roles bundle permission modules that gate sidebar screens, Manage tabs, and protected actions.",
+      "steps": [
+        "Switch to the Roles sub-tab under Users.",
+        "Create roles and open the module list to enable or disable access.",
+        "Assign roles to users so permissions stay consistent across staff."
+      ],
+      "image": "admin-users-roles.png",
+      "caption": "Roles sub-tab."
+    },
+    {
+      "id": "shifts",
+      "title": "Shifts",
+      "intro": "Shifts define work windows used for labor reporting and automatic clock-out rules.",
+      "steps": [
+        "Switch to the Shifts sub-tab.",
+        "Add shift names with start and end times.",
+        "Assign shifts to users for scheduling and tip-distribution context."
+      ],
+      "image": "admin-users-shifts.png",
+      "caption": "Shifts sub-tab."
+    },
+    {
+      "id": "tips-definition",
+      "title": "Definizione mance (distribuzione)",
+      "intro": "Pondera mance pooled per ruoli e utenti.",
+      "steps": [
+        "Utenti → Definizione mance.",
+        "Righe ruolo con pesi.",
+        "Override utente.",
+        "Salva."
+      ],
+      "image": "admin-users-tips-definition.png",
+      "caption": "Pannello distribuzione mance.",
+      "fields": [
+        {
+          "name": "Peso ruolo",
+          "effect": "Quota pool per ruolo."
+        },
+        {
+          "name": "Peso utente",
+          "effect": "Override opzionale."
+        }
+      ]
+    },
+    {
+      "id": "user-form",
+      "title": "Modulo utente",
+      "intro": "Operatori POS con PIN o password.",
+      "steps": [
+        "Admin → Utenti.",
+        "Metodo login, nome, credenziali, ruolo, turno.",
+        "Crea dipendente opzionale.",
+        "Salva."
+      ],
+      "image": "admin-users-user-form.png",
+      "caption": "Modulo account utente.",
+      "fields": [
+        {
+          "name": "Metodo login",
+          "effect": "PIN (4 cifre) o password."
+        },
+        {
+          "name": "Nome / cognome",
+          "effect": "Nome su scontrini."
+        },
+        {
+          "name": "Login / PIN",
+          "effect": "Credenziali."
+        },
+        {
+          "name": "Password",
+          "effect": "Obbligatoria se password."
+        },
+        {
+          "name": "Ruolo utente",
+          "effect": "Pacchetto permessi."
+        },
+        {
+          "name": "Turno utente",
+          "effect": "Turno default."
+        },
+        {
+          "name": "Crea dipendente",
+          "effect": "Auto-crea HR collegato."
+        }
+      ]
+    },
+    {
+      "id": "role-form",
+      "title": "Modulo ruolo",
+      "intro": "Concede accesso moduli e azioni.",
+      "steps": [
+        "Utenti → Ruoli.",
+        "Nome e albero moduli.",
+        "Seleziona permessi.",
+        "Salva."
+      ],
+      "image": "admin-users-role-form.png",
+      "caption": "Editor permessi ruolo.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Etichetta form utente."
+        },
+        {
+          "name": "Permessi modulo",
+          "effect": "Checkbox gerarchiche."
+        }
+      ]
+    },
+    {
+      "id": "shift-form",
+      "title": "Modulo template turno",
+      "intro": "Definisce finestre orarie.",
+      "steps": [
+        "Utenti → Turni.",
+        "Nome e orari.",
+        "Notturno attiva giorno dopo.",
+        "Salva."
+      ],
+      "image": "admin-users-shift-form.png",
+      "caption": "Modulo turno.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Etichetta turno."
+        },
+        {
+          "name": "Ora inizio",
+          "effect": "Inizio programmato."
+        },
+        {
+          "name": "Ora fine",
+          "effect": "Fine programmata."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "title": "Centros de custo",
+  "intro": "Etiquetam mão de obra e folha para locais e departamentos.",
+  "sections": [
+    {
+      "id": "cost-centers",
+      "title": "Lista centros de custo",
+      "steps": [
+        "RH → Centros de custo.",
+        "Revise códigos.",
+        "Adicione/edite."
+      ],
+      "image": "hr-cost-centers-list.png",
+      "caption": "Aba centros de custo.",
+      "fields": []
+    },
+    {
+      "id": "cost-center-form",
+      "title": "Formulário centro de custo",
+      "steps": [
+        "Adicionar/editar.",
+        "Código, nome, descrição.",
+        "Ativo/inativo.",
+        "Salvar."
+      ],
+      "image": "hr-form-cost-center.png",
+      "caption": "Modal centro de custo.",
+      "fields": [
+        {
+          "name": "Código",
+          "effect": "Identificador único curto."
+        },
+        {
+          "name": "Nome",
+          "effect": "Rótulo nos seletores."
+        },
+        {
+          "name": "Descrição",
+          "effect": "Notas opcionais."
+        },
+        {
+          "name": "Ativo",
+          "effect": "Inativos ocultos em novos registros."
+        }
+      ]
+    }
+  ]
+}

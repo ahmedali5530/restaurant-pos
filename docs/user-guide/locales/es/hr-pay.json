@@ -1,0 +1,123 @@
+{
+  "title": "Perfiles y reglas de pago",
+  "intro": "Los perfiles guardan tarifas base; las reglas aplican primas, bonos y deducciones según horario o contexto.",
+  "sections": [
+    {
+      "id": "pay-profiles",
+      "title": "Perfiles de pago",
+      "steps": [
+        "Abra RR. HH. → Pago → Perfiles.",
+        "Mantenga tarifa base con fechas efectivas por empleado.",
+        "Los perfiles alimentan el cálculo de nómina del período activo."
+      ],
+      "image": "hr-pay-profiles.png",
+      "caption": "Lista de perfiles de pago.",
+      "fields": []
+    },
+    {
+      "id": "pay-profile-form",
+      "title": "Formulario de perfil de pago",
+      "steps": [
+        "Agregue o edite un perfil para un empleado.",
+        "Elija tipo de pago y tarifa base con fechas efectivas.",
+        "Guarde — la nómina usa el perfil válido en cada fecha trabajada."
+      ],
+      "image": "hr-form-pay-profile.png",
+      "caption": "Formulario de perfil de pago.",
+      "fields": [
+        {
+          "name": "Empleado",
+          "effect": "Personal que recibe esta compensación base."
+        },
+        {
+          "name": "Tipo de pago",
+          "effect": "Por hora, salario, contrato, comisión o mixto — impulsa cálculo de nómina."
+        },
+        {
+          "name": "Tarifa base",
+          "effect": "Tarifa principal o monto salarial en la moneda elegida."
+        },
+        {
+          "name": "Moneda",
+          "effect": "Moneda ISO de la tarifa."
+        },
+        {
+          "name": "Vigente desde",
+          "effect": "Primer día en que aplica este perfil."
+        },
+        {
+          "name": "Vigente hasta",
+          "effect": "Fin opcional cuando un perfil más nuevo lo reemplaza."
+        }
+      ]
+    },
+    {
+      "id": "pay-rules",
+      "title": "Reglas de pago",
+      "steps": [
+        "Abra Pago → Reglas.",
+        "Las reglas se apilan por prioridad: permitir, prevenir, gana el mayor o prioridad.",
+        "Aplique a empleados, departamentos, feriados o ventanas horarias."
+      ],
+      "image": "hr-pay-rules.png",
+      "caption": "Lista de reglas de pago laboral.",
+      "fields": []
+    },
+    {
+      "id": "pay-rule-form",
+      "title": "Formulario de regla de pago",
+      "intro": "Cada regla tiene efectos (multiplicador, bono/deducción fijo o porcentual) y filtros de elegibilidad.",
+      "steps": [
+        "Agregue o edite una regla con código y nombre.",
+        "Defina efectos y si aplican a horas regulares, extra o todas.",
+        "Configure filtros de fecha, hora, día de semana y feriado.",
+        "Asigne empleados, departamentos, puestos o centros de costo.",
+        "Guarde — el motor evalúa reglas al calcular horas fichadas."
+      ],
+      "image": "hr-form-pay-rule.png",
+      "caption": "Formulario de regla con efectos y filtros.",
+      "fields": [
+        {
+          "name": "Código",
+          "effect": "Identificador único para exportaciones."
+        },
+        {
+          "name": "Nombre",
+          "effect": "Etiqueta descriptiva en listas admin."
+        },
+        {
+          "name": "Prioridad",
+          "effect": "Orden cuando el modo de apilamiento es prioridad."
+        },
+        {
+          "name": "Modo de apilamiento",
+          "effect": "Cómo interactúa con otras reglas coincidentes."
+        },
+        {
+          "name": "Efectos",
+          "effect": "Multiplicadores o ajustes de monto en horas elegibles."
+        },
+        {
+          "name": "Filtros empleado / departamento / puesto / centro de costo",
+          "effect": "Limita a qué personal aplica la regla."
+        },
+        {
+          "name": "Ventana de fecha y hora",
+          "effect": "Rango opcional de fechas y horas diarias."
+        },
+        {
+          "name": "Días de semana / meses",
+          "effect": "Restringe a patrones de calendario seleccionados."
+        },
+        {
+          "name": "Feriados",
+          "effect": "Aplica solo en feriados públicos seleccionados."
+        },
+        {
+          "name": "Horas extra (día/semana)",
+          "effect": "Se activa al superar umbrales diarios o semanales."
+        }
+      ]
+    }
+  ]
+}

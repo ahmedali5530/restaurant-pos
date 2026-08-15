@@ -230,6 +230,7 @@ export const KitchenReconciliationScreen = () => {
           <Button
             variant="primary"
             icon={faPlus}
+            data-testid="inventory-add-reconciliation"
             onClick={handleGenerate}
             isLoading={loading}
             disabled={!locationId || !businessDateStr || isVerified || isDraft}

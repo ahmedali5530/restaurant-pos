@@ -1,0 +1,17 @@
+{
+  "title": "Fireler",
+  "intro": "Bozulma, kırılma ve diğer kayıpları kaydedin.",
+  "sections": [
+    {
+      "id": "list",
+      "title": "Fire belgeleri",
+      "steps": [
+        "Fireler sekmesini açın.",
+        "Lokasyon, neden ve miktarlarla belge oluşturun.",
+        "Kaydetmek stoğu azaltır ve fire maliyetini yazar."
+      ],
+      "image": "inventory-wastes-list.png",
+      "caption": "Fireler listesi."
+    }
+  ]
+}

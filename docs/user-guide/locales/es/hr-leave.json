@@ -1,0 +1,99 @@
+{
+  "title": "Leave",
+  "intro": "Manage time-off requests and public holidays that affect schedules and payroll.",
+  "sections": [
+    {
+      "id": "leave",
+      "title": "Leave requests",
+      "steps": [
+        "Open the Leave tab.",
+        "Review pending and approved leave for employees.",
+        "Approve or reject requests according to your HR role."
+      ],
+      "image": "hr-leave.png",
+      "caption": "Leave tab."
+    },
+    {
+      "id": "holidays",
+      "title": "Holidays",
+      "intro": "Holidays mark non-working or premium-pay calendar days for the venue.",
+      "steps": [
+        "Open the Holidays tab.",
+        "Add venue holidays for the year.",
+        "Holiday dates feed scheduling and pay-rule calculations when configured."
+      ],
+      "image": "hr-holidays.png",
+      "caption": "Holidays tab."
+    },
+    {
+      "id": "leave-form",
+      "title": "Formulario de solicitud de licencia",
+      "intro": "Envíe o edite solicitudes de tiempo libre según tipos configurados.",
+      "steps": [
+        "En Licencias haga clic en Agregar solicitud.",
+        "Seleccione empleado, tipo de licencia y rango de fechas.",
+        "Ingrese días y motivo si el tipo lo requiere.",
+        "Guarde — enruta para aprobación cuando aplique."
+      ],
+      "image": "hr-form-leave.png",
+      "caption": "Formulario de solicitud de licencia.",
+      "fields": [
+        {
+          "name": "Empleado",
+          "effect": "Personal que solicita tiempo libre."
+        },
+        {
+          "name": "Tipo de licencia",
+          "effect": "Determina pagado/no pagado, aprobación y acumulación."
+        },
+        {
+          "name": "Fecha inicio / fin",
+          "effect": "Fechas inclusivas de ausencia."
+        },
+        {
+          "name": "Días",
+          "effect": "Días laborables consumidos (puede auto-calcularse)."
+        },
+        {
+          "name": "Motivo",
+          "effect": "Nota opcional para aprobadores."
+        }
+      ]
+    },
+    {
+      "id": "holiday-form",
+      "title": "Formulario de feriado público",
+      "intro": "Los feriados interactúan con reglas de pago y programación.",
+      "steps": [
+        "Abra Feriados bajo Licencias.",
+        "Agregue nombre, fecha y código de país.",
+        "Marque recurrente para fechas fijas anuales.",
+        "Guarde — aparece en filtros de reglas de pago."
+      ],
+      "image": "hr-form-holiday.png",
+      "caption": "Formulario de feriado público.",
+      "fields": [
+        {
+          "name": "Nombre",
+          "effect": "Etiqueta en calendarios y reglas."
+        },
+        {
+          "name": "Fecha",
+          "effect": "Fecha calendario observada."
+        },
+        {
+          "name": "Código de país",
+          "effect": "Código ISO opcional para locales multi-país."
+        },
+        {
+          "name": "Es recurrente",
+          "effect": "Se repite cada año en mismo mes/día."
+        },
+        {
+          "name": "Está activo",
+          "effect": "Feriados inactivos ignorados por reglas nuevas."
+        }
+      ]
+    }
+  ]
+}

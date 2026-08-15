@@ -1,0 +1,54 @@
+{
+  "title": "Anmeldung",
+  "intro": "Öffnen Sie POSR im Browser. Der Anmeldebildschirm erscheint, wenn Sie nicht angemeldet sind oder das Terminal gesperrt ist.",
+  "sections": [
+    {
+      "id": "methods",
+      "title": "Anmeldemethode wählen",
+      "intro": "Sie können sich mit PIN oder mit Benutzername und Passwort anmelden. Verwenden Sie die Methode, die Ihrem Konto zugewiesen wurde.",
+      "steps": [
+        "Wählen Sie oben Pin oder Formular.",
+        "PIN eignet sich für gemeinsame Terminals im Service.",
+        "Formular eignet sich bei individuellen Zugangsdaten."
+      ],
+      "image": "login-pin.png",
+      "caption": "Anmeldebildschirm mit Pin (Umschalter und PIN-Pad hervorgehoben)."
+    },
+    {
+      "id": "pin",
+      "title": "Mit PIN anmelden",
+      "steps": [
+        "Wählen Sie Pin.",
+        "Geben Sie Ihre 4-stellige PIN ein.",
+        "Nach der vierten Ziffer erfolgt die Anmeldung automatisch.",
+        "Mit Rücktaste korrigieren oder mit C löschen.",
+        "Falls „Einstempeln erforderlich“ erscheint, tippen Sie auf Einstempeln."
+      ],
+      "image": "login-method-toggle.png",
+      "caption": "Schaltflächen Pin und Formular.",
+      "note": "In Demo-Umgebungen oft PIN 1234, 0000 oder 5555 (Super-Admin). In Produktion legt der Manager die PIN fest."
+    },
+    {
+      "id": "form",
+      "title": "Mit Benutzername und Passwort anmelden",
+      "steps": [
+        "Wählen Sie Formular.",
+        "Benutzername eingeben.",
+        "Passwort eingeben.",
+        "Anmelden tippen.",
+        "Bei Aufforderung Einstempeln ausführen und fortfahren."
+      ],
+      "image": "login-form.png",
+      "caption": "Formular-Anmeldung mit hervorgehobenen Feldern."
+    },
+    {
+      "id": "after",
+      "title": "Nach erfolgreicher Anmeldung",
+      "steps": [
+        "Sie gelangen zum Menü (außer bei Weiterleitung).",
+        "Nutzen Sie die Seitenleiste für freigegebene Module.",
+        "Sperren Sie das Terminal, wenn Sie weggehen."
+      ]
+    }
+  ]
+}

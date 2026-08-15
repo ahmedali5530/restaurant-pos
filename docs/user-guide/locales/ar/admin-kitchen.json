@@ -1,0 +1,87 @@
+{
+  "title": "Kitchens and workflows",
+  "intro": "Route fired items to the right kitchen stations and define how orders move through preparation stages.",
+  "sections": [
+    {
+      "id": "kitchens",
+      "title": "Kitchens",
+      "intro": "Kitchens group dishes and link to printers for kitchen tickets.",
+      "steps": [
+        "Open the Kitchens tab.",
+        "Create kitchen stations (e.g. Grill, Bar, Pastry).",
+        "Assign dishes and printers so tickets route to the correct station."
+      ],
+      "image": "admin-kitchens.png",
+      "caption": "Kitchens maintenance table."
+    },
+    {
+      "id": "workflows",
+      "title": "Workflows",
+      "intro": "Workflows define order-status steps used by kitchen and order-display screens.",
+      "steps": [
+        "Open the Workflows tab.",
+        "Create or edit workflow steps and transitions.",
+        "Link workflows to order types or kitchens as required by your venue setup."
+      ],
+      "image": "admin-workflows.png",
+      "caption": "Workflows tab."
+    },
+    {
+      "id": "kitchen-form",
+      "title": "نموذج المطبخ",
+      "intro": "يوجّه الأطباق للطابعات ومواقع المخزون.",
+      "steps": [
+        "Admin → المطبخ → المطابخ.",
+        "الاسم والأولوية والطابعات والأطباق.",
+        "احفظ."
+      ],
+      "image": "admin-kitchen-kitchen-form.png",
+      "caption": "نموذج محطة المطبخ.",
+      "fields": [
+        {
+          "name": "الاسم",
+          "effect": "التسمية على KOT وشاشة الطلبات."
+        },
+        {
+          "name": "الأولوية",
+          "effect": "الترتيب عند تطابق مطابخ."
+        },
+        {
+          "name": "الطابعات",
+          "effect": "أجهزة طباعة التذاكر."
+        },
+        {
+          "name": "البنود (الأطباق)",
+          "effect": "الأطباق الموجّهة."
+        }
+      ]
+    },
+    {
+      "id": "workflow-form",
+      "title": "نموذج سير العمل",
+      "intro": "يربط مراحل المطبخ.",
+      "steps": [
+        "المطبخ → سير العمل.",
+        "الاسم والمراحل.",
+        "مطبخ لكل مرحلة.",
+        "اربط بالأطباق."
+      ],
+      "image": "admin-kitchen-workflow-form.png",
+      "caption": "محرر مراحل سير العمل.",
+      "fields": [
+        {
+          "name": "الاسم",
+          "effect": "المعرّف على الأطباق."
+        },
+        {
+          "name": "المراحل",
+          "effect": "خطوات مرتبة."
+        },
+        {
+          "name": "مطبخ المرحلة",
+          "effect": "المحطة لكل مرحلة."
+        }
+      ]
+    }
+  ]
+}

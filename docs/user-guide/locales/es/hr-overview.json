@@ -1,0 +1,40 @@
+{
+  "title": "Resumen de RR. HH.",
+  "intro": "RR. HH. cubre personas: empleados, asistencia, permisos, horarios y nómina. Ábralo desde la barra lateral con acceso HR.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Abrir RR. HH.",
+      "steps": [
+        "Inicie sesión con acceso HR.",
+        "Pulse RR. HH. en la barra lateral.",
+        "Se abre en Panel por defecto."
+      ],
+      "image": "hr-overview.png",
+      "caption": "Pantalla RR. HH. con pestañas y panel."
+    },
+    {
+      "id": "tabs",
+      "title": "Navegación por pestañas",
+      "intro": "Las pestañas agrupan configuración y procesos de personal. Cambiar puede requerir PIN.",
+      "steps": [
+        "Desplace la barra horizontalmente.",
+        "Personas: Empleados, Departamentos, Puestos.",
+        "Tiempo: Asistencia, Horarios, Permisos, Festivos."
+      ],
+      "image": "hr-tabs.png",
+      "caption": "Barra de pestañas de RR. HH."
+    },
+    {
+      "id": "dashboard",
+      "title": "Panel",
+      "steps": [
+        "El Panel resume métricas clave de RR. HH.",
+        "Úselo como punto de partida.",
+        "Otras pestañas gestionan datos y transacciones."
+      ],
+      "image": "hr-dashboard.png",
+      "caption": "Panel de RR. HH."
+    }
+  ]
+}

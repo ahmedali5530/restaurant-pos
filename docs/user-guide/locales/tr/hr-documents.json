@@ -1,0 +1,52 @@
+{
+  "title": "Çalışan belgeleri",
+  "intro": "Sözleşme, kimlik ve lisans dosyalarını saklayın.",
+  "sections": [
+    {
+      "id": "documents",
+      "title": "Belge listesi",
+      "steps": [
+        "İK → Belgeler.",
+        "Çalışan/kategori filtre.",
+        "Yükle veya güncelle."
+      ],
+      "image": "hr-documents-list.png",
+      "caption": "Çalışan belgeleri sekmesi.",
+      "fields": []
+    },
+    {
+      "id": "document-form",
+      "title": "Belge formu",
+      "steps": [
+        "Belge ekle.",
+        "Çalışan, başlık, kategori.",
+        "Dosya ekle, son tarih.",
+        "Kaydet."
+      ],
+      "image": "hr-form-document.png",
+      "caption": "Belge yükleme formu.",
+      "fields": [
+        {
+          "name": "Çalışan",
+          "effect": "Belge kaydının sahibi."
+        },
+        {
+          "name": "Başlık",
+          "effect": "Listelerde görünen ad."
+        },
+        {
+          "name": "Kategori",
+          "effect": "Sözleşme, sertifika, lisans, kimlik, tıbbi, uyarı veya diğer."
+        },
+        {
+          "name": "Son tarih",
+          "effect": "Yenileme uyarıları için isteğe bağlı."
+        },
+        {
+          "name": "Dosya ekle",
+          "effect": "Oluşturmada zorunlu; kütüphanede saklar."
+        }
+      ]
+    }
+  ]
+}

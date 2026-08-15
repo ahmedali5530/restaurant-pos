@@ -1,0 +1,48 @@
+{
+  "title": "Centres de coûts",
+  "intro": "Étiquettent la main-d'œuvre et la paie pour les sites et départements.",
+  "sections": [
+    {
+      "id": "cost-centers",
+      "title": "Liste centres de coûts",
+      "steps": [
+        "RH → Centres de coûts.",
+        "Vérifiez codes.",
+        "Ajoutez/modifiez."
+      ],
+      "image": "hr-cost-centers-list.png",
+      "caption": "Onglet centres de coûts.",
+      "fields": []
+    },
+    {
+      "id": "cost-center-form",
+      "title": "Formulaire centre de coûts",
+      "steps": [
+        "Ajouter/modifier.",
+        "Code, nom, description.",
+        "Actif/inactif.",
+        "Enregistrer."
+      ],
+      "image": "hr-form-cost-center.png",
+      "caption": "Modal centre de coûts.",
+      "fields": [
+        {
+          "name": "Code",
+          "effect": "Identifiant court unique."
+        },
+        {
+          "name": "Nom",
+          "effect": "Libellé dans listes."
+        },
+        {
+          "name": "Description",
+          "effect": "Notes optionnelles."
+        },
+        {
+          "name": "Actif",
+          "effect": "Inactifs non sélectionnables."
+        }
+      ]
+    }
+  ]
+}

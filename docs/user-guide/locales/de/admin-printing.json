@@ -1,0 +1,95 @@
+{
+  "title": "Printers and print settings",
+  "intro": "Define printer records in Manage, configure what each print job contains, then assign printers to devices in Settings.",
+  "sections": [
+    {
+      "id": "printers",
+      "title": "Printers",
+      "intro": "Printer records store connection details used across receipt, kitchen, and report printing.",
+      "steps": [
+        "Open the Printers tab.",
+        "Add printers with name, type, and connection settings.",
+        "Link printers to kitchens and device Settings so tickets reach the right hardware."
+      ],
+      "image": "admin-printers.png",
+      "caption": "Printers master list in Manage."
+    },
+    {
+      "id": "print-settings",
+      "title": "Print settings",
+      "intro": "Print settings control templates and options for temp bills, final receipts, kitchen tickets, summaries, and delivery slips.",
+      "steps": [
+        "Open the Print settings tab.",
+        "Edit each print type (Temp, Final, Kitchen, Summary, Delivery).",
+        "Save so new orders use the updated layout and fields."
+      ],
+      "image": "admin-print-settings.png",
+      "caption": "Print settings tab."
+    },
+    {
+      "id": "printer-form",
+      "title": "Druckerformular",
+      "steps": [
+        "Admin → Drucken → Drucker öffnen.",
+        "Name und Verbindung: Netzwerk-IP/Port oder USB-IDs.",
+        "Druckertyp wählen (Beleg, Küche, Etikett).",
+        "Speichern — in Küchen und Geräteeinstellungen zuweisen."
+      ],
+      "image": "admin-printing-printer-form.png",
+      "caption": "Druckerformular.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Anzeigename in Admin und Auswahl."
+        },
+        {
+          "name": "Typ",
+          "effect": "Beleg-, Küchen- oder Etikettprofil."
+        },
+        {
+          "name": "IP-Adresse / Port",
+          "effect": "Netzwerk-ESC/POS-Verbindung."
+        },
+        {
+          "name": "VID / PID",
+          "effect": "USB-IDs für direkt angeschlossene Drucker."
+        }
+      ]
+    },
+    {
+      "id": "print-setting-form",
+      "title": "Druckeinstellungsformular",
+      "intro": "Jeder Druckjob (Zwischenbon, Endbeleg, Küche, Zusammenfassung, Lieferung) hat eigene Vorlage.",
+      "steps": [
+        "Druckeinstellungen öffnen und Jobtyp wählen.",
+        "Logo, Kopf-/Fußbereich, USt-Block und Ränder konfigurieren.",
+        "Zeilenspalten auf Belegen umschalten.",
+        "Speichern — nächster Druck nutzt aktualisiertes Layout."
+      ],
+      "image": "admin-printing-print-setting-form.png",
+      "caption": "Druckvorlagen-Editor.",
+      "fields": [
+        {
+          "name": "Logo anzeigen",
+          "effect": "Hochgeladenes Logo auf Ticket."
+        },
+        {
+          "name": "Kopf- / Fußbereiche",
+          "effect": "Text- oder Bildblöcke oben/unten."
+        },
+        {
+          "name": "USt-Name / -Nummer",
+          "effect": "Steuerblock auf Gästebelegen."
+        },
+        {
+          "name": "Ränder",
+          "effect": "Abstände oben/unten/links/rechts in Druckpunkten."
+        },
+        {
+          "name": "Artikelspalten",
+          "effect": "Nummer, Name, Menge, Preis und Summe umschalten."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "title": "Perfis e regras de pagamento",
+  "intro": "Perfis de base e regras de prêmios e deduções.",
+  "sections": [
+    {
+      "id": "pay-profiles",
+      "title": "Perfis de pagamento",
+      "steps": [
+        "RH → Pagamento → Perfis.",
+        "Taxa base por funcionário.",
+        "Alimenta folha."
+      ],
+      "image": "hr-pay-profiles.png",
+      "caption": "Lista perfis pagamento.",
+      "fields": []
+    },
+    {
+      "id": "pay-profile-form",
+      "title": "Formulário perfil pagamento",
+      "steps": [
+        "Adicionar/editar perfil.",
+        "Tipo e taxa base.",
+        "Salvar."
+      ],
+      "image": "hr-form-pay-profile.png",
+      "caption": "Formulário perfil.",
+      "fields": [
+        {
+          "name": "Funcionário",
+          "effect": "Recebe esta compensação base."
+        },
+        {
+          "name": "Tipo pagamento",
+          "effect": "Horista, salário, contrato, comissão ou misto."
+        },
+        {
+          "name": "Taxa base",
+          "effect": "Taxa principal ou salário."
+        },
+        {
+          "name": "Moeda",
+          "effect": "Moeda ISO."
+        },
+        {
+          "name": "Vigente de",
+          "effect": "Primeiro dia do perfil."
+        },
+        {
+          "name": "Vigente até",
+          "effect": "Fim opcional."
+        }
+      ]
+    },
+    {
+      "id": "pay-rules",
+      "title": "Regras de pagamento",
+      "steps": [
+        "Pagamento → Regras.",
+        "Empilham por prioridade.",
+        "Filtros por funcionário/departamento."
+      ],
+      "image": "hr-pay-rules.png",
+      "caption": "Lista regras pagamento.",
+      "fields": []
+    },
+    {
+      "id": "pay-rule-form",
+      "title": "Formulário regra pagamento",
+      "intro": "Efeitos e filtros de elegibilidade.",
+      "steps": [
+        "Adicionar regra.",
+        "Definir efeitos.",
+        "Filtros data/hora.",
+        "Atribuir funcionários.",
+        "Salvar."
+      ],
+      "image": "hr-form-pay-rule.png",
+      "caption": "Formulário regra.",
+      "fields": [
+        {
+          "name": "Código",
+          "effect": "ID único."
+        },
+        {
+          "name": "Nome",
+          "effect": "Rótulo admin."
+        },
+        {
+          "name": "Prioridade",
+          "effect": "Ordem de empilhamento."
+        },
+        {
+          "name": "Modo empilhamento",
+          "effect": "Interação com outras regras."
+        },
+        {
+          "name": "Efeitos",
+          "effect": "Multiplicadores ou ajustes."
+        },
+        {
+          "name": "Filtros funcionário/departamento/cargo/centro custo",
+          "effect": "Limita escopo."
+        },
+        {
+          "name": "Janela data/hora",
+          "effect": "Intervalo opcional."
+        },
+        {
+          "name": "Dias semana / meses",
+          "effect": "Padrões calendário."
+        },
+        {
+          "name": "Feriados",
+          "effect": "Feriados selecionados."
+        },
+        {
+          "name": "Horas extras (dia/semana)",
+          "effect": "Após limiares."
+        }
+      ]
+    }
+  ]
+}

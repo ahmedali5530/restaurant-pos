@@ -20,7 +20,12 @@
     "print-server": "cd printing && npm start",
     "payment-server": "cd payments && npm start",
     "tracking-server": "cd tracking-api && npm start",
-    "api-server": "cd api && npm start"
+    "api-server": "cd api && npm start",
+    "docs:guide:capture": "node docs-automation/capture.mjs",
+    "docs:guide:capture:one": "playwright test --config docs-automation/playwright.config.ts",
+    "docs:guide:assemble": "node docs-automation/assemble.mjs",
+    "docs:guide:pdf": "node docs-automation/print-pdf.mjs",
+    "docs:guide": "npm run docs:guide:assemble && npm run docs:guide:pdf"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.1.2",
@@ -90,6 +95,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@types/escpos": "^2.5.5",
     "@types/lodash": "^4.14.202",
     "@types/luxon": "^3.4.2",
@@ -107,6 +113,7 @@
     "eslint": "^10.2.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
+    "playwright": "^1.62.1",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.0.2",

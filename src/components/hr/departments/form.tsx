@@ -94,6 +94,7 @@ export const DepartmentForm = ({open, onClose, data}: Props) => {
   return (
     <Modal
       title={data ? t("forms.department.update") : t("forms.department.create")}
+      testId="hr-form-department"
       open={open}
       onClose={closeModal}
       size="lg"

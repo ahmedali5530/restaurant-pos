@@ -72,7 +72,7 @@ export const HrAdjustments = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button key="adjustment-create" variant="primary" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
+          <Button key="adjustment-create" variant="primary" data-testid="hr-add-adjustments" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
             {t("buttons.adjustment")}
           </Button>,
         ]}

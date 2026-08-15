@@ -1,0 +1,40 @@
+{
+  "title": "Inkopen",
+  "intro": "Breng voorraad binnen met inkooporders, ontvangsten en retouren.",
+  "sections": [
+    {
+      "id": "orders",
+      "title": "Inkooporders",
+      "steps": [
+        "Open Inkooporders.",
+        "Maak een IO voor een leverancier met regels.",
+        "Dien in en keur goed vóór ontvangst."
+      ],
+      "image": "inventory-purchases-orders.png",
+      "caption": "Lijst inkooporders."
+    },
+    {
+      "id": "purchases",
+      "title": "Inkopen (ontvangst)",
+      "intro": "Inkopen boeken voorraad en werken gemiddelde kost bij.",
+      "steps": [
+        "Open Inkopen.",
+        "Registreer factuur en ontvangen regels.",
+        "Koppel aan IO indien aanwezig en sla op."
+      ],
+      "image": "inventory-purchases-list.png",
+      "caption": "Lijst inkopen."
+    },
+    {
+      "id": "returns",
+      "title": "Inkoopretouren",
+      "steps": [
+        "Open Inkoopretouren.",
+        "Retourneer beschadigde of verkeerde goederen.",
+        "Opslaan verlaagt de hoeveelheid."
+      ],
+      "image": "inventory-purchases-returns.png",
+      "caption": "Tabblad Inkoopretouren."
+    }
+  ]
+}

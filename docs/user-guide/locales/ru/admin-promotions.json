@@ -1,0 +1,178 @@
+{
+  "title": "Discounts and coupons",
+  "intro": "Configure promotional pricing: discount rules with reasons and role permissions, plus coupon codes staff can apply at payment.",
+  "sections": [
+    {
+      "id": "discount-rules",
+      "title": "Discount rules",
+      "intro": "Discount rules define automatic or manual reductions by category, scope, and eligibility.",
+      "steps": [
+        "Open the Discounts tab in Manage.",
+        "Select the Rules sub-tab.",
+        "Add or edit rules; set type, value, scope, and when the discount applies."
+      ],
+      "image": "admin-discounts-rules.png",
+      "caption": "Discount rules list."
+    },
+    {
+      "id": "discount-reasons",
+      "title": "Discount reasons",
+      "intro": "Reasons appear when staff apply manual discounts so reporting can track why a reduction was given.",
+      "steps": [
+        "Open Discounts and switch to the Reasons sub-tab.",
+        "Create reasons staff can pick at the payment or cart screen.",
+        "Deactivate reasons you no longer want offered."
+      ],
+      "image": "admin-discounts-reasons.png",
+      "caption": "Discount reasons maintenance."
+    },
+    {
+      "id": "discount-permissions",
+      "title": "Discount permissions",
+      "intro": "Control which roles may apply each discount type or exceed limits without manager approval.",
+      "steps": [
+        "Open Discounts and switch to the Permissions sub-tab.",
+        "Review the matrix of roles versus discount capabilities.",
+        "Adjust permissions so only authorized roles can grant large or sensitive discounts."
+      ],
+      "image": "admin-discounts-permissions.png",
+      "caption": "Discount permission matrix."
+    },
+    {
+      "id": "coupons",
+      "title": "Coupons",
+      "steps": [
+        "Open the Coupons tab.",
+        "Create coupon codes with value, validity window, and usage limits.",
+        "Staff enter coupons on the payment screen when the order qualifies."
+      ],
+      "image": "admin-coupons.png",
+      "caption": "Coupons tab."
+    },
+    {
+      "id": "discount-form",
+      "title": "Discount rule form",
+      "intro": "14 categories; scope item/category/cart/customer/floor.",
+      "steps": [
+        "Admin → Promotions → Discounts.",
+        "Category, scope, mode.",
+        "Targets and value.",
+        "Save."
+      ],
+      "image": "admin-promotions-discount-form.png",
+      "caption": "Discount rule form.",
+      "fields": [
+        {
+          "name": "Category",
+          "effect": "One of 14 types."
+        },
+        {
+          "name": "Scope",
+          "effect": "item, category, cart, customer, floor."
+        },
+        {
+          "name": "Application mode",
+          "effect": "manual, automatic, both."
+        },
+        {
+          "name": "Targets",
+          "effect": "Eligible items/categories."
+        },
+        {
+          "name": "Type (percent / fixed)",
+          "effect": "Min/max as % or currency."
+        },
+        {
+          "name": "Min / max rate",
+          "effect": "Allowed range."
+        },
+        {
+          "name": "Max cap",
+          "effect": "Cap on percent discounts."
+        },
+        {
+          "name": "Priority",
+          "effect": "Order when auto rules compete."
+        },
+        {
+          "name": "Min order amount",
+          "effect": "Cart subtotal threshold."
+        },
+        {
+          "name": "Stacking mode",
+          "effect": "allow, prevent, highest_wins, priority."
+        },
+        {
+          "name": "Tax treatment",
+          "effect": "tax_before/after_discount, inclusive, exclusive."
+        },
+        {
+          "name": "Schedules",
+          "effect": "Day/time windows."
+        },
+        {
+          "name": "Conditions",
+          "effect": "Buy X Get Y thresholds."
+        },
+        {
+          "name": "Requires reason / approval",
+          "effect": "Manager PIN when manual."
+        }
+      ]
+    },
+    {
+      "id": "coupon-form",
+      "title": "Coupon form",
+      "steps": [
+        "Promotions → Coupons.",
+        "Code, discount type/value, limits.",
+        "Valid days and dates.",
+        "Save."
+      ],
+      "image": "admin-promotions-coupon-form.png",
+      "caption": "Coupon form.",
+      "fields": [
+        {
+          "name": "Code",
+          "effect": "String at checkout."
+        },
+        {
+          "name": "Coupon type",
+          "effect": "Single/multi use."
+        },
+        {
+          "name": "Discount type / value",
+          "effect": "Percent or fixed."
+        },
+        {
+          "name": "Min order amount",
+          "effect": "Subtotal threshold."
+        },
+        {
+          "name": "Max discount amount",
+          "effect": "Cap on percent coupons."
+        },
+        {
+          "name": "Usage limit",
+          "effect": "Total redemptions."
+        },
+        {
+          "name": "Usage limit per user",
+          "effect": "Per customer profile."
+        },
+        {
+          "name": "Valid days / start & end time",
+          "effect": "Time restriction."
+        },
+        {
+          "name": "Start / end date",
+          "effect": "Overall validity."
+        },
+        {
+          "name": "Stackable / first order only",
+          "effect": "Combination rules."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "title": "Réauthentification sécurité",
+  "intro": "Les actions protégées peuvent exiger PIN, mot de passe ou QR manager.",
+  "sections": [
+    {
+      "id": "when",
+      "title": "Quand ça apparaît",
+      "steps": [
+        "Action non auto-autorisée.",
+        "Modal avec description.",
+        "Verrouillage idle est séparé."
+      ],
+      "image": "security-session-card.png",
+      "caption": "Carte sécurité session."
+    },
+    {
+      "id": "modal",
+      "title": "Modal d'approbation",
+      "steps": [
+        "Lisez le titre.",
+        "Choisissez PIN, MDP ou QR.",
+        "Authentifiez ou annulez."
+      ],
+      "image": "security-modal.png",
+      "caption": "Modal d'approbation."
+    },
+    {
+      "id": "methods",
+      "title": "Méthodes",
+      "intro": "Plusieurs méthodes possibles.",
+      "steps": [
+        "PIN pavé numérique.",
+        "Mot de passe si activé.",
+        "QR si supporté."
+      ],
+      "image": "security-auth-types.png",
+      "caption": "Sélecteur de méthode."
+    },
+    {
+      "id": "pin",
+      "title": "Saisie PIN",
+      "steps": [
+        "Entrez le PIN 4 chiffres.",
+        "Validation à 4 chiffres.",
+        "PIN invalide = erreur."
+      ],
+      "image": "security-pin-pad.png",
+      "caption": "Pavé PIN sécurité."
+    }
+  ]
+}

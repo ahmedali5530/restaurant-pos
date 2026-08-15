@@ -320,6 +320,7 @@ export const SplitAmount = ({
   return (
     <>
       <Modal
+        testId="order-split-amount"
         title={t('split.titleByAmount', {invoice: order.invoice_number})}
         open={true}
         size="full"

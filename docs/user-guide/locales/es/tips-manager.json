@@ -1,0 +1,39 @@
+{
+  "title": "Supervisión de propinas",
+  "intro": "Distribución de propinas calcula cómo dividir propinas del turno según pesos configurados.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Pantalla de distribución",
+      "steps": [
+        "Pulse Distribución de propinas en la barra lateral.",
+        "Seleccione turno y fecha.",
+        "Cargar propinas calcula desde órdenes pagadas."
+      ],
+      "image": "tips-overview.png",
+      "caption": "Pantalla de distribución de propinas."
+    },
+    {
+      "id": "filters",
+      "title": "Turno y fecha",
+      "steps": [
+        "Elija el turno en el desplegable.",
+        "Elija la fecha (no futura).",
+        "Pulse Cargar propinas para llenar la tabla."
+      ],
+      "image": "tips-filters.png",
+      "caption": "Turno, fecha y cargar."
+    },
+    {
+      "id": "table",
+      "title": "Tabla de distribución",
+      "steps": [
+        "Total de propinas muestra el monto del turno.",
+        "Cada fila: usuario, rol, peso y parte calculada.",
+        "Enviar guarda la distribución tras revisar."
+      ],
+      "image": "tips-table.png",
+      "caption": "Totales y tabla por usuario."
+    }
+  ]
+}

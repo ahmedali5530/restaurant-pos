@@ -1,0 +1,39 @@
+{
+  "title": "Trinkgeldverteilung",
+  "intro": "Berechnet die Schichtverteilung und speichert den Datensatz.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Verteilungsbildschirm",
+      "steps": [
+        "Trinkgeldverteilung tippen.",
+        "Schicht und Datum wählen.",
+        "Trinkgeld laden berechnet Totale."
+      ],
+      "image": "tips-overview.png",
+      "caption": "Verteilungsbildschirm."
+    },
+    {
+      "id": "filters",
+      "title": "Schicht und Datum",
+      "steps": [
+        "Schicht wählen.",
+        "Datum wählen.",
+        "Trinkgeld laden tippen."
+      ],
+      "image": "tips-filters.png",
+      "caption": "Schicht, Datum und Laden."
+    },
+    {
+      "id": "table",
+      "title": "Verteilungstabelle",
+      "steps": [
+        "Gesamt zeigt den Schichtbetrag.",
+        "Jede Zeile: Nutzer, Rolle, Gewicht und Anteil.",
+        "Senden speichert nach Prüfung."
+      ],
+      "image": "tips-table.png",
+      "caption": "Totale und Tabelle."
+    }
+  ]
+}

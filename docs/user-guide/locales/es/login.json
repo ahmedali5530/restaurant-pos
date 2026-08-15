@@ -1,0 +1,54 @@
+{
+  "title": "Inicio de sesión",
+  "intro": "Abra POSR en el navegador. La pantalla de inicio de sesión es la primera cuando no ha iniciado sesión o el terminal está bloqueado.",
+  "sections": [
+    {
+      "id": "methods",
+      "title": "Elija el método de acceso",
+      "intro": "Puede entrar con PIN o con usuario y contraseña. Use el método asignado a su cuenta.",
+      "steps": [
+        "En la pantalla de acceso, elija Pin o Formulario arriba.",
+        "Pin es ideal para terminales compartidos en sala.",
+        "Formulario es ideal cuando cada persona tiene usuario y contraseña únicos."
+      ],
+      "image": "login-pin.png",
+      "caption": "Pantalla de acceso con Pin seleccionado (método y teclado resaltados)."
+    },
+    {
+      "id": "pin",
+      "title": "Entrar con PIN",
+      "steps": [
+        "Seleccione Pin.",
+        "Introduzca su PIN de 4 dígitos en el teclado.",
+        "El sistema inicia sesión al introducir el cuarto dígito.",
+        "Use retroceso para corregir o C para borrar.",
+        "Si aparece Fichar requerido, pulse Fichar para iniciar el turno en este dispositivo."
+      ],
+      "image": "login-method-toggle.png",
+      "caption": "Botones Pin y Formulario.",
+      "note": "En demos suelen usarse PIN 1234, 0000 o 5555 (super admin). En producción lo define su administrador."
+    },
+    {
+      "id": "form",
+      "title": "Entrar con usuario y contraseña",
+      "steps": [
+        "Seleccione Formulario.",
+        "Escriba el usuario.",
+        "Escriba la contraseña.",
+        "Pulse Login / Entrar.",
+        "Si se solicita, complete el fichaje para ir al menú."
+      ],
+      "image": "login-form.png",
+      "caption": "Acceso por formulario con campos resaltados."
+    },
+    {
+      "id": "after",
+      "title": "Después de un acceso correcto",
+      "steps": [
+        "Llegará al Menú salvo redirección desde otra página.",
+        "Use la barra lateral para los módulos permitidos.",
+        "Use Bloquear al ausentarse para que se exija un nuevo acceso."
+      ]
+    }
+  ]
+}

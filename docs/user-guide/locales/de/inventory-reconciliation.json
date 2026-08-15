@@ -1,0 +1,77 @@
+{
+  "title": "Küchenabstimmung",
+  "intro": "Vergleichen Sie theoretischen Küchenverbrauch (Verkäufe und Rezepte) mit physischen Zählungen nach Standort und Geschäftstag. Entwürfe, Prüfung und Sperrung für Bestandsgenauigkeit.",
+  "sections": [
+    {
+      "id": "reconciliation",
+      "title": "Registerkarte Abstimmung",
+      "intro": "Erzeugen Sie ein Abstimmungsraster aus POS-Verkäufen und Rezeptverbrauch, dann Ist-Zählungen eingeben oder importieren.",
+      "steps": [
+        "Öffnen Sie Inventar und Küchenabstimmung.",
+        "Wählen Sie Lagerort und Geschäftstag.",
+        "Klicken Sie Generieren für theoretische Verbrauchszeilen.",
+        "Geben Sie Ist-Mengen ein oder importieren Sie CSV.",
+        "Entwurf speichern, Abweichungen prüfen, Verifizieren (Manager-PIN ggf.)."
+      ],
+      "image": "inventory-reconciliation-overview.png",
+      "caption": "Abstimmungsleiste, Raster und Abweichungspanel.",
+      "fields": [
+        {
+          "name": "Standort",
+          "effect": "Küche oder Lager, dessen Bestand abgestimmt wird."
+        },
+        {
+          "name": "Geschäftstag",
+          "effect": "Handelstag für theoretischen Verbrauch und Zählungen."
+        },
+        {
+          "name": "Generieren",
+          "effect": "Erstellt oder aktualisiert Zeilen aus Verkäufen und Rezepten."
+        },
+        {
+          "name": "Istmenge",
+          "effect": "Physische Zählung pro Artikel; bestimmt Abweichung."
+        },
+        {
+          "name": "Verifizieren",
+          "effect": "Sperrt die Abstimmung nach Managerfreigabe."
+        }
+      ]
+    },
+    {
+      "id": "reconciliation-form",
+      "title": "Manuelle Zählung",
+      "intro": "Inline-Bearbeitung und CSV-Import nutzen dieselbe Zeilenstruktur.",
+      "steps": [
+        "Klicken Sie eine Zelle in Ist für die Zählung.",
+        "Entwurf speichern ohne Verifizierung.",
+        "CSV-Import für Masseneingabe.",
+        "Abweichungspanel vor Verifizierung prüfen."
+      ],
+      "image": "inventory-reconciliation-form.png",
+      "caption": "Raster mit Bearbeitung der Istmenge.",
+      "fields": [
+        {
+          "name": "Artikel",
+          "effect": "Inventarartikel der Zeile."
+        },
+        {
+          "name": "Theoretisch",
+          "effect": "Systemberechneter Verbrauch aus Rezepten und Verkäufen."
+        },
+        {
+          "name": "Ist",
+          "effect": "Eingegebene gezählte oder Verbrauchsmenge."
+        },
+        {
+          "name": "Abweichung",
+          "effect": "Differenz Ist vs. theoretisch; zeigt Schwund oder Datenfehler."
+        },
+        {
+          "name": "Notizen",
+          "effect": "Optionale Erklärung auf der Zeile."
+        }
+      ]
+    }
+  ]
+}

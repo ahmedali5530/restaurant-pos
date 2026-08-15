@@ -1,0 +1,16 @@
+{
+  "title": "Guía de usuario POSR",
+  "subtitle": "Login, configuración, menú, carrito, pago, pedidos y sesión",
+  "intro": "Guía POSR: acceso, ajustes, pedidos, carrito, cobro, lista de pedidos y sesión (bloqueo/reloj).",
+  "toc": "Contenido",
+  "footer": "",
+  "chapters": {
+    "login": "Inicio de sesión",
+    "settings": "Configuración",
+    "menu": "Menú",
+    "cart": "Carrito",
+    "payment": "Pago",
+    "orders": "Pedidos",
+    "session": "Sesión"
+  }
+}

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import {SalesWeeklyFilter} from "@/components/reports/filters/sales.weekly.filter.tsx";
 import {ProductMixWeeklyReportFilter} from "@/components/reports/filters/product.mix.weekly.filter.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCheck, faCheckCircle, faChevronRight} from "@fortawesome/free-solid-svg-icons";
+import {faCheckCircle, faChevronRight} from "@fortawesome/free-solid-svg-icons";
 import {AuditFilter} from "@/components/reports/filters/audit.filter.tsx";
 import {CashClosingFilter} from "@/components/reports/filters/cash.closing.filter.tsx";
 import {DiscountsFilter} from "@/components/reports/filters/discounts.filter.tsx";
@@ -57,6 +57,14 @@ import {DocumentTitle} from "@/components/common/document-title.tsx";
 type ReportEntry = {
   filter: ReactNode;
   module: string;
+  reportKey: string;
+  label: string;
+};
+
+type ReportCategory = {
+  id: string;
+  title: string;
+  reports: ReportEntry[];
 };
 
 /** Stable permission codes stored in user roles — not translated labels. */
@@ -111,111 +119,154 @@ const REPORT_PERMISSION_MODULES: Record<string, string> = {
 const buildReportEntries = (
   t: (key: string) => string,
   reports: Array<{ reportKey: string; filter: ReactNode }>,
-): Record<string, ReportEntry> =>
-  Object.fromEntries(
-    reports.map(({ reportKey, filter }) => [
-      t(`reports.${reportKey}`),
-      { filter, module: REPORT_PERMISSION_MODULES[reportKey] },
-    ]),
-  );
+): ReportEntry[] =>
+  reports.map(({ reportKey, filter }) => ({
+    reportKey,
+    label: t(`reports.${reportKey}`),
+    filter,
+    module: REPORT_PERMISSION_MODULES[reportKey],
+  }));
 
 export const Reports = () => {
   const { t } = useTranslation('reports');
   const { t: tNav } = useTranslation('navigation');
-  const reportCategories = useMemo(() => {
-    return {
-      [t('categories.ai')]: buildReportEntries(t, [
-        { reportKey: 'aiReport', filter: <AiReportFilter /> },
-      ]),
-      [t('categories.dashboard')]: buildReportEntries(t, [
-        { reportKey: 'salesDashboard', filter: <SalesDashboardFilter /> },
-        { reportKey: 'inventoryDashboard', filter: <InventoryDashboardFilter /> },
-      ]),
-      [t('categories.sales')]: buildReportEntries(t, [
-        { reportKey: 'salesHourlyLabour', filter: <SalesHourlyLabourFilter /> },
-        { reportKey: 'salesHourlyLabourWeekly', filter: <SalesHourlyLabourWeeklyFilter /> },
-        { reportKey: 'serverSales', filter: <SalesServerFilter /> },
-        { reportKey: 'salesSummary', filter: <SalesSummaryFilter /> },
-        { reportKey: 'salesSummary2', filter: <SalesSummary2Filter /> },
-        { reportKey: 'salesWeekly', filter: <SalesWeeklyFilter /> },
-        { reportKey: 'tips', filter: <TipsFilter /> },
-        { reportKey: 'advancedSales', filter: <SalesAdvancedFilter /> },
-        { reportKey: 'deliveryDensity', filter: <DeliveryDensityFilter /> },
-        { reportKey: 'discount', filter: <DiscountsFilter /> },
-        { reportKey: 'tax', filter: <TaxFilter /> },
-        { reportKey: 'coupon', filter: <CouponFilter /> },
-        { reportKey: 'voids', filter: <VoidsFilter /> },
-      ]),
-      [t('categories.orders')]: buildReportEntries(t, [
-        { reportKey: 'mergeOrders', filter: <MergeOrdersFilter /> },
-        { reportKey: 'splitOrders', filter: <SplitOrdersFilter /> },
-        { reportKey: 'orderLifeCycle', filter: <OrderLifecycleFilter /> },
-        { reportKey: 'orderFiscal', filter: <OrderFiscalFilter /> },
-      ]),
-      [t('categories.cashClosing')]: buildReportEntries(t, [
-        { reportKey: 'cashClosing', filter: <CashClosingFilter /> },
-      ]),
-      [t('categories.operations')]: buildReportEntries(t, [
-        { reportKey: 'expense', filter: <ExpenseFilter /> },
-        { reportKey: 'activity', filter: <ActivityFilter /> },
-      ]),
-      [t('categories.products')]: buildReportEntries(t, [
-        { reportKey: 'productMixWeekly', filter: <ProductMixWeeklyReportFilter /> },
-        { reportKey: 'productMixSummary', filter: <ProductMixSummaryFilter /> },
-        { reportKey: 'productsHourly', filter: <ProductHourlyFilter /> },
-      ]),
-      [t('categories.inventory')]: buildReportEntries(t, [
-        { reportKey: 'currentInventory', filter: <CurrentInventoryFilter /> },
-        { reportKey: 'detailedInventory', filter: <DetailedInventoryFilter /> },
-        { reportKey: 'purchase', filter: <PurchaseFilter /> },
-        { reportKey: 'purchaseOrder', filter: <PurchaseOrderFilter /> },
-        { reportKey: 'purchaseReturn', filter: <PurchaseReturnFilter /> },
-        { reportKey: 'issue', filter: <IssueFilter /> },
-        { reportKey: 'issueReturn', filter: <IssueReturnFilter /> },
-        { reportKey: 'waste', filter: <WasteFilter /> },
-        { reportKey: 'consumption', filter: <ConsumptionFilter /> },
-        { reportKey: 'saleVsInventory', filter: <SaleVsConsumptionFilter /> },
-        { reportKey: 'kitchenReconciliation', filter: <KitchenReconciliationFilter /> },
-        { reportKey: 'productionReport', filter: <ProductionReportFilter /> },
-        { reportKey: 'buffetReport', filter: <BuffetReportFilter /> },
-      ]),
-      [t('categories.labor')]: buildReportEntries(t, [
-        { reportKey: 'laborDashboard', filter: <LaborDashboardFilter /> },
-        { reportKey: 'dailyLaborCost', filter: <LaborDailyCostFilter /> },
-        { reportKey: 'overtimeReport', filter: <LaborOvertimeFilter /> },
-        { reportKey: 'attendanceReport', filter: <LaborAttendanceFilter /> },
-        { reportKey: 'payrollSummary', filter: <LaborPayrollSummaryFilter /> },
-        { reportKey: 'scheduledVsActual', filter: <LaborScheduledVsActualFilter /> },
-      ]),
-    };
+  const reportCategories = useMemo((): ReportCategory[] => {
+    return [
+      {
+        id: 'ai',
+        title: t('categories.ai'),
+        reports: buildReportEntries(t, [
+          { reportKey: 'aiReport', filter: <AiReportFilter /> },
+        ]),
+      },
+      {
+        id: 'dashboard',
+        title: t('categories.dashboard'),
+        reports: buildReportEntries(t, [
+          { reportKey: 'salesDashboard', filter: <SalesDashboardFilter /> },
+          { reportKey: 'inventoryDashboard', filter: <InventoryDashboardFilter /> },
+        ]),
+      },
+      {
+        id: 'sales',
+        title: t('categories.sales'),
+        reports: buildReportEntries(t, [
+          { reportKey: 'salesHourlyLabour', filter: <SalesHourlyLabourFilter /> },
+          { reportKey: 'salesHourlyLabourWeekly', filter: <SalesHourlyLabourWeeklyFilter /> },
+          { reportKey: 'serverSales', filter: <SalesServerFilter /> },
+          { reportKey: 'salesSummary', filter: <SalesSummaryFilter /> },
+          { reportKey: 'salesSummary2', filter: <SalesSummary2Filter /> },
+          { reportKey: 'salesWeekly', filter: <SalesWeeklyFilter /> },
+          { reportKey: 'tips', filter: <TipsFilter /> },
+          { reportKey: 'advancedSales', filter: <SalesAdvancedFilter /> },
+          { reportKey: 'deliveryDensity', filter: <DeliveryDensityFilter /> },
+          { reportKey: 'discount', filter: <DiscountsFilter /> },
+          { reportKey: 'tax', filter: <TaxFilter /> },
+          { reportKey: 'coupon', filter: <CouponFilter /> },
+          { reportKey: 'voids', filter: <VoidsFilter /> },
+        ]),
+      },
+      {
+        id: 'orders',
+        title: t('categories.orders'),
+        reports: buildReportEntries(t, [
+          { reportKey: 'mergeOrders', filter: <MergeOrdersFilter /> },
+          { reportKey: 'splitOrders', filter: <SplitOrdersFilter /> },
+          { reportKey: 'orderLifeCycle', filter: <OrderLifecycleFilter /> },
+          { reportKey: 'orderFiscal', filter: <OrderFiscalFilter /> },
+        ]),
+      },
+      {
+        id: 'cashClosing',
+        title: t('categories.cashClosing'),
+        reports: buildReportEntries(t, [
+          { reportKey: 'cashClosing', filter: <CashClosingFilter /> },
+        ]),
+      },
+      {
+        id: 'operations',
+        title: t('categories.operations'),
+        reports: buildReportEntries(t, [
+          { reportKey: 'expense', filter: <ExpenseFilter /> },
+          { reportKey: 'activity', filter: <ActivityFilter /> },
+        ]),
+      },
+      {
+        id: 'products',
+        title: t('categories.products'),
+        reports: buildReportEntries(t, [
+          { reportKey: 'productMixWeekly', filter: <ProductMixWeeklyReportFilter /> },
+          { reportKey: 'productMixSummary', filter: <ProductMixSummaryFilter /> },
+          { reportKey: 'productsHourly', filter: <ProductHourlyFilter /> },
+        ]),
+      },
+      {
+        id: 'inventory',
+        title: t('categories.inventory'),
+        reports: buildReportEntries(t, [
+          { reportKey: 'currentInventory', filter: <CurrentInventoryFilter /> },
+          { reportKey: 'detailedInventory', filter: <DetailedInventoryFilter /> },
+          { reportKey: 'purchase', filter: <PurchaseFilter /> },
+          { reportKey: 'purchaseOrder', filter: <PurchaseOrderFilter /> },
+          { reportKey: 'purchaseReturn', filter: <PurchaseReturnFilter /> },
+          { reportKey: 'issue', filter: <IssueFilter /> },
+          { reportKey: 'issueReturn', filter: <IssueReturnFilter /> },
+          { reportKey: 'waste', filter: <WasteFilter /> },
+          { reportKey: 'consumption', filter: <ConsumptionFilter /> },
+          { reportKey: 'saleVsInventory', filter: <SaleVsConsumptionFilter /> },
+          { reportKey: 'kitchenReconciliation', filter: <KitchenReconciliationFilter /> },
+          { reportKey: 'productionReport', filter: <ProductionReportFilter /> },
+          { reportKey: 'buffetReport', filter: <BuffetReportFilter /> },
+        ]),
+      },
+      {
+        id: 'labor',
+        title: t('categories.labor'),
+        reports: buildReportEntries(t, [
+          { reportKey: 'laborDashboard', filter: <LaborDashboardFilter /> },
+          { reportKey: 'dailyLaborCost', filter: <LaborDailyCostFilter /> },
+          { reportKey: 'overtimeReport', filter: <LaborOvertimeFilter /> },
+          { reportKey: 'attendanceReport', filter: <LaborAttendanceFilter /> },
+          { reportKey: 'payrollSummary', filter: <LaborPayrollSummaryFilter /> },
+          { reportKey: 'scheduledVsActual', filter: <LaborScheduledVsActualFilter /> },
+        ]),
+      },
+    ];
   }, [t]);
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [subCategory, setSubCategory] = useState<Record<string, ReportEntry>>({});
-  const [selectedSubCategory, setSelectedSubCategory] = useState('');
+  const [selectedCategoryId, setSelectedCategoryId] = useState('');
+  const [subReports, setSubReports] = useState<ReportEntry[]>([]);
+  const [selectedReportKey, setSelectedReportKey] = useState('');
   const [filter, setFilter] = useState<ReactNode>();
 
   const {protectAction} = useSecurity();
+  const selectedCategoryTitle =
+    reportCategories.find((c) => c.id === selectedCategoryId)?.title ?? '';
+  const selectedReportLabel =
+    subReports.find((r) => r.reportKey === selectedReportKey)?.label ?? '';
 
   return (
     <Layout containerClassName="p-5">
       <DocumentTitle parts={[tNav('sidebar.reports')]} />
-      <div className="grid grid-cols-9 gap-5">
+      <div className="grid grid-cols-9 gap-5" data-testid="reports-page">
         <div className="col-span-2">
-          <div className="bg-white shadow py-5 rounded-lg">
+          <div className="bg-white shadow py-5 rounded-lg" data-testid="reports-categories">
             <h1 className="text-xl text-gray-600 px-5">{t('page.title')}</h1>
             <div className="py-5">
               <ul>
-                {Object.keys(reportCategories).map((key) => (
+                {reportCategories.map((category) => (
                   <li
                     className="border-b py-2 px-5 flex justify-between cursor-pointer hover:bg-gray-100 items-center"
+                    data-testid={`reports-category-${category.id}`}
                     onClick={() => {
-                      setSelectedCategory(key);
-                      setSubCategory(reportCategories[key]);
+                      setSelectedCategoryId(category.id);
+                      setSubReports(category.reports);
+                      setSelectedReportKey('');
+                      setFilter(undefined);
                     }}
-                    key={key}
+                    key={category.id}
                   >
-                    {key}
-                    {selectedCategory === key && (
+                    {category.title}
+                    {selectedCategoryId === category.id && (
                       <FontAwesomeIcon icon={faCheckCircle} className="text-success-700" size="lg" />
                     )}
                   </li>
@@ -225,27 +276,27 @@ export const Reports = () => {
           </div>
         </div>
         <div className="col-span-2">
-          <div className="bg-white shadow py-5 rounded-lg">
+          <div className="bg-white shadow py-5 rounded-lg" data-testid="reports-subreports">
             <h1 className="text-xl text-gray-600 px-5">{t('page.subReports')}</h1>
             <div className="py-5">
               <ul>
-                {Object.keys(subCategory).map((key) => (
+                {subReports.map((entry) => (
                   <li
                     className="border-b py-2 px-5 flex justify-between cursor-pointer hover:bg-gray-100 items-center"
+                    data-testid={`reports-report-${entry.reportKey}`}
                     onClick={() => {
-                      const entry = subCategory[key];
                       protectAction(() => {
-                        setSelectedSubCategory(key);
+                        setSelectedReportKey(entry.reportKey);
                         setFilter(entry.filter);
                       }, {
                         module: entry.module,
-                        description: t('security.openReport', { report: key })
+                        description: t('security.openReport', { report: entry.label })
                       });
                     }}
-                    key={key}
+                    key={entry.reportKey}
                   >
-                    {key}
-                    {selectedSubCategory === key && (
+                    {entry.label}
+                    {selectedReportKey === entry.reportKey && (
                       <FontAwesomeIcon icon={faCheckCircle} className="text-success-700" size="lg" />
                     )}
                   </li>
@@ -255,10 +306,10 @@ export const Reports = () => {
           </div>
         </div>
         <div className="col-span-5">
-          <div className="bg-white shadow p-5 rounded-lg">
+          <div className="bg-white shadow p-5 rounded-lg" data-testid="reports-filters">
             <h1 className="text-xl">
-              {selectedCategory && selectedSubCategory ? (
-                <span className="text-gray-600">{selectedCategory} <FontAwesomeIcon icon={faChevronRight} size="xs" /> {selectedSubCategory}</span>
+              {selectedCategoryId && selectedReportKey ? (
+                <span className="text-gray-600">{selectedCategoryTitle} <FontAwesomeIcon icon={faChevronRight} size="xs" /> {selectedReportLabel}</span>
               ) : t('page.reportFilters')}
             </h1>
             <div className="py-5">

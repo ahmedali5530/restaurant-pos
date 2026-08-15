@@ -1,0 +1,56 @@
+{
+  "title": "Prestatienotities",
+  "intro": "Registreer waarschuwingen, complimenten en incidenten.",
+  "sections": [
+    {
+      "id": "performance",
+      "title": "Prestatielijst",
+      "steps": [
+        "HR → Prestatie.",
+        "Blader per medewerker/type.",
+        "Voeg toe na incidenten."
+      ],
+      "image": "hr-performance-list.png",
+      "caption": "Tab prestatienotities.",
+      "fields": []
+    },
+    {
+      "id": "performance-form",
+      "title": "Prestatienotitieformulier",
+      "steps": [
+        "Medewerker, type, titel, tekst.",
+        "Ernst indien nodig.",
+        "Zichtbaar voor medewerker.",
+        "Opslaan."
+      ],
+      "image": "hr-form-performance.png",
+      "caption": "Formulier prestatienotitie.",
+      "fields": [
+        {
+          "name": "Medewerker",
+          "effect": "Onderwerp van notitie."
+        },
+        {
+          "name": "Type",
+          "effect": "Waarschuwing, compliment, beoordeling of incident."
+        },
+        {
+          "name": "Titel",
+          "effect": "Korte samenvatting."
+        },
+        {
+          "name": "Inhoud",
+          "effect": "Volledig verhaal."
+        },
+        {
+          "name": "Ernst",
+          "effect": "Laag, medium, hoog of kritiek."
+        },
+        {
+          "name": "Zichtbaar medewerker",
+          "effect": "Kan aan medewerker getoond worden."
+        }
+      ]
+    }
+  ]
+}

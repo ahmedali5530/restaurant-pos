@@ -1,0 +1,36 @@
+{
+  "title": "Documentazione POSR",
+  "intro": "Guide per ruolo in POSR. Scegli la guida adatta al tuo lavoro: sala, manager, magazzino, contabilità, HR o amministratore.",
+  "toc": "Guide",
+  "openGuide": "Apri guida",
+  "statusReady": "Pronta",
+  "statusPlanned": "Pianificata",
+  "comingSoon": "Prossimamente — questo capitolo è pianificato e non ancora documentato.",
+  "plannedLabel": "Pianificato",
+  "guides": {
+    "employee": {
+      "title": "Guida dipendente",
+      "intro": "Lavoro quotidiano al POS: accesso, ordini, carrello e pagamento, conti aperti, blocco e uscita."
+    },
+    "manager": {
+      "title": "Guida manager",
+      "intro": "Gestione del turno: riepilogo vendite, cucina, delivery, chiusura e report operativi."
+    },
+    "inventory": {
+      "title": "Guida magazzino",
+      "intro": "Scorte, acquisti, uscite, scarti e conteggi per il ruolo magazzino."
+    },
+    "accounts": {
+      "title": "Guida contabilità",
+      "intro": "Libri contabili, spese e strumenti finanziari del POS."
+    },
+    "hr": {
+      "title": "Guida HR",
+      "intro": "Personale: dipendenti, presenze, ferie, retribuzioni, documenti, performance e distribuzione mance."
+    },
+    "admin": {
+      "title": "Guida amministratore",
+      "intro": "Configurazione del locale: Manage, integrazioni e impostazioni avanzate."
+    }
+  }
+}

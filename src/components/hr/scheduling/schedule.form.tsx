@@ -96,7 +96,7 @@ export const ScheduleForm = ({open, onClose, data}: Props) => {
   };
 
   return (
-    <Modal title={data ? t("forms.schedule.update") : t("forms.schedule.create")} open={open} onClose={closeModal} size="lg">
+    <Modal title={data ? t("forms.schedule.update") : t("forms.schedule.create")} testId="hr-form-schedule" open={open} onClose={closeModal} size="lg">
       <form onSubmit={handleSubmit(onSubmit, (errs) => {
         const message = firstFormError(errs);
         if (message) toast.error(message);

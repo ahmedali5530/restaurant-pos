@@ -1,0 +1,51 @@
+{
+  "title": "Security re-authentication",
+  "intro": "Protected actions (voids, settings saves, restricted tabs, print overrides, and more) can require a manager to re-authenticate with PIN, password, or QR — even if you are already signed in.",
+  "sections": [
+    {
+      "id": "when",
+      "title": "When re-auth appears",
+      "steps": [
+        "You attempt an action your role does not auto-allow, or the action always requires approval.",
+        "A modal opens with a short description of what is being approved.",
+        "Session security settings (idle lock) are separate — that locks the terminal; this modal approves one action."
+      ],
+      "image": "security-session-card.png",
+      "caption": "Session security settings (related but separate from action re-auth)."
+    },
+    {
+      "id": "modal",
+      "title": "Approval modal",
+      "steps": [
+        "Read the action description in the modal title.",
+        "Choose PIN, password, or QR when multiple methods are available.",
+        "Complete authentication to continue, or cancel to abort the action."
+      ],
+      "image": "security-modal.png",
+      "caption": "Manager approval (security) modal."
+    },
+    {
+      "id": "methods",
+      "title": "Auth method buttons",
+      "intro": "Venues can allow more than one manager auth method.",
+      "steps": [
+        "Tap PIN for the numeric pad.",
+        "Tap Password for username/password style entry when enabled.",
+        "Tap QR when a scanned manager badge is supported."
+      ],
+      "image": "security-auth-types.png",
+      "caption": "PIN / password / QR method selector."
+    },
+    {
+      "id": "pin",
+      "title": "PIN entry",
+      "steps": [
+        "Enter the approving manager's 4-digit PIN on the pad.",
+        "Dots fill as digits are entered; validation runs when four digits are complete.",
+        "Invalid PIN shows an error — clear and try again, or cancel."
+      ],
+      "image": "security-pin-pad.png",
+      "caption": "Security PIN pad."
+    }
+  ]
+}

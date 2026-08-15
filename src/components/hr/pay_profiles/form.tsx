@@ -156,7 +156,7 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
   };
 
   return (
-    <Modal title={data ? t("forms.payProfile.update") : t("forms.payProfile.create")} open={open} onClose={closeModal} size="lg">
+    <Modal title={data ? t("forms.payProfile.update") : t("forms.payProfile.create")} testId="hr-form-pay-profile" open={open} onClose={closeModal} size="lg">
       <form onSubmit={handleSubmit(onSubmit, (errs) => {
         const message = firstFormError(errs);
         if (message) toast.error(message);

@@ -1,0 +1,74 @@
+{
+  "title": "Tavoli e sala",
+  "intro": "Il servizio in sala inizia dalla planimetria: piano, tavolo, coperti, ordine.",
+  "sections": [
+    {
+      "id": "floor",
+      "title": "Planimetria",
+      "steps": [
+        "Apri Menu (modalità piano attiva).",
+        "Mostra i tavoli del piano attivo.",
+        "Occupati o bloccati possono differire."
+      ],
+      "image": "tables-floor.png",
+      "caption": "Planimetria con tavoli."
+    },
+    {
+      "id": "switcher",
+      "title": "Cambia piano",
+      "intro": "Più aree con pulsanti in basso.",
+      "steps": [
+        "Tocca un piano.",
+        "L'attivo è evidenziato.",
+        "Ogni piano ha il proprio layout."
+      ],
+      "image": "tables-floor-switcher.png",
+      "caption": "Pulsanti piano."
+    },
+    {
+      "id": "table",
+      "title": "Seleziona tavolo",
+      "steps": [
+        "Tocca un tavolo libero.",
+        "Bloccato può richiedere approvazione.",
+        "Poi coperti e menu."
+      ],
+      "image": "tables-table-tile.png",
+      "caption": "Tile tavolo."
+    },
+    {
+      "id": "covers",
+      "title": "Coperti",
+      "intro": "Inserisci il numero di ospiti se richiesto.",
+      "steps": [
+        "Usa il tastierino.",
+        "OK per il menu.",
+        "I coperti compaiono su conti e cucina."
+      ],
+      "image": "tables-covers.png",
+      "caption": "Schermata coperti."
+    },
+    {
+      "id": "active",
+      "title": "Tavolo attivo nel menu",
+      "steps": [
+        "L'header mostra il tavolo.",
+        "Usa i controlli se consentito.",
+        "Gli ordini restano collegati."
+      ],
+      "image": "tables-active-table.png",
+      "caption": "Indicatore tavolo attivo."
+    },
+    {
+      "id": "back",
+      "title": "Torna alla planimetria",
+      "steps": [
+        "Tocca indietro/piano.",
+        "Scegli un altro tavolo.",
+        "I conti aperti restano in Ordini."
+      ],
+      "image": "tables-back-floor.png",
+      "caption": "Controllo indietro."
+    }
+  ]
+}

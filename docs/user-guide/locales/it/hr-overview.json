@@ -1,0 +1,40 @@
+{
+  "title": "Panoramica HR",
+  "intro": "HR copre le persone: dipendenti, presenza, ferie, turni e payroll.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Apri HR",
+      "steps": [
+        "Accedi con accesso HR.",
+        "Tocca HR.",
+        "Si apre sul Dashboard."
+      ],
+      "image": "hr-overview.png",
+      "caption": "Schermata HR."
+    },
+    {
+      "id": "tabs",
+      "title": "Navigazione schede",
+      "intro": "Schede di setup e processi HR.",
+      "steps": [
+        "Scorri orizzontalmente.",
+        "Persone: Dipendenti, Reparti, Posizioni.",
+        "Tempo: Presenza, Turni, Ferie, Festività."
+      ],
+      "image": "hr-tabs.png",
+      "caption": "Barra schede HR."
+    },
+    {
+      "id": "dashboard",
+      "title": "Dashboard",
+      "steps": [
+        "Riassume metriche HR.",
+        "Punto di partenza.",
+        "Altre schede gestiscono dati e operazioni."
+      ],
+      "image": "hr-dashboard.png",
+      "caption": "Dashboard HR."
+    }
+  ]
+}

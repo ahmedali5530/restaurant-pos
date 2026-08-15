@@ -50,7 +50,7 @@ export const HrCostCenters = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button key="cost-center-create" variant="primary" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
+          <Button key="cost-center-create" variant="primary" data-testid="hr-add-cost-centers" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
             {t("buttons.costCenter")}
           </Button>,
         ]}

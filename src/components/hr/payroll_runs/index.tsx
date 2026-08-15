@@ -174,6 +174,7 @@ export const HrPayrollRuns = () => {
           <Button
             key="run-payroll"
             variant="primary"
+            data-testid="hr-add-payroll-runs"
             onClick={() => setRunFormOpen(true)}
             icon={faPlus}
           >

@@ -1,0 +1,157 @@
+{
+  "title": "Employees",
+  "intro": "Maintain employee records and the organizational structure: departments and positions.",
+  "sections": [
+    {
+      "id": "employees",
+      "title": "Employee list",
+      "steps": [
+        "Open the Employees tab.",
+        "Add or edit employees with role, department, and contact details.",
+        "Employee records feed attendance, leave, and payroll tabs."
+      ],
+      "image": "hr-employees-list.png",
+      "caption": "Employees tab."
+    },
+    {
+      "id": "departments",
+      "title": "Departments",
+      "intro": "Departments group staff for reporting and cost allocation.",
+      "steps": [
+        "Open the Departments tab.",
+        "Create departments that match how the venue organizes teams.",
+        "Assign employees to departments on their employee form."
+      ],
+      "image": "hr-employees-departments.png",
+      "caption": "Departments tab."
+    },
+    {
+      "id": "positions",
+      "title": "Positions",
+      "steps": [
+        "Open the Positions tab.",
+        "Define job titles used on employee records and schedules.",
+        "Keep positions aligned with pay profiles when payroll is enabled."
+      ],
+      "image": "hr-employees-positions.png",
+      "caption": "Positions tab."
+    },
+    {
+      "id": "employee-form",
+      "title": "Formulario de empleado",
+      "intro": "Registro RR. HH. central que vincula usuario POS, estructura orgánica y fechas laborales.",
+      "steps": [
+        "Desde Empleados haga clic en Agregar o edite una fila.",
+        "Complete número, nombre y detalles laborales.",
+        "Vincule usuario POS, departamento, puesto, centro de costo y gerente.",
+        "Guarde — alimenta asistencia, licencias y nómina."
+      ],
+      "image": "hr-form-employee.png",
+      "caption": "Modal crear/editar empleado.",
+      "fields": [
+        {
+          "name": "Número de empleado",
+          "effect": "Identificador único en horarios y exportaciones."
+        },
+        {
+          "name": "Nombre / apellido",
+          "effect": "Nombre legal o preferido en documentos RR. HH."
+        },
+        {
+          "name": "Usuario vinculado",
+          "effect": "Login POS opcional para fichaje."
+        },
+        {
+          "name": "Departamento",
+          "effect": "Unidad organizacional para informes."
+        },
+        {
+          "name": "Puesto",
+          "effect": "Título usado en horarios y reglas de pago."
+        },
+        {
+          "name": "Centro de costo",
+          "effect": "Asignación predeterminada de costo laboral."
+        },
+        {
+          "name": "Gerente",
+          "effect": "Línea de reporte para aprobaciones."
+        },
+        {
+          "name": "Estado laboral",
+          "effect": "Activo, inactivo, terminado, en licencia o suspendido."
+        },
+        {
+          "name": "Tipo de empleo",
+          "effect": "Por hora, salario, contrato, etc."
+        },
+        {
+          "name": "Fecha contratación / terminación",
+          "effect": "Antigüedad y elegibilidad."
+        }
+      ]
+    },
+    {
+      "id": "department-form",
+      "title": "Formulario de departamento",
+      "steps": [
+        "Desde Departamentos o Agregar inline en empleado.",
+        "Ingrese código, nombre y descripción.",
+        "Guarde — aparece en empleados y puestos."
+      ],
+      "image": "hr-form-department.png",
+      "caption": "Formulario de departamento.",
+      "fields": [
+        {
+          "name": "Código",
+          "effect": "Identificador corto para integraciones."
+        },
+        {
+          "name": "Nombre",
+          "effect": "Nombre mostrado en listas."
+        },
+        {
+          "name": "Descripción",
+          "effect": "Notas admin opcionales."
+        },
+        {
+          "name": "Está activo",
+          "effect": "Departamentos inactivos ocultos en nuevas asignaciones."
+        }
+      ]
+    },
+    {
+      "id": "position-form",
+      "title": "Formulario de puesto",
+      "steps": [
+        "Desde Puestos o Agregar inline en empleado.",
+        "Defina código, nombre, departamento y centro de costo predeterminado.",
+        "Guarde — seleccionable en empleados y horarios."
+      ],
+      "image": "hr-form-position.png",
+      "caption": "Formulario de puesto.",
+      "fields": [
+        {
+          "name": "Código",
+          "effect": "Código de trabajo para exportaciones de nómina."
+        },
+        {
+          "name": "Nombre",
+          "effect": "Título mostrado en RR. HH. y horarios."
+        },
+        {
+          "name": "Departamento",
+          "effect": "Unidad org predeterminada del rol."
+        },
+        {
+          "name": "Centro de costo predeterminado",
+          "effect": "Prellenado en horarios para este puesto."
+        },
+        {
+          "name": "Está activo",
+          "effect": "Retira títulos que ya no se contratan."
+        }
+      ]
+    }
+  ]
+}

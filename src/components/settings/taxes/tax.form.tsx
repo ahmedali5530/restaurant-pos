@@ -92,6 +92,7 @@ export const TaxForm = ({
   return (
     <>
       <Modal
+        testId="admin-form-tax"
         title={data ? t('forms.updateTax', { name: data?.name }) : t('forms.createTax')}
         open={open}
         onClose={closeModal}

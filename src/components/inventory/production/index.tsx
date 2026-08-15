@@ -14,7 +14,7 @@ export const InventoryProduction = () => {
       <div className="max-w-2xl">
         <h2 className="text-xl font-semibold mb-2">{t("production.runProduction")}</h2>
         <p className="text-neutral-600 mb-4">{t("production.runProductionHint")}</p>
-        <Button variant="primary" icon={faPlus} onClick={() => setFormOpen(true)}>
+        <Button variant="primary" icon={faPlus} data-testid="inventory-add-production" onClick={() => setFormOpen(true)}>
           {t("production.startBatch")}
         </Button>
       </div>

@@ -1,0 +1,48 @@
+{
+  "title": "Centri di costo",
+  "intro": "Etichettano manodopera e paghe per sedi e reparti.",
+  "sections": [
+    {
+      "id": "cost-centers",
+      "title": "Elenco centri di costo",
+      "steps": [
+        "HR → Centri di costo.",
+        "Rivedi codici.",
+        "Aggiungi/modifica."
+      ],
+      "image": "hr-cost-centers-list.png",
+      "caption": "Scheda centri di costo.",
+      "fields": []
+    },
+    {
+      "id": "cost-center-form",
+      "title": "Modulo centro di costo",
+      "steps": [
+        "Aggiungi/modifica.",
+        "Codice, nome, descrizione.",
+        "Attivo/inattivo.",
+        "Salva."
+      ],
+      "image": "hr-form-cost-center.png",
+      "caption": "Modal centro di costo.",
+      "fields": [
+        {
+          "name": "Codice",
+          "effect": "Identificatore breve unico."
+        },
+        {
+          "name": "Nome",
+          "effect": "Etichetta nei menu."
+        },
+        {
+          "name": "Descrizione",
+          "effect": "Note opzionali."
+        },
+        {
+          "name": "Attivo",
+          "effect": "Inattivi non selezionabili."
+        }
+      ]
+    }
+  ]
+}

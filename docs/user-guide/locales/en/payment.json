@@ -1,0 +1,221 @@
+{
+  "title": "Payment screen",
+  "intro": "Pay now opens a full-screen payment layout: order summary and adjustable totals on the left, an editor in the middle for tax/discount/coupon/service charge/tip/notes, and tender tools on the right.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Payment layout",
+      "intro": "The screen is arranged in three zones so you can review the check, adjust charges, and collect money without leaving the dialog.",
+      "steps": [
+        "Left column: invoice header, line items, tax, discount, coupon, service charge, tip, extras, notes, and grand total.",
+        "Middle column: editor for the totals row you selected. Changes stay draft until you confirm with OK or Apply (except notes and extras).",
+        "Right two columns: tendered amount, remaining/change, quick amounts, payment types, keypad, temp bill, Complete, and listed payments."
+      ],
+      "image": "payment-overview.png",
+      "caption": "Full payment screen."
+    },
+    {
+      "id": "summary",
+      "title": "Order summary",
+      "intro": "The left card shows who ordered, when, and which items are on the check.",
+      "steps": [
+        "Confirm table, covers, order type, and invoice number in the header.",
+        "Scroll the item list if the check is long.",
+        "Tap a totals row (pencil icon) to open its editor in the middle column."
+      ],
+      "image": "payment-order-summary.png",
+      "caption": "Order summary column."
+    },
+    {
+      "id": "totals",
+      "title": "Totals breakdown",
+      "intro": "Each line under the items feeds the grand total used for tendering.",
+      "steps": [
+        "Items subtotal is shown first, then tax, discount, coupon, service charges, tip, extras (when configured), and notes.",
+        "Tap Tax, Discount, Coupon, Service charges, Tip, or Notes to open the middle editor.",
+        "Selecting a draft value alone does not change the bill — you must confirm with OK or Apply where shown.",
+        "Some rows may ask for a manager PIN if your security settings require it."
+      ],
+      "image": "payment-totals.png",
+      "caption": "Totals rows under the order lines.",
+      "note": "Extras appear only when venue extras apply to this order; they toggle on the row itself (no middle panel)."
+    },
+    {
+      "id": "adjust-tax",
+      "title": "Adjust tax",
+      "intro": "Tax often opens by default. Pick no tax or a rate, then commit with OK — the left amount does not change until OK.",
+      "steps": [
+        "Tap the Tax row if the tax panel is not already open.",
+        "Select No tax or a configured tax rate (name and %). That choice is only a draft.",
+        "Tap OK at the bottom of the middle panel to apply the tax to the bill.",
+        "Closing without OK leaves the previous tax in effect.",
+        "Payment types can still attach their own tax when you tender."
+      ],
+      "image": "payment-adjust-tax.png",
+      "caption": "Tax panel with OK to apply."
+    },
+    {
+      "id": "adjust-discount",
+      "title": "Apply discounts",
+      "intro": "Manual discounts use the middle panel: choose a discount, set amount when needed, then Apply.",
+      "steps": [
+        "Tap the Discount row (manager PIN may be required).",
+        "Optionally choose No discount to clear manual discounts.",
+        "Tap a configured discount. If a range is allowed, use the keypad for percent or fixed amount.",
+        "If the discount is item-scoped, select which lines it covers; if a reason is required, pick one.",
+        "Tap Apply so the discount appears on the left total. Draft selection alone does not update the total."
+      ],
+      "image": "payment-adjust-discount.png",
+      "caption": "Discount editor; confirm with Apply."
+    },
+    {
+      "id": "adjust-coupon",
+      "title": "Coupons",
+      "intro": "Enter a coupon code and confirm with Apply (not OK).",
+      "steps": [
+        "Tap the Coupon row (manager PIN may be required).",
+        "Type the code in the field (on-screen keyboard available).",
+        "Tap Apply to validate and attach the coupon discount.",
+        "Use Clear to remove a coupon. Invalid codes show an error and leave the total unchanged."
+      ],
+      "image": "payment-adjust-coupon.png",
+      "caption": "Coupon code with Apply and Clear."
+    },
+    {
+      "id": "adjust-service",
+      "title": "Service charges",
+      "intro": "Service charge is drafted with percent or fixed options, then applied with OK.",
+      "steps": [
+        "Tap the Service charges row (manager PIN may be required).",
+        "A banner may show the default from Manage settings; draft may start at that value when the order type allows service charges.",
+        "Choose No service charge, or Percent / Fixed, quick amounts, or the keypad.",
+        "Tap OK to put the charge on the left total — without OK the previous service charge stays.",
+        "If the order type does not allow service charges, the venue policy may keep this row at zero."
+      ],
+      "image": "payment-adjust-service.png",
+      "caption": "Service charge panel; confirm with OK."
+    },
+    {
+      "id": "adjust-tip",
+      "title": "Tips",
+      "intro": "Tips use the same draft-then-OK pattern as tax and service charges.",
+      "steps": [
+        "Tap the Tip row (manager PIN may be required).",
+        "Choose No tip, or Percent vs Fixed amount.",
+        "Pick a quick tip (for example 10%, 15%) or type a value on the keypad.",
+        "Tap OK to apply. Leaving the panel without OK keeps the previous tip.",
+        "Tip increases the payable total used for tendering."
+      ],
+      "image": "payment-adjust-tip.png",
+      "caption": "Tip panel; confirm with OK."
+    },
+    {
+      "id": "extras",
+      "title": "Extras",
+      "intro": "Configured extras (for example delivery fees tied to tables or payment types) show as rows under tip. There is no middle editor.",
+      "steps": [
+        "If extras apply to this order, each extra name and amount appears in the totals list.",
+        "Tap an extra row to toggle it off (struck through / zero) or back on.",
+        "Manager PIN may be required for extras. Changes take effect when the toggle succeeds — no OK button.",
+        "If you see no extra rows, none are configured for this table, order type, or payment combination."
+      ],
+      "image": "payment-extras.png",
+      "caption": "Extras rows on the totals list (when configured)."
+    },
+    {
+      "id": "adjust-notes",
+      "title": "Order notes",
+      "intro": "Notes are free text on the payment record. Typing updates the note immediately (no OK).",
+      "steps": [
+        "Tap Notes on the totals list.",
+        "Type in the middle panel (on-screen keyboard available).",
+        "The note appears on the Notes row and is saved when the order is completed."
+      ],
+      "image": "payment-adjust-notes.png",
+      "caption": "Notes editor."
+    },
+    {
+      "id": "receiving",
+      "title": "Receive payment",
+      "intro": "After totals are correct (including any applied tax, discount, coupon, service charge, tip, and extras), use the tender panel on the right.",
+      "steps": [
+        "Large figure at the top is total tendered so far.",
+        "Below it, remaining (red) or change (green) updates as you add payments.",
+        "Use quick amounts, the keypad, and payment type buttons to add tenders."
+      ],
+      "image": "payment-receiving.png",
+      "caption": "Tender panel and payment lines."
+    },
+    {
+      "id": "tender-display",
+      "title": "Tendered and remaining",
+      "steps": [
+        "Tendered starts at zero until you add a payment line.",
+        "Remaining must reach zero (or change due ≥ 0) before Complete is enabled.",
+        "If you change tax, tip, or discounts after tendering, remaining updates — adjust payments as needed.",
+        "Split payments by adding more than one line with different types or amounts."
+      ],
+      "image": "payment-tender-display.png",
+      "caption": "Tendered amount and change/remaining."
+    },
+    {
+      "id": "types",
+      "title": "Payment types",
+      "intro": "Payment types come from Manage (or from the table’s allowed list). Cash, card, and remote gateways each behave differently.",
+      "steps": [
+        "Tap a type to post the remaining balance, or enter an amount first then tap a type.",
+        "Quick amount chips (including the exact total) use the first available type.",
+        "Card usually cannot exceed remaining; overpayment may be blocked or clipped."
+      ],
+      "image": "payment-types.png",
+      "caption": "Payment type buttons.",
+      "note": "Remote types (Stripe, PayPal, M-Pesa, and similar) open their own flow instead of a simple cash line."
+    },
+    {
+      "id": "keypad",
+      "title": "Amount keypad",
+      "steps": [
+        "Type an amount on the keypad, then choose a payment type to post it.",
+        "Tap C to clear the entry.",
+        "Exact remaining can also be taken with the currency chip equal to the total."
+      ],
+      "image": "payment-keypad.png",
+      "caption": "Numeric keypad."
+    },
+    {
+      "id": "finish",
+      "title": "Temp bill and Complete",
+      "steps": [
+        "Temp bill prints a provisional check when printing and permissions allow it.",
+        "Complete finalizes the order as paid and closes the payment screen.",
+        "Complete stays disabled while remaining is still due or a remote payment is processing."
+      ],
+      "image": "payment-finish-actions.png",
+      "caption": "Temp bill and Complete.",
+      "note": "Closing the dialog with Escape or the modal close control leaves the check open if you have not completed payment."
+    },
+    {
+      "id": "lines",
+      "title": "Payment lines",
+      "intro": "Each tender appears in the list on the far right of the receiving panel.",
+      "steps": [
+        "Review type and amount for every line.",
+        "Tap a line (×) to remove it if you need to retender.",
+        "When the balance is covered, Complete becomes available."
+      ],
+      "image": "payment-lines.png",
+      "caption": "Tender lines after posting an exact amount."
+    },
+    {
+      "id": "complete-ready",
+      "title": "Ready to complete",
+      "steps": [
+        "Confirm remaining is zero or change is correct for cash.",
+        "Tap Complete (manager PIN may be required).",
+        "The order moves to paid status; do not close early if the printer must fire."
+      ],
+      "image": "payment-complete-ready.png",
+      "caption": "Complete enabled after balance is covered."
+    }
+  ]
+}

@@ -137,6 +137,7 @@ export const MenuForm = ({
   return (
     <>
       <Modal
+        testId="admin-form-menu"
         title={data ? t('forms.updateMenu', { name: data?.name }) : t('forms.createMenu')}
         open={open}
         onClose={closeModal}

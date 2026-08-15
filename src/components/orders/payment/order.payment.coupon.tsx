@@ -33,7 +33,7 @@ export const OrderPaymentCoupon = ({
   };
 
   return (
-    <div className="flex flex-col justify-between h-full gap-4">
+    <div className="flex flex-col justify-between h-full gap-4" data-testid="payment-panel-coupon">
       <div className="flex flex-col gap-4">
         <Input
           label={t('coupon.codeLabel')}
@@ -46,6 +46,7 @@ export const OrderPaymentCoupon = ({
             variant="primary"
             size="lg"
             className="flex-1"
+            data-testid="payment-coupon-apply"
             onClick={handleApply}
             isLoading={isApplying}
           >
@@ -55,6 +56,7 @@ export const OrderPaymentCoupon = ({
             variant="secondary"
             size="lg"
             className="flex-1"
+            data-testid="payment-coupon-clear"
             onClick={handleClear}
             disabled={!coupon && couponAmount === 0}
           >

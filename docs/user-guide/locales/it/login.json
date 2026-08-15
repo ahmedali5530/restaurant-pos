@@ -1,0 +1,53 @@
+{
+  "title": "Accesso",
+  "intro": "Apri POSR nel browser. La schermata di accesso compare se non sei autenticato o il terminale è bloccato.",
+  "sections": [
+    {
+      "id": "methods",
+      "title": "Scegli il metodo di accesso",
+      "intro": "Puoi accedere con PIN o con utente e password. Usa il metodo assegnato al tuo account.",
+      "steps": [
+        "Scegli Pin o Modulo in alto.",
+        "Il PIN è adatto ai terminali condivisi in sala.",
+        "Il modulo va bene con credenziali personali."
+      ],
+      "image": "login-pin.png",
+      "caption": "Schermata di accesso con Pin selezionato."
+    },
+    {
+      "id": "pin",
+      "title": "Accedi con PIN",
+      "steps": [
+        "Seleziona Pin.",
+        "Inserisci il PIN a 4 cifre.",
+        "Al quarto digito l’accesso è automatico.",
+        "Usa backspace o C per correggere.",
+        "Se richiesto, completa il timbratura."
+      ],
+      "image": "login-method-toggle.png",
+      "caption": "Pulsanti Pin e Modulo.",
+      "note": "In demo spesso PIN 1234, 0000 o 5555 (super admin)."
+    },
+    {
+      "id": "form",
+      "title": "Accedi con utente e password",
+      "steps": [
+        "Seleziona Modulo.",
+        "Inserisci nome utente e password.",
+        "Tocca Accedi.",
+        "Completa la timbratura se richiesto."
+      ],
+      "image": "login-form.png",
+      "caption": "Accesso con modulo e campi evidenziati."
+    },
+    {
+      "id": "after",
+      "title": "Dopo l’accesso",
+      "steps": [
+        "Arrivi al Menu salvo reindirizzamento.",
+        "Usa la barra laterale per i moduli consentiti.",
+        "Usa Blocca quando lasci il posto."
+      ]
+    }
+  ]
+}

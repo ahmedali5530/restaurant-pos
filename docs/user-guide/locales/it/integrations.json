@@ -1,0 +1,75 @@
+{
+  "title": "Integrazioni",
+  "intro": "Le integrazioni collegano POSR a provider esterni di contabilità, fiscale, logging e inventario. Abilita, configura e monitora salute e coda.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Apri Integrazioni",
+      "steps": [
+        "Accedi con accesso integrazioni.",
+        "Tocca Integrazioni.",
+        "Si apre su Provider."
+      ],
+      "image": "integrations-overview.png",
+      "caption": "Schermata Integrazioni."
+    },
+    {
+      "id": "tabs",
+      "title": "Navigazione schede",
+      "intro": "Schede: elenco, configurazione, salute e coda.",
+      "steps": [
+        "Provider elenca i connettori.",
+        "Configurazione conserva le credenziali.",
+        "Salute e Coda mostrano stato e job."
+      ],
+      "image": "integrations-tabs.png",
+      "caption": "Barra schede Integrazioni."
+    },
+    {
+      "id": "providers",
+      "title": "Provider",
+      "steps": [
+        "Rivedi ogni card: nome, categoria, versione.",
+        "Usa lo switch per abilitare o disabilitare.",
+        "Tocca Configura."
+      ],
+      "image": "integrations-providers.png",
+      "caption": "Elenco provider."
+    },
+    {
+      "id": "configuration",
+      "title": "Configurazione",
+      "intro": "Segreti e mapping del provider selezionato.",
+      "steps": [
+        "Seleziona un provider.",
+        "Compila i campi obbligatori.",
+        "Connetti o avvia la sync iniziale."
+      ],
+      "image": "integrations-configuration.png",
+      "caption": "Pannello configurazione."
+    },
+    {
+      "id": "health",
+      "title": "Salute",
+      "steps": [
+        "Apri Salute per gli stati.",
+        "I provider sani inviano eventi.",
+        "Si aggiorna all'apertura o al toggle."
+      ],
+      "image": "integrations-health.png",
+      "caption": "Pannello salute."
+    },
+    {
+      "id": "queue",
+      "title": "Coda",
+      "intro": "Job in uscita verso sistemi esterni.",
+      "steps": [
+        "Apri Coda per pending o falliti.",
+        "I job si aggiornano con la scheda aperta.",
+        "I falliti si risolvono dopo la fix."
+      ],
+      "image": "integrations-queue.png",
+      "caption": "Pannello coda."
+    }
+  ]
+}

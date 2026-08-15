@@ -1,0 +1,56 @@
+{
+  "title": "Note performance",
+  "intro": "Registra avvisi, complimenti e incidenti.",
+  "sections": [
+    {
+      "id": "performance",
+      "title": "Elenco performance",
+      "steps": [
+        "HR → Performance.",
+        "Sfoglia per dipendente/tipo.",
+        "Aggiungi dopo incidenti."
+      ],
+      "image": "hr-performance-list.png",
+      "caption": "Scheda note performance.",
+      "fields": []
+    },
+    {
+      "id": "performance-form",
+      "title": "Modulo nota performance",
+      "steps": [
+        "Dipendente, tipo, titolo, testo.",
+        "Severità se applicabile.",
+        "Visibile al dipendente.",
+        "Salva."
+      ],
+      "image": "hr-form-performance.png",
+      "caption": "Modulo nota performance.",
+      "fields": [
+        {
+          "name": "Dipendente",
+          "effect": "Soggetto della nota."
+        },
+        {
+          "name": "Tipo",
+          "effect": "Avviso, complimento, revisione o incidente."
+        },
+        {
+          "name": "Titolo",
+          "effect": "Breve riepilogo."
+        },
+        {
+          "name": "Contenuto",
+          "effect": "Resoconto completo."
+        },
+        {
+          "name": "Severità",
+          "effect": "Bassa, media, alta o critica."
+        },
+        {
+          "name": "Visibile dipendente",
+          "effect": "Può essere mostrata al dipendente."
+        }
+      ]
+    }
+  ]
+}

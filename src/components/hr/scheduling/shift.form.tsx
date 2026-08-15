@@ -240,6 +240,7 @@ export const ScheduledShiftForm = ({open, onClose, data, defaultSchedule}: Props
     <>
       <Modal
         title={data ? t("buttons.update") : t("scheduling.addShift")}
+        testId="hr-form-shift"
         open={open}
         onClose={closeModal}
         size="lg"

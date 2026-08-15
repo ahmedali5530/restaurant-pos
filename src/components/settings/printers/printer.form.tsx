@@ -107,6 +107,7 @@ export const PrinterForm = ({
   return (
     <>
       <Modal
+        testId="admin-form-printer"
         title={data ? t('forms.updatePrinter', { name: data?.name }) : t('forms.createPrinter')}
         open={open}
         onClose={closeModal}

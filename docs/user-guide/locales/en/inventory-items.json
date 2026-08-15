@@ -1,0 +1,40 @@
+{
+  "title": "Items and stock master data",
+  "intro": "Maintain inventory items, categories, and storage locations that drive stock valuation and documents.",
+  "sections": [
+    {
+      "id": "items",
+      "title": "Items",
+      "steps": [
+        "Open the Items tab.",
+        "Create or edit items with code, unit of measure, reorder levels, and suppliers.",
+        "Items appear on purchases, issues, recipes, and the current inventory summary."
+      ],
+      "image": "inventory-items-list.png",
+      "caption": "Items maintenance table."
+    },
+    {
+      "id": "categories",
+      "title": "Item categories",
+      "intro": "Categories group items for filtering and reporting.",
+      "steps": [
+        "Open the Item Categories tab.",
+        "Add categories that match how the kitchen and warehouse organize stock.",
+        "Assign categories on each item form."
+      ],
+      "image": "inventory-items-categories.png",
+      "caption": "Item categories tab."
+    },
+    {
+      "id": "locations",
+      "title": "Locations",
+      "steps": [
+        "Open the Locations tab.",
+        "Define stores, fridges, or kitchens where stock is held.",
+        "Documents (purchases, transfers, issues) always reference a location."
+      ],
+      "image": "inventory-items-locations.png",
+      "caption": "Locations tab."
+    }
+  ]
+}

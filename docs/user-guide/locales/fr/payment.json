@@ -1,0 +1,221 @@
+{
+  "title": "Écran de paiement",
+  "intro": "Payer maintenant ouvre le plein écran : résumé à gauche, éditeur au centre (taxe/remise/coupon/service/pourboire/notes), encaissement à droite.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Disposition du paiement",
+      "steps": [
+        "Colonne gauche : en-tête, lignes, taxe, remise, coupon, service, pourboire, extras, notes, total.",
+        "Colonne centrale : éditeur de la ligne choisie. Les changements restent en brouillon jusqu’à OK ou Appliquer (sauf notes et extras).",
+        "Droite : encaissé, reste/monnaie, montants rapides, types, clavier, addition temp, Terminer, liste."
+      ],
+      "image": "payment-overview.png",
+      "caption": "Écran complet.",
+      "intro": "Trois zones : vérifier, ajuster, encaisser."
+    },
+    {
+      "id": "summary",
+      "title": "Résumé commande",
+      "steps": [
+        "Confirmer table, couverts, type et facture.",
+        "Faire défiler si beaucoup de lignes.",
+        "Toucher une ligne de totaux (crayon) pour éditer."
+      ],
+      "image": "payment-order-summary.png",
+      "caption": "Colonne résumé.",
+      "intro": "Carte gauche table et articles."
+    },
+    {
+      "id": "totals",
+      "title": "Détail des totaux",
+      "steps": [
+        "Sous-total articles puis taxe, remise, coupon, service, pourboire, extras et notes.",
+        "Toucher Taxe, Remise, Coupon, Service, Pourboire ou Notes.",
+        "Un brouillon seul ne change pas l’addition — confirmer par OK ou Appliquer.",
+        "Certaines lignes demandent un PIN manager."
+      ],
+      "image": "payment-totals.png",
+      "caption": "Lignes de totaux.",
+      "intro": "Chaque ligne alimente le total.",
+      "note": "Les extras n’apparaissent que s’ils s’appliquent ; bascule sur la ligne (pas de panneau central)."
+    },
+    {
+      "id": "adjust-tax",
+      "title": "Ajuster la taxe",
+      "steps": [
+        "Toucher Taxe si le panneau n’est pas ouvert.",
+        "Sélectionner Sans taxe ou un taux — brouillon seulement.",
+        "Toucher OK en bas pour appliquer.",
+        "Fermer sans OK garde l’ancienne taxe.",
+        "Les types de paiement peuvent aussi poser une taxe à l’encaissement."
+      ],
+      "image": "payment-adjust-tax.png",
+      "caption": "Panneau taxe avec OK.",
+      "intro": "Choisir sans taxe ou un taux, puis OK. Le montant gauche ne change qu’après OK."
+    },
+    {
+      "id": "adjust-discount",
+      "title": "Appliquer des remises",
+      "steps": [
+        "Toucher Remise (PIN possible).",
+        "Option Sans remise pour effacer les manuelles.",
+        "Choisir une remise ; clavier si plage.",
+        "Portée article : sélectionner lignes ; motif si requis.",
+        "Toucher Appliquer. La sélection seule n’actualise pas le total."
+      ],
+      "image": "payment-adjust-discount.png",
+      "caption": "Éditeur de remise ; confirmer par Appliquer.",
+      "intro": "Remise manuelle : choisir, régler le montant si besoin, Appliquer."
+    },
+    {
+      "id": "adjust-coupon",
+      "title": "Coupons",
+      "steps": [
+        "Toucher Coupon (PIN possible).",
+        "Taper le code.",
+        "Toucher Appliquer.",
+        "Effacer retire le coupon. Code invalide = total inchangé."
+      ],
+      "image": "payment-adjust-coupon.png",
+      "caption": "Code avec Appliquer et Effacer.",
+      "intro": "Saisir le code et confirmer par Appliquer (pas OK)."
+    },
+    {
+      "id": "adjust-service",
+      "title": "Frais de service",
+      "steps": [
+        "Toucher Service (PIN possible).",
+        "Bandeau possible avec défaut Manage.",
+        "Sans service, % / Fixe, montants rapides ou clavier.",
+        "OK pour appliquer.",
+        "Selon le type de commande, le service peut rester à 0."
+      ],
+      "image": "payment-adjust-service.png",
+      "caption": "Panneau service ; OK.",
+      "intro": "Brouillon % ou fixe, puis OK."
+    },
+    {
+      "id": "adjust-tip",
+      "title": "Pourboires",
+      "steps": [
+        "Toucher Pourboire (PIN possible).",
+        "Sans pourboire ou % / Fixe.",
+        "Raccourcis ou clavier.",
+        "OK pour appliquer.",
+        "Augmente le total à encaisser."
+      ],
+      "image": "payment-adjust-tip.png",
+      "caption": "Panneau pourboire ; OK.",
+      "intro": "Même schéma brouillon → OK."
+    },
+    {
+      "id": "extras",
+      "title": "Extras",
+      "steps": [
+        "Noms et montants dans les totaux si applicables.",
+        "Toucher pour activer/désactiver.",
+        "PIN possible ; bascule immédiate.",
+        "Sans lignes = aucun extra applicable."
+      ],
+      "image": "payment-extras.png",
+      "caption": "Lignes d’extras (si configurés).",
+      "intro": "Extras configurés sous le pourboire. Pas d’éditeur central."
+    },
+    {
+      "id": "adjust-notes",
+      "title": "Notes de commande",
+      "steps": [
+        "Toucher Notes.",
+        "Taper au centre.",
+        "Enregistré à la clôture."
+      ],
+      "image": "payment-adjust-notes.png",
+      "caption": "Éditeur de notes.",
+      "intro": "Texte libre ; saisie immédiate (pas d’OK)."
+    },
+    {
+      "id": "receiving",
+      "title": "Encaisser",
+      "steps": [
+        "Grand chiffre = encaissé.",
+        "Reste (rouge) ou monnaie (vert).",
+        "Montants rapides, clavier, types."
+      ],
+      "image": "payment-receiving.png",
+      "caption": "Panneau encaissement.",
+      "intro": "Quand les totaux sont justes, encaisser à droite."
+    },
+    {
+      "id": "tender-display",
+      "title": "Encaissé et reste",
+      "steps": [
+        "Commence à zéro.",
+        "Reste 0 (ou monnaie ≥ 0) pour Terminer.",
+        "Après changement de taxe/remise/pourboire, revoir les encaissements.",
+        "Partager avec plusieurs lignes."
+      ],
+      "image": "payment-tender-display.png",
+      "caption": "Encaissé et reste/monnaie."
+    },
+    {
+      "id": "types",
+      "title": "Types de paiement",
+      "steps": [
+        "Type pour le solde, ou montant puis type.",
+        "Puces rapides = premier type.",
+        "Carte ne dépasse en général pas le reste."
+      ],
+      "image": "payment-types.png",
+      "caption": "Boutons de type.",
+      "intro": "Gérés dans Gérer ou sur la table.",
+      "note": "Types distants : flux propre."
+    },
+    {
+      "id": "keypad",
+      "title": "Clavier",
+      "steps": [
+        "Montant puis type.",
+        "C efface.",
+        "Puce total exact pour le solde."
+      ],
+      "image": "payment-keypad.png",
+      "caption": "Clavier numérique."
+    },
+    {
+      "id": "finish",
+      "title": "Addition temp et Terminer",
+      "steps": [
+        "Addition temp si droits.",
+        "Terminer = payé.",
+        "Désactivé si reste ou distant en cours."
+      ],
+      "image": "payment-finish-actions.png",
+      "caption": "Temp et Terminer.",
+      "note": "Échap ferme sans payer."
+    },
+    {
+      "id": "lines",
+      "title": "Lignes de paiement",
+      "steps": [
+        "Vérifier type et montant.",
+        "× pour retirer.",
+        "Solde couvert → Terminer actif."
+      ],
+      "image": "payment-lines.png",
+      "caption": "Lignes après montant exact.",
+      "intro": "Chaque encaissement à droite."
+    },
+    {
+      "id": "complete-ready",
+      "title": "Prêt à terminer",
+      "steps": [
+        "Vérifier reste zéro ou monnaie.",
+        "Terminer (PIN possible).",
+        "Commande payée."
+      ],
+      "image": "payment-complete-ready.png",
+      "caption": "Terminer activé."
+    }
+  ]
+}

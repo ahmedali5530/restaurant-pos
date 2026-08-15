@@ -1,0 +1,17 @@
+{
+  "title": "Mermas",
+  "intro": "Registre deterioro, roturas y otras pérdidas para mantener informes precisos.",
+  "sections": [
+    {
+      "id": "list",
+      "title": "Documentos de merma",
+      "steps": [
+        "Abra la pestaña Mermas.",
+        "Cree un documento con ubicación, motivo y cantidades.",
+        "Guardar reduce stock y registra el costo de merma."
+      ],
+      "image": "inventory-wastes-list.png",
+      "caption": "Lista de mermas."
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+{
+  "title": "Orders",
+  "intro": "The Orders screen lists open and recent checks so you can pay, print, split, merge, cancel, or refund without returning to the floor plan.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Orders layout",
+      "intro": "Open Orders from the left sidebar. Filters sit at the top; order cards (or table rows) fill the main area.",
+      "steps": [
+        "Tap Orders in the sidebar.",
+        "Use filters to narrow by status, order type, floor, user, and date.",
+        "Switch between Blocks and Table views with the toolbar buttons."
+      ],
+      "image": "orders-overview.png",
+      "caption": "Orders screen with filters and cards."
+    },
+    {
+      "id": "filters",
+      "title": "Filters",
+      "steps": [
+        "Status: In Progress, Paid, Cancelled, Split, Merged (multi-select).",
+        "Order type, floor, and user filters limit who and where.",
+        "The date picker shows paid/historical checks for that day; In Progress still appears when relevant."
+      ],
+      "image": "orders-filters.png",
+      "caption": "Orders filter bar."
+    },
+    {
+      "id": "toolbar",
+      "title": "Toolbar",
+      "steps": [
+        "Open cash drawer pulses the cash drawer when printing and permissions allow it (may require manager PIN).",
+        "Blocks shows large order cards.",
+        "Table shows a compact list (tap an In Progress row to pay)."
+      ],
+      "image": "orders-toolbar.png",
+      "caption": "Cash drawer and view toggles."
+    },
+    {
+      "id": "card",
+      "title": "Order card",
+      "intro": "Each card shows header, times, line items, totals, and action buttons for In Progress checks.",
+      "steps": [
+        "Review invoice number, table, status, server, and items.",
+        "Temp bill (print) and Pay (card icon) appear for In Progress orders.",
+        "Use the ⋯ menu for cancel, split, merge, and kitchen print."
+      ],
+      "image": "orders-card.png",
+      "caption": "Order card with items and actions."
+    },
+    {
+      "id": "card-actions",
+      "title": "Card actions",
+      "steps": [
+        "Temp bill prints a provisional check when allowed.",
+        "Pay opens the full payment screen for that order.",
+        "⋯ opens more actions (see next section)."
+      ],
+      "image": "orders-card-actions.png",
+      "caption": "Print, Pay, and more on a card."
+    },
+    {
+      "id": "menu",
+      "title": "More menu (In Progress)",
+      "intro": "Protected actions may ask for a manager PIN.",
+      "steps": [
+        "Cancel order voids the check through the cancel flow.",
+        "Split by seats, items, or amount divides one check into multiple.",
+        "Merge selects this order for multi-table merge (finish with Choose table on the bottom bar).",
+        "Print KOT copy re-fires kitchen tickets when needed."
+      ],
+      "image": "orders-card-menu.png",
+      "caption": "Order more-actions menu."
+    },
+    {
+      "id": "table-view",
+      "title": "Table view",
+      "steps": [
+        "Switch to Table for a dense list of today’s matching orders.",
+        "Tap an In Progress row to open payment quickly."
+      ],
+      "image": "orders-table-view.png",
+      "caption": "Orders table view."
+    },
+    {
+      "id": "cancel-void",
+      "title": "Sipariş iptal veya void",
+      "intro": "Devam eden çeki iptal eder. Tam void tüm satırları; kısmi void seçili kalemleri kaldırır.",
+      "steps": [
+        "Devam eden siparişte ⋯ açın ve Siparişi iptal et seçin.",
+        "Void nedeni seçin (raporlama için zorunlu).",
+        "Tam void için tümünü seçili bırakın veya kısmi için satır seçin.",
+        "Onaylayın; masa uygunsa serbest bırakılır."
+      ],
+      "image": "orders-cancel-modal.png",
+      "caption": "Neden ve kalem seçimli iptal modalı.",
+      "fields": [
+        {
+          "name": "Neden",
+          "effect": "Denetim ve raporlar için kaydedilen zorunlu void nedeni."
+        },
+        {
+          "name": "Tüm kalemleri seç",
+          "effect": "İşaretliyken tüm çek void edilir; değilse satır seçimi açılır."
+        },
+        {
+          "name": "Kısmi void",
+          "effect": "Yalnızca seçili miktarları void eder, kalan çek açık kalır."
+        }
+      ]
+    },
+    {
+      "id": "refund",
+      "title": "Ödenmiş siparişi iade et",
+      "intro": "Ödenmiş çeke iade yapar; isteğe bağlı seçili kalemler.",
+      "steps": [
+        "Ödenmiş siparişi açın ve İade seçin.",
+        "İade edilecek kalemleri ve miktarları seçin.",
+        "İade nedeni seçip onaylayın.",
+        "Sistem iadeyi kaydeder ve ödeme toplamlarını günceller."
+      ],
+      "image": "orders-refund-modal.png",
+      "caption": "Kalem seçimli iade modalı.",
+      "fields": [
+        {
+          "name": "İade kalemleri",
+          "effect": "Müşteriye iade edilen ödenmiş satırlar ve miktarlar."
+        },
+        {
+          "name": "Neden",
+          "effect": "Yönetici incelemesi ve raporlar için iade gerekçesi."
+        }
+      ]
+    },
+    {
+      "id": "split-seats",
+      "title": "Koltuklara göre böl",
+      "intro": "Çeki koltuk numarasına göre ayrı çeklere böler.",
+      "steps": [
+        "⋯ menüsünden Koltuklara göre böl seçin.",
+        "Koltuk gruplarını inceleyin.",
+        "Onaylayın; her koltuk için ayrı çek oluşur."
+      ],
+      "image": "orders-split-seats.png",
+      "caption": "Onay öncesi koltuk bölme önizlemesi.",
+      "fields": []
+    },
+    {
+      "id": "split-items",
+      "title": "Kalemlere göre böl",
+      "intro": "Satırları koltuktan bağımsız yeni çeklere atar.",
+      "steps": [
+        "⋯ → Kalemlere göre böl.",
+        "Her satırı yeni çek sütununa taşıyın.",
+        "Onaylayın; ayrı Devam eden çekler oluşur."
+      ],
+      "image": "orders-split-items.png",
+      "caption": "Kalem atama ızgarası.",
+      "fields": []
+    },
+    {
+      "id": "split-amount",
+      "title": "Tutara göre böl",
+      "intro": "Toplamı sabit veya eşit parçalara böler.",
+      "steps": [
+        "⋯ → Tutara göre böl.",
+        "Parça sayısı veya özel tutarlar girin.",
+        "Onaylayın; her parça için alt çek oluşur."
+      ],
+      "image": "orders-split-amount.png",
+      "caption": "Tutar bölme diyalogu.",
+      "fields": []
+    },
+    {
+      "id": "merge",
+      "title": "Siparişleri birleştir",
+      "intro": "Birden fazla Devam eden çeki bir masada birleştirir.",
+      "steps": [
+        "İlk siparişte ⋯ → Birleştir.",
+        "Her ek sipariş için tekrarlayın.",
+        "Masa seçin ve hedef masayı belirleyin.",
+        "Birleştirmeyi onaylayın."
+      ],
+      "image": "orders-merge-bar.png",
+      "caption": "Seçili siparişler ve masa seçici çubuğu.",
+      "fields": [
+        {
+          "name": "Sipariş seç",
+          "effect": "Birleştirme setine sipariş ekler."
+        },
+        {
+          "name": "Masa seç",
+          "effect": "Birleşik çeğin oturacağı masayı belirler."
+        },
+        {
+          "name": "Birleştirmeyi onayla",
+          "effect": "Seçili çekleri tek Devam eden siparişte birleştirir."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "title": "Connexion",
+  "intro": "Ouvrez POSR dans le navigateur. L’écran de connexion apparaît si vous n’êtes pas connecté ou si le terminal est verrouillé.",
+  "sections": [
+    {
+      "id": "methods",
+      "title": "Choisir la méthode de connexion",
+      "intro": "Connexion par code PIN ou par formulaire. Utilisez la méthode attribuée à votre compte.",
+      "steps": [
+        "En haut de l’écran, choisissez Pin ou Formulaire.",
+        "Le PIN convient aux terminaux partagés en salle.",
+        "Le formulaire convient aux comptes individuels."
+      ],
+      "image": "login-pin.png",
+      "caption": "Écran de connexion avec Pin (bascule et pavé surlignés)."
+    },
+    {
+      "id": "pin",
+      "title": "Se connecter avec un PIN",
+      "steps": [
+        "Sélectionnez Pin.",
+        "Saisissez votre PIN à 4 chiffres.",
+        "La connexion se lance au 4e chiffre.",
+        "Utilisez retour arrière ou C pour corriger.",
+        "Si « Pointage requis » s’affiche, appuyez sur Pointer."
+      ],
+      "image": "login-method-toggle.png",
+      "caption": "Boutons Pin et Formulaire.",
+      "note": "En démo : PIN 1234, 0000 ou 5555 (super admin). En production, le manager définit le PIN."
+    },
+    {
+      "id": "form",
+      "title": "Se connecter avec identifiant et mot de passe",
+      "steps": [
+        "Sélectionnez Formulaire.",
+        "Saisissez le nom d’utilisateur.",
+        "Saisissez le mot de passe.",
+        "Appuyez sur Connexion.",
+        "Complétez le pointage si demandé."
+      ],
+      "image": "login-form.png",
+      "caption": "Formulaire de connexion avec champs surlignés."
+    },
+    {
+      "id": "after",
+      "title": "Après une connexion réussie",
+      "steps": [
+        "Vous arrivez sur le Menu sauf redirection.",
+        "Utilisez la barre latérale pour les modules autorisés.",
+        "Utilisez Verrouiller en quittant le poste."
+      ]
+    }
+  ]
+}

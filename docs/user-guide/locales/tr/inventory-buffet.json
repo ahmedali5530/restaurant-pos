@@ -1,0 +1,102 @@
+{
+  "title": "Buffet menüleri ve oturumlar",
+  "intro": "Misafir başına tarifler planlayın ve oturumları yönetin.",
+  "sections": [
+    {
+      "id": "buffet-menus",
+      "title": "Buffet menüleri",
+      "steps": [
+        "Envanter → Buffet → Menüler.",
+        "Kahvaltı/öğle/akşam şablonları.",
+        "Misafir başına tarif miktarları."
+      ],
+      "image": "inventory-buffet-menus.png",
+      "caption": "Buffet menü listesi.",
+      "fields": []
+    },
+    {
+      "id": "buffet-menu-form",
+      "title": "Buffet menü formu",
+      "steps": [
+        "Menü ekle/düzenle.",
+        "Oturum tipi ve misafir başına tarif.",
+        "Kaydet."
+      ],
+      "image": "inventory-buffet-menu-form.png",
+      "caption": "Buffet menü formu.",
+      "fields": [
+        {
+          "name": "Ad",
+          "effect": "Oturum başlatmada etiket."
+        },
+        {
+          "name": "Kod",
+          "effect": "İsteğe bağlı mutfak kodu."
+        },
+        {
+          "name": "Oturum tipi",
+          "effect": "Kahvaltı/öğle/akşam."
+        },
+        {
+          "name": "Tarif satırları",
+          "effect": "Misafir başına tarif ve miktar."
+        },
+        {
+          "name": "Aktif",
+          "effect": "Yalnız aktif menüler seçilir."
+        }
+      ]
+    },
+    {
+      "id": "buffet-sessions",
+      "title": "Buffet oturumları",
+      "steps": [
+        "Buffet → Oturumlar.",
+        "Menüden oturum başlatın.",
+        "Serviste üretim vs tahmin.",
+        "Kapatın."
+      ],
+      "image": "inventory-buffet-sessions.png",
+      "caption": "Buffet oturum paneli.",
+      "fields": []
+    },
+    {
+      "id": "buffet-session-form",
+      "title": "Buffet oturumu başlat",
+      "steps": [
+        "Yeni oturum.",
+        "Menü, konum, tarih, tip.",
+        "Beklenen misafir ve fiyat.",
+        "Kaydet."
+      ],
+      "image": "inventory-buffet-session-form.png",
+      "caption": "Yeni buffet oturum formu.",
+      "fields": [
+        {
+          "name": "Menü",
+          "effect": "Tarif satırları ve tahminler."
+        },
+        {
+          "name": "Konum",
+          "effect": "Stok hareketleri deposu."
+        },
+        {
+          "name": "İş tarihi",
+          "effect": "Oturum iş günü."
+        },
+        {
+          "name": "Oturum tipi",
+          "effect": "Menü servisiyle uyumlu."
+        },
+        {
+          "name": "Beklenen misafir",
+          "effect": "İlk tarif tahminleri."
+        },
+        {
+          "name": "Buffet fiyatı",
+          "effect": "Misafir başına gelir."
+        }
+      ]
+    }
+  ]
+}

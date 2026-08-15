@@ -1,0 +1,73 @@
+{
+  "title": "Menu e presa ordine",
+  "intro": "Usa Menu per i tavoli, il tipo ordine, categorie e piatti, e per riempire il carrello.",
+  "sections": [
+    {
+      "id": "floor",
+      "title": "Apri un tavolo",
+      "intro": "Con selezione tavoli attiva si apre la piantina.",
+      "steps": [
+        "Apri Menu.",
+        "Scegli il piano.",
+        "Tocca un tavolo libero.",
+        "Inserisci i coperti se richiesto."
+      ],
+      "image": "menu-floor.png",
+      "caption": "Piantina."
+    },
+    {
+      "id": "overview",
+      "title": "Schermata ordine",
+      "intro": "Menu a sinistra, carrello a destra.",
+      "steps": [
+        "Intestazione: tavolo, coperti, cliente, tipo.",
+        "Categorie e piatti.",
+        "Controlla il carrello."
+      ],
+      "image": "menu-overview.png",
+      "caption": "Intestazione e tipi."
+    },
+    {
+      "id": "order-type",
+      "title": "Tipo ordine",
+      "steps": [
+        "Scegli il tipo.",
+        "Influisce su cucina e prezzi."
+      ],
+      "image": "menu-overview.png",
+      "caption": "Pulsanti tipo."
+    },
+    {
+      "id": "categories",
+      "title": "Categorie",
+      "steps": [
+        "Tocca una categoria.",
+        "La griglia si aggiorna."
+      ],
+      "image": "menu-categories.png",
+      "caption": "Categorie."
+    },
+    {
+      "id": "dishes",
+      "title": "Aggiungi piatto",
+      "steps": [
+        "Tocca il piatto.",
+        "Completa i modificatori.",
+        "Ripeti."
+      ],
+      "image": "menu-dishes.png",
+      "caption": "Griglia piatti.",
+      "note": "Ricerca da Impostazioni se attiva."
+    },
+    {
+      "id": "dish-tile",
+      "title": "Scheda piatto",
+      "steps": [
+        "Nome, prezzo, numero.",
+        "Badge quantità."
+      ],
+      "image": "menu-dish-tile.png",
+      "caption": "Scheda."
+    }
+  ]
+}

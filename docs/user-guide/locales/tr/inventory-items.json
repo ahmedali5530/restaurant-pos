@@ -1,0 +1,40 @@
+{
+  "title": "Ürünler ve ana veri",
+  "intro": "Stok değerlemesi ve belgeleri için ürünler, kategoriler ve lokasyonları yönetin.",
+  "sections": [
+    {
+      "id": "items",
+      "title": "Ürünler",
+      "steps": [
+        "Ürünler sekmesini açın.",
+        "Kod, birim, yeniden sipariş seviyesi ve tedarikçilerle ürün oluşturun.",
+        "Ürünler satın alma, çıkış, reçete ve özette görünür."
+      ],
+      "image": "inventory-items-list.png",
+      "caption": "Ürün bakım tablosu."
+    },
+    {
+      "id": "categories",
+      "title": "Ürün kategorileri",
+      "intro": "Kategoriler filtre ve raporlar için ürünleri gruplar.",
+      "steps": [
+        "Ürün Kategorileri sekmesini açın.",
+        "Mutfak ve depoya uygun kategoriler ekleyin.",
+        "Her ürün formunda kategori atayın."
+      ],
+      "image": "inventory-items-categories.png",
+      "caption": "Ürün kategorileri sekmesi."
+    },
+    {
+      "id": "locations",
+      "title": "Lokasyonlar",
+      "steps": [
+        "Lokasyonlar sekmesini açın.",
+        "Depo, buzdolabı veya mutfakları tanımlayın.",
+        "Belgeler her zaman bir lokasyona bağlıdır."
+      ],
+      "image": "inventory-items-locations.png",
+      "caption": "Lokasyonlar sekmesi."
+    }
+  ]
+}

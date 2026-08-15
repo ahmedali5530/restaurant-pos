@@ -1,0 +1,39 @@
+{
+  "title": "Tip distribution",
+  "intro": "Tip distribution calculates how pooled tips for a shift should be split across staff using configured weights, then saves an official distribution record. Managers often use the same screen from Tip distribution in the sidebar.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Tip distribution screen",
+      "steps": [
+        "Tap Tip distribution in the sidebar.",
+        "Select a shift and business date at the top.",
+        "Load tips calculates totals from paid orders in that shift window."
+      ],
+      "image": "tips-overview.png",
+      "caption": "Tip distribution screen."
+    },
+    {
+      "id": "filters",
+      "title": "Shift and date",
+      "steps": [
+        "Choose the shift from the dropdown.",
+        "Pick the date — cannot be in the future.",
+        "Tap Load tips to fetch tip totals and build the distribution table."
+      ],
+      "image": "tips-filters.png",
+      "caption": "Shift, date, and load controls."
+    },
+    {
+      "id": "table",
+      "title": "Distribution table",
+      "steps": [
+        "Total tips shows the pooled amount for the shift.",
+        "Each row lists user, role, weight, and calculated share.",
+        "Submit saves the distribution after you review the shares."
+      ],
+      "image": "tips-table.png",
+      "caption": "Totals and per-user distribution table."
+    }
+  ]
+}

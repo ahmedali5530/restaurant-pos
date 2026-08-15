@@ -1,0 +1,40 @@
+{
+  "title": "Voorraad overzicht",
+  "intro": "Voorraad is het magazijnhub: saldi, artikelen, inkopen, uitgiftes, afval en tellingen. Open via de zijbalk met voorraadtoegang.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Voorraad openen",
+      "steps": [
+        "Log in met voorraadtoegang.",
+        "Tik op Voorraad in de zijbalk.",
+        "Het scherm opent op de huidige voorraadsamenvatting."
+      ],
+      "image": "inventory-overview.png",
+      "caption": "Voorraadscherm met tabbladen."
+    },
+    {
+      "id": "tabs",
+      "title": "Tabnavigatie",
+      "intro": "Tabbladen groeperen stamgegevens en documenten. Wisselen kan manager-PIN vereisen.",
+      "steps": [
+        "Scroll horizontaal bij veel tabs.",
+        "Elk tabblad opent zijn lijst.",
+        "Het geselecteerde tabblad is gemarkeerd."
+      ],
+      "image": "inventory-tabs.png",
+      "caption": "Voorraad tabbalk."
+    },
+    {
+      "id": "summary",
+      "title": "Huidige voorraadsamenvatting",
+      "steps": [
+        "Tabblad Voorraad toont hoeveelheden per artikel en locatie.",
+        "Gebruik zoeken en filters.",
+        "Andere tabs beheren inkopen, uitgiftes, afval en correcties."
+      ],
+      "image": "inventory-summary.png",
+      "caption": "Voorraad samenvattingstabel."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "title": "Artikel und Stammdaten",
+  "intro": "Artikel, Kategorien und Standorte für Bewertung und Belege pflegen.",
+  "sections": [
+    {
+      "id": "items",
+      "title": "Artikel",
+      "steps": [
+        "Tab Artikel öffnen.",
+        "Artikel mit Code, Einheit und Lieferanten anlegen.",
+        "Artikel erscheinen in Einkäufen, Ausgaben und Übersicht."
+      ],
+      "image": "inventory-items-list.png",
+      "caption": "Artikel-Wartungstabelle."
+    },
+    {
+      "id": "categories",
+      "title": "Artikelkategorien",
+      "intro": "Kategorien gruppieren Artikel für Filter und Berichte.",
+      "steps": [
+        "Tab Artikelkategorien öffnen.",
+        "Kategorien für Küche und Lager anlegen.",
+        "Im Artikelformular zuweisen."
+      ],
+      "image": "inventory-items-categories.png",
+      "caption": "Tab Artikelkategorien."
+    },
+    {
+      "id": "locations",
+      "title": "Standorte",
+      "steps": [
+        "Tab Standorte öffnen.",
+        "Lager, Kühlschränke oder Küchen definieren.",
+        "Belege referenzieren immer einen Standort."
+      ],
+      "image": "inventory-items-locations.png",
+      "caption": "Tab Standorte."
+    }
+  ]
+}

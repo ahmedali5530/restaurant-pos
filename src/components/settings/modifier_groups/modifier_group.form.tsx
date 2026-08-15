@@ -390,6 +390,7 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
   return (
     <>
       <Modal
+        testId="admin-form-modifier-group"
         title={data ? t('forms.updateModifierGroup', { name: data?.name }) : t('forms.createModifierGroup')}
         open={open}
         onClose={closeModal}

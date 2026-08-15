@@ -1,0 +1,68 @@
+{
+  "title": "Konten, GuV und Cashflow",
+  "intro": "Review posted activity and period balances: general ledger detail, trial balance, and balance sheet.",
+  "sections": [
+    {
+      "id": "ledger",
+      "title": "General ledger",
+      "steps": [
+        "Open the General ledger tab.",
+        "Filter by account and date range to inspect posted lines.",
+        "Use this view to drill into journal activity for an account."
+      ],
+      "image": "accounts-ledger.png",
+      "caption": "General ledger tab."
+    },
+    {
+      "id": "trial",
+      "title": "Trial balance",
+      "intro": "Trial balance lists debit and credit totals by account for a period.",
+      "steps": [
+        "Open the Trial balance tab.",
+        "Choose the period or as-of date your venue uses.",
+        "Confirm debits equal credits before relying on statements."
+      ],
+      "image": "accounts-trial-balance.png",
+      "caption": "Trial balance tab."
+    },
+    {
+      "id": "balance-sheet",
+      "title": "Balance sheet",
+      "steps": [
+        "Open the Balance sheet tab.",
+        "Review assets, liabilities, and equity for the selected date.",
+        "Other statement tabs (Profit & loss, Cash flow) follow the same pattern."
+      ],
+      "image": "accounts-balance-sheet.png",
+      "caption": "Balance sheet tab."
+    },
+    {
+      "id": "profit-loss",
+      "title": "Gewinn- und Verlustrechnung",
+      "intro": "Ergebnisrechnung für den gewählten Zeitraum: Umsatz, Wareneinsatz und Betriebsaufwendungen.",
+      "steps": [
+        "Öffnen Sie Konten und die GuV-Registerkarte.",
+        "Setzen Sie Datumsbereich oder Periode für Ihren Berichtszyklus.",
+        "Klappen Sie Kontogruppen auf für Kategorien-Summen.",
+        "Exportieren oder drucken Sie nach Periodenabschluss."
+      ],
+      "image": "accounts-profit-loss.png",
+      "caption": "Registerkarte Gewinn- und Verlustrechnung.",
+      "fields": []
+    },
+    {
+      "id": "cash-flow",
+      "title": "Kapitalflussrechnung",
+      "intro": "Fasst operative, Investitions- und Finanzierungs-Cashflows der Periode zusammen.",
+      "steps": [
+        "Öffnen Sie die Kapitalfluss-Registerkarte in Konten.",
+        "Wählen Sie dieselbe Periode wie andere Berichte.",
+        "Prüfen Sie Anfangsbestand, Nettoänderung und Endbestand.",
+        "Nutzen Sie neben GuV zur Erklärung von Cash vs. Accrual."
+      ],
+      "image": "accounts-cash-flow.png",
+      "caption": "Registerkarte Kapitalflussrechnung.",
+      "fields": []
+    }
+  ]
+}

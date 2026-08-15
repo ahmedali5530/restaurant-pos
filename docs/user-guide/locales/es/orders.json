@@ -1,0 +1,202 @@
+{
+  "title": "Orders",
+  "intro": "The Orders screen lists open and recent checks so you can pay, print, split, merge, cancel, or refund without returning to the floor plan.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Orders layout",
+      "intro": "Open Orders from the left sidebar. Filters sit at the top; order cards (or table rows) fill the main area.",
+      "steps": [
+        "Tap Orders in the sidebar.",
+        "Use filters to narrow by status, order type, floor, user, and date.",
+        "Switch between Blocks and Table views with the toolbar buttons."
+      ],
+      "image": "orders-overview.png",
+      "caption": "Orders screen with filters and cards."
+    },
+    {
+      "id": "filters",
+      "title": "Filters",
+      "steps": [
+        "Status: In Progress, Paid, Cancelled, Split, Merged (multi-select).",
+        "Order type, floor, and user filters limit who and where.",
+        "The date picker shows paid/historical checks for that day; In Progress still appears when relevant."
+      ],
+      "image": "orders-filters.png",
+      "caption": "Orders filter bar."
+    },
+    {
+      "id": "toolbar",
+      "title": "Toolbar",
+      "steps": [
+        "Open cash drawer pulses the cash drawer when printing and permissions allow it (may require manager PIN).",
+        "Blocks shows large order cards.",
+        "Table shows a compact list (tap an In Progress row to pay)."
+      ],
+      "image": "orders-toolbar.png",
+      "caption": "Cash drawer and view toggles."
+    },
+    {
+      "id": "card",
+      "title": "Order card",
+      "intro": "Each card shows header, times, line items, totals, and action buttons for In Progress checks.",
+      "steps": [
+        "Review invoice number, table, status, server, and items.",
+        "Temp bill (print) and Pay (card icon) appear for In Progress orders.",
+        "Use the ⋯ menu for cancel, split, merge, and kitchen print."
+      ],
+      "image": "orders-card.png",
+      "caption": "Order card with items and actions."
+    },
+    {
+      "id": "card-actions",
+      "title": "Card actions",
+      "steps": [
+        "Temp bill prints a provisional check when allowed.",
+        "Pay opens the full payment screen for that order.",
+        "⋯ opens more actions (see next section)."
+      ],
+      "image": "orders-card-actions.png",
+      "caption": "Print, Pay, and more on a card."
+    },
+    {
+      "id": "menu",
+      "title": "More menu (In Progress)",
+      "intro": "Protected actions may ask for a manager PIN.",
+      "steps": [
+        "Cancel order voids the check through the cancel flow.",
+        "Split by seats, items, or amount divides one check into multiple.",
+        "Merge selects this order for multi-table merge (finish with Choose table on the bottom bar).",
+        "Print KOT copy re-fires kitchen tickets when needed."
+      ],
+      "image": "orders-card-menu.png",
+      "caption": "Order more-actions menu."
+    },
+    {
+      "id": "table-view",
+      "title": "Table view",
+      "steps": [
+        "Switch to Table for a dense list of today’s matching orders.",
+        "Tap an In Progress row to open payment quickly."
+      ],
+      "image": "orders-table-view.png",
+      "caption": "Orders table view."
+    },
+    {
+      "id": "cancel-void",
+      "title": "Cancelar o anular pedido",
+      "intro": "Anula una cuenta En curso. Anulación total cancela todas las líneas; parcial solo las seleccionadas. Puede requerirse PIN de gerente.",
+      "steps": [
+        "Abra ⋯ en una tarjeta En curso y elija Cancelar pedido.",
+        "Seleccione un motivo de anulación (obligatorio para informes).",
+        "Deje marcado Seleccionar todos los ítems para anulación total, o desmarque y elija líneas para anulación parcial.",
+        "Confirme para anular la cuenta y liberar la mesa cuando corresponda."
+      ],
+      "image": "orders-cancel-modal.png",
+      "caption": "Modal Cancelar pedido con motivo y selección de ítems.",
+      "fields": [
+        {
+          "name": "Motivo",
+          "effect": "Motivo de anulación obligatorio registrado en el pedido para auditoría e informes."
+        },
+        {
+          "name": "Seleccionar todos los ítems",
+          "effect": "Marcado anula toda la cuenta; desmarcado permite selección por línea."
+        },
+        {
+          "name": "Anulación parcial",
+          "effect": "Marque líneas para anular solo esas cantidades manteniendo el resto abierto."
+        }
+      ]
+    },
+    {
+      "id": "refund",
+      "title": "Reembolsar pedido pagado",
+      "intro": "Emite un reembolso sobre una cuenta pagada, opcionalmente por ítems seleccionados.",
+      "steps": [
+        "Abra un pedido Pagado y elija Reembolso en el menú de acciones.",
+        "Seleccione líneas y cantidades a reembolsar.",
+        "Elija un motivo de reembolso y confirme.",
+        "El sistema registra el reembolso y actualiza totales de pago."
+      ],
+      "image": "orders-refund-modal.png",
+      "caption": "Modal de reembolso con selector de ítems y motivo.",
+      "fields": [
+        {
+          "name": "Ítems a reembolsar",
+          "effect": "Líneas pagadas y cantidades devueltas al cliente."
+        },
+        {
+          "name": "Motivo",
+          "effect": "Documenta el reembolso para revisión gerencial e informes."
+        }
+      ]
+    },
+    {
+      "id": "split-seats",
+      "title": "Dividir por asientos",
+      "intro": "Divide una cuenta en cuentas separadas según el número de asiento en las líneas.",
+      "steps": [
+        "Desde ⋯ elija Dividir por asientos en un pedido En curso.",
+        "Revise cómo se agrupan los ítems por asiento.",
+        "Confirme para crear una cuenta hija por asiento con la misma mesa."
+      ],
+      "image": "orders-split-seats.png",
+      "caption": "Vista previa de división por asientos antes de confirmar.",
+      "fields": []
+    },
+    {
+      "id": "split-items",
+      "title": "Dividir por ítems",
+      "intro": "Asigna manualmente líneas a nuevas cuentas sin depender del asiento.",
+      "steps": [
+        "Desde ⋯ elija Dividir por ítems.",
+        "Mueva o asigne cada línea a una columna de cuenta nueva.",
+        "Confirme para crear cuentas En curso separadas."
+      ],
+      "image": "orders-split-items.png",
+      "caption": "Cuadrícula de asignación por ítems.",
+      "fields": []
+    },
+    {
+      "id": "split-amount",
+      "title": "Dividir por importe",
+      "intro": "Divide el total en partes fijas o iguales para pagos separados.",
+      "steps": [
+        "Desde ⋯ elija Dividir por importe.",
+        "Ingrese número de partes o importes personalizados.",
+        "Confirme para generar cuentas hijas con cada porción del total."
+      ],
+      "image": "orders-split-amount.png",
+      "caption": "Diálogo de división por importe.",
+      "fields": []
+    },
+    {
+      "id": "merge",
+      "title": "Combinar pedidos",
+      "intro": "Combina varias cuentas En curso en una mesa. Inicie desde cada tarjeta y finalice en la barra inferior.",
+      "steps": [
+        "En el primer pedido, abra ⋯ y elija Combinar (o marque Seleccionar en la barra).",
+        "Repita para cada pedido adicional.",
+        "Toque Elegir mesa y seleccione la mesa destino.",
+        "Toque Confirmar combinación para unir las líneas en una cuenta."
+      ],
+      "image": "orders-merge-bar.png",
+      "caption": "Barra de combinación con pedidos seleccionados y selector de mesa.",
+      "fields": [
+        {
+          "name": "Casilla seleccionar pedidos",
+          "effect": "Marca un pedido para incluirlo en la combinación pendiente."
+        },
+        {
+          "name": "Elegir mesa",
+          "effect": "Define la mesa que alojará la cuenta combinada."
+        },
+        {
+          "name": "Confirmar combinación",
+          "effect": "Une todas las cuentas seleccionadas en un pedido En curso en la mesa elegida."
+        }
+      ]
+    }
+  ]
+}

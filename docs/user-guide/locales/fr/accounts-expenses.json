@@ -1,0 +1,29 @@
+{
+  "title": "Écritures et groupes de comptes",
+  "intro": "Enregistrez les transactions via journaux et organisez le plan avec des groupes.",
+  "sections": [
+    {
+      "id": "journal",
+      "title": "Écritures de journal",
+      "steps": [
+        "Ouvrez Écritures.",
+        "Créez des lignes débit/crédit équilibrées.",
+        "Enregistrez pour poster au grand livre."
+      ],
+      "image": "accounts-journal.png",
+      "caption": "Onglet Écritures."
+    },
+    {
+      "id": "groups",
+      "title": "Groupes de comptes",
+      "intro": "Les groupes organisent les comptes pour les états.",
+      "steps": [
+        "Ouvrez Groupes de comptes.",
+        "Créez des groupes selon les rapports.",
+        "Assignez les comptes."
+      ],
+      "image": "accounts-groups.png",
+      "caption": "Onglet Groupes."
+    }
+  ]
+}

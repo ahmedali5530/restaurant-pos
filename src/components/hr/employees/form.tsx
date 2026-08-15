@@ -252,7 +252,7 @@ export const EmployeeForm = ({open, onClose, data}: Props) => {
 
   return (
     <>
-      <Modal title={data ? t("forms.employee.update") : t("forms.employee.create")} open={open} onClose={closeModal} size="lg">
+      <Modal title={data ? t("forms.employee.update") : t("forms.employee.create")} testId="hr-form-employee" open={open} onClose={closeModal} size="lg">
         <form onSubmit={handleSubmit(onSubmit, (errs) => {
           const message = firstFormError(errs);
           if (message) toast.error(message);

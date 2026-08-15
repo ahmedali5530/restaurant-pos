@@ -1,0 +1,42 @@
+{
+  "title": "Cocina",
+  "intro": "El tablero de Cocina muestra tickets en vivo por estación. El personal avanza etapas y puede recuperar lotes completados.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Vista general del tablero",
+      "steps": [
+        "Pulse Cocina en la barra lateral.",
+        "Seleccione una estación si hay varias.",
+        "Los tickets aparecen cuando las órdenes se envían a cocina."
+      ],
+      "image": "kitchen-overview.png",
+      "caption": "Cocina con selector de estación y tablero."
+    },
+    {
+      "id": "toolbar",
+      "title": "Acciones del toolbar",
+      "steps": [
+        "Completar todo abierto marca todos los tickets activos.",
+        "Órdenes completadas abre lotes terminados con Recuperar.",
+        "Ver todos los platos muestra conteo por artículo.",
+        "Tiempo medio muestra duración de preparación hoy."
+      ],
+      "image": "kitchen-toolbar.png",
+      "caption": "Toolbar de cocina y tiempo medio."
+    },
+    {
+      "id": "board",
+      "title": "Tablero de tickets",
+      "intro": "Cada tarjeta es parte de una orden. Órdenes multiparte pueden usar bordes de color.",
+      "steps": [
+        "Lea mesa, tipo de orden y líneas de platos.",
+        "Pulse una etapa para completar ese paso.",
+        "Órdenes grandes pueden dividirse en varias tarjetas."
+      ],
+      "image": "kitchen-board.png",
+      "caption": "Tablero con tarjetas de orden.",
+      "note": "Envíe al menos una orden a cocina antes de capturar."
+    }
+  ]
+}

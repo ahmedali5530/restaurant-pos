@@ -98,7 +98,7 @@ export const HolidayForm = ({open, onClose, data}: Props) => {
   };
 
   return (
-    <Modal title={data ? t("forms.holiday.update") : t("forms.holiday.create")} open={open} onClose={closeModal} size="lg">
+    <Modal title={data ? t("forms.holiday.update") : t("forms.holiday.create")} testId="hr-form-holiday" open={open} onClose={closeModal} size="lg">
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-3 mb-3">
           <div>

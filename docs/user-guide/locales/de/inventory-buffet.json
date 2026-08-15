@@ -1,0 +1,102 @@
+{
+  "title": "Buffet-Menüs & Sitzungen",
+  "intro": "Planen Sie Rezepte pro Gast und führen Sie Sitzungen mit Prognose, Gästeverfolgung und Abschluss mit Schwund und Kosten.",
+  "sections": [
+    {
+      "id": "buffet-menus",
+      "title": "Buffet-Menüs",
+      "steps": [
+        "Öffnen Sie Inventar → Buffet → Menüs.",
+        "Pflegen Sie Menüvorlagen für Frühstück, Mittag oder Abend.",
+        "Jedes Menü listet Rezepte mit Mengen pro Gast."
+      ],
+      "image": "inventory-buffet-menus.png",
+      "caption": "Buffet-Menüliste.",
+      "fields": []
+    },
+    {
+      "id": "buffet-menu-form",
+      "title": "Buffet-Menüformular",
+      "steps": [
+        "Buffet-Menü hinzufügen oder bearbeiten.",
+        "Sitzungstyp und Rezeptzeilen mit Menge pro Gast setzen.",
+        "Aktive Menüs für Sitzungsstart speichern."
+      ],
+      "image": "inventory-buffet-menu-form.png",
+      "caption": "Buffet-Menüformular.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Bezeichnung beim Sitzungsstart."
+        },
+        {
+          "name": "Code",
+          "effect": "Optionale Küchenkurzform."
+        },
+        {
+          "name": "Sitzungstyp",
+          "effect": "Frühstück, Mittag oder Abend — filtert kompatible Sitzungen."
+        },
+        {
+          "name": "Rezeptzeilen",
+          "effect": "Rezept und erwartete Menge pro Gast."
+        },
+        {
+          "name": "Aktiv",
+          "effect": "Nur aktive Menüs in Sitzungseinrichtung."
+        }
+      ]
+    },
+    {
+      "id": "buffet-sessions",
+      "title": "Buffet-Sitzungen",
+      "steps": [
+        "Öffnen Sie Buffet → Sitzungen.",
+        "Sitzung aus Menü mit erwarteten Gästen und Preis starten.",
+        "Produktion vs. Prognose während Service überwachen.",
+        "Sitzung schließen für Schwund, Reste und Endkosten."
+      ],
+      "image": "inventory-buffet-sessions.png",
+      "caption": "Buffet-Sitzungsdashboard.",
+      "fields": []
+    },
+    {
+      "id": "buffet-session-form",
+      "title": "Buffet-Sitzung starten",
+      "steps": [
+        "Klicken Sie Neue Sitzung.",
+        "Menü, Standort, Geschäftstag und Sitzungstyp wählen.",
+        "Erwartete Gäste und Buffetpreis pro Gast eingeben.",
+        "Speichern für Live-Dashboard."
+      ],
+      "image": "inventory-buffet-session-form.png",
+      "caption": "Formular neue Buffet-Sitzung.",
+      "fields": [
+        {
+          "name": "Menü",
+          "effect": "Lädt Rezeptzeilen und Prognosen pro Gast."
+        },
+        {
+          "name": "Standort",
+          "effect": "Lager für Bestandsbewegungen."
+        },
+        {
+          "name": "Geschäftstag",
+          "effect": "Handelstag der Sitzung."
+        },
+        {
+          "name": "Sitzungstyp",
+          "effect": "Muss zum Menü-Service passen."
+        },
+        {
+          "name": "Erwartete Gäste",
+          "effect": "Steuert anfängliche Rezeptprognosen."
+        },
+        {
+          "name": "Buffetpreis",
+          "effect": "Umsatz pro Gast in Sitzungsberichten."
+        }
+      ]
+    }
+  ]
+}

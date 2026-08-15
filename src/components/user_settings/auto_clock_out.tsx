@@ -92,7 +92,7 @@ export const AutoClockOutSettingsCard = () => {
   }, [reset, settings]);
 
   return (
-    <div className="shadow p-5 rounded-xl bg-white">
+    <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-auto-clock-out">
       <h2 className="text-xl font-semibold mb-1">{t('settings:autoClockOut.title')}</h2>
       <p className="text-sm text-neutral-500 mb-5">
         {t('settings:autoClockOut.description')}

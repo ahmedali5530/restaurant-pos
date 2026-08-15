@@ -1,0 +1,56 @@
+{
+  "title": "Notas de desempeño",
+  "intro": "Registre advertencias, elogios, evaluaciones e incidentes en el expediente del empleado.",
+  "sections": [
+    {
+      "id": "performance",
+      "title": "Lista de desempeño",
+      "steps": [
+        "Abra RR. HH. → Desempeño.",
+        "Explore notas por empleado, tipo y severidad.",
+        "Agregue entradas tras incidentes o revisiones programadas."
+      ],
+      "image": "hr-performance-list.png",
+      "caption": "Pestaña notas de desempeño.",
+      "fields": []
+    },
+    {
+      "id": "performance-form",
+      "title": "Formulario de nota de desempeño",
+      "steps": [
+        "Elija empleado, tipo, título y texto.",
+        "Establezca severidad para incidentes y advertencias.",
+        "Active visible al empleado si puede ver la nota en autoservicio.",
+        "Guarde para añadir al expediente RR. HH."
+      ],
+      "image": "hr-form-performance.png",
+      "caption": "Formulario de nota de desempeño.",
+      "fields": [
+        {
+          "name": "Empleado",
+          "effect": "Sujeto de la nota."
+        },
+        {
+          "name": "Tipo",
+          "effect": "Advertencia, elogio, revisión o incidente."
+        },
+        {
+          "name": "Título",
+          "effect": "Resumen breve en listas."
+        },
+        {
+          "name": "Contenido",
+          "effect": "Narrativa completa del evento o revisión."
+        },
+        {
+          "name": "Severidad",
+          "effect": "Baja, media, alta o crítica — principalmente advertencias e incidentes."
+        },
+        {
+          "name": "Visible al empleado",
+          "effect": "Si está activo, la nota puede mostrarse al usuario empleado."
+        }
+      ]
+    }
+  ]
+}

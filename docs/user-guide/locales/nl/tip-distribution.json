@@ -1,0 +1,39 @@
+{
+  "title": "Fooienverdeling",
+  "intro": "Berekent hoe fooien per shift worden verdeeld en slaat het record op.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Verdelingsscherm",
+      "steps": [
+        "Tik op Fooienverdeling.",
+        "Selecteer shift en datum.",
+        "Fooien laden berekent totalen."
+      ],
+      "image": "tips-overview.png",
+      "caption": "Fooienverdelingsscherm."
+    },
+    {
+      "id": "filters",
+      "title": "Shift en datum",
+      "steps": [
+        "Kies de shift.",
+        "Kies de datum.",
+        "Tik op Fooien laden."
+      ],
+      "image": "tips-filters.png",
+      "caption": "Shift, datum en laden."
+    },
+    {
+      "id": "table",
+      "title": "Verdelingstabel",
+      "steps": [
+        "Totaal toont het shiftbedrag.",
+        "Elke rij: gebruiker, rol, gewicht en aandeel.",
+        "Indienen slaat op na controle."
+      ],
+      "image": "tips-table.png",
+      "caption": "Totalen en tabel."
+    }
+  ]
+}

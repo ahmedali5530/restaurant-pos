@@ -149,7 +149,7 @@ export const OrderPaymentDiscountEngine = ({
   }
 
   return (
-    <div className="flex flex-col justify-between h-full gap-4">
+    <div className="flex flex-col justify-between h-full gap-4" data-testid="payment-panel-discount">
       <div className="flex flex-col gap-4 overflow-auto">
         <Button
           variant="danger"
@@ -266,6 +266,7 @@ export const OrderPaymentDiscountEngine = ({
         size="lg"
         filled
         className="w-full"
+        data-testid="payment-discount-apply"
         disabled={!!draftDiscount?.requires_reason && !reasonId}
         onClick={() => {
           if (!draftDiscount) return

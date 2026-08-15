@@ -1,0 +1,40 @@
+{
+  "title": "Inventar Übersicht",
+  "intro": "Inventar ist das Lager-Hub: Bestände, Artikel, Einkäufe, Ausgaben, Verluste und Zählungen. Öffnen Sie es über die Seitenleiste mit Inventarzugriff.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Inventar öffnen",
+      "steps": [
+        "Mit Inventarzugriff anmelden.",
+        "Inventar in der Seitenleiste tippen.",
+        "Standardmäßig öffnet sich die Bestandsübersicht."
+      ],
+      "image": "inventory-overview.png",
+      "caption": "Inventar-Bildschirm mit Tabs."
+    },
+    {
+      "id": "tabs",
+      "title": "Tab-Navigation",
+      "intro": "Tabs gruppieren Stammdaten und Belege. Wechsel kann Manager-PIN erfordern.",
+      "steps": [
+        "Bei vielen Tabs horizontal scrollen.",
+        "Jeder Tab öffnet seine Liste.",
+        "Aktiver Tab ist hervorgehoben."
+      ],
+      "image": "inventory-tabs.png",
+      "caption": "Inventar-Tableiste."
+    },
+    {
+      "id": "summary",
+      "title": "Aktuelle Bestandsübersicht",
+      "steps": [
+        "Tab Inventar zeigt Mengen nach Artikel und Standort.",
+        "Suche und Filter nutzen.",
+        "Andere Tabs: Einkäufe, Ausgaben, Verluste, Anpassungen."
+      ],
+      "image": "inventory-summary.png",
+      "caption": "Bestandsübersichtstabelle."
+    }
+  ]
+}

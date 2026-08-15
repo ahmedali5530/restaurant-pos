@@ -1,0 +1,40 @@
+{
+  "title": "Satın almalar",
+  "intro": "Satın alma siparişleri, girişler ve tedarikçi iadeleriyle stok girin.",
+  "sections": [
+    {
+      "id": "orders",
+      "title": "Satın alma siparişleri",
+      "steps": [
+        "Satın Alma Siparişleri sekmesini açın.",
+        "Tedarikçiye karşı satırlar ve miktarlarla sipariş oluşturun.",
+        "Mal kabulünden önce rolünüze göre gönderin ve onaylayın."
+      ],
+      "image": "inventory-purchases-orders.png",
+      "caption": "Satın alma siparişleri listesi."
+    },
+    {
+      "id": "purchases",
+      "title": "Satın almalar (giriş)",
+      "intro": "Satın almalar lokasyona stok yazar ve ortalama maliyeti günceller.",
+      "steps": [
+        "Satın Almalar sekmesini açın.",
+        "Tedarikçi faturası ve alınan satırları kaydedin.",
+        "Varsa siparişe bağlayıp kaydedin."
+      ],
+      "image": "inventory-purchases-list.png",
+      "caption": "Satın almalar listesi."
+    },
+    {
+      "id": "returns",
+      "title": "Satın alma iadeleri",
+      "steps": [
+        "Satın Alma İadeleri sekmesini açın.",
+        "Hasarlı veya hatalı malları tedarikçiye iade edin.",
+        "Kaydetmek lokasyondaki miktarı azaltır."
+      ],
+      "image": "inventory-purchases-returns.png",
+      "caption": "Satın alma iadeleri sekmesi."
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "title": "Rapor merkezi (yönetici paketleri)",
+  "intro": "Yöneticiler, envanter, işgücü, ürün ve vergi paketlerine erişerek aynı Rapor merkezini kullanır.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Yönetici rapor düzeni",
+      "steps": [
+        "Yan menüde Raporlar'a dokunun.",
+        "Kategoriler Envanter, İşgücü, Ürünler, Satış içerir.",
+        "Orta sütun raporları listeler; sağ panel filtrelerdir."
+      ],
+      "image": "reports-admin-overview.png",
+      "caption": "Yönetici paketleri için rapor merkezi."
+    },
+    {
+      "id": "inventory",
+      "title": "Envanter paketi",
+      "intro": "Stok, satın alma, çıkış, fire, tüketim, üretim ve büfeyi kapsar.",
+      "steps": [
+        "Envanter'i seçin.",
+        "Mevcut envanter veya Satın alma gibi bir rapor seçin.",
+        "Lokasyon ve tarih filtrelerini ayarlayıp çalıştırın."
+      ],
+      "image": "reports-admin-inventory.png",
+      "caption": "Envanter rapor paketi."
+    },
+    {
+      "id": "inventory-filters",
+      "title": "Envanter filtreleri",
+      "steps": [
+        "Rapor seçildikten sonra sağ panel filtreleri gösterir.",
+        "Tarih, lokasyon veya ürün filtrelerini ayarlayın.",
+        "Sorunuza uygun olduğunda çalıştırın veya dışa aktarın."
+      ],
+      "image": "reports-admin-inventory-filters.png",
+      "caption": "Envanter filtre paneli."
+    },
+    {
+      "id": "labor",
+      "title": "İşgücü paketi",
+      "intro": "Maliyet, fazla mesai, devam, bordro ve planlanan vs gerçek saatleri özetler.",
+      "steps": [
+        "İşgücü'nü seçin.",
+        "İşgücü panosu veya Günlük maliyet açın.",
+        "Detay için Devam veya Bordro özeti kullanın."
+      ],
+      "image": "reports-admin-labor.png",
+      "caption": "İşgücü rapor paketi."
+    },
+    {
+      "id": "products",
+      "title": "Ürün paketi",
+      "steps": [
+        "Ürünler'i seçin.",
+        "Ürün mix özeti veya haftalık mix kullanın.",
+        "Saatlik ürünler hızı gösterir."
+      ],
+      "image": "reports-admin-products.png",
+      "caption": "Ürün rapor paketi."
+    },
+    {
+      "id": "tax",
+      "title": "Vergi filtreleri",
+      "intro": "Vergi Satış altındadır; toplanan vergiyi mutabakat için kullanın.",
+      "steps": [
+        "Satış, ardından Vergi açın.",
+        "Tarih aralığını ayarlayın.",
+        "Denetim için çalıştırın."
+      ],
+      "image": "reports-admin-tax-filters.png",
+      "caption": "Vergi filtre paneli."
+    }
+  ]
+}

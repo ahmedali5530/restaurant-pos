@@ -1,0 +1,29 @@
+{
+  "title": "Saídas e devoluções",
+  "intro": "Saia estoque para cozinhas e devolva o não utilizado.",
+  "sections": [
+    {
+      "id": "issues",
+      "title": "Saídas",
+      "steps": [
+        "Abra Saídas.",
+        "Crie documento com destino e linhas.",
+        "Salvar reduz a quantidade na origem."
+      ],
+      "image": "inventory-issues-list.png",
+      "caption": "Lista de saídas."
+    },
+    {
+      "id": "returns",
+      "title": "Devoluções de saída",
+      "intro": "Devolva itens emitidos não usados.",
+      "steps": [
+        "Abra Devoluções de saída.",
+        "Selecione a saída original ou informe linhas.",
+        "Salvar devolve quantidade ao local."
+      ],
+      "image": "inventory-issues-returns.png",
+      "caption": "Aba Devoluções de saída."
+    }
+  ]
+}

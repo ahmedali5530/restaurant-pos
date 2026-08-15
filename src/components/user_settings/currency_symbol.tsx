@@ -83,7 +83,7 @@ export const CurrencySymbolSettingsCard = () => {
   }, [settings, reset]);
 
   return (
-    <div className="shadow p-5 rounded-xl bg-white">
+    <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-currency-symbol">
       <h2 className="text-xl font-semibold mb-1">{t("settings:currencySymbol.title")}</h2>
       <p className="text-sm text-neutral-500 mb-5">
         {t("settings:currencySymbol.description")}

@@ -1,0 +1,202 @@
+{
+  "title": "Orders",
+  "intro": "The Orders screen lists open and recent checks so you can pay, print, split, merge, cancel, or refund without returning to the floor plan.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Orders layout",
+      "intro": "Open Orders from the left sidebar. Filters sit at the top; order cards (or table rows) fill the main area.",
+      "steps": [
+        "Tap Orders in the sidebar.",
+        "Use filters to narrow by status, order type, floor, user, and date.",
+        "Switch between Blocks and Table views with the toolbar buttons."
+      ],
+      "image": "orders-overview.png",
+      "caption": "Orders screen with filters and cards."
+    },
+    {
+      "id": "filters",
+      "title": "Filters",
+      "steps": [
+        "Status: In Progress, Paid, Cancelled, Split, Merged (multi-select).",
+        "Order type, floor, and user filters limit who and where.",
+        "The date picker shows paid/historical checks for that day; In Progress still appears when relevant."
+      ],
+      "image": "orders-filters.png",
+      "caption": "Orders filter bar."
+    },
+    {
+      "id": "toolbar",
+      "title": "Toolbar",
+      "steps": [
+        "Open cash drawer pulses the cash drawer when printing and permissions allow it (may require manager PIN).",
+        "Blocks shows large order cards.",
+        "Table shows a compact list (tap an In Progress row to pay)."
+      ],
+      "image": "orders-toolbar.png",
+      "caption": "Cash drawer and view toggles."
+    },
+    {
+      "id": "card",
+      "title": "Order card",
+      "intro": "Each card shows header, times, line items, totals, and action buttons for In Progress checks.",
+      "steps": [
+        "Review invoice number, table, status, server, and items.",
+        "Temp bill (print) and Pay (card icon) appear for In Progress orders.",
+        "Use the ⋯ menu for cancel, split, merge, and kitchen print."
+      ],
+      "image": "orders-card.png",
+      "caption": "Order card with items and actions."
+    },
+    {
+      "id": "card-actions",
+      "title": "Card actions",
+      "steps": [
+        "Temp bill prints a provisional check when allowed.",
+        "Pay opens the full payment screen for that order.",
+        "⋯ opens more actions (see next section)."
+      ],
+      "image": "orders-card-actions.png",
+      "caption": "Print, Pay, and more on a card."
+    },
+    {
+      "id": "menu",
+      "title": "More menu (In Progress)",
+      "intro": "Protected actions may ask for a manager PIN.",
+      "steps": [
+        "Cancel order voids the check through the cancel flow.",
+        "Split by seats, items, or amount divides one check into multiple.",
+        "Merge selects this order for multi-table merge (finish with Choose table on the bottom bar).",
+        "Print KOT copy re-fires kitchen tickets when needed."
+      ],
+      "image": "orders-card-menu.png",
+      "caption": "Order more-actions menu."
+    },
+    {
+      "id": "table-view",
+      "title": "Table view",
+      "steps": [
+        "Switch to Table for a dense list of today’s matching orders.",
+        "Tap an In Progress row to open payment quickly."
+      ],
+      "image": "orders-table-view.png",
+      "caption": "Orders table view."
+    },
+    {
+      "id": "cancel-void",
+      "title": "إلغاء أو void الطلب",
+      "intro": "يلغي حساباً قيد التنفيذ. void كامل يلغي كل البنود؛ الجزئي يزيل البنود المحددة فقط.",
+      "steps": [
+        "افتح ⋯ على بطاقة قيد التنفيذ واختر إلغاء الطلب.",
+        "اختر سبب void (مطلوب للتقارير).",
+        "اترك تحديد الكل للvoid الكامل أو ألغِ واختر بنوداً.",
+        "أكّد لإلغاء الحساب وتحرير الطاولة عند الحاجة."
+      ],
+      "image": "orders-cancel-modal.png",
+      "caption": "نافذة الإلغاء مع السبب واختيار البنود.",
+      "fields": [
+        {
+          "name": "السبب",
+          "effect": "سبب void إلزامي مسجّل على الطلب للتدقيق والتقارير."
+        },
+        {
+          "name": "تحديد كل البنود",
+          "effect": "عند التفعيل يلغي الحساب بالكامل؛ عند الإلغاء اختيار لكل بند."
+        },
+        {
+          "name": "void جزئي",
+          "effect": "يلغي الكميات المحددة فقط ويبقي الباقي مفتوحاً."
+        }
+      ]
+    },
+    {
+      "id": "refund",
+      "title": "استرداد الطلب المدفوع",
+      "intro": "يصدر استرداداً على حساب مدفوع، اختيارياً لبنود محددة.",
+      "steps": [
+        "افتح طلباً مدفوعاً واختر استرداد.",
+        "حدد البنود والكميات.",
+        "اختر السبب وأكّد.",
+        "يسجل النظام الاسترداد ويحدّث إجماليات الدفع."
+      ],
+      "image": "orders-refund-modal.png",
+      "caption": "نافذة الاسترداد مع اختيار البنود.",
+      "fields": [
+        {
+          "name": "بنود الاسترداد",
+          "effect": "البنود المدفوعة والكميات المرتجعة للعميل."
+        },
+        {
+          "name": "السبب",
+          "effect": "يوثّق سبب الاسترداد للمراجعة والتقارير."
+        }
+      ]
+    },
+    {
+      "id": "split-seats",
+      "title": "تقسيم حسب المقاعد",
+      "intro": "يقسم الحساب إلى حسابات منفصلة حسب رقم المقعد.",
+      "steps": [
+        "من ⋯ اختر تقسيم حسب المقاعد.",
+        "راجع تجميع البنود لكل مقعد.",
+        "أكّد لإنشاء حساب فرعي لكل مقعد."
+      ],
+      "image": "orders-split-seats.png",
+      "caption": "معاينة التقسيم حسب المقاعد.",
+      "fields": []
+    },
+    {
+      "id": "split-items",
+      "title": "تقسيم حسب البنود",
+      "intro": "يعيّن البنود يدوياً لحسابات جديدة بغض النظر عن المقعد.",
+      "steps": [
+        "من ⋯ اختر تقسيم حسب البنود.",
+        "انقل كل بند إلى عمود حساب جديد.",
+        "أكّد لإنشاء حسابات منفصلة قيد التنفيذ."
+      ],
+      "image": "orders-split-items.png",
+      "caption": "شبكة تعيين البنود.",
+      "fields": []
+    },
+    {
+      "id": "split-amount",
+      "title": "تقسيم حسب المبلغ",
+      "intro": "يقسم الإجمالي إلى أجزاء ثابتة أو متساوية للدفع المنفصل.",
+      "steps": [
+        "من ⋯ اختر تقسيم حسب المبلغ.",
+        "أدخل عدد الأجزاء أو مبالغ مخصصة.",
+        "أكّد لإنشاء حسابات فرعية لكل جزء."
+      ],
+      "image": "orders-split-amount.png",
+      "caption": "حوار التقسيم حسب المبلغ.",
+      "fields": []
+    },
+    {
+      "id": "merge",
+      "title": "دمج الطلبات",
+      "intro": "يجمع عدة حسابات قيد التنفيذ على طاولة واحدة.",
+      "steps": [
+        "في الطلب الأول ⋯ → دمج.",
+        "كرر لكل طلب إضافي.",
+        "اضغط اختيار الطاولة وحدد الوجهة.",
+        "أكّد الدمج."
+      ],
+      "image": "orders-merge-bar.png",
+      "caption": "شريط الدمج مع محدد الطاولة.",
+      "fields": [
+        {
+          "name": "تحديد الطلبات",
+          "effect": "يضم الطلب لمجموعة الدمج المعلقة."
+        },
+        {
+          "name": "اختيار الطاولة",
+          "effect": "يحدد الطاولة المستضيفة للحساب المدمج."
+        },
+        {
+          "name": "تأكيد الدمج",
+          "effect": "يدمج الحسابات المحددة في طلب واحد قيد التنفيذ."
+        }
+      ]
+    }
+  ]
+}

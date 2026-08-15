@@ -1,0 +1,75 @@
+{
+  "title": "Integrações",
+  "intro": "Integrações conectam o POSR a provedores externos de contabilidade, fiscal, logging e estoque. Ative provedores, configure credenciais e monitore saúde e fila.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Abrir Integrações",
+      "steps": [
+        "Entre com acesso a integrações.",
+        "Toque em Integrações na barra lateral.",
+        "Abre na aba Provedores."
+      ],
+      "image": "integrations-overview.png",
+      "caption": "Tela Integrações."
+    },
+    {
+      "id": "tabs",
+      "title": "Navegação por abas",
+      "intro": "Abas cobrem lista, configuração, saúde e fila.",
+      "steps": [
+        "Provedores lista conectores.",
+        "Configuração guarda credenciais.",
+        "Saúde e Fila mostram status e jobs."
+      ],
+      "image": "integrations-tabs.png",
+      "caption": "Barra de abas Integrações."
+    },
+    {
+      "id": "providers",
+      "title": "Provedores",
+      "steps": [
+        "Revise cada cartão: nome, categoria, versão.",
+        "Use o switch para ativar ou desativar.",
+        "Toque em Configurar para abrir a configuração."
+      ],
+      "image": "integrations-providers.png",
+      "caption": "Lista de provedores."
+    },
+    {
+      "id": "configuration",
+      "title": "Configuração",
+      "intro": "Armazena segredos e mapeamentos do provedor.",
+      "steps": [
+        "Selecione um provedor.",
+        "Preencha os campos obrigatórios.",
+        "Conecte ou rode a sincronização inicial."
+      ],
+      "image": "integrations-configuration.png",
+      "caption": "Painel de configuração."
+    },
+    {
+      "id": "health",
+      "title": "Saúde",
+      "steps": [
+        "Abra Saúde para ver status.",
+        "Provedores saudáveis enviam eventos.",
+        "Atualiza ao abrir ou ao ativar/desativar."
+      ],
+      "image": "integrations-health.png",
+      "caption": "Painel de saúde."
+    },
+    {
+      "id": "queue",
+      "title": "Fila",
+      "intro": "Guarda jobs de saída para sistemas externos.",
+      "steps": [
+        "Abra Fila para ver pendentes ou falhas.",
+        "Jobs atualizam com a aba aberta.",
+        "Falhas costumam limpar após corrigir a configuração."
+      ],
+      "image": "integrations-queue.png",
+      "caption": "Painel da fila."
+    }
+  ]
+}

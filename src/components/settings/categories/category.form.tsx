@@ -93,6 +93,7 @@ export const CategoryForm = ({
   return (
     <>
       <Modal
+        testId="admin-form-category"
         title={data ? t('forms.updateCategory', { name: data?.name }) : t('forms.createCategory')}
         open={open}
         onClose={closeModal}

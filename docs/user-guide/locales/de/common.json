@@ -1,0 +1,16 @@
+{
+  "title": "POSR Endbenutzer-Handbuch",
+  "subtitle": "Anmeldung, Einstellungen, Menü, Warenkorb, Zahlung, Bestellungen und Sitzung",
+  "intro": "POSR-Handbuch: Anmeldung, Einstellungen, Bestellung, Zahlung, Bestellliste und Sitzung.",
+  "toc": "Inhalt",
+  "footer": "",
+  "chapters": {
+    "login": "Anmeldung",
+    "settings": "Einstellungen",
+    "menu": "Menü",
+    "cart": "Warenkorb",
+    "payment": "Zahlung",
+    "orders": "Bestellungen",
+    "session": "Sitzung"
+  }
+}

@@ -1,0 +1,182 @@
+{
+  "title": "Menus, categories, and dishes",
+  "intro": "Configure what appears on the ordering screen: dishes, menu groupings, and categories.",
+  "sections": [
+    {
+      "id": "dishes",
+      "title": "Dishes",
+      "steps": [
+        "Open the Dishes tab.",
+        "Create or edit dishes with price, categories, modifiers, and recipes.",
+        "Import CSV files for bulk dish or ingredient updates when needed."
+      ],
+      "image": "admin-menus-dishes.png",
+      "caption": "Dishes tab."
+    },
+    {
+      "id": "menus",
+      "title": "Menus",
+      "intro": "Menus control which dishes are visible on each service period or channel.",
+      "steps": [
+        "Open the Menus tab.",
+        "Assign dishes to menus and set availability windows.",
+        "Save changes so floor staff see updated items on the Menu screen."
+      ],
+      "image": "admin-menus-menus.png",
+      "caption": "Menus tab."
+    },
+    {
+      "id": "categories",
+      "title": "Categories",
+      "steps": [
+        "Open the Categories tab.",
+        "Group dishes for navigation on the ordering screen.",
+        "Reorder categories to match how staff browse the menu."
+      ],
+      "image": "admin-menus-categories.png",
+      "caption": "Categories tab."
+    },
+    {
+      "id": "modifier-groups",
+      "title": "Modifier groups",
+      "intro": "Modifier groups define optional add-ons, sizes, and nested choices shown when staff customize a dish.",
+      "steps": [
+        "Open the Modifier groups tab.",
+        "Create groups with modifiers, prices, and optional next-group rules.",
+        "Assign groups to dishes so the cart shows the correct customization flow."
+      ],
+      "image": "admin-modifier-groups.png",
+      "caption": "Modifier groups tab."
+    },
+    {
+      "id": "dish-form",
+      "title": "Modulo piatto",
+      "intro": "Articoli vendibili con prezzo, categorie, modifier e cucina.",
+      "steps": [
+        "Admin → Menu → Piatti.",
+        "Numero, nome, prezzo, categorie.",
+        "Modifier, ricetta, cucina.",
+        "Salva."
+      ],
+      "image": "admin-menus-dish-form.png",
+      "caption": "Modulo manutenzione piatto.",
+      "fields": [
+        {
+          "name": "Numero / nome",
+          "effect": "ID POS e nome visualizzato."
+        },
+        {
+          "name": "Prezzo / costo",
+          "effect": "Prezzo vendita e costo teorico."
+        },
+        {
+          "name": "Categorie",
+          "effect": "Raggruppamento menu."
+        },
+        {
+          "name": "Gruppi modifier",
+          "effect": "Flusso personalizzazione."
+        },
+        {
+          "name": "Righe ricetta",
+          "effect": "Depletion magazzino."
+        },
+        {
+          "name": "Cucina / workflow",
+          "effect": "Routing KOT."
+        }
+      ]
+    },
+    {
+      "id": "menu-form",
+      "title": "Modulo menu",
+      "intro": "Limita categorie POS per orario.",
+      "steps": [
+        "Scheda Menu.",
+        "Nome e orari.",
+        "Attivo e finisce giorno dopo.",
+        "Salva."
+      ],
+      "image": "admin-menus-menu-form.png",
+      "caption": "Modulo menu.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Etichetta selettore POS."
+        },
+        {
+          "name": "Inizio / fine",
+          "effect": "Finestra disponibilità."
+        },
+        {
+          "name": "Finisce giorno dopo",
+          "effect": "Servizio oltre mezzanotte."
+        },
+        {
+          "name": "Attivo",
+          "effect": "Inattivi nascosti."
+        }
+      ]
+    },
+    {
+      "id": "category-form",
+      "title": "Modulo categoria",
+      "steps": [
+        "Categorie.",
+        "Nome, priorità, mostra menu.",
+        "Salva."
+      ],
+      "image": "admin-menus-category-form.png",
+      "caption": "Modulo categoria.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Intestazione POS."
+        },
+        {
+          "name": "Priorità",
+          "effect": "Ordine."
+        },
+        {
+          "name": "Mostra in menu",
+          "effect": "Nascosto se off."
+        }
+      ]
+    },
+    {
+      "id": "modifier-group-form",
+      "title": "Modulo gruppo modifier",
+      "intro": "Modifier, prezzi e gruppi annidati.",
+      "steps": [
+        "Gruppi modifier.",
+        "Nome, priorità, prezzi.",
+        "Gruppi successivi.",
+        "Salva."
+      ],
+      "image": "admin-menus-modifier-group-form.png",
+      "caption": "Modulo gruppi annidati.",
+      "fields": [
+        {
+          "name": "Nome / priorità",
+          "effect": "Etichetta e ordine."
+        },
+        {
+          "name": "Modifier",
+          "effect": "Opzione selezionabile."
+        },
+        {
+          "name": "Prezzo",
+          "effect": "Extra charge."
+        },
+        {
+          "name": "Gruppi successivi consentiti",
+          "effect": "Dopo scelta."
+        },
+        {
+          "name": "Override gruppo successivo",
+          "effect": "Nascondi o repricing."
+        }
+      ]
+    }
+  ]
+}

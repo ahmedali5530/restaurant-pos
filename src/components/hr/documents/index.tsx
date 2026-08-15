@@ -70,7 +70,7 @@ export const HrDocuments = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button key="document-create" variant="primary" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
+          <Button key="document-create" variant="primary" data-testid="hr-add-documents" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
             {t("buttons.document")}
           </Button>,
         ]}

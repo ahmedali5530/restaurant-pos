@@ -103,6 +103,7 @@ export const AdminShifts = () => {
               });
             }}
             icon={faPlus}
+            data-testid="admin-add-shifts"
           >
             Shift
           </Button>,

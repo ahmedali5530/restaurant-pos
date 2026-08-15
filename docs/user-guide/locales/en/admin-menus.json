@@ -1,0 +1,183 @@
+{
+  "title": "Menus, categories, and dishes",
+  "intro": "Configure what appears on the ordering screen: dishes, menu groupings, and categories.",
+  "sections": [
+    {
+      "id": "dishes",
+      "title": "Dishes",
+      "steps": [
+        "Open the Dishes tab.",
+        "Create or edit dishes with price, categories, modifiers, and recipes.",
+        "Import CSV files for bulk dish or ingredient updates when needed."
+      ],
+      "image": "admin-menus-dishes.png",
+      "caption": "Dishes tab."
+    },
+    {
+      "id": "menus",
+      "title": "Menus",
+      "intro": "Menus control which dishes are visible on each service period or channel.",
+      "steps": [
+        "Open the Menus tab.",
+        "Assign dishes to menus and set availability windows.",
+        "Save changes so floor staff see updated items on the Menu screen."
+      ],
+      "image": "admin-menus-menus.png",
+      "caption": "Menus tab."
+    },
+    {
+      "id": "categories",
+      "title": "Categories",
+      "steps": [
+        "Open the Categories tab.",
+        "Group dishes for navigation on the ordering screen.",
+        "Reorder categories to match how staff browse the menu."
+      ],
+      "image": "admin-menus-categories.png",
+      "caption": "Categories tab."
+    },
+    {
+      "id": "modifier-groups",
+      "title": "Modifier groups",
+      "intro": "Modifier groups define optional add-ons, sizes, and nested choices shown when staff customize a dish.",
+      "steps": [
+        "Open the Modifier groups tab.",
+        "Create groups with modifiers, prices, and optional next-group rules.",
+        "Assign groups to dishes so the cart shows the correct customization flow."
+      ],
+      "image": "admin-modifier-groups.png",
+      "caption": "Modifier groups tab."
+    },
+    {
+      "id": "dish-form",
+      "title": "Dish form",
+      "intro": "Dishes are sellable items with price, categories, modifiers, recipes, and kitchen routing.",
+      "steps": [
+        "Open Admin → Menus → Dishes and add or edit.",
+        "Set number, name, price, cost, and categories.",
+        "Attach modifier groups, inventory recipe lines, kitchen, and workflow.",
+        "Save — dish appears on menus and POS immediately when active."
+      ],
+      "image": "admin-menus-dish-form.png",
+      "caption": "Dish maintenance form.",
+      "fields": [
+        {
+          "name": "Number / name",
+          "effect": "POS identifier and display name."
+        },
+        {
+          "name": "Price / cost",
+          "effect": "Selling price and theoretical food cost."
+        },
+        {
+          "name": "Categories",
+          "effect": "Menu grouping and discount targeting."
+        },
+        {
+          "name": "Modifier groups",
+          "effect": "Customization flow with required/optional rules."
+        },
+        {
+          "name": "Recipe lines",
+          "effect": "Inventory depletion when the dish is sold."
+        },
+        {
+          "name": "Kitchen / workflow",
+          "effect": "Routes KOT printing and prep stages."
+        }
+      ]
+    },
+    {
+      "id": "menu-form",
+      "title": "Menu form",
+      "intro": "Menus time-box which categories appear on POS (e.g. lunch vs. dinner).",
+      "steps": [
+        "Open Menus tab and add or edit.",
+        "Set name and optional start/end times.",
+        "Toggle active and ends-on-next-day for overnight menus.",
+        "Assign categories on the Menus list after saving."
+      ],
+      "image": "admin-menus-menu-form.png",
+      "caption": "Menu form with service hours.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Menu label on POS switcher."
+        },
+        {
+          "name": "Start from / end time",
+          "effect": "Automatic availability window."
+        },
+        {
+          "name": "Ends on next day",
+          "effect": "Allows service past midnight into the next calendar day."
+        },
+        {
+          "name": "Active",
+          "effect": "Inactive menus are hidden from POS."
+        }
+      ]
+    },
+    {
+      "id": "category-form",
+      "title": "Category form",
+      "steps": [
+        "Open Categories and add or edit.",
+        "Set name, sort priority, and show-in-menu flag.",
+        "Save — assign dishes and link to menus."
+      ],
+      "image": "admin-menus-category-form.png",
+      "caption": "Category form.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Category header on POS and reports."
+        },
+        {
+          "name": "Priority",
+          "effect": "Sort order among sibling categories."
+        },
+        {
+          "name": "Show in menu",
+          "effect": "When off, category is hidden from customer-facing menu views."
+        }
+      ]
+    },
+    {
+      "id": "modifier-group-form",
+      "title": "Modifier group form",
+      "intro": "Groups define modifiers, prices, and nested follow-up groups per choice.",
+      "steps": [
+        "Open Modifier groups and add or edit.",
+        "Set name, priority, and modifier lines with prices.",
+        "For each modifier configure allowed next groups.",
+        "Use next group overrides to hide or reprice nested modifiers.",
+        "Save and attach the group to dishes."
+      ],
+      "image": "admin-menus-modifier-group-form.png",
+      "caption": "Modifier group form with nested groups.",
+      "fields": [
+        {
+          "name": "Name / priority",
+          "effect": "Group label and order when multiple groups attach to a dish."
+        },
+        {
+          "name": "Modifier",
+          "effect": "Selectable option (often a dish used as add-on)."
+        },
+        {
+          "name": "Price",
+          "effect": "Extra charge when the modifier is chosen."
+        },
+        {
+          "name": "Allowed next groups",
+          "effect": "Which modifier groups open after this choice (nested flow)."
+        },
+        {
+          "name": "Next group overrides",
+          "effect": "Per nested group: override nested modifier price or hide items."
+        }
+      ]
+    }
+  ]
+}

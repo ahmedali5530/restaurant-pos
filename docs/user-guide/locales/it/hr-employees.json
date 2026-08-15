@@ -1,0 +1,157 @@
+{
+  "title": "Employees",
+  "intro": "Maintain employee records and the organizational structure: departments and positions.",
+  "sections": [
+    {
+      "id": "employees",
+      "title": "Employee list",
+      "steps": [
+        "Open the Employees tab.",
+        "Add or edit employees with role, department, and contact details.",
+        "Employee records feed attendance, leave, and payroll tabs."
+      ],
+      "image": "hr-employees-list.png",
+      "caption": "Employees tab."
+    },
+    {
+      "id": "departments",
+      "title": "Departments",
+      "intro": "Departments group staff for reporting and cost allocation.",
+      "steps": [
+        "Open the Departments tab.",
+        "Create departments that match how the venue organizes teams.",
+        "Assign employees to departments on their employee form."
+      ],
+      "image": "hr-employees-departments.png",
+      "caption": "Departments tab."
+    },
+    {
+      "id": "positions",
+      "title": "Positions",
+      "steps": [
+        "Open the Positions tab.",
+        "Define job titles used on employee records and schedules.",
+        "Keep positions aligned with pay profiles when payroll is enabled."
+      ],
+      "image": "hr-employees-positions.png",
+      "caption": "Positions tab."
+    },
+    {
+      "id": "employee-form",
+      "title": "Modulo dipendente",
+      "intro": "Record HR con utente POS e struttura org.",
+      "steps": [
+        "Dipendenti → Aggiungi/modifica.",
+        "Numero, nome, dettagli.",
+        "Collega POS, reparto, ruolo.",
+        "Salva."
+      ],
+      "image": "hr-form-employee.png",
+      "caption": "Modal dipendente.",
+      "fields": [
+        {
+          "name": "N. dipendente",
+          "effect": "ID univoco su turni."
+        },
+        {
+          "name": "Nome / cognome",
+          "effect": "Nome legale o preferito."
+        },
+        {
+          "name": "Utente collegato",
+          "effect": "Login POS opzionale."
+        },
+        {
+          "name": "Reparto",
+          "effect": "Unità org."
+        },
+        {
+          "name": "Posizione",
+          "effect": "Titolo su turni."
+        },
+        {
+          "name": "Centro costo",
+          "effect": "Allocazione manodopera default."
+        },
+        {
+          "name": "Manager",
+          "effect": "Linea approvazioni."
+        },
+        {
+          "name": "Stato impiego",
+          "effect": "Attivo, inattivo, terminato, congedo o sospeso."
+        },
+        {
+          "name": "Tipo impiego",
+          "effect": "Orario, stipendio, contratto etc."
+        },
+        {
+          "name": "Assunzione / fine",
+          "effect": "Anzianità e idoneità."
+        }
+      ]
+    },
+    {
+      "id": "department-form",
+      "title": "Modulo reparto",
+      "steps": [
+        "Reparti o inline.",
+        "Codice, nome, descrizione.",
+        "Salva."
+      ],
+      "image": "hr-form-department.png",
+      "caption": "Modulo reparto.",
+      "fields": [
+        {
+          "name": "Codice",
+          "effect": "ID breve integrazioni."
+        },
+        {
+          "name": "Nome",
+          "effect": "Nome visualizzato."
+        },
+        {
+          "name": "Descrizione",
+          "effect": "Note opzionali."
+        },
+        {
+          "name": "Attivo",
+          "effect": "Inattivi nascosti in nuove assegnazioni."
+        }
+      ]
+    },
+    {
+      "id": "position-form",
+      "title": "Modulo posizione",
+      "steps": [
+        "Posizioni o inline.",
+        "Codice, nome, reparto, centro costo.",
+        "Salva."
+      ],
+      "image": "hr-form-position.png",
+      "caption": "Modulo posizione.",
+      "fields": [
+        {
+          "name": "Codice",
+          "effect": "Codice job export paghe."
+        },
+        {
+          "name": "Nome",
+          "effect": "Titolo HR e turni."
+        },
+        {
+          "name": "Reparto",
+          "effect": "Unità org default."
+        },
+        {
+          "name": "Centro costo default",
+          "effect": "Precompilato su turni."
+        },
+        {
+          "name": "Attivo",
+          "effect": "Ritira titoli non più assunti."
+        }
+      ]
+    }
+  ]
+}

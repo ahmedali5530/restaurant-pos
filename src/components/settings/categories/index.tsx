@@ -137,7 +137,7 @@ export const AdminCategories = () => {
               module: 'admin.categories.create',
               description: getAccessRuleChildLabel('admin.categories.create'),
             });
-          }} icon={faPlus}>{t('buttons.category')}</Button>
+          }} icon={faPlus} data-testid="admin-add-categories">{t('buttons.category')}</Button>
         ]}
         enableSelection
         rowSelection={rowSelection}

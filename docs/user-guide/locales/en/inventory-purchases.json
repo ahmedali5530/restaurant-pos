@@ -1,0 +1,40 @@
+{
+  "title": "Purchases",
+  "intro": "Bring stock in with purchase orders, receiving documents, and purchase returns to suppliers.",
+  "sections": [
+    {
+      "id": "orders",
+      "title": "Purchase orders",
+      "steps": [
+        "Open the Purchase Orders tab.",
+        "Create a PO against a supplier with expected lines and quantities.",
+        "Submit and approve according to your role before receiving goods."
+      ],
+      "image": "inventory-purchases-orders.png",
+      "caption": "Purchase orders list."
+    },
+    {
+      "id": "purchases",
+      "title": "Purchases (receiving)",
+      "intro": "Purchases post stock into a location and update average cost.",
+      "steps": [
+        "Open the Purchases tab.",
+        "Record the supplier invoice and received lines.",
+        "Link to a purchase order when one exists, then save to update inventory."
+      ],
+      "image": "inventory-purchases-list.png",
+      "caption": "Purchases list."
+    },
+    {
+      "id": "returns",
+      "title": "Purchase returns",
+      "steps": [
+        "Open the Purchase Returns tab.",
+        "Return damaged or incorrect goods to the supplier.",
+        "Saving a return reduces on-hand quantity at the location."
+      ],
+      "image": "inventory-purchases-returns.png",
+      "caption": "Purchase returns tab."
+    }
+  ]
+}

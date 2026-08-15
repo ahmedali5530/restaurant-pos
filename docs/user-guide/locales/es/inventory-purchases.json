@@ -1,0 +1,40 @@
+{
+  "title": "Compras",
+  "intro": "Ingrese stock con órdenes de compra, recepciones y devoluciones a proveedores.",
+  "sections": [
+    {
+      "id": "orders",
+      "title": "Órdenes de compra",
+      "steps": [
+        "Abra la pestaña Órdenes de compra.",
+        "Cree una OC contra un proveedor con líneas y cantidades.",
+        "Envíe y apruebe según su rol antes de recibir mercancía."
+      ],
+      "image": "inventory-purchases-orders.png",
+      "caption": "Lista de órdenes de compra."
+    },
+    {
+      "id": "purchases",
+      "title": "Compras (recepción)",
+      "intro": "Las compras registran stock en una ubicación y actualizan el costo promedio.",
+      "steps": [
+        "Abra la pestaña Compras.",
+        "Registre la factura del proveedor y las líneas recibidas.",
+        "Vincule a una OC si existe y guarde para actualizar inventario."
+      ],
+      "image": "inventory-purchases-list.png",
+      "caption": "Lista de compras."
+    },
+    {
+      "id": "returns",
+      "title": "Devoluciones de compra",
+      "steps": [
+        "Abra la pestaña Devoluciones de compra.",
+        "Devuelva mercancía dañada o incorrecta al proveedor.",
+        "Guardar reduce la cantidad en la ubicación."
+      ],
+      "image": "inventory-purchases-returns.png",
+      "caption": "Pestaña Devoluciones de compra."
+    }
+  ]
+}

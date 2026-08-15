@@ -1,0 +1,52 @@
+{
+  "title": "Documentos do funcionário",
+  "intro": "Armazene contratos, IDs e licenças com vencimento.",
+  "sections": [
+    {
+      "id": "documents",
+      "title": "Lista documentos",
+      "steps": [
+        "RH → Documentos.",
+        "Filtre funcionário/categoria.",
+        "Envie ou atualize."
+      ],
+      "image": "hr-documents-list.png",
+      "caption": "Aba documentos.",
+      "fields": []
+    },
+    {
+      "id": "document-form",
+      "title": "Formulário documento",
+      "steps": [
+        "Adicionar documento.",
+        "Funcionário, título, categoria.",
+        "Anexe arquivo e validade.",
+        "Salvar."
+      ],
+      "image": "hr-form-document.png",
+      "caption": "Formulário upload documento.",
+      "fields": [
+        {
+          "name": "Funcionário",
+          "effect": "Dono do registro."
+        },
+        {
+          "name": "Título",
+          "effect": "Nome em listas."
+        },
+        {
+          "name": "Categoria",
+          "effect": "Contrato, certificado, licença, ID, médico, advertência ou outro."
+        },
+        {
+          "name": "Expira em",
+          "effect": "Data opcional para alertas."
+        },
+        {
+          "name": "Anexar arquivo",
+          "effect": "Obrigatório na criação."
+        }
+      ]
+    }
+  ]
+}

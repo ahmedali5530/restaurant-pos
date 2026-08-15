@@ -1,0 +1,77 @@
+{
+  "title": "Reconciliação da cozinha",
+  "intro": "Compare uso teórico com contagens físicas por local e data operacional.",
+  "sections": [
+    {
+      "id": "reconciliation",
+      "title": "Aba Reconciliação",
+      "intro": "Gere grade a partir de vendas POS e receitas; insira ou importe contagens.",
+      "steps": [
+        "Inventário → Reconciliação cozinha.",
+        "Selecione local e data operacional.",
+        "Clique Gerar para linhas teóricas.",
+        "Informe quantidades reais ou importe CSV.",
+        "Salve rascunho, revise variâncias e Verifique."
+      ],
+      "image": "inventory-reconciliation-overview.png",
+      "caption": "Barra, grade e painel de variância.",
+      "fields": [
+        {
+          "name": "Local",
+          "effect": "Cozinha ou depósito reconciliado."
+        },
+        {
+          "name": "Data operacional",
+          "effect": "Dia comercial do uso teórico e contagens."
+        },
+        {
+          "name": "Gerar",
+          "effect": "Cria/atualiza linhas de vendas e receitas."
+        },
+        {
+          "name": "Quantidade real",
+          "effect": "Contagem física por item."
+        },
+        {
+          "name": "Verificar",
+          "effect": "Bloqueia após aprovação gerencial."
+        }
+      ]
+    },
+    {
+      "id": "reconciliation-form",
+      "title": "Entrada manual de contagem",
+      "intro": "Edição na grade e importação CSV usam a mesma estrutura.",
+      "steps": [
+        "Clique célula Real para contagem.",
+        "Salvar rascunho sem verificar.",
+        "Importe CSV em lote.",
+        "Revise variâncias antes de verificar."
+      ],
+      "image": "inventory-reconciliation-form.png",
+      "caption": "Grade com edição de quantidade real.",
+      "fields": [
+        {
+          "name": "Item",
+          "effect": "Item de estoque na linha."
+        },
+        {
+          "name": "Teórico",
+          "effect": "Uso calculado por receitas e vendas."
+        },
+        {
+          "name": "Real",
+          "effect": "Quantidade contada informada."
+        },
+        {
+          "name": "Variância",
+          "effect": "Diferença real vs. teórico."
+        },
+        {
+          "name": "Notas",
+          "effect": "Explicação opcional na linha."
+        }
+      ]
+    }
+  ]
+}

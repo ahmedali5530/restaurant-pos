@@ -1,0 +1,124 @@
+{
+  "title": "Receitas e produção",
+  "intro": "Defina receitas em lote, execute produção e revise o histórico.",
+  "sections": [
+    {
+      "id": "recipes",
+      "title": "Lista de receitas",
+      "steps": [
+        "Inventário → Receitas.",
+        "Navegue receitas ativas.",
+        "Adicione ou edite receitas."
+      ],
+      "image": "inventory-recipes.png",
+      "caption": "Aba manutenção de receitas.",
+      "fields": []
+    },
+    {
+      "id": "recipe-form",
+      "title": "Formulário de receita",
+      "intro": "Define insumos, rendimentos e alocação de custo.",
+      "steps": [
+        "Adicionar ou editar receita.",
+        "Nome, código e qty base do lote.",
+        "Linhas de insumo e saída.",
+        "Salvar."
+      ],
+      "image": "inventory-recipe-form.png",
+      "caption": "Formulário com insumos e saídas.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Nome em produção e relatórios."
+        },
+        {
+          "name": "Código",
+          "effect": "Código curto opcional."
+        },
+        {
+          "name": "Qty base do lote",
+          "effect": "Tamanho padrão do lote."
+        },
+        {
+          "name": "Alocação de custo",
+          "effect": "Reparte custo dos insumos."
+        },
+        {
+          "name": "Itens de insumo",
+          "effect": "Consumidos por lote."
+        },
+        {
+          "name": "Itens de saída",
+          "effect": "Produzidos com rendimento %."
+        },
+        {
+          "name": "Ativo",
+          "effect": "Inativas ocultas em novos lotes."
+        }
+      ]
+    },
+    {
+      "id": "production",
+      "title": "Execuções de produção",
+      "steps": [
+        "Abra aba Produção.",
+        "Inicie lote de receita ativa.",
+        "Pré-visualize e complete."
+      ],
+      "image": "inventory-production.png",
+      "caption": "Aba Produção com lotes.",
+      "fields": []
+    },
+    {
+      "id": "production-form",
+      "title": "Formulário lote produção",
+      "intro": "Concluir deduz insumos e adiciona saídas no local.",
+      "steps": [
+        "Nova produção.",
+        "Receita, local, qty.",
+        "Revise prévia.",
+        "Complete."
+      ],
+      "image": "inventory-production-form.png",
+      "caption": "Formulário com prévia.",
+      "fields": [
+        {
+          "name": "Receita",
+          "effect": "Define ingredientes e saídas."
+        },
+        {
+          "name": "Local",
+          "effect": "Onde estoque é consumido/produzido."
+        },
+        {
+          "name": "Qty produzida",
+          "effect": "Escala receita da base."
+        },
+        {
+          "name": "Nº lote",
+          "effect": "Referência opcional."
+        },
+        {
+          "name": "Atualizar custo item",
+          "effect": "Recalcula custo saída."
+        },
+        {
+          "name": "Notas",
+          "effect": "Nota livre."
+        }
+      ]
+    },
+    {
+      "id": "production-history",
+      "title": "Histórico de produção",
+      "steps": [
+        "Audite lotes concluídos.",
+        "Filtre por data/receita/local.",
+        "Abra linha para detalhes."
+      ],
+      "image": "inventory-production-history.png",
+      "caption": "Lista histórico produção.",
+      "fields": []
+    }
+  ]
+}

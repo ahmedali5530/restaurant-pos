@@ -1,0 +1,123 @@
+{
+  "title": "Recepten en productie",
+  "intro": "Definieer batchrecepten, voer productie uit en bekijk historie.",
+  "sections": [
+    {
+      "id": "recipes",
+      "title": "Receptenlijst",
+      "steps": [
+        "Voorraad → Recepten.",
+        "Bekijk actieve recepten.",
+        "Voeg toe of bewerk recepten."
+      ],
+      "image": "inventory-recipes.png",
+      "caption": "Tab receptonderhoud.",
+      "fields": []
+    },
+    {
+      "id": "recipe-form",
+      "title": "Receptformulier",
+      "intro": "Definieert inputs, outputopbrengst en kostentoewijzing.",
+      "steps": [
+        "Recept toevoegen of bewerken.",
+        "Naam, code en basis batch qty.",
+        "Input- en outputregels.",
+        "Opslaan."
+      ],
+      "image": "inventory-recipe-form.png",
+      "caption": "Formulier inputs/outputs.",
+      "fields": [
+        {
+          "name": "Naam",
+          "effect": "Weergavenaam in productie."
+        },
+        {
+          "name": "Code",
+          "effect": "Optionele korte code."
+        },
+        {
+          "name": "Basis batch qty",
+          "effect": "Standaard batchgrootte."
+        },
+        {
+          "name": "Kostentoewijzing",
+          "effect": "Verdeelt inputkosten."
+        },
+        {
+          "name": "Input items",
+          "effect": "Verbruikt per batch."
+        },
+        {
+          "name": "Output items",
+          "effect": "Geproduceerd met opbrengst %."
+        },
+        {
+          "name": "Actief",
+          "effect": "Inactief verborgen in nieuwe runs."
+        }
+      ]
+    },
+    {
+      "id": "production",
+      "title": "Productieruns",
+      "steps": [
+        "Tab Productie.",
+        "Nieuwe batch van actief recept.",
+        "Preview en voltooien."
+      ],
+      "image": "inventory-production.png",
+      "caption": "Productietab met batchlijst.",
+      "fields": []
+    },
+    {
+      "id": "production-form",
+      "title": "Productiebatchformulier",
+      "intro": "Bij voltooien worden inputs afgeboekt en outputs toegevoegd.",
+      "steps": [
+        "Nieuwe productie.",
+        "Recept, locatie, qty.",
+        "Preview en voltooien."
+      ],
+      "image": "inventory-production-form.png",
+      "caption": "Batchformulier met preview.",
+      "fields": [
+        {
+          "name": "Recept",
+          "effect": "Bepaalt ingrediënten en outputs."
+        },
+        {
+          "name": "Locatie",
+          "effect": "Voorraad verbruik/productie."
+        },
+        {
+          "name": "Geproduceerde qty",
+          "effect": "Schaalt van basisbatch."
+        },
+        {
+          "name": "Batchnummer",
+          "effect": "Optionele referentie."
+        },
+        {
+          "name": "Itemkosten bijwerken",
+          "effect": "Herberekent outputkosten."
+        },
+        {
+          "name": "Notities",
+          "effect": "Vrije notitie."
+        }
+      ]
+    },
+    {
+      "id": "production-history",
+      "title": "Productiehistorie",
+      "steps": [
+        "Audit voltooide batches.",
+        "Filter datum/recept/locatie.",
+        "Open regel voor details."
+      ],
+      "image": "inventory-production-history.png",
+      "caption": "Productiehistorielijst.",
+      "fields": []
+    }
+  ]
+}

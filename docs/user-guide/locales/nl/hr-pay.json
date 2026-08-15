@@ -1,0 +1,123 @@
+{
+  "title": "Salarisprofielen en regels",
+  "intro": "Basislonen en toeslagregels.",
+  "sections": [
+    {
+      "id": "pay-profiles",
+      "title": "Salarisprofielen",
+      "steps": [
+        "HR → Salaris → Profielen.",
+        "Basistarief per medewerker.",
+        "Voedt loonrun."
+      ],
+      "image": "hr-pay-profiles.png",
+      "caption": "Lijst salarisprofielen.",
+      "fields": []
+    },
+    {
+      "id": "pay-profile-form",
+      "title": "Salarisprofielformulier",
+      "steps": [
+        "Profiel toevoegen/bewerken.",
+        "Type en basistarief.",
+        "Opslaan."
+      ],
+      "image": "hr-form-pay-profile.png",
+      "caption": "Salarisprofielformulier.",
+      "fields": [
+        {
+          "name": "Medewerker",
+          "effect": "Ontvangt deze basisvergoeding."
+        },
+        {
+          "name": "Salaristype",
+          "effect": "Uur, salaris, contract, commissie of gemengd."
+        },
+        {
+          "name": "Basistarief",
+          "effect": "Hoofdtarief of salarisbedrag."
+        },
+        {
+          "name": "Valuta",
+          "effect": "ISO-valuta."
+        },
+        {
+          "name": "Geldig vanaf",
+          "effect": "Eerste dag profiel."
+        },
+        {
+          "name": "Geldig tot",
+          "effect": "Optioneel einde."
+        }
+      ]
+    },
+    {
+      "id": "pay-rules",
+      "title": "Salarisregels",
+      "steps": [
+        "Salaris → Regels.",
+        "Stapelen op prioriteit.",
+        "Filters medewerker/afdeling."
+      ],
+      "image": "hr-pay-rules.png",
+      "caption": "Lijst salarisregels.",
+      "fields": []
+    },
+    {
+      "id": "pay-rule-form",
+      "title": "Salarisregelformulier",
+      "intro": "Effecten en geschiktheidsfilters.",
+      "steps": [
+        "Regel toevoegen.",
+        "Effecten definiëren.",
+        "Datum/tijd filters.",
+        "Medewerkers toewijzen.",
+        "Opslaan."
+      ],
+      "image": "hr-form-pay-rule.png",
+      "caption": "Regelformulier.",
+      "fields": [
+        {
+          "name": "Code",
+          "effect": "Unieke id."
+        },
+        {
+          "name": "Naam",
+          "effect": "Admin label."
+        },
+        {
+          "name": "Prioriteit",
+          "effect": "Stapelvolgorde."
+        },
+        {
+          "name": "Stapelmodus",
+          "effect": "Interactie regels."
+        },
+        {
+          "name": "Effecten",
+          "effect": "Multipliers of bedragen."
+        },
+        {
+          "name": "Medewerker/afdeling/functie/kostenplaats filters",
+          "effect": "Beperkt bereik."
+        },
+        {
+          "name": "Datum/tijd venster",
+          "effect": "Optioneel bereik."
+        },
+        {
+          "name": "Weekdagen / maanden",
+          "effect": "Kalenderpatronen."
+        },
+        {
+          "name": "Feestdagen",
+          "effect": "Geselecteerde feestdagen."
+        },
+        {
+          "name": "Overuren (dag/week)",
+          "effect": "Na drempels."
+        }
+      ]
+    }
+  ]
+}

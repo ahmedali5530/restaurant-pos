@@ -1,0 +1,74 @@
+{
+  "title": "Mesas y comedor",
+  "intro": "El servicio en salón empieza en el plano: elija piso, mesa, cubiertos si aplica y luego tome el pedido.",
+  "sections": [
+    {
+      "id": "floor",
+      "title": "Plano de piso",
+      "steps": [
+        "Abra Menú (modo piso activo en Ajustes → Selección de mesa).",
+        "El plano muestra mesas del piso activo.",
+        "Las ocupadas o bloqueadas pueden verse distintas."
+      ],
+      "image": "tables-floor.png",
+      "caption": "Plano con mesas."
+    },
+    {
+      "id": "switcher",
+      "title": "Cambiar piso",
+      "intro": "Varias áreas usan botones abajo del plano.",
+      "steps": [
+        "Pulse un piso para ver sus mesas.",
+        "El piso activo se resalta.",
+        "Cada piso puede tener fondo y layout propios."
+      ],
+      "image": "tables-floor-switcher.png",
+      "caption": "Botones de piso."
+    },
+    {
+      "id": "table",
+      "title": "Seleccionar mesa",
+      "steps": [
+        "Pulse una mesa libre para iniciar o reanudar.",
+        "Si está bloqueada, puede requerir aprobación.",
+        "Luego pasa a cubiertos y pedidos."
+      ],
+      "image": "tables-table-tile.png",
+      "caption": "Baldosa de mesa."
+    },
+    {
+      "id": "covers",
+      "title": "Cubiertos (comensales)",
+      "intro": "Cuando se exigen, indique cuántos comensales.",
+      "steps": [
+        "Use el teclado numérico.",
+        "Pulse OK para ir al menú.",
+        "Los cubiertos pueden aparecer en cuentas y cocina."
+      ],
+      "image": "tables-covers.png",
+      "caption": "Pantalla de comensales."
+    },
+    {
+      "id": "active",
+      "title": "Mesa activa en el menú",
+      "steps": [
+        "El encabezado muestra la mesa activa.",
+        "Use controles de mesa o cubiertos si se permiten.",
+        "Pedidos y cocina quedan ligados a la mesa."
+      ],
+      "image": "tables-active-table.png",
+      "caption": "Indicador de mesa activa."
+    },
+    {
+      "id": "back",
+      "title": "Volver al plano",
+      "steps": [
+        "Pulse el control de piso / atrás en el encabezado.",
+        "Vuelve al plano para otra mesa.",
+        "Cuentas abiertas siguen en Órdenes."
+      ],
+      "image": "tables-back-floor.png",
+      "caption": "Control volver al piso."
+    }
+  ]
+}

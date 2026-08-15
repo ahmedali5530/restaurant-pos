@@ -47,7 +47,7 @@ export const FloorLayout = () => {
   }, [settings.tables, state.floor]);
 
   const categories = useMemo(() => {
-    return settings.categories.filter(item => item.show_in_menu);
+    return settings.categories.filter(item => item.show_in_menu !== false);
   }, [settings.categories]);
 
   const orderTypes = useMemo(() => {
@@ -299,7 +299,7 @@ export const FloorLayout = () => {
 
   return (
     <>
-      <div className="flex flex-col transition-all delay-75" style={{
+      <div className="flex flex-col transition-all delay-75" data-testid="menu-floor" style={{
         background: state.floor?.background
       }}>
         <div className="h-[80px] bg-white p-3 flex items-center">
@@ -312,7 +312,7 @@ export const FloorLayout = () => {
             </div>
           )}
         </div>
-        <div className="layout relative h-[calc(100vh_-_80px_-_80px)] p-3 overflow-hidden">
+        <div className="layout relative h-[calc(100vh_-_80px_-_80px)] p-3 overflow-hidden" data-testid="menu-floor-tables">
           {floors?.length === 0 && (
             <div className="flex items-center justify-center text-2xl">
               {t('floor.reloadCachePrefix')}{" "}<span className="ml-2 btn btn-secondary"><Link to="/settings">{t('floor.settings')}</Link></span>
@@ -334,12 +334,13 @@ export const FloorLayout = () => {
             </>
           )}
         </div>
-        <div className="floor-btns flex gap-3 p-3">
+        <div className="floor-btns flex gap-3 p-3" data-testid="menu-floor-switcher">
           {floors?.map(item => (
             <Button
               variant="custom"
               key={item.id}
               size="lg"
+              data-testid="menu-floor-btn"
               className={
                 cn(
                   "flex-1 relative outline-none pressable",

@@ -262,6 +262,7 @@ export const SplitBySeats = ({
   return (
     <>
       <Modal
+        testId="order-split-seats"
         title={t('split.title', {invoice: getInvoiceNumber(order)})}
         open={true}
         size="full"

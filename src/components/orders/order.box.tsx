@@ -167,7 +167,7 @@ export const OrderBox = ({
 
   return (
     <>
-      <div className="rounded-xl p-3 bg-white gap-5 flex flex-col shadow select-none">
+      <div className="rounded-xl p-3 bg-white gap-5 flex flex-col shadow select-none" data-testid="order-card">
         <OrderHeader order={order} tempPrinted={tempPrinted}/>
         <OrderTimes order={order}/>
         <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
@@ -189,7 +189,7 @@ export const OrderBox = ({
         </ScrollContainer>
         <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
         <OrderTotals order={order} />
-        <div className="flex gap-5">
+        <div className="flex gap-5" data-testid="order-card-actions">
           {merging && (order.status === OrderStatus['In Progress']) ? (
             <>
               <Checkbox onChange={() => {
@@ -208,6 +208,7 @@ export const OrderBox = ({
                 btnSize="lg"
                 btnFlat={true}
                 className="flex-1"
+                data-testid="order-card-menu"
                 onAction={(key) => {
                   if (key === 'temp_bill') {
                     printTempBill();
@@ -301,24 +302,25 @@ export const OrderBox = ({
                 {order.status === OrderStatus["In Progress"] && (
                   <>
                     <DropdownItem isDisabled={mutationsBlocked} id="cancel" key="cancel"
+                                  data-testid="order-menu-cancel"
                                   className="min-w-[50px] bg-danger-100 text-danger-500">
                       <FontAwesomeIcon icon={faMoneyBillTransfer}/> {t('actions.cancelOrder')}
                     </DropdownItem>
                     <DropdownSeparator/>
                     <DropdownItem isDisabled={mutationsBlocked || hasSeats !== true} id="split_by_seats"
-                                  key="split_by_seats" className="min-w-[50px]">
+                                  key="split_by_seats" data-testid="order-menu-split_by_seats" className="min-w-[50px]">
                       <FontAwesomeIcon icon={faChair}/> {t('actions.splitBySeats')}
                     </DropdownItem>
                     <DropdownItem isDisabled={mutationsBlocked} id="split_by_items" key="split_by_items"
-                                  className="min-w-[50px]">
+                                  data-testid="order-menu-split_by_items" className="min-w-[50px]">
                       <FontAwesomeIcon icon={faCodeBranch}/> {t('actions.splitByItems')}
                     </DropdownItem>
                     <DropdownItem isDisabled={mutationsBlocked} id="split_by_amount" key="split_by_amount"
-                                  className="min-w-[50px]">
+                                  data-testid="order-menu-split_by_amount" className="min-w-[50px]">
                       <FontAwesomeIcon icon={faCodeBranch}/> {t('actions.splitByAmount')}
                     </DropdownItem>
                     <DropdownSeparator/>
-                    <DropdownItem isDisabled={mutationsBlocked} id="merge" key="merge" className="min-w-[50px]">
+                    <DropdownItem isDisabled={mutationsBlocked} id="merge" key="merge" data-testid="order-menu-merge" className="min-w-[50px]">
                       <FontAwesomeIcon icon={faObjectGroup}/> {t('actions.mergeOrders')}
                     </DropdownItem>
                     <DropdownSeparator/>
@@ -330,7 +332,7 @@ export const OrderBox = ({
 
                 {order.status === OrderStatus["Paid"] && (
                   <>
-                    <DropdownItem id="refund" key="refund" className="min-w-[50px] bg-danger-100 text-danger-500">
+                    <DropdownItem id="refund" key="refund" data-testid="order-menu-refund" className="min-w-[50px] bg-danger-100 text-danger-500">
                       <FontAwesomeIcon icon={faMoneyBillTransfer}/> {t('actions.refund')}
                     </DropdownItem>
                     <DropdownSeparator/>
@@ -353,10 +355,18 @@ export const OrderBox = ({
                       size="lg"
                       className="flex-1"
                       icon={faPrint}
+                      data-testid="order-card-temp-bill"
                     ></Button>
                   </span>
-                  <Button variant="warning" filled size="lg" className="flex-1" onClick={() => setPaymentOrder(order)}
-                          icon={faCreditCard}>
+                  <Button
+                    variant="warning"
+                    filled
+                    size="lg"
+                    className="flex-1"
+                    onClick={() => setPaymentOrder(order)}
+                    icon={faCreditCard}
+                    data-testid="order-card-pay"
+                  >
                   </Button>
                 </>
               )}

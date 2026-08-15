@@ -50,7 +50,7 @@ export const HrDepartments = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button key="department-create" variant="primary" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
+          <Button key="department-create" variant="primary" data-testid="hr-add-departments" onClick={() => { setData(undefined); setFormModal(true); }} icon={faPlus}>
             {t("buttons.department")}
           </Button>,
         ]}

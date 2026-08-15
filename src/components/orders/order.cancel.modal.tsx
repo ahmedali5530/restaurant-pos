@@ -255,6 +255,7 @@ export const OrderCancelModal = ({
 
   return (
     <Modal
+      testId="order-cancel-modal"
       open={open}
       onClose={handleClose}
       title={t('cancel.title')}

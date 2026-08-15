@@ -1,0 +1,75 @@
+{
+  "title": "Berichte-Hub (Administrator-Pakete)",
+  "intro": "Administratoren nutzen denselben Berichte-Hub mit tieferen Paketen: Inventar, Personal, Produkte und Steuern.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Administrator-Berichtslayout",
+      "steps": [
+        "Berichte in der Seitenleiste tippen.",
+        "Kategorien: Inventar, Personal, Produkte, Verkauf.",
+        "Mittlere Spalte listet Berichte; rechtes Panel Filter."
+      ],
+      "image": "reports-admin-overview.png",
+      "caption": "Berichte-Hub für Administrator-Pakete."
+    },
+    {
+      "id": "inventory",
+      "title": "Inventarpaket",
+      "intro": "Deckt Bestand, Einkäufe, Ausgaben, Verluste, Verbrauch, Produktion und Buffet ab.",
+      "steps": [
+        "Inventar wählen.",
+        "Aktueller Bestand oder Einkauf wählen.",
+        "Standort und Datum setzen und ausführen."
+      ],
+      "image": "reports-admin-inventory.png",
+      "caption": "Inventar-Berichtspaket."
+    },
+    {
+      "id": "inventory-filters",
+      "title": "Inventarfilter",
+      "steps": [
+        "Nach Berichtswahl zeigt das Panel Filter.",
+        "Daten, Standorte oder Artikel anpassen.",
+        "Ausführen oder exportieren wenn passend."
+      ],
+      "image": "reports-admin-inventory-filters.png",
+      "caption": "Inventar-Filterpanel."
+    },
+    {
+      "id": "labor",
+      "title": "Personalpaket",
+      "intro": "Fasst Kosten, Überstunden, Anwesenheit, Lohn und Plan vs Ist zusammen.",
+      "steps": [
+        "Personal wählen.",
+        "Dashboard oder Tageskosten öffnen.",
+        "Anwesenheit oder Lohnübersicht für Details."
+      ],
+      "image": "reports-admin-labor.png",
+      "caption": "Personal-Berichtspaket."
+    },
+    {
+      "id": "products",
+      "title": "Produktpaket",
+      "steps": [
+        "Produkte wählen.",
+        "Produktmix Zusammenfassung oder wöchentlich nutzen.",
+        "Produkte stündlich zeigt Tempo."
+      ],
+      "image": "reports-admin-products.png",
+      "caption": "Produkt-Berichtspaket."
+    },
+    {
+      "id": "tax",
+      "title": "Steuerfilter",
+      "intro": "Steuer liegt unter Verkauf; zur Abstimmung erhobener Steuer.",
+      "steps": [
+        "Verkauf, dann Steuer öffnen.",
+        "Zeitraum setzen.",
+        "Für Audit ausführen."
+      ],
+      "image": "reports-admin-tax-filters.png",
+      "caption": "Steuer-Filterpanel."
+    }
+  ]
+}

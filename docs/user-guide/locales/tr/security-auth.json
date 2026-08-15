@@ -1,0 +1,51 @@
+{
+  "title": "Güvenlik yeniden kimlik doğrulama",
+  "intro": "Korumalı işlemler yönetici PIN, şifre veya QR ile yeniden doğrulama isteyebilir.",
+  "sections": [
+    {
+      "id": "when",
+      "title": "Ne zaman görünür",
+      "steps": [
+        "Otomatik izin verilmeyen bir işlem denersiniz.",
+        "Açıklamalı modal açılır.",
+        "Oturum kilidi ayrıdır."
+      ],
+      "image": "security-session-card.png",
+      "caption": "Oturum güvenlik kartı."
+    },
+    {
+      "id": "modal",
+      "title": "Onay modalı",
+      "steps": [
+        "Başlığı okuyun.",
+        "PIN, şifre veya QR seçin.",
+        "Doğrulayın veya iptal edin."
+      ],
+      "image": "security-modal.png",
+      "caption": "Yönetici onay modalı."
+    },
+    {
+      "id": "methods",
+      "title": "Doğrulama yöntemleri",
+      "intro": "Birden fazla yöntem açılabilir.",
+      "steps": [
+        "PIN sayısal pad.",
+        "Şifre etkinse kullanın.",
+        "QR destekleniyorsa tarayın."
+      ],
+      "image": "security-auth-types.png",
+      "caption": "Yöntem seçici."
+    },
+    {
+      "id": "pin",
+      "title": "PIN girişi",
+      "steps": [
+        "4 haneli yönetici PIN'ini girin.",
+        "Dört hane dolunca doğrulanır.",
+        "Hatalı PIN hata gösterir."
+      ],
+      "image": "security-pin-pad.png",
+      "caption": "Güvenlik PIN padi."
+    }
+  ]
+}

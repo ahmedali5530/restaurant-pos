@@ -1,0 +1,99 @@
+{
+  "title": "Leave",
+  "intro": "Manage time-off requests and public holidays that affect schedules and payroll.",
+  "sections": [
+    {
+      "id": "leave",
+      "title": "Leave requests",
+      "steps": [
+        "Open the Leave tab.",
+        "Review pending and approved leave for employees.",
+        "Approve or reject requests according to your HR role."
+      ],
+      "image": "hr-leave.png",
+      "caption": "Leave tab."
+    },
+    {
+      "id": "holidays",
+      "title": "Holidays",
+      "intro": "Holidays mark non-working or premium-pay calendar days for the venue.",
+      "steps": [
+        "Open the Holidays tab.",
+        "Add venue holidays for the year.",
+        "Holiday dates feed scheduling and pay-rule calculations when configured."
+      ],
+      "image": "hr-holidays.png",
+      "caption": "Holidays tab."
+    },
+    {
+      "id": "leave-form",
+      "title": "Modulo richiesta permesso",
+      "intro": "Invia richieste per tipi configurati.",
+      "steps": [
+        "Permessi → Aggiungi.",
+        "Dipendente, tipo, date.",
+        "Giorni e motivo.",
+        "Salva."
+      ],
+      "image": "hr-form-leave.png",
+      "caption": "Modulo permesso.",
+      "fields": [
+        {
+          "name": "Dipendente",
+          "effect": "Richiedente."
+        },
+        {
+          "name": "Tipo permesso",
+          "effect": "Retribuito/non e approvazione."
+        },
+        {
+          "name": "Data inizio/fine",
+          "effect": "Date inclusive."
+        },
+        {
+          "name": "Giorni",
+          "effect": "Giorni lavorativi consumati."
+        },
+        {
+          "name": "Motivo",
+          "effect": "Nota opzionale."
+        }
+      ]
+    },
+    {
+      "id": "holiday-form",
+      "title": "Modulo festività",
+      "intro": "Interagisce con regole paghe e pianificazione.",
+      "steps": [
+        "Permessi → Festività.",
+        "Nome, data, paese.",
+        "Ricorrente se annuale.",
+        "Salva."
+      ],
+      "image": "hr-form-holiday.png",
+      "caption": "Modulo festività.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Etichetta calendari."
+        },
+        {
+          "name": "Data",
+          "effect": "Data osservata."
+        },
+        {
+          "name": "Codice paese",
+          "effect": "ISO opzionale."
+        },
+        {
+          "name": "Ricorrente",
+          "effect": "Ripete ogni anno."
+        },
+        {
+          "name": "Attivo",
+          "effect": "Inattivi ignorati nuove regole."
+        }
+      ]
+    }
+  ]
+}

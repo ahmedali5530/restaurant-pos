@@ -1,0 +1,211 @@
+{
+  "title": "Attendance",
+  "intro": "Track clock times and build schedules so labor hours stay accurate for payroll and reporting.",
+  "sections": [
+    {
+      "id": "attendance",
+      "title": "Attendance records",
+      "steps": [
+        "Open the Attendance tab.",
+        "Review clock-in and clock-out events for staff.",
+        "Correct or approve exceptions when your role allows."
+      ],
+      "image": "hr-attendance.png",
+      "caption": "Attendance tab."
+    },
+    {
+      "id": "scheduling",
+      "title": "Scheduling",
+      "intro": "Schedules plan who works which shifts.",
+      "steps": [
+        "Open the Scheduling tab.",
+        "Build or adjust shifts for upcoming days.",
+        "Published schedules guide floor staffing and attendance expectations."
+      ],
+      "image": "hr-scheduling.png",
+      "caption": "Scheduling tab."
+    },
+    {
+      "id": "attendance-form",
+      "title": "Saisie manuelle présence",
+      "intro": "Corrige pointages manquants ou complète le temps.",
+      "steps": [
+        "Présence → Saisie manuelle.",
+        "Employé et horaires.",
+        "Notes et enregistrer."
+      ],
+      "image": "hr-form-attendance.png",
+      "caption": "Modal présence manuelle.",
+      "fields": [
+        {
+          "name": "Employé",
+          "effect": "Personne concernée."
+        },
+        {
+          "name": "Entrée",
+          "effect": "Début intervalle."
+        },
+        {
+          "name": "Sortie",
+          "effect": "Fin après entrée."
+        },
+        {
+          "name": "Notes",
+          "effect": "Motif saisie manuelle."
+        }
+      ]
+    },
+    {
+      "id": "schedule-form",
+      "title": "Formulaire planning",
+      "intro": "Plage de dates avec shifts brouillon ou publiés.",
+      "steps": [
+        "Planification → ajouter.",
+        "Nom et début/fin période.",
+        "Shifts ou générer modèle."
+      ],
+      "image": "hr-form-schedule.png",
+      "caption": "Formulaire planning.",
+      "fields": [
+        {
+          "name": "Nom",
+          "effect": "Libellé période."
+        },
+        {
+          "name": "Début période",
+          "effect": "Premier datetime couvert."
+        },
+        {
+          "name": "Fin période",
+          "effect": "Dernier datetime couvert."
+        }
+      ]
+    },
+    {
+      "id": "shift-form",
+      "title": "Formulaire shift planifié",
+      "intro": "Assigne employé à bloc horaire en brouillon.",
+      "steps": [
+        "Brouillon → ajouter shift.",
+        "Planning, employé, horaires.",
+        "Modèle/org optionnel.",
+        "Enregistrer."
+      ],
+      "image": "hr-form-shift.png",
+      "caption": "Formulaire shift.",
+      "fields": [
+        {
+          "name": "Planning",
+          "effect": "Parent en brouillon."
+        },
+        {
+          "name": "Employé",
+          "effect": "Assigné au shift."
+        },
+        {
+          "name": "Modèle shift",
+          "effect": "Preset Admin → Utilisateurs → Shifts."
+        },
+        {
+          "name": "Dept / poste / centre coûts",
+          "effect": "Override org."
+        },
+        {
+          "name": "Début / fin",
+          "effect": "Fenêtre horaire."
+        }
+      ]
+    },
+    {
+      "id": "schedule-template",
+      "title": "Formulaire modèle planning",
+      "intro": "Motif hebdomadaire réutilisable.",
+      "steps": [
+        "Planification → Modèles.",
+        "Nom et jours/heures.",
+        "Modèle shift optionnel.",
+        "Enregistrer."
+      ],
+      "image": "hr-form-schedule-template.png",
+      "caption": "Formulaire modèle.",
+      "fields": [
+        {
+          "name": "Nom",
+          "effect": "Libellé générer."
+        },
+        {
+          "name": "Jours semaine",
+          "effect": "Jours avec shifts."
+        },
+        {
+          "name": "Heure début/fin",
+          "effect": "Fenêtre quotidienne."
+        },
+        {
+          "name": "Minutes pause",
+          "effect": "Pause non payée."
+        },
+        {
+          "name": "Modèle shift",
+          "effect": "Définition POS."
+        }
+      ]
+    },
+    {
+      "id": "schedule-generate",
+      "title": "Générer planning depuis modèle",
+      "steps": [
+        "Planification → Générer.",
+        "Brouillon et modèle.",
+        "Sélectionnez employés.",
+        "Générer."
+      ],
+      "image": "hr-form-schedule-generate.png",
+      "caption": "Dialogue générer.",
+      "fields": [
+        {
+          "name": "Planning",
+          "effect": "Brouillon cible."
+        },
+        {
+          "name": "Modèle",
+          "effect": "Motif hebdomadaire."
+        },
+        {
+          "name": "Employés",
+          "effect": "Reçoivent copie shifts."
+        }
+      ]
+    },
+    {
+      "id": "schedule-swap",
+      "title": "Demande échange shift",
+      "steps": [
+        "Planification → Demander échange.",
+        "Shift et demandeur.",
+        "Collègue cible optionnel.",
+        "Envoyer."
+      ],
+      "image": "hr-form-schedule-swap.png",
+      "caption": "Formulaire échange.",
+      "fields": [
+        {
+          "name": "Shift planifié",
+          "effect": "Shift à céder/échanger."
+        },
+        {
+          "name": "Demandeur",
+          "effect": "Initie l'échange."
+        },
+        {
+          "name": "Employé cible",
+          "effect": "Optionnel."
+        },
+        {
+          "name": "Shift proposé",
+          "effect": "Contre-shift."
+        }
+      ]
+    }
+  ]
+}

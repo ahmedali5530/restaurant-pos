@@ -45,23 +45,27 @@ export const MenuCategories = () => {
   } as CSSProperties;
 
   return (
-    <ScrollContainer className="flex flex-row gap-1 p-1" mouseScroll>
-      {categories.map((item, index) => (
-        <button
-          key={index}
-          className={cn(
-            categoryClasses,
-            state?.category?.id?.toString() === item?.id?.toString() ? 'bg-gradient' : 'bg-white border-3 border-transparent select-none'
-          )}
-          onClick={() => setState(prev => ({
-            ...prev,
-            category: item
-          }))}
-          style={categoryStyles}
-        >
-          {item.name}
-        </button>
-      ))}
-    </ScrollContainer>
+    <div data-testid="menu-categories">
+      <ScrollContainer className="flex flex-row gap-1 p-1" mouseScroll>
+        {categories.map((item, index) => (
+          <button
+            key={index}
+            type="button"
+            data-testid={`menu-category-${index}`}
+            className={cn(
+              categoryClasses,
+              state?.category?.id?.toString() === item?.id?.toString() ? 'bg-gradient' : 'bg-white border-3 border-transparent select-none'
+            )}
+            onClick={() => setState(prev => ({
+              ...prev,
+              category: item
+            }))}
+            style={categoryStyles}
+          >
+            {item.name}
+          </button>
+        ))}
+      </ScrollContainer>
+    </div>
   )
 }

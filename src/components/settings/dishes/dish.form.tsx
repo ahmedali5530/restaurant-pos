@@ -508,6 +508,7 @@ export const DishForm = ({
   return (
     <>
       <Modal
+        testId="admin-form-dish"
         title={data ? t('forms.updateDish', { name: data?.name }) : t('forms.createDish')}
         open={open}
         onClose={closeModal}

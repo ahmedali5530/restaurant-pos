@@ -1,0 +1,39 @@
+{
+  "title": "Tip oversight",
+  "intro": "Tip distribution calculates how pooled tips for a shift should be split across staff using configured weights, then saves an official distribution record.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Tip distribution screen",
+      "steps": [
+        "Tap Tip distribution in the sidebar.",
+        "Select a shift and business date at the top.",
+        "Load tips calculates totals from paid orders in that shift window."
+      ],
+      "image": "tips-overview.png",
+      "caption": "Tip distribution screen."
+    },
+    {
+      "id": "filters",
+      "title": "Shift and date",
+      "steps": [
+        "Choose the shift (morning, evening, etc.) from the dropdown.",
+        "Pick the date — cannot be in the future.",
+        "Tap Load tips to fetch tip totals and build the distribution table."
+      ],
+      "image": "tips-filters.png",
+      "caption": "Shift, date, and load controls."
+    },
+    {
+      "id": "table",
+      "title": "Distribution table",
+      "steps": [
+        "Total tips shows the pooled amount for the shift window.",
+        "Each row lists a user, role, weight, and calculated share.",
+        "Submit saves the distribution after you review amounts (weights come from global tip settings)."
+      ],
+      "image": "tips-table.png",
+      "caption": "Tip totals and per-user distribution table."
+    }
+  ]
+}

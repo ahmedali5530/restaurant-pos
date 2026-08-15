@@ -1,0 +1,40 @@
+{
+  "title": "Articles et données de base",
+  "intro": "Maintenez articles, catégories et emplacements pour la valorisation et les documents.",
+  "sections": [
+    {
+      "id": "items",
+      "title": "Articles",
+      "steps": [
+        "Ouvrez l'onglet Articles.",
+        "Créez ou modifiez articles avec code, unité et fournisseurs.",
+        "Les articles apparaissent dans achats, sorties et résumé."
+      ],
+      "image": "inventory-items-list.png",
+      "caption": "Table des articles."
+    },
+    {
+      "id": "categories",
+      "title": "Catégories d'articles",
+      "intro": "Les catégories regroupent les articles pour filtres et rapports.",
+      "steps": [
+        "Ouvrez Catégories d'articles.",
+        "Ajoutez des catégories adaptées cuisine et entrepôt.",
+        "Assignez-les sur chaque fiche article."
+      ],
+      "image": "inventory-items-categories.png",
+      "caption": "Onglet Catégories."
+    },
+    {
+      "id": "locations",
+      "title": "Emplacements",
+      "steps": [
+        "Ouvrez Emplacements.",
+        "Définissez magasins, frigos ou cuisines.",
+        "Les documents référencent toujours un emplacement."
+      ],
+      "image": "inventory-items-locations.png",
+      "caption": "Onglet Emplacements."
+    }
+  ]
+}

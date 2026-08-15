@@ -1,0 +1,197 @@
+{
+  "title": "Payment types, taxes, and order types",
+  "intro": "Configure how orders are classified and settled: payment methods, tax rules, and service types (dine-in, delivery, etc.).",
+  "sections": [
+    {
+      "id": "payment-types",
+      "title": "Payment types",
+      "steps": [
+        "Open the Payment types tab.",
+        "Define Cash, Card, and custom tenders shown on the payment screen.",
+        "Set sort order and whether a type requires reference or change calculation."
+      ],
+      "image": "admin-payments-types.png",
+      "caption": "Payment types tab."
+    },
+    {
+      "id": "taxes",
+      "title": "Taxes",
+      "intro": "Taxes apply to dishes and appear on receipts and reports.",
+      "steps": [
+        "Open the Taxes tab.",
+        "Create tax rates and link them to applicable items or order types.",
+        "Save so new orders calculate tax correctly."
+      ],
+      "image": "admin-payments-taxes.png",
+      "caption": "Taxes tab."
+    },
+    {
+      "id": "order-types",
+      "title": "Order types",
+      "steps": [
+        "Open the Order types tab.",
+        "Configure dine-in, takeaway, delivery, and other service modes.",
+        "Order types drive kitchen routing, reporting, and default behaviors."
+      ],
+      "image": "admin-payments-order-types.png",
+      "caption": "Order types tab."
+    },
+    {
+      "id": "extras",
+      "title": "Extras",
+      "intro": "Extras are automatic surcharges linked to payment types, order types, or tables (e.g. service fees or cover charges).",
+      "steps": [
+        "Open the Extras tab.",
+        "Create extras with name, amount, and applicability rules.",
+        "Save so qualifying orders include the surcharge on payment."
+      ],
+      "image": "admin-extras.png",
+      "caption": "Extras tab."
+    },
+    {
+      "id": "payment-type-form",
+      "title": "Payment type form",
+      "intro": "Payment types include local methods and Remote gateway types that delegate to Stripe, PayPal, etc.",
+      "steps": [
+        "Open Admin → Payments → Types.",
+        "Add name, priority, and type (Cash, Card, Remote, …).",
+        "For Remote: pick gateway provider, mode (test/live), and API keys.",
+        "Optionally link tax and automatic discounts.",
+        "Save — type appears on payment screen and table restrictions."
+      ],
+      "image": "admin-payments-type-form.png",
+      "caption": "Payment type form with remote gateway.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Label on payment screen buttons."
+        },
+        {
+          "name": "Priority",
+          "effect": "Sort order among payment methods."
+        },
+        {
+          "name": "Type",
+          "effect": "Behavior profile — choose Remote to enable gateway fields."
+        },
+        {
+          "name": "Gateway provider",
+          "effect": "Stripe, PayPal, or other integrated processor."
+        },
+        {
+          "name": "Gateway mode",
+          "effect": "Test vs. live credentials."
+        },
+        {
+          "name": "public_key",
+          "effect": "Client-side or publishable API key for the gateway."
+        },
+        {
+          "name": "secret_key",
+          "effect": "Server-side secret used to capture charges."
+        },
+        {
+          "name": "webhook_secret",
+          "effect": "Validates asynchronous payment callbacks."
+        },
+        {
+          "name": "client_id / client_secret",
+          "effect": "OAuth-style gateways that use paired credentials."
+        },
+        {
+          "name": "merchant_id / integrity_salt",
+          "effect": "Provider-specific merchant and hash fields."
+        },
+        {
+          "name": "Tax",
+          "effect": "Default tax rule applied when this type is used."
+        },
+        {
+          "name": "Discounts",
+          "effect": "Auto-applied discount rules tied to the payment method."
+        }
+      ]
+    },
+    {
+      "id": "tax-form",
+      "title": "Tax form",
+      "steps": [
+        "Open Payments → Taxes.",
+        "Define name, rate, and inclusive/exclusive behavior.",
+        "Save — assign to payment types or order defaults."
+      ],
+      "image": "admin-payments-tax-form.png",
+      "caption": "Tax form.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Tax label on receipts."
+        },
+        {
+          "name": "Rate",
+          "effect": "Percentage applied to taxable amounts."
+        },
+        {
+          "name": "Inclusive",
+          "effect": "When true, tax is embedded in displayed prices."
+        }
+      ]
+    },
+    {
+      "id": "order-type-form",
+      "title": "Order type form",
+      "steps": [
+        "Open Payments → Order types.",
+        "Set name and behavior flags (dine-in, takeaway, delivery).",
+        "Save — used on tables, POS, and reporting."
+      ],
+      "image": "admin-payments-order-type-form.png",
+      "caption": "Order type form.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Order type shown on checks and filters."
+        },
+        {
+          "name": "Priority",
+          "effect": "Sort order in selectors."
+        },
+        {
+          "name": "Default",
+          "effect": "Pre-selected type for new orders when applicable."
+        }
+      ]
+    },
+    {
+      "id": "extra-form",
+      "title": "Extra (service charge) form",
+      "intro": "Extras add automatic surcharges (service charge, coperto) by payment or order context.",
+      "steps": [
+        "Open Payments → Extras.",
+        "Name the charge and set amount or percent.",
+        "Configure when it applies (order type, payment type, etc.).",
+        "Save — qualifying orders include the surcharge."
+      ],
+      "image": "admin-payments-extra-form.png",
+      "caption": "Extra surcharge form.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Surcharge label on guest receipt."
+        },
+        {
+          "name": "Amount / rate",
+          "effect": "Fixed currency or percent of eligible total."
+        },
+        {
+          "name": "Taxable",
+          "effect": "Whether tax is calculated on the surcharge."
+        },
+        {
+          "name": "Auto apply rules",
+          "effect": "Links to order types, payment types, or floors."
+        }
+      ]
+    }
+  ]
+}

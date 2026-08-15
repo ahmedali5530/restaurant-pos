@@ -1,0 +1,53 @@
+{
+  "title": "Giriş",
+  "intro": "POSR’yi tarayıcıda açın. Oturum yoksa veya terminal kilitliyse giriş ekranı görünür.",
+  "sections": [
+    {
+      "id": "methods",
+      "title": "Giriş yöntemini seçin",
+      "intro": "PIN veya kullanıcı adı/şifre ile giriş yapabilirsiniz. Hesabınıza atanan yöntemi kullanın.",
+      "steps": [
+        "Üstten Pin veya Form seçin.",
+        "PIN ortak terminaller için uygundur.",
+        "Form kişisel hesaplar için uygundur."
+      ],
+      "image": "login-pin.png",
+      "caption": "Pin seçili giriş ekranı."
+    },
+    {
+      "id": "pin",
+      "title": "PIN ile giriş",
+      "steps": [
+        "Pin’i seçin.",
+        "4 haneli PIN’inizi girin.",
+        "Dördüncü hanede sistem otomatik giriş yapar.",
+        "Düzeltmek için geri silme veya C kullanın.",
+        "Gerekirse mesaiye giriş (clock in) yapın."
+      ],
+      "image": "login-method-toggle.png",
+      "caption": "Pin ve Form düğmeleri.",
+      "note": "Demo ortamında genelde 1234, 0000 veya 5555 (süper yönetici) PIN’leri kullanılır."
+    },
+    {
+      "id": "form",
+      "title": "Kullanıcı adı ve şifre ile giriş",
+      "steps": [
+        "Form’u seçin.",
+        "Kullanıcı adı ve şifreyi girin.",
+        "Giriş’e dokunun.",
+        "İstenirse clock in tamamlayın."
+      ],
+      "image": "login-form.png",
+      "caption": "Form girişi (vurgulu alanlar)."
+    },
+    {
+      "id": "after",
+      "title": "Başarılı girişten sonra",
+      "steps": [
+        "Yönlendirme yoksa Menü’ye gelirsiniz.",
+        "İzinli modüller için yan paneli kullanın.",
+        "Uzaklaşırken Kilitleyin."
+      ]
+    }
+  ]
+}

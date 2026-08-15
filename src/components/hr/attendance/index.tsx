@@ -114,7 +114,7 @@ export const HrAttendance = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button key="manual-entry" variant="primary" onClick={() => setFormModal(true)} icon={faPlus}>
+          <Button key="manual-entry" variant="primary" data-testid="hr-add-attendance" onClick={() => setFormModal(true)} icon={faPlus}>
             {t("buttons.manualEntry")}
           </Button>,
         ]}

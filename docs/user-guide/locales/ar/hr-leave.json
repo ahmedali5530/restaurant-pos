@@ -1,0 +1,99 @@
+{
+  "title": "Leave",
+  "intro": "Manage time-off requests and public holidays that affect schedules and payroll.",
+  "sections": [
+    {
+      "id": "leave",
+      "title": "Leave requests",
+      "steps": [
+        "Open the Leave tab.",
+        "Review pending and approved leave for employees.",
+        "Approve or reject requests according to your HR role."
+      ],
+      "image": "hr-leave.png",
+      "caption": "Leave tab."
+    },
+    {
+      "id": "holidays",
+      "title": "Holidays",
+      "intro": "Holidays mark non-working or premium-pay calendar days for the venue.",
+      "steps": [
+        "Open the Holidays tab.",
+        "Add venue holidays for the year.",
+        "Holiday dates feed scheduling and pay-rule calculations when configured."
+      ],
+      "image": "hr-holidays.png",
+      "caption": "Holidays tab."
+    },
+    {
+      "id": "leave-form",
+      "title": "نموذج طلب الإجازة",
+      "intro": "يقدّم طلبات الإجازة حسب الأنواع الم configured.",
+      "steps": [
+        "الإجازات → إضافة طلب.",
+        "الموظف والنوع والتواريخ.",
+        "الأيام والسبب.",
+        "احفظ."
+      ],
+      "image": "hr-form-leave.png",
+      "caption": "نموذج طلب الإجازة.",
+      "fields": [
+        {
+          "name": "الموظف",
+          "effect": "طالب الإجازة."
+        },
+        {
+          "name": "نوع الإجازة",
+          "effect": "مدفوع/غير مدفوع والموافقة."
+        },
+        {
+          "name": "تاريخ البداية/النهاية",
+          "effect": "تواريخ شاملة."
+        },
+        {
+          "name": "الأيام",
+          "effect": "أيام العمل المستهلكة."
+        },
+        {
+          "name": "السبب",
+          "effect": "ملاحظة اختيارية."
+        }
+      ]
+    },
+    {
+      "id": "holiday-form",
+      "title": "نموذج العطلة الرسمية",
+      "intro": "يتفاعل مع قواعد الأجر والجدولة.",
+      "steps": [
+        "الإجازات → العطل.",
+        "الاسم والتاريخ ورمز الدولة.",
+        "متكرر إن كان سنوياً.",
+        "احفظ."
+      ],
+      "image": "hr-form-holiday.png",
+      "caption": "نموذج العطلة.",
+      "fields": [
+        {
+          "name": "الاسم",
+          "effect": "التسمية في التقويمات."
+        },
+        {
+          "name": "التاريخ",
+          "effect": "التاريخ المعتمد."
+        },
+        {
+          "name": "رمز الدولة",
+          "effect": "ISO اختياري."
+        },
+        {
+          "name": "متكرر",
+          "effect": "يتكرر سنوياً."
+        },
+        {
+          "name": "نشط",
+          "effect": "غير النشط يُ ignored في القواعد الجديدة."
+        }
+      ]
+    }
+  ]
+}

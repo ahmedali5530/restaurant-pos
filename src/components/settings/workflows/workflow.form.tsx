@@ -153,6 +153,7 @@ export const WorkflowForm = ({
 
   return (
     <Modal
+      testId="admin-form-workflow"
       title={data ? t('forms.updateWorkflow', { name: data?.name }) : t('forms.createWorkflow')}
       open={open}
       onClose={closeModal}

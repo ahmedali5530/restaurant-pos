@@ -1,0 +1,183 @@
+{
+  "title": "Menus, categories, and dishes",
+  "intro": "Configure what appears on the ordering screen: dishes, menu groupings, and categories.",
+  "sections": [
+    {
+      "id": "dishes",
+      "title": "Dishes",
+      "steps": [
+        "Open the Dishes tab.",
+        "Create or edit dishes with price, categories, modifiers, and recipes.",
+        "Import CSV files for bulk dish or ingredient updates when needed."
+      ],
+      "image": "admin-menus-dishes.png",
+      "caption": "Dishes tab."
+    },
+    {
+      "id": "menus",
+      "title": "Menus",
+      "intro": "Menus control which dishes are visible on each service period or channel.",
+      "steps": [
+        "Open the Menus tab.",
+        "Assign dishes to menus and set availability windows.",
+        "Save changes so floor staff see updated items on the Menu screen."
+      ],
+      "image": "admin-menus-menus.png",
+      "caption": "Menus tab."
+    },
+    {
+      "id": "categories",
+      "title": "Categories",
+      "steps": [
+        "Open the Categories tab.",
+        "Group dishes for navigation on the ordering screen.",
+        "Reorder categories to match how staff browse the menu."
+      ],
+      "image": "admin-menus-categories.png",
+      "caption": "Categories tab."
+    },
+    {
+      "id": "modifier-groups",
+      "title": "Modifier groups",
+      "intro": "Modifier groups define optional add-ons, sizes, and nested choices shown when staff customize a dish.",
+      "steps": [
+        "Open the Modifier groups tab.",
+        "Create groups with modifiers, prices, and optional next-group rules.",
+        "Assign groups to dishes so the cart shows the correct customization flow."
+      ],
+      "image": "admin-modifier-groups.png",
+      "caption": "Modifier groups tab."
+    },
+    {
+      "id": "dish-form",
+      "title": "Formulario de plato",
+      "intro": "Los platos son ítems vendibles con precio, categorías, modificadores, recetas y enrutamiento de cocina.",
+      "steps": [
+        "Abra Admin → Menús → Platos y agregue o edite.",
+        "Defina número, nombre, precio, costo y categorías.",
+        "Adjunte grupos de modificadores, receta, cocina y flujo.",
+        "Guarde — aparece en menús y POS cuando está activo."
+      ],
+      "image": "admin-menus-dish-form.png",
+      "caption": "Formulario de mantenimiento de plato.",
+      "fields": [
+        {
+          "name": "Número / nombre",
+          "effect": "Identificador POS y nombre mostrado."
+        },
+        {
+          "name": "Precio / costo",
+          "effect": "Precio de venta y costo teórico."
+        },
+        {
+          "name": "Categorías",
+          "effect": "Agrupación de menú y objetivo de descuentos."
+        },
+        {
+          "name": "Grupos de modificadores",
+          "effect": "Flujo de personalización con reglas oblig/opcional."
+        },
+        {
+          "name": "Líneas de receta",
+          "effect": "Depleción de inventario al vender."
+        },
+        {
+          "name": "Cocina / flujo",
+          "effect": "Enruta KOT e impresión y etapas de prep."
+        }
+      ]
+    },
+    {
+      "id": "menu-form",
+      "title": "Formulario de menú",
+      "intro": "Los menús limitan qué categorías aparecen en POS (p. ej., almuerzo vs. cena).",
+      "steps": [
+        "Abra pestaña Menús y agregue o edite.",
+        "Defina nombre y horarios inicio/fin opcionales.",
+        "Active y termina-al-día-siguiente para menús nocturnos.",
+        "Asigne categorías en la lista tras guardar."
+      ],
+      "image": "admin-menus-menu-form.png",
+      "caption": "Formulario de menú con horarios.",
+      "fields": [
+        {
+          "name": "Nombre",
+          "effect": "Etiqueta en conmutador POS."
+        },
+        {
+          "name": "Desde / hora fin",
+          "effect": "Ventana automática de disponibilidad."
+        },
+        {
+          "name": "Termina al día siguiente",
+          "effect": "Servicio pasada medianoche."
+        },
+        {
+          "name": "Activo",
+          "effect": "Menús inactivos ocultos en POS."
+        }
+      ]
+    },
+    {
+      "id": "category-form",
+      "title": "Formulario de categoría",
+      "steps": [
+        "Abra Categorías y agregue o edite.",
+        "Defina nombre, prioridad y mostrar-en-menú.",
+        "Guarde — asigne platos y vincule a menús."
+      ],
+      "image": "admin-menus-category-form.png",
+      "caption": "Formulario de categoría.",
+      "fields": [
+        {
+          "name": "Nombre",
+          "effect": "Encabezado de categoría en POS e informes."
+        },
+        {
+          "name": "Prioridad",
+          "effect": "Orden entre categorías hermanas."
+        },
+        {
+          "name": "Mostrar en menú",
+          "effect": "Si está off, oculta en vistas de menú al cliente."
+        }
+      ]
+    },
+    {
+      "id": "modifier-group-form",
+      "title": "Formulario de grupo de modificadores",
+      "intro": "Los grupos definen modificadores, precios y grupos siguientes anidados por elección.",
+      "steps": [
+        "Abra Grupos de modificadores y agregue o edite.",
+        "Defina nombre, prioridad y líneas con precios.",
+        "Configure grupos siguientes permitidos por modificador.",
+        "Use anulaciones para ocultar o repricing anidados.",
+        "Guarde y adjunte el grupo a platos."
+      ],
+      "image": "admin-menus-modifier-group-form.png",
+      "caption": "Formulario con grupos anidados.",
+      "fields": [
+        {
+          "name": "Nombre / prioridad",
+          "effect": "Etiqueta y orden cuando varios grupos en un plato."
+        },
+        {
+          "name": "Modificador",
+          "effect": "Opción seleccionable (a menudo plato como add-on)."
+        },
+        {
+          "name": "Precio",
+          "effect": "Cargo extra al elegir."
+        },
+        {
+          "name": "Grupos siguientes permitidos",
+          "effect": "Grupos que abren tras esta elección."
+        },
+        {
+          "name": "Anulaciones grupo siguiente",
+          "effect": "Por grupo anidado: ocultar o anular precio."
+        }
+      ]
+    }
+  ]
+}

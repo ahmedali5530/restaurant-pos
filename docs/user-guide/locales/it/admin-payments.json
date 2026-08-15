@@ -1,0 +1,196 @@
+{
+  "title": "Payment types, taxes, and order types",
+  "intro": "Configure how orders are classified and settled: payment methods, tax rules, and service types (dine-in, delivery, etc.).",
+  "sections": [
+    {
+      "id": "payment-types",
+      "title": "Payment types",
+      "steps": [
+        "Open the Payment types tab.",
+        "Define Cash, Card, and custom tenders shown on the payment screen.",
+        "Set sort order and whether a type requires reference or change calculation."
+      ],
+      "image": "admin-payments-types.png",
+      "caption": "Payment types tab."
+    },
+    {
+      "id": "taxes",
+      "title": "Taxes",
+      "intro": "Taxes apply to dishes and appear on receipts and reports.",
+      "steps": [
+        "Open the Taxes tab.",
+        "Create tax rates and link them to applicable items or order types.",
+        "Save so new orders calculate tax correctly."
+      ],
+      "image": "admin-payments-taxes.png",
+      "caption": "Taxes tab."
+    },
+    {
+      "id": "order-types",
+      "title": "Order types",
+      "steps": [
+        "Open the Order types tab.",
+        "Configure dine-in, takeaway, delivery, and other service modes.",
+        "Order types drive kitchen routing, reporting, and default behaviors."
+      ],
+      "image": "admin-payments-order-types.png",
+      "caption": "Order types tab."
+    },
+    {
+      "id": "extras",
+      "title": "Extras",
+      "intro": "Extras are automatic surcharges linked to payment types, order types, or tables (e.g. service fees or cover charges).",
+      "steps": [
+        "Open the Extras tab.",
+        "Create extras with name, amount, and applicability rules.",
+        "Save so qualifying orders include the surcharge on payment."
+      ],
+      "image": "admin-extras.png",
+      "caption": "Extras tab."
+    },
+    {
+      "id": "payment-type-form",
+      "title": "Modulo tipo pagamento",
+      "intro": "Locale e Remote Stripe, PayPal.",
+      "steps": [
+        "Admin → Pagamenti → Tipi.",
+        "Nome, priorità, tipo.",
+        "Remote: gateway, modalità, chiavi.",
+        "Salva."
+      ],
+      "image": "admin-payments-type-form.png",
+      "caption": "Modulo gateway remote.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Etichetta pulsanti."
+        },
+        {
+          "name": "Priorità",
+          "effect": "Ordine."
+        },
+        {
+          "name": "Tipo",
+          "effect": "Remote abilita gateway."
+        },
+        {
+          "name": "Provider gateway",
+          "effect": "Stripe, PayPal etc."
+        },
+        {
+          "name": "Modalità gateway",
+          "effect": "Test vs live."
+        },
+        {
+          "name": "public_key",
+          "effect": "Chiave pubblicabile client."
+        },
+        {
+          "name": "secret_key",
+          "effect": "Secret server."
+        },
+        {
+          "name": "webhook_secret",
+          "effect": "Valida callback."
+        },
+        {
+          "name": "client_id / client_secret",
+          "effect": "Gateway OAuth."
+        },
+        {
+          "name": "merchant_id / integrity_salt",
+          "effect": "Campi merchant."
+        },
+        {
+          "name": "Tassa",
+          "effect": "Regola fiscale default."
+        },
+        {
+          "name": "Sconti",
+          "effect": "Regole auto."
+        }
+      ]
+    },
+    {
+      "id": "tax-form",
+      "title": "Modulo tassa",
+      "steps": [
+        "Pagamenti → Tasse.",
+        "Nome, aliquota, inclusive/exclusive.",
+        "Salva."
+      ],
+      "image": "admin-payments-tax-form.png",
+      "caption": "Modulo tassa.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Etichetta scontrino."
+        },
+        {
+          "name": "Aliquota",
+          "effect": "Percentuale imponibile."
+        },
+        {
+          "name": "Inclusive",
+          "effect": "Se true, nel prezzo."
+        }
+      ]
+    },
+    {
+      "id": "order-type-form",
+      "title": "Modulo tipo ordine",
+      "steps": [
+        "Pagamenti → Tipi ordine.",
+        "Nome e flag.",
+        "Salva."
+      ],
+      "image": "admin-payments-order-type-form.png",
+      "caption": "Modulo tipo ordine.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Tipo su scontrini."
+        },
+        {
+          "name": "Priorità",
+          "effect": "Ordine selettori."
+        },
+        {
+          "name": "Default",
+          "effect": "Preselezionato nuovi ordini."
+        }
+      ]
+    },
+    {
+      "id": "extra-form",
+      "title": "Modulo extra (servizio)",
+      "intro": "Aggiunge maggiorazioni automatiche.",
+      "steps": [
+        "Pagamenti → Extra.",
+        "Nome e importo/tasso.",
+        "Regole applicazione.",
+        "Salva."
+      ],
+      "image": "admin-payments-extra-form.png",
+      "caption": "Modulo maggiorazione.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Etichetta scontrino."
+        },
+        {
+          "name": "Importo / tasso",
+          "effect": "Fisso o percentuale."
+        },
+        {
+          "name": "Tassabile",
+          "effect": "IVA su maggiorazione."
+        },
+        {
+          "name": "Regole auto apply",
+          "effect": "Tipi ordine/pagamento."
+        }
+      ]
+    }
+  ]
+}

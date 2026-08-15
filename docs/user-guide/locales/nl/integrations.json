@@ -1,0 +1,75 @@
+{
+  "title": "Integraties",
+  "intro": "Integraties verbinden POSR met externe boekhoud-, fiscale, logging- en voorraadproviders. Schakel in, configureer en monitor gezondheid en wachtrij.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Integraties openen",
+      "steps": [
+        "Log in met integratietoegang.",
+        "Tik op Integraties.",
+        "Opent op Providers."
+      ],
+      "image": "integrations-overview.png",
+      "caption": "Integratiescherm."
+    },
+    {
+      "id": "tabs",
+      "title": "Tabnavigatie",
+      "intro": "Tabs: lijst, configuratie, gezondheid en wachtrij.",
+      "steps": [
+        "Providers toont connectors.",
+        "Configuratie bewaart credentials.",
+        "Gezondheid en Wachtrij tonen status en jobs."
+      ],
+      "image": "integrations-tabs.png",
+      "caption": "Integraties tabbalk."
+    },
+    {
+      "id": "providers",
+      "title": "Providers",
+      "steps": [
+        "Bekijk elke kaart: naam, categorie, versie.",
+        "Schakel in of uit.",
+        "Tik op Configureren."
+      ],
+      "image": "integrations-providers.png",
+      "caption": "Providerslijst."
+    },
+    {
+      "id": "configuration",
+      "title": "Configuratie",
+      "intro": "Geheimhouding en mapping van de provider.",
+      "steps": [
+        "Selecteer een provider.",
+        "Vul verplichte velden in.",
+        "Verbind of start initiële sync."
+      ],
+      "image": "integrations-configuration.png",
+      "caption": "Configuratiepaneel."
+    },
+    {
+      "id": "health",
+      "title": "Gezondheid",
+      "steps": [
+        "Open Gezondheid voor status.",
+        "Gezonde providers sturen events.",
+        "Vernieuwt bij openen of inschakelen."
+      ],
+      "image": "integrations-health.png",
+      "caption": "Gezondheidspaneel."
+    },
+    {
+      "id": "queue",
+      "title": "Wachtrij",
+      "intro": "Uitgaande jobs naar externe systemen.",
+      "steps": [
+        "Open Wachtrij voor openstaande of mislukte jobs.",
+        "Jobs updaten met tab open.",
+        "Mislukte jobs lossen op na config-fix."
+      ],
+      "image": "integrations-queue.png",
+      "caption": "Wachtrijpaneel."
+    }
+  ]
+}

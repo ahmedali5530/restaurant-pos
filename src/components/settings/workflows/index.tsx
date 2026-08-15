@@ -101,7 +101,7 @@ export const AdminWorkflows = () => {
               module: 'admin.workflows.create',
               description: getAccessRuleChildLabel('admin.workflows.create'),
             });
-          }} icon={faPlus}>{t('buttons.workflow')}</Button>
+          }} icon={faPlus} data-testid="admin-add-workflows">{t('buttons.workflow')}</Button>
         ]}
       />
 

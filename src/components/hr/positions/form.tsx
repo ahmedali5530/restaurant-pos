@@ -118,7 +118,7 @@ export const PositionForm = ({open, onClose, data}: Props) => {
 
   return (
     <>
-      <Modal title={data ? t("forms.position.update") : t("forms.position.create")} open={open} onClose={closeModal} size="lg">
+      <Modal title={data ? t("forms.position.update") : t("forms.position.create")} testId="hr-form-position" open={open} onClose={closeModal} size="lg">
         <form onSubmit={handleSubmit(onSubmit)}>
           {/*<input type="hidden" {...register("id")} />*/}
           <div className="flex flex-col gap-3 mb-3">

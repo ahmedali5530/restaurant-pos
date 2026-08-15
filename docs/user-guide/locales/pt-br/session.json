@@ -1,0 +1,75 @@
+{
+  "title": "Bloqueio, logout e relógio",
+  "intro": "Base da barra: bloquear, sair, relógio e Configurações. Idle na segurança da sessão.",
+  "sections": [
+    {
+      "id": "controls",
+      "title": "Controles de sessão",
+      "steps": [
+        "Chave: Configurações.",
+        "Usuário: Relógio.",
+        "Cadeado: bloquear.",
+        "Energia: sair."
+      ],
+      "image": "session-sidebar-controls.png",
+      "caption": "Settings, clock, lock, and logout on the sidebar."
+    },
+    {
+      "id": "lock",
+      "title": "Bloquear terminal",
+      "steps": [
+        "Toque Bloquear.",
+        "Banner bloqueado.",
+        "Desbloqueie com o mesmo PIN/senha."
+      ],
+      "image": "session-locked.png",
+      "caption": "System locked banner on login.",
+      "intro": "Pausas curtas; só o mesmo usuário desbloqueia."
+    },
+    {
+      "id": "clock",
+      "title": "Tela de relógio",
+      "steps": [
+        "Abra o Relógio.",
+        "Precisa de ponto aberto.",
+        "Revise vendas e hora de entrada."
+      ],
+      "image": "session-clock.png",
+      "caption": "Clock screen overview.",
+      "intro": "Ponto, turno, tempo decorrido e métricas."
+    },
+    {
+      "id": "clock-detail",
+      "title": "Usuário, turno e saída",
+      "steps": [
+        "Usuário e turno.",
+        "Tempo decorrido.",
+        "Saída só no fim do turno."
+      ],
+      "image": "session-clock-detail.png",
+      "caption": "Session panel with Clock Out."
+    },
+    {
+      "id": "clock-sales",
+      "title": "Resumo de vendas da sessão",
+      "steps": [
+        "Métricas da sessão.",
+        "Confira antes de sair."
+      ],
+      "image": "session-clock-sales.png",
+      "caption": "Sale summary metrics."
+    },
+    {
+      "id": "idle",
+      "title": "Bloqueio ou logout por ociosidade",
+      "steps": [
+        "Configurações → Segurança da sessão.",
+        "Minutos ociosos e ação.",
+        "Salvar."
+      ],
+      "image": "session-idle-settings.png",
+      "caption": "Session security card.",
+      "intro": "Configurações → Segurança da sessão."
+    }
+  ]
+}

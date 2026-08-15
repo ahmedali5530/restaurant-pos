@@ -1,0 +1,157 @@
+{
+  "title": "Employees",
+  "intro": "Maintain employee records and the organizational structure: departments and positions.",
+  "sections": [
+    {
+      "id": "employees",
+      "title": "Employee list",
+      "steps": [
+        "Open the Employees tab.",
+        "Add or edit employees with role, department, and contact details.",
+        "Employee records feed attendance, leave, and payroll tabs."
+      ],
+      "image": "hr-employees-list.png",
+      "caption": "Employees tab."
+    },
+    {
+      "id": "departments",
+      "title": "Departments",
+      "intro": "Departments group staff for reporting and cost allocation.",
+      "steps": [
+        "Open the Departments tab.",
+        "Create departments that match how the venue organizes teams.",
+        "Assign employees to departments on their employee form."
+      ],
+      "image": "hr-employees-departments.png",
+      "caption": "Departments tab."
+    },
+    {
+      "id": "positions",
+      "title": "Positions",
+      "steps": [
+        "Open the Positions tab.",
+        "Define job titles used on employee records and schedules.",
+        "Keep positions aligned with pay profiles when payroll is enabled."
+      ],
+      "image": "hr-employees-positions.png",
+      "caption": "Positions tab."
+    },
+    {
+      "id": "employee-form",
+      "title": "Employee form",
+      "intro": "Core HR record linking POS user, org structure, and employment dates.",
+      "steps": [
+        "From Employees tab click Add or edit a row.",
+        "Complete employee number, name, and employment details.",
+        "Link POS user, department, position, cost center, and manager.",
+        "Save — record feeds attendance, leave, and payroll."
+      ],
+      "image": "hr-form-employee.png",
+      "caption": "Employee create/edit modal.",
+      "fields": [
+        {
+          "name": "Employee number",
+          "effect": "Unique staff identifier on schedules and exports."
+        },
+        {
+          "name": "First / last name",
+          "effect": "Legal or preferred name on HR documents."
+        },
+        {
+          "name": "Linked user",
+          "effect": "Optional POS login tied to this employee for clock-in."
+        },
+        {
+          "name": "Department",
+          "effect": "Organizational unit for reporting."
+        },
+        {
+          "name": "Position",
+          "effect": "Job title used on schedules and pay rules."
+        },
+        {
+          "name": "Cost center",
+          "effect": "Default labor cost allocation."
+        },
+        {
+          "name": "Manager",
+          "effect": "Reporting line for approvals."
+        },
+        {
+          "name": "Employment status",
+          "effect": "Active, inactive, terminated, on leave, or suspended."
+        },
+        {
+          "name": "Employment type",
+          "effect": "Hourly, salary, contract, etc. — aligns with pay profiles."
+        },
+        {
+          "name": "Hire / termination date",
+          "effect": "Service dates for tenure and eligibility."
+        }
+      ]
+    },
+    {
+      "id": "department-form",
+      "title": "Department form",
+      "steps": [
+        "From Departments or inline Add on employee form.",
+        "Enter code, name, and description.",
+        "Save — department appears on employees and positions."
+      ],
+      "image": "hr-form-department.png",
+      "caption": "Department form.",
+      "fields": [
+        {
+          "name": "Code",
+          "effect": "Short identifier for integrations."
+        },
+        {
+          "name": "Name",
+          "effect": "Display name in dropdowns."
+        },
+        {
+          "name": "Description",
+          "effect": "Optional admin notes."
+        },
+        {
+          "name": "Is active",
+          "effect": "Inactive departments are hidden from new assignments."
+        }
+      ]
+    },
+    {
+      "id": "position-form",
+      "title": "Position form",
+      "steps": [
+        "From Positions or inline Add on employee form.",
+        "Define code, name, department, and default cost center.",
+        "Save — position is selectable on employees and schedules."
+      ],
+      "image": "hr-form-position.png",
+      "caption": "Position form.",
+      "fields": [
+        {
+          "name": "Code",
+          "effect": "Job code for payroll exports."
+        },
+        {
+          "name": "Name",
+          "effect": "Job title shown in HR and scheduling."
+        },
+        {
+          "name": "Department",
+          "effect": "Default org unit for this role."
+        },
+        {
+          "name": "Default cost center",
+          "effect": "Pre-filled on schedules for this position."
+        },
+        {
+          "name": "Is active",
+          "effect": "Retire titles no longer hired against."
+        }
+      ]
+    }
+  ]
+}

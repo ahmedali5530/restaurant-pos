@@ -1,0 +1,40 @@
+{
+  "title": "HR overzicht",
+  "intro": "HR dekt personeel: medewerkers, aanwezigheid, verlof, roosters en payroll.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "HR openen",
+      "steps": [
+        "Log in met HR-toegang.",
+        "Tik op HR.",
+        "Opent op Dashboard."
+      ],
+      "image": "hr-overview.png",
+      "caption": "HR-scherm."
+    },
+    {
+      "id": "tabs",
+      "title": "Tabnavigatie",
+      "intro": "Tabs groeperen setup en processen.",
+      "steps": [
+        "Scroll horizontaal.",
+        "Mensen: Medewerkers, Afdelingen, Functies.",
+        "Tijd: Aanwezigheid, Rooster, Verlof, Feestdagen."
+      ],
+      "image": "hr-tabs.png",
+      "caption": "HR tabbalk."
+    },
+    {
+      "id": "dashboard",
+      "title": "Dashboard",
+      "steps": [
+        "Vat HR-metrics samen.",
+        "Startpunt voor detailtabs.",
+        "Andere tabs beheren data en transacties."
+      ],
+      "image": "hr-dashboard.png",
+      "caption": "HR-dashboard."
+    }
+  ]
+}

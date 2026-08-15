@@ -1,0 +1,17 @@
+{
+  "title": "Afval",
+  "intro": "Registreer bederf en andere verliezen voor accurate rapporten.",
+  "sections": [
+    {
+      "id": "list",
+      "title": "Afvaldocumenten",
+      "steps": [
+        "Open Afval.",
+        "Maak document met locatie, reden en hoeveelheden.",
+        "Opslaan vermindert voorraad en boekt kosten."
+      ],
+      "image": "inventory-wastes-list.png",
+      "caption": "Lijst afval."
+    }
+  ]
+}

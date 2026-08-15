@@ -1,0 +1,29 @@
+{
+  "title": "Zählungen und Transfers",
+  "intro": "Physische Zählungen per Anpassungen abstimmen und Bestand zwischen Standorten bewegen.",
+  "sections": [
+    {
+      "id": "adjustments",
+      "title": "Anpassungen (Zählungen)",
+      "steps": [
+        "Tab Anpassungen öffnen.",
+        "Gezählte Mengen eingeben.",
+        "Einreichen, genehmigen und buchen laut Rolle."
+      ],
+      "image": "inventory-counts-adjustments.png",
+      "caption": "Anpassungsliste."
+    },
+    {
+      "id": "transfers",
+      "title": "Bestandstransfers",
+      "intro": "Bestand verschieben ohne Unternehmensgesamtmenge zu ändern.",
+      "steps": [
+        "Tab Bestandstransfers öffnen.",
+        "Quelle, Ziel und Positionen wählen.",
+        "Speichern aktualisiert die Mengen."
+      ],
+      "image": "inventory-counts-transfers.png",
+      "caption": "Tab Transfers."
+    }
+  ]
+}

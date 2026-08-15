@@ -106,7 +106,7 @@ export const AdminOrderTypes = () => {
               module: 'admin.order_types.create',
               description: getAccessRuleChildLabel('admin.order_types.create'),
             });
-          }} icon={faPlus}>{t('buttons.orderType')}</Button>
+          }} icon={faPlus} data-testid="admin-add-order_types">{t('buttons.orderType')}</Button>
         ]}
       />
 

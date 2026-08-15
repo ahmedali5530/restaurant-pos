@@ -1,0 +1,17 @@
+{
+  "title": "Verluste",
+  "intro": "Verderb und andere Verluste für genaue Berichte erfassen.",
+  "sections": [
+    {
+      "id": "list",
+      "title": "Verlustbelege",
+      "steps": [
+        "Tab Verluste öffnen.",
+        "Beleg mit Standort, Grund und Mengen erstellen.",
+        "Speichern mindert Bestand und bucht Kosten."
+      ],
+      "image": "inventory-wastes-list.png",
+      "caption": "Verlustliste."
+    }
+  ]
+}

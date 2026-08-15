@@ -1,0 +1,246 @@
+{
+  "title": "Instellingen",
+  "intro": "Apparaat- en locatievoorkeuren staan onder Instellingen. Open ze met het sleutel-icoon onderaan de linker zijbalk na inloggen. Sommige kaarten gelden alleen voor deze browser; andere zijn globaal en kunnen een manager-PIN vragen bij opslaan.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Instellingen openen",
+      "steps": [
+        "Meld u aan met een gebruiker die Instellingen mag openen.",
+        "Tik in de linker zijbalk op de sleutelknop.",
+        "De pagina toont configuratiekaarten in meerdere kolommen."
+      ],
+      "image": "settings-nav.png",
+      "caption": "Sleutel om Instellingen te openen (gemarkeerd)."
+    },
+    {
+      "id": "overview",
+      "title": "Overzicht",
+      "intro": "Elke kaart regelt één gebied. Zichtbaarheid kan van rechten afhangen.",
+      "steps": [
+        "Scroll om de gewenste kaart te vinden.",
+        "Wijzig waarden en sla op als er Opslaan staat.",
+        "Sommige kaarten zijn apparaatgebonden; andere globaal of gebruikersgebonden."
+      ],
+      "image": "settings-overview.png",
+      "caption": "Instellingenpagina met kaarten."
+    },
+    {
+      "id": "whats-new",
+      "title": "Wat is nieuw",
+      "steps": [
+        "Open Wat is nieuw voor de laatste releasedatum.",
+        "Tik Openen om release notes opnieuw te tonen."
+      ],
+      "image": "settings-whats-new.png",
+      "caption": "Wat is nieuw — release notes opnieuw openen."
+    },
+    {
+      "id": "cache",
+      "title": "Cache",
+      "steps": [
+        "Open Cache als menu’s of gegevens verouderd lijken.",
+        "Tik Cache herladen om de catalogus te verversen."
+      ],
+      "image": "settings-cache.png",
+      "caption": "Cache herladen."
+    },
+    {
+      "id": "language",
+      "title": "Taal en tekstrichting",
+      "steps": [
+        "Open de Taal-kaart.",
+        "Kies de weergavetaal.",
+        "Kies LTR of RTL indien nodig.",
+        "Geldt meteen op dit terminal."
+      ],
+      "image": "settings-language.png",
+      "caption": "Taal en richting."
+    },
+    {
+      "id": "translate-receipts",
+      "title": "Bonnen vertalen",
+      "intro": "Indien ingeschakeld volgt bontekst waar mogelijk de terminaltaal.",
+      "steps": [
+        "Open de kaart.",
+        "Schakel Ingeschakeld om.",
+        "Opslaan (mogelijk managergoedkeuring)."
+      ],
+      "image": "settings-translate-receipts.png",
+      "caption": "Bonnen vertalen."
+    },
+    {
+      "id": "printers",
+      "title": "Standaardprinters",
+      "steps": [
+        "Open Standaardprinters.",
+        "Schakel desgewenst systeemprinters in.",
+        "Wijs printers toe voor temp, final, refund, bezorging en samenvatting.",
+        "Opslaan."
+      ],
+      "image": "settings-printers.png",
+      "caption": "Standaardprinters."
+    },
+    {
+      "id": "print-options",
+      "title": "Afdrukopties",
+      "steps": [
+        "Open Afdrukopties.",
+        "Stel kopieën per type in.",
+        "Max. temp/final-pogingen per order (0 = onbeperkt).",
+        "Opslaan."
+      ],
+      "image": "settings-print-options.png",
+      "caption": "Kopieën en pogingen."
+    },
+    {
+      "id": "menus",
+      "title": "Actieve menu’s",
+      "intro": "Kies welke menu’s dit apparaat mag verkopen. Alleen geselecteerde menu’s verschijnen bij bestellen.",
+      "steps": [
+        "Open Menu’s.",
+        "Selecteer een of meer menu’s.",
+        "Opslaan (mogelijk managergoedkeuring)."
+      ],
+      "image": "settings-menus.png",
+      "caption": "Beschikbare menu’s."
+    },
+    {
+      "id": "service-charges",
+      "title": "Servicekosten",
+      "intro": "Standaard servicekosten bij betaling (procent of vast).",
+      "steps": [
+        "Open de kaart.",
+        "Kies type en waarde.",
+        "Opslaan (mogelijk managergoedkeuring)."
+      ],
+      "image": "settings-service-charges.png",
+      "caption": "Servicekosten."
+    },
+    {
+      "id": "closing-cycle",
+      "title": "Afsluitcyclus",
+      "intro": "Bedrijfsdagvenster voor afsluitingen (bijv. over middernacht).",
+      "steps": [
+        "Open de kaart.",
+        "Schakel de cyclus in of uit.",
+        "Stel start- en eindtijd in.",
+        "Opslaan (mogelijk managergoedkeuring)."
+      ],
+      "image": "settings-closing-cycle.png",
+      "caption": "Tijdvenster afsluitcyclus."
+    },
+    {
+      "id": "auto-check-close",
+      "title": "Auto rekeningen sluiten",
+      "intro": "Sluit open rekeningen automatisch aan het eind van de cyclus met een standaardbetaalwijze.",
+      "steps": [
+        "Open de kaart.",
+        "Schakel in en kies of er wordt geprint.",
+        "Kies de betaalwijze.",
+        "Opslaan (mogelijk managergoedkeuring)."
+      ],
+      "image": "settings-auto-check-close.png",
+      "caption": "Auto rekeningen sluiten."
+    },
+    {
+      "id": "session-security",
+      "title": "Sessiebeveiliging",
+      "steps": [
+        "Open de kaart.",
+        "Schakel idle-bescherming in voor vergrendelen of uitloggen.",
+        "Stel minuten en actie in.",
+        "Opslaan (mogelijk managergoedkeuring)."
+      ],
+      "image": "settings-session-security.png",
+      "caption": "Idle vergrendelen/uitloggen."
+    },
+    {
+      "id": "auto-clock-out",
+      "title": "Auto uitklokken",
+      "intro": "Klokt personeel automatisch uit aan het einde van de shift en/of op een vaste tijd.",
+      "steps": [
+        "Open de kaart.",
+        "Schakel in.",
+        "Kies triggers: einde shift, vaste tijd of beide.",
+        "Bij vaste tijd: stel de tijd in.",
+        "Opslaan (mogelijk managergoedkeuring)."
+      ],
+      "image": "settings-auto-clock-out.png",
+      "caption": "Triggers auto uitklokken."
+    },
+    {
+      "id": "show-inclusive-prices",
+      "title": "Prijs incl. btw tonen",
+      "intro": "Toont waar mogelijk prijzen inclusief belasting.",
+      "steps": [
+        "Open de kaart.",
+        "Schakel in of uit.",
+        "Opslaan (mogelijk managergoedkeuring)."
+      ],
+      "image": "settings-show-inclusive-prices.png",
+      "caption": "Prijs incl. btw."
+    },
+    {
+      "id": "currency-symbol",
+      "title": "Valutasymbool",
+      "intro": "Toon het valutasymbool in de UI en/of op bonnen.",
+      "steps": [
+        "Open de kaart.",
+        "Schakel UI en/of bonnen om.",
+        "Opslaan (mogelijk managergoedkeuring)."
+      ],
+      "image": "settings-currency-symbol.png",
+      "caption": "Valutasymbool UI en bonnen."
+    },
+    {
+      "id": "touch",
+      "title": "Schermtoetsenbord",
+      "steps": [
+        "Open de kaart.",
+        "Schakel het virtuele toetsenbord in of uit."
+      ],
+      "image": "settings-touch.png",
+      "caption": "Schermtoetsenbord."
+    },
+    {
+      "id": "table-selection",
+      "title": "Tafelkeuze",
+      "intro": "Indien ingeschakeld kiest personeel een tafel vóór bestellen. Indien uit, wordt de plattegrond op dit terminal verborgen.",
+      "steps": [
+        "Open de kaart.",
+        "Schakel in of uit met de knop.",
+        "Geldt meteen."
+      ],
+      "image": "settings-table-selection.png",
+      "caption": "Tafelkeuze toon/verberg.",
+      "note": "Documentatiecapture vereist ingeschakelde tafelkeuze."
+    },
+    {
+      "id": "inventory",
+      "title": "Voorraadinstellingen",
+      "intro": "Globaal voorraadgedrag: ledger, batch/houdbaarheid, kostprijs, inkopen.",
+      "steps": [
+        "Open de kaart.",
+        "Stel opties in.",
+        "Kies kostmethode en toewijzing/belasting.",
+        "Opslaan (mogelijk managergoedkeuring)."
+      ],
+      "image": "settings-inventory.png",
+      "caption": "Voorraadconfiguratie."
+    },
+    {
+      "id": "items-visibility",
+      "title": "Itemzichtbaarheid",
+      "intro": "Weergaveopties voor menuzoeken, winkelwagentotalen en orderkaarten op dit apparaat.",
+      "steps": [
+        "Open de kaart.",
+        "Menu: zoeken en artikelnrs.",
+        "Winkelwagen: totalen.",
+        "Orders: totalen en velden."
+      ],
+      "image": "settings-items-visibility.png",
+      "caption": "Zichtbaarheid menu, winkelwagen, orders."
+    }
+  ]
+}

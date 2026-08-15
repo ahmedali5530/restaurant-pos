@@ -215,6 +215,7 @@ export const PrintForm = ({
   return (
     <>
       <Modal
+        testId="admin-form-print-setting"
         title={data ? t('forms.updatePrintSettings', { key: data?.key }) : t('forms.createPrintSettings')}
         open={open}
         onClose={closeModal}

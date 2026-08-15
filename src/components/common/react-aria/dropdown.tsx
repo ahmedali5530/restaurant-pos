@@ -20,13 +20,21 @@ interface DropdownProps<T>
 }
 
 export function Dropdown<T extends object>(
-  { label, children, btnSize, btnFlat, btnIconButton, ...props }: DropdownProps<T>
+  { label, children, btnSize, btnFlat, btnIconButton, ...props }: DropdownProps<T> & { 'data-testid'?: string }
 ) {
+  const testId = (props as { 'data-testid'?: string })['data-testid'];
+  const { ['data-testid']: _omit, ...menuProps } = props as MenuProps<T> & { 'data-testid'?: string };
   return (
-    <MenuTrigger {...props}>
-      <Button className={cn('btn btn-primary', props.className)} size={btnSize} flat={btnFlat} iconButton={btnIconButton}>{label}</Button>
+    <MenuTrigger {...menuProps}>
+      <Button
+        className={cn('btn btn-primary', (props as { className?: string }).className)}
+        size={btnSize}
+        flat={btnFlat}
+        iconButton={btnIconButton}
+        data-testid={testId}
+      >{label}</Button>
       <Popover className="bg-white p-1 shadow-xl rounded-lg border">
-        <Menu {...props}>
+        <Menu {...menuProps}>
           {children}
         </Menu>
       </Popover>

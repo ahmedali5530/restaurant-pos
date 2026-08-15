@@ -1,0 +1,29 @@
+{
+  "title": "Carrello",
+  "intro": "Il carrello contiene gli articoli del posto o dell’ordine. Da qui in cucina o al pagamento.",
+  "sections": [
+    {
+      "id": "panel",
+      "title": "Pannello carrello",
+      "intro": "Righe nuove e già inviate.",
+      "steps": [
+        "Nuove in alto; inviate sotto il separatore.",
+        "Tocca una riga per le azioni.",
+        "Usa i posti per dividere."
+      ],
+      "image": "cart-panel.png",
+      "caption": "Carrello."
+    },
+    {
+      "id": "actions",
+      "title": "Cucina, Paga, Annulla",
+      "steps": [
+        "In cucina salva e invia.",
+        "Paga ora apre il pagamento (capitolo Pagamento).",
+        "Annulla rimuove le righe nuove."
+      ],
+      "image": "cart-payment-actions.png",
+      "caption": "Pulsanti azione."
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "title": "Distribución de propinas",
+  "intro": "Calcula cómo repartir propinas del turno según pesos y guarda el registro oficial. Los gerentes usan la misma pantalla desde la barra lateral.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Pantalla de distribución",
+      "steps": [
+        "Pulse Distribución de propinas en la barra lateral.",
+        "Seleccione turno y fecha.",
+        "Cargar propinas calcula totales de órdenes pagadas."
+      ],
+      "image": "tips-overview.png",
+      "caption": "Pantalla de distribución de propinas."
+    },
+    {
+      "id": "filters",
+      "title": "Turno y fecha",
+      "steps": [
+        "Elija el turno.",
+        "Elija la fecha (no futura).",
+        "Pulse Cargar propinas."
+      ],
+      "image": "tips-filters.png",
+      "caption": "Turno, fecha y cargar."
+    },
+    {
+      "id": "table",
+      "title": "Tabla de distribución",
+      "steps": [
+        "Total de propinas muestra el monto del turno.",
+        "Cada fila: usuario, rol, peso y parte.",
+        "Enviar guarda tras revisar."
+      ],
+      "image": "tips-table.png",
+      "caption": "Totales y tabla por usuario."
+    }
+  ]
+}

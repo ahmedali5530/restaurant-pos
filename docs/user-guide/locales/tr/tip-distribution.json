@@ -1,0 +1,39 @@
+{
+  "title": "Bahşiş dağıtımı",
+  "intro": "Vardiya bahşişlerini ağırlıklara göre bölüştürür ve kaydı saklar.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Dağıtım ekranı",
+      "steps": [
+        "Yan menüde Bahşiş dağıtımı'na dokunun.",
+        "Vardiya ve tarih seçin.",
+        "Bahşişleri yükle toplamları hesaplar."
+      ],
+      "image": "tips-overview.png",
+      "caption": "Bahşiş dağıtım ekranı."
+    },
+    {
+      "id": "filters",
+      "title": "Vardiya ve tarih",
+      "steps": [
+        "Vardiyayı seçin.",
+        "Tarihi seçin (gelecek olamaz).",
+        "Bahşişleri yükle'ye dokunun."
+      ],
+      "image": "tips-filters.png",
+      "caption": "Vardiya, tarih ve yükle."
+    },
+    {
+      "id": "table",
+      "title": "Dağıtım tablosu",
+      "steps": [
+        "Toplam bahşiş vardiya tutarını gösterir.",
+        "Her satır: kullanıcı, rol, ağırlık ve pay.",
+        "Gönder kaydı saklar."
+      ],
+      "image": "tips-table.png",
+      "caption": "Toplamlar ve kullanıcı tablosu."
+    }
+  ]
+}

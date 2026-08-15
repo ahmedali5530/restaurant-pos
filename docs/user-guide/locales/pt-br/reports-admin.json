@@ -1,0 +1,75 @@
+{
+  "title": "Hub de relatórios (pacotes de administrador)",
+  "intro": "Administradores usam o mesmo hub de Relatórios, com pacotes mais profundos: estoque, mão de obra, produtos e impostos.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Layout de relatórios do administrador",
+      "steps": [
+        "Toque em Relatórios na barra lateral.",
+        "Categorias incluem Estoque, Mão de obra, Produtos e Vendas.",
+        "A coluna do meio lista relatórios; o painel direito tem filtros."
+      ],
+      "image": "reports-admin-overview.png",
+      "caption": "Hub de relatórios para pacotes de administrador."
+    },
+    {
+      "id": "inventory",
+      "title": "Pacote Estoque",
+      "intro": "Cobre saldo, compras, saídas, perdas, consumo, produção e buffet.",
+      "steps": [
+        "Selecione Estoque.",
+        "Escolha Estoque atual ou Compras.",
+        "Defina local e datas e execute."
+      ],
+      "image": "reports-admin-inventory.png",
+      "caption": "Pacote de relatórios de estoque."
+    },
+    {
+      "id": "inventory-filters",
+      "title": "Filtros de estoque",
+      "steps": [
+        "Após escolher o relatório, o painel mostra filtros.",
+        "Ajuste datas, locais ou itens.",
+        "Execute ou exporte quando os filtros responderem."
+      ],
+      "image": "reports-admin-inventory-filters.png",
+      "caption": "Painel de filtros de estoque."
+    },
+    {
+      "id": "labor",
+      "title": "Pacote Mão de obra",
+      "intro": "Resume custo, hora extra, ponto, folha e planejado vs real.",
+      "steps": [
+        "Selecione Mão de obra.",
+        "Abra Painel ou Custo diário.",
+        "Use Ponto ou Resumo da folha para detalhe."
+      ],
+      "image": "reports-admin-labor.png",
+      "caption": "Pacote de relatórios de mão de obra."
+    },
+    {
+      "id": "products",
+      "title": "Pacote Produtos",
+      "steps": [
+        "Selecione Produtos.",
+        "Use mix semanal ou resumo.",
+        "Produtos por hora mostra velocidade."
+      ],
+      "image": "reports-admin-products.png",
+      "caption": "Pacote de relatórios de produtos."
+    },
+    {
+      "id": "tax",
+      "title": "Filtros de impostos",
+      "intro": "Impostos fica em Vendas; use para reconciliar impostos cobrados.",
+      "steps": [
+        "Abra Vendas e depois Impostos.",
+        "Defina o período.",
+        "Execute para auditoria."
+      ],
+      "image": "reports-admin-tax-filters.png",
+      "caption": "Painel de filtros de impostos."
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "title": "Floors and tables",
+  "intro": "Floors and tables define the dine-in layout used when staff select a table before taking orders.",
+  "sections": [
+    {
+      "id": "floors",
+      "title": "Floors",
+      "steps": [
+        "Open the Floors tab.",
+        "Create floor plans for each dining area (e.g. Main, Patio).",
+        "Floors appear on the table-selection step when floor mode is enabled."
+      ],
+      "image": "admin-floors-floors.png",
+      "caption": "Floors tab."
+    },
+    {
+      "id": "tables",
+      "title": "Tables",
+      "intro": "Each table belongs to a floor and carries a name or number used on checks and kitchen tickets.",
+      "steps": [
+        "Open the Tables tab.",
+        "Add tables with capacity and floor assignment.",
+        "Edit or deactivate tables when the floor plan changes."
+      ],
+      "image": "admin-floors-tables.png",
+      "caption": "Tables tab."
+    },
+    {
+      "id": "floor-form",
+      "title": "Formulário piso",
+      "steps": [
+        "Admin → Pisos.",
+        "Nome, prioridade, cores.",
+        "Salvar."
+      ],
+      "image": "admin-floors-floor-form.png",
+      "caption": "Formulário piso.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Rótulo seletor piso."
+        },
+        {
+          "name": "Prioridade",
+          "effect": "Ordem lista."
+        },
+        {
+          "name": "Fundo / cor",
+          "effect": "Estilo padrão plano."
+        }
+      ]
+    },
+    {
+      "id": "table-form",
+      "title": "Formulário mesa",
+      "intro": "Pertence a piso; pode restringir categorias e pagamentos.",
+      "steps": [
+        "Selecione piso.",
+        "Número, nome, cores.",
+        "Restrições opcionais.",
+        "Pedir couvert.",
+        "Salvar."
+      ],
+      "image": "admin-floors-table-form.png",
+      "caption": "Formulário mesa.",
+      "fields": [
+        {
+          "name": "Nome / número",
+          "effect": "Rótulo plano."
+        },
+        {
+          "name": "Piso",
+          "effect": "Plano pai."
+        },
+        {
+          "name": "Prioridade",
+          "effect": "Ordem."
+        },
+        {
+          "name": "Categorias / tipos pedido / pagamento",
+          "effect": "Restrições."
+        },
+        {
+          "name": "Pedir couvert",
+          "effect": "Solicita comensais."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "title": "Menús y sesiones de buffet",
+  "intro": "Planifique recetas por comensal y ejecute sesiones con pronóstico, seguimiento de invitados y cierre con merma y costo.",
+  "sections": [
+    {
+      "id": "buffet-menus",
+      "title": "Menús de buffet",
+      "steps": [
+        "Abra Inventario → Buffet → Menús.",
+        "Mantenga plantillas de menú para desayuno, almuerzo o cena.",
+        "Cada menú lista recetas con cantidades por comensal."
+      ],
+      "image": "inventory-buffet-menus.png",
+      "caption": "Lista de menús de buffet.",
+      "fields": []
+    },
+    {
+      "id": "buffet-menu-form",
+      "title": "Formulario de menú de buffet",
+      "steps": [
+        "Agregue o edite un menú de buffet.",
+        "Defina tipo de sesión y líneas de receta con cantidad por comensal.",
+        "Guarde menús activos para abrir sesiones."
+      ],
+      "image": "inventory-buffet-menu-form.png",
+      "caption": "Formulario de menú de buffet.",
+      "fields": [
+        {
+          "name": "Nombre",
+          "effect": "Etiqueta al iniciar una sesión."
+        },
+        {
+          "name": "Código",
+          "effect": "Abreviatura opcional de cocina."
+        },
+        {
+          "name": "Tipo de sesión",
+          "effect": "Desayuno, almuerzo o cena — filtra sesiones compatibles."
+        },
+        {
+          "name": "Líneas de receta",
+          "effect": "Receta y cantidad esperada por comensal."
+        },
+        {
+          "name": "Está activo",
+          "effect": "Solo menús activos aparecen al configurar sesiones."
+        }
+      ]
+    },
+    {
+      "id": "buffet-sessions",
+      "title": "Sesiones de buffet",
+      "steps": [
+        "Abra Buffet → Sesiones.",
+        "Inicie una sesión desde un menú con invitados esperados y precio.",
+        "Monitoree producción vs. pronóstico durante el servicio.",
+        "Cierre la sesión para registrar merma, sobrantes y costo final."
+      ],
+      "image": "inventory-buffet-sessions.png",
+      "caption": "Panel de sesiones de buffet.",
+      "fields": []
+    },
+    {
+      "id": "buffet-session-form",
+      "title": "Iniciar sesión de buffet",
+      "steps": [
+        "Haga clic en Nueva sesión.",
+        "Elija menú, ubicación, fecha operativa y tipo de sesión.",
+        "Ingrese invitados esperados y precio de buffet por comensal.",
+        "Guarde para abrir el panel en vivo."
+      ],
+      "image": "inventory-buffet-session-form.png",
+      "caption": "Formulario de nueva sesión de buffet.",
+      "fields": [
+        {
+          "name": "Menú",
+          "effect": "Carga líneas de receta y pronósticos por comensal."
+        },
+        {
+          "name": "Ubicación",
+          "effect": "Almacén que recibe movimientos de inventario."
+        },
+        {
+          "name": "Fecha operativa",
+          "effect": "Día comercial atribuido a la sesión."
+        },
+        {
+          "name": "Tipo de sesión",
+          "effect": "Debe coincidir con el período del menú."
+        },
+        {
+          "name": "Invitados esperados",
+          "effect": "Impulsa pronósticos iniciales por receta."
+        },
+        {
+          "name": "Precio buffet",
+          "effect": "Ingreso por comensal en informes de sesión."
+        }
+      ]
+    }
+  ]
+}

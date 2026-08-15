@@ -1,0 +1,29 @@
+{
+  "title": "Journal entries and account groups",
+  "intro": "Post financial transactions with journal entries, and organize the chart using account groups. Day-to-day cash expenses at closing are separate from these GL journals.",
+  "sections": [
+    {
+      "id": "journal",
+      "title": "Journal entries",
+      "steps": [
+        "Open the Journal entries tab.",
+        "Create balanced debit/credit lines for the transaction.",
+        "Save to post into the general ledger (approval rules may apply)."
+      ],
+      "image": "accounts-journal.png",
+      "caption": "Journal entries tab."
+    },
+    {
+      "id": "groups",
+      "title": "Account groups",
+      "intro": "Groups help organize accounts for statements and reporting rollups.",
+      "steps": [
+        "Open the Account groups tab.",
+        "Create groups that match your reporting structure.",
+        "Assign accounts to groups from the chart or group forms."
+      ],
+      "image": "accounts-groups.png",
+      "caption": "Account groups tab."
+    }
+  ]
+}

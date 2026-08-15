@@ -1,0 +1,48 @@
+{
+  "title": "Cost centers",
+  "intro": "Cost centers tag labor and payroll to venues, departments, or GL segments for reporting.",
+  "sections": [
+    {
+      "id": "cost-centers",
+      "title": "Cost center list",
+      "steps": [
+        "Open HR → Cost centers.",
+        "Review codes used on employees, positions, and schedules.",
+        "Add or edit centers before assigning them on employee records."
+      ],
+      "image": "hr-cost-centers-list.png",
+      "caption": "Cost centers tab.",
+      "fields": []
+    },
+    {
+      "id": "cost-center-form",
+      "title": "Cost center form",
+      "steps": [
+        "Click Add or edit a row.",
+        "Enter code, name, and optional description.",
+        "Toggle active to retire a center without deleting history.",
+        "Save — the center appears on employee and scheduling forms."
+      ],
+      "image": "hr-form-cost-center.png",
+      "caption": "Cost center create/edit modal.",
+      "fields": [
+        {
+          "name": "Code",
+          "effect": "Short unique identifier used in exports and integrations."
+        },
+        {
+          "name": "Name",
+          "effect": "Human-readable label in dropdowns."
+        },
+        {
+          "name": "Description",
+          "effect": "Optional notes for administrators."
+        },
+        {
+          "name": "Is active",
+          "effect": "Inactive centers cannot be selected on new records."
+        }
+      ]
+    }
+  ]
+}

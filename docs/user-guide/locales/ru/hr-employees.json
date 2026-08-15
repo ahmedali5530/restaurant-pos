@@ -1,0 +1,157 @@
+{
+  "title": "Employees",
+  "intro": "Maintain employee records and the organizational structure: departments and positions.",
+  "sections": [
+    {
+      "id": "employees",
+      "title": "Employee list",
+      "steps": [
+        "Open the Employees tab.",
+        "Add or edit employees with role, department, and contact details.",
+        "Employee records feed attendance, leave, and payroll tabs."
+      ],
+      "image": "hr-employees-list.png",
+      "caption": "Employees tab."
+    },
+    {
+      "id": "departments",
+      "title": "Departments",
+      "intro": "Departments group staff for reporting and cost allocation.",
+      "steps": [
+        "Open the Departments tab.",
+        "Create departments that match how the venue organizes teams.",
+        "Assign employees to departments on their employee form."
+      ],
+      "image": "hr-employees-departments.png",
+      "caption": "Departments tab."
+    },
+    {
+      "id": "positions",
+      "title": "Positions",
+      "steps": [
+        "Open the Positions tab.",
+        "Define job titles used on employee records and schedules.",
+        "Keep positions aligned with pay profiles when payroll is enabled."
+      ],
+      "image": "hr-employees-positions.png",
+      "caption": "Positions tab."
+    },
+    {
+      "id": "employee-form",
+      "title": "Форма сотрудника",
+      "intro": "HR-запись с POS-пользователем и оргструктурой.",
+      "steps": [
+        "Сотрудники → Добавить/изменить.",
+        "Номер, имя, детали.",
+        "Связать POS, отдел, должность.",
+        "Сохранить."
+      ],
+      "image": "hr-form-employee.png",
+      "caption": "Модальное окно сотрудника.",
+      "fields": [
+        {
+          "name": "Номер сотрудника",
+          "effect": "Уникальный id в расписаниях."
+        },
+        {
+          "name": "Имя / фамилия",
+          "effect": "Юридическое или предпочитаемое имя."
+        },
+        {
+          "name": "Связанный пользователь",
+          "effect": "Необяз. POS login."
+        },
+        {
+          "name": "Отдел",
+          "effect": "Org unit."
+        },
+        {
+          "name": "Должность",
+          "effect": "Title в расписаниях."
+        },
+        {
+          "name": "Центр затрат",
+          "effect": "Default allocation труда."
+        },
+        {
+          "name": "Менеджер",
+          "effect": "Линия approvals."
+        },
+        {
+          "name": "Статус employment",
+          "effect": "Active, inactive, terminated, on leave или suspended."
+        },
+        {
+          "name": "Тип employment",
+          "effect": "Hourly, salary, contract и т.д."
+        },
+        {
+          "name": "Дата найма / увольнения",
+          "effect": "Tenure и eligibility."
+        }
+      ]
+    },
+    {
+      "id": "department-form",
+      "title": "Форма отдела",
+      "steps": [
+        "Отделы или inline.",
+        "Код, имя, описание.",
+        "Сохранить."
+      ],
+      "image": "hr-form-department.png",
+      "caption": "Форма отдела.",
+      "fields": [
+        {
+          "name": "Код",
+          "effect": "Короткий id для интеграций."
+        },
+        {
+          "name": "Имя",
+          "effect": "Отображаемое имя."
+        },
+        {
+          "name": "Описание",
+          "effect": "Необяз. заметки."
+        },
+        {
+          "name": "Активен",
+          "effect": "Неактивные скрыты в новых назначениях."
+        }
+      ]
+    },
+    {
+      "id": "position-form",
+      "title": "Форма должности",
+      "steps": [
+        "Должности или inline.",
+        "Код, имя, отдел, центр затрат.",
+        "Сохранить."
+      ],
+      "image": "hr-form-position.png",
+      "caption": "Форма должности.",
+      "fields": [
+        {
+          "name": "Код",
+          "effect": "Job code для payroll export."
+        },
+        {
+          "name": "Имя",
+          "effect": "Title в HR и расписаниях."
+        },
+        {
+          "name": "Отдел",
+          "effect": "Default org unit."
+        },
+        {
+          "name": "Default cost center",
+          "effect": "Prefill в расписаниях."
+        },
+        {
+          "name": "Активен",
+          "effect": "Retire неиспользуемые titles."
+        }
+      ]
+    }
+  ]
+}

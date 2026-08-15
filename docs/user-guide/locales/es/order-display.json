@@ -1,0 +1,40 @@
+{
+  "title": "Pantalla de pedidos",
+  "intro": "Pantalla para clientes: en preparación y listos para recoger. Los filtros controlan estados y tipos de orden.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Diseño de pantalla",
+      "steps": [
+        "Pulse Pantalla de pedidos en la barra lateral.",
+        "La barra superior tiene filtros.",
+        "El área principal divide En preparación y Listo para recoger."
+      ],
+      "image": "order-display-overview.png",
+      "caption": "Pantalla con columnas preparación y listo."
+    },
+    {
+      "id": "filters",
+      "title": "Filtros",
+      "steps": [
+        "Filtro de estado es multiselección (por defecto En progreso).",
+        "Filtro de tipo de orden limita servicios.",
+        "Alternar barra lateral muestra u oculta la navegación."
+      ],
+      "image": "order-display-filters.png",
+      "caption": "Filtros de estado y tipo."
+    },
+    {
+      "id": "boards",
+      "title": "Mosaicos preparación y listo",
+      "intro": "Las órdenes pasan a Listo cuando cocina completa el flujo.",
+      "steps": [
+        "Preparación muestra órdenes en cocina.",
+        "Listo muestra órdenes esperando recogida.",
+        "Cada mosaico muestra número y datos clave."
+      ],
+      "image": "order-display-boards.png",
+      "caption": "Grillas de mosaicos."
+    }
+  ]
+}

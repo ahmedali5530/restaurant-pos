@@ -95,6 +95,7 @@ export const BuffetMenus = () => {
             variant="primary"
             onClick={() => setFormModal(true)}
             icon={faPlus}
+            data-testid="inventory-add-buffet-menus"
           >
             {t("buffet.createMenu")}
           </Button>,

@@ -1,0 +1,41 @@
+{
+  "title": "Visão geral do Gerenciar",
+  "intro": "Gerenciar é o hub de configuração. Mantenha pratos, cardápios, andares, usuários, impostos, descontos, cozinhas e impressoras.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Abrir Gerenciar",
+      "steps": [
+        "Entre com um usuário com acesso de administrador.",
+        "Toque em Gerenciar na barra lateral.",
+        "A tela abre na aba Pratos por padrão."
+      ],
+      "image": "admin-overview.png",
+      "caption": "Tela Gerenciar com abas e painel."
+    },
+    {
+      "id": "tabs",
+      "title": "Navegação por abas",
+      "intro": "As abas agrupam configurações relacionadas. Trocar de aba pode exigir PIN de gerente.",
+      "steps": [
+        "Role a barra de abas.",
+        "Abas cobrem menus, salão, promoções, cozinha, impressão, pagamentos e usuários.",
+        "Cada aba abre sua tabela.",
+        "A aba selecionada usa o gradiente principal."
+      ],
+      "image": "admin-tabs.png",
+      "caption": "Barra de abas do Gerenciar."
+    },
+    {
+      "id": "dishes",
+      "title": "Aba Pratos (padrão)",
+      "steps": [
+        "Pratos lista itens vendáveis com número, nome e preço.",
+        "Use Adicionar, Editar, Importar ou ações em lote se permitido.",
+        "Busca e paginação ajudam em cardápios grandes."
+      ],
+      "image": "admin-dishes.png",
+      "caption": "Tabela de manutenção de pratos."
+    }
+  ]
+}

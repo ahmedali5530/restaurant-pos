@@ -1,0 +1,75 @@
+{
+  "title": "Hub rapports (packs administrateur)",
+  "intro": "Les administrateurs utilisent le même hub Rapports, avec des packs plus profonds : inventaire, main-d'œuvre, produits et taxes.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Mise en page rapports administrateur",
+      "steps": [
+        "Appuyez sur Rapports.",
+        "Catégories : Inventaire, Main-d'œuvre, Produits, Ventes.",
+        "La colonne du milieu liste les rapports ; le panneau droit les filtres."
+      ],
+      "image": "reports-admin-overview.png",
+      "caption": "Hub rapports pour packs administrateur."
+    },
+    {
+      "id": "inventory",
+      "title": "Pack Inventaire",
+      "intro": "Couvre stock, achats, sorties, pertes, consommation, production et buffet.",
+      "steps": [
+        "Sélectionnez Inventaire.",
+        "Choisissez Stock actuel ou Achats.",
+        "Réglez lieu et dates puis lancez."
+      ],
+      "image": "reports-admin-inventory.png",
+      "caption": "Pack rapports inventaire."
+    },
+    {
+      "id": "inventory-filters",
+      "title": "Filtres inventaire",
+      "steps": [
+        "Après choix du rapport, le panneau affiche les filtres.",
+        "Ajustez dates, lieux ou articles.",
+        "Lancez ou exportez selon le besoin."
+      ],
+      "image": "reports-admin-inventory-filters.png",
+      "caption": "Panneau filtres inventaire."
+    },
+    {
+      "id": "labor",
+      "title": "Pack Main-d'œuvre",
+      "intro": "Résume coût, heures supp., présence, paie et prévu vs réel.",
+      "steps": [
+        "Sélectionnez Main-d'œuvre.",
+        "Ouvrez Tableau de bord ou Coût journalier.",
+        "Utilisez Présence ou Résumé paie pour le détail."
+      ],
+      "image": "reports-admin-labor.png",
+      "caption": "Pack rapports main-d'œuvre."
+    },
+    {
+      "id": "products",
+      "title": "Pack Produits",
+      "steps": [
+        "Sélectionnez Produits.",
+        "Utilisez mix hebdo ou résumé.",
+        "Produits horaires montre la vitesse."
+      ],
+      "image": "reports-admin-products.png",
+      "caption": "Pack rapports produits."
+    },
+    {
+      "id": "tax",
+      "title": "Filtres taxes",
+      "intro": "Taxes est sous Ventes ; sert à réconcilier les taxes collectées.",
+      "steps": [
+        "Ouvrez Ventes puis Taxes.",
+        "Définissez la période.",
+        "Lancez pour audit."
+      ],
+      "image": "reports-admin-tax-filters.png",
+      "caption": "Panneau filtres taxes."
+    }
+  ]
+}

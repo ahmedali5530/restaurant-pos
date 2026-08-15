@@ -1,0 +1,123 @@
+{
+  "title": "Recettes et production",
+  "intro": "Définissez des recettes par lot, lancez la production et consultez l'historique.",
+  "sections": [
+    {
+      "id": "recipes",
+      "title": "Liste des recettes",
+      "steps": [
+        "Inventaire → Recettes.",
+        "Parcourez recettes actives.",
+        "Ajoutez ou modifiez recettes."
+      ],
+      "image": "inventory-recipes.png",
+      "caption": "Onglet maintenance recettes.",
+      "fields": []
+    },
+    {
+      "id": "recipe-form",
+      "title": "Formulaire recette",
+      "intro": "Définit entrées, rendements et allocation des coûts.",
+      "steps": [
+        "Ajouter ou modifier recette.",
+        "Nom, code et qty lot de base.",
+        "Lignes entrée et sortie.",
+        "Enregistrer."
+      ],
+      "image": "inventory-recipe-form.png",
+      "caption": "Formulaire entrées/sorties.",
+      "fields": [
+        {
+          "name": "Nom",
+          "effect": "Nom affiché en production."
+        },
+        {
+          "name": "Code",
+          "effect": "Code court optionnel."
+        },
+        {
+          "name": "Qty lot base",
+          "effect": "Taille standard du lot."
+        },
+        {
+          "name": "Allocation coût",
+          "effect": "Répartition coût entrées."
+        },
+        {
+          "name": "Entrées",
+          "effect": "Articles consommés par lot."
+        },
+        {
+          "name": "Sorties",
+          "effect": "Articles produits avec rendement %."
+        },
+        {
+          "name": "Actif",
+          "effect": "Inactives masquées des nouveaux lots."
+        }
+      ]
+    },
+    {
+      "id": "production",
+      "title": "Exécutions production",
+      "steps": [
+        "Onglet Production.",
+        "Nouveau lot depuis recette active.",
+        "Aperçu puis terminer."
+      ],
+      "image": "inventory-production.png",
+      "caption": "Onglet Production.",
+      "fields": []
+    },
+    {
+      "id": "production-form",
+      "title": "Formulaire lot production",
+      "intro": "À la complétion, déduit entrées et ajoute sorties au site.",
+      "steps": [
+        "Nouvelle production.",
+        "Recette, emplacement, qty.",
+        "Aperçu puis terminer."
+      ],
+      "image": "inventory-production-form.png",
+      "caption": "Formulaire avec aperçu.",
+      "fields": [
+        {
+          "name": "Recette",
+          "effect": "Définit ingrédients et sorties."
+        },
+        {
+          "name": "Emplacement",
+          "effect": "Stock consommé/produit."
+        },
+        {
+          "name": "Qty produite",
+          "effect": "Met à l'échelle depuis lot base."
+        },
+        {
+          "name": "N° lot",
+          "effect": "Référence optionnelle."
+        },
+        {
+          "name": "MAJ coût article",
+          "effect": "Recalcule coût sortie."
+        },
+        {
+          "name": "Notes",
+          "effect": "Note libre."
+        }
+      ]
+    },
+    {
+      "id": "production-history",
+      "title": "Historique production",
+      "steps": [
+        "Auditez lots terminés.",
+        "Filtrez date/recette/site.",
+        "Ouvrez ligne pour détails."
+      ],
+      "image": "inventory-production-history.png",
+      "caption": "Liste historique.",
+      "fields": []
+    }
+  ]
+}

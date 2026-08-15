@@ -1,0 +1,211 @@
+{
+  "title": "Attendance",
+  "intro": "Track clock times and build schedules so labor hours stay accurate for payroll and reporting.",
+  "sections": [
+    {
+      "id": "attendance",
+      "title": "Attendance records",
+      "steps": [
+        "Open the Attendance tab.",
+        "Review clock-in and clock-out events for staff.",
+        "Correct or approve exceptions when your role allows."
+      ],
+      "image": "hr-attendance.png",
+      "caption": "Attendance tab."
+    },
+    {
+      "id": "scheduling",
+      "title": "Scheduling",
+      "intro": "Schedules plan who works which shifts.",
+      "steps": [
+        "Open the Scheduling tab.",
+        "Build or adjust shifts for upcoming days.",
+        "Published schedules guide floor staffing and attendance expectations."
+      ],
+      "image": "hr-scheduling.png",
+      "caption": "Scheduling tab."
+    },
+    {
+      "id": "attendance-form",
+      "title": "Ручной ввод attendance",
+      "intro": "Исправляет пропущенные punches или дополняет время.",
+      "steps": [
+        "Attendance → Manual entry.",
+        "Сотрудник и clock in/out.",
+        "Notes и сохранить."
+      ],
+      "image": "hr-form-attendance.png",
+      "caption": "Модальное окно manual attendance.",
+      "fields": [
+        {
+          "name": "Сотрудник",
+          "effect": "Чей record создаётся."
+        },
+        {
+          "name": "Clock in",
+          "effect": "Начало интервала."
+        },
+        {
+          "name": "Clock out",
+          "effect": "Конец после clock in."
+        },
+        {
+          "name": "Примечания",
+          "effect": "Причина manual entry."
+        }
+      ]
+    },
+    {
+      "id": "schedule-form",
+      "title": "Форма work schedule",
+      "intro": "Именованный диапазон дат с draft или published shifts.",
+      "steps": [
+        "Scheduling → add schedule.",
+        "Name, period start/end.",
+        "Add shifts or generate from template."
+      ],
+      "image": "hr-form-schedule.png",
+      "caption": "Форма work schedule.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Метка периода (напр. Week 12)."
+        },
+        {
+          "name": "Period start",
+          "effect": "Первый datetime."
+        },
+        {
+          "name": "Period end",
+          "effect": "Последний datetime."
+        }
+      ]
+    },
+    {
+      "id": "shift-form",
+      "title": "Форма запланированной смены",
+      "intro": "Назначает сотрудника на блок времени в черновом расписании.",
+      "steps": [
+        "В черновике нажмите Добавить смену.",
+        "Выберите расписание, сотрудника и время начала/окончания.",
+        "Опционально шаблон смены, отдел, должность и центр затрат.",
+        "Сохраните — предупреждает о конфликтах."
+      ],
+      "image": "hr-form-shift.png",
+      "caption": "Форма запланированной смены.",
+      "fields": [
+        {
+          "name": "Рабочее расписание",
+          "effect": "Родительское расписание должно быть черновиком."
+        },
+        {
+          "name": "Сотрудник",
+          "effect": "Персонал, назначенный на смену."
+        },
+        {
+          "name": "Шаблон смены",
+          "effect": "Опциональный preset из Admin → Users → Shifts."
+        },
+        {
+          "name": "Отдел / должность / центр затрат",
+          "effect": "Переопределение org-тегов для этой смены."
+        },
+        {
+          "name": "Начало / окончание",
+          "effect": "Запланированное окно времени."
+        }
+      ]
+    },
+    {
+      "id": "schedule-template",
+      "title": "Форма schedule template",
+      "intro": "Reusable weekly pattern.",
+      "steps": [
+        "Scheduling → Templates.",
+        "Name and weekdays/times.",
+        "Shift template optional.",
+        "Save."
+      ],
+      "image": "hr-form-schedule-template.png",
+      "caption": "Schedule template form.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Label in generate dialog."
+        },
+        {
+          "name": "Days of week",
+          "effect": "Weekdays with shifts."
+        },
+        {
+          "name": "Start / end time",
+          "effect": "Daily window."
+        },
+        {
+          "name": "Break minutes",
+          "effect": "Unpaid break subtracted."
+        },
+        {
+          "name": "Shift template",
+          "effect": "Links POS shift definition."
+        }
+      ]
+    },
+    {
+      "id": "schedule-generate",
+      "title": "Generate schedule from template",
+      "steps": [
+        "Scheduling → Generate.",
+        "Draft schedule and template.",
+        "Multi-select employees.",
+        "Generate."
+      ],
+      "image": "hr-form-schedule-generate.png",
+      "caption": "Generate schedule dialog.",
+      "fields": [
+        {
+          "name": "Work schedule",
+          "effect": "Target draft."
+        },
+        {
+          "name": "Template",
+          "effect": "Weekly pattern."
+        },
+        {
+          "name": "Employees",
+          "effect": "Staff receiving template shifts."
+        }
+      ]
+    },
+    {
+      "id": "schedule-swap",
+      "title": "Shift swap request",
+      "steps": [
+        "Scheduling → Request swap.",
+        "Scheduled shift and requester.",
+        "Target employee optional.",
+        "Submit."
+      ],
+      "image": "hr-form-schedule-swap.png",
+      "caption": "Shift swap form.",
+      "fields": [
+        {
+          "name": "Scheduled shift",
+          "effect": "Shift to give up/exchange."
+        },
+        {
+          "name": "Requesting employee",
+          "effect": "Initiates swap."
+        },
+        {
+          "name": "Target employee",
+          "effect": "Optional coworker."
+        },
+        {
+          "name": "Proposed shift",
+          "effect": "Optional counter-shift."
+        }
+      ]
+    }
+  ]
+}

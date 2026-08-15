@@ -1,0 +1,17 @@
+{
+  "title": "Pertes",
+  "intro": "Enregistrez détérioration et autres pertes pour des rapports exacts.",
+  "sections": [
+    {
+      "id": "list",
+      "title": "Documents de perte",
+      "steps": [
+        "Ouvrez Pertes.",
+        "Créez un document avec emplacement, motif et quantités.",
+        "Enregistrer réduit le stock et poste le coût."
+      ],
+      "image": "inventory-wastes-list.png",
+      "caption": "Liste des pertes."
+    }
+  ]
+}

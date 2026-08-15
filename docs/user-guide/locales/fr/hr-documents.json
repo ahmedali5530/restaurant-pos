@@ -1,0 +1,52 @@
+{
+  "title": "Documents employé",
+  "intro": "Stockez contrats, pièces d'identité et licences avec échéances.",
+  "sections": [
+    {
+      "id": "documents",
+      "title": "Liste documents",
+      "steps": [
+        "RH → Documents.",
+        "Filtrez employé/catégorie.",
+        "Téléversez ou mettez à jour."
+      ],
+      "image": "hr-documents-list.png",
+      "caption": "Onglet documents employé.",
+      "fields": []
+    },
+    {
+      "id": "document-form",
+      "title": "Formulaire document",
+      "steps": [
+        "Ajouter document.",
+        "Employé, titre, catégorie.",
+        "Joindre fichier et expiration.",
+        "Enregistrer."
+      ],
+      "image": "hr-form-document.png",
+      "caption": "Formulaire upload document.",
+      "fields": [
+        {
+          "name": "Employé",
+          "effect": "Propriétaire du dossier."
+        },
+        {
+          "name": "Titre",
+          "effect": "Nom affiché."
+        },
+        {
+          "name": "Catégorie",
+          "effect": "Contrat, certificat, licence, ID, médical, avertissement ou autre."
+        },
+        {
+          "name": "Expire le",
+          "effect": "Date optionnelle alertes."
+        },
+        {
+          "name": "Joindre fichier",
+          "effect": "Obligatoire à la création."
+        }
+      ]
+    }
+  ]
+}

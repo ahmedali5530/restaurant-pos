@@ -1,0 +1,99 @@
+{
+  "title": "Leave",
+  "intro": "Manage time-off requests and public holidays that affect schedules and payroll.",
+  "sections": [
+    {
+      "id": "leave",
+      "title": "Leave requests",
+      "steps": [
+        "Open the Leave tab.",
+        "Review pending and approved leave for employees.",
+        "Approve or reject requests according to your HR role."
+      ],
+      "image": "hr-leave.png",
+      "caption": "Leave tab."
+    },
+    {
+      "id": "holidays",
+      "title": "Holidays",
+      "intro": "Holidays mark non-working or premium-pay calendar days for the venue.",
+      "steps": [
+        "Open the Holidays tab.",
+        "Add venue holidays for the year.",
+        "Holiday dates feed scheduling and pay-rule calculations when configured."
+      ],
+      "image": "hr-holidays.png",
+      "caption": "Holidays tab."
+    },
+    {
+      "id": "leave-form",
+      "title": "Verlofaanvraagformulier",
+      "intro": "Dient verlofaanvragen in per type.",
+      "steps": [
+        "Verlof → Toevoegen.",
+        "Medewerker, type, datums.",
+        "Dagen en reden.",
+        "Opslaan."
+      ],
+      "image": "hr-form-leave.png",
+      "caption": "Verlofformulier.",
+      "fields": [
+        {
+          "name": "Medewerker",
+          "effect": "Aanvrager."
+        },
+        {
+          "name": "Verloftype",
+          "effect": "Betaald/onbetaald en goedkeuring."
+        },
+        {
+          "name": "Start/eind datum",
+          "effect": "Inclusieve datums."
+        },
+        {
+          "name": "Dagen",
+          "effect": "Werkdagen verbruikt."
+        },
+        {
+          "name": "Reden",
+          "effect": "Optionele notitie."
+        }
+      ]
+    },
+    {
+      "id": "holiday-form",
+      "title": "Feestdagformulier",
+      "intro": "Werkt met salarisregels en planning.",
+      "steps": [
+        "Verlof → Feestdagen.",
+        "Naam, datum, land.",
+        "Terugkerend indien jaarlijks.",
+        "Opslaan."
+      ],
+      "image": "hr-form-holiday.png",
+      "caption": "Feestdagformulier.",
+      "fields": [
+        {
+          "name": "Naam",
+          "effect": "Label kalenders."
+        },
+        {
+          "name": "Datum",
+          "effect": "Geobserveerde datum."
+        },
+        {
+          "name": "Landcode",
+          "effect": "Optionele ISO."
+        },
+        {
+          "name": "Terugkerend",
+          "effect": "Jaarlijks herhaald."
+        },
+        {
+          "name": "Actief",
+          "effect": "Inactief genegeerd door nieuwe regels."
+        }
+      ]
+    }
+  ]
+}

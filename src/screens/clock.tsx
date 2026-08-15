@@ -321,14 +321,14 @@ export const Clock = () => {
     <Layout containerClassName="p-5">
       <DocumentTitle parts={[tNav('sidebar.clock')]} />
       {/* Sale Summary Widgets */}
-      <div className="bg-white p-5 rounded-lg shadow">
+      <div className="bg-white p-5 rounded-lg shadow" data-testid="clock-page">
         <h2 className="text-2xl font-bold mb-4 text-neutral-700">{t("summary:clock.saleSummary")}</h2>
         {ordersLoading ? (
           <div className="flex justify-center items-center py-8">
             <p className="text-neutral-500">{t("summary:clock.loadingSaleData")}</p>
           </div>
         ) : (
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4" data-testid="clock-sale-summary">
           {/* Total Sales Widget */}
           <div className="bg-gradient-to-br from-success-100 to-success-200 p-2 rounded-lg border border-success-300">
             <p className="text-sm text-success-700 font-medium mb-1">{t("summary:clock.metrics.totalSales")}</p>
@@ -380,7 +380,7 @@ export const Clock = () => {
         )}
       </div>
 
-      <div className="bg-white shadow p-5 rounded-lg mt-5">
+      <div className="bg-white shadow p-5 rounded-lg mt-5" data-testid="clock-session">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="p-4 rounded-full bg-primary-100">
@@ -393,7 +393,7 @@ export const Clock = () => {
           </div>
           {user && (
             <div className="flex w-full flex-col gap-3 sm:w-auto sm:max-w-2xl sm:flex-row">
-              <div className="flex min-w-0 flex-1 items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3">
+              <div className="flex min-w-0 flex-1 items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3" data-testid="clock-user-card">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-neutral-200 text-neutral-600">
                   <FontAwesomeIcon icon={faUser} className="text-lg" />
                 </div>
@@ -406,7 +406,7 @@ export const Clock = () => {
                 </div>
               </div>
               {resolvedShift && (
-                <div className="flex min-w-0 flex-1 items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3">
+                <div className="flex min-w-0 flex-1 items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3" data-testid="clock-shift-card">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary-100 text-primary-700">
                     <FontAwesomeIcon icon={faBriefcase} className="text-lg" />
                   </div>
@@ -425,7 +425,7 @@ export const Clock = () => {
         </div>
 
         <div className="space-y-6">
-          <div className="bg-neutral-50 p-6 rounded-lg">
+          <div className="bg-neutral-50 p-6 rounded-lg" data-testid="clock-in-time">
             <div className="mb-4">
               <p className="text-sm text-neutral-500 mb-1">{t("summary:clock.clockInTime")}</p>
               <p className="text-2xl font-bold">{formattedClockInTime}</p>
@@ -433,7 +433,7 @@ export const Clock = () => {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-primary-50 to-primary-100 p-8 rounded-lg text-center">
+          <div className="bg-gradient-to-br from-primary-50 to-primary-100 p-8 rounded-lg text-center" data-testid="clock-elapsed">
             <p className="text-sm text-neutral-600 mb-2">{t("summary:clock.timeElapsed")}</p>
             <div className="text-5xl font-bold text-primary-700 mb-2">
               <Countdown time={clockInDate} showAll={true} />
@@ -447,6 +447,7 @@ export const Clock = () => {
               onClick={handleClockOut}
               size="xl"
               icon={faClock}
+              data-testid="clock-out"
             >
               {t("summary:clock.clockOut")}
             </Button>

@@ -1,0 +1,74 @@
+{
+  "title": "Mesas e salão",
+  "intro": "O atendimento no salão começa no mapa: piso, mesa, coberturas e pedido.",
+  "sections": [
+    {
+      "id": "floor",
+      "title": "Mapa do piso",
+      "steps": [
+        "Abra Menu (modo piso ativo).",
+        "O mapa mostra mesas do piso ativo.",
+        "Ocupadas ou bloqueadas podem parecer diferentes."
+      ],
+      "image": "tables-floor.png",
+      "caption": "Mapa com mesas."
+    },
+    {
+      "id": "switcher",
+      "title": "Trocar piso",
+      "intro": "Várias áreas usam botões na base.",
+      "steps": [
+        "Toque em um piso.",
+        "O ativo fica destacado.",
+        "Cada piso pode ter layout próprio."
+      ],
+      "image": "tables-floor-switcher.png",
+      "caption": "Botões de piso."
+    },
+    {
+      "id": "table",
+      "title": "Selecionar mesa",
+      "steps": [
+        "Toque numa mesa livre.",
+        "Bloqueada pode pedir aprovação.",
+        "Segue para coberturas e pedido."
+      ],
+      "image": "tables-table-tile.png",
+      "caption": "Tile da mesa."
+    },
+    {
+      "id": "covers",
+      "title": "Coberturas",
+      "intro": "Quando exigido, informe o número de convidados.",
+      "steps": [
+        "Use o teclado numérico.",
+        "Toque OK.",
+        "Coberturas podem aparecer em contas e cozinha."
+      ],
+      "image": "tables-covers.png",
+      "caption": "Tela de coberturas."
+    },
+    {
+      "id": "active",
+      "title": "Mesa ativa no menu",
+      "steps": [
+        "O cabeçalho mostra a mesa ativa.",
+        "Use controles se permitido.",
+        "Pedidos ficam ligados à mesa."
+      ],
+      "image": "tables-active-table.png",
+      "caption": "Indicador de mesa ativa."
+    },
+    {
+      "id": "back",
+      "title": "Voltar ao mapa",
+      "steps": [
+        "Toque no controle de voltar/piso.",
+        "Volta ao mapa.",
+        "Contas abertas ficam em Pedidos."
+      ],
+      "image": "tables-back-floor.png",
+      "caption": "Controle voltar."
+    }
+  ]
+}

@@ -32,7 +32,7 @@ export const Settings = () => {
     <Layout containerClassName="p-5">
       <DocumentTitle parts={[tNav('sidebar.settings')]} />
       {/* Columns must not sit on the max-height Layout pane or content is clipped to the viewport. */}
-      <div className="columns-1 md:columns-2 lg:columns-3 gap-5">
+      <div className="columns-1 md:columns-2 lg:columns-3 gap-5" data-testid="settings-page">
         <MasonryItem><WhatsNewSettingsCard /></MasonryItem>
         <MasonryItem><CacheSettings /></MasonryItem>
         <MasonryItem><LanguageSettings /></MasonryItem>

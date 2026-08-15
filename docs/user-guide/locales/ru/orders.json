@@ -1,0 +1,202 @@
+{
+  "title": "Orders",
+  "intro": "The Orders screen lists open and recent checks so you can pay, print, split, merge, cancel, or refund without returning to the floor plan.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Orders layout",
+      "intro": "Open Orders from the left sidebar. Filters sit at the top; order cards (or table rows) fill the main area.",
+      "steps": [
+        "Tap Orders in the sidebar.",
+        "Use filters to narrow by status, order type, floor, user, and date.",
+        "Switch between Blocks and Table views with the toolbar buttons."
+      ],
+      "image": "orders-overview.png",
+      "caption": "Orders screen with filters and cards."
+    },
+    {
+      "id": "filters",
+      "title": "Filters",
+      "steps": [
+        "Status: In Progress, Paid, Cancelled, Split, Merged (multi-select).",
+        "Order type, floor, and user filters limit who and where.",
+        "The date picker shows paid/historical checks for that day; In Progress still appears when relevant."
+      ],
+      "image": "orders-filters.png",
+      "caption": "Orders filter bar."
+    },
+    {
+      "id": "toolbar",
+      "title": "Toolbar",
+      "steps": [
+        "Open cash drawer pulses the cash drawer when printing and permissions allow it (may require manager PIN).",
+        "Blocks shows large order cards.",
+        "Table shows a compact list (tap an In Progress row to pay)."
+      ],
+      "image": "orders-toolbar.png",
+      "caption": "Cash drawer and view toggles."
+    },
+    {
+      "id": "card",
+      "title": "Order card",
+      "intro": "Each card shows header, times, line items, totals, and action buttons for In Progress checks.",
+      "steps": [
+        "Review invoice number, table, status, server, and items.",
+        "Temp bill (print) and Pay (card icon) appear for In Progress orders.",
+        "Use the ⋯ menu for cancel, split, merge, and kitchen print."
+      ],
+      "image": "orders-card.png",
+      "caption": "Order card with items and actions."
+    },
+    {
+      "id": "card-actions",
+      "title": "Card actions",
+      "steps": [
+        "Temp bill prints a provisional check when allowed.",
+        "Pay opens the full payment screen for that order.",
+        "⋯ opens more actions (see next section)."
+      ],
+      "image": "orders-card-actions.png",
+      "caption": "Print, Pay, and more on a card."
+    },
+    {
+      "id": "menu",
+      "title": "More menu (In Progress)",
+      "intro": "Protected actions may ask for a manager PIN.",
+      "steps": [
+        "Cancel order voids the check through the cancel flow.",
+        "Split by seats, items, or amount divides one check into multiple.",
+        "Merge selects this order for multi-table merge (finish with Choose table on the bottom bar).",
+        "Print KOT copy re-fires kitchen tickets when needed."
+      ],
+      "image": "orders-card-menu.png",
+      "caption": "Order more-actions menu."
+    },
+    {
+      "id": "table-view",
+      "title": "Table view",
+      "steps": [
+        "Switch to Table for a dense list of today’s matching orders.",
+        "Tap an In Progress row to open payment quickly."
+      ],
+      "image": "orders-table-view.png",
+      "caption": "Orders table view."
+    },
+    {
+      "id": "cancel-void",
+      "title": "Отмена или void заказа",
+      "intro": "Аннулирует чек In Progress. Полный void отменяет все строки; частичный — только выбранные.",
+      "steps": [
+        "Откройте ⋯ на карточке In Progress и выберите Отменить заказ.",
+        "Выберите причину void (обязательна для отчётов).",
+        "Оставьте Выбрать все для полного void или снимите и выберите строки.",
+        "Подтвердите void и освобождение стола при необходимости."
+      ],
+      "image": "orders-cancel-modal.png",
+      "caption": "Модальное окно отмены с причиной и выбором позиций.",
+      "fields": [
+        {
+          "name": "Причина",
+          "effect": "Обязательная причина void для аудита и отчётов."
+        },
+        {
+          "name": "Выбрать все позиции",
+          "effect": "Отмечено — void всего чека; снято — выбор по строкам."
+        },
+        {
+          "name": "Частичный void",
+          "effect": "Void только выбранных количеств, остальное остаётся открытым."
+        }
+      ]
+    },
+    {
+      "id": "refund",
+      "title": "Возврат оплаченного заказа",
+      "intro": "Оформляет возврат по оплаченному чеку, опционально по выбранным позициям.",
+      "steps": [
+        "Откройте оплаченный заказ и выберите Возврат.",
+        "Выберите строки и количества.",
+        "Укажите причину и подтвердите.",
+        "Система проводит возврат и обновляет итоги оплаты."
+      ],
+      "image": "orders-refund-modal.png",
+      "caption": "Модальное окно возврата с выбором позиций.",
+      "fields": [
+        {
+          "name": "Позиции к возврату",
+          "effect": "Оплаченные строки и количества, возвращаемые клиенту."
+        },
+        {
+          "name": "Причина",
+          "effect": "Документирует возврат для менеджера и отчётов."
+        }
+      ]
+    },
+    {
+      "id": "split-seats",
+      "title": "Разделить по местам",
+      "intro": "Делит чек на отдельные по номеру места на строках.",
+      "steps": [
+        "В ⋯ выберите Разделить по местам.",
+        "Проверьте группировку по местам.",
+        "Подтвердите — дочерний чек на каждое место."
+      ],
+      "image": "orders-split-seats.png",
+      "caption": "Предпросмотр разделения по местам.",
+      "fields": []
+    },
+    {
+      "id": "split-items",
+      "title": "Разделить по позициям",
+      "intro": "Вручную назначает строки новым чекам независимо от места.",
+      "steps": [
+        "В ⋯ выберите Разделить по позициям.",
+        "Переместите каждую строку в новую колонку.",
+        "Подтвердите для отдельных чеков In Progress."
+      ],
+      "image": "orders-split-items.png",
+      "caption": "Сетка назначения позиций.",
+      "fields": []
+    },
+    {
+      "id": "split-amount",
+      "title": "Разделить по сумме",
+      "intro": "Делит итог на фиксированные или равные части.",
+      "steps": [
+        "В ⋯ выберите Разделить по сумме.",
+        "Укажите число частей или суммы.",
+        "Подтвердите — дочерние чеки на каждую долю."
+      ],
+      "image": "orders-split-amount.png",
+      "caption": "Диалог разделения по сумме.",
+      "fields": []
+    },
+    {
+      "id": "merge",
+      "title": "Объединить заказы",
+      "intro": "Объединяет несколько чеков In Progress на одном столе.",
+      "steps": [
+        "На первом заказе ⋯ → Объединить.",
+        "Повторите для каждого дополнительного.",
+        "Нажмите Выбрать стол и укажите стол.",
+        "Подтвердите объединение."
+      ],
+      "image": "orders-merge-bar.png",
+      "caption": "Панель объединения с выбором стола.",
+      "fields": [
+        {
+          "name": "Выбрать заказы",
+          "effect": "Отмечает заказ для pending merge."
+        },
+        {
+          "name": "Выбрать стол",
+          "effect": "Задаёт стол для объединённого чека."
+        },
+        {
+          "name": "Подтвердить объединение",
+          "effect": "Объединяет выбранные чеки в один In Progress."
+        }
+      ]
+    }
+  ]
+}

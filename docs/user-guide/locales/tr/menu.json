@@ -1,0 +1,73 @@
+{
+  "title": "Menü ve sipariş alma",
+  "intro": "Menü ile masaları (varsa), sipariş türünü, kategorileri ve yemekleri kullanın; sepete ekleyin.",
+  "sections": [
+    {
+      "id": "floor",
+      "title": "Masadan sipariş aç",
+      "intro": "Masa seçimi açıksa önce plan görünür.",
+      "steps": [
+        "Menü’yü açın.",
+        "Kat seçin.",
+        "Boş masaya dokunun.",
+        "Kişi sayısı istenirse girin."
+      ],
+      "image": "menu-floor.png",
+      "caption": "Masa planı."
+    },
+    {
+      "id": "overview",
+      "title": "Sipariş ekranı",
+      "intro": "Solda menü, sağda sepet.",
+      "steps": [
+        "Üst bilgi: masa, pax, müşteri, tür.",
+        "Kategori ve yemek.",
+        "Sepeti kontrol edin."
+      ],
+      "image": "menu-overview.png",
+      "caption": "Üst bilgi ve türler."
+    },
+    {
+      "id": "order-type",
+      "title": "Sipariş türü",
+      "steps": [
+        "Üstten tür seçin.",
+        "Mutfak ve fiyata etki edebilir."
+      ],
+      "image": "menu-overview.png",
+      "caption": "Tür düğmeleri."
+    },
+    {
+      "id": "categories",
+      "title": "Kategoriler",
+      "steps": [
+        "Kategoriye dokunun.",
+        "Liste yenilenir."
+      ],
+      "image": "menu-categories.png",
+      "caption": "Kategoriler."
+    },
+    {
+      "id": "dishes",
+      "title": "Yemek ekle",
+      "steps": [
+        "Yemeğe dokunun.",
+        "Modifiye tamamlayın.",
+        "Tekrar edin."
+      ],
+      "image": "menu-dishes.png",
+      "caption": "Yemek ızgarası.",
+      "note": "Arama Ayarlar’dan açılabilir."
+    },
+    {
+      "id": "dish-tile",
+      "title": "Yemek kutusu",
+      "steps": [
+        "Ad, fiyat, numara.",
+        "Sepet adedi rozeti."
+      ],
+      "image": "menu-dish-tile.png",
+      "caption": "Kutu."
+    }
+  ]
+}

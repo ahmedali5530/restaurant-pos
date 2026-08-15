@@ -138,14 +138,16 @@ export const PinAuth: React.FC<PinAuthProps> = ({
   const btnClasses = 'size-[60px] sm:size-[60px] md:size-[90px] p-0 text-neutral-900 transition-all duration-75 bg-neutral-100 rounded-full text-3xl';
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4" data-testid="security-pin-auth">
       <div>
         {error && (
           <div className="my-4 alert alert-danger">{error}</div>
         )}
         
         {/* PIN Dots Display */}
-        <div className={
+        <div
+          data-testid="security-pin-dots"
+          className={
           cn("flex justify-center space-x-2 mb-6", !!error && 'login-error')
         }>
           {Array.from({ length: 4 }, (_, i) => (
@@ -167,7 +169,7 @@ export const PinAuth: React.FC<PinAuthProps> = ({
 
       {/* Numeric Keypad */}
       <div className="flex justify-center ">
-        <div className="wrapper w-[300px]">
+        <div className="wrapper w-[300px]" data-testid="security-pin-pad">
           <div className="grid grid-cols-3 gap-2 sm:gap-5 place-items-center">
             {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((num) => (
               <button

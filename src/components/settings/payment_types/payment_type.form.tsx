@@ -247,6 +247,7 @@ export const PaymentTypeForm = ({
   return (
     <>
       <Modal
+        testId="admin-form-payment-type"
         title={data ? t('forms.updatePaymentType', { name: data?.name }) : t('forms.createPaymentType')}
         open={open}
         onClose={closeModal}

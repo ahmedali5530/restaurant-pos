@@ -1,0 +1,48 @@
+{
+  "title": "Centros de costo",
+  "intro": "Los centros de costo etiquetan mano de obra y nómina a locales, departamentos o segmentos contables.",
+  "sections": [
+    {
+      "id": "cost-centers",
+      "title": "Lista de centros de costo",
+      "steps": [
+        "Abra RR. HH. → Centros de costo.",
+        "Revise códigos usados en empleados, puestos y horarios.",
+        "Agregue o edite centros antes de asignarlos en empleados."
+      ],
+      "image": "hr-cost-centers-list.png",
+      "caption": "Pestaña Centros de costo.",
+      "fields": []
+    },
+    {
+      "id": "cost-center-form",
+      "title": "Formulario de centro de costo",
+      "steps": [
+        "Haga clic en Agregar o edite una fila.",
+        "Ingrese código, nombre y descripción opcional.",
+        "Desactive para retirar un centro sin borrar historial.",
+        "Guarde — el centro aparece en formularios de empleados y horarios."
+      ],
+      "image": "hr-form-cost-center.png",
+      "caption": "Modal crear/editar centro de costo.",
+      "fields": [
+        {
+          "name": "Código",
+          "effect": "Identificador corto único en exportaciones e integraciones."
+        },
+        {
+          "name": "Nombre",
+          "effect": "Etiqueta legible en listas desplegables."
+        },
+        {
+          "name": "Descripción",
+          "effect": "Notas opcionales para administradores."
+        },
+        {
+          "name": "Está activo",
+          "effect": "Centros inactivos no se seleccionan en registros nuevos."
+        }
+      ]
+    }
+  ]
+}

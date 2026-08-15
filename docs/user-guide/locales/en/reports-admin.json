@@ -1,0 +1,75 @@
+{
+  "title": "Reports hub (administrator packs)",
+  "intro": "Administrators use the same Reports hub as managers, with access to deeper packs: inventory, labor, products, and tax. Open a category, pick a report, set filters, then run or export.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Administrator reports layout",
+      "steps": [
+        "Tap Reports in the sidebar.",
+        "Categories on the left include Inventory, Labor, Products, Sales, and more.",
+        "The middle column lists reports in the selected pack; the right panel holds filters."
+      ],
+      "image": "reports-admin-overview.png",
+      "caption": "Reports hub for administrator packs."
+    },
+    {
+      "id": "inventory",
+      "title": "Inventory pack",
+      "intro": "Inventory reports cover stock on hand, purchases, issues, wastes, consumption, production, and buffet.",
+      "steps": [
+        "Select the Inventory category.",
+        "Choose a report such as Current inventory or Purchase.",
+        "Set location and date filters, then run the report."
+      ],
+      "image": "reports-admin-inventory.png",
+      "caption": "Inventory report pack."
+    },
+    {
+      "id": "inventory-filters",
+      "title": "Inventory filters",
+      "steps": [
+        "After choosing a report, the right panel shows its filters.",
+        "Adjust dates, locations, or item filters as needed.",
+        "Run or export when the filter set matches the question you need answered."
+      ],
+      "image": "reports-admin-inventory-filters.png",
+      "caption": "Filter panel for an inventory report."
+    },
+    {
+      "id": "labor",
+      "title": "Labor pack",
+      "intro": "Labor reports summarize cost, overtime, attendance, payroll, and scheduled vs actual hours.",
+      "steps": [
+        "Select the Labor category.",
+        "Open Labor dashboard or Daily labor cost for high-level views.",
+        "Use Attendance or Payroll summary for people-cost detail."
+      ],
+      "image": "reports-admin-labor.png",
+      "caption": "Labor report pack."
+    },
+    {
+      "id": "products",
+      "title": "Products pack",
+      "steps": [
+        "Select the Products category.",
+        "Use Product mix summary or weekly mix for item performance.",
+        "Products hourly shows velocity by hour for staffing and prep planning."
+      ],
+      "image": "reports-admin-products.png",
+      "caption": "Products report pack."
+    },
+    {
+      "id": "tax",
+      "title": "Tax report filters",
+      "intro": "Tax sits under Sales. Administrators use it to reconcile collected tax by period.",
+      "steps": [
+        "Open Sales, then Tax.",
+        "Set the date range and any venue filters.",
+        "Run the report for filing or audit checks."
+      ],
+      "image": "reports-admin-tax-filters.png",
+      "caption": "Tax report filter panel."
+    }
+  ]
+}

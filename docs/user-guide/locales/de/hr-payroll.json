@@ -1,0 +1,133 @@
+{
+  "title": "Abrechnungsperioden & Läufe",
+  "intro": "Schließen Sie Arbeit in Abrechnungsperioden ab, erstellen Sie Läufe mit Vorschau und buchen Sie Anpassungen.",
+  "sections": [
+    {
+      "id": "payroll-periods",
+      "title": "Abrechnungsperioden",
+      "steps": [
+        "Öffnen Sie HR → Abrechnung → Perioden.",
+        "Perioden passend zum Zahlungszyklus anlegen (wöchentlich, zweiwöchentlich, monatlich, individuell).",
+        "Perioden vor finalen Läufen sperren oder schließen."
+      ],
+      "image": "hr-payroll-periods.png",
+      "caption": "Liste Abrechnungsperioden.",
+      "fields": []
+    },
+    {
+      "id": "payroll-period-form",
+      "title": "Abrechnungsperiodenformular",
+      "steps": [
+        "Periode mit Name, Typ und Datumsbereich anlegen.",
+        "Status Offen während Zeiterfassung und Anpassungen.",
+        "Auf Gesperrt/Geschlossen/Bezahlt ändern im Zyklusverlauf."
+      ],
+      "image": "hr-form-payroll-period.png",
+      "caption": "Formular Abrechnungsperiode.",
+      "fields": [
+        {
+          "name": "Periodenname",
+          "effect": "Bezeichnung auf Läufen und Lohnexporten."
+        },
+        {
+          "name": "Periodentyp",
+          "effect": "Wöchentlich, zweiwöchentlich, monatlich oder individuell."
+        },
+        {
+          "name": "Startdatum",
+          "effect": "Erster eingeschlossener Tag."
+        },
+        {
+          "name": "Enddatum",
+          "effect": "Letzter eingeschlossener Tag."
+        },
+        {
+          "name": "Status",
+          "effect": "Offen erlaubt Bearbeitung; gesperrt/geschlossen schränkt ein; bezahlt markiert Abschluss."
+        }
+      ]
+    },
+    {
+      "id": "payroll-runs",
+      "title": "Abrechnungsläufe",
+      "steps": [
+        "Öffnen Sie Abrechnung → Läufe für offene Periode.",
+        "Lauf generieren für Bruttovorschau aus Anwesenheit und Regeln.",
+        "Snapshots prüfen vor Abschluss des Laufs."
+      ],
+      "image": "hr-payroll-runs.png",
+      "caption": "Abrechnungsläufe einer Periode.",
+      "fields": []
+    },
+    {
+      "id": "payroll-run-form",
+      "title": "Abrechnungslauf generieren",
+      "steps": [
+        "Neuer Lauf klicken und offene Periode wählen.",
+        "Vorgeschlagene Laufnummer bestätigen.",
+        "Vorschau generieren für Zeilen aus Zeit, Profilen und Regeln."
+      ],
+      "image": "hr-form-payroll-run.png",
+      "caption": "Formular neuer Abrechnungslauf.",
+      "fields": [
+        {
+          "name": "Abrechnungsperiode",
+          "effect": "Datumsbereich und Status für enthaltene Stunden und Anpassungen."
+        },
+        {
+          "name": "Laufnummer",
+          "effect": "Fortlaufende ID für mehrere Vorschauen in derselben Periode."
+        }
+      ]
+    },
+    {
+      "id": "adjustments",
+      "title": "Abrechnungsanpassungen",
+      "steps": [
+        "Öffnen Sie Abrechnung → Anpassungen.",
+        "Boni, Strafen, Zulagen oder Korrekturen pro Mitarbeiter hinzufügen.",
+        "Mit Periode verknüpfen wenn Betrag in Lauf erscheinen soll."
+      ],
+      "image": "hr-payroll-adjustments.png",
+      "caption": "Liste Lohnanpassungen.",
+      "fields": []
+    },
+    {
+      "id": "adjustment-form",
+      "title": "Anpassungsformular",
+      "steps": [
+        "Mitarbeiter, Typ, Betrag und Stichtag wählen.",
+        "Optional Abrechnungsperiode verknüpfen.",
+        "Speichern — in nächstem passenden Lauf enthalten."
+      ],
+      "image": "hr-form-adjustment.png",
+      "caption": "Formular Lohnanpassung.",
+      "fields": [
+        {
+          "name": "Mitarbeiter",
+          "effect": "Personal das die Anpassung erhält."
+        },
+        {
+          "name": "Abrechnungsperiode",
+          "effect": "Optionale Verknüpfung für bestimmten Lauf."
+        },
+        {
+          "name": "Typ",
+          "effect": "Bonus, Strafe, Zulage, Erstattung, Vorschuss, Darlehen, Korrektur oder Abzug."
+        },
+        {
+          "name": "Betrag",
+          "effect": "Währungswert addiert oder vom Brutto abgezogen."
+        },
+        {
+          "name": "Stichtag",
+          "effect": "Datum welcher Lauf die Anpassung aufnimmt."
+        },
+        {
+          "name": "Beschreibung",
+          "effect": "Erklärung auf Lohnabrechnung und Audit."
+        }
+      ]
+    }
+  ]
+}

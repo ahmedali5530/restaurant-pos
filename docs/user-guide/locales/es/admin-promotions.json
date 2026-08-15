@@ -1,0 +1,179 @@
+{
+  "title": "Discounts and coupons",
+  "intro": "Configure promotional pricing: discount rules with reasons and role permissions, plus coupon codes staff can apply at payment.",
+  "sections": [
+    {
+      "id": "discount-rules",
+      "title": "Discount rules",
+      "intro": "Discount rules define automatic or manual reductions by category, scope, and eligibility.",
+      "steps": [
+        "Open the Discounts tab in Manage.",
+        "Select the Rules sub-tab.",
+        "Add or edit rules; set type, value, scope, and when the discount applies."
+      ],
+      "image": "admin-discounts-rules.png",
+      "caption": "Discount rules list."
+    },
+    {
+      "id": "discount-reasons",
+      "title": "Discount reasons",
+      "intro": "Reasons appear when staff apply manual discounts so reporting can track why a reduction was given.",
+      "steps": [
+        "Open Discounts and switch to the Reasons sub-tab.",
+        "Create reasons staff can pick at the payment or cart screen.",
+        "Deactivate reasons you no longer want offered."
+      ],
+      "image": "admin-discounts-reasons.png",
+      "caption": "Discount reasons maintenance."
+    },
+    {
+      "id": "discount-permissions",
+      "title": "Discount permissions",
+      "intro": "Control which roles may apply each discount type or exceed limits without manager approval.",
+      "steps": [
+        "Open Discounts and switch to the Permissions sub-tab.",
+        "Review the matrix of roles versus discount capabilities.",
+        "Adjust permissions so only authorized roles can grant large or sensitive discounts."
+      ],
+      "image": "admin-discounts-permissions.png",
+      "caption": "Discount permission matrix."
+    },
+    {
+      "id": "coupons",
+      "title": "Coupons",
+      "steps": [
+        "Open the Coupons tab.",
+        "Create coupon codes with value, validity window, and usage limits.",
+        "Staff enter coupons on the payment screen when the order qualifies."
+      ],
+      "image": "admin-coupons.png",
+      "caption": "Coupons tab."
+    },
+    {
+      "id": "discount-form",
+      "title": "Formulario de regla de descuento",
+      "intro": "Categorías: manager, staff, vip, corporate, happy_hour, category, product, floor, damage_wastage, service_recovery, bulk_order, manual, scheduled, buy_x_get_y. Alcance: item, category, cart, customer, floor.",
+      "steps": [
+        "Admin → Promociones → Descuentos → Reglas.",
+        "Defina categoría, alcance y modo (manual, automático o ambos).",
+        "Configure objetivos según alcance.",
+        "Defina valor, apilamiento, impuestos y horarios.",
+        "Guarde — caché se actualiza y regla disponible en POS."
+      ],
+      "image": "admin-promotions-discount-form.png",
+      "caption": "Formulario con categoría y objetivos.",
+      "fields": [
+        {
+          "name": "Categoría",
+          "effect": "Uno de 14 tipos para permisos y analítica."
+        },
+        {
+          "name": "Alcance",
+          "effect": "item, category, cart, customer o floor."
+        },
+        {
+          "name": "Modo de aplicación",
+          "effect": "manual, automatic o both."
+        },
+        {
+          "name": "Objetivos",
+          "effect": "Ítems, categorías, clientes o pisos elegibles."
+        },
+        {
+          "name": "Tipo (porcentaje / fijo)",
+          "effect": "Si min/máx son porcentajes o montos."
+        },
+        {
+          "name": "Min / máx tasa",
+          "effect": "Rango permitido para manual o auto."
+        },
+        {
+          "name": "Tope máximo",
+          "effect": "Límite moneda solo en descuentos porcentuales."
+        },
+        {
+          "name": "Prioridad",
+          "effect": "Orden cuando compiten reglas automáticas."
+        },
+        {
+          "name": "Monto mínimo pedido",
+          "effect": "Subtotal requerido antes de aplicar."
+        },
+        {
+          "name": "Modo apilamiento",
+          "effect": "allow, prevent, highest_wins o priority."
+        },
+        {
+          "name": "Tratamiento fiscal",
+          "effect": "tax_before_discount, tax_after_discount, inclusive o exclusive."
+        },
+        {
+          "name": "Horarios",
+          "effect": "Ventanas día/hora para scheduled y happy_hour."
+        },
+        {
+          "name": "Condiciones",
+          "effect": "Umbrales Buy X Get Y."
+        },
+        {
+          "name": "Requiere motivo / aprobación",
+          "effect": "Motivo o PIN de gerente al aplicar manual."
+        }
+      ]
+    },
+    {
+      "id": "coupon-form",
+      "title": "Formulario de cupón",
+      "steps": [
+        "Abra Promociones → Cupones.",
+        "Defina código, tipo/valor de descuento y límites de uso.",
+        "Configure días, ventana horaria y rango de fechas.",
+        "Guarde — cajeros ingresan el código al pagar."
+      ],
+      "image": "admin-promotions-coupon-form.png",
+      "caption": "Formulario de cupón.",
+      "fields": [
+        {
+          "name": "Código",
+          "effect": "Cadena que ingresan clientes o personal en checkout."
+        },
+        {
+          "name": "Tipo de cupón",
+          "effect": "Uso único, multiuso u otro comportamiento."
+        },
+        {
+          "name": "Tipo / valor descuento",
+          "effect": "Porcentaje o monto fijo descontado."
+        },
+        {
+          "name": "Monto mínimo pedido",
+          "effect": "Subtotal mínimo antes de aplicar."
+        },
+        {
+          "name": "Descuento máximo",
+          "effect": "Tope en cupones porcentuales."
+        },
+        {
+          "name": "Límite de uso",
+          "effect": "Canjes totales permitidos."
+        },
+        {
+          "name": "Límite por usuario",
+          "effect": "Canjes por perfil de cliente."
+        },
+        {
+          "name": "Días válidos / hora inicio y fin",
+          "effect": "Restringe a días y horas."
+        },
+        {
+          "name": "Fecha inicio / fin",
+          "effect": "Ventana general de validez."
+        },
+        {
+          "name": "Apilable / solo primer pedido",
+          "effect": "Combinación con otros descuentos o clientes nuevos."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "title": "Beveiliging herauthenticatie",
+  "intro": "Beschermde acties kunnen manager-PIN, wachtwoord of QR vragen.",
+  "sections": [
+    {
+      "id": "when",
+      "title": "Wanneer zichtbaar",
+      "steps": [
+        "Actie zonder auto-toestemming.",
+        "Modal met beschrijving.",
+        "Idle-vergrendeling is apart."
+      ],
+      "image": "security-session-card.png",
+      "caption": "Sessiebeveiligingskaart."
+    },
+    {
+      "id": "modal",
+      "title": "Goedkeuringsmodal",
+      "steps": [
+        "Lees titel.",
+        "Kies PIN, wachtwoord of QR.",
+        "Auth of annuleer."
+      ],
+      "image": "security-modal.png",
+      "caption": "Goedkeuringsmodal."
+    },
+    {
+      "id": "methods",
+      "title": "Methoden",
+      "intro": "Meerdere methoden mogelijk.",
+      "steps": [
+        "PIN-pad.",
+        "Wachtwoord indien aan.",
+        "QR indien ondersteund."
+      ],
+      "image": "security-auth-types.png",
+      "caption": "Methodeselector."
+    },
+    {
+      "id": "pin",
+      "title": "PIN-invoer",
+      "steps": [
+        "4-cijferige PIN.",
+        "Validatie bij vier cijfers.",
+        "Ongeldig = fout."
+      ],
+      "image": "security-pin-pad.png",
+      "caption": "Beveiligings-PIN-pad."
+    }
+  ]
+}

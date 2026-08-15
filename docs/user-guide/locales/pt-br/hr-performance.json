@@ -1,0 +1,56 @@
+{
+  "title": "Notas de desempenho",
+  "intro": "Registre advertências, elogios e incidentes.",
+  "sections": [
+    {
+      "id": "performance",
+      "title": "Lista desempenho",
+      "steps": [
+        "RH → Desempenho.",
+        "Navegue por funcionário/tipo.",
+        "Adicione após incidentes."
+      ],
+      "image": "hr-performance-list.png",
+      "caption": "Aba notas desempenho.",
+      "fields": []
+    },
+    {
+      "id": "performance-form",
+      "title": "Formulário nota desempenho",
+      "steps": [
+        "Funcionário, tipo, título, texto.",
+        "Severidade se aplicável.",
+        "Visível ao funcionário.",
+        "Salvar."
+      ],
+      "image": "hr-form-performance.png",
+      "caption": "Formulário nota desempenho.",
+      "fields": [
+        {
+          "name": "Funcionário",
+          "effect": "Sujeito da nota."
+        },
+        {
+          "name": "Tipo",
+          "effect": "Advertência, elogio, revisão ou incidente."
+        },
+        {
+          "name": "Título",
+          "effect": "Resumo curto."
+        },
+        {
+          "name": "Conteúdo",
+          "effect": "Narrativa completa."
+        },
+        {
+          "name": "Severidade",
+          "effect": "Baixa, média, alta ou crítica."
+        },
+        {
+          "name": "Visível ao funcionário",
+          "effect": "Pode mostrar ao usuário funcionário."
+        }
+      ]
+    }
+  ]
+}

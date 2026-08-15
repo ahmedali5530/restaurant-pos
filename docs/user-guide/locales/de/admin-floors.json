@@ -1,0 +1,89 @@
+{
+  "title": "Floors and tables",
+  "intro": "Floors and tables define the dine-in layout used when staff select a table before taking orders.",
+  "sections": [
+    {
+      "id": "floors",
+      "title": "Floors",
+      "steps": [
+        "Open the Floors tab.",
+        "Create floor plans for each dining area (e.g. Main, Patio).",
+        "Floors appear on the table-selection step when floor mode is enabled."
+      ],
+      "image": "admin-floors-floors.png",
+      "caption": "Floors tab."
+    },
+    {
+      "id": "tables",
+      "title": "Tables",
+      "intro": "Each table belongs to a floor and carries a name or number used on checks and kitchen tickets.",
+      "steps": [
+        "Open the Tables tab.",
+        "Add tables with capacity and floor assignment.",
+        "Edit or deactivate tables when the floor plan changes."
+      ],
+      "image": "admin-floors-tables.png",
+      "caption": "Tables tab."
+    },
+    {
+      "id": "floor-form",
+      "title": "Etagenformular",
+      "steps": [
+        "Admin → Etagen öffnen und hinzufügen/bearbeiten.",
+        "Name, Priorität und Kachelfarben setzen.",
+        "Speichern — erscheint im Etagenwechsler."
+      ],
+      "image": "admin-floors-floor-form.png",
+      "caption": "Etagenformular.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Bezeichnung im POS-Etagenpicker."
+        },
+        {
+          "name": "Priorität",
+          "effect": "Sortierung in Etagenliste."
+        },
+        {
+          "name": "Hintergrund / Farbe",
+          "effect": "Standard-Kachelstil im Plan."
+        }
+      ]
+    },
+    {
+      "id": "table-form",
+      "title": "Tischformular",
+      "intro": "Tische gehören zu einer Etage und können Kategorien, Bestell- und Zahlungsarten einschränken.",
+      "steps": [
+        "Etage wählen und Tisch hinzufügen/bearbeiten.",
+        "Nummer, Name, Farben und Etage setzen.",
+        "Optional Kategorien, Bestell- und Zahlungsarten begrenzen.",
+        "Gäste abfragen aktivieren wenn Gästezahl erforderlich."
+      ],
+      "image": "admin-floors-table-form.png",
+      "caption": "Tischformular.",
+      "fields": [
+        {
+          "name": "Name / Nummer",
+          "effect": "Bezeichnung auf Plan und Bons."
+        },
+        {
+          "name": "Etage",
+          "effect": "Eltern-Etagenplan."
+        },
+        {
+          "name": "Priorität",
+          "effect": "Sortierung auf dichten Plänen."
+        },
+        {
+          "name": "Kategorien / Bestelltypen / Zahlungsarten",
+          "effect": "Optionale Einschränkungen."
+        },
+        {
+          "name": "Gäste abfragen",
+          "effect": "Fragt Gästezahl beim Öffnen ab."
+        }
+      ]
+    }
+  ]
+}

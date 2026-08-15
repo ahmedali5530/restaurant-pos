@@ -1,0 +1,182 @@
+{
+  "title": "Menus, categories, and dishes",
+  "intro": "Configure what appears on the ordering screen: dishes, menu groupings, and categories.",
+  "sections": [
+    {
+      "id": "dishes",
+      "title": "Dishes",
+      "steps": [
+        "Open the Dishes tab.",
+        "Create or edit dishes with price, categories, modifiers, and recipes.",
+        "Import CSV files for bulk dish or ingredient updates when needed."
+      ],
+      "image": "admin-menus-dishes.png",
+      "caption": "Dishes tab."
+    },
+    {
+      "id": "menus",
+      "title": "Menus",
+      "intro": "Menus control which dishes are visible on each service period or channel.",
+      "steps": [
+        "Open the Menus tab.",
+        "Assign dishes to menus and set availability windows.",
+        "Save changes so floor staff see updated items on the Menu screen."
+      ],
+      "image": "admin-menus-menus.png",
+      "caption": "Menus tab."
+    },
+    {
+      "id": "categories",
+      "title": "Categories",
+      "steps": [
+        "Open the Categories tab.",
+        "Group dishes for navigation on the ordering screen.",
+        "Reorder categories to match how staff browse the menu."
+      ],
+      "image": "admin-menus-categories.png",
+      "caption": "Categories tab."
+    },
+    {
+      "id": "modifier-groups",
+      "title": "Modifier groups",
+      "intro": "Modifier groups define optional add-ons, sizes, and nested choices shown when staff customize a dish.",
+      "steps": [
+        "Open the Modifier groups tab.",
+        "Create groups with modifiers, prices, and optional next-group rules.",
+        "Assign groups to dishes so the cart shows the correct customization flow."
+      ],
+      "image": "admin-modifier-groups.png",
+      "caption": "Modifier groups tab."
+    },
+    {
+      "id": "dish-form",
+      "title": "Yemek formu",
+      "intro": "Satılabilir ürünler: fiyat, kategori, modifier, tarif, mutfak.",
+      "steps": [
+        "Admin → Menüler → Yemekler.",
+        "No, ad, fiyat, maliyet, kategoriler.",
+        "Modifier grupları ve mutfak bağla.",
+        "Kaydet."
+      ],
+      "image": "admin-menus-dish-form.png",
+      "caption": "Yemek bakım formu.",
+      "fields": [
+        {
+          "name": "No / ad",
+          "effect": "POS kimliği ve görünen ad."
+        },
+        {
+          "name": "Fiyat / maliyet",
+          "effect": "Satış fiyatı ve teorik maliyet."
+        },
+        {
+          "name": "Kategoriler",
+          "effect": "Menü gruplama ve indirim hedefi."
+        },
+        {
+          "name": "Modifier grupları",
+          "effect": "Özelleştirme akışı."
+        },
+        {
+          "name": "Tarif satırları",
+          "effect": "Satışta envanter tüketimi."
+        },
+        {
+          "name": "Mutfak / iş akışı",
+          "effect": "KOT yönlendirme ve hazırlık."
+        }
+      ]
+    },
+    {
+      "id": "menu-form",
+      "title": "Menü formu",
+      "intro": "POS'ta hangi kategorilerin görüneceğini zamanlar.",
+      "steps": [
+        "Menüler sekmesi.",
+        "Ad ve saatler.",
+        "Gece menüsü için ertesi gün bitiş.",
+        "Kaydet."
+      ],
+      "image": "admin-menus-menu-form.png",
+      "caption": "Menü formu.",
+      "fields": [
+        {
+          "name": "Ad",
+          "effect": "POS seçicide etiket."
+        },
+        {
+          "name": "Başlangıç / bitiş",
+          "effect": "Otomatik kullanılabilirlik."
+        },
+        {
+          "name": "Ertesi gün biter",
+          "effect": "Gece yarısı sonrası servis."
+        },
+        {
+          "name": "Aktif",
+          "effect": "Pasif menüler gizli."
+        }
+      ]
+    },
+    {
+      "id": "category-form",
+      "title": "Kategori formu",
+      "steps": [
+        "Kategoriler.",
+        "Ad, öncelik, menüde göster.",
+        "Kaydet."
+      ],
+      "image": "admin-menus-category-form.png",
+      "caption": "Kategori formu.",
+      "fields": [
+        {
+          "name": "Ad",
+          "effect": "POS ve raporlarda başlık."
+        },
+        {
+          "name": "Öncelik",
+          "effect": "Sıralama."
+        },
+        {
+          "name": "Menüde göster",
+          "effect": "Kapalıysa müşteri menüsünde gizli."
+        }
+      ]
+    },
+    {
+      "id": "modifier-group-form",
+      "title": "Modifier grup formu",
+      "intro": "Modifier, fiyat ve iç içe sonraki gruplar.",
+      "steps": [
+        "Modifier grupları.",
+        "Ad, öncelik, fiyatlar.",
+        "Sonraki gruplar.",
+        "Kaydet."
+      ],
+      "image": "admin-menus-modifier-group-form.png",
+      "caption": "İç içe gruplu form.",
+      "fields": [
+        {
+          "name": "Ad / öncelik",
+          "effect": "Etiket ve sıra."
+        },
+        {
+          "name": "Modifier",
+          "effect": "Seçilebilir seçenek."
+        },
+        {
+          "name": "Fiyat",
+          "effect": "Ek ücret."
+        },
+        {
+          "name": "İzinli sonraki gruplar",
+          "effect": "Seçim sonrası açılan gruplar."
+        },
+        {
+          "name": "Sonraki grup geçersiz kılmaları",
+          "effect": "Gizle veya fiyat değiştir."
+        }
+      ]
+    }
+  ]
+}

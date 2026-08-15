@@ -1,0 +1,40 @@
+{
+  "title": "Panoramica Magazzino",
+  "intro": "Magazzino è l'hub scorte: saldi, articoli, acquisti, uscite, scarti e conteggi. Aprilo dalla barra laterale con accesso magazzino.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Apri Magazzino",
+      "steps": [
+        "Accedi con accesso magazzino.",
+        "Tocca Magazzino nella barra laterale.",
+        "Si apre sul riepilogo scorte attuali."
+      ],
+      "image": "inventory-overview.png",
+      "caption": "Schermata Magazzino con schede."
+    },
+    {
+      "id": "tabs",
+      "title": "Navigazione schede",
+      "intro": "Le schede raggruppano anagrafiche e documenti. Il cambio può richiedere PIN manager.",
+      "steps": [
+        "Scorri orizzontalmente con molte schede.",
+        "Ogni scheda apre la sua lista.",
+        "La scheda attiva è evidenziata."
+      ],
+      "image": "inventory-tabs.png",
+      "caption": "Barra schede Magazzino."
+    },
+    {
+      "id": "summary",
+      "title": "Riepilogo inventario attuale",
+      "steps": [
+        "La scheda Magazzino mostra quantità per articolo e ubicazione.",
+        "Usa ricerca e filtri.",
+        "Altre schede gestiscono acquisti, uscite, scarti e rettifiche."
+      ],
+      "image": "inventory-summary.png",
+      "caption": "Tabella riepilogo inventario."
+    }
+  ]
+}

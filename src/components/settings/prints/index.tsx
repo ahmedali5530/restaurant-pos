@@ -39,6 +39,7 @@ export const AdminPrints = () => {
           <>
             <IconTooltipButton label={t('common:actions.edit')}
               variant="primary"
+              data-testid="admin-edit-print-setting"
               onClick={() => {
                 protectAction(() => {
                   setData(info.row.original);

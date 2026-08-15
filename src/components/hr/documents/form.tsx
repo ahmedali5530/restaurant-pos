@@ -147,7 +147,7 @@ export const DocumentForm = ({open, onClose, data}: Props) => {
   };
 
   return (
-    <Modal title={data ? t("forms.document.update") : t("forms.document.create")} open={open} onClose={closeModal} size="lg">
+    <Modal title={data ? t("forms.document.update") : t("forms.document.create")} testId="hr-form-document" open={open} onClose={closeModal} size="lg">
       <form onSubmit={handleSubmit(onSubmit, (errs) => {
         const message = firstFormError(errs);
         if (message) toast.error(message);

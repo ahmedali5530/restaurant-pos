@@ -1,0 +1,29 @@
+{
+  "title": "Carrito",
+  "intro": "El carrito contiene los artículos del asiento o pedido actual. Desde aquí se envía a cocina o se abre la pantalla de pago.",
+  "sections": [
+    {
+      "id": "panel",
+      "title": "Panel del carrito",
+      "intro": "Lista líneas nuevas y las ya enviadas.",
+      "steps": [
+        "Las nuevas arriba; las enviadas debajo del separador.",
+        "Toque una línea para acciones.",
+        "Use asientos para dividir entre comensales."
+      ],
+      "image": "cart-panel.png",
+      "caption": "Panel del carrito."
+    },
+    {
+      "id": "actions",
+      "title": "Cocina, Pagar, Cancelar",
+      "steps": [
+        "A cocina guarda y envía líneas nuevas.",
+        "Pagar ahora abre la pantalla de pago completa (capítulo Pago).",
+        "Cancelar quita líneas nuevas según reglas."
+      ],
+      "image": "cart-payment-actions.png",
+      "caption": "Botones de acción."
+    }
+  ]
+}

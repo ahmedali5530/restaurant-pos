@@ -1,0 +1,75 @@
+{
+  "title": "Hub report (pacchetti amministratore)",
+  "intro": "Gli amministratori usano lo stesso hub Report, con pacchetti più profondi: inventario, labor, prodotti e tasse.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Layout report amministratore",
+      "steps": [
+        "Tocca Report.",
+        "Categorie: Inventario, Labor, Prodotti, Vendite.",
+        "La colonna centrale elenca i report; il pannello destro i filtri."
+      ],
+      "image": "reports-admin-overview.png",
+      "caption": "Hub report per pacchetti amministratore."
+    },
+    {
+      "id": "inventory",
+      "title": "Pacchetto Inventario",
+      "intro": "Copre scorte, acquisti, uscite, scarti, consumo, produzione e buffet.",
+      "steps": [
+        "Seleziona Inventario.",
+        "Scegli Inventario attuale o Acquisti.",
+        "Imposta ubicazione e date ed esegui."
+      ],
+      "image": "reports-admin-inventory.png",
+      "caption": "Pacchetto report inventario."
+    },
+    {
+      "id": "inventory-filters",
+      "title": "Filtri inventario",
+      "steps": [
+        "Dopo la scelta del report, il pannello mostra i filtri.",
+        "Regola date, ubicazioni o articoli.",
+        "Esegui o esporta quando i filtri rispondono."
+      ],
+      "image": "reports-admin-inventory-filters.png",
+      "caption": "Pannello filtri inventario."
+    },
+    {
+      "id": "labor",
+      "title": "Pacchetto Labor",
+      "intro": "Riassume costo, straordinari, presenza, payroll e pianificato vs reale.",
+      "steps": [
+        "Seleziona Labor.",
+        "Apri Dashboard o Costo giornaliero.",
+        "Usa Presenza o Riepilogo payroll per il dettaglio."
+      ],
+      "image": "reports-admin-labor.png",
+      "caption": "Pacchetto report labor."
+    },
+    {
+      "id": "products",
+      "title": "Pacchetto Prodotti",
+      "steps": [
+        "Seleziona Prodotti.",
+        "Usa mix settimanale o riepilogo.",
+        "Prodotti orari mostra la velocità."
+      ],
+      "image": "reports-admin-products.png",
+      "caption": "Pacchetto report prodotti."
+    },
+    {
+      "id": "tax",
+      "title": "Filtri tasse",
+      "intro": "Tasse è sotto Vendite; serve a riconciliare le tasse riscosse.",
+      "steps": [
+        "Apri Vendite poi Tasse.",
+        "Imposta l'intervallo date.",
+        "Esegui per audit."
+      ],
+      "image": "reports-admin-tax-filters.png",
+      "caption": "Pannello filtri tasse."
+    }
+  ]
+}

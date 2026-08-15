@@ -19,7 +19,7 @@ export const OrderPaymentNotes = ({
   const {t} = useTranslation('payment');
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full" data-testid="payment-panel-notes">
       <h5 className="text-3xl">{t('notes.title')}</h5>
       <p className="text-neutral-500">{t('notes.hint')}</p>
       <Textarea

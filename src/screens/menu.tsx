@@ -1,6 +1,5 @@
 import {Layout} from "@/screens/partials/layout.tsx";
 import {MenuDishes} from "@/components/menu/dishes.tsx";
-import {MenuActions} from "@/components/menu/actions.tsx";
 import {MenuCart} from "@/components/cart/cart.tsx";
 import {useEffect, useMemo, useRef} from "react";
 import {FloorLayout} from "@/components/floor/floor.layout.tsx";
@@ -15,6 +14,7 @@ import {Order, OrderStatus} from "@/api/model/order.ts";
 import 'swiper/css';
 import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
+import {useSearchParams} from "react-router";
 
 export const Menu = () => {
   const {t: tNav} = useTranslation('navigation');
@@ -23,10 +23,41 @@ export const Menu = () => {
   const [enforcement] = useAtom(closingEnforcementAtom);
   const [, setAlert] = useAtom(appAlert);
   const db = useDB();
-  const hideTableSelection = state.hideTableSelection === true;
+  const [searchParams] = useSearchParams();
+  /** Docs capture only — never write this into persisted appState. */
+  const docsTableless = searchParams.get('docs_tableless') === '1';
+  /** User preference (Settings → table selection). */
+  const hideTableSelectionSetting = state.hideTableSelection === true;
+
+  // One-time recovery: earlier docs capture wrote hideTableSelection into app-state.
+  useEffect(() => {
+    if (docsTableless) {
+      return;
+    }
+    try {
+      if (localStorage.getItem('posr_docs_tableless_leak_recovered') === '1') {
+        return;
+      }
+      localStorage.setItem('posr_docs_tableless_leak_recovered', '1');
+    } catch {
+      return;
+    }
+    setState((prev) => {
+      if (prev.hideTableSelection !== true) {
+        return prev;
+      }
+      return {
+        ...prev,
+        hideTableSelection: false,
+        showFloor: true,
+        showPersons: false,
+      };
+    });
+  }, [docsTableless, setState]);
 
   useEffect(() => {
-    if (!hideTableSelection || state.showFloor !== true || enforcement.orderTakingBlocked) {
+    // Product tableless mode only (not docs query).
+    if (!hideTableSelectionSetting || state.showFloor !== true || enforcement.orderTakingBlocked) {
       return;
     }
 
@@ -43,11 +74,11 @@ export const Menu = () => {
 
     setSettings(prev => ({
       ...prev,
-      categories: prev.categories.filter(item => item.show_in_menu),
+      categories: prev.categories.filter(item => item.show_in_menu !== false),
     }));
   }, [
     enforcement.orderTakingBlocked,
-    hideTableSelection,
+    hideTableSelectionSetting,
     setSettings,
     setState,
     settings.floors,
@@ -58,7 +89,8 @@ export const Menu = () => {
   const tablelessOrdersLiveRef = useRef<{kill: () => Promise<void>} | null>(null);
 
   useEffect(() => {
-    if (!hideTableSelection) {
+    // Live tableless order list only for product setting (not docs-only flag).
+    if (!hideTableSelectionSetting) {
       return;
     }
 
@@ -118,7 +150,7 @@ export const Menu = () => {
       tablelessOrdersLiveRef.current?.kill().catch(() => undefined);
       tablelessOrdersLiveRef.current = null;
     };
-  }, [db, hideTableSelection, setState]);
+  }, [db, hideTableSelectionSetting, setState]);
 
   useEffect(() => {
     if (!enforcement.orderTakingBlocked || state.showFloor) {
@@ -145,7 +177,7 @@ export const Menu = () => {
         orderType: undefined,
         cart: [],
         order: undefined,
-        orders: hideTableSelection ? prev.orders : [],
+        orders: hideTableSelectionSetting ? prev.orders : [],
         customer: undefined,
         table: undefined,
         switchTable: false,
@@ -166,50 +198,54 @@ export const Menu = () => {
     db,
     enforcement.message,
     enforcement.orderTakingBlocked,
-    hideTableSelection,
+    hideTableSelectionSetting,
     setAlert,
     setState,
     state.showFloor,
     state.table?.id,
   ]);
 
+  // Docs capture: never force persisted showFloor/persons off — only branch UI here.
+  const showFloorLayout = !docsTableless && state.showFloor === true && !hideTableSelectionSetting;
+  const showPersonsLayout = !docsTableless && state.showPersons === true;
+
   const screen = useMemo(() => {
-    if (state.showFloor && !hideTableSelection) {
+    if (showFloorLayout) {
       return <FloorLayout/>;
     }
 
-    if (state.showPersons) {
+    if (showPersonsLayout) {
       return <MenuPersons/>;
     }
 
     return (
-      <div className="grid grid-cols-[minmax(0,1fr)_440px] gap-3 pl-3 h-[100vh] overflow-hidden">
+      <div className="grid grid-cols-[minmax(0,1fr)_440px] gap-3 pl-3 h-[100vh] overflow-hidden" data-testid="menu-page">
         <div className="flex min-h-0 flex-col overflow-hidden">
           <div className="mb-3 flex h-[70px] shrink-0 items-center gap-3">
             <MenuHeader/>
           </div>
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden" data-testid="menu-dishes">
             <MenuDishes/>
           </div>
           {/*<div className="mt-3">
             <MenuActions/>
           </div>*/}
         </div>
-        <div className="bg-white rounded-xl flex flex-col h-full min-h-0 overflow-hidden">
+        <div className="bg-white rounded-xl flex flex-col h-full min-h-0 overflow-hidden" data-testid="menu-cart">
           <MenuCart/>
         </div>
       </div>
     )
 
-  }, [hideTableSelection, state.showFloor, state.showPersons]);
+  }, [showFloorLayout, showPersonsLayout]);
 
-  const isMenuOrderingScreen = !state.showFloor && !state.showPersons;
+  const isMenuOrderingScreen = !showFloorLayout && !showPersonsLayout;
 
   return (
     <Layout
       overflowHidden={isMenuOrderingScreen}
       containerClassName={isMenuOrderingScreen ? "overflow-hidden" : undefined}
-      showSidebar={state.showFloor === true || state.showPersons === true || hideTableSelection}
+      showSidebar={showFloorLayout || showPersonsLayout || hideTableSelectionSetting || docsTableless}
     >
       <DocumentTitle parts={[tNav('sidebar.menu')]} />
       {screen}

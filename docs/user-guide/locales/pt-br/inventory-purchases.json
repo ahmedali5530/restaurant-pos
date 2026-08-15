@@ -1,0 +1,40 @@
+{
+  "title": "Compras",
+  "intro": "Entre estoque com pedidos de compra, recebimentos e devoluções.",
+  "sections": [
+    {
+      "id": "orders",
+      "title": "Pedidos de compra",
+      "steps": [
+        "Abra Pedidos de compra.",
+        "Crie um PC para o fornecedor com linhas.",
+        "Envie e aprove conforme seu papel antes de receber."
+      ],
+      "image": "inventory-purchases-orders.png",
+      "caption": "Lista de pedidos de compra."
+    },
+    {
+      "id": "purchases",
+      "title": "Compras (recebimento)",
+      "intro": "Compras lançam estoque no local e atualizam custo médio.",
+      "steps": [
+        "Abra Compras.",
+        "Registre a nota e as linhas recebidas.",
+        "Vincule a um PC se existir e salve."
+      ],
+      "image": "inventory-purchases-list.png",
+      "caption": "Lista de compras."
+    },
+    {
+      "id": "returns",
+      "title": "Devoluções de compra",
+      "steps": [
+        "Abra Devoluções de compra.",
+        "Devolva mercadoria danificada ou incorreta.",
+        "Salvar reduz a quantidade no local."
+      ],
+      "image": "inventory-purchases-returns.png",
+      "caption": "Aba Devoluções de compra."
+    }
+  ]
+}

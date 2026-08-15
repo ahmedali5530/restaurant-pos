@@ -1,0 +1,95 @@
+{
+  "title": "Printers and print settings",
+  "intro": "Define printer records in Manage, configure what each print job contains, then assign printers to devices in Settings.",
+  "sections": [
+    {
+      "id": "printers",
+      "title": "Printers",
+      "intro": "Printer records store connection details used across receipt, kitchen, and report printing.",
+      "steps": [
+        "Open the Printers tab.",
+        "Add printers with name, type, and connection settings.",
+        "Link printers to kitchens and device Settings so tickets reach the right hardware."
+      ],
+      "image": "admin-printers.png",
+      "caption": "Printers master list in Manage."
+    },
+    {
+      "id": "print-settings",
+      "title": "Print settings",
+      "intro": "Print settings control templates and options for temp bills, final receipts, kitchen tickets, summaries, and delivery slips.",
+      "steps": [
+        "Open the Print settings tab.",
+        "Edit each print type (Temp, Final, Kitchen, Summary, Delivery).",
+        "Save so new orders use the updated layout and fields."
+      ],
+      "image": "admin-print-settings.png",
+      "caption": "Print settings tab."
+    },
+    {
+      "id": "printer-form",
+      "title": "Formulaire imprimante",
+      "steps": [
+        "Admin → Impression → Imprimantes.",
+        "Nom et connexion IP/USB.",
+        "Type reçu/cuisine/étiquette.",
+        "Enregistrer."
+      ],
+      "image": "admin-printing-printer-form.png",
+      "caption": "Formulaire imprimante.",
+      "fields": [
+        {
+          "name": "Nom",
+          "effect": "Nom convivial."
+        },
+        {
+          "name": "Type",
+          "effect": "Profil reçu/cuisine/étiquette."
+        },
+        {
+          "name": "IP / port",
+          "effect": "Connexion réseau ESC/POS."
+        },
+        {
+          "name": "VID / PID",
+          "effect": "IDs USB."
+        }
+      ]
+    },
+    {
+      "id": "print-setting-form",
+      "title": "Formulaire param impression",
+      "intro": "Chaque job a son modèle.",
+      "steps": [
+        "Paramètres impression.",
+        "Type job.",
+        "Logo, en-tête/pied, TVA, marges.",
+        "Enregistrer."
+      ],
+      "image": "admin-printing-print-setting-form.png",
+      "caption": "Éditeur modèle.",
+      "fields": [
+        {
+          "name": "Afficher logo",
+          "effect": "Logo sur ticket."
+        },
+        {
+          "name": "Sections en-tête/pied",
+          "effect": "Blocs texte/image."
+        },
+        {
+          "name": "Nom/n° TVA",
+          "effect": "Bloc fiscal."
+        },
+        {
+          "name": "Marges",
+          "effect": "Espacement en points."
+        },
+        {
+          "name": "Colonnes article",
+          "effect": "N°, nom, qté, prix, total."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "title": "Users and roles",
+  "intro": "Manage staff accounts, PINs, role permissions, shifts, and tip-pool definitions that control who can access each screen and tab.",
+  "sections": [
+    {
+      "id": "list",
+      "title": "User list",
+      "steps": [
+        "Open the Users tab.",
+        "Browse active users with name, role, and contact fields.",
+        "Use Add user to create a new account or Edit to update an existing one."
+      ],
+      "image": "admin-users-list.png",
+      "caption": "Users maintenance table."
+    },
+    {
+      "id": "roles",
+      "title": "Roles",
+      "intro": "Roles bundle permission modules that gate sidebar screens, Manage tabs, and protected actions.",
+      "steps": [
+        "Switch to the Roles sub-tab under Users.",
+        "Create roles and open the module list to enable or disable access.",
+        "Assign roles to users so permissions stay consistent across staff."
+      ],
+      "image": "admin-users-roles.png",
+      "caption": "Roles sub-tab."
+    },
+    {
+      "id": "shifts",
+      "title": "Shifts",
+      "intro": "Shifts define work windows used for labor reporting and automatic clock-out rules.",
+      "steps": [
+        "Switch to the Shifts sub-tab.",
+        "Add shift names with start and end times.",
+        "Assign shifts to users for scheduling and tip-distribution context."
+      ],
+      "image": "admin-users-shifts.png",
+      "caption": "Shifts sub-tab."
+    },
+    {
+      "id": "tips-definition",
+      "title": "Tip definition",
+      "intro": "Tip definition sets pool weights and rules used when managers run tip distribution (see HR Guide → Tip distribution for payout runs).",
+      "steps": [
+        "Switch to the Tip definition sub-tab.",
+        "Configure how tips are pooled and weighted by role or shift.",
+        "Save so tip distribution calculations use the latest rules."
+      ],
+      "image": "admin-users-tips-definition.png",
+      "caption": "Tip definition sub-tab."
+    },
+    {
+      "id": "user-form",
+      "title": "User form",
+      "intro": "POS operators log in with PIN or password and inherit role permissions.",
+      "steps": [
+        "Open Admin → Users and add or edit.",
+        "Set login method, name, credentials, role, and shift.",
+        "Optionally create a linked HR employee record.",
+        "Save — user can sign in on terminals with assigned permissions."
+      ],
+      "image": "admin-users-user-form.png",
+      "caption": "User account form.",
+      "fields": [
+        {
+          "name": "Login method",
+          "effect": "PIN (4 digits) or password authentication."
+        },
+        {
+          "name": "First / last name",
+          "effect": "Displayed name on checks and reports."
+        },
+        {
+          "name": "Login / PIN",
+          "effect": "Credential used at sign-in."
+        },
+        {
+          "name": "Password",
+          "effect": "Required when login method is password."
+        },
+        {
+          "name": "User role",
+          "effect": "Permission bundle controlling modules and actions."
+        },
+        {
+          "name": "User shift",
+          "effect": "Default work shift for labor reporting."
+        },
+        {
+          "name": "Create employee",
+          "effect": "Auto-creates linked HR employee with employee number."
+        }
+      ]
+    },
+    {
+      "id": "role-form",
+      "title": "Role form",
+      "intro": "Roles grant module and action access checked by protectAction throughout the app.",
+      "steps": [
+        "Open Users → Roles.",
+        "Name the role and search the module tree.",
+        "Check parent modules or individual actions.",
+        "Save — assign the role on user records."
+      ],
+      "image": "admin-users-role-form.png",
+      "caption": "Role permissions editor.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Role label on user form."
+        },
+        {
+          "name": "Module permissions",
+          "effect": "Hierarchical checkboxes for screens and sub-actions."
+        }
+      ]
+    },
+    {
+      "id": "shift-form",
+      "title": "Shift template form",
+      "intro": "Shifts in Admin → Users define named time windows for user default shift and schedule templates.",
+      "steps": [
+        "Open Users → Shifts.",
+        "Enter name, start time, and end time.",
+        "Overnight shifts set ends_next_day automatically.",
+        "Save — selectable on users and HR schedule forms."
+      ],
+      "image": "admin-users-shift-form.png",
+      "caption": "Shift template form.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Shift label (e.g. Morning, Close)."
+        },
+        {
+          "name": "Start time",
+          "effect": "Scheduled shift start."
+        },
+        {
+          "name": "End time",
+          "effect": "Scheduled shift end; may roll to next calendar day."
+        }
+      ]
+    }
+  ]
+}

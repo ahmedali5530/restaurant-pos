@@ -1,0 +1,36 @@
+{
+  "title": "Documentação POSR",
+  "intro": "Guias por função no POSR. Escolha o guia do seu papel: atendimento, gerente, estoque, contas, RH ou administrador.",
+  "toc": "Guias",
+  "openGuide": "Abrir guia",
+  "statusReady": "Pronto",
+  "statusPlanned": "Planejado",
+  "comingSoon": "Em breve — este capítulo está planejado e ainda não está documentado.",
+  "plannedLabel": "Planejado",
+  "guides": {
+    "employee": {
+      "title": "Guia do funcionário",
+      "intro": "Trabalho diário no PDV: login, pedidos, carrinho e pagamento, contas abertas, bloqueio e ponto de saída."
+    },
+    "manager": {
+      "title": "Guia do gerente",
+      "intro": "Liderança de turno: resumo de vendas, cozinha, delivery, fechamento e relatórios operacionais."
+    },
+    "inventory": {
+      "title": "Guia de estoque",
+      "intro": "Estoque, compras, saídas, perdas e contagens para o perfil de armazém."
+    },
+    "accounts": {
+      "title": "Guia de contas",
+      "intro": "Livros financeiros, despesas e ferramentas contábeis do PDV."
+    },
+    "hr": {
+      "title": "Guia de RH",
+      "intro": "Pessoas: funcionários, presença, férias, folha de pagamento, documentos, desempenho e distribuição de gorjetas."
+    },
+    "admin": {
+      "title": "Guia do administrador",
+      "intro": "Configuração do estabelecimento: Manage, integrações e definições avançadas."
+    }
+  }
+}

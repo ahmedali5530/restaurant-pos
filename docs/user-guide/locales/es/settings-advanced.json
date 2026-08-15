@@ -1,0 +1,106 @@
+{
+  "title": "Ajustes avanzados del dispositivo",
+  "intro": "Los administradores usan Ajustes para controles del local: ciclo de cierre, cierre automático, seguridad de sesión, salida automática, cargos, menús, inventario e impresoras.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Ajustes para administradores",
+      "steps": [
+        "Inicie sesión con permiso de ajustes.",
+        "Abra Ajustes con la llave.",
+        "Céntrese en tarjetas del local, no solo idioma o táctil."
+      ],
+      "image": "settings-adv-overview.png",
+      "caption": "Página de ajustes — tarjetas avanzadas."
+    },
+    {
+      "id": "closing-cycle",
+      "title": "Ciclo de cierre",
+      "intro": "Define la ventana del día de negocio.",
+      "steps": [
+        "Active ciclo personalizado si opera de madrugada.",
+        "Defina inicio y fin.",
+        "Guarde (puede pedir PIN)."
+      ],
+      "image": "settings-adv-closing-cycle.png",
+      "caption": "Tarjeta ciclo de cierre."
+    },
+    {
+      "id": "auto-check-close",
+      "title": "Cierre automático de cuentas",
+      "steps": [
+        "Active el asentamiento al fin del ciclo.",
+        "Elija impresión y tipo de pago.",
+        "Guarde."
+      ],
+      "image": "settings-adv-auto-check-close.png",
+      "caption": "Tarjeta cierre automático."
+    },
+    {
+      "id": "session-security",
+      "title": "Seguridad de sesión",
+      "steps": [
+        "Active bloqueo o logout por inactividad.",
+        "Defina minutos y acción.",
+        "Guarde."
+      ],
+      "image": "settings-adv-session-security.png",
+      "caption": "Tarjeta seguridad de sesión."
+    },
+    {
+      "id": "auto-clock-out",
+      "title": "Salida automática",
+      "steps": [
+        "Active salida automática.",
+        "Elija fin de turno, hora fija o ambos.",
+        "Guarde."
+      ],
+      "image": "settings-adv-auto-clock-out.png",
+      "caption": "Tarjeta salida automática."
+    },
+    {
+      "id": "service-charges",
+      "title": "Cargos por servicio",
+      "steps": [
+        "Defina tipo y valor por defecto.",
+        "Se aplican en pago cuando hay servicio.",
+        "Guarde."
+      ],
+      "image": "settings-adv-service-charges.png",
+      "caption": "Tarjeta cargos."
+    },
+    {
+      "id": "menus",
+      "title": "Menús activos",
+      "steps": [
+        "Seleccione menús de este terminal.",
+        "Guarde para el personal.",
+        "Combine con Administración → Menús."
+      ],
+      "image": "settings-adv-menus.png",
+      "caption": "Tarjeta menús."
+    },
+    {
+      "id": "inventory",
+      "title": "Ajustes de inventario",
+      "steps": [
+        "Configure preferencias de stock.",
+        "Guarde.",
+        "Documentos profundos en Inventario."
+      ],
+      "image": "settings-adv-inventory.png",
+      "caption": "Tarjeta inventario."
+    },
+    {
+      "id": "printers",
+      "title": "Impresoras",
+      "steps": [
+        "Asigne impresoras de este dispositivo.",
+        "Guarde.",
+        "Opciones de impresión en tarjetas vecinas."
+      ],
+      "image": "settings-adv-printers.png",
+      "caption": "Tarjeta impresoras."
+    }
+  ]
+}

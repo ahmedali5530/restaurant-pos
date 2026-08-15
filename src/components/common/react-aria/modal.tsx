@@ -25,6 +25,7 @@ interface ModalProps extends PropsWithChildren {
   shouldCenter?: boolean;
   backgroundColor?: string
   bottomSheet?: boolean
+  testId?: string
 }
 
 export const Modal: FunctionComponent<ModalProps> = ({
@@ -86,6 +87,7 @@ export const Modal: FunctionComponent<ModalProps> = ({
             )}
           >
             <Dialog
+              data-testid={props.testId}
               className={cn(
                 'react-aria-Dialog',
                 size === "full" && "modal-full",
@@ -107,6 +109,7 @@ export const Modal: FunctionComponent<ModalProps> = ({
                       className="btn btn-secondary btn-flat btn-square absolute top-2 right-2 lg rounded inline-flex justify-center items-center"
                       type="button"
                       aria-label={t('actions.close')}
+                      data-testid="modal-close"
                     >
                       <FontAwesomeIcon icon={faTimes} size="lg"/>
                     </button>

@@ -1,0 +1,211 @@
+{
+  "title": "Attendance",
+  "intro": "Track clock times and build schedules so labor hours stay accurate for payroll and reporting.",
+  "sections": [
+    {
+      "id": "attendance",
+      "title": "Attendance records",
+      "steps": [
+        "Open the Attendance tab.",
+        "Review clock-in and clock-out events for staff.",
+        "Correct or approve exceptions when your role allows."
+      ],
+      "image": "hr-attendance.png",
+      "caption": "Attendance tab."
+    },
+    {
+      "id": "scheduling",
+      "title": "Scheduling",
+      "intro": "Schedules plan who works which shifts.",
+      "steps": [
+        "Open the Scheduling tab.",
+        "Build or adjust shifts for upcoming days.",
+        "Published schedules guide floor staffing and attendance expectations."
+      ],
+      "image": "hr-scheduling.png",
+      "caption": "Scheduling tab."
+    },
+    {
+      "id": "attendance-form",
+      "title": "Manuelle Anwesenheit",
+      "intro": "Fehlende Stempelungen korrigieren oder Zeit nachtragen wenn Terminals ausfielen.",
+      "steps": [
+        "Unter Anwesenheit Manueller Eintrag klicken.",
+        "Mitarbeiter und Ein-/Ausstempel-Zeiten eingeben.",
+        "Notizen hinzufügen und speichern — Stunden für Abrechnung und Berichte."
+      ],
+      "image": "hr-form-attendance.png",
+      "caption": "Modal manueller Anwesenheitseintrag.",
+      "fields": [
+        {
+          "name": "Mitarbeiter",
+          "effect": "Wessen Zeitdatensatz erstellt/korrigiert wird."
+        },
+        {
+          "name": "Einstempeln",
+          "effect": "Beginn des Arbeitsintervalls."
+        },
+        {
+          "name": "Ausstempeln",
+          "effect": "Ende; muss nach Einstempeln liegen."
+        },
+        {
+          "name": "Notizen",
+          "effect": "Grund für manuellen Eintrag im Audit."
+        }
+      ]
+    },
+    {
+      "id": "schedule-form",
+      "title": "Arbeitsplanformular",
+      "intro": "Ein Plan ist ein benannter Datumsbereich mit Entwurfs- oder veröffentlichten Schichten.",
+      "steps": [
+        "Planung öffnen und Plan hinzufügen.",
+        "Name, Periodenstart und -ende setzen.",
+        "Schichten hinzufügen oder aus Vorlagen generieren im Entwurf."
+      ],
+      "image": "hr-form-schedule.png",
+      "caption": "Formular Arbeitsplan.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Bezeichnung der Planperiode (z. B. Woche 12)."
+        },
+        {
+          "name": "Periodenstart",
+          "effect": "Erster abgedeckter Zeitpunkt."
+        },
+        {
+          "name": "Periodenende",
+          "effect": "Letzter abgedeckter Zeitpunkt."
+        }
+      ]
+    },
+    {
+      "id": "shift-form",
+      "title": "Geplante Schichtformular",
+      "intro": "Weist einen Mitarbeiter einem Zeitblock in einem Entwurfsplan zu.",
+      "steps": [
+        "Im Entwurfsplan Schicht hinzufügen klicken.",
+        "Plan, Mitarbeiter und Start/Ende wählen.",
+        "Optional Schichtvorlage, Abteilung, Position und Kostenstelle.",
+        "Speichern — warnt bei Überschneidungen."
+      ],
+      "image": "hr-form-shift.png",
+      "caption": "Formular geplante Schicht.",
+      "fields": [
+        {
+          "name": "Arbeitsplan",
+          "effect": "Elternplan muss Entwurf sein."
+        },
+        {
+          "name": "Mitarbeiter",
+          "effect": "Der Schicht zugewiesenes Personal."
+        },
+        {
+          "name": "Schichtvorlage",
+          "effect": "Optionales Preset aus Admin → Benutzer → Schichten."
+        },
+        {
+          "name": "Abteilung / Position / Kostenstelle",
+          "effect": "Org-Tags für diese Schicht überschreiben."
+        },
+        {
+          "name": "Start / Ende",
+          "effect": "Geplantes Zeitfenster."
+        }
+      ]
+    },
+    {
+      "id": "schedule-template",
+      "title": "Planvorlagenformular",
+      "intro": "Wiederverwendbares Wochenmuster zum Massengenerieren von Schichten.",
+      "steps": [
+        "Vorlagen unter Planung öffnen.",
+        "Vorlage benennen und Wochentage mit Start/Ende wählen.",
+        "Optional Schichtvorlage und Org-Defaults verknüpfen.",
+        "Speichern für Plan generieren."
+      ],
+      "image": "hr-form-schedule-template.png",
+      "caption": "Formular Planvorlage.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Bezeichnung im Generieren-Dialog."
+        },
+        {
+          "name": "Wochentage",
+          "effect": "Welche Tage Schichten erhalten."
+        },
+        {
+          "name": "Start- / Endzeit",
+          "effect": "Tägliches Fenster an gewählten Tagen."
+        },
+        {
+          "name": "Pausenminuten",
+          "effect": "Unbezahlte Pause abgezogen von Stunden."
+        },
+        {
+          "name": "Schichtvorlage",
+          "effect": "Verknüpft POS-Schichtdefinition für Berichte."
+        }
+      ]
+    },
+    {
+      "id": "schedule-generate",
+      "title": "Plan aus Vorlage generieren",
+      "steps": [
+        "Generieren in Planung klicken.",
+        "Entwurfsplan und Vorlage wählen.",
+        "Mitarbeiter multi-selektieren.",
+        "Generieren — erstellt Schichten, überspringt Konflikte wenn konfiguriert."
+      ],
+      "image": "hr-form-schedule-generate.png",
+      "caption": "Dialog Plan generieren.",
+      "fields": [
+        {
+          "name": "Arbeitsplan",
+          "effect": "Ziel-Entwurfsplan."
+        },
+        {
+          "name": "Vorlage",
+          "effect": "Wochenmuster mit Tagen und Zeiten."
+        },
+        {
+          "name": "Mitarbeiter",
+          "effect": "Personal das Vorlagen-Schichten erhält."
+        }
+      ]
+    },
+    {
+      "id": "schedule-swap",
+      "title": "Schichttausch-Anfrage",
+      "steps": [
+        "Schichttausch anfragen in Planung klicken.",
+        "Geplante Schicht und anfragenden Mitarbeiter wählen.",
+        "Optional Zielmitarbeiter und Gegenschicht.",
+        "Absenden — erstellt ausstehenden Tausch zur Managerfreigabe."
+      ],
+      "image": "hr-form-schedule-swap.png",
+      "caption": "Formular Schichttausch.",
+      "fields": [
+        {
+          "name": "Geplante Schicht",
+          "effect": "Schicht die der Anfragende abgeben/tauschen will."
+        },
+        {
+          "name": "Anfragender Mitarbeiter",
+          "effect": "Mitarbeiter der Tausch initiiert."
+        },
+        {
+          "name": "Zielmitarbeiter",
+          "effect": "Optionaler Kollege zum Übernehmen/Tauschen."
+        },
+        {
+          "name": "Vorgeschlagene Schicht",
+          "effect": "Optionale Gegenschicht."
+        }
+      ]
+    }
+  ]
+}

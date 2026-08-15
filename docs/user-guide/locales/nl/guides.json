@@ -1,0 +1,36 @@
+{
+  "title": "POSR-documentatie",
+  "intro": "Rolgebonden handleidingen voor POSR. Kies de gids die bij je rol past: bediening, manager, voorraad, boekhouding, HR of beheerder.",
+  "toc": "Handleidingen",
+  "openGuide": "Handleiding openen",
+  "statusReady": "Klaar",
+  "statusPlanned": "Gepland",
+  "comingSoon": "Binnenkort — dit hoofdstuk is gepland maar nog niet gedocumenteerd.",
+  "plannedLabel": "Gepland",
+  "guides": {
+    "employee": {
+      "title": "Medewerkerhandleiding",
+      "intro": "Dagelijks POS-werk: inloggen, bestellen, winkelwagen en betaling, open rekeningen, vergrendelen en uitklokken."
+    },
+    "manager": {
+      "title": "Managerhandleiding",
+      "intro": "Shiftleiding: verkoopoverzicht, keuken, bezorging, afsluiting en operationele rapporten."
+    },
+    "inventory": {
+      "title": "Voorraadhandleiding",
+      "intro": "Voorraad, inkopen, uitgiftes, afval en tellingen voor de magazijnrol."
+    },
+    "accounts": {
+      "title": "Boekhoudingshandleiding",
+      "intro": "Financiële boeken, uitgaven en boekhoudtools in de POS."
+    },
+    "hr": {
+      "title": "HR-handleiding",
+      "intro": "People: medewerkers, aanwezigheid, verlof, payroll, documenten, beoordelingen en fooienverdeling."
+    },
+    "admin": {
+      "title": "Beheerderhandleiding",
+      "intro": "Configuratie van de zaak: Manage, integraties en geavanceerde instellingen."
+    }
+  }
+}

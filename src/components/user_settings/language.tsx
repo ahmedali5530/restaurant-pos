@@ -18,7 +18,7 @@ export const LanguageSettings = () => {
   const currentDirection: AppTextDirection = page.direction ?? DEFAULT_TEXT_DIRECTION;
 
   return (
-    <div className="shadow p-5 rounded-xl bg-white">
+    <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-language">
       <div className="flex items-start mb-5">
         <div>
           <h2 className="text-xl font-semibold mb-1">{t('language.title')}</h2>

@@ -1,0 +1,40 @@
+{
+  "title": "HR Übersicht",
+  "intro": "HR deckt Personal ab: Mitarbeiter, Anwesenheit, Urlaub, Dienstpläne und Lohn.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "HR öffnen",
+      "steps": [
+        "Mit HR-Zugriff anmelden.",
+        "HR tippen.",
+        "Öffnet das Dashboard."
+      ],
+      "image": "hr-overview.png",
+      "caption": "HR-Bildschirm."
+    },
+    {
+      "id": "tabs",
+      "title": "Tab-Navigation",
+      "intro": "Tabs gruppieren Setup und Prozesse.",
+      "steps": [
+        "Horizontal scrollen.",
+        "Personen: Mitarbeiter, Abteilungen, Positionen.",
+        "Zeit: Anwesenheit, Dienstplan, Urlaub, Feiertage."
+      ],
+      "image": "hr-tabs.png",
+      "caption": "HR-Tableiste."
+    },
+    {
+      "id": "dashboard",
+      "title": "Dashboard",
+      "steps": [
+        "Fasst HR-Kennzahlen zusammen.",
+        "Startpunkt vor Detailtabs.",
+        "Andere Tabs verwalten Daten und Vorgänge."
+      ],
+      "image": "hr-dashboard.png",
+      "caption": "HR-Dashboard."
+    }
+  ]
+}

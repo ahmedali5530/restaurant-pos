@@ -1,0 +1,36 @@
+{
+  "title": "Documentación POSR",
+  "intro": "Guías por rol para POSR. Elija la guía que coincida con su trabajo: personal de sala, gerente, inventario, contabilidad, RR. HH. o administrador.",
+  "toc": "Guías",
+  "openGuide": "Abrir guía",
+  "statusReady": "Lista",
+  "statusPlanned": "Planificada",
+  "comingSoon": "Próximamente: este capítulo está planificado y aún no está documentado.",
+  "plannedLabel": "Planificado",
+  "guides": {
+    "employee": {
+      "title": "Guía del empleado",
+      "intro": "Trabajo diario en el TPV: inicio de sesión, pedidos, carrito y pago, cuentas abiertas, bloqueo y fichaje de salida."
+    },
+    "manager": {
+      "title": "Guía del gerente",
+      "intro": "Liderazgo de turno: resumen de ventas, cocina, delivery, cierre e informes operativos."
+    },
+    "inventory": {
+      "title": "Guía de inventario",
+      "intro": "Existencias, compras, salidas, mermas y recuentos para el rol de almacén."
+    },
+    "accounts": {
+      "title": "Guía de contabilidad",
+      "intro": "Libros contables, gastos y herramientas financieras del TPV."
+    },
+    "hr": {
+      "title": "Guía de RR. HH.",
+      "intro": "Personas: empleados, asistencia, ausencias, nómina, documentos, desempeño y distribución de propinas."
+    },
+    "admin": {
+      "title": "Guía del administrador",
+      "intro": "Configuración del local: Gestión, integraciones y ajustes avanzados."
+    }
+  }
+}

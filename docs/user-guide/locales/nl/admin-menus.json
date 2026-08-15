@@ -1,0 +1,182 @@
+{
+  "title": "Menus, categories, and dishes",
+  "intro": "Configure what appears on the ordering screen: dishes, menu groupings, and categories.",
+  "sections": [
+    {
+      "id": "dishes",
+      "title": "Dishes",
+      "steps": [
+        "Open the Dishes tab.",
+        "Create or edit dishes with price, categories, modifiers, and recipes.",
+        "Import CSV files for bulk dish or ingredient updates when needed."
+      ],
+      "image": "admin-menus-dishes.png",
+      "caption": "Dishes tab."
+    },
+    {
+      "id": "menus",
+      "title": "Menus",
+      "intro": "Menus control which dishes are visible on each service period or channel.",
+      "steps": [
+        "Open the Menus tab.",
+        "Assign dishes to menus and set availability windows.",
+        "Save changes so floor staff see updated items on the Menu screen."
+      ],
+      "image": "admin-menus-menus.png",
+      "caption": "Menus tab."
+    },
+    {
+      "id": "categories",
+      "title": "Categories",
+      "steps": [
+        "Open the Categories tab.",
+        "Group dishes for navigation on the ordering screen.",
+        "Reorder categories to match how staff browse the menu."
+      ],
+      "image": "admin-menus-categories.png",
+      "caption": "Categories tab."
+    },
+    {
+      "id": "modifier-groups",
+      "title": "Modifier groups",
+      "intro": "Modifier groups define optional add-ons, sizes, and nested choices shown when staff customize a dish.",
+      "steps": [
+        "Open the Modifier groups tab.",
+        "Create groups with modifiers, prices, and optional next-group rules.",
+        "Assign groups to dishes so the cart shows the correct customization flow."
+      ],
+      "image": "admin-modifier-groups.png",
+      "caption": "Modifier groups tab."
+    },
+    {
+      "id": "dish-form",
+      "title": "Gerechtformulier",
+      "intro": "Verkoopbare items met prijs, categorieën, modifiers en keuken.",
+      "steps": [
+        "Admin → Menu's → Gerechten.",
+        "Nummer, naam, prijs, categorieën.",
+        "Modifiers, recept, keuken.",
+        "Opslaan."
+      ],
+      "image": "admin-menus-dish-form.png",
+      "caption": "Gerecht onderhoud.",
+      "fields": [
+        {
+          "name": "Nummer / naam",
+          "effect": "POS-id en weergavenaam."
+        },
+        {
+          "name": "Prijs / kosten",
+          "effect": "Verkoopprijs en theoretische kosten."
+        },
+        {
+          "name": "Categorieën",
+          "effect": "Menugroepering."
+        },
+        {
+          "name": "Modifiergroepen",
+          "effect": "Aanpassingsflow."
+        },
+        {
+          "name": "Receptregels",
+          "effect": "Voorraadafname bij verkoop."
+        },
+        {
+          "name": "Keuken / workflow",
+          "effect": "KOT-routing."
+        }
+      ]
+    },
+    {
+      "id": "menu-form",
+      "title": "Menuformulier",
+      "intro": "Beperkt POS-categorieën per tijd.",
+      "steps": [
+        "Tab Menu's.",
+        "Naam en tijden.",
+        "Actief en eindigt volgende dag.",
+        "Opslaan."
+      ],
+      "image": "admin-menus-menu-form.png",
+      "caption": "Menuformulier.",
+      "fields": [
+        {
+          "name": "Naam",
+          "effect": "Label POS-switcher."
+        },
+        {
+          "name": "Start / eind",
+          "effect": "Beschikbaarheidsvenster."
+        },
+        {
+          "name": "Eindigt volgende dag",
+          "effect": "Service na middernacht."
+        },
+        {
+          "name": "Actief",
+          "effect": "Inactief verborgen."
+        }
+      ]
+    },
+    {
+      "id": "category-form",
+      "title": "Categorieformulier",
+      "steps": [
+        "Categorieën.",
+        "Naam, prioriteit, toon in menu.",
+        "Opslaan."
+      ],
+      "image": "admin-menus-category-form.png",
+      "caption": "Categorieformulier.",
+      "fields": [
+        {
+          "name": "Naam",
+          "effect": "Kop POS."
+        },
+        {
+          "name": "Prioriteit",
+          "effect": "Sorteervolgorde."
+        },
+        {
+          "name": "Toon in menu",
+          "effect": "Verborgen indien uit."
+        }
+      ]
+    },
+    {
+      "id": "modifier-group-form",
+      "title": "Modifiergroepformulier",
+      "intro": "Modifiers, prijzen en geneste volggroepen.",
+      "steps": [
+        "Modifiergroepen.",
+        "Naam, prioriteit, prijzen.",
+        "Volggroepen.",
+        "Opslaan."
+      ],
+      "image": "admin-menus-modifier-group-form.png",
+      "caption": "Formulier geneste groepen.",
+      "fields": [
+        {
+          "name": "Naam / prioriteit",
+          "effect": "Label en volgorde."
+        },
+        {
+          "name": "Modifier",
+          "effect": "Selecteerbare optie."
+        },
+        {
+          "name": "Prijs",
+          "effect": "Extra toeslag."
+        },
+        {
+          "name": "Toegestane volggroepen",
+          "effect": "Na keuze."
+        },
+        {
+          "name": "Volggroep overrides",
+          "effect": "Verbergen of prijs."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,157 @@
+{
+  "title": "Users and roles",
+  "intro": "Manage staff accounts, PINs, role permissions, shifts, and tip-pool definitions that control who can access each screen and tab.",
+  "sections": [
+    {
+      "id": "list",
+      "title": "User list",
+      "steps": [
+        "Open the Users tab.",
+        "Browse active users with name, role, and contact fields.",
+        "Use Add user to create a new account or Edit to update an existing one."
+      ],
+      "image": "admin-users-list.png",
+      "caption": "Users maintenance table."
+    },
+    {
+      "id": "roles",
+      "title": "Roles",
+      "intro": "Roles bundle permission modules that gate sidebar screens, Manage tabs, and protected actions.",
+      "steps": [
+        "Switch to the Roles sub-tab under Users.",
+        "Create roles and open the module list to enable or disable access.",
+        "Assign roles to users so permissions stay consistent across staff."
+      ],
+      "image": "admin-users-roles.png",
+      "caption": "Roles sub-tab."
+    },
+    {
+      "id": "shifts",
+      "title": "Shifts",
+      "intro": "Shifts define work windows used for labor reporting and automatic clock-out rules.",
+      "steps": [
+        "Switch to the Shifts sub-tab.",
+        "Add shift names with start and end times.",
+        "Assign shifts to users for scheduling and tip-distribution context."
+      ],
+      "image": "admin-users-shifts.png",
+      "caption": "Shifts sub-tab."
+    },
+    {
+      "id": "tips-definition",
+      "title": "Trinkgeld-Definition (Verteilung)",
+      "intro": "Konfiguriert Gewichtung gepoolter Trinkgelder nach Rollen und Benutzern für Abrechnungsberichte.",
+      "steps": [
+        "Benutzer → Trinkgeld-Definition.",
+        "Rollenzeilen mit Gewichtsprozenten oder Punkten hinzufügen.",
+        "Optional Benutzer-Overrides.",
+        "Speichern — Verteilungsberichte nutzen diese Gewichte."
+      ],
+      "image": "admin-users-tips-definition.png",
+      "caption": "Admin-Panel Trinkgeldverteilung.",
+      "fields": [
+        {
+          "name": "Rollengewicht",
+          "effect": "Anteil am Pool pro Rolle (z. B. Service 70%, Hilfe 30%)."
+        },
+        {
+          "name": "Benutzergewicht",
+          "effect": "Optionale Override pro Benutzer."
+        }
+      ]
+    },
+    {
+      "id": "user-form",
+      "title": "Benutzerformular",
+      "intro": "POS-Bediener melden sich mit PIN oder Passwort an und erben Rollenberechtigungen.",
+      "steps": [
+        "Admin → Benutzer hinzufügen/bearbeiten.",
+        "Anmeldemethode, Name, Zugangsdaten, Rolle und Schicht setzen.",
+        "Optional verknüpften HR-Mitarbeiter anlegen.",
+        "Speichern — Anmeldung mit zugewiesenen Rechten."
+      ],
+      "image": "admin-users-user-form.png",
+      "caption": "Benutzerkontenformular.",
+      "fields": [
+        {
+          "name": "Anmeldemethode",
+          "effect": "PIN (4 Stellen) oder Passwort."
+        },
+        {
+          "name": "Vor- / Nachname",
+          "effect": "Name auf Bons und Berichten."
+        },
+        {
+          "name": "Login / PIN",
+          "effect": "Anmeldedaten."
+        },
+        {
+          "name": "Passwort",
+          "effect": "Pflicht bei Passwort-Anmeldung."
+        },
+        {
+          "name": "Benutzerrolle",
+          "effect": "Modul-Berechtigungspaket."
+        },
+        {
+          "name": "Benutzerschicht",
+          "effect": "Standard-Schicht für Arbeitsberichte."
+        },
+        {
+          "name": "Mitarbeiter anlegen",
+          "effect": "Erstellt automatisch verknüpften HR-Mitarbeiter."
+        }
+      ]
+    },
+    {
+      "id": "role-form",
+      "title": "Rollenformular",
+      "intro": "Rollen gewähren Modul- und Aktionszugriff über protectAction.",
+      "steps": [
+        "Benutzer → Rollen.",
+        "Rolle benennen und Modulbaum durchsuchen.",
+        "Elternmodule oder einzelne Aktionen ankreuzen.",
+        "Speichern — Rolle Benutzern zuweisen."
+      ],
+      "image": "admin-users-role-form.png",
+      "caption": "Rollenberechtigungs-Editor.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Rollenbezeichnung im Benutzerformular."
+        },
+        {
+          "name": "Modulberechtigungen",
+          "effect": "Hierarchische Checkboxen für Bildschirme und Sub-Aktionen."
+        }
+      ]
+    },
+    {
+      "id": "shift-form",
+      "title": "Schichtvorlagenformular",
+      "intro": "Schichten unter Admin → Benutzer definieren Zeitfenster für Standard-Schicht und HR-Vorlagen.",
+      "steps": [
+        "Benutzer → Schichten.",
+        "Name, Start- und Endzeit eingeben.",
+        "Nachtschichten setzen ends_next_day automatisch.",
+        "Speichern — wählbar auf Benutzern und Plänen."
+      ],
+      "image": "admin-users-shift-form.png",
+      "caption": "Schichtvorlagenformular.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Bezeichnung (z. B. Früh, Schluss)."
+        },
+        {
+          "name": "Startzeit",
+          "effect": "Geplanter Schichtbeginn."
+        },
+        {
+          "name": "Endzeit",
+          "effect": "Geplantes Ende; kann nächsten Tag erreichen."
+        }
+      ]
+    }
+  ]
+}

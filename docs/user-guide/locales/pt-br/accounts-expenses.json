@@ -1,0 +1,29 @@
+{
+  "title": "Lançamentos e grupos de contas",
+  "intro": "Lance transações com diários e organize o plano com grupos. Despesas de caixa no fechamento são separadas.",
+  "sections": [
+    {
+      "id": "journal",
+      "title": "Lançamentos",
+      "steps": [
+        "Abra Lançamentos.",
+        "Crie linhas débito/crédito equilibradas.",
+        "Salve para postar no razão."
+      ],
+      "image": "accounts-journal.png",
+      "caption": "Aba Lançamentos."
+    },
+    {
+      "id": "groups",
+      "title": "Grupos de contas",
+      "intro": "Grupos organizam contas para demonstrações.",
+      "steps": [
+        "Abra Grupos de contas.",
+        "Crie grupos alinhados aos relatórios.",
+        "Atribua contas aos grupos."
+      ],
+      "image": "accounts-groups.png",
+      "caption": "Aba Grupos de contas."
+    }
+  ]
+}

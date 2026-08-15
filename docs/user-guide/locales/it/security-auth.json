@@ -1,0 +1,51 @@
+{
+  "title": "Riautenticazione di sicurezza",
+  "intro": "Le azioni protette possono richiedere PIN, password o QR del manager.",
+  "sections": [
+    {
+      "id": "when",
+      "title": "Quando appare",
+      "steps": [
+        "Azione non auto-consentita.",
+        "Modal con descrizione.",
+        "Blocco idle è separato."
+      ],
+      "image": "security-session-card.png",
+      "caption": "Scheda sicurezza sessione."
+    },
+    {
+      "id": "modal",
+      "title": "Modal di approvazione",
+      "steps": [
+        "Leggi il titolo.",
+        "Scegli PIN, password o QR.",
+        "Autentica o annulla."
+      ],
+      "image": "security-modal.png",
+      "caption": "Modal di approvazione."
+    },
+    {
+      "id": "methods",
+      "title": "Metodi",
+      "intro": "Più metodi possibili.",
+      "steps": [
+        "PIN sul pad.",
+        "Password se attiva.",
+        "QR se supportato."
+      ],
+      "image": "security-auth-types.png",
+      "caption": "Selettore metodo."
+    },
+    {
+      "id": "pin",
+      "title": "Inserimento PIN",
+      "steps": [
+        "PIN a 4 cifre.",
+        "Validazione a quattro cifre.",
+        "PIN non valido = errore."
+      ],
+      "image": "security-pin-pad.png",
+      "caption": "Pad PIN sicurezza."
+    }
+  ]
+}

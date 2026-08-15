@@ -1,0 +1,246 @@
+{
+  "title": "Settings",
+  "intro": "Device and venue operational preferences live on Settings. Open Settings with the wrench button at the bottom of the left sidebar after you sign in. Some cards apply only to this browser; others are global and may require manager PIN approval when saving.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Open Settings",
+      "steps": [
+        "Sign in with a user who can access Settings.",
+        "On the left sidebar, tap the wrench button.",
+        "The Settings page shows configuration cards in a multi-column layout."
+      ],
+      "image": "settings-nav.png",
+      "caption": "Wrench control that opens Settings (highlighted)."
+    },
+    {
+      "id": "overview",
+      "title": "Settings overview",
+      "intro": "Each card controls one area. Cards may be empty or restricted based on your role permissions.",
+      "steps": [
+        "Scroll through the page to find the card you need.",
+        "Change values on a card, then save when the card provides a Save action.",
+        "Some cards apply only to this browser or device; others apply globally or to your user profile."
+      ],
+      "image": "settings-overview.png",
+      "caption": "Settings page with configuration cards."
+    },
+    {
+      "id": "whats-new",
+      "title": "What's new",
+      "steps": [
+        "Open the What's new card to see the latest release date in the app.",
+        "Tap Open to show the full product update notes again (useful after dismissing them at login)."
+      ],
+      "image": "settings-whats-new.png",
+      "caption": "What's new card — re-open release notes."
+    },
+    {
+      "id": "cache",
+      "title": "Cache",
+      "steps": [
+        "Open the Cache card if menus or related data look stale.",
+        "Tap Reload cache to refresh cached catalog data from the database."
+      ],
+      "image": "settings-cache.png",
+      "caption": "Cache reload card."
+    },
+    {
+      "id": "language",
+      "title": "Language and text direction",
+      "steps": [
+        "Open the Language card.",
+        "Select the display language for this device.",
+        "Choose LTR or RTL text direction when needed (for example Arabic).",
+        "The change applies immediately for this terminal."
+      ],
+      "image": "settings-language.png",
+      "caption": "Language and direction card."
+    },
+    {
+      "id": "translate-receipts",
+      "title": "Translate receipts",
+      "intro": "When enabled, printed receipt text follows the terminal language settings where supported.",
+      "steps": [
+        "Open the Translate receipts card.",
+        "Toggle Enabled on or off.",
+        "Save (manager approval may be required)."
+      ],
+      "image": "settings-translate-receipts.png",
+      "caption": "Translate receipts card."
+    },
+    {
+      "id": "printers",
+      "title": "Default printers",
+      "steps": [
+        "Open the Default printers card.",
+        "Optionally enable system printers for this browser/terminal.",
+        "Assign printers for temp, final, refund, delivery, and summary prints.",
+        "Save printer settings when finished."
+      ],
+      "image": "settings-printers.png",
+      "caption": "Default printers configuration card."
+    },
+    {
+      "id": "print-options",
+      "title": "Print options",
+      "steps": [
+        "Open the Print options card.",
+        "Set how many physical copies each print type should produce.",
+        "Set max temp/final print attempts per order (0 means unlimited).",
+        "Save print options when finished."
+      ],
+      "image": "settings-print-options.png",
+      "caption": "Print copies and max attempts card."
+    },
+    {
+      "id": "menus",
+      "title": "Active menus",
+      "intro": "Choose which menus this venue/device can sell from. Only selected menus appear while taking orders.",
+      "steps": [
+        "Open the Menus card.",
+        "Select one or more active menus from the multi-select list.",
+        "Save (manager approval may be required)."
+      ],
+      "image": "settings-menus.png",
+      "caption": "Menus available for ordering."
+    },
+    {
+      "id": "service-charges",
+      "title": "Service charges",
+      "intro": "Default service charge applied in payment when service is used (percent or fixed).",
+      "steps": [
+        "Open the Service charges card.",
+        "Choose type (Percent or Fixed) and enter the value.",
+        "Save (manager approval may be required)."
+      ],
+      "image": "settings-service-charges.png",
+      "caption": "Service charge default type and value."
+    },
+    {
+      "id": "closing-cycle",
+      "title": "Closing cycle",
+      "intro": "Defines the business day window used for closing and day-range operations (for example overnight venues that run past midnight).",
+      "steps": [
+        "Open the Closing cycle card.",
+        "Enable or disable the custom cycle.",
+        "Set start time and end time of the business day.",
+        "Save (manager approval may be required)."
+      ],
+      "image": "settings-closing-cycle.png",
+      "caption": "Closing cycle time window."
+    },
+    {
+      "id": "auto-check-close",
+      "title": "Auto check close",
+      "intro": "Automatically settle open checks at the end of a cycle using a default payment type.",
+      "steps": [
+        "Open the Auto check close card.",
+        "Enable the feature and choose whether to print on close.",
+        "Select the payment type used when auto-closing.",
+        "Save (manager approval may be required)."
+      ],
+      "image": "settings-auto-check-close.png",
+      "caption": "Auto check close options."
+    },
+    {
+      "id": "session-security",
+      "title": "Session security",
+      "steps": [
+        "Open the Session security card.",
+        "Enable idle protection if the terminal should lock or log out after inactivity.",
+        "Set idle minutes and whether the action is lock or logout.",
+        "Save the settings (manager approval may be required)."
+      ],
+      "image": "settings-session-security.png",
+      "caption": "Session security (idle lock/logout) card."
+    },
+    {
+      "id": "auto-clock-out",
+      "title": "Auto clock-out",
+      "intro": "Automatically clocks out staff when the shift ends and/or at a defined clock time.",
+      "steps": [
+        "Open the Auto clock-out card.",
+        "Enable automatic clock-out.",
+        "Choose triggers: on shift end, at a defined time, or both.",
+        "If using a defined time, set the time of day.",
+        "Save (manager approval may be required)."
+      ],
+      "image": "settings-auto-clock-out.png",
+      "caption": "Auto clock-out triggers."
+    },
+    {
+      "id": "show-inclusive-prices",
+      "title": "Show inclusive prices",
+      "intro": "When enabled, menu and order UI can display tax-inclusive prices according to venue tax configuration.",
+      "steps": [
+        "Open the Show inclusive prices card.",
+        "Toggle Enabled on or off.",
+        "Save (manager approval may be required)."
+      ],
+      "image": "settings-show-inclusive-prices.png",
+      "caption": "Inclusive price display toggle."
+    },
+    {
+      "id": "currency-symbol",
+      "title": "Currency symbol",
+      "intro": "Control whether the currency symbol is shown on screen and on printed receipts.",
+      "steps": [
+        "Open the Currency symbol card.",
+        "Toggle show in UI and/or show on receipts.",
+        "Save (manager approval may be required)."
+      ],
+      "image": "settings-currency-symbol.png",
+      "caption": "Currency symbol on UI and receipts."
+    },
+    {
+      "id": "touch",
+      "title": "On-screen keyboard",
+      "steps": [
+        "Open the On screen keyboard card.",
+        "Toggle enabled/disabled for the virtual keyboard on this device."
+      ],
+      "image": "settings-touch.png",
+      "caption": "On-screen keyboard toggle card."
+    },
+    {
+      "id": "table-selection",
+      "title": "Table selection",
+      "intro": "When table selection is enabled, staff pick a floor table before ordering (dine-in). When disabled, the floor step is hidden on this terminal (useful for quick service).",
+      "steps": [
+        "Open the Table selection card.",
+        "Tap the button to enable or disable table selection for this device.",
+        "The change applies immediately on this browser."
+      ],
+      "image": "settings-table-selection.png",
+      "caption": "Table selection hide/show for this terminal.",
+      "note": "Documentation capture requires table selection enabled (visible floors and tables)."
+    },
+    {
+      "id": "inventory",
+      "title": "Inventory settings",
+      "intro": "Global inventory behavior: ledger, batch/expiry, costing method, purchase discounts/taxes, and allocation defaults. Mostly used when inventory modules are active.",
+      "steps": [
+        "Open the Inventory settings card.",
+        "Toggle ledger, batch tracking, expiry, manufacturing dates, and purchase options as needed.",
+        "Choose costing method and default allocation / tax behavior.",
+        "Save (manager approval may be required)."
+      ],
+      "image": "settings-inventory.png",
+      "caption": "Inventory configuration card."
+    },
+    {
+      "id": "items-visibility",
+      "title": "Items visibility",
+      "intro": "Per-terminal display options for menu search, cart totals, and order cards. Changes apply immediately on this device.",
+      "steps": [
+        "Open the Items visibility card.",
+        "Under Menu: enable dish search, search type (number vs both), and show dish numbers.",
+        "Under Cart: show or hide totals in the cart.",
+        "Under Orders: show or hide totals and other order-card fields as listed."
+      ],
+      "image": "settings-items-visibility.png",
+      "caption": "Menu, cart, and orders visibility toggles."
+    }
+  ]
+}

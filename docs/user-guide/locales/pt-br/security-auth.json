@@ -1,0 +1,51 @@
+{
+  "title": "Reautenticação de segurança",
+  "intro": "Ações protegidas podem exigir PIN, senha ou QR de gerente mesmo com sessão aberta.",
+  "sections": [
+    {
+      "id": "when",
+      "title": "Quando aparece",
+      "steps": [
+        "Você tenta ação não autoaprovada.",
+        "Abre modal com descrição.",
+        "Bloqueio por ociosidade é separado."
+      ],
+      "image": "security-session-card.png",
+      "caption": "Cartão de segurança de sessão."
+    },
+    {
+      "id": "modal",
+      "title": "Modal de aprovação",
+      "steps": [
+        "Leia o título.",
+        "Escolha PIN, senha ou QR.",
+        "Autentique ou cancele."
+      ],
+      "image": "security-modal.png",
+      "caption": "Modal de aprovação."
+    },
+    {
+      "id": "methods",
+      "title": "Métodos",
+      "intro": "O local pode permitir vários métodos.",
+      "steps": [
+        "PIN no teclado.",
+        "Senha se habilitada.",
+        "QR se suportado."
+      ],
+      "image": "security-auth-types.png",
+      "caption": "Seletor de método."
+    },
+    {
+      "id": "pin",
+      "title": "Entrada de PIN",
+      "steps": [
+        "Digite o PIN de 4 dígitos.",
+        "Valida ao completar.",
+        "PIN inválido mostra erro."
+      ],
+      "image": "security-pin-pad.png",
+      "caption": "Teclado PIN."
+    }
+  ]
+}

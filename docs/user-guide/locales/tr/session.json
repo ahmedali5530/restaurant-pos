@@ -1,0 +1,75 @@
+{
+  "title": "Kilitleme, çıkış ve saat",
+  "intro": "Yan menü altı: kilitle, çıkış, saat ve Ayarlar. Boşta kilidi oturum güvenliğinde.",
+  "sections": [
+    {
+      "id": "controls",
+      "title": "Oturum kontrolleri",
+      "steps": [
+        "Anahtar: Ayarlar.",
+        "Kullanıcı: Saat.",
+        "Kilit: kilitle.",
+        "Güç: çıkış."
+      ],
+      "image": "session-sidebar-controls.png",
+      "caption": "Settings, clock, lock, and logout on the sidebar."
+    },
+    {
+      "id": "lock",
+      "title": "Terminali kilitle",
+      "steps": [
+        "Kilitle’ye bas.",
+        "Kilitli bandı.",
+        "Aynı PIN/parola ile açın."
+      ],
+      "image": "session-locked.png",
+      "caption": "System locked banner on login.",
+      "intro": "Kısa mola; yalnızca aynı kullanıcı açar."
+    },
+    {
+      "id": "clock",
+      "title": "Saat ekranı",
+      "steps": [
+        "Saati açın.",
+        "Açık giriş gerekir.",
+        "Satış ve giriş saatini kontrol edin."
+      ],
+      "image": "session-clock.png",
+      "caption": "Clock screen overview.",
+      "intro": "Giriş kaydı, vardiya, süre ve metrikler."
+    },
+    {
+      "id": "clock-detail",
+      "title": "Kullanıcı, vardiya ve çıkış",
+      "steps": [
+        "Kullanıcı ve vardiya.",
+        "Geçen süre.",
+        "Vardiya bitince çıkış."
+      ],
+      "image": "session-clock-detail.png",
+      "caption": "Session panel with Clock Out."
+    },
+    {
+      "id": "clock-sales",
+      "title": "Oturum satış özeti",
+      "steps": [
+        "Oturum metrikleri.",
+        "Çıkış öncesi bakın."
+      ],
+      "image": "session-clock-sales.png",
+      "caption": "Sale summary metrics."
+    },
+    {
+      "id": "idle",
+      "title": "Boşta kilitle veya çık",
+      "steps": [
+        "Ayarlar → Oturum güvenliği.",
+        "Boşta dakika ve eylem.",
+        "Kaydet."
+      ],
+      "image": "session-idle-settings.png",
+      "caption": "Session security card.",
+      "intro": "Ayarlar → Oturum güvenliği."
+    }
+  ]
+}

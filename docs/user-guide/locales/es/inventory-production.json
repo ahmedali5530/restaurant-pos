@@ -1,0 +1,126 @@
+{
+  "title": "Recetas y producción",
+  "intro": "Defina recetas por lotes, ejecute producción para consumir insumos y crear salidas, y revise el historial.",
+  "sections": [
+    {
+      "id": "recipes",
+      "title": "Lista de recetas",
+      "steps": [
+        "Abra Inventario → Recetas.",
+        "Explore recetas activas con tamaño de lote e ítems de salida.",
+        "Agregue o edite recetas para preparación y costeo."
+      ],
+      "image": "inventory-recipes.png",
+      "caption": "Pestaña de mantenimiento de recetas.",
+      "fields": []
+    },
+    {
+      "id": "recipe-form",
+      "title": "Formulario de receta",
+      "intro": "Define insumos, rendimientos de salida y asignación de costo entre salidas.",
+      "steps": [
+        "Haga clic en Agregar receta o edite una fila.",
+        "Ingrese nombre, código y cantidad base del lote.",
+        "Agregue líneas de insumo con ítem y cantidad.",
+        "Agregue líneas de salida con % rendimiento, disposición y bandera principal.",
+        "Guarde para usar la receta en lotes de producción."
+      ],
+      "image": "inventory-recipe-form.png",
+      "caption": "Formulario de receta con insumos y salidas.",
+      "fields": [
+        {
+          "name": "Nombre",
+          "effect": "Nombre mostrado en producción e informes."
+        },
+        {
+          "name": "Código",
+          "effect": "Código corto opcional para cocina."
+        },
+        {
+          "name": "Cant. base del lote",
+          "effect": "Tamaño estándar para escalar ingredientes."
+        },
+        {
+          "name": "Asignación de costo",
+          "effect": "Método para repartir costo de insumos entre salidas."
+        },
+        {
+          "name": "Ítems de insumo",
+          "effect": "Artículos y cantidades consumidas por lote."
+        },
+        {
+          "name": "Ítems de salida",
+          "effect": "Productos con % rendimiento y salida principal."
+        },
+        {
+          "name": "Está activa",
+          "effect": "Recetas inactivas no aparecen en nuevos lotes."
+        }
+      ]
+    },
+    {
+      "id": "production",
+      "title": "Ejecuciones de producción",
+      "steps": [
+        "Abra la pestaña Producción.",
+        "Inicie un lote nuevo desde una receta activa.",
+        "Previsualice ingredientes escalados y complete para registrar movimientos."
+      ],
+      "image": "inventory-production.png",
+      "caption": "Pestaña Producción con lista de lotes.",
+      "fields": []
+    },
+    {
+      "id": "production-form",
+      "title": "Formulario de lote de producción",
+      "intro": "Al completar un lote se deducen insumos y se agregan salidas en la ubicación elegida.",
+      "steps": [
+        "Haga clic en Nueva producción.",
+        "Seleccione receta, ubicación y cantidad producida.",
+        "Revise la vista previa de insumos y salidas escalados.",
+        "Opcionalmente actualice costo de ítem desde el lote.",
+        "Complete para registrar el lote y escribir historial."
+      ],
+      "image": "inventory-production-form.png",
+      "caption": "Formulario de lote con vista previa.",
+      "fields": [
+        {
+          "name": "Receta",
+          "effect": "Define ingredientes y salidas del lote."
+        },
+        {
+          "name": "Ubicación",
+          "effect": "Almacén donde se consume y produce stock."
+        },
+        {
+          "name": "Cant. producida",
+          "effect": "Escala la receta desde el tamaño base."
+        },
+        {
+          "name": "Número de lote",
+          "effect": "Referencia opcional en etiquetas o historial."
+        },
+        {
+          "name": "Actualizar costo de ítem",
+          "effect": "Recalcula costo de salida desde totales del lote."
+        },
+        {
+          "name": "Notas",
+          "effect": "Nota libre en el registro de producción."
+        }
+      ]
+    },
+    {
+      "id": "production-history",
+      "title": "Historial de producción",
+      "steps": [
+        "Abra Historial de producción para auditar lotes completados.",
+        "Filtre por fecha, receta o ubicación.",
+        "Abra una fila para ver insumos, salidas y quién registró el lote."
+      ],
+      "image": "inventory-production-history.png",
+      "caption": "Lista de historial de producción.",
+      "fields": []
+    }
+  ]
+}

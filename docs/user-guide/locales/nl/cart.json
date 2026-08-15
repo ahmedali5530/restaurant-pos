@@ -1,0 +1,29 @@
+{
+  "title": "Winkelwagen",
+  "intro": "De winkelwagen bevat items voor de huidige gast. Van hier naar de keuken of naar betalen.",
+  "sections": [
+    {
+      "id": "panel",
+      "title": "Winkelwagenpaneel",
+      "intro": "Nieuwe en reeds verzonden regels.",
+      "steps": [
+        "Nieuw bovenaan; verzonden onder de scheiding.",
+        "Tik op een regel voor acties.",
+        "Gebruik zitplaatsen om te splitsen."
+      ],
+      "image": "cart-panel.png",
+      "caption": "Winkelwagen."
+    },
+    {
+      "id": "actions",
+      "title": "Keuken, Betalen, Annuleren",
+      "steps": [
+        "Naar keuken slaat op en verzendt.",
+        "Nu betalen opent betaling (hoofdstuk Betaling).",
+        "Annuleren verwijdert nieuwe regels."
+      ],
+      "image": "cart-payment-actions.png",
+      "caption": "Actieknoppen."
+    }
+  ]
+}

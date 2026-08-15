@@ -1,0 +1,133 @@
+{
+  "title": "Períodos y ejecuciones de nómina",
+  "intro": "Cierre la mano de obra en períodos, genere ejecuciones con vista previa y registre ajustes.",
+  "sections": [
+    {
+      "id": "payroll-periods",
+      "title": "Períodos de nómina",
+      "steps": [
+        "Abra RR. HH. → Nómina → Períodos.",
+        "Cree períodos según su ciclo de pago (semanal, quincenal, mensual, personalizado).",
+        "Bloquee o cierre períodos antes de ejecuciones finales."
+      ],
+      "image": "hr-payroll-periods.png",
+      "caption": "Lista de períodos de nómina.",
+      "fields": []
+    },
+    {
+      "id": "payroll-period-form",
+      "title": "Formulario de período de nómina",
+      "steps": [
+        "Agregue un período con nombre, tipo y rango de fechas.",
+        "Deje estado Abierto mientras recopila tiempo y ajustes.",
+        "Cambie a Bloqueado/Cerrado/Pagado según avance el ciclo."
+      ],
+      "image": "hr-form-payroll-period.png",
+      "caption": "Formulario de período de nómina.",
+      "fields": [
+        {
+          "name": "Nombre del período",
+          "effect": "Etiqueta en ejecuciones y exportaciones de nómina."
+        },
+        {
+          "name": "Tipo de período",
+          "effect": "Semanal, quincenal, mensual o cadencia personalizada."
+        },
+        {
+          "name": "Fecha inicio",
+          "effect": "Primer día incluido en el período."
+        },
+        {
+          "name": "Fecha fin",
+          "effect": "Último día incluido en el período."
+        },
+        {
+          "name": "Estado",
+          "effect": "Abierto permite ediciones; bloqueado/cerrado restringe; pagado marca finalización."
+        }
+      ]
+    },
+    {
+      "id": "payroll-runs",
+      "title": "Ejecuciones de nómina",
+      "steps": [
+        "Abra Nómina → Ejecuciones para un período abierto.",
+        "Genere una ejecución para previsualizar bruto desde asistencia y reglas.",
+        "Revise instantáneas antes de marcar la ejecución completa."
+      ],
+      "image": "hr-payroll-runs.png",
+      "caption": "Ejecuciones de nómina de un período.",
+      "fields": []
+    },
+    {
+      "id": "payroll-run-form",
+      "title": "Generar ejecución de nómina",
+      "steps": [
+        "Haga clic en Nueva ejecución y seleccione un período abierto.",
+        "Confirme el número de ejecución sugerido.",
+        "Genere vista previa para calcular líneas desde tiempo, perfiles y reglas."
+      ],
+      "image": "hr-form-payroll-run.png",
+      "caption": "Formulario de nueva ejecución de nómina.",
+      "fields": [
+        {
+          "name": "Período de nómina",
+          "effect": "Rango y estado que gobiernan horas y ajustes incluidos."
+        },
+        {
+          "name": "Número de ejecución",
+          "effect": "Identificador secuencial para múltiples vistas previas en el mismo período."
+        }
+      ]
+    },
+    {
+      "id": "adjustments",
+      "title": "Ajustes de nómina",
+      "steps": [
+        "Abra Nómina → Ajustes.",
+        "Agregue bonos, penalidades, asignaciones o correcciones por empleado.",
+        "Vincule a un período cuando el monto deba aparecer en una ejecución."
+      ],
+      "image": "hr-payroll-adjustments.png",
+      "caption": "Lista de ajustes laborales.",
+      "fields": []
+    },
+    {
+      "id": "adjustment-form",
+      "title": "Formulario de ajuste",
+      "steps": [
+        "Elija empleado, tipo, monto y fecha efectiva.",
+        "Opcionalmente vincule a un período de nómina.",
+        "Guarde — se incluye en la próxima ejecución que cubra esa fecha."
+      ],
+      "image": "hr-form-adjustment.png",
+      "caption": "Formulario de ajuste de nómina.",
+      "fields": [
+        {
+          "name": "Empleado",
+          "effect": "Personal que recibe el ajuste."
+        },
+        {
+          "name": "Período de nómina",
+          "effect": "Vínculo opcional para incluir en un run específico."
+        },
+        {
+          "name": "Tipo",
+          "effect": "Bono, penalidad, asignación, reembolso, anticipo, préstamo, corrección o deducción."
+        },
+        {
+          "name": "Monto",
+          "effect": "Valor en moneda sumado o restado del bruto."
+        },
+        {
+          "name": "Fecha efectiva",
+          "effect": "Fecha para determinar qué ejecución lo incluye."
+        },
+        {
+          "name": "Descripción",
+          "effect": "Explicación en detalle de nómina y auditoría."
+        }
+      ]
+    }
+  ]
+}

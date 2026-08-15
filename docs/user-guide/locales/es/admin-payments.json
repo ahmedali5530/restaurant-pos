@@ -1,0 +1,197 @@
+{
+  "title": "Payment types, taxes, and order types",
+  "intro": "Configure how orders are classified and settled: payment methods, tax rules, and service types (dine-in, delivery, etc.).",
+  "sections": [
+    {
+      "id": "payment-types",
+      "title": "Payment types",
+      "steps": [
+        "Open the Payment types tab.",
+        "Define Cash, Card, and custom tenders shown on the payment screen.",
+        "Set sort order and whether a type requires reference or change calculation."
+      ],
+      "image": "admin-payments-types.png",
+      "caption": "Payment types tab."
+    },
+    {
+      "id": "taxes",
+      "title": "Taxes",
+      "intro": "Taxes apply to dishes and appear on receipts and reports.",
+      "steps": [
+        "Open the Taxes tab.",
+        "Create tax rates and link them to applicable items or order types.",
+        "Save so new orders calculate tax correctly."
+      ],
+      "image": "admin-payments-taxes.png",
+      "caption": "Taxes tab."
+    },
+    {
+      "id": "order-types",
+      "title": "Order types",
+      "steps": [
+        "Open the Order types tab.",
+        "Configure dine-in, takeaway, delivery, and other service modes.",
+        "Order types drive kitchen routing, reporting, and default behaviors."
+      ],
+      "image": "admin-payments-order-types.png",
+      "caption": "Order types tab."
+    },
+    {
+      "id": "extras",
+      "title": "Extras",
+      "intro": "Extras are automatic surcharges linked to payment types, order types, or tables (e.g. service fees or cover charges).",
+      "steps": [
+        "Open the Extras tab.",
+        "Create extras with name, amount, and applicability rules.",
+        "Save so qualifying orders include the surcharge on payment."
+      ],
+      "image": "admin-extras.png",
+      "caption": "Extras tab."
+    },
+    {
+      "id": "payment-type-form",
+      "title": "Formulario de tipo de pago",
+      "intro": "Incluye métodos locales y tipos Remote con Stripe, PayPal, etc.",
+      "steps": [
+        "Admin → Pagos → Tipos.",
+        "Agregue nombre, prioridad y tipo (Efectivo, Tarjeta, Remote, …).",
+        "Para Remote: pasarela, modo test/live y claves API.",
+        "Opcionalmente vincule impuesto y descuentos.",
+        "Guarde — aparece en pantalla de pago y restricciones de mesa."
+      ],
+      "image": "admin-payments-type-form.png",
+      "caption": "Formulario con pasarela remota.",
+      "fields": [
+        {
+          "name": "Nombre",
+          "effect": "Etiqueta en botones de pago."
+        },
+        {
+          "name": "Prioridad",
+          "effect": "Orden entre métodos."
+        },
+        {
+          "name": "Tipo",
+          "effect": "Perfil; Remote habilita campos de pasarela."
+        },
+        {
+          "name": "Proveedor pasarela",
+          "effect": "Stripe, PayPal u otro procesador."
+        },
+        {
+          "name": "Modo pasarela",
+          "effect": "Credenciales test vs live."
+        },
+        {
+          "name": "public_key",
+          "effect": "Clave publicable del lado cliente."
+        },
+        {
+          "name": "secret_key",
+          "effect": "Secreto del servidor para capturar cargos."
+        },
+        {
+          "name": "webhook_secret",
+          "effect": "Valida callbacks asíncronos."
+        },
+        {
+          "name": "client_id / client_secret",
+          "effect": "Pasarelas OAuth."
+        },
+        {
+          "name": "merchant_id / integrity_salt",
+          "effect": "Campos específicos del comerciante."
+        },
+        {
+          "name": "Impuesto",
+          "effect": "Regla fiscal predeterminada."
+        },
+        {
+          "name": "Descuentos",
+          "effect": "Reglas auto-aplicadas al método."
+        }
+      ]
+    },
+    {
+      "id": "tax-form",
+      "title": "Formulario de impuesto",
+      "steps": [
+        "Abra Pagos → Impuestos.",
+        "Defina nombre, tasa y comportamiento inclusive/exclusive.",
+        "Guarde — asigne a tipos de pago o predeterminados."
+      ],
+      "image": "admin-payments-tax-form.png",
+      "caption": "Formulario de impuesto.",
+      "fields": [
+        {
+          "name": "Nombre",
+          "effect": "Etiqueta en recibos."
+        },
+        {
+          "name": "Tasa",
+          "effect": "Porcentaje sobre montos gravables."
+        },
+        {
+          "name": "Inclusive",
+          "effect": "Si true, impuesto incluido en precios mostrados."
+        }
+      ]
+    },
+    {
+      "id": "order-type-form",
+      "title": "Formulario de tipo de pedido",
+      "steps": [
+        "Abra Pagos → Tipos de pedido.",
+        "Defina nombre y banderas (local, para llevar, delivery).",
+        "Guarde — usado en mesas, POS e informes."
+      ],
+      "image": "admin-payments-order-type-form.png",
+      "caption": "Formulario de tipo de pedido.",
+      "fields": [
+        {
+          "name": "Nombre",
+          "effect": "Tipo mostrado en cuentas y filtros."
+        },
+        {
+          "name": "Prioridad",
+          "effect": "Orden en selectores."
+        },
+        {
+          "name": "Predeterminado",
+          "effect": "Preseleccionado en pedidos nuevos cuando aplique."
+        }
+      ]
+    },
+    {
+      "id": "extra-form",
+      "title": "Formulario de extra (cargo de servicio)",
+      "intro": "Los extras agregan recargos automáticos (servicio, coperto) por contexto de pago o pedido.",
+      "steps": [
+        "Abra Pagos → Extras.",
+        "Nombre el cargo y defina monto o porcentaje.",
+        "Configure cuándo aplica (tipo pedido, pago, etc.).",
+        "Guarde — pedidos calificados incluyen el recargo."
+      ],
+      "image": "admin-payments-extra-form.png",
+      "caption": "Formulario de recargo extra.",
+      "fields": [
+        {
+          "name": "Nombre",
+          "effect": "Etiqueta en recibo del cliente."
+        },
+        {
+          "name": "Monto / tasa",
+          "effect": "Moneda fija o porcentaje del total elegible."
+        },
+        {
+          "name": "Gravable",
+          "effect": "Si se calcula impuesto sobre el recargo."
+        },
+        {
+          "name": "Reglas auto-aplicar",
+          "effect": "Vínculos a tipos de pedido, pago o pisos."
+        }
+      ]
+    }
+  ]
+}

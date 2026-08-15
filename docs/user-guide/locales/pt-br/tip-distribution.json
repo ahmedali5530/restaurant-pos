@@ -1,0 +1,39 @@
+{
+  "title": "Distribuição de gorjetas",
+  "intro": "Calcula como dividir gorjetas do turno e salva o registro oficial.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Tela de distribuição",
+      "steps": [
+        "Toque em Distribuição de gorjetas.",
+        "Selecione turno e data.",
+        "Carregar gorjetas calcula totais."
+      ],
+      "image": "tips-overview.png",
+      "caption": "Tela de distribuição."
+    },
+    {
+      "id": "filters",
+      "title": "Turno e data",
+      "steps": [
+        "Escolha o turno.",
+        "Escolha a data.",
+        "Toque em Carregar gorjetas."
+      ],
+      "image": "tips-filters.png",
+      "caption": "Turno, data e carregar."
+    },
+    {
+      "id": "table",
+      "title": "Tabela de distribuição",
+      "steps": [
+        "Total mostra o valor do turno.",
+        "Cada linha: usuário, função, peso e parte.",
+        "Enviar salva após revisar."
+      ],
+      "image": "tips-table.png",
+      "caption": "Totais e tabela."
+    }
+  ]
+}

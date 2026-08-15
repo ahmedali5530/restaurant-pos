@@ -1,0 +1,87 @@
+{
+  "title": "Kitchens and workflows",
+  "intro": "Route fired items to the right kitchen stations and define how orders move through preparation stages.",
+  "sections": [
+    {
+      "id": "kitchens",
+      "title": "Kitchens",
+      "intro": "Kitchens group dishes and link to printers for kitchen tickets.",
+      "steps": [
+        "Open the Kitchens tab.",
+        "Create kitchen stations (e.g. Grill, Bar, Pastry).",
+        "Assign dishes and printers so tickets route to the correct station."
+      ],
+      "image": "admin-kitchens.png",
+      "caption": "Kitchens maintenance table."
+    },
+    {
+      "id": "workflows",
+      "title": "Workflows",
+      "intro": "Workflows define order-status steps used by kitchen and order-display screens.",
+      "steps": [
+        "Open the Workflows tab.",
+        "Create or edit workflow steps and transitions.",
+        "Link workflows to order types or kitchens as required by your venue setup."
+      ],
+      "image": "admin-workflows.png",
+      "caption": "Workflows tab."
+    },
+    {
+      "id": "kitchen-form",
+      "title": "Küchenformular",
+      "intro": "Küchen leiten Gerichte zu Druckern und Lagerstandorten.",
+      "steps": [
+        "Admin → Küche → Küchen öffnen.",
+        "Name, Priorität, verknüpfte Drucker und Gerichte hinzufügen.",
+        "Speichern — neue Artikel drucken hier wenn zugewiesen."
+      ],
+      "image": "admin-kitchen-kitchen-form.png",
+      "caption": "Küchenstationsformular.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Bezeichnung auf KOT und Bestellanzeige."
+        },
+        {
+          "name": "Priorität",
+          "effect": "Reihenfolge bei mehreren passenden Küchen."
+        },
+        {
+          "name": "Drucker",
+          "effect": "Geräte die Tickets für diese Küche drucken."
+        },
+        {
+          "name": "Artikel (Gerichte)",
+          "effect": "An diese Station geroutete Gerichte."
+        }
+      ]
+    },
+    {
+      "id": "workflow-form",
+      "title": "Workflowformular",
+      "intro": "Workflows verketten Küchenstufen für Anzeigen und Bump Bars.",
+      "steps": [
+        "Küche → Workflows öffnen.",
+        "Workflow benennen und geordnete Stufen hinzufügen.",
+        "Jeder Stufe eine Küche zuweisen.",
+        "Workflow an Gerichte mit Mehrstufig-Prep verknüpfen."
+      ],
+      "image": "admin-kitchen-workflow-form.png",
+      "caption": "Workflow-Stufen-Editor.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Kennung auf Gerichten und Displays."
+        },
+        {
+          "name": "Stufen",
+          "effect": "Geordnete Prep-Schritte (z. B. Grill → Expo)."
+        },
+        {
+          "name": "Stufen-Küche",
+          "effect": "Station die jede Stufe besitzt."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "title": "Recipes & production",
+  "intro": "Define batch recipes, run production to consume inputs and create outputs, and review production history.",
+  "sections": [
+    {
+      "id": "recipes",
+      "title": "Recipes list",
+      "steps": [
+        "Open Inventory → Recipes.",
+        "Browse active recipes with batch size and output items.",
+        "Add or edit recipes that drive kitchen prep and costing."
+      ],
+      "image": "inventory-recipes.png",
+      "caption": "Recipes maintenance tab.",
+      "fields": []
+    },
+    {
+      "id": "recipe-form",
+      "title": "Recipe form",
+      "intro": "A recipe defines input items, output yields, and how cost is allocated across outputs.",
+      "steps": [
+        "Click Add recipe or edit an existing row.",
+        "Enter name, code, and base batch quantity.",
+        "Add input lines with item and quantity.",
+        "Add output lines with yield percent, disposition, and primary flag.",
+        "Save to use the recipe in production batches."
+      ],
+      "image": "inventory-recipe-form.png",
+      "caption": "Recipe form with inputs and outputs.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Display name shown in production and reports."
+        },
+        {
+          "name": "Code",
+          "effect": "Optional short code for kitchen reference."
+        },
+        {
+          "name": "Base batch qty",
+          "effect": "Standard batch size used to scale ingredient quantities."
+        },
+        {
+          "name": "Cost allocation",
+          "effect": "Method for spreading input cost across multiple outputs."
+        },
+        {
+          "name": "Input items",
+          "effect": "Inventory items and quantities consumed per batch."
+        },
+        {
+          "name": "Output items",
+          "effect": "Items produced, with yield % and which output is primary."
+        },
+        {
+          "name": "Is active",
+          "effect": "Inactive recipes are hidden from new production runs."
+        }
+      ]
+    },
+    {
+      "id": "production",
+      "title": "Production runs",
+      "steps": [
+        "Open the Production tab.",
+        "Start a new batch from an active recipe.",
+        "Preview scaled ingredients, then complete to post inventory movements."
+      ],
+      "image": "inventory-production.png",
+      "caption": "Production tab with batch list.",
+      "fields": []
+    },
+    {
+      "id": "production-form",
+      "title": "Production batch form",
+      "intro": "Completing a batch deducts inputs and adds outputs at the chosen location.",
+      "steps": [
+        "Click New production.",
+        "Select recipe, location, and produced quantity.",
+        "Review the preview of scaled inputs and outputs.",
+        "Optionally update item cost from the batch.",
+        "Complete to post the batch and write production history."
+      ],
+      "image": "inventory-production-form.png",
+      "caption": "Production batch form with preview.",
+      "fields": [
+        {
+          "name": "Recipe",
+          "effect": "Determines ingredients and outputs for the batch."
+        },
+        {
+          "name": "Location",
+          "effect": "Store where stock is consumed and produced."
+        },
+        {
+          "name": "Produced qty",
+          "effect": "Scales the recipe from base batch size to this quantity."
+        },
+        {
+          "name": "Batch number",
+          "effect": "Optional reference printed on labels or history."
+        },
+        {
+          "name": "Update item cost",
+          "effect": "When checked, recalculates output item cost from batch totals."
+        },
+        {
+          "name": "Notes",
+          "effect": "Free-text note stored on the production record."
+        }
+      ]
+    },
+    {
+      "id": "production-history",
+      "title": "Production history",
+      "steps": [
+        "Open Production history to audit completed batches.",
+        "Filter by date, recipe, or location.",
+        "Open a row to view inputs, outputs, and who posted the batch."
+      ],
+      "image": "inventory-production-history.png",
+      "caption": "Production history list.",
+      "fields": []
+    }
+  ]
+}

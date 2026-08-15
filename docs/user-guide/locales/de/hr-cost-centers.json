@@ -1,0 +1,48 @@
+{
+  "title": "Kostenstellen",
+  "intro": "Kostenstellen ordnen Lohn und Gehalt Standorten, Abteilungen oder GL-Segmenten zu.",
+  "sections": [
+    {
+      "id": "cost-centers",
+      "title": "Kostenstellenliste",
+      "steps": [
+        "Öffnen Sie HR → Kostenstellen.",
+        "Prüfen Sie Codes auf Mitarbeitern, Positionen und Plänen.",
+        "Kostenstellen pflegen vor Zuweisung auf Mitarbeitern."
+      ],
+      "image": "hr-cost-centers-list.png",
+      "caption": "Registerkarte Kostenstellen.",
+      "fields": []
+    },
+    {
+      "id": "cost-center-form",
+      "title": "Kostenstellenformular",
+      "steps": [
+        "Hinzufügen oder Zeile bearbeiten.",
+        "Code, Name und optionale Beschreibung eingeben.",
+        "Aktiv umschalten zum Stilllegen ohne Historie zu löschen.",
+        "Speichern — erscheint auf Mitarbeiter- und Planformularen."
+      ],
+      "image": "hr-form-cost-center.png",
+      "caption": "Modal Kostenstelle anlegen/bearbeiten.",
+      "fields": [
+        {
+          "name": "Code",
+          "effect": "Kurzer eindeutiger Bezeichner für Exporte und Integrationen."
+        },
+        {
+          "name": "Name",
+          "effect": "Lesbare Bezeichnung in Dropdowns."
+        },
+        {
+          "name": "Beschreibung",
+          "effect": "Optionale Admin-Notizen."
+        },
+        {
+          "name": "Aktiv",
+          "effect": "Inaktive Kostenstellen nicht auf neuen Datensätzen wählbar."
+        }
+      ]
+    }
+  ]
+}

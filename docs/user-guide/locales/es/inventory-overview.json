@@ -1,0 +1,40 @@
+{
+  "title": "Resumen de Inventario",
+  "intro": "Inventario es el centro de almacén para existencias, artículos, compras, salidas, mermas y conteos. Ábralo desde la barra lateral si su rol incluye acceso de inventario.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Abrir Inventario",
+      "steps": [
+        "Inicie sesión con un usuario con acceso de inventario (almacén).",
+        "Pulse Inventario en la barra lateral.",
+        "La pantalla se abre en el resumen de existencias actuales por defecto."
+      ],
+      "image": "inventory-overview.png",
+      "caption": "Pantalla Inventario con pestañas y panel de resumen."
+    },
+    {
+      "id": "tabs",
+      "title": "Navegación por pestañas",
+      "intro": "Las pestañas agrupan datos maestros y documentos de stock. Cambiar de pestaña puede requerir PIN de gerente.",
+      "steps": [
+        "Desplace la barra de pestañas horizontalmente cuando hay muchas.",
+        "Cada pestaña abre su lista o formulario.",
+        "La pestaña seleccionada se resalta con el degradado principal."
+      ],
+      "image": "inventory-tabs.png",
+      "caption": "Barra de pestañas de Inventario."
+    },
+    {
+      "id": "summary",
+      "title": "Resumen de inventario actual",
+      "steps": [
+        "La pestaña Inventario muestra cantidades en mano por artículo y ubicación.",
+        "Use búsqueda y filtros para stock bajo o artículos concretos.",
+        "Otras pestañas gestionan compras, salidas, mermas y ajustes."
+      ],
+      "image": "inventory-summary.png",
+      "caption": "Tabla de resumen de inventario actual."
+    }
+  ]
+}

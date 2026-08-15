@@ -1,0 +1,183 @@
+{
+  "title": "Menus, categories, and dishes",
+  "intro": "Configure what appears on the ordering screen: dishes, menu groupings, and categories.",
+  "sections": [
+    {
+      "id": "dishes",
+      "title": "Dishes",
+      "steps": [
+        "Open the Dishes tab.",
+        "Create or edit dishes with price, categories, modifiers, and recipes.",
+        "Import CSV files for bulk dish or ingredient updates when needed."
+      ],
+      "image": "admin-menus-dishes.png",
+      "caption": "Dishes tab."
+    },
+    {
+      "id": "menus",
+      "title": "Menus",
+      "intro": "Menus control which dishes are visible on each service period or channel.",
+      "steps": [
+        "Open the Menus tab.",
+        "Assign dishes to menus and set availability windows.",
+        "Save changes so floor staff see updated items on the Menu screen."
+      ],
+      "image": "admin-menus-menus.png",
+      "caption": "Menus tab."
+    },
+    {
+      "id": "categories",
+      "title": "Categories",
+      "steps": [
+        "Open the Categories tab.",
+        "Group dishes for navigation on the ordering screen.",
+        "Reorder categories to match how staff browse the menu."
+      ],
+      "image": "admin-menus-categories.png",
+      "caption": "Categories tab."
+    },
+    {
+      "id": "modifier-groups",
+      "title": "Modifier groups",
+      "intro": "Modifier groups define optional add-ons, sizes, and nested choices shown when staff customize a dish.",
+      "steps": [
+        "Open the Modifier groups tab.",
+        "Create groups with modifiers, prices, and optional next-group rules.",
+        "Assign groups to dishes so the cart shows the correct customization flow."
+      ],
+      "image": "admin-modifier-groups.png",
+      "caption": "Modifier groups tab."
+    },
+    {
+      "id": "dish-form",
+      "title": "Gerichtformular",
+      "intro": "Gerichte sind verkaufbare Artikel mit Preis, Kategorien, Modifikatoren, Rezepten und Küchenrouting.",
+      "steps": [
+        "Admin → Menüs → Gerichte öffnen und hinzufügen/bearbeiten.",
+        "Nummer, Name, Preis, Kosten und Kategorien setzen.",
+        "Modifikatorgruppen, Rezept, Küche und Workflow anhängen.",
+        "Speichern — erscheint auf Menüs und POS wenn aktiv."
+      ],
+      "image": "admin-menus-dish-form.png",
+      "caption": "Gerichtpflegeformular.",
+      "fields": [
+        {
+          "name": "Nummer / Name",
+          "effect": "POS-Kennung und Anzeigename."
+        },
+        {
+          "name": "Preis / Kosten",
+          "effect": "Verkaufspreis und theoretische Wareneinsatzkosten."
+        },
+        {
+          "name": "Kategorien",
+          "effect": "Menügruppierung und Rabattziel."
+        },
+        {
+          "name": "Modifikatorgruppen",
+          "effect": "Anpassungsflow mit Pflicht/Optional-Regeln."
+        },
+        {
+          "name": "Rezeptzeilen",
+          "effect": "Bestandsabbau beim Verkauf."
+        },
+        {
+          "name": "Küche / Workflow",
+          "effect": "KOT-Routing und Prep-Stufen."
+        }
+      ]
+    },
+    {
+      "id": "menu-form",
+      "title": "Menüformular",
+      "intro": "Menüs steuern welche Kategorien auf dem POS erscheinen (z. B. Mittag vs. Abend).",
+      "steps": [
+        "Registerkarte Menüs öffnen und hinzufügen/bearbeiten.",
+        "Name und optionale Start-/Endzeiten setzen.",
+        "Aktiv und endet am nächsten Tag für Nachtmenüs.",
+        "Kategorien nach Speichern in der Liste zuweisen."
+      ],
+      "image": "admin-menus-menu-form.png",
+      "caption": "Menüformular mit Servicezeiten.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Bezeichnung im POS-Umschalter."
+        },
+        {
+          "name": "Start / Endzeit",
+          "effect": "Automatisches Verfügbarkeitsfenster."
+        },
+        {
+          "name": "Endet am nächsten Tag",
+          "effect": "Service über Mitternacht."
+        },
+        {
+          "name": "Aktiv",
+          "effect": "Inaktive Menüs im POS ausgeblendet."
+        }
+      ]
+    },
+    {
+      "id": "category-form",
+      "title": "Kategorieformular",
+      "steps": [
+        "Kategorien öffnen und hinzufügen/bearbeiten.",
+        "Name, Priorität und Im-Menü-anzeigen setzen.",
+        "Speichern — Gerichte zuweisen und Menüs verknüpfen."
+      ],
+      "image": "admin-menus-category-form.png",
+      "caption": "Kategorieformular.",
+      "fields": [
+        {
+          "name": "Name",
+          "effect": "Kategorieüberschrift auf POS und Berichten."
+        },
+        {
+          "name": "Priorität",
+          "effect": "Sortierung unter Geschwisterkategorien."
+        },
+        {
+          "name": "Im Menü anzeigen",
+          "effect": "Wenn aus, in kundenorientierten Menüansichten ausgeblendet."
+        }
+      ]
+    },
+    {
+      "id": "modifier-group-form",
+      "title": "Modifikatorgruppenformular",
+      "intro": "Gruppen definieren Modifikatoren, Preise und verschachtelte Folgegruppen pro Wahl.",
+      "steps": [
+        "Modifikatorgruppen öffnen und hinzufügen/bearbeiten.",
+        "Name, Priorität und Zeilen mit Preisen setzen.",
+        "Erlaubte Folgegruppen pro Modifikator konfigurieren.",
+        "Overrides für verstecken/repricing verschachtelt.",
+        "Speichern und Gruppe an Gerichte anhängen."
+      ],
+      "image": "admin-menus-modifier-group-form.png",
+      "caption": "Formular mit verschachtelten Gruppen.",
+      "fields": [
+        {
+          "name": "Name / Priorität",
+          "effect": "Bezeichnung und Reihenfolge bei mehreren Gruppen."
+        },
+        {
+          "name": "Modifikator",
+          "effect": "Wählbare Option (oft Gericht als Add-on)."
+        },
+        {
+          "name": "Preis",
+          "effect": "Aufpreis bei Auswahl."
+        },
+        {
+          "name": "Erlaubte Folgegruppen",
+          "effect": "Gruppen nach dieser Wahl."
+        },
+        {
+          "name": "Folgegruppen-Overrides",
+          "effect": "Pro verschachtelter Gruppe: verstecken oder Preis."
+        }
+      ]
+    }
+  ]
+}

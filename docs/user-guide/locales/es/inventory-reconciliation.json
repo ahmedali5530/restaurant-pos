@@ -1,0 +1,77 @@
+{
+  "title": "Conciliación de cocina",
+  "intro": "Compare el uso teórico de cocina (ventas y recetas) con conteos físicos por ubicación y fecha operativa. Borradores, verificación y bloqueo para precisión de inventario.",
+  "sections": [
+    {
+      "id": "reconciliation",
+      "title": "Pestaña Conciliación",
+      "intro": "Genere una cuadrícula desde ventas POS y recetas, luego ingrese o importe conteos reales.",
+      "steps": [
+        "Abra Inventario y la pestaña Conciliación de cocina.",
+        "Seleccione ubicación de inventario y fecha operativa.",
+        "Haga clic en Generar para crear líneas de uso teórico.",
+        "Ingrese cantidades reales en la cuadrícula o importe CSV.",
+        "Guarde borrador, revise variaciones y Verifique (PIN de gerente si aplica)."
+      ],
+      "image": "inventory-reconciliation-overview.png",
+      "caption": "Barra de herramientas, cuadrícula y panel de variaciones.",
+      "fields": [
+        {
+          "name": "Ubicación",
+          "effect": "Cocina o almacén cuyo stock se concilia."
+        },
+        {
+          "name": "Fecha operativa",
+          "effect": "Día comercial al que aplican uso teórico y conteos."
+        },
+        {
+          "name": "Generar",
+          "effect": "Crea o actualiza líneas desde ventas y recetas."
+        },
+        {
+          "name": "Cantidad real",
+          "effect": "Conteo físico por ítem; determina la variación."
+        },
+        {
+          "name": "Verificar",
+          "effect": "Bloquea la conciliación tras aprobación gerencial."
+        }
+      ]
+    },
+    {
+      "id": "reconciliation-form",
+      "title": "Entrada manual de conteos",
+      "intro": "Edición en cuadrícula e importación CSV comparten la misma estructura de líneas.",
+      "steps": [
+        "Haga clic en una celda de la columna Real para escribir un conteo.",
+        "Use Guardar borrador para persistir sin verificar.",
+        "Abra importación CSV para cargar conteos masivamente.",
+        "Revise el panel de variaciones antes de verificar."
+      ],
+      "image": "inventory-reconciliation-form.png",
+      "caption": "Cuadrícula con edición de cantidad real.",
+      "fields": [
+        {
+          "name": "Ítem",
+          "effect": "Artículo de inventario en la línea."
+        },
+        {
+          "name": "Teórico",
+          "effect": "Uso calculado por el sistema desde recetas y ventas."
+        },
+        {
+          "name": "Real",
+          "effect": "Cantidad contada o de uso que usted ingresa."
+        },
+        {
+          "name": "Variación",
+          "effect": "Diferencia entre real y teórico; destaca merma o errores."
+        },
+        {
+          "name": "Notas",
+          "effect": "Explicación opcional guardada en la línea."
+        }
+      ]
+    }
+  ]
+}

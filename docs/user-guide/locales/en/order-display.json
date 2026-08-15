@@ -1,0 +1,40 @@
+{
+  "title": "Order display",
+  "intro": "Order display is a customer-facing board: orders in progress on one side and ready for pickup on the other. Filters control which statuses and order types appear.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Order display layout",
+      "steps": [
+        "Tap Order display in the sidebar.",
+        "The top bar holds status and order-type filters.",
+        "The main area splits into Preparing (left) and Ready for pickup (right)."
+      ],
+      "image": "order-display-overview.png",
+      "caption": "Order display with preparing and ready columns."
+    },
+    {
+      "id": "filters",
+      "title": "Filters",
+      "steps": [
+        "Status filter is multi-select (defaults to In Progress).",
+        "Order type filter limits which service types appear (dine-in, delivery, etc.).",
+        "Toggle sidebar shows or hides the left navigation on this screen."
+      ],
+      "image": "order-display-filters.png",
+      "caption": "Status and order-type filters."
+    },
+    {
+      "id": "boards",
+      "title": "Preparing and ready tiles",
+      "intro": "Orders move to Ready when kitchen workflow marks them complete. Ready orders may play a celebration when they first appear.",
+      "steps": [
+        "Preparing tiles show orders still being made.",
+        "Ready tiles show orders waiting for pickup or runner delivery.",
+        "Each tile shows order number and key header details."
+      ],
+      "image": "order-display-boards.png",
+      "caption": "Preparing and ready order tile grids."
+    }
+  ]
+}

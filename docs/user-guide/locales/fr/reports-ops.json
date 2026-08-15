@@ -1,0 +1,41 @@
+{
+  "title": "Reports (operations)",
+  "intro": "The Reports hub lists operational and sales reports by category. Pick a category, choose a report, set filters, then run or export from the filter panel.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Reports hub",
+      "steps": [
+        "Tap Reports in the sidebar.",
+        "The left column lists report categories (Sales, Operations, Orders, etc.).",
+        "The middle column lists reports inside the selected category.",
+        "The right panel shows filters for the chosen report."
+      ],
+      "image": "reports-overview.png",
+      "caption": "Reports hub three-column layout."
+    },
+    {
+      "id": "categories",
+      "title": "Categories",
+      "intro": "Categories group related reports: dashboards, sales, orders, cash closing, operations, products, inventory, labor, and AI.",
+      "steps": [
+        "Click a category to load its report list.",
+        "A check mark shows the active category.",
+        "Opening some reports may require manager PIN approval."
+      ],
+      "image": "reports-categories.png",
+      "caption": "Report category list."
+    },
+    {
+      "id": "subreports",
+      "title": "Choose a report",
+      "steps": [
+        "After selecting a category, pick a report name in the middle column.",
+        "The filter panel on the right updates for that report.",
+        "Common operational reports include Sales dashboard, Activity, Expense, and Cash closing."
+      ],
+      "image": "reports-subreports.png",
+      "caption": "Sub-report list and filter panel."
+    }
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "title": "Tarifler ve üretim",
+  "intro": "Parti tarifleri tanımlayın, üretim çalıştırın ve geçmişi inceleyin.",
+  "sections": [
+    {
+      "id": "recipes",
+      "title": "Tarif listesi",
+      "steps": [
+        "Envanter → Tarifler.",
+        "Aktif tarifleri inceleyin.",
+        "Tarif ekleyin veya düzenleyin."
+      ],
+      "image": "inventory-recipes.png",
+      "caption": "Tarif bakım sekmesi.",
+      "fields": []
+    },
+    {
+      "id": "recipe-form",
+      "title": "Tarif formu",
+      "intro": "Girdi, çıktı verimi ve maliyet dağılımını tanımlar.",
+      "steps": [
+        "Tarif ekle veya düzenle.",
+        "Ad, kod ve temel parti miktarını girin.",
+        "Girdi satırları ekleyin.",
+        "Çıktı satırları ve verim % ekleyin.",
+        "Kaydedin."
+      ],
+      "image": "inventory-recipe-form.png",
+      "caption": "Girdi/çıktılı tarif formu.",
+      "fields": [
+        {
+          "name": "Ad",
+          "effect": "Üretim ve raporlarda görünen ad."
+        },
+        {
+          "name": "Kod",
+          "effect": "İsteğe bağlı mutfak kodu."
+        },
+        {
+          "name": "Temel parti miktarı",
+          "effect": "Malzemeleri ölçeklemek için standart parti."
+        },
+        {
+          "name": "Maliyet dağılımı",
+          "effect": "Girdi maliyetini çıktılara yayma yöntemi."
+        },
+        {
+          "name": "Girdi kalemleri",
+          "effect": "Parti başına tüketilen kalemler."
+        },
+        {
+          "name": "Çıktı kalemleri",
+          "effect": "Verim % ile üretilen kalemler."
+        },
+        {
+          "name": "Aktif",
+          "effect": "Pasif tarifler yeni üretimde görünmez."
+        }
+      ]
+    },
+    {
+      "id": "production",
+      "title": "Üretim çalıştırmaları",
+      "steps": [
+        "Üretim sekmesini açın.",
+        "Aktif tariften yeni parti başlatın.",
+        "Önizleyip tamamlayın."
+      ],
+      "image": "inventory-production.png",
+      "caption": "Parti listeli üretim sekmesi.",
+      "fields": []
+    },
+    {
+      "id": "production-form",
+      "title": "Üretim partisi formu",
+      "intro": "Tamamlanınca girdiler düşülür, çıktılar konuma eklenir.",
+      "steps": [
+        "Yeni üretim.",
+        "Tarif, konum, miktar seçin.",
+        "Önizlemeyi inceleyin.",
+        "Tamamlayın."
+      ],
+      "image": "inventory-production-form.png",
+      "caption": "Önizlemeli parti formu.",
+      "fields": [
+        {
+          "name": "Tarif",
+          "effect": "Parti malzemelerini belirler."
+        },
+        {
+          "name": "Konum",
+          "effect": "Stok tüketim/üretim yeri."
+        },
+        {
+          "name": "Üretilen miktar",
+          "effect": "Tarifi temel partiden ölçekler."
+        },
+        {
+          "name": "Parti no",
+          "effect": "Etiket/geçmiş referansı."
+        },
+        {
+          "name": "Kalem maliyetini güncelle",
+          "effect": "Çıktı maliyetini yeniden hesaplar."
+        },
+        {
+          "name": "Notlar",
+          "effect": "Serbest not."
+        }
+      ]
+    },
+    {
+      "id": "production-history",
+      "title": "Üretim geçmişi",
+      "steps": [
+        "Tamamlanan partileri denetleyin.",
+        "Tarih/tarif/konuma göre filtreleyin.",
+        "Satır açarak detay görün."
+      ],
+      "image": "inventory-production-history.png",
+      "caption": "Üretim geçmişi listesi.",
+      "fields": []
+    }
+  ]
+}

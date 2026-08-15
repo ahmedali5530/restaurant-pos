@@ -182,7 +182,7 @@ export const AdminTables = () => {
               module: 'admin.tables.create',
               description: getAccessRuleChildLabel('admin.tables.create'),
             });
-          }} icon={faPlus}>{t('buttons.table')}</Button>
+          }} icon={faPlus} data-testid="admin-add-tables">{t('buttons.table')}</Button>
         ]}
         enableSelection
         rowSelection={rowSelection}

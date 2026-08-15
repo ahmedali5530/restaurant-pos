@@ -1,0 +1,17 @@
+{
+  "title": "Wastes",
+  "intro": "Record spoilage, breakage, and other losses so inventory and cost reports stay accurate.",
+  "sections": [
+    {
+      "id": "list",
+      "title": "Waste documents",
+      "steps": [
+        "Open the Wastes tab.",
+        "Create a waste document with location, reason, and item quantities.",
+        "Saving reduces on-hand stock and posts waste cost for reporting."
+      ],
+      "image": "inventory-wastes-list.png",
+      "caption": "Wastes list."
+    }
+  ]
+}

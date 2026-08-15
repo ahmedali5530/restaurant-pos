@@ -1,0 +1,40 @@
+{
+  "title": "Resumen de Cuentas",
+  "intro": "Cuentas es el centro financiero: plan contable, diarios, mayores y estados. Ábralo desde la barra lateral con acceso de cuentas.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Abrir Cuentas",
+      "steps": [
+        "Inicie sesión con acceso de cuentas.",
+        "Pulse Cuentas en la barra lateral.",
+        "Se abre en Plan de cuentas por defecto."
+      ],
+      "image": "accounts-overview.png",
+      "caption": "Pantalla Cuentas con pestañas y plan contable."
+    },
+    {
+      "id": "tabs",
+      "title": "Navegación por pestañas",
+      "intro": "Las pestañas agrupan configuración, asientos e informes. Cambiar puede requerir PIN de gerente.",
+      "steps": [
+        "Desplace la barra horizontalmente.",
+        "Configuración: Plan de cuentas y Grupos.",
+        "Informes: Mayor, Balance de comprobación, Balance general y más."
+      ],
+      "image": "accounts-tabs.png",
+      "caption": "Barra de pestañas de Cuentas."
+    },
+    {
+      "id": "chart",
+      "title": "Plan de cuentas",
+      "steps": [
+        "Mantenga las cuentas GL usadas por diarios e informes.",
+        "Agregue o edite cuentas con código, nombre y tipo.",
+        "La estructura alimenta mayor, balance e estados."
+      ],
+      "image": "accounts-chart.png",
+      "caption": "Panel Plan de cuentas."
+    }
+  ]
+}

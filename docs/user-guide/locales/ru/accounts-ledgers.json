@@ -1,0 +1,68 @@
+{
+  "title": "Книги, прибыли и убытки, денежный поток",
+  "intro": "Review posted activity and period balances: general ledger detail, trial balance, and balance sheet.",
+  "sections": [
+    {
+      "id": "ledger",
+      "title": "General ledger",
+      "steps": [
+        "Open the General ledger tab.",
+        "Filter by account and date range to inspect posted lines.",
+        "Use this view to drill into journal activity for an account."
+      ],
+      "image": "accounts-ledger.png",
+      "caption": "General ledger tab."
+    },
+    {
+      "id": "trial",
+      "title": "Trial balance",
+      "intro": "Trial balance lists debit and credit totals by account for a period.",
+      "steps": [
+        "Open the Trial balance tab.",
+        "Choose the period or as-of date your venue uses.",
+        "Confirm debits equal credits before relying on statements."
+      ],
+      "image": "accounts-trial-balance.png",
+      "caption": "Trial balance tab."
+    },
+    {
+      "id": "balance-sheet",
+      "title": "Balance sheet",
+      "steps": [
+        "Open the Balance sheet tab.",
+        "Review assets, liabilities, and equity for the selected date.",
+        "Other statement tabs (Profit & loss, Cash flow) follow the same pattern."
+      ],
+      "image": "accounts-balance-sheet.png",
+      "caption": "Balance sheet tab."
+    },
+    {
+      "id": "profit-loss",
+      "title": "Прибыли и убытки",
+      "intro": "Отчёт о прибылях и убытках за период: выручка, себестоимость и расходы.",
+      "steps": [
+        "Откройте Счета → P&L.",
+        "Задайте диапазон или период.",
+        "Разверните группы счетов.",
+        "Экспортируйте после закрытия периода."
+      ],
+      "image": "accounts-profit-loss.png",
+      "caption": "Вкладка P&L.",
+      "fields": []
+    },
+    {
+      "id": "cash-flow",
+      "title": "Движение денежных средств",
+      "intro": "Сводка операционных, инвестиционных и финансовых потоков за период.",
+      "steps": [
+        "Откройте вкладку Cash flow в Счетах.",
+        "Выберите тот же период, что и для других отчётов.",
+        "Проверьте opening, net change и closing cash.",
+        "Используйте вместе с P&L для cash vs. accrual."
+      ],
+      "image": "accounts-cash-flow.png",
+      "caption": "Вкладка cash flow.",
+      "fields": []
+    }
+  ]
+}

@@ -32,15 +32,15 @@ export const MenuCart = () => {
   }, [cartItems]);
 
   return (
-    <div className="flex flex-col h-full min-h-0">
-      <div className="p-3 flex-shrink-0">
+    <div className="flex flex-col h-full min-h-0" data-testid="cart-panel">
+      <div className="p-3 flex-shrink-0" data-testid="cart-seats-or-actions">
         {isSelected ? (
           <CartActions/>
         ) : (
           <Seats/>
         )}
       </div>
-      <div className="flex-1 min-h-0 overflow-hidden">
+      <div className="flex-1 min-h-0 overflow-hidden" data-testid="cart-items">
         {state.seat && cartItems.length === 0 && state.seats.length > 0 && (
           <div className="items-center flex justify-center h-[100px]">
             <Button variant="danger" size="lg" icon={faTrash} onClick={() => {
@@ -67,7 +67,7 @@ export const MenuCart = () => {
           ))}
         </ScrollContainer>
       </div>
-      <div className="flex-shrink-0">
+      <div className="flex-shrink-0" data-testid="cart-payment">
         <div className="h-[2px] separator"></div>
         <Payment/>
       </div>

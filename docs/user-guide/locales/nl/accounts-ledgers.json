@@ -1,0 +1,68 @@
+{
+  "title": "Grootboeken, winst-en-verlies en kasstroom",
+  "intro": "Review posted activity and period balances: general ledger detail, trial balance, and balance sheet.",
+  "sections": [
+    {
+      "id": "ledger",
+      "title": "General ledger",
+      "steps": [
+        "Open the General ledger tab.",
+        "Filter by account and date range to inspect posted lines.",
+        "Use this view to drill into journal activity for an account."
+      ],
+      "image": "accounts-ledger.png",
+      "caption": "General ledger tab."
+    },
+    {
+      "id": "trial",
+      "title": "Trial balance",
+      "intro": "Trial balance lists debit and credit totals by account for a period.",
+      "steps": [
+        "Open the Trial balance tab.",
+        "Choose the period or as-of date your venue uses.",
+        "Confirm debits equal credits before relying on statements."
+      ],
+      "image": "accounts-trial-balance.png",
+      "caption": "Trial balance tab."
+    },
+    {
+      "id": "balance-sheet",
+      "title": "Balance sheet",
+      "steps": [
+        "Open the Balance sheet tab.",
+        "Review assets, liabilities, and equity for the selected date.",
+        "Other statement tabs (Profit & loss, Cash flow) follow the same pattern."
+      ],
+      "image": "accounts-balance-sheet.png",
+      "caption": "Balance sheet tab."
+    },
+    {
+      "id": "profit-loss",
+      "title": "Winst en verlies",
+      "intro": "Resultatenrekening: omzet, kosten van verkochte goederen en bedrijfskosten.",
+      "steps": [
+        "Open Accounts → Winst en verlies.",
+        "Stel periode in.",
+        "Vouw rekeninggroepen uit.",
+        "Exporteer na sluiting."
+      ],
+      "image": "accounts-profit-loss.png",
+      "caption": "Tab Winst en verlies.",
+      "fields": []
+    },
+    {
+      "id": "cash-flow",
+      "title": "Kasstroom",
+      "intro": "Vat operationele, investerings- en financieringsstromen samen.",
+      "steps": [
+        "Open Kasstroom in Accounts.",
+        "Zelfde periode als andere overzichten.",
+        "Bekijk openingsaldo, netto mutatie en eindsaldo.",
+        "Gebruik naast W&V voor kas vs. accrual."
+      ],
+      "image": "accounts-cash-flow.png",
+      "caption": "Tab Kasstroom.",
+      "fields": []
+    }
+  ]
+}

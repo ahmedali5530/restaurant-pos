@@ -1,0 +1,246 @@
+{
+  "title": "Ayarlar",
+  "intro": "Cihaz ve işletme tercihleri Ayarlar’dadır. Girişten sonra sol kenar çubuğunun altındaki anahtar düğmesiyle açın. Bazı kartlar yalnızca bu tarayıcıyı etkiler; diğerleri geneldir ve kaydederken yönetici PIN’i gerekebilir.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Ayarları aç",
+      "steps": [
+        "Ayarlara erişimi olan kullanıcıyla giriş yapın.",
+        "Sol kenar çubuğunda anahtar düğmesine dokunun.",
+        "Ayarlar sayfası çok sütunlu yapılandırma kartlarını gösterir."
+      ],
+      "image": "settings-nav.png",
+      "caption": "Ayarları açan anahtar kontrolü (vurgulu)."
+    },
+    {
+      "id": "overview",
+      "title": "Ayarlara genel bakış",
+      "intro": "Her kart bir alanı kontrol eder. Rol izinlerine göre kartlar kısıtlanabilir.",
+      "steps": [
+        "İhtiyacınız olan kartı bulmak için kaydırın.",
+        "Değerleri değiştirin; kartta Kaydet varsa kaydedin.",
+        "Bazı kartlar yalnızca bu cihaza, diğerleri genel veya kullanıcıya aittir."
+      ],
+      "image": "settings-overview.png",
+      "caption": "Yapılandırma kartlarıyla Ayarlar sayfası."
+    },
+    {
+      "id": "whats-new",
+      "title": "Yenilikler",
+      "steps": [
+        "Uygulamadaki son sürüm tarihini görmek için Yenilikler kartını açın.",
+        "Güncelleme notlarını yeniden göstermek için Aç’a dokunun."
+      ],
+      "image": "settings-whats-new.png",
+      "caption": "Yenilikler kartı — sürüm notlarını yeniden açın."
+    },
+    {
+      "id": "cache",
+      "title": "Önbellek",
+      "steps": [
+        "Menüler veya veriler eski görünüyorsa Önbellek kartını açın.",
+        "Katalog verisini veritabanından yenilemek için Önbelleği yeniden yükle’ye dokunun."
+      ],
+      "image": "settings-cache.png",
+      "caption": "Önbellek yenileme kartı."
+    },
+    {
+      "id": "language",
+      "title": "Dil ve metin yönü",
+      "steps": [
+        "Dil kartını açın.",
+        "Bu cihazın görüntüleme dilini seçin.",
+        "Gerekirse LTR veya RTL yönünü seçin (ör. Arapça).",
+        "Değişiklik bu terminalde hemen uygulanır."
+      ],
+      "image": "settings-language.png",
+      "caption": "Dil ve yön kartı."
+    },
+    {
+      "id": "translate-receipts",
+      "title": "Fişleri çevir",
+      "intro": "Etkin olduğunda, desteklenen yerlerde basılı fiş metni terminal dilini izler.",
+      "steps": [
+        "Fişleri çevir kartını açın.",
+        "Etkin’i açın veya kapatın.",
+        "Kaydedin (yönetici onayı gerekebilir)."
+      ],
+      "image": "settings-translate-receipts.png",
+      "caption": "Fişleri çevir kartı."
+    },
+    {
+      "id": "printers",
+      "title": "Varsayılan yazıcılar",
+      "steps": [
+        "Varsayılan yazıcılar kartını açın.",
+        "İsteğe bağlı olarak bu tarayıcı/terminal için sistem yazıcılarını etkinleştirin.",
+        "Geçici, final, iade, teslimat ve özet yazdırmaları için yazıcı atayın.",
+        "Bitince kaydedin."
+      ],
+      "image": "settings-printers.png",
+      "caption": "Varsayılan yazıcı yapılandırması."
+    },
+    {
+      "id": "print-options",
+      "title": "Yazdırma seçenekleri",
+      "steps": [
+        "Yazdırma seçenekleri kartını açın.",
+        "Her yazdırma türü için kopya sayısını ayarlayın.",
+        "Sipariş başına en fazla geçici/final yazdırma denemesini ayarlayın (0 = sınırsız).",
+        "Bitince kaydedin."
+      ],
+      "image": "settings-print-options.png",
+      "caption": "Kopya ve deneme sayısı kartı."
+    },
+    {
+      "id": "menus",
+      "title": "Aktif menüler",
+      "intro": "Bu işletme/cihazın satış yapabileceği menüleri seçin. Yalnızca seçilen menüler sipariş alırken görünür.",
+      "steps": [
+        "Menüler kartını açın.",
+        "Çoklu seçim listesinden bir veya daha fazla menü seçin.",
+        "Kaydedin (yönetici onayı gerekebilir)."
+      ],
+      "image": "settings-menus.png",
+      "caption": "Sipariş için kullanılabilir menüler."
+    },
+    {
+      "id": "service-charges",
+      "title": "Servis ücretleri",
+      "intro": "Ödemede kullanılan varsayılan servis ücreti (yüzde veya sabit).",
+      "steps": [
+        "Servis ücretleri kartını açın.",
+        "Tür (Yüzde veya Sabit) seçin ve değeri girin.",
+        "Kaydedin (yönetici onayı gerekebilir)."
+      ],
+      "image": "settings-service-charges.png",
+      "caption": "Servis ücreti türü ve değeri."
+    },
+    {
+      "id": "closing-cycle",
+      "title": "Kapanış döngüsü",
+      "intro": "Kapanış ve gün aralığı işlemleri için iş günü penceresini tanımlar (ör. gece yarısını aşan işletmeler).",
+      "steps": [
+        "Kapanış döngüsü kartını açın.",
+        "Özel döngüyü açın veya kapatın.",
+        "İş gününün başlangıç ve bitiş saatlerini ayarlayın.",
+        "Kaydedin (yönetici onayı gerekebilir)."
+      ],
+      "image": "settings-closing-cycle.png",
+      "caption": "Kapanış döngüsü zaman penceresi."
+    },
+    {
+      "id": "auto-check-close",
+      "title": "Otomatik adisyon kapatma",
+      "intro": "Döngü sonunda açık adisyonları varsayılan ödeme türüyle otomatik kapatır.",
+      "steps": [
+        "Otomatik adisyon kapatma kartını açın.",
+        "Özelliği etkinleştirin ve kapatırken yazdırma seçin.",
+        "Otomatik kapanış için ödeme türünü seçin.",
+        "Kaydedin (yönetici onayı gerekebilir)."
+      ],
+      "image": "settings-auto-check-close.png",
+      "caption": "Otomatik adisyon kapatma seçenekleri."
+    },
+    {
+      "id": "session-security",
+      "title": "Oturum güvenliği",
+      "steps": [
+        "Oturum güvenliği kartını açın.",
+        "Terminal hareketsizlikten sonra kilitlenecek veya oturum kapatılacaksa boşta kalma korumasını etkinleştirin.",
+        "Boşta kalma dakikalarını ve kilitleme veya oturumu kapatma eylemini ayarlayın.",
+        "Kaydedin (yönetici onayı gerekebilir)."
+      ],
+      "image": "settings-session-security.png",
+      "caption": "Oturum güvenliği (boşta kilitle/oturumu kapat) kartı."
+    },
+    {
+      "id": "auto-clock-out",
+      "title": "Otomatik çıkış",
+      "intro": "Vardiya bittiğinde ve/veya tanımlı saatte personeli otomatik çıkış yapar.",
+      "steps": [
+        "Otomatik çıkış kartını açın.",
+        "Otomatik çıkışı etkinleştirin.",
+        "Tetikleyicileri seçin: vardiya sonu, tanımlı saat veya her ikisi.",
+        "Tanımlı saat kullanıyorsanız günün saatini ayarlayın.",
+        "Kaydedin (yönetici onayı gerekebilir)."
+      ],
+      "image": "settings-auto-clock-out.png",
+      "caption": "Otomatik çıkış tetikleyicileri."
+    },
+    {
+      "id": "show-inclusive-prices",
+      "title": "Vergi dahil fiyatlar",
+      "intro": "Etkinse menü ve sipariş arayüzü vergi konfigürasyonuna göre vergi dahil fiyat gösterebilir.",
+      "steps": [
+        "Vergi dahil fiyatlar kartını açın.",
+        "Etkin’i açın veya kapatın.",
+        "Kaydedin (yönetici onayı gerekebilir)."
+      ],
+      "image": "settings-show-inclusive-prices.png",
+      "caption": "Vergi dahil fiyat gösterimi."
+    },
+    {
+      "id": "currency-symbol",
+      "title": "Para birimi simgesi",
+      "intro": "Para birimi simgesinin ekranda ve basılı fişlerde gösterilip gösterilmeyeceğini kontrol eder.",
+      "steps": [
+        "Para birimi simgesi kartını açın.",
+        "UI’da ve/veya fişlerde gösterimi değiştirin.",
+        "Kaydedin (yönetici onayı gerekebilir)."
+      ],
+      "image": "settings-currency-symbol.png",
+      "caption": "UI ve fişlerde para birimi simgesi."
+    },
+    {
+      "id": "touch",
+      "title": "Ekran klavyesi",
+      "steps": [
+        "Ekran klavyesi kartını açın.",
+        "Bu cihazdaki sanal klavyeyi etkinleştirin veya devre dışı bırakın."
+      ],
+      "image": "settings-touch.png",
+      "caption": "Ekran klavyesi anahtarı."
+    },
+    {
+      "id": "table-selection",
+      "title": "Masa seçimi",
+      "intro": "Etkinse personel siparişten önce masa seçer. Devre dışıysa bu terminalde kat planı adımı gizlenir (hızlı servis için).",
+      "steps": [
+        "Masa seçimi kartını açın.",
+        "Bu cihaz için etkinleştirmek veya kapatmak üzere düğmeye dokunun.",
+        "Değişiklik hemen uygulanır."
+      ],
+      "image": "settings-table-selection.png",
+      "caption": "Bu terminalde masa seçimini göster/gizle.",
+      "note": "Belgelendirme yakalama, masa seçiminin etkin olmasını gerektirir."
+    },
+    {
+      "id": "inventory",
+      "title": "Envanter ayarları",
+      "intro": "Genel envanter davranışı: defter, parti/son kullanma, maliyetleme, satınalma ve varsayılanlar.",
+      "steps": [
+        "Envanter ayarları kartını açın.",
+        "Defter, parti, son kullanma ve satınalma seçeneklerini ayarlayın.",
+        "Maliyet yöntemini ve varsayılan tahsis/vergi davranışını seçin.",
+        "Kaydedin (yönetici onayı gerekebilir)."
+      ],
+      "image": "settings-inventory.png",
+      "caption": "Envanter yapılandırma kartı."
+    },
+    {
+      "id": "items-visibility",
+      "title": "Öğe görünürlüğü",
+      "intro": "Menü araması, sepet toplamları ve sipariş kartları için bu terminale özel görünüm seçenekleri. Değişiklikler hemen uygulanır.",
+      "steps": [
+        "Öğe görünürlüğü kartını açın.",
+        "Menü altında: ürün araması, arama türü ve ürün numaralarını ayarlayın.",
+        "Sepet altında: sepet toplamlarını gösterin veya gizleyin.",
+        "Siparişler altında: sipariş kartı toplamlarını ve alanlarını ayarlayın."
+      ],
+      "image": "settings-items-visibility.png",
+      "caption": "Menü, sepet ve sipariş görünürlük anahtarları."
+    }
+  ]
+}

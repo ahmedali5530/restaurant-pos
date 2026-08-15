@@ -1,0 +1,77 @@
+{
+  "title": "Kitchen reconciliation",
+  "intro": "Compare theoretical kitchen usage (from sales and recipes) with physical counts by location and business date. Draft, verify, and lock reconciliations for inventory accuracy.",
+  "sections": [
+    {
+      "id": "reconciliation",
+      "title": "Reconciliation tab",
+      "intro": "Generate a reconciliation grid from POS sales and recipe depletion, then enter or import actual counts.",
+      "steps": [
+        "Open Inventory and the Kitchen reconciliation tab.",
+        "Select inventory location and business date.",
+        "Click Generate to build theoretical usage lines.",
+        "Enter actual quantities in the grid or import a CSV.",
+        "Save draft, review variances, then Verify (manager PIN when required)."
+      ],
+      "image": "inventory-reconciliation-overview.png",
+      "caption": "Kitchen reconciliation toolbar, grid, and variance panel.",
+      "fields": [
+        {
+          "name": "Location",
+          "effect": "Kitchen or prep store whose stock is being reconciled."
+        },
+        {
+          "name": "Business date",
+          "effect": "Trading day the theoretical usage and counts apply to."
+        },
+        {
+          "name": "Generate",
+          "effect": "Creates or refreshes reconciliation lines from sales and recipes."
+        },
+        {
+          "name": "Actual quantity",
+          "effect": "Physical count entered per item; drives variance vs. theoretical."
+        },
+        {
+          "name": "Verify",
+          "effect": "Locks the reconciliation after manager approval; prevents casual edits."
+        }
+      ]
+    },
+    {
+      "id": "reconciliation-form",
+      "title": "Manual count entry",
+      "intro": "Inline grid editing and CSV import share the same line structure.",
+      "steps": [
+        "Click a cell in the Actual column to type a count.",
+        "Use Save draft to persist without verifying.",
+        "Open CSV import to bulk-load counts from a spreadsheet template.",
+        "Review the variance panel for outliers before verifying."
+      ],
+      "image": "inventory-reconciliation-form.png",
+      "caption": "Reconciliation grid with actual quantity editing.",
+      "fields": [
+        {
+          "name": "Item",
+          "effect": "Inventory item on the reconciliation line."
+        },
+        {
+          "name": "Theoretical",
+          "effect": "System-calculated usage from recipes and sales."
+        },
+        {
+          "name": "Actual",
+          "effect": "Counted on-hand or usage quantity you enter."
+        },
+        {
+          "name": "Variance",
+          "effect": "Difference between actual and theoretical; highlights shrink or data issues."
+        },
+        {
+          "name": "Notes",
+          "effect": "Optional explanation stored on the line for audit."
+        }
+      ]
+    }
+  ]
+}

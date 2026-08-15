@@ -248,7 +248,7 @@ export const Delivery = () => {
   }
 
   return (
-    <div className="grid grid-cols-5 gap-5">
+    <div className="grid grid-cols-5 gap-5" data-testid="delivery-map-panel">
       <div className="col-span-4">
         <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
           <Map
@@ -267,7 +267,7 @@ export const Delivery = () => {
           </Map>
         </APIProvider>
       </div>
-      <div className="col-span-1 select-none">
+      <div className="col-span-1 select-none" data-testid="delivery-orders-list">
         <ScrollContainer className="h-[calc(100vh_-_70px_-_25px)]">
           <div className="">
             {deliveryOrders.length > 0 ? (

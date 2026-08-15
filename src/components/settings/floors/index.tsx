@@ -120,7 +120,7 @@ export const AdminFloors = () => {
               module: 'admin.floors.create',
               description: getAccessRuleChildLabel('admin.floors.create'),
             });
-          }} icon={faPlus}>{t('buttons.floor')}</Button>
+          }} icon={faPlus} data-testid="admin-add-floors">{t('buttons.floor')}</Button>
         ]}
       />
 

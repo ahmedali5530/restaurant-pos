@@ -45,6 +45,23 @@ import ScrollContainer from "react-indiana-drag-scroll";
 import { useTranslation } from "react-i18next";
 import { lockSession, logoutSession } from "@/lib/session.actions.ts";
 
+const SIDEBAR_NAV_TEST_IDS: Partial<Record<string, string>> = {
+  [MENU]: 'nav-menu',
+  [ORDERS]: 'nav-orders',
+  [SUMMARY]: 'nav-summary',
+  [KITCHEN]: 'nav-kitchen',
+  [ORDER_DISPLAY]: 'nav-order-display',
+  [DELIVERY]: 'nav-delivery',
+  [CLOSING]: 'nav-closing',
+  [INVENTORY]: 'nav-inventory',
+  [ADMIN]: 'nav-admin',
+  [REPORTS]: 'nav-reports',
+  [TIP_DISTRIBUTION]: 'nav-tip-distribution',
+  [ACCOUNTS]: 'nav-accounts',
+  [HR]: 'nav-hr',
+  [INTEGRATIONS]: 'nav-integrations',
+};
+
 export const Sidebar = () => {
   const [page, setPage] = useAtom(appPage);
   const { t } = useTranslation(['navigation', 'common']);
@@ -74,7 +91,7 @@ export const Sidebar = () => {
     { title: t('sidebar.orders'), icon: <FontAwesomeIcon icon={faList} size="lg"/>, link: ORDERS, role: 'orders' },
     { title: t('sidebar.summary'), icon: <FontAwesomeIcon icon={faClipboardList} size="lg"/>, link: SUMMARY, role: 'summary' },
     { title: t('sidebar.kitchen'), icon: <FontAwesomeIcon icon={faUtensils} size="lg"/>, link: KITCHEN, role: 'kitchen' },
-    // { title: t('sidebar.orderDisplay'), icon: <FontAwesomeIcon icon={faDisplay} size="lg"/>, link: ORDER_DISPLAY, role: 'order_display' },
+    { title: t('sidebar.orderDisplay'), icon: <FontAwesomeIcon icon={faDisplay} size="lg"/>, link: ORDER_DISPLAY, role: 'order_display' },
     { title: t('sidebar.delivery'), icon: <FontAwesomeIcon icon={faMotorcycle} size="lg"/>, link: DELIVERY, role: 'delivery' },
     { title: t('sidebar.closing'), icon: <FontAwesomeIcon icon={faStore} size="lg"/>, link: CLOSING, role: 'closing' },
     { title: t('sidebar.inventory'), icon: <FontAwesomeIcon icon={faWarehouse} size="lg"/>, link: INVENTORY, role: 'inventory' },
@@ -106,6 +123,8 @@ export const Sidebar = () => {
           <div className="p-2 flex flex-col">
             {sidebarItems.map(item => (
               <button
+                type="button"
+                data-testid={SIDEBAR_NAV_TEST_IDS[item.link] ?? undefined}
                 onClick={() => {
                   protectedNavigate(item.link, item.role);
                 }}
@@ -128,6 +147,8 @@ export const Sidebar = () => {
       <div className="flex flex-col gap-2 w-full p-2">
         <div className="input-group">
           <button
+            type="button"
+            data-testid="nav-settings"
             onClick={() => protectedNavigate(SETTINGS, 'settings')}
             className={cn(
               'btn btn-primary lg flex-1',
@@ -142,6 +163,7 @@ export const Sidebar = () => {
           </button>
           <NavLink
             to={CLOCK}
+            data-testid="nav-clock"
             className={cn(
               'btn btn-primary lg flex-1',
               pathInfo === CLOCK ? 'active' : ''
@@ -154,10 +176,24 @@ export const Sidebar = () => {
           </NavLink>
         </div>
         <div className="input-group">
-          <IconTooltipButton label={t('common:actions.lock')} className="flex-1" variant="primary" onClick={lock} size="lg">
+          <IconTooltipButton
+            label={t('common:actions.lock')}
+            className="flex-1"
+            variant="primary"
+            onClick={lock}
+            size="lg"
+            data-testid="nav-lock"
+          >
             <FontAwesomeIcon icon={faLock} />
           </IconTooltipButton>
-          <IconTooltipButton label={t('common:actions.logout')} className="flex-1" variant="danger" onClick={logout} size="lg">
+          <IconTooltipButton
+            label={t('common:actions.logout')}
+            className="flex-1"
+            variant="danger"
+            onClick={logout}
+            size="lg"
+            data-testid="nav-logout"
+          >
             <FontAwesomeIcon icon={faPowerOff} />
           </IconTooltipButton>
         </div>

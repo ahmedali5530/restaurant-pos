@@ -1,0 +1,133 @@
+{
+  "title": "Периоды и прогоны зарплаты",
+  "intro": "Закрывайте периоды, создавайте прогоны с предпросмотром.",
+  "sections": [
+    {
+      "id": "payroll-periods",
+      "title": "Периоды зарплаты",
+      "steps": [
+        "HR → Зарплата → Периоды.",
+        "Создайте периоды цикла.",
+        "Заблокируйте перед финалом."
+      ],
+      "image": "hr-payroll-periods.png",
+      "caption": "Список периодов.",
+      "fields": []
+    },
+    {
+      "id": "payroll-period-form",
+      "title": "Форма периода зарплаты",
+      "steps": [
+        "Имя, тип, даты.",
+        "Статус Open.",
+        "Смените на Locked/Closed/Paid."
+      ],
+      "image": "hr-form-payroll-period.png",
+      "caption": "Форма периода.",
+      "fields": [
+        {
+          "name": "Имя периода",
+          "effect": "Метка в runs и экспорте."
+        },
+        {
+          "name": "Тип периода",
+          "effect": "Weekly, biweekly, monthly или custom."
+        },
+        {
+          "name": "Дата начала",
+          "effect": "Первый включённый день."
+        },
+        {
+          "name": "Дата окончания",
+          "effect": "Последний включённый день."
+        },
+        {
+          "name": "Статус",
+          "effect": "Open разрешает правки; locked ограничивает."
+        }
+      ]
+    },
+    {
+      "id": "payroll-runs",
+      "title": "Прогоны зарплаты",
+      "steps": [
+        "Зарплата → Runs.",
+        "Сгенерируйте preview.",
+        "Проверьте snapshots."
+      ],
+      "image": "hr-payroll-runs.png",
+      "caption": "Runs периода.",
+      "fields": []
+    },
+    {
+      "id": "payroll-run-form",
+      "title": "Создать прогон зарплаты",
+      "steps": [
+        "Новый run.",
+        "Открытый период.",
+        "Сгенерировать preview."
+      ],
+      "image": "hr-form-payroll-run.png",
+      "caption": "Форма нового run.",
+      "fields": [
+        {
+          "name": "Период зарплаты",
+          "effect": "Определяет часы и adjustments."
+        },
+        {
+          "name": "Номер run",
+          "effect": "Последовательный id в периоде."
+        }
+      ]
+    },
+    {
+      "id": "adjustments",
+      "title": "Корректировки зарплаты",
+      "steps": [
+        "Зарплата → Adjustments.",
+        "Добавьте бонусы/штрафы.",
+        "Привяжите к периоду."
+      ],
+      "image": "hr-payroll-adjustments.png",
+      "caption": "Список adjustments.",
+      "fields": []
+    },
+    {
+      "id": "adjustment-form",
+      "title": "Форма adjustment",
+      "steps": [
+        "Сотрудник, тип, сумма, дата.",
+        "Необяз. период.",
+        "Сохранить."
+      ],
+      "image": "hr-form-adjustment.png",
+      "caption": "Форма payroll adjustment.",
+      "fields": [
+        {
+          "name": "Сотрудник",
+          "effect": "Получает adjustment."
+        },
+        {
+          "name": "Период зарплаты",
+          "effect": "Необяз. связь с run."
+        },
+        {
+          "name": "Тип",
+          "effect": "Bonus, penalty, allowance, reimbursement, advance, loan, correction или deduction."
+        },
+        {
+          "name": "Сумма",
+          "effect": "Значение к gross."
+        },
+        {
+          "name": "Effective date",
+          "effect": "Определяет run."
+        },
+        {
+          "name": "Описание",
+          "effect": "Деталь payslip и audit."
+        }
+      ]
+    }
+  ]
+}

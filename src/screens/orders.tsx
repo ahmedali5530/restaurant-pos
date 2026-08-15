@@ -321,8 +321,8 @@ export const Orders = () => {
   return (
     <Layout containerClassName="overflow-hidden">
       <DocumentTitle parts={[tNav('sidebar.orders')]} />
-      <div className="flex gap-5 p-3 flex-col">
-        <div className="h-[60px] flex-0 rounded-xl bg-white flex items-center px-3 gap-3">
+      <div className="flex gap-5 p-3 flex-col" data-testid="orders-page">
+        <div className="h-[60px] flex-0 rounded-xl bg-white flex items-center px-3 gap-3" data-testid="orders-filters">
           <div className="min-w-[200px]">
             <ReactSelect
               options={[OrderStatus["In Progress"], OrderStatus.Paid, OrderStatus.Cancelled, OrderStatus.Spilt, OrderStatus.Merged].map(item => ({
@@ -374,10 +374,11 @@ export const Orders = () => {
           <div>
             <DatePicker value={date} onChange={setDate} maxValue={today(getLocalTimeZone())} isClearable/>
           </div>
-          <div className="input-group flex-1 justify-end">
+          <div className="input-group flex-1 justify-end" data-testid="orders-toolbar">
             <Button
               icon={faMoneyBillWave}
               variant="primary"
+              data-testid="orders-open-cash-drawer"
               onClick={() => {
                 protectAction(() => {
                   void dispatchPrint(db, PRINT_TYPE.pulse, {}, {userId: app?.user?.id});
@@ -389,56 +390,71 @@ export const Orders = () => {
             >
               {t('actions.openCashDrawer')}
             </Button>
-            <Button icon={faTableColumns} variant="primary" onClick={() => setView('column')}
-                    active={view === 'column'}>
+            <Button
+              icon={faTableColumns}
+              variant="primary"
+              data-testid="orders-view-blocks"
+              onClick={() => setView('column')}
+              active={view === 'column'}
+            >
               {t('view.blocks')}
             </Button>
-            <Button icon={faBars} variant="primary" onClick={() => setView('row')} active={view === 'row'}>
+            <Button
+              icon={faBars}
+              variant="primary"
+              data-testid="orders-view-table"
+              onClick={() => setView('row')}
+              active={view === 'row'}
+            >
               {t('view.table')}
             </Button>
           </div>
         </div>
         {view === 'column' && (
-          <ScrollContainer className="h-[calc(100vh_-_190px)]">
-            <div className="flex-1 rounded-xl flex gap-3 flex-row">
-              {orders.map(item => (
-                <div className="w-[400px] flex-shrink-0" key={item.id}>
-                  <OrderBox
-                    order={item}
-                    merging={merging}
-                    mergingOrders={mergingOrders}
-                    tempPrinted={tempPrintedOrderIds.has(item.id.toString())}
-                    onMergeSelect={(order, status) => {
-                      if (status) {
-                        setMerging(true);
+          <div data-testid="orders-list-blocks">
+            <ScrollContainer className="h-[calc(100vh_-_190px)]">
+              <div className="flex-1 rounded-xl flex gap-3 flex-row">
+                {orders.map(item => (
+                  <div className="w-[400px] flex-shrink-0" key={item.id}>
+                    <OrderBox
+                      order={item}
+                      merging={merging}
+                      mergingOrders={mergingOrders}
+                      tempPrinted={tempPrintedOrderIds.has(item.id.toString())}
+                      onMergeSelect={(order, status) => {
+                        if (status) {
+                          setMerging(true);
 
-                        setMergingOrders(prev => [
-                          ...prev,
-                          order
-                        ]);
-                      } else {
-                        setMergingOrders(prev => prev.filter(order => order.id.toString() !== item.id.toString()));
-                      }
-                    }}
-                    onAction={fetchOrders}
-                  />
-                </div>
-              ))}
-            </div>
-          </ScrollContainer>
+                          setMergingOrders(prev => [
+                            ...prev,
+                            order
+                          ]);
+                        } else {
+                          setMergingOrders(prev => prev.filter(order => order.id.toString() !== item.id.toString()));
+                        }
+                      }}
+                      onAction={fetchOrders}
+                    />
+                  </div>
+                ))}
+              </div>
+            </ScrollContainer>
+          </div>
         )}
 
         {view === 'row' && (
-          <ScrollContainer className="max-h-[calc(100vh_-_190px)]">
-            <div className="flex-1 rounded-xl flex flex-col">
-              {orders.map(item => (
-                <OrderRow order={item} key={item.id}/>
-              ))}
-            </div>
-          </ScrollContainer>
+          <div data-testid="orders-list-table">
+            <ScrollContainer className="max-h-[calc(100vh_-_190px)]">
+              <div className="flex-1 rounded-xl flex flex-col">
+                {orders.map(item => (
+                  <OrderRow order={item} key={item.id}/>
+                ))}
+              </div>
+            </ScrollContainer>
+          </div>
         )}
 
-        <div className="h-[60px] flex-0 rounded-xl bg-white flex items-center px-3 gap-3">
+        <div className="h-[60px] flex-0 rounded-xl bg-white flex items-center px-3 gap-3" data-testid="orders-merge-bar">
           {merging && (
             <div className="flex gap-5">
               <Dropdown
@@ -467,7 +483,7 @@ export const Orders = () => {
                 {mergingOrders.length <= 1 ? t('merge.selectTwoOrMore') : t('merge.confirmMerging', {count: mergingOrders.length})}
               </Button>
 
-              <Button flat size="lg" variant="danger" onClick={() => {
+              <Button flat size="lg" variant="danger" data-testid="orders-merge-cancel" onClick={() => {
                 setMerging(false);
                 setMergingOrders([]);
               }}>

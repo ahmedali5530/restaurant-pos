@@ -1,0 +1,56 @@
+{
+  "title": "Performans notları",
+  "intro": "Uyarı, övgü ve olay kayıtları.",
+  "sections": [
+    {
+      "id": "performance",
+      "title": "Performans listesi",
+      "steps": [
+        "İK → Performans.",
+        "Çalışan/tip/şiddete göre inceleyin.",
+        "Olay veya değerlendirme sonrası ekleyin."
+      ],
+      "image": "hr-performance-list.png",
+      "caption": "Performans notları sekmesi.",
+      "fields": []
+    },
+    {
+      "id": "performance-form",
+      "title": "Performans notu formu",
+      "steps": [
+        "Çalışan, tip, başlık, metin.",
+        "Şiddet belirleyin.",
+        "Çalışana görünür seçeneği.",
+        "Kaydet."
+      ],
+      "image": "hr-form-performance.png",
+      "caption": "Performans notu formu.",
+      "fields": [
+        {
+          "name": "Çalışan",
+          "effect": "Notun konusu."
+        },
+        {
+          "name": "Tip",
+          "effect": "Uyarı, övgü, değerlendirme veya olay."
+        },
+        {
+          "name": "Başlık",
+          "effect": "Listelerde kısa özet."
+        },
+        {
+          "name": "İçerik",
+          "effect": "Olayın tam anlatımı."
+        },
+        {
+          "name": "Şiddet",
+          "effect": "Düşük, orta, yüksek veya kritik."
+        },
+        {
+          "name": "Çalışana görünür",
+          "effect": "Açıksa çalışan görebilir."
+        }
+      ]
+    }
+  ]
+}

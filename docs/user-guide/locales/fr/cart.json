@@ -1,0 +1,29 @@
+{
+  "title": "Panier",
+  "intro": "Le panier contient les articles du couvert ou de la commande. Envoyez en cuisine ou ouvrez le paiement.",
+  "sections": [
+    {
+      "id": "panel",
+      "title": "Panneau panier",
+      "intro": "Lignes nouvelles et déjà envoyées.",
+      "steps": [
+        "Nouvelles en haut ; envoyées sous le séparateur.",
+        "Touchez une ligne pour les actions.",
+        "Utilisez les places pour partager."
+      ],
+      "image": "cart-panel.png",
+      "caption": "Panier."
+    },
+    {
+      "id": "actions",
+      "title": "Cuisine, Payer, Annuler",
+      "steps": [
+        "En cuisine enregistre et envoie.",
+        "Payer maintenant ouvre le paiement (chapitre Paiement).",
+        "Annuler retire les nouvelles lignes."
+      ],
+      "image": "cart-payment-actions.png",
+      "caption": "Boutons d’action."
+    }
+  ]
+}

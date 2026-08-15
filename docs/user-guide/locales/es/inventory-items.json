@@ -1,0 +1,40 @@
+{
+  "title": "Artículos y datos maestros",
+  "intro": "Mantenga artículos, categorías y ubicaciones que impulsan valoración y documentos.",
+  "sections": [
+    {
+      "id": "items",
+      "title": "Artículos",
+      "steps": [
+        "Abra la pestaña Artículos.",
+        "Cree o edite artículos con código, unidad, niveles de reorden y proveedores.",
+        "Los artículos aparecen en compras, salidas, recetas y el resumen."
+      ],
+      "image": "inventory-items-list.png",
+      "caption": "Tabla de mantenimiento de artículos."
+    },
+    {
+      "id": "categories",
+      "title": "Categorías de artículos",
+      "intro": "Las categorías agrupan artículos para filtros e informes.",
+      "steps": [
+        "Abra la pestaña Categorías de artículos.",
+        "Agregue categorías según cocina y almacén.",
+        "Asigne categorías en el formulario de cada artículo."
+      ],
+      "image": "inventory-items-categories.png",
+      "caption": "Pestaña Categorías de artículos."
+    },
+    {
+      "id": "locations",
+      "title": "Ubicaciones",
+      "steps": [
+        "Abra la pestaña Ubicaciones.",
+        "Defina almacenes, neveras o cocinas donde se guarda stock.",
+        "Los documentos siempre referencian una ubicación."
+      ],
+      "image": "inventory-items-locations.png",
+      "caption": "Pestaña Ubicaciones."
+    }
+  ]
+}

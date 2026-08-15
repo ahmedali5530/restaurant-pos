@@ -1,0 +1,77 @@
+{
+  "title": "Rapprochement cuisine",
+  "intro": "Comparez la consommation théorique aux comptages physiques par emplacement et date.",
+  "sections": [
+    {
+      "id": "reconciliation",
+      "title": "Onglet Rapprochement",
+      "intro": "Générez une grille depuis ventes POS et recettes, puis saisissez ou importez les comptages.",
+      "steps": [
+        "Inventaire → Rapprochement cuisine.",
+        "Choisissez emplacement et date opérationnelle.",
+        "Cliquez Générer.",
+        "Saisissez quantités réelles ou importez CSV.",
+        "Brouillon, vérifiez écarts, Vérifier."
+      ],
+      "image": "inventory-reconciliation-overview.png",
+      "caption": "Barre, grille et panneau d'écarts.",
+      "fields": [
+        {
+          "name": "Emplacement",
+          "effect": "Cuisine ou stock rapproché."
+        },
+        {
+          "name": "Date opérationnelle",
+          "effect": "Jour d'activité du rapprochement."
+        },
+        {
+          "name": "Générer",
+          "effect": "Crée lignes théoriques."
+        },
+        {
+          "name": "Quantité réelle",
+          "effect": "Comptage physique par article."
+        },
+        {
+          "name": "Vérifier",
+          "effect": "Verrouille après approbation manager."
+        }
+      ]
+    },
+    {
+      "id": "reconciliation-form",
+      "title": "Saisie manuelle des comptages",
+      "intro": "Édition grille et import CSV partagent la même structure.",
+      "steps": [
+        "Cliquez cellule Réel pour saisir.",
+        "Enregistrer brouillon sans vérifier.",
+        "Import CSV en masse.",
+        "Vérifiez écarts avant validation."
+      ],
+      "image": "inventory-reconciliation-form.png",
+      "caption": "Grille avec édition quantité réelle.",
+      "fields": [
+        {
+          "name": "Article",
+          "effect": "Article stock de la ligne."
+        },
+        {
+          "name": "Théorique",
+          "effect": "Usage calculé par recettes et ventes."
+        },
+        {
+          "name": "Réel",
+          "effect": "Quantité comptée saisie."
+        },
+        {
+          "name": "Écart",
+          "effect": "Différence réel vs théorique."
+        },
+        {
+          "name": "Notes",
+          "effect": "Explication optionnelle."
+        }
+      ]
+    }
+  ]
+}

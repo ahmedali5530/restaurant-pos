@@ -1,0 +1,42 @@
+{
+  "title": "Kitchen",
+  "intro": "The Kitchen board shows live tickets per kitchen station. Staff bump items through workflow stages and recall completed batches when needed.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Kitchen board overview",
+      "steps": [
+        "Tap Kitchen in the sidebar.",
+        "Select a kitchen station at the top if you have more than one.",
+        "Tickets appear in columns as orders are sent To kitchen from the floor."
+      ],
+      "image": "kitchen-overview.png",
+      "caption": "Kitchen screen with station selector and board."
+    },
+    {
+      "id": "toolbar",
+      "title": "Toolbar actions",
+      "steps": [
+        "Complete all open marks every active ticket on this station as done.",
+        "Completed orders opens a list of finished batches with Recall.",
+        "View all dishes shows a running count of each dish still on the board.",
+        "Average time shows prep duration for completed items today."
+      ],
+      "image": "kitchen-toolbar.png",
+      "caption": "Kitchen toolbar and average prep time."
+    },
+    {
+      "id": "board",
+      "title": "Ticket board",
+      "intro": "Each card is part of an order. Multi-part orders may use colored borders. Tap stages on a ticket to advance workflow.",
+      "steps": [
+        "Read table or order type, invoice number, and dish lines on each ticket.",
+        "Tap a stage button to complete that kitchen step for the line items.",
+        "Large orders may split across multiple cards on the board."
+      ],
+      "image": "kitchen-board.png",
+      "caption": "Kitchen ticket board with order cards.",
+      "note": "Send at least one order To kitchen before capture so tickets appear on the board."
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "title": "Defterler, kâr-zarar ve nakit akışı",
+  "intro": "Review posted activity and period balances: general ledger detail, trial balance, and balance sheet.",
+  "sections": [
+    {
+      "id": "ledger",
+      "title": "General ledger",
+      "steps": [
+        "Open the General ledger tab.",
+        "Filter by account and date range to inspect posted lines.",
+        "Use this view to drill into journal activity for an account."
+      ],
+      "image": "accounts-ledger.png",
+      "caption": "General ledger tab."
+    },
+    {
+      "id": "trial",
+      "title": "Trial balance",
+      "intro": "Trial balance lists debit and credit totals by account for a period.",
+      "steps": [
+        "Open the Trial balance tab.",
+        "Choose the period or as-of date your venue uses.",
+        "Confirm debits equal credits before relying on statements."
+      ],
+      "image": "accounts-trial-balance.png",
+      "caption": "Trial balance tab."
+    },
+    {
+      "id": "balance-sheet",
+      "title": "Balance sheet",
+      "steps": [
+        "Open the Balance sheet tab.",
+        "Review assets, liabilities, and equity for the selected date.",
+        "Other statement tabs (Profit & loss, Cash flow) follow the same pattern."
+      ],
+      "image": "accounts-balance-sheet.png",
+      "caption": "Balance sheet tab."
+    },
+    {
+      "id": "profit-loss",
+      "title": "Kar ve zarar",
+      "intro": "Seçilen dönem gelir tablosu: gelir, satış maliyeti, giderler.",
+      "steps": [
+        "Hesaplar → Kar/Zarar sekmesi.",
+        "Tarih aralığı veya dönem seçin.",
+        "Hesap gruplarını genişletin.",
+        "Dönem kapandığında dışa aktarın."
+      ],
+      "image": "accounts-profit-loss.png",
+      "caption": "Kar/zarar tab sekmesi.",
+      "fields": []
+    },
+    {
+      "id": "cash-flow",
+      "title": "Nakit akışı",
+      "intro": "Dönem operasyonel, yatırım ve finansman nakit hareketlerini özetler.",
+      "steps": [
+        "Hesaplar → Nakit akışı sekmesi.",
+        "Diğer tablolarla aynı dönemi seçin.",
+        "Açılış, net değişim ve kapanışı inceleyin.",
+        "Tahakkuk farklarını açıklamak için K/Z ile kullanın."
+      ],
+      "image": "accounts-cash-flow.png",
+      "caption": "Nakit akışı sekmesi.",
+      "fields": []
+    }
+  ]
+}

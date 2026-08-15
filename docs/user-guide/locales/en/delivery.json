@@ -1,0 +1,51 @@
+{
+  "title": "Delivery",
+  "intro": "Delivery helps managers track outbound orders on a map, manage delivery areas, and configure delivery settings.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Delivery hub",
+      "steps": [
+        "Tap Delivery in the sidebar.",
+        "Tabs at the top switch between Delivery orders, Areas, and Settings.",
+        "The Delivery tab shows a map and a list of active delivery orders."
+      ],
+      "image": "delivery-overview.png",
+      "caption": "Delivery screen with tabs."
+    },
+    {
+      "id": "map",
+      "title": "Map and order list",
+      "steps": [
+        "The map shows delivery zones and order markers when coordinates exist.",
+        "Click a marker or list row to open the order popup.",
+        "When no delivery orders are open, the list shows an empty state."
+      ],
+      "image": "delivery-map.png",
+      "caption": "Delivery map and order sidebar."
+    },
+    {
+      "id": "areas",
+      "title": "Delivery areas",
+      "intro": "Define geographic zones used for delivery routing and reporting.",
+      "steps": [
+        "Open the Areas tab.",
+        "Draw or manage polygons on the map for each delivery zone.",
+        "Save area changes when your role allows editing."
+      ],
+      "image": "delivery-areas.png",
+      "caption": "Delivery areas tab."
+    },
+    {
+      "id": "settings",
+      "title": "Delivery settings",
+      "steps": [
+        "Open the Settings tab.",
+        "Configure map center, fees, and other delivery options for the venue.",
+        "Save when finished (manager approval may be required)."
+      ],
+      "image": "delivery-settings.png",
+      "caption": "Delivery settings tab."
+    }
+  ]
+}

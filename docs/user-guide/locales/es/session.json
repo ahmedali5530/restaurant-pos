@@ -1,0 +1,75 @@
+{
+  "title": "Bloqueo, cierre de sesión y reloj",
+  "intro": "Controles inferiores del menú: bloquear, cerrar sesión, reloj/sesión y Configuración. El bloqueo por inactividad está en seguridad de sesión.",
+  "sections": [
+    {
+      "id": "controls",
+      "title": "Controles de sesión",
+      "steps": [
+        "Llave: Configuración.",
+        "Usuario: Reloj.",
+        "Candado: bloquear.",
+        "Apagar: cerrar sesión."
+      ],
+      "image": "session-sidebar-controls.png",
+      "caption": "Settings, clock, lock, and logout on the sidebar."
+    },
+    {
+      "id": "lock",
+      "title": "Bloquear terminal",
+      "steps": [
+        "Toque Bloquear.",
+        "Aparece aviso de sistema bloqueado.",
+        "Desbloquee con el mismo PIN o contraseña."
+      ],
+      "image": "session-locked.png",
+      "caption": "System locked banner on login.",
+      "intro": "Para descansos cortos; solo el mismo usuario desbloquea."
+    },
+    {
+      "id": "clock",
+      "title": "Pantalla de reloj",
+      "steps": [
+        "Abra Reloj desde el icono de usuario.",
+        "Requiere fichaje abierto.",
+        "Revise resumen y hora de entrada."
+      ],
+      "image": "session-clock.png",
+      "caption": "Clock screen overview.",
+      "intro": "Entrada de tiempo, turno, tiempo transcurrido y métricas."
+    },
+    {
+      "id": "clock-detail",
+      "title": "Usuario, turno y salida",
+      "steps": [
+        "Confirme usuario y turno.",
+        "Vea el tiempo transcurrido.",
+        "Salida solo al terminar el turno."
+      ],
+      "image": "session-clock-detail.png",
+      "caption": "Session panel with Clock Out."
+    },
+    {
+      "id": "clock-sales",
+      "title": "Resumen de ventas de sesión",
+      "steps": [
+        "Ventas, reembolsos, cargos, descuentos, impuestos, extras, anulaciones y propinas de la sesión.",
+        "Revise antes de salir."
+      ],
+      "image": "session-clock-sales.png",
+      "caption": "Sale summary metrics."
+    },
+    {
+      "id": "idle",
+      "title": "Bloqueo o cierre por inactividad",
+      "steps": [
+        "Configuración → Seguridad de sesión.",
+        "Active tiempo de inactividad y elija Bloquear o Cerrar sesión.",
+        "Guarde; al llegar al límite se aplica."
+      ],
+      "image": "session-idle-settings.png",
+      "caption": "Session security card.",
+      "intro": "En Configuración → Seguridad de sesión."
+    }
+  ]
+}

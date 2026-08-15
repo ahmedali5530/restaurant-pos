@@ -120,7 +120,7 @@ export const PayrollPeriodForm = ({open, onClose, data}: Props) => {
   };
 
   return (
-    <Modal title={data ? t("forms.payroll.updatePeriod") : t("forms.payroll.createPeriod")} open={open} onClose={closeModal} size="lg">
+    <Modal title={data ? t("forms.payroll.updatePeriod") : t("forms.payroll.createPeriod")} testId="hr-form-payroll-period" open={open} onClose={closeModal} size="lg">
       <form onSubmit={handleSubmit(onSubmit, (errs) => {
         const message = firstFormError(errs);
         if (message) toast.error(message);

@@ -1,0 +1,16 @@
+{
+  "title": "POSR Son Kullanıcı Kılavuzu",
+  "subtitle": "Giriş, ayarlar, menü, sepet, ödeme, siparişler ve oturum",
+  "intro": "POSR kılavuzu: giriş, ayarlar, sipariş, ödeme, sipariş listesi ve oturum.",
+  "toc": "İçindekiler",
+  "footer": "",
+  "chapters": {
+    "login": "Giriş",
+    "settings": "Ayarlar",
+    "menu": "Menü",
+    "cart": "Sepet",
+    "payment": "Ödeme",
+    "orders": "Siparişler",
+    "session": "Oturum"
+  }
+}

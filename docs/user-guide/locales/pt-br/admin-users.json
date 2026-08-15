@@ -1,0 +1,157 @@
+{
+  "title": "Users and roles",
+  "intro": "Manage staff accounts, PINs, role permissions, shifts, and tip-pool definitions that control who can access each screen and tab.",
+  "sections": [
+    {
+      "id": "list",
+      "title": "User list",
+      "steps": [
+        "Open the Users tab.",
+        "Browse active users with name, role, and contact fields.",
+        "Use Add user to create a new account or Edit to update an existing one."
+      ],
+      "image": "admin-users-list.png",
+      "caption": "Users maintenance table."
+    },
+    {
+      "id": "roles",
+      "title": "Roles",
+      "intro": "Roles bundle permission modules that gate sidebar screens, Manage tabs, and protected actions.",
+      "steps": [
+        "Switch to the Roles sub-tab under Users.",
+        "Create roles and open the module list to enable or disable access.",
+        "Assign roles to users so permissions stay consistent across staff."
+      ],
+      "image": "admin-users-roles.png",
+      "caption": "Roles sub-tab."
+    },
+    {
+      "id": "shifts",
+      "title": "Shifts",
+      "intro": "Shifts define work windows used for labor reporting and automatic clock-out rules.",
+      "steps": [
+        "Switch to the Shifts sub-tab.",
+        "Add shift names with start and end times.",
+        "Assign shifts to users for scheduling and tip-distribution context."
+      ],
+      "image": "admin-users-shifts.png",
+      "caption": "Shifts sub-tab."
+    },
+    {
+      "id": "tips-definition",
+      "title": "Definição gorjetas (distribuição)",
+      "intro": "Pondera gorjetas por papéis e usuários.",
+      "steps": [
+        "Usuários → Definição gorjetas.",
+        "Linhas papel com pesos.",
+        "Overrides usuário opcional.",
+        "Salvar."
+      ],
+      "image": "admin-users-tips-definition.png",
+      "caption": "Painel distribuição gorjetas.",
+      "fields": [
+        {
+          "name": "Peso papel",
+          "effect": "Participação do pool por papel."
+        },
+        {
+          "name": "Peso usuário",
+          "effect": "Override opcional."
+        }
+      ]
+    },
+    {
+      "id": "user-form",
+      "title": "Formulário usuário",
+      "intro": "Operadores POS com PIN ou senha.",
+      "steps": [
+        "Admin → Usuários.",
+        "Método login, nome, credenciais, papel, turno.",
+        "Criar funcionário opcional.",
+        "Salvar."
+      ],
+      "image": "admin-users-user-form.png",
+      "caption": "Formulário conta usuário.",
+      "fields": [
+        {
+          "name": "Método login",
+          "effect": "PIN (4 dígitos) ou senha."
+        },
+        {
+          "name": "Nome / sobrenome",
+          "effect": "Nome em contas."
+        },
+        {
+          "name": "Login / PIN",
+          "effect": "Credencial."
+        },
+        {
+          "name": "Senha",
+          "effect": "Obrigatória se senha."
+        },
+        {
+          "name": "Papel",
+          "effect": "Pacote permissões."
+        },
+        {
+          "name": "Turno",
+          "effect": "Turno padrão."
+        },
+        {
+          "name": "Criar funcionário",
+          "effect": "Auto-cria HR vinculado."
+        }
+      ]
+    },
+    {
+      "id": "role-form",
+      "title": "Formulário papel",
+      "intro": "Concede acesso a módulos e ações.",
+      "steps": [
+        "Usuários → Papéis.",
+        "Nome e árvore módulos.",
+        "Marque permissões.",
+        "Salvar."
+      ],
+      "image": "admin-users-role-form.png",
+      "caption": "Editor permissões papel.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Rótulo no formulário usuário."
+        },
+        {
+          "name": "Permissões módulo",
+          "effect": "Checkboxes hierárquicas."
+        }
+      ]
+    },
+    {
+      "id": "shift-form",
+      "title": "Formulário template turno",
+      "intro": "Define janelas de turno.",
+      "steps": [
+        "Usuários → Turnos.",
+        "Nome e horários.",
+        "Noturno ativa dia seguinte.",
+        "Salvar."
+      ],
+      "image": "admin-users-shift-form.png",
+      "caption": "Formulário turno.",
+      "fields": [
+        {
+          "name": "Nome",
+          "effect": "Rótulo turno."
+        },
+        {
+          "name": "Hora início",
+          "effect": "Início programado."
+        },
+        {
+          "name": "Hora fim",
+          "effect": "Fim programado."
+        }
+      ]
+    }
+  ]
+}

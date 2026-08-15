@@ -1,0 +1,29 @@
+{
+  "title": "Registrazioni e gruppi conti",
+  "intro": "Registra transazioni con giornali e organizza il piano con gruppi.",
+  "sections": [
+    {
+      "id": "journal",
+      "title": "Registrazioni di giornale",
+      "steps": [
+        "Apri Registrazioni.",
+        "Crea righe dare/avere bilanciate.",
+        "Salva per registrare nel mastro."
+      ],
+      "image": "accounts-journal.png",
+      "caption": "Scheda Registrazioni."
+    },
+    {
+      "id": "groups",
+      "title": "Gruppi conti",
+      "intro": "I gruppi organizzano i conti per i bilanci.",
+      "steps": [
+        "Apri Gruppi conti.",
+        "Crea gruppi per i report.",
+        "Assegna i conti."
+      ],
+      "image": "accounts-groups.png",
+      "caption": "Scheda Gruppi conti."
+    }
+  ]
+}
