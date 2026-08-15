@@ -140,7 +140,11 @@
     "arrangeTables": "Tafels rangschikken",
     "updateSelected": "Geselecteerde bijwerken",
     "importIngredients": "Ingrediënten importeren",
-    "importModifierGroups": "Modifiergroepen importeren"
+    "importModifierGroups": "Modifiergroepen importeren",
+    "smartImportDishes": "Slim importeren",
+    "smartImport": "Slim importeren",
+    "smartImportIngredients": "Ingrediënten slim importeren",
+    "smartImportModifierGroups": "Modifiergroepen slim importeren"
   },
   "delete": {
     "dish": "Artikel {{name}} verwijderen",
@@ -332,7 +336,12 @@
     "uom": "Eenh.",
     "unitCost": "Eenheidsprijs",
     "lineTotal": "Totaal",
-    "priceLocked": "Prijs vergrendeld"
+    "priceLocked": "Prijs vergrendeld",
+    "smartImportDishesTitle": "Slim gerechten importeren (CSV, Excel, PDF, afbeelding)",
+    "smartImportCategoriesTitle": "Categorieën slim importeren (CSV, Excel, PDF, afbeelding)",
+    "smartImportTablesTitle": "Tafels slim importeren (CSV, Excel, PDF, afbeelding)",
+    "smartImportIngredientsTitle": "Gerechtingrediënten slim importeren",
+    "smartImportModifierGroupsTitle": "Modifiergroepen slim importeren"
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",

@@ -18,7 +18,7 @@ import {User} from "@/api/model/user.ts";
 import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {RecordId} from "surrealdb";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faPlus, faTrash, faUpload} from "@fortawesome/free-solid-svg-icons";
 import _ from "lodash";
 import {appPage} from "@/store/jotai.ts";
 import {useAtom} from "jotai";
@@ -44,6 +44,8 @@ import { useInventoryLocations } from "@/hooks/useInventoryLocations.ts";
 import { ensureLocationForKitchen, toLocationRecordId } from "@/lib/inventory/location.service.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
+import {createIssueImportConfig} from "@/components/inventory/issues/issue.import.config.ts";
 
 interface InventoryIssueItemFormValue {
   location: { label: string; value: string } | null;
@@ -209,6 +211,16 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     control,
     name: "items"
   });
+
+  const [importModal, setImportModal] = useState(false);
+  const issueImportConfig = useMemo(
+    () => createIssueImportConfig({
+      db,
+      t,
+      append: (line) => append({...line, price: 0}),
+    }),
+    [db, t, append]
+  );
 
   useEffect(() => {
     if (open) {
@@ -601,6 +613,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
   })) ?? [];
 
   return (
+    <>
     <Modal
       title={data ? `Update issue# ${data?.invoice_number}` : "Create new issue"}
       open={open}
@@ -711,7 +724,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
 
           <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
             <legend>{t('tabs.items')}</legend>
-            <div className="mb-3">
+            <div className="mb-3 flex gap-2">
               <Button
                 type="button"
                 icon={faPlus}
@@ -719,6 +732,14 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                 onClick={() => append(createEmptyItem())}
               >
                 Add item
+              </Button>
+              <Button
+                type="button"
+                icon={faUpload}
+                variant="secondary"
+                onClick={() => setImportModal(true)}
+              >
+                {t('common:actions.smartImport', {defaultValue: 'Smart Import'})}
               </Button>
               <InputError error={_.get(errors, ["items", "message"])}/>
             </div>
@@ -875,6 +896,16 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
         </div>
       </form>
     </Modal>
+    {importModal && (
+      <DataImportModal
+        isOpen
+        onClose={() => setImportModal(false)}
+        config={issueImportConfig}
+        title={t('forms.smartImportIssueTitle', {defaultValue: 'Smart import issue lines'})}
+        onDone={() => setImportModal(false)}
+      />
+    )}
+    </>
   );
 };
 

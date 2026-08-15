@@ -486,7 +486,8 @@
       "7": "Dimanche"
     },
     "shiftsGenerated": "{{created}} shift(s) créé(s), {{skipped}} ignoré(s).",
-    "conflictsDetected": "Certains shifts n'ont pas pu être créés en raison de conflits."
+    "conflictsDetected": "Certains shifts n'ont pas pu être créés en raison de conflits.",
+    "smartImportShiftsTitle": "Importation intelligente des postes planifiés"
   },
   "leave": {
     "vacation": "Vacances",

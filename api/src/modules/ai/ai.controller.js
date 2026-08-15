@@ -20,8 +20,8 @@ async function createChatCompletion(req, res, next) {
   try {
     assertAllowed();
 
-    const { task, messages, tools } = req.body || {};
-    const data = await chatCompletion({ task, messages, tools });
+    const { task, messages, tools, response_format } = req.body || {};
+    const data = await chatCompletion({ task, messages, tools, response_format });
 
     await recordUse();
 

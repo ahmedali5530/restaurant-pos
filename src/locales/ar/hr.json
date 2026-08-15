@@ -486,7 +486,8 @@
       "7": "الأحد"
     },
     "shiftsGenerated": "تم إنشاء {{created}} وردية، تم تخطي {{skipped}}.",
-    "conflictsDetected": "تعذر إنشاء بعض الورديات بسبب التعارضات."
+    "conflictsDetected": "تعذر إنشاء بعض الورديات بسبب التعارضات.",
+    "smartImportShiftsTitle": "استيراد ذكي للورديات المجدولة"
   },
   "leave": {
     "vacation": "إجازة سنوية",

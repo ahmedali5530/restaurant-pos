@@ -1,7 +1,7 @@
 import {FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {Controller, useFieldArray, useForm} from "react-hook-form";
 import dayjs, {type Dayjs} from "dayjs";
-import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faPlus, faTrash, faUpload} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {StringRecordId, RecordId} from "surrealdb";
 import {useAtom} from "jotai";
@@ -18,6 +18,8 @@ import {Tables} from "@/api/db/tables.ts";
 import {Account, NormalBalance} from "@/api/model/account.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {toQueryDateTime} from "@/components/accounts/reports.utils.ts";
+import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
+import {createJournalEntryImportConfig} from "@/components/accounts/journal-entry.import.config.ts";
 
 interface CreateJournalEntryProps {
   addModal: boolean;
@@ -105,6 +107,12 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
     control,
     name: "lines",
   });
+
+  const [importModal, setImportModal] = useState(false);
+  const journalImportConfig = useMemo(
+    () => createJournalEntryImportConfig({db, t, append}),
+    [db, t, append]
+  );
 
   const fetchNextEntryNumber = useCallback(async () => {
     const [rows] = await db.query(`SELECT math::max(<int>entry_number) as max_value
@@ -255,6 +263,7 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
   };
 
   return (
+    <>
     <Modal
       open={modal}
       onClose={onModalClose}
@@ -408,6 +417,14 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
             >
               <FontAwesomeIcon icon={faPlus} className="mr-2"/> Add 10 lines
             </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setImportModal(true)}
+            >
+              <FontAwesomeIcon icon={faUpload} className="mr-2"/>
+              {t('common:actions.smartImport', {defaultValue: 'Smart Import'})}
+            </Button>
           </div>
         </div>
 
@@ -425,5 +442,15 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
         </div>
       </form>
     </Modal>
+    {importModal && (
+      <DataImportModal
+        isOpen
+        onClose={() => setImportModal(false)}
+        config={journalImportConfig}
+        title={t('forms.smartImportJournalTitle', {defaultValue: 'Smart import journal lines'})}
+        onDone={() => setImportModal(false)}
+      />
+    )}
+    </>
   );
 };

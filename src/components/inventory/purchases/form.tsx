@@ -24,7 +24,8 @@ import _ from "lodash";
 import {InventoryPurchaseOrderForm} from "@/components/inventory/purchase_orders/form.tsx";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
-import {CsvUploadModal} from "@/components/common/table/csv.uploader.tsx";
+import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
+import {createPurchaseImportConfig} from "@/components/inventory/purchases/purchase.import.config.ts";
 import {fetchNextSequentialNumber, isUniqueRecordNumber} from "@/utils/recordNumbers.ts";
 import {DatePicker} from "@/components/common/antd/datepicker.tsx";
 import {DateValue} from "react-aria-components";
@@ -271,6 +272,11 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
     control,
     name: "items"
   });
+
+  const purchaseImportConfig = useMemo(
+    () => createPurchaseImportConfig({db, t, append}),
+    [db, t, append]
+  );
   const {
     fields: extraFields,
     append: appendExtra,
@@ -824,7 +830,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                   variant="primary"
                   filled
                   onClick={() => setCsvModal(true)}
-                >{t('csv.uploadTitle')}</Button>
+                >{t('common:actions.smartImport', {defaultValue: 'Smart Import'})}</Button>
               </div>
             )}
 
@@ -1358,101 +1364,11 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
       )}
 
       {isCsvMethod && (
-        <CsvUploadModal
+        <DataImportModal
           isOpen={csvModal}
           onClose={() => setCsvModal(false)}
-          fields={[{
-            name: 'name',
-            label: t('itemName')
-          }, {
-            name: 'code',
-            label: t('itemCode')
-          }, {
-            name: 'base_quantity',
-            label: t('columns.baseQuantity')
-          }, {
-            name: 'quantity',
-            label: t('forms.quantity')
-          }, {
-            name: 'requested',
-            label: t('forms.requested')
-          }, {
-            name: 'price',
-            label: t('columns.price')
-          }, {
-            name: 'expiry_date',
-            label: t('forms.expiryDate')
-          }, {
-            name: 'manufacturing_date',
-            label: t('forms.manufacturingDate')
-          }, {
-            name: 'supplier',
-            label: t('columns.suppliers')
-          }, {
-            name: 'location',
-            label: t('columns.location')
-          }, {
-            name: 'comments',
-            label: t('forms.comments')
-          }]}
-          onCreateRow={async (rowData) => {
-            try {
-              const [item] = await db.query(`SELECT *
-                                             FROM ${Tables.inventory_items}
-                                             where name = $name
-                                               and code = $code fetch suppliers
-                                                 , locations`, {
-                name: rowData.name,
-                code: rowData.code,
-              });
-
-              if (item.length === 0) {
-                throw new Error('Item not found');
-              }
-
-              const supplier = item[0]?.suppliers.find(item => item.name === rowData.supplier);
-              if (supplier === undefined) {
-                throw new Error('Supplier not found');
-              }
-
-              const locs = item[0]?.locations ?? [];
-              const location = locs.find((loc: any) => loc.name === rowData.location);
-              if (location === undefined) {
-                throw new Error('Location not found');
-              }
-
-              append({
-                item: {
-                  label: `${item[0].name}-${item[0].code}`,
-                  value: item[0].id
-                },
-                quantity: Number(rowData.quantity),
-                requested: Number(rowData.requested),
-                price: Number(rowData.price),
-                base_quantity: Number(rowData.base_quantity),
-                expiry_date: rowData.expiry_date ? dateToCalendarDate(rowData.expiry_date) : null,
-                manufacturing_date: rowData.manufacturing_date ? dateToCalendarDate(rowData.manufacturing_date) : null,
-                comments: rowData.comments,
-                supplier: {
-                  label: supplier.name,
-                  value: supplier.id
-                },
-                code: "",
-                location: {
-                  label: location.name,
-                  value: location.id
-                },
-                taxable: !!item[0].taxable,
-              });
-            } catch (e) {
-              throw e;
-            }
-          }}
-          onDone={(data) => {
-            if (data.total === data.success) {
-              setCsvModal(false);
-            }
-          }}
+          config={purchaseImportConfig}
+          title={t('forms.smartImportPurchaseTitle', {defaultValue: 'Smart import purchase lines'})}
           onExport={() => {
             const formatDate = (value: any) => {
               if (!value) return '';
@@ -1481,6 +1397,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
               };
             });
           }}
+          onDone={() => setCsvModal(false)}
         />
       )}
     </>

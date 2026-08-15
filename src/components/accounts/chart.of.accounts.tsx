@@ -13,16 +13,10 @@ import {Button} from "@/components/common/input/button.tsx";
 import {Switch} from "@/components/common/input/switch.tsx";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {CreateAccount} from "@/components/accounts/create.account.tsx";
-import {CsvUploadModal} from "@/components/common/table/csv.uploader.tsx";
-import {toRecordId} from "@/lib/utils.ts";
+import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
+import {createAccountImportConfig} from "@/components/accounts/account.import.config.ts";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
-import {
-  assertCsvMatchValues,
-  buildMatchConditions,
-  findCsvImportMatches,
-  writeCsvImportRow,
-} from "@/utils/csv-import.ts";
 
 export const ChartOfAccounts = () => {
   const {t} = useTranslation(['accounts', 'common']);
@@ -65,19 +59,22 @@ export const ChartOfAccounts = () => {
 
   const accounts = allAccountsHook.data?.data || [];
   const columnHelper = createColumnHelper<Account>();
-  const normalBalanceOptions = ["debit", "credit"];
 
-  const parseBoolean = (value: string) => {
-    const normalized = String(value || "").trim().toLowerCase();
-    if (["true", "1", "yes", "y", "active"].includes(normalized)) {
-      return true;
-    }
-    if (["false", "0", "no", "n", "inactive"].includes(normalized)) {
-      return false;
-    }
-
-    throw new Error("Invalid is_active value. Use true/false, 1/0, yes/no.");
-  };
+  const smartImportConfig = useMemo(
+    () =>
+      createAccountImportConfig({
+        db,
+        t,
+        onResult: (result) => {
+          if (result === "updated") {
+            importCounters.current.updated += 1;
+          } else {
+            importCounters.current.created += 1;
+          }
+        },
+      }),
+    [db, t]
+  );
 
   const columns = useMemo(() => [
     columnHelper.accessor("code", {
@@ -168,7 +165,7 @@ export const ChartOfAccounts = () => {
               setCsvUploader(true);
             }}
           >
-            <FontAwesomeIcon icon={faUpload} className="mr-2"/> {t('actions.importCsv')}
+            <FontAwesomeIcon icon={faUpload} className="mr-2"/> {t('actions.smartImport', {defaultValue: t('actions.importCsv')})}
           </Button>,
           <Button
             key="create-account"
@@ -226,136 +223,17 @@ export const ChartOfAccounts = () => {
       )}
 
       {csvUploader && (
-        <CsvUploadModal
-          isOpen={true}
+        <DataImportModal
+          isOpen
           onClose={async () => {
             setCsvUploader(false);
             await accountListHook.fetchData();
             await allAccountsHook.fetchData();
           }}
+          config={smartImportConfig}
+          title={t('forms.smartImportAccountsTitle', {defaultValue: 'Smart import accounts'})}
           enableImportModes
           defaultMatchFields={['code']}
-          fields={[
-            {label: "code", name: "code"},
-            {label: "name", name: "name"},
-            {label: "group_code", name: "group_code"},
-            {label: "normal_balance", name: "normal_balance"},
-            {label: "parent_code", name: "parent_code"},
-            {label: "is_active", name: "is_active"},
-            {label: "notes", name: "notes"},
-          ]}
-          onImportRow={async (rowData, { mode, matchFields }) => {
-            const requiredFields = ["code", "name", "group_code", "normal_balance", "parent_code", "is_active", "notes"];
-            for (const field of requiredFields) {
-              if (!(field in rowData)) {
-                throw new Error(`Missing required column: ${field}`);
-              }
-            }
-
-            const code = String(rowData.code || "").trim();
-            const name = String(rowData.name || "").trim();
-            const groupCode = String(rowData.group_code || "").trim();
-            const normalBalance = String(rowData.normal_balance || "").trim().toLowerCase();
-            const parentCode = String(rowData.parent_code || "").trim();
-            const notes = String(rowData.notes || "").trim();
-            const isActive = parseBoolean(rowData.is_active);
-
-            if (!code || !name || !groupCode || !normalBalance) {
-              throw new Error("code, name, group_code and normal_balance are required values.");
-            }
-
-            if (!normalBalanceOptions.includes(normalBalance)) {
-              throw new Error("Invalid normal_balance. Use: debit or credit.");
-            }
-
-            const [groupRows] = await db.query(
-              `SELECT id, head_type FROM ${Tables.account_groups} WHERE code = $code LIMIT 1`,
-              {
-                code: groupCode,
-              }
-            );
-
-            if (!groupRows || groupRows.length === 0) {
-              throw new Error(`Account group not found for group_code: ${groupCode}`);
-            }
-
-            let parentId: any = null;
-            if (parentCode) {
-              const [parentRows] = await db.query(
-                `SELECT id FROM ${Tables.accounts} WHERE code = $code LIMIT 1`,
-                {
-                  code: parentCode,
-                }
-              );
-
-              if (!parentRows || parentRows.length === 0) {
-                throw new Error(`Parent account not found for parent_code: ${parentCode}`);
-              }
-
-              parentId = toRecordId(parentRows[0].id);
-            }
-
-            const payload: any = {
-              code,
-              name,
-              group: toRecordId(groupRows[0].id),
-              account_type: groupRows[0].head_type,
-              normal_balance: normalBalance,
-              parent: parentId,
-              notes: notes || null,
-              is_active: isActive,
-            };
-
-            assertCsvMatchValues(rowData, matchFields, (field) =>
-              t('common:csvImport.emptyMatchValue', { field })
-            );
-
-            const unsupported = ['group_code', 'parent_code'];
-            const conditions = buildMatchConditions(rowData, matchFields, (field, value) => {
-              if (unsupported.includes(field)) {
-                throw new Error(t('common:csvImport.unsupportedMatchField', { field }));
-              }
-              if (field === 'is_active') {
-                return { column: 'is_active', value: parseBoolean(value) };
-              }
-              if (field === 'normal_balance') {
-                return { column: 'normal_balance', value: value.toLowerCase() };
-              }
-              return { column: field, value };
-            });
-
-            const existing = mode === 'create'
-              ? []
-              : await findCsvImportMatches(db, Tables.accounts, conditions, { softDelete: false });
-
-            const result = await writeCsvImportRow(db, {
-              mode,
-              table: Tables.accounts,
-              existing,
-              payload,
-              notFoundMessage: t('common:csvImport.recordNotFound'),
-              multipleMatchesMessage: t('common:csvImport.multipleMatches'),
-            });
-
-            if (result === 'updated') {
-              importCounters.current.updated += 1;
-            } else {
-              importCounters.current.created += 1;
-            }
-          }}
-          onDone={(data) => {
-            const created = importCounters.current.created;
-            const updated = importCounters.current.updated;
-            const invalid = Math.max(data.total - created - updated, 0);
-            setImportSummary({
-              total: data.total,
-              created,
-              updated,
-              invalid,
-            });
-            toast.success(t('messages.importComplete', {created, updated, invalid}));
-            importCounters.current = { created: 0, updated: 0 };
-          }}
           onExport={async () => {
             const list = accounts.length > 0
               ? accounts
@@ -369,6 +247,22 @@ export const ChartOfAccounts = () => {
               is_active: a.is_active ? 'true' : 'false',
               notes: a.notes ?? '',
             }));
+          }}
+          onDone={() => {
+            const created = importCounters.current.created;
+            const updated = importCounters.current.updated;
+            const total = created + updated;
+            const invalid = 0;
+            setImportSummary({
+              total,
+              created,
+              updated,
+              invalid,
+            });
+            toast.success(t('messages.importComplete', {created, updated, invalid}));
+            importCounters.current = { created: 0, updated: 0 };
+            void accountListHook.fetchData();
+            void allAccountsHook.fetchData();
           }}
         />
       )}

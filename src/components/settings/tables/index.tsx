@@ -1,6 +1,6 @@
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { Tables } from "@/api/db/tables.ts";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createColumnHelper, RowSelectionState } from "@tanstack/react-table";
 import { Table } from "@/api/model/table.ts";
 import { Button } from "@/components/common/input/button.tsx";
@@ -11,18 +11,12 @@ import { TableComponent } from "@/components/common/table/table.tsx";
 import { TableForm } from "@/components/settings/tables/table.form.tsx";
 import { TableBulkForm } from "@/components/settings/tables/table.bulk.form.tsx";
 import { useDB } from "@/api/db/db.ts";
-import {toRecordId, truthy} from "@/lib/utils.ts";
-import {CsvUploadModal} from "@/components/common/table/csv.uploader.tsx";
+import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
+import {createTableImportConfig} from "@/components/settings/tables/table.import.config.ts";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
-import {
-  assertCsvMatchValues,
-  buildMatchConditions,
-  findCsvImportMatches,
-  writeCsvImportRow,
-} from "@/utils/csv-import.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
@@ -40,6 +34,11 @@ export const AdminTables = () => {
     state: false,
     data: [] as Table[]
   });
+
+  const smartImportConfig = useMemo(
+    () => createTableImportConfig({db, t}),
+    [db, t]
+  );
 
   const columnHelper = createColumnHelper<Table>();
   const columns: any = [
@@ -174,7 +173,7 @@ export const AdminTables = () => {
               module: 'admin.tables.import',
               description: getAccessRuleChildLabel('admin.tables.import'),
             });
-          }} icon={faUpload}>{t('buttons.importTables')}</Button>,
+          }} icon={faUpload}>{t('buttons.smartImport')}</Button>,
           <Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
@@ -210,118 +209,13 @@ export const AdminTables = () => {
       />
 
       {importModal && (
-        <CsvUploadModal
-          isOpen={true}
+        <DataImportModal
+          isOpen
           onClose={() => setImportModal(false)}
+          config={smartImportConfig}
+          title={t('forms.smartImportTablesTitle')}
           enableImportModes
           defaultMatchFields={['number']}
-          fields={[{
-            name: 'name',
-            label: t('columns.name')
-          },{
-            name: 'number',
-            label: t('columns.number')
-          },{
-            name: 'ask_for_covers',
-            label: t('columns.askForCovers')
-          },{
-            name: 'background',
-            label: t('forms.backgroundColor')
-          },{
-            name: 'color',
-            label: t('forms.fontColor')
-          },{
-            name: 'floor',
-            label: t('columns.floor')
-          },{
-            name: 'priority',
-            label: t('columns.priority')
-          },{
-            name: 'categories',
-            label: t('columns.categories')
-          },{
-            name: 'order_types',
-            label: t('columns.orderTypes')
-          },{
-            name: 'payment_types',
-            label: t('columns.paymentTypes')
-          }]}
-          onImportRow={async (rowData, { mode, matchFields }) => {
-              const [floor] = await db.query(`SELECT id from ${Tables.floors} where name = $name and deleted_at = none`, {
-                name: rowData.floor
-              });
-              if(floor.length === 0){
-                throw new Error('Floor not found');
-              }
-
-              const [categories] = await db.query(`SELECT id from ${Tables.categories} where name IN $names and deleted_at = none`, {
-                names: rowData.categories.split('|')
-              });
-
-              if(categories.length !== rowData?.categories?.split('|')?.filter(item => item !== '')?.length){
-                throw new Error(t('toast:admin.invalidCategories'));
-              }
-
-              const [order_types] = await db.query(`SELECT id from ${Tables.order_types} where name IN $names and deleted_at = none`, {
-                names: rowData.order_types.split('|')
-              });
-
-              if(order_types.length !== rowData?.order_types?.split('|')?.filter(item => item !== '')?.length){
-                throw new Error('Order types are invalid');
-              }
-
-              const [payment_types] = await db.query(`SELECT id from ${Tables.payment_types} where name IN $names and deleted_at = none`, {
-                names: rowData.payment_types.split('|')
-              });
-
-              if(payment_types.length !== rowData?.payment_types?.split('|')?.filter(item => item !== '')?.length){
-                throw new Error('Payment types are invalid');
-              }
-
-              const dishData: any = {
-                name: rowData.name,
-                number: rowData.number,
-                ask_for_covers: truthy(rowData.ask_for_covers),
-                background: rowData.background,
-                color: rowData.color,
-                priority: Number(rowData.priority),
-                floor: floor[0].id,
-                categories: categories.map(item => toRecordId(item.id)),
-                order_types: order_types.map(item => toRecordId(item.id)),
-                payment_types: payment_types.map(item => toRecordId(item.id)),
-              };
-
-              assertCsvMatchValues(rowData, matchFields, (field) =>
-                t('common:csvImport.emptyMatchValue', { field })
-              );
-
-              const relationMatchFields = ['categories', 'order_types', 'payment_types', 'floor'];
-              const conditions = buildMatchConditions(rowData, matchFields, (field, value) => {
-                if (relationMatchFields.includes(field)) {
-                  throw new Error(t('common:csvImport.unsupportedMatchField', { field }));
-                }
-                if (field === 'priority') {
-                  return { column: 'priority', value: Number(value) };
-                }
-                if (field === 'ask_for_covers') {
-                  return { column: 'ask_for_covers', value: truthy(value) };
-                }
-                return { column: field, value };
-              });
-
-              const existing = mode === 'create'
-                ? []
-                : await findCsvImportMatches(db, Tables.tables, conditions);
-
-              await writeCsvImportRow(db, {
-                mode,
-                table: Tables.tables,
-                existing,
-                payload: dishData,
-                notFoundMessage: t('common:csvImport.recordNotFound'),
-                multipleMatchesMessage: t('common:csvImport.multipleMatches'),
-              });
-          }}
           onExport={async () => {
             const [tables] = await db.query(
               `SELECT * FROM ${Tables.tables} WHERE deleted_at = none FETCH floor, categories, payment_types, order_types`

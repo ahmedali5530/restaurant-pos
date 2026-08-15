@@ -142,7 +142,15 @@
     "previousPrice": "Vorheriger Preis",
     "updateWaste": "Abfall aktualisieren #{{number}}",
     "updatePurchaseReturn": "Retouren aktualisieren #{{number}}",
-    "expiredLot": "Abgelaufen {{date}}"
+    "expiredLot": "Abgelaufen {{date}}",
+    "smartImportItemsTitle": "Artikel Smart-Import",
+    "smartImportPurchaseTitle": "Einkaufspositionen Smart-Import",
+    "smartImportPurchaseOrderTitle": "Bestellpositionen Smart-Import",
+    "smartImportIssueTitle": "Ausgabepositionen Smart-Import",
+    "smartImportIssueReturnTitle": "Rückgabepositionen Smart-Import",
+    "smartImportWasteTitle": "Abfallpositionen Smart-Import",
+    "smartImportAdjustmentTitle": "Korrekturpositionen Smart-Import",
+    "smartImportPurchaseReturnTitle": "Einkaufsrückgabepositionen Smart-Import"
   },
   "validation": {
     "required": "Pflichtfeld",
@@ -287,7 +295,8 @@
       "verified": "Verifiziert",
       "missed": "Verpasst"
     },
-    "keyboardHint": "Strg/Cmd + Pfeiltasten zum Wechseln zwischen editierbaren Zellen."
+    "keyboardHint": "Strg/Cmd + Pfeiltasten zum Wechseln zwischen editierbaren Zellen.",
+    "smartImportTitle": "Küchenabstimmung Smart-Import"
   },
   "stockTransfer": {
     "type": "Transfertyp",

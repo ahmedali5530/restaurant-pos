@@ -1,6 +1,6 @@
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {useState} from "react";
+import {useMemo, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import {createColumnHelper} from "@tanstack/react-table";
 import {Button} from "@/components/common/input/button.tsx";
@@ -9,16 +9,11 @@ import {faPencil, faPlus, faUpload} from "@fortawesome/free-solid-svg-icons";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {InventoryItemForm} from "@/components/inventory/items/form.tsx";
-import {CsvUploadModal} from "@/components/common/table/csv.uploader.tsx";
+import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
+import {createInventoryItemImportConfig} from "@/components/inventory/items/item.import.config.ts";
 import {useDB} from "@/api/db/db.ts";
 import {getReorderLevelForStore} from "@/utils/inventory.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
-import {
-  assertCsvMatchValues,
-  buildMatchConditions,
-  findCsvImportMatches,
-  writeCsvImportRow,
-} from "@/utils/csv-import.ts";
 
 export const InventoryItems = () => {
   const { t } = useTranslation(['inventory', 'common']);
@@ -28,6 +23,11 @@ export const InventoryItems = () => {
   const [data, setData] = useState<InventoryItem>();
   const [formModal, setFormModal] = useState(false);
   const [importModal, setImportModal] = useState(false);
+
+  const smartImportConfig = useMemo(
+    () => createInventoryItemImportConfig({db, t}),
+    [db, t]
+  );
 
   const columnHelper = createColumnHelper<InventoryItem>();
 
@@ -136,7 +136,7 @@ export const InventoryItems = () => {
           }} icon={faPlus}> Item</Button>,
           <Button variant="primary" onClick={() => {
             setImportModal(true);
-          }} icon={faUpload}> Import</Button>
+          }} icon={faUpload}>{t('common:actions.smartImport', {defaultValue: 'Smart Import'})}</Button>
         ]}
       />
 
@@ -153,145 +153,16 @@ export const InventoryItems = () => {
       )}
 
       {importModal && (
-        <CsvUploadModal
-          isOpen={true}
+        <DataImportModal
+          isOpen
           onClose={() => {
             setImportModal(false);
             loadHook.fetchData();
           }}
+          config={smartImportConfig}
+          title={t('forms.smartImportItemsTitle', {defaultValue: 'Smart import items'})}
           enableImportModes
           defaultMatchFields={['code']}
-          fields={[{
-            name: 'name',
-            label: t('columns.name')
-          }, {
-            name: 'code',
-            label: t('columns.code')
-          }, {
-            name: 'category',
-            label: t('columns.category')
-          }, {
-            name: 'uom',
-            label: t('columns.uom')
-          }, {
-            name: 'base_quantity',
-            label: t('columns.baseQuantity')
-          }, {
-            name: 'price',
-            label: t('columns.price')
-          }, {
-            name: 'average_price',
-            label: t('columns.avgPrice')
-          }, {
-            name: 'locations',
-            label: t('tabs.locations')
-          }, {
-            name: 'suppliers',
-            label: t('tabs.suppliers')
-          }, {
-            name: 'item_types',
-            label: t('itemType.label')
-          }, {
-            name: 'reorder_levels',
-            label: t('columns.reorderLevels')
-          }]}
-          onImportRow={async (data, { mode, matchFields }) => {
-              const [category] = await db.query(`select * from ${Tables.inventory_categories} where name = $name`, {
-                name: data.category
-              });
-
-              if(category.length === 0){
-                throw new Error(`Invalid category "${data.category}"`);
-              }
-
-              const locationNames = (data.locations || data.stores || '').split(',').filter(Boolean);
-              const locations: Array<{id: string; name: string}> = [];
-              for(const locationName of locationNames){
-                const [dbLocation] = await db.query(`select * from ${Tables.inventory_locations} where name = $name`, {
-                  name: locationName.trim()
-                });
-
-                if(dbLocation.length === 0){
-                  throw new Error(`Invalid location "${locationName}"`);
-                }
-
-                locations.push({id: dbLocation[0].id, name: dbLocation[0].name});
-              }
-
-              const suppliers = [];
-              for(const supplier of data.suppliers.split(',')){
-                const [dbSupplier] = await db.query(`select * from ${Tables.inventory_suppliers} where name = $name`, {
-                  name: supplier.trim()
-                });
-
-                if(dbSupplier.length === 0){
-                  throw new Error(`Invalid supplier "${supplier}"`);
-                }
-
-                suppliers.push(dbSupplier[0].id);
-              }
-
-              const reorderLevels: Record<string, number> = {};
-              if (data.reorder_levels?.trim()) {
-                for (const entry of data.reorder_levels.split(',')) {
-                  const [locationName, levelStr] = entry.split(':').map(part => part.trim());
-                  if (!locationName || !levelStr) {
-                    throw new Error(`Invalid reorder level entry "${entry.trim()}"`);
-                  }
-                  const location = locations.find(item => item.name === locationName);
-                  if (!location) {
-                    throw new Error(`Invalid location in reorder levels "${locationName}"`);
-                  }
-                  const level = Number(levelStr);
-                  if (!Number.isFinite(level) || level <= 0) {
-                    throw new Error(`Invalid reorder level for "${locationName}"`);
-                  }
-                  reorderLevels[location.id] = level;
-                }
-              }
-
-              const payload: any = {
-                name: data.name,
-                code: data.code,
-                uom: data.uom,
-                category: category[0].id,
-                base_quantity: Number(data.base_quantity),
-                suppliers: suppliers,
-                locations: locations.map(location => location.id),
-                price: Number(data.price),
-                average_price: Number(data.average_price),
-                reorder_levels: reorderLevels,
-              };
-
-              assertCsvMatchValues(data, matchFields, (field) =>
-                t('common:csvImport.emptyMatchValue', { field })
-              );
-
-              const unsupported = ['category', 'locations', 'suppliers', 'item_types', 'reorder_levels'];
-              const conditions = buildMatchConditions(data, matchFields, (field, value) => {
-                if (unsupported.includes(field)) {
-                  throw new Error(t('common:csvImport.unsupportedMatchField', { field }));
-                }
-                if (field === 'base_quantity' || field === 'price' || field === 'average_price') {
-                  return { column: field, value: Number(value) };
-                }
-                return { column: field, value };
-              });
-
-              const existing = mode === 'create'
-                ? []
-                : await findCsvImportMatches(db, Tables.inventory_items, conditions, { softDelete: false });
-
-              await writeCsvImportRow(db, {
-                mode,
-                table: Tables.inventory_items,
-                existing,
-                payload,
-                useCreate: true,
-                notFoundMessage: t('common:csvImport.recordNotFound'),
-                multipleMatchesMessage: t('common:csvImport.multipleMatches'),
-              });
-          }}
           onExport={async () => {
             const [items] = await db.query(
               `SELECT * FROM ${Tables.inventory_items} FETCH category, suppliers, locations, stores`
@@ -319,8 +190,9 @@ export const InventoryItems = () => {
               };
             });
           }}
+          onDone={() => loadHook.fetchData()}
         />
       )}
     </>
-  );
+  )
 }

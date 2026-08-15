@@ -173,13 +173,17 @@ Request:
 {
   "task": "reporting",
   "messages": [{ "role": "user", "content": "Summarize today's sales" }],
-  "tools": []
+  "tools": [],
+  "response_format": { "type": "json_object" }
 }
 ```
 
 `task` is optional; missing/unknown tasks use `AI_DEFAULT_PROFILE`. Message
 `content` may be a string or OpenAI vision parts (`image_url`) for OCR-style
-calls.
+calls (used by Smart Import with `task: "ocr"`). Optional `response_format` is
+passed through to the upstream provider when present (e.g.
+`{ "type": "json_object" }` for structured extraction). Not all providers
+support `response_format`; callers should handle upstream errors.
 
 Response: the raw OpenAI-compatible chat completion JSON (`{ choices: [...] }`).
 On failure, a JSON error `{ success: false, error, details? }` with the upstream

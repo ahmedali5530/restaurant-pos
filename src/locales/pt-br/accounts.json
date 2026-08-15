@@ -40,7 +40,8 @@
     "importCsv": "Import CSV",
     "load": "Load",
     "loading": "Loading...",
-    "view": "View"
+    "view": "View",
+    "smartImport": "Importação inteligente"
   },
   "status": {
     "active": "Active",
@@ -67,7 +68,9 @@
     "createGroupFirst": "Create a group first",
     "createGroupsBeforeAccounts": "Create account groups before adding accounts.",
     "parentAccount": "Parent account",
-    "journalEntry": "Journal Entry"
+    "journalEntry": "Journal Entry",
+    "smartImportAccountsTitle": "Importação inteligente de contas",
+    "smartImportJournalTitle": "Importação inteligente de linhas do lançamento"
   },
   "confirm": {
     "title": "Confirmation",

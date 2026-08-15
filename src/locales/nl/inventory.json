@@ -142,7 +142,15 @@
     "previousPrice": "Vorige prijs",
     "updateWaste": "Afval bijwerken #{{number}}",
     "updatePurchaseReturn": "Retour bijwerken #{{number}}",
-    "expiredLot": "Verlopen {{date}}"
+    "expiredLot": "Verlopen {{date}}",
+    "smartImportItemsTitle": "Artikelen slim importeren",
+    "smartImportPurchaseTitle": "Inkoopregels slim importeren",
+    "smartImportPurchaseOrderTitle": "Inkooporderregels slim importeren",
+    "smartImportIssueTitle": "Uitgifteregels slim importeren",
+    "smartImportIssueReturnTitle": "Retourregels slim importeren",
+    "smartImportWasteTitle": "Afvalregels slim importeren",
+    "smartImportAdjustmentTitle": "Correctieregels slim importeren",
+    "smartImportPurchaseReturnTitle": "Inkoopretourregels slim importeren"
   },
   "validation": {
     "required": "Dit is verplicht",
@@ -287,7 +295,8 @@
       "verified": "Geverifieerd",
       "missed": "Gemist"
     },
-    "keyboardHint": "Ctrl/Cmd + pijltjestoetsen om tussen bewerkbare cellen te bewegen."
+    "keyboardHint": "Ctrl/Cmd + pijltjestoetsen om tussen bewerkbare cellen te bewegen.",
+    "smartImportTitle": "Keukenafstemming slim importeren"
   },
   "stockTransfer": {
     "type": "Overdrachtstype",

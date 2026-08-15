@@ -486,7 +486,8 @@
       "7": "Domenica"
     },
     "shiftsGenerated": "{{created}} turno/i creati, {{skipped}} saltati.",
-    "conflictsDetected": "Alcuni turni non sono stati creati a causa di conflitti."
+    "conflictsDetected": "Alcuni turni non sono stati creati a causa di conflitti.",
+    "smartImportShiftsTitle": "Importazione intelligente turni pianificati"
   },
   "leave": {
     "vacation": "Ferie",

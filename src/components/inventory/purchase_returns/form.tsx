@@ -18,7 +18,7 @@ import {InventoryPurchase} from "@/api/model/inventory_purchase.ts";
 import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {RecordId} from "surrealdb";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faTrash, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faTrash, faPlus, faUpload} from "@fortawesome/free-solid-svg-icons";
 import _ from "lodash";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
@@ -37,6 +37,8 @@ import { postDocument } from "@/lib/inventory/posting.service.ts";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import { resolveCatalogUnitCost } from "@/lib/inventory/line.cost.ts";
+import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
+import {createPurchaseReturnImportConfig} from "@/components/inventory/purchase_returns/purchase-return.import.config.ts";
 
 type SelectOption = { label: string; value: string } | null;
 
@@ -192,6 +194,12 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
     control,
     name: "items"
   });
+
+  const [importModal, setImportModal] = useState(false);
+  const purchaseReturnImportConfig = useMemo(
+    () => createPurchaseReturnImportConfig({db, t, append}),
+    [db, t, append]
+  );
 
   const [rowNetQuantities, setRowNetQuantities] = useState<Record<number, number>>({});
   const netQuantityCacheRef = useRef<Record<string, number>>({});
@@ -691,6 +699,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
   })) ?? [];
 
   return (
+    <>
     <Modal
       title={data ? t('forms.updatePurchaseReturn', { number: data.invoice_number }) : t('forms.createPurchaseReturn')}
       open={open}
@@ -792,7 +801,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
 
           <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
             <legend>{t('tabs.items')}</legend>
-            <div className="mb-3">
+            <div className="mb-3 flex gap-2">
               <Button
                 type="button"
                 icon={faPlus}
@@ -806,6 +815,15 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
                 disabled={!watchedLocation?.value}
               >
                 {t('common:actions.add')}
+              </Button>
+              <Button
+                type="button"
+                icon={faUpload}
+                variant="secondary"
+                onClick={() => setImportModal(true)}
+                disabled={!watchedLocation?.value}
+              >
+                {t('common:actions.smartImport')}
               </Button>
               <InputError error={_.get(errors, ["items", "message"])}/>
             </div>
@@ -888,5 +906,15 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
         </div>
       </form>
     </Modal>
+    {importModal && (
+      <DataImportModal
+        isOpen
+        onClose={() => setImportModal(false)}
+        config={purchaseReturnImportConfig}
+        title={t('forms.smartImportPurchaseReturnTitle')}
+        onDone={() => setImportModal(false)}
+      />
+    )}
+    </>
   );
 };

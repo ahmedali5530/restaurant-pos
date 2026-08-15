@@ -6,6 +6,10 @@ export const MAX_UPLOAD_BYTES =
 export const MAX_CSV_UPLOAD_BYTES =
   Number(import.meta.env.VITE_MAX_CSV_UPLOAD_BYTES) || 2 * 1024 * 1024;
 
+/** Max smart/AI import upload (images, PDF, Excel). Override via VITE_MAX_IMPORT_UPLOAD_BYTES (default 10 MB). */
+export const MAX_IMPORT_UPLOAD_BYTES =
+  Number(import.meta.env.VITE_MAX_IMPORT_UPLOAD_BYTES) || 10 * 1024 * 1024;
+
 /**
  * Formats a byte count for display (e.g. 512000 → "500 KB").
  */
