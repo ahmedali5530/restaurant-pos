@@ -23,9 +23,22 @@ export const getOrderFilteredItems = (order: OrderModel) => {
     .filter(item => item?.is_suspended !== true);
 }
 
+/** SurrealDB FETCH can return a single record instead of `[record]` for one-item arrays. */
+const asRecordArray = <T>(value: unknown): T[] => {
+  if (Array.isArray(value)) {
+    return value as T[];
+  }
+  if (value == null) {
+    return [];
+  }
+  return [value as T];
+};
+
 /** Resolved extras only — drops null/undefined FETCH holes from stale order.extras IDs. */
 export const getOrderExtras = (order?: OrderModel | null): OrderExtra[] =>
-  (order?.extras ?? []).filter((extra): extra is OrderExtra => !!extra && extra.value != null);
+  asRecordArray<OrderExtra>(order?.extras).filter(
+    (extra): extra is OrderExtra => !!extra && extra.value != null,
+  );
 
 /** Sum of active order extras (safe against undefined array holes). */
 export const getOrderExtrasTotal = (order?: OrderModel | null): number =>
@@ -33,8 +46,8 @@ export const getOrderExtrasTotal = (order?: OrderModel | null): number =>
 
 /** Active order_discounts lines (junction-first source). Drops null/undefined FETCH holes. */
 export const getActiveOrderDiscounts = (order: OrderModel): OrderDiscount[] =>
-  (order.order_discounts ?? []).filter(
-    (line): line is OrderDiscount => !!line && !line.removed_at,
+  asRecordArray<OrderDiscount>(order?.order_discounts).filter(
+    (line): line is OrderDiscount => !!line && typeof line === 'object' && !line.removed_at,
   );
 
 /** Sum of applied_amount from active order_discounts; 0 when none. */

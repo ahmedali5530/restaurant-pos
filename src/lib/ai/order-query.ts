@@ -64,9 +64,75 @@ export const inferOrderStatusesFromPrompt = (prompt: string): string[] => {
   return Array.from(statuses);
 };
 
+export const extractOrderIdFromPrompt = (prompt: string): string | undefined => {
+  const recordMatch = prompt.match(/\border:([a-z0-9]+)\b/i);
+  if (recordMatch) {
+    return `order:${recordMatch[1]}`;
+  }
+
+  const labeledMatch = prompt.match(/\border\s+id\s+(?:is\s+)?(order:)?([a-z0-9]+)\b/i);
+  if (labeledMatch) {
+    return `order:${labeledMatch[2]}`;
+  }
+
+  return undefined;
+};
+
+export const extractOrderAutoIdFromPrompt = (prompt: string): number | undefined => {
+  if (extractOrderIdFromPrompt(prompt)) {
+    return undefined;
+  }
+  const autoMatch = prompt.match(/\b(?:auto[_\s-]?id|order\s*(?:#|number)?)\s*[:=]?\s*(\d{3,})\b/i);
+  if (autoMatch) {
+    return Number(autoMatch[1]);
+  }
+  return undefined;
+};
+
+export const extractInvoiceNumberFromPrompt = (prompt: string): number | undefined => {
+  const invoiceMatch = prompt.match(/\binvoice\s*(?:#|number)?\s*[:=]?\s*(\d+)\b/i);
+  if (invoiceMatch) {
+    return Number(invoiceMatch[1]);
+  }
+  return undefined;
+};
+
+export const isOrderDetailPrompt = (prompt: string): boolean => {
+  if (isPurchaseOrderPrompt(prompt)) {
+    return false;
+  }
+
+  const hasConcreteId = Boolean(
+    extractOrderIdFromPrompt(prompt)
+    || extractOrderAutoIdFromPrompt(prompt)
+    || extractInvoiceNumberFromPrompt(prompt),
+  );
+
+  if (hasConcreteId) {
+    return true;
+  }
+
+  return /\b(everything\s+(?:for|about)\s+(?:this\s+)?order|order\s+detail|full\s+history\s+of\s+order|order\s+dossier)\b/i.test(prompt);
+};
+
+export const resolveOrderDetailQueryFromPrompt = (prompt: string): {
+  orderId?: string;
+  autoId?: number;
+  invoiceNumber?: number;
+} => ({
+  orderId: extractOrderIdFromPrompt(prompt),
+  autoId: extractOrderAutoIdFromPrompt(prompt),
+  invoiceNumber: extractInvoiceNumberFromPrompt(prompt),
+});
+
 export const isOrderListByStatusPrompt = (prompt: string): boolean => {
   // Purchase order questions contain "orders" + often "pending" — never treat as POS orders.
   if (isPurchaseOrderPrompt(prompt)) {
+    return false;
+  }
+
+  // Concrete order dossier prompts must not use the status-list fast-path.
+  if (isOrderDetailPrompt(prompt)) {
     return false;
   }
 

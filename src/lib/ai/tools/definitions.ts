@@ -336,7 +336,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_orders",
-      description: "List orders filtered by status and/or delivery channel. For delivery orders use deliveryOnly=true. 'Pending delivery orders' means delivery orders awaiting fulfillment (status Pending or In Progress), NOT a date phrase.",
+      description: "List orders filtered by status and/or delivery channel. For delivery orders use deliveryOnly=true. 'Pending delivery orders' means delivery orders awaiting fulfillment (status Pending or In Progress), NOT a date phrase. For a specific order id / full order dossier use get_order_detail instead.",
       parameters: {
         type: "object",
         properties: {
@@ -362,8 +362,27 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
   {
     type: "function",
     function: {
+      name: "get_order_detail",
+      description: "Full read-only dossier for one POS order: header, dishes/items (with dishName), payments, voids, discounts, taxes, coupon, kitchen lines, refunds, merge/split, fiscal submissions (integration_order_fiscal), bill prints (order_print), tracking, and timeline. Use for prompts with a concrete order id (order:…) or 'everything about this order'. Do NOT use get_orders or tracking-first for this.",
+      parameters: {
+        type: "object",
+        properties: {
+          orderId: {
+            type: "string",
+            description: 'Full record id like "order:pkzurx2a73wxstql09bv" or raw id',
+          },
+          autoId: {type: "number", description: "Numeric auto_id / order number"},
+          invoiceNumber: {type: "number", description: "Invoice number"},
+          trackingLimit: {type: "number", default: 100, description: "Max tracking rows (default 100)"},
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "get_order_lifecycle",
-      description: "Get merge and split order statistics only — NOT for listing orders by status. Use get_orders instead.",
+      description: "Get merge and split order statistics only — NOT for listing orders by status. Use get_orders instead. For a single order history use get_order_detail.",
       parameters: {type: "object", properties: dateRangeProps},
     },
   },

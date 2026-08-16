@@ -1,4 +1,4 @@
-import {aggregateOrderDiscountBreakdown, getOrderDiscountTotal, getOrderSettlementFigures, orderHasDiscount} from "@/lib/order.ts";
+import {aggregateOrderDiscountBreakdown, getActiveOrderDiscounts, getOrderDiscountTotal, getOrderSettlementFigures, orderHasDiscount} from "@/lib/order.ts";
 import {fetchPaidOrders, SALES_SUMMARY_FETCHES} from "@/api/reports/sales/fetch.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 
@@ -46,7 +46,7 @@ export const getDiscountSummary = async (
 
   discountedOrders.forEach(order => {
     const billTotal = getOrderSettlementFigures(order).grandTotalDue;
-    const activeLines = (order.order_discounts ?? []).filter(line => line && !line.removed_at);
+    const activeLines = getActiveOrderDiscounts(order);
 
     if (activeLines.length > 0) {
       activeLines.forEach(line => {

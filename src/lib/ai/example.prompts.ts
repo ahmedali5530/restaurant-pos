@@ -63,6 +63,7 @@ export const AI_EXAMPLE_PROMPTS: AiExamplePrompt[] = [
   {category: "operations", prompt: "Show cash orders modified or removed before close"},
   {category: "operations", prompt: "Cancel and comp reasons summary for last month"},
   {category: "operations", prompt: "Show me orders with in progress status"},
+  {category: "operations", prompt: "Get everything for order id order:pkzurx2a73wxstql09bv including items, voids, discounts, taxes, and tracking"},
   {category: "operations", prompt: "Show delivery orders in progress"},
   {category: "operations", prompt: "Expense summary from closings this week"},
   {category: "operations", prompt: "Activity log audit for today"},

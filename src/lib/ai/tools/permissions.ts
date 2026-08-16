@@ -30,6 +30,7 @@ export const TOOL_PERMISSION_MODULES: Record<string, string | string[]> = {
   get_cash_closing: "reports.cash_closing",
   get_order_lifecycle: "reports.order_life_cycle",
   get_orders: "reports.order_life_cycle",
+  get_order_detail: "reports.order_life_cycle",
   get_time_series: "reports.sales_summary",
   forecast_sales: "reports.sales_summary",
   forecast_inventory: "reports.current_inventory",

@@ -1,13 +1,19 @@
 import {parseDateRangeWithPhrase} from "@/api/reports/shared/filters.ts";
 import type {DbClient} from "@/api/reports/shared/types.ts";
 import {getOrders} from "@/api/reports/operations/orders.ts";
+import {getOrderDetail} from "@/api/reports/operations/order-detail.ts";
 import {getPurchaseOrders} from "@/api/reports/inventory/index.ts";
 import type {AiChartSpec} from "@/lib/ai/charts.ts";
 import {dedupeCharts} from "@/lib/ai/charts.ts";
 import {buildAutoChartsFromToolResults} from "@/lib/ai/auto-charts.ts";
 import type {AiReportFormat} from "@/lib/ai.report.storage.ts";
 import {isLocalAiReportCompactMode} from "@/lib/ai/config.ts";
-import {isOrderListByStatusPrompt, resolveOrderListQueryFromPrompt} from "@/lib/ai/order-query.ts";
+import {
+  isOrderDetailPrompt,
+  isOrderListByStatusPrompt,
+  resolveOrderDetailQueryFromPrompt,
+  resolveOrderListQueryFromPrompt,
+} from "@/lib/ai/order-query.ts";
 import {
   isPurchaseOrderPrompt,
   resolvePurchaseOrderQueryFromPrompt,
@@ -147,6 +153,39 @@ export const runAiReportAgent = async (
         {
           role: "user",
           content: `${trimmedPrompt}\n\nget_purchase_orders returned ${data.count} purchase order(s), totalAmount=${data.totalAmount}:\n${JSON.stringify(data)}\n\nSummarize PO number, status, supplier, totals, and line items. These are inventory purchase orders, not POS customer orders. If the user asks what is pending to procurement, highlight Draft / Pending Approval / Approved (not Fulfilled).`,
+        },
+      ],
+      tools: [],
+      task,
+    });
+
+    const answer = messageText(response.choices[0]?.message?.content);
+    if (!answer) {
+      throw new Error("AI returned an empty response.");
+    }
+
+    return finish(answer);
+  }
+
+  if (isOrderDetailPrompt(trimmedPrompt)) {
+    options.onToolStart?.("get_order_detail");
+    const query = resolveOrderDetailQueryFromPrompt(trimmedPrompt);
+    const args = {
+      orderId: query.orderId,
+      autoId: query.autoId,
+      invoiceNumber: query.invoiceNumber,
+      trackingLimit: 100,
+    };
+    const data = await getOrderDetail(db, args);
+    toolsUsed.push({name: "get_order_detail", args});
+    toolResults.push({name: "get_order_detail", result: data});
+
+    const response = await callOpenAIChat({
+      messages: [
+        ...messages,
+        {
+          role: "user",
+          content: `${trimmedPrompt}\n\nget_order_detail:\n${JSON.stringify(data)}\n\nitems[].dishName are the dishes on this order — list them directly. Also summarize voids, discounts, taxes, payments, kitchen, refunds, merge/split, fiscals (provider/status/invoice/QR/errors), prints (temp/final, who printed, override/duplicate), tracking events, and timeline. Do not reconstruct dishes only from tracking payloads.`,
         },
       ],
       tools: [],

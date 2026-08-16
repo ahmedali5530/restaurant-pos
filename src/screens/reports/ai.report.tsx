@@ -10,13 +10,11 @@ import {Textarea} from "@/components/common/input/textarea.tsx";
 import {AiExamplePrompts} from "@/components/reports/ai/ai.example.prompts.tsx";
 import {AiFormatSelector} from "@/components/reports/ai/ai.format.selector.tsx";
 import {AiReportCharts} from "@/components/reports/ai/ai.report.charts.tsx";
-import {AiReportHistory} from "@/components/reports/ai/ai.report.history.tsx";
 import type {DbClient} from "@/api/reports/shared/types.ts";
 import {runAiReportAgent, type AiReportAgentResult} from "@/lib/ai/agent.ts";
 import {AI_EXAMPLE_PROMPTS} from "@/lib/ai/example.prompts.ts";
 import {
   type AiReportFormat,
-  type AiReportHistoryEntry,
   loadAiReportFormat,
   loadAiReportPrompt,
   loadPromptFromUrl,
@@ -288,12 +286,6 @@ export const AiReport = () => {
     })();
   }, [isConnected]);
 
-  const handleHistorySelect = (entry: AiReportHistoryEntry) => {
-    setPrompt(entry.prompt);
-    setFormat(entry.format);
-    void runPrompt(entry.prompt, entry.format, {appendConversation: false});
-  };
-
   const loadingMessage = loadingTool
     ? t("filters.aiFetching", {tool: loadingTool})
     : t("filters.aiRunning");
@@ -354,10 +346,6 @@ export const AiReport = () => {
             {usage && !usage.enabled && (
               <span className="text-sm text-danger-600">{t("filters.aiDisabled")}</span>
             )}
-          </div>
-
-          <div className="mt-3">
-            <AiReportHistory onSelect={handleHistorySelect}/>
           </div>
         </div>
 

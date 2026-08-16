@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
 import type {AiReportHistoryEntry} from "@/lib/ai.report.storage.ts";
 import {loadHistory, removeFromHistory} from "@/lib/ai.report.storage.ts";
@@ -12,9 +12,25 @@ export const AiReportHistory = ({onSelect}: AiReportHistoryProps) => {
   const [history, setHistory] = useState(() => loadHistory());
   const [open, setOpen] = useState(false);
 
+  useEffect(() => {
+    const refresh = () => setHistory(loadHistory());
+    refresh();
+    window.addEventListener("focus", refresh);
+    return () => window.removeEventListener("focus", refresh);
+  }, []);
+
   if (!history.length) {
     return null;
   }
+
+  const handleToggle = () => {
+    setOpen(prev => {
+      if (!prev) {
+        setHistory(loadHistory());
+      }
+      return !prev;
+    });
+  };
 
   const handleRemove = (prompt: string) => {
     removeFromHistory(prompt);
@@ -22,10 +38,10 @@ export const AiReportHistory = ({onSelect}: AiReportHistoryProps) => {
   };
 
   return (
-    <div className="rounded-lg border border-neutral-200 bg-neutral-50 print:hidden">
+    <div className="rounded-lg border border-neutral-200 bg-neutral-50 print:hidden w-full">
       <button
         type="button"
-        onClick={() => setOpen(prev => !prev)}
+        onClick={handleToggle}
         className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-neutral-700"
       >
         <span>{t("filters.aiHistory", {count: history.length})}</span>

@@ -7,6 +7,13 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-08-16',
+    title: 'AI order dossier',
+    items: [
+      'Ask AI for everything about a specific order (by id, number, or invoice) to get dishes, voids, discounts, taxes, payments, kitchen, refunds, merge/split, fiscal submissions, bill prints, tracking, and a timeline in one dossier.',
+    ],
+  },
+  {
     date: '2026-08-15',
     title: 'End-user guides for Login and Settings',
     items: [

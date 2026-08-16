@@ -43,6 +43,7 @@ export const AI_REPORT_TOOL_CATEGORIES: Record<AiReportToolDomain | "core", read
   ],
   operations: [
     "get_orders",
+    "get_order_detail",
     "get_order_lifecycle",
     "get_expenses",
     "get_activity_log",

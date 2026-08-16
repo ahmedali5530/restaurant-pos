@@ -36,6 +36,7 @@ import {
   type InventoryMovementType,
 } from "@/api/reports/inventory/index.ts";
 import {getOrders} from "@/api/reports/operations/orders.ts";
+import {getOrderDetail} from "@/api/reports/operations/order-detail.ts";
 import {extractOrderStatusesFromArgs, inferOrderStatusesFromPrompt, isOrderListByStatusPrompt} from "@/lib/ai/order-query.ts";
 import {
   getActivityLog,
@@ -295,6 +296,14 @@ export const executeAiReportTool = async (
         statuses: extractOrderStatusesFromArgs(args),
         deliveryOnly: args.deliveryOnly === true || args.deliveryOnly === "true",
         limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "get_order_detail":
+      return getOrderDetail(db, {
+        orderId: args.orderId ? String(args.orderId) : undefined,
+        autoId: args.autoId !== undefined ? Number(args.autoId) : undefined,
+        invoiceNumber: args.invoiceNumber !== undefined ? Number(args.invoiceNumber) : undefined,
+        trackingLimit: args.trackingLimit !== undefined ? Number(args.trackingLimit) : undefined,
       });
 
     case "get_order_lifecycle":

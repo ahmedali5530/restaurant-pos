@@ -286,6 +286,22 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
   {
     type: "function",
     function: {
+      name: "get_order_detail",
+      description: "Full order dossier by id: dishes, voids, discounts, taxes, payments, fiscals, prints, tracking.",
+      parameters: {
+        type: "object",
+        properties: {
+          orderId: {type: "string"},
+          autoId: {type: "number"},
+          invoiceNumber: {type: "number"},
+          trackingLimit: {type: "number"},
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "get_order_lifecycle",
       description: "Merge/split order statistics.",
       parameters: dateOnly,
