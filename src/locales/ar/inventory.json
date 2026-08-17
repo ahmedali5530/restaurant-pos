@@ -143,14 +143,14 @@
     "updateWaste": "تحديث الهدر #{{number}}",
     "updatePurchaseReturn": "تحديث المرتجع #{{number}}",
     "expiredLot": "منتهي الصلاحية {{date}}",
-    "smartImportItemsTitle": "استيراد ذكي للأصناف",
-    "smartImportPurchaseTitle": "استيراد ذكي لأسطر المشتريات",
-    "smartImportPurchaseOrderTitle": "استيراد ذكي لأسطر أوامر الشراء",
-    "smartImportIssueTitle": "استيراد ذكي لأسطر الصرف",
-    "smartImportIssueReturnTitle": "استيراد ذكي لأسطر المرتجع",
-    "smartImportWasteTitle": "استيراد ذكي لأسطر الهدر",
-    "smartImportAdjustmentTitle": "استيراد ذكي لأسطر التسوية",
-    "smartImportPurchaseReturnTitle": "استيراد ذكي لأسطر مرتجع المشتريات"
+    "smartImportItemsTitle": "استيراد بالذكاء الاصطناعي للأصناف",
+    "smartImportPurchaseTitle": "استيراد بالذكاء الاصطناعي لأسطر المشتريات",
+    "smartImportPurchaseOrderTitle": "استيراد بالذكاء الاصطناعي لأسطر أوامر الشراء",
+    "smartImportIssueTitle": "استيراد بالذكاء الاصطناعي لأسطر الصرف",
+    "smartImportIssueReturnTitle": "استيراد بالذكاء الاصطناعي لأسطر المرتجع",
+    "smartImportWasteTitle": "استيراد بالذكاء الاصطناعي لأسطر الهدر",
+    "smartImportAdjustmentTitle": "استيراد بالذكاء الاصطناعي لأسطر التسوية",
+    "smartImportPurchaseReturnTitle": "استيراد بالذكاء الاصطناعي لأسطر مرتجع المشتريات"
   },
   "validation": {
     "required": "هذا الحقل مطلوب",
@@ -296,7 +296,7 @@
       "missed": "فائت"
     },
     "keyboardHint": "Ctrl/Cmd + مفاتيح الأسهم للتنقل بين الخلايا القابلة للتعديل.",
-    "smartImportTitle": "استيراد ذكي لمطابقة المطبخ"
+    "smartImportTitle": "استيراد بالذكاء الاصطناعي لمطابقة المطبخ"
   },
   "stockTransfer": {
     "type": "نوع التحويل",

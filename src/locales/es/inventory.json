@@ -143,14 +143,14 @@
     "updateWaste": "Actualizar merma #{{number}}",
     "updatePurchaseReturn": "Actualizar devolución #{{number}}",
     "expiredLot": "Caducado {{date}}",
-    "smartImportItemsTitle": "Importación inteligente de artículos",
-    "smartImportPurchaseTitle": "Importación inteligente de líneas de compra",
-    "smartImportPurchaseOrderTitle": "Importación inteligente de líneas de OC",
-    "smartImportIssueTitle": "Importación inteligente de líneas de salida",
-    "smartImportIssueReturnTitle": "Importación inteligente de líneas de devolución",
-    "smartImportWasteTitle": "Importación inteligente de líneas de merma",
-    "smartImportAdjustmentTitle": "Importación inteligente de líneas de ajuste",
-    "smartImportPurchaseReturnTitle": "Importación inteligente de líneas de devolución de compra"
+    "smartImportItemsTitle": "Importación IA de artículos",
+    "smartImportPurchaseTitle": "Importación IA de líneas de compra",
+    "smartImportPurchaseOrderTitle": "Importación IA de líneas de OC",
+    "smartImportIssueTitle": "Importación IA de líneas de salida",
+    "smartImportIssueReturnTitle": "Importación IA de líneas de devolución",
+    "smartImportWasteTitle": "Importación IA de líneas de merma",
+    "smartImportAdjustmentTitle": "Importación IA de líneas de ajuste",
+    "smartImportPurchaseReturnTitle": "Importación IA de líneas de devolución de compra"
   },
   "validation": {
     "required": "Este campo es obligatorio",
@@ -296,7 +296,7 @@
       "missed": "Omitido"
     },
     "keyboardHint": "Ctrl/Cmd + flechas para moverse entre celdas editables.",
-    "smartImportTitle": "Importación inteligente de conciliación de cocina"
+    "smartImportTitle": "Importación IA de conciliación de cocina"
   },
   "stockTransfer": {
     "type": "Tipo de transferencia",

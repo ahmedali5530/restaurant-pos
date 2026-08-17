@@ -85,6 +85,8 @@
     "yes": "Sí",
     "no": "No",
     "ingredient": "Ingrediente",
+    "dishNameOrNumber": "Nombre/número del plato",
+    "ingredientNameOrNumber": "Nombre/número del ingrediente",
     "isPriceLocked": "Precio bloqueado",
     "hasRequiredModifiers": "Tiene modificadores requeridos",
     "shouldAutoOpen": "Abrir automáticamente",
@@ -141,10 +143,10 @@
     "updateSelected": "Actualizar seleccionados",
     "importIngredients": "Importar ingredientes",
     "importModifierGroups": "Importar grupos de modificadores",
-    "smartImportDishes": "Importación inteligente",
-    "smartImport": "Importación inteligente",
-    "smartImportIngredients": "Importar ingredientes",
-    "smartImportModifierGroups": "Importar grupos de modificadores"
+    "smartImportDishes": "Importación IA",
+    "smartImport": "Importación IA",
+    "smartImportIngredients": "Importación IA de ingredientes",
+    "smartImportModifierGroups": "Importación IA de grupos de modificadores"
   },
   "delete": {
     "dish": "Eliminar artículo {{name}}",
@@ -337,11 +339,11 @@
     "unitCost": "Costo unitario",
     "lineTotal": "Total",
     "priceLocked": "Precio bloqueado",
-    "smartImportDishesTitle": "Importación inteligente de platos (CSV, Excel, PDF, imagen)",
-    "smartImportCategoriesTitle": "Importación inteligente de categorías (CSV, Excel, PDF, imagen)",
-    "smartImportTablesTitle": "Importación inteligente de mesas (CSV, Excel, PDF, imagen)",
-    "smartImportIngredientsTitle": "Importación inteligente de ingredientes",
-    "smartImportModifierGroupsTitle": "Importación inteligente de grupos de modificadores"
+    "smartImportDishesTitle": "Importación IA de platos (CSV, Excel, PDF, imagen)",
+    "smartImportCategoriesTitle": "Importación IA de categorías (CSV, Excel, PDF, imagen)",
+    "smartImportTablesTitle": "Importación IA de mesas (CSV, Excel, PDF, imagen)",
+    "smartImportIngredientsTitle": "Importación IA de ingredientes",
+    "smartImportModifierGroupsTitle": "Importación IA de grupos de modificadores"
   },
   "dishView": {
     "detailsTitle": "Detalles del plato",

@@ -121,6 +121,8 @@
     "invalidCategories": "Les catégories sont invalides",
     "passwordRequired": "Le mot de passe est requis pour un nouvel utilisateur",
     "invalidDishNumber": "Le numéro du plat est invalide",
+    "invalidDishNameOrNumber": "Le nom ou le numéro du plat est invalide",
+    "ambiguousDishName": "Plusieurs plats correspondent à ce nom ; utilisez le numéro du plat",
     "invalidIngredient": "L'ingrédient est invalide",
     "invalidIngredientType": "Ce type d'ingrédient ne peut pas être utilisé dans les recettes",
     "duplicateDishIngredient": "L'ingrédient est déjà associé à ce plat",

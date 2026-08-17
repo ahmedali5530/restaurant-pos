@@ -487,7 +487,7 @@
     },
     "shiftsGenerated": "{{created}} turno/i creati, {{skipped}} saltati.",
     "conflictsDetected": "Alcuni turni non sono stati creati a causa di conflitti.",
-    "smartImportShiftsTitle": "Importazione intelligente turni pianificati"
+    "smartImportShiftsTitle": "Importazione IA turni pianificati"
   },
   "leave": {
     "vacation": "Ferie",

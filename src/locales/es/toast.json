@@ -121,6 +121,8 @@
     "invalidCategories": "Las categorías no son válidas",
     "passwordRequired": "La contraseña es obligatoria para un usuario nuevo",
     "invalidDishNumber": "El número del plato no es válido",
+    "invalidDishNameOrNumber": "El nombre o número del plato no es válido",
+    "ambiguousDishName": "Varios platos coinciden con este nombre; use el número del plato",
     "invalidIngredient": "El ingrediente no es válido",
     "invalidIngredientType": "Este tipo de ingrediente no se puede usar en recetas",
     "duplicateDishIngredient": "El ingrediente ya está vinculado a este plato",

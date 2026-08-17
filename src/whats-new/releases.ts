@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-08-17',
+    title: 'AI Import',
+    items: [
+      'Smart Import is now labeled AI Import, with a two-star sparkles icon on import buttons.',
+      'Dish ingredient import accepts dish name or number, and ingredient name or code/number.',
+    ],
+  },
+  {
     date: '2026-08-16',
     title: 'AI order dossier',
     items: [

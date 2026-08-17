@@ -41,7 +41,7 @@
     "load": "Load",
     "loading": "Loading...",
     "view": "View",
-    "smartImport": "Умный импорт"
+    "smartImport": "ИИ-импорт"
   },
   "status": {
     "active": "Active",
@@ -69,8 +69,8 @@
     "createGroupsBeforeAccounts": "Create account groups before adding accounts.",
     "parentAccount": "Parent account",
     "journalEntry": "Journal Entry",
-    "smartImportAccountsTitle": "Умный импорт счетов",
-    "smartImportJournalTitle": "Умный импорт строк журнала"
+    "smartImportAccountsTitle": "ИИ-импорт счетов",
+    "smartImportJournalTitle": "ИИ-импорт строк журнала"
   },
   "confirm": {
     "title": "Confirmation",

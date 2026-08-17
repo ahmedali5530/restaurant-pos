@@ -85,6 +85,8 @@
     "yes": "Ja",
     "no": "Nein",
     "ingredient": "Zutat",
+    "dishNameOrNumber": "Gerichtenname/-nummer",
+    "ingredientNameOrNumber": "Zutat Name/Nummer",
     "isPriceLocked": "Preis gesperrt",
     "hasRequiredModifiers": "Erforderliche Modifier",
     "shouldAutoOpen": "Automatisch öffnen",
@@ -141,10 +143,10 @@
     "updateSelected": "Ausgewählte aktualisieren",
     "importIngredients": "Zutaten importieren",
     "importModifierGroups": "Modifier-Gruppen importieren",
-    "smartImportDishes": "Intelligenter Import",
-    "smartImport": "Smart-Import",
-    "smartImportIngredients": "Zutaten Smart-Import",
-    "smartImportModifierGroups": "Modifiergruppen Smart-Import"
+    "smartImportDishes": "KI-Import",
+    "smartImport": "KI-Import",
+    "smartImportIngredients": "Zutaten KI-Import",
+    "smartImportModifierGroups": "Modifiergruppen KI-Import"
   },
   "delete": {
     "dish": "Artikel {{name}} löschen",
@@ -337,11 +339,11 @@
     "unitCost": "Stückkosten",
     "lineTotal": "Gesamt",
     "priceLocked": "Preis gesperrt",
-    "smartImportDishesTitle": "Intelligenter Gerichte-Import (CSV, Excel, PDF, Bild)",
-    "smartImportCategoriesTitle": "Kategorien Smart-Import (CSV, Excel, PDF, Bild)",
-    "smartImportTablesTitle": "Tische Smart-Import (CSV, Excel, PDF, Bild)",
-    "smartImportIngredientsTitle": "Gerichtszutaten Smart-Import",
-    "smartImportModifierGroupsTitle": "Modifiergruppen Smart-Import"
+    "smartImportDishesTitle": "KI-Import von Gerichten (CSV, Excel, PDF, Bild)",
+    "smartImportCategoriesTitle": "Kategorien KI-Import (CSV, Excel, PDF, Bild)",
+    "smartImportTablesTitle": "Tische KI-Import (CSV, Excel, PDF, Bild)",
+    "smartImportIngredientsTitle": "Gerichtszutaten KI-Import",
+    "smartImportModifierGroupsTitle": "Modifiergruppen KI-Import"
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",

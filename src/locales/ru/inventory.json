@@ -143,14 +143,14 @@
     "updateWaste": "Обновить списание #{{number}}",
     "updatePurchaseReturn": "Обновить возврат #{{number}}",
     "expiredLot": "Истёк {{date}}",
-    "smartImportItemsTitle": "Умный импорт позиций",
-    "smartImportPurchaseTitle": "Умный импорт строк закупки",
-    "smartImportPurchaseOrderTitle": "Умный импорт строк заказа",
-    "smartImportIssueTitle": "Умный импорт строк выдачи",
-    "smartImportIssueReturnTitle": "Умный импорт строк возврата",
-    "smartImportWasteTitle": "Умный импорт строк списания",
-    "smartImportAdjustmentTitle": "Умный импорт строк корректировки",
-    "smartImportPurchaseReturnTitle": "Умный импорт строк возврата закупки"
+    "smartImportItemsTitle": "ИИ-импорт позиций",
+    "smartImportPurchaseTitle": "ИИ-импорт строк закупки",
+    "smartImportPurchaseOrderTitle": "ИИ-импорт строк заказа",
+    "smartImportIssueTitle": "ИИ-импорт строк выдачи",
+    "smartImportIssueReturnTitle": "ИИ-импорт строк возврата",
+    "smartImportWasteTitle": "ИИ-импорт строк списания",
+    "smartImportAdjustmentTitle": "ИИ-импорт строк корректировки",
+    "smartImportPurchaseReturnTitle": "ИИ-импорт строк возврата закупки"
   },
   "validation": {
     "required": "Обязательное поле",
@@ -296,7 +296,7 @@
       "missed": "Пропущено"
     },
     "keyboardHint": "Ctrl/Cmd + стрелки для перехода между редактируемыми ячейками.",
-    "smartImportTitle": "Умный импорт сверки кухни"
+    "smartImportTitle": "ИИ-импорт сверки кухни"
   },
   "stockTransfer": {
     "type": "Тип перемещения",

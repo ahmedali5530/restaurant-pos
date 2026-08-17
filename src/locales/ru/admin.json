@@ -85,6 +85,8 @@
     "yes": "Да",
     "no": "Нет",
     "ingredient": "Ингредиент",
+    "dishNameOrNumber": "Название/номер блюда",
+    "ingredientNameOrNumber": "Название/номер ингредиента",
     "isPriceLocked": "Цена зафиксирована",
     "hasRequiredModifiers": "Есть обязательные модификаторы",
     "shouldAutoOpen": "Автооткрытие",
@@ -141,10 +143,10 @@
     "updateSelected": "Обновить выбранные",
     "importIngredients": "Импорт ингредиентов",
     "importModifierGroups": "Импорт групп модификаторов",
-    "smartImportDishes": "Умный импорт",
-    "smartImport": "Умный импорт",
-    "smartImportIngredients": "Умный импорт ингредиентов",
-    "smartImportModifierGroups": "Умный импорт групп модификаторов"
+    "smartImportDishes": "ИИ-импорт",
+    "smartImport": "ИИ-импорт",
+    "smartImportIngredients": "ИИ-импорт ингредиентов",
+    "smartImportModifierGroups": "ИИ-импорт групп модификаторов"
   },
   "delete": {
     "dish": "Удалить позицию {{name}}",
@@ -337,11 +339,11 @@
     "unitCost": "Цена за единицу",
     "lineTotal": "Итого",
     "priceLocked": "Цена заблокирована",
-    "smartImportDishesTitle": "Умный импорт блюд (CSV, Excel, PDF, изображение)",
-    "smartImportCategoriesTitle": "Умный импорт категорий (CSV, Excel, PDF, изображение)",
-    "smartImportTablesTitle": "Умный импорт столов (CSV, Excel, PDF, изображение)",
-    "smartImportIngredientsTitle": "Умный импорт ингредиентов блюд",
-    "smartImportModifierGroupsTitle": "Умный импорт групп модификаторов"
+    "smartImportDishesTitle": "ИИ-импорт блюд (CSV, Excel, PDF, изображение)",
+    "smartImportCategoriesTitle": "ИИ-импорт категорий (CSV, Excel, PDF, изображение)",
+    "smartImportTablesTitle": "ИИ-импорт столов (CSV, Excel, PDF, изображение)",
+    "smartImportIngredientsTitle": "ИИ-импорт ингредиентов блюд",
+    "smartImportModifierGroupsTitle": "ИИ-импорт групп модификаторов"
   },
   "dishView": {
     "detailsTitle": "Детали блюда",

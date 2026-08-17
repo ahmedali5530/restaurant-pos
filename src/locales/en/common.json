@@ -86,7 +86,7 @@
     "comment": "Comment",
     "settings": "Settings",
     "clock": "Clock",
-    "smartImport": "Smart Import"
+    "smartImport": "AI Import"
   },
   "database": {
     "connectionError": "Connection Error",

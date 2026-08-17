@@ -11,6 +11,7 @@ import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input } from "@/components/common/input/input.tsx";
 import { InputField } from "@/components/common/form/rhf-fields.tsx";
 import { Button } from "@/components/common/input/button.tsx";
+import { AiSparklesIcon } from "@/components/common/icons/ai-sparkles.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import { InventoryItem } from "@/api/model/inventory_item.ts";
@@ -19,7 +20,7 @@ import {
   InventoryAdjustment,
 } from "@/api/model/inventory_adjustment.ts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faTrash, faUpload } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { fetchNextSequentialNumber } from "@/utils/recordNumbers.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import { nowSurrealDateTime } from "@/lib/datetime.ts";
@@ -326,10 +327,10 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
                 <Button
                   type="button"
                   variant="secondary"
-                  icon={faUpload}
                   onClick={() => setImportModal(true)}
                 >
-                  {t("common:actions.smartImport", { defaultValue: "Smart Import" })}
+                  <span className="mr-2"><AiSparklesIcon /></span>
+                  {t("common:actions.smartImport", { defaultValue: "AI Import" })}
                 </Button>
                 <Button
                   type="button"
@@ -420,7 +421,7 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
           isOpen
           onClose={() => setImportModal(false)}
           config={adjustmentImportConfig}
-          title={t("forms.smartImportAdjustmentTitle", { defaultValue: "Smart import adjustment lines" })}
+          title={t("forms.smartImportAdjustmentTitle", { defaultValue: "AI Import adjustment lines" })}
           onDone={() => setImportModal(false)}
         />
       )}

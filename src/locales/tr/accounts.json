@@ -41,7 +41,7 @@
     "load": "Load",
     "loading": "Loading...",
     "view": "View",
-    "smartImport": "Akıllı içe aktarma"
+    "smartImport": "YZ içe aktarma"
   },
   "status": {
     "active": "Active",
@@ -69,8 +69,8 @@
     "createGroupsBeforeAccounts": "Create account groups before adding accounts.",
     "parentAccount": "Parent account",
     "journalEntry": "Journal Entry",
-    "smartImportAccountsTitle": "Hesapları akıllı içe aktar",
-    "smartImportJournalTitle": "Yevmiye satırlarını akıllı içe aktar"
+    "smartImportAccountsTitle": "Hesapları YZ ile içe aktar",
+    "smartImportJournalTitle": "Yevmiye satırlarını YZ ile içe aktar"
   },
   "confirm": {
     "title": "Confirmation",

@@ -11,6 +11,7 @@ import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input, InputError} from "@/components/common/input/input.tsx";
 import {InputField} from "@/components/common/form/rhf-fields.tsx";
 import {Button} from "@/components/common/input/button.tsx";
+import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {InventoryPurchaseReturn} from "@/api/model/inventory_purchase_return.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
@@ -18,7 +19,7 @@ import {InventoryPurchase} from "@/api/model/inventory_purchase.ts";
 import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {RecordId} from "surrealdb";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faTrash, faPlus, faUpload} from "@fortawesome/free-solid-svg-icons";
+import {faTrash, faPlus} from "@fortawesome/free-solid-svg-icons";
 import _ from "lodash";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
@@ -818,11 +819,11 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
               </Button>
               <Button
                 type="button"
-                icon={faUpload}
                 variant="secondary"
                 onClick={() => setImportModal(true)}
                 disabled={!watchedLocation?.value}
               >
+                <span className="mr-2"><AiSparklesIcon /></span>
                 {t('common:actions.smartImport')}
               </Button>
               <InputError error={_.get(errors, ["items", "message"])}/>

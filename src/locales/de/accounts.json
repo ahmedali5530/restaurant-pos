@@ -41,7 +41,7 @@
     "load": "Load",
     "loading": "Loading...",
     "view": "View",
-    "smartImport": "Smart-Import"
+    "smartImport": "KI-Import"
   },
   "status": {
     "active": "Active",
@@ -69,8 +69,8 @@
     "createGroupsBeforeAccounts": "Create account groups before adding accounts.",
     "parentAccount": "Parent account",
     "journalEntry": "Journal Entry",
-    "smartImportAccountsTitle": "Konten Smart-Import",
-    "smartImportJournalTitle": "Journalzeilen Smart-Import"
+    "smartImportAccountsTitle": "Konten KI-Import",
+    "smartImportJournalTitle": "Journalzeilen KI-Import"
   },
   "confirm": {
     "title": "Confirmation",

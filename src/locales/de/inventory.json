@@ -143,14 +143,14 @@
     "updateWaste": "Abfall aktualisieren #{{number}}",
     "updatePurchaseReturn": "Retouren aktualisieren #{{number}}",
     "expiredLot": "Abgelaufen {{date}}",
-    "smartImportItemsTitle": "Artikel Smart-Import",
-    "smartImportPurchaseTitle": "Einkaufspositionen Smart-Import",
-    "smartImportPurchaseOrderTitle": "Bestellpositionen Smart-Import",
-    "smartImportIssueTitle": "Ausgabepositionen Smart-Import",
-    "smartImportIssueReturnTitle": "Rückgabepositionen Smart-Import",
-    "smartImportWasteTitle": "Abfallpositionen Smart-Import",
-    "smartImportAdjustmentTitle": "Korrekturpositionen Smart-Import",
-    "smartImportPurchaseReturnTitle": "Einkaufsrückgabepositionen Smart-Import"
+    "smartImportItemsTitle": "Artikel KI-Import",
+    "smartImportPurchaseTitle": "Einkaufspositionen KI-Import",
+    "smartImportPurchaseOrderTitle": "Bestellpositionen KI-Import",
+    "smartImportIssueTitle": "Ausgabepositionen KI-Import",
+    "smartImportIssueReturnTitle": "Rückgabepositionen KI-Import",
+    "smartImportWasteTitle": "Abfallpositionen KI-Import",
+    "smartImportAdjustmentTitle": "Korrekturpositionen KI-Import",
+    "smartImportPurchaseReturnTitle": "Einkaufsrückgabepositionen KI-Import"
   },
   "validation": {
     "required": "Pflichtfeld",
@@ -296,7 +296,7 @@
       "missed": "Verpasst"
     },
     "keyboardHint": "Strg/Cmd + Pfeiltasten zum Wechseln zwischen editierbaren Zellen.",
-    "smartImportTitle": "Küchenabstimmung Smart-Import"
+    "smartImportTitle": "Küchenabstimmung KI-Import"
   },
   "stockTransfer": {
     "type": "Transfertyp",

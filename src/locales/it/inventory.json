@@ -143,14 +143,14 @@
     "updateWaste": "Aggiorna scarto #{{number}}",
     "updatePurchaseReturn": "Aggiorna reso #{{number}}",
     "expiredLot": "Scaduto {{date}}",
-    "smartImportItemsTitle": "Importazione intelligente articoli",
-    "smartImportPurchaseTitle": "Importazione intelligente righe acquisto",
-    "smartImportPurchaseOrderTitle": "Importazione intelligente righe OdA",
-    "smartImportIssueTitle": "Importazione intelligente righe uscita",
-    "smartImportIssueReturnTitle": "Importazione intelligente righe reso",
-    "smartImportWasteTitle": "Importazione intelligente righe scarto",
-    "smartImportAdjustmentTitle": "Importazione intelligente righe rettifica",
-    "smartImportPurchaseReturnTitle": "Importazione intelligente righe reso acquisto"
+    "smartImportItemsTitle": "Importazione IA articoli",
+    "smartImportPurchaseTitle": "Importazione IA righe acquisto",
+    "smartImportPurchaseOrderTitle": "Importazione IA righe OdA",
+    "smartImportIssueTitle": "Importazione IA righe uscita",
+    "smartImportIssueReturnTitle": "Importazione IA righe reso",
+    "smartImportWasteTitle": "Importazione IA righe scarto",
+    "smartImportAdjustmentTitle": "Importazione IA righe rettifica",
+    "smartImportPurchaseReturnTitle": "Importazione IA righe reso acquisto"
   },
   "validation": {
     "required": "Campo obbligatorio",
@@ -296,7 +296,7 @@
       "missed": "Mancato"
     },
     "keyboardHint": "Ctrl/Cmd + frecce per spostarsi tra le celle modificabili.",
-    "smartImportTitle": "Importazione intelligente riconciliazione cucina"
+    "smartImportTitle": "Importazione IA riconciliazione cucina"
   },
   "stockTransfer": {
     "type": "Tipo di trasferimento",

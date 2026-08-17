@@ -143,14 +143,14 @@
     "updateWaste": "Fireyi güncelle #{{number}}",
     "updatePurchaseReturn": "İadeyi güncelle #{{number}}",
     "expiredLot": "Süresi dolmuş {{date}}",
-    "smartImportItemsTitle": "Kalemleri akıllı içe aktar",
-    "smartImportPurchaseTitle": "Satın alma satırlarını akıllı içe aktar",
-    "smartImportPurchaseOrderTitle": "Sipariş satırlarını akıllı içe aktar",
-    "smartImportIssueTitle": "Çıkış satırlarını akıllı içe aktar",
-    "smartImportIssueReturnTitle": "İade satırlarını akıllı içe aktar",
-    "smartImportWasteTitle": "Fire satırlarını akıllı içe aktar",
-    "smartImportAdjustmentTitle": "Düzeltme satırlarını akıllı içe aktar",
-    "smartImportPurchaseReturnTitle": "Satın alma iade satırlarını akıllı içe aktar"
+    "smartImportItemsTitle": "Kalemleri YZ ile içe aktar",
+    "smartImportPurchaseTitle": "Satın alma satırlarını YZ ile içe aktar",
+    "smartImportPurchaseOrderTitle": "Sipariş satırlarını YZ ile içe aktar",
+    "smartImportIssueTitle": "Çıkış satırlarını YZ ile içe aktar",
+    "smartImportIssueReturnTitle": "İade satırlarını YZ ile içe aktar",
+    "smartImportWasteTitle": "Fire satırlarını YZ ile içe aktar",
+    "smartImportAdjustmentTitle": "Düzeltme satırlarını YZ ile içe aktar",
+    "smartImportPurchaseReturnTitle": "Satın alma iade satırlarını YZ ile içe aktar"
   },
   "validation": {
     "required": "Bu alan zorunludur",
@@ -296,7 +296,7 @@
       "missed": "Kaçırıldı"
     },
     "keyboardHint": "Düzenlenebilir hücreler arasında gezinmek için Ctrl/Cmd + ok tuşları.",
-    "smartImportTitle": "Mutfak mutabakatını akıllı içe aktar"
+    "smartImportTitle": "Mutfak mutabakatını YZ ile içe aktar"
   },
   "stockTransfer": {
     "type": "Transfer türü",

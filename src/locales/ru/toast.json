@@ -121,6 +121,8 @@
     "invalidCategories": "Категории недействительны",
     "passwordRequired": "Для нового пользователя требуется пароль",
     "invalidDishNumber": "Номер блюда недействителен",
+    "invalidDishNameOrNumber": "Название или номер блюда недействителен",
+    "ambiguousDishName": "Несколько блюд соответствуют этому названию; укажите номер блюда",
     "invalidIngredient": "Ингредиент недействителен",
     "invalidIngredientType": "Этот тип ингредиента нельзя использовать в рецептах",
     "duplicateDishIngredient": "Ингредиент уже привязан к этому блюду",

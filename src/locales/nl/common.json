@@ -86,7 +86,7 @@
     "comment": "Opmerking",
     "settings": "Instellingen",
     "clock": "Klok",
-    "smartImport": "Slim importeren"
+    "smartImport": "AI-import"
   },
   "database": {
     "connectionError": "Verbindingsfout",

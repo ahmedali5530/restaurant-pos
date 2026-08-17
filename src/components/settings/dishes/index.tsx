@@ -4,12 +4,13 @@ import {Tables} from "@/api/db/tables.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {DishForm} from "@/components/settings/dishes/dish.form.tsx";
-import {faPencil, faPhotoFilm, faPlus, faUpload, faEye} from "@fortawesome/free-solid-svg-icons";
+import {faPencil, faPhotoFilm, faPlus, faEye} from "@fortawesome/free-solid-svg-icons";
 import {createColumnHelper, RowSelectionState} from "@tanstack/react-table";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
+import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {createDishImportConfig} from "@/components/settings/dishes/dish.import.config.ts";
 import {createDishIngredientsImportConfig} from "@/components/settings/dishes/dish-ingredients.import.config.ts";
 import {createDishModifiersImportConfig} from "@/components/settings/dishes/dish-modifiers.import.config.ts";
@@ -233,19 +234,19 @@ export const AdminDishes = () => {
               module: 'admin.dishes.import',
               description: getAccessRuleChildLabel('admin.dishes.import'),
             });
-          }} icon={faUpload}>{t('buttons.smartImportDishes')}</Button>,
+          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImportDishes')}</Button>,
           <Button variant="primary" onClick={() => {
             protectAction(() => setIngredientsImportModal(true), {
               module: 'admin.dishes.import',
               description: getAccessRuleChildLabel('admin.dishes.import'),
             });
-          }} icon={faUpload}>{t('buttons.smartImportIngredients')}</Button>,
+          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImportIngredients')}</Button>,
           <Button variant="primary" onClick={() => {
             protectAction(() => setModifierGroupsImportModal(true), {
               module: 'admin.dishes.import',
               description: getAccessRuleChildLabel('admin.dishes.import'),
             });
-          }} icon={faUpload}>{t('buttons.smartImportModifierGroups')}</Button>,
+          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImportModifierGroups')}</Button>,
           <Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);

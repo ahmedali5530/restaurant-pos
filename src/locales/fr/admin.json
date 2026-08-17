@@ -85,6 +85,8 @@
     "yes": "Oui",
     "no": "Non",
     "ingredient": "Ingrédient",
+    "dishNameOrNumber": "Nom/numéro du plat",
+    "ingredientNameOrNumber": "Nom/numéro de l'ingrédient",
     "isPriceLocked": "Prix verrouillé",
     "hasRequiredModifiers": "Modificateurs requis",
     "shouldAutoOpen": "Ouverture auto",
@@ -141,10 +143,10 @@
     "updateSelected": "Mettre à jour la sélection",
     "importIngredients": "Importer des ingrédients",
     "importModifierGroups": "Importer des groupes de modificateurs",
-    "smartImportDishes": "Import intelligent",
-    "smartImport": "Importation intelligente",
-    "smartImportIngredients": "Importer les ingrédients",
-    "smartImportModifierGroups": "Importer les groupes de modificateurs"
+    "smartImportDishes": "Import IA",
+    "smartImport": "Import IA",
+    "smartImportIngredients": "Import IA des ingrédients",
+    "smartImportModifierGroups": "Import IA des groupes de modificateurs"
   },
   "delete": {
     "dish": "Supprimer l'article {{name}}",
@@ -337,11 +339,11 @@
     "unitCost": "Coût unitaire",
     "lineTotal": "Total",
     "priceLocked": "Prix verrouillé",
-    "smartImportDishesTitle": "Import intelligent de plats (CSV, Excel, PDF, image)",
-    "smartImportCategoriesTitle": "Importation intelligente des catégories (CSV, Excel, PDF, image)",
-    "smartImportTablesTitle": "Importation intelligente des tables (CSV, Excel, PDF, image)",
-    "smartImportIngredientsTitle": "Importation intelligente des ingrédients",
-    "smartImportModifierGroupsTitle": "Importation intelligente des groupes de modificateurs"
+    "smartImportDishesTitle": "Import IA de plats (CSV, Excel, PDF, image)",
+    "smartImportCategoriesTitle": "Import IA des catégories (CSV, Excel, PDF, image)",
+    "smartImportTablesTitle": "Import IA des tables (CSV, Excel, PDF, image)",
+    "smartImportIngredientsTitle": "Import IA des ingrédients",
+    "smartImportModifierGroupsTitle": "Import IA des groupes de modificateurs"
   },
   "dishView": {
     "detailsTitle": "Détails du plat",

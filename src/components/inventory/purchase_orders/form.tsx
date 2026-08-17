@@ -10,13 +10,14 @@ import {useDB} from "@/api/db/db.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input, InputError} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
+import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {InventoryPurchaseOrder, PurchaseOrderStatus} from "@/api/model/inventory_purchase_order.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {InventorySupplier} from "@/api/model/inventory_supplier.ts";
 import {RecordId, StringRecordId} from "surrealdb";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faPlus, faTrash, faUpload} from "@fortawesome/free-solid-svg-icons";
+import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
 import _ from "lodash";
 import {SupplierForm} from "@/components/inventory/suppliers/form.tsx";
 import {useAtom} from "jotai";
@@ -489,11 +490,11 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                 </Button>
                 <Button
                   type="button"
-                  icon={faUpload}
                   variant="secondary"
                   onClick={() => setImportModal(true)}
                 >
-                  {t('common:actions.smartImport', {defaultValue: 'Smart Import'})}
+                  <span className="mr-2"><AiSparklesIcon /></span>
+                  {t('common:actions.smartImport', {defaultValue: 'AI Import'})}
                 </Button>
               </div>
 
@@ -635,7 +636,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
           isOpen
           onClose={() => setImportModal(false)}
           config={purchaseOrderImportConfig}
-          title={t('forms.smartImportPurchaseOrderTitle', {defaultValue: 'Smart import PO lines'})}
+          title={t('forms.smartImportPurchaseOrderTitle', {defaultValue: 'AI Import PO lines'})}
           onDone={() => setImportModal(false)}
         />
       )}

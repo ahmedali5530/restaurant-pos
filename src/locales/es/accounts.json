@@ -41,7 +41,7 @@
     "load": "Load",
     "loading": "Loading...",
     "view": "View",
-    "smartImport": "Importación inteligente"
+    "smartImport": "Importación IA"
   },
   "status": {
     "active": "Active",
@@ -69,8 +69,8 @@
     "createGroupsBeforeAccounts": "Create account groups before adding accounts.",
     "parentAccount": "Parent account",
     "journalEntry": "Journal Entry",
-    "smartImportAccountsTitle": "Importación inteligente de cuentas",
-    "smartImportJournalTitle": "Importación inteligente de líneas del asiento"
+    "smartImportAccountsTitle": "Importación IA de cuentas",
+    "smartImportJournalTitle": "Importación IA de líneas del asiento"
   },
   "confirm": {
     "title": "Confirmation",

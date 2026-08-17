@@ -39,7 +39,7 @@ export function parseImportBool(value: any): boolean {
 
 export type TFunc = (key: string, options?: any) => string;
 
-/** Resolve inventory item by code first, then name. */
+/** Resolve inventory item by code first, then case-insensitive name. */
 export async function resolveInventoryItem(
   db: ImportDbLike,
   codeOrName: string,
@@ -54,10 +54,39 @@ export async function resolveInventoryItem(
   );
   if (byCode?.length) return byCode[0];
   const [byName] = await db.query(
-    `SELECT * FROM ${Tables.inventory_items} WHERE name = $key${fetchClause} LIMIT 1`,
+    `SELECT * FROM ${Tables.inventory_items} WHERE string::lowercase(name) = string::lowercase($key)${fetchClause} LIMIT 1`,
     {key}
   );
   return byName?.[0] ?? null;
+}
+
+export type DishResolveResult =
+  | {status: "found"; dish: any}
+  | {status: "not_found"}
+  | {status: "ambiguous"};
+
+/** Resolve a dish by number first, then case-insensitive name. */
+export async function resolveDishByNumberOrName(
+  db: ImportDbLike,
+  numberOrName: string
+): Promise<DishResolveResult> {
+  const key = numberOrName.trim();
+  if (!key) return {status: "not_found"};
+
+  const [byNumber] = await db.query(
+    `SELECT id, items FROM ${Tables.dishes} WHERE number = $key AND deleted_at = none LIMIT 1`,
+    {key}
+  );
+  if (byNumber?.length) return {status: "found", dish: byNumber[0]};
+
+  const [byName] = await db.query(
+    `SELECT id, items FROM ${Tables.dishes}
+     WHERE string::lowercase(name) = string::lowercase($key) AND deleted_at = none`,
+    {key}
+  );
+  if (!byName?.length) return {status: "not_found"};
+  if (byName.length > 1) return {status: "ambiguous"};
+  return {status: "found", dish: byName[0]};
 }
 
 export function itemSelectOption(item: {id: any; name?: string; code?: string}): SelectOption {

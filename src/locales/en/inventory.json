@@ -143,14 +143,14 @@
     "reorderLevelHint": "Optional minimum quantity per store before reorder alert",
     "taxable": "Taxable",
     "previousPrice": "Previous price",
-    "smartImportItemsTitle": "Smart import items",
-    "smartImportPurchaseTitle": "Smart import purchase lines",
-    "smartImportPurchaseOrderTitle": "Smart import PO lines",
-    "smartImportIssueTitle": "Smart import issue lines",
-    "smartImportIssueReturnTitle": "Smart import return lines",
-    "smartImportWasteTitle": "Smart import waste lines",
-    "smartImportAdjustmentTitle": "Smart import adjustment lines",
-    "smartImportPurchaseReturnTitle": "Smart import purchase return lines"
+    "smartImportItemsTitle": "AI Import items",
+    "smartImportPurchaseTitle": "AI Import purchase lines",
+    "smartImportPurchaseOrderTitle": "AI Import PO lines",
+    "smartImportIssueTitle": "AI Import issue lines",
+    "smartImportIssueReturnTitle": "AI Import return lines",
+    "smartImportWasteTitle": "AI Import waste lines",
+    "smartImportAdjustmentTitle": "AI Import adjustment lines",
+    "smartImportPurchaseReturnTitle": "AI Import purchase return lines"
   },
   "adjustment": {
     "reasons": {
@@ -323,7 +323,7 @@
       "missed": "Missed"
     },
     "keyboardHint": "Ctrl/Cmd + arrow keys to move between editable cells.",
-    "smartImportTitle": "Smart import kitchen reconciliation"
+    "smartImportTitle": "AI Import kitchen reconciliation"
   },
   "stockTransfer": {
     "type": "Transfer type",

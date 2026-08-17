@@ -121,6 +121,8 @@
     "invalidCategories": "Kategorien sind ungültig",
     "passwordRequired": "Passwort ist für neuen Benutzer erforderlich",
     "invalidDishNumber": "Gerichtennummer ist ungültig",
+    "invalidDishNameOrNumber": "Gerichtenname oder -nummer ist ungültig",
+    "ambiguousDishName": "Mehrere Gerichte passen zu diesem Namen; verwenden Sie die Gerichtennummer",
     "invalidIngredient": "Zutat ist ungültig",
     "invalidIngredientType": "Zutatentyp kann nicht in Rezepten verwendet werden",
     "duplicateDishIngredient": "Zutat ist diesem Gericht bereits zugewiesen",

@@ -85,6 +85,8 @@
     "yes": "نعم",
     "no": "لا",
     "ingredient": "مكون",
+    "dishNameOrNumber": "اسم/رقم الطبق",
+    "ingredientNameOrNumber": "اسم/رقم المكون",
     "isPriceLocked": "السعر مقفل",
     "hasRequiredModifiers": "يحتوي على معدّلات مطلوبة",
     "shouldAutoOpen": "فتح تلقائي",
@@ -141,10 +143,10 @@
     "updateSelected": "تحديث المحدد",
     "importIngredients": "استيراد المكونات",
     "importModifierGroups": "استيراد مجموعات المعدّلات",
-    "smartImportDishes": "استيراد ذكي",
-    "smartImport": "استيراد ذكي",
-    "smartImportIngredients": "استيراد ذكي للمكونات",
-    "smartImportModifierGroups": "استيراد ذكي لمجموعات المعدّلات"
+    "smartImportDishes": "استيراد بالذكاء الاصطناعي",
+    "smartImport": "استيراد بالذكاء الاصطناعي",
+    "smartImportIngredients": "استيراد بالذكاء الاصطناعي للمكونات",
+    "smartImportModifierGroups": "استيراد بالذكاء الاصطناعي لمجموعات المعدّلات"
   },
   "delete": {
     "dish": "حذف الصنف {{name}}",
@@ -337,11 +339,11 @@
     "unitCost": "تكلفة الوحدة",
     "lineTotal": "الإجمالي",
     "priceLocked": "السعر مقفل",
-    "smartImportDishesTitle": "استيراد ذكي للأطباق (CSV وExcel وPDF وصورة)",
-    "smartImportCategoriesTitle": "استيراد ذكي للفئات (CSV وExcel وPDF وصورة)",
-    "smartImportTablesTitle": "استيراد ذكي للطاولات (CSV وExcel وPDF وصورة)",
-    "smartImportIngredientsTitle": "استيراد ذكي لمكونات الأطباق",
-    "smartImportModifierGroupsTitle": "استيراد ذكي لمجموعات معدّلات الأطباق"
+    "smartImportDishesTitle": "استيراد بالذكاء الاصطناعي للأطباق (CSV وExcel وPDF وصورة)",
+    "smartImportCategoriesTitle": "استيراد بالذكاء الاصطناعي للفئات (CSV وExcel وPDF وصورة)",
+    "smartImportTablesTitle": "استيراد بالذكاء الاصطناعي للطاولات (CSV وExcel وPDF وصورة)",
+    "smartImportIngredientsTitle": "استيراد بالذكاء الاصطناعي لمكونات الأطباق",
+    "smartImportModifierGroupsTitle": "استيراد بالذكاء الاصطناعي لمجموعات معدّلات الأطباق"
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",

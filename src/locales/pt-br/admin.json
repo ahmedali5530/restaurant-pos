@@ -85,6 +85,8 @@
     "yes": "Sim",
     "no": "Não",
     "ingredient": "Ingrediente",
+    "dishNameOrNumber": "Nome/número do prato",
+    "ingredientNameOrNumber": "Nome/número do ingrediente",
     "isPriceLocked": "Preço bloqueado",
     "hasRequiredModifiers": "Tem modificadores obrigatórios",
     "shouldAutoOpen": "Abrir automaticamente",
@@ -141,10 +143,10 @@
     "updateSelected": "Atualizar selecionados",
     "importIngredients": "Importar ingredientes",
     "importModifierGroups": "Importar grupos de modificadores",
-    "smartImportDishes": "Importação inteligente",
-    "smartImport": "Importação inteligente",
-    "smartImportIngredients": "Importar ingredientes",
-    "smartImportModifierGroups": "Importar grupos de modificadores"
+    "smartImportDishes": "Importação IA",
+    "smartImport": "Importação IA",
+    "smartImportIngredients": "Importação IA de ingredientes",
+    "smartImportModifierGroups": "Importação IA de grupos de modificadores"
   },
   "delete": {
     "dish": "Excluir item {{name}}",
@@ -337,11 +339,11 @@
     "unitCost": "Custo unitário",
     "lineTotal": "Total",
     "priceLocked": "Preço bloqueado",
-    "smartImportDishesTitle": "Importação inteligente de pratos (CSV, Excel, PDF, imagem)",
-    "smartImportCategoriesTitle": "Importação inteligente de categorias (CSV, Excel, PDF, imagem)",
-    "smartImportTablesTitle": "Importação inteligente de mesas (CSV, Excel, PDF, imagem)",
-    "smartImportIngredientsTitle": "Importação inteligente de ingredientes",
-    "smartImportModifierGroupsTitle": "Importação inteligente de grupos de modificadores"
+    "smartImportDishesTitle": "Importação IA de pratos (CSV, Excel, PDF, imagem)",
+    "smartImportCategoriesTitle": "Importação IA de categorias (CSV, Excel, PDF, imagem)",
+    "smartImportTablesTitle": "Importação IA de mesas (CSV, Excel, PDF, imagem)",
+    "smartImportIngredientsTitle": "Importação IA de ingredientes",
+    "smartImportModifierGroupsTitle": "Importação IA de grupos de modificadores"
   },
   "dishView": {
     "detailsTitle": "Detalhes do prato",

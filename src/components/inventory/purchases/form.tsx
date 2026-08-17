@@ -12,6 +12,7 @@ import {Input, InputError} from "@/components/common/input/input.tsx";
 import {InputField} from "@/components/common/form/rhf-fields.tsx";
 import {Textarea} from "@/components/common/input/textarea.tsx";
 import {Button} from "@/components/common/input/button.tsx";
+import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {InventoryPurchase} from "@/api/model/inventory_purchase.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
@@ -830,7 +831,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                   variant="primary"
                   filled
                   onClick={() => setCsvModal(true)}
-                >{t('common:actions.smartImport', {defaultValue: 'Smart Import'})}</Button>
+                ><span className="mr-2"><AiSparklesIcon /></span>{t('common:actions.smartImport', {defaultValue: 'AI Import'})}</Button>
               </div>
             )}
 
@@ -1368,7 +1369,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
           isOpen={csvModal}
           onClose={() => setCsvModal(false)}
           config={purchaseImportConfig}
-          title={t('forms.smartImportPurchaseTitle', {defaultValue: 'Smart import purchase lines'})}
+          title={t('forms.smartImportPurchaseTitle', {defaultValue: 'AI Import purchase lines'})}
           onExport={() => {
             const formatDate = (value: any) => {
               if (!value) return '';

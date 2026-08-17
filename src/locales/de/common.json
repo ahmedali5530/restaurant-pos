@@ -86,7 +86,7 @@
     "comment": "Kommentar",
     "settings": "Einstellungen",
     "clock": "Zeiterfassung",
-    "smartImport": "Smart-Import"
+    "smartImport": "KI-Import"
   },
   "database": {
     "connectionError": "Verbindungsfehler",

@@ -85,6 +85,8 @@
     "yes": "Ja",
     "no": "Nee",
     "ingredient": "Ingrediënt",
+    "dishNameOrNumber": "Gerechtnaam/-nummer",
+    "ingredientNameOrNumber": "Ingrediëntnaam/-nummer",
     "isPriceLocked": "Prijs vergrendeld",
     "hasRequiredModifiers": "Heeft verplichte modifiers",
     "shouldAutoOpen": "Automatisch openen",
@@ -141,10 +143,10 @@
     "updateSelected": "Geselecteerde bijwerken",
     "importIngredients": "Ingrediënten importeren",
     "importModifierGroups": "Modifiergroepen importeren",
-    "smartImportDishes": "Slim importeren",
-    "smartImport": "Slim importeren",
-    "smartImportIngredients": "Ingrediënten slim importeren",
-    "smartImportModifierGroups": "Modifiergroepen slim importeren"
+    "smartImportDishes": "AI-import",
+    "smartImport": "AI-import",
+    "smartImportIngredients": "Ingrediënten AI-importeren",
+    "smartImportModifierGroups": "Modifiergroepen AI-importeren"
   },
   "delete": {
     "dish": "Artikel {{name}} verwijderen",
@@ -337,11 +339,11 @@
     "unitCost": "Eenheidsprijs",
     "lineTotal": "Totaal",
     "priceLocked": "Prijs vergrendeld",
-    "smartImportDishesTitle": "Slim gerechten importeren (CSV, Excel, PDF, afbeelding)",
-    "smartImportCategoriesTitle": "Categorieën slim importeren (CSV, Excel, PDF, afbeelding)",
-    "smartImportTablesTitle": "Tafels slim importeren (CSV, Excel, PDF, afbeelding)",
-    "smartImportIngredientsTitle": "Gerechtingrediënten slim importeren",
-    "smartImportModifierGroupsTitle": "Modifiergroepen slim importeren"
+    "smartImportDishesTitle": "Gerechten AI-importeren (CSV, Excel, PDF, afbeelding)",
+    "smartImportCategoriesTitle": "Categorieën AI-importeren (CSV, Excel, PDF, afbeelding)",
+    "smartImportTablesTitle": "Tafels AI-importeren (CSV, Excel, PDF, afbeelding)",
+    "smartImportIngredientsTitle": "Gerechtingrediënten AI-importeren",
+    "smartImportModifierGroupsTitle": "Modifiergroepen AI-importeren"
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",

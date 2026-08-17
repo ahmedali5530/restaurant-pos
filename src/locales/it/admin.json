@@ -85,6 +85,8 @@
     "yes": "Sì",
     "no": "No",
     "ingredient": "Ingrediente",
+    "dishNameOrNumber": "Nome/numero del piatto",
+    "ingredientNameOrNumber": "Nome/numero dell'ingrediente",
     "isPriceLocked": "Prezzo bloccato",
     "hasRequiredModifiers": "Ha modificatori obbligatori",
     "shouldAutoOpen": "Apri automaticamente",
@@ -141,10 +143,10 @@
     "updateSelected": "Aggiorna selezionati",
     "importIngredients": "Importa ingredienti",
     "importModifierGroups": "Importa gruppi modificatori",
-    "smartImportDishes": "Importazione smart",
-    "smartImport": "Importazione intelligente",
-    "smartImportIngredients": "Importa ingredienti",
-    "smartImportModifierGroups": "Importa gruppi modificatori"
+    "smartImportDishes": "Importazione IA",
+    "smartImport": "Importazione IA",
+    "smartImportIngredients": "Importazione IA ingredienti",
+    "smartImportModifierGroups": "Importazione IA gruppi modificatori"
   },
   "delete": {
     "dish": "Elimina articolo {{name}}",
@@ -337,11 +339,11 @@
     "unitCost": "Costo unitario",
     "lineTotal": "Totale",
     "priceLocked": "Prezzo bloccato",
-    "smartImportDishesTitle": "Importazione smart piatti (CSV, Excel, PDF, immagine)",
-    "smartImportCategoriesTitle": "Importazione intelligente categorie (CSV, Excel, PDF, immagine)",
-    "smartImportTablesTitle": "Importazione intelligente tavoli (CSV, Excel, PDF, immagine)",
-    "smartImportIngredientsTitle": "Importazione intelligente ingredienti",
-    "smartImportModifierGroupsTitle": "Importazione intelligente gruppi modificatori"
+    "smartImportDishesTitle": "Importazione IA piatti (CSV, Excel, PDF, immagine)",
+    "smartImportCategoriesTitle": "Importazione IA categorie (CSV, Excel, PDF, immagine)",
+    "smartImportTablesTitle": "Importazione IA tavoli (CSV, Excel, PDF, immagine)",
+    "smartImportIngredientsTitle": "Importazione IA ingredienti",
+    "smartImportModifierGroupsTitle": "Importazione IA gruppi modificatori"
   },
   "dishView": {
     "detailsTitle": "Dettagli piatto",

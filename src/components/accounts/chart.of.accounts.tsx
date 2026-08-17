@@ -1,7 +1,7 @@
 import {useMemo, useRef, useState} from "react";
 import {createColumnHelper} from "@tanstack/react-table";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faPencilAlt, faPlus, faUpload} from "@fortawesome/free-solid-svg-icons";
+import {faPencilAlt, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {StringRecordId} from "surrealdb";
 import {useTranslation} from "react-i18next";
 import {toast} from "sonner";
@@ -10,6 +10,7 @@ import {Account} from "@/api/model/account.ts";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Button} from "@/components/common/input/button.tsx";
+import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {Switch} from "@/components/common/input/switch.tsx";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {CreateAccount} from "@/components/accounts/create.account.tsx";
@@ -165,7 +166,7 @@ export const ChartOfAccounts = () => {
               setCsvUploader(true);
             }}
           >
-            <FontAwesomeIcon icon={faUpload} className="mr-2"/> {t('actions.smartImport', {defaultValue: t('actions.importCsv')})}
+            <AiSparklesIcon className="mr-2"/> {t('actions.smartImport', {defaultValue: t('actions.importCsv')})}
           </Button>,
           <Button
             key="create-account"
@@ -231,7 +232,7 @@ export const ChartOfAccounts = () => {
             await allAccountsHook.fetchData();
           }}
           config={smartImportConfig}
-          title={t('forms.smartImportAccountsTitle', {defaultValue: 'Smart import accounts'})}
+          title={t('forms.smartImportAccountsTitle', {defaultValue: 'AI Import accounts'})}
           enableImportModes
           defaultMatchFields={['code']}
           onExport={async () => {

@@ -130,6 +130,8 @@
     "invalidCategories": "Categories are invalid",
     "passwordRequired": "Password is required for new user",
     "invalidDishNumber": "Dish number is invalid",
+    "invalidDishNameOrNumber": "Dish name or number is invalid",
+    "ambiguousDishName": "Multiple dishes match this name; use the dish number instead",
     "invalidIngredient": "Ingredient is invalid",
     "invalidIngredientType": "Ingredient type cannot be used in dish recipes",
     "duplicateDishIngredient": "Ingredient is already attached to this dish",

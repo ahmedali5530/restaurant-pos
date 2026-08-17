@@ -41,7 +41,7 @@
     "load": "Load",
     "loading": "Loading...",
     "view": "View",
-    "smartImport": "Slim importeren"
+    "smartImport": "AI-import"
   },
   "status": {
     "active": "Active",
@@ -69,8 +69,8 @@
     "createGroupsBeforeAccounts": "Create account groups before adding accounts.",
     "parentAccount": "Parent account",
     "journalEntry": "Journal Entry",
-    "smartImportAccountsTitle": "Rekeningen slim importeren",
-    "smartImportJournalTitle": "Journaalregels slim importeren"
+    "smartImportAccountsTitle": "Rekeningen AI-importeren",
+    "smartImportJournalTitle": "Journaalregels AI-importeren"
   },
   "confirm": {
     "title": "Confirmation",

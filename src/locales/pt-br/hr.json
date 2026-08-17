@@ -487,7 +487,7 @@
     },
     "shiftsGenerated": "{{created}} turno(s) criado(s), {{skipped}} ignorado(s).",
     "conflictsDetected": "Alguns turnos não puderam ser criados devido a conflitos.",
-    "smartImportShiftsTitle": "Importação inteligente de turnos agendados"
+    "smartImportShiftsTitle": "Importação IA de turnos agendados"
   },
   "leave": {
     "vacation": "Férias",

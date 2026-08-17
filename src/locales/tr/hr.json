@@ -487,7 +487,7 @@
     },
     "shiftsGenerated": "{{created}} vardiya oluşturuldu, {{skipped}} atlandı.",
     "conflictsDetected": "Bazı vardiyalar çakışmalar nedeniyle oluşturulamadı.",
-    "smartImportShiftsTitle": "Planlanmış vardiyaları akıllı içe aktar"
+    "smartImportShiftsTitle": "Planlanmış vardiyaları YZ ile içe aktar"
   },
   "leave": {
     "vacation": "Tatil",

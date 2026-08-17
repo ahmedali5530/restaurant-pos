@@ -121,6 +121,8 @@
     "invalidCategories": "Kategoriler geçersiz",
     "passwordRequired": "Yeni kullanıcı için şifre gerekli",
     "invalidDishNumber": "Yemek numarası geçersiz",
+    "invalidDishNameOrNumber": "Yemek adı veya numarası geçersiz",
+    "ambiguousDishName": "Bu ada birden fazla yemek uyuyor; yemek numarasını kullanın",
     "invalidIngredient": "Malzeme geçersiz",
     "invalidIngredientType": "Bu malzeme türü yemek tariflerinde kullanılamaz",
     "duplicateDishIngredient": "Malzeme bu yemeğe zaten eklenmiş",

@@ -7,7 +7,7 @@ import {
 } from "@/lib/ai/example.prompts.ts";
 
 const PROMPT_CHIP_CLASS =
-  "rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-left text-sm text-neutral-700 transition hover:border-primary-300 hover:bg-primary-50 disabled:cursor-not-allowed disabled:opacity-50";
+  "rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-left text-sm text-neutral-700 transition hover:border-warning-300 hover:bg-warning-50 disabled:cursor-not-allowed disabled:opacity-50";
 
 const FILTER_PILL_CLASS =
   "rounded-full border px-3 py-1 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50";
@@ -51,8 +51,8 @@ export const AiExamplePrompts = ({onSelect, disabled}: AiExamplePromptsProps) =>
         onClick={() => setActiveFilter(filter)}
         className={`${FILTER_PILL_CLASS} ${
           isActive
-            ? "border-primary-500 bg-primary-50 text-primary-700"
-            : "border-neutral-200 bg-white text-neutral-600 hover:border-primary-300 hover:bg-primary-50"
+            ? "border-warning-500 bg-warning-50 text-warning-700"
+            : "border-neutral-200 bg-white text-neutral-600 hover:border-warning-300 hover:bg-warning-50"
         }`}
       >
         {label}

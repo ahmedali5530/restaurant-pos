@@ -143,14 +143,14 @@
     "updateWaste": "Afval bijwerken #{{number}}",
     "updatePurchaseReturn": "Retour bijwerken #{{number}}",
     "expiredLot": "Verlopen {{date}}",
-    "smartImportItemsTitle": "Artikelen slim importeren",
-    "smartImportPurchaseTitle": "Inkoopregels slim importeren",
-    "smartImportPurchaseOrderTitle": "Inkooporderregels slim importeren",
-    "smartImportIssueTitle": "Uitgifteregels slim importeren",
-    "smartImportIssueReturnTitle": "Retourregels slim importeren",
-    "smartImportWasteTitle": "Afvalregels slim importeren",
-    "smartImportAdjustmentTitle": "Correctieregels slim importeren",
-    "smartImportPurchaseReturnTitle": "Inkoopretourregels slim importeren"
+    "smartImportItemsTitle": "Artikelen AI-importeren",
+    "smartImportPurchaseTitle": "Inkoopregels AI-importeren",
+    "smartImportPurchaseOrderTitle": "Inkooporderregels AI-importeren",
+    "smartImportIssueTitle": "Uitgifteregels AI-importeren",
+    "smartImportIssueReturnTitle": "Retourregels AI-importeren",
+    "smartImportWasteTitle": "Afvalregels AI-importeren",
+    "smartImportAdjustmentTitle": "Correctieregels AI-importeren",
+    "smartImportPurchaseReturnTitle": "Inkoopretourregels AI-importeren"
   },
   "validation": {
     "required": "Dit is verplicht",
@@ -296,7 +296,7 @@
       "missed": "Gemist"
     },
     "keyboardHint": "Ctrl/Cmd + pijltjestoetsen om tussen bewerkbare cellen te bewegen.",
-    "smartImportTitle": "Keukenafstemming slim importeren"
+    "smartImportTitle": "Keukenafstemming AI-importeren"
   },
   "stockTransfer": {
     "type": "Overdrachtstype",

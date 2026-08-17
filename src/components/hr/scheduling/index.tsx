@@ -9,8 +9,9 @@ import {ScheduleTemplate} from "@/api/model/schedule_template.ts";
 import {ShiftSwapRequest} from "@/api/model/shift_swap_request.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
+import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {IconTooltipButton} from "@/components/common/input/icon.tooltip.button.tsx";
-import {faCheck, faPencil, faPlus, faTrash, faUpload, faXmark} from "@fortawesome/free-solid-svg-icons";
+import {faCheck, faPencil, faPlus, faTrash, faXmark} from "@fortawesome/free-solid-svg-icons";
 import {formatDisplayDate, entityLabel} from "@/components/hr/shared/form.utils.ts";
 import {useDB} from "@/api/db/db.ts";
 import {useAtom} from "jotai";
@@ -410,8 +411,9 @@ export const HrScheduling = () => {
           loaderHook={shiftsHook}
           loaderLineItems={shiftColumns.length}
           buttons={[
-            <Button key="shift-import" variant="secondary" onClick={() => setImportModal(true)} icon={faUpload}>
-              {t("common:actions.smartImport", {defaultValue: "Smart Import"})}
+            <Button key="shift-import" variant="secondary" onClick={() => setImportModal(true)}>
+              <span className="mr-2"><AiSparklesIcon /></span>
+              {t("common:actions.smartImport", {defaultValue: "AI Import"})}
             </Button>,
             <Button key="shift-create" variant="primary" data-testid="hr-add-schedule-shift" onClick={() => { setShift(undefined); setSchedule(undefined); setShiftModal(true); }} icon={faPlus}>
               {t("buttons.scheduledShift")}
@@ -509,7 +511,7 @@ export const HrScheduling = () => {
           isOpen
           onClose={() => setImportModal(false)}
           config={shiftImportConfig}
-          title={t("scheduling.smartImportShiftsTitle", {defaultValue: "Smart import scheduled shifts"})}
+          title={t("scheduling.smartImportShiftsTitle", {defaultValue: "AI Import scheduled shifts"})}
           onDone={() => {
             setImportModal(false);
             shiftsHook.fetchData();

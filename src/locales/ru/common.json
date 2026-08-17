@@ -86,7 +86,7 @@
     "comment": "Комментарий",
     "settings": "Настройки",
     "clock": "Учёт времени",
-    "smartImport": "Умный импорт"
+    "smartImport": "ИИ-импорт"
   },
   "database": {
     "connectionError": "Ошибка подключения",

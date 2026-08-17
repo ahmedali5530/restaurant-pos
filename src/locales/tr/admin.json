@@ -85,6 +85,8 @@
     "yes": "Evet",
     "no": "Hayır",
     "ingredient": "Malzeme",
+    "dishNameOrNumber": "Yemek adı/numarası",
+    "ingredientNameOrNumber": "Malzeme adı/numarası",
     "isPriceLocked": "Fiyat kilitli",
     "hasRequiredModifiers": "Zorunlu modifikatörler var",
     "shouldAutoOpen": "Otomatik aç",
@@ -141,10 +143,10 @@
     "updateSelected": "Seçilenleri güncelle",
     "importIngredients": "Malzemeleri İçe Aktar",
     "importModifierGroups": "Modifikatör Gruplarını İçe Aktar",
-    "smartImportDishes": "Akıllı içe aktarma",
-    "smartImport": "Akıllı içe aktarma",
-    "smartImportIngredients": "Malzemeleri akıllı içe aktar",
-    "smartImportModifierGroups": "Modifikatör gruplarını akıllı içe aktar"
+    "smartImportDishes": "YZ içe aktarma",
+    "smartImport": "YZ içe aktarma",
+    "smartImportIngredients": "Malzemeleri YZ ile içe aktar",
+    "smartImportModifierGroups": "Modifikatör gruplarını YZ ile içe aktar"
   },
   "delete": {
     "dish": "{{name}} ürününü sil",
@@ -337,11 +339,11 @@
     "unitCost": "Birim maliyet",
     "lineTotal": "Toplam",
     "priceLocked": "Fiyat kilitli",
-    "smartImportDishesTitle": "Akıllı yemek içe aktarma (CSV, Excel, PDF, görsel)",
-    "smartImportCategoriesTitle": "Kategorileri akıllı içe aktar (CSV, Excel, PDF, görsel)",
-    "smartImportTablesTitle": "Masaları akıllı içe aktar (CSV, Excel, PDF, görsel)",
-    "smartImportIngredientsTitle": "Yemek malzemelerini akıllı içe aktar",
-    "smartImportModifierGroupsTitle": "Modifikatör gruplarını akıllı içe aktar"
+    "smartImportDishesTitle": "YZ yemek içe aktarma (CSV, Excel, PDF, görsel)",
+    "smartImportCategoriesTitle": "Kategorileri YZ ile içe aktar (CSV, Excel, PDF, görsel)",
+    "smartImportTablesTitle": "Masaları YZ ile içe aktar (CSV, Excel, PDF, görsel)",
+    "smartImportIngredientsTitle": "Yemek malzemelerini YZ ile içe aktar",
+    "smartImportModifierGroupsTitle": "Modifikatör gruplarını YZ ile içe aktar"
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",

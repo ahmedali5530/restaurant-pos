@@ -487,7 +487,7 @@
     },
     "shiftsGenerated": "{{created}} shift(s) created, {{skipped}} skipped.",
     "conflictsDetected": "Some shifts could not be created due to conflicts.",
-    "smartImportShiftsTitle": "Smart import scheduled shifts"
+    "smartImportShiftsTitle": "AI Import scheduled shifts"
   },
   "leave": {
     "vacation": "Vacation",

@@ -10,7 +10,7 @@ import {useEffect, useMemo, useRef, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {useAtom} from "jotai";
 import {toast} from "sonner";
-import {faCheck, faPlus, faTrash, faUpload} from "@fortawesome/free-solid-svg-icons";
+import {faCheck, faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {useDB} from "@/api/db/db.ts";
 import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {appPage} from "@/store/jotai.ts";
@@ -19,6 +19,7 @@ import {ManualLineInput} from "@/lib/kitchen/reconciliation.service.ts";
 import {useKitchenReconciliation} from "@/hooks/useKitchenReconciliation.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {Button} from "@/components/common/input/button.tsx";
+import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {DatePicker} from "@/components/common/antd/datepicker.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {getToday, calendarDateToDate} from "@/utils/date.ts";
@@ -252,10 +253,10 @@ export const KitchenReconciliationScreen = () => {
           {reconciliation && !isMissed && (
             <Button
               variant="secondary"
-              icon={faUpload}
               onClick={() => setCsvOpen(true)}
               disabled={isVerified || !hasItems}
             >
+              <span className="mr-2"><AiSparklesIcon /></span>
               {t("buttons.import")}
             </Button>
           )}
@@ -347,7 +348,7 @@ export const KitchenReconciliationScreen = () => {
           }}
           config={kitchenReconImportConfig}
           title={t("kitchenReconciliation.smartImportTitle", {
-            defaultValue: t("kitchenReconciliation.csvImportTitle", {defaultValue: "Smart Import"}),
+            defaultValue: t("kitchenReconciliation.csvImportTitle", {defaultValue: "AI Import"}),
           })}
           onExport={() =>
             (reconciliation?.items ?? []).map((line) => ({

@@ -6,13 +6,14 @@ import {createColumnHelper, RowSelectionState} from "@tanstack/react-table";
 import {Button} from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCheck, faPencil, faPlus, faTimes, faUpload} from "@fortawesome/free-solid-svg-icons";
+import {faCheck, faPencil, faPlus, faTimes} from "@fortawesome/free-solid-svg-icons";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {CategoryForm} from "@/components/settings/categories/category.form.tsx";
 import {CategoryBulkForm} from "@/components/settings/categories/category.bulk.form.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
+import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {createCategoryImportConfig} from "@/components/settings/categories/category.import.config.ts";
 import {Checkbox} from "@/components/common/input/checkbox";
 import {useTranslation} from 'react-i18next';
@@ -128,7 +129,7 @@ export const AdminCategories = () => {
               module: 'admin.categories.import',
               description: getAccessRuleChildLabel('admin.categories.import'),
             });
-          }} icon={faUpload}>{t('buttons.smartImport')}</Button>,
+          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button>,
           <Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);

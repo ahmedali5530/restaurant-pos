@@ -11,6 +11,7 @@ import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input, InputError} from "@/components/common/input/input.tsx";
 import {InputField} from "@/components/common/form/rhf-fields.tsx";
 import {Button} from "@/components/common/input/button.tsx";
+import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {InventoryWaste} from "@/api/model/inventory_waste.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
@@ -18,7 +19,7 @@ import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {InventoryPurchaseItem} from "@/api/model/inventory_purchase.ts";
 import {RecordId} from "surrealdb";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faTrash, faPlus, faUpload} from "@fortawesome/free-solid-svg-icons";
+import {faTrash, faPlus} from "@fortawesome/free-solid-svg-icons";
 import _ from "lodash";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
@@ -772,12 +773,12 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
               </Button>
               <Button
                 type="button"
-                icon={faUpload}
                 variant="secondary"
                 onClick={() => setImportModal(true)}
                 disabled={!watchedLocation?.value}
               >
-                {t('common:actions.smartImport', {defaultValue: 'Smart Import'})}
+                <span className="mr-2"><AiSparklesIcon /></span>
+                {t('common:actions.smartImport', {defaultValue: 'AI Import'})}
               </Button>
             </div>
 
@@ -860,7 +861,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
         isOpen
         onClose={() => setImportModal(false)}
         config={wasteImportConfig}
-        title={t('forms.smartImportWasteTitle', {defaultValue: 'Smart import waste lines'})}
+        title={t('forms.smartImportWasteTitle', {defaultValue: 'AI Import waste lines'})}
         onDone={() => setImportModal(false)}
       />
     )}

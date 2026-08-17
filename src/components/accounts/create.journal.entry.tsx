@@ -1,7 +1,7 @@
 import {FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {Controller, useFieldArray, useForm} from "react-hook-form";
 import dayjs, {type Dayjs} from "dayjs";
-import {faPlus, faTrash, faUpload} from "@fortawesome/free-solid-svg-icons";
+import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {StringRecordId, RecordId} from "surrealdb";
 import {useAtom} from "jotai";
@@ -12,6 +12,7 @@ import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input} from "@/components/common/input/input.tsx";
 import {DateTimeField, InputField} from "@/components/common/form/rhf-fields.tsx";
 import {Button} from "@/components/common/input/button.tsx";
+import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -422,8 +423,8 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
               variant="secondary"
               onClick={() => setImportModal(true)}
             >
-              <FontAwesomeIcon icon={faUpload} className="mr-2"/>
-              {t('common:actions.smartImport', {defaultValue: 'Smart Import'})}
+              <AiSparklesIcon className="mr-2"/>
+              {t('common:actions.smartImport', {defaultValue: 'AI Import'})}
             </Button>
           </div>
         </div>
@@ -447,7 +448,7 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
         isOpen
         onClose={() => setImportModal(false)}
         config={journalImportConfig}
-        title={t('forms.smartImportJournalTitle', {defaultValue: 'Smart import journal lines'})}
+        title={t('forms.smartImportJournalTitle', {defaultValue: 'AI Import journal lines'})}
         onDone={() => setImportModal(false)}
       />
     )}

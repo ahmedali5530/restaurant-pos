@@ -5,7 +5,12 @@ import type {
   ImportField,
   ImportRecord,
 } from "@/lib/data-import/types.ts";
-import {parseImportBool, type TFunc} from "@/lib/data-import/helpers.ts";
+import {
+  parseImportBool,
+  resolveDishByNumberOrName,
+  resolveInventoryItem,
+  type TFunc,
+} from "@/lib/data-import/helpers.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {canUseInDishRecipe} from "@/utils/inventoryItemTypes.ts";
 import {StringRecordId} from "surrealdb";
@@ -20,18 +25,18 @@ export function createDishIngredientsImportConfig({
   const fields: ImportField[] = [
     {
       name: "dish_number",
-      label: `${t("admin:buttons.dish")} ${t("admin:columns.number")}`,
+      label: t("admin:columns.dishNameOrNumber"),
       type: "string",
       required: true,
-      aliases: ["Dish number", "Dish #", "Menu item number"],
+      aliases: ["Dish number", "Dish name", "Dish #", "Dish", "Menu item", "Menu item number"],
     },
     {
       name: "ingredient",
-      label: t("admin:columns.ingredient"),
+      label: t("admin:columns.ingredientNameOrNumber"),
       type: "string",
       required: true,
-      aliases: ["Ingredient", "Item", "Code", "SKU"],
-      description: "Inventory item code or name",
+      aliases: ["Ingredient", "Ingredient name", "Name", "Number", "Item", "Code", "SKU"],
+      description: t("admin:columns.ingredientNameOrNumber"),
     },
     {
       name: "quantity",
@@ -64,34 +69,25 @@ export function createDishIngredientsImportConfig({
     defaultMode: "create",
     db,
     extractionInstructions:
-      "Extract dish recipe ingredient rows with dish number, ingredient (code or name), quantity, optional cost, and price-lock flag.",
+      "Extract dish recipe ingredient rows with dish (name or number), ingredient (name or code/number), quantity, optional cost, and price-lock flag.",
     onImportRow: async (record: ImportRecord) => {
       const v = record.values;
-      const dishNumber = String(v.dish_number ?? "").trim();
+      const dishKey = String(v.dish_number ?? "").trim();
       const ingredientKey = String(v.ingredient ?? "").trim();
-      if (!dishNumber) throw new Error(t("toast:admin.invalidDishNumber"));
+      if (!dishKey) throw new Error(t("toast:admin.invalidDishNameOrNumber"));
       if (!ingredientKey) throw new Error(t("toast:admin.invalidIngredient"));
 
-      const [dishes] = await db.query(
-        `SELECT id, items FROM ${Tables.dishes} WHERE number = $number AND deleted_at = none`,
-        {number: dishNumber}
-      );
-      if (!dishes?.length) throw new Error(t("toast:admin.invalidDishNumber"));
-      const dish = dishes[0];
+      const dishResult = await resolveDishByNumberOrName(db, dishKey);
+      if (dishResult.status === "ambiguous") {
+        throw new Error(t("toast:admin.ambiguousDishName"));
+      }
+      if (dishResult.status !== "found") {
+        throw new Error(t("toast:admin.invalidDishNameOrNumber"));
+      }
+      const dish = dishResult.dish;
       const dishId = toRecordId(dish.id);
 
-      const [byCode] = await db.query(
-        `SELECT id, name, code, price, item_types, item_type FROM ${Tables.inventory_items} WHERE code = $key`,
-        {key: ingredientKey}
-      );
-      let inventoryItem = byCode?.[0];
-      if (!inventoryItem) {
-        const [byName] = await db.query(
-          `SELECT id, name, code, price, item_types, item_type FROM ${Tables.inventory_items} WHERE name = $key`,
-          {key: ingredientKey}
-        );
-        inventoryItem = byName?.[0];
-      }
+      const inventoryItem = await resolveInventoryItem(db, ingredientKey);
       if (!inventoryItem) throw new Error(t("toast:admin.invalidIngredient"));
       if (!canUseInDishRecipe(inventoryItem)) {
         throw new Error(t("toast:admin.invalidIngredientType"));

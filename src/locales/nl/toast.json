@@ -121,6 +121,8 @@
     "invalidCategories": "Categorieën zijn ongeldig",
     "passwordRequired": "Wachtwoord is verplicht voor nieuwe gebruiker",
     "invalidDishNumber": "Gerechtnummer is ongeldig",
+    "invalidDishNameOrNumber": "Gerechtnaam of -nummer is ongeldig",
+    "ambiguousDishName": "Meerdere gerechten komen overeen met deze naam; gebruik het gerechtnummer",
     "invalidIngredient": "Ingrediënt is ongeldig",
     "invalidIngredientType": "Dit ingrediënttype kan niet in recepten worden gebruikt",
     "duplicateDishIngredient": "Ingrediënt is al gekoppeld aan dit gerecht",

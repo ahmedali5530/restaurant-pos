@@ -11,6 +11,7 @@ import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Input, InputError} from "@/components/common/input/input.tsx";
 import {InputField} from "@/components/common/form/rhf-fields.tsx";
 import {Button} from "@/components/common/input/button.tsx";
+import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {InventoryIssueReturn} from "@/api/model/inventory_issue_return.ts";
 import {InventoryIssue} from "@/api/model/inventory_issue.ts";
@@ -18,7 +19,7 @@ import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {User} from "@/api/model/user.ts";
 import {RecordId, StringRecordId} from "surrealdb";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faPlus, faTrash, faUpload} from "@fortawesome/free-solid-svg-icons";
+import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
 import _ from "lodash";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
@@ -752,11 +753,11 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
             <div className="mb-3 flex gap-2">
               <Button
                 type="button"
-                icon={faUpload}
                 variant="secondary"
                 onClick={() => setImportModal(true)}
               >
-                {t('common:actions.smartImport', {defaultValue: 'Smart Import'})}
+                <span className="mr-2"><AiSparklesIcon /></span>
+                {t('common:actions.smartImport', {defaultValue: 'AI Import'})}
               </Button>
             </div>
             {fields.map((field, index) => (
@@ -855,7 +856,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
         isOpen
         onClose={() => setImportModal(false)}
         config={issueReturnImportConfig}
-        title={t('forms.smartImportIssueReturnTitle', {defaultValue: 'Smart import return lines'})}
+        title={t('forms.smartImportIssueReturnTitle', {defaultValue: 'AI Import return lines'})}
         onDone={() => setImportModal(false)}
       />
     )}

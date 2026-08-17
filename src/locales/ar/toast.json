@@ -121,6 +121,8 @@
     "invalidCategories": "الفئات غير صالحة",
     "passwordRequired": "كلمة المرور مطلوبة للمستخدم الجديد",
     "invalidDishNumber": "رقم الطبق غير صالح",
+    "invalidDishNameOrNumber": "اسم أو رقم الطبق غير صالح",
+    "ambiguousDishName": "توجد عدة أطباق بهذا الاسم؛ استخدم رقم الطبق",
     "invalidIngredient": "المكون غير صالح",
     "invalidIngredientType": "لا يمكن استخدام نوع المكون هذا في وصفات الأطباق",
     "duplicateDishIngredient": "المكون مرتبط بالفعل بهذا الطبق",

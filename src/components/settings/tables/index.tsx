@@ -6,12 +6,13 @@ import { Table } from "@/api/model/table.ts";
 import { Button } from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {faCheck, faLock, faPencil, faPlus, faUpload} from "@fortawesome/free-solid-svg-icons";
+import {faCheck, faLock, faPencil, faPlus} from "@fortawesome/free-solid-svg-icons";
 import { TableComponent } from "@/components/common/table/table.tsx";
 import { TableForm } from "@/components/settings/tables/table.form.tsx";
 import { TableBulkForm } from "@/components/settings/tables/table.bulk.form.tsx";
 import { useDB } from "@/api/db/db.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
+import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {createTableImportConfig} from "@/components/settings/tables/table.import.config.ts";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
@@ -173,7 +174,7 @@ export const AdminTables = () => {
               module: 'admin.tables.import',
               description: getAccessRuleChildLabel('admin.tables.import'),
             });
-          }} icon={faUpload}>{t('buttons.smartImport')}</Button>,
+          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button>,
           <Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);

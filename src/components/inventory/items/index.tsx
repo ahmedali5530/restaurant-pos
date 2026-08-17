@@ -5,11 +5,12 @@ import { useTranslation } from 'react-i18next';
 import {createColumnHelper} from "@tanstack/react-table";
 import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faPencil, faPlus, faUpload} from "@fortawesome/free-solid-svg-icons";
+import {faPencil, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {InventoryItemForm} from "@/components/inventory/items/form.tsx";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
+import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {createInventoryItemImportConfig} from "@/components/inventory/items/item.import.config.ts";
 import {useDB} from "@/api/db/db.ts";
 import {getReorderLevelForStore} from "@/utils/inventory.ts";
@@ -136,7 +137,7 @@ export const InventoryItems = () => {
           }} icon={faPlus}> Item</Button>,
           <Button variant="primary" onClick={() => {
             setImportModal(true);
-          }} icon={faUpload}>{t('common:actions.smartImport', {defaultValue: 'Smart Import'})}</Button>
+          }}><span className="mr-2"><AiSparklesIcon /></span>{t('common:actions.smartImport', {defaultValue: 'AI Import'})}</Button>
         ]}
       />
 
@@ -160,7 +161,7 @@ export const InventoryItems = () => {
             loadHook.fetchData();
           }}
           config={smartImportConfig}
-          title={t('forms.smartImportItemsTitle', {defaultValue: 'Smart import items'})}
+          title={t('forms.smartImportItemsTitle', {defaultValue: 'AI Import items'})}
           enableImportModes
           defaultMatchFields={['code']}
           onExport={async () => {

@@ -86,7 +86,7 @@
     "comment": "Yorum",
     "settings": "Ayarlar",
     "clock": "Mesai",
-    "smartImport": "Akıllı içe aktarma"
+    "smartImport": "YZ içe aktarma"
   },
   "database": {
     "connectionError": "Bağlantı Hatası",

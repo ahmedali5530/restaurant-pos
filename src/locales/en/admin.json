@@ -85,6 +85,8 @@
     "yes": "Yes",
     "no": "No",
     "ingredient": "Ingredient",
+    "dishNameOrNumber": "Dish name/number",
+    "ingredientNameOrNumber": "Ingredient name/number",
     "isPriceLocked": "Price locked",
     "hasRequiredModifiers": "Has required modifiers",
     "shouldAutoOpen": "Auto open",
@@ -113,7 +115,7 @@
   "buttons": {
     "dish": "Dish",
     "importDishes": "Import Dishes",
-    "smartImportDishes": "Smart Import",
+    "smartImportDishes": "AI Import",
     "importCategories": "Import Categories",
     "importTables": "Import tables",
     "category": "Category",
@@ -142,9 +144,9 @@
     "updateSelected": "Update selected",
     "importIngredients": "Import Ingredients",
     "importModifierGroups": "Import Modifier Groups",
-    "smartImport": "Smart Import",
-    "smartImportIngredients": "Smart Import Ingredients",
-    "smartImportModifierGroups": "Smart Import Modifier Groups"
+    "smartImport": "AI Import",
+    "smartImportIngredients": "AI Import Ingredients",
+    "smartImportModifierGroups": "AI Import Modifier Groups"
   },
   "delete": {
     "dish": "Delete item {{name}}",
@@ -350,7 +352,7 @@
     "applyToAllSwitch": "Apply to all",
     "showCategoryInMenu": "Show this category in menu",
     "importDishesTitle": "Import dishes from CSV",
-    "smartImportDishesTitle": "Smart import dishes (CSV, Excel, PDF, image)",
+    "smartImportDishesTitle": "AI Import dishes (CSV, Excel, PDF, image)",
     "importIngredientsTitle": "Import dish ingredients from CSV",
     "importModifierGroupsTitle": "Import dish modifier groups from CSV",
     "inventoryItem": "Inventory item",
@@ -358,10 +360,10 @@
     "unitCost": "Unit cost",
     "lineTotal": "Total",
     "priceLocked": "Price locked",
-    "smartImportCategoriesTitle": "Smart import categories (CSV, Excel, PDF, image)",
-    "smartImportTablesTitle": "Smart import tables (CSV, Excel, PDF, image)",
-    "smartImportIngredientsTitle": "Smart import dish ingredients",
-    "smartImportModifierGroupsTitle": "Smart import dish modifier groups"
+    "smartImportCategoriesTitle": "AI Import categories (CSV, Excel, PDF, image)",
+    "smartImportTablesTitle": "AI Import tables (CSV, Excel, PDF, image)",
+    "smartImportIngredientsTitle": "AI Import dish ingredients",
+    "smartImportModifierGroupsTitle": "AI Import dish modifier groups"
   },
   "dishView": {
     "detailsTitle": "Dish details",
