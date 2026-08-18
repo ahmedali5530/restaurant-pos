@@ -12,6 +12,7 @@ export const RELEASES: ReleaseNotes[] = [
     items: [
       'Smart Import is now labeled AI Import, with a two-star sparkles icon on import buttons.',
       'Dish ingredient import accepts dish name or number, and ingredient name or code/number.',
+      'Dish ingredient import now includes an optional visible UOM column so recipe quantities are easier to enter without affecting the import result.',
       'AI Import now supports create, update, and upsert modes on all import screens — including document lines, dish ingredients, modifier groups, kitchen reconciliation, and HR scheduled shifts.',
     ],
   },

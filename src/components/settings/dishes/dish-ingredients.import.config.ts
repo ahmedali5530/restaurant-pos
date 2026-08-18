@@ -45,6 +45,13 @@ export function createDishIngredientsImportConfig({
       description: t("admin:columns.ingredientNameOrNumber"),
     },
     {
+      name: "uom",
+      label: t("inventory:columns.uom"),
+      type: "string",
+      optional: true,
+      aliases: ["UOM", "Unit", "Unit of measure"],
+    },
+    {
       name: "quantity",
       label: t("admin:forms.quantity"),
       type: "number",
@@ -79,7 +86,7 @@ export function createDishIngredientsImportConfig({
     defaultMode: "create",
     db,
     extractionInstructions:
-      "Extract dish recipe ingredient rows with dish (name or number), ingredient (name or code/number), quantity, optional cost, and price-lock flag.",
+      "Extract dish recipe ingredient rows with dish (name or number), ingredient (name or code/number), optional UOM for display, quantity, optional cost, and price-lock flag.",
     onImportRow: async (record: ImportRecord, ctx: ImportRowContext) => {
       const v = record.values;
       const dishKey = String(v.dish_number ?? "").trim();
