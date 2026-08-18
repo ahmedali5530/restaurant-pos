@@ -63,6 +63,9 @@ import {
 } from "@/api/reports/accounts/index.ts";
 import {comparePeriods, getTimeSeries, type TimeSeriesMetric} from "@/api/reports/time-series.ts";
 import {forecastFromPoints, forecastInventoryConsumption} from "@/lib/ai/forecast.ts";
+import {parseLocalEventsArg} from "@/lib/ai/demand-query.ts";
+import {forecastInventoryNeed} from "@/api/reports/inventory/need-forecast.ts";
+import {forecastStaffNeed} from "@/api/reports/labor/staff-need.ts";
 import {type AiChartSpec, validateChartSpec, dedupeCharts} from "@/lib/ai/charts.ts";
 import {
   getAttendanceReport,
@@ -336,6 +339,25 @@ export const executeAiReportTool = async (
         args.reorderLevel ? Number(args.reorderLevel) : undefined,
       );
     }
+
+    case "forecast_inventory_need":
+      return forecastInventoryNeed(db, {
+        days: args.days !== undefined ? Number(args.days) : undefined,
+        phrase: args.phrase ? String(args.phrase) : undefined,
+        targetDate: args.targetDate ? String(args.targetDate) : undefined,
+        prompt: args.prompt ? String(args.prompt) : undefined,
+        store: args.store ? String(args.store) : undefined,
+        localEvents: parseLocalEventsArg(args.localEvents),
+      });
+
+    case "forecast_staff_need":
+      return forecastStaffNeed(db, {
+        days: args.days !== undefined ? Number(args.days) : undefined,
+        phrase: args.phrase ? String(args.phrase) : undefined,
+        targetDate: args.targetDate ? String(args.targetDate) : undefined,
+        prompt: args.prompt ? String(args.prompt) : undefined,
+        localEvents: parseLocalEventsArg(args.localEvents),
+      });
 
     case "compare_periods":
       return comparePeriods(db, {

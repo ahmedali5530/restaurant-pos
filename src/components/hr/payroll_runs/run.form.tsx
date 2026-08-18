@@ -78,11 +78,11 @@ export const PayrollRunForm = ({open, onClose, onSuccess}: Props) => {
 
     let cancelled = false;
     const loadNextRunNumber = async () => {
-      const [rows] = await db.query<PayrollRun[]>(
-        `SELECT run_number FROM ONLY $periodId`,
+      const [rows] = await db.query<[PayrollRun[]]>(
+        `SELECT run_number FROM ${Tables.payroll_runs} WHERE payroll_period = $periodId ORDER BY run_number DESC LIMIT 1`,
         {periodId: toRecordId(selectedPeriod.value)},
       );
-      const maxRun = Number(rows?.run_number ?? 0);
+      const maxRun = Number(rows?.[0]?.run_number ?? 0);
       if (!cancelled) {
         setValue("run_number", Number.isFinite(maxRun) ? maxRun + 1 : 1);
       }

@@ -65,5 +65,6 @@ export {
 
 export {getLaborDashboardSnapshot} from '@/api/reports/labor/dashboard.ts';
 export {getAiLaborDatasets} from '@/api/reports/labor/ai-datasets.ts';
+export {forecastStaffNeed} from '@/api/reports/labor/staff-need.ts';
 
 export type * from '@/api/reports/labor/shared/types.ts';

@@ -35,6 +35,14 @@ import {
   resolveConsumptionHistoryRange,
   resolveForecastDaysFromPrompt,
 } from "@/lib/ai/forecast-query.ts";
+import {
+  isInventoryNeedPrompt,
+  isStaffNeedPrompt,
+  resolveInventoryNeedArgsFromPrompt,
+  resolveStaffNeedArgsFromPrompt,
+} from "@/lib/ai/demand-query.ts";
+import {forecastInventoryNeed} from "@/api/reports/inventory/need-forecast.ts";
+import {forecastStaffNeed} from "@/api/reports/labor/staff-need.ts";
 import {forecastFromPoints} from "@/lib/ai/forecast.ts";
 import {getTimeSeries} from "@/api/reports/time-series.ts";
 import {getConsumptionSummary} from "@/api/reports/inventory/index.ts";
@@ -304,6 +312,67 @@ export const runAiReportAgent = async (
       ],
       tools: [],
       task,
+    });
+
+    const answer = messageText(response.choices[0]?.message?.content);
+    if (!answer) {
+      throw new Error("AI returned an empty response.");
+    }
+
+    return finish(answer);
+  }
+
+  if (isInventoryNeedPrompt(trimmedPrompt)) {
+    options.onToolStart?.("forecast_inventory_need");
+    const args = resolveInventoryNeedArgsFromPrompt(trimmedPrompt);
+    const data = await forecastInventoryNeed(db, args);
+    toolsUsed.push({name: "forecast_inventory_need", args});
+    toolResults.push({name: "forecast_inventory_need", result: data});
+
+    const response = await callOpenAIChat({
+      messages: [
+        ...messages,
+        {
+          role: "user",
+          content:
+            `${trimmedPrompt}\n\nforecast_inventory_need:\n${JSON.stringify(data)}\n\n`
+            + `Lead with items[].itemName, priorSameWeekdayActual, onHand, totalNeed/adjusted need, and suggestedPurchaseQty. `
+            + `Use purchaseList for what to buy. Mention context.stockImpacts and warnings (weather/holidays/events). `
+            + `Do not create a purchase order. Do not invent events that are not in context.events.`,
+        },
+      ],
+      tools: [],
+      task: resolveAiTask(format, "forecast"),
+    });
+
+    const answer = messageText(response.choices[0]?.message?.content);
+    if (!answer) {
+      throw new Error("AI returned an empty response.");
+    }
+
+    return finish(answer);
+  }
+
+  if (isStaffNeedPrompt(trimmedPrompt)) {
+    options.onToolStart?.("forecast_staff_need");
+    const args = resolveStaffNeedArgsFromPrompt(trimmedPrompt);
+    const data = await forecastStaffNeed(db, args);
+    toolsUsed.push({name: "forecast_staff_need", args});
+    toolResults.push({name: "forecast_staff_need", result: data});
+
+    const response = await callOpenAIChat({
+      messages: [
+        ...messages,
+        {
+          role: "user",
+          content:
+            `${trimmedPrompt}\n\nforecast_staff_need:\n${JSON.stringify(data)}\n\n`
+            + `Report recommendedHours and recommendedHeadcount by day vs last same-weekday actual and scheduled gap. `
+            + `Mention context.stockImpacts and warnings. Do not invent events that are not in context.events.`,
+        },
+      ],
+      tools: [],
+      task: resolveAiTask(format, "forecast"),
     });
 
     const answer = messageText(response.choices[0]?.message?.content);

@@ -4,8 +4,9 @@ import type { User } from '@/api/model/user.ts'
 import type { PayrollPeriodType } from '@/api/model/hr.types.ts'
 import type { DbClient } from '@/lib/labor-engine/types.ts'
 import { logLaborChange } from '@/lib/labor-engine/audit/labor-audit.service.ts'
-import { toEntityRecordId, toUserRecordId } from '@/lib/labor-engine/record-id.ts'
+import { toUserRecordId } from '@/lib/labor-engine/record-id.ts'
 import { nowSurrealDateTime, toSurrealDateTime } from '@/lib/datetime.ts'
+import { toRecordId } from '@/lib/utils.ts'
 import type { DateInput } from '@/lib/datetime.ts'
 
 const unwrapRecord = <T>(result: unknown): T => {
@@ -59,7 +60,7 @@ export const lockPeriod = async (
 ): Promise<PayrollPeriod> => {
   const existing = await db.query<[PayrollPeriod[]]>(
     `SELECT * FROM ${Tables.payroll_periods} WHERE id = $id LIMIT 1`,
-    { id: params.periodId }
+    { id: toRecordId(params.periodId) }
   )
   const before = existing?.[0]?.[0]
 
@@ -89,7 +90,7 @@ export const closePeriod = async (
 ): Promise<PayrollPeriod> => {
   const existing = await db.query<[PayrollPeriod[]]>(
     `SELECT * FROM ${Tables.payroll_periods} WHERE id = $id LIMIT 1`,
-    { id: params.periodId }
+    { id: toRecordId(params.periodId) }
   )
   const before = existing?.[0]?.[0]
 

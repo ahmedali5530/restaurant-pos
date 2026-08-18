@@ -5,6 +5,7 @@ import {isCurrentSessionSalesPrompt, isActiveSessionsPrompt} from "@/lib/ai/sess
 import {isTipsPrompt} from "@/lib/ai/tip-query.ts";
 import {FRAUD_AUDIT_TOOL_NAMES, isFraudSuspiciousPrompt} from "@/lib/ai/fraud-query.ts";
 import {isPurchaseOrderPrompt} from "@/lib/ai/purchase-order-query.ts";
+import {isInventoryNeedPrompt, isStaffNeedPrompt} from "@/lib/ai/demand-query.ts";
 import type {OpenAIToolDefinition} from "@/lib/openai.service.ts";
 import {AI_REPORT_TOOLS} from "@/lib/ai/tools/definitions.ts";
 import {AI_REPORT_COMPACT_TOOLS, getCompactToolByName} from "@/lib/ai/tools/compact-definitions.ts";
@@ -40,6 +41,15 @@ const detectDomainsFromPrompt = (prompt: string, format: AiReportFormat): Set<Ai
   }
   if (isUnsoldProductsPrompt(prompt) || isTipsPrompt(prompt) || isCurrentSessionSalesPrompt(prompt)) {
     domains.add("sales");
+  }
+
+  if (isInventoryNeedPrompt(prompt)) {
+    domains.add("inventory");
+    domains.add("analysis");
+  }
+  if (isStaffNeedPrompt(prompt)) {
+    domains.add("labor");
+    domains.add("analysis");
   }
 
   if (SALES_KEYWORDS.test(prompt)) {
@@ -96,6 +106,13 @@ const collectToolNames = (domains: Set<AiReportToolDomain>, prompt: string): str
     for (const name of FRAUD_AUDIT_TOOL_NAMES) {
       names.add(name);
     }
+  }
+
+  if (isInventoryNeedPrompt(prompt)) {
+    names.add("forecast_inventory_need");
+  }
+  if (isStaffNeedPrompt(prompt)) {
+    names.add("forecast_staff_need");
   }
 
   return Array.from(names);

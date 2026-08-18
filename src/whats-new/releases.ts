@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-08-18',
+    title: 'AI inventory and staff need forecasts',
+    items: [
+      'Ask AI how much inventory you need this Friday or for the next several days: it compares last same-weekday usage, current stock, holidays, weather, and any local event you mention in the prompt, then suggests purchase quantities (it does not create a purchase order).',
+      'Ask how many staff you need for a named day or the coming days to see recommended hours and headcount versus last same weekday and the published schedule.',
+    ],
+  },
+  {
+    date: '2026-08-18',
     title: 'Print schedule roster',
     items: [
       'Print a weekly staff roster of scheduled shifts from HR → Scheduling (Assigned shifts or a schedule row) and from Reports → Labor → Schedule roster.',

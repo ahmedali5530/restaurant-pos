@@ -456,6 +456,65 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
   {
     type: "function",
     function: {
+      name: "forecast_inventory_need",
+      description: "Inventory qty needed for a named day (this Friday) or the next N days: same-weekday history, current on-hand, holidays/weather, prompt localEvents, and suggestedPurchaseQty. Use ONLY when the user asks how much stock/inventory they need or what to buy. Do NOT use for overall consumption trends (use get_time_series + forecast_sales) or one-item runout (forecast_inventory). Never invent localEvents.",
+      parameters: {
+        type: "object",
+        properties: {
+          days: {type: "number", default: 7, description: "Horizon length 1–14. Use 1 for a named day."},
+          phrase: {type: "string", description: 'Date phrase such as "this Friday" or "next 7 days"'},
+          targetDate: {type: "string", description: "ISO date for a single named day"},
+          store: {type: "string", description: "Optional inventory location id"},
+          localEvents: {
+            type: "array",
+            description: "Events mentioned in the user prompt only. Never invent. Default lift 20% if liftPct omitted.",
+            items: {
+              type: "object",
+              properties: {
+                name: {type: "string"},
+                startDate: {type: "string"},
+                endDate: {type: "string"},
+                liftPct: {type: "number"},
+              },
+              required: ["name"],
+            },
+          },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "forecast_staff_need",
+      description: "Recommended staff hours and headcount for a named day (this Friday) or the next N days, using last same-weekday clocked labor vs published schedule, plus holidays/weather/prompt events. Use ONLY when asked how many staff/people are needed. Never invent localEvents.",
+      parameters: {
+        type: "object",
+        properties: {
+          days: {type: "number", default: 7, description: "Horizon length 1–14. Use 1 for a named day."},
+          phrase: {type: "string", description: 'Date phrase such as "this Friday" or "next 7 days"'},
+          targetDate: {type: "string", description: "ISO date for a single named day"},
+          localEvents: {
+            type: "array",
+            description: "Events mentioned in the user prompt only. Never invent. Default lift 20% if liftPct omitted.",
+            items: {
+              type: "object",
+              properties: {
+                name: {type: "string"},
+                startDate: {type: "string"},
+                endDate: {type: "string"},
+                liftPct: {type: "number"},
+              },
+              required: ["name"],
+            },
+          },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "compare_periods",
       description: "Compare a metric between two date ranges.",
       parameters: {

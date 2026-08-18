@@ -18,7 +18,7 @@ import { emitLaborCostEvent } from '@/lib/labor-engine/events/labor-cost.events.
 import { logLaborChange } from '@/lib/labor-engine/audit/labor-audit.service.ts'
 import { toEntityRecordId, toUserRecordId } from '@/lib/labor-engine/record-id.ts'
 import { nowSurrealDateTime } from '@/lib/datetime.ts'
-import { safeNumber } from '@/lib/utils.ts'
+import { safeNumber, toRecordId } from '@/lib/utils.ts'
 import { publishPayrollPosted } from '@/integrations/accounting/events/publish.ts'
 
 const DEDUCTION_ADJUSTMENT_TYPES = new Set<LaborAdjustmentType>([
@@ -83,11 +83,11 @@ export interface ExportRunParams {
 }
 
 const loadPeriod = async (db: DbClient, periodId: string): Promise<PayrollPeriod> => {
-  const [result] = await db.query<[PayrollPeriod]>(
-    `SELECT * FROM ONLY $id`,
-    { id: periodId }
+  const [rows] = await db.query<[PayrollPeriod[]]>(
+    `SELECT * FROM ${Tables.payroll_periods} WHERE id = $id LIMIT 1`,
+    { id: toRecordId(periodId) }
   )
-  const period = result
+  const period = Array.isArray(rows) ? rows[0] : rows
   if (!period) throw new Error('Payroll period not found')
   return period
 }
@@ -146,7 +146,7 @@ const loadTimeEntriesForEmployee = async (
        AND clock_in >= $start AND clock_in <= $end
      FETCH breaks`,
     {
-      employeeId,
+      employeeId: toRecordId(employeeId),
       start: period.start_date,
       end: period.end_date,
     }
@@ -170,7 +170,7 @@ const loadApprovedAdjustments = async (
          )
        )`,
     {
-      periodId: period.id,
+      periodId: toRecordId(period.id),
       start: period.start_date,
       end: period.end_date,
     }
@@ -233,7 +233,8 @@ export const generatePreview = async (
   params: GeneratePreviewParams
 ): Promise<{ run: PayrollRun; results: LaborCalculationResult[] }> => {
   const period = await loadPeriod(db, params.payrollPeriodId)
-  if (period.status !== 'open') {
+  const periodStatus = period.status ?? 'open'
+  if (periodStatus !== 'open') {
     throw new Error('Payroll period must be open to generate a run')
   }
   const results = await computeRunResults(db, period)
@@ -266,7 +267,7 @@ export const recalculateRun = async (
 ): Promise<{ run: PayrollRun; results: LaborCalculationResult[] }> => {
   const runResult = await db.query<[PayrollRun[]]>(
     `SELECT * FROM ${Tables.payroll_runs} WHERE id = $id LIMIT 1 FETCH payroll_period `,
-    { id: params.runId }
+    { id: toRecordId(params.runId) }
   )
   const run = runResult?.[0]?.[0]
   if (!run) throw new Error('Payroll run not found')
@@ -283,7 +284,7 @@ export const recalculateRun = async (
 
   await db.query(
     `DELETE ${Tables.payroll_snapshots} WHERE payroll_run = $runId`,
-    { runId: params.runId }
+    { runId: toRecordId(params.runId) }
   )
 
   await createSnapshots(db, run, results)
@@ -312,7 +313,7 @@ export const lockRun = async (
 ): Promise<PayrollRun> => {
   const existing = await db.query<[PayrollRun[]]>(
     `SELECT * FROM ${Tables.payroll_runs} WHERE id = $id LIMIT 1 FETCH payroll_period`,
-    { id: params.runId }
+    { id: toRecordId(params.runId) }
   )
   const before = existing?.[0]?.[0]
   if (!before) throw new Error('Payroll run not found')
@@ -364,7 +365,7 @@ export const approveRun = async (
 ): Promise<PayrollRun> => {
   const existing = await db.query<[PayrollRun[]]>(
     `SELECT * FROM ${Tables.payroll_runs} WHERE id = $id LIMIT 1 FETCH payroll_period`,
-    { id: params.runId }
+    { id: toRecordId(params.runId) }
   )
   const before = existing?.[0]?.[0]
   if (!before) throw new Error('Payroll run not found')
@@ -462,7 +463,7 @@ export const exportRun = async (
 ): Promise<{ run: PayrollRun; rows: PayrollExportRow[] }> => {
   const runResult = await db.query<[PayrollRun[]]>(
     `SELECT * FROM ${Tables.payroll_runs} WHERE id = $id LIMIT 1 FETCH payroll_period`,
-    { id: params.runId }
+    { id: toRecordId(params.runId) }
   )
   const before = runResult?.[0]?.[0]
   if (!before) throw new Error('Payroll run not found')
@@ -490,7 +491,7 @@ export const exportRun = async (
      FROM ${Tables.payroll_snapshots}
      WHERE payroll_run = $runId
      FETCH employee`,
-    { runId: params.runId }
+    { runId: toRecordId(params.runId) }
   )
 
   const rows: PayrollExportRow[] = (snapshots?.[0] ?? []).map(s => {

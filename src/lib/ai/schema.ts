@@ -51,7 +51,8 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
 - Admin kitchens (${Tables.kitchens}) are POS-only (routing/stations), not inventory stock locations.
 - Document types: purchases, purchase returns, issues, issue returns, wastes, adjustments, stock transfers, production, buffet consumption — all reflected in ledger reference_type.
 - Purchase Orders (${Tables.inventory_purchase_orders}) are approval documents (Draft / Pending Approval / Approved / Fulfilled) — use get_purchase_orders. Do NOT use get_inventory_movements type "purchase" for PO questions; that is posted purchase ledger movements.
-- Reorder levels: get_current_inventory compares ledger stock to reorder_levels. Movements: get_inventory_movements (includes adjustment). Waste: get_waste_summary. Consumption (recipe×sold Paid dishes): get_consumption. Issuance (ledger issues): get_issuance. Sale vs consumption report: get_sale_vs_consumption.`,
+- Reorder levels: get_current_inventory compares ledger stock to reorder_levels. Movements: get_inventory_movements (includes adjustment). Waste: get_waste_summary. Consumption (recipe×sold Paid dishes): get_consumption. Issuance (ledger issues): get_issuance. Sale vs consumption report: get_sale_vs_consumption.
+- Inventory needed for this Friday / next N days / what to buy: forecast_inventory_need only. Report items[] (prior Friday actual, on-hand, adjusted need, suggestedPurchaseQty) and purchaseList. Pass localEvents from the prompt; never invent events.`,
   operations: `- Orders: ${Tables.orders}. Statuses: In Progress, Paid, Cancelled, Pending, etc.
 - List orders by status: get_orders with statuses. Delivery only when user says "delivery" (deliveryOnly=true).
 - Specific order id / "everything about this order": get_order_detail (items[].dishName are the dishes — never infer dishes from tracking alone; include fiscals + prints).
@@ -61,6 +62,7 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
   labor: `- Staff sessions: ${Tables.time_entries} (active = clock_out is NONE).
 - Hourly labor % vs sales: get_hourly_labor_vs_sales (use phrase last Friday or peak hours).
 - Labor reports: get_labor_dashboard_snapshot, get_daily_labor_cost, get_overtime_report, etc.
+- Staff needed for this Friday / next N days: forecast_staff_need only (hours + headcount vs last same weekday and published schedule). Pass localEvents from the prompt; never invent.
 - Session sales per order taker: get_current_session_sales. Date-range server sales: get_server_sales.`,
   accounts: `- GL tables: ${Tables.accounts}, ${Tables.account_groups}, ${Tables.account_journal_entries}, ${Tables.account_journal_lines}.
 - Financial statements use posted journal lines only (entry.status = 'posted'). Read-only — no create/reverse entries.
@@ -70,6 +72,9 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
 - Customer/supplier detection uses code/name heuristics (same as Accounts UI). POS sales do not auto-post to GL.`,
   analysis: `- Forecasts: call get_time_series first, then forecast_sales or forecast_inventory.
 - Inventory consumption forecast (overall qty): get_time_series metric=consumption_qty then forecast_sales. Do not loop issuance tools.
+- Inventory qty needed / this Friday / what to buy: forecast_inventory_need (not forecast_inventory). Include last same-weekday actual, on-hand, suggestedPurchaseQty, and context.drivers.
+- Staff needed / how many people: forecast_staff_need. Include last same-weekday actual vs recommended vs schedule.
+- Pass localEvents extracted from the user prompt only — never invent concerts, matches, or lifts.
 - Per-item stock depletion: only use forecast_inventory when you already have that item's currentStock and daily consumptionPoints.
 - Comparisons: use compare_periods with two explicit date ranges. State method and that projections are estimates.`,
   chart: `- Call render_chart with data from prior tool results before the final answer.`,
@@ -101,7 +106,9 @@ const FULL_WORKFLOW = `Workflow:
 2. Date range is optional. If the user does not mention a time period, omit startDate and endDate to query all available data.
 3. For relative time periods ("today", "this month", "last week", etc.): call resolve_date_range with the phrase, OR pass phrase directly to data tools — never invent startDate/endDate yourself.
 4. Anchor all relative dates to the current business date provided above (e.g. "this month" means the current calendar month, not a past year).
-5. For forecasts: always call get_time_series or domain tools first, then forecast_sales or forecast_inventory. Never project from memory.
+5. For sales/consumption trend forecasts: always call get_time_series first, then forecast_sales or forecast_inventory. Never project from memory.
+5a. For inventory needed / this Friday / what should I buy / restock: call forecast_inventory_need only. Report last same-weekday actual, on-hand, adjusted need, suggestedPurchaseQty, and context (holidays, weather, prompt events). Do not create a purchase order. Pass localEvents from the prompt; never invent. If weather is missing, say so from warnings.
+5b. For how many staff / headcount needed: call forecast_staff_need only. Report last same-weekday hours/headcount vs recommended vs scheduled. Pass localEvents from the prompt; never invent.
 6. For discounts: prefer get_discount_summary (includes order_discounts engine records). For "today" prompts always pass phrase or resolved dates.
 7. For order lists by status (In Progress, Paid, etc.): use get_orders with statuses — never use get_sales_summary or get_order_lifecycle for this.
 7a. For a concrete order id (order:…) or "everything / full history / detail for this order": use get_order_detail. Report items[].dishName as dishes; include voids, discounts, taxes, payments, fiscals, prints, tracking, and timeline. Do not reconstruct dishes only from tracking.

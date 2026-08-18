@@ -44,6 +44,8 @@ export const AI_EXAMPLE_PROMPTS: AiExamplePrompt[] = [
   {category: "sales", prompt: "Voids by reason this week"},
 
   // Inventory
+  {category: "inventory", prompt: "How much inventory do I need this Friday and what should I buy?"},
+  {category: "inventory", prompt: "Forecast inventory needed for the next 7 days — cricket final on Saturday, expect 30% busier"},
   {category: "inventory", prompt: "Which inventory items are below reorder level?"},
   {category: "inventory", prompt: "Summarize waste by item for last week"},
   {category: "inventory", prompt: "Consumption summary for last month"},
@@ -72,6 +74,7 @@ export const AI_EXAMPLE_PROMPTS: AiExamplePrompt[] = [
   {category: "operations", prompt: "Cash closing summary for yesterday"},
 
   // Labor
+  {category: "labor", prompt: "How many staff do I need this Friday?"},
   {category: "labor", prompt: "Labor cost percentage vs sales by hour for last Friday"},
   {category: "labor", prompt: "Labor cost as a percentage of net sales this week"},
   {category: "labor", prompt: "Overtime report for last month"},

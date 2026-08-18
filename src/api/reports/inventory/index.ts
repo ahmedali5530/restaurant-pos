@@ -32,6 +32,11 @@ export type {
   RecipeConsumptionSummary,
 } from "@/api/reports/inventory/consumption.ts";
 export {
+  getPerItemDailyConsumption,
+} from "@/api/reports/inventory/consumption-daily.ts";
+export type {DailyConsumptionEntry} from "@/api/reports/inventory/consumption-daily.ts";
+export {forecastInventoryNeed} from "@/api/reports/inventory/need-forecast.ts";
+export {
   loadInventoryDashboard,
   getIssuanceVsConsumption,
   getDashboardStockByLocation,

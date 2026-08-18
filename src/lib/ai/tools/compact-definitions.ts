@@ -376,6 +376,61 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
   {
     type: "function",
     function: {
+      name: "forecast_inventory_need",
+      description: "Qty needed vs on-hand and suggested purchase for a day or next N days. Pass localEvents from the prompt only.",
+      parameters: {
+        type: "object",
+        properties: {
+          days: {type: "number"},
+          phrase: {type: "string"},
+          targetDate: {type: "string"},
+          store: {type: "string"},
+          localEvents: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                name: {type: "string"},
+                startDate: {type: "string"},
+                endDate: {type: "string"},
+                liftPct: {type: "number"},
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "forecast_staff_need",
+      description: "Recommended hours/headcount for a day or next N days vs last same weekday and schedule.",
+      parameters: {
+        type: "object",
+        properties: {
+          days: {type: "number"},
+          phrase: {type: "string"},
+          targetDate: {type: "string"},
+          localEvents: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                name: {type: "string"},
+                startDate: {type: "string"},
+                endDate: {type: "string"},
+                liftPct: {type: "number"},
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "compare_periods",
       description: "Compare a metric between two date ranges.",
       parameters: {

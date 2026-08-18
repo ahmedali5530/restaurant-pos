@@ -34,6 +34,8 @@ export const TOOL_PERMISSION_MODULES: Record<string, string | string[]> = {
   get_time_series: "reports.sales_summary",
   forecast_sales: "reports.sales_summary",
   forecast_inventory: "reports.current_inventory",
+  forecast_inventory_need: "reports.current_inventory",
+  forecast_staff_need: "reports.labor_forecast_dataset",
   compare_periods: "reports.sales_summary",
   get_dashboard_snapshot: "reports.sales_dashboard",
   render_chart: "reports.ai",
