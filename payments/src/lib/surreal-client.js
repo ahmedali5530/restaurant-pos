@@ -10,8 +10,11 @@ if (typeof global.WebSocket === 'undefined') {
 const DB_URL = process.env.SURREAL_URL || 'ws://localhost:8001/rpc';
 const DB_NS = process.env.SURREAL_NS || 'posr';
 const DB_NAME = process.env.SURREAL_DB || 'posr';
-const DB_USER = process.env.SURREAL_USER || 'root';
-const DB_PASS = process.env.SURREAL_PASS || 'root';
+const DB_USER = process.env.SURREAL_USER;
+const DB_PASS = process.env.SURREAL_PASS;
+if (!DB_USER || !DB_PASS) {
+  throw new Error('SURREAL_USER and SURREAL_PASS are required and have no default — set them in payments/.env');
+}
 
 const CONNECT_TIMEOUT_MS = Number(process.env.SURREAL_CONNECT_TIMEOUT_MS || 10000);
 

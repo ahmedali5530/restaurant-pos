@@ -10,8 +10,11 @@ if (typeof global.WebSocket === 'undefined') {
 const DB_URL = process.env.TRACKING_DB_URL || 'ws://surrealdb:8001/rpc';
 const DB_NS = process.env.TRACKING_DB_NS || 'posr';
 const DB_NAME = process.env.TRACKING_DB_NAME || 'posr';
-const DB_USER = process.env.TRACKING_DB_USER || 'root';
-const DB_PASS = process.env.TRACKING_DB_PASS || 'root';
+const DB_USER = process.env.TRACKING_DB_USER;
+const DB_PASS = process.env.TRACKING_DB_PASS;
+if (!DB_USER || !DB_PASS) {
+  throw new Error('TRACKING_DB_USER and TRACKING_DB_PASS are required and have no default — set them in the environment');
+}
 
 let clientPromise = null;
 

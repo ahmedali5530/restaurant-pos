@@ -24,11 +24,13 @@ services:
 
   surrealdb:
     image: surrealdb/surrealdb:v3.0.5
-    # Same as: surreal start -u root -p root surrealkv://database --bind 0.0.0.0:8001
+    # SURREAL_USER/SURREAL_PASS must be set in .env — no default, so a fresh
+    # `docker compose up` fails loudly instead of starting with a known
+    # root/root credential reachable on the published port below.
     working_dir: /
     user: "0:0"
     command: >
-      start --user root --pass root surrealkv://database --bind 0.0.0.0:8000
+      start --user ${SURREAL_USER:?Set SURREAL_USER in .env} --pass ${SURREAL_PASS:?Set SURREAL_PASS in .env} surrealkv://database --bind 0.0.0.0:8000
     ports:
       - "8000:8000"
     volumes:
@@ -48,9 +50,8 @@ services:
       - PRINT_PORT=3132
       - PRINT_HOST=0.0.0.0
       - TZ=${VITE_APP_TIMEZONE:-UTC}
-      - GATEWAY_JWT_SECRET=${GATEWAY_JWT_SECRET:-dev-only-change-me-posr-gateway}
-      - GATEWAY_AUTH_REQUIRED=${GATEWAY_AUTH_REQUIRED:-false}
-      - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-*}
+      - GATEWAY_JWT_SECRET=${GATEWAY_JWT_SECRET:?Set a long random value in .env}
+      - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-http://localhost:5173}
     command: sh -c "npm install && node server.js"
     ports:
       - "3132:3132"
@@ -73,12 +74,11 @@ services:
       - SURREAL_URL=ws://surrealdb:8000/rpc
       - SURREAL_NS=posr
       - SURREAL_DB=posr
-      - SURREAL_USER=root
-      - SURREAL_PASS=root
+      - SURREAL_USER=${SURREAL_USER:?Set SURREAL_USER in .env}
+      - SURREAL_PASS=${SURREAL_PASS:?Set SURREAL_PASS in .env}
       - PAYMENT_LOG_LEVEL=debug
-      - GATEWAY_JWT_SECRET=${GATEWAY_JWT_SECRET:-dev-only-change-me-posr-gateway}
-      - GATEWAY_AUTH_REQUIRED=${GATEWAY_AUTH_REQUIRED:-false}
-      - PAYMENT_ALLOWED_ORIGINS=${PAYMENT_ALLOWED_ORIGINS:-*}
+      - GATEWAY_JWT_SECRET=${GATEWAY_JWT_SECRET:?Set a long random value in .env}
+      - PAYMENT_ALLOWED_ORIGINS=${PAYMENT_ALLOWED_ORIGINS:-http://localhost:5173}
     command: sh -c "npm install && node server.js"
     ports:
       - "3134:3134"
@@ -101,8 +101,11 @@ services:
       - SYNC_SOURCE_URL=${SYNC_SOURCE_URL:-ws://surrealdb:8000/rpc}
       - SYNC_SOURCE_NS=${SYNC_SOURCE_NS:-posr}
       - SYNC_SOURCE_DB=${SYNC_SOURCE_DB:-posr}
-      - SYNC_SOURCE_USER=${SYNC_SOURCE_USER:-root}
-      - SYNC_SOURCE_PASS=${SYNC_SOURCE_PASS:-root}
+      # SYNC_SOURCE_* points at this compose's own surrealdb (the "source" of
+      # this branch's changes), so it always reuses SURREAL_USER/SURREAL_PASS
+      # rather than needing its own separate credential in .env.
+      - SYNC_SOURCE_USER=${SURREAL_USER:?Set SURREAL_USER in .env}
+      - SYNC_SOURCE_PASS=${SURREAL_PASS:?Set SURREAL_PASS in .env}
       - SYNC_EXCLUDE_TABLES=${SYNC_EXCLUDE_TABLES:-}
       # SYNC_MASTER_* come from sync-service/.env or .env.local (dotenv).
       # Do not set SYNC_MASTER_URL=${SYNC_MASTER_URL:-} here — an empty value
@@ -126,11 +129,10 @@ services:
       - TRACKING_DB_URL=ws://surrealdb:8000/rpc
       - TRACKING_DB_NS=posr
       - TRACKING_DB_NAME=posr
-      - TRACKING_DB_USER=root
-      - TRACKING_DB_PASS=root
-      - GATEWAY_JWT_SECRET=${GATEWAY_JWT_SECRET:-dev-only-change-me-posr-gateway}
-      - GATEWAY_AUTH_REQUIRED=${GATEWAY_AUTH_REQUIRED:-false}
-      - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-*}
+      - TRACKING_DB_USER=${SURREAL_USER:?Set SURREAL_USER in .env}
+      - TRACKING_DB_PASS=${SURREAL_PASS:?Set SURREAL_PASS in .env}
+      - GATEWAY_JWT_SECRET=${GATEWAY_JWT_SECRET:?Set a long random value in .env}
+      - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-http://localhost:5173}
     command: sh -c "npm install && npm start"
     ports:
       - "3138:3138"
@@ -151,8 +153,7 @@ services:
       - API_HOST=0.0.0.0
       - API_LOG_LEVEL=info
       - API_ALLOWED_ORIGINS=${API_ALLOWED_ORIGINS:-http://localhost:5173}
-      - GATEWAY_JWT_SECRET=${GATEWAY_JWT_SECRET:-dev-only-change-me-posr-gateway}
-      - GATEWAY_AUTH_REQUIRED=${GATEWAY_AUTH_REQUIRED:-false}
+      - GATEWAY_JWT_SECRET=${GATEWAY_JWT_SECRET:?Set a long random value in .env}
       - AI_ENABLED=${AI_ENABLED:-false}
       - AI_DAILY_LIMIT=${AI_DAILY_LIMIT:-}
       - AI_MONTHLY_LIMIT=${AI_MONTHLY_LIMIT:-}
@@ -173,14 +174,14 @@ services:
     environment:
       - GATEWAY_HOST=0.0.0.0
       - GATEWAY_PORT=3142
-      - GATEWAY_JWT_SECRET=${GATEWAY_JWT_SECRET:-dev-only-change-me-posr-gateway}
+      - GATEWAY_JWT_SECRET=${GATEWAY_JWT_SECRET:?Set a long random value in .env}
       - GATEWAY_JWT_TTL=${GATEWAY_JWT_TTL:-12h}
-      - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-*}
+      - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-http://localhost:5173}
       - SURREAL_URL=ws://surrealdb:8000/rpc
       - SURREAL_NS=posr
       - SURREAL_DB=posr
-      - SURREAL_USER=root
-      - SURREAL_PASS=root
+      - SURREAL_USER=${SURREAL_USER:?Set SURREAL_USER in .env}
+      - SURREAL_PASS=${SURREAL_PASS:?Set SURREAL_PASS in .env}
     command: sh -c "npm install && node server.js"
     ports:
       - "3142:3142"
@@ -197,8 +198,8 @@ services:
       # Timezone for cron schedule (change if you need local time)
       - TZ=UTC
       # SurrealDB auth + target namespace/database for export
-      - SURREAL_USER=root
-      - SURREAL_PASS=root
+      - SURREAL_USER=${SURREAL_USER:?Set SURREAL_USER in .env}
+      - SURREAL_PASS=${SURREAL_PASS:?Set SURREAL_PASS in .env}
       - SURREAL_NAMESPACE=posr
       - SURREAL_DATABASE=posr
       # Endpoint used from inside the surrealdb container
