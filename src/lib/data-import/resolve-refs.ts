@@ -52,7 +52,7 @@ function matchOne(
     }
     if (hits.length > 1) {
       return {
-        resolved: {label: trimmed, candidates: hits},
+        resolved: {label: trimmed, candidates},
         issue: {
           code: "ambiguous_reference",
           severity: "error",
@@ -69,7 +69,7 @@ function matchOne(
     }
     if (hits.length > 1) {
       return {
-        resolved: {label: trimmed, candidates: hits},
+        resolved: {label: trimmed, candidates},
         issue: {
           code: "ambiguous_reference",
           severity: "error",
@@ -88,7 +88,7 @@ function matchOne(
 
   if (strategy === "create") {
     return {
-      resolved: {label: trimmed, create: true},
+      resolved: {label: trimmed, create: true, candidates},
       issue: {
         code: "unresolved_reference",
         severity: "warning",
@@ -97,18 +97,11 @@ function matchOne(
     };
   }
 
-  // require_selection / exact miss / fuzzy miss
-  const fuzzyHints = candidates
-    .map((c) => ({c, score: findBestFuzzyMatch(trimmed, [c], 0.4)?.score ?? 0}))
-    .filter((x) => x.score >= 0.4)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 8)
-    .map((x) => x.c);
-
+  // require_selection / exact miss / fuzzy miss — full catalog so the user can pick
   return {
     resolved: {
       label: trimmed,
-      candidates: fuzzyHints.length ? fuzzyHints : candidates.slice(0, 20),
+      candidates,
     },
     issue: {
       code: "unresolved_reference",
@@ -141,6 +134,7 @@ export async function resolveReferences(
       cache.set(field.name, await loadCandidates(db, field));
     }
     const candidates = cache.get(field.name) || [];
+    field.candidates = candidates;
     const strategy = field.lookup.strategy;
 
     for (const record of records) {

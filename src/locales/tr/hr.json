@@ -466,7 +466,9 @@
     "approveEntry": "Zaman kaydını onayla",
     "rejectEntry": "Zaman kaydını reddet",
     "editEntry": "Zaman kaydını düzenle",
-    "missingClockOut": "Çıkış eksik"
+    "missingClockOut": "Çıkış eksik",
+    "smartImportTitle": "Yoklamayı YZ ile içe aktar",
+    "clockOutAfterClockIn": "Çıkış, girişten sonra olmalıdır"
   },
   "scheduling": {
     "publish": "Programı yayınla",

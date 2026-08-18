@@ -466,7 +466,9 @@
     "approveEntry": "Утвердить запись времени",
     "rejectEntry": "Отклонить запись времени",
     "editEntry": "Редактировать запись времени",
-    "missingClockOut": "Отсутствует уход"
+    "missingClockOut": "Отсутствует уход",
+    "smartImportTitle": "ИИ-импорт посещаемости",
+    "clockOutAfterClockIn": "Время ухода должно быть позже времени прихода"
   },
   "scheduling": {
     "publish": "Опубликовать график",

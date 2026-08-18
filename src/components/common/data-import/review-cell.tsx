@@ -24,11 +24,17 @@ function buildReferenceOptions(
   field: ImportField,
   createLabel: (name: string) => string
 ): Array<{label: string; value: string}> {
-  const list = ref?.candidates ?? [];
-  const base = list.map((c) => ({label: c.label, value: c.value}));
-  if (ref?.id && !base.some((o) => o.value === ref.id)) {
-    base.unshift({label: ref.label, value: ref.id});
+  const optionMap = new Map<string, {label: string; value: string}>();
+  for (const c of field.candidates ?? []) {
+    optionMap.set(c.value, {label: c.label, value: c.value});
   }
+  for (const c of ref?.candidates ?? []) {
+    optionMap.set(c.value, {label: c.label, value: c.value});
+  }
+  if (ref?.id && !optionMap.has(ref.id)) {
+    optionMap.set(ref.id, {label: ref.label, value: ref.id});
+  }
+  const base = Array.from(optionMap.values());
   if (field.lookup?.strategy === "create" && ref?.label && !ref.id) {
     base.unshift({
       label: createLabel(ref.label),
@@ -100,25 +106,25 @@ export const DataImportReviewCell = ({field, record, onChange}: Props) => {
   if (field.type === "reference[]") {
     const refs = (record.values[field.name] as ResolvedReference[]) || [];
     const optionMap = new Map<string, {label: string; value: string}>();
+    if (field.lookup?.strategy === "create") {
+      for (const r of refs) {
+        if (!r.id && r.label) {
+          optionMap.set(`__create__:${r.label}`, {
+            label: t("dataImport.createReference", {name: r.label}),
+            value: `__create__:${r.label}`,
+          });
+        }
+      }
+    }
+    for (const c of field.candidates ?? []) {
+      optionMap.set(c.value, {label: c.label, value: c.value});
+    }
     for (const r of refs) {
       for (const c of r.candidates ?? []) {
         optionMap.set(c.value, {label: c.label, value: c.value});
       }
       if (r.id) {
         optionMap.set(r.id, {label: r.label, value: r.id});
-      }
-      if (!r.id && r.label) {
-        const value =
-          field.lookup?.strategy === "create"
-            ? `__create__:${r.label}`
-            : `__label__:${r.label}`;
-        optionMap.set(value, {
-          label:
-            field.lookup?.strategy === "create"
-              ? t("dataImport.createReference", {name: r.label})
-              : r.label,
-          value,
-        });
       }
     }
     const options = Array.from(optionMap.values());
@@ -143,6 +149,10 @@ export const DataImportReviewCell = ({field, record, onChange}: Props) => {
             isMulti
             options={options}
             value={selected}
+            placeholder={
+              refs.find((r) => r.label && !r.id)?.label ||
+              t("dataImport.selectReference")
+            }
             onChange={(opts: any) => {
               const next: ResolvedReference[] = (opts || []).map((o: any) => {
                 const val = String(o.value);

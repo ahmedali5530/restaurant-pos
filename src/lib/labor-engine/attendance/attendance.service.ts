@@ -2,6 +2,7 @@ import { Tables } from '@/api/db/tables.ts'
 import type { TimeEntry } from '@/api/model/time_entry.ts'
 import type { TimeEntryBreak } from '@/api/model/time_entry_break.ts'
 import type { User } from '@/api/model/user.ts'
+import type { TimeEntrySource } from '@/api/model/hr.types.ts'
 import type { DbClient } from '@/lib/labor-engine/types.ts'
 import { logLaborChange } from '@/lib/labor-engine/audit/labor-audit.service.ts'
 import { toEntityRecordId, toUserRecordId } from '@/lib/labor-engine/record-id.ts'
@@ -48,6 +49,15 @@ export interface ManualEntryParams {
   clockOut: DateInput
   notes?: string
   scheduledShiftId?: string
+  source?: TimeEntrySource
+}
+
+export interface UpdateImportedEntryParams {
+  timeEntryId: string
+  clockIn: DateInput
+  clockOut: DateInput
+  notes?: string
+  user?: User
 }
 
 export interface ApproveEntryParams {
@@ -205,7 +215,7 @@ export const createManualEntry = async (
     user: toUserRecordId(params.user),
     employee: toEntityRecordId(params.employeeId),
     scheduled_shift: toEntityRecordId(params.scheduledShiftId) ?? null,
-    source: 'manual',
+    source: params.source ?? 'manual',
     approval_status: 'pending',
     attendance_status: 'manual',
     notes: params.notes ?? null,
@@ -217,6 +227,43 @@ export const createManualEntry = async (
     entityType: 'time_entry',
     entityId: record.id,
     action: 'create_manual_entry',
+    after: record,
+    changedBy: params.user,
+  })
+
+  return record
+}
+
+export const updateImportedEntry = async (
+  db: DbClient,
+  params: UpdateImportedEntryParams
+): Promise<TimeEntry> => {
+  const clockInAt = toSurrealDateTime(params.clockIn)
+  const clockOutAt = toSurrealDateTime(params.clockOut)
+  const startMs = new Date(String(clockInAt)).getTime()
+  const endMs = new Date(String(clockOutAt)).getTime()
+  const durationSeconds = Math.max(0, Math.floor((endMs - startMs) / 1000))
+
+  const existing = await db.query<[TimeEntry[]]>(
+    `SELECT * FROM ${Tables.time_entries} WHERE id = $id LIMIT 1`,
+    { id: params.timeEntryId }
+  )
+  const before = existing?.[0]?.[0]
+
+  const merged = await db.merge(params.timeEntryId, {
+    clock_in: clockInAt,
+    clock_out: clockOutAt,
+    duration_seconds: durationSeconds,
+    notes: params.notes ?? before?.notes ?? null,
+  })
+
+  const record = unwrapRecord<TimeEntry>(merged)
+
+  await logLaborChange(db, {
+    entityType: 'time_entry',
+    entityId: record.id,
+    action: 'update_imported_entry',
+    before,
     after: record,
     changedBy: params.user,
   })

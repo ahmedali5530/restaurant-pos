@@ -1,6 +1,6 @@
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { Tables } from "@/api/db/tables.ts";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Button } from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
@@ -17,6 +17,9 @@ import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
+import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
+import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
+import {createFloorImportConfig} from "@/components/settings/floors/floor.import.config.ts";
 
 export const AdminFloors = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
@@ -27,6 +30,12 @@ export const AdminFloors = () => {
   const [data, setData] = useState<Floor>();
   const [formModal, setFormModal] = useState(false);
   const [layoutModal, setLayoutModal] = useState(false);
+  const [importModal, setImportModal] = useState(false);
+
+  const smartImportConfig = useMemo(
+    () => createFloorImportConfig({db, t}),
+    [db, t]
+  );
 
   const columnHelper = createColumnHelper<Floor>();
   const columns: any = [
@@ -113,6 +122,12 @@ export const AdminFloors = () => {
         loaderLineItems={columns.length}
         buttons={[
           <Button variant="primary" onClick={() => {
+            protectAction(() => setImportModal(true), {
+              module: 'admin.floors.import',
+              description: getAccessRuleChildLabel('admin.floors.import'),
+            });
+          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button>,
+          <Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
               setFormModal(true);
@@ -133,6 +148,27 @@ export const AdminFloors = () => {
             setData(undefined);
             loadHook.fetchData();
           }}
+        />
+      )}
+
+      {importModal && (
+        <DataImportModal
+          isOpen
+          onClose={() => setImportModal(false)}
+          config={smartImportConfig}
+          title={t('forms.smartImportFloorsTitle', {defaultValue: 'AI Import floors'})}
+          enableImportModes
+          defaultMatchFields={['name']}
+          onExport={async () => {
+            const [rows] = await db.query(`SELECT * FROM ${Tables.floors} WHERE deleted_at = none`);
+            return (rows as Floor[]).map((row) => ({
+              name: row.name ?? '',
+              priority: String(row.priority ?? 0),
+              background: row.background ?? '',
+              color: row.color ?? '',
+            }));
+          }}
+          onDone={() => loadHook.fetchData()}
         />
       )}
 

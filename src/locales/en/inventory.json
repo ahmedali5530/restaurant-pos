@@ -150,7 +150,10 @@
     "smartImportIssueReturnTitle": "AI Import return lines",
     "smartImportWasteTitle": "AI Import waste lines",
     "smartImportAdjustmentTitle": "AI Import adjustment lines",
-    "smartImportPurchaseReturnTitle": "AI Import purchase return lines"
+    "smartImportPurchaseReturnTitle": "AI Import purchase return lines",
+    "smartImportSuppliersTitle": "AI Import suppliers",
+    "smartImportItemCategoriesTitle": "AI Import item categories",
+    "smartImportLocationsTitle": "AI Import locations"
   },
   "adjustment": {
     "reasons": {

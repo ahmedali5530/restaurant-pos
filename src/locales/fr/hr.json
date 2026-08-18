@@ -466,7 +466,9 @@
     "approveEntry": "Approuver le pointage",
     "rejectEntry": "Rejeter le pointage",
     "editEntry": "Modifier le pointage",
-    "missingClockOut": "Sortie manquante"
+    "missingClockOut": "Sortie manquante",
+    "smartImportTitle": "Import IA des présences",
+    "clockOutAfterClockIn": "La sortie doit être postérieure à l'entrée"
   },
   "scheduling": {
     "publish": "Publier le planning",

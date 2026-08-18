@@ -466,7 +466,9 @@
     "approveEntry": "Approva registrazione orario",
     "rejectEntry": "Rifiuta registrazione orario",
     "editEntry": "Modifica registrazione orario",
-    "missingClockOut": "Uscita mancante"
+    "missingClockOut": "Uscita mancante",
+    "smartImportTitle": "Importazione IA presenze",
+    "clockOutAfterClockIn": "L'uscita deve essere successiva all'ingresso"
   },
   "scheduling": {
     "publish": "Pubblica orario",

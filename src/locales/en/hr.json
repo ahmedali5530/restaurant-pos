@@ -466,7 +466,9 @@
     "approveEntry": "Approve time entry",
     "rejectEntry": "Reject time entry",
     "editEntry": "Edit time entry",
-    "missingClockOut": "Missing clock out"
+    "missingClockOut": "Missing clock out",
+    "smartImportTitle": "AI Import attendance",
+    "clockOutAfterClockIn": "Clock out must be after clock in"
   },
   "scheduling": {
     "publish": "Publish schedule",

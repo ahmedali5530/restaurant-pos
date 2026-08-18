@@ -466,7 +466,9 @@
     "approveEntry": "Tijdregistratie goedkeuren",
     "rejectEntry": "Tijdregistratie afwijzen",
     "editEntry": "Tijdregistratie bewerken",
-    "missingClockOut": "Uitklokken ontbreekt"
+    "missingClockOut": "Uitklokken ontbreekt",
+    "smartImportTitle": "Aanwezigheid AI-importeren",
+    "clockOutAfterClockIn": "Uitklokken moet na inklokken zijn"
   },
   "scheduling": {
     "publish": "Rooster publiceren",

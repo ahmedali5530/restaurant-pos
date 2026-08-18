@@ -466,7 +466,9 @@
     "approveEntry": "Aprovar registro de ponto",
     "rejectEntry": "Rejeitar registro de ponto",
     "editEntry": "Editar registro de ponto",
-    "missingClockOut": "Saída ausente"
+    "missingClockOut": "Saída ausente",
+    "smartImportTitle": "Importação IA de frequência",
+    "clockOutAfterClockIn": "A saída deve ser posterior à entrada"
   },
   "scheduling": {
     "publish": "Publicar escala",

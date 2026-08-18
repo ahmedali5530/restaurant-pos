@@ -150,7 +150,10 @@
     "smartImportIssueReturnTitle": "İade satırlarını YZ ile içe aktar",
     "smartImportWasteTitle": "Fire satırlarını YZ ile içe aktar",
     "smartImportAdjustmentTitle": "Düzeltme satırlarını YZ ile içe aktar",
-    "smartImportPurchaseReturnTitle": "Satın alma iade satırlarını YZ ile içe aktar"
+    "smartImportPurchaseReturnTitle": "Satın alma iade satırlarını YZ ile içe aktar",
+    "smartImportSuppliersTitle": "Tedarikçileri YZ ile içe aktar",
+    "smartImportItemCategoriesTitle": "Ürün kategorilerini YZ ile içe aktar",
+    "smartImportLocationsTitle": "Konumları YZ ile içe aktar"
   },
   "validation": {
     "required": "Bu alan zorunludur",

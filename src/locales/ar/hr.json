@@ -466,7 +466,9 @@
     "approveEntry": "الموافقة على تسجيل الوقت",
     "rejectEntry": "رفض تسجيل الوقت",
     "editEntry": "تعديل تسجيل الوقت",
-    "missingClockOut": "تسجيل خروج مفقود"
+    "missingClockOut": "تسجيل خروج مفقود",
+    "smartImportTitle": "استيراد بالذكاء الاصطناعي للحضور",
+    "clockOutAfterClockIn": "يجب أن يكون الانصراف بعد الحضور"
   },
   "scheduling": {
     "publish": "نشر الجدول",

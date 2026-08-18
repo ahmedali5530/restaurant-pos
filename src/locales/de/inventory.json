@@ -150,7 +150,10 @@
     "smartImportIssueReturnTitle": "Rückgabepositionen KI-Import",
     "smartImportWasteTitle": "Abfallpositionen KI-Import",
     "smartImportAdjustmentTitle": "Korrekturpositionen KI-Import",
-    "smartImportPurchaseReturnTitle": "Einkaufsrückgabepositionen KI-Import"
+    "smartImportPurchaseReturnTitle": "Einkaufsrückgabepositionen KI-Import",
+    "smartImportSuppliersTitle": "Lieferanten KI-Import",
+    "smartImportItemCategoriesTitle": "Artikelkategorien KI-Import",
+    "smartImportLocationsTitle": "Standorte KI-Import"
   },
   "validation": {
     "required": "Pflichtfeld",

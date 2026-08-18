@@ -466,7 +466,9 @@
     "approveEntry": "Aprobar registro de tiempo",
     "rejectEntry": "Rechazar registro de tiempo",
     "editEntry": "Editar registro de tiempo",
-    "missingClockOut": "Falta salida"
+    "missingClockOut": "Falta salida",
+    "smartImportTitle": "Importación IA de asistencia",
+    "clockOutAfterClockIn": "La salida debe ser posterior a la entrada"
   },
   "scheduling": {
     "publish": "Publicar horario",

@@ -150,7 +150,10 @@
     "smartImportIssueReturnTitle": "استيراد بالذكاء الاصطناعي لأسطر المرتجع",
     "smartImportWasteTitle": "استيراد بالذكاء الاصطناعي لأسطر الهدر",
     "smartImportAdjustmentTitle": "استيراد بالذكاء الاصطناعي لأسطر التسوية",
-    "smartImportPurchaseReturnTitle": "استيراد بالذكاء الاصطناعي لأسطر مرتجع المشتريات"
+    "smartImportPurchaseReturnTitle": "استيراد بالذكاء الاصطناعي لأسطر مرتجع المشتريات",
+    "smartImportSuppliersTitle": "استيراد بالذكاء الاصطناعي للموردين",
+    "smartImportItemCategoriesTitle": "استيراد بالذكاء الاصطناعي لفئات الأصناف",
+    "smartImportLocationsTitle": "استيراد بالذكاء الاصطناعي للمواقع"
   },
   "validation": {
     "required": "هذا الحقل مطلوب",

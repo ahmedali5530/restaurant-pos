@@ -150,7 +150,10 @@
     "smartImportIssueReturnTitle": "Importazione IA righe reso",
     "smartImportWasteTitle": "Importazione IA righe scarto",
     "smartImportAdjustmentTitle": "Importazione IA righe rettifica",
-    "smartImportPurchaseReturnTitle": "Importazione IA righe reso acquisto"
+    "smartImportPurchaseReturnTitle": "Importazione IA righe reso acquisto",
+    "smartImportSuppliersTitle": "Importazione IA fornitori",
+    "smartImportItemCategoriesTitle": "Importazione IA categorie articoli",
+    "smartImportLocationsTitle": "Importazione IA ubicazioni"
   },
   "validation": {
     "required": "Campo obbligatorio",

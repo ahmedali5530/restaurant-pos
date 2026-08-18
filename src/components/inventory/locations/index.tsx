@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { createColumnHelper } from "@tanstack/react-table";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
@@ -14,6 +14,9 @@ import { syncAllInventoryLocations } from "@/lib/inventory/location.service.ts";
 import { toast } from "sonner";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
 import { InventoryLocationForm } from "@/components/inventory/locations/form.tsx";
+import { DataImportModal } from "@/components/common/data-import/data-import-modal.tsx";
+import { AiSparklesIcon } from "@/components/common/icons/ai-sparkles.tsx";
+import { createLocationImportConfig } from "@/components/inventory/locations/location.import.config.ts";
 
 export const InventoryLocations = () => {
   const { t } = useTranslation(["inventory", 'common']);
@@ -21,6 +24,12 @@ export const InventoryLocations = () => {
   const [syncing, setSyncing] = useState(false);
   const [data, setData] = useState<InventoryLocation>();
   const [formModal, setFormModal] = useState(false);
+  const [importModal, setImportModal] = useState(false);
+
+  const smartImportConfig = useMemo(
+    () => createLocationImportConfig({db, t}),
+    [db, t]
+  );
 
   const loadHook = useApi<SettingsData<InventoryLocation>>(
     Tables.inventory_locations,
@@ -115,6 +124,14 @@ export const InventoryLocations = () => {
             {t("location.create")}
           </Button>,
           <Button
+            key="location-import"
+            variant="primary"
+            onClick={() => setImportModal(true)}
+          >
+            <span className="mr-2"><AiSparklesIcon /></span>
+            {t('common:actions.smartImport', {defaultValue: 'AI Import'})}
+          </Button>,
+          <Button
             key="location-sync"
             variant="secondary"
             icon={faSync}
@@ -135,6 +152,29 @@ export const InventoryLocations = () => {
             setData(undefined);
             loadHook.fetchData();
           }}
+        />
+      )}
+
+      {importModal && (
+        <DataImportModal
+          isOpen
+          onClose={() => {
+            setImportModal(false);
+            loadHook.fetchData();
+          }}
+          config={smartImportConfig}
+          title={t('forms.smartImportLocationsTitle', {defaultValue: 'AI Import locations'})}
+          enableImportModes
+          defaultMatchFields={['name']}
+          onExport={async () => {
+            const [rows] = await db.query(`SELECT * FROM ${Tables.inventory_locations}`);
+            return (rows as InventoryLocation[]).map((row) => ({
+              name: row.name ?? '',
+              type: String(row.type ?? ''),
+              is_active: row.is_active === false ? 'false' : 'true',
+            }));
+          }}
+          onDone={() => loadHook.fetchData()}
         />
       )}
     </>

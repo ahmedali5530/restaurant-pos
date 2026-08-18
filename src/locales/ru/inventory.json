@@ -150,7 +150,10 @@
     "smartImportIssueReturnTitle": "ИИ-импорт строк возврата",
     "smartImportWasteTitle": "ИИ-импорт строк списания",
     "smartImportAdjustmentTitle": "ИИ-импорт строк корректировки",
-    "smartImportPurchaseReturnTitle": "ИИ-импорт строк возврата закупки"
+    "smartImportPurchaseReturnTitle": "ИИ-импорт строк возврата закупки",
+    "smartImportSuppliersTitle": "ИИ-импорт поставщиков",
+    "smartImportItemCategoriesTitle": "ИИ-импорт категорий товаров",
+    "smartImportLocationsTitle": "ИИ-импорт локаций"
   },
   "validation": {
     "required": "Обязательное поле",

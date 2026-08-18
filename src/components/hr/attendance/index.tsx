@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useMemo, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {createColumnHelper} from "@tanstack/react-table";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
@@ -15,6 +15,9 @@ import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
 import {toast} from "sonner";
 import {approveEntry} from "@/lib/labor-engine/attendance/attendance.service.ts";
+import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
+import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
+import {createAttendanceImportConfig} from "@/components/hr/attendance/attendance.import.config.ts";
 
 export const HrAttendance = () => {
   const {t} = useTranslation("hr");
@@ -30,7 +33,13 @@ export const HrAttendance = () => {
   );
 
   const [formModal, setFormModal] = useState(false);
+  const [importModal, setImportModal] = useState(false);
   const [approvingId, setApprovingId] = useState<string>();
+
+  const smartImportConfig = useMemo(
+    () => createAttendanceImportConfig({db, t, user: page.user}),
+    [t, page.user]
+  );
 
   const columnHelper = createColumnHelper<TimeEntry>();
 
@@ -117,6 +126,10 @@ export const HrAttendance = () => {
           <Button key="manual-entry" variant="primary" data-testid="hr-add-attendance" onClick={() => setFormModal(true)} icon={faPlus}>
             {t("buttons.manualEntry")}
           </Button>,
+          <Button key="attendance-import" variant="primary" onClick={() => setImportModal(true)}>
+            <span className="mr-2"><AiSparklesIcon /></span>
+            {t("common:actions.smartImport", {defaultValue: "AI Import"})}
+          </Button>,
         ]}
       />
       {formModal && (
@@ -126,6 +139,32 @@ export const HrAttendance = () => {
             setFormModal(false);
             loadHook.fetchData();
           }}
+        />
+      )}
+      {importModal && (
+        <DataImportModal
+          isOpen
+          onClose={() => {
+            setImportModal(false);
+            loadHook.fetchData();
+          }}
+          config={smartImportConfig}
+          title={t("attendance.smartImportTitle", {defaultValue: "AI Import attendance"})}
+          enableImportModes
+          defaultMatchFields={["employee", "clock_in"]}
+          onExport={async () => {
+            const [rows] = await db.query(
+              `SELECT * FROM ${Tables.time_entries} FETCH employee`
+            );
+            return (rows as TimeEntry[]).map((row) => ({
+              employee: row.employee?.employee_number
+                || `${row.employee?.first_name ?? ""} ${row.employee?.last_name ?? ""}`.trim(),
+              clock_in: row.clock_in ? String(row.clock_in) : "",
+              clock_out: row.clock_out ? String(row.clock_out) : "",
+              notes: row.notes ?? "",
+            }));
+          }}
+          onDone={() => loadHook.fetchData()}
         />
       )}
     </>

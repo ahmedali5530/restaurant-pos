@@ -150,7 +150,10 @@
     "smartImportIssueReturnTitle": "Importación IA de líneas de devolución",
     "smartImportWasteTitle": "Importación IA de líneas de merma",
     "smartImportAdjustmentTitle": "Importación IA de líneas de ajuste",
-    "smartImportPurchaseReturnTitle": "Importación IA de líneas de devolución de compra"
+    "smartImportPurchaseReturnTitle": "Importación IA de líneas de devolución de compra",
+    "smartImportSuppliersTitle": "Importación IA de proveedores",
+    "smartImportItemCategoriesTitle": "Importación IA de categorías de artículos",
+    "smartImportLocationsTitle": "Importación IA de ubicaciones"
   },
   "validation": {
     "required": "Este campo es obligatorio",

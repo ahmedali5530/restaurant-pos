@@ -466,7 +466,9 @@
     "approveEntry": "Zeiteintrag genehmigen",
     "rejectEntry": "Zeiteintrag ablehnen",
     "editEntry": "Zeiteintrag bearbeiten",
-    "missingClockOut": "Ausstempeln fehlt"
+    "missingClockOut": "Ausstempeln fehlt",
+    "smartImportTitle": "Anwesenheit KI-Import",
+    "clockOutAfterClockIn": "Ausstempeln muss nach dem Einstempeln liegen"
   },
   "scheduling": {
     "publish": "Dienstplan veröffentlichen",

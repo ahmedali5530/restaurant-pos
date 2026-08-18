@@ -1,6 +1,6 @@
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { Tables } from "@/api/db/tables.ts";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Button } from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
@@ -15,6 +15,9 @@ import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
+import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
+import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
+import {createPaymentTypeImportConfig} from "@/components/settings/payment_types/payment-type.import.config.ts";
 
 export const AdminPaymentTypes = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
@@ -24,6 +27,12 @@ export const AdminPaymentTypes = () => {
 
   const [data, setData] = useState<PaymentType>();
   const [formModal, setFormModal] = useState(false);
+  const [importModal, setImportModal] = useState(false);
+
+  const smartImportConfig = useMemo(
+    () => createPaymentTypeImportConfig({db, t}),
+    [db, t]
+  );
 
   const columnHelper = createColumnHelper<PaymentType>();
 
@@ -110,6 +119,12 @@ export const AdminPaymentTypes = () => {
         loaderLineItems={columns.length}
         buttons={[
           <Button variant="primary" onClick={() => {
+            protectAction(() => setImportModal(true), {
+              module: 'admin.payment_types.import',
+              description: getAccessRuleChildLabel('admin.payment_types.import'),
+            });
+          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button>,
+          <Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
               setFormModal(true);
@@ -120,6 +135,29 @@ export const AdminPaymentTypes = () => {
           }} icon={faPlus} data-testid="admin-add-payment_types">{t('buttons.paymentType')}</Button>
         ]}
       />
+
+      {importModal && (
+        <DataImportModal
+          isOpen
+          onClose={() => setImportModal(false)}
+          config={smartImportConfig}
+          title={t('forms.smartImportPaymentTypesTitle', {defaultValue: 'AI Import payment types'})}
+          enableImportModes
+          defaultMatchFields={['name']}
+          onExport={async () => {
+            const [rows] = await db.query(
+              `SELECT * FROM ${Tables.payment_types} WHERE deleted_at = none FETCH tax`
+            );
+            return (rows as PaymentType[]).map((row) => ({
+              name: row.name ?? '',
+              priority: String(row.priority ?? 0),
+              type: row.type ?? '',
+              tax: row.tax?.name ?? '',
+            }));
+          }}
+          onDone={() => loadHook.fetchData()}
+        />
+      )}
 
       {formModal && (
         <PaymentTypeForm

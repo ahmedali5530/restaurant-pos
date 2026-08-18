@@ -17,61 +17,11 @@ import {
   findCsvImportMatches,
 } from "@/utils/csv-import.ts";
 import {toSurrealDateTime} from "@/lib/datetime.ts";
-
-async function resolveByNameOrCode(
-  db: ImportDbLike,
-  table: string,
-  key: string,
-  fields: string[] = ["name"]
-): Promise<any | null> {
-  const trimmed = key.trim();
-  if (!trimmed) return null;
-
-  for (const field of fields) {
-    const [rows] = await db.query(
-      `SELECT id, ${fields.join(", ")} FROM ${table} WHERE ${field} = $key LIMIT 1`,
-      {key: trimmed}
-    );
-    if (rows?.length) return rows[0];
-  }
-
-  if (fields.includes("name")) {
-    const [rows] = await db.query(
-      `SELECT id, name FROM ${table} WHERE string::lowercase(name) = string::lowercase($key) LIMIT 1`,
-      {key: trimmed}
-    );
-    if (rows?.length) return rows[0];
-  }
-  return null;
-}
-
-function parseDateTime(value: any): Date {
-  const raw = String(value ?? "").trim();
-  if (!raw) throw new Error("Date/time is required");
-  const d = new Date(raw);
-  if (Number.isNaN(d.getTime())) throw new Error(`Invalid date/time: ${raw}`);
-  return d;
-}
-
-async function resolveEmployee(db: ImportDbLike, employeeKey: string): Promise<any> {
-  const [byNumber] = await db.query(
-    `SELECT id, employee_number, first_name, last_name FROM ${Tables.employees}
-     WHERE employee_number = $key LIMIT 1`,
-    {key: employeeKey}
-  );
-  let employee = byNumber?.[0];
-  if (!employee) {
-    const [byName] = await db.query(
-      `SELECT id, employee_number, first_name, last_name FROM ${Tables.employees}
-       WHERE string::lowercase(string::concat(first_name, ' ', last_name ?? '')) = string::lowercase($key)
-       OR string::lowercase(first_name) = string::lowercase($key)
-       LIMIT 1`,
-      {key: employeeKey}
-    );
-    employee = byName?.[0];
-  }
-  return employee ?? null;
-}
+import {
+  parseImportDateTime,
+  resolveByNameOrCode,
+  resolveEmployee,
+} from "@/components/hr/shared/import.utils.ts";
 
 export function createScheduledShiftImportConfig({
   db,
@@ -166,8 +116,8 @@ export function createScheduledShiftImportConfig({
       const schedule = await resolveByNameOrCode(db, Tables.work_schedules, scheduleKey, ["name"]);
       if (!schedule) throw new Error(`Schedule not found: ${scheduleKey}`);
 
-      const startAt = parseDateTime(v.start_at);
-      const endAt = parseDateTime(v.end_at);
+      const startAt = parseImportDateTime(v.start_at);
+      const endAt = parseImportDateTime(v.end_at);
       if (endAt <= startAt) throw new Error("end_at must be after start_at");
 
       const templateKey = String(v.shift_template ?? "").trim();
@@ -222,7 +172,7 @@ export function createScheduledShiftImportConfig({
           return {column: "employee", value: employee.id};
         }
         if (field === "start_at") {
-          return {column: "start_at", value: toSurrealDateTime(parseDateTime(value))};
+          return {column: "start_at", value: toSurrealDateTime(parseImportDateTime(value))};
         }
         throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
       });

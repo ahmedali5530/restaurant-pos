@@ -8,6 +8,15 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-08-18',
+    title: 'AI Import for inventory, Manage, and attendance',
+    items: [
+      'AI Import is available on inventory suppliers, item categories, and locations, so you can create, update, or upsert master data from CSV, Excel, PDF, or images.',
+      'Manage lists now include AI Import for floors, modifier groups, taxes, order types, payment types, extras, and kitchens (payment types skip gateway secrets).',
+      'HR Attendance can bulk-import clock-in/out records; imported punches stay pending until a manager approves them for payroll.',
+    ],
+  },
+  {
+    date: '2026-08-18',
     title: 'Flexible payroll by hours, days, or salary',
     items: [
       'Pay profiles now honor hourly, daily wage, or a flat period amount (monthly, weekly, or contract) in payroll runs, so staff can mix pay types in one restaurant.',

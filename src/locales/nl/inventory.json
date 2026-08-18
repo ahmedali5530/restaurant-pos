@@ -150,7 +150,10 @@
     "smartImportIssueReturnTitle": "Retourregels AI-importeren",
     "smartImportWasteTitle": "Afvalregels AI-importeren",
     "smartImportAdjustmentTitle": "Correctieregels AI-importeren",
-    "smartImportPurchaseReturnTitle": "Inkoopretourregels AI-importeren"
+    "smartImportPurchaseReturnTitle": "Inkoopretourregels AI-importeren",
+    "smartImportSuppliersTitle": "Leveranciers AI-importeren",
+    "smartImportItemCategoriesTitle": "Artikelcategorieën AI-importeren",
+    "smartImportLocationsTitle": "Locaties AI-importeren"
   },
   "validation": {
     "required": "Dit is verplicht",

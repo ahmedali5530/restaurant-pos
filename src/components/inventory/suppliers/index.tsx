@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useMemo, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import {createColumnHelper} from "@tanstack/react-table";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
@@ -10,13 +10,24 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPencil, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {SupplierForm} from "@/components/inventory/suppliers/form.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
+import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
+import {createSupplierImportConfig} from "@/components/inventory/suppliers/supplier.import.config.ts";
+import {useDB} from "@/api/db/db.ts";
 
 export const InventorySuppliers = () => {
   const { t } = useTranslation(['inventory', 'common']);
+  const db = useDB();
   const loadHook = useApi<SettingsData<InventorySupplier>>(Tables.inventory_suppliers, [], [], 0, 10, []);
 
   const [data, setData] = useState<InventorySupplier>();
   const [formModal, setFormModal] = useState(false);
+  const [importModal, setImportModal] = useState(false);
+
+  const smartImportConfig = useMemo(
+    () => createSupplierImportConfig({db, t}),
+    [db, t]
+  );
 
   const columnHelper = createColumnHelper<InventorySupplier>();
 
@@ -70,6 +81,14 @@ export const InventorySuppliers = () => {
             icon={faPlus}
           >
             Supplier
+          </Button>,
+          <Button
+            key="supplier-import"
+            variant="primary"
+            onClick={() => setImportModal(true)}
+          >
+            <span className="mr-2"><AiSparklesIcon /></span>
+            {t('common:actions.smartImport', {defaultValue: 'AI Import'})}
           </Button>
         ]}
       />
@@ -83,6 +102,30 @@ export const InventorySuppliers = () => {
             setData(undefined);
             loadHook.fetchData();
           }}
+        />
+      )}
+
+      {importModal && (
+        <DataImportModal
+          isOpen
+          onClose={() => {
+            setImportModal(false);
+            loadHook.fetchData();
+          }}
+          config={smartImportConfig}
+          title={t('forms.smartImportSuppliersTitle', {defaultValue: 'AI Import suppliers'})}
+          enableImportModes
+          defaultMatchFields={['name']}
+          onExport={async () => {
+            const [rows] = await db.query(`SELECT * FROM ${Tables.inventory_suppliers}`);
+            return (rows as InventorySupplier[]).map((row) => ({
+              name: row.name ?? '',
+              address: row.address ?? '',
+              phone: row.phone ?? '',
+              email: row.email ?? '',
+            }));
+          }}
+          onDone={() => loadHook.fetchData()}
         />
       )}
     </>

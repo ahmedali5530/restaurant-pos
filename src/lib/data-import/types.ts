@@ -71,6 +71,11 @@ export type ImportField = {
   /** Post-parse transform (runs after type coercion) */
   transform?: (value: any, row: Record<string, any>) => any;
   lookup?: ImportFieldLookup;
+  /**
+   * Populated at resolve time with current lookup table rows so the review
+   * dropdown can list existing records (and Create, when strategy is create).
+   */
+  candidates?: Array<{label: string; value: string}>;
 };
 
 export type ImportRecord = {
