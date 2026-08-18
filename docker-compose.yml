@@ -158,6 +158,8 @@ services:
       - AI_DAILY_LIMIT=${AI_DAILY_LIMIT:-}
       - AI_MONTHLY_LIMIT=${AI_MONTHLY_LIMIT:-}
       - SURREAL_URL=ws://surrealdb:8000/rpc
+      - SURREAL_USER=${SURREAL_USER:?Set SURREAL_USER in .env}
+      - SURREAL_PASS=${SURREAL_PASS:?Set SURREAL_PASS in .env}
     command: sh -c "npm install && node server.js"
     ports:
       - "3140:3140"
