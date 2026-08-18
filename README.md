@@ -56,10 +56,14 @@ This system solves that by combining everything into one platform:
 
 ### 🧠 [AI-Powered Business Intelligence & Reporting](docs/images/AI%20report1.png)
 - Transform raw transactional data into actionable business strategies. Our integrated AI reporting module analyzes sales patterns, customer behavior, and inventory levels to give you a competitive edge.
-- **Predictive Inventory Forecasting:** Machine learning insights predict ingredient demand based on historical trends, seasonal factors, and weather patterns to minimize waste.
-- **Automated Menu Optimization:** AI flags slow-moving, low-margin items and suggests high-profit menu combinations or dynamic pricing strategies.
-- **Smart Staff Scheduling Insights:** Analyzes hourly traffic and peak sales data to recommend optimal staffing levels, cutting labor costs without sacrificing service quality.
 - **Natural Language Analytics:** Ask plain-text questions (e.g., *"Which menu item grew the most this weekend?"* or *"Summarize last month's top delivery zones"*) and get instant visual reports.
+- **AI Inventory Forecasting:** Ask AI how much inventory you need for specific days (e.g., "this Friday") or the coming week. AI compares historical same-weekday usage, current stock levels, holidays, weather patterns, and local events to suggest purchase quantities.
+- **AI Staff Forecasting:** Ask how many staff you need for a named day or the coming days to see recommended hours and headcount compared to historical data and your published schedule.
+- **Order Dossier Analysis:** Request a complete dossier for any specific order by ID, number, or invoice to see dishes, voids, discounts, taxes, payments, kitchen status, refunds, merge/split history, fiscal submissions, bill prints, tracking, and a full timeline in one comprehensive view.
+- **Sales vs Consumption Analysis:** AI compares sales performance, recipe-based ingredient consumption, actual issuance from inventory, and purchase data to identify discrepancies and optimize operations.
+- **AI Import & Smart Data Entry:** AI Import (formerly Smart Import) uses OCR and intelligent parsing to extract structured data from CSV, Excel, PDF, images, or clipboard paste for master data (dishes, ingredients, categories, tables, modifiers, inventory items, chart of accounts), document lines, kitchen reconciliation, journal entries, and HR scheduled shifts.
+- **Flexible Import Modes:** Support for create, update, and upsert modes across all AI import screens including document lines, dish ingredients, modifier groups, kitchen reconciliation, and HR scheduled shifts.
+- **Usage Controls:** Configurable daily and monthly AI completion limits with quota tracking, plus the ability to disable AI features entirely for controlled deployments.
 
 ### 🍽️ POS & Order Management
 - Table-based ordering system
