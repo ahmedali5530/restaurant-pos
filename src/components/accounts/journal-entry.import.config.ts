@@ -3,25 +3,38 @@ import type {
   ImportDbLike,
   ImportField,
   ImportRecord,
+  ImportRowContext,
 } from "@/lib/data-import/types.ts";
-import {type SelectOption, type TFunc} from "@/lib/data-import/helpers.ts";
+import {
+  applyListImportMode,
+  findMatchingLineIndexes,
+  normalizeImportMatchValue,
+  type SelectOption,
+  type TFunc,
+} from "@/lib/data-import/helpers.ts";
 import {Tables} from "@/api/db/tables.ts";
 
-export type JournalLineAppend = (line: {
+export type JournalLinePayload = {
   account: SelectOption;
   debit: number;
   credit: number;
   description?: string;
-}) => void;
+};
+
+export type JournalLineAppend = (line: JournalLinePayload) => void;
 
 export function createJournalEntryImportConfig({
   db,
   t,
   append,
+  update,
+  getLines,
 }: {
   db: ImportDbLike;
   t: TFunc;
   append: JournalLineAppend;
+  update: (index: number, line: JournalLinePayload) => void;
+  getLines: () => any[];
 }): ImportConfiguration {
   const fields: ImportField[] = [
     {
@@ -55,16 +68,20 @@ export function createJournalEntryImportConfig({
     },
   ];
 
+  const notFoundMessage = t("common:csvImport.recordNotFound");
+  const multipleMatchesMessage = t("common:csvImport.multipleMatches");
+
   return {
     id: "journal_lines",
     entityLabel: t("accounts:forms.journalLine", {defaultValue: "Journal line"}),
     shape: "records",
     fields,
+    matchFields: ["account"],
     defaultMode: "create",
     db,
     extractionInstructions:
       "Extract journal entry lines with account (code or name), debit, credit, and optional description. Prefer account codes when present.",
-    onImportRow: async (record: ImportRecord) => {
+    onImportRow: async (record: ImportRecord, ctx: ImportRowContext) => {
       const v = record.values;
       const key = String(v.account ?? "").trim();
       if (!key) throw new Error("Account is required");
@@ -93,7 +110,7 @@ export function createJournalEntryImportConfig({
         throw new Error("A line must have a debit or credit amount");
       }
 
-      append({
+      const payload: JournalLinePayload = {
         account: {
           label: `${account.code} - ${account.name}`,
           value: String(account.id),
@@ -101,6 +118,42 @@ export function createJournalEntryImportConfig({
         debit,
         credit,
         description: v.description ? String(v.description) : "",
+      };
+
+      const matchIndexes = findMatchingLineIndexes(
+        getLines(),
+        ctx.matchFields,
+        v,
+        (line) => ({
+          account: line.account?.value,
+          debit: line.debit,
+          credit: line.credit,
+        }),
+        {
+          skipLine: (line) => !line?.account?.value,
+          resolveImportField: (field, value) => {
+            if (field === "account") {
+              return normalizeImportMatchValue(account.id);
+            }
+            return normalizeImportMatchValue(value);
+          },
+          resolveLineField: (field, _value, line) => {
+            if (field === "account") {
+              return normalizeImportMatchValue(line.account?.value);
+            }
+            return normalizeImportMatchValue(line[field as keyof typeof line]);
+          },
+        }
+      );
+
+      applyListImportMode({
+        mode: ctx.mode,
+        existingIndexes: matchIndexes,
+        append,
+        update: (index) => update(index, payload),
+        payload,
+        notFoundMessage,
+        multipleMatchesMessage,
       });
     },
   };

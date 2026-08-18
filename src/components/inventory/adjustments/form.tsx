@@ -111,7 +111,7 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
     reload: reloadLocations,
   } = useInventoryLocations(open);
 
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
+  const { control, handleSubmit, reset, getValues, formState: { errors } } = useForm<FormValues>({
     resolver: yupResolver(validationSchema) as any,
     defaultValues: {
       invoice_number: 1,
@@ -122,12 +122,18 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
     },
   });
 
-  const { fields, append, remove } = useFieldArray({ control, name: "items" });
+  const { fields, append, remove, update } = useFieldArray({ control, name: "items" });
 
   const [importModal, setImportModal] = useState(false);
   const adjustmentImportConfig = useMemo(
-    () => createAdjustmentImportConfig({ db, t, append }),
-    [db, t, append]
+    () => createAdjustmentImportConfig({
+      db,
+      t,
+      append,
+      update,
+      getLines: () => getValues("items") ?? [],
+    }),
+    [db, t, append, update, getValues]
   );
 
   useEffect(() => {
@@ -422,6 +428,8 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
           onClose={() => setImportModal(false)}
           config={adjustmentImportConfig}
           title={t("forms.smartImportAdjustmentTitle", { defaultValue: "AI Import adjustment lines" })}
+          enableImportModes
+          defaultMatchFields={['item']}
           onDone={() => setImportModal(false)}
         />
       )}

@@ -3,8 +3,13 @@ import type {
   ImportDbLike,
   ImportField,
   ImportRecord,
+  ImportRowContext,
 } from "@/lib/data-import/types.ts";
-import {resolveInventoryItem, type TFunc} from "@/lib/data-import/helpers.ts";
+import {
+  normalizeImportMatchValue,
+  resolveInventoryItem,
+  type TFunc,
+} from "@/lib/data-import/helpers.ts";
 
 export type KitchenReconLine = {
   itemId: string;
@@ -14,14 +19,21 @@ export type KitchenReconLine = {
   complimentaryQty: number;
 };
 
+export type KitchenReconExistingItem = {
+  itemId: string;
+  itemCode?: string;
+};
+
 export function createKitchenReconImportConfig({
   db,
   t,
   collect,
+  getExistingItems,
 }: {
   db: ImportDbLike;
   t: TFunc;
   collect: (line: KitchenReconLine) => void;
+  getExistingItems: () => KitchenReconExistingItem[];
 }): ImportConfiguration {
   const fields: ImportField[] = [
     {
@@ -64,16 +76,20 @@ export function createKitchenReconImportConfig({
     },
   ];
 
+  const notFoundMessage = t("common:csvImport.recordNotFound");
+  const multipleMatchesMessage = t("common:csvImport.multipleMatches");
+
   return {
     id: "kitchen_reconciliation",
     entityLabel: t("inventory:kitchenReconciliation.title", {defaultValue: "Kitchen reconciliation"}),
     shape: "records",
     fields,
+    matchFields: ["item_code"],
     defaultMode: "create",
     db,
     extractionInstructions:
       "Extract kitchen reconciliation rows with item code, optional name, physical count, waste, staff meal, and complimentary quantities.",
-    onImportRow: async (record: ImportRecord) => {
+    onImportRow: async (record: ImportRecord, ctx: ImportRowContext) => {
       const v = record.values;
       const code = String(v.item_code ?? "").trim();
       if (!code) throw new Error(t("inventory:kitchenReconciliation.unknownItemCode", {code: ""}));
@@ -84,7 +100,7 @@ export function createKitchenReconImportConfig({
       }
 
       const physicalRaw = v.physical_count;
-      collect({
+      const line: KitchenReconLine = {
         itemId: String(item.id),
         physicalCount:
           physicalRaw === null || physicalRaw === undefined || String(physicalRaw).trim() === ""
@@ -93,7 +109,32 @@ export function createKitchenReconImportConfig({
         wasteQty: Number(v.waste) || 0,
         staffMealQty: Number(v.staff_meal) || 0,
         complimentaryQty: Number(v.complimentary) || 0,
+      };
+
+      const normalizedCode = normalizeImportMatchValue(code);
+      const matchingItems = getExistingItems().filter((existing) => {
+        const existingCode = normalizeImportMatchValue(existing.itemCode ?? "");
+        const existingId = normalizeImportMatchValue(existing.itemId);
+        return existingCode === normalizedCode || existingId === normalizeImportMatchValue(item.id);
       });
+
+      if (matchingItems.length > 1) {
+        throw new Error(multipleMatchesMessage);
+      }
+
+      const onSheet = matchingItems.length === 1;
+
+      if (ctx.mode === "create" && onSheet) {
+        throw new Error(t("inventory:kitchenReconciliation.itemAlreadyOnSheet", {
+          defaultValue: "Item is already on the reconciliation sheet.",
+        }));
+      }
+
+      if (ctx.mode === "update" && !onSheet) {
+        throw new Error(notFoundMessage);
+      }
+
+      collect(line);
     },
   };
 }

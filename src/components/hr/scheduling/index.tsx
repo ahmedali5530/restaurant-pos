@@ -512,6 +512,8 @@ export const HrScheduling = () => {
           onClose={() => setImportModal(false)}
           config={shiftImportConfig}
           title={t("scheduling.smartImportShiftsTitle", {defaultValue: "AI Import scheduled shifts"})}
+          enableImportModes
+          defaultMatchFields={["employee", "start_at"]}
           onDone={() => {
             setImportModal(false);
             shiftsHook.fetchData();

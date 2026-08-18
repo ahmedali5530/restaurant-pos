@@ -53,16 +53,6 @@ export const KitchenReconciliationScreen = () => {
   const [csvOpen, setCsvOpen] = useState(false);
   const batchRef = useRef<KitchenReconLine[]>([]);
 
-  const kitchenReconImportConfig = useMemo(
-    () =>
-      createKitchenReconImportConfig({
-        db,
-        t,
-        collect: (line) => batchRef.current.push(line),
-      }),
-    [db, t]
-  );
-
   const locationId = selectedLocation?.value ?? null;
 
   const businessDateStr = useMemo(() => {
@@ -107,6 +97,21 @@ export const KitchenReconciliationScreen = () => {
     verify,
     discard,
   } = useKitchenReconciliation(locationId, businessDateStr);
+
+  const kitchenReconImportConfig = useMemo(
+    () =>
+      createKitchenReconImportConfig({
+        db,
+        t,
+        collect: (line) => batchRef.current.push(line),
+        getExistingItems: () =>
+          (reconciliation?.items ?? []).map((line) => ({
+            itemId: String(line.item?.id ?? ""),
+            itemCode: line.item?.code ?? "",
+          })),
+      }),
+    [db, t, reconciliation?.items]
+  );
 
   const userId = state?.user?.id;
   const status = reconciliation?.status;
@@ -350,6 +355,8 @@ export const KitchenReconciliationScreen = () => {
           title={t("kitchenReconciliation.smartImportTitle", {
             defaultValue: t("kitchenReconciliation.csvImportTitle", {defaultValue: "AI Import"}),
           })}
+          enableImportModes
+          defaultMatchFields={["item_code"]}
           onExport={() =>
             (reconciliation?.items ?? []).map((line) => ({
               item_code: line.item?.code ?? "",

@@ -3,10 +3,20 @@ import type {
   ImportDbLike,
   ImportField,
   ImportRecord,
+  ImportRowContext,
 } from "@/lib/data-import/types.ts";
 import {type TFunc} from "@/lib/data-import/helpers.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {createScheduledShift} from "@/lib/labor-engine/scheduling/schedule.service.ts";
+import {
+  createScheduledShift,
+  updateScheduledShift,
+} from "@/lib/labor-engine/scheduling/schedule.service.ts";
+import {
+  assertCsvMatchValues,
+  buildMatchConditions,
+  findCsvImportMatches,
+} from "@/utils/csv-import.ts";
+import {toSurrealDateTime} from "@/lib/datetime.ts";
 
 async function resolveByNameOrCode(
   db: ImportDbLike,
@@ -25,7 +35,6 @@ async function resolveByNameOrCode(
     if (rows?.length) return rows[0];
   }
 
-  // case-insensitive name fallback
   if (fields.includes("name")) {
     const [rows] = await db.query(
       `SELECT id, name FROM ${table} WHERE string::lowercase(name) = string::lowercase($key) LIMIT 1`,
@@ -42,6 +51,26 @@ function parseDateTime(value: any): Date {
   const d = new Date(raw);
   if (Number.isNaN(d.getTime())) throw new Error(`Invalid date/time: ${raw}`);
   return d;
+}
+
+async function resolveEmployee(db: ImportDbLike, employeeKey: string): Promise<any> {
+  const [byNumber] = await db.query(
+    `SELECT id, employee_number, first_name, last_name FROM ${Tables.employees}
+     WHERE employee_number = $key LIMIT 1`,
+    {key: employeeKey}
+  );
+  let employee = byNumber?.[0];
+  if (!employee) {
+    const [byName] = await db.query(
+      `SELECT id, employee_number, first_name, last_name FROM ${Tables.employees}
+       WHERE string::lowercase(string::concat(first_name, ' ', last_name ?? '')) = string::lowercase($key)
+       OR string::lowercase(first_name) = string::lowercase($key)
+       LIMIT 1`,
+      {key: employeeKey}
+    );
+    employee = byName?.[0];
+  }
+  return employee ?? null;
 }
 
 export function createScheduledShiftImportConfig({
@@ -111,38 +140,27 @@ export function createScheduledShiftImportConfig({
     },
   ];
 
+  const notFoundMessage = t("common:csvImport.recordNotFound");
+  const multipleMatchesMessage = t("common:csvImport.multipleMatches");
+
   return {
     id: "scheduled_shifts",
     entityLabel: t("hr:buttons.scheduledShift", {defaultValue: "Scheduled shift"}),
     shape: "records",
     fields,
+    matchFields: ["employee", "start_at"],
     defaultMode: "create",
     db,
     extractionInstructions:
       "Extract scheduled shifts with employee (number or name), work schedule name, start/end datetimes, and optional template, department, position, notes.",
-    onImportRow: async (record: ImportRecord) => {
+    onImportRow: async (record: ImportRecord, ctx: ImportRowContext) => {
       const v = record.values;
       const employeeKey = String(v.employee ?? "").trim();
       const scheduleKey = String(v.schedule ?? "").trim();
       if (!employeeKey) throw new Error("Employee is required");
       if (!scheduleKey) throw new Error("Schedule is required");
 
-      const [byNumber] = await db.query(
-        `SELECT id, employee_number, first_name, last_name FROM ${Tables.employees}
-         WHERE employee_number = $key LIMIT 1`,
-        {key: employeeKey}
-      );
-      let employee = byNumber?.[0];
-      if (!employee) {
-        const [byName] = await db.query(
-          `SELECT id, employee_number, first_name, last_name FROM ${Tables.employees}
-           WHERE string::lowercase(string::concat(first_name, ' ', last_name ?? '')) = string::lowercase($key)
-           OR string::lowercase(first_name) = string::lowercase($key)
-           LIMIT 1`,
-          {key: employeeKey}
-        );
-        employee = byName?.[0];
-      }
+      const employee = await resolveEmployee(db, employeeKey);
       if (!employee) throw new Error(`Employee not found: ${employeeKey}`);
 
       const schedule = await resolveByNameOrCode(db, Tables.work_schedules, scheduleKey, ["name"]);
@@ -171,7 +189,7 @@ export function createScheduledShiftImportConfig({
         : null;
       if (positionKey && !position) throw new Error(`Position not found: ${positionKey}`);
 
-      const result = await createScheduledShift(db as any, {
+      const shiftParams = {
         workScheduleId: String(schedule.id),
         employeeId: String(employee.id),
         startAt,
@@ -180,8 +198,60 @@ export function createScheduledShiftImportConfig({
         departmentId: department ? String(department.id) : undefined,
         positionId: position ? String(position.id) : undefined,
         notes: v.notes ? String(v.notes).trim() : undefined,
+      };
+
+      if (ctx.mode === "create") {
+        const result = await createScheduledShift(db as any, shiftParams);
+        if (!result.shift?.id) {
+          const message = result.conflicts.map((c) => c.message).join("; ");
+          throw new Error(message || t("hr:scheduling.conflictDescription", {defaultValue: "Shift conflict"}));
+        }
+        return;
+      }
+
+      const rowData: Record<string, string> = {
+        employee: employeeKey,
+        start_at: String(v.start_at ?? "").trim(),
+      };
+      assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
+        t("common:csvImport.emptyMatchValue", {field})
+      );
+
+      const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
+        if (field === "employee") {
+          return {column: "employee", value: employee.id};
+        }
+        if (field === "start_at") {
+          return {column: "start_at", value: toSurrealDateTime(parseDateTime(value))};
+        }
+        throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
       });
 
+      const existing = await findCsvImportMatches(db, Tables.scheduled_shifts, conditions, {
+        softDelete: false,
+      });
+
+      if (existing.length > 1) {
+        throw new Error(multipleMatchesMessage);
+      }
+
+      if (existing.length === 1) {
+        const result = await updateScheduledShift(db as any, {
+          shiftId: String(existing[0].id),
+          ...shiftParams,
+        });
+        if (!result.shift?.id) {
+          const message = result.conflicts.map((c) => c.message).join("; ");
+          throw new Error(message || t("hr:scheduling.conflictDescription", {defaultValue: "Shift conflict"}));
+        }
+        return;
+      }
+
+      if (ctx.mode === "update") {
+        throw new Error(notFoundMessage);
+      }
+
+      const result = await createScheduledShift(db as any, shiftParams);
       if (!result.shift?.id) {
         const message = result.conflicts.map((c) => c.message).join("; ");
         throw new Error(message || t("hr:scheduling.conflictDescription", {defaultValue: "Shift conflict"}));

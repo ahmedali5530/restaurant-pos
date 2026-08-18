@@ -265,18 +265,25 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
     reset,
     watch,
     setValue,
+    getValues,
   } = useForm<InventoryPurchaseFormValues>({
     resolver: resolver as any,
   });
 
-  const {fields, append, remove, replace} = useFieldArray({
+  const {fields, append, remove, replace, update} = useFieldArray({
     control,
     name: "items"
   });
 
   const purchaseImportConfig = useMemo(
-    () => createPurchaseImportConfig({db, t, append}),
-    [db, t, append]
+    () => createPurchaseImportConfig({
+      db,
+      t,
+      append,
+      update,
+      getLines: () => getValues("items") ?? [],
+    }),
+    [db, t, append, update, getValues]
   );
   const {
     fields: extraFields,
@@ -1370,6 +1377,8 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
           onClose={() => setCsvModal(false)}
           config={purchaseImportConfig}
           title={t('forms.smartImportPurchaseTitle', {defaultValue: 'AI Import purchase lines'})}
+          enableImportModes
+          defaultMatchFields={['code']}
           onExport={() => {
             const formatDate = (value: any) => {
               if (!value) return '';

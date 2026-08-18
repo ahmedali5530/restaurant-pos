@@ -179,7 +179,8 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     setValue,
     watch,
     setError,
-    clearErrors
+    clearErrors,
+    getValues,
   } = useForm({
     resolver
   });
@@ -208,7 +209,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     return fetchNetQuantity(db, itemId, locationId);
   }, []);
 
-  const {fields, append, remove, replace} = useFieldArray({
+  const {fields, append, remove, replace, update} = useFieldArray({
     control,
     name: "items"
   });
@@ -219,8 +220,10 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
       db,
       t,
       append: (line) => append({...line, price: 0}),
+      update: (index, line) => update(index, {...line, price: 0}),
+      getLines: () => getValues("items") ?? [],
     }),
-    [db, t, append]
+    [db, t, append, update, getValues]
   );
 
   useEffect(() => {
@@ -903,6 +906,8 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
         onClose={() => setImportModal(false)}
         config={issueImportConfig}
         title={t('forms.smartImportIssueTitle', {defaultValue: 'AI Import issue lines'})}
+        enableImportModes
+        defaultMatchFields={['item']}
         onDone={() => setImportModal(false)}
       />
     )}

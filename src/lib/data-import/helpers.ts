@@ -1,4 +1,5 @@
 import type {ImportDbLike, ResolvedReference} from "@/lib/data-import/types.ts";
+import type {CsvImportMode} from "@/utils/csv-import.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {Tables} from "@/api/db/tables.ts";
 
@@ -96,4 +97,127 @@ export function itemSelectOption(item: {id: any; name?: string; code?: string}):
     label: name && code ? `${name}-${code}` : name || code || String(item.id),
     value: String(item.id),
   };
+}
+
+/** Normalize a value for import match comparison. */
+export function normalizeImportMatchValue(value: unknown): string {
+  if (value == null) return "";
+  if (typeof value === "object" && value !== null && "value" in value) {
+    return String((value as {value?: unknown}).value ?? "").trim().toLowerCase();
+  }
+  return String(value).trim().toLowerCase();
+}
+
+/** Build a composite match key from row values and selected match fields. */
+export function buildImportMatchKey(
+  values: Record<string, unknown>,
+  matchFields: string[],
+  resolveField?: (field: string, value: unknown) => string
+): string {
+  return matchFields
+    .map((field) => {
+      const raw = values[field];
+      if (resolveField) return resolveField(field, raw);
+      return normalizeImportMatchValue(raw);
+    })
+    .join("||");
+}
+
+/** Find indexes of existing lines that match the given import row. */
+export function findMatchingLineIndexes<T>(
+  lines: T[],
+  matchFields: string[],
+  importValues: Record<string, unknown>,
+  getLineValues: (line: T, index: number) => Record<string, unknown>,
+  options?: {
+    skipLine?: (line: T, index: number) => boolean;
+    resolveImportField?: (field: string, value: unknown) => string;
+    resolveLineField?: (field: string, value: unknown, line: T, index: number) => string;
+  }
+): number[] {
+  if (matchFields.length === 0) return [];
+
+  const importKey = buildImportMatchKey(importValues, matchFields, options?.resolveImportField);
+  if (!importKey || importKey === matchFields.map(() => "").join("||")) return [];
+
+  const indexes: number[] = [];
+  lines.forEach((line, index) => {
+    if (options?.skipLine?.(line, index)) return;
+    const lineValues = getLineValues(line, index);
+    const lineKey = buildImportMatchKey(lineValues, matchFields, (field, value) =>
+      options?.resolveLineField
+        ? options.resolveLineField(field, value, line, index)
+        : normalizeImportMatchValue(value)
+    );
+    if (lineKey === importKey) indexes.push(index);
+  });
+  return indexes;
+}
+
+/**
+ * Apply create / update / upsert to an in-memory list (form lines or collected batch).
+ * Mirrors writeCsvImportRow semantics.
+ */
+export function applyListImportMode<T>(options: {
+  mode: CsvImportMode;
+  existingIndexes: number[];
+  append: (payload: T) => void;
+  update: (index: number, payload: T) => void;
+  payload: T;
+  notFoundMessage: string;
+  multipleMatchesMessage: string;
+}): "created" | "updated" {
+  const {
+    mode,
+    existingIndexes,
+    append,
+    update,
+    payload,
+    notFoundMessage,
+    multipleMatchesMessage,
+  } = options;
+
+  if (mode === "create") {
+    append(payload);
+    return "created";
+  }
+
+  if (existingIndexes.length > 1) {
+    throw new Error(multipleMatchesMessage);
+  }
+
+  if (existingIndexes.length === 1) {
+    update(existingIndexes[0], payload);
+    return "updated";
+  }
+
+  if (mode === "update") {
+    throw new Error(notFoundMessage);
+  }
+
+  append(payload);
+  return "created";
+}
+
+/** Match field resolver for inventory document lines with item SelectOption. */
+export function resolveItemFormMatchValue(
+  field: string,
+  value: unknown,
+  item?: {id?: unknown; code?: string; name?: string}
+): string {
+  if (field === "item" || field === "code") {
+    return normalizeImportMatchValue(item?.id ?? (value as any)?.value ?? value);
+  }
+  if (field === "name") {
+    return normalizeImportMatchValue(item?.name ?? value);
+  }
+  return normalizeImportMatchValue(value);
+}
+
+/** Read match values from a form line with item SelectOption. */
+export function resolveItemFormLineMatchValue(field: string, line: any): string {
+  if (field === "item" || field === "code" || field === "name") {
+    return normalizeImportMatchValue(line?.item?.value);
+  }
+  return normalizeImportMatchValue(line?.[field]);
 }

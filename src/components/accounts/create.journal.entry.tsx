@@ -97,22 +97,28 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
       }));
   }, [accounts]);
 
-  const {register, handleSubmit, control, reset, watch} = useForm<JournalEntryForm>({
+  const {register, handleSubmit, control, reset, watch, getValues} = useForm<JournalEntryForm>({
     defaultValues: {
       date: dayjs(),
       lines: [{...EMPTY_LINE}, {...EMPTY_LINE}],
     }
   });
 
-  const {fields, append, remove} = useFieldArray({
+  const {fields, append, remove, update} = useFieldArray({
     control,
     name: "lines",
   });
 
   const [importModal, setImportModal] = useState(false);
   const journalImportConfig = useMemo(
-    () => createJournalEntryImportConfig({db, t, append}),
-    [db, t, append]
+    () => createJournalEntryImportConfig({
+      db,
+      t,
+      append,
+      update,
+      getLines: () => getValues("lines") ?? [],
+    }),
+    [db, t, append, update, getValues]
   );
 
   const fetchNextEntryNumber = useCallback(async () => {
@@ -449,6 +455,8 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
         onClose={() => setImportModal(false)}
         config={journalImportConfig}
         title={t('forms.smartImportJournalTitle', {defaultValue: 'AI Import journal lines'})}
+        enableImportModes
+        defaultMatchFields={['account']}
         onDone={() => setImportModal(false)}
       />
     )}

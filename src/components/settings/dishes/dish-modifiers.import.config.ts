@@ -4,6 +4,7 @@ import type {
   ImportDbLike,
   ImportField,
   ImportRecord,
+  ImportRowContext,
   ResolvedReference,
 } from "@/lib/data-import/types.ts";
 import {parseImportBool, requireRefId, type TFunc} from "@/lib/data-import/helpers.ts";
@@ -69,16 +70,20 @@ export function createDishModifiersImportConfig({
     },
   ];
 
+  const notFoundMessage = t("common:csvImport.recordNotFound");
+  const multipleMatchesMessage = t("common:csvImport.multipleMatches");
+
   return {
     id: "dish_modifier_groups",
     entityLabel: t("admin:buttons.importModifierGroups", {defaultValue: "Dish modifier group"}),
     shape: "records",
     fields,
+    matchFields: ["dish_number", "modifier_group"],
     defaultMode: "create",
     db,
     extractionInstructions:
       "Extract dish-to-modifier-group links with dish number, modifier group name, priority, and auto-open/select flags.",
-    onImportRow: async (record: ImportRecord) => {
+    onImportRow: async (record: ImportRecord, ctx: ImportRowContext) => {
       const v = record.values;
       const dishNumber = String(v.dish_number ?? "").trim();
       if (!dishNumber) throw new Error(t("toast:admin.invalidDishNumber"));
@@ -95,14 +100,6 @@ export function createDishModifiersImportConfig({
         t("toast:admin.invalidModifierGroup")
       );
 
-      const [existing] = await db.query(
-        `SELECT count() AS count FROM ${Tables.dish_modifier_groups} WHERE in = $dish AND out = $group GROUP ALL`,
-        {dish: dishId, group: groupId}
-      );
-      if ((existing?.[0]?.count ?? 0) > 0) {
-        throw new Error(t("toast:admin.duplicateDishModifierGroup"));
-      }
-
       const priority = Number(v.priority);
       if (!Number.isFinite(priority)) {
         throw new Error(t("toast:admin.invalidPriority"));
@@ -112,6 +109,56 @@ export function createDishModifiersImportConfig({
       const requiredModifiers = Number(v.required_modifiers ?? 0);
       if (!Number.isFinite(requiredModifiers) || requiredModifiers < 0) {
         throw new Error(t("toast:admin.invalidRequiredModifiers"));
+      }
+
+      const edgePayload = {
+        has_required_modifiers: hasRequiredModifiers,
+        should_auto_open: parseImportBool(v.should_auto_open),
+        required_modifiers: requiredModifiers,
+        should_auto_select: parseImportBool(v.should_auto_select),
+        priority,
+      };
+
+      const [existingEdgeRows] = await db.query(
+        `SELECT id FROM ${Tables.dish_modifier_groups} WHERE in = $dish AND out = $group LIMIT 2`,
+        {dish: dishId, group: groupId}
+      );
+      const existingEdges = existingEdgeRows ?? [];
+
+      if (ctx.mode === "create") {
+        if (existingEdges.length > 0) {
+          throw new Error(t("toast:admin.duplicateDishModifierGroup"));
+        }
+        await db.query(
+          `RELATE $dish->${Tables.dish_modifier_groups}->$group
+           SET has_required_modifiers = $has_required_modifiers,
+               should_auto_open = $should_auto_open,
+               required_modifiers = $required_modifiers,
+               should_auto_select = $should_auto_select,
+               priority = $priority`,
+          {
+            dish: dishId,
+            group: groupId,
+            ...edgePayload,
+          }
+        );
+        return;
+      }
+
+      if (existingEdges.length > 1) {
+        throw new Error(multipleMatchesMessage);
+      }
+
+      if (existingEdges.length === 1) {
+        await db.query(
+          `UPDATE ${existingEdges[0].id} MERGE $payload`,
+          {payload: edgePayload}
+        );
+        return;
+      }
+
+      if (ctx.mode === "update") {
+        throw new Error(notFoundMessage);
       }
 
       await db.query(
@@ -124,11 +171,7 @@ export function createDishModifiersImportConfig({
         {
           dish: dishId,
           group: groupId,
-          has_required_modifiers: hasRequiredModifiers,
-          should_auto_open: parseImportBool(v.should_auto_open),
-          required_modifiers: requiredModifiers,
-          should_auto_select: parseImportBool(v.should_auto_select),
-          priority,
+          ...edgePayload,
         }
       );
     },

@@ -179,6 +179,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
     setValue,
     setError,
     clearErrors,
+    getValues,
   } = useForm<PurchaseReturnFormValues>({
     resolver: resolver as any,
     defaultValues: {
@@ -191,15 +192,21 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
     },
   });
 
-  const {fields, append, remove} = useFieldArray({
+  const {fields, append, remove, update} = useFieldArray({
     control,
     name: "items"
   });
 
   const [importModal, setImportModal] = useState(false);
   const purchaseReturnImportConfig = useMemo(
-    () => createPurchaseReturnImportConfig({db, t, append}),
-    [db, t, append]
+    () => createPurchaseReturnImportConfig({
+      db,
+      t,
+      append,
+      update,
+      getLines: () => getValues("items") ?? [],
+    }),
+    [db, t, append, update, getValues]
   );
 
   const [rowNetQuantities, setRowNetQuantities] = useState<Record<number, number>>({});
@@ -913,6 +920,8 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
         onClose={() => setImportModal(false)}
         config={purchaseReturnImportConfig}
         title={t('forms.smartImportPurchaseReturnTitle')}
+        enableImportModes
+        defaultMatchFields={['item']}
         onDone={() => setImportModal(false)}
       />
     )}

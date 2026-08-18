@@ -151,6 +151,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
     setValue,
     setError,
     clearErrors,
+    getValues,
   } = useForm<WasteFormValues>({
     resolver: resolver as any,
     defaultValues: {
@@ -162,7 +163,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
     },
   });
 
-  const {fields, append, remove} = useFieldArray({
+  const {fields, append, remove, update} = useFieldArray({
     control,
     name: "items"
   });
@@ -177,8 +178,14 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
         purchase_item_id: null,
         expiry_date: null,
       }),
+      update: (index, line) => update(index, {
+        ...line,
+        purchase_item_id: getValues("items")?.[index]?.purchase_item_id ?? null,
+        expiry_date: getValues("items")?.[index]?.expiry_date ?? null,
+      }),
+      getLines: () => getValues("items") ?? [],
     }),
-    [db, t, append]
+    [db, t, append, update, getValues]
   );
   const watchedItems = useWatch({control, name: "items"});
   const watchedLocation = useWatch({control, name: "location"});
@@ -862,6 +869,8 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
         onClose={() => setImportModal(false)}
         config={wasteImportConfig}
         title={t('forms.smartImportWasteTitle', {defaultValue: 'AI Import waste lines'})}
+        enableImportModes
+        defaultMatchFields={['item']}
         onDone={() => setImportModal(false)}
       />
     )}

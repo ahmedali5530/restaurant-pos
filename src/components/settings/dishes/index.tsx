@@ -337,6 +337,8 @@ export const AdminDishes = () => {
           onClose={() => setIngredientsImportModal(false)}
           config={ingredientsImportConfig}
           title={t('forms.smartImportIngredientsTitle', {defaultValue: t('forms.importIngredientsTitle')})}
+          enableImportModes
+          defaultMatchFields={['dish_number', 'ingredient']}
           onExport={async () => {
             const [recipes] = await db.query(
               `SELECT *, menu_item.number AS dish_number FROM ${Tables.dishes_recipes} FETCH item, menu_item`
@@ -359,6 +361,8 @@ export const AdminDishes = () => {
           onClose={() => setModifierGroupsImportModal(false)}
           config={modifiersImportConfig}
           title={t('forms.smartImportModifierGroupsTitle', {defaultValue: t('forms.importModifierGroupsTitle')})}
+          enableImportModes
+          defaultMatchFields={['dish_number', 'modifier_group']}
           onExport={async () => {
             const [edges] = await db.query(
               `SELECT *, in.number AS dish_number, out.name AS modifier_group_name

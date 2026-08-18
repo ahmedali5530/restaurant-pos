@@ -4,16 +4,20 @@ import type {
   ImportDbLike,
   ImportField,
   ImportRecord,
+  ImportRowContext,
 } from "@/lib/data-import/types.ts";
 import {
+  applyListImportMode,
+  findMatchingLineIndexes,
   itemSelectOption,
-  resolveInventoryItem,
+  resolveItemFormLineMatchValue,
+  resolveItemFormMatchValue,
   type SelectOption,
   type TFunc,
 } from "@/lib/data-import/helpers.ts";
 import {dateToCalendarDate} from "@/utils/date.ts";
 
-export type PurchaseLineAppend = (line: {
+export type PurchaseLinePayload = {
   item: SelectOption;
   quantity: number;
   requested: number;
@@ -26,16 +30,22 @@ export type PurchaseLineAppend = (line: {
   code: string;
   location: SelectOption;
   taxable: boolean;
-}) => void;
+};
+
+export type PurchaseLineAppend = (line: PurchaseLinePayload) => void;
 
 export function createPurchaseImportConfig({
   db,
   t,
   append,
+  update,
+  getLines,
 }: {
   db: ImportDbLike;
   t: TFunc;
   append: PurchaseLineAppend;
+  update: (index: number, line: PurchaseLinePayload) => void;
+  getLines: () => any[];
 }): ImportConfiguration {
   const fields: ImportField[] = [
     {name: "name", label: t("inventory:itemName"), type: "string", required: true, aliases: ["Item name", "Name"]},
@@ -51,16 +61,20 @@ export function createPurchaseImportConfig({
     {name: "comments", label: t("inventory:forms.comments"), type: "string", optional: true},
   ];
 
+  const notFoundMessage = t("common:csvImport.recordNotFound");
+  const multipleMatchesMessage = t("common:csvImport.multipleMatches");
+
   return {
     id: "purchase_lines",
     entityLabel: t("inventory:tabs.items", {defaultValue: "Purchase line"}),
     shape: "records",
     fields,
+    matchFields: ["code"],
     defaultMode: "create",
     db,
     extractionInstructions:
       "Extract purchase line items with item name, code, quantities, price, supplier name, location name, and optional dates/comments.",
-    onImportRow: async (record: ImportRecord) => {
+    onImportRow: async (record: ImportRecord, ctx: ImportRowContext) => {
       const v = record.values;
       const name = String(v.name ?? "").trim();
       const code = String(v.code ?? "").trim();
@@ -84,7 +98,7 @@ export function createPurchaseImportConfig({
       const expiryRaw = v.expiry_date ? String(v.expiry_date) : "";
       const mfgRaw = v.manufacturing_date ? String(v.manufacturing_date) : "";
 
-      append({
+      const payload: PurchaseLinePayload = {
         item: itemSelectOption(item),
         quantity: Number(v.quantity) || 0,
         requested: Number(v.requested ?? v.quantity) || 0,
@@ -97,6 +111,36 @@ export function createPurchaseImportConfig({
         code: "",
         location: {label: location.name, value: String(location.id)},
         taxable: !!item.taxable,
+      };
+
+      const matchIndexes = findMatchingLineIndexes(
+        getLines(),
+        ctx.matchFields,
+        v,
+        (line) => ({
+          code: line.item?.value,
+          name: line.item?.value,
+          item: line.item?.value,
+          supplier: line.supplier?.value,
+          location: line.location?.value,
+          quantity: line.quantity,
+          price: line.price,
+        }),
+        {
+          skipLine: (line) => !line?.item?.value,
+          resolveImportField: (field, value) => resolveItemFormMatchValue(field, value, item),
+          resolveLineField: (field, _value, line) => resolveItemFormLineMatchValue(field, line),
+        }
+      );
+
+      applyListImportMode({
+        mode: ctx.mode,
+        existingIndexes: matchIndexes,
+        append,
+        update: (index) => update(index, payload),
+        payload,
+        notFoundMessage,
+        multipleMatchesMessage,
       });
     },
   };

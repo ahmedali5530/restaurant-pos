@@ -170,6 +170,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
     formState: {errors},
     reset,
     setValue,
+    getValues,
   } = useForm({
     resolver,
     defaultValues: {
@@ -189,15 +190,21 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
     }
   });
 
-  const {fields, append, remove, replace} = useFieldArray({
+  const {fields, append, remove, replace, update} = useFieldArray({
     control,
     name: "items"
   });
 
   const [importModal, setImportModal] = useState(false);
   const issueReturnImportConfig = useMemo(
-    () => createIssueReturnImportConfig({db, t, append}),
-    [db, t, append]
+    () => createIssueReturnImportConfig({
+      db,
+      t,
+      append,
+      update,
+      getLines: () => getValues("items") ?? [],
+    }),
+    [db, t, append, update, getValues]
   );
 
   useEffect(() => {
@@ -857,6 +864,8 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
         onClose={() => setImportModal(false)}
         config={issueReturnImportConfig}
         title={t('forms.smartImportIssueReturnTitle', {defaultValue: 'AI Import return lines'})}
+        enableImportModes
+        defaultMatchFields={['item']}
         onDone={() => setImportModal(false)}
       />
     )}

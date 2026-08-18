@@ -138,18 +138,25 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
     reset,
     watch,
     setValue,
+    getValues,
   } = useForm({
     resolver
   });
 
-  const {fields, append, remove} = useFieldArray({
+  const {fields, append, remove, update} = useFieldArray({
     control,
     name: "items"
   });
   const [importModal, setImportModal] = useState(false);
   const purchaseOrderImportConfig = useMemo(
-    () => createPurchaseOrderImportConfig({db, t, append}),
-    [db, t, append]
+    () => createPurchaseOrderImportConfig({
+      db,
+      t,
+      append,
+      update,
+      getLines: () => getValues("items") ?? [],
+    }),
+    [db, t, append, update, getValues]
   );
   const watchedItems = useWatch({
     control,
@@ -637,6 +644,8 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
           onClose={() => setImportModal(false)}
           config={purchaseOrderImportConfig}
           title={t('forms.smartImportPurchaseOrderTitle', {defaultValue: 'AI Import PO lines'})}
+          enableImportModes
+          defaultMatchFields={['item']}
           onDone={() => setImportModal(false)}
         />
       )}
