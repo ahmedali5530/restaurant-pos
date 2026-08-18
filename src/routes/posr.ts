@@ -89,6 +89,7 @@ export const REPORTS_LABOR_ABSENCE = REPORTS + '/labor-absence';
 export const REPORTS_LABOR_LEAVE = REPORTS + '/labor-leave';
 export const REPORTS_LABOR_HOLIDAY_COST = REPORTS + '/labor-holiday-cost';
 export const REPORTS_LABOR_SCHEDULED_VS_ACTUAL = REPORTS + '/labor-scheduled-vs-actual';
+export const REPORTS_LABOR_SCHEDULE_ROSTER = REPORTS + '/labor-schedule-roster';
 export const REPORTS_LABOR_MANAGER_APPROVAL = REPORTS + '/labor-manager-approval';
 export const REPORTS_LABOR_PAYROLL_SUMMARY = REPORTS + '/labor-payroll-summary';
 export const REPORTS_LABOR_PAYROLL_DETAILS = REPORTS + '/labor-payroll-details';

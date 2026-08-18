@@ -78,6 +78,7 @@
     "leaveReport": "Отчёт по отпускам",
     "holidayCostReport": "Отчёт по затратам на праздники",
     "scheduledVsActual": "План vs факт",
+    "scheduleRoster": "График смен",
     "managerApprovalReport": "Отчёт по утверждениям менеджера",
     "topLaborCostEmployees": "Сотрудники с наибольшими затратами",
     "topOvertimeEmployees": "Сотрудники с наибольшим числом сверхурочных",
@@ -148,6 +149,7 @@
     "leaveReport": "Отчёт по отпускам",
     "holidayCostReport": "Отчёт по затратам на праздники",
     "scheduledVsActual": "План vs факт",
+    "scheduleRoster": "График смен",
     "managerApprovalReport": "Отчёт по утверждениям менеджера",
     "topLaborCostEmployees": "Сотрудники с наибольшими затратами",
     "topOvertimeEmployees": "Сотрудники с наибольшим числом сверхурочных",
@@ -158,6 +160,16 @@
     "laborDashboard": "Панель персонала",
     "purchaseOrder": "Отчёт по заказам на закупку"
   },
+  "weekdays": {
+    "1": "Пн",
+    "2": "Вт",
+    "3": "Ср",
+    "4": "Чт",
+    "5": "Пт",
+    "6": "Сб",
+    "7": "Вс"
+  },
+  "weekOf": "Неделя с {{date}}",
   "layout": {
     "print": "Печать",
     "downloadXlsx": "Скачать как XLSX",
@@ -636,6 +648,7 @@
     "noDiscountTypes": "Нет типов скидок за выбранный период.",
     "noDiscountsByUsers": "Нет скидок по пользователям за выбранный период.",
     "noDiscountRows": "Строки скидок за выбранный период не найдены.",
-    "noEmployeeSales": "Нет данных о продажах по сотрудникам"
+    "noEmployeeSales": "Нет данных о продажах по сотрудникам",
+    "noScheduleRoster": "Нет запланированных смен за выбранный период"
   }
 }

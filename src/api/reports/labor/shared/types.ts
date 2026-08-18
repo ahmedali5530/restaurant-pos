@@ -231,3 +231,25 @@ export interface LaborReportContext {
   calculations: LaborCalculationResult[];
   employeeRows: EmployeeLaborRow[];
 }
+
+export interface ScheduleRosterCellShift {
+  start: string;
+  end: string;
+}
+
+export interface ScheduleRosterEmployeeRow {
+  employeeId: string;
+  employeeName: string;
+  departmentName?: string;
+  days: Record<string, ScheduleRosterCellShift[]>;
+}
+
+export interface ScheduleRosterWeek {
+  weekStart: string;
+  days: string[];
+  rows: ScheduleRosterEmployeeRow[];
+}
+
+export interface ScheduleRosterResult {
+  weeks: ScheduleRosterWeek[];
+}

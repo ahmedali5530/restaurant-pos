@@ -78,6 +78,7 @@
     "leaveReport": "Urlaubsbericht",
     "holidayCostReport": "Feiertagskostenbericht",
     "scheduledVsActual": "Geplant vs. tatsächlich",
+    "scheduleRoster": "Dienstplan",
     "managerApprovalReport": "Genehmigungsbericht des Managers",
     "topLaborCostEmployees": "Mitarbeiter mit höchsten Personalkosten",
     "topOvertimeEmployees": "Mitarbeiter mit meisten Überstunden",
@@ -148,6 +149,7 @@
     "leaveReport": "Urlaubsbericht",
     "holidayCostReport": "Feiertagskostenbericht",
     "scheduledVsActual": "Geplant vs. tatsächlich",
+    "scheduleRoster": "Dienstplan",
     "managerApprovalReport": "Genehmigungsbericht des Managers",
     "topLaborCostEmployees": "Mitarbeiter mit höchsten Personalkosten",
     "topOvertimeEmployees": "Mitarbeiter mit meisten Überstunden",
@@ -158,6 +160,16 @@
     "laborDashboard": "Personal-Dashboard",
     "purchaseOrder": "Bestellbericht"
   },
+  "weekdays": {
+    "1": "Mo",
+    "2": "Di",
+    "3": "Mi",
+    "4": "Do",
+    "5": "Fr",
+    "6": "Sa",
+    "7": "So"
+  },
+  "weekOf": "Woche vom {{date}}",
   "layout": {
     "print": "Drucken",
     "downloadXlsx": "Als XLSX herunterladen",
@@ -636,6 +648,7 @@
     "noDiscountTypes": "Keine Rabattarten für den ausgewählten Zeitraum.",
     "noDiscountsByUsers": "Keine Rabatte nach Benutzer für den ausgewählten Zeitraum.",
     "noDiscountRows": "Keine Rabattzeilen für den ausgewählten Zeitraum gefunden.",
-    "noEmployeeSales": "Keine Mitarbeiterverkaufsdaten verfügbar"
+    "noEmployeeSales": "Keine Mitarbeiterverkaufsdaten verfügbar",
+    "noScheduleRoster": "Keine geplanten Schichten für den ausgewählten Zeitraum"
   }
 }

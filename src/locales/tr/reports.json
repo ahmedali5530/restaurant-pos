@@ -78,6 +78,7 @@
     "leaveReport": "İzin raporu",
     "holidayCostReport": "Tatil maliyeti raporu",
     "scheduledVsActual": "Planlanan vs gerçekleşen",
+    "scheduleRoster": "Vardiya çizelgesi",
     "managerApprovalReport": "Yönetici onay raporu",
     "topLaborCostEmployees": "En yüksek işgücü maliyetli çalışanlar",
     "topOvertimeEmployees": "En fazla fazla mesai yapan çalışanlar",
@@ -148,6 +149,7 @@
     "leaveReport": "İzin raporu",
     "holidayCostReport": "Tatil maliyeti raporu",
     "scheduledVsActual": "Planlanan vs gerçekleşen",
+    "scheduleRoster": "Vardiya çizelgesi",
     "managerApprovalReport": "Yönetici onay raporu",
     "topLaborCostEmployees": "En yüksek işgücü maliyetli çalışanlar",
     "topOvertimeEmployees": "En fazla fazla mesai yapan çalışanlar",
@@ -158,6 +160,16 @@
     "laborDashboard": "İşgücü paneli",
     "purchaseOrder": "Satın Alma Siparişi Raporu"
   },
+  "weekdays": {
+    "1": "Pzt",
+    "2": "Sal",
+    "3": "Çar",
+    "4": "Per",
+    "5": "Cum",
+    "6": "Cmt",
+    "7": "Paz"
+  },
+  "weekOf": "{{date}} haftası",
   "layout": {
     "print": "Yazdır",
     "downloadXlsx": "XLSX olarak indir",
@@ -636,6 +648,7 @@
     "noDiscountTypes": "Seçilen aralık için indirim türü yok.",
     "noDiscountsByUsers": "Seçilen aralık için kullanıcıya göre indirim yok.",
     "noDiscountRows": "Seçilen aralık için indirim satırı bulunamadı.",
-    "noEmployeeSales": "Çalışan satış verisi yok"
+    "noEmployeeSales": "Çalışan satış verisi yok",
+    "noScheduleRoster": "Seçilen aralıkta planlanmış vardiya yok"
   }
 }

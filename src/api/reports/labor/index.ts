@@ -14,6 +14,7 @@ export {
   aggregateMonthlyLaborCost,
   aggregateOvertimeReport,
   aggregatePayrollSummary,
+  aggregateScheduleRoster,
   aggregateScheduledVsActual,
   aggregateTopLaborCostEmployees,
   aggregateTopOvertimeEmployees,
@@ -59,6 +60,7 @@ export {
   getPayrollDetails,
   getLaborTrend,
   getLaborForecastDataset,
+  getScheduleRoster,
 } from '@/api/reports/labor/facade.ts';
 
 export {getLaborDashboardSnapshot} from '@/api/reports/labor/dashboard.ts';

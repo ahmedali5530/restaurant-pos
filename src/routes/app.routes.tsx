@@ -66,6 +66,7 @@ import {
   REPORTS_LABOR_OVERTIME,
   REPORTS_LABOR_PAYROLL_SUMMARY,
   REPORTS_LABOR_SCHEDULED_VS_ACTUAL,
+  REPORTS_LABOR_SCHEDULE_ROSTER,
   REPORTS_SALES_ADVANCED,
   REPORTS_SALES_DASHBOARD,
   REPORTS_SALES_HOURLY_LABOUR,
@@ -96,6 +97,7 @@ import {
   LaborOvertimeReport,
   LaborPayrollSummaryReport,
   LaborScheduledVsActualReport,
+  LaborScheduleRosterReport,
   CashClosingReport,
   ConsumptionReport,
   CouponReport,
@@ -209,6 +211,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_LABOR_ATTENDANCE} element={<LaborAttendanceReport/>}/>
         <Route path={REPORTS_LABOR_PAYROLL_SUMMARY} element={<LaborPayrollSummaryReport/>}/>
         <Route path={REPORTS_LABOR_SCHEDULED_VS_ACTUAL} element={<LaborScheduledVsActualReport/>}/>
+        <Route path={REPORTS_LABOR_SCHEDULE_ROSTER} element={<LaborScheduleRosterReport/>}/>
       </Route>
     </Route>
     <Route path="*" element={<NotFound/>}/>

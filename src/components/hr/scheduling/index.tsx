@@ -11,7 +11,7 @@ import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {IconTooltipButton} from "@/components/common/input/icon.tooltip.button.tsx";
-import {faCheck, faPencil, faPlus, faTrash, faXmark} from "@fortawesome/free-solid-svg-icons";
+import {faCheck, faPencil, faPlus, faPrint, faTrash, faXmark} from "@fortawesome/free-solid-svg-icons";
 import {formatDisplayDate, entityLabel} from "@/components/hr/shared/form.utils.ts";
 import {useDB} from "@/api/db/db.ts";
 import {useAtom} from "jotai";
@@ -31,6 +31,7 @@ import {SwapRequestForm} from "@/components/hr/scheduling/swap.form.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {createScheduledShiftImportConfig} from "@/components/hr/scheduling/scheduled-shift.import.config.ts";
+import {openScheduleRoster, PrintRosterModal} from "@/components/hr/scheduling/print.roster.modal.tsx";
 
 type SubTab = "schedules" | "shifts" | "templates" | "swaps";
 
@@ -85,6 +86,7 @@ export const HrScheduling = () => {
   const [generateModal, setGenerateModal] = useState(false);
   const [swapModal, setSwapModal] = useState(false);
   const [importModal, setImportModal] = useState(false);
+  const [printRosterModal, setPrintRosterModal] = useState(false);
   const [publishingId, setPublishingId] = useState<string>();
   const [actionId, setActionId] = useState<string>();
 
@@ -198,6 +200,12 @@ export const HrScheduling = () => {
         const isDraft = row.status !== "published";
         return (
           <div className="flex gap-2">
+            <IconTooltipButton
+              label={t("buttons.printRoster")}
+              variant="secondary"
+              icon={faPrint}
+              onClick={() => openScheduleRoster(row)}
+            />
             {isDraft && (
               <>
                 <IconTooltipButton
@@ -415,6 +423,9 @@ export const HrScheduling = () => {
               <span className="mr-2"><AiSparklesIcon /></span>
               {t("common:actions.smartImport", {defaultValue: "AI Import"})}
             </Button>,
+            <Button key="shift-print" variant="secondary" icon={faPrint} onClick={() => setPrintRosterModal(true)}>
+              {t("common:actions.print")}
+            </Button>,
             <Button key="shift-create" variant="primary" data-testid="hr-add-schedule-shift" onClick={() => { setShift(undefined); setSchedule(undefined); setShiftModal(true); }} icon={faPlus}>
               {t("buttons.scheduledShift")}
             </Button>,
@@ -518,6 +529,12 @@ export const HrScheduling = () => {
             setImportModal(false);
             shiftsHook.fetchData();
           }}
+        />
+      )}
+      {printRosterModal && (
+        <PrintRosterModal
+          open
+          onClose={() => setPrintRosterModal(false)}
         />
       )}
     </div>

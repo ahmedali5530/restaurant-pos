@@ -78,6 +78,7 @@
     "leaveReport": "Rapport des congés",
     "holidayCostReport": "Rapport des coûts de jours fériés",
     "scheduledVsActual": "Prévu vs réel",
+    "scheduleRoster": "Planning des équipes",
     "managerApprovalReport": "Rapport d'approbation du responsable",
     "topLaborCostEmployees": "Employés aux coûts de main-d'œuvre les plus élevés",
     "topOvertimeEmployees": "Employés avec le plus d'heures supplémentaires",
@@ -148,6 +149,7 @@
     "leaveReport": "Rapport des congés",
     "holidayCostReport": "Rapport des coûts de jours fériés",
     "scheduledVsActual": "Prévu vs réel",
+    "scheduleRoster": "Planning des équipes",
     "managerApprovalReport": "Rapport d'approbation du responsable",
     "topLaborCostEmployees": "Employés aux coûts de main-d'œuvre les plus élevés",
     "topOvertimeEmployees": "Employés avec le plus d'heures supplémentaires",
@@ -158,6 +160,16 @@
     "laborDashboard": "Tableau de bord de la main-d'œuvre",
     "purchaseOrder": "Rapport des bons de commande"
   },
+  "weekdays": {
+    "1": "Lun",
+    "2": "Mar",
+    "3": "Mer",
+    "4": "Jeu",
+    "5": "Ven",
+    "6": "Sam",
+    "7": "Dim"
+  },
+  "weekOf": "Semaine du {{date}}",
   "layout": {
     "print": "Imprimer",
     "downloadXlsx": "Télécharger en XLSX",
@@ -636,6 +648,7 @@
     "noDiscountTypes": "Aucun type de remise pour la période sélectionnée.",
     "noDiscountsByUsers": "Aucune remise par utilisateur pour la période sélectionnée.",
     "noDiscountRows": "Aucune ligne de remise trouvée pour la période sélectionnée.",
-    "noEmployeeSales": "Aucune donnée de ventes par employé disponible"
+    "noEmployeeSales": "Aucune donnée de ventes par employé disponible",
+    "noScheduleRoster": "Aucun quart planifié pour la période sélectionnée"
   }
 }

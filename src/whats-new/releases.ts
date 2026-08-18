@@ -7,7 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
-    date: '2026-08-17',
+    date: '2026-08-18',
+    title: 'Print schedule roster',
+    items: [
+      'Print a weekly staff roster of scheduled shifts from HR → Scheduling (Assigned shifts or a schedule row) and from Reports → Labor → Schedule roster.',
+      'The roster shows employees as rows and Monday–Sunday as columns, with Print, PDF, and Excel from the report toolbar.',
+    ],
+  },
+  {  date: '2026-08-17',
     title: 'AI Import',
     items: [
       'Smart Import is now labeled AI Import, with a two-star sparkles icon on import buttons.',

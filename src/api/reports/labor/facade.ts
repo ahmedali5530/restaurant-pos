@@ -17,6 +17,7 @@ import {
   aggregateMonthlyLaborCost,
   aggregateOvertimeReport,
   aggregatePayrollSummary,
+  aggregateScheduleRoster,
   aggregateScheduledVsActual,
   aggregateTopLaborCostEmployees,
   aggregateTopOvertimeEmployees,
@@ -44,6 +45,7 @@ import type {
   LaborCostResult,
   LaborPercentResult,
   RevenuePerEmployeeResult,
+  ScheduleRosterResult,
   SalesPerLaborHourResult,
 } from '@/api/reports/labor/shared/types.ts';
 
@@ -329,4 +331,18 @@ export const getLaborForecastDataset = async (db: DbClient, options: LaborDateRa
   ]);
   const trend = aggregateLaborTrend(aggregateDailyLaborCost(context));
   return aggregateLaborForecastDataset(scheduledShifts, trend, avgHourly.averageHourlyCost);
+};
+
+export const getScheduleRoster = async (
+  db: DbClient,
+  options: LaborDateRange & {scheduleId?: string} = {},
+): Promise<ScheduleRosterResult> => {
+  const {startDate, endDate} = resolvePeriod(options);
+  const scheduledShifts = await fetchScheduledShifts(db, {
+    startDate,
+    endDate,
+    employeeIds: options.employeeIds,
+    scheduleId: options.scheduleId,
+  });
+  return aggregateScheduleRoster(scheduledShifts, startDate, endDate);
 };

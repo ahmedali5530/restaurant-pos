@@ -78,6 +78,7 @@
     "leaveReport": "تقرير الإجازات",
     "holidayCostReport": "تقرير تكلفة العطل",
     "scheduledVsActual": "المجدول مقابل الفعلي",
+    "scheduleRoster": "جدول المناوبات",
     "managerApprovalReport": "تقرير موافقة المدير",
     "topLaborCostEmployees": "أعلى الموظفين تكلفة عمالة",
     "topOvertimeEmployees": "أعلى الموظفين عملاً إضافياً",
@@ -148,6 +149,7 @@
     "leaveReport": "تقرير الإجازات",
     "holidayCostReport": "تقرير تكلفة العطل",
     "scheduledVsActual": "المجدول مقابل الفعلي",
+    "scheduleRoster": "جدول المناوبات",
     "managerApprovalReport": "تقرير موافقة المدير",
     "topLaborCostEmployees": "أعلى الموظفين تكلفة عمالة",
     "topOvertimeEmployees": "أعلى الموظفين عملاً إضافياً",
@@ -158,6 +160,16 @@
     "laborDashboard": "لوحة معلومات العمالة",
     "purchaseOrder": "تقرير أمر الشراء"
   },
+  "weekdays": {
+    "1": "الاثنين",
+    "2": "الثلاثاء",
+    "3": "الأربعاء",
+    "4": "الخميس",
+    "5": "الجمعة",
+    "6": "السبت",
+    "7": "الأحد"
+  },
+  "weekOf": "أسبوع {{date}}",
   "layout": {
     "print": "طباعة",
     "downloadXlsx": "تنزيل كـ XLSX",
@@ -636,6 +648,7 @@
     "noDiscountTypes": "لا توجد أنواع خصم للنطاق المحدد.",
     "noDiscountsByUsers": "لا توجد خصومات حسب المستخدمين للنطاق المحدد.",
     "noDiscountRows": "لا توجد صفوف خصم للنطاق المحدد.",
-    "noEmployeeSales": "لا توجد بيانات مبيعات حسب الموظفين"
+    "noEmployeeSales": "لا توجد بيانات مبيعات حسب الموظفين",
+    "noScheduleRoster": "لا توجد مناوبات مجدولة للنطاق المحدد"
   }
 }

@@ -10,6 +10,7 @@ import type {LaborAdjustment} from '@/api/model/labor_adjustment.ts';
 import type {LaborPayRule} from '@/api/model/labor_pay_rule.ts';
 import {buildCreatedAtDateConditions, buildOrConditions, buildStringInsideCondition, unwrapQueryResult} from '@/api/reports/shared/query.ts';
 import type {DateRangeFilter, DbClient} from '@/api/reports/shared/types.ts';
+import {toRecordId} from '@/lib/utils.ts';
 
 const TIME_ENTRY_FETCHES = [
   'user',
@@ -70,6 +71,7 @@ export interface FetchPayProfilesOptions extends DateRangeFilter {
 export interface FetchScheduledShiftsOptions extends DateRangeFilter {
   employeeIds?: string[];
   dateField?: 'start_at' | 'end_at';
+  scheduleId?: string;
 }
 
 export interface FetchPayrollSnapshotsOptions extends DateRangeFilter {
@@ -204,10 +206,11 @@ export const fetchScheduledShifts = async (
     endDate,
     employeeIds = [],
     dateField = 'start_at',
+    scheduleId,
   } = options;
 
   const conditions: string[] = [];
-  const params: Record<string, string> = {};
+  const params: Record<string, any> = {};
 
   const dateFilter = buildDateFieldConditions({startDate, endDate}, dateField);
   conditions.push(...dateFilter.conditions);
@@ -217,6 +220,11 @@ export const fetchScheduledShifts = async (
   if (employeeFilter.condition) {
     conditions.push(employeeFilter.condition);
     Object.assign(params, employeeFilter.params);
+  }
+
+  if (scheduleId) {
+    conditions.push('work_schedule = $scheduleId');
+    params.scheduleId = toRecordId(scheduleId);
   }
 
   const query = `

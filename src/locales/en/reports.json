@@ -78,6 +78,7 @@
     "leaveReport": "Leave Report",
     "holidayCostReport": "Holiday Cost Report",
     "scheduledVsActual": "Scheduled vs Actual",
+    "scheduleRoster": "Schedule roster",
     "managerApprovalReport": "Manager Approval Report",
     "topLaborCostEmployees": "Top Labor Cost Employees",
     "topOvertimeEmployees": "Top Overtime Employees",
@@ -147,6 +148,7 @@
     "leaveReport": "Leave report",
     "holidayCostReport": "Holiday cost report",
     "scheduledVsActual": "Scheduled vs actual",
+    "scheduleRoster": "Schedule roster",
     "managerApprovalReport": "Manager approval report",
     "topLaborCostEmployees": "Top labor cost employees",
     "topOvertimeEmployees": "Top overtime employees",
@@ -158,6 +160,16 @@
     "tablesSummary": "Tables summary",
     "purchaseOrder": "Purchase Order Report"
   },
+  "weekdays": {
+    "1": "Mon",
+    "2": "Tue",
+    "3": "Wed",
+    "4": "Thu",
+    "5": "Fri",
+    "6": "Sat",
+    "7": "Sun"
+  },
+  "weekOf": "Week of {{date}}",
   "layout": {
     "print": "Print",
     "downloadXlsx": "Download as XLSX",
@@ -640,6 +652,7 @@
     "noDiscountTypes": "No discount types for selected range.",
     "noDiscountsByUsers": "No discounts by users for selected range.",
     "noDiscountRows": "No discount rows found for selected range.",
-    "noEmployeeSales": "No employee sales data available"
+    "noEmployeeSales": "No employee sales data available",
+    "noScheduleRoster": "No scheduled shifts for the selected range"
   }
 }

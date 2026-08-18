@@ -78,6 +78,7 @@
     "leaveReport": "Relatório de licenças",
     "holidayCostReport": "Relatório de custo de feriados",
     "scheduledVsActual": "Programado vs realizado",
+    "scheduleRoster": "Escala de turnos",
     "managerApprovalReport": "Relatório de aprovação do gerente",
     "topLaborCostEmployees": "Funcionários com maior custo de mão de obra",
     "topOvertimeEmployees": "Funcionários com mais horas extras",
@@ -148,6 +149,7 @@
     "leaveReport": "Relatório de licenças",
     "holidayCostReport": "Relatório de custo de feriados",
     "scheduledVsActual": "Programado vs realizado",
+    "scheduleRoster": "Escala de turnos",
     "managerApprovalReport": "Relatório de aprovação do gerente",
     "topLaborCostEmployees": "Funcionários com maior custo de mão de obra",
     "topOvertimeEmployees": "Funcionários com mais horas extras",
@@ -158,6 +160,16 @@
     "laborDashboard": "Painel de mão de obra",
     "purchaseOrder": "Relatório de pedido de compra"
   },
+  "weekdays": {
+    "1": "Seg",
+    "2": "Ter",
+    "3": "Qua",
+    "4": "Qui",
+    "5": "Sex",
+    "6": "Sáb",
+    "7": "Dom"
+  },
+  "weekOf": "Semana de {{date}}",
   "layout": {
     "print": "Imprimir",
     "downloadXlsx": "Baixar como XLSX",
@@ -636,6 +648,7 @@
     "noDiscountTypes": "Nenhum tipo de desconto para o intervalo selecionado.",
     "noDiscountsByUsers": "Nenhum desconto por usuários para o intervalo selecionado.",
     "noDiscountRows": "Nenhuma linha de desconto encontrada para o intervalo selecionado.",
-    "noEmployeeSales": "Nenhum dado de vendas por funcionário disponível"
+    "noEmployeeSales": "Nenhum dado de vendas por funcionário disponível",
+    "noScheduleRoster": "Nenhum turno agendado para o período selecionado"
   }
 }

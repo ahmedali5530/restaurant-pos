@@ -12,7 +12,7 @@ import type {DateRangeFilter} from '@/api/reports/shared/types.ts';
 import {calculateEmployeeLabor} from '@/lib/labor-engine/calculator.ts';
 import {resolveEffectivePayProfile} from '@/lib/labor-engine/pay-profile.resolver.ts';
 import type {LaborCalculationResult, TimeEntryWithBreaks} from '@/lib/labor-engine/types.ts';
-import {toJsDate, toLuxonDateTime} from '@/lib/datetime.ts';
+import {getAppTimezone, toJsDate, toLuxonDateTime} from '@/lib/datetime.ts';
 import {safeNumber} from '@/lib/utils.ts';
 import {DateTime} from 'luxon';
 import type {
@@ -31,6 +31,8 @@ import type {
   OvertimeReportRow,
   PayrollDetailRow,
   PayrollSummaryResult,
+  ScheduleRosterEmployeeRow,
+  ScheduleRosterResult,
   ScheduledVsActualRow,
 } from '@/api/reports/labor/shared/types.ts';
 
@@ -720,6 +722,89 @@ export const aggregateTopOvertimeEmployees = (
   context: LaborReportContext,
   limit = 10,
 ): OvertimeReportRow[] => aggregateOvertimeReport(context).slice(0, limit);
+
+const parseRosterBound = (value: string) => {
+  const timezone = getAppTimezone();
+  const fromFormat = DateTime.fromFormat(
+    value,
+    import.meta.env.VITE_DATE_TIME_FORMAT as string,
+    {zone: timezone},
+  );
+  if (fromFormat.isValid) {
+    return fromFormat;
+  }
+  return toLuxonDateTime(value).setZone(timezone);
+};
+
+export const aggregateScheduleRoster = (
+  scheduledShifts: ScheduledShift[],
+  startDate: string,
+  endDate: string,
+): ScheduleRosterResult => {
+  const rangeStart = parseRosterBound(startDate).startOf('day');
+  const rangeEnd = parseRosterBound(endDate).startOf('day');
+  const rangeStartKey = rangeStart.toFormat('yyyy-MM-dd');
+  const rangeEndKey = rangeEnd.toFormat('yyyy-MM-dd');
+
+  const activeShifts = scheduledShifts.filter(shift => shift.status !== 'cancelled');
+
+  const weeks: ScheduleRosterResult['weeks'] = [];
+  let cursor = rangeStart.startOf('week');
+  const last = rangeEnd.endOf('week');
+
+  while (cursor <= last) {
+    const days = Array.from({length: 7}, (_, index) => cursor.plus({days: index}).toFormat('yyyy-MM-dd'));
+    const weekStart = days[0];
+    const weekEnd = days[6];
+
+    const weekShifts = activeShifts.filter(shift => {
+      const date = toLuxonDateTime(shift.start_at).toFormat('yyyy-MM-dd');
+      return date >= weekStart && date <= weekEnd && date >= rangeStartKey && date <= rangeEndKey;
+    });
+
+    const byEmployee = new Map<string, ScheduleRosterEmployeeRow>();
+    for (const shift of weekShifts) {
+      if (!shift.employee) {
+        continue;
+      }
+      const id = employeeId(shift.employee);
+      if (!id) {
+        continue;
+      }
+      let row = byEmployee.get(id);
+      if (!row) {
+        row = {
+          employeeId: id,
+          employeeName: employeeName(shift.employee),
+          departmentName: shift.department?.name || shift.employee.department?.name,
+          days: {},
+        };
+        byEmployee.set(id, row);
+      }
+      const date = toLuxonDateTime(shift.start_at).toFormat('yyyy-MM-dd');
+      const cell = row.days[date] ?? [];
+      cell.push({
+        start: toLuxonDateTime(shift.start_at).toFormat('HH:mm'),
+        end: toLuxonDateTime(shift.end_at).toFormat('HH:mm'),
+      });
+      row.days[date] = cell;
+    }
+
+    const rows = [...byEmployee.values()].sort((a, b) => a.employeeName.localeCompare(b.employeeName));
+    for (const row of rows) {
+      for (const date of Object.keys(row.days)) {
+        row.days[date].sort((a, b) => a.start.localeCompare(b.start));
+      }
+    }
+
+    if (rows.length > 0) {
+      weeks.push({weekStart, days, rows});
+    }
+    cursor = cursor.plus({weeks: 1});
+  }
+
+  return {weeks};
+};
 
 export interface LaborDateRange extends DateRangeFilter {
   employeeIds?: string[];

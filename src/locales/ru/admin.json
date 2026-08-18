@@ -510,6 +510,7 @@
       "reports.leave": "Leave Report",
       "reports.holiday_cost": "Holiday Cost Report",
       "reports.scheduled_vs_actual": "Scheduled vs Actual",
+      "reports.schedule_roster": "График смен",
       "reports.manager_approval": "Manager Approval Report",
       "reports.top_labor_cost_employees": "Top Labor Cost Employees",
       "reports.top_overtime_employees": "Top Overtime Employees",

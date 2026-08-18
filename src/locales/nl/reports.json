@@ -78,6 +78,7 @@
     "leaveReport": "Verlofrapport",
     "holidayCostReport": "Feestdagenkostenrapport",
     "scheduledVsActual": "Gepland vs werkelijk",
+    "scheduleRoster": "Rooster",
     "managerApprovalReport": "Goedkeuringsrapport manager",
     "topLaborCostEmployees": "Medewerkers met hoogste arbeidskosten",
     "topOvertimeEmployees": "Medewerkers met meeste overuren",
@@ -148,6 +149,7 @@
     "leaveReport": "Verlofrapport",
     "holidayCostReport": "Feestdagenkostenrapport",
     "scheduledVsActual": "Gepland vs werkelijk",
+    "scheduleRoster": "Rooster",
     "managerApprovalReport": "Goedkeuringsrapport manager",
     "topLaborCostEmployees": "Medewerkers met hoogste arbeidskosten",
     "topOvertimeEmployees": "Medewerkers met meeste overuren",
@@ -158,6 +160,16 @@
     "laborDashboard": "Arbeidsdashboard",
     "purchaseOrder": "Inkooporderrapport"
   },
+  "weekdays": {
+    "1": "Ma",
+    "2": "Di",
+    "3": "Wo",
+    "4": "Do",
+    "5": "Vr",
+    "6": "Za",
+    "7": "Zo"
+  },
+  "weekOf": "Week van {{date}}",
   "layout": {
     "print": "Afdrukken",
     "downloadXlsx": "Downloaden als XLSX",
@@ -636,6 +648,7 @@
     "noDiscountTypes": "Geen kortingstypes voor geselecteerd bereik.",
     "noDiscountsByUsers": "Geen kortingen per gebruiker voor geselecteerd bereik.",
     "noDiscountRows": "Geen kortingsregels gevonden voor geselecteerd bereik.",
-    "noEmployeeSales": "Geen verkoopgegevens per medewerker beschikbaar"
+    "noEmployeeSales": "Geen verkoopgegevens per medewerker beschikbaar",
+    "noScheduleRoster": "Geen geplande diensten voor het geselecteerde bereik"
   }
 }

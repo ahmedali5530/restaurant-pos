@@ -78,6 +78,7 @@
     "leaveReport": "Informe de permisos",
     "holidayCostReport": "Informe de costo de festivos",
     "scheduledVsActual": "Programado vs real",
+    "scheduleRoster": "Roster de turnos",
     "managerApprovalReport": "Informe de aprobación del gerente",
     "topLaborCostEmployees": "Empleados con mayor costo de mano de obra",
     "topOvertimeEmployees": "Empleados con más horas extra",
@@ -148,6 +149,7 @@
     "leaveReport": "Informe de permisos",
     "holidayCostReport": "Informe de costo de festivos",
     "scheduledVsActual": "Programado vs real",
+    "scheduleRoster": "Roster de turnos",
     "managerApprovalReport": "Informe de aprobación del gerente",
     "topLaborCostEmployees": "Empleados con mayor costo de mano de obra",
     "topOvertimeEmployees": "Empleados con más horas extra",
@@ -158,6 +160,16 @@
     "laborDashboard": "Panel de mano de obra",
     "purchaseOrder": "Informe de orden de compra"
   },
+  "weekdays": {
+    "1": "Lun",
+    "2": "Mar",
+    "3": "Mié",
+    "4": "Jue",
+    "5": "Vie",
+    "6": "Sáb",
+    "7": "Dom"
+  },
+  "weekOf": "Semana del {{date}}",
   "layout": {
     "print": "Imprimir",
     "downloadXlsx": "Descargar como XLSX",
@@ -636,6 +648,7 @@
     "noDiscountTypes": "No hay tipos de descuento para el rango seleccionado.",
     "noDiscountsByUsers": "No hay descuentos por usuarios para el rango seleccionado.",
     "noDiscountRows": "No se encontraron filas de descuento para el rango seleccionado.",
-    "noEmployeeSales": "No hay datos de ventas por empleados"
+    "noEmployeeSales": "No hay datos de ventas por empleados",
+    "noScheduleRoster": "No hay turnos programados para el rango seleccionado"
   }
 }

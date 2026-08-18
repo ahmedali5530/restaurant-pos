@@ -78,6 +78,7 @@
     "leaveReport": "Report permessi",
     "holidayCostReport": "Report costi festivi",
     "scheduledVsActual": "Programmato vs effettivo",
+    "scheduleRoster": "Turni programmati",
     "managerApprovalReport": "Report approvazioni manager",
     "topLaborCostEmployees": "Dipendenti con maggior costo manodopera",
     "topOvertimeEmployees": "Dipendenti con più straordinari",
@@ -148,6 +149,7 @@
     "leaveReport": "Report permessi",
     "holidayCostReport": "Report costi festivi",
     "scheduledVsActual": "Programmato vs effettivo",
+    "scheduleRoster": "Turni programmati",
     "managerApprovalReport": "Report approvazioni manager",
     "topLaborCostEmployees": "Dipendenti con maggior costo manodopera",
     "topOvertimeEmployees": "Dipendenti con più straordinari",
@@ -158,6 +160,16 @@
     "laborDashboard": "Dashboard manodopera",
     "purchaseOrder": "Report ordini di acquisto"
   },
+  "weekdays": {
+    "1": "Lun",
+    "2": "Mar",
+    "3": "Mer",
+    "4": "Gio",
+    "5": "Ven",
+    "6": "Sab",
+    "7": "Dom"
+  },
+  "weekOf": "Settimana del {{date}}",
   "layout": {
     "print": "Stampa",
     "downloadXlsx": "Scarica come XLSX",
@@ -636,6 +648,7 @@
     "noDiscountTypes": "Nessun tipo di sconto per l'intervallo selezionato.",
     "noDiscountsByUsers": "Nessuno sconto per utente per l'intervallo selezionato.",
     "noDiscountRows": "Nessuna riga sconto trovata per l'intervallo selezionato.",
-    "noEmployeeSales": "Nessun dato di vendita per dipendente disponibile"
+    "noEmployeeSales": "Nessun dato di vendita per dipendente disponibile",
+    "noScheduleRoster": "Nessun turno programmato per l'intervallo selezionato"
   }
 }

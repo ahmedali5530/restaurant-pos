@@ -52,6 +52,7 @@ import {LaborOvertimeFilter} from "@/components/reports/filters/labor.overtime.f
 import {LaborAttendanceFilter} from "@/components/reports/filters/labor.attendance.filter.tsx";
 import {LaborPayrollSummaryFilter} from "@/components/reports/filters/labor.payroll.summary.filter.tsx";
 import {LaborScheduledVsActualFilter} from "@/components/reports/filters/labor.scheduled.vs.actual.filter.tsx";
+import {LaborScheduleRosterFilter} from "@/components/reports/filters/labor.schedule.roster.filter.tsx";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 
 type ReportEntry = {
@@ -114,6 +115,7 @@ const REPORT_PERMISSION_MODULES: Record<string, string> = {
   attendanceReport: 'reports.attendance',
   payrollSummary: 'reports.payroll_summary',
   scheduledVsActual: 'reports.scheduled_vs_actual',
+  scheduleRoster: 'reports.schedule_roster',
 };
 
 const buildReportEntries = (
@@ -229,6 +231,7 @@ export const Reports = () => {
           { reportKey: 'attendanceReport', filter: <LaborAttendanceFilter /> },
           { reportKey: 'payrollSummary', filter: <LaborPayrollSummaryFilter /> },
           { reportKey: 'scheduledVsActual', filter: <LaborScheduledVsActualFilter /> },
+          { reportKey: 'scheduleRoster', filter: <LaborScheduleRosterFilter /> },
         ]),
       },
     ];

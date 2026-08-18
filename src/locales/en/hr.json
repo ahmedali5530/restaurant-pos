@@ -168,6 +168,7 @@
     "requestSwap": "Request swap",
     "approveSwap": "Approve swap",
     "rejectSwap": "Reject swap",
+    "printRoster": "Print roster",
     "addBreak": "Add break",
     "manualEntry": "Manual entry",
     "closePeriod": "Close period",
