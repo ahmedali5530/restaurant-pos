@@ -11,6 +11,8 @@ export interface EmployeePayProfile {
   effective_to?: DateTime;
   pay_type: PayType;
   base_rate: number;
+  expected_work_days?: number;
+  work_weekdays?: number[];
   currency?: string;
   overtime_policy?: LaborPolicy;
   holiday_policy?: LaborPolicy;

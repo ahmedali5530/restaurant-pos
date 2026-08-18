@@ -4,6 +4,7 @@ import type { EmployeePayProfile } from '@/api/model/employee_pay_profile.ts'
 import type { LaborAdjustment } from '@/api/model/labor_adjustment.ts'
 import type { LaborAdjustmentType } from '@/api/model/hr.types.ts'
 import type { LaborPayRule } from '@/api/model/labor_pay_rule.ts'
+import type { LeaveRequest } from '@/api/model/leave_request.ts'
 import type { PayrollPeriod } from '@/api/model/payroll_period.ts'
 import type { PayrollRun } from '@/api/model/payroll_run.ts'
 import type { PublicHoliday } from '@/api/model/public_holiday.ts'
@@ -12,7 +13,7 @@ import type { User } from '@/api/model/user.ts'
 import type { DbClient, LaborCalculationResult } from '@/lib/labor-engine/types.ts'
 import { calculateEmployeeLabor } from '@/lib/labor-engine/calculator.ts'
 import { resolveEffectivePayProfile } from '@/lib/labor-engine/pay-profile.resolver.ts'
-import { createSnapshots } from '@/lib/labor-engine/payroll/snapshot.service.ts'
+import { createSnapshots, loadRunSnapshots, replaceRunSnapshots } from '@/lib/labor-engine/payroll/snapshot.service.ts'
 import { closePeriod, lockPeriod } from '@/lib/labor-engine/payroll/period.service.ts'
 import { emitLaborCostEvent } from '@/lib/labor-engine/events/labor-cost.events.ts'
 import { logLaborChange } from '@/lib/labor-engine/audit/labor-audit.service.ts'
@@ -64,6 +65,7 @@ export interface GeneratePreviewParams {
 export interface RecalculateRunParams {
   runId: string
   recalculatedBy?: User
+  resetOverrides?: boolean
 }
 
 export interface LockRunParams {
@@ -154,6 +156,36 @@ const loadTimeEntriesForEmployee = async (
   return result?.[0] ?? []
 }
 
+const loadApprovedLeave = async (
+  db: DbClient,
+  period: PayrollPeriod
+): Promise<LeaveRequest[]> => {
+  const result = await db.query<[LeaveRequest[]]>(
+    `SELECT * FROM ${Tables.leave_requests}
+     WHERE status = 'approved'
+       AND start_date <= $end
+       AND end_date >= $start
+     FETCH leave_type`,
+    {
+      start: period.start_date,
+      end: period.end_date,
+    }
+  )
+  return result?.[0] ?? []
+}
+
+const leaveForEmployee = (
+  requests: LeaveRequest[],
+  employeeId: string
+): LeaveRequest[] =>
+  requests.filter(request => {
+    const id =
+      typeof request.employee === 'object'
+        ? request.employee.id
+        : String(request.employee)
+    return id === employeeId
+  })
+
 const loadApprovedAdjustments = async (
   db: DbClient,
   period: PayrollPeriod
@@ -199,6 +231,7 @@ const computeRunResults = async (
   const rules = await loadPayRules(db)
   const holidays = await loadHolidays(db, period)
   const adjustments = await loadApprovedAdjustments(db, period)
+  const leaveRequests = await loadApprovedLeave(db, period)
   const results: LaborCalculationResult[] = []
 
   for (const employee of employees) {
@@ -220,6 +253,7 @@ const computeRunResults = async (
         holidays,
         periodStart: period.start_date,
         periodEnd: period.end_date,
+        leaveRequests: leaveForEmployee(leaveRequests, employee.id),
         adjustments: adjustmentsForEmployee(adjustments, employee.id),
       })
     )
@@ -282,12 +316,12 @@ export const recalculateRun = async (
 
   const results = await computeRunResults(db, period)
 
-  await db.query(
-    `DELETE ${Tables.payroll_snapshots} WHERE payroll_run = $runId`,
-    { runId: toRecordId(params.runId) }
-  )
+  const existing = await loadRunSnapshots(db, params.runId)
+  const preserved = params.resetOverrides
+    ? []
+    : existing.filter(snapshot => snapshot.is_overridden)
 
-  await createSnapshots(db, run, results)
+  await replaceRunSnapshots(db, run, results, preserved)
 
   const merged = await db.merge(params.runId, {
     generated_at: nowSurrealDateTime(),
@@ -449,6 +483,9 @@ export const approveRun = async (
 export interface PayrollExportRow {
   employeeNumber: string
   employeeName: string
+  payType: string
+  paidDays: number
+  unpaidLeaveDays: number
   regularHours: number
   overtimeHours: number
   grossPay: number
@@ -479,6 +516,9 @@ export const exportRun = async (
         first_name?: string
         last_name?: string
       }
+      pay_type?: string
+      paid_days?: number
+      unpaid_leave_days?: number
       gross_pay: number
       net_pay: number
       deductions: number
@@ -487,7 +527,7 @@ export const exportRun = async (
       overtime_hours: number
     }[]]
   >(
-    `SELECT employee, gross_pay, net_pay, deductions, adjustments, regular_hours, overtime_hours
+    `SELECT employee, pay_type, paid_days, unpaid_leave_days, gross_pay, net_pay, deductions, adjustments, regular_hours, overtime_hours
      FROM ${Tables.payroll_snapshots}
      WHERE payroll_run = $runId
      FETCH employee`,
@@ -501,6 +541,9 @@ export const exportRun = async (
       employeeName: employee
         ? `${employee.first_name ?? ''} ${employee.last_name ?? ''}`.trim()
         : String(s.employee ?? ''),
+      payType: s.pay_type ?? '',
+      paidDays: s.paid_days ?? 0,
+      unpaidLeaveDays: s.unpaid_leave_days ?? 0,
       regularHours: s.regular_hours ?? 0,
       overtimeHours: s.overtime_hours ?? 0,
       grossPay: s.gross_pay ?? 0,

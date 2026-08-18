@@ -14,11 +14,13 @@ import {
   resolveRuleStacking,
   sumRuleApplications,
 } from '@/lib/labor-engine/rules/resolver.ts'
+import { computePayrollCalendar } from '@/lib/labor-engine/calculations/work-days.calculations.ts'
 import type {
   HoursBreakdown,
   LaborCalculationContext,
   LaborCalculationResult,
 } from '@/lib/labor-engine/types.ts'
+import { safeNumber } from '@/lib/utils.ts'
 
 export const calculateEmployeeLabor = (
   ctx: LaborCalculationContext
@@ -45,11 +47,24 @@ export const calculateEmployeeLabor = (
     premiumBuckets,
   }
 
-  const baseCost = computeLaborCost({
+  const calendar = computePayrollCalendar({
+    timeEntries: ctx.timeEntries,
+    leaveRequests: ctx.leaveRequests ?? [],
+    periodStart: ctx.periodStart,
+    periodEnd: ctx.periodEnd,
+    workWeekdays: ctx.payProfile.work_weekdays,
+  })
+  const expectedWorkDays = ctx.payProfile.expected_work_days
+  const costInput = {
     hours,
     payProfile: ctx.payProfile,
     adjustments: ctx.adjustments,
-  })
+    paidDays: calendar.paidDays,
+    unpaidLeaveDays: calendar.unpaidLeaveDaysCount,
+    expectedWorkDays,
+  }
+
+  const baseCost = computeLaborCost(costInput)
 
   const candidates = evaluateRules(ctx, baseCost)
   const { applied, rejected } = resolveRuleStacking(candidates)
@@ -60,9 +75,7 @@ export const calculateEmployeeLabor = (
 
   const { bonuses, deductions } = sumRuleApplications(applied)
   const cost = computeLaborCost({
-    hours,
-    payProfile: ctx.payProfile,
-    adjustments: ctx.adjustments,
+    ...costInput,
     ruleBonuses: bonuses,
     ruleDeductions: deductions,
   })
@@ -72,6 +85,13 @@ export const calculateEmployeeLabor = (
     payProfileId: ctx.payProfile.id,
     hours,
     cost,
+    payType: ctx.payProfile.pay_type,
+    paidDays: calendar.paidDays,
+    unpaidLeaveDays: calendar.unpaidLeaveDaysCount,
+    expectedWorkDays:
+      expectedWorkDays === undefined || expectedWorkDays === null
+        ? undefined
+        : safeNumber(expectedWorkDays),
     ruleApplications: flattenRuleApplications(applied),
     calculationVersion: CALCULATION_VERSION,
     calculatedAt,

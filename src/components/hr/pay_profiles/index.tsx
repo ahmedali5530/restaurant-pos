@@ -10,7 +10,7 @@ import {IconTooltipButton} from "@/components/common/input/icon.tooltip.button.t
 import {faPencil, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {PayProfileForm} from "@/components/hr/pay_profiles/form.tsx";
 import {entityLabel, formatDisplayDate} from "@/components/hr/shared/form.utils.ts";
-import {formatNumber} from "@/lib/utils.ts";
+import {withCurrency} from "@/lib/utils.ts";
 
 export const HrPayProfiles = () => {
   const {t} = useTranslation("hr");
@@ -33,9 +33,8 @@ export const HrPayProfiles = () => {
     columnHelper.accessor("pay_type", {header: t("columns.payType")}),
     columnHelper.accessor("base_rate", {
       header: t("columns.baseRate"),
-      cell: (info) => formatNumber(info.getValue()),
+      cell: (info) => withCurrency(info.getValue()),
     }),
-    columnHelper.accessor("currency", {header: t("columns.currency")}),
     columnHelper.accessor("effective_from", {
       header: t("columns.effectiveFrom"),
       cell: (info) => formatDisplayDate(info.getValue()),

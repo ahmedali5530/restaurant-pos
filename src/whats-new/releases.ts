@@ -8,6 +8,15 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-08-18',
+    title: 'Flexible payroll by hours, days, or salary',
+    items: [
+      'Pay profiles now honor hourly, daily wage, or a flat period amount (monthly, weekly, or contract) in payroll runs, so staff can mix pay types in one restaurant.',
+      'Daily and salaried profiles can set expected work days and work weekdays; approved paid leave counts as paid, and unpaid leave prorates or reduces paid days.',
+      'Managers can edit preview snapshot lines (days, pay, deductions) with an override note; recalculate keeps those lines unless you reset overrides.',
+    ],
+  },
+  {
+    date: '2026-08-18',
     title: 'AI inventory and staff need forecasts',
     items: [
       'Ask AI how much inventory you need this Friday or for the next several days: it compares last same-weekday usage, current stock, holidays, weather, and any local event you mention in the prompt, then suggests purchase quantities (it does not create a purchase order).',

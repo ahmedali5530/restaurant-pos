@@ -194,6 +194,7 @@ export const HrPayrollRuns = () => {
           setViewRun(undefined);
         }}
         run={viewRun}
+        onChanged={() => loadHook.fetchData()}
       />
     </>
   );

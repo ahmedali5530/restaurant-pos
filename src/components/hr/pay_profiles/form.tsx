@@ -1,4 +1,4 @@
-import {useEffect, useMemo} from "react";
+import {ChangeEvent, useEffect, useMemo} from "react";
 import {useForm} from "react-hook-form";
 import {useTranslation} from "react-i18next";
 import * as yup from "yup";
@@ -12,7 +12,14 @@ import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Employee} from "@/api/model/employee.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Button} from "@/components/common/input/button.tsx";
-import {HrDateField, HrInputField, HrSelectField, HrStringSelectField} from "@/components/hr/shared/form-field.tsx";
+import {Checkbox} from "@/components/common/input/checkbox.tsx";
+import {
+  HrDateField,
+  HrFormField,
+  HrInputField,
+  HrSelectField,
+  HrStringSelectField,
+} from "@/components/hr/shared/form-field.tsx";
 import {
   SelectOption,
   calendarDateToSurreal,
@@ -24,15 +31,23 @@ import {
 } from "@/components/hr/shared/form.utils.ts";
 import {PayType} from "@/api/model/hr.types.ts";
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
+import {
+  isHourlyLikePayType,
+  isWorkDaysPayType,
+} from "@/lib/labor-engine/calculations/work-days.calculations.ts";
 
 const PAY_TYPES: PayType[] = ["hourly", "monthly_salary", "weekly_salary", "daily_wage", "contract", "commission", "mixed"];
+const WEEKDAYS = [1, 2, 3, 4, 5, 6, 7] as const;
 
 interface FormValues {
   id?: string;
   employee: SelectOption | null;
   pay_type: PayType;
   base_rate: number;
-  currency?: string;
+  expected_work_days?: number | null;
+  work_weekdays: number[];
+  maximum_hours_per_day?: number | null;
+  maximum_hours_per_week?: number | null;
   effective_from: DateValue | null;
   effective_to?: DateValue | null;
   notes?: string;
@@ -44,26 +59,66 @@ interface Props {
   data?: EmployeePayProfile;
 }
 
+const emptyForm = {
+  employee: null,
+  pay_type: "hourly" as PayType,
+  base_rate: 0,
+  expected_work_days: undefined,
+  work_weekdays: [] as number[],
+  maximum_hours_per_day: undefined,
+  maximum_hours_per_week: undefined,
+  effective_from: null,
+  effective_to: null,
+  notes: "",
+  id: undefined,
+};
+
 const validationSchema = yup.object({
   id: yup.string().optional(),
   employee: yup.object({label: yup.string().required(), value: yup.string().required()}).nullable().required("Required"),
   pay_type: yup.string().required("Required"),
   base_rate: yup.number().typeError("Required").required("Required"),
-  currency: yup.string().optional(),
+  expected_work_days: yup.number().transform((value, original) => (original === '' || original === null || Number.isNaN(value) ? null : value)).nullable().optional(),
+  work_weekdays: yup.array().of(yup.number()).optional(),
+  maximum_hours_per_day: yup.number().transform((value, original) => (original === '' || original === null || Number.isNaN(value) ? null : value)).nullable().optional(),
+  maximum_hours_per_week: yup.number().transform((value, original) => (original === '' || original === null || Number.isNaN(value) ? null : value)).nullable().optional(),
   effective_from: yup.mixed().nullable().required("Required"),
   effective_to: yup.mixed().nullable().optional(),
   notes: yup.string().optional(),
 }).required();
+
+const baseRateLabelKey = (payType?: string) => {
+  if (payType === "hourly") return "forms.payProfile.baseRateHourly";
+  if (payType === "daily_wage") return "forms.payProfile.baseRateDaily";
+  if (payType === "commission" || payType === "mixed") return "forms.payProfile.baseRateHourly";
+  return "forms.payProfile.baseRatePeriod";
+};
+
+const baseRateHelpKey = (payType?: string) => {
+  if (payType === "hourly") return "forms.payProfile.baseRateHelpHourly";
+  if (payType === "daily_wage") return "forms.payProfile.baseRateHelpDaily";
+  if (payType === "monthly_salary") return "forms.payProfile.baseRateHelpMonthly";
+  if (payType === "weekly_salary") return "forms.payProfile.baseRateHelpWeekly";
+  if (payType === "contract") return "forms.payProfile.baseRateHelpContract";
+  if (payType === "commission") return "forms.payProfile.baseRateHelpCommission";
+  if (payType === "mixed") return "forms.payProfile.baseRateHelpMixed";
+  return "forms.payProfile.baseRateHelpHourly";
+};
 
 export const PayProfileForm = ({open, onClose, data}: Props) => {
   const {t} = useTranslation("hr");
   const db = useDB();
   const employeesHook = useApi<SettingsData<Employee>>(Tables.employees, [], [], 0, 500, []);
 
-  const {handleSubmit, control, formState: {errors}, reset} = useForm({
-    resolver: yupResolver(validationSchema),
-    defaultValues: {pay_type: "hourly", currency: "USD"},
+  const {handleSubmit, control, formState: {errors}, reset, watch, setValue} = useForm<any>({
+    resolver: yupResolver(validationSchema) as any,
+    defaultValues: emptyForm,
   });
+
+  const payType = watch("pay_type");
+  const selectedDays = (watch("work_weekdays") ?? []) as number[];
+  const showWorkDays = isWorkDaysPayType(payType);
+  const showHourlyFields = isHourlyLikePayType(payType);
 
   const employeeOptions = useMemo(
     () => (employeesHook.data?.data ?? []).map((item) => ({
@@ -80,16 +135,7 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
 
   const closeModal = () => {
     onClose();
-    reset({
-      employee: null,
-      pay_type: "hourly",
-      base_rate: 0,
-      currency: "USD",
-      effective_from: null,
-      effective_to: null,
-      notes: "",
-      id: undefined,
-    });
+    reset(emptyForm);
   };
 
   useEffect(() => {
@@ -102,24 +148,27 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
         } : null,
         pay_type: data.pay_type,
         base_rate: data.base_rate,
-        currency: data.currency ?? "USD",
+        expected_work_days: data.expected_work_days ?? undefined,
+        work_weekdays: Array.isArray(data.work_weekdays)
+          ? data.work_weekdays.map(day => Number(day))
+          : [],
+        maximum_hours_per_day: data.maximum_hours_per_day ?? undefined,
+        maximum_hours_per_week: data.maximum_hours_per_week ?? undefined,
         effective_from: toCalendarDateValue(data.effective_from),
         effective_to: toCalendarDateValue(data.effective_to),
         notes: data.notes ?? "",
       });
     } else if (open) {
-      reset({
-        employee: null,
-        pay_type: "hourly",
-        base_rate: 0,
-        currency: "USD",
-        effective_from: null,
-        effective_to: null,
-        notes: "",
-        id: undefined,
-      });
+      reset(emptyForm);
     }
   }, [data, open, reset]);
+
+  const toggleDay = (day: number, checked: boolean) => {
+    const next = checked
+      ? [...selectedDays, day].sort((a, b) => a - b)
+      : selectedDays.filter((value) => value !== day);
+    setValue("work_weekdays", next, {shouldDirty: true});
+  };
 
   const onSubmit = async (values: FormValues) => {
     try {
@@ -127,7 +176,16 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
         employee: toRecordId(values.employee?.value),
         pay_type: values.pay_type,
         base_rate: Number(values.base_rate),
-        currency: values.currency?.trim() || "USD",
+        expected_work_days: values.expected_work_days
+          ? Number(values.expected_work_days)
+          : null,
+        work_weekdays: values.work_weekdays ?? [],
+        maximum_hours_per_day: values.maximum_hours_per_day
+          ? Number(values.maximum_hours_per_day)
+          : null,
+        maximum_hours_per_week: values.maximum_hours_per_week
+          ? Number(values.maximum_hours_per_week)
+          : null,
         effective_from: calendarDateToSurreal(values.effective_from),
         effective_to: calendarDateToSurreal(values.effective_to),
         notes: values.notes?.trim() || undefined,
@@ -161,7 +219,6 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
         const message = firstFormError(errs);
         if (message) toast.error(message);
       })}>
-        {/*<input type="hidden" {...register("id")} />*/}
         <div className="flex flex-col gap-3 mb-3">
           <HrSelectField
             label={t("forms.payProfile.employee")}
@@ -169,14 +226,14 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
             control={control}
             options={employeeOptions}
             isClearable={false}
-            error={errors.employee?.message}
+            error={typeof errors.employee?.message === "string" ? errors.employee.message : undefined}
           />
           <HrStringSelectField
             label={t("forms.payProfile.payType")}
             name="pay_type"
             control={control}
             options={payTypeOptions}
-            error={errors.pay_type?.message}
+            error={typeof errors.pay_type?.message === "string" ? errors.pay_type.message : undefined}
           />
           <div>
             <HrInputField
@@ -184,24 +241,68 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
               step="0.01"
               name="base_rate"
               control={control}
-              label={t("forms.payProfile.baseRate")}
-              error={errors.base_rate?.message}
+              label={t(baseRateLabelKey(payType))}
+                  error={typeof errors.base_rate?.message === "string" ? errors.base_rate.message : undefined}
             />
+            <p className="text-xs text-neutral-500 mt-1">{t(baseRateHelpKey(payType))}</p>
           </div>
-          <div>
-            <HrInputField
-              name="currency"
-              control={control}
-              label={t("forms.payProfile.currency")}
-            />
-          </div>
+          {showWorkDays && (
+            <>
+              <div>
+                <HrInputField
+                  type="number"
+                  step="1"
+                  name="expected_work_days"
+                  control={control}
+                  label={t("forms.payProfile.expectedWorkDays")}
+                  error={typeof errors.expected_work_days?.message === "string" ? errors.expected_work_days.message : undefined}
+                />
+                <p className="text-xs text-neutral-500 mt-1">{t("forms.payProfile.expectedWorkDaysHelp")}</p>
+              </div>
+              <HrFormField label={t("forms.payProfile.workWeekdays")}>
+                <div className="flex flex-wrap gap-3">
+                  {WEEKDAYS.map((day) => (
+                    <Checkbox
+                      key={day}
+                      checked={selectedDays.includes(day)}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => toggleDay(day, e.target.checked)}
+                      label={t(`scheduling.weekdays.${day}`)}
+                    />
+                  ))}
+                </div>
+                <p className="text-xs text-neutral-500 mt-1">{t("forms.payProfile.workWeekdaysHelp")}</p>
+              </HrFormField>
+            </>
+          )}
+          {showHourlyFields && (
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <HrInputField
+                  type="number"
+                  step="0.01"
+                  name="maximum_hours_per_day"
+                  control={control}
+                  label={t("forms.payProfile.maxHoursPerDay")}
+                />
+              </div>
+              <div className="flex-1">
+                <HrInputField
+                  type="number"
+                  step="0.01"
+                  name="maximum_hours_per_week"
+                  control={control}
+                  label={t("forms.payProfile.maxHoursPerWeek")}
+                />
+              </div>
+            </div>
+          )}
           <div className="flex gap-3">
             <div className="flex-1">
               <HrDateField
                 label={t("forms.payProfile.effectiveFrom")}
                 name="effective_from"
                 control={control}
-                error={errors.effective_from?.message}
+                error={typeof errors.effective_from?.message === "string" ? errors.effective_from.message : undefined}
               />
             </div>
             <div className="flex-1">
@@ -209,7 +310,7 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
                 label={t("forms.payProfile.effectiveTo")}
                 name="effective_to"
                 control={control}
-                error={errors.effective_to?.message}
+                error={typeof errors.effective_to?.message === "string" ? errors.effective_to.message : undefined}
               />
             </div>
           </div>

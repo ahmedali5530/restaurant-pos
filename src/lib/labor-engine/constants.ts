@@ -1,4 +1,4 @@
-export const CALCULATION_VERSION = '1.0.0'
+export const CALCULATION_VERSION = '1.1.0'
 
 export const CURRENCY_DECIMALS = 2
 

@@ -4,6 +4,7 @@ import type { EmployeePayProfile } from '@/api/model/employee_pay_profile.ts'
 import type { LaborAdjustment } from '@/api/model/labor_adjustment.ts'
 import type { LaborPayRule } from '@/api/model/labor_pay_rule.ts'
 import type { LaborPayRuleEffect } from '@/api/model/hr.types.ts'
+import type { LeaveRequest } from '@/api/model/leave_request.ts'
 import type { PublicHoliday } from '@/api/model/public_holiday.ts'
 import type { TimeEntry } from '@/api/model/time_entry.ts'
 import type { TimeEntryBreak } from '@/api/model/time_entry_break.ts'
@@ -42,6 +43,7 @@ export interface LaborCalculationContext {
   holidays: PublicHoliday[]
   periodStart: DateInput
   periodEnd: DateInput
+  leaveRequests?: LeaveRequest[]
   adjustments?: LaborAdjustment[]
   /** Hours already worked in the ISO week before period entries (for weekly OT) */
   priorWeekHours?: number
@@ -89,6 +91,10 @@ export interface LaborCalculationResult {
   payProfileId: string
   hours: HoursBreakdown
   cost: LaborCostBreakdown
+  payType?: string
+  paidDays: number
+  unpaidLeaveDays: number
+  expectedWorkDays?: number
   ruleApplications: RuleApplicationResult[]
   calculationVersion: string
   calculatedAt: Date

@@ -552,6 +552,7 @@ DEFINE FIELD currency ON employee_pay_profile TYPE string DEFAULT 'USD' PERMISSI
 DEFINE FIELD effective_from ON employee_pay_profile TYPE datetime PERMISSIONS FULL;
 DEFINE FIELD effective_to ON employee_pay_profile TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD employee ON employee_pay_profile TYPE record<employee> PERMISSIONS FULL;
+DEFINE FIELD expected_work_days ON employee_pay_profile TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD holiday_policy ON employee_pay_profile TYPE none | record<labor_policy> | null PERMISSIONS FULL;
 DEFINE FIELD maximum_hours_per_day ON employee_pay_profile TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD maximum_hours_per_week ON employee_pay_profile TYPE none | float | null PERMISSIONS FULL;
@@ -560,6 +561,7 @@ DEFINE FIELD notes ON employee_pay_profile TYPE none | string | null PERMISSIONS
 DEFINE FIELD overtime_policy ON employee_pay_profile TYPE none | record<labor_policy> | null PERMISSIONS FULL;
 DEFINE FIELD pay_type ON employee_pay_profile TYPE string PERMISSIONS FULL;
 DEFINE FIELD weekend_policy ON employee_pay_profile TYPE none | record<labor_policy> | null PERMISSIONS FULL;
+DEFINE FIELD work_weekdays ON employee_pay_profile TYPE any DEFAULT [] PERMISSIONS FULL;
 
 DEFINE INDEX epp_employee_dates ON employee_pay_profile FIELDS employee, effective_from;
 
@@ -2081,19 +2083,27 @@ DEFINE FIELD calculation_version ON payroll_snapshot TYPE string DEFAULT '1.0.0'
 DEFINE FIELD deductions ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
 DEFINE FIELD double_time_hours ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
 DEFINE FIELD employee ON payroll_snapshot TYPE record<employee> PERMISSIONS FULL;
+DEFINE FIELD expected_work_days ON payroll_snapshot TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD gross_pay ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
 DEFINE FIELD holiday_premium_hours ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD is_overridden ON payroll_snapshot TYPE bool DEFAULT false PERMISSIONS FULL;
 DEFINE FIELD net_pay ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
 DEFINE FIELD night_premium_hours ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD override_note ON payroll_snapshot TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD overridden_at ON payroll_snapshot TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD overridden_by ON payroll_snapshot TYPE none | record<user> | null PERMISSIONS FULL;
 DEFINE FIELD overtime_hours ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
 DEFINE FIELD overtime_pay ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD paid_days ON payroll_snapshot TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD pay_profile_id ON payroll_snapshot TYPE none | record<employee_pay_profile> | null PERMISSIONS FULL;
+DEFINE FIELD pay_type ON payroll_snapshot TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD payroll_run ON payroll_snapshot TYPE record<payroll_run> PERMISSIONS FULL;
 DEFINE FIELD premium_pay ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
 DEFINE FIELD regular_hours ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
 DEFINE FIELD regular_pay ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
 DEFINE FIELD rule_applications ON payroll_snapshot TYPE any DEFAULT [] PERMISSIONS FULL;
 DEFINE FIELD tips ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD unpaid_leave_days ON payroll_snapshot TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD weekend_premium_hours ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
 
 DEFINE INDEX ps_employee ON payroll_snapshot FIELDS employee;
