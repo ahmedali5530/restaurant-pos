@@ -51,3 +51,9 @@ printing/data
 api/data
 backups/surrealdb
 .qwen
+# Real env files carry the secrets this PR's setup instructions tell you
+# to fill in (SURREAL_USER/PASS, GATEWAY_JWT_SECRET, etc.) — never commit
+# them. Only the .env.example templates are tracked.
+.env
+api/.env
+payments/.env

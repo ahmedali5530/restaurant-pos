@@ -83,10 +83,14 @@ function createCorsOriginDelegate() {
     .filter(Boolean);
 
   return function originDelegate(origin, cb) {
-    if (!origin || allowed.length === 0 || allowed.includes('*')) {
+    // No Origin header = same-origin or a non-browser caller — always fine.
+    if (!origin) {
       return cb(null, true);
     }
-    if (allowed.includes(origin)) {
+    // An unset/empty allow-list must NOT mean "allow every origin" — only an
+    // explicit '*' (operator's own deliberate choice) or an explicitly
+    // listed origin passes.
+    if (allowed.includes('*') || allowed.includes(origin)) {
       return cb(null, true);
     }
     return cb(null, false);

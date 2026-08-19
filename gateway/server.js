@@ -26,10 +26,13 @@ const allowedOrigins = parseOrigins(process.env.GATEWAY_ALLOWED_ORIGINS);
 app.use(
   cors({
     origin(origin, cb) {
-      if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes('*')) {
+      // No Origin header = same-origin or a non-browser caller — always fine.
+      if (!origin) {
         return cb(null, true);
       }
-      if (allowedOrigins.includes(origin)) {
+      // An unset/empty allow-list must NOT mean "allow every origin" — only
+      // an explicit '*' or an explicitly listed origin passes.
+      if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
         return cb(null, true);
       }
       return cb(null, false);
