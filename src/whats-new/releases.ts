@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-08-19',
+    title: 'Auth gateway on by default',
+    items: [
+      'Login and database traffic go through the auth gateway (port 3142) by default, so Surreal root credentials are not shipped in the browser bundle.',
+      'Copy .env.example files for a local-dev JWT secret and Surreal user; change them before any non-localhost deploy. Sidecars require a session JWT.',
+    ],
+  },
+  {
+    date: '2026-08-19',
     title: 'Order receipt report',
     items: [
       'Reports → Orders → Order Receipt shows a printable receipt for a single order, with items, totals, and Print / PDF / Image.',

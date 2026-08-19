@@ -4,12 +4,13 @@ const { getClient } = require('./surreal-client');
 
 function serializeUser(row) {
   if (!row) return null;
-  const id = row.id?.toString?.() || String(row.id);
-  const role = row.user_role;
-  const shift = row.user_shift;
+  const { password: _password, ...safe } = row;
+  const id = safe.id?.toString?.() || String(safe.id);
+  const role = safe.user_role;
+  const shift = safe.user_shift;
 
   return {
-    ...row,
+    ...safe,
     id,
     user_role: role
       ? {

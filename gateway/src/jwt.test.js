@@ -47,6 +47,13 @@ test('the removed hardcoded secret is never accepted as if it were a real value'
   assert.ok(!output.includes('dev-only-change-me-posr-gateway'));
 });
 
+test('throws at load time when GATEWAY_JWT_SECRET is shorter than 32 characters', () => {
+  assert.throws(
+    () => runInChildProcess({ GATEWAY_JWT_SECRET: 'too-short' }),
+    /at least 32 characters/
+  );
+});
+
 test('loads successfully and signs/verifies a real session when a secret is configured', () => {
   const out = runInChildProcess({ GATEWAY_JWT_SECRET: 'a-real-random-secret-value-for-testing' });
   assert.match(out, /loaded-ok/);
@@ -66,12 +73,12 @@ test('signSession/verifySession round-trip works end to end with a real secret',
 });
 
 test('verifySession rejects a token signed with a different secret (no shared fallback to guess)', async () => {
-  process.env.GATEWAY_JWT_SECRET = 'secret-one';
+  process.env.GATEWAY_JWT_SECRET = 'a-real-random-secret-value-for-testing-one';
   delete require.cache[JWT_MODULE];
   const { signSession } = require(JWT_MODULE);
   const { token } = await signSession({ userId: 'u2', login: 'bob' });
 
-  process.env.GATEWAY_JWT_SECRET = 'secret-two';
+  process.env.GATEWAY_JWT_SECRET = 'a-real-random-secret-value-for-testing-two';
   delete require.cache[JWT_MODULE];
   const { verifySession } = require(JWT_MODULE);
 

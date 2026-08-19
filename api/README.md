@@ -21,8 +21,10 @@ Server listens on `http://localhost:3140` by default.
 
 ## Authentication
 
-When `GATEWAY_AUTH_REQUIRED=true` (and `GATEWAY_JWT_SECRET` matches the auth
-gateway), all module routes (e.g. `/ai/*`) require:
+When `GATEWAY_AUTH_REQUIRED=true` (the default in `api/.env.example`; also
+implied whenever `GATEWAY_JWT_SECRET` is set and the flag is unset) and
+`GATEWAY_JWT_SECRET` matches the auth gateway, all module routes (e.g.
+`/ai/*`) require:
 
 ```
 Authorization: Bearer <pos_session JWT>

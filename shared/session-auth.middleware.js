@@ -83,10 +83,10 @@ function createCorsOriginDelegate() {
     .filter(Boolean);
 
   return function originDelegate(origin, cb) {
-    if (!origin || allowed.length === 0 || allowed.includes('*')) {
+    if (!origin) {
       return cb(null, true);
     }
-    if (allowed.includes(origin)) {
+    if (allowed.includes('*') || allowed.includes(origin)) {
       return cb(null, true);
     }
     return cb(null, false);

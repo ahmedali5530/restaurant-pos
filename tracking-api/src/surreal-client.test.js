@@ -30,6 +30,11 @@ test('throws at load time when TRACKING_DB_USER/TRACKING_DB_PASS are unset — n
   );
 });
 
+test('loads with root/root — existing datastores keep the original root user', () => {
+  const out = runInChildProcess({ TRACKING_DB_USER: 'root', TRACKING_DB_PASS: 'root' });
+  assert.match(out, /loaded-ok/);
+});
+
 test('loads successfully once both are configured with real values', () => {
   const out = runInChildProcess({ TRACKING_DB_USER: 'realuser', TRACKING_DB_PASS: 'realpass' });
   assert.match(out, /loaded-ok/);

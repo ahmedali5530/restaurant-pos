@@ -1,12 +1,16 @@
 'use strict';
 
 const crypto = require('crypto');
-const { SignJWT, jwtVerify } = require('jose');
 
 const SECRET = process.env.GATEWAY_JWT_SECRET;
 if (!SECRET) {
   throw new Error('GATEWAY_JWT_SECRET is required and has no default — set it in .env');
 }
+if (SECRET.length < 32) {
+  throw new Error('GATEWAY_JWT_SECRET must be at least 32 characters');
+}
+
+const { SignJWT, jwtVerify } = require('jose');
 const TTL = process.env.GATEWAY_JWT_TTL || '12h';
 const key = crypto.createSecretKey(Buffer.from(SECRET, 'utf8'));
 
@@ -92,5 +96,4 @@ module.exports = {
   verifySession,
   revokeSession,
   extractBearer,
-  SECRET,
 };

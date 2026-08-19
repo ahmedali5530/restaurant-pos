@@ -1,4 +1,4 @@
-# 🍽️ Open Source Modern Restaurant POS System
+# 🍽️ POSR — Open Source Modern Restaurant POS System
 ### ⚡ AI Powered • Fast • Modern • Touch Optimized • Multi-Lingual • Full Restaurant Operations Platform
 
 A high-performance, scalable, and resilient Point of Sale (POS) system designed specifically for the fast-paced restaurant industry. Built on a modern tech stack featuring React, Vite, and SurrealDB, this system offers ultra-fast response times, multi-tenant capabilities, and an offline-first architecture to ensure business continuity even during network drops.
@@ -24,7 +24,7 @@ A high-performance, scalable, and resilient Point of Sale (POS) system designed 
 ## 💥 Why This Project?
 
 Most restaurant systems are:
-- ❌ Fragmented (POS, delivery, HR all separate)
+- ❌ Fragmented (POS, delivery, accounts, HR all separate)
 - ❌ Not built for real-time restaurant pressure
 - ❌ Weak staff workflow management
 - ❌ Hard to scale across branches
@@ -38,15 +38,14 @@ This system solves that by combining everything into one platform:
 - 🚚 Built-in delivery workflow
 - 👨‍💼 Staff + manager + admin roles
 - 🔐 Secure protected modules
-- 📊 Full reporting including **[AI Reports](docs/images/AI%20report1.png)** and analytics layer
-- 🏪 Multi-branch scalable system
+- 📊 Advanced reporting including **[AI Reports](docs/images/AI%20report1.png)**, analytics and forecasting layer
 - 🪑 Seat-based ordering and splitting
 - 📑 Multi-order table management
 - ☁️ Realtime Sync to cloud
 - 💾 Automatic backups
 - 💰 Automatic check closing and closing cycles
 - 📋 Multiple menus support
-- 💳 Third-party payment gateways support (Stripe, PayPal, M-Pesa, etc.)
+- 💳 Third-party payment gateways support (Stripe, PayPal, M-Pesa, Telebirr, Razorpay etc...)
 - 🖨️ ESC/POS Printing Support (USB, Network, Serial, Bluetooth)
 - 🌍 Multi-lingual interface support
 
@@ -96,7 +95,6 @@ This system solves that by combining everything into one platform:
     - **Nested Modifiers:** Support for complex ordering flows where choosing a modifier opens another set of choices (e.g., Select "Combo" → Select "Side" → Select "Drink").
     - **Price Overrides:** Set specific prices for modifiers when they are part of a particular group or combination.
     - **Rules & Constraints:** Define minimum and maximum selections per group.
-- **Visual Menu Builder:** Intuitive interface for designing the customer-facing menu.
 
 ---
 
@@ -168,14 +166,16 @@ This system solves that by combining everything into one platform:
 
 ---
 
-### 💳 Third-Party Payment Gateways
+### 💳 Third-Party Gateway Integrations
 - **Integrated Payments:** Support for popular payment gateways.
 - **Multi-Provider Support:**
     - 💳 **Stripe** (Credit/Debit Cards)
     - 🅿️ **PayPal**
-    - 📱 **JazzCash / M-Pesa / Telebirr** (Mobile Payments)
+    - 📱 **JazzCash / M-Pesa / Telebirr / Razorpay** (Mobile Payments)
 - **Secure Processing:** PCI-compliant flows with sandbox/live mode support.
 - **Instant Settlement:** Real-time payment verification and order status updates.
+- **Quickbooks Online:** Integration with Quickbooks Online.
+- **Fiscal Authority Integration:** Integration with Fiscal authorities (FBR, PRA in Pakistan).
 
 ---
 
@@ -192,6 +192,7 @@ This system solves that by combining everything into one platform:
     - Configurable **VAT/Tax details** and headers/footers.
     - Adjustable margins and item display preferences.
 - **Reliable Architecture:** Independent Node.js print server ensures printing doesn't block the main POS application.
+- **Offline print server:** Print server can be run separately on a local server for faster prints.
 
 ---
 
@@ -275,11 +276,11 @@ Built for real restaurant pressure situations:
 
 ## 🏗️ Tech Stack
 
-- ⚛️ React.js (Frontend)
+- ⚛️ React.js (Frontend) with TypeScript
+- 🗄 Bun + Vite
 - 🗄 IndexedDB
 - 🗄️ SurrealDB
 - 🌐  Websockets Architecture
-- 🗄️ Realtime Database-driven inventory & orders
 
 ---
 
@@ -314,23 +315,44 @@ Built for real restaurant pressure situations:
 ```bash
 git clone https://github.com/ahmedali5530/restaurant-pos
 cd restaurant-pos
+cp .env.example .env
+cp api/.env.example api/.env
+cp gateway/.env.example gateway/.env
+cp payments/.env.example payments/.env
 bun install
 docker compose up -d
 ```
+
+The copied `.env` files include **local-dev** Surreal and JWT values so the stack starts. Change `SURREAL_USER`, `SURREAL_PASS`, and `GATEWAY_JWT_SECRET` before any non-localhost deploy.
+
+`root`/`root` is rejected. If an existing `./database` volume was created with that pair, wipe it (or change the Surreal user in-place) so it matches `.env`.
+
+### Auth gateway (default)
+
+The SPA talks to the **auth gateway** on port **3142**, not Surreal on **8000**.
+
+- `VITE_GATEWAY_AUTH=true` (on by default if unset)
+- `VITE_GATEWAY_URL=http://localhost:3142`
+- `VITE_DB_WEBDOCKET=ws://localhost:3142`
+- Print, payment, tracking, and API routes require `Authorization: Bearer <session JWT>` using the same `GATEWAY_JWT_SECRET`
+- Do **not** set `VITE_DB_USER` / `VITE_DB_PASS` — those would ship in the browser bundle
+
+Compose publishes Surreal as `127.0.0.1:8000` so the browser cannot skip the gateway. App, gateway, print, payment, and API stay reachable on the LAN. If you open the POS from another device, add that origin to `GATEWAY_ALLOWED_ORIGINS` (and the matching `*_ALLOWED_ORIGINS` vars).
+
+**Rollback** (emergency only): `VITE_GATEWAY_AUTH=false`, point `VITE_DB_WEBDOCKET` at Surreal (`ws://localhost:8000`), set `VITE_DB_USER` / `VITE_DB_PASS`, and optionally `GATEWAY_AUTH_REQUIRED=false` on sidecars.
+
+See [docs/security/GATEWAY.md](docs/security/GATEWAY.md) for smoke tests and production notes.
+
 ---
 
 ## 🧭 Roadmap and WIP
-1. [x] 🚀 AI-based reporting and demand forecasting
-2. [x] 🚀 Payroll system integration
-3. [x] 🚀 Account module integration
-4. [x] 🚀 Advanced inventory operations and analytics
-5. [x] 🚀 Advanced analytics dashboard
-6. [ ] 🚀 Multi-branch synchronization improvements
-7. [ ] 🚀 QR Code and Self ordering system
-8. [ ] 🚀 Tap-to-pay payments on mobile apps
-9. [ ] 🚀 Targeted sales system for performance
-10. [ ] 🚀 Multi-currency support
-11. [ ] 🚀 Loyalty module
+1. [ ] 🚀 Multi-branch synchronization improvements
+2. [ ] 🚀 Extend AI to CRUD operations and autonomous operations
+3. [ ] 🚀 QR Code and Self ordering system
+4. [ ] 🚀 Tap-to-pay payments on mobile apps
+5. [ ] 🚀 Targeted sales system for performance
+6. [ ] 🚀 Multi-currency support
+7. [ ] 🚀 Loyalty module
 
 ---
 

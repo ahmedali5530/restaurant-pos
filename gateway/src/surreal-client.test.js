@@ -45,6 +45,11 @@ test('throws when only SURREAL_PASS is set', () => {
   );
 });
 
+test('loads with root/root — existing datastores keep the original root user', () => {
+  const out = runInChildProcess({ SURREAL_USER: 'root', SURREAL_PASS: 'root' });
+  assert.match(out, /loaded-ok/);
+});
+
 test('loads successfully once both are configured with real values', () => {
   const out = runInChildProcess({ SURREAL_USER: 'realuser', SURREAL_PASS: 'realpass' });
   assert.match(out, /loaded-ok/);

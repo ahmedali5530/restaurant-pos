@@ -43,6 +43,13 @@ router.post('/login', async (req, res) => {
     });
   } catch (err) {
     console.error('login error', err);
+    if (err?.kind === 'NotAllowed' || /authentication/i.test(String(err?.message || ''))) {
+      return res.status(503).json({
+        ok: false,
+        error:
+          'Database authentication failed — SURREAL_USER/SURREAL_PASS must match the existing SurrealDB root user (the --user/--pass flags only apply on an empty data directory).',
+      });
+    }
     return res.status(500).json({ ok: false, error: 'Login failed' });
   }
 });

@@ -24,15 +24,21 @@ services:
 
   surrealdb:
     image: surrealdb/surrealdb:v3.0.5
-    # SURREAL_USER/SURREAL_PASS must be set in .env — no default, so a fresh
-    # `docker compose up` fails loudly instead of starting with a known
-    # root/root credential reachable on the published port below.
+    env_file:
+      - path: .env.local
+        required: false
+      - path: ./.env.local
+        required: false
+    # SURREAL_USER/SURREAL_PASS must be set in .env (copy from .env.example).
+    # Bind the published port to loopback so the browser cannot skip the
+    # auth gateway; other containers still reach surrealdb:8000 on the
+    # compose network.
     working_dir: /
     user: "0:0"
     command: >
       start --user ${SURREAL_USER:?Set SURREAL_USER in .env} --pass ${SURREAL_PASS:?Set SURREAL_PASS in .env} surrealkv://database --bind 0.0.0.0:8000
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     volumes:
       # Host /database -> container /database (surrealkv://database resolves to ./database = /database)
       - ./database:/database
@@ -51,7 +57,7 @@ services:
       - PRINT_HOST=0.0.0.0
       - TZ=${VITE_APP_TIMEZONE:-UTC}
       - GATEWAY_JWT_SECRET=${GATEWAY_JWT_SECRET:?Set a long random value in .env}
-      - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-http://localhost:5173}
+      - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
     command: sh -c "npm install && node server.js"
     ports:
       - "3132:3132"
@@ -66,7 +72,10 @@ services:
       - ./payments:/app
       - payment-node_modules:/app/node_modules
     env_file:
-      - ./payments/.env
+      - path: ./payments/.env
+        required: false
+      - path: ./payments/.env.local
+        required: false
     environment:
       - PAYMENT_PORT=3134
       - PAYMENT_HOST=0.0.0.0
@@ -132,7 +141,7 @@ services:
       - TRACKING_DB_USER=${SURREAL_USER:?Set SURREAL_USER in .env}
       - TRACKING_DB_PASS=${SURREAL_PASS:?Set SURREAL_PASS in .env}
       - GATEWAY_JWT_SECRET=${GATEWAY_JWT_SECRET:?Set a long random value in .env}
-      - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-http://localhost:5173}
+      - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
     command: sh -c "npm install && npm start"
     ports:
       - "3138:3138"
@@ -147,7 +156,10 @@ services:
       - ./api:/app
       - api-node_modules:/app/node_modules
     env_file:
-      - ./api/.env
+      - path: ./api/.env
+        required: false
+      - path: ./api/.env.local
+        required: false
     environment:
       - API_PORT=3140
       - API_HOST=0.0.0.0
@@ -178,7 +190,7 @@ services:
       - GATEWAY_PORT=3142
       - GATEWAY_JWT_SECRET=${GATEWAY_JWT_SECRET:?Set a long random value in .env}
       - GATEWAY_JWT_TTL=${GATEWAY_JWT_TTL:-12h}
-      - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-http://localhost:5173}
+      - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
       - SURREAL_URL=ws://surrealdb:8000/rpc
       - SURREAL_NS=posr
       - SURREAL_DB=posr

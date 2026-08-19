@@ -1,12 +1,9 @@
 'use strict';
 
-require('dotenv').config();
-
-const WS = require('ws');
-const { Surreal } = require('surrealdb');
-
-if (typeof global.WebSocket === 'undefined') {
-  global.WebSocket = WS;
+try {
+  require('dotenv').config();
+} catch {
+  // Optional: server.js / compose already inject env.
 }
 
 const DB_URL = process.env.SURREAL_URL || 'ws://127.0.0.1:8000/rpc';
@@ -16,6 +13,18 @@ const DB_USER = process.env.SURREAL_USER;
 const DB_PASS = process.env.SURREAL_PASS;
 if (!DB_USER || !DB_PASS) {
   throw new Error('SURREAL_USER and SURREAL_PASS are required and have no default — set them in gateway/.env');
+}
+if (DB_USER === 'root' && DB_PASS === 'root') {
+  console.warn(
+    'SURREAL_USER/SURREAL_PASS are root/root — allowed for an existing datastore; change them for new installs'
+  );
+}
+
+const WS = require('ws');
+const { Surreal } = require('surrealdb');
+
+if (typeof global.WebSocket === 'undefined') {
+  global.WebSocket = WS;
 }
 const CONNECT_TIMEOUT_MS = Number(process.env.SURREAL_CONNECT_TIMEOUT_MS || 10000);
 

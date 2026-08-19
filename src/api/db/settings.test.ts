@@ -51,6 +51,16 @@ describe('resolveDbAuthentication (legacy mode)', () => {
   });
 });
 
+describe('isGatewayAuthEnabled default', () => {
+  it('treats unset VITE_GATEWAY_AUTH as gateway mode (on by default)', async () => {
+    vi.stubEnv('VITE_GATEWAY_AUTH', '');
+    const { isGatewayAuthEnabled, resolveDbAuthentication } = await loadSettings();
+
+    expect(isGatewayAuthEnabled()).toBe(true);
+    expect(() => resolveDbAuthentication()).not.toThrow();
+  });
+});
+
 describe('resolveDbAuthentication (gateway mode)', () => {
   it('returns the Surreal session token, not username/password, when gateway auth is on', async () => {
     vi.stubEnv('VITE_GATEWAY_AUTH', 'true');

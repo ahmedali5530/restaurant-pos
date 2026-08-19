@@ -21,6 +21,27 @@ function parseOrigins(raw) {
     .filter(Boolean);
 }
 
+/** localhost and 127.0.0.1 are the same host; browsers treat them as different origins. */
+function originAllowed(origin, allowed) {
+  if (allowed.includes('*') || allowed.includes(origin)) {
+    return true;
+  }
+  try {
+    const u = new URL(origin);
+    const port = u.port ? `:${u.port}` : '';
+    const altHost =
+      u.hostname === 'localhost'
+        ? '127.0.0.1'
+        : u.hostname === '127.0.0.1'
+          ? 'localhost'
+          : null;
+    if (!altHost) return false;
+    return allowed.includes(`${u.protocol}//${altHost}${port}`);
+  } catch {
+    return false;
+  }
+}
+
 const allowedOrigins = parseOrigins(process.env.GATEWAY_ALLOWED_ORIGINS);
 
 app.use(
@@ -32,7 +53,7 @@ app.use(
       }
       // An unset/empty allow-list must NOT mean "allow every origin" — only
       // an explicit '*' or an explicitly listed origin passes.
-      if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+      if (originAllowed(origin, allowedOrigins)) {
         return cb(null, true);
       }
       return cb(null, false);

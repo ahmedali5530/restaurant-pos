@@ -21,8 +21,8 @@ function readStorage(key: string): string | null {
 }
 
 export function isGatewayAuthEnabled(): boolean {
-  const raw = String(import.meta.env.VITE_GATEWAY_AUTH ?? '').toLowerCase();
-  return raw === 'true' || raw === '1' || raw === 'yes';
+  const raw = String(import.meta.env.VITE_GATEWAY_AUTH ?? 'true').toLowerCase();
+  return raw !== 'false' && raw !== '0' && raw !== 'no';
 }
 
 export function getGatewayBaseUrl(): string {
