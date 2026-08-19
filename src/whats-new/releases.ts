@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-08-19',
+    title: 'Order receipt report',
+    items: [
+      'Reports → Orders → Order Receipt shows a printable receipt for a single order, with items, totals, and Print / PDF / Image.',
+      'In AI Report, invoice numbers and order IDs open that receipt in a new tab; Order Life Cycle also has a View receipt link.',
+    ],
+  },
+  {
     date: '2026-08-18',
     title: 'AI Import for inventory, Manage, and attendance',
     items: [

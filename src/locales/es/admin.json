@@ -479,6 +479,7 @@
       "reports.merge_orders": "Combinar pedidos",
       "reports.split_orders": "Dividir pedidos",
       "reports.order_life_cycle": "Ciclo de vida del pedido",
+      "reports.order_receipt": "Recibo del pedido",
       "reports.order_fiscal": "Fiscal de pedidos",
       "reports.expense": "Gastos",
       "reports.activity": "Actividad",

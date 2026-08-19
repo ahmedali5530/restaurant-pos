@@ -38,6 +38,7 @@
     "mergeOrders": "Combinar pedidos",
     "splitOrders": "Dividir pedidos",
     "orderLifeCycle": "Ciclo de vida del pedido",
+    "orderReceipt": "Recibo del pedido",
     "orderFiscal": "Fiscal de pedidos",
     "cashClosing": "Cierre de caja",
     "expense": "Gastos",
@@ -110,6 +111,7 @@
     "mergeOrders": "Informe de combinación de pedidos",
     "splitOrders": "Informe de división de pedidos",
     "orderLifecycle": "Informe de ciclo de vida del pedido",
+    "orderReceipt": "Recibo del pedido",
     "orderFiscal": "Informe fiscal de pedidos",
     "cashClosing": "Informe de cierre de caja",
     "expense": "Informe de gastos",
@@ -185,6 +187,7 @@
     "selectRange": "Seleccionar un rango",
     "generate": "Generar",
     "orderId": "ID del pedido",
+    "viewReceipt": "Ver recibo",
     "orderTakers": "Tomadores de pedidos",
     "orderTypes": "Tipos de pedido",
     "categories": "Categorías",
@@ -268,6 +271,7 @@
     "mergeOrders": "Cargando informe de combinación de pedidos...",
     "splitOrders": "Cargando informe de división de pedidos...",
     "orderLifecycle": "Cargando informe de ciclo de vida del pedido...",
+    "orderReceipt": "Cargando recibo del pedido...",
     "orderFiscal": "Cargando informe fiscal de pedidos...",
     "activity": "Cargando informe de actividad...",
     "expense": "Cargando informe de gastos...",
@@ -287,7 +291,11 @@
     "unableToLoad": "No se pudo cargar el informe",
     "failedToLoad": "Error al cargar el informe: {{error}}",
     "noOrderFound": "No se encontró pedido para el ID proporcionado.",
+    "orderIdRequired": "El ID del pedido es obligatorio.",
     "failedToLoadDashboard": "No se pudo cargar el panel"
+  },
+  "receipt": {
+    "noItems": "No hay artículos en este pedido."
   },
   "columns": {
     "invoice": "Factura #",

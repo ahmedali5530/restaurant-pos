@@ -43,7 +43,32 @@ export const REPORTS_COUPON = REPORTS + '/coupon';
 export const REPORTS_MERGE_ORDERS = REPORTS + '/merge-orders';
 export const REPORTS_SPLIT_ORDERS = REPORTS + '/split-orders';
 export const REPORTS_ORDER_LIFECYCLE = REPORTS + '/order-lifecycle';
+export const REPORTS_ORDER_RECEIPT = REPORTS + '/order-receipt';
 export const REPORTS_ORDER_FISCAL = REPORTS + '/order-fiscal';
+
+export type OrderReceiptUrlParams = {
+  id?: string | {toString(): string};
+  orderId?: string | number;
+  invoice?: string | number;
+};
+
+export const orderReceiptUrl = (params: OrderReceiptUrlParams = {}) => {
+  const search = new URLSearchParams();
+  if (params.id != null && params.id !== '') {
+    const raw = typeof params.id === 'string' ? params.id : params.id.toString();
+    if (raw) {
+      search.set('id', raw);
+    }
+  }
+  if (params.orderId != null && params.orderId !== '') {
+    search.set('order_id', String(params.orderId));
+  }
+  if (params.invoice != null && params.invoice !== '') {
+    search.set('invoice', String(params.invoice));
+  }
+  const qs = search.toString();
+  return qs ? `${REPORTS_ORDER_RECEIPT}?${qs}` : REPORTS_ORDER_RECEIPT;
+};
 export const REPORTS_EXPENSE = REPORTS + '/expense';
 export const REPORTS_ACTIVITY = REPORTS + '/activity';
 export const REPORTS_PRODUCT_HOURLY = REPORTS + '/product-hourly';

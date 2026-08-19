@@ -479,6 +479,7 @@
       "reports.merge_orders": "Sipariş Birleştirme",
       "reports.split_orders": "Sipariş Bölme",
       "reports.order_life_cycle": "Sipariş Yaşam Döngüsü",
+      "reports.order_receipt": "Sipariş fişi",
       "reports.order_fiscal": "Sipariş Fiskal",
       "reports.expense": "Gider",
       "reports.activity": "Aktivite",

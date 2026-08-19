@@ -38,6 +38,7 @@
     "mergeOrders": "Fusion de commandes",
     "splitOrders": "Division de commandes",
     "orderLifeCycle": "Cycle de vie des commandes",
+    "orderReceipt": "Reçu de commande",
     "orderFiscal": "Fiscalisation commandes",
     "cashClosing": "Clôture de caisse",
     "expense": "Dépenses",
@@ -110,6 +111,7 @@
     "mergeOrders": "Rapport de fusion de commandes",
     "splitOrders": "Rapport de division de commandes",
     "orderLifecycle": "Rapport du cycle de vie des commandes",
+    "orderReceipt": "Reçu de commande",
     "orderFiscal": "Rapport fiscal des commandes",
     "cashClosing": "Rapport de clôture de caisse",
     "expense": "Rapport des dépenses",
@@ -185,6 +187,7 @@
     "selectRange": "Sélectionner une plage",
     "generate": "Générer",
     "orderId": "ID commande",
+    "viewReceipt": "Voir le reçu",
     "orderTakers": "Prise de commande",
     "orderTypes": "Types de commande",
     "categories": "Catégories",
@@ -268,6 +271,7 @@
     "mergeOrders": "Chargement du rapport de fusion de commandes...",
     "splitOrders": "Chargement du rapport de division de commandes...",
     "orderLifecycle": "Chargement du rapport du cycle de vie des commandes...",
+    "orderReceipt": "Chargement du reçu de commande...",
     "orderFiscal": "Chargement du rapport fiscal des commandes...",
     "activity": "Chargement du rapport d'activité...",
     "expense": "Chargement du rapport des dépenses...",
@@ -287,7 +291,11 @@
     "unableToLoad": "Impossible de charger le rapport",
     "failedToLoad": "Échec du chargement du rapport : {{error}}",
     "noOrderFound": "Aucune commande trouvée pour l'ID fourni.",
+    "orderIdRequired": "L'identifiant de commande est obligatoire.",
     "failedToLoadDashboard": "Échec du chargement du tableau de bord"
+  },
+  "receipt": {
+    "noItems": "Aucun article sur cette commande."
   },
   "columns": {
     "invoice": "Facture n°",

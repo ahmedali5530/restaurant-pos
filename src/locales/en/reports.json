@@ -38,6 +38,7 @@
     "mergeOrders": "Merge Orders",
     "splitOrders": "Split Orders",
     "orderLifeCycle": "Order Life Cycle",
+    "orderReceipt": "Order Receipt",
     "orderFiscal": "Order Fiscal",
     "cashClosing": "Cash closing",
     "expense": "Expense",
@@ -110,6 +111,7 @@
     "mergeOrders": "Merge orders report",
     "splitOrders": "Split orders report",
     "orderLifecycle": "Order lifecycle report",
+    "orderReceipt": "Order receipt",
     "orderFiscal": "Order fiscal report",
     "cashClosing": "Cash closing report",
     "expense": "Expense report",
@@ -185,6 +187,7 @@
     "selectRange": "Select a range",
     "generate": "Generate",
     "orderId": "Order ID",
+    "viewReceipt": "View receipt",
     "orderTakers": "Order Takers",
     "orderTypes": "Order Types",
     "categories": "Categories",
@@ -273,6 +276,7 @@
     "mergeOrders": "Loading merge orders report...",
     "splitOrders": "Loading split orders report...",
     "orderLifecycle": "Loading order lifecycle report...",
+    "orderReceipt": "Loading order receipt...",
     "orderFiscal": "Loading order fiscal report...",
     "activity": "Loading activity report...",
     "expense": "Loading expense report...",
@@ -291,7 +295,11 @@
     "unableToLoad": "Unable to load report",
     "failedToLoad": "Failed to load report: {{error}}",
     "failedToLoadDashboard": "Failed to load dashboard",
-    "noOrderFound": "No order found for provided ID."
+    "noOrderFound": "No order found for provided ID.",
+    "orderIdRequired": "Order ID is required."
+  },
+  "receipt": {
+    "noItems": "No items on this order."
   },
   "columns": {
     "invoice": "Invoice #",

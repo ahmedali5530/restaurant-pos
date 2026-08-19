@@ -38,6 +38,7 @@
     "mergeOrders": "Unione ordini",
     "splitOrders": "Divisione ordini",
     "orderLifeCycle": "Ciclo di vita ordine",
+    "orderReceipt": "Ricevuta ordine",
     "orderFiscal": "Fiscale ordini",
     "cashClosing": "Chiusura cassa",
     "expense": "Spese",
@@ -110,6 +111,7 @@
     "mergeOrders": "Report unione ordini",
     "splitOrders": "Report divisione ordini",
     "orderLifecycle": "Report ciclo di vita ordine",
+    "orderReceipt": "Ricevuta ordine",
     "orderFiscal": "Report fiscale ordini",
     "cashClosing": "Report chiusura cassa",
     "expense": "Report spese",
@@ -185,6 +187,7 @@
     "selectRange": "Seleziona un intervallo",
     "generate": "Genera",
     "orderId": "ID ordine",
+    "viewReceipt": "Visualizza ricevuta",
     "orderTakers": "Prenditori ordini",
     "orderTypes": "Tipi ordine",
     "categories": "Categorie",
@@ -268,6 +271,7 @@
     "mergeOrders": "Caricamento report unione ordini...",
     "splitOrders": "Caricamento report divisione ordini...",
     "orderLifecycle": "Caricamento report ciclo di vita ordine...",
+    "orderReceipt": "Caricamento ricevuta ordine...",
     "orderFiscal": "Caricamento report fiscale ordini...",
     "activity": "Caricamento report attività...",
     "expense": "Caricamento report spese...",
@@ -287,7 +291,11 @@
     "unableToLoad": "Impossibile caricare il report",
     "failedToLoad": "Caricamento report non riuscito: {{error}}",
     "noOrderFound": "Nessun ordine trovato per l'ID fornito.",
+    "orderIdRequired": "L'ID ordine è obbligatorio.",
     "failedToLoadDashboard": "Impossibile caricare la dashboard"
+  },
+  "receipt": {
+    "noItems": "Nessun articolo in questo ordine."
   },
   "columns": {
     "invoice": "Fattura n.",

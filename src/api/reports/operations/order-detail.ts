@@ -200,7 +200,7 @@ const normalizeOrderLookup = (value?: string): string | undefined => {
   return `order:${trimmed}`;
 };
 
-const resolveOrderRecord = async (
+export const resolveOrderRecord = async (
   db: DbClient,
   options: GetOrderDetailOptions,
 ): Promise<Order | null> => {

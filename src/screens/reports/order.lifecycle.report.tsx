@@ -18,6 +18,7 @@ import {
   faUtensils,
 } from "@fortawesome/free-solid-svg-icons";
 import {Tracking} from "@/api/model/tracking.ts";
+import {orderReceiptUrl} from "@/routes/posr.ts";
 
 type TimelineType = "start" | "addition" | "deletion" | "kitchen_complete" | "payment" | string;
 
@@ -292,6 +293,18 @@ export const OrderLifecycleReport = () => {
           <div className="text-sm text-neutral-500">{t('columns.order')}</div>
           <div className="text-xl font-semibold">{state.order.invoice_number ? `#${state.order.invoice_number}` : state.order.id.toString()}</div>
           <div className="text-sm text-neutral-600 mt-1">Status: {state.order.status}</div>
+          <a
+            href={orderReceiptUrl({
+              id: state.order.id.toString(),
+              orderId: state.order.auto_id,
+              invoice: state.order.invoice_number,
+            })}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block mt-2 text-sm font-medium text-primary-700 underline"
+          >
+            {t('filters.viewReceipt')}
+          </a>
         </div>
 
         <div className="space-y-3">

@@ -479,6 +479,7 @@
       "reports.merge_orders": "دمج الطلبات",
       "reports.split_orders": "تقسيم الطلبات",
       "reports.order_life_cycle": "دورة حياة الطلب",
+      "reports.order_receipt": "إيصال الطلب",
       "reports.order_fiscal": "الفوترة الضريبية للطلبات",
       "reports.expense": "المصروفات",
       "reports.activity": "النشاط",

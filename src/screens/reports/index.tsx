@@ -42,6 +42,7 @@ import {SplitOrdersFilter} from "@/components/reports/filters/split.orders.filte
 import {TaxFilter} from "@/components/reports/filters/tax.filter.tsx";
 import {CouponFilter} from "@/components/reports/filters/coupon.filter.tsx";
 import {OrderLifecycleFilter} from "@/components/reports/filters/order.lifecycle.filter.tsx";
+import {OrderReceiptFilter} from "@/components/reports/filters/order.receipt.filter.tsx";
 import {OrderFiscalFilter} from "@/components/reports/filters/order.fiscal.filter.tsx";
 import {ExpenseFilter} from "@/components/reports/filters/expense.filter.tsx";
 import {ActivityFilter} from "@/components/reports/filters/activity.filter.tsx";
@@ -89,6 +90,7 @@ const REPORT_PERMISSION_MODULES: Record<string, string> = {
   mergeOrders: 'reports.merge_orders',
   splitOrders: 'reports.split_orders',
   orderLifeCycle: 'reports.order_life_cycle',
+  orderReceipt: 'reports.order_receipt',
   orderFiscal: 'reports.order_fiscal',
   cashClosing: 'reports.cash_closing',
   expense: 'reports.expense',
@@ -175,6 +177,7 @@ export const Reports = () => {
           { reportKey: 'mergeOrders', filter: <MergeOrdersFilter /> },
           { reportKey: 'splitOrders', filter: <SplitOrdersFilter /> },
           { reportKey: 'orderLifeCycle', filter: <OrderLifecycleFilter /> },
+          { reportKey: 'orderReceipt', filter: <OrderReceiptFilter /> },
           { reportKey: 'orderFiscal', filter: <OrderFiscalFilter /> },
         ]),
       },

@@ -27,6 +27,7 @@ import {getUnsoldProducts} from "@/api/reports/sales/products.ts";
 import {getAiReportSystemPrompt} from "@/lib/ai/schema.ts";
 import {executeAiReportTool} from "@/lib/ai/tools/executor.ts";
 import {selectToolsForPrompt} from "@/lib/ai/tools/select-tools.ts";
+import {collectOrderRefs, type AiOrderRef} from "@/lib/ai/order-refs.ts";
 import {tryAnalyticsFastPath} from "@/lib/ai/analytics-fast-path.ts";
 import {tryAccountsFastPath} from "@/lib/ai/accounts-fast-path.ts";
 import {isFraudSuspiciousPrompt} from "@/lib/ai/fraud-query.ts";
@@ -81,6 +82,7 @@ export interface AiReportAgentResult {
   answer: string;
   toolsUsed: {name: string; args: Record<string, unknown>}[];
   charts: AiChartSpec[];
+  orderRefs: AiOrderRef[];
 }
 
 export interface AiReportAgentOptions {
@@ -139,7 +141,7 @@ export const runAiReportAgent = async (
     if (format === "chart" && charts.length === 0) {
       charts.push(...buildAutoChartsFromToolResults(toolResults));
     }
-    return {answer, toolsUsed, charts: dedupeCharts(charts)};
+    return {answer, toolsUsed, charts: dedupeCharts(charts), orderRefs: collectOrderRefs(toolResults)};
   };
 
   if (isPurchaseOrderPrompt(trimmedPrompt)) {
@@ -193,7 +195,7 @@ export const runAiReportAgent = async (
         ...messages,
         {
           role: "user",
-          content: `${trimmedPrompt}\n\nget_order_detail:\n${JSON.stringify(data)}\n\nitems[].dishName are the dishes on this order — list them directly. Also summarize voids, discounts, taxes, payments, kitchen, refunds, merge/split, fiscals (provider/status/invoice/QR/errors), prints (temp/final, who printed, override/duplicate), tracking events, and timeline. Do not reconstruct dishes only from tracking payloads.`,
+          content: `${trimmedPrompt}\n\nget_order_detail:\n${JSON.stringify(data)}\n\nitems[].dishName are the dishes on this order — list them directly. Also summarize voids, discounts, taxes, payments, kitchen, refunds, merge/split, fiscals (provider/status/invoice/QR/errors), prints (temp/final, who printed, override/duplicate), tracking events, and timeline. Do not reconstruct dishes only from tracking payloads.${data.order?.id ? ` Include a markdown link to /reports/order-receipt?id=${data.order.id} for the printable receipt.` : ""}`,
         },
       ],
       tools: [],
@@ -220,7 +222,7 @@ export const runAiReportAgent = async (
         ...messages,
         {
           role: "user",
-          content: `${trimmedPrompt}\n\nget_orders returned ${data.totalCount} order(s), overallGrandTotal=${data.overallGrandTotal}:\n${JSON.stringify(data)}\n\nInclude invoice numbers, per-order grandTotal, and overallGrandTotal in your answer.`,
+          content: `${trimmedPrompt}\n\nget_orders returned ${data.totalCount} order(s), overallGrandTotal=${data.overallGrandTotal}:\n${JSON.stringify(data)}\n\nInclude invoice numbers as markdown links to /reports/order-receipt?id={orderId}, per-order grandTotal, and overallGrandTotal in your answer.`,
         },
       ],
       tools: [],

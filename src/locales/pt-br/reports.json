@@ -38,6 +38,7 @@
     "mergeOrders": "Mesclagem de Pedidos",
     "splitOrders": "Divisão de Pedidos",
     "orderLifeCycle": "Ciclo de Vida do Pedido",
+    "orderReceipt": "Recibo do pedido",
     "orderFiscal": "Fiscal de pedidos",
     "cashClosing": "Fechamento de caixa",
     "expense": "Despesa",
@@ -110,6 +111,7 @@
     "mergeOrders": "Relatório de mesclagem de pedidos",
     "splitOrders": "Relatório de divisão de pedidos",
     "orderLifecycle": "Relatório de ciclo de vida do pedido",
+    "orderReceipt": "Recibo do pedido",
     "orderFiscal": "Relatório fiscal de pedidos",
     "cashClosing": "Relatório de fechamento de caixa",
     "expense": "Relatório de despesas",
@@ -185,6 +187,7 @@
     "selectRange": "Selecione um intervalo",
     "generate": "Gerar",
     "orderId": "ID do Pedido",
+    "viewReceipt": "Ver recibo",
     "orderTakers": "Atendentes",
     "orderTypes": "Tipos de Pedido",
     "categories": "Categorias",
@@ -268,6 +271,7 @@
     "mergeOrders": "Carregando relatório de mesclagem de pedidos...",
     "splitOrders": "Carregando relatório de divisão de pedidos...",
     "orderLifecycle": "Carregando relatório de ciclo de vida do pedido...",
+    "orderReceipt": "Carregando recibo do pedido...",
     "orderFiscal": "Carregando relatório fiscal de pedidos...",
     "activity": "Carregando relatório de atividades...",
     "expense": "Carregando relatório de despesas...",
@@ -287,7 +291,11 @@
     "unableToLoad": "Não foi possível carregar o relatório",
     "failedToLoad": "Falha ao carregar relatório: {{error}}",
     "noOrderFound": "Nenhum pedido encontrado para o ID informado.",
+    "orderIdRequired": "O ID do pedido é obrigatório.",
     "failedToLoadDashboard": "Falha ao carregar o painel"
+  },
+  "receipt": {
+    "noItems": "Nenhum item neste pedido."
   },
   "columns": {
     "invoice": "Nota Fiscal #",

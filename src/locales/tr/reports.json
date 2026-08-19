@@ -38,6 +38,7 @@
     "mergeOrders": "Sipariş Birleştirme",
     "splitOrders": "Sipariş Bölme",
     "orderLifeCycle": "Sipariş Yaşam Döngüsü",
+    "orderReceipt": "Sipariş fişi",
     "orderFiscal": "Sipariş Fiskal",
     "cashClosing": "Kasa kapanışı",
     "expense": "Gider",
@@ -110,6 +111,7 @@
     "mergeOrders": "Sipariş birleştirme raporu",
     "splitOrders": "Sipariş bölme raporu",
     "orderLifecycle": "Sipariş yaşam döngüsü raporu",
+    "orderReceipt": "Sipariş fişi",
     "orderFiscal": "Sipariş fiskal raporu",
     "cashClosing": "Kasa kapanış raporu",
     "expense": "Gider raporu",
@@ -185,6 +187,7 @@
     "selectRange": "Aralık seçin",
     "generate": "Oluştur",
     "orderId": "Sipariş ID",
+    "viewReceipt": "Fişi görüntüle",
     "orderTakers": "Sipariş Alanlar",
     "orderTypes": "Sipariş Türleri",
     "categories": "Kategoriler",
@@ -268,6 +271,7 @@
     "mergeOrders": "Sipariş birleştirme raporu yükleniyor...",
     "splitOrders": "Sipariş bölme raporu yükleniyor...",
     "orderLifecycle": "Sipariş yaşam döngüsü raporu yükleniyor...",
+    "orderReceipt": "Sipariş fişi yükleniyor...",
     "orderFiscal": "Sipariş fiskal raporu yükleniyor...",
     "activity": "Aktivite raporu yükleniyor...",
     "expense": "Gider raporu yükleniyor...",
@@ -287,7 +291,11 @@
     "unableToLoad": "Rapor yüklenemedi",
     "failedToLoad": "Rapor yüklenemedi: {{error}}",
     "noOrderFound": "Verilen ID için sipariş bulunamadı.",
+    "orderIdRequired": "Sipariş kimliği gerekli.",
     "failedToLoadDashboard": "Gösterge paneli yüklenemedi"
+  },
+  "receipt": {
+    "noItems": "Bu siparişte ürün yok."
   },
   "columns": {
     "invoice": "Fatura #",

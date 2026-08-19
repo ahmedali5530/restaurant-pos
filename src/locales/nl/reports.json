@@ -38,6 +38,7 @@
     "mergeOrders": "Bestellingen samenvoegen",
     "splitOrders": "Bestellingen splitsen",
     "orderLifeCycle": "Bestellingslevenscyclus",
+    "orderReceipt": "Bestelbon",
     "orderFiscal": "Bestelling fiscaal",
     "cashClosing": "Kasafsluiting",
     "expense": "Uitgaven",
@@ -110,6 +111,7 @@
     "mergeOrders": "Samenvoegingsrapport bestellingen",
     "splitOrders": "Splitsingsrapport bestellingen",
     "orderLifecycle": "Bestellingslevenscyclusrapport",
+    "orderReceipt": "Bestelbon",
     "orderFiscal": "Bestelling fiscaal rapport",
     "cashClosing": "Kasafsluitingsrapport",
     "expense": "Uitgavenrapport",
@@ -185,6 +187,7 @@
     "selectRange": "Selecteer een bereik",
     "generate": "Genereren",
     "orderId": "Bestel-ID",
+    "viewReceipt": "Bon bekijken",
     "orderTakers": "Bestelopnemers",
     "orderTypes": "Bestellingstypes",
     "categories": "Categorieën",
@@ -268,6 +271,7 @@
     "mergeOrders": "Samenvoegingsrapport laden...",
     "splitOrders": "Splitsingsrapport laden...",
     "orderLifecycle": "Bestellingslevenscyclusrapport laden...",
+    "orderReceipt": "Bestelbon laden...",
     "orderFiscal": "Bestelling fiscaal rapport laden...",
     "activity": "Activiteitenrapport laden...",
     "expense": "Uitgavenrapport laden...",
@@ -287,7 +291,11 @@
     "unableToLoad": "Kan rapport niet laden",
     "failedToLoad": "Rapport laden mislukt: {{error}}",
     "noOrderFound": "Geen bestelling gevonden voor opgegeven ID.",
+    "orderIdRequired": "Bestel-ID is verplicht.",
     "failedToLoadDashboard": "Dashboard kon niet worden geladen"
+  },
+  "receipt": {
+    "noItems": "Geen artikelen op deze bestelling."
   },
   "columns": {
     "invoice": "Factuur #",

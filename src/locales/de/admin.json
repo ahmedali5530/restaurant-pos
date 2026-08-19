@@ -479,6 +479,7 @@
       "reports.merge_orders": "Bestellungen zusammenführen",
       "reports.split_orders": "Bestellungen aufteilen",
       "reports.order_life_cycle": "Bestelllebenszyklus",
+      "reports.order_receipt": "Bestellbeleg",
       "reports.order_fiscal": "Bestellungsfiskalisierung",
       "reports.expense": "Ausgaben",
       "reports.activity": "Aktivität",

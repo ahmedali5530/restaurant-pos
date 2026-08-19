@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState, type ReactNode} from "react";
 import {useTranslation} from "react-i18next";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -12,6 +12,9 @@ import {AiFormatSelector} from "@/components/reports/ai/ai.format.selector.tsx";
 import {AiReportCharts} from "@/components/reports/ai/ai.report.charts.tsx";
 import type {DbClient} from "@/api/reports/shared/types.ts";
 import {runAiReportAgent, type AiReportAgentResult} from "@/lib/ai/agent.ts";
+import type {AiOrderRef} from "@/lib/ai/order-refs.ts";
+import {linkifyOrderChildren, ReceiptMarkdownLink} from "@/lib/ai/order-receipt-links.tsx";
+import {orderReceiptUrl} from "@/routes/posr.ts";
 import {AI_EXAMPLE_PROMPTS} from "@/lib/ai/example.prompts.ts";
 import {
   type AiReportFormat,
@@ -26,32 +29,34 @@ import {AiQuotaError, fetchAiUsage, type AiUsageStatus} from "@/lib/openai.servi
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
 
-const markdownComponents = {
-  h1: ({children}: {children?: React.ReactNode}) => (
+const buildMarkdownComponents = (orderRefs: AiOrderRef[]) => ({
+  h1: ({children}: {children?: ReactNode}) => (
     <h1 className="text-2xl font-bold text-gray-900 mb-4 mt-6 first:mt-0">{children}</h1>
   ),
-  h2: ({children}: {children?: React.ReactNode}) => (
+  h2: ({children}: {children?: ReactNode}) => (
     <h2 className="text-xl font-semibold text-gray-800 mb-3 mt-5 first:mt-0">{children}</h2>
   ),
-  h3: ({children}: {children?: React.ReactNode}) => (
+  h3: ({children}: {children?: ReactNode}) => (
     <h3 className="text-lg font-semibold text-gray-800 mb-2 mt-4 first:mt-0">{children}</h3>
   ),
-  p: ({children}: {children?: React.ReactNode}) => (
-    <p className="mb-3 text-gray-800 leading-relaxed last:mb-0">{children}</p>
+  p: ({children}: {children?: ReactNode}) => (
+    <p className="mb-3 text-gray-800 leading-relaxed last:mb-0">
+      {linkifyOrderChildren(children, orderRefs)}
+    </p>
   ),
-  ul: ({children}: {children?: React.ReactNode}) => (
+  ul: ({children}: {children?: ReactNode}) => (
     <ul className="mb-3 list-disc pl-6 text-gray-800 space-y-1">{children}</ul>
   ),
-  ol: ({children}: {children?: React.ReactNode}) => (
+  ol: ({children}: {children?: ReactNode}) => (
     <ol className="mb-3 list-decimal pl-6 text-gray-800 space-y-1">{children}</ol>
   ),
-  li: ({children}: {children?: React.ReactNode}) => (
-    <li className="leading-relaxed">{children}</li>
+  li: ({children}: {children?: ReactNode}) => (
+    <li className="leading-relaxed">{linkifyOrderChildren(children, orderRefs)}</li>
   ),
-  strong: ({children}: {children?: React.ReactNode}) => (
+  strong: ({children}: {children?: ReactNode}) => (
     <strong className="font-semibold text-gray-900">{children}</strong>
   ),
-  code: ({children, className}: {children?: React.ReactNode; className?: string}) => {
+  code: ({children, className}: {children?: ReactNode; className?: string}) => {
     const isBlock = className?.includes("language-");
     if (isBlock) {
       return (
@@ -64,38 +69,43 @@ const markdownComponents = {
       <code className="rounded bg-gray-100 px-1.5 py-0.5 text-sm text-gray-800">{children}</code>
     );
   },
-  pre: ({children}: {children?: React.ReactNode}) => (
+  pre: ({children}: {children?: ReactNode}) => (
     <pre className="mb-3 overflow-x-auto">{children}</pre>
   ),
-  table: ({children}: {children?: React.ReactNode}) => (
+  table: ({children}: {children?: ReactNode}) => (
     <div className="my-4 overflow-x-auto rounded-lg border border-neutral-200">
       <table className="min-w-full border-collapse bg-white text-sm">{children}</table>
     </div>
   ),
-  thead: ({children}: {children?: React.ReactNode}) => (
+  thead: ({children}: {children?: ReactNode}) => (
     <thead className="bg-neutral-50">{children}</thead>
   ),
-  tbody: ({children}: {children?: React.ReactNode}) => (
+  tbody: ({children}: {children?: ReactNode}) => (
     <tbody className="divide-y divide-neutral-100 bg-white">{children}</tbody>
   ),
-  tr: ({children}: {children?: React.ReactNode}) => (
+  tr: ({children}: {children?: ReactNode}) => (
     <tr className="divide-x divide-neutral-100">{children}</tr>
   ),
-  th: ({children}: {children?: React.ReactNode}) => (
+  th: ({children}: {children?: ReactNode}) => (
     <th className="px-4 py-3 text-left text-sm font-semibold text-neutral-700 whitespace-nowrap">
       {children}
     </th>
   ),
-  td: ({children}: {children?: React.ReactNode}) => (
-    <td className="px-4 py-3 text-sm text-neutral-800 align-top">{children}</td>
+  td: ({children}: {children?: ReactNode}) => (
+    <td className="px-4 py-3 text-sm text-neutral-800 align-top">
+      {linkifyOrderChildren(children, orderRefs)}
+    </td>
   ),
-  blockquote: ({children}: {children?: React.ReactNode}) => (
+  a: ({href, children}: {href?: string; children?: ReactNode}) => (
+    <ReceiptMarkdownLink href={href}>{children}</ReceiptMarkdownLink>
+  ),
+  blockquote: ({children}: {children?: ReactNode}) => (
     <blockquote className="mb-3 border-l-4 border-primary-300 pl-4 text-gray-600 italic">
       {children}
     </blockquote>
   ),
   hr: () => <hr className="my-4 border-gray-200"/>,
-};
+});
 
 type ConversationEntry = {role: "user" | "assistant"; content: string};
 
@@ -124,6 +134,8 @@ export const AiReport = () => {
   const [format, setFormat] = useState<AiReportFormat>(() => loadAiReportFormat());
   const [response, setResponse] = useState("");
   const [charts, setCharts] = useState<AiReportAgentResult["charts"]>([]);
+  const [orderRefs, setOrderRefs] = useState<AiOrderRef[]>([]);
+  const [toolsUsed, setToolsUsed] = useState<AiReportAgentResult["toolsUsed"]>([]);
   const [conversation, setConversation] = useState<ConversationEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingTool, setLoadingTool] = useState<string | null>(null);
@@ -183,6 +195,8 @@ export const AiReport = () => {
   const applyResult = useCallback((result: AiReportAgentResult, userPrompt: string) => {
     setResponse(result.answer);
     setCharts(result.charts);
+    setOrderRefs(result.orderRefs ?? []);
+    setToolsUsed(result.toolsUsed ?? []);
     setConversation(prev => [
       ...prev,
       {role: "user" as const, content: userPrompt},
@@ -225,6 +239,8 @@ export const AiReport = () => {
     } catch (err) {
       setResponse("");
       setCharts([]);
+      setOrderRefs([]);
+      setToolsUsed([]);
       if (err instanceof AiQuotaError) {
         setError(formatQuotaError(err));
         if (err.daily || err.monthly) {
@@ -285,6 +301,17 @@ export const AiReport = () => {
       }
     })();
   }, [isConnected]);
+
+  const markdownComponents = useMemo(
+    () => buildMarkdownComponents(orderRefs),
+    [orderRefs],
+  );
+
+  const receiptHref = useMemo(() => {
+    const usedDetail = toolsUsed.some((tool) => tool.name === "get_order_detail");
+    const ref = usedDetail ? orderRefs[0] : undefined;
+    return ref ? orderReceiptUrl({id: ref.orderId}) : undefined;
+  }, [orderRefs, toolsUsed]);
 
   const loadingMessage = loadingTool
     ? t("filters.aiFetching", {tool: loadingTool})
@@ -362,6 +389,17 @@ export const AiReport = () => {
         {(response || charts.length > 0) && (
           <div>
             <h2 className="text-lg font-semibold text-gray-700 mb-3">{t("filters.aiResponse")}</h2>
+            {receiptHref && (
+              <div className="mb-3 print:hidden">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => window.open(receiptHref, "_blank", "noopener,noreferrer")}
+                >
+                  {t("filters.viewReceipt")}
+                </Button>
+              </div>
+            )}
             {charts.length > 0 && (
               <div className="mb-4">
                 <AiReportCharts charts={charts}/>

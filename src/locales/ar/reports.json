@@ -38,6 +38,7 @@
     "mergeOrders": "دمج الطلبات",
     "splitOrders": "تقسيم الطلبات",
     "orderLifeCycle": "دورة حياة الطلب",
+    "orderReceipt": "إيصال الطلب",
     "orderFiscal": "الفوترة الضريبية للطلبات",
     "cashClosing": "إغلاق النقد",
     "expense": "المصروفات",
@@ -110,6 +111,7 @@
     "mergeOrders": "تقرير دمج الطلبات",
     "splitOrders": "تقرير تقسيم الطلبات",
     "orderLifecycle": "تقرير دورة حياة الطلب",
+    "orderReceipt": "إيصال الطلب",
     "orderFiscal": "تقرير الفوترة الضريبية للطلبات",
     "cashClosing": "تقرير إغلاق النقد",
     "expense": "تقرير المصروفات",
@@ -185,6 +187,7 @@
     "selectRange": "اختر نطاقاً",
     "generate": "إنشاء",
     "orderId": "معرّف الطلب",
+    "viewReceipt": "عرض الإيصال",
     "orderTakers": "مستقبلو الطلبات",
     "orderTypes": "أنواع الطلبات",
     "categories": "الفئات",
@@ -268,6 +271,7 @@
     "mergeOrders": "جارٍ تحميل تقرير دمج الطلبات...",
     "splitOrders": "جارٍ تحميل تقرير تقسيم الطلبات...",
     "orderLifecycle": "جارٍ تحميل تقرير دورة حياة الطلب...",
+    "orderReceipt": "جارٍ تحميل إيصال الطلب...",
     "orderFiscal": "جارٍ تحميل تقرير الفوترة الضريبية للطلبات...",
     "activity": "جارٍ تحميل تقرير النشاط...",
     "expense": "جارٍ تحميل تقرير المصروفات...",
@@ -287,7 +291,11 @@
     "unableToLoad": "تعذّر تحميل التقرير",
     "failedToLoad": "فشل تحميل التقرير: {{error}}",
     "noOrderFound": "لم يُعثر على طلب بالمعرّف المقدّم.",
+    "orderIdRequired": "معرّف الطلب مطلوب.",
     "failedToLoadDashboard": "فشل تحميل لوحة المعلومات"
+  },
+  "receipt": {
+    "noItems": "لا توجد أصناف في هذا الطلب."
   },
   "columns": {
     "invoice": "رقم الفاتورة",

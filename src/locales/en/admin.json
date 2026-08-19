@@ -653,6 +653,7 @@
       "reports.merge_orders": "Merge Orders",
       "reports.split_orders": "Split Orders",
       "reports.order_life_cycle": "Order Life Cycle",
+      "reports.order_receipt": "Order Receipt",
       "reports.order_fiscal": "Order Fiscal",
       "reports.expense": "Expense",
       "reports.activity": "Activity",

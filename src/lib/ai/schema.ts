@@ -54,8 +54,8 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
 - Reorder levels: get_current_inventory compares ledger stock to reorder_levels. Movements: get_inventory_movements (includes adjustment). Waste: get_waste_summary. Consumption (recipe×sold Paid dishes): get_consumption. Issuance (ledger issues): get_issuance. Sale vs consumption report: get_sale_vs_consumption.
 - Inventory needed for this Friday / next N days / what to buy: forecast_inventory_need only. Report items[] (prior Friday actual, on-hand, adjusted need, suggestedPurchaseQty) and purchaseList. Pass localEvents from the prompt; never invent events.`,
   operations: `- Orders: ${Tables.orders}. Statuses: In Progress, Paid, Cancelled, Pending, etc.
-- List orders by status: get_orders with statuses. Delivery only when user says "delivery" (deliveryOnly=true).
-- Specific order id / "everything about this order": get_order_detail (items[].dishName are the dishes — never infer dishes from tracking alone; include fiscals + prints).
+- List orders by status: get_orders with statuses. Delivery only when user says "delivery" (deliveryOnly=true). When listing orders, make invoice numbers markdown links to /reports/order-receipt?id={orderId} so they open the printable receipt.
+- Specific order id / "everything about this order": get_order_detail (items[].dishName are the dishes — never infer dishes from tracking alone; include fiscals + prints). Include a markdown link to /reports/order-receipt?id={order.id}.
 - Void/cancel/comp reasons: get_void_and_cancel_summary. Prep delays: get_prep_times_by_order_type, get_kitchen_station_delays.
 - Cash audit: get_cash_settlement_audit. Expenses: ${Tables.closings}. Activity/tracking: ${Tables.tracking} via get_activity_log.
 - Fraud/suspicious prompts: start with get_voids, get_staff_accountability_metrics, get_cash_settlement_audit. Call get_activity_log only when needed (large payloads — use narrow dates and limit).`,
@@ -110,8 +110,8 @@ const FULL_WORKFLOW = `Workflow:
 5a. For inventory needed / this Friday / what should I buy / restock: call forecast_inventory_need only. Report last same-weekday actual, on-hand, adjusted need, suggestedPurchaseQty, and context (holidays, weather, prompt events). Do not create a purchase order. Pass localEvents from the prompt; never invent. If weather is missing, say so from warnings.
 5b. For how many staff / headcount needed: call forecast_staff_need only. Report last same-weekday hours/headcount vs recommended vs scheduled. Pass localEvents from the prompt; never invent.
 6. For discounts: prefer get_discount_summary (includes order_discounts engine records). For "today" prompts always pass phrase or resolved dates.
-7. For order lists by status (In Progress, Paid, etc.): use get_orders with statuses — never use get_sales_summary or get_order_lifecycle for this.
-7a. For a concrete order id (order:…) or "everything / full history / detail for this order": use get_order_detail. Report items[].dishName as dishes; include voids, discounts, taxes, payments, fiscals, prints, tracking, and timeline. Do not reconstruct dishes only from tracking.
+7. For order lists by status (In Progress, Paid, etc.): use get_orders with statuses — never use get_sales_summary or get_order_lifecycle for this. Make each invoice number a markdown link to /reports/order-receipt?id={orderId}.
+7a. For a concrete order id (order:…) or "everything / full history / detail for this order": use get_order_detail. Report items[].dishName as dishes; include voids, discounts, taxes, payments, fiscals, prints, tracking, and timeline. Do not reconstruct dishes only from tracking. Include a markdown link to /reports/order-receipt?id={order.id}.
 7b. For purchase orders / POs / pending approval: use get_purchase_orders — never get_orders and never get_inventory_movements type "purchase".
 8. For unsold / no-sales products: use get_unsold_products with phrase like "last 60 days" — never infer unsold items from get_top_selling_dishes or get_product_mix alone.
 9. For current clock-in session sales per order taker: use get_current_session_sales — not get_server_sales (which uses date ranges, not time_entry sessions).

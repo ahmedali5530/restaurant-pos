@@ -38,6 +38,7 @@
     "mergeOrders": "Bestellungen zusammenführen",
     "splitOrders": "Bestellungen aufteilen",
     "orderLifeCycle": "Bestelllebenszyklus",
+    "orderReceipt": "Bestellbeleg",
     "orderFiscal": "Bestellungsfiskalisierung",
     "cashClosing": "Kassenabschluss",
     "expense": "Ausgaben",
@@ -110,6 +111,7 @@
     "mergeOrders": "Bericht Bestellungen zusammenführen",
     "splitOrders": "Bericht Bestellungen aufteilen",
     "orderLifecycle": "Bericht Bestelllebenszyklus",
+    "orderReceipt": "Bestellbeleg",
     "orderFiscal": "Bericht Bestellungsfiskalisierung",
     "cashClosing": "Kassenabschluss-Bericht",
     "expense": "Ausgaben-Bericht",
@@ -185,6 +187,7 @@
     "selectRange": "Zeitraum auswählen",
     "generate": "Generieren",
     "orderId": "Bestell-ID",
+    "viewReceipt": "Beleg anzeigen",
     "orderTakers": "Bestellaufnahme",
     "orderTypes": "Bestellarten",
     "categories": "Kategorien",
@@ -268,6 +271,7 @@
     "mergeOrders": "Bericht Bestellungen zusammenführen wird geladen...",
     "splitOrders": "Bericht Bestellungen aufteilen wird geladen...",
     "orderLifecycle": "Bericht Bestelllebenszyklus wird geladen...",
+    "orderReceipt": "Bestellbeleg wird geladen...",
     "orderFiscal": "Bericht Bestellungsfiskalisierung wird geladen...",
     "activity": "Aktivitätsbericht wird geladen...",
     "expense": "Ausgabenbericht wird geladen...",
@@ -287,7 +291,11 @@
     "unableToLoad": "Bericht konnte nicht geladen werden",
     "failedToLoad": "Bericht konnte nicht geladen werden: {{error}}",
     "noOrderFound": "Keine Bestellung für die angegebene ID gefunden.",
+    "orderIdRequired": "Bestell-ID ist erforderlich.",
     "failedToLoadDashboard": "Dashboard konnte nicht geladen werden"
+  },
+  "receipt": {
+    "noItems": "Keine Artikel in dieser Bestellung."
   },
   "columns": {
     "invoice": "Rechnung #",
