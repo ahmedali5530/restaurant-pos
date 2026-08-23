@@ -181,5 +181,8 @@
   },
   "print": {
     "tempAlreadyPrinted": "Factura temporal ya impresa"
-  }
+  },
+  "loadingItems": "Cargando artículos…",
+  "retryLoad": "Reintentar carga de artículos",
+  "loadFailed": "No se pudo cargar el pedido"
 }

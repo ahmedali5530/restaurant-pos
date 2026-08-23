@@ -4,6 +4,12 @@ import { authHeaders } from "@/lib/session.ts";
 export const TRACKING_SERVER_URL =
   (import.meta.env.VITE_TRACKING_SERVER_URL as string) || "http://localhost:3138";
 
+/** Build-time toggle; on by default. Off for false / 0 / no. */
+export function isTrackingEnabled(): boolean {
+  const raw = String(import.meta.env.VITE_TRACKING_ENABLED ?? "true").toLowerCase();
+  return raw !== "false" && raw !== "0" && raw !== "no";
+}
+
 type TrackingRequest = Partial<Tracking>;
 type TrackingPayload = Record<string, unknown>;
 
@@ -97,6 +103,8 @@ type PostOrderTrackingOptions = {
 };
 
 export function postOrderTracking(options: PostOrderTrackingOptions): void {
+  if (!isTrackingEnabled()) return;
+
   const trackingPayload = withOrderTrackingPayload(options.payload, options.orderId);
   if (!trackingPayload) return;
 
@@ -109,6 +117,8 @@ export function postOrderTracking(options: PostOrderTrackingOptions): void {
 }
 
 export async function postTracking(payload: TrackingRequest): Promise<void> {
+  if (!isTrackingEnabled()) return;
+
   try {
     const url = `${TRACKING_SERVER_URL.replace(/\/$/, "")}/tracking`;
     const response = await fetch(url, {

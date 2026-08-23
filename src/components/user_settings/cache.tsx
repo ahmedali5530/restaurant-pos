@@ -15,6 +15,7 @@ import {ModifierGroup} from "@/api/model/modifier_group.ts";
 import {DishModifierGroup} from "@/api/model/dish_modifier_group.ts";
 import {Floor} from "@/api/model/floor.ts";
 import {Menu} from "@/api/model/menu.ts";
+import {Tax} from "@/api/model/tax.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {RecordId} from "surrealdb";
 import {useTranslation} from 'react-i18next';
@@ -40,6 +41,7 @@ export const CacheSettings = () => {
     {label: t('cache.tables'), count: settings.tables.length},
     {label: t('cache.kitchens'), count: settings.kitchens.length},
     {label: t('cache.paymentTypes'), count: settings.payment_types.length},
+    {label: t('cache.taxes'), count: settings.taxes.length},
   ]), [settings, t]);
 
   const reloadCache = async () => {
@@ -56,6 +58,7 @@ export const CacheSettings = () => {
         tablesResult,
         kitchensResult,
         paymentTypesResult,
+        taxesResult,
         menuSettingsResult,
         documentsResult
       ] = await Promise.all([
@@ -93,8 +96,11 @@ export const CacheSettings = () => {
         db.query(`SELECT *
                   FROM ${Tables.payment_types}
                   WHERE deleted_at = none
-                  ORDER BY priority ASC FETCH ${PAYMENT_TYPE_FETCHES.join(', ')}`)
-        ,
+                  ORDER BY priority ASC FETCH ${PAYMENT_TYPE_FETCHES.join(', ')}`),
+        db.query(`SELECT *
+                  FROM ${Tables.taxes}
+                  WHERE deleted_at = none
+                  ORDER BY priority ASC`),
         db.query(`SELECT values
                   FROM ${Tables.settings}
                   WHERE key = 'menus' AND is_global = true
@@ -131,6 +137,7 @@ export const CacheSettings = () => {
         tables: toRows<Table>(tablesResult?.[0]),
         kitchens: toRows<Kitchen>(kitchensResult?.[0]),
         payment_types: toRows<PaymentType>(paymentTypesResult?.[0]),
+        taxes: toRows<Tax>(taxesResult?.[0]),
         menus: toRows<Menu>(menusResult?.[0]),
       }));
 

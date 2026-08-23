@@ -181,5 +181,8 @@
   },
   "print": {
     "tempAlreadyPrinted": "Geçici fatura zaten yazdırıldı"
-  }
+  },
+  "loadingItems": "Ürünler yükleniyor…",
+  "retryLoad": "Ürünleri yeniden yükle",
+  "loadFailed": "Sipariş yüklenemedi"
 }

@@ -1,24 +1,21 @@
 import {Layout} from "@/screens/partials/layout.tsx";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
-import {Order as OrderModel, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
+import {Order as OrderModel, ORDER_LIST_FETCHES, OrderStatus} from "@/api/model/order.ts";
 import {Tables} from "@/api/db/tables.ts";
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDB} from "@/api/db/db.ts";
 import {OrderBox} from "@/components/orders/order.box.tsx";
 import ScrollContainer from "react-indiana-drag-scroll";
-import {Floor} from "@/api/model/floor.ts";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {User} from "@/api/model/user.ts";
 import {useAtom} from "jotai";
-import {appAlert, appPage, appState, AppStateInterface} from "@/store/jotai.ts";
-import {OrderType} from "@/api/model/order_type.ts";
+import {appAlert, appPage, appSettings, appState, AppStateInterface} from "@/store/jotai.ts";
 import {DatePicker} from "@/components/common/antd/datepicker.tsx";
 import {getLocalTimeZone, today} from '@internationalized/date';
 import {DateValue} from "react-aria-components";
 import {Button} from "@/components/common/input/button.tsx";
 import {faBars, faChair, faMoneyBillWave, faTableColumns} from "@fortawesome/free-solid-svg-icons";
 import {OrderRow} from "@/components/orders/order.row.tsx";
-import {Table} from "@/api/model/table.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Dropdown, DropdownItem} from "@/components/common/react-aria/dropdown.tsx";
 import {LiveSubscription, RecordId, StringRecordId} from "surrealdb";
@@ -37,6 +34,10 @@ import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import { batchOrdersWithTempPrint } from "@/lib/order-print.ts";
+import {calendarDateToAppDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
+
+const ORDERS_LIST_LIMIT = 500;
+const ORDERS_LIVE_DEBOUNCE_MS = 1000;
 
 export const Orders = () => {
   const {t} = useTranslation('orders');
@@ -48,6 +49,7 @@ export const Orders = () => {
   const fetchOrdersTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [state, setState] = useAtom(appState);
+  const [settings] = useAtom(appSettings);
   const [date, setDate] = useState<DateValue>(today(getLocalTimeZone()));
   const [view, setView] = useState<'row' | 'column'>('column');
   const selectedOrderFilters = useMemo(() => ({
@@ -81,13 +83,14 @@ export const Orders = () => {
   }, [setState]);
 
 
-  const orderFilters = useMemo(() => {
+  const {orderFilters, orderFilterParams} = useMemo(() => {
     const floorFilters = [];
     const userFilters = [];
     const orderTypeFilters = [];
     const statusFilters = [];
 
     const f = [];
+    const params: Record<string, unknown> = {};
 
     selectedOrderFilters?.floors?.forEach(floor => {
       floorFilters.push(`floor = ${floor.value}`);
@@ -108,6 +111,9 @@ export const Orders = () => {
     });
     if (statusFilters.length > 0) {
       f.push(`(${statusFilters.join(' or ')})`);
+    } else {
+      // Default to In Progress when no status is selected
+      f.push(`status = "${OrderStatus["In Progress"]}"`);
     }
 
     selectedOrderFilters?.orderTypes?.forEach(order_type => {
@@ -118,20 +124,31 @@ export const Orders = () => {
     }
 
     if (date) {
-      f.push(`(status = "${OrderStatus["In Progress"]}" OR time::format(created_at, "%Y-%m-%d") = "${date.toString()}")`);
+      const dayStart = calendarDateToAppDateTime({
+        year: date.year,
+        month: date.month,
+        day: date.day,
+      });
+      const dayEnd = dayStart.plus({days: 1});
+      f.push(
+        `(status = "${OrderStatus["In Progress"]}" OR (created_at >= $dayStart AND created_at < $dayEnd))`
+      );
+      params.dayStart = toSurrealDateTime(dayStart);
+      params.dayEnd = toSurrealDateTime(dayEnd);
     }
 
-    return f;
+    return {orderFilters: f, orderFilterParams: params};
   }, [selectedOrderFilters, date]);
 
   const ordersQb = useQueryBuilder(
-    Tables.orders, '*', orderFilters.map(item => `and ${item}`), 99999, 0, ['created_at desc'],
-    ORDER_FETCHES
+    Tables.orders, '*', orderFilters.map(item => `and ${item}`), ORDERS_LIST_LIMIT, 0, ['created_at desc'],
+    ORDER_LIST_FETCHES
   );
 
   useEffect(() => {
     ordersQb.setWheres(orderFilters.map(item => `and ${item}`));
-  }, [orderFilters]);
+    ordersQb.setParameters(orderFilterParams);
+  }, [orderFilters, orderFilterParams]);
 
   const fetchOrders = useCallback(async () => {
     const [listQuery] = await db.query(ordersQb.queryString, ordersQb.parameters);
@@ -151,7 +168,7 @@ export const Orders = () => {
 
     fetchOrdersTimerRef.current = setTimeout(() => {
       void fetchOrdersRef.current();
-    }, 200);
+    }, ORDERS_LIVE_DEBOUNCE_MS);
   }, []);
 
   useEffect(() => {
@@ -159,20 +176,8 @@ export const Orders = () => {
   }, [ordersQb.queryString, ordersQb.parameters]);
 
   const {
-    data: floors,
-  } = useApi<SettingsData<Floor>>(Tables.floors, ['deleted_at = none'], ['priority asc'], 0, 99999);
-
-  const {
-    data: tables,
-  } = useApi<SettingsData<Table>>(Tables.tables, ['deleted_at = none'], ['floor.name asc'], 0, 99999);
-
-  const {
     data: users,
   } = useApi<SettingsData<User>>(Tables.users, ['deleted_at = none'], [], 0, 99999);
-
-  const {
-    data: orderTypes,
-  } = useApi<SettingsData<OrderType>>(Tables.order_types, ['deleted_at = none'], [], 0, 99999);
 
   useEffect(() => {
     let cancelled = false;
@@ -205,8 +210,8 @@ export const Orders = () => {
   }, [scheduleFetchOrders]);
 
   const selectedTable = useMemo(() => {
-    return tables?.data.find(item => item.id.toString() === mergingTable);
-  }, [mergingTable, tables?.data]);
+    return settings.tables.find(item => item.id.toString() === mergingTable);
+  }, [mergingTable, settings.tables]);
 
   const [isSaving, setIsSaving] = useState(false);
   const confirmMerge = async () => {
@@ -337,7 +342,7 @@ export const Orders = () => {
           </div>
           <div className="min-w-[200px]">
             <ReactSelect
-              options={orderTypes?.data.map(item => ({
+              options={settings.order_types.map(item => ({
                 label: item.name,
                 value: item.id
               }))}
@@ -349,7 +354,7 @@ export const Orders = () => {
           </div>
           <div className="min-w-[200px]">
             <ReactSelect
-              options={floors?.data?.map(item => ({
+              options={settings.floors.map(item => ({
                 label: item.name,
                 value: item.id
               }))}
@@ -420,6 +425,7 @@ export const Orders = () => {
                       order={item}
                       merging={merging}
                       mergingOrders={mergingOrders}
+                      taxes={settings.taxes}
                       tempPrinted={tempPrintedOrderIds.has(item.id.toString())}
                       onMergeSelect={(order, status) => {
                         if (status) {
@@ -465,7 +471,7 @@ export const Orders = () => {
                   setMergingTable(key.toString());
                 }}
               >
-                {tables?.data?.map(item => (
+                {settings.tables.map(item => (
                   <DropdownItem isActive={item.id.toString() === mergingTable} id={item.id.toString()}
                                 key={item.id.toString()} className="min-w-[200px]">
                     {item.name + '' + item.number}

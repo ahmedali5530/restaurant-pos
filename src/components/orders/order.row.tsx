@@ -6,17 +6,24 @@ import {OrderPayment} from "@/components/orders/order.payment.tsx";
 import {getInvoiceNumber, getOrderFilteredItems, translateOrderStatus} from "@/lib/order.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {useTranslation} from "react-i18next";
+import {useOrderCardHydrate} from "@/hooks/useOrderCardHydrate.ts";
+import {useDB} from "@/api/db/db.ts";
+import {fetchOrderFull} from "@/lib/order-fetch.ts";
+import {toast} from "sonner";
 
 interface Props {
   order: OrderModel
 }
 
 export const OrderRow = ({
-  order
+  order: snapshot
 }: Props) => {
   const {t} = useTranslation('orders');
-  const itemsTotal = calculateOrderTotal(order);
+  const db = useDB();
+  const {rootRef, displayOrder: order, cardReady, isHydrating} = useOrderCardHydrate(snapshot);
+  const itemsTotal = cardReady ? calculateOrderTotal(order) : 0;
   const [paymentOrder, setPaymentOrder] = useState<OrderModel | null>(null);
+  const [isLoadingFull, setIsLoadingFull] = useState(false);
 
   const colors = {
     [OrderStatus["In Progress"]]: 'bg-warning-100 text-warning-700',
@@ -25,24 +32,47 @@ export const OrderRow = ({
   };
 
   const total = useMemo(() => {
+    if (!cardReady) {
+      return Number(order?.tax_amount || 0) - Number(order?.discount_amount || 0) + Number(order.service_charge_amount ?? 0)
+        + (order?.extras ? order.extras.reduce((prev, item) => prev + Number(item?.value || 0), 0) : 0);
+    }
     const extrasTotal = order?.extras
       ? order.extras.reduce((prev, item) => prev + Number(item?.value || 0), 0)
       : 0;
     return itemsTotal + extrasTotal + Number(order?.tax_amount || 0) - Number(order?.discount_amount || 0) + Number(order.service_charge_amount ?? 0);
-  }, [itemsTotal, order]);
+  }, [cardReady, itemsTotal, order]);
+
+  const openPayment = async () => {
+    if (order.status !== OrderStatus["In Progress"] || isLoadingFull) {
+      return;
+    }
+    setIsLoadingFull(true);
+    try {
+      const full = await fetchOrderFull(db, snapshot.id);
+      if (!full) {
+        toast.error(t('loadFailed'));
+        return;
+      }
+      setPaymentOrder(full);
+    } catch (error) {
+      console.error('Failed to load full order', error);
+      toast.error(t('loadFailed'));
+    } finally {
+      setIsLoadingFull(false);
+    }
+  };
 
   return (
     <>
       <div
+        ref={rootRef}
         onClick={() => {
-          if(order.status === OrderStatus["In Progress"]) {
-            setPaymentOrder(order);
-          }
+          void openPayment();
         }}
         className="flex flex-1 odd:bg-white even:bg-neutral-300 gap-1 select-none">
         <div className="basis-[140px] flex-shrink flex-grow-0 p-4">{getInvoiceNumber(order)} - {order?.order_type?.name}</div>
         <div className="basis-[100px] flex flex-col justify-center items-center" style={{
-          color: order?.table.color,
+          color: order?.table?.color,
           background: order.table?.background
         }}>
           {order?.table?.name}{order?.table?.number}
@@ -61,11 +91,11 @@ export const OrderRow = ({
         </div>
         <div className="flex items-center px-3 gap-1">
           <span className="inline-flex h-[24px] min-w-[24px] rounded-full bg-gray-900 text-white justify-center items-center">
-            {getOrderFilteredItems(order).length}
+            {cardReady ? getOrderFilteredItems(order).length : (isHydrating ? '…' : '—')}
           </span> {t('totals.itemsShort')}
         </div>
         <div className="flex px-3 gap-1 items-center basis-[150px]">
-          {withCurrency(itemsTotal)}
+          {cardReady ? withCurrency(itemsTotal) : '…'}
         </div>
         <div className="flex items-center px-3 basis-[180px] border-x border-neutral-500">
           {order?.tax && (
@@ -97,7 +127,7 @@ export const OrderRow = ({
         </div>
 
         <div className="flex items-center justify-end px-3 flex-1">
-          <div className="text-right font-bold text-lg text-danger-700">{withCurrency(total)}</div>
+          <div className="text-right font-bold text-lg text-danger-700">{cardReady ? withCurrency(total) : '…'}</div>
         </div>
       </div>
 

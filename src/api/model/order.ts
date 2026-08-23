@@ -101,6 +101,20 @@ export const ORDER_PAYMENT_FETCHES = [
   'order_discounts.discount',
 ];
 
+/** Light list snapshot for Orders screen (headers / filters / table row shells). */
+export const ORDER_LIST_FETCHES = [
+  'table',
+  'user',
+  'cashier',
+  'order_type',
+  'extras',
+  'extras.order_extras',
+  'tax',
+];
+
+/** Card body when an order scrolls into view — items + payments, no deep modifier dishes. */
+export const ORDER_CARD_FETCHES = ORDER_PAYMENT_FETCHES;
+
 export const ORDER_FETCHES = [
   ...ORDER_PAYMENT_FETCHES,
   ...buildModifierFetches(MODIFIER_FETCH_DEPTH),

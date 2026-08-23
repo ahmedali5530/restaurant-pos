@@ -68,6 +68,7 @@ const MIGRATION_PLAN = [
     backfill: 'backfill-payment-type-discounts.cjs',
   },
   { id: '2026_08_18_flexible_payroll', file: '2026_08_18_flexible_payroll.surql' },
+  { id: '2026_08_22_order_list_indexes', file: '2026_08_22_order_list_indexes.surql' },
 ];
 
 const rows = (result) => {

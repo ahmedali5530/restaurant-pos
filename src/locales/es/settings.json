@@ -27,6 +27,7 @@
     "tables": "Mesas",
     "kitchens": "Cocinas",
     "paymentTypes": "Tipos de pago",
+    "taxes": "Impuestos",
     "reloaded": "Caché recargada desde la base de datos",
     "reloadFailed": "Error al recargar la caché"
   },

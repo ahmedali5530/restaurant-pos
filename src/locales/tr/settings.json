@@ -27,6 +27,7 @@
     "tables": "Masalar",
     "kitchens": "Mutfaklar",
     "paymentTypes": "Ödeme türleri",
+    "taxes": "Vergiler",
     "reloaded": "Önbellek veritabanından yeniden yüklendi",
     "reloadFailed": "Önbellek yeniden yüklenemedi"
   },

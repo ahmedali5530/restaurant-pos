@@ -27,6 +27,7 @@
     "tables": "Tables",
     "kitchens": "Kitchens",
     "paymentTypes": "Payment types",
+    "taxes": "Taxes",
     "reloaded": "Cache reloaded from database",
     "reloadFailed": "Failed to reload cache"
   },
