@@ -59,7 +59,7 @@ export function WriteProposalPreview({proposal}: {proposal: WriteProposal}) {
     return (
       <div
         style={style}
-        className={`flex items-center border-b border-gray-100 px-2 text-sm ${hasError ? "bg-red-50" : ""}`}
+        className={`flex items-center border-b border-gray-100 px-2 text-sm ${hasError ? "bg-danger-100" : ""}`}
         title={[...errorMessages, ...warnings].join("; ") || undefined}
       >
         <div className="w-6 shrink-0 text-gray-400">{index + 1}</div>
@@ -69,9 +69,9 @@ export function WriteProposalPreview({proposal}: {proposal: WriteProposal}) {
           </div>
         ))}
         <div className="w-40 shrink-0 truncate text-xs">
-          {hasError && <span className="text-red-600">{errorMessages.join("; ")}</span>}
+          {hasError && <span className="text-danger-600">{errorMessages.join("; ")}</span>}
           {!hasError && warnings.length > 0 && (
-            <span className="text-amber-600">{warnings.join("; ")}</span>
+            <span className="text-warning-600">{warnings.join("; ")}</span>
           )}
         </div>
       </div>
@@ -96,10 +96,11 @@ export function WriteProposalPreview({proposal}: {proposal: WriteProposal}) {
         {Row}
       </FixedSizeList>
       <div className="px-2 py-1.5 bg-gray-50 border-t border-gray-200 text-xs text-gray-600">
-        {proposal.records.length} {proposal.entityLabel.toLowerCase()}
-        {proposal.records.length === 1 ? "" : "s"} · {proposal.mode}
+        {/* "row(s)" pluralizes safely for any entityLabel; naively appending "s" to the
+            label itself breaks for most entities (Dish -> "dishs", Category -> "categorys"). */}
+        {proposal.records.length} {proposal.entityLabel} row{proposal.records.length === 1 ? "" : "s"} · {proposal.mode}
         {errorCount > 0 && (
-          <span className="text-red-600 ml-2">
+          <span className="text-danger-600 ml-2">
             {errorCount} row{errorCount === 1 ? "" : "s"} will be skipped (blocking errors)
           </span>
         )}
