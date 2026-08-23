@@ -181,5 +181,8 @@
   },
   "print": {
     "tempAlreadyPrinted": "Zwischenrechnung bereits gedruckt"
-  }
+  },
+  "loadingItems": "Artikel werden geladen…",
+  "retryLoad": "Artikel erneut laden",
+  "loadFailed": "Bestellung konnte nicht geladen werden"
 }

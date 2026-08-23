@@ -6,7 +6,7 @@ import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
 import {useDB} from "@/api/db/db.ts";
 import {getTrackingUserFields, postTracking, withOrderTrackingPayload} from "@/lib/tracking.service.ts";
-import {moduleMatchCandidates, normalizeModules} from "@/lib/access.rules.ts";
+import {moduleMatchCandidates, normalizeModules, getUserModules, getProtectModulesSource} from "@/lib/access.rules.ts";
 
 export interface ProtectedActionOptions {
   description: string;
@@ -70,8 +70,13 @@ export const useSecurity = () => {
     } = options;
 
     if (!forceAuth) {
-      const [userWithModules] = await db.query(`SELECT * FROM ONLY ${toRecordId(user?.id)} WHERE deleted_at = none FETCH user_role`);
-      const userModules = normalizeModules(userWithModules?.user_role?.roles);
+      let userModules: string[];
+      if (getProtectModulesSource() === 'memory') {
+        userModules = getUserModules(user);
+      } else {
+        const [userWithModules] = await db.query(`SELECT * FROM ONLY ${toRecordId(user?.id)} WHERE deleted_at = none FETCH user_role`);
+        userModules = normalizeModules(userWithModules?.user_role?.roles);
+      }
       const candidates = moduleMatchCandidates(module);
       if (candidates.some((candidate) => userModules.includes(candidate))) {
         action();
@@ -98,7 +103,7 @@ export const useSecurity = () => {
       onError,
       payload
     });
-  }, [db, requestSecurity, trackProtectActionSuccess, user?.id]);
+  }, [db, requestSecurity, trackProtectActionSuccess, user]);
 
   const protectFormSubmit = useCallback((
     submitHandler: (e: React.FormEvent) => void,

@@ -27,6 +27,7 @@
     "tables": "Tavoli",
     "kitchens": "Cucine",
     "paymentTypes": "Tipi di pagamento",
+    "taxes": "Tasse",
     "reloaded": "Cache ricaricata dal database",
     "reloadFailed": "Ricarica cache non riuscita"
   },

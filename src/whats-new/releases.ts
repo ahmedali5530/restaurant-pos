@@ -7,6 +7,18 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-08-22',
+    title: 'Orders defaults and performance',
+    items: [
+      'Orders screen defaults to In Progress when no status filter is selected.',
+      'Orders list loads faster with a date-range filter, a 500-row cap, longer live refresh debounce, and database indexes on order status and created_at.',
+      'Orders list loads a light snapshot first, then hydrates card details as orders scroll into view; full order data loads only for pay, print, split, cancel, or refund.',
+      'Orders filter data (floors, tables, order types, taxes) comes from the browser cache; taxes are included when reloading cache.',
+      'Build-time VITE_TRACKING_ENABLED can disable activity / order tracking posts (on by default).',
+      'Build-time VITE_PROTECT_MODULES_SOURCE=server|memory chooses whether protectAction reads modules from the database or the in-memory login user (server by default).',
+    ],
+  },
+  {
     date: '2026-08-19',
     title: 'Auth gateway on by default',
     items: [

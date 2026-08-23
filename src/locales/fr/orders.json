@@ -181,5 +181,8 @@
   },
   "print": {
     "tempAlreadyPrinted": "Note provisoire déjà imprimée"
-  }
+  },
+  "loadingItems": "Chargement des articles…",
+  "retryLoad": "Réessayer le chargement des articles",
+  "loadFailed": "Échec du chargement de la commande"
 }

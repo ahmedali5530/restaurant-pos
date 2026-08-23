@@ -181,5 +181,8 @@
   },
   "print": {
     "tempAlreadyPrinted": "Tijdelijke rekening al afgedrukt"
-  }
+  },
+  "loadingItems": "Artikelen laden…",
+  "retryLoad": "Artikelen opnieuw laden",
+  "loadFailed": "Order laden mislukt"
 }

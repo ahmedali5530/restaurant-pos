@@ -27,6 +27,7 @@
     "tables": "Tische",
     "kitchens": "Küchen",
     "paymentTypes": "Zahlungsarten",
+    "taxes": "Steuern",
     "reloaded": "Cache aus Datenbank neu geladen",
     "reloadFailed": "Cache konnte nicht neu geladen werden"
   },

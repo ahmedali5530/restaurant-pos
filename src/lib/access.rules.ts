@@ -652,3 +652,15 @@ export const getUserModules = (user?: User): string[] => {
 
   return normalizeModules(modules);
 };
+
+export type ProtectModulesSource = "server" | "memory";
+
+/**
+ * Build-time source for protectAction module checks.
+ * - server (default): re-fetch user + user_role from Surreal
+ * - memory: use modules on the Jotai appPage.user snapshot from login
+ */
+export const getProtectModulesSource = (): ProtectModulesSource => {
+  const raw = String(import.meta.env.VITE_PROTECT_MODULES_SOURCE ?? "server").toLowerCase().trim();
+  return raw === "memory" ? "memory" : "server";
+};

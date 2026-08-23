@@ -181,5 +181,8 @@
       "creating": "Creating splits...",
       "save": "Save {{count}} split(s)"
     }
-  }
+  },
+  "loadingItems": "Loading items…",
+  "retryLoad": "Retry loading items",
+  "loadFailed": "Failed to load order"
 }

@@ -27,6 +27,7 @@
     "tables": "Tafels",
     "kitchens": "Keukens",
     "paymentTypes": "Betaaltypes",
+    "taxes": "Belastingen",
     "reloaded": "Cache herladen vanuit database",
     "reloadFailed": "Cache herladen mislukt"
   },

@@ -181,5 +181,8 @@
   },
   "print": {
     "tempAlreadyPrinted": "Conta provisória já impressa"
-  }
+  },
+  "loadingItems": "Carregando itens…",
+  "retryLoad": "Tentar carregar itens novamente",
+  "loadFailed": "Falha ao carregar o pedido"
 }

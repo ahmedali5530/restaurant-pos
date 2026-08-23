@@ -181,5 +181,8 @@
   },
   "print": {
     "tempAlreadyPrinted": "Preconto già stampato"
-  }
+  },
+  "loadingItems": "Caricamento articoli…",
+  "retryLoad": "Riprova a caricare gli articoli",
+  "loadFailed": "Caricamento ordine non riuscito"
 }
