@@ -110,6 +110,45 @@ describe("buildWriteProposal", () => {
     ).toBe(true);
   });
 
+  it("propose_update_dishes: a partial patch (price only) is NOT blocked by name/categories required checks", async () => {
+    // dish.import.config's onImportRow requires name/price/categories for both
+    // create AND update — reused as-is, a partial update would incorrectly
+    // read as missing-required. The write-tools layer must merge onto the
+    // existing dish first so this proposal comes back clean.
+    const db: ImportDbLike = {
+      query: vi.fn(async (sql: string) => {
+        if (sql.includes("FETCH categories, tax")) {
+          return [[{
+            id: "menu_item:1",
+            name: "Existing Dish",
+            number: "1",
+            priority: 0,
+            price: 9,
+            cost: 3,
+            categories: [{id: "category:1", name: "Pizza"}],
+            tax: null,
+          }]];
+        }
+        if (sql.includes("category")) return [[{id: "category:1", name: "Pizza"}]];
+        if (sql.includes("tax")) return [[]];
+        return [[]];
+      }),
+      create: vi.fn(async () => { throw new Error("must never write during proposal build"); }),
+      insert: vi.fn(async () => { throw new Error("must never write during proposal build"); }),
+      merge: vi.fn(async () => { throw new Error("must never write during proposal build"); }),
+    };
+
+    const proposal = await buildWriteProposal(
+      "propose_update_dishes",
+      {dishes: [{number: "1", price: 12.5}]}, // only price supplied
+      {db, t},
+    );
+
+    expect(proposal.hasBlockingErrors).toBe(false);
+    expect(proposal.records[0].values.name).toBe("Existing Dish"); // fell back to existing
+    expect(proposal.records[0].values.price).toBe(12.5); // AI's change applied
+  });
+
   it("rejects unknown tool names", async () => {
     const db = makeDb();
     await expect(

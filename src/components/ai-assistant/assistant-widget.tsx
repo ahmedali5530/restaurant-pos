@@ -7,6 +7,7 @@ import {useDB} from "@/api/db/db.ts";
 import {appPage} from "@/store/jotai.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {Textarea} from "@/components/common/input/textarea.tsx";
+import {Modal} from "@/components/common/react-aria/modal.tsx";
 import type {OpenAIChatMessage} from "@/lib/openai.service.ts";
 import {
   resumeAiAssistantAgent,
@@ -152,7 +153,7 @@ export function AiAssistantWidget() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700"
+        className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-primary-500 text-white shadow-lg hover:bg-primary-600"
         aria-label={t("aiAssistant.open", {defaultValue: "Open assistant"})}
       >
         <FontAwesomeIcon icon={faComments} />
@@ -180,7 +181,7 @@ export function AiAssistantWidget() {
             <span
               className={`inline-block rounded-md px-2 py-1 ${
                 entry.role === "user"
-                  ? "bg-blue-600 text-white"
+                  ? "bg-primary-500 text-white"
                   : entry.role === "system"
                     ? "bg-gray-100 text-gray-600 italic"
                     : "bg-gray-100 text-gray-800"
@@ -191,26 +192,7 @@ export function AiAssistantWidget() {
           </div>
         ))}
 
-        {pending && (
-          <div className="space-y-2">
-            <WriteProposalPreview proposal={pending.proposal} />
-            <div className="flex justify-end gap-2">
-              <Button variant="secondary" size="sm" onClick={handleCancel} disabled={loading}>
-                {t("common:cancel", {defaultValue: "Cancel"})}
-              </Button>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleConfirm}
-                disabled={loading || pending.proposal.hasBlockingErrors && pending.proposal.records.every(r => r.issues.some(i => i.severity === "error"))}
-              >
-                {t("aiAssistant.confirm", {defaultValue: "Confirm"})}
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {error && <div className="text-xs text-red-600">{error}</div>}
+        {error && <div className="text-xs text-danger-600">{error}</div>}
       </div>
 
       <div className="flex items-end gap-2 border-t border-gray-200 p-2">
@@ -232,6 +214,30 @@ export function AiAssistantWidget() {
           {loading ? <FontAwesomeIcon icon={faSpinner} spin /> : t("common:send", {defaultValue: "Send"})}
         </Button>
       </div>
+
+      {/* Full-width modal, not squeezed into the 384px chat sidebar — Ahmed was explicit
+          that bulk-edit preview must be full line-by-line, not summarized; a table crammed
+          into the chat panel truncates every column and defeats that requirement. */}
+      {pending && (
+        <Modal open onClose={handleCancel} size="xl" title={t("aiAssistant.reviewTitle", {defaultValue: "Review changes"})}>
+          <div className="space-y-3">
+            <WriteProposalPreview proposal={pending.proposal} />
+            <div className="flex justify-end gap-2">
+              <Button variant="secondary" size="sm" onClick={handleCancel} disabled={loading}>
+                {t("common:cancel", {defaultValue: "Cancel"})}
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleConfirm}
+                disabled={loading || (pending.proposal.hasBlockingErrors && pending.proposal.records.every(r => r.issues.some(i => i.severity === "error")))}
+              >
+                {t("aiAssistant.confirm", {defaultValue: "Confirm"})}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
