@@ -25,7 +25,7 @@ services:
   surrealdb:
     image: surrealdb/surrealdb:v3.0.5
     env_file:
-      - path: .env.local
+      - path: ./.env
         required: false
       - path: ./.env.local
         required: false
@@ -49,6 +49,11 @@ services:
       dockerfile: Dockerfile
     image: posr-react-printer:latest
     working_dir: /app
+    env_file:
+      - path: ./api/.env
+        required: false
+      - path: ./api/.env.local
+        required: false
     volumes:
       - ./printing:/app
       - printer-node_modules:/app/node_modules
@@ -113,8 +118,8 @@ services:
       # SYNC_SOURCE_* points at this compose's own surrealdb (the "source" of
       # this branch's changes), so it always reuses SURREAL_USER/SURREAL_PASS
       # rather than needing its own separate credential in .env.
-      - SYNC_SOURCE_USER=${SURREAL_USER:?Set SURREAL_USER in .env}
-      - SYNC_SOURCE_PASS=${SURREAL_PASS:?Set SURREAL_PASS in .env}
+      - SYNC_SOURCE_USER=${SYNC_SOURCE_USER:?Set SYNC_SOURCE_USER in .env}
+      - SYNC_SOURCE_PASS=${SYNC_SOURCE_PASS:?Set SYNC_SOURCE_PASS in .env}
       - SYNC_EXCLUDE_TABLES=${SYNC_EXCLUDE_TABLES:-}
       # SYNC_MASTER_* come from sync-service/.env or .env.local (dotenv).
       # Do not set SYNC_MASTER_URL=${SYNC_MASTER_URL:-} here — an empty value
@@ -129,6 +134,11 @@ services:
   tracking:
     image: node:20-alpine
     working_dir: /app
+    env_file:
+      - path: ./tracking/.env
+        required: false
+      - path: ./tracking/.env.local
+        required: false
     volumes:
       - ./tracking-api:/app
       - tracking-api-node_modules:/app/node_modules
@@ -182,6 +192,11 @@ services:
   gateway:
     image: node:20-alpine
     working_dir: /app
+    env_file:
+      - path: ./gateway/.env
+        required: false
+      - path: ./gateway/.env.local
+        required: false
     volumes:
       - ./gateway:/app
       - gateway-node_modules:/app/node_modules
