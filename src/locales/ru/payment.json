@@ -22,7 +22,7 @@
   "title": "Заказ №{{invoice}}",
   "tabs": {
     "tax": "Налог",
-    "taxWithRate": "Налог ({{name}} {{rate}}%)",
+    "taxWithRate": "Налог ({{label}})",
     "discount": "Скидка",
     "coupon": "Купон",
     "serviceCharges": "Сервисный сбор ({{value}}{{unit}})",

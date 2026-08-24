@@ -22,7 +22,7 @@
   "title": "Bestelling#{{invoice}}",
   "tabs": {
     "tax": "Belasting",
-    "taxWithRate": "Belasting ({{name}} {{rate}}%)",
+    "taxWithRate": "Belasting ({{label}})",
     "discount": "Korting",
     "coupon": "Coupon",
     "serviceCharges": "Servicekosten ({{value}}{{unit}})",

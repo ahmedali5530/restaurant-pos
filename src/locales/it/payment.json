@@ -22,7 +22,7 @@
   "title": "Ordine n.{{invoice}}",
   "tabs": {
     "tax": "IVA",
-    "taxWithRate": "IVA ({{name}} {{rate}}%)",
+    "taxWithRate": "IVA ({{label}})",
     "discount": "Sconto",
     "coupon": "Coupon",
     "serviceCharges": "Costo servizio ({{value}}{{unit}})",

@@ -42,7 +42,7 @@ export const AdminKitchens = () => {
     }),
     columnHelper.accessor("printers", {
       header: t('columns.printers'),
-      cell: info => info.getValue()?.map(item => <span className="tag" key={item.id}>{item.name}</span>)
+      cell: info => info.getValue()?.filter((item): item is NonNullable<typeof item> => !!item)?.map(item => <span className="tag" key={item.id}>{item?.name}</span>)
     }),
     columnHelper.accessor("priority", {
       header: t('columns.priority')
@@ -140,8 +140,8 @@ export const AdminKitchens = () => {
             return (rows as Kitchen[]).map((row) => ({
               name: row.name ?? '',
               priority: String(row.priority ?? ''),
-              items: (row.items ?? []).map((item) => item.name).join('|'),
-              printers: (row.printers ?? []).map((item) => item.name).join('|'),
+              items: (row.items ?? []).filter(Boolean).map((item) => item?.name).filter(Boolean).join('|'),
+              printers: (row.printers ?? []).filter(Boolean).map((item) => item?.name).filter(Boolean).join('|'),
             }));
           }}
           onDone={() => loadHook.fetchData()}

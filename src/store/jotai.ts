@@ -90,6 +90,11 @@ export interface MenuConfigInterface {
   enableDishSearch?: boolean
   /** Show #number badge on dish tiles. */
   showDishNumber?: boolean
+  /**
+   * Show dish photos on menu tiles.
+   * Off by default until a reliable photo source exists; keep the flag to re-enable later.
+   */
+  showDishPhotos?: boolean
   /** Search by dish number only, or by name and number. */
   dishSearchType?: DishSearchType
 }
@@ -127,6 +132,7 @@ export const appPage = atomWithStorage<AppPageInterface>(
       showModifiersInOrderCard: false,
       enableDishSearch: false,
       showDishNumber: true,
+      showDishPhotos: false,
       dishSearchType: 'number',
     }
   },

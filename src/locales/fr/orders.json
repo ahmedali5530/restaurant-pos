@@ -16,10 +16,10 @@
     }
   },
   "filters": {
-    "status": "Sélectionner le statut de commande",
-    "orderTypes": "Sélectionner les types de commande",
-    "floors": "Sélectionner les salles",
-    "users": "Sélectionner les utilisateurs"
+    "status": "Statut commande",
+    "orderTypes": "Types commande",
+    "floors": "Salles",
+    "users": "Utilisateurs"
   },
   "view": {
     "blocks": "Blocs",
@@ -54,7 +54,7 @@
     "tip": "Pourboire",
     "tipPercent": "Pourboire %",
     "total": "Total",
-    "totalWithTax": "Total avec {{name}} {{rate}} %",
+    "totalWithTax": "Total avec {{label}}",
     "change": "Monnaie",
     "sc": "FS ({{value}} %)",
     "extras": "Suppléments"
@@ -93,7 +93,7 @@
     "title": "Rembourser la commande",
     "selectItems": "Sélectionner les articles à rembourser",
     "itemsTotal": "Total des articles :",
-    "tax": "Taxe ({{name}} {{rate}} %) :",
+    "tax": "Taxe ({{label}}) :",
     "discount": "Remise :",
     "serviceCharges": "Frais de service ({{value}}{{unit}}) :",
     "tip": "Pourboire :",

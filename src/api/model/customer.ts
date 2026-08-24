@@ -10,4 +10,6 @@ export interface Customer extends ID, Name{
   postal_code?: number
   points?: number
   tags?: string[]
+  /** Optional guest/room code when name is absent (display via formatGuestLabel). */
+  guest_code?: string
 }

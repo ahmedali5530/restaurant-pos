@@ -128,7 +128,8 @@
     "showInUi": "Mostrar en pantalla",
     "showOnReceipts": "Mostrar en recibos",
     "updated": "Configuración del símbolo de moneda actualizada",
-    "saveDescription": "Guardar configuración del símbolo de moneda"
+    "saveDescription": "Guardar configuración del símbolo de moneda",
+    "currency": "Moneda"
   },
   "translateReceipts": {
     "title": "Traducir recibos",
@@ -154,7 +155,8 @@
     "showPriceInOrderCard": "Mostrar precio de artículos en la tarjeta de pedido",
     "showModifiersInOrderCard": "Mostrar modificadores de artículos en la tarjeta de pedido",
     "showModifierPriceInOrderCard": "Mostrar precio de modificadores en la tarjeta de pedido",
-    "showTotalInPaymentCard": "Mostrar totales de artículos en el cuadro de pago"
+    "showTotalInPaymentCard": "Mostrar totales de artículos en el cuadro de pago",
+    "showDishPhotos": "Mostrar fotos de platos en el menú"
   },
   "inventory": {
     "title": "Inventario",

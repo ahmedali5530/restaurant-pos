@@ -19,6 +19,7 @@ import {
   type PrintOptions,
 } from "@/api/model/print_options.ts";
 import { getAppTimezone } from "@/lib/datetime.ts";
+import { CURRENCY_SYMBOLS, getAppCurrency, getCurrencySymbol } from '@/lib/currency.ts';
 
 
 export const PRINT_EVENT = 'posr:print';
@@ -58,10 +59,6 @@ const PRINT_CONFIG_KEYS: Record<string, string> = {
   delivery: 'Delivery Print',
   summary: 'Summary Print',
   pulse: 'Final Print',
-};
-
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  USD: '$', PKR: 'Rs', EUR: '€', GBP: '£',
 };
 
 // Set VITE_PRINT_SERVER_URL in .env (e.g. http://localhost:3132) to override.
@@ -137,8 +134,8 @@ export async function getPrintConfig(db: PrintDB, template: string): Promise<Rec
   const row = rows[0] as { values?: Record<string, unknown> } | undefined;
   const values = row?.values ?? {};
   const logo = logoToBase64(values.logo);
-  const currency = (import.meta.env.VITE_CURRENCY as string) || 'USD';
-  const currencySymbol = CURRENCY_SYMBOLS[currency] || (import.meta.env.VITE_CURRENCY as string) || '$';
+  const currency = getAppCurrency();
+  const currencySymbol = getCurrencySymbol(currency) || CURRENCY_SYMBOLS.USD;
   return {
     ...values,
     logo: logo ?? values.logo,
@@ -333,6 +330,9 @@ export async function dispatchPrint<Payload = any>(
     decimal_place: import.meta.env.VITE_DECIMAL_PLACES,
     showInclusivePrices,
     showCurrencySymbol: currencySymbolSettings.receipts,
+    currencySymbol: currencySymbolSettings.code
+      ? getCurrencySymbol(currencySymbolSettings.code)
+      : config.currencySymbol,
     timezone: getAppTimezone(),
   };
 

@@ -4,6 +4,7 @@ import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
 import { Setting } from "@/api/model/setting.ts";
 import { Switch } from "@/components/common/input/switch.tsx";
+import { Button } from "@/components/common/input/button.tsx";
 import { toast } from "sonner";
 import { useSecurity } from "@/hooks/useSecurity.ts";
 import {
@@ -12,9 +13,11 @@ import {
   DEFAULT_CURRENCY_SYMBOL,
 } from "@/api/model/currency_symbol.ts";
 import { setShowCurrencySymbolInUi } from "@/lib/currency-format.ts";
+import { APP_CURRENCIES, AppCurrencyCode, getCurrencySymbol, setAppCurrencyCode } from "@/lib/currency.ts";
 import { useTranslation } from "react-i18next";
 
 interface FormValues {
+  code: AppCurrencyCode;
   ui: boolean;
   receipts: boolean;
 }
@@ -25,12 +28,15 @@ export const CurrencySymbolSettingsCard = () => {
   const { protectFormSubmit } = useSecurity();
   const { t } = useTranslation(["settings", "common"]);
 
-  const { control, handleSubmit, reset } = useForm<FormValues>({
+  const { control, handleSubmit, reset, watch, setValue } = useForm<FormValues>({
     defaultValues: {
+      code: DEFAULT_CURRENCY_SYMBOL.code ?? "HTG",
       ui: DEFAULT_CURRENCY_SYMBOL.ui,
       receipts: DEFAULT_CURRENCY_SYMBOL.receipts,
     },
   });
+
+  const selectedCode = watch("code");
 
   const loadSettings = async () => {
     const [rows] = await db.query<Setting[]>(
@@ -42,6 +48,7 @@ export const CurrencySymbolSettingsCard = () => {
 
   const saveSettings = async (values: FormValues) => {
     const payload: CurrencySymbolSettings = {
+      code: values.code,
       ui: values.ui,
       receipts: values.receipts,
     };
@@ -56,6 +63,7 @@ export const CurrencySymbolSettingsCard = () => {
       });
     }
 
+    setAppCurrencyCode(payload.code);
     setShowCurrencySymbolInUi(payload.ui);
     toast.success(t("settings:currencySymbol.updated"));
     await loadSettings();
@@ -74,11 +82,16 @@ export const CurrencySymbolSettingsCard = () => {
       ...DEFAULT_CURRENCY_SYMBOL,
       ...(settings.values as CurrencySymbolSettings),
     };
+    const code = (APP_CURRENCIES.includes(values.code as AppCurrencyCode)
+      ? values.code
+      : DEFAULT_CURRENCY_SYMBOL.code) as AppCurrencyCode;
 
     reset({
+      code,
       ui: values.ui,
       receipts: values.receipts,
     });
+    setAppCurrencyCode(code);
     setShowCurrencySymbolInUi(values.ui);
   }, [settings, reset]);
 
@@ -95,6 +108,23 @@ export const CurrencySymbolSettingsCard = () => {
         })}
       >
         <div className="grid grid-cols-1 gap-5 mb-5">
+          <div>
+            <p className="text-sm font-medium mb-2">{t("settings:currencySymbol.currency")}</p>
+            <div className="flex flex-wrap gap-2">
+              {APP_CURRENCIES.map((code) => (
+                <Button
+                  key={code}
+                  type="button"
+                  size="lg"
+                  variant="primary"
+                  active={selectedCode === code}
+                  onClick={() => setValue("code", code, { shouldDirty: true })}
+                >
+                  {code} ({getCurrencySymbol(code)})
+                </Button>
+              ))}
+            </div>
+          </div>
           <Controller
             name="ui"
             control={control}

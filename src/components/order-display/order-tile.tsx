@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils.ts';
 import { Countdown } from '@/components/floor/countdown.tsx';
 import { toLuxonDateTime } from '@/lib/datetime.ts';
 import { useTranslation } from 'react-i18next';
+import { formatGuestLabel } from '@/lib/guest-label.ts';
 
 interface Props {
   order: Order;
@@ -30,6 +31,11 @@ export const OrderTile = ({ order, variant, celebrate = false }: Props) => {
       {order.order_type?.name && (
         <span className="mt-2 text-lg font-semibold uppercase opacity-80">
           {order.order_type.name}
+        </span>
+      )}
+      {formatGuestLabel(order.customer) && (
+        <span className="mt-1 text-base font-medium opacity-90">
+          {formatGuestLabel(order.customer)}
         </span>
       )}
       <div className="mt-4 flex flex-col items-center gap-1">

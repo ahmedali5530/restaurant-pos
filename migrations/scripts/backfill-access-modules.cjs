@@ -322,6 +322,45 @@ async function main() {
   await remapTable(db, 'user_role', stats);
   await remapTable(db, 'user', stats);
 
+  // Ensure Master has the full modern catalog (not only remapped legacy labels).
+  const allCatalog = [];
+  try {
+    const accessRulesPath = require('path').resolve(__dirname, '../../src/lib/access.rules.ts');
+    const text = require('fs').readFileSync(accessRulesPath, 'utf8');
+    const start = text.indexOf('export const ACCESS_RULE_MODULES');
+    const end = text.indexOf('export const LEGACY_MODULE_MAP');
+    const block = text.slice(start, end);
+    let inArr = false;
+    for (const line of block.split('\n')) {
+      if (line.includes('children:')) inArr = true;
+      if (inArr) {
+        const mm = line.match(/"([a-z0-9_.]+)"/g);
+        if (mm) allCatalog.push(...mm.map((s) => s.replace(/"/g, '')));
+        if (line.includes('],')) inArr = false;
+      }
+    }
+  } catch (err) {
+    console.warn('Could not parse ACCESS_RULE_MODULES for Master grant-all', err.message);
+  }
+  const masterPerms = [...new Set(allCatalog)];
+  if (masterPerms.length) {
+    const masters = rows(await db.query(`SELECT id, name, roles FROM user_role WHERE name = 'Master'`));
+    for (const row of masters) {
+      const before = Array.isArray(row.roles) ? row.roles.map(String) : [];
+      if (sameSet(before, masterPerms)) {
+        console.log(`Master ${toId(row.id)} already has full catalog (${masterPerms.length})`);
+        continue;
+      }
+      console.log(`Granting Master ${toId(row.id)} full catalog (${before.length} → ${masterPerms.length})`);
+      if (!DRY_RUN) {
+        await db.query('UPDATE $id SET roles = $roles', {
+          id: new StringRecordId(toId(row.id)),
+          roles: masterPerms,
+        });
+      }
+    }
+  }
+
   console.log(JSON.stringify(stats, null, 2));
   await db.close();
 }

@@ -123,12 +123,13 @@
     "saveDescription": "Save show inclusive prices settings"
   },
   "currencySymbol": {
-    "title": "Currency symbol",
-    "description": "Control whether the currency symbol appears next to amounts in the app and on printed receipts. Turning these off shows numbers only (e.g. 1,250 instead of Rs 1,250). This is display-only and does not change stored values.",
+    "title": "Currency",
+    "description": "Choose HTG (G) or USD ($) for amounts in the app and on receipts. You can also hide the currency symbol (numbers only). Display-only — stored values are unchanged.",
+    "currency": "Currency",
     "showInUi": "Show on screen",
     "showOnReceipts": "Show on receipts",
-    "updated": "Currency symbol settings updated",
-    "saveDescription": "Save currency symbol settings"
+    "updated": "Currency settings updated",
+    "saveDescription": "Save currency settings"
   },
   "translateReceipts": {
     "title": "Translate receipts",
@@ -154,7 +155,8 @@
     "showPriceInOrderCard": "Show price for items in order card",
     "showModifiersInOrderCard": "Show modifiers for items in order card",
     "showModifierPriceInOrderCard": "Show modifier price for items in order card",
-    "showTotalInPaymentCard": "Show totals for items in payment box"
+    "showTotalInPaymentCard": "Show totals for items in payment box",
+    "showDishPhotos": "Show dish photos on menu tiles"
   },
   "inventory": {
     "title": "Inventory",

@@ -1,6 +1,17 @@
 'use strict';
 
-require('dotenv').config();
+const path = require('path');
+const fs = require('fs');
+
+// Prefer repo-root .env (gateway secrets / ALLOWED_ORIGINS), then local tracking-api/.env
+const rootEnv = path.resolve(__dirname, '..', '.env');
+const localEnv = path.resolve(__dirname, '.env');
+if (fs.existsSync(rootEnv)) {
+  require('dotenv').config({ path: rootEnv });
+}
+if (fs.existsSync(localEnv)) {
+  require('dotenv').config({ path: localEnv, override: true });
+}
 
 const express = require('express');
 const cors = require('cors');

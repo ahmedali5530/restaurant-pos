@@ -88,6 +88,22 @@ export const ItemsVisibilityConfig = () => {
             {t('settings:visibilityConfig.showDishNumber')}
           </Switch>
         </div>
+        <div>
+          <Switch
+            checked={config.menuConfig?.showDishPhotos === true}
+            onChange={(event) => {
+              setConfig(prev => ({
+                ...prev,
+                menuConfig: {
+                  ...prev.menuConfig,
+                  showDishPhotos: event.currentTarget.checked
+                }
+              }))
+            }}
+          >
+            {t('settings:visibilityConfig.showDishPhotos')}
+          </Switch>
+        </div>
       </div>
 
       <h3 className="mb-3">{t('settings:visibilityConfig.cart')}</h3>

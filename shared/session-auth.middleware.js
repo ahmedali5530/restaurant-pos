@@ -37,6 +37,11 @@ function createSessionAuthMiddleware(options = {}) {
   const optional = Boolean(options.optional);
 
   return async function sessionAuthMiddleware(req, res, next) {
+    // CORS preflight must not require a JWT (browsers never send Authorization on OPTIONS).
+    if (req.method === 'OPTIONS') {
+      return next();
+    }
+
     if (!authRequired()) {
       return next();
     }
@@ -71,6 +76,21 @@ function createSessionAuthMiddleware(options = {}) {
   };
 }
 
+function originHostAliases(origin) {
+  try {
+    const url = new URL(origin);
+    const hosts = new Set([url.host]);
+    if (url.hostname === 'localhost') {
+      hosts.add(`127.0.0.1${url.port ? `:${url.port}` : ''}`);
+    } else if (url.hostname === '127.0.0.1') {
+      hosts.add(`localhost${url.port ? `:${url.port}` : ''}`);
+    }
+    return [...hosts].map((host) => `${url.protocol}//${host}`);
+  } catch {
+    return [origin];
+  }
+}
+
 function createCorsOriginDelegate() {
   const raw =
     process.env.PAYMENT_ALLOWED_ORIGINS ||
@@ -82,12 +102,34 @@ function createCorsOriginDelegate() {
     .map((s) => s.trim())
     .filter(Boolean);
 
+  // Expand localhost ↔ 127.0.0.1 aliases for each listed origin.
+  const allowedExpanded = new Set();
+  for (const entry of allowed) {
+    if (entry === '*') {
+      allowedExpanded.add('*');
+      continue;
+    }
+    for (const alias of originHostAliases(entry)) {
+      allowedExpanded.add(alias);
+    }
+  }
+
   return function originDelegate(origin, cb) {
+    // No Origin header = same-origin or a non-browser caller — always fine.
     if (!origin) {
       return cb(null, true);
     }
-    if (allowed.includes('*') || allowed.includes(origin)) {
+    if (allowedExpanded.has('*')) {
       return cb(null, true);
+    }
+    if (allowedExpanded.has(origin)) {
+      return cb(null, true);
+    }
+    // Also accept if any alias of the request origin is listed.
+    for (const alias of originHostAliases(origin)) {
+      if (allowedExpanded.has(alias)) {
+        return cb(null, true);
+      }
     }
     return cb(null, false);
   };

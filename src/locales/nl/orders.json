@@ -16,10 +16,10 @@
     }
   },
   "filters": {
-    "status": "Selecteer bestelstatus",
-    "orderTypes": "Selecteer bestellingstypes",
-    "floors": "Selecteer verdiepingen",
-    "users": "Selecteer gebruikers"
+    "status": "Orderstatus",
+    "orderTypes": "Ordertypes",
+    "floors": "Zalen",
+    "users": "Gebruikers"
   },
   "view": {
     "blocks": "Blokken",
@@ -54,7 +54,7 @@
     "tip": "Fooi",
     "tipPercent": "Fooi %",
     "total": "Totaal",
-    "totalWithTax": "Totaal met {{name}} {{rate}}%",
+    "totalWithTax": "Totaal met {{label}}",
     "change": "Wisselgeld",
     "sc": "SK ({{value}}%)",
     "extras": "Extra's"
@@ -93,7 +93,7 @@
     "title": "Bestelling terugbetalen",
     "selectItems": "Selecteer artikelen voor terugbetaling",
     "itemsTotal": "Artikeltotaal:",
-    "tax": "Belasting ({{name}} {{rate}}%):",
+    "tax": "Belasting ({{label}}):",
     "discount": "Korting:",
     "serviceCharges": "Servicekosten ({{value}}{{unit}}):",
     "tip": "Fooi:",

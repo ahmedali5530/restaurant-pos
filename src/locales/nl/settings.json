@@ -128,7 +128,8 @@
     "showInUi": "Tonen op scherm",
     "showOnReceipts": "Tonen op bonnen",
     "updated": "Valutasymbool-instellingen bijgewerkt",
-    "saveDescription": "Valutasymbool-instellingen opslaan"
+    "saveDescription": "Valutasymbool-instellingen opslaan",
+    "currency": "Valuta"
   },
   "translateReceipts": {
     "title": "Bonnen vertalen",
@@ -154,7 +155,8 @@
     "showPriceInOrderCard": "Prijs voor artikelen in orderkaart weergeven",
     "showModifiersInOrderCard": "Modifiers voor artikelen in orderkaart weergeven",
     "showModifierPriceInOrderCard": "Modifierprijs voor artikelen in orderkaart weergeven",
-    "showTotalInPaymentCard": "Totalen voor artikelen in betalingsvenster weergeven"
+    "showTotalInPaymentCard": "Totalen voor artikelen in betalingsvenster weergeven",
+    "showDishPhotos": "Gerechtenfotos op menutegels tonen"
   },
   "inventory": {
     "title": "Inventory",

@@ -16,10 +16,10 @@
     }
   },
   "filters": {
-    "status": "Выберите статус заказа",
-    "orderTypes": "Выберите типы заказов",
-    "floors": "Выберите залы",
-    "users": "Выберите пользователей"
+    "status": "Статус заказа",
+    "orderTypes": "Типы заказа",
+    "floors": "Залы",
+    "users": "Пользователи"
   },
   "view": {
     "blocks": "Блоки",
@@ -54,7 +54,7 @@
     "tip": "Чаевые",
     "tipPercent": "Чаевые %",
     "total": "Итого",
-    "totalWithTax": "Итого с {{name}} {{rate}}%",
+    "totalWithTax": "Итого с {{label}}",
     "change": "Сдача",
     "sc": "СС ({{value}}%)",
     "extras": "Дополнения"
@@ -93,7 +93,7 @@
     "title": "Возврат заказа",
     "selectItems": "Выберите позиции для возврата",
     "itemsTotal": "Итого по позициям:",
-    "tax": "Налог ({{name}} {{rate}}%):",
+    "tax": "Налог ({{label}}):",
     "discount": "Скидка:",
     "serviceCharges": "Сервисный сбор ({{value}}{{unit}}):",
     "tip": "Чаевые:",

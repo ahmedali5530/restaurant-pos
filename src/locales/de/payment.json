@@ -22,7 +22,7 @@
   "title": "Bestellung#{{invoice}}",
   "tabs": {
     "tax": "MwSt.",
-    "taxWithRate": "MwSt. ({{name}} {{rate}}%)",
+    "taxWithRate": "MwSt. ({{label}})",
     "discount": "Rabatt",
     "coupon": "Gutschein",
     "serviceCharges": "Servicegebühr ({{value}}{{unit}})",

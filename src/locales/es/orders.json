@@ -16,10 +16,10 @@
     }
   },
   "filters": {
-    "status": "Seleccionar estado del pedido",
-    "orderTypes": "Seleccionar tipos de pedido",
-    "floors": "Seleccionar plantas",
-    "users": "Seleccionar usuarios"
+    "status": "Estado pedido",
+    "orderTypes": "Tipos pedido",
+    "floors": "Salas",
+    "users": "Usuarios"
   },
   "view": {
     "blocks": "Bloques",
@@ -54,7 +54,7 @@
     "tip": "Propina",
     "tipPercent": "Propina %",
     "total": "Total",
-    "totalWithTax": "Total con {{name}} {{rate}}%",
+    "totalWithTax": "Total con {{label}}",
     "change": "Cambio",
     "sc": "CS ({{value}}%)",
     "extras": "Extras"
@@ -93,7 +93,7 @@
     "title": "Reembolsar pedido",
     "selectItems": "Seleccionar artículos a reembolsar",
     "itemsTotal": "Total de artículos:",
-    "tax": "Impuesto ({{name}} {{rate}}%):",
+    "tax": "Impuesto ({{label}}):",
     "discount": "Descuento:",
     "serviceCharges": "Cargos por servicio ({{value}}{{unit}}):",
     "tip": "Propina:",

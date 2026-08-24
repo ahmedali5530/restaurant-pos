@@ -128,7 +128,8 @@
     "showInUi": "Auf dem Bildschirm anzeigen",
     "showOnReceipts": "Auf Belegen anzeigen",
     "updated": "Währungssymbol-Einstellungen aktualisiert",
-    "saveDescription": "Währungssymbol-Einstellungen speichern"
+    "saveDescription": "Währungssymbol-Einstellungen speichern",
+    "currency": "Währung"
   },
   "translateReceipts": {
     "title": "Belege übersetzen",
@@ -154,7 +155,8 @@
     "showPriceInOrderCard": "Preis für Artikel in der Bestellkarte anzeigen",
     "showModifiersInOrderCard": "Modifikatoren für Artikel in der Bestellkarte anzeigen",
     "showModifierPriceInOrderCard": "Modifikatorpreis für Artikel in der Bestellkarte anzeigen",
-    "showTotalInPaymentCard": "Summen für Artikel im Zahlungsfeld anzeigen"
+    "showTotalInPaymentCard": "Summen für Artikel im Zahlungsfeld anzeigen",
+    "showDishPhotos": "Gerichtfotos auf Menükacheln anzeigen"
   },
   "inventory": {
     "title": "Inventar",

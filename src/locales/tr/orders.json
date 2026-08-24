@@ -16,10 +16,10 @@
     }
   },
   "filters": {
-    "status": "Sipariş durumu seçin",
-    "orderTypes": "Sipariş türleri seçin",
-    "floors": "Katlar seçin",
-    "users": "Kullanıcılar seçin"
+    "status": "Sipariş durumu",
+    "orderTypes": "Sipariş türleri",
+    "floors": "Salonlar",
+    "users": "Kullanıcılar"
   },
   "view": {
     "blocks": "Bloklar",
@@ -54,7 +54,7 @@
     "tip": "Bahşiş",
     "tipPercent": "Bahşiş %",
     "total": "Toplam",
-    "totalWithTax": "{{name}} {{rate}}% ile toplam",
+    "totalWithTax": "{{label}} ile toplam",
     "change": "Para üstü",
     "sc": "SU ({{value}}%)",
     "extras": "Ekstralar"
@@ -93,7 +93,7 @@
     "title": "Siparişi iade et",
     "selectItems": "İade edilecek ürünleri seçin",
     "itemsTotal": "Ürün Toplamı:",
-    "tax": "Vergi ({{name}} {{rate}}%):",
+    "tax": "Vergi ({{label}}):",
     "discount": "İndirim:",
     "serviceCharges": "Servis Ücretleri ({{value}}{{unit}}):",
     "tip": "Bahşiş:",

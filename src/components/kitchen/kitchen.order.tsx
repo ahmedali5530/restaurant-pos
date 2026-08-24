@@ -15,6 +15,7 @@ import { useAtom } from "jotai";
 import { appPage } from "@/store/jotai.ts";
 import { useTranslation } from "react-i18next";
 import { useSecurity } from "@/hooks/useSecurity.ts";
+import { formatGuestLabel } from "@/lib/guest-label.ts";
 
 export type KitchenBoardTicket = {
   order: Order
@@ -139,6 +140,11 @@ export const KitchenOrder = ({
               color: order?.table?.color,
               background: order?.table?.background
             }}>{order?.table?.name}{order?.table?.number}</span>
+          )}
+          {!order?.table && formatGuestLabel(order?.customer) && (
+            <span className="p-2 text-base rounded-lg min-w-[48px] flex justify-center items-center shrink-0 bg-neutral-100">
+              {formatGuestLabel(order?.customer)}
+            </span>
           )}
 
           <div className="flex flex-col items-start gap-0.5 min-w-0">

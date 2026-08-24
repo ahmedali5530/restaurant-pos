@@ -4,6 +4,7 @@ import {getInvoiceNumber, translateOrderStatus} from "@/lib/order.ts";
 import {useTranslation} from "react-i18next";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPrint} from "@fortawesome/free-solid-svg-icons";
+import {formatGuestLabel} from "@/lib/guest-label.ts";
 
 interface Props {
   order: Order
@@ -60,7 +61,7 @@ export const OrderHeader = ({
         </div>
         {order?.customer && (
           <>
-            <span>{order?.customer?.name}</span>
+            <span>{formatGuestLabel(order.customer)}</span>
             <span>{order?.customer?.phone}</span>
           </>
         )}

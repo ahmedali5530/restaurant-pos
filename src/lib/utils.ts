@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import {RecordId, StringRecordId} from "surrealdb";
 import { getShowCurrencySymbolInUi } from "@/lib/currency-format.ts";
+import { getAppCurrency, getAppLocale, getQuickDenominations } from "@/lib/currency.ts";
 
 const DECIMAL_PLACES = import.meta.env.VITE_DECIMAL_PLACES;
 
@@ -19,11 +20,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const DENOMINATION_NOTES = [10, 20, 50, 100, 500, 1000, 5000];
+export const DENOMINATION_NOTES = getQuickDenominations();
 export const DENOMINATION_COINS = [1, 2, 5];
 
 export const withCurrency = (amount: string | number | undefined, decimalPlaces = DECIMAL_PLACES) => {
   const showSymbol = getShowCurrencySymbolInUi();
+  const locale = getAppLocale();
+  const currency = getAppCurrency();
 
   if (amount === undefined) {
     if (!showSymbol) {
@@ -31,9 +34,9 @@ export const withCurrency = (amount: string | number | undefined, decimalPlaces 
     }
     //just return currency symbol
     return (0)
-      .toLocaleString(import.meta.env.VITE_LOCALE, {
+      .toLocaleString(locale, {
         style: "currency",
-        currency: import.meta.env.VITE_CURRENCY,
+        currency,
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
       })
@@ -42,20 +45,20 @@ export const withCurrency = (amount: string | number | undefined, decimalPlaces 
   }
 
   if (!showSymbol) {
-    return new Intl.NumberFormat(import.meta.env.VITE_LOCALE, {
+    return new Intl.NumberFormat(locale, {
       maximumFractionDigits: decimalPlaces,
     }).format(Number(amount));
   }
 
-  return new Intl.NumberFormat(import.meta.env.VITE_LOCALE, {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: import.meta.env.VITE_CURRENCY,
+    currency,
     maximumFractionDigits: decimalPlaces,
   }).format(Number(amount));
 };
 
 export const formatNumber = (amount: string | number, decimalPlaces = DECIMAL_PLACES) => {
-  return new Intl.NumberFormat(import.meta.env.VITE_LOCALE, {
+  return new Intl.NumberFormat(getAppLocale(), {
     maximumFractionDigits: decimalPlaces,
     useGrouping: false
   }).format(Number(amount));

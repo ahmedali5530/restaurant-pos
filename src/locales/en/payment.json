@@ -22,7 +22,7 @@
   "title": "Order#{{invoice}}",
   "tabs": {
     "tax": "Tax",
-    "taxWithRate": "Tax ({{name}} {{rate}}%)",
+    "taxWithRate": "Tax ({{label}})",
     "discount": "Discount",
     "coupon": "Coupon",
     "serviceCharges": "Service charges ({{value}}{{unit}})",

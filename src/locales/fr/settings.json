@@ -123,12 +123,13 @@
     "saveDescription": "Enregistrer les paramètres d'affichage des prix TTC"
   },
   "currencySymbol": {
-    "title": "Symbole monétaire",
-    "description": "Contrôlez l'affichage du symbole monétaire à côté des montants dans l'application et sur les reçus imprimés. En le désactivant, seuls les nombres s'affichent (par ex. 1 250 au lieu de Rs 1 250). Ceci est uniquement d'affichage et ne modifie pas les valeurs stockées.",
+    "title": "Devise",
+    "description": "Choisir HTG (G) ou USD ($) pour les montants dans l'application et sur les reçus. Vous pouvez aussi masquer le symbole (nombres seuls). Affichage uniquement — les valeurs stockées ne changent pas.",
+    "currency": "Devise",
     "showInUi": "Afficher à l'écran",
     "showOnReceipts": "Afficher sur les reçus",
-    "updated": "Paramètres du symbole monétaire mis à jour",
-    "saveDescription": "Enregistrer les paramètres du symbole monétaire"
+    "updated": "Paramètres de devise mis à jour",
+    "saveDescription": "Enregistrer les paramètres de devise"
   },
   "translateReceipts": {
     "title": "Traduire les reçus",
@@ -154,7 +155,8 @@
     "showPriceInOrderCard": "Afficher le prix des articles dans la fiche commande",
     "showModifiersInOrderCard": "Afficher les modificateurs des articles dans la fiche commande",
     "showModifierPriceInOrderCard": "Afficher le prix des modificateurs dans la fiche commande",
-    "showTotalInPaymentCard": "Afficher les totaux des articles dans l'encadré de paiement"
+    "showTotalInPaymentCard": "Afficher les totaux des articles dans l'encadré de paiement",
+    "showDishPhotos": "Afficher les photos des plats sur le menu"
   },
   "inventory": {
     "title": "Inventaire",

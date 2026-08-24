@@ -10,6 +10,8 @@ import {useOrderCardHydrate} from "@/hooks/useOrderCardHydrate.ts";
 import {useDB} from "@/api/db/db.ts";
 import {fetchOrderFull} from "@/lib/order-fetch.ts";
 import {toast} from "sonner";
+import {formatTaxLabel} from "@/lib/tax-label.ts";
+import {formatGuestLabel} from "@/lib/guest-label.ts";
 
 interface Props {
   order: OrderModel
@@ -33,14 +35,18 @@ export const OrderRow = ({
 
   const total = useMemo(() => {
     if (!cardReady) {
-      return Number(order?.tax_amount || 0) - Number(order?.discount_amount || 0) + Number(order.service_charge_amount ?? 0)
+      return Number(order?.tax_amount || 0) - Number(order?.discount_amount || 0) + Number(order?.service_charge_amount ?? 0)
         + (order?.extras ? order.extras.reduce((prev, item) => prev + Number(item?.value || 0), 0) : 0);
     }
     const extrasTotal = order?.extras
       ? order.extras.reduce((prev, item) => prev + Number(item?.value || 0), 0)
       : 0;
-    return itemsTotal + extrasTotal + Number(order?.tax_amount || 0) - Number(order?.discount_amount || 0) + Number(order.service_charge_amount ?? 0);
+    return itemsTotal + extrasTotal + Number(order?.tax_amount || 0) - Number(order?.discount_amount || 0) + Number(order?.service_charge_amount ?? 0);
   }, [cardReady, itemsTotal, order]);
+
+  const tableOrGuestLabel = order?.table
+    ? `${order.table.name ?? ''}${order.table.number ?? ''}`
+    : formatGuestLabel(order?.customer);
 
   const openPayment = async () => {
     if (order.status !== OrderStatus["In Progress"] || isLoadingFull) {
@@ -73,9 +79,9 @@ export const OrderRow = ({
         <div className="basis-[140px] flex-shrink flex-grow-0 p-4">{getInvoiceNumber(order)} - {order?.order_type?.name}</div>
         <div className="basis-[100px] flex flex-col justify-center items-center" style={{
           color: order?.table?.color,
-          background: order.table?.background
+          background: order?.table?.background
         }}>
-          {order?.table?.name}{order?.table?.number}
+          {tableOrGuestLabel}
         </div>
         <div className="flex justify-center items-center px-3 basis-[120px]">{order?.user?.first_name}</div>
         <div className="basis-[150px] p-4">
@@ -98,17 +104,17 @@ export const OrderRow = ({
           {cardReady ? withCurrency(itemsTotal) : '…'}
         </div>
         <div className="flex items-center px-3 basis-[180px] border-x border-neutral-500">
-          {order?.tax && (
+          {order?.tax && Number(order?.tax_amount || 0) > 0 && (
             <>
               <div className="flex-1">
-                {order?.tax?.name} {order?.tax?.rate}%
+                {formatTaxLabel(order?.tax?.name, order?.tax?.rate)}
               </div>
               <div className="text-right">{withCurrency(order?.tax_amount)}</div>
             </>
           )}
         </div>
         <div className="flex items-center px-3 basis-[180px]">
-          {order?.service_charge_amount && (
+          {Number(order?.service_charge_amount || 0) > 0 && (
             <>
               <div className="flex-1">{t('totals.sc', {value: order?.service_charge})}</div>
               <div className="text-right">{withCurrency(order?.service_charge_amount)}</div>

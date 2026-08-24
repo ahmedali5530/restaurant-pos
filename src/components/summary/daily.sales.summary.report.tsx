@@ -574,7 +574,7 @@ export function DailySalesSummaryReport({orders, date}: Props) {
           f.taxesList.map(tax => (
             <div key={tax.name} className="border-b border-neutral-200 py-2 last:border-b-0">
               <div className="flex justify-between gap-3 text-sm">
-                <span>{tax.name}%</span>
+                <span>{tax.name}</span>
                 <span className="tabular-nums font-medium">{withCurrency(tax.total)}</span>
                 <span className="tabular-nums text-neutral-600">
                   {formatNumber(f.taxCollected > 0 ? (tax.total / f.taxCollected) * 100 : 0)}%

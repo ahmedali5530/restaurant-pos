@@ -128,7 +128,8 @@
     "showInUi": "إظهار على الشاشة",
     "showOnReceipts": "إظهار على الإيصالات",
     "updated": "تم تحديث إعدادات رمز العملة",
-    "saveDescription": "حفظ إعدادات رمز العملة"
+    "saveDescription": "حفظ إعدادات رمز العملة",
+    "currency": "العملة"
   },
   "translateReceipts": {
     "title": "ترجمة الإيصالات",
@@ -154,7 +155,8 @@
     "showPriceInOrderCard": "إظهار سعر الأصناف في بطاقة الطلب",
     "showModifiersInOrderCard": "إظهار الإضافات للأصناف في بطاقة الطلب",
     "showModifierPriceInOrderCard": "إظهار سعر الإضافات في بطاقة الطلب",
-    "showTotalInPaymentCard": "إظهار إجماليات الأصناف في مربع الدفع"
+    "showTotalInPaymentCard": "إظهار إجماليات الأصناف في مربع الدفع",
+    "showDishPhotos": "عرض صور الأطباق على بلاطات القائمة"
   },
   "inventory": {
     "title": "المخزون",

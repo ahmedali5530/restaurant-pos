@@ -1,8 +1,10 @@
 import { Tracking } from "@/api/model/tracking.ts";
 import { authHeaders } from "@/lib/session.ts";
 
-export const TRACKING_SERVER_URL =
-  (import.meta.env.VITE_TRACKING_SERVER_URL as string) || "http://localhost:3138";
+/** In DEV use same-origin (Vite proxy /tracking). Production uses explicit URL. */
+export const TRACKING_SERVER_URL = import.meta.env.DEV
+  ? ""
+  : ((import.meta.env.VITE_TRACKING_SERVER_URL as string) || "http://localhost:3138");
 
 /** Build-time toggle; on by default. Off for false / 0 / no. */
 export function isTrackingEnabled(): boolean {
@@ -116,11 +118,14 @@ export function postOrderTracking(options: PostOrderTrackingOptions): void {
   });
 }
 
+let trackingFailureLogged = false;
+
 export async function postTracking(payload: TrackingRequest): Promise<void> {
   if (!isTrackingEnabled()) return;
 
   try {
-    const url = `${TRACKING_SERVER_URL.replace(/\/$/, "")}/tracking`;
+    const base = TRACKING_SERVER_URL.replace(/\/$/, "");
+    const url = `${base}/tracking`;
     const response = await fetch(url, {
       method: "POST",
       headers: authHeaders(),
@@ -132,6 +137,10 @@ export async function postTracking(payload: TrackingRequest): Promise<void> {
       throw new Error(text || "Failed to post tracking payload");
     }
   } catch (error) {
-    console.error("Tracking post failed", error);
+    // Avoid spamming the console on every failed tracking post (CORS / Tracking Prevention).
+    if (!trackingFailureLogged) {
+      trackingFailureLogged = true;
+      console.warn("Tracking post failed (further failures suppressed)", error);
+    }
   }
 }

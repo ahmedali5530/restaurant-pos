@@ -16,10 +16,10 @@
     }
   },
   "filters": {
-    "status": "Select order status",
-    "orderTypes": "Select order types",
-    "floors": "Select floors",
-    "users": "Select users"
+    "status": "Order status",
+    "orderTypes": "Order types",
+    "floors": "Floors",
+    "users": "Users"
   },
   "view": {
     "blocks": "Blocks",
@@ -54,7 +54,7 @@
     "tip": "Tip",
     "tipPercent": "Tip %",
     "total": "Total",
-    "totalWithTax": "Total with {{name}} {{rate}}%",
+    "totalWithTax": "Total with {{label}}",
     "change": "Change",
     "sc": "SC ({{value}}%)",
     "extras": "Extras"
@@ -96,7 +96,7 @@
     "title": "Refund order",
     "selectItems": "Select items to refund",
     "itemsTotal": "Items Total:",
-    "tax": "Tax ({{name}} {{rate}}%):",
+    "tax": "Tax ({{label}}):",
     "discount": "Discount:",
     "serviceCharges": "Service Charges ({{value}}{{unit}}):",
     "tip": "Tip:",

@@ -128,7 +128,8 @@
     "showInUi": "Ekranda göster",
     "showOnReceipts": "Fişlerde göster",
     "updated": "Para birimi simgesi ayarları güncellendi",
-    "saveDescription": "Para birimi simgesi ayarlarını kaydet"
+    "saveDescription": "Para birimi simgesi ayarlarını kaydet",
+    "currency": "Para birimi"
   },
   "translateReceipts": {
     "title": "Fişleri çevir",
@@ -154,7 +155,8 @@
     "showPriceInOrderCard": "Sipariş kartındaki ürün fiyatını göster",
     "showModifiersInOrderCard": "Sipariş kartındaki ürün değiştiricilerini göster",
     "showModifierPriceInOrderCard": "Sipariş kartındaki değiştirici fiyatını göster",
-    "showTotalInPaymentCard": "Ödeme kutusundaki ürünlerin toplamlarını göster"
+    "showTotalInPaymentCard": "Ödeme kutusundaki ürünlerin toplamlarını göster",
+    "showDishPhotos": "Menü kutucuklarında yemek fotoğraflarını göster"
   },
   "inventory": {
     "title": "Inventory",

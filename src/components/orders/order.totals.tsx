@@ -15,6 +15,7 @@ import {useTranslation} from "react-i18next";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Tax} from "@/api/model/tax.ts";
+import {formatTaxLabel} from "@/lib/tax-label.ts";
 
 const separatorStyle = {'--size': '10px', '--space': '5px'} as CSSProperties;
 
@@ -50,7 +51,7 @@ export const CartTotals = ({cart, itemCount, className}: CartTotalsProps) => {
       {taxPreviewTotals.length > 0 ? (
         taxPreviewTotals.map(({tax, total}) => (
           <div className="flex font-bold text-2xl text-success-900" key={tax.id?.toString() ?? `${tax.name}-${tax.rate}`}>
-            <div className="flex-1">{t('totals.totalWithTax', {name: tax.name, rate: tax.rate})}</div>
+            <div className="flex-1">{t('totals.totalWithTax', {label: formatTaxLabel(tax.name, tax.rate)})}</div>
             <div className="text-right">{withCurrency(total)}</div>
           </div>
         ))
@@ -148,7 +149,7 @@ export const OrderTotals = ({order, cart, className}: Props) => {
         taxBreakdown.length > 0 ? taxBreakdown.map((entry, index) => (
           <div className="flex" key={`${entry.name}-${entry.rate}-${index}`}>
             <div className="flex-1">
-              {t('totals.tax')} ({entry.name} {entry.rate}%)
+              {t('totals.tax')} ({formatTaxLabel(entry.name, entry.rate)})
             </div>
             <div className="text-right">{withCurrency(entry.amount)}</div>
           </div>
@@ -156,7 +157,7 @@ export const OrderTotals = ({order, cart, className}: Props) => {
           <div className="flex">
             <div className="flex-1">
               {t('totals.tax')}
-              {order?.tax && <> ({order.tax.name} {order.tax.rate}%)</>}
+              {order?.tax && <> ({formatTaxLabel(order.tax.name, order.tax.rate)})</>}
             </div>
             <div className="text-right">{withCurrency(preview.taxAmount)}</div>
           </div>
@@ -192,7 +193,7 @@ export const OrderTotals = ({order, cart, className}: Props) => {
           <div className="text-right">{withCurrency(preview.discountAmount)}</div>
         </div>
       ) : null}
-      {order?.service_charge && order?.service_charge > 0 ? (
+      {preview.serviceChargeAmount > 0 ? (
         <div className="flex">
           <div className="flex-1">{t('totals.serviceCharges', {
             value: order?.service_charge,
@@ -200,7 +201,7 @@ export const OrderTotals = ({order, cart, className}: Props) => {
           })}</div>
           <div className="text-right">{withCurrency(preview.serviceChargeAmount)}</div>
         </div>
-      ) : ''}
+      ) : null}
       {order?.extras && order?.extras?.filter(item => item !== undefined)
         ?.map((item, index) => (
         <div className="flex" key={index}>
@@ -208,7 +209,7 @@ export const OrderTotals = ({order, cart, className}: Props) => {
           <div className="text-right">{withCurrency(item.value)}</div>
         </div>
       ))}
-      {order?.tip_amount > 0 && (
+      {preview.tipAmount > 0 && (
         <div className="flex">
           <div
             className="flex-1">{order?.tip_type === DiscountType.Percent ? t('totals.tipPercent') : t('totals.tip')}</div>

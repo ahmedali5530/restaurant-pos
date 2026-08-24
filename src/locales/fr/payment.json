@@ -22,7 +22,7 @@
   "title": "Commande n°{{invoice}}",
   "tabs": {
     "tax": "Taxe",
-    "taxWithRate": "Taxe ({{name}} {{rate}} %)",
+    "taxWithRate": "Taxe ({{label}})",
     "discount": "Remise",
     "coupon": "Coupon",
     "serviceCharges": "Frais de service ({{value}}{{unit}})",

@@ -22,7 +22,7 @@
   "title": "Sipariş#{{invoice}}",
   "tabs": {
     "tax": "Vergi",
-    "taxWithRate": "Vergi ({{name}} {{rate}}%)",
+    "taxWithRate": "Vergi ({{label}})",
     "discount": "İndirim",
     "coupon": "Kupon",
     "serviceCharges": "Servis ücretleri ({{value}}{{unit}})",

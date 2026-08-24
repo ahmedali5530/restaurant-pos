@@ -47,6 +47,7 @@ import {useTranslation} from "react-i18next";
 import { getFiscalQrcodesForOrderPrint } from "@/integrations/providers/fiscal/settlement.ts";
 import {OrderItemName} from "@/components/common/order/order.item.tsx";
 import {syncOrderPayments} from "@/lib/order-payment-sync.ts";
+import {formatTaxLabel} from "@/lib/tax-label.ts";
 
 interface Props {
   order: Order
@@ -818,7 +819,7 @@ export const OrderPayment = ({
             }}>
               <div>
                 {tax
-                  ? t('tabs.taxWithRate', {name: tax.name, rate: tax.rate})
+                  ? t('tabs.taxWithRate', {label: formatTaxLabel(tax.name, tax.rate)})
                   : t('tabs.tax')}{' '}
                 <FontAwesomeIcon icon={faPencil}/>
               </div>

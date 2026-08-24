@@ -16,10 +16,10 @@
     }
   },
   "filters": {
-    "status": "Seleziona stato ordine",
-    "orderTypes": "Seleziona tipi ordine",
-    "floors": "Seleziona sale",
-    "users": "Seleziona utenti"
+    "status": "Stato ordine",
+    "orderTypes": "Tipi ordine",
+    "floors": "Sale",
+    "users": "Utenti"
   },
   "view": {
     "blocks": "Blocchi",
@@ -54,7 +54,7 @@
     "tip": "Mancia",
     "tipPercent": "Mancia %",
     "total": "Totale",
-    "totalWithTax": "Totale con {{name}} {{rate}}%",
+    "totalWithTax": "Totale con {{label}}",
     "change": "Resto",
     "sc": "CS ({{value}}%)",
     "extras": "Extra"
@@ -93,7 +93,7 @@
     "title": "Rimborso ordine",
     "selectItems": "Seleziona articoli da rimborsare",
     "itemsTotal": "Totale articoli:",
-    "tax": "IVA ({{name}} {{rate}}%):",
+    "tax": "IVA ({{label}}):",
     "discount": "Sconto:",
     "serviceCharges": "Costo servizio ({{value}}{{unit}}):",
     "tip": "Mancia:",

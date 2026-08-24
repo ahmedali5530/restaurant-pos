@@ -49,6 +49,7 @@ export const MenuDish = ({
   const [page] = useAtom(appPage);
   const db = useDB();
   const showDishNumber = page.menuConfig?.showDishNumber !== false;
+  const showDishPhotos = page.menuConfig?.showDishPhotos === true;
 
   const [modifiersModal, setModifiersModal] = useState(false);
   const [imageSrc, setImageSrc] = useState(defaultImage);
@@ -122,6 +123,11 @@ export const MenuDish = ({
 
   useEffect(() => {
     let cancelled = false;
+    if (!showDishPhotos) {
+      setImageSrc(defaultImage);
+      return;
+    }
+
     const dishPhotoId = item?.dish_photo?.toString();
 
     if (!dishPhotoId) {
@@ -171,7 +177,7 @@ export const MenuDish = ({
     return () => {
       cancelled = true;
     };
-  }, [item?.dish_photo]);
+  }, [item?.dish_photo, showDishPhotos]);
 
   return (
     <>
@@ -208,13 +214,15 @@ export const MenuDish = ({
             '--padding': '0'
           } as any}
         >
-          <div className="flex-shrink-0 flex justify-start">
-            <img
-              loading="lazy"
-              src={imageSrc}
-              alt={item.name}
-              className="rounded-xl rounded-r-none pointer-events-none h-full sm:w-[50px] md:w-[60px] lg:w-[90px] xl:w-[100px] object-cover"/>
-          </div>
+          {showDishPhotos && (
+            <div className="flex-shrink-0 flex justify-start">
+              <img
+                loading="lazy"
+                src={imageSrc}
+                alt={item.name}
+                className="rounded-xl rounded-r-none pointer-events-none h-full sm:w-[50px] md:w-[60px] lg:w-[90px] xl:w-[100px] object-cover"/>
+            </div>
+          )}
           <div className="flex flex-1 flex-col px-3 py-2">
             <span className="flex flex-row gap-2 mb-1 flex-wrap">
               {showDishNumber && item.number != null && String(item.number).trim() !== '' && (

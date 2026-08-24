@@ -328,7 +328,7 @@ export const KitchenScreen = () => {
           and created_at >= $startDate
           and order_item.is_suspended != true
         order by created_at desc
-            fetch order_item, order_item.item, order_item.order, order_item.order.table, order_item.order.user, order_item.order.order_type
+            fetch order_item, order_item.item, order_item.order, order_item.order.table, order_item.order.customer, order_item.order.user, order_item.order.order_type
     `, {
       kitchen: toRecordId(kitchenId),
       currentUser: toRecordId(currentUser),
@@ -354,7 +354,7 @@ export const KitchenScreen = () => {
             and created_at >= $startDate
             and order_item.is_suspended != true
           order by completed_at desc
-              fetch order_item, order_item.item, order_item.order, order_item.order.table, order_item.order.user, order_item.order.order_type
+              fetch order_item, order_item.item, order_item.order, order_item.order.table, order_item.order.customer, order_item.order.user, order_item.order.order_type
       `, {
         kitchen: toRecordId(kitchenId),
         currentUser: toRecordId(page?.user?.id),

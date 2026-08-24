@@ -16,10 +16,10 @@
     }
   },
   "filters": {
-    "status": "Bestellstatus auswählen",
-    "orderTypes": "Bestellarten auswählen",
-    "floors": "Etagen auswählen",
-    "users": "Benutzer auswählen"
+    "status": "Bestellstatus",
+    "orderTypes": "Bestellarten",
+    "floors": "Etagen",
+    "users": "Benutzer"
   },
   "view": {
     "blocks": "Blöcke",
@@ -54,7 +54,7 @@
     "tip": "Trinkgeld",
     "tipPercent": "Trinkgeld %",
     "total": "Gesamt",
-    "totalWithTax": "Gesamt mit {{name}} {{rate}}%",
+    "totalWithTax": "Gesamt mit {{label}}",
     "change": "Wechselgeld",
     "sc": "SG ({{value}}%)",
     "extras": "Extras"
@@ -93,7 +93,7 @@
     "title": "Bestellung erstatten",
     "selectItems": "Zu erstattende Artikel auswählen",
     "itemsTotal": "Artikelsumme:",
-    "tax": "MwSt. ({{name}} {{rate}}%):",
+    "tax": "MwSt. ({{label}}):",
     "discount": "Rabatt:",
     "serviceCharges": "Servicegebühr ({{value}}{{unit}}):",
     "tip": "Trinkgeld:",

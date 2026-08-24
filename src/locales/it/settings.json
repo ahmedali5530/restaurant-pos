@@ -128,7 +128,8 @@
     "showInUi": "Mostra a schermo",
     "showOnReceipts": "Mostra sulle ricevute",
     "updated": "Impostazioni simbolo valuta aggiornate",
-    "saveDescription": "Salva impostazioni simbolo valuta"
+    "saveDescription": "Salva impostazioni simbolo valuta",
+    "currency": "Valuta"
   },
   "translateReceipts": {
     "title": "Traduci ricevute",
@@ -154,7 +155,8 @@
     "showPriceInOrderCard": "Mostra prezzo articoli nella scheda ordine",
     "showModifiersInOrderCard": "Mostra modificatori articoli nella scheda ordine",
     "showModifierPriceInOrderCard": "Mostra prezzo modificatori nella scheda ordine",
-    "showTotalInPaymentCard": "Mostra totali articoli nel riquadro pagamento"
+    "showTotalInPaymentCard": "Mostra totali articoli nel riquadro pagamento",
+    "showDishPhotos": "Mostra foto dei piatti sulle tessere del menu"
   },
   "inventory": {
     "title": "Inventory",

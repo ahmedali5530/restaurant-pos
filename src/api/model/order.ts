@@ -104,6 +104,7 @@ export const ORDER_PAYMENT_FETCHES = [
 /** Light list snapshot for Orders screen (headers / filters / table row shells). */
 export const ORDER_LIST_FETCHES = [
   'table',
+  'customer',
   'user',
   'cashier',
   'order_type',

@@ -16,10 +16,10 @@
     }
   },
   "filters": {
-    "status": "اختر حالة الطلب",
-    "orderTypes": "اختر أنواع الطلبات",
-    "floors": "اختر الطوابق",
-    "users": "اختر المستخدمين"
+    "status": "حالة الطلب",
+    "orderTypes": "أنواع الطلب",
+    "floors": "القاعات",
+    "users": "المستخدمون"
   },
   "view": {
     "blocks": "كتل",
@@ -54,7 +54,7 @@
     "tip": "الإكرامية",
     "tipPercent": "نسبة الإكرامية %",
     "total": "الإجمالي",
-    "totalWithTax": "الإجمالي مع {{name}} {{rate}}%",
+    "totalWithTax": "الإجمالي مع {{label}}",
     "change": "الباقي",
     "sc": "رسوم الخدمة ({{value}}%)",
     "extras": "إضافات"
@@ -93,7 +93,7 @@
     "title": "استرداد الطلب",
     "selectItems": "اختر الأصناف للاسترداد",
     "itemsTotal": "إجمالي الأصناف:",
-    "tax": "الضريبة ({{name}} {{rate}}%):",
+    "tax": "الضريبة ({{label}}):",
     "discount": "الخصم:",
     "serviceCharges": "رسوم الخدمة ({{value}}{{unit}}):",
     "tip": "الإكرامية:",

@@ -23,6 +23,8 @@ import {useTranslation} from "react-i18next";
 import {useIntegrationManager} from "@/providers/integration.provider.tsx";
 import {publishSaleRefunded} from "@/integrations/accounting/events/publish.ts";
 import {nanoid} from "nanoid";
+import {syncOrderTaxes} from "@/lib/order-tax.service.ts";
+import {formatTaxLabel} from "@/lib/tax-label.ts";
 
 interface OrderRefundModalProps {
   order: OrderModel
@@ -151,11 +153,36 @@ export const OrderRefundModal = ({
         })
       }
 
-      // add a tag in original table
+      const remainingActive = getOrderFilteredItems({
+        ...order,
+        items: (order.items ?? []).map((item) =>
+          selectedItems.has(item.id) ? {...item, is_refunded: true} : item
+        ),
+      });
+      const isFullRefund = remainingActive.length === 0;
+
+      // add a tag in original table; full refund zeroes residual charges
       await db.merge(orderId, {
         tags: Array.from(new Set([...(order.tags || []), OrderStatus.Refunded])),
+        ...(isFullRefund
+          ? {
+              service_charge_amount: 0,
+              tip_amount: 0,
+              discount_amount: 0,
+            }
+          : {}),
       });
 
+      if (isFullRefund) {
+        for (const extra of order.extras ?? []) {
+          if (extra?.id) {
+            await db.merge(new StringRecordId(extra.id.toString()), { value: 0 });
+          }
+        }
+      }
+
+      // Recompute order_taxes / tax_amount from remaining (non-refunded) items
+      await syncOrderTaxes(db, orderId);
       await publishSaleRefunded(integrationManager, {
         order,
         refundId,
@@ -255,7 +282,7 @@ export const OrderRefundModal = ({
                 </div>
                 {order.tax && refundCharges.taxAmount > 0 && (
                   <div className="flex justify-between items-center text-sm">
-                    <span>{t('refund.tax', {name: order.tax.name, rate: order.tax.rate})}</span>
+                    <span>{t('refund.tax', {label: formatTaxLabel(order.tax.name, order.tax.rate)})}</span>
                     <span>{withCurrency(refundCharges.taxAmount)}</span>
                   </div>
                 )}

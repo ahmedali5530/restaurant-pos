@@ -22,7 +22,7 @@
   "title": "طلب رقم {{invoice}}",
   "tabs": {
     "tax": "الضريبة",
-    "taxWithRate": "الضريبة ({{name}} {{rate}}%)",
+    "taxWithRate": "الضريبة ({{label}})",
     "discount": "خصم",
     "coupon": "قسيمة",
     "serviceCharges": "رسوم الخدمة ({{value}}{{unit}})",

@@ -128,7 +128,8 @@
     "showInUi": "Показывать на экране",
     "showOnReceipts": "Показывать на чеках",
     "updated": "Настройки символа валюты обновлены",
-    "saveDescription": "Сохранить настройки символа валюты"
+    "saveDescription": "Сохранить настройки символа валюты",
+    "currency": "Валюта"
   },
   "translateReceipts": {
     "title": "Переводить чеки",
@@ -154,7 +155,8 @@
     "showPriceInOrderCard": "Показывать цену позиций в карточке заказа",
     "showModifiersInOrderCard": "Показывать модификаторы позиций в карточке заказа",
     "showModifierPriceInOrderCard": "Показывать цену модификаторов в карточке заказа",
-    "showTotalInPaymentCard": "Показывать итоги по позициям в блоке оплаты"
+    "showTotalInPaymentCard": "Показывать итоги по позициям в блоке оплаты",
+    "showDishPhotos": "Показывать фото блюд на плитке меню"
   },
   "inventory": {
     "title": "Inventory",

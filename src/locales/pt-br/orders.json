@@ -16,10 +16,10 @@
     }
   },
   "filters": {
-    "status": "Selecionar status do pedido",
-    "orderTypes": "Selecionar tipos de pedido",
-    "floors": "Selecionar andares",
-    "users": "Selecionar usuários"
+    "status": "Status do pedido",
+    "orderTypes": "Tipos de pedido",
+    "floors": "Salões",
+    "users": "Usuários"
   },
   "view": {
     "blocks": "Blocos",
@@ -54,7 +54,7 @@
     "tip": "Gorjeta",
     "tipPercent": "Gorjeta %",
     "total": "Total",
-    "totalWithTax": "Total com {{name}} {{rate}}%",
+    "totalWithTax": "Total com {{label}}",
     "change": "Troco",
     "sc": "TS ({{value}}%)",
     "extras": "Extras"
@@ -93,7 +93,7 @@
     "title": "Reembolsar pedido",
     "selectItems": "Selecione os itens para reembolso",
     "itemsTotal": "Total dos Itens:",
-    "tax": "Imposto ({{name}} {{rate}}%):",
+    "tax": "Imposto ({{label}}):",
     "discount": "Desconto:",
     "serviceCharges": "Taxa de Serviço ({{value}}{{unit}}):",
     "tip": "Gorjeta:",

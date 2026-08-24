@@ -22,7 +22,7 @@
   "title": "Pedido#{{invoice}}",
   "tabs": {
     "tax": "Impuesto",
-    "taxWithRate": "Impuesto ({{name}} {{rate}}%)",
+    "taxWithRate": "Impuesto ({{label}})",
     "discount": "Descuento",
     "coupon": "Cupón",
     "serviceCharges": "Cargos por servicio ({{value}}{{unit}})",
