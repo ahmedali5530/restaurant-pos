@@ -9,6 +9,7 @@ import {Button} from "@/components/common/input/button.tsx";
 import {Textarea} from "@/components/common/input/textarea.tsx";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import type {OpenAIChatMessage} from "@/lib/openai.service.ts";
+import {SessionAuthError} from "@/lib/session.ts";
 import {
   resumeAiAssistantAgent,
   runAiAssistantAgent,
@@ -83,7 +84,15 @@ export function AiAssistantWidget() {
       const result = await runAiAssistantAgent(db, t, trimmed, {allowedModules}, history);
       applyResult(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      if (err instanceof SessionAuthError) {
+        setError(
+          t("aiAssistant.sessionExpired", {
+            defaultValue: "Your session expired. Please sign in again.",
+          }),
+        );
+      } else {
+        setError(err instanceof Error ? err.message : String(err));
+      }
     } finally {
       setLoading(false);
     }
@@ -209,6 +218,7 @@ export function AiAssistantWidget() {
           rows={2}
           disabled={loading}
           className="flex-1"
+          enableKeyboard={false}
         />
         <Button variant="primary" size="sm" onClick={handleSubmit} disabled={loading || !prompt.trim()}>
           {loading ? <FontAwesomeIcon icon={faSpinner} spin /> : t("common:send", {defaultValue: "Send"})}

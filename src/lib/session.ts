@@ -177,6 +177,37 @@ export function invalidateGatewaySession(): void {
   }
 }
 
+export class SessionAuthError extends Error {
+  constructor(message = 'Session expired. Please sign in again.') {
+    super(message);
+    this.name = 'SessionAuthError';
+  }
+}
+
+export function isSidecarSessionAuthFailure(status: number, errorMessage?: string): boolean {
+  if (status !== 401) {
+    return false;
+  }
+  const msg = String(errorMessage ?? '').toLowerCase();
+  return (
+    msg.includes('unauthorized') ||
+    msg.includes('invalid or expired session') ||
+    msg.includes('invalid token type')
+  );
+}
+
+/** Invalidate gateway session when a sidecar rejects the POS session JWT. */
+export function invalidateSessionOnSidecarAuthFailure(
+  status: number,
+  errorMessage?: string
+): boolean {
+  if (!isGatewayAuthEnabled() || !isSidecarSessionAuthFailure(status, errorMessage)) {
+    return false;
+  }
+  invalidateGatewaySession();
+  return true;
+}
+
 /** Append gateway session JWT to the Surreal WS URL for the relay. */
 export function withGatewayWsToken(wsUrl: string, sessionToken: string): string {
   try {

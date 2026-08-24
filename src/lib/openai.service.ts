@@ -1,5 +1,9 @@
 import {apiUrl} from "@/lib/api.service.ts";
-import {authHeaders} from "@/lib/session.ts";
+import {
+  authHeaders,
+  invalidateSessionOnSidecarAuthFailure,
+  SessionAuthError,
+} from "@/lib/session.ts";
 
 // Chat completions are proxied through the backend `api` service so profile
 // keys, URLs, and models never ship in the client bundle. See `api/src/modules/ai`.
@@ -150,6 +154,10 @@ const throwFromFailedResponse = async (response: Response): Promise<never> => {
       daily,
       monthly,
     );
+  }
+
+  if (invalidateSessionOnSidecarAuthFailure(response.status, message)) {
+    throw new SessionAuthError();
   }
 
   throw new Error(message || `AI request failed with status ${response.status}`);

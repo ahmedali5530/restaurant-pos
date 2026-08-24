@@ -8,6 +8,8 @@ services:
     # VITE_* vars are read by Vite from the mounted .env / .env.local files.
     # Do not set them here: compose only substitutes from .env (not .env.local),
     # and container env vars override Vite's file-based loading.
+    # Shared gateway secrets (GATEWAY_JWT_SECRET, GATEWAY_AUTH_REQUIRED, *_ALLOWED_ORIGINS)
+    # must live in the project root `.env` so gateway/api/payment sidecars stay in sync.
     # Dev mode with Bun + Vite, binding to all interfaces.
     # Assumes you've already run `bun install` on the host.
     command: sh -c "bun run dev -- --host 0.0.0.0 --port 5173"
