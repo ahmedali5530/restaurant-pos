@@ -1,4 +1,4 @@
-import type { ThemeConfig } from "antd";
+import type { ThemeConfig } from "antd/es/config-provider";
 
 /** Matches app `tailwind` neutral scale and input chrome (border-2 neutral-900, h-40). */
 const neutral900 = "#171717";

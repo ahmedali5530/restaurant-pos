@@ -16,7 +16,7 @@ import {StockTransfer} from "@/api/model/stock_transfer.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
-import _ from "lodash";
+import get from "lodash/get";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
 import {DatePicker} from "@/components/common/antd/datepicker.tsx";
@@ -388,7 +388,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
                   />
                 )}
               />
-              <InputError error={_.get(errors, ["fromLocation", "message"])} />
+              <InputError error={get(errors, ["fromLocation", "message"])} />
             </div>
             <div className="flex-1">
               <label>{t("stockTransfer.toLocation")}</label>
@@ -406,7 +406,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
                   />
                 )}
               />
-              <InputError error={_.get(errors, ["toLocation", "message"])} />
+              <InputError error={get(errors, ["toLocation", "message"])} />
             </div>
           </div>
 
@@ -425,14 +425,14 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
                   />
                 )}
               />
-              <InputError error={_.get(errors, ["date", "message"])} />
+              <InputError error={get(errors, ["date", "message"])} />
             </div>
             <div className="flex-1">
               <InputField
                 name="notes"
                 control={control}
                 label={t("stockTransfer.notes")}
-                error={_.get(errors, ["notes", "message"])}
+                error={get(errors, ["notes", "message"])}
               />
             </div>
           </div>
@@ -448,7 +448,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
               >
                 {t("buttons.item")}
               </Button>
-              <InputError error={_.get(errors, ["items", "message"])} />
+              <InputError error={get(errors, ["items", "message"])} />
             </div>
 
             {fields.map((field, index) => (
@@ -468,7 +468,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
                       />
                     )}
                   />
-                  <InputError error={_.get(errors, ["items", index, "item", "message"])} />
+                  <InputError error={get(errors, ["items", index, "item", "message"])} />
                 </div>
                 <div className="w-40">
                   <Controller
@@ -480,7 +480,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
                         type="number"
                         value={qtyField.value}
                         onChange={qtyField.onChange}
-                        error={_.get(errors, ["items", index, "quantity", "message"])}
+                        error={get(errors, ["items", index, "quantity", "message"])}
                       />
                     )}
                   />

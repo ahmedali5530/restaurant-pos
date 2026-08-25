@@ -12,26 +12,44 @@ import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {ResponsiveLine} from "@nivo/line";
 import {ResponsivePie} from "@nivo/pie";
 import {DateTime} from "luxon";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import type {IconDefinition} from "@fortawesome/fontawesome-svg-core";
 import {
-  Package,
-  Tag,
-  Table as TableIcon,
-  UserCheck,
-  Truck,
-  Clock,
-  DollarSign,
-  TrendingUp,
-  ArrowLeftRight,
-  Trash2,
-  Hash,
-  ShoppingCart
-} from "lucide-react";
+  faArrowRightArrowLeft,
+  faArrowTrendUp,
+  faBox,
+  faCartShopping,
+  faClock,
+  faDollarSign,
+  faHashtag,
+  faTag,
+  faTable,
+  faTrash,
+  faTruck,
+  faUserCheck,
+} from "@fortawesome/free-solid-svg-icons";
 import {TabList, Tabs} from "react-aria-components";
 import {Tab, TabPanel} from "@/components/common/react-aria/tabs.tsx";
 import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
 import {DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
 import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
 import {detectBrowser, detectOS, displayValue} from "@/screens/reports/activity.report.tsx";
+
+const faIcon = (icon: IconDefinition) =>
+  ({className}: {className?: string}) => <FontAwesomeIcon icon={icon} className={className} />;
+
+const Package = faIcon(faBox);
+const Tag = faIcon(faTag);
+const TableIcon = faIcon(faTable);
+const UserCheck = faIcon(faUserCheck);
+const Truck = faIcon(faTruck);
+const Clock = faIcon(faClock);
+const DollarSign = faIcon(faDollarSign);
+const TrendingUp = faIcon(faArrowTrendUp);
+const ArrowLeftRight = faIcon(faArrowRightArrowLeft);
+const Trash2 = faIcon(faTrash);
+const Hash = faIcon(faHashtag);
+const ShoppingCart = faIcon(faCartShopping);
 
 
 // ==================== Types ====================

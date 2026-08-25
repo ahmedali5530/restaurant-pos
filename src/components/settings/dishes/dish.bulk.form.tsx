@@ -17,7 +17,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {ModifierGroup} from "@/api/model/modifier_group.ts";
 import {Workflow} from "@/api/model/workflow.ts";
 import {Switch} from "@/components/common/input/switch.tsx";
-import _ from "lodash";
+import get from "lodash/get";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {CategoryForm} from "@/components/settings/categories/category.form.tsx";
@@ -546,7 +546,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                         />
                       )}
                     />
-                    <InputError error={_.get(errors, ["modifier_groups", index, "modifier_group", "message"])}/>
+                    <InputError error={get(errors, ["modifier_groups", index, "modifier_group", "message"])}/>
                   </div>
                   <div className="flex-1 self-end">
                     <Controller
@@ -592,7 +592,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                           onChange={field.onChange}
                           label={t('forms.requiredModifiers')}
                           disabled={!replaceModifierGroups || !watch(`modifier_groups.${index}.has_required_modifiers`)}
-                          error={_.get(errors, ["modifier_groups", index, "required_modifiers", "message"])}
+                          error={get(errors, ["modifier_groups", index, "required_modifiers", "message"])}
                         />
                       )}
                     />
@@ -608,7 +608,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                           onChange={field.onChange}
                           label={t('columns.priority')}
                           disabled={!replaceModifierGroups}
-                          error={_.get(errors, ["modifier_groups", index, "priority", "message"])}
+                          error={get(errors, ["modifier_groups", index, "priority", "message"])}
                         />
                       )}
                     />
@@ -691,7 +691,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                           />
                         )}
                       />
-                      <InputError error={_.get(errors, ["recipes", index, "item", "message"])}/>
+                      <InputError error={get(errors, ["recipes", index, "item", "message"])}/>
                     </div>
                     <div className="w-20">
                       <Input
@@ -713,7 +713,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                             onChange={field.onChange}
                             label={t('forms.quantity')}
                             disabled={!replaceRecipes}
-                            error={_.get(errors, ["recipes", index, "quantity", "message"])}
+                            error={get(errors, ["recipes", index, "quantity", "message"])}
                           />
                         )}
                       />
@@ -729,7 +729,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                             onChange={field.onChange}
                             label={t('forms.unitCost')}
                             disabled={!replaceRecipes}
-                            error={_.get(errors, ["recipes", index, "cost", "message"])}
+                            error={get(errors, ["recipes", index, "cost", "message"])}
                           />
                         )}
                       />

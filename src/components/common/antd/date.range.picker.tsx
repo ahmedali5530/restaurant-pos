@@ -1,4 +1,4 @@
-import { DatePicker } from "antd";
+import DatePicker from "antd/es/date-picker";
 import { Dayjs } from "dayjs";
 import { antPickerPopupProps } from "@/components/common/antd/picker.shared.ts";
 

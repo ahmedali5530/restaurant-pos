@@ -1,5 +1,4 @@
 import {HTMLProps, useEffect, useId, useRef} from "react";
-import _ from "lodash";
 import { cn } from "@/lib/utils.ts";
 
 interface InputProps extends HTMLProps<HTMLInputElement>{
@@ -16,7 +15,7 @@ export const Checkbox = (props: InputProps) => {
   useEffect(() => {
     if(ref.current !== null){
       ref.current.indeterminate = false;
-      if(_.isBoolean(indeterminate)) {
+      if(typeof indeterminate === "boolean") {
         ref.current.indeterminate = indeterminate;
       }
     }

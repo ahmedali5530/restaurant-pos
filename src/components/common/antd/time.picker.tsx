@@ -1,4 +1,4 @@
-import { TimePicker as AntTimePicker } from "antd";
+import AntTimePicker from "antd/es/time-picker";
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { antPickerPopupProps } from "@/components/common/antd/picker.shared.ts";

@@ -1,6 +1,6 @@
 import './assets/css/app.scss';
 import 'react-indiana-drag-scroll/dist/style.css'
-import {ConfigProvider} from "antd";
+import ConfigProvider from "antd/es/config-provider";
 import {QueryClient, QueryClientProvider,} from '@tanstack/react-query'
 import {appAntdTheme} from "@/lib/antd-theme.ts";
 import {Toaster} from "sonner";

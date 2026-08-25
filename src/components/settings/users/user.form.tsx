@@ -18,7 +18,6 @@ import { Shift } from "@/api/model/shift.ts";
 import { StringRecordId } from "surrealdb";
 import {useTranslation} from 'react-i18next';
 import i18n from '@/lib/i18n.ts';
-import _ from "lodash";
 import {
   createLinkedEmployee,
   extractFirstRecord,
@@ -170,7 +169,7 @@ export const UserForm = ({
     const vals = { ...values };
     const selectedRoleId = values.user_role?.value;
     const selectedRole = (roleData?.data || []).find((item) => item.id === selectedRoleId);
-    const selectedRoleModules = _.uniq(selectedRole?.roles || []);
+    const selectedRoleModules = [...new Set(selectedRole?.roles || [])];
 
     vals.user_role = selectedRoleId ? new StringRecordId(selectedRoleId) : null;
     vals.roles = selectedRoleModules;

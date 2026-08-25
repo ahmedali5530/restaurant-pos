@@ -9,12 +9,12 @@ import { Button } from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { useEffect, useState } from "react";
 import { useDB } from "@/api/db/db.ts";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { Tables } from "@/api/db/tables.ts";
 import { toast } from "sonner";
 import {useTranslation} from 'react-i18next';
 import i18n from '@/lib/i18n.ts';
-import * as z from "zod";
+import * as yup from "yup";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { Dish } from "@/api/model/dish.ts";
@@ -33,17 +33,16 @@ interface Props {
   data?: Kitchen
 }
 
-const validationSchema = z.object({
-  name: z.string().min(1, i18n.t('validation:required')),
-  printers: z.array(z.object({
-    label: z.string(),
-    value: z.string()
-  })).nullable().optional(),
-  items: z.array(z.object({
-    label: z.string(),
-    value: z.string()
-  })),
-  priority: z.number().min(1, i18n.t('validation:required')),
+const selectOptionSchema = yup.object({
+  label: yup.string(),
+  value: yup.string()
+});
+
+const validationSchema = yup.object({
+  name: yup.string().required(i18n.t('validation:required')),
+  printers: yup.array().of(selectOptionSchema).nullable().optional(),
+  items: yup.array().of(selectOptionSchema),
+  priority: yup.number().min(1, i18n.t('validation:required')).required(i18n.t('validation:required')),
 });
 
 export const KitchenForm = ({
@@ -99,7 +98,7 @@ export const KitchenForm = ({
   });
 
   const { control, handleSubmit, formState: {errors}, reset } = useForm({
-    resolver: zodResolver(validationSchema)
+    resolver: yupResolver(validationSchema)
   });
 
   console.log(errors)

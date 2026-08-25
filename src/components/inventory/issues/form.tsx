@@ -20,7 +20,7 @@ import {InventoryLocation} from "@/api/model/inventory_location.ts";
 import {RecordId} from "surrealdb";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
-import _ from "lodash";
+import get from "lodash/get";
 import {appPage} from "@/store/jotai.ts";
 import {useAtom} from "jotai";
 import {fetchNextSequentialNumber, isUniqueRecordNumber} from "@/utils/recordNumbers.ts";
@@ -632,7 +632,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                 name="invoice_number"
                 control={control}
                 render={({field}) => (
-                  <Input value={field.value} onChange={field.onChange} label={t('columns.issueNumber')} error={_.get(errors, ["invoice_number", "message"])} />
+                  <Input value={field.value} onChange={field.onChange} label={t('columns.issueNumber')} error={get(errors, ["invoice_number", "message"])} />
                 )}
               />
             </div>
@@ -651,7 +651,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                   />
                 )}
               />
-              <InputError error={_.get(errors, ["issued_to", "message"])}/>
+              <InputError error={get(errors, ["issued_to", "message"])}/>
             </div>
             <div className="flex-1">
               <label>{t('columns.location')}</label>
@@ -668,7 +668,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                   />
                 )}
               />
-              <InputError error={_.get(errors, ["location", "message"])}/>
+              <InputError error={get(errors, ["location", "message"])}/>
             </div>
             <div className="flex-1">
               <Controller
@@ -684,7 +684,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                   />
                 )}
               />
-              <InputError error={_.get(errors, ["date", "message"])}/>
+              <InputError error={get(errors, ["date", "message"])}/>
             </div>
           </div>
 
@@ -697,7 +697,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                 {...register("documents")}
                 className="w-full px-3 py-2 border border-neutral-400 rounded-lg"
               />
-              <InputError error={_.get(errors, ["documents", "message"])}/>
+              <InputError error={get(errors, ["documents", "message"])}/>
             </div>
           </div>
 
@@ -745,7 +745,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                 <span className="mr-2"><AiSparklesIcon /></span>
                 {t('common:actions.smartImport', {defaultValue: 'AI Import'})}
               </Button>
-              <InputError error={_.get(errors, ["items", "message"])}/>
+              <InputError error={get(errors, ["items", "message"])}/>
             </div>
 
             {fields.map((field, index) => {
@@ -772,7 +772,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                         />
                       )}
                     />
-                    <InputError error={_.get(errors, ["items", index, "location", "message"])}/>
+                    <InputError error={get(errors, ["items", index, "location", "message"])}/>
                   </div>
                     <div className="flex-1">
                     <label>{t('buttons.item')}</label>
@@ -798,7 +798,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                         />
                       )}
                     />
-                    <InputError error={_.get(errors, ["items", index, "item", "message"])}/>
+                    <InputError error={get(errors, ["items", index, "item", "message"])}/>
                   </div>
                   <div className="flex-1">
                     <Controller
@@ -810,7 +810,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                           type="number"
                           value={field.value as number | string | undefined}
                           onChange={field.onChange}
-                          error={_.get(errors, ["items", index, "requested", "message"])}
+                          error={get(errors, ["items", index, "requested", "message"])}
                         />
                       )}
                     />
@@ -825,7 +825,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                           type="number"
                           value={field.value as number | string | undefined}
                           onChange={field.onChange}
-                          error={_.get(errors, ["items", index, "price", "message"])}
+                          error={get(errors, ["items", index, "price", "message"])}
                         />
                       )}
                     />
@@ -840,7 +840,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                           type="number"
                           value={field.value as number | string}
                           onChange={field.onChange}
-                          error={_.get(errors, ["items", index, "quantity", "message"])}
+                          error={get(errors, ["items", index, "quantity", "message"])}
                           disabled={!rowLocationId}
                         />
                       )}

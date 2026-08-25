@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
 import {Controller, useForm, useWatch} from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "sonner";
 import {useTranslation} from 'react-i18next';
 import i18n from '@/lib/i18n.ts';
@@ -11,7 +11,7 @@ import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input } from "@/components/common/input/input.tsx";
 import { InputField } from "@/components/common/form/rhf-fields.tsx";
 import { Button } from "@/components/common/input/button.tsx";
-import * as z from "zod";
+import * as yup from "yup";
 import { transformValue } from "@/lib/utils.ts";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 
@@ -22,16 +22,18 @@ interface Props {
   data?: Printer
 }
 
-const validationSchema = z.object({
-  name: z.string().min(1, i18n.t('validation:required')),
-  ip_address: z.string().optional(),
-  port: z.number({message: i18n.t('validation:invalidPort')}).optional(),
-  type: z.object({
-    label: z.string(),
-    value: z.string()
+const validationSchema = yup.object({
+  name: yup.string().required(i18n.t('validation:required')),
+  priority: yup.mixed().optional(),
+  ip_address: yup.string().optional(),
+  port: yup.number().typeError(i18n.t('validation:invalidPort')).optional(),
+  type: yup.object({
+    label: yup.string(),
+    value: yup.string()
   }).nullable().optional(),
-  vid: z.string().optional(),
-  pid: z.string().optional()
+  vid: yup.string().optional(),
+  pid: yup.string().optional(),
+  path: yup.string().optional(),
 });
 
 export const PrinterForm = ({
@@ -44,7 +46,7 @@ export const PrinterForm = ({
   }
 
   const { control, handleSubmit, formState: {errors}, reset } = useForm({
-    resolver: zodResolver(validationSchema)
+    resolver: yupResolver(validationSchema)
   });
 
   useEffect(() => {

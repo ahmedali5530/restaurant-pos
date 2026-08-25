@@ -1,5 +1,39 @@
 import {lazy} from "react";
 
+export const Closing = lazy(() =>
+  import('@/screens/closing.tsx').then(m => ({default: m.Closing}))
+);
+export const OrderDisplayScreen = lazy(() =>
+  import('@/screens/order-display.tsx').then(m => ({default: m.OrderDisplayScreen}))
+);
+export const Delivery = lazy(() =>
+  import('@/screens/delivery/').then(m => ({default: m.Index}))
+);
+export const Admin = lazy(() =>
+  import('@/screens/admin').then(m => ({default: m.Admin}))
+);
+export const Settings = lazy(() =>
+  import('@/screens/settings.tsx').then(m => ({default: m.Settings}))
+);
+export const IntegrationsScreen = lazy(() =>
+  import('@/screens/integrations/index.tsx').then(m => ({default: m.IntegrationsScreen}))
+);
+export const Inventory = lazy(() =>
+  import('@/screens/inventory/').then(m => ({default: m.Inventory}))
+);
+export const HrScreen = lazy(() =>
+  import('@/screens/hr/').then(m => ({default: m.HrScreen}))
+);
+export const TipDistributionScreen = lazy(() =>
+  import('@/screens/tip.distribution.tsx').then(m => ({default: m.TipDistributionScreen}))
+);
+export const AccountsScreen = lazy(() =>
+  import('@/screens/accounts.tsx').then(m => ({default: m.AccountsScreen}))
+);
+export const Reports = lazy(() =>
+  import('@/screens/reports/').then(m => ({default: m.Reports}))
+);
+
 export const ProductMixWeeklyReport = lazy(() =>
   import('@/screens/reports/product.mix.weekly.report.tsx').then(m => ({default: m.ProductMixWeeklyReport}))
 );

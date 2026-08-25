@@ -3,8 +3,7 @@ import {Modal} from "@/components/common/react-aria/modal.tsx";
 import React, {useEffect, useMemo, useState} from "react";
 import {cn, formatNumber} from "@/lib/utils.ts";
 import {MenuDish} from "@/components/menu/dish.tsx";
-import {Swiper, SwiperSlide} from "swiper/react";
-import _ from "lodash";
+import {Swiper, SwiperSlide} from "@/components/common/swiper/lazy-swiper.tsx";
 import {CartModifierGroup, MenuItem, MenuItemType} from "@/api/model/cart_item.ts";
 import {useAtom} from "jotai";
 import {appAlert, appState} from "@/store/jotai.ts";
@@ -345,7 +344,7 @@ export const MenuDishModifiers = (props: Props) => {
                 className="modifiers-swiper"
                 direction="vertical"
               >
-                {_.range(0, slides).map(rowId => (
+                {Array.from({length: slides}, (_, i) => i).map(rowId => (
                   <SwiperSlide
                     key={rowId}
                     className={cn(

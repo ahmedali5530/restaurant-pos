@@ -18,7 +18,7 @@ import {InventorySupplier} from "@/api/model/inventory_supplier.ts";
 import {RecordId, StringRecordId} from "surrealdb";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
-import _ from "lodash";
+import get from "lodash/get";
 import {SupplierForm} from "@/components/inventory/suppliers/form.tsx";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
@@ -446,7 +446,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                         />
                       )}
                     />
-                    <InputError error={_.get(errors, ["supplier", "message"])}/>
+                    <InputError error={get(errors, ["supplier", "message"])}/>
                   </div>
                   <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setSupplierModal(true)}>
                     <FontAwesomeIcon icon={faPlus}/>
@@ -467,7 +467,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                     />
                   )}
                 />
-                <InputError error={_.get(errors, ["date", "message"])}/>
+                <InputError error={get(errors, ["date", "message"])}/>
               </div>
             </div>
 
@@ -480,7 +480,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                   {...register("documents")}
                   className="w-full px-3 py-2 border border-neutral-400 rounded-lg"
                 />
-                <InputError error={_.get(errors, ["documents", "message"])}/>
+                <InputError error={get(errors, ["documents", "message"])}/>
               </div>
             </div>
 
@@ -505,7 +505,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                 </Button>
               </div>
 
-              <InputError error={_.get(errors, ["items", "message"])}/>
+              <InputError error={get(errors, ["items", "message"])}/>
 
 
               {fields.map((rowField, index) => {
@@ -539,7 +539,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                             />
                           )}
                         />
-                        <InputError error={_.get(errors, ["items", index, "item", "message"])}/>
+                        <InputError error={get(errors, ["items", index, "item", "message"])}/>
                       </div>
                       <div className="flex-1 self-end">
                         <div>
@@ -552,7 +552,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                                 type="number"
                                 value={field.value as number | string}
                                 onChange={field.onChange}
-                                error={_.get(errors, ["items", index, "quantity", "message"])}
+                                error={get(errors, ["items", index, "quantity", "message"])}
                               />
                             )}
                           />
@@ -581,7 +581,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                                 type="number"
                                 value={field.value as number | string | undefined}
                                 onChange={field.onChange}
-                                error={_.get(errors, ["items", index, "price", "message"])}
+                                error={get(errors, ["items", index, "price", "message"])}
                               />
                             )}
                           />
@@ -602,7 +602,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                             />
                           )}
                         />
-                        <InputError error={_.get(errors, ["items", index, "supplier", "message"])}/>
+                        <InputError error={get(errors, ["items", index, "supplier", "message"])}/>
                       </div>
                       <div className="flex-0 self-end">
                         <IconTooltipButton label={t('common:actions.remove')}

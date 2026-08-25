@@ -6,7 +6,6 @@ import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Dish} from "@/api/model/dish.ts";
-import _ from "lodash";
 
 const toOption = <T extends { id?: any }>(
   item: T | undefined,
@@ -59,7 +58,7 @@ export const ProductHourlyFilter = () => {
         <ReactSelect
           name="hours[]"
           isMulti
-          options={_.range(0, 24).map(item => ({
+          options={Array.from({length: 24}, (_, i) => i).map(item => ({
             label: item === 0 ? '12am' : 
                    item === 12 ? '12pm' :
                    item < 12 ? `${item}am` : `${item - 12}pm`,

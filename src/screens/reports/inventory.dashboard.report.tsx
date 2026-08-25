@@ -5,19 +5,21 @@ import {useDB} from "@/api/db/db.ts";
 import {withCurrency, formatNumber} from "@/lib/utils.ts";
 import {ResponsiveLine} from "@nivo/line";
 import {DateTime} from "luxon";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import type {IconDefinition} from "@fortawesome/fontawesome-svg-core";
 import {
-  ShoppingCart,
-  RotateCcw,
-  Package,
-  ArrowLeftRight,
-  Trash2,
-  TrendingUp,
-  Factory,
-  Utensils,
-  SlidersHorizontal,
-  AlertTriangle,
-  Clock,
-} from "lucide-react";
+  faArrowRightArrowLeft,
+  faArrowTrendUp,
+  faBox,
+  faCartShopping,
+  faClock,
+  faIndustry,
+  faRotateLeft,
+  faSliders,
+  faTrash,
+  faTriangleExclamation,
+  faUtensils,
+} from "@fortawesome/free-solid-svg-icons";
 import {TabList, Tabs} from "react-aria-components";
 import {Tab, TabPanel} from "@/components/common/react-aria/tabs.tsx";
 import {KitchenReconciliation} from "@/api/model/kitchen_reconciliation.ts";
@@ -30,6 +32,21 @@ import {
   type LocationStockGroup,
 } from "@/api/reports/inventory/dashboard.ts";
 import {parseDateRangeFromParams} from "@/api/reports/shared/filters.ts";
+
+const faIcon = (icon: IconDefinition) =>
+  ({className}: {className?: string}) => <FontAwesomeIcon icon={icon} className={className} />;
+
+const ShoppingCart = faIcon(faCartShopping);
+const RotateCcw = faIcon(faRotateLeft);
+const Package = faIcon(faBox);
+const ArrowLeftRight = faIcon(faArrowRightArrowLeft);
+const Trash2 = faIcon(faTrash);
+const TrendingUp = faIcon(faArrowTrendUp);
+const Factory = faIcon(faIndustry);
+const Utensils = faIcon(faUtensils);
+const SlidersHorizontal = faIcon(faSliders);
+const AlertTriangle = faIcon(faTriangleExclamation);
+const Clock = faIcon(faClock);
 
 type ChartDataPoint = {x: string; y: number};
 

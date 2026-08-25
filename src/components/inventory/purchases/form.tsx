@@ -21,7 +21,7 @@ import {InventoryPurchaseOrder, PurchaseOrderStatus} from "@/api/model/inventory
 import {RecordId, StringRecordId} from "surrealdb";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
-import _ from "lodash";
+import get from "lodash/get";
 import {InventoryPurchaseOrderForm} from "@/components/inventory/purchase_orders/form.tsx";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
@@ -783,7 +783,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                     />
                   )}
                 />
-                <InputError error={_.get(errors, ["method", "message"])}/>
+                <InputError error={get(errors, ["method", "message"])}/>
               </div>
               <div className="flex-1">
                 <Controller
@@ -799,7 +799,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                     />
                   )}
                 />
-                <InputError error={_.get(errors, ["date", "message"])}/>
+                <InputError error={get(errors, ["date", "message"])}/>
               </div>
             </div>
 
@@ -821,7 +821,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                       />
                     )}
                   />
-                  <InputError error={_.get(errors, ["purchase_order", "message"])}/>
+                  <InputError error={get(errors, ["purchase_order", "message"])}/>
                 </div>
                 <IconTooltipButton label={t('common:actions.add')}
                   disabled={data?.purchase_order !== undefined}
@@ -867,7 +867,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                   {...register("documents")}
                   className="w-full px-3 py-2 border border-neutral-400 rounded-lg"
                 />
-                <InputError error={_.get(errors, ["documents", "message"])}/>
+                <InputError error={get(errors, ["documents", "message"])}/>
               </div>
             </div>
 
@@ -917,7 +917,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                 >
                   Add item
                 </Button>
-                <InputError error={_.get(errors, ["items", "message"])}/>
+                <InputError error={get(errors, ["items", "message"])}/>
               </div>
 
               {fields.map((field, index) => {
@@ -959,7 +959,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                             />
                           )}
                         />
-                        <InputError error={_.get(errors, ["items", index, "item", "message"])}/>
+                        <InputError error={get(errors, ["items", index, "item", "message"])}/>
                       </div>
                       <div className="flex-1">
                         <Controller
@@ -971,7 +971,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                               type="number"
                               value={field.value as number | string}
                               onChange={field.onChange}
-                              error={_.get(errors, ["items", index, "base_quantity", "message"])}
+                              error={get(errors, ["items", index, "base_quantity", "message"])}
                               disabled={isCsvMethod || isPurchaseOrderMethod}
                             />
                           )}
@@ -987,7 +987,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                               type="number"
                               value={field.value as number | string}
                               onChange={field.onChange}
-                              error={_.get(errors, ["items", index, "quantity", "message"])}
+                              error={get(errors, ["items", index, "quantity", "message"])}
                             />
                           )}
                         />
@@ -1002,7 +1002,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                               type="number"
                               value={field.value as number | string | undefined}
                               onChange={field.onChange}
-                              error={_.get(errors, ["items", index, "requested", "message"])}
+                              error={get(errors, ["items", index, "requested", "message"])}
                               disabled={isCsvMethod || isPurchaseOrderMethod}
                             />
                           )}
@@ -1018,7 +1018,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                               type="number"
                               value={field.value as number | string}
                               onChange={field.onChange}
-                              error={_.get(errors, ["items", index, "price", "message"])}
+                              error={get(errors, ["items", index, "price", "message"])}
                             />
                           )}
                         />
@@ -1083,7 +1083,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                             />
                           )}
                         />
-                        <InputError error={_.get(errors, ["items", index, "supplier", "message"])}/>
+                        <InputError error={get(errors, ["items", index, "supplier", "message"])}/>
                       </div>
                       <div className="flex-1">
                         <label>{t('columns.location')}</label>
@@ -1100,7 +1100,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                             />
                           )}
                         />
-                        <InputError error={_.get(errors, ["items", index, "location", "message"])}/>
+                        <InputError error={get(errors, ["items", index, "location", "message"])}/>
                       </div>
                       <div className="flex-1">
                         <InputField
@@ -1138,7 +1138,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                       type="number"
                       value={field.value ?? 0}
                       onChange={field.onChange}
-                      error={_.get(errors, ["discount", "message"])}
+                      error={get(errors, ["discount", "message"])}
                     />
                   )}
                 />
@@ -1153,7 +1153,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                       type="number"
                       value={field.value ?? 0}
                       onChange={field.onChange}
-                      error={_.get(errors, ["shipping", "message"])}
+                      error={get(errors, ["shipping", "message"])}
                     />
                   )}
                 />
@@ -1168,7 +1168,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                       type="number"
                       value={field.value ?? 0}
                       onChange={field.onChange}
-                      error={_.get(errors, ["tax_rate", "message"])}
+                      error={get(errors, ["tax_rate", "message"])}
                     />
                   )}
                 />
@@ -1252,7 +1252,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                         name={`extras.${index}.name`}
                         control={control}
                         label={t('totals.extraName')}
-                        error={_.get(errors, ["extras", index, "name", "message"])}
+                        error={get(errors, ["extras", index, "name", "message"])}
                       />
                     </div>
                     <div className="w-40">
@@ -1282,7 +1282,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                             type="number"
                             value={amountField.value as number | string}
                             onChange={amountField.onChange}
-                            error={_.get(errors, ["extras", index, "amount", "message"])}
+                            error={get(errors, ["extras", index, "amount", "message"])}
                           />
                         )}
                       />
