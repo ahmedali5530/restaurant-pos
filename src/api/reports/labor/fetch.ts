@@ -171,7 +171,10 @@ export const fetchPayProfiles = async (
   const params: Record<string, string> = {};
 
   if (startDate) {
-    conditions.push(`(effective_to = NONE OR time::format(effective_to, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate)`);
+    // open-ended profiles store effective_to as null; coalesce so time::format never sees null
+    conditions.push(
+      `time::format(effective_to ?? d'9999-12-31T23:59:59Z', "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`,
+    );
     params.startDate = startDate;
   }
 
@@ -251,13 +254,18 @@ export const fetchPayrollSnapshots = async (
     params.payrollRunId = payrollRunId;
   }
 
+  // Filter strings are "yyyy-MM-dd HH:mm" — use time::format, not <datetime> cast
   if (startDate) {
-    conditions.push(`payroll_run.payroll_period.start_date >= <datetime>$periodStart`);
+    conditions.push(
+      `time::format(payroll_run.payroll_period.start_date, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $periodStart`,
+    );
     params.periodStart = startDate;
   }
 
   if (endDate) {
-    conditions.push(`payroll_run.payroll_period.end_date <= <datetime>$periodEnd`);
+    conditions.push(
+      `time::format(payroll_run.payroll_period.end_date, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $periodEnd`,
+    );
     params.periodEnd = endDate;
   }
 
