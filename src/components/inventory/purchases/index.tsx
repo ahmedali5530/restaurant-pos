@@ -9,7 +9,6 @@ import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBan, faCheck, faCodeBranch, faFile, faPencil, faPlus, faPrint, faUpload} from "@fortawesome/free-solid-svg-icons";
 import {InventoryPurchaseForm} from "@/components/inventory/purchases/form.tsx";
-import {InventoryPurchaseUpload} from "@/components/inventory/purchases/upload.tsx";
 import {InventoryPurchaseViewModal} from "@/components/inventory/purchases/view.modal.tsx";
 import {InventoryDocumentStatusBadge} from "@/components/inventory/common/document.status.badge.tsx";
 import {inventoryPrintUrl} from "@/routes/posr.ts";
@@ -50,7 +49,6 @@ export const InventoryPurchases = () => {
 
   const [data, setData] = useState<InventoryPurchase>();
   const [formModal, setFormModal] = useState(false);
-  const [uploadModal, setUploadModal] = useState(false);
   const [viewPurchase, setViewPurchase] = useState<InventoryPurchase | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
@@ -334,16 +332,6 @@ export const InventoryPurchases = () => {
           data={data}
           onClose={() => {
             setFormModal(false);
-            setData(undefined);
-            loadHook.fetchData();
-          }}
-        />
-      )}
-
-      {uploadModal && (
-        <InventoryPurchaseUpload
-          onClose={() => {
-            setUploadModal(false);
             setData(undefined);
             loadHook.fetchData();
           }}

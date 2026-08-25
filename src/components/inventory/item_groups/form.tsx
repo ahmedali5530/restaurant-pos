@@ -16,7 +16,7 @@ import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {StringRecordId} from "surrealdb";
-import _ from "lodash";
+import get from "lodash/get";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
 interface InventoryItemGroupFormValues {
@@ -219,7 +219,7 @@ export const InventoryItemGroupForm = ({open, onClose, data}: Props) => {
                   />
                 )}
               />
-              <InputError error={_.get(errors, ["main_item", "message"])}/>
+              <InputError error={get(errors, ["main_item", "message"])}/>
             </div>
             <div className="flex-1">
               <Controller
@@ -267,7 +267,7 @@ export const InventoryItemGroupForm = ({open, onClose, data}: Props) => {
                       />
                     )}
                   />
-                  <InputError error={_.get(errors, ["sub_items", index, "item", "message"])}/>
+                  <InputError error={get(errors, ["sub_items", index, "item", "message"])}/>
                 </div>
                 <div className="flex-1 self-end">
                   <Controller
@@ -279,7 +279,7 @@ export const InventoryItemGroupForm = ({open, onClose, data}: Props) => {
                         type="number"
                         value={field.value as number | string}
                         onChange={field.onChange}
-                        error={_.get(errors, ["sub_items", index, "quantity", "message"])}
+                        error={get(errors, ["sub_items", index, "quantity", "message"])}
                       />
                     )}
                   />

@@ -7,6 +7,15 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-08-25',
+    title: 'Faster initial load',
+    items: [
+      'Non-core screens (Inventory, Settings, Admin, HR, Accounts, Reports, Delivery, Closing, and more) now lazy-load so the first visit downloads a much smaller main bundle.',
+      'Purchase document OCR upload was removed; use AI Import on the purchase form instead.',
+      'Validation standardized on yup; icons on FontAwesome. Heavy libraries (PDF export, Stripe/PayPal, Swiper) load only when needed.',
+    ],
+  },
+  {
     date: '2026-08-22',
     title: 'Orders defaults and performance',
     items: [

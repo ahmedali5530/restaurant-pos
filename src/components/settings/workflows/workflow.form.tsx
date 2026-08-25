@@ -8,18 +8,18 @@ import { Button } from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { useEffect } from "react";
 import { useDB } from "@/api/db/db.ts";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { Tables } from "@/api/db/tables.ts";
 import { toast } from "sonner";
 import {useTranslation} from 'react-i18next';
 import i18n from '@/lib/i18n.ts';
-import * as z from "zod";
+import * as yup from "yup";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { StringRecordId } from "surrealdb";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown, faArrowUp, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
-import _ from "lodash";
+import get from "lodash/get";
 
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 interface Props {
@@ -28,14 +28,14 @@ interface Props {
   data?: Workflow
 }
 
-const validationSchema = z.object({
-  name: z.string().min(1, i18n.t('validation:required')),
-  stages: z.array(z.object({
-    name: z.string().min(1, i18n.t('forms.stageNameRequired')),
-    kitchen: z.object({
-      label: z.string(),
-      value: z.string()
-    }).nullable().refine((value) => !!value?.value, { message: i18n.t('forms.kitchenRequired') })
+const validationSchema = yup.object({
+  name: yup.string().required(i18n.t('validation:required')),
+  stages: yup.array().of(yup.object({
+    name: yup.string().required(i18n.t('forms.stageNameRequired')),
+    kitchen: yup.object({
+      label: yup.string(),
+      value: yup.string()
+    }).nullable().test('kitchen-required', i18n.t('forms.kitchenRequired'), (value) => !!value?.value)
   })).min(1, i18n.t('forms.addAtLeastOneStage')),
 });
 
@@ -54,7 +54,7 @@ export const WorkflowForm = ({
   });
 
   const { control, handleSubmit, formState: { errors }, reset } = useForm({
-    resolver: zodResolver(validationSchema),
+    resolver: yupResolver(validationSchema),
     defaultValues: {
       name: '',
       stages: []
@@ -190,7 +190,7 @@ export const WorkflowForm = ({
                           label={t('forms.stageName')}
                           value={field.value ?? ''}
                           onChange={field.onChange}
-                          error={_.get(errors, ['stages', index, 'name', 'message'])}
+                          error={get(errors, ['stages', index, 'name', 'message'])}
                         />
                       )}
                     />
@@ -208,7 +208,7 @@ export const WorkflowForm = ({
                         />
                       )}
                     />
-                    <InputError error={_.get(errors, ['stages', index, 'kitchen', 'message'])}/>
+                    <InputError error={get(errors, ['stages', index, 'kitchen', 'message'])}/>
                   </div>
                   <div className="flex-0 flex gap-1">
                     <IconTooltipButton label={t('common:actions.moveUp')} variant="secondary" type="button" isDisabled={index === 0}

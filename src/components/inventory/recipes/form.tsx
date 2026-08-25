@@ -17,7 +17,7 @@ import {Recipe} from "@/api/model/recipe.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
-import _ from "lodash";
+import get from "lodash/get";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
 import {
@@ -349,7 +349,7 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
                     />
                   )}
                 />
-                <InputError error={_.get(errors, ["items", index, "item", "message"])} />
+                <InputError error={get(errors, ["items", index, "item", "message"])} />
               </div>
               <div className="col-span-3">
                 <InputField
@@ -358,7 +358,7 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
                   type="number"
                   step="any"
                   label={t("forms.quantity")}
-                  error={_.get(errors, ["items", index, "quantity", "message"])}
+                  error={get(errors, ["items", index, "quantity", "message"])}
                 />
               </div>
               <div className="col-span-2">

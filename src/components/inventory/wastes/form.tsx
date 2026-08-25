@@ -20,7 +20,7 @@ import {InventoryPurchaseItem} from "@/api/model/inventory_purchase.ts";
 import {RecordId} from "surrealdb";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTrash, faPlus} from "@fortawesome/free-solid-svg-icons";
-import _ from "lodash";
+import get from "lodash/get";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
 import {fetchNextSequentialNumber, isUniqueRecordNumber} from "@/utils/recordNumbers.ts";
@@ -727,7 +727,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                   />
                 )}
               />
-              <InputError error={_.get(errors, ["location", "message"])}/>
+              <InputError error={get(errors, ["location", "message"])}/>
             </div>
             <div className="flex-1">
               <Controller
@@ -743,7 +743,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                   />
                 )}
               />
-              <InputError error={_.get(errors, ["date", "message"])}/>
+              <InputError error={get(errors, ["date", "message"])}/>
             </div>
           </div>
 
@@ -756,7 +756,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                 {...register("documents")}
                 className="w-full px-3 py-2 border border-neutral-400 rounded-lg"
               />
-              <InputError error={_.get(errors, ["documents", "message"])}/>
+              <InputError error={get(errors, ["documents", "message"])}/>
             </div>
           </div>
 
@@ -813,7 +813,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                           />
                         )}
                       />
-                      <InputError error={_.get(errors, ["items", index, "item", "message"])}/>
+                      <InputError error={get(errors, ["items", index, "item", "message"])}/>
                     </div>
                     <div className="flex-1">
                       <Controller
@@ -829,7 +829,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                             type="number"
                             value={qtyField.value as number | string}
                             onChange={qtyField.onChange}
-                            error={_.get(errors, ["items", index, "quantity", "message"])}
+                            error={get(errors, ["items", index, "quantity", "message"])}
                           />
                         )}
                       />

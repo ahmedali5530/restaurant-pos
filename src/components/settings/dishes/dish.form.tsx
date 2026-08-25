@@ -21,7 +21,7 @@ import i18n from '@/lib/i18n.ts';
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {ModifierGroup} from "@/api/model/modifier_group.ts";
 import {Switch} from "@/components/common/input/switch.tsx";
-import _ from "lodash";
+import get from "lodash/get";
 import {ModifierGroupForm} from "@/components/settings/modifier_groups/modifier_group.form.tsx";
 import {RecordId, StringRecordId} from "surrealdb";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
@@ -747,7 +747,7 @@ export const DishForm = ({
                         />
                       )}
                     />
-                    <InputError error={_.get(errors, ['modifier_groups', index, 'modifier_group', 'message'])}/>
+                    <InputError error={get(errors, ['modifier_groups', index, 'modifier_group', 'message'])}/>
                   </div>
                   <div className="flex-1 self-end">
                     <Controller
@@ -791,7 +791,7 @@ export const DishForm = ({
                           type="number" value={field.value} onChange={field.onChange}
                           label={t('forms.requiredModifiers')}
                           disabled={!toggleRequiredField(index)}
-                          error={_.get(errors, ['modifier_groups', index, 'required_modifiers', 'message'])}
+                          error={get(errors, ['modifier_groups', index, 'required_modifiers', 'message'])}
                         />
                       )}
                     />
@@ -804,7 +804,7 @@ export const DishForm = ({
                         <Input
                           type="number" value={field.value} onChange={field.onChange}
                           label={t('columns.priority')}
-                          error={_.get(errors, ['modifier_groups', index, 'priority', 'message'])}
+                          error={get(errors, ['modifier_groups', index, 'priority', 'message'])}
                         />
                       )}
                     />
@@ -879,7 +879,7 @@ export const DishForm = ({
                           />
                         )}
                       />
-                      <InputError error={_.get(errors, ['recipes', index, 'item', 'message'])}/>
+                      <InputError error={get(errors, ['recipes', index, 'item', 'message'])}/>
                     </div>
                     <div className="w-20">
                       <Input
@@ -900,7 +900,7 @@ export const DishForm = ({
                             value={field.value}
                             onChange={field.onChange}
                             label={t('forms.quantity')}
-                            error={_.get(errors, ['recipes', index, 'quantity', 'message'])}
+                            error={get(errors, ['recipes', index, 'quantity', 'message'])}
                           />
                         )}
                       />
@@ -915,7 +915,7 @@ export const DishForm = ({
                             value={field.value}
                             onChange={field.onChange}
                             label={t('forms.unitCost')}
-                            error={_.get(errors, ['recipes', index, 'cost', 'message'])}
+                            error={get(errors, ['recipes', index, 'cost', 'message'])}
                           />
                         )}
                       />

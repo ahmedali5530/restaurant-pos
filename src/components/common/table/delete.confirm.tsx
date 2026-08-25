@@ -1,7 +1,7 @@
 import {Button} from "@/components/common/input/button.tsx";
-import {faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faTrash, faTriangleExclamation} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Dialog, Heading, Modal, ModalOverlay, TooltipTrigger} from 'react-aria-components';
-import {AlertTriangle} from 'lucide-react';
 import {cloneElement, isValidElement, ReactElement, ReactNode, useState} from "react";
 import {createPortal} from "react-dom";
 import {cn} from "@/lib/utils.ts";
@@ -127,7 +127,7 @@ export const DeleteConfirm = ({
                 {resolvedTitle}
               </Heading>
               <div className="w-6 h-6 text-danger-500 absolute right-6 top-6 stroke-2">
-                <AlertTriangle className="w-6 h-6"/>
+                <FontAwesomeIcon icon={faTriangleExclamation} className="w-6 h-6"/>
               </div>
               <p className="mt-3 text-neutral-500">
                 {message ? message : 'Are you sure you want to delete this? All contents will be permanently destroyed.'}

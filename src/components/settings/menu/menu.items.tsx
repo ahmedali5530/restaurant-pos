@@ -14,7 +14,7 @@ import {Dish} from "@/api/model/dish.ts";
 import {Tax} from "@/api/model/tax.ts";
 import {Category} from "@/api/model/category.ts";
 import {StringRecordId} from "surrealdb";
-import _ from "lodash";
+import get from "lodash/get";
 import {Switch} from "@/components/common/input/switch.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useTranslation} from 'react-i18next';
@@ -530,7 +530,7 @@ export const MenuItems = ({
         size="xl"
       >
         <form onSubmit={handleSubmit(onSubmit)}>
-          <InputError error={_.get(errors, ["items", "message"])}/>
+          <InputError error={get(errors, ["items", "message"])}/>
 
           {loadingDishes && (
             <div className="text-center text-neutral-500 py-8">
@@ -678,7 +678,7 @@ export const MenuItems = ({
                                       type="number"
                                       value={field.value as number | string | undefined}
                                       onChange={field.onChange}
-                                      error={_.get(errors, ["items", index, "price", "message"])}
+                                      error={get(errors, ["items", index, "price", "message"])}
                                     />
                                   )}
                                 />

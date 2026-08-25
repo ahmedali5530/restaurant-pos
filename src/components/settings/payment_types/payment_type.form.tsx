@@ -7,8 +7,8 @@ import { Controller, useForm } from "react-hook-form";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
 import { toast } from 'sonner';
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useState } from "react";
 import { PaymentType, PaymentTypeGatewayConfig } from "@/api/model/payment_type.ts";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
@@ -30,34 +30,27 @@ interface Props {
   data?: PaymentType
 }
 
-const validationSchema = z.object({
-  name: z.string().min(1, i18n.t('validation:required')),
-  priority: z.string().min(1, i18n.t('validation:required')),
-  type: z.object({
-    label: z.string(),
-    value: z.string()
-  }).required(),
-  gateway: z.object({
-    label: z.string(),
-    value: z.string()
-  }).nullable().optional(),
-  gateway_mode: z.object({
-    label: z.string(),
-    value: z.string()
-  }).nullable().optional(),
-  gateway_config: z.object({
-    public_key: z.string().optional().nullable(),
-    secret_key: z.string().optional().nullable(),
-    webhook_secret: z.string().optional().nullable(),
-    client_id: z.string().optional().nullable(),
-    client_secret: z.string().optional().nullable(),
-    merchant_id: z.string().optional().nullable(),
-    integrity_salt: z.string().optional().nullable(),
+const selectOptionSchema = yup.object({
+  label: yup.string(),
+  value: yup.string()
+});
+
+const validationSchema = yup.object({
+  name: yup.string().required(i18n.t('validation:required')),
+  priority: yup.string().required(i18n.t('validation:required')),
+  type: selectOptionSchema.required(i18n.t('validation:required')),
+  gateway: selectOptionSchema.nullable().optional(),
+  gateway_mode: selectOptionSchema.nullable().optional(),
+  gateway_config: yup.object({
+    public_key: yup.string().optional().nullable(),
+    secret_key: yup.string().optional().nullable(),
+    webhook_secret: yup.string().optional().nullable(),
+    client_id: yup.string().optional().nullable(),
+    client_secret: yup.string().optional().nullable(),
+    merchant_id: yup.string().optional().nullable(),
+    integrity_salt: yup.string().optional().nullable(),
   }).optional(),
-  tax: z.object({
-    label: z.string(),
-    value: z.string()
-  }).optional().nullable(),
+  tax: selectOptionSchema.optional().nullable(),
 });
 
 const EMPTY_GATEWAY_CONFIG = {
@@ -151,7 +144,7 @@ export const PaymentTypeForm = ({
   });
 
   const { control, handleSubmit, formState: {errors}, reset, watch } = useForm({
-    resolver: zodResolver(validationSchema)
+    resolver: yupResolver(validationSchema)
   });
 
   const types = [

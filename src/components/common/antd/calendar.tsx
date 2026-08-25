@@ -1,4 +1,4 @@
-import { Calendar as AntCalendar } from "antd";
+import AntCalendar from "antd/es/calendar";
 import { DateValue } from "react-aria-components";
 import { dayjsToCalendarDate, dateValueToDayjs } from "@/utils/date.ts";
 

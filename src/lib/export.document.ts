@@ -1,6 +1,3 @@
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
-
 export const printDocument = () => {
   window.print();
 };
@@ -10,6 +7,11 @@ export const exportElementAsPdf = async (
   filename = "document.pdf",
 ) => {
   if (!element) return;
+
+  const [{default: html2canvas}, {default: jsPDF}] = await Promise.all([
+    import("html2canvas"),
+    import("jspdf"),
+  ]);
 
   const canvas = await html2canvas(element, {
     scale: 2,
@@ -46,6 +48,8 @@ export const exportElementAsImage = async (
   filename = "document.png",
 ) => {
   if (!element) return;
+
+  const {default: html2canvas} = await import("html2canvas");
 
   const canvas = await html2canvas(element, {
     scale: 2,

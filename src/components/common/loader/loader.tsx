@@ -1,5 +1,5 @@
 import {ReactNode, useEffect, useState} from "react";
-import { uniqueId } from "lodash";
+import uniqueId from "lodash/uniqueId";
 
 interface LoaderProps{
   lines?: number;
