@@ -1,290 +1,116 @@
-# 🍽️ POSR — Open Source Modern Restaurant POS System
-### ⚡ AI Powered • Fast • Modern • Touch Optimized • Multi-Lingual • Full Restaurant Operations Platform
+# POSR — AI Powered Open Source Modern Restaurant Operations Platform (POS)
 
-A high-performance, scalable, and resilient Point of Sale (POS) system designed specifically for the fast-paced restaurant industry. Built on a modern tech stack featuring React, Vite, and SurrealDB, this system offers ultra-fast response times, multi-tenant capabilities, and an offline-first architecture to ensure business continuity even during network drops.
+> Offline-first restaurant operations — ordering, KDS, inventory, labor, accounting, AI reporting, and delivery in one platform.
+
+React · Vite · Bun · SurrealDB · WebSockets · IndexedDB
+
+## Links
+
+- [**Documentation:** ](https://ahmedali5530.xyz/posr/docs)
+- [**Get started — Installation & first sale:**](https://ahmedali5530.xyz/posr/docs)
+- [**Live demo:**](https://ahmedali5530.xyz/posr) — pins `1234`, `0000`, `5555` (super admin)
+- [**Landing / product:**](https://ahmedali5530.xyz/posr)
+- **Integrations framework (dev):** [docs/integrations/framework.md](docs/integrations/framework.md)
+- **Auth gateway:** [docs/security/GATEWAY.md](docs/security/GATEWAY.md)
 
 ---
 
-## 🚀 Live Demo
+## Feature inventory
 
-👉 **Try it here:** [Demo](https://ahmedali5530.xyz/posr)  
-🔑 Login: `1234, 0000, 5555 (super admin)`
+### AI & reporting
+
+- **Natural language analytics** — ask plain-text questions; get visual reports across sales, inventory, accounts, and labor
+- **Descriptive analytics** — patterns, anomalies, voids/discounts, performance drivers
+- **Sales forecasting** — demand prediction for staffing, purchasing, promotions
+- **AI inventory forecasting** — purchase quantity suggestions from history, stock, holidays, weather, events
+- **AI staff forecasting** — recommended hours/headcount vs schedule and same-weekday history
+- **Order dossier** — full order timeline by ID, number, or invoice (dishes, voids, payments, kitchen, fiscal, prints)
+- **Sales vs consumption** — recipe usage vs ledger issuance vs purchases
+- **AI Import** — OCR/parse CSV, Excel, PDF, images, clipboard for master data, document lines, journals, HR shifts (create / update / upsert)
+- **AI usage controls** — daily/monthly quotas; disable AI entirely
+
+### Restaurant operations
+
+- **Table-based ordering** — seat assignments, split by seat, multi-order tables
+- **Takeaway mode** — pickup queue, customer name/phone/time
+- **Order lifecycle** — split / merge / cancel / transfer / refunds
+- **Modifiers** — groups, nested modifiers, price overrides, min/max rules
+- **Visual menu builder** — dishes, categories, multi-category, tax rules
+- **Multiple menus** — breakfast/lunch/dinner, dynamic pricing, delivery menu link
+- **Extras & service charges** — fixed/%, rule-based by order type / payment / table
+- **Discounts & coupons** — fixed/%, Buy X Get Y, payment-type promos, delivery coupons
+- **KDS** — multi-stage workflows, station routing, status (received → served), recall, grouped addons, voice alerts
+- **Closing cycles** — auto check close, shift/day close, enforcement + notifications
+- **Tips** — pooling, staff rules, shift allocation
+- **Waiter app** — mobile order entry, table select, touch-optimized
+- **Manager app** — dashboard, analytics, config, branch reporting
+- **Delivery app** — dispatch, driver tracking, Maps, realtime customer updates, coupons
+
+### Inventory
+
+- **Location-based stock** — stores/kitchens as inventory locations
+- **Stock transfers** — location-to-location with ledger posting
+- **Kitchen reconciliation** — theoretical (recipe × sales) vs actual by location
+- **Kitchen production** — batch prep, yields, ingredient consumption
+- **Buffet production** — portion planning, session close, replenishment
+- **Recipe deduction** — stock-aware menus; auto deduct on sale
+- **Documents** — purchase orders, purchases/returns, issues/returns, adjustments, waste
+- **Inventory dashboard** — transfers, production, buffet, runout forecast, low-stock alerts
+- **Suppliers** — supplier master + performance
+
+### Labor & HR
+
+- **Shift scheduling** — create/assign schedules; **print schedule roster** (week grid, PDF/Excel)
+- **Clock-in / clock-out** — work hours, late/early detection
+- **Attendance** — history logs; bulk AI Import (pending until manager approve)
+- **Leave & holidays** — paid/unpaid leave in payroll
+- **Pay profiles** — hourly, daily wage, or flat period (monthly/weekly/contract)
+- **Payroll runs** — preview, overrides, approve/post
+- **Org structure** — employees, departments, positions, cost centers, branch assignment
+- **RBAC** — admin, manager, waiter, kitchen, delivery, custom roles; protected modules (web + mobile)
+
+### Accounting & payments
+
+- **Internal ledger** — chart of accounts, journals, GL / TB / BS / P&L style reporting
+- **Closing & reconciliation** — checks, shifts, days; audit-ready payment trail
+- **Payment gateways** — Stripe, PayPal, JazzCash, M-Pesa, Telebirr, Razorpay (sandbox/live, webhooks)
+- **QuickBooks Online** — OAuth; sync sales, payments, customers, refunds; journals for inventory/payroll/waste; import COA / vendors / tax codes
+- **Fiscal (Pakistan)** — **FBR** and **PRA** invoice submission at settlement (API-proxied); receipt logos / QR
+
+### Integration Manager
+
+- **Plugin hub** — enable/configure providers without coupling POS screens ([framework docs](docs/integrations/framework.md))
+- **Event-driven** — fan-out sales, inventory, HR, accounts, ops, lifecycle, and `EntityChanged` master-data events
+- **Offline queue** — retries, dedupe, IndexedDB persistence; settlement not blocked by slow APIs
+- **Health & audit** — provider health, job queue UI, audit log
+- **Integrations UI** — providers, configuration, queue, health panels
+- **Permissions** — toggle provider, open/save configuration (manager PIN when missing)
+- **Providers (shipped):**
+  - **FBR Fiscalization** — FBR invoices at settlement
+  - **PRA Fiscalization** — PRA invoices at settlement
+  - **Internal Accounting** — draft journals from sales, refunds, payroll, purchases, waste, issues, transfers, production
+  - **Internal Inventory** — inventory integration hooks
+  - **QuickBooks Online** — external accounting sync (see above)
+  - **Event Logger** — all/filtered events → console or HTTP (bearer / API key / basic / JWT)
+
+### Platform
+
+- **Offline-first** — IndexedDB + realtime WebSocket sync; automatic cloud backups
+- **Auth gateway** — session JWT; Surreal credentials not shipped to browser ([GATEWAY.md](docs/security/GATEWAY.md))
+- **ESC/POS printing** — USB, Serial, Network, Bluetooth; kitchen tickets, receipts, delivery slips, pre-sale bills, sales summaries; custom logos
+- **Multi-lingual** — English, Español, Türkçe, Português, Français, Nederlands, Deutsch, Italiano, العربية (RTL), Русский (Cyrillic); live language switch
+- **Tech stack** — React + TypeScript, Bun + Vite, SurrealDB, WebSockets
 
 ---
 
-## 🎬 See it in Action
+## See it in action
 
 ![Restaurant POS system demo](docs/demo.gif)
-▶ [Watch full video](https://ahmedali5530.xyz/assets/posr/demo.mp4)
-📱 [Order taking app flow](https://www.youtube.com/watch?v=VP3zBUfHtYQ&list=PLAnQKFs1ybdM&pp=sAgC)
 
+- [Watch full video](https://ahmedali5530.xyz/assets/posr/demo.mp4)
+- [Order taking app flow](https://www.youtube.com/watch?v=VP3zBUfHtYQ&list=PLAnQKFs1ybdM&pp=sAgC)
 
----
-
-## 💥 Why This Project?
-
-Most restaurant systems are:
-- ❌ Fragmented (POS, delivery, accounts, HR all separate)
-- ❌ Not built for real-time restaurant pressure
-- ❌ Weak staff workflow management
-- ❌ Hard to scale across branches
-- ❌ No proper authentication or protected modules
-
-This system solves that by combining everything into one platform:
-
-- ⚡ Real-time restaurant operations
-- 🍽️ Full kitchen and order lifecycle
-- 🍔 Advanced dish & modifiers management
-- 🚚 Built-in delivery workflow
-- 👨‍💼 Staff + manager + admin roles
-- 🔐 Secure protected modules
-- 📊 Advanced reporting including **[AI Reports](docs/images/AI%20report1.png)**, analytics and forecasting layer
-- 🪑 Seat-based ordering and splitting
-- 📑 Multi-order table management
-- ☁️ Realtime Sync to cloud
-- 💾 Automatic backups
-- 💰 Automatic check closing and closing cycles
-- 📋 Multiple menus support
-- 💳 Third-party payment gateways support (Stripe, PayPal, M-Pesa, Telebirr, Razorpay etc...)
-- 🖨️ ESC/POS Printing Support (USB, Network, Serial, Bluetooth)
-- 🌍 Multi-lingual interface support
-
----
-
-## 🌟 Key Features
-
-### 🧠 [AI-Powered Business Intelligence & Reporting](docs/images/AI%20report1.png)
-- Transform raw transactional data into actionable business strategies. Our integrated AI reporting module analyzes sales patterns, customer behavior, and inventory levels to give you a competitive edge.
-- **Natural Language Analytics:** Ask plain-text questions (e.g., *"Which menu item grew the most this weekend?"* or *"Summarize last month's top delivery zones"*) and get instant visual reports.
-- **AI Inventory Forecasting:** Ask AI how much inventory you need for specific days (e.g., "this Friday") or the coming week. AI compares historical same-weekday usage, current stock levels, holidays, weather patterns, and local events to suggest purchase quantities.
-- **AI Staff Forecasting:** Ask how many staff you need for a named day or the coming days to see recommended hours and headcount compared to historical data and your published schedule.
-- **Order Dossier Analysis:** Request a complete dossier for any specific order by ID, number, or invoice to see dishes, voids, discounts, taxes, payments, kitchen status, refunds, merge/split history, fiscal submissions, bill prints, tracking, and a full timeline in one comprehensive view.
-- **Sales vs Consumption Analysis:** AI compares sales performance, recipe-based ingredient consumption, actual issuance from inventory, and purchase data to identify discrepancies and optimize operations.
-- **AI Import & Smart Data Entry:** AI Import (formerly Smart Import) uses OCR and intelligent parsing to extract structured data from CSV, Excel, PDF, images, or clipboard paste for master data (dishes, ingredients, categories, tables, modifiers, inventory items, chart of accounts), document lines, kitchen reconciliation, journal entries, and HR scheduled shifts.
-- **Flexible Import Modes:** Support for create, update, and upsert modes across all AI import screens including document lines, dish ingredients, modifier groups, kitchen reconciliation, and HR scheduled shifts.
-- **Usage Controls:** Configurable daily and monthly AI completion limits with quota tracking, plus the ability to disable AI features entirely for controlled deployments.
-
-### 🍽️ POS & Order Management
-- Table-based ordering system
-- **Seat-Based Ordering & Splits:**
-    - **Seat Assignments:** Assign specific dishes to individual seats for organized service.
-    - **Split by Seat:** Easily split a large table's bill into separate orders based on seat assignments.
-- **Multi-Order Table Management:**
-    - **Concurrent Orders:** Support for multiple independent orders on the same table simultaneously.
-    - **Visual Indicators:** Clear tracking of the number of active orders per table on the floor layout.
-- **Takeaway Mode:**
-    - **Quick Takeaway Orders:** Streamlined workflow for pickup and takeaway orders.
-    - **Separate Queue Management:** Dedicated tracking for takeaway orders independent of dine-in tables.
-    - **Customer Details:** Capture customer name, phone, and pickup time.
-- Fast item selection & modifiers
-- Split / merge / cancel / transfer orders / refunds
-- **Split & Half-n-Half Payments:** Flexible payment options allowing customers to split bills or pay for half-n-half dish combinations.
-- **Extras & Service Charges:**
-    - **Automated Service Charges:** Apply percentage-based or fixed service charges to orders.
-    - **Custom Extras:** Add additional charges for special requests, packaging, or premium services.
-    - **Rule-based Application:** Automatically trigger extras based on order type, payment method, or specific tables.
-- Real-time cart updates
-- Instant billing flow
-
----
-
-### 🍔 Dish Creation & Advanced Modifiers
-- **Flexible Dish Management:** Create and organize dishes with custom pricing, tax rules, and multi-category assignments.
-- **Excellent Modifiers Support:**
-    - **Modifier Groups:** Group related options (e.g., "Sides", "Toppings", "Meat Temperature").
-    - **Nested Modifiers:** Support for complex ordering flows where choosing a modifier opens another set of choices (e.g., Select "Combo" → Select "Side" → Select "Drink").
-    - **Price Overrides:** Set specific prices for modifiers when they are part of a particular group or combination.
-    - **Rules & Constraints:** Define minimum and maximum selections per group.
-
----
-
-### 👨‍🍳 Kitchen Display System (KDS)
-- Live incoming orders
-- **Multi-Stage Kitchen Workflows:**
-    - **Customizable Preparation Stages:** Create custom kitchen stages for complex workflows (e.g., Prep Station → Grill → Assembly → Expo).
-    - **Station-Based Routing:** Automatically route specific dishes to designated kitchen stations.
-    - **Stage-to-Stage Handoff:** Track order progression through each preparation stage with visual status updates.
-    - **Parallel Processing:** Multiple stations can work on different components of the same order simultaneously.
-- Status tracking:
-    - Received
-    - Preparing
-    - Ready
-    - Served
-- Reduced communication delays between staff & kitchen
-- Recall orders
-
----
-
-### 🚚 Delivery Management App
-- Custom built delivery apps with multiple menu support
-- Realtime updates to customer
-- Delivery order assignment
-- Driver status tracking
-- Order dispatch flow
-- Delivery completion updates
-- Separate delivery workflow from dine-in
-- **Smart Coupons & Discounts:**
-    - **Flexible Discount Types:** Support for fixed amount, percentage-based, and free shipping coupons.
-    - **Usage Constraints:** Set minimum order amounts, maximum discount caps, and usage limits per user.
-    - **Time-Based Validity:** Schedule coupons for specific dates, times, or days of the week.
-    - **Targeted Rules:** First-order only coupons and stackability controls.
-- Uses Google maps to display orders and updates
-
----
-
-### 📱 Order Taking App (Waiter App)
-- Mobile-first order entry
-- Table selection & quick ordering
-- Instant sync with kitchen
-- Lightweight POS mode for staff devices
-- Full touch compatible modules for faster order processing
-- [order taking app flow](https://www.youtube.com/watch?v=VP3zBUfHtYQ&list=PLAnQKFs1ybdM&pp=sAgC)
-
----
-
-### 👨‍💼 Manager App (Admin Control Center)
-- Real-time business dashboard with AI reporting
-- Sales & performance analytics
-- Staff performance tracking
-- Branch-level reporting
-- System configuration
-
----
-
-### 💰 Automatic Checks & Closing Cycles
-- **Automatic Check Closing:** Configure system to automatically close open checks after a specific idle time or at end-of-day.
-- **Closing Cycle Enforcement:** Prevent new orders when a closing cycle is required.
-- **Shift & Day Closing:** Streamlined workflow for ending staff shifts and daily business cycles.
-- **Real-time enforcement:** Instant notifications when cycles need to be closed.
-
----
-
-### 📋 Multiple Menus Support
-- **Custom Menu Creation:** Create different menus for different times (e.g., Breakfast, Lunch, Dinner).
-- **Dynamic Pricing:** Set different prices for items across different menus.
-- **Delivery App Integration:** Link specific menus to delivery app.
-
----
-
-### 💳 Third-Party Gateway Integrations
-- **Integrated Payments:** Support for popular payment gateways.
-- **Multi-Provider Support:**
-    - 💳 **Stripe** (Credit/Debit Cards)
-    - 🅿️ **PayPal**
-    - 📱 **JazzCash / M-Pesa / Telebirr / Razorpay** (Mobile Payments)
-- **Secure Processing:** PCI-compliant flows with sandbox/live mode support.
-- **Instant Settlement:** Real-time payment verification and order status updates.
-- **Quickbooks Online:** Integration with Quickbooks Online.
-- **Fiscal Authority Integration:** Integration with Fiscal authorities (FBR, PRA in Pakistan).
-
----
-
-### 🖨️ ESC/POS Printing Support
-- **Multi-Interface Support:** Print to thermal printers via **USB**, **Serial**, **Network (TCP/IP)**, or **Bluetooth**.
-- **Specialized Print Builders:**
-    - 🍳 **Kitchen Tickets:** Clear, priority-coded slips for kitchen staff.
-    - 🧾 **Customer Receipts:** Professional final bills with payment details and change.
-    - 🚚 **Delivery Slips:** Includes customer address, phone, and delivery notes.
-    - 📑 **Pre-sale Bills:** Temporary slips for table service before final payment.
-    - 📊 **Sales Summaries:** Comprehensive end-of-day/shift, P-Mix, Server Sales reports directly from the printer.
-- **Branding & Customization:**
-    - Support for **custom logos** (Base64) and company branding.
-    - Configurable **VAT/Tax details** and headers/footers.
-    - Adjustable margins and item display preferences.
-- **Reliable Architecture:** Independent Node.js print server ensures printing doesn't block the main POS application.
-- **Offline print server:** Print server can be run separately on a local server for faster prints.
-
----
-
-### 🧑‍💼 Staff Management & Shifts
-- Shift creation & scheduling
-- Clock-in / clock-out tracking
-- Work hour monitoring
-- Staff assignment per branch
-
----
-
-### 🔐 Protected Modules & Role System
-- Role-based access control:
-    - Admin
-    - Manager
-    - Waiter
-    - Kitchen Staff
-    - Delivery Staff
-    - ... and Custom roles
-- Protected routes & permissions per module accross web and mobile platforms
-- Secure operational separation
-
----
-
-### 💰 Tips Distribution System
-- Track collected tips
-- Automatic tip pooling
-- Staff-based distribution rules
-- Shift-based tip allocation
-
----
-
-### ⏱️ Time Tracking System
-- Employee working hours tracking
-- Shift duration monitoring
-- Late/early detection
-- Attendance history logs
-
----
-
-### 📦 Inventory Integration
-- **Stock-Aware Menu System:** Real-time visibility of ingredient availability.
-- **Recipe-Based Deduction:** Automatically deduct stock based on dish recipes when orders are placed.
-- **Comprehensive Stock Management:**
-    - **Purchase Orders & Returns:** Manage supplier orders and incoming inventory.
-    - **Internal Issues & Returns:** Track stock movement between stores or kitchen departments.
-    - **Waste Tracking:** Log and analyze food waste to optimize costs.
-- **Multi-Store Support:** Manage inventory across different storage locations or branches.
-- **Low Stock Alerts:** Automated notifications when items fall below safety levels.
-- **Supplier Management:** Maintain a database of suppliers and their performance.
-
----
-
-### 🌍 Multi-Lingual Support
-- **10 Supported Languages:**
-    - 🇬🇧 **English**
-    - 🇪🇸 **Español** (Spanish)
-    - 🇹🇷 **Türkçe** (Turkish)
-    - 🇧🇷 **Português** (Brazilian Portuguese)
-    - 🇫🇷 **Français** (French)
-    - 🇳🇱 **Nederlands** (Dutch)
-    - 🇩🇪 **Deutsch** (German)
-    - 🇮🇹 **Italiano** (Italian)
-    - 🇸🇦 **العربية** (Arabic)
-    - 🇷🇺 **Русский** (Russian)
-- **RTL Support:** Full right-to-left text direction support for Arabic and other RTL languages.
-- **Dynamic Language Switching:** Users can switch languages on-the-fly without reloading.
-- **Localized Interface:** All UI elements, menus, and system messages are fully translated.
-
----
-
-## ⚡ Speed-Focused UX
-
-Built for real restaurant pressure situations:
-- Minimal clicks ordering
-- Touch-screen-friendly workflow
-- Quick table switching
-- Optimized for peak-hour usage
-
----
-
-## 🏗️ Tech Stack
-
-- ⚛️ React.js (Frontend) with TypeScript
-- 🗄 Bun + Vite
-- 🗄 IndexedDB
-- 🗄️ SurrealDB
-- 🌐  Websockets Architecture
-
----
-
-## 📸 Screenshots
+## Screenshots
 
 ![Floor layout](docs/images/floor_layout.png)
 ![AI Report](docs/images/AI%20report7.png)
@@ -295,22 +121,9 @@ Built for real restaurant pressure situations:
 
 ---
 
-## 🔥 Key Highlights
+## Quick Start
 
-- Built specifically for **restaurant workflows**
-- **AI reporting** for sales and inventory operations
-- Handles **real-time order lifecycle**
-- Designed for **high-pressure environments**
-- Supports **multi-table restaurant operations**
-- Scalable for **small cafés → multi-branch restaurants**
-- **Delivery apps**
-- **Order taking apps**
-- Manager apps for **authentication and reporting**
----
-
-## ⚡ Quick Start
-
-[Read the documentation](https://ahmedali5530.xyz/posr/docs)
+Full install and first-sale walkthrough: **[Documentation → Get started](https://ahmedali5530.xyz/posr/docs)**
 
 ```bash
 git clone https://github.com/ahmedali5530/restaurant-pos
@@ -323,69 +136,35 @@ bun install
 docker compose up -d
 ```
 
-The copied `.env` files include **local-dev** Surreal and JWT values so the stack starts. Change `SURREAL_USER`, `SURREAL_PASS`, and `GATEWAY_JWT_SECRET` before any non-localhost deploy.
+Copied `.env` files include **local-dev** Surreal and JWT values. Change `SURREAL_USER`, `SURREAL_PASS`, and `GATEWAY_JWT_SECRET` before any non-localhost deploy. `root`/`root` is rejected.
 
-`root`/`root` is rejected. If an existing `./database` volume was created with that pair, wipe it (or change the Surreal user in-place) so it matches `.env`.
-
-### Auth gateway (default)
-
-The SPA talks to the **auth gateway** on port **3142**, not Surreal on **8000**.
-
-- `VITE_GATEWAY_AUTH=true` (on by default if unset)
-- `VITE_GATEWAY_URL=http://localhost:3142`
-- `VITE_DB_WEBDOCKET=ws://localhost:3142`
-- Print, payment, tracking, and API routes require `Authorization: Bearer <session JWT>` using the same `GATEWAY_JWT_SECRET`
-- Do **not** set `VITE_DB_USER` / `VITE_DB_PASS` — those would ship in the browser bundle
-
-Compose publishes Surreal as `127.0.0.1:8000` so the browser cannot skip the gateway. App, gateway, print, payment, and API stay reachable on the LAN. If you open the POS from another device, add that origin to `GATEWAY_ALLOWED_ORIGINS` (and the matching `*_ALLOWED_ORIGINS` vars).
-
-**Rollback** (emergency only): `VITE_GATEWAY_AUTH=false`, point `VITE_DB_WEBDOCKET` at Surreal (`ws://localhost:8000`), set `VITE_DB_USER` / `VITE_DB_PASS`, and optionally `GATEWAY_AUTH_REQUIRED=false` on sidecars.
-
-See [docs/security/GATEWAY.md](docs/security/GATEWAY.md) for smoke tests and production notes.
+**Auth gateway (default):** SPA uses port **3142**, not Surreal **8000**. Set `VITE_GATEWAY_URL` / `VITE_DB_WEBDOCKET` to the gateway; do **not** set `VITE_DB_USER` / `VITE_DB_PASS` in the browser bundle. Details and rollback: [docs/security/GATEWAY.md](docs/security/GATEWAY.md).
 
 ---
 
-## 🧭 Roadmap and WIP
-1. [ ] 🚀 Multi-branch synchronization improvements
-2. [ ] 🚀 Extend AI to CRUD operations and autonomous operations
-3. [ ] 🚀 QR Code and Self ordering system
-4. [ ] 🚀 Tap-to-pay payments on mobile apps
-5. [ ] 🚀 Targeted sales system for performance
-6. [ ] 🚀 Multi-currency support
-7. [ ] 🚀 Loyalty module
+## Roadmap
+
+1. [ ] Multi-branch synchronization improvements
+2. [ ] Extend AI to CRUD / autonomous operations
+3. [ ] QR code and self-ordering
+4. [ ] Tap-to-pay on mobile apps
+5. [ ] Targeted sales / performance
+6. [ ] Multi-currency support
+7. [ ] Loyalty module
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
-Want to improve this system?
-
-Fork the repo 🍴
-Create a feature branch 🌿
-Submit a PR 🚀
+Fork → feature branch → PR. Stars help visibility.
 
 ---
 
-## ⭐ Support
+## License
 
-If this project helps you, please consider giving it a ⭐ on GitHub.
+**POSR Source Available License (PSAL) v1.0** — see [LICENSE](LICENSE).
 
-It helps increase visibility and motivates continued development.
+- View, study, clone, fork, modify; build plugins/connectors; run your own business (any locations); hire contractors to maintain it.
+- No selling/reselling the Software as a product; no hosted multi-tenant SaaS; no white-label competing POS.
 
----
-
-## 📜 License
-
-POSR is distributed under the **POSR Source Available License (PSAL) v1.0**. See the [LICENSE](LICENSE) file for the full text.
-
-In short:
-
-- ✅ View, study, clone, fork, and modify the source code.
-- ✅ Build plugins, integrations, drivers, and payment/fiscal connectors.
-- ✅ Use it to run your own business (restaurants, cafes, hotels, etc.) across any number of locations — no fees.
-- ✅ Hire contractors to install, configure, and maintain it for you.
-- ❌ No selling, reselling, or redistributing the Software as a product.
-- ❌ No offering it as a hosted/multi-tenant SaaS.
-- ❌ No white-labeling or building a competing commercial POS from it.
-
-Need white-labeling, SaaS hosting, OEM distribution, or enterprise support? A separate **Commercial License** is available — contact **ahmedali5530@gmail.com**.
+Commercial license / white-label / OEM: **ahmedali5530@gmail.com**.
