@@ -113,7 +113,7 @@ React · Vite · Bun · SurrealDB · WebSockets · IndexedDB
 ## Screenshots
 
 ![Floor layout](docs/images/floor_layout.png)
-![AI Report](docs/images/AI%20report7.png)
+![AI Report](docs/images/ai-intro.png)
 ![menu](docs/images/menu.png)
 ![kds panel](docs/images/kds_panel.png)
 ![payment](docs/images/payment.png)
