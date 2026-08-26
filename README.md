@@ -1,23 +1,42 @@
-# POSR — AI Powered Open Source Modern Restaurant Operations Platform (POS)
+# POSR — AI-Powered Restaurant POS & Management System
 
-> Offline-first restaurant operations — ordering, KDS, inventory, labor, accounting, AI reporting, and delivery in one platform.
+**Offline-first, source-available restaurant POS software** for ordering, kitchen display (KDS), inventory, recipes, staff scheduling, payroll, accounting, delivery, fiscalization, and AI-powered restaurant analytics — in one platform.
 
-React · Vite · Bun · SurrealDB · WebSockets · IndexedDB
+POSR is a **source-available restaurant POS and restaurant management system** built for modern food businesses. It combines point-of-sale ordering, kitchen display systems (KDS), inventory and recipe management, staff scheduling and payroll, accounting, delivery, fiscalization (FBR / PRA), and AI restaurant analytics in one **offline-first** platform.
+
+React · TypeScript · Vite · Bun · SurrealDB · WebSockets · IndexedDB
 
 ## Links
 
-- [**Documentation:** ](https://ahmedali5530.xyz/posr/docs)
-- [**Get started — Installation & first sale:**](https://ahmedali5530.xyz/posr/docs)
-- [**Live demo:**](https://ahmedali5530.xyz/posr) — pins `1234`, `0000`, `5555` (super admin)
-- [**Landing / product:**](https://ahmedali5530.xyz/posr)
+- **[Documentation](https://ahmedali5530.xyz/posr/docs)**
+- **[Get started — Installation & first sale](https://ahmedali5530.xyz/posr/docs)**
+- **[Live demo](https://ahmedali5530.xyz/posr)** — pins `1234`, `0000`, `5555` (super admin)
+- **[Landing / product](https://ahmedali5530.xyz/posr)**
 - **Integrations framework (dev):** [docs/integrations/framework.md](docs/integrations/framework.md)
 - **Auth gateway:** [docs/security/GATEWAY.md](docs/security/GATEWAY.md)
 
 ---
 
-## Feature inventory
+## Who is POSR for?
 
-### AI & reporting
+POSR is designed for **restaurants, cafés, coffee shops, bakeries, bars, hotels, cloud kitchens, food courts, catering, and multi-location restaurant groups** that need a full operations stack — not just a cash register.
+
+## Why POSR?
+
+Traditional restaurant POS software often depends on cloud connectivity and separate tools for inventory, accounting, staff, delivery, and analytics. POSR combines those workflows in one **offline-first, extensible** platform.
+
+- **Source-available** — inspect, modify, extend, and self-host under [PSAL](LICENSE)
+- **Offline-first** — keep selling during internet outages; sync when back online
+- **AI-native** — natural-language reporting, inventory/staff forecasts, AI Import
+- **Real-time** — WebSocket sync across POS, KDS, manager, and delivery apps
+- **Restaurant-specific** — tables, seats, modifiers, recipes, kitchen production, buffet, fiscalization
+- **Extensible** — event-driven Integration Manager for fiscal, accounting, logging, and more
+
+---
+
+## Restaurant POS & Management Features
+
+### AI restaurant analytics & reporting
 
 - **Natural language analytics** — ask plain-text questions; get visual reports across sales, inventory, accounts, and labor
 - **Descriptive analytics** — patterns, anomalies, voids/discounts, performance drivers
@@ -29,7 +48,7 @@ React · Vite · Bun · SurrealDB · WebSockets · IndexedDB
 - **AI Import** — OCR/parse CSV, Excel, PDF, images, clipboard for master data, document lines, journals, HR shifts (create / update / upsert)
 - **AI usage controls** — daily/monthly quotas; disable AI entirely
 
-### Restaurant operations
+### Restaurant ordering & POS
 
 - **Table-based ordering** — seat assignments, split by seat, multi-order tables
 - **Takeaway mode** — pickup queue, customer name/phone/time
@@ -39,14 +58,17 @@ React · Vite · Bun · SurrealDB · WebSockets · IndexedDB
 - **Multiple menus** — breakfast/lunch/dinner, dynamic pricing, delivery menu link
 - **Extras & service charges** — fixed/%, rule-based by order type / payment / table
 - **Discounts & coupons** — fixed/%, Buy X Get Y, payment-type promos, delivery coupons
-- **KDS** — multi-stage workflows, station routing, status (received → served), recall, grouped addons, voice alerts
 - **Closing cycles** — auto check close, shift/day close, enforcement + notifications
 - **Tips** — pooling, staff rules, shift allocation
 - **Waiter app** — mobile order entry, table select, touch-optimized
 - **Manager app** — dashboard, analytics, config, branch reporting
-- **Delivery app** — dispatch, driver tracking, Maps, realtime customer updates, coupons
 
-### Inventory
+### Kitchen Display System (KDS)
+
+- **Multi-stage KDS** — custom prep stages, station routing, status (received → served), recall
+- **Grouped addons & voice alerts** — denser ticket grid; spoken alerts for new orders/addons
+
+### Restaurant inventory & recipe management
 
 - **Location-based stock** — stores/kitchens as inventory locations
 - **Stock transfers** — location-to-location with ledger posting
@@ -58,7 +80,7 @@ React · Vite · Bun · SurrealDB · WebSockets · IndexedDB
 - **Inventory dashboard** — transfers, production, buffet, runout forecast, low-stock alerts
 - **Suppliers** — supplier master + performance
 
-### Labor & HR
+### Restaurant staff scheduling & payroll
 
 - **Shift scheduling** — create/assign schedules; **print schedule roster** (week grid, PDF/Excel)
 - **Clock-in / clock-out** — work hours, late/early detection
@@ -69,13 +91,18 @@ React · Vite · Bun · SurrealDB · WebSockets · IndexedDB
 - **Org structure** — employees, departments, positions, cost centers, branch assignment
 - **RBAC** — admin, manager, waiter, kitchen, delivery, custom roles; protected modules (web + mobile)
 
-### Accounting & payments
+### Restaurant accounting & payments
 
 - **Internal ledger** — chart of accounts, journals, GL / TB / BS / P&L style reporting
 - **Closing & reconciliation** — checks, shifts, days; audit-ready payment trail
 - **Payment gateways** — Stripe, PayPal, JazzCash, M-Pesa, Telebirr, Razorpay (sandbox/live, webhooks)
 - **QuickBooks Online** — OAuth; sync sales, payments, customers, refunds; journals for inventory/payroll/waste; import COA / vendors / tax codes
 - **Fiscal (Pakistan)** — **FBR** and **PRA** invoice submission at settlement (API-proxied); receipt logos / QR
+
+### Restaurant delivery management
+
+- **Delivery app** — dispatch, driver tracking, Google Maps, realtime customer updates
+- **Smart coupons** — fixed/%/free shipping, usage limits, time windows, first-order rules
 
 ### Integration Manager
 
@@ -93,7 +120,7 @@ React · Vite · Bun · SurrealDB · WebSockets · IndexedDB
   - **QuickBooks Online** — external accounting sync (see above)
   - **Event Logger** — all/filtered events → console or HTTP (bearer / API key / basic / JWT)
 
-### Platform
+### Offline-first platform
 
 - **Offline-first** — IndexedDB + realtime WebSocket sync; automatic cloud backups
 - **Auth gateway** — session JWT; Surreal credentials not shipped to browser ([GATEWAY.md](docs/security/GATEWAY.md))
@@ -164,7 +191,8 @@ Fork → feature branch → PR. Stars help visibility.
 
 **POSR Source Available License (PSAL) v1.0** — see [LICENSE](LICENSE).
 
-- View, study, clone, fork, modify; build plugins/connectors; run your own business (any locations); hire contractors to maintain it.
+POSR is **source-available** (not OSI “open source”): you may view, study, clone, fork, modify; build plugins/connectors; run your own business (any locations); hire contractors to maintain it.
+
 - No selling/reselling the Software as a product; no hosted multi-tenant SaaS; no white-label competing POS.
 
 Commercial license / white-label / OEM: **ahmedali5530@gmail.com**.
