@@ -7,8 +7,8 @@ const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./src/auth.routes');
 const { attachRpcRelay } = require('./src/ws-relay');
-const { initSurrealClient } = require('./src/surreal-client');
-const { verifySession, extractBearer } = require('./src/jwt');
+const { getClient, initSurrealClient } = require('./src/surreal-client');
+const { verifySession, extractBearer, _revocationStore } = require('./src/jwt');
 
 const app = express();
 const PORT = Number(process.env.GATEWAY_PORT || 3142);
@@ -99,7 +99,19 @@ server.listen(PORT, HOST, () => {
 });
 
 void initSurrealClient()
-  .then(() => console.log('Connected to SurrealDB for auth lookups'))
+  .then(async () => {
+    console.log('Connected to SurrealDB for auth lookups');
+    // Wire the live Surreal client into the durable revocation store so
+    // logouts survive process restarts. The store degrades to in-memory-only
+    // if this fails (logged), keeping the POS operational.
+    try {
+      const client = await getClient();
+      _revocationStore.setSurrealClient(client);
+      await _revocationStore.triggerBootstrap();
+    } catch (err) {
+      console.warn('Revocation store bootstrap failed (operating in-memory only):', err.message);
+    }
+  })
   .catch((err) => {
     console.warn('SurrealDB connection failed at startup (will retry on request):', err.message);
   });
