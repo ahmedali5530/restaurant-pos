@@ -129,7 +129,14 @@ class PaypalGateway extends BaseGateway {
     const parsed = parsePaypalWebhookEvent(body);
 
     const paymentTypeId = body?.metadata?.paymentTypeId;
-    let signatureValid = true;
+    // SECURITY: fail-closed. The previous default of `true` meant that any
+    // webhook POST without a `metadata.paymentTypeId` (or with a mis-configured
+    // payment_type) would sail through as RECEIVED and be persisted to the
+    // `payment_webhook` table — which the POS then polls and trusts as "paid".
+    // An attacker who only knew an orderKey (predictable: `order:<invoice>`)
+    // could forge a webhook. We now require explicit verification.
+    let signatureValid = false;
+    let verificationSkipped = false;
 
     if (paymentTypeId) {
       try {
@@ -143,10 +150,35 @@ class PaypalGateway extends BaseGateway {
             Object.entries(payload.headers || {}).map(([k, v]) => [k.toLowerCase(), v])
           );
           signatureValid = await verifyWebhook(credentials, headers, body);
+        } else {
+          // payment_type exists but has no webhookId configured — cannot verify.
+          verificationSkipped = true;
+          logger.warn(
+            'paypal',
+            'webhook signature NOT verified — payment_type has no webhookId configured',
+            { paymentTypeId }
+          );
         }
       } catch (err) {
-        logger.warn('paypal', 'webhook config lookup failed', { message: err.message });
+        verificationSkipped = true;
+        logger.warn('paypal', 'webhook config lookup failed — signature NOT verified', {
+          message: err.message,
+        });
       }
+    } else {
+      // No paymentTypeId in metadata at all — cannot look up credentials.
+      verificationSkipped = true;
+      logger.warn('paypal', 'webhook received without metadata.paymentTypeId — signature NOT verified');
+    }
+
+    // Allow local development / sandbox testing without signature verification
+    // ONLY when explicitly opted in. This mirrors the JazzCash pattern.
+    if (!signatureValid && process.env.PAYPAL_ALLOW_UNSIGNED_WEBHOOKS === 'true') {
+      signatureValid = true;
+      logger.warn(
+        'paypal',
+        'PAYPAL_ALLOW_UNSIGNED_WEBHOOKS=true — accepting unverified webhook (dev/test only)'
+      );
     }
 
     if (!signatureValid) {
@@ -155,7 +187,11 @@ class PaypalGateway extends BaseGateway {
         status: WebhookStatus.REJECTED,
         eventType: parsed.eventType,
         eventId: parsed.eventId,
-        normalizedData: { ...parsed, signatureValid: false },
+        normalizedData: {
+          ...parsed,
+          signatureValid: false,
+          signatureVerificationSkipped: verificationSkipped,
+        },
         receivedAt: new Date().toISOString(),
       };
     }
@@ -173,7 +209,7 @@ class PaypalGateway extends BaseGateway {
         status: WebhookStatus.IGNORED,
         eventType: parsed.eventType,
         eventId: parsed.eventId,
-        normalizedData: parsed,
+        normalizedData: { ...parsed, signatureValid: true },
         receivedAt: new Date().toISOString(),
       };
     }
@@ -184,7 +220,7 @@ class PaypalGateway extends BaseGateway {
       eventType: parsed.eventType,
       eventId: parsed.eventId,
       orderKey: this.extractOrderKeyFromWebhook(parsed),
-      normalizedData: parsed,
+      normalizedData: { ...parsed, signatureValid: true },
       receivedAt: new Date().toISOString(),
     };
   }
