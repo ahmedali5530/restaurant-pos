@@ -25,8 +25,12 @@ if (typeof global.WebSocket === 'undefined') {
 const DB_URL = process.env.SURREAL_URL || 'ws://surrealdb:8000/rpc';
 const DB_NS = process.env.SURREAL_NS || 'posr';
 const DB_NAME = process.env.SURREAL_DB || 'posr';
-const DB_USER = process.env.SURREAL_USER || 'root';
-const DB_PASS = process.env.SURREAL_PASS || 'root';
+const DB_USER = process.env.SURREAL_USER;
+const DB_PASS = process.env.SURREAL_PASS;
+if (!DB_USER || !DB_PASS) {
+  console.error('ERROR: SURREAL_USER and SURREAL_PASS env vars are required. The previous root/root fallback was removed for security — set them explicitly (must match the existing SurrealDB root user created on first start).');
+  process.exit(1);
+}
 const SKIP_BACKFILL = process.env.SKIP_BACKFILL === '1';
 
 const REPO_ROOT = process.env.REPO_ROOT
