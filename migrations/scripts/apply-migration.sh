@@ -12,8 +12,8 @@
 #   SURREAL_CONTAINER   default: posr-react-surrealdb-1
 #   SURREAL_NS          default: posr
 #   SURREAL_DB          default: posr
-#   SURREAL_USER        default: root
-#   SURREAL_PASS        default: root
+#   SURREAL_USER        (required — no default; must match the existing SurrealDB root user)
+#   SURREAL_PASS        (required — no default)
 
 set -euo pipefail
 
@@ -37,8 +37,14 @@ fi
 CONTAINER="${SURREAL_CONTAINER:-posr-react-surrealdb-1}"
 NS="${SURREAL_NS:-posr}"
 DB="${SURREAL_DB:-posr}"
-USER="${SURREAL_USER:-root}"
-PASS="${SURREAL_PASS:-root}"
+USER="${SURREAL_USER:-}"
+PASS="${SURREAL_PASS:-}"
+if [[ -z "$USER" || -z "$PASS" ]]; then
+  echo "ERROR: SURREAL_USER and SURREAL_PASS env vars are required." >&2
+  echo "The previous root/root fallback was removed for security — set them explicitly" >&2
+  echo "(must match the existing SurrealDB root user created on first start)." >&2
+  exit 1
+fi
 
 if ! docker ps --format '{{.Names}}' | grep -qx "$CONTAINER"; then
   echo "SurrealDB container '$CONTAINER' is not running." >&2

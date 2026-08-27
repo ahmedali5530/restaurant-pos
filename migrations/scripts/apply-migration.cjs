@@ -13,8 +13,8 @@
  *   SURREAL_URL   e.g. ws://surrealdb:8000/rpc  or  wss://db.example.com/rpc
  *   SURREAL_NS    default posr
  *   SURREAL_DB    default posr
- *   SURREAL_USER  default root
- *   SURREAL_PASS  default root
+ *   SURREAL_USER  (required — no default; must match the existing SurrealDB root user)
+ *   SURREAL_PASS  (required — no default)
  *
  * Docker one-shot (from a machine that can reach the DB network):
  *   docker run --rm --network <compose_network> \
@@ -44,8 +44,12 @@ if (typeof global.WebSocket === 'undefined') {
 const DB_URL = process.env.SURREAL_URL || 'ws://localhost:8000/rpc';
 const DB_NS = process.env.SURREAL_NS || 'posr';
 const DB_NAME = process.env.SURREAL_DB || 'posr';
-const DB_USER = process.env.SURREAL_USER || 'root';
-const DB_PASS = process.env.SURREAL_PASS || 'root';
+const DB_USER = process.env.SURREAL_USER;
+const DB_PASS = process.env.SURREAL_PASS;
+if (!DB_USER || !DB_PASS) {
+  console.error('ERROR: SURREAL_USER and SURREAL_PASS env vars are required. The previous root/root fallback was removed for security — set them explicitly (must match the existing SurrealDB root user created on first start).');
+  process.exit(1);
+}
 
 const fileArg = process.argv[2];
 if (!fileArg) {

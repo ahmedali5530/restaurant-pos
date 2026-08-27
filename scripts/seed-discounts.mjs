@@ -8,8 +8,8 @@ import { connect } from 'surrealdb'
 const url = process.env.SURREAL_URL || 'ws://127.0.0.1:8000/rpc'
 const namespace = process.env.SURREAL_NS || 'posr'
 const database = process.env.SURREAL_DB || 'posr'
-const user = process.env.SURREAL_USER || 'root'
-const pass = process.env.SURREAL_PASS || 'root'
+const user = process.env.SURREAL_USER
+const pass = process.env.SURREAL_PASS
 
 const db = await connect(url, { namespace, database, authentication: { username: user, password: pass } })
 
