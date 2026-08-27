@@ -181,6 +181,18 @@
     "unresolvedTax": "Imposto não resolvido: {{name}}",
     "cannotCreateCategory": "Não é possível criar a categoria (banco de dados indisponível).",
     "pasteHint": "Ou cole com Ctrl+V / Cmd+V (arquivo, imagem ou células do Excel)",
-    "pasteUnsupported": "A área de transferência não tem arquivo, imagem ou tabela suportados."
+    "pasteUnsupported": "A área de transferência não tem arquivo, imagem ou tabela suportados.",
+    "unknownRecordType": "Tipo de linha desconhecido: {{type}}",
+    "selectValue": "Selecionar…",
+    "enumValues": {
+      "record_type": {
+        "dish": "Prato",
+        "size_option": "Opção de tamanho",
+        "addon_option": "Opção de adicional",
+        "dish_link": "Vínculo prato ↔ grupo",
+        "nested_override": "Preço aninhado"
+      }
+    },
+    "ingredientMustExist": "Deve corresponder exatamente ao nome ou código de um item de inventário existente (sem diferenciar maiúsculas). Escolha na lista se não for resolvido."
   }
 }

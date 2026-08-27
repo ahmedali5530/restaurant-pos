@@ -90,7 +90,11 @@
     "isPriceLocked": "السعر مقفل",
     "hasRequiredModifiers": "يحتوي على معدّلات مطلوبة",
     "shouldAutoOpen": "فتح تلقائي",
-    "shouldAutoSelect": "اختيار تلقائي"
+    "shouldAutoSelect": "اختيار تلقائي",
+    "recordType": "نوع الصف",
+    "dishName": "الطبق",
+    "parentModifier": "الحجم الأب",
+    "nextGroup": "المجموعة التالية"
   },
   "entities": {
     "dish": "طبق",
@@ -146,7 +150,8 @@
     "smartImportDishes": "استيراد بالذكاء الاصطناعي",
     "smartImport": "استيراد بالذكاء الاصطناعي",
     "smartImportIngredients": "استيراد بالذكاء الاصطناعي للمكونات",
-    "smartImportModifierGroups": "استيراد بالذكاء الاصطناعي لمجموعات المعدّلات"
+    "smartImportModifierGroups": "استيراد بالذكاء الاصطناعي لمجموعات المعدّلات",
+    "smartImportMenuStructure": "استيراد هيكل القائمة بالذكاء الاصطناعي"
   },
   "delete": {
     "dish": "حذف الصنف {{name}}",
@@ -350,7 +355,8 @@
     "smartImportPaymentTypesTitle": "استيراد بالذكاء الاصطناعي لأنواع الدفع",
     "smartImportExtrasTitle": "استيراد بالذكاء الاصطناعي للإضافات",
     "smartImportKitchensTitle": "استيراد بالذكاء الاصطناعي للمطابخ",
-    "smartImportStandaloneModifierGroupsTitle": "استيراد بالذكاء الاصطناعي لمجموعات المعدّلات"
+    "smartImportStandaloneModifierGroupsTitle": "استيراد بالذكاء الاصطناعي لمجموعات المعدّلات",
+    "smartImportMenuStructureTitle": "استيراد هيكل القائمة (الأحجام والإضافات والروابط)"
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",

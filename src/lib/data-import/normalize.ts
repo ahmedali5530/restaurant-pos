@@ -188,7 +188,25 @@ export function normalizeRecords(
     for (const field of config.fields) {
       if (!field.transform) continue;
       try {
-        values[field.name] = field.transform(values[field.name], values);
+        const before = values[field.name];
+        const after = field.transform(values[field.name], values);
+        values[field.name] = after;
+        if (
+          before !== null &&
+          before !== undefined &&
+          before !== "" &&
+          after !== null &&
+          after !== undefined &&
+          after !== "" &&
+          String(before).trim() !== String(after).trim()
+        ) {
+          issues.push({
+            field: field.name,
+            code: "auto_corrected",
+            severity: "warning",
+            message: `Matched "${String(before).trim()}" → "${String(after).trim()}"`,
+          });
+        }
       } catch (err: any) {
         issues.push({
           field: field.name,

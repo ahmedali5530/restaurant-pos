@@ -90,7 +90,11 @@
     "isPriceLocked": "Prijs vergrendeld",
     "hasRequiredModifiers": "Heeft verplichte modifiers",
     "shouldAutoOpen": "Automatisch openen",
-    "shouldAutoSelect": "Automatisch selecteren"
+    "shouldAutoSelect": "Automatisch selecteren",
+    "recordType": "Rijtype",
+    "dishName": "Gerecht",
+    "parentModifier": "Bovenliggende maat",
+    "nextGroup": "Volgende groep"
   },
   "entities": {
     "dish": "Gerecht",
@@ -146,7 +150,8 @@
     "smartImportDishes": "AI-import",
     "smartImport": "AI-import",
     "smartImportIngredients": "Ingrediënten AI-importeren",
-    "smartImportModifierGroups": "Modifiergroepen AI-importeren"
+    "smartImportModifierGroups": "Modifiergroepen AI-importeren",
+    "smartImportMenuStructure": "AI-import menustructuur"
   },
   "delete": {
     "dish": "Artikel {{name}} verwijderen",
@@ -350,7 +355,8 @@
     "smartImportPaymentTypesTitle": "Betaaltypen AI-importeren",
     "smartImportExtrasTitle": "Extra's AI-importeren",
     "smartImportKitchensTitle": "Keukens AI-importeren",
-    "smartImportStandaloneModifierGroupsTitle": "Modifiergroepen AI-importeren"
+    "smartImportStandaloneModifierGroupsTitle": "Modifiergroepen AI-importeren",
+    "smartImportMenuStructureTitle": "AI-import menustructuur (maten, topping, koppelingen)"
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",

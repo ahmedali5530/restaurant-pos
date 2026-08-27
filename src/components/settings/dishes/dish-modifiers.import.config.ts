@@ -10,6 +10,23 @@ import type {
 import {parseImportBool, requireRefId, type TFunc} from "@/lib/data-import/helpers.ts";
 import {toRecordId} from "@/lib/utils.ts";
 
+/** Detect Size / crust choice groups that should require exactly one selection. */
+export function isSizeLikeModifierGroupName(name: string): boolean {
+  const n = String(name ?? "").trim().toLowerCase();
+  if (!n) return false;
+  if (/\bsize\b/.test(n)) return true;
+  if (/\b(crust|portion|variant)\b/.test(n)) return true;
+  return false;
+}
+
+function groupLabelFromRow(row: Record<string, any>): string {
+  const raw = row.modifier_group;
+  if (raw && typeof raw === "object" && "label" in raw) {
+    return String((raw as ResolvedReference).label ?? "");
+  }
+  return String(raw ?? "");
+}
+
 export function createDishModifiersImportConfig({
   db,
   t,
@@ -43,24 +60,42 @@ export function createDishModifiersImportConfig({
       type: "number",
       required: true,
       aliases: ["Priority", "Sort"],
+      defaultValue: 0,
     },
     {
       name: "has_required_modifiers",
       label: t("admin:columns.hasRequiredModifiers"),
       type: "boolean",
       defaultValue: false,
+      transform: (value, row) => {
+        if (isSizeLikeModifierGroupName(groupLabelFromRow(row))) return true;
+        if (value === true || value === false) return value;
+        return false;
+      },
     },
     {
       name: "required_modifiers",
       label: t("admin:forms.requiredModifiers"),
       type: "number",
       defaultValue: 0,
+      transform: (value, row) => {
+        if (isSizeLikeModifierGroupName(groupLabelFromRow(row))) {
+          const n = Number(value);
+          return Number.isFinite(n) && n > 0 ? n : 1;
+        }
+        return Number(value ?? 0) || 0;
+      },
     },
     {
       name: "should_auto_open",
       label: t("admin:columns.shouldAutoOpen"),
       type: "boolean",
       defaultValue: false,
+      transform: (value, row) => {
+        if (isSizeLikeModifierGroupName(groupLabelFromRow(row))) return true;
+        if (value === true || value === false) return value;
+        return false;
+      },
     },
     {
       name: "should_auto_select",
@@ -81,8 +116,12 @@ export function createDishModifiersImportConfig({
     matchFields: ["dish_number", "modifier_group"],
     defaultMode: "create",
     db,
-    extractionInstructions:
+    extractionInstructions: [
       "Extract dish-to-modifier-group links with dish number, modifier group name, priority, and auto-open/select flags.",
+      "When attaching a Size (or Size – …) group, set has_required_modifiers=true, required_modifiers=1, and should_auto_open=true.",
+      "Optional add-on groups (Extra Topping, Extra Cheese) usually have has_required_modifiers=false and should_auto_open=false unless the menu clearly requires them.",
+      "Prefer existing modifier group names from the document (e.g. Size – Classic, Extra Topping).",
+    ].join(" "),
     onImportRow: async (record: ImportRecord, ctx: ImportRowContext) => {
       const v = record.values;
       const dishNumber = String(v.dish_number ?? "").trim();

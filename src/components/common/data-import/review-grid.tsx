@@ -93,18 +93,45 @@ export const DataImportReviewGrid = ({
     (index: number, fieldName: string, value: any) => {
       const record = records[index];
       if (!record) return;
+      const field = config.fields.find((f) => f.name === fieldName);
+      let nextValue = value;
+      if (field?.transform) {
+        try {
+          nextValue = field.transform(value, {...record.values, [fieldName]: value});
+        } catch {
+          nextValue = value;
+        }
+      }
       const updated: ImportRecord = {
         ...record,
-        values: {...record.values, [fieldName]: value},
+        values: {...record.values, [fieldName]: nextValue},
         issues: record.issues.filter(
           (i) =>
             i.field !== fieldName &&
             i.code !== "required" &&
             i.code !== "unresolved_reference" &&
             i.code !== "ambiguous_reference" &&
+            i.code !== "auto_corrected" &&
             i.code !== "invalid_type"
         ),
       };
+      if (
+        field?.transform &&
+        value !== null &&
+        value !== undefined &&
+        value !== "" &&
+        nextValue !== null &&
+        nextValue !== undefined &&
+        nextValue !== "" &&
+        String(value).trim() !== String(nextValue).trim()
+      ) {
+        updated.issues.push({
+          field: fieldName,
+          code: "auto_corrected",
+          severity: "warning",
+          message: `Matched "${String(value).trim()}" → "${String(nextValue).trim()}"`,
+        });
+      }
       updated.issues = validateRecord(config, updated);
       const next = [...records];
       next[index] = updated;

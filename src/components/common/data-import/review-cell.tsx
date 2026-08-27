@@ -219,6 +219,39 @@ export const DataImportReviewCell = ({field, record, onChange}: Props) => {
     );
   }
 
+  if (field.allowedValues?.length) {
+    const raw = record.values[field.name];
+    const current =
+      raw === null || raw === undefined || raw === "" ? "" : String(raw);
+    const options = field.allowedValues.map((value) => ({
+      value,
+      label: t(`dataImport.enumValues.${field.name}.${value}`, {
+        defaultValue: value.replace(/_/g, " "),
+      }),
+    }));
+    const selected = options.find(
+      (o) => o.value.toLowerCase() === current.toLowerCase()
+    );
+
+    return (
+      <div className={cellClass} title={title}>
+        <div>
+          <ReactSelect
+            options={options}
+            value={selected ?? (current ? {label: current, value: current} : null)}
+            placeholder={t("dataImport.selectValue", {defaultValue: "Select…"})}
+            onChange={(opt: any) => {
+              onChange(opt?.value ? String(opt.value) : null);
+            }}
+            isClearable={!field.required}
+            menuPortalTarget={document.body}
+            className="text-sm"
+          />
+        </div>
+      </div>
+    );
+  }
+
   const raw = record.values[field.name];
   const display = raw === null || raw === undefined ? "" : String(raw);
 

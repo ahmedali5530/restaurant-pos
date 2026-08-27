@@ -181,6 +181,18 @@
     "unresolvedTax": "ضريبة غير محلولة: {{name}}",
     "cannotCreateCategory": "تعذر إنشاء الفئة (قاعدة البيانات غير متاحة).",
     "pasteHint": "أو الصق بـ Ctrl+V / Cmd+V (ملف أو صورة أو خلايا Excel)",
-    "pasteUnsupported": "الحافظة لا تحتوي على ملف أو صورة أو جدول مدعوم."
+    "pasteUnsupported": "الحافظة لا تحتوي على ملف أو صورة أو جدول مدعوم.",
+    "unknownRecordType": "نوع صف غير معروف: {{type}}",
+    "selectValue": "اختر…",
+    "enumValues": {
+      "record_type": {
+        "dish": "طبق",
+        "size_option": "خيار حجم",
+        "addon_option": "خيار إضافة",
+        "dish_link": "ربط طبق ↔ مجموعة",
+        "nested_override": "تجاوز سعر متداخل"
+      }
+    },
+    "ingredientMustExist": "يجب أن يطابق اسم أو رمز صنف مخزون موجود تماماً (بدون حساسية لحالة الأحرف). اختر من القائمة إن لم يُحل."
   }
 }

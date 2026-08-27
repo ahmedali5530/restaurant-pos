@@ -28,7 +28,11 @@ export function validateRecord(
   record: ImportRecord
 ): ImportIssue[] {
   const preserved = record.issues.filter(
-    (i) => i.code === "low_confidence" || i.code === "duplicate" || i.code === "custom"
+    (i) =>
+      i.code === "low_confidence" ||
+      i.code === "duplicate" ||
+      i.code === "custom" ||
+      i.code === "auto_corrected"
   );
   const issues: ImportIssue[] = [...preserved];
 
@@ -43,6 +47,26 @@ export function validateRecord(
         message: `"${field.label}" is required`,
       });
       continue;
+    }
+
+    if (
+      field.allowedValues?.length &&
+      value !== null &&
+      value !== undefined &&
+      value !== ""
+    ) {
+      const str = String(value).trim();
+      const canonical = field.allowedValues.find(
+        (a) => a.toLowerCase() === str.toLowerCase()
+      );
+      if (!canonical) {
+        issues.push({
+          field: field.name,
+          code: "invalid_type",
+          severity: "error",
+          message: `Invalid "${field.label}" "${str}". Expected one of: ${field.allowedValues.join(", ")}`,
+        });
+      }
     }
 
     if (field.type === "reference" && value) {
@@ -146,14 +170,24 @@ export async function validateRecords(
   options?: {signal?: AbortSignal; resolveRefs?: boolean}
 ): Promise<ImportRecord[]> {
   if (options?.resolveRefs !== false) {
-    // Clear previous ref issues before re-resolve
+    // Clear previous ref issues before re-resolve (keep UOM / scalar auto_corrected)
     for (const record of records) {
-      record.issues = record.issues.filter(
-        (i) =>
-          i.code !== "unresolved_reference" &&
-          i.code !== "ambiguous_reference" &&
-          i.code !== "required"
-      );
+      record.issues = record.issues.filter((i) => {
+        if (
+          i.code === "unresolved_reference" ||
+          i.code === "ambiguous_reference" ||
+          i.code === "required"
+        ) {
+          return false;
+        }
+        if (i.code === "auto_corrected" && i.field) {
+          const field = config.fields.find((f) => f.name === i.field);
+          if (field && (field.type === "reference" || field.type === "reference[]")) {
+            return false;
+          }
+        }
+        return true;
+      });
     }
     await resolveReferences(config, records, {signal: options?.signal});
   }

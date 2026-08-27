@@ -181,6 +181,18 @@
     "unresolvedTax": "Impuesto sin resolver: {{name}}",
     "cannotCreateCategory": "No se puede crear la categoría (base de datos no disponible).",
     "pasteHint": "O pegue con Ctrl+V / Cmd+V (archivo, imagen o celdas de Excel)",
-    "pasteUnsupported": "El portapapeles no tiene un archivo, imagen o tabla compatible."
+    "pasteUnsupported": "El portapapeles no tiene un archivo, imagen o tabla compatible.",
+    "unknownRecordType": "Tipo de fila desconocido: {{type}}",
+    "selectValue": "Seleccionar…",
+    "enumValues": {
+      "record_type": {
+        "dish": "Plato",
+        "size_option": "Opción de tamaño",
+        "addon_option": "Opción de extra",
+        "dish_link": "Enlace plato ↔ grupo",
+        "nested_override": "Precio anidado"
+      }
+    },
+    "ingredientMustExist": "Debe coincidir exactamente con el nombre o código de un artículo de inventario existente (sin distinguir mayúsculas). Elija de la lista si no se resuelve."
   }
 }

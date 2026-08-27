@@ -181,6 +181,18 @@
     "unresolvedTax": "Taxe non résolue : {{name}}",
     "cannotCreateCategory": "Impossible de créer la catégorie (base de données indisponible).",
     "pasteHint": "Ou collez avec Ctrl+V / Cmd+V (fichier, image ou cellules Excel)",
-    "pasteUnsupported": "Le presse-papiers ne contient aucun fichier, image ou tableau pris en charge."
+    "pasteUnsupported": "Le presse-papiers ne contient aucun fichier, image ou tableau pris en charge.",
+    "unknownRecordType": "Type de ligne inconnu : {{type}}",
+    "selectValue": "Sélectionner…",
+    "enumValues": {
+      "record_type": {
+        "dish": "Plat",
+        "size_option": "Option de taille",
+        "addon_option": "Option de supplément",
+        "dish_link": "Lien plat ↔ groupe",
+        "nested_override": "Prix imbriqué"
+      }
+    },
+    "ingredientMustExist": "Doit correspondre exactement au nom ou code d’un article d’inventaire existant (insensible à la casse). Choisissez dans la liste si non résolu."
   }
 }

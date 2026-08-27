@@ -181,6 +181,18 @@
     "unresolvedTax": "Çözülmemiş vergi: {{name}}",
     "cannotCreateCategory": "Kategori oluşturulamıyor (veritabanı kullanılamıyor).",
     "pasteHint": "Veya Ctrl+V / Cmd+V ile yapıştırın (dosya, görsel veya Excel hücreleri)",
-    "pasteUnsupported": "Panoda desteklenen bir dosya, görsel veya tablo verisi yok."
+    "pasteUnsupported": "Panoda desteklenen bir dosya, görsel veya tablo verisi yok.",
+    "unknownRecordType": "Bilinmeyen satır tipi: {{type}}",
+    "selectValue": "Seç…",
+    "enumValues": {
+      "record_type": {
+        "dish": "Yemek",
+        "size_option": "Boyut seçeneği",
+        "addon_option": "Ekstra seçeneği",
+        "dish_link": "Yemek ↔ grup bağlantısı",
+        "nested_override": "İç içe fiyat"
+      }
+    },
+    "ingredientMustExist": "Mevcut bir stok kalemi adı veya koduyla tam eşleşmelidir (büyük/küçük harf duyarsız). Çözülmezse listeden seçin."
   }
 }

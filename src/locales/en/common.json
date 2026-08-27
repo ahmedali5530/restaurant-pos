@@ -176,11 +176,23 @@
     "keepUnresolved": "Needs selection",
     "yes": "Yes",
     "no": "No",
-    "unresolvedCategory": "Unresolved category: {{name}}",
-    "unresolvedTax": "Unresolved tax: {{name}}",
+    "unresolvedCategory": "Unresolved category \"{{name}}\"",
+    "unresolvedTax": "Unresolved tax \"{{name}}\"",
     "cannotCreateCategory": "Cannot create category (database unavailable).",
     "pasteHint": "Or paste with Ctrl+V / Cmd+V (file, image, or Excel cells)",
-    "pasteUnsupported": "Clipboard has no supported file, image, or table data."
+    "pasteUnsupported": "Clipboard has no supported file, image, or table data.",
+    "unknownRecordType": "Unknown row type: {{type}}",
+    "selectValue": "Select…",
+    "enumValues": {
+      "record_type": {
+        "dish": "Dish",
+        "size_option": "Size option",
+        "addon_option": "Addon option",
+        "dish_link": "Dish ↔ group link",
+        "nested_override": "Nested price override"
+      }
+    },
+    "ingredientMustExist": "Must match an existing inventory item name or code exactly (case-insensitive). Pick from the list if unresolved."
   },
   "loading": "Loading..."
 }

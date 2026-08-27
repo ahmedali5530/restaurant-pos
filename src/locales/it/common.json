@@ -181,6 +181,18 @@
     "unresolvedTax": "Tassa non risolta: {{name}}",
     "cannotCreateCategory": "Impossibile creare la categoria (database non disponibile).",
     "pasteHint": "Oppure incolla con Ctrl+V / Cmd+V (file, immagine o celle Excel)",
-    "pasteUnsupported": "Gli appunti non contengono un file, un'immagine o una tabella supportati."
+    "pasteUnsupported": "Gli appunti non contengono un file, un'immagine o una tabella supportati.",
+    "unknownRecordType": "Tipo di riga sconosciuto: {{type}}",
+    "selectValue": "Seleziona…",
+    "enumValues": {
+      "record_type": {
+        "dish": "Piatto",
+        "size_option": "Opzione taglia",
+        "addon_option": "Opzione extra",
+        "dish_link": "Collegamento piatto ↔ gruppo",
+        "nested_override": "Override prezzo annidato"
+      }
+    },
+    "ingredientMustExist": "Deve corrispondere esattamente al nome o codice di un articolo di inventario esistente (senza distinzione maiuscole/minuscole). Seleziona dall’elenco se non risolto."
   }
 }

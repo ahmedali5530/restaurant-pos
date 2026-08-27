@@ -181,6 +181,18 @@
     "unresolvedTax": "Ungelöste Steuer: {{name}}",
     "cannotCreateCategory": "Kategorie kann nicht erstellt werden (Datenbank nicht verfügbar).",
     "pasteHint": "Oder mit Strg+V / Cmd+V einfügen (Datei, Bild oder Excel-Zellen)",
-    "pasteUnsupported": "Die Zwischenablage enthält keine unterstützte Datei, kein Bild und keine Tabelle."
+    "pasteUnsupported": "Die Zwischenablage enthält keine unterstützte Datei, kein Bild und keine Tabelle.",
+    "unknownRecordType": "Unbekannter Zeilentyp: {{type}}",
+    "selectValue": "Auswählen…",
+    "enumValues": {
+      "record_type": {
+        "dish": "Gericht",
+        "size_option": "Größenoption",
+        "addon_option": "Zusatzoption",
+        "dish_link": "Gericht ↔ Gruppe",
+        "nested_override": "Verschachtelte Preisüberschreibung"
+      }
+    },
+    "ingredientMustExist": "Muss exakt mit einem vorhandenen Inventargegenstandsnamen oder -code übereinstimmen (Groß-/Kleinschreibung egal). Bei Bedarf aus der Liste wählen."
   }
 }

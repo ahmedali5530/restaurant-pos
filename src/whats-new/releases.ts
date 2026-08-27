@@ -7,6 +7,24 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-08-26',
+    title: 'Smarter inventory item AI Import',
+    items: [
+      'Inventory item AI Import now auto-corrects related data when the input is close but not exact (for example "Main store" → "Main"), and shows a review warning so you can confirm or override.',
+      'Units of measure are normalized to the standard list (KG, G, L, ML, PC, DZN, PK), including common synonyms like kilogram or pcs.',
+      'OCR extraction is guided with known categories, locations, suppliers, and allowed UOMs so the model prefers real catalog values.',
+    ],
+  },
+  {
+    date: '2026-08-26',
+    title: 'Smart menu AI import for modifiers',
+    items: [
+      'Dishes → AI Import Menu Structure extracts size price matrices and extras from menu images into dishes, Size groups, dish links, and nested topping price overrides.',
+      'Modifier group AI Import now suggests Size / Extra Topping group names and lets you create or pick existing modifier dishes in review.',
+      'Dish↔modifier-group AI Import defaults Size-like groups to required (1) and auto-open.',
+    ],
+  },
+  {
     date: '2026-08-25',
     title: 'Faster initial load',
     items: [
