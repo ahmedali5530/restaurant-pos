@@ -6,6 +6,7 @@ const express = require('express');
 const cors = require('cors');
 const paymentsRoutes = require('./src/routes/payments.routes');
 const webhooksRoutes = require('./src/routes/webhooks.routes');
+const credentialsRoutes = require('./src/routes/credentials.routes');
 const { handleError } = require('./src/lib/response');
 const { initSurrealClient } = require('./src/lib/surreal-client');
 const { requestLogMiddleware } = require('./src/lib/request-log.middleware');
@@ -20,7 +21,9 @@ const {
 } = require('./src/lib/intent.utils');
 
 const app = express();
-const PORT = Number(process.env.PAYMENT_PORT || 3133);
+// SECURITY FIX: was 3133, mismatched docker-compose (3134). Worked only
+// because compose overrides. Now matches the documented port.
+const PORT = Number(process.env.PAYMENT_PORT || 3134);
 const HOST = process.env.PAYMENT_HOST || '0.0.0.0';
 
 app.use(cors({ origin: createCorsOriginDelegate() }));
@@ -37,6 +40,9 @@ app.get('/health', (req, res) => {
 const requireSession = createSessionAuthMiddleware();
 
 app.use('/payments', requireSession, paymentsRoutes);
+// Credentials route has its own session-auth middleware (mounted per-route)
+// so it can be toggled independently if ever needed.
+app.use('/payments', credentialsRoutes);
 app.use('/webhooks', webhooksRoutes);
 
 app.use((err, req, res, next) => {
@@ -51,6 +57,8 @@ function start() {
     console.log(`M-Pesa STK callback pattern: ${buildMpesaWebhookCallbackUrl('order:example')}`);
     console.log('POST /payments/create-intent');
     console.log('POST /payments/verify');
+    console.log('POST /payments/credentials/:paymentTypeId  (encrypts at rest)');
+    console.log('DELETE /payments/credentials/:paymentTypeId  (revokes)');
     console.log('POST /webhooks/:gateway/:orderKey');
     console.log('GET /webhooks/:gateway/:orderKey');
   });
