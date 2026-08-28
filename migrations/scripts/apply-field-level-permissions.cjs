@@ -57,7 +57,7 @@ const DB_USER = process.env.SURREAL_USER;
 const DB_PASS = process.env.SURREAL_PASS;
 const DRY_RUN = process.env.DRY_RUN === '1' || process.env.DRY_RUN === 'true';
 
-if (!DB_USER || !DB_PASS) {
+if (require.main === module && (!DB_USER || !DB_PASS)) {
   console.error('ERROR: SURREAL_USER and SURREAL_PASS are required (no root/root fallback).');
   process.exit(1);
 }

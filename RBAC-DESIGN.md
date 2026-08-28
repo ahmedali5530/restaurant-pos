@@ -230,7 +230,87 @@ Only after staging tests pass for all roles. Consider doing this during a
 maintenance window — if a screen breaks, the cashier can't process orders
 until you rollback.
 
-## Field-level PERMISSIONS (added in this branch)
+## Granular per-role PERMISSIONS (added in this branch)
+
+The table-level migration (`apply-rbac-permissions.cjs`) restricts 15 critical
+tables to specific roles. The granular migration
+(`apply-granular-rbac-permissions.cjs`) tightens the remaining 108 non-critical
+tables from `PERMISSIONS FULL` to role-specific per-operation restrictions.
+
+### Role model
+
+Roles are derived from `user_role.roles` (hierarchical IDs like
+`admin.dishes.create`). The gateway's JWT `signSession` extracts the top-level
+section (`admin`) and includes it in the `roles` claim. SurrealDB makes these
+available as `$auth.roles` in PERMISSIONS expressions.
+
+| Role | Top-level sections | Typical access |
+|---|---|---|
+| `super_admin` | `*` | Wildcard — included in every WHERE clause |
+| `admin` | `admin` | Full CRUD on master data (menu, dishes, users, settings) |
+| `manager` | `manager` | Reports, dashboard, closing, override |
+| `hr` | `hr` | Employees, payroll, scheduling |
+| `accountant` | `accountant` | Chart of accounts, journals |
+| `inventory` | `inventory` | Items, purchases, stock transfers, production |
+| `waiter` | `waiter` | Orders, menu (read), customers |
+| `kitchen` | `kitchen` | KDS, kitchen reconciliation, production |
+| `delivery` | `delivery` | Delivery orders, drivers, areas |
+| `cashier` | `cashier` | Orders (payment), summary, payment processing |
+
+### Permission matrix (108 granular tables)
+
+| Domain | Tables | Who can CREATE | Who can UPDATE | Who can DELETE |
+|---|---|---|---|---|
+| **POS / Ordering** | order, order_item, order_item_kitchen, order_extras, order_meta, order_payment, order_tax, order_discount, order_coupon | admin, waiter, cashier | + kitchen (status) | manager |
+| **Order lifecycle** | order_void, order_refund, order_merge, order_split, order_print | admin, manager, cashier | manager | admin |
+| **order_number_seq** | (atomic counter) | admin, waiter, cashier | NONE (append-only) | NONE |
+| **Menu / Catalog** | menu, menu_item, dish, category, modifier, modifier_group, tax, extra, extras | admin | admin | admin |
+| **Discounts / Coupons** | coupon, coupon_redemption, discount, discount_reason, role_discount_policy | admin | admin | admin |
+| **Tables / Floors** | floor, floor_table, shift, order_type | admin | admin | admin |
+| **Kitchen / KDS** | kitchen, workflow, workflow_stage, kitchen_stock_count, kitchen_waste, kitchen_staff_meal, kitchen_complimentary_item | admin, kitchen | admin, kitchen | admin |
+| **Inventory** | inventory_item, inventory_item_group, inventory_category, inventory_supplier, inventory_store, inventory_location, inventory_purchase*, inventory_issue*, inventory_item_waste*, inventory_adjustment*, stock_transfer* | inventory | inventory | admin |
+| **inventory_ledger** | (append-only ledger) | inventory | NONE | NONE |
+| **Production / Buffet** | recipe, recipe_item, recipe_output, production_batch*, buffet_menu*, buffet_session, buffet_production_batch, buffet_stock_snapshot, buffet_guest_count, buffet_waste_log, buffet_consumption_log | admin, inventory, kitchen | admin, inventory, kitchen | admin |
+| **Kitchen reconciliation** | kitchen_reconciliation, kitchen_reconciliation_item, kitchen_reconciliation_revision | admin, kitchen | admin, kitchen | admin |
+| **Accounting** | account, account_group | accountant | accountant | admin |
+| **Day closing / Summary** | day_closing, document, printer, notes, setting | admin, manager, cashier | manager/admin | admin |
+| **Customer** | customer, customer_address | admin, waiter, cashier, delivery | same | admin |
+| **Tips** | tip_distribution, tip_distribution_user_share | admin, manager, cashier | manager | admin |
+| **Integration framework** | integration_provider*, integration_queue*, integration_schedule, integration_execution_history, integration_order_fiscal, integration_entity_mapping, integration_sync_run, integration_sync_failure | admin | admin | admin |
+| **Audit / Security** | audit_log, revoked_session, _schema_migration | (events + services) | NONE (append-only) | admin (purge) |
+
+### Applying granular PERMISSIONS
+
+```bash
+# Dry run
+SURREAL_USER=posr SURREAL_PASS=<pass> DRY_RUN=1 \
+  node migrations/scripts/apply-granular-rbac-permissions.cjs
+
+# Apply
+SURREAL_USER=posr SURREAL_PASS=<pass> \
+  node migrations/scripts/apply-granular-rbac-permissions.cjs
+```
+
+Run this AFTER `apply-rbac-permissions.cjs` (table-level) and
+`apply-field-level-permissions.cjs` (field-level). All three are dormant until
+`GATEWAY_USE_JWT_AS_SURREAL_TOKEN=true`.
+
+### Defense in depth (now 4 layers)
+
+1. **Encryption at rest** (token.crypto.js / payment-credential.crypto.js)
+2. **Table-level PERMISSIONS** (15 critical tables role-restricted)
+3. **Field-level PERMISSIONS** (12 sensitive fields SELECT=NONE)
+4. **Granular per-role PERMISSIONS** (108 non-critical tables, per-operation)
+
+An attacker who compromises a cashier's JWT session can:
+- ✗ NOT read `user.password` (field-level SELECT=NONE)
+- ✗ NOT read `payroll_run` (table-level — cashier not in hr/admin)
+- ✗ NOT create `inventory_adjustment` (granular — inventory role only)
+- ✗ NOT delete `order` records (granular — manager/admin only)
+- ✓ CAN create `order` (granular — waiter/cashier allowed)
+- ✓ CAN read `menu` (granular — FULL for all authenticated users)
+
+17 new regression tests pin the configuration.
 
 The table-level migration (`apply-rbac-permissions.cjs`) restricts which ROLES
 can access which TABLES. The field-level migration
@@ -355,13 +435,15 @@ docker compose restart gateway
 
 | Area | Before | After activation |
 |---|---|---|
-| RBAC enforcement | C− (client-side only) | **A−** (server-side, root bypass only) |
+| RBAC enforcement | C− (client-side only) | **A** (server-side, granular per-role) |
 | Token scope | C (root-scoped) | **A** (per-user JWT with roles) |
 | Critical table protection | F (no protection) | **B+** (15 tables role-restricted) |
-| Non-critical tables | F (no protection) | **C** (FULL — any authenticated user) |
-| Sensitive field protection | F (password hashes, ciphertext readable) | **A** (11 fields SELECT=NONE for JWT sessions) |
-| Overall security grade | **B+** (after hardening + payment encryption) | **A−** (after RBAC + field-level activation) |
+| Non-critical tables | F (no protection) | **A** (108 tables granular per-role) |
+| Sensitive field protection | F (password hashes, ciphertext readable) | **A** (12 fields SELECT=NONE for JWT sessions) |
+| Audit visibility | F (no audit trail) | **B+** (9 DEFINE EVENT + server-side denials) |
+| Overall security grade | **B+** (after hardening + payment encryption) | **A** (after granular RBAC + field-level + audit activation) |
 
-The remaining gap to **A** is the granular per-role restrictions on the 128
-non-critical tables (e.g. only `waiter` can CREATE orders, only `inventory`
-can adjust stock) and per-user row-level restrictions.
+The remaining gap to **A+** is per-user row-level restrictions (e.g.
+`WHERE branch_id = $auth.branch_id`) and structured alerting on audit log
+anomalies (e.g. notify admin when a cashier triggers 5+ permission denials
+in an hour).
