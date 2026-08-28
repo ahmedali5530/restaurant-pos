@@ -19,10 +19,12 @@
 
 import { useEffect, useState } from "react";
 import { useDatabase } from "@/hooks/useDatabase.ts";
+import { useOfflineQueue } from "@/hooks/useOfflineQueue.ts";
 import { useTranslation } from "react-i18next";
 
 export function OfflineModeBanner() {
   const { isConnected } = useDatabase();
+  const { pendingCount, isReplaying, replayNow } = useOfflineQueue();
   const { t } = useTranslation(["common"]);
   const [showBanner, setShowBanner] = useState(false);
   const [wasConnected, setWasConnected] = useState(isConnected);
@@ -44,23 +46,51 @@ export function OfflineModeBanner() {
     setWasConnected(isConnected);
   }, [isConnected, wasConnected]);
 
-  if (!showBanner || isConnected) {
-    // Only show when actually disconnected (or during the 2s grace period after reconnect)
-    if (isConnected && !showBanner) return null;
-    if (isConnected && showBanner) {
-      // Grace period — show "reconnected" message briefly
-      return (
-        <div
-          className="fixed top-0 left-0 right-0 z-[9999] bg-green-600 text-white text-center py-1.5 text-sm font-medium shadow-md transition-all"
-          data-testid="offline-banner-reconnected"
-        >
-          {t("common:offline.reconnected", { defaultValue: "✓ Connection restored" })}
-        </div>
-      );
-    }
-    return null;
+  // Show banner when there are pending writes even if connected (during replay)
+  if (isConnected && pendingCount === 0 && !showBanner) return null;
+
+  if (isConnected && !showBanner && pendingCount === 0) return null;
+
+  // Connected + replaying → show yellow "syncing" banner
+  if (isConnected && (pendingCount > 0 || isReplaying)) {
+    return (
+      <div
+        className="fixed top-0 left-0 right-0 z-[9999] bg-amber-500 text-white text-center py-1.5 text-sm font-medium shadow-md flex items-center justify-center gap-3"
+        data-testid="offline-banner-syncing"
+        role="status"
+        aria-live="polite"
+      >
+        <span className="flex items-center gap-2">
+          <span className="inline-block w-2 h-2 rounded-full bg-white animate-pulse" />
+          {isReplaying
+            ? t("common:offline.syncing", { defaultValue: "Syncing {{count}} offline changes…", count: pendingCount })
+            : t("common:offline.pendingSync", { defaultValue: "{{count}} changes queued for sync", count: pendingCount })}
+        </span>
+        {!isReplaying && pendingCount > 0 && (
+          <button
+            onClick={() => void replayNow()}
+            className="ml-2 px-3 py-0.5 bg-white text-amber-600 rounded text-xs font-bold hover:bg-amber-50 transition-colors"
+          >
+            {t("common:offline.syncNow", { defaultValue: "Sync now" })}
+          </button>
+        )}
+      </div>
+    );
   }
 
+  // Reconnected — brief green "restored" message
+  if (isConnected && showBanner) {
+    return (
+      <div
+        className="fixed top-0 left-0 right-0 z-[9999] bg-green-600 text-white text-center py-1.5 text-sm font-medium shadow-md transition-all"
+        data-testid="offline-banner-reconnected"
+      >
+        {t("common:offline.reconnected", { defaultValue: "✓ Connection restored" })}
+      </div>
+    );
+  }
+
+  // Disconnected — red banner with queue count + retry
   return (
     <div
       className="fixed top-0 left-0 right-0 z-[9999] bg-red-600 text-white text-center py-2 text-sm font-medium shadow-lg flex items-center justify-center gap-3"
@@ -70,7 +100,12 @@ export function OfflineModeBanner() {
     >
       <span className="flex items-center gap-2">
         <span className="inline-block w-2 h-2 rounded-full bg-white animate-pulse" />
-        {t("common:offline.disconnected", { defaultValue: "⚠ Offline — changes will sync when reconnected" })}
+        {pendingCount > 0
+          ? t("common:offline.disconnectedWithQueue", {
+              defaultValue: "⚠ Offline — {{count}} changes queued, will sync when reconnected",
+              count: pendingCount,
+            })
+          : t("common:offline.disconnected", { defaultValue: "⚠ Offline — changes will sync when reconnected" })}
       </span>
       <button
         onClick={handleRetry}
