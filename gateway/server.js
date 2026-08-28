@@ -1,6 +1,12 @@
 'use strict';
 
-require('dotenv').config();
+const path = require('path');
+const dotenv = require('dotenv');
+
+// Layered env: `.env` defaults, `.env.local` fills gaps only.
+// In Docker, compose `environment:` / `env_file` must win (e.g. SURREAL_URL=surrealdb).
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+dotenv.config({ path: path.resolve(__dirname, '.env.local'), override: false });
 
 const http = require('http');
 const express = require('express');

@@ -199,5 +199,20 @@
       }
     },
     "ingredientMustExist": "Doit correspondre exactement au nom ou code d’un article d’inventaire existant (insensible à la casse). Choisissez dans la liste si non résolu."
+  },
+  "aiAssistant": {
+    "open": "Ouvrir l'assistant",
+    "title": "Assistant",
+    "placeholder": "Posez des questions sur les ventes ou demandez d'ajouter/mettre à jour un plat…",
+    "reviewPrompt": "J'ai préparé {{count}} modification(s) de {{entity}} à examiner ci-dessous.",
+    "reviewTitle": "Examiner les modifications",
+    "confirm": "Confirmer",
+    "applied": "Appliqué : {{imported}} créés/mis à jour, {{failed}} échoués, {{skipped}} ignorés.",
+    "cancelled": "L'utilisateur a annulé cette modification.",
+    "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter.",
+    "issues": "Problèmes",
+    "expand": "Agrandir l'assistant",
+    "collapse": "Réduire l'assistant",
+    "unknownConfig": "Configuration d'importation inconnue pour l'aperçu."
   }
 }

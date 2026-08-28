@@ -199,5 +199,20 @@
       }
     },
     "ingredientMustExist": "Moet exact overeenkomen met een bestaande voorraadartikelnaam of -code (hoofdletterongevoelig). Kies uit de lijst als het niet is opgelost."
+  },
+  "aiAssistant": {
+    "open": "Assistent openen",
+    "title": "Assistent",
+    "placeholder": "Vraag over verkopen of vraag om een gerecht toe te voegen/bij te werken…",
+    "reviewPrompt": "Ik heb {{count}} {{entity}}-wijziging(en) voor u klaargezet om hieronder te bekijken.",
+    "reviewTitle": "Wijzigingen bekijken",
+    "confirm": "Bevestigen",
+    "applied": "Toegepast: {{imported}} aangemaakt/bijgewerkt, {{failed}} mislukt, {{skipped}} overgeslagen.",
+    "cancelled": "Gebruiker heeft deze wijziging geannuleerd.",
+    "sessionExpired": "Uw sessie is verlopen. Meld u opnieuw aan.",
+    "issues": "Problemen",
+    "expand": "Assistent vergroten",
+    "collapse": "Assistent verkleinen",
+    "unknownConfig": "Onbekende importconfiguratie voor voorbeeld."
   }
 }

@@ -6,15 +6,14 @@ import {
   type OpenAIChatMessage,
 } from "@/lib/openai.service.ts";
 import {executeAiReportTool, type ExecuteToolContext} from "@/lib/ai/tools/executor.ts";
-import {AI_REPORT_TOOLS} from "@/lib/ai/tools/definitions.ts";
-import {filterToolsByPermissions} from "@/lib/ai/tools/permissions.ts";
-import {AI_WRITE_TOOLS, AI_WRITE_TOOL_NAMES} from "@/lib/ai/tools/write-definitions.ts";
 import {filterWriteToolsByPermissions, canUseWriteTool} from "@/lib/ai/tools/write-permissions.ts";
+import {listWriteToolNames} from "@/lib/ai/tools/write-tool-registry.ts";
 import {buildWriteProposal, type TFunc, type WriteProposal} from "@/lib/ai/tools/write-tools.ts";
+import {selectAssistantToolsForPrompt} from "@/lib/ai/tools/select-assistant-tools.ts";
 import {type AiChartSpec, dedupeCharts} from "@/lib/ai/charts.ts";
 
 const MAX_ITERATIONS = 10;
-const WRITE_TOOL_NAME_SET = new Set(AI_WRITE_TOOL_NAMES);
+const WRITE_TOOL_NAME_SET = new Set(listWriteToolNames());
 
 /**
  * Combined db handle the widget passes in: read tools only ever use `query`
@@ -42,6 +41,8 @@ export type AssistantAgentOptions = {
   task?: AiTask;
   onToolStart?: (name: string) => void;
   signal?: AbortSignal;
+  /** User prompt for tool routing; derived from history on resume when omitted. */
+  prompt?: string;
 };
 
 export type AssistantAgentResult =
@@ -56,17 +57,27 @@ export type AssistantAgentResult =
 
 const SYSTEM_PROMPT = [
   "You are the restaurant's in-app assistant. You can answer questions using the read-only report tools,",
-  "and you can propose dish create/update changes using the propose_* tools.",
+  "and you can propose create/update changes using the propose_* tools.",
   "The propose_* tools NEVER save anything by themselves — they only prepare a change for the user to review.",
   "After calling a propose_* tool, stop and wait; do not call it again or assume it was applied.",
   "For bulk changes, always call propose_* with every affected row included — the user will review each row",
   "individually before confirming, so do not summarize or skip rows.",
+  "Structure answers with markdown tables for structured data (orders, sales, lists).",
 ].join(" ");
 
-const buildToolset = (allowedModules: string[]) => {
-  const readTools = filterToolsByPermissions(AI_REPORT_TOOLS, allowedModules);
-  const writeTools = filterWriteToolsByPermissions(AI_WRITE_TOOLS, allowedModules);
-  return [...readTools, ...writeTools];
+const extractLastUserPrompt = (messages: OpenAIChatMessage[]): string => {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const msg = messages[i];
+    if (msg.role === "user") {
+      return messageText(msg.content);
+    }
+  }
+  return "";
+};
+
+const buildToolset = (prompt: string, allowedModules: string[]) => {
+  const {tools} = selectAssistantToolsForPrompt(prompt, allowedModules);
+  return tools;
 };
 
 async function runLoop(
@@ -75,7 +86,8 @@ async function runLoop(
   messages: OpenAIChatMessage[],
   options: AssistantAgentOptions,
 ): Promise<AssistantAgentResult> {
-  const tools = buildToolset(options.allowedModules);
+  const prompt = options.prompt?.trim() || extractLastUserPrompt(messages);
+  const tools = buildToolset(prompt, options.allowedModules);
   const context: ExecuteToolContext = {charts: []};
 
   for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
@@ -157,7 +169,7 @@ export async function runAiAssistantAgent(
     {role: "user", content: trimmed},
   ];
 
-  return runLoop(db, t, messages, options);
+  return runLoop(db, t, messages, {...options, prompt: trimmed});
 }
 
 /**

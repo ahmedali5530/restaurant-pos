@@ -196,12 +196,43 @@ export function isSidecarSessionAuthFailure(status: number, errorMessage?: strin
   );
 }
 
+export type ApiErrorBody = {
+  ok?: boolean;
+  success?: boolean;
+  error?: string;
+};
+
+/**
+ * Decide whether a failed fetch to a sidecar (api, payments, etc.) should clear
+ * the POS session. Module routes wrap errors as `{ success: false }`; gateway
+ * session middleware uses `{ ok: false }`. Upstream AI 401s must not log the
+ * user out.
+ */
+export function shouldInvalidateSessionFromApiError(
+  status: number,
+  body: ApiErrorBody | null,
+  errorMessage?: string,
+): boolean {
+  if (!isGatewayAuthEnabled() || status !== 401) {
+    return false;
+  }
+  if (body?.ok === false) {
+    return isSidecarSessionAuthFailure(status, errorMessage);
+  }
+  if (body?.success === false) {
+    return false;
+  }
+  const msg = String(errorMessage ?? '').toLowerCase();
+  return msg.includes('invalid or expired session') || msg.includes('invalid token type');
+}
+
 /** Invalidate gateway session when a sidecar rejects the POS session JWT. */
 export function invalidateSessionOnSidecarAuthFailure(
   status: number,
-  errorMessage?: string
+  errorMessage?: string,
+  body: ApiErrorBody | null = null,
 ): boolean {
-  if (!isGatewayAuthEnabled() || !isSidecarSessionAuthFailure(status, errorMessage)) {
+  if (!shouldInvalidateSessionFromApiError(status, body, errorMessage)) {
     return false;
   }
   invalidateGatewaySession();

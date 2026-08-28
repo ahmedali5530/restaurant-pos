@@ -1,15 +1,24 @@
-import {useMemo, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import {useTranslation} from "react-i18next";
+import {useLocation} from "react-router";
 import {useAtom} from "jotai";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faComments, faTimes, faSpinner} from "@fortawesome/free-solid-svg-icons";
+import {
+  faComments,
+  faTimes,
+  faSpinner,
+  faExpand,
+  faCompress,
+} from "@fortawesome/free-solid-svg-icons";
 import {useDB} from "@/api/db/db.ts";
 import {appPage} from "@/store/jotai.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {Textarea} from "@/components/common/input/textarea.tsx";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
+import {AiMarkdown} from "@/components/reports/ai/ai.markdown.tsx";
 import type {OpenAIChatMessage} from "@/lib/openai.service.ts";
 import {SessionAuthError} from "@/lib/session.ts";
+import {cn} from "@/lib/utils.ts";
 import {
   resumeAiAssistantAgent,
   runAiAssistantAgent,
@@ -19,6 +28,11 @@ import {
 import {commitWriteProposal} from "@/lib/ai/write-executor.ts";
 import type {WriteProposal} from "@/lib/ai/tools/write-tools.ts";
 import {WriteProposalPreview} from "@/components/ai-assistant/write-proposal-preview.tsx";
+import {LOGIN, REPORTS} from "@/routes/posr.ts";
+import {AiQuotaError} from "@/lib/openai.service.ts";
+
+const EXPANDED_STORAGE_KEY = "ai-assistant-expanded";
+const AUTO_EXPAND_MIN_LENGTH = 800;
 
 type DisplayEntry = {role: "user" | "assistant" | "system"; content: string};
 
@@ -26,6 +40,20 @@ type PendingProposal = {
   proposal: WriteProposal;
   toolCallId: string;
 };
+
+const loadExpandedPreference = (): boolean => {
+  try {
+    return localStorage.getItem(EXPANDED_STORAGE_KEY) === "true";
+  } catch {
+    return false;
+  }
+};
+
+const shouldAutoExpand = (content: string): boolean =>
+  content.includes("|") || content.length > AUTO_EXPAND_MIN_LENGTH;
+
+const isReportsPath = (pathname: string) =>
+  pathname === REPORTS || pathname.startsWith(`${REPORTS}/`);
 
 /**
  * Global floating assistant — mounted once in app.tsx next to
@@ -36,10 +64,19 @@ type PendingProposal = {
  */
 export function AiAssistantWidget() {
   const {t} = useTranslation(["admin", "common", "toast"]);
+  const location = useLocation();
   const [{user}] = useAtom(appPage);
   const db = useDB() as unknown as AssistantDbClient;
 
+  const visible = useMemo(() => {
+    if (!user?.id) return false;
+    if (location.pathname === LOGIN) return false;
+    if (isReportsPath(location.pathname)) return false;
+    return true;
+  }, [user?.id, location.pathname]);
+
   const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState(loadExpandedPreference);
   const [prompt, setPrompt] = useState("");
   const [entries, setEntries] = useState<DisplayEntry[]>([]);
   const [history, setHistory] = useState<OpenAIChatMessage[]>([]);
@@ -52,9 +89,30 @@ export function AiAssistantWidget() {
     return Array.isArray(roles) ? (roles as string[]) : [];
   }, [user?.user_role?.roles, user?.role?.roles]);
 
-  const applyResult = (result: AssistantAgentResult) => {
+  useEffect(() => {
+    if (!visible) {
+      setOpen(false);
+    }
+  }, [visible]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(EXPANDED_STORAGE_KEY, String(expanded));
+    } catch {
+      // ignore storage errors
+    }
+  }, [expanded]);
+
+  const toggleExpanded = useCallback(() => {
+    setExpanded(prev => !prev);
+  }, []);
+
+  const applyResult = useCallback((result: AssistantAgentResult) => {
     setHistory(result.messages);
     if (result.type === "answer") {
+      if (shouldAutoExpand(result.answer)) {
+        setExpanded(true);
+      }
       setEntries(prev => [...prev, {role: "assistant", content: result.answer}]);
       setPending(null);
     } else {
@@ -63,13 +121,15 @@ export function AiAssistantWidget() {
         ...prev,
         {
           role: "assistant",
-          content: t("aiAssistant.reviewPrompt", {
+          content: t("common:aiAssistant.reviewPrompt", {
+            count: result.proposal.records.length,
+            entity: result.proposal.entityLabel.toLowerCase(),
             defaultValue: `I've prepared ${result.proposal.records.length} ${result.proposal.entityLabel.toLowerCase()} change(s) for you to review below.`,
           }),
         },
       ]);
     }
-  };
+  }, [t]);
 
   const handleSubmit = async () => {
     const trimmed = prompt.trim();
@@ -85,11 +145,9 @@ export function AiAssistantWidget() {
       applyResult(result);
     } catch (err) {
       if (err instanceof SessionAuthError) {
-        setError(
-          t("aiAssistant.sessionExpired", {
-            defaultValue: "Your session expired. Please sign in again.",
-          }),
-        );
+        setError(t("common:aiAssistant.sessionExpired"));
+      } else if (err instanceof AiQuotaError) {
+        setError(err.message);
       } else {
         setError(err instanceof Error ? err.message : String(err));
       }
@@ -109,7 +167,10 @@ export function AiAssistantWidget() {
         ...prev,
         {
           role: "system",
-          content: t("aiAssistant.applied", {
+          content: t("common:aiAssistant.applied", {
+            imported: summary.imported,
+            failed: summary.failed,
+            skipped: summary.skipped,
             defaultValue: `Applied: ${summary.imported} created/updated, ${summary.failed} failed, ${summary.skipped} skipped.`,
           }),
         },
@@ -144,7 +205,7 @@ export function AiAssistantWidget() {
     try {
       const result = await resumeAiAssistantAgent(
         db, t, history, pending.toolCallId,
-        {confirmed: false, error: t("aiAssistant.cancelled", {defaultValue: "User cancelled this change."})},
+        {confirmed: false, error: t("common:aiAssistant.cancelled")},
         {allowedModules},
       );
       setPending(null);
@@ -157,13 +218,17 @@ export function AiAssistantWidget() {
     }
   };
 
+  if (!visible) {
+    return null;
+  }
+
   if (!open) {
     return (
       <button
         type="button"
         onClick={() => setOpen(true)}
         className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-primary-500 text-white shadow-lg hover:bg-primary-600"
-        aria-label={t("aiAssistant.open", {defaultValue: "Open assistant"})}
+        aria-label={t("common:aiAssistant.open")}
       >
         <FontAwesomeIcon icon={faComments} />
       </button>
@@ -171,33 +236,57 @@ export function AiAssistantWidget() {
   }
 
   return (
-    <div className="fixed bottom-5 right-5 z-40 flex h-[32rem] w-96 flex-col rounded-lg border border-gray-200 bg-white shadow-2xl">
+    <div
+      className={cn(
+        "fixed bottom-5 right-5 z-40 flex flex-col rounded-lg border border-gray-200 bg-white shadow-2xl transition-all duration-200",
+        expanded
+          ? "h-[min(42rem,85vh)] w-[min(56rem,92vw)]"
+          : "h-[32rem] w-96",
+      )}
+    >
       <div className="flex items-center justify-between border-b border-gray-200 px-3 py-2">
         <span className="text-sm font-semibold text-gray-800">
-          {t("aiAssistant.title", {defaultValue: "Assistant"})}
+          {t("common:aiAssistant.title")}
         </span>
-        <button type="button" onClick={() => setOpen(false)} aria-label={t("common:close", {defaultValue: "Close"})}>
-          <FontAwesomeIcon icon={faTimes} className="text-gray-500" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleExpanded}
+            aria-label={expanded ? t("common:aiAssistant.collapse") : t("common:aiAssistant.expand")}
+            title={expanded ? t("common:aiAssistant.collapse") : t("common:aiAssistant.expand")}
+          >
+            <FontAwesomeIcon icon={expanded ? faCompress : faExpand} className="text-gray-500" />
+          </button>
+          <button type="button" onClick={() => setOpen(false)} aria-label={t("common:close")}>
+            <FontAwesomeIcon icon={faTimes} className="text-gray-500" />
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 space-y-2 overflow-y-auto px-3 py-2">
         {entries.map((entry, i) => (
           <div
             key={i}
-            className={`text-sm ${entry.role === "user" ? "text-right" : "text-left"}`}
+            className={cn("text-sm", entry.role === "user" ? "text-right" : "text-left")}
           >
-            <span
-              className={`inline-block rounded-md px-2 py-1 ${
+            <div
+              className={cn(
+                "rounded-md px-2 py-1",
                 entry.role === "user"
-                  ? "bg-primary-500 text-white"
+                  ? "inline-block bg-primary-500 text-white"
                   : entry.role === "system"
-                    ? "bg-gray-100 text-gray-600 italic"
-                    : "bg-gray-100 text-gray-800"
-              }`}
+                    ? "inline-block bg-gray-100 text-gray-600 italic"
+                    : "block w-full max-w-full bg-gray-100 text-gray-800",
+              )}
             >
-              {entry.content}
-            </span>
+              {entry.role === "user" ? (
+                entry.content
+              ) : entry.role === "system" ? (
+                entry.content
+              ) : (
+                <AiMarkdown compact>{entry.content}</AiMarkdown>
+              )}
+            </div>
           </div>
         ))}
 
@@ -214,27 +303,24 @@ export function AiAssistantWidget() {
               handleSubmit();
             }
           }}
-          placeholder={t("aiAssistant.placeholder", {defaultValue: "Ask about sales, or ask to add/update a dish…"})}
+          placeholder={t("common:aiAssistant.placeholder")}
           rows={2}
           disabled={loading}
           className="flex-1"
           enableKeyboard={false}
         />
         <Button variant="primary" size="sm" onClick={handleSubmit} disabled={loading || !prompt.trim()}>
-          {loading ? <FontAwesomeIcon icon={faSpinner} spin /> : t("common:send", {defaultValue: "Send"})}
+          {loading ? <FontAwesomeIcon icon={faSpinner} spin /> : t("common:send")}
         </Button>
       </div>
 
-      {/* Full-width modal, not squeezed into the 384px chat sidebar — Ahmed was explicit
-          that bulk-edit preview must be full line-by-line, not summarized; a table crammed
-          into the chat panel truncates every column and defeats that requirement. */}
       {pending && (
-        <Modal open onClose={handleCancel} size="xl" title={t("aiAssistant.reviewTitle", {defaultValue: "Review changes"})}>
+        <Modal open onClose={handleCancel} size="xl" title={t("common:aiAssistant.reviewTitle")}>
           <div className="space-y-3">
             <WriteProposalPreview proposal={pending.proposal} />
             <div className="flex justify-end gap-2">
               <Button variant="secondary" size="sm" onClick={handleCancel} disabled={loading}>
-                {t("common:cancel", {defaultValue: "Cancel"})}
+                {t("common:cancel")}
               </Button>
               <Button
                 variant="primary"
@@ -242,7 +328,7 @@ export function AiAssistantWidget() {
                 onClick={handleConfirm}
                 disabled={loading || (pending.proposal.hasBlockingErrors && pending.proposal.records.every(r => r.issues.some(i => i.severity === "error")))}
               >
-                {t("aiAssistant.confirm", {defaultValue: "Confirm"})}
+                {t("common:aiAssistant.confirm")}
               </Button>
             </div>
           </div>

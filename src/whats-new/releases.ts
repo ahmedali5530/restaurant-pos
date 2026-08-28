@@ -8,6 +8,16 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-08-28',
+    title: 'AI assistant improvements',
+    items: [
+      'The floating AI assistant now renders markdown tables and lists properly, so sales summaries and order lists are easy to read.',
+      'Expand the assistant panel from the header to view wide tables and long answers more comfortably.',
+      'The assistant sends only relevant tools per question to reduce token usage and improve response speed.',
+      'Write proposal previews are now generic and ready for more Manage entities beyond dishes.',
+    ],
+  },
+  {
+    date: '2026-08-28',
     title: 'Faster AI Import review for large menus',
     items: [
       'The AI Import review grid now virtualizes rows with TanStack Virtual, so large menu imports stay responsive while you edit cells.',

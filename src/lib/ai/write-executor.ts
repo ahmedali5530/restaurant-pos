@@ -1,8 +1,8 @@
 import type {ImportDbLike} from "@/lib/data-import/types.ts";
 import type {ImportSummary} from "@/lib/data-import/types.ts";
 import {runImport} from "@/lib/data-import/run-import.ts";
-import {createDishImportConfig} from "@/components/settings/dishes/dish.import.config.ts";
 import type {TFunc, WriteProposal} from "@/lib/ai/tools/write-tools.ts";
+import {getWriteRegistryEntryByConfigId} from "@/lib/ai/tools/write-tool-registry.ts";
 
 /**
  * The ONLY function in the write path allowed to persist changes. Call this
@@ -21,11 +21,12 @@ export async function commitWriteProposal(
   proposal: WriteProposal,
   options: {signal?: AbortSignal; onProgress?: (current: number, total: number) => void} = {},
 ): Promise<ImportSummary> {
-  if (proposal.configId !== "dishes") {
+  const entry = getWriteRegistryEntryByConfigId(proposal.configId);
+  if (!entry) {
     throw new Error(`No write executor registered for config "${proposal.configId}"`);
   }
 
-  const config = createDishImportConfig({db, t});
+  const config = entry.createConfig({db, t});
 
   return runImport(config, proposal.records, {
     mode: proposal.mode,

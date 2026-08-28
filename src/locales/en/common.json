@@ -199,5 +199,20 @@
     },
     "ingredientMustExist": "Must match an existing inventory item name or code exactly (case-insensitive). Pick from the list if unresolved."
   },
+  "aiAssistant": {
+    "open": "Open assistant",
+    "title": "Assistant",
+    "placeholder": "Ask about sales, or ask to add/update a dish…",
+    "reviewPrompt": "I've prepared {{count}} {{entity}} change(s) for you to review below.",
+    "reviewTitle": "Review changes",
+    "confirm": "Confirm",
+    "applied": "Applied: {{imported}} created/updated, {{failed}} failed, {{skipped}} skipped.",
+    "cancelled": "User cancelled this change.",
+    "sessionExpired": "Your session expired. Please sign in again.",
+    "issues": "Issues",
+    "expand": "Expand assistant",
+    "collapse": "Collapse assistant",
+    "unknownConfig": "Unknown import configuration for preview."
+  },
   "loading": "Loading..."
 }

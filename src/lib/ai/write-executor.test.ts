@@ -81,6 +81,7 @@ describe("commitWriteProposal", () => {
         entityLabel: "Widget",
         mode: "create",
         records: [],
+        fieldNames: [],
         hasBlockingErrors: false,
       }),
     ).rejects.toThrow(/No write executor registered/);

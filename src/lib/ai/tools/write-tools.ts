@@ -1,9 +1,11 @@
 import type {ImportConfiguration, ImportDbLike, ImportRecord} from "@/lib/data-import/types.ts";
 import {normalizeRecords} from "@/lib/data-import/normalize.ts";
 import {validateRecords} from "@/lib/data-import/validate.ts";
-import {createDishImportConfig} from "@/components/settings/dishes/dish.import.config.ts";
-import {Tables} from "@/api/db/tables.ts";
 import type {CsvImportMode} from "@/utils/csv-import.ts";
+import {
+  getWriteRegistryEntry,
+  getWriteModeForTool,
+} from "@/lib/ai/tools/write-tool-registry.ts";
 
 export type TFunc = (key: string, options?: any) => string;
 
@@ -15,6 +17,8 @@ export type WriteProposal = {
   entityLabel: string;
   mode: CsvImportMode;
   records: ImportRecord[];
+  /** Snapshot of field names at proposal time for stable preview columns. */
+  fieldNames: string[];
   /** True if any record has a blocking (severity: "error") issue — commit must be disabled. */
   hasBlockingErrors: boolean;
 };
@@ -56,65 +60,6 @@ function flagMissingMatchFields(config: ImportConfiguration, mode: CsvImportMode
 }
 
 /**
- * dish.import.config.ts's onImportRow always requires name/price/categories,
- * for BOTH create and update — it was built for full-row CSV imports, never
- * for partial "just change the price" updates. Reusing it as-is for update
- * mode would either (a) block every partial update in the preview as
- * missing-required, or worse (b) pass preview clean by suppressing that
- * check and then still throw at commit inside onImportRow itself (same
- * "preview isn't ground truth" class of bug already fixed once for match
- * fields). Real fix: fetch the existing dish and merge the AI's partial
- * patch onto it BEFORE normalize/validate, so an omitted field falls back
- * to its current value instead of reading as missing. dish.import.config.ts
- * and the shared import pipeline are untouched — this is AI-write-path-only.
- */
-async function fetchExistingDishRaw(
-  db: ImportDbLike,
-  number: string,
-): Promise<Record<string, unknown> | null> {
-  const [rows] = await db.query(
-    `SELECT * FROM ${Tables.dishes} WHERE number = $number AND deleted_at = none LIMIT 1 FETCH categories, tax`,
-    {number},
-  );
-  const dish = rows?.[0];
-  if (!dish) return null;
-
-  const categories = Array.isArray(dish.categories)
-    ? dish.categories
-        .filter((c: any) => c && c.id)
-        .map((c: any) => ({label: String(c.name ?? ""), id: String(c.id)}))
-    : [];
-  const tax = dish.tax && dish.tax.id
-    ? {label: String(dish.tax.name ?? ""), id: String(dish.tax.id)}
-    : undefined;
-
-  return {
-    name: dish.name,
-    number: dish.number,
-    priority: dish.priority,
-    price: dish.price,
-    cost: dish.cost,
-    categories,
-    tax,
-  };
-}
-
-async function mergeUpdatePatchesWithExisting(
-  db: ImportDbLike,
-  patches: Array<Record<string, unknown>>,
-): Promise<Array<Record<string, unknown>>> {
-  return Promise.all(patches.map(async (patch) => {
-    const number = patch.number !== undefined && patch.number !== null ? String(patch.number).trim() : "";
-    if (!number) return patch; // no match key — flagMissingMatchFields will catch this
-
-    const existing = await fetchExistingDishRaw(db, number);
-    if (!existing) return patch; // no such dish — let it fail honestly, nothing to merge from
-
-    return {...existing, ...patch};
-  }));
-}
-
-/**
  * Builds a write proposal from raw AI tool-call args: normalize -> resolve
  * references -> validate. Never writes to the database. Mirrors the same
  * pipeline runImportPipeline/revalidateImportRecords use for file imports
@@ -138,6 +83,7 @@ async function buildProposal(
     entityLabel: config.entityLabel,
     mode,
     records,
+    fieldNames: config.fields.map(f => f.name),
     hasBlockingErrors: records.some(recordHasError),
   };
 }
@@ -158,22 +104,24 @@ export const buildWriteProposal = async (
   options: BuildWriteProposalOptions,
 ): Promise<WriteProposal> => {
   const {db, t} = options;
-
-  switch (toolName) {
-    case "propose_create_dishes": {
-      const config = createDishImportConfig({db, t});
-      const dishes = Array.isArray(args.dishes) ? args.dishes : [];
-      return buildProposal(toolName, config, "create", dishes as Array<Record<string, unknown>>);
-    }
-
-    case "propose_update_dishes": {
-      const config = createDishImportConfig({db, t});
-      const patches = Array.isArray(args.dishes) ? args.dishes as Array<Record<string, unknown>> : [];
-      const merged = await mergeUpdatePatchesWithExisting(db, patches);
-      return buildProposal(toolName, config, "update", merged);
-    }
-
-    default:
-      throw new Error(`Unknown write tool: ${toolName}`);
+  const entry = getWriteRegistryEntry(toolName);
+  if (!entry) {
+    throw new Error(`Unknown write tool: ${toolName}`);
   }
+
+  const mode = getWriteModeForTool(toolName);
+  if (!mode) {
+    throw new Error(`Unknown write tool mode: ${toolName}`);
+  }
+
+  const config = entry.createConfig({db, t});
+  const rawRecords = Array.isArray(args[entry.recordsArgKey])
+    ? args[entry.recordsArgKey] as Array<Record<string, unknown>>
+    : [];
+
+  const records = mode === "update" && entry.mergeUpdatePatches
+    ? await entry.mergeUpdatePatches(db, rawRecords)
+    : rawRecords;
+
+  return buildProposal(toolName, config, mode, records);
 };
