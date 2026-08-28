@@ -6,6 +6,7 @@ import {Orders} from "@/screens/orders.tsx";
 import {Summary} from "@/screens/summary.tsx";
 import {KitchenScreen} from "@/screens/kitchen.tsx";
 import {Clock} from "@/screens/clock.tsx";
+import {KioskScreen} from "@/screens/kiosk.tsx";
 import {ProtectedRoute} from "@/routes/protected-route.tsx";
 import {SuspenseOutlet} from "@/routes/suspense-outlet.tsx";
 import {
@@ -145,6 +146,8 @@ import {
 export const AppRoutes = () => (
   <Routes>
     <Route path={LOGIN} element={<Login/>}/>
+    {/* Kiosk mode — public route, no login required */}
+    <Route path="/kiosk" element={<KioskScreen/>}/>
     <Route element={<ProtectedRoute/>}>
       <Route path={MENU} element={<Menu/>}/>
       <Route path={ORDERS} element={<Orders/>}/>
