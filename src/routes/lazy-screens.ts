@@ -187,3 +187,6 @@ export const LaborScheduleRosterReport = lazy(() =>
 export const InventoryDocumentPrintPage = lazy(() =>
   import('@/screens/inventory/document.print.tsx').then(m => ({default: m.InventoryDocumentPrintPage}))
 );
+export const DemandForecastScreen = lazy(() =>
+  import('@/screens/reports/demand.forecast.report.tsx').then(m => ({default: m.DemandForecastScreen}))
+);
