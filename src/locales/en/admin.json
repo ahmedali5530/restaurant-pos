@@ -21,7 +21,8 @@
     "shifts": "Shifts",
     "tipsDefinition": "Tips definition",
     "accessTab": "Access {{title}}",
-    "ariaLabel": "Administration tabs"
+    "ariaLabel": "Administration tabs",
+    "securityAlerts": "Security Alerts"
   },
   "columns": {
     "photo": "Photo",
@@ -898,5 +899,30 @@
       "integrations.open_configuration": "Open integration configuration",
       "integrations.save_configuration": "Save integration configuration"
     }
+  },
+  "securityAlerts": {
+    "noAccess": "Admin role required to view security alerts.",
+    "loading": "Loading alerts…",
+    "error": "Failed to load alerts",
+    "critical": "Critical",
+    "warning": "Warning",
+    "info": "Info",
+    "noAlerts": "No open alerts",
+    "noAlertsDescription": "The anomaly detector has not flagged any suspicious activity.",
+    "count": "×{{n}}",
+    "actor": "Actor",
+    "actorId": "Actor ID",
+    "actorRoles": "Actor roles",
+    "sourceIp": "Source IP",
+    "emittedAt": "Emitted at",
+    "ruleType": "Rule type",
+    "detailTitle": "Security Alert",
+    "resolutionNotes": "Resolution notes (optional)",
+    "resolutionNotesPlaceholder": "e.g. Investigated — false alarm from automated test",
+    "acknowledge": "Acknowledge",
+    "hideDetails": "▼ Hide details",
+    "showDetails": "▶ Show details",
+    "badgeTooltip": "{{count}} open critical alert(s)",
+    "badgeTooltipPlural": "{{count}} open critical alerts"
   }
 }
