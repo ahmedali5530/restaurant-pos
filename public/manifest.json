@@ -1,0 +1,47 @@
+{
+  "name": "POSR — Restaurant POS",
+  "short_name": "POSR",
+  "description": "AI-powered restaurant POS system — ordering, kitchen, inventory, payroll, delivery, and analytics in one offline-first platform.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#0f172a",
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/vite.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "New Order",
+      "url": "/menu",
+      "description": "Start a new order"
+    },
+    {
+      "name": "Kitchen Display",
+      "url": "/kitchen",
+      "description": "View kitchen orders"
+    },
+    {
+      "name": "Kiosk Mode",
+      "url": "/kiosk",
+      "description": "Customer self-ordering"
+    }
+  ],
+  "display_override": ["standalone", "minimal-ui"],
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}
