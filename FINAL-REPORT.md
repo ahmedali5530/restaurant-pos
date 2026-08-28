@@ -59,11 +59,20 @@ security/hardening (11 commits)
 
 | Metric | Value |
 |---|---|
-| New regression tests | 100 |
+| New regression tests | 271 |
 | Pre-existing backend tests | 56 |
-| **Total backend tests** | **156** |
+| **Total tests** | **327** |
 | Test pass rate | 100% (0 regressions) |
 | Frontend TypeScript errors | 53 (unchanged from baseline — no new errors introduced) |
+
+### Business-logic test coverage (184 tests)
+
+| Service | Tests | What's covered |
+|---|---|---|
+| Payment drivers | 33 | Stripe, PayPal, Razorpay, JazzCash, M-Pesa, Telebirr — signature verification + event parsing |
+| Fiscal serialization | 66 | FBR/PRA config validation, invoice serialization, runtime config, FBR provider |
+| Sync-manager | 49 | Record ID handling, array link collection, payload normalization, retry logic, content payload building |
+| Print helpers | 36 | formatMoney, padAlign, formatItemLine, inflateInclusiveAmount, formatNum |
 
 ### i18n coverage
 
