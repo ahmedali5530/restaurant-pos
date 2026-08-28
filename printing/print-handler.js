@@ -72,7 +72,10 @@ async function handlePrint(body) {
         error: err && (err.message || String(err)),
       });
 
-      console.log(Object.keys(err), Object.values(err))
+      // SECURITY: was console.log(Object.keys(err), Object.values(err)) —
+      // leaked err object contents (including potentially sensitive device
+      // info) to stdout. Replaced with sanitized error logging.
+      console.error(`[print] Printer ${i} failed:`, err && err.message ? err.message : String(err));
     }
   }
 
