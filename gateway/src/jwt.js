@@ -31,7 +31,7 @@ function parseTtlSeconds(ttl) {
   return n;
 }
 
-async function signSession({ userId, login, roles }) {
+async function signSession({ userId, login, roles, branchId }) {
   const jti = crypto.randomUUID();
   // Extract top-level role sections from the hierarchical permission IDs
   // (e.g. 'admin.dishes.create' → 'admin'). The SurrealDB PERMISSIONS
@@ -42,12 +42,19 @@ async function signSession({ userId, login, roles }) {
       .map((r) => String(r || '').trim().split('.')[0])
       .filter(Boolean)
   )];
-  const token = await new SignJWT({
+  const jwtPayload = {
     sub: String(userId),
     login: String(login || ''),
     typ: 'pos_session',
     roles: topLevelRoles,
-  })
+  };
+  // branch_id is optional — only included when the user has a home branch.
+  // When absent, $auth.branch_id is undefined in SurrealDB, and PERMISSIONS
+  // expressions that check branch_id fall through (e.g. super admins see all).
+  if (branchId) {
+    jwtPayload.branch_id = String(branchId);
+  }
+  const token = await new SignJWT(jwtPayload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime(TTL)
@@ -55,7 +62,7 @@ async function signSession({ userId, login, roles }) {
     .setIssuer('posr-gateway')
     .sign(key);
 
-  return { token, jti, expiresIn: parseTtlSeconds(TTL), roles: topLevelRoles };
+  return { token, jti, expiresIn: parseTtlSeconds(TTL), roles: topLevelRoles, branchId: branchId || null };
 }
 
 async function verifySession(token) {

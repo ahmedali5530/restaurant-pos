@@ -36,6 +36,7 @@ router.post('/login', loginRateLimit(), async (req, res) => {
       userId: user.id,
       login: user.login,
       roles: user.roles || [],
+      branchId: user.branch_id || null,
     });
 
     // Audit log the successful login (for the login audit trail).

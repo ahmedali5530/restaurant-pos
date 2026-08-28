@@ -77,10 +77,21 @@ async function authenticatePosUser({ method, login, password }) {
     ? [...new Set(fetchedRole.roles || [])]
     : [];
 
+  // Extract the user's home branch (inventory_store record id) for row-level
+  // restrictions. When set, the JWT carries branch_id as a claim, and
+  // SurrealDB PERMISSIONS can filter rows by WHERE branch_id = $auth.branch_id.
+  // Users without a branch_id (super admins, area managers) see all branches.
+  const branchId = user.branch_id
+    ? (typeof user.branch_id === 'object'
+        ? user.branch_id?.id?.toString?.() || String(user.branch_id?.id || '')
+        : String(user.branch_id))
+    : null;
+
   return serializeUser({
     ...user,
     user_role: fetchedRole || user.user_role,
     roles,
+    branch_id: branchId,
   });
 }
 
