@@ -32,7 +32,8 @@ export function validateRecord(
       i.code === "low_confidence" ||
       i.code === "duplicate" ||
       i.code === "custom" ||
-      i.code === "auto_corrected"
+      i.code === "auto_corrected" ||
+      i.code === "invalid_type"
   );
   const issues: ImportIssue[] = [...preserved];
 

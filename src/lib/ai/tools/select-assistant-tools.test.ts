@@ -42,4 +42,37 @@ describe("selectAssistantToolsForPrompt", () => {
     const names = writeToolNames("update dish #5 price to 12", ["admin.dishes.create"]);
     expect(names).not.toContain("propose_update_dishes");
   });
+
+  it("includes dish update tools for parent tab permission", () => {
+    const names = writeToolNames("update dish #5 price to 12", ["admin.dishes"]);
+    expect(names).toContain("propose_update_dishes");
+  });
+
+  it("routes dish update via write intent and sales domain when keywords are weak", () => {
+    const names = writeToolNames("change the price to 12", ["admin.dishes.update"]);
+    expect(names).toContain("propose_update_dishes");
+  });
+
+  it("includes all permitted write tools when prompt has write intent", () => {
+    const names = writeToolNames("please update something", ["admin.dishes.update", "admin.categories.create"]);
+    expect(names).toContain("propose_update_dishes");
+    expect(names).toContain("propose_create_categories");
+    expect(names).not.toContain("propose_create_dishes");
+  });
+
+  it("tables on delivery floor includes manage read tools", () => {
+    const names = toolNames("show tables on delivery floor", ["admin.tables", "admin.floors"]);
+    expect(names).toContain("list_tables");
+    expect(names).toContain("list_floors");
+  });
+
+  it("bxgy discount prompt includes discount write tools when permitted", () => {
+    const names = writeToolNames("create buy 2 get 1 free on Classic Pizzas", ["admin.discounts.create"]);
+    expect(names).toContain("propose_create_discounts");
+  });
+
+  it("list modifier groups routes to manage read tools", () => {
+    const names = toolNames("list modifier groups", ["admin.modifier_groups"]);
+    expect(names).toContain("list_modifier_groups");
+  });
 });

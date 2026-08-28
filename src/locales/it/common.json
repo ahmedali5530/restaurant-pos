@@ -201,8 +201,8 @@
     "ingredientMustExist": "Deve corrispondere esattamente al nome o codice di un articolo di inventario esistente (senza distinzione maiuscole/minuscole). Seleziona dall’elenco se non risolto."
   },
   "aiAssistant": {
-    "open": "Apri assistente",
-    "title": "Assistente",
+    "open": "Apri {{name}}",
+    "title": "{{name}} – Assistente IA",
     "placeholder": "Chiedi informazioni sulle vendite o richiedi di aggiungere/aggiornare un piatto…",
     "reviewPrompt": "Ho preparato {{count}} modifica/he di {{entity}} da rivedere qui sotto.",
     "reviewTitle": "Rivedi modifiche",
@@ -213,6 +213,21 @@
     "issues": "Problemi",
     "expand": "Espandi assistente",
     "collapse": "Riduci assistente",
-    "unknownConfig": "Configurazione di importazione sconosciuta per l'anteprima."
+    "clear": "Cancella",
+    "clearConversation": "Cancella conversazione",
+    "clearConfirm": "Cancellare questa conversazione con l'assistente su questo dispositivo?",
+    "working": "{{name}} sta elaborando la tua richiesta…",
+    "examplesTitle": "Cosa puoi chiedere",
+    "examplesHint": "Fai clic su un esempio per provarlo con {{name}}:",
+    "examples": {
+      "salesToday": "Mostrami il riepilogo vendite di oggi",
+      "tablesFloor": "Elenca i tavoli del piano Delivery",
+      "bogoDiscount": "Crea sconto BOGO automatico per gli antipasti",
+      "addDish": "Aggiungi un nuovo piatto Margherita a 9 €",
+      "listUsers": "Elenca tutti gli utenti POS",
+      "inventoryStock": "Mostra articoli di magazzino sotto il livello di riordino"
+    },
+    "unknownConfig": "Configurazione di importazione sconosciuta per l'anteprima.",
+    "passwordWillBeSet": "La password verrà impostata alla conferma"
   }
 }

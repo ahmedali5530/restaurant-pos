@@ -36,4 +36,14 @@ describe("formatImportDisplayValue", () => {
     expect(formatImportDisplayValue(stringField, "Hello", t)).toBe("Hello");
     expect(formatImportDisplayValue({...stringField, type: "number"}, 9.5, t)).toBe("9.5");
   });
+
+  it("formats plain string arrays", () => {
+    const field: ImportField = {name: "buy_category_names", label: "Buy categories", type: "string"};
+    expect(formatImportDisplayValue(field, ["Starter", "Appetizer"], t)).toBe("Starter, Appetizer");
+  });
+
+  it("masks set_password values", () => {
+    const field: ImportField = {name: "set_password", label: "Password", type: "string"};
+    expect(formatImportDisplayValue(field, "secret", t)).toBe("Password will be set on confirm");
+  });
 });

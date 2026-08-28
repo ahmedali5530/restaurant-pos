@@ -4,12 +4,16 @@ import {
   callOpenAIChat,
   type AiTask,
   type OpenAIChatMessage,
+  type OpenAIToolDefinition,
 } from "@/lib/openai.service.ts";
+import {isLocalAiReportCompactMode} from "@/lib/ai/config.ts";
+import {getAiAssistantSystemPrompt} from "@/lib/ai/schema.ts";
 import {executeAiReportTool, type ExecuteToolContext} from "@/lib/ai/tools/executor.ts";
 import {filterWriteToolsByPermissions, canUseWriteTool} from "@/lib/ai/tools/write-permissions.ts";
 import {listWriteToolNames} from "@/lib/ai/tools/write-tool-registry.ts";
 import {buildWriteProposal, type TFunc, type WriteProposal} from "@/lib/ai/tools/write-tools.ts";
 import {selectAssistantToolsForPrompt} from "@/lib/ai/tools/select-assistant-tools.ts";
+import type {AiReportToolDomain} from "@/lib/ai/tools/categories.ts";
 import {type AiChartSpec, dedupeCharts} from "@/lib/ai/charts.ts";
 
 const MAX_ITERATIONS = 10;
@@ -55,15 +59,20 @@ export type AssistantAgentResult =
       messages: OpenAIChatMessage[];
     };
 
-const SYSTEM_PROMPT = [
-  "You are the restaurant's in-app assistant. You can answer questions using the read-only report tools,",
-  "and you can propose create/update changes using the propose_* tools.",
-  "The propose_* tools NEVER save anything by themselves — they only prepare a change for the user to review.",
-  "After calling a propose_* tool, stop and wait; do not call it again or assume it was applied.",
-  "For bulk changes, always call propose_* with every affected row included — the user will review each row",
-  "individually before confirming, so do not summarize or skip rows.",
-  "Structure answers with markdown tables for structured data (orders, sales, lists).",
-].join(" ");
+type ResolvedToolset = {
+  tools: OpenAIToolDefinition[];
+  domains: AiReportToolDomain[];
+  compact: boolean;
+};
+
+const resolveToolset = (prompt: string, allowedModules: string[]): ResolvedToolset => {
+  const compact = isLocalAiReportCompactMode("reporting");
+  const {tools, domains} = selectAssistantToolsForPrompt(prompt, allowedModules, {compact});
+  return {tools, domains, compact};
+};
+
+const stripSystemMessages = (messages: OpenAIChatMessage[]): OpenAIChatMessage[] =>
+  messages.filter(message => message.role !== "system");
 
 const extractLastUserPrompt = (messages: OpenAIChatMessage[]): string => {
   for (let i = messages.length - 1; i >= 0; i--) {
@@ -75,19 +84,13 @@ const extractLastUserPrompt = (messages: OpenAIChatMessage[]): string => {
   return "";
 };
 
-const buildToolset = (prompt: string, allowedModules: string[]) => {
-  const {tools} = selectAssistantToolsForPrompt(prompt, allowedModules);
-  return tools;
-};
-
 async function runLoop(
   db: AssistantDbClient,
   t: TFunc,
   messages: OpenAIChatMessage[],
-  options: AssistantAgentOptions,
+  options: AssistantAgentOptions & {tools: OpenAIToolDefinition[]},
 ): Promise<AssistantAgentResult> {
-  const prompt = options.prompt?.trim() || extractLastUserPrompt(messages);
-  const tools = buildToolset(prompt, options.allowedModules);
+  const {tools} = options;
   const context: ExecuteToolContext = {charts: []};
 
   for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
@@ -163,13 +166,20 @@ export async function runAiAssistantAgent(
     throw new Error("Prompt is empty.");
   }
 
+  const {tools, domains, compact} = resolveToolset(trimmed, options.allowedModules);
+  const writeToolNames = tools
+    .map(tool => tool.function.name)
+    .filter(name => WRITE_TOOL_NAME_SET.has(name));
+  const systemContent = getAiAssistantSystemPrompt(domains, compact, writeToolNames);
+  const priorMessages = stripSystemMessages(history);
+
   const messages: OpenAIChatMessage[] = [
-    {role: "system", content: SYSTEM_PROMPT},
-    ...history,
+    {role: "system", content: systemContent},
+    ...priorMessages,
     {role: "user", content: trimmed},
   ];
 
-  return runLoop(db, t, messages, {...options, prompt: trimmed});
+  return runLoop(db, t, messages, {...options, prompt: trimmed, tools});
 }
 
 /**
@@ -186,6 +196,9 @@ export async function resumeAiAssistantAgent(
   outcome: {confirmed: boolean; summary?: unknown; error?: string},
   options: AssistantAgentOptions,
 ): Promise<AssistantAgentResult> {
+  const prompt = options.prompt?.trim() || extractLastUserPrompt(messages);
+  const {tools} = resolveToolset(prompt, options.allowedModules);
+
   const content = outcome.confirmed
     ? JSON.stringify({applied: true, summary: outcome.summary ?? null})
     : JSON.stringify({applied: false, reason: outcome.error ?? "User cancelled this change."});
@@ -195,5 +208,5 @@ export async function resumeAiAssistantAgent(
     {role: "tool", tool_call_id: pendingToolCallId, content},
   ];
 
-  return runLoop(db, t, next, options);
+  return runLoop(db, t, next, {...options, prompt, tools});
 }

@@ -26,6 +26,7 @@ import {
 import {AiQuotaError, fetchAiUsage, type AiUsageStatus} from "@/lib/openai.service.ts";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
+import {getUserModules} from "@/lib/access.rules.ts";
 
 type ConversationEntry = {role: "user" | "assistant"; content: string};
 
@@ -107,10 +108,7 @@ export const AiReport = () => {
     query: (sql, params) => queryRef.current(sql, params),
   }), []);
 
-  const allowedModules = useMemo(() => {
-    const roles = user?.user_role?.roles ?? user?.role?.roles ?? [];
-    return Array.isArray(roles) ? roles as string[] : [];
-  }, [user?.user_role?.roles, user?.role?.roles]);
+  const allowedModules = useMemo(() => getUserModules(user), [user]);
 
   const applyResult = useCallback((result: AiReportAgentResult, userPrompt: string) => {
     setResponse(result.answer);

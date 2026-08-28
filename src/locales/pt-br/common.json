@@ -201,8 +201,8 @@
     "ingredientMustExist": "Deve corresponder exatamente ao nome ou código de um item de inventário existente (sem diferenciar maiúsculas). Escolha na lista se não for resolvido."
   },
   "aiAssistant": {
-    "open": "Abrir assistente",
-    "title": "Assistente",
+    "open": "Abrir {{name}}",
+    "title": "{{name}} – Assistente de IA",
     "placeholder": "Pergunte sobre vendas ou peça para adicionar/atualizar um prato…",
     "reviewPrompt": "Preparei {{count}} alteração(ões) de {{entity}} para você revisar abaixo.",
     "reviewTitle": "Revisar alterações",
@@ -213,6 +213,21 @@
     "issues": "Problemas",
     "expand": "Expandir assistente",
     "collapse": "Recolher assistente",
-    "unknownConfig": "Configuração de importação desconhecida para visualização."
+    "clear": "Limpar",
+    "clearConversation": "Limpar conversa",
+    "clearConfirm": "Limpar esta conversa do assistente neste dispositivo?",
+    "working": "{{name}} está trabalhando na sua solicitação…",
+    "examplesTitle": "O que você pode perguntar",
+    "examplesHint": "Clique em um exemplo para testar com {{name}}:",
+    "examples": {
+      "salesToday": "Mostrar o resumo de vendas de hoje",
+      "tablesFloor": "Listar mesas do andar Delivery",
+      "bogoDiscount": "Criar desconto BOGO automático para entradas",
+      "addDish": "Adicionar um novo prato Margherita por R$9",
+      "listUsers": "Listar todos os usuários do POS",
+      "inventoryStock": "Mostrar itens de estoque abaixo do nível de reposição"
+    },
+    "unknownConfig": "Configuração de importação desconhecida para visualização.",
+    "passwordWillBeSet": "A senha será definida ao confirmar"
   }
 }

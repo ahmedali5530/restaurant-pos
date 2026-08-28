@@ -86,4 +86,45 @@ describe("commitWriteProposal", () => {
       }),
     ).rejects.toThrow(/No write executor registered/);
   });
+
+  it("omits unset max_cap from discount payload to avoid Surreal coerce errors", async () => {
+    const db = makeDb();
+    db.query = vi.fn(async (sql: string) => {
+      if (sql.includes("FROM category")) return [[{id: "categories:starter", name: "Starter"}]];
+      return [[]];
+    }) as typeof db.query;
+
+    const proposal = await buildWriteProposal(
+      "propose_create_discounts",
+      {
+        discounts: [{
+          name: "BOGO Starters",
+          type: "Percent",
+          min_rate: 100,
+          max_rate: 100,
+          priority: 1,
+          scope: "category",
+          application_mode: "automatic",
+          category: "buy_x_get_y",
+          is_active: true,
+          max_cap: null,
+          buy_quantity: 1,
+          get_quantity: 1,
+          buy_category_names: ["Starter"],
+          get_category_names: ["Starter"],
+          get_value_type: "free",
+        }],
+      },
+      {db, t},
+    );
+
+    expect(proposal.hasBlockingErrors).toBe(false);
+
+    const summary = await commitWriteProposal(db, t, proposal);
+    expect(summary.errors).toEqual([]);
+    expect(summary.imported).toBe(1);
+    expect(db.inserts).toHaveLength(1);
+    expect(db.inserts[0].payload).not.toHaveProperty("max_cap");
+    expect(db.inserts[0].payload.name).toBe("BOGO Starters");
+  });
 });

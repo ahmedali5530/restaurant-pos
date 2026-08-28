@@ -12,7 +12,23 @@ export const formatImportDisplayValue = (
   value: unknown,
   t: TFunc,
 ): string => {
+  if (field.name === "set_password" && value) {
+    return t("aiAssistant.passwordWillBeSet", {defaultValue: "Password will be set on confirm"});
+  }
+
   if (value === null || value === undefined || value === "") return "—";
+
+  if (Array.isArray(value)) {
+    const parts = value
+      .map(item => {
+        if (item && typeof item === "object" && "label" in item) {
+          return formatReference(item as ResolvedReference);
+        }
+        return String(item ?? "").trim();
+      })
+      .filter(Boolean);
+    return parts.length ? parts.join(", ") : "—";
+  }
 
   switch (field.type) {
     case "boolean":

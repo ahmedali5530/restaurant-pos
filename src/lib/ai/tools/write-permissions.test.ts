@@ -18,6 +18,12 @@ describe("canUseWriteTool", () => {
     expect(canUseWriteTool("propose_update_dishes", ["admin.dishes.update"])).toBe(true);
   });
 
+  it("allows create/update when parent tab permission is granted (legacy roles)", () => {
+    expect(canUseWriteTool("propose_create_dishes", ["admin.dishes"])).toBe(true);
+    expect(canUseWriteTool("propose_update_dishes", ["admin.dishes"])).toBe(true);
+    expect(canUseWriteTool("propose_create_dishes", ["Dishes"])).toBe(true);
+  });
+
   it("does NOT treat a sibling admin.dishes leaf as sufficient", () => {
     // admin.dishes.import must not silently imply create/update
     expect(canUseWriteTool("propose_create_dishes", ["admin.dishes.import"])).toBe(false);
@@ -48,6 +54,11 @@ describe("canUseWriteTool", () => {
 
   it("filterWriteToolsByPermissions only returns tools the modules explicitly cover", () => {
     const allowed = filterWriteToolsByPermissions(AI_WRITE_TOOLS, ["admin.dishes.create"]);
-    expect(allowed.map(t => t.function.name)).toEqual(["propose_create_dishes"]);
+    const names = allowed.map(tool => tool.function.name).sort();
+    expect(names).toEqual([
+      "propose_create_dish_ingredients",
+      "propose_create_dish_modifiers",
+      "propose_create_dishes",
+    ]);
   });
 });

@@ -201,8 +201,8 @@
     "ingredientMustExist": "Mevcut bir stok kalemi adı veya koduyla tam eşleşmelidir (büyük/küçük harf duyarsız). Çözülmezse listeden seçin."
   },
   "aiAssistant": {
-    "open": "Asistanı aç",
-    "title": "Asistan",
+    "open": "{{name}}'i aç",
+    "title": "{{name}} – Yapay Zeka Asistanı",
     "placeholder": "Satışlar hakkında sorun veya yemek ekleme/güncelleme isteyin…",
     "reviewPrompt": "Aşağıda incelemeniz için {{count}} {{entity}} değişikliği hazırladım.",
     "reviewTitle": "Değişiklikleri incele",
@@ -213,6 +213,21 @@
     "issues": "Sorunlar",
     "expand": "Asistanı genişlet",
     "collapse": "Asistanı daralt",
-    "unknownConfig": "Önizleme için bilinmeyen içe aktarma yapılandırması."
+    "clear": "Temizle",
+    "clearConversation": "Sohbeti temizle",
+    "clearConfirm": "Bu cihazdaki asistan sohbeti temizlensin mi?",
+    "working": "{{name}} isteğiniz üzerinde çalışıyor…",
+    "examplesTitle": "Ne sorabilirsiniz",
+    "examplesHint": "{{name}} ile denemek için bir örneğe tıklayın:",
+    "examples": {
+      "salesToday": "Bugünün satış özetini göster",
+      "tablesFloor": "Delivery katındaki masaları listele",
+      "bogoDiscount": "Başlangıçlar için otomatik BOGO indirimi oluştur",
+      "addDish": "9 TL'ye yeni Margherita yemeği ekle",
+      "listUsers": "Tüm POS kullanıcılarını listele",
+      "inventoryStock": "Yeniden sipariş seviyesinin altındaki stokları göster"
+    },
+    "unknownConfig": "Önizleme için bilinmeyen içe aktarma yapılandırması.",
+    "passwordWillBeSet": "Onaylandığında şifre ayarlanacak"
   }
 }

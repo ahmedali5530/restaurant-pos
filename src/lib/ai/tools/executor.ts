@@ -12,6 +12,25 @@ import {
   listCategories,
   listStaff,
 } from "@/api/reports/sales/extended.ts";
+import {
+  getMenuItems,
+  listCoupons,
+  listDiscounts,
+  listExtras,
+  listFloors,
+  listKitchens,
+  listMenus,
+  listModifierGroups,
+  listOrderTypes,
+  listPaymentTypes,
+  listPrinters,
+  listRoles,
+  listShifts,
+  listTables,
+  listTaxes,
+  listUsers,
+  listWorkflows,
+} from "@/api/reports/manage/lists.ts";
 import {getTips} from "@/api/reports/sales/tips.ts";
 import {
   estimatePriceChangeImpact,
@@ -400,6 +419,111 @@ export const executeAiReportTool = async (
 
     case "list_inventory_items":
       return listInventoryItems(db, {
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "list_floors":
+      return listFloors(db, {
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "list_tables":
+      return listTables(db, {
+        floor_name: args.floor_name ? String(args.floor_name) : undefined,
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "list_modifier_groups":
+      return listModifierGroups(db, {
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "list_kitchens":
+      return listKitchens(db, {
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "list_taxes":
+      return listTaxes(db, {
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "list_discounts":
+      return listDiscounts(db, {
+        search: args.search ? String(args.search) : undefined,
+        active_only: args.active_only === true,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "list_order_types":
+      return listOrderTypes(db, {
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "list_payment_types":
+      return listPaymentTypes(db, {
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "list_extras":
+      return listExtras(db, {
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "list_coupons":
+      return listCoupons(db, {
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "list_menus":
+      return listMenus(db, {
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "get_menu_items":
+      return getMenuItems(db, {
+        menu_name: args.menu_name ? String(args.menu_name) : undefined,
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 100,
+      });
+
+    case "list_workflows":
+      return listWorkflows(db, {
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "list_printers":
+      return listPrinters(db, {
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "list_users":
+      return listUsers(db, {
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "list_roles":
+      return listRoles(db, {
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "list_shifts":
+      return listShifts(db, {
         search: args.search ? String(args.search) : undefined,
         limit: args.limit ? Number(args.limit) : 50,
       });

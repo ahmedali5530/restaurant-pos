@@ -201,8 +201,8 @@
     "ingredientMustExist": "Moet exact overeenkomen met een bestaande voorraadartikelnaam of -code (hoofdletterongevoelig). Kies uit de lijst als het niet is opgelost."
   },
   "aiAssistant": {
-    "open": "Assistent openen",
-    "title": "Assistent",
+    "open": "{{name}} openen",
+    "title": "{{name}} – AI-assistent",
     "placeholder": "Vraag over verkopen of vraag om een gerecht toe te voegen/bij te werken…",
     "reviewPrompt": "Ik heb {{count}} {{entity}}-wijziging(en) voor u klaargezet om hieronder te bekijken.",
     "reviewTitle": "Wijzigingen bekijken",
@@ -213,6 +213,21 @@
     "issues": "Problemen",
     "expand": "Assistent vergroten",
     "collapse": "Assistent verkleinen",
-    "unknownConfig": "Onbekende importconfiguratie voor voorbeeld."
+    "clear": "Wissen",
+    "clearConversation": "Gesprek wissen",
+    "clearConfirm": "Dit assistentgesprek op dit apparaat wissen?",
+    "working": "{{name}} werkt aan je verzoek…",
+    "examplesTitle": "Wat je kunt vragen",
+    "examplesHint": "Klik op een voorbeeld om het met {{name}} te proberen:",
+    "examples": {
+      "salesToday": "Toon de verkoopsamenvatting van vandaag",
+      "tablesFloor": "Lijst tafels op de Delivery-verdieping",
+      "bogoDiscount": "Automatische BOGO-korting voor voorgerechten maken",
+      "addDish": "Nieuw gerecht Margherita toevoegen voor €9",
+      "listUsers": "Alle POS-gebruikers weergeven",
+      "inventoryStock": "Voorraadartikelen onder bestelniveau tonen"
+    },
+    "unknownConfig": "Onbekende importconfiguratie voor voorbeeld.",
+    "passwordWillBeSet": "Wachtwoord wordt ingesteld bij bevestiging"
   }
 }

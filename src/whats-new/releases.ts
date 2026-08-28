@@ -8,12 +8,45 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-08-28',
+    title: 'AI assistant help and markdown tables',
+    items: [
+      'The assistant toolbar now has a ? button with clickable example prompts for sales, tables, discounts, dishes, users, and inventory.',
+      'Assistant display name is configurable via VITE_AI_ASSISTANT_NAME (defaults to Kashif).',
+      'Markdown tables in assistant answers now render correctly instead of showing raw pipe text.',
+      'Write proposal review for wide configs (e.g. discounts) now uses a readable card layout with only filled-in fields instead of squeezing dozens of columns into one row.',
+      'Discount write proposals no longer send null max_cap values that could fail SurrealDB schema coercion on confirm.',
+      'The floating AI assistant now appears only on back-office screens (Manage, Inventory, Reports, HR, Accounts, Integrations, Tips, and Clock) and is hidden on cashier-facing POS screens.',
+    ],
+  },
+  {
+    date: '2026-08-28',
+    title: 'Kashif Manage parity',
+    items: [
+      'The AI assistant can now list Manage configuration data — floors, tables, discounts, users, roles, kitchens, coupons, menus, workflows, printers, and more — using dedicated list_* read tools gated on admin permissions.',
+      'Discount write proposals now support BXGY rules, targets, schedules, stacking/tax fields, and automatic discounts scoped to categories or items.',
+      'Write tools added for modifier groups, kitchens, extras, smart menu import, coupons, menus, workflows, printers, print settings, users, roles, shifts, and tip distribution.',
+      'Manage questions like "tables on Delivery floor" route to list_tables and list_floors instead of reporting-only tools.',
+    ],
+  },
+  {
+    date: '2026-08-28',
+    title: 'AI assistant CRUD expansion',
+    items: [
+      'The AI assistant can now propose create/update changes for categories, tables, floors, taxes, order types, payment types, discounts, dish modifiers, dish ingredients, inventory items, scheduled shifts, employees, and departments.',
+      'Write tools reuse the same import validation pipeline as AI Import, with permission checks matching each Manage, Inventory, and HR screen.',
+      'Inventory and floor write tools require an explicit action verb in the prompt to avoid clashing with read-only inventory questions.',
+    ],
+  },
+  {
+    date: '2026-08-28',
     title: 'AI assistant improvements',
     items: [
       'The floating AI assistant now renders markdown tables and lists properly, so sales summaries and order lists are easy to read.',
       'Expand the assistant panel from the header to view wide tables and long answers more comfortably.',
       'The assistant sends only relevant tools per question to reduce token usage and improve response speed.',
       'Write proposal previews are now generic and ready for more Manage entities beyond dishes.',
+      'The assistant now uses the same Kashif reporting persona and domain-aware prompts as AI Report, with a lightweight compact mode for everyday questions.',
+      'Assistant conversations are saved per user in IndexedDB on this device and survive page reloads until server persistence is added.',
     ],
   },
   {

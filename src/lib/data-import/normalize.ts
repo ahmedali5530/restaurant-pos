@@ -57,11 +57,17 @@ function splitMulti(value: any): string[] {
     .filter(Boolean);
 }
 
+function isEmptyPlaceholder(value: any): boolean {
+  if (value === null || value === undefined || value === "") return true;
+  const normalized = String(value).trim().toLowerCase();
+  return ["—", "-", "n/a", "na", "none", "null", "undefined", "nil"].includes(normalized);
+}
+
 function coerceFieldValue(
   field: ImportField,
   raw: any
 ): {value: any; issue?: ImportIssue} {
-  if (raw === null || raw === undefined || raw === "") {
+  if (raw === null || raw === undefined || raw === "" || (field.optional && isEmptyPlaceholder(raw))) {
     if (field.defaultValue !== undefined) {
       return {value: field.defaultValue};
     }
@@ -76,6 +82,9 @@ function coerceFieldValue(
     case "number": {
       const v = coerceNumber(raw);
       if (v === null && String(raw).trim() !== "") {
+        if (field.optional) {
+          return {value: null};
+        }
         return {
           value: null,
           issue: {
@@ -91,6 +100,9 @@ function coerceFieldValue(
     case "boolean": {
       const v = coerceBoolean(raw);
       if (v === null && String(raw).trim() !== "") {
+        if (field.optional) {
+          return {value: field.defaultValue ?? null};
+        }
         return {
           value: null,
           issue: {

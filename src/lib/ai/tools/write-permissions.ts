@@ -1,6 +1,6 @@
 import type {OpenAIToolDefinition} from "@/lib/openai.service.ts";
 import {normalizeModules} from "@/lib/access.rules.ts";
-import {buildWriteToolPermissionMap} from "@/lib/ai/tools/write-tool-registry.ts";
+import {buildWriteToolPermissionMap} from "@/lib/ai/tools/write-tool-entries.ts";
 
 /**
  * Maps write tool names to the exact admin permission leaf that gates the
@@ -18,11 +18,28 @@ import {buildWriteToolPermissionMap} from "@/lib/ai/tools/write-tool-registry.ts
  */
 export const WRITE_TOOL_PERMISSION_MODULES: Record<string, string> = buildWriteToolPermissionMap();
 
-/** True only if allowedModules explicitly grants the module this tool needs. */
+/** Parent tab module for granular create/update leaves (e.g. admin.dishes.create → admin.dishes). */
+export const getWritePermissionParentTab = (module: string): string | null => {
+  if (!module.includes(".")) return null;
+  const parts = module.split(".");
+  if (parts.length < 3) return null;
+  if (module.endsWith(".import") || module.endsWith(".delete")) return null;
+  return parts.slice(0, -1).join(".");
+};
+
+/** True when the exact leaf or its parent tab (legacy roles) is granted. */
+export const hasWritePermissionModule = (module: string, allowedModules: string[]): boolean => {
+  const normalized = normalizeModules(allowedModules);
+  if (normalized.includes(module)) return true;
+  const parent = getWritePermissionParentTab(module);
+  return parent != null && normalized.includes(parent);
+};
+
+/** True only if allowedModules grants the module this tool needs. */
 export const canUseWriteTool = (toolName: string, allowedModules: string[]): boolean => {
   const module = WRITE_TOOL_PERMISSION_MODULES[toolName];
   if (!module) return false;
-  return normalizeModules(allowedModules).includes(module);
+  return hasWritePermissionModule(module, allowedModules);
 };
 
 export const filterWriteToolsByPermissions = (

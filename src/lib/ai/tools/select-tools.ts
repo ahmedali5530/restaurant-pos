@@ -23,6 +23,15 @@ const ACCOUNTS_KEYWORDS = /\b(trial balance|balance sheet|profit(?:\s*(?:&|and)\
 const ANALYSIS_KEYWORDS = /\b(forecast|predict|compare|comparison|vs\.?|versus|trend|time series|projection|estimate)\b/i;
 const CHART_KEYWORDS = /\b(chart|graph|plot|visuali[sz]e|line chart|bar chart|pie chart)\b/i;
 const LOOKUP_KEYWORDS = /\b(staff|server named|cashier|category|categories|menu item|inventory item|find item|lookup)\b/i;
+const MANAGE_ENTITY_KEYWORDS =
+  /\b(floors?|tables?|modifier groups?|modifiers?|kitchens?|coupons?|menus?|workflows?|printers?|users?|roles?|shifts?|discount rules?|extras?|payment types?|order types?|which tables?)\b/i;
+const MANAGE_READ_KEYWORDS =
+  /\b(show|list|display|which|what are|get all|configured|active automatic)\b/i;
+const MANAGE_DISCOUNT_CONFIG =
+  /\b(discount rule|automatic discount|buy.?x.?get.?y|bxgy|list.*discounts?|active discounts?|buy \d+ get \d+)\b/i;
+const SALES_DISCOUNT_REPORT =
+  /\b(discount summary|total discounts?|discounts? (given|applied|amount)|discount report)\b/i;
+const SALES_TAX_REPORT = /\b(tax summary|tax report|total tax)\b/i;
 
 export interface SelectToolsResult {
   tools: OpenAIToolDefinition[];
@@ -75,6 +84,18 @@ const detectDomainsFromPrompt = (prompt: string, format: AiReportFormat): Set<Ai
   }
   if (LOOKUP_KEYWORDS.test(prompt)) {
     domains.add("lookup");
+  }
+
+  const isManageDiscount = MANAGE_DISCOUNT_CONFIG.test(prompt) && !SALES_DISCOUNT_REPORT.test(prompt);
+  const isManageTax = /\b(list|show|configured)\b/i.test(prompt) && /\btaxes?\b/i.test(prompt) && !SALES_TAX_REPORT.test(prompt);
+  const isManageEntity =
+    MANAGE_ENTITY_KEYWORDS.test(prompt)
+    || isManageDiscount
+    || isManageTax
+    || (MANAGE_READ_KEYWORDS.test(prompt) && /\b(floor|table|user|role|shift|coupon|menu|workflow|printer|kitchen|modifier|extra|payment type|order type)\b/i.test(prompt));
+
+  if (isManageEntity) {
+    domains.add("manage");
   }
 
   if (isFraudSuspiciousPrompt(prompt)) {

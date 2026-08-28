@@ -1,3 +1,4 @@
+import {normalizeAiMarkdown} from "@/lib/ai/markdown-normalize.ts";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {cn} from "@/lib/utils.ts";
@@ -127,11 +128,12 @@ const buildMarkdownComponents = (compact: boolean, orderRefs?: AiOrderRef[]) => 
 
 export function AiMarkdown({children, compact = false, className, orderRefs}: AiMarkdownProps) {
   const components = buildMarkdownComponents(compact, orderRefs);
+  const normalized = normalizeAiMarkdown(children);
 
   return (
     <div className={cn("ai-markdown", className)}>
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
-        {children}
+        {normalized}
       </ReactMarkdown>
     </div>
   );

@@ -201,8 +201,8 @@
     "ingredientMustExist": "Muss exakt mit einem vorhandenen Inventargegenstandsnamen oder -code übereinstimmen (Groß-/Kleinschreibung egal). Bei Bedarf aus der Liste wählen."
   },
   "aiAssistant": {
-    "open": "Assistent öffnen",
-    "title": "Assistent",
+    "open": "{{name}} öffnen",
+    "title": "{{name}} – KI-Assistent",
     "placeholder": "Fragen Sie nach Umsätzen oder bitten Sie, ein Gericht hinzuzufügen/zu aktualisieren…",
     "reviewPrompt": "Ich habe {{count}} {{entity}}-Änderung(en) zur Überprüfung vorbereitet.",
     "reviewTitle": "Änderungen überprüfen",
@@ -213,6 +213,21 @@
     "issues": "Probleme",
     "expand": "Assistent vergrößern",
     "collapse": "Assistent verkleinern",
-    "unknownConfig": "Unbekannte Importkonfiguration für die Vorschau."
+    "clear": "Löschen",
+    "clearConversation": "Unterhaltung löschen",
+    "clearConfirm": "Diese Assistenten-Unterhaltung auf diesem Gerät löschen?",
+    "working": "{{name}} bearbeitet Ihre Anfrage…",
+    "examplesTitle": "Was Sie fragen können",
+    "examplesHint": "Klicken Sie auf einen Vorschlag für {{name}}:",
+    "examples": {
+      "salesToday": "Zeigen Sie mir die heutige Umsatzübersicht",
+      "tablesFloor": "Tische auf der Delivery-Etage auflisten",
+      "bogoDiscount": "Automatischen BOGO-Rabatt für Vorspeisen erstellen",
+      "addDish": "Neues Gericht Margherita für 9 € hinzufügen",
+      "listUsers": "Alle POS-Benutzer auflisten",
+      "inventoryStock": "Lagerartikel unter Mindestbestand anzeigen"
+    },
+    "unknownConfig": "Unbekannte Importkonfiguration für die Vorschau.",
+    "passwordWillBeSet": "Passwort wird bei Bestätigung gesetzt"
   }
 }

@@ -3,6 +3,9 @@ import {getBusinessDateContext} from "@/api/reports/shared/filters.ts";
 import type {AiReportFormat} from "@/lib/ai.report.storage.ts";
 import {getAppTimezone} from "@/lib/datetime.ts";
 import type {AiReportToolDomain} from "@/lib/ai/tools/categories.ts";
+import {AI_ASSISTANT_PERSONA} from "@/lib/ai/assistant-config.ts";
+
+export {AI_ASSISTANT_PERSONA};
 
 const QUERY_DATE_FORMAT = import.meta.env.VITE_DATE_TIME_FORMAT as string;
 const APP_CURRENCY = (import.meta.env.VITE_CURRENCY as string) || "PKR";
@@ -18,7 +21,8 @@ const FORMAT_INSTRUCTIONS: Record<AiReportFormat, string> = {
   table: `Output format: TABLE
 - Structure the final report using markdown tables for all structured data (dishes, metrics, comparisons, rankings).
 - Use headings for sections and markdown tables with clear column headers for rows of data.
-- Prefer tables over bullet lists when presenting multiple items with columns.`,
+- Prefer tables over bullet lists when presenting multiple items with columns.
+- Add an **Insights** section with 2–4 actionable observations grounded only in tool results.`,
   list: `Output format: LIST
 - Structure the final report using markdown bullet lists and numbered lists.
 - Use headings for sections and lists for items, metrics, and comparisons.
@@ -34,7 +38,7 @@ const FORMAT_INSTRUCTIONS: Record<AiReportFormat, string> = {
   ## Key Findings
   ## Trends
   ## Recommendations
-- Add an **Insights** section with 2–3 actionable observations grounded only in tool results.
+- Add an **Insights** section with 2–4 actionable observations grounded only in tool results.
 - Never invent trends not supported by the data.`,
 };
 
@@ -79,6 +83,9 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
 - Comparisons: use compare_periods with two explicit date ranges. State method and that projections are estimates.`,
   chart: `- Call render_chart with data from prior tool results before the final answer.`,
   lookup: `- Use list_staff, list_categories, list_menu_items, or list_inventory_items for name-to-ID resolution.`,
+  manage: `- Manage configuration (not sales totals): use list_* tools for floors, tables, discounts, taxes, users, roles, menus, kitchens, coupons, workflows, printers, shifts, etc.
+- For "tables on X floor": call list_tables with floor_name. For BXGY or scoped discounts: list_discounts, list_categories, list_menu_items first, then propose_create_discounts.
+- For changes: use propose_* tools — never claim tools are missing when list_* or propose_* appear in your tool list.`,
 };
 
 const FULL_DATABASE_CONTEXT = `Database context:
@@ -132,7 +139,7 @@ const buildDateContextBlock = () =>
   `Current business date (${getAppTimezone()}): ${getBusinessDateContext()}.`;
 
 export const getAiReportCorePrompt = (format: AiReportFormat = "table"): string =>
-  `You are a POS restaurant reporting assistant. Use tools to fetch live data — never guess numbers.
+  `${AI_ASSISTANT_PERSONA} Use tools to fetch live data — never guess numbers.
 
 ${buildDateContextBlock()}
 Date format for tool parameters: ${QUERY_DATE_FORMAT}. Currency: ${APP_CURRENCY} (${CURRENCY_SYMBOL}).
@@ -156,8 +163,10 @@ Domain hints:
 ${snippets}`;
 };
 
+
+
 const buildFullPrompt = (format: AiReportFormat): string =>
-  `Your name is Kashif. You are a POS restaurant reporting assistant. You are developed by ahmedali5530 for POSR. You help managers understand sales, inventory, and operations using real data from their point-of-sale system.
+  `${AI_ASSISTANT_PERSONA} You help managers understand sales, inventory, and operations using real data from their point-of-sale system.
 
 ${buildDateContextBlock()}
 ${FULL_DATABASE_CONTEXT}
@@ -186,4 +195,51 @@ export const getAiReportSystemPrompt = (
     return getAiReportCorePrompt(format);
   }
   return buildFullPrompt(format);
+};
+
+
+
+/**
+ * Write-tool rules appended to the report system prompt for the floating assistant.
+ * Kept short so compact mode stays lightweight.
+ */
+export const AI_ASSISTANT_WRITE_RULES = [
+  "You can also propose create/update changes using the propose_* tools.",
+  "The propose_* tools NEVER save anything — they only prepare a change for the user to review.",
+  "After calling a propose_* tool, stop and wait; do not call it again or assume it was applied.",
+  "For bulk changes, call propose_* with every affected row — the user reviews each row before confirming.",
+  "Do not summarize or skip rows in a write proposal.",
+  "For list/show/configure questions about Manage data, use list_* read tools. For create/update, use propose_* tools.",
+  "Never say you only have reporting tools when list_* or propose_* tools are available.",
+].join(" ");
+
+/**
+ * System prompt for the floating assistant: reuses AI Report prompt building
+ * (compact + domain hints when enabled, full workflow otherwise) plus write rules.
+ * Compact mode avoids FULL_DATABASE_CONTEXT / FULL_WORKFLOW unless the profile opts out.
+ */
+export const getAiAssistantSystemPrompt = (
+  domains: AiReportToolDomain[] = [],
+  compact = false,
+  writeToolNames: string[] = [],
+): string => {
+  const reportPrompt = getAiReportSystemPrompt("table", domains, compact);
+  const writeToolsBlock = writeToolNames.length
+    ? [
+      "You are NOT read-only when write tools are listed below.",
+      `Available write tools: ${writeToolNames.join(", ")}.`,
+      "When the user asks to create or update master data, you MUST call the matching propose_* tool — never say you only have reporting tools.",
+    ].join(" ")
+    : null;
+  const writeSection = [AI_ASSISTANT_WRITE_RULES, writeToolsBlock].filter(Boolean).join("\n");
+
+  if (compact) {
+    return [
+      `${AI_ASSISTANT_PERSONA} You help managers using real data from their point-of-sale system.`,
+      reportPrompt,
+      writeSection,
+    ].join("\n\n");
+  }
+
+  return `${reportPrompt}\n\n${writeSection}`;
 };
