@@ -23,6 +23,8 @@ const SIZE_CODE_NAMES: Record<string, string> = {
   XL: "Extra Large",
 };
 
+const SIZE_GROUP_CATALOG_LIMIT = 40;
+
 export type SmartMenuRecordType =
   | "dish"
   | "size_option"
@@ -52,12 +54,67 @@ function priceNumber(value: any): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+function pricesNearlyEqual(a: number, b: number): boolean {
+  return Math.abs(a - b) < 0.0001;
+}
+
+/** Stable fingerprint of a size price matrix for comparing groups. */
+export function sizeMatrixFingerprint(sizes: Array<{code?: string; name?: string; price?: any}>): string {
+  return asArray(sizes)
+    .map((size) => {
+      const code = String(size?.code ?? "").trim().toUpperCase();
+      const name = expandSizeName(code, size?.name);
+      const price = priceNumber(size?.price);
+      if (!name || price === null) return null;
+      return `${normKey(name)}=${price}`;
+    })
+    .filter(Boolean)
+    .sort()
+    .join("|");
+}
+
+/**
+ * Ensure price_groups in one OCR payload that share a display name but have
+ * different size prices get unique group_name values before expand.
+ */
+export function dedupePriceGroupNames(priceGroups: any[]): any[] {
+  const claimed = new Map<string, string>(); // normKey(group_name) -> fingerprint
+  const usedNames = new Set<string>();
+  const out: any[] = [];
+
+  for (const pg of priceGroups) {
+    const copy = {...pg, sizes: asArray(pg?.sizes).map((s: any) => ({...s}))};
+    let groupName = String(copy?.group_name ?? copy?.id ?? "Size").trim() || "Size";
+    const fp = sizeMatrixFingerprint(copy.sizes);
+    let key = normKey(groupName);
+    const existingFp = claimed.get(key);
+
+    if (existingFp && existingFp !== fp) {
+      let n = 2;
+      let candidate = `${groupName} (${n})`;
+      while (usedNames.has(normKey(candidate)) || claimed.has(normKey(candidate))) {
+        n += 1;
+        candidate = `${groupName} (${n})`;
+      }
+      groupName = candidate;
+      key = normKey(groupName);
+    }
+
+    copy.group_name = groupName;
+    claimed.set(key, fp || existingFp || "");
+    usedNames.add(key);
+    out.push(copy);
+  }
+
+  return out;
+}
+
 /**
  * Expand OCR menu graph into ordered flat review rows.
  */
 export function expandSmartMenuGraph(parsed: any): Array<Record<string, any>> {
   const dishes = asArray(parsed?.dishes);
-  const priceGroups = asArray(parsed?.price_groups);
+  const priceGroups = dedupePriceGroupNames(asArray(parsed?.price_groups));
   const addons = asArray(parsed?.addons);
   const links = asArray(parsed?.links);
 
@@ -245,8 +302,151 @@ function modifierForDish(group: any, dishId: string): any | undefined {
   });
 }
 
+function modifierOptionName(modifierRow: any): string {
+  const dish = modifierRow?.modifier;
+  return String(dish?.name ?? "").trim();
+}
+
 function modifierIds(group: any): any[] {
   return (group?.modifiers ?? []).map((item: any) => toRecordId(item.id ?? item));
+}
+
+function groupConflictsWithPrices(
+  group: any,
+  intended: Map<string, number>
+): boolean {
+  for (const item of asArray(group?.modifiers)) {
+    const optionName = modifierOptionName(item);
+    if (!optionName) continue;
+    const intendedPrice = intended.get(normKey(optionName));
+    if (intendedPrice === undefined) continue;
+    const existingPrice = Number(item?.price);
+    if (Number.isFinite(existingPrice) && !pricesNearlyEqual(existingPrice, intendedPrice)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+async function allocateUniqueGroupName(db: ImportDbLike, base: string): Promise<string> {
+  const trimmed = base.trim() || "Size";
+  if (!(await findGroupByName(db, trimmed))) return trimmed;
+  let n = 2;
+  while (n < 1000) {
+    const candidate = `${trimmed} (${n})`;
+    if (!(await findGroupByName(db, candidate))) return candidate;
+    n += 1;
+  }
+  return `${trimmed} (${Date.now()})`;
+}
+
+/**
+ * Remap Size group_name on review rows so we never overwrite an existing
+ * group's size prices with a different matrix. Mutates records in place.
+ */
+export async function remapSizeGroupsForPriceSafety(
+  db: ImportDbLike,
+  records: ImportRecord[]
+): Promise<Map<string, string>> {
+  /** original group_name (norm) -> resolved unique group_name */
+  const resolvedByOriginal = new Map<string, string>();
+
+  type Bucket = {
+    originalName: string;
+    intended: Map<string, number>;
+    hintDish: string;
+  };
+  const buckets = new Map<string, Bucket>();
+
+  for (const record of records) {
+    const type = String(record.values.record_type ?? "").trim();
+    if (type !== "size_option") continue;
+    const originalName = String(record.values.group_name ?? "").trim();
+    if (!originalName) continue;
+    const sizeName = String(
+      record.values.modifier?.label ?? record.values.name ?? ""
+    ).trim();
+    const price = Number(record.values.price);
+    if (!sizeName || !Number.isFinite(price)) continue;
+
+    const key = normKey(originalName);
+    if (!buckets.has(key)) {
+      buckets.set(key, {originalName, intended: new Map(), hintDish: ""});
+    }
+    const bucket = buckets.get(key)!;
+    bucket.intended.set(normKey(sizeName), price);
+  }
+
+  // Prefer a dish name from the same price_group as a fork suffix hint
+  for (const record of records) {
+    const type = String(record.values.record_type ?? "").trim();
+    if (type !== "dish_link" && type !== "dish") continue;
+    const groupName = String(record.values.group_name ?? "").trim();
+    const dishName = String(record.values.dish_name ?? record.values.name ?? "").trim();
+    if (!groupName || !dishName) continue;
+    const bucket = buckets.get(normKey(groupName));
+    if (bucket && !bucket.hintDish) bucket.hintDish = dishName;
+  }
+
+  for (const [key, bucket] of buckets) {
+    const existing = await findGroupByName(db, bucket.originalName);
+    if (!existing) {
+      resolvedByOriginal.set(key, bucket.originalName);
+      continue;
+    }
+    if (!groupConflictsWithPrices(existing, bucket.intended)) {
+      resolvedByOriginal.set(key, String(existing.name ?? bucket.originalName));
+      continue;
+    }
+    const base = bucket.hintDish
+      ? `${bucket.originalName} – ${bucket.hintDish}`
+      : bucket.originalName;
+    const unique = await allocateUniqueGroupName(db, base);
+    resolvedByOriginal.set(key, unique);
+  }
+
+  for (const record of records) {
+    const type = String(record.values.record_type ?? "").trim();
+    if (type !== "size_option" && type !== "dish_link" && type !== "nested_override") {
+      continue;
+    }
+    const originalName = String(record.values.group_name ?? "").trim();
+    if (!originalName) continue;
+    const resolved = resolvedByOriginal.get(normKey(originalName));
+    if (resolved && resolved !== originalName) {
+      record.values.group_name = resolved;
+    }
+  }
+
+  return resolvedByOriginal;
+}
+
+async function loadSizeGroupCatalog(db: ImportDbLike): Promise<string[]> {
+  const [rows] = await db.query(
+    `SELECT name, modifiers FROM ${Tables.modifier_groups}
+     WHERE deleted_at = none
+     FETCH modifiers, modifiers.modifier`
+  );
+  const lines: string[] = [];
+  for (const group of rows ?? []) {
+    const name = String(group?.name ?? "").trim();
+    if (!name || !isSizeLikeModifierGroupName(name)) continue;
+    const parts = asArray(group?.modifiers)
+      .map((m: any) => {
+        const option = modifierOptionName(m);
+        const price = Number(m?.price);
+        if (!option || !Number.isFinite(price)) return null;
+        return `${option}=${price}`;
+      })
+      .filter(Boolean);
+    if (parts.length === 0) {
+      lines.push(name);
+    } else {
+      lines.push(`${name} [${parts.join(", ")}]`);
+    }
+    if (lines.length >= SIZE_GROUP_CATALOG_LIMIT) break;
+  }
+  return lines;
 }
 
 export function createSmartMenuImportConfig({
@@ -397,7 +597,11 @@ export function createSmartMenuImportConfig({
       '"price_groups":[{"id":"classic","group_name":"Size – Classic","sizes":[{"code":"S","name":"Small","price":699}]}],',
       '"addons":[{"group_name":"Extra Topping","modifier_name":"Extra Topping","prices_by_size":{"S":160,"M":260}}],',
       '"links":[{"dish":"Chicken Tikka","price_group":"classic"}]}',
-      "When multiple item blocks share different size price tables, create one price_groups entry per matrix with a clear group_name (e.g. Size – Classic, Size – Crust, Size – Special).",
+      "Each distinct size price table MUST get a unique group_name (never reuse plain \"Size\" when multiple matrices exist).",
+      "Prefer descriptive names from section/context (e.g. Size – Classic, Size – Crust, Size – Special).",
+      "Do NOT model different dish size prices as nested Size groups. Size groups are always top-level and attached to dishes via links.",
+      "Nesting is ONLY for addons like Extra Topping under each Size option (allowed next groups / size-based topping prices).",
+      "If Known Size groups are listed and this document's prices differ from a listed group, invent a NEW group_name — do not reuse that name.",
       "Expand size letters when naming: S=Small, M=Medium, L=Large, F=Family, P=Party.",
       "List only sizes that appear for that block; do not invent missing sizes or prices.",
       "Put sell prices on sizes, not on the pizza dish (dishes are linked to a size group).",
@@ -405,6 +609,15 @@ export function createSmartMenuImportConfig({
       "Ignore photos and decorative text.",
       "If links are omitted, dishes.price_group is used to attach each dish to its size group.",
     ].join(" "),
+    enrichExtractionContext: async (database) => {
+      const lines = await loadSizeGroupCatalog(database);
+      if (lines.length === 0) return "";
+      return [
+        "Known Size groups already in the system (name [option=price, ...]):",
+        lines.join("\n"),
+        "If this document uses different size prices than a known group, invent a new unique group_name. Do not reuse a known name when prices differ.",
+      ].join("\n");
+    },
     onExpandExtracted: expandSmartMenuGraph,
     onCreateMissingReference: async (field, label, createDb) => {
       if (field.name === "category") {
@@ -465,6 +678,8 @@ async function importSmartMenuBatch({
   const fail = (index: number, message: string) => {
     result.failed.push({index, message});
   };
+
+  await remapSizeGroupsForPriceSafety(db, records);
 
   // Prefill dish map from DB for link resolution
   const dishNames = records
@@ -638,10 +853,16 @@ async function importGroupOptionRow({
   let modifierId: string;
 
   if (existingModifier?.id) {
-    await db.merge?.(existingModifier.id, {
-      modifier: toRecordId(dishId),
-      price,
-    });
+    const existingPrice = Number(existingModifier.price);
+    // Never overwrite a different price on a reused group (safety net after remap).
+    if (!Number.isFinite(existingPrice) || pricesNearlyEqual(existingPrice, price)) {
+      if (!Number.isFinite(existingPrice)) {
+        await db.merge?.(existingModifier.id, {
+          modifier: toRecordId(dishId),
+          price,
+        });
+      }
+    }
     modifierId = String(existingModifier.id);
   } else {
     const createdModifier = await db.create?.(Tables.modifiers, {

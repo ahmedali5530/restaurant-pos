@@ -193,11 +193,11 @@ export const TableComponent: FC<TableComponentProps> = ({
   const handleColumnFilter = (values: any) => {
     if( values.value && values.value.trim() !== '' ) {
       handleFilterChange([
-        `string::similarity::fuzzy(string::lowercase($this[$column]), string::lowercase($value)) > 0`
+        `string::similarity::fuzzy(string::lowercase($this[$column] ?? ''), string::lowercase($value ?? '')) > 0`
       ]);
       handleParameterChange({
-        'column': values.column.value,
-        'value': values.value
+        column: values.column.value,
+        value: values.value.toString()
       });
     }
 

@@ -7,6 +7,25 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-08-28',
+    title: 'Faster AI Import review for large menus',
+    items: [
+      'The AI Import review grid now virtualizes rows with TanStack Virtual, so large menu imports stay responsive while you edit cells.',
+      'Cell edits update only the changed row instead of re-rendering the entire grid, reducing input lag on big payloads.',
+      'Filter buttons let you show all, valid, or invalid rows only, and invalid cells now use a red border instead of blue.',
+      'Fixed review grid scroll jitter by using stable row heights and transform-based virtual row positioning.',
+    ],
+  },
+  {
+    date: '2026-08-27',
+    title: 'Safer Size groups in menu structure AI Import',
+    items: [
+      'AI Import Menu Structure keeps a distinct Size modifier group per size price matrix (e.g. Size – Classic vs Size – Crust).',
+      'Re-importing a second menu with different M/L/F/P prices no longer overwrites an existing Size group; a new unique group name is allocated instead.',
+      'OCR is guided with known Size groups and instructed not to model per-dish size prices as nested Size groups.',
+    ],
+  },
+  {
     date: '2026-08-26',
     title: 'Smarter inventory item AI Import',
     items: [
