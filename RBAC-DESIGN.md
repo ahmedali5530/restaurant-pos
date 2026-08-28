@@ -230,6 +230,79 @@ Only after staging tests pass for all roles. Consider doing this during a
 maintenance window — if a screen breaks, the cashier can't process orders
 until you rollback.
 
+## Field-level PERMISSIONS (added in this branch)
+
+The table-level migration (`apply-rbac-permissions.cjs`) restricts which ROLES
+can access which TABLES. The field-level migration
+(`apply-field-level-permissions.cjs`) goes one level deeper: even when a role
+CAN read a table, certain FIELDS are excluded from SELECT results.
+
+### Protected fields (11 fields across 3 tables)
+
+| Table | Field | Type | SELECT | CREATE/UPDATE | Rationale |
+|---|---|---|---|---|---|
+| `user` | `password` | `none \| string \| null` | NONE | FULL | bcrypt hash — gateway does `crypto::bcrypt::compare` server-side; SPA never needs it. A leaked hash can be brute-forced offline. |
+| `integration_oauth_credential` | `access_token_enc` | `string` | NONE | FULL | AES-256-GCM ciphertext of QBO access token — only api service (root) needs to decrypt |
+| `integration_oauth_credential` | `refresh_token_enc` | `option<string>` | NONE | FULL | AES-256-GCM ciphertext of QBO refresh token |
+| `payment_type` | `gateway_config` | `none \| record<payment_type_gateway_config> \| null` | NONE | FULL | Legacy plaintext config link — SPA reads via payments service, never directly |
+| `payment_type` | `gateway_config_encrypted` | `option<string>` | NONE | FULL | AES-256-GCM ciphertext of payment credentials — SPA writes via `/payments/credentials`, never reads |
+| `payment_type_gateway_config` | `client_id` | `none \| string \| null` | NONE | FULL | Legacy plaintext — Stripe/PayPal client ID |
+| `payment_type_gateway_config` | `client_secret` | `none \| string \| null` | NONE | FULL | Legacy plaintext — Stripe/PayPal client secret |
+| `payment_type_gateway_config` | `integrity_salt` | `none \| string \| null` | NONE | FULL | Legacy plaintext — JazzCash integrity salt |
+| `payment_type_gateway_config` | `merchant_id` | `none \| string \| null` | NONE | FULL | Legacy plaintext — JazzCash/M-Pesa merchant ID |
+| `payment_type_gateway_config` | `public_key` | `none \| string \| null` | NONE | FULL | Legacy plaintext — Stripe publishable key |
+| `payment_type_gateway_config` | `secret_key` | `none \| string \| null` | NONE | FULL | Legacy plaintext — Stripe/M-Pesa secret key |
+| `payment_type_gateway_config` | `webhook_secret` | `none \| string \| null` | NONE | FULL | Legacy plaintext — Stripe webhook signing secret |
+
+### How it works
+
+```surql
+DEFINE FIELD password ON user TYPE none | string | null
+  PERMISSIONS
+    FOR select NONE,    -- excluded from SELECT * results for JWT sessions
+    FOR create FULL,    -- admin can still set passwords
+    FOR update FULL,    -- admin can still change passwords
+    FOR delete FULL;
+```
+
+When a JWT session (SPA) runs `SELECT * FROM user`, the `password` field is
+**absent** from the result. The gateway (root) still gets it (root bypasses
+PERMISSIONS).
+
+**Important**: `crypto::bcrypt::compare(password, $password)` in the gateway's
+login WHERE clause still works — SurrealDB evaluates functions server-side,
+reading the field internally regardless of SELECT permissions. The field is
+only hidden from the result set, not from server-side function evaluation.
+
+### Applying field-level PERMISSIONS
+
+```bash
+# Dry run
+SURREAL_USER=posr SURREAL_PASS=<pass> DRY_RUN=1 \
+  node migrations/scripts/apply-field-level-permissions.cjs
+
+# Apply
+SURREAL_USER=posr SURREAL_PASS=<pass> \
+  node migrations/scripts/apply-field-level-permissions.cjs
+```
+
+Run this AFTER `apply-rbac-permissions.cjs` (the table-level migration). Both
+are dormant until `GATEWAY_USE_JWT_AS_SURREAL_TOKEN=true`.
+
+### Defense in depth
+
+The field-level PERMISSIONS add a third layer of protection for credentials:
+
+1. **Encryption at rest** (token.crypto.js / payment-credential.crypto.js) —
+   even if the DB is compromised, credentials are AES-256-GCM encrypted
+2. **Table-level PERMISSIONS** (apply-rbac-permissions.cjs) — only admin can
+   access `integration_oauth_credential`, `payment_type`, etc.
+3. **Field-level PERMISSIONS** (this migration) — even if a role CAN read the
+   table, the ciphertext/hash field is excluded from the result
+
+An attacker who compromises a cashier's JWT session would need to bypass all
+three layers to recover credentials.
+
 ## What's NOT in this branch (follow-up work)
 
 1. **Granular per-role PERMISSIONS on the 128 non-critical tables.** Currently
@@ -241,23 +314,17 @@ until you rollback.
    - `account`/`account_group` — only `accountant` can CREATE/UPDATE
    - etc.
 
-2. **Field-level PERMISSIONS.** Currently all fields have `PERMISSIONS FULL`.
-   The `user.password` field should have `PERMISSIONS NONE` for select (it's
-   never needed by the SPA — the gateway does bcrypt comparison server-side).
-   Similar for `integration_oauth_credential.access_token`,
-   `payment_type.gateway_config_encrypted`, etc.
-
-3. **Per-user row-level restrictions.** The `time_entry` table already has
+2. **Per-user row-level restrictions.** The `time_entry` table already has
    `$auth.sub = user` for self-reads, but `order`, `kitchen_reconciliation`,
    etc. could benefit from branch-level restrictions (`WHERE branch_id =
    $auth.branch_id`).
 
-4. **Audit logging of permission denials.** SurrealDB logs permission
+3. **Audit logging of permission denials.** SurrealDB logs permission
    failures to the server log, but there's no structured audit trail. A
    follow-up could add a `DEFINE EVENT` on critical tables that logs denied
    access attempts.
 
-5. **Role management UI.** Currently roles are assigned via direct DB writes
+4. **Role management UI.** Currently roles are assigned via direct DB writes
    (admin screen writes to `user_role.roles`). A proper role management UI
    with approval workflows would complement the server-side enforcement.
 
@@ -292,7 +359,9 @@ docker compose restart gateway
 | Token scope | C (root-scoped) | **A** (per-user JWT with roles) |
 | Critical table protection | F (no protection) | **B+** (15 tables role-restricted) |
 | Non-critical tables | F (no protection) | **C** (FULL — any authenticated user) |
-| Overall security grade | **B+** (after hardening + payment encryption) | **A−** (after RBAC activation) |
+| Sensitive field protection | F (password hashes, ciphertext readable) | **A** (11 fields SELECT=NONE for JWT sessions) |
+| Overall security grade | **B+** (after hardening + payment encryption) | **A−** (after RBAC + field-level activation) |
 
 The remaining gap to **A** is the granular per-role restrictions on the 128
-non-critical tables and field-level PERMISSIONS on sensitive fields.
+non-critical tables (e.g. only `waiter` can CREATE orders, only `inventory`
+can adjust stock) and per-user row-level restrictions.
