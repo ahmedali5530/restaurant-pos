@@ -88,6 +88,87 @@ app.post('/auth/verify', async (req, res) => {
   }
 });
 
+/**
+ * GET /alerts — list recent security alerts (admin-only).
+ * Query params: ?status=open&severity=critical&limit=50
+ *
+ * Returns the most recent security_alerts. Admin UI polls this endpoint to
+ * surface suspicious activity detected by the anomaly detector.
+ */
+app.get('/alerts', async (req, res) => {
+  try {
+    const payload = await verifySession(extractBearer(req));
+    // Only admin / super_admin can read alerts.
+    const roles = payload.roles || [];
+    if (!roles.includes('admin') && !roles.includes('super_admin')) {
+      return res.status(403).json({ ok: false, error: 'Admin role required to read alerts' });
+    }
+
+    const { getClient } = require('./src/surreal-client');
+    const client = await getClient();
+    const status = req.query.status || 'open';
+    const severity = req.query.severity;
+    const limit = Math.min(Number(req.query.limit) || 50, 200);
+
+    let where = `status = $status`;
+    const params = { status, limit };
+    if (severity) {
+      where += ` AND severity = $severity`;
+      params.severity = severity;
+    }
+
+    const result = await client.query(
+      `SELECT * FROM security_alerts WHERE ${where} ORDER BY emitted_at DESC LIMIT $limit;`,
+      params
+    );
+    const rows = Array.isArray(result) ? result[0] || result : result;
+    const alerts = Array.isArray(rows) ? rows : [];
+
+    return res.json({ ok: true, alerts, count: alerts.length });
+  } catch (err) {
+    return res.status(err.status || 500).json({ ok: false, error: err.message });
+  }
+});
+
+/**
+ * POST /alerts/:id/acknowledge — mark an alert as acknowledged (admin-only).
+ * Body: { resolutionNotes?: string }
+ */
+app.post('/alerts/:id/acknowledge', async (req, res) => {
+  try {
+    const payload = await verifySession(extractBearer(req));
+    const roles = payload.roles || [];
+    if (!roles.includes('admin') && !roles.includes('super_admin')) {
+      return res.status(403).json({ ok: false, error: 'Admin role required' });
+    }
+
+    const { getClient } = require('./src/surreal-client');
+    const client = await getClient();
+    const alertId = String(req.params.id || '').trim();
+    if (!alertId) {
+      return res.status(400).json({ ok: false, error: 'Alert id is required' });
+    }
+
+    await client.query(
+      `UPDATE type::record('security_alerts', $id) MERGE {
+         status: 'acknowledged',
+         acknowledged_by: $actor,
+         acknowledged_at: time::now(),
+         resolution_notes: $notes,
+       };`,
+      {
+        id: alertId,
+        actor: payload.sub,
+        notes: req.body?.resolutionNotes || null,
+      }
+    );
+
+    return res.json({ ok: true, id: alertId, status: 'acknowledged' });
+  } catch (err) {
+    return res.status(err.status || 500).json({ ok: false, error: err.message });
+  }
+});
+
 app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(500).json({ ok: false, error: 'Internal error' });
@@ -102,6 +183,8 @@ server.listen(PORT, HOST, () => {
   console.log('POST /auth/logout');
   console.log('GET  /auth/session');
   console.log('POST /auth/db-token');
+  console.log('GET  /alerts              (admin-only — security alerts)');
+  console.log('POST /alerts/:id/acknowledge (admin-only)');
   console.log('WS   /rpc (session JWT required)');
 });
 
