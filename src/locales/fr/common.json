@@ -189,5 +189,10 @@
     "cannotCreateCategory": "Impossible de créer la catégorie (base de données indisponible).",
     "pasteHint": "Ou collez avec Ctrl+V / Cmd+V (fichier, image ou cellules Excel)",
     "pasteUnsupported": "Le presse-papiers ne contient aucun fichier, image ou tableau pris en charge."
+  },
+  "offline": {
+    "disconnected": "⚠ Hors ligne — les changements seront synchronisés à la reconnexion",
+    "reconnected": "✓ Connexion rétablie",
+    "retry": "Réessayer"
   }
 }

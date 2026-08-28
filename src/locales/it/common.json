@@ -189,5 +189,10 @@
     "cannotCreateCategory": "Impossibile creare la categoria (database non disponibile).",
     "pasteHint": "Oppure incolla con Ctrl+V / Cmd+V (file, immagine o celle Excel)",
     "pasteUnsupported": "Gli appunti non contengono un file, un'immagine o una tabella supportati."
+  },
+  "offline": {
+    "disconnected": "⚠ Offline — le modifiche verranno sincronizzate alla riconnessione",
+    "reconnected": "✓ Connessione ripristinata",
+    "retry": "Riprova"
   }
 }

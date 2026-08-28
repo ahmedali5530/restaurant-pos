@@ -189,5 +189,10 @@
     "cannotCreateCategory": "Não é possível criar a categoria (banco de dados indisponível).",
     "pasteHint": "Ou cole com Ctrl+V / Cmd+V (arquivo, imagem ou células do Excel)",
     "pasteUnsupported": "A área de transferência não tem arquivo, imagem ou tabela suportados."
+  },
+  "offline": {
+    "disconnected": "⚠ Offline — alterações sincronizarão ao reconectar",
+    "reconnected": "✓ Conexão restaurada",
+    "retry": "Tentar novamente"
   }
 }

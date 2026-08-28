@@ -189,5 +189,10 @@
     "cannotCreateCategory": "Kategorie kann nicht erstellt werden (Datenbank nicht verfügbar).",
     "pasteHint": "Oder mit Strg+V / Cmd+V einfügen (Datei, Bild oder Excel-Zellen)",
     "pasteUnsupported": "Die Zwischenablage enthält keine unterstützte Datei, kein Bild und keine Tabelle."
+  },
+  "offline": {
+    "disconnected": "⚠ Offline — Änderungen werden bei Wiederverbindung synchronisiert",
+    "reconnected": "✓ Verbindung wiederhergestellt",
+    "retry": "Erneut"
   }
 }

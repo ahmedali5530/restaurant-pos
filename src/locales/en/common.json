@@ -189,5 +189,10 @@
     "pasteHint": "Or paste with Ctrl+V / Cmd+V (file, image, or Excel cells)",
     "pasteUnsupported": "Clipboard has no supported file, image, or table data."
   },
-  "loading": "Loading..."
+  "loading": "Loading...",
+  "offline": {
+    "disconnected": "⚠ Offline — changes will sync when reconnected",
+    "reconnected": "✓ Connection restored",
+    "retry": "Retry"
+  }
 }

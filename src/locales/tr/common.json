@@ -189,5 +189,10 @@
     "cannotCreateCategory": "Kategori oluşturulamıyor (veritabanı kullanılamıyor).",
     "pasteHint": "Veya Ctrl+V / Cmd+V ile yapıştırın (dosya, görsel veya Excel hücreleri)",
     "pasteUnsupported": "Panoda desteklenen bir dosya, görsel veya tablo verisi yok."
+  },
+  "offline": {
+    "disconnected": "⚠ Çevrimdışı — değişiklikler bağlantı восстановлена sync edilecek",
+    "reconnected": "✓ Bağlantı kuruldu",
+    "retry": "Yeniden dene"
   }
 }
