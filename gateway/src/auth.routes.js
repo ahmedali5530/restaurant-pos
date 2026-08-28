@@ -28,17 +28,28 @@ router.post('/login', loginRateLimit(), async (req, res) => {
     const session = await signSession({
       userId: user.id,
       login: user.login,
+      roles: user.roles || [],
     });
 
+    // When GATEWAY_USE_JWT_AS_SURREAL_TOKEN=true, the SPA authenticates to
+    // SurrealDB using the session JWT itself (verified via DEFINE TOKEN on the
+    // DB). When false (default), the gateway signs in with root and issues a
+    // root-scoped access token — the legacy behaviour. See RBAC-DESIGN.md.
+    const useJwtAsSurrealToken =
+      String(process.env.GATEWAY_USE_JWT_AS_SURREAL_TOKEN || '').toLowerCase() === 'true';
     let surrealToken = null;
-    try {
-      surrealToken = await issueSurrealAccessToken();
-    } catch (err) {
-      console.error('Failed to issue Surreal access token', err);
-      return res.status(503).json({
-        ok: false,
-        error: 'Database session unavailable',
-      });
+    if (useJwtAsSurrealToken) {
+      surrealToken = session.token;
+    } else {
+      try {
+        surrealToken = await issueSurrealAccessToken();
+      } catch (err) {
+        console.error('Failed to issue Surreal access token', err);
+        return res.status(503).json({
+          ok: false,
+          error: 'Database session unavailable',
+        });
+      }
     }
 
     return res.json({
@@ -89,7 +100,15 @@ router.post('/logout', async (req, res) => {
  */
 router.post('/db-token', async (req, res) => {
   try {
-    await verifySession(extractBearer(req));
+    const token = extractBearer(req);
+    await verifySession(token);
+    // When GATEWAY_USE_JWT_AS_SURREAL_TOKEN=true, the "Surreal token" IS the
+    // session JWT — no separate root sign-in needed.
+    const useJwtAsSurrealToken =
+      String(process.env.GATEWAY_USE_JWT_AS_SURREAL_TOKEN || '').toLowerCase() === 'true';
+    if (useJwtAsSurrealToken) {
+      return res.json({ ok: true, surrealToken: token });
+    }
     const surrealToken = await issueSurrealAccessToken();
     return res.json({ ok: true, surrealToken });
   } catch (err) {
