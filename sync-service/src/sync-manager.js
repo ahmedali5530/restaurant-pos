@@ -481,4 +481,8 @@ module.exports = {
   toAnyRecordId,
   collectArrayLinkedRecordIds,
   normalizePayloadLinks,
+  // Exported for testing — used internally by SyncManager
+  isRetryableError,
+  withRetry,
+  buildContentPayload,
 };
