@@ -28,7 +28,14 @@ export const Button = (props: ButtonProps) => {
 
   return (
     <AriaButton
-      excludeFromTabOrder={true}
+      // SECURITY/a11y FIX: previously hard-coded `excludeFromTabOrder={true}`
+      // on EVERY button, removing all primary buttons from keyboard tab
+      // order. This was a serious keyboard accessibility regression — users
+      // navigating with Tab couldn't reach any Button-based action.
+      //
+      // Now: buttons are tabbable by default. Callers that genuinely need to
+      // exclude a button from tab order (e.g. decorative icon buttons) can
+      // pass `excludeFromTabOrder` explicitly via {...rest}.
       {...rest}
       onPress={onClick}
       className={
