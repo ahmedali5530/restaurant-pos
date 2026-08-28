@@ -111,6 +111,29 @@ void initSurrealClient()
     } catch (err) {
       console.warn('Revocation store bootstrap failed (operating in-memory only):', err.message);
     }
+
+    // Define a SurrealDB database token that trusts the gateway session JWT.
+    // When GATEWAY_USE_JWT_AS_SURREAL_TOKEN=true, the SPA authenticates to
+    // SurrealDB using the JWT directly — SurrealDB verifies the HS256
+    // signature using GATEWAY_JWT_SECRET and makes the claims (sub, login,
+    // roles, typ) available via $auth in PERMISSIONS expressions.
+    try {
+      const secret = process.env.GATEWAY_JWT_SECRET;
+      const client = await getClient();
+      const escapedSecret = String(secret).replace(/'/g, "\\'");
+      await client.query(
+        `DEFINE TOKEN posr_session ON DATABASE TYPE HS256 VALUE '${escapedSecret}';`
+      );
+      console.log('Defined SurrealDB token posr_session (HS256) for JWT-based auth');
+      if (String(process.env.GATEWAY_USE_JWT_AS_SURREAL_TOKEN || '').toLowerCase() === 'true') {
+        console.log('GATEWAY_USE_JWT_AS_SURREAL_TOKEN=true — SPA will authenticate with the session JWT (RBAC active)');
+      } else {
+        console.log('GATEWAY_USE_JWT_AS_SURREAL_TOKEN not set — SPA uses root access token (RBAC permissions defined but dormant)');
+      }
+    } catch (err) {
+      console.warn('Failed to define SurrealDB token posr_session:', err.message);
+      console.warn('JWT-based auth will not work until this succeeds. RBAC permissions are dormant.');
+    }
   })
   .catch((err) => {
     console.warn('SurrealDB connection failed at startup (will retry on request):', err.message);
