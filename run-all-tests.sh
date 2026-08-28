@@ -29,7 +29,7 @@
 #   - Set TEST_REPORT_DIR env var to write JUnit-style reports (future)
 #   - Each service's tests are run independently — one failure doesn't stop others
 
-set -uo pipefail
+set -eo pipefail
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -113,30 +113,27 @@ run_tests() {
       continue
     fi
 
+    # Run the test — capture output for non-verbose mode
+    output=""
+    exit_code=0
     if $VERBOSE; then
       echo -e "  Running: $test_file"
-      (cd "$dir" && GATEWAY_JWT_SECRET="${TEST_JWT_SECRET:-test}" SURREAL_USER=test SURREAL_PASS=test node --test "$test_file" 2>&1)
+      (cd "$dir" && GATEWAY_JWT_SECRET="${TEST_JWT_SECRET:-test}" SURREAL_USER=test SURREAL_PASS=test node --test "$test_file" 2>&1) || exit_code=$?
     else
-      local output
-      output=$(cd "$dir" && GATEWAY_JWT_SECRET="${TEST_JWT_SECRET:-test}" SURREAL_USER=test SURREAL_PASS=test node --test "$test_file" 2>&1)
-      local exit_code=$?
-    fi
-
-    if $VERBOSE; then
-      local exit_code=$?
+      output=$(cd "$dir" && GATEWAY_JWT_SECRET="${TEST_JWT_SECRET:-test}" SURREAL_USER=test SURREAL_PASS=test node --test "$test_file" 2>&1) || exit_code=$?
     fi
 
     if [[ $exit_code -eq 0 ]]; then
       # Extract pass count from output
-      local p=$(echo "$output" | grep -oP 'ℹ tests \K\d+' || echo "0")
-      local f=$(echo "$output" | grep -oP 'ℹ fail \K\d+' || echo "0")
+      p=$(echo "$output" | grep -oP 'ℹ tests \K\d+' || echo "0")
+      f=$(echo "$output" | grep -oP 'ℹ fail \K\d+' || echo "0")
       pass=$((pass + p))
       fail=$((fail + f))
       echo -e "  ${GREEN}✓${NC} $test_file ($p tests)"
     else
-      local p=$(echo "$output" | grep -oP 'ℹ tests \K\d+' || echo "0")
-      local f=$(echo "$output" | grep -oP 'ℹ fail \K\d+' || echo "1")
-      pass=$((pass + p - f))
+      p=$(echo "$output" | grep -oP 'ℹ tests \K\d+' || echo "0")
+      f=$(echo "$output" | grep -oP 'ℹ fail \K\d+' || echo "1")
+      pass=$((pass + p))
       fail=$((fail + f))
       echo -e "  ${RED}✗${NC} $test_file ($f failed)"
       if ! $VERBOSE; then
@@ -213,15 +210,16 @@ if [[ -z "$SERVICE_FILTER" || "$SERVICE_FILTER" == "frontend" ]]; then
     (cd "$SCRIPT_DIR" && bun install --silent 2>/dev/null)
   fi
 
+  fe_output=""
   if $VERBOSE; then
-    (cd "$SCRIPT_DIR" && npx vitest run 2>&1)
+    (cd "$SCRIPT_DIR" && npx vitest run 2>&1) || true
   else
-    output=$(cd "$SCRIPT_DIR" && npx vitest run 2>&1)
-    echo "$output" | grep -E "Test Files|Tests " | head -5
+    fe_output=$(cd "$SCRIPT_DIR" && npx vitest run 2>&1) || true
+    echo "$fe_output" | grep -E "Test Files|Tests " | head -5
   fi
 
-  local fe_pass=$(echo "$output" | grep -oP '\d+ passed' | head -1 | grep -oP '\d+' || echo "0")
-  local fe_fail=$(echo "$output" | grep -oP '\d+ failed' | head -1 | grep -oP '\d+' || echo "0")
+  fe_pass=$(echo "$fe_output" | grep -oP '\d+ passed' | head -1 | grep -oP '\d+' || echo "0")
+  fe_fail=$(echo "$fe_output" | grep -oP '\d+ failed' | head -1 | grep -oP '\d+' || echo "0")
   PASS_COUNT["frontend"]=$fe_pass
   FAIL_COUNT["frontend"]=$fe_fail
   TOTAL_PASS=$((TOTAL_PASS + fe_pass))
