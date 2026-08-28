@@ -23,6 +23,7 @@ import {AutoClockOutProvider} from "@/providers/auto-clock-out.provider.tsx";
 import {I18nProvider} from "@/providers/i18n.provider.tsx";
 import {AppRoutes} from "@/routes/app.routes.tsx";
 import {IntegrationProvider} from "@/providers/integration.provider.tsx";
+import {OfflineModeBanner} from "@/components/common/offline-banner.tsx";
 
 
 // react query client wrapper
@@ -69,6 +70,7 @@ function App() {
                           <I18nProvider>
                             <SessionIdleProvider>
                               <AutoClockOutProvider>
+                                <OfflineModeBanner/>
                                 <GlobalDeliveryOrderPopup/>
                                 <AppRoutes/>
                               </AutoClockOutProvider>
