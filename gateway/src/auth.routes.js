@@ -5,6 +5,7 @@ const { authenticatePosUser } = require('./auth.service');
 const { signSession, verifySession, revokeSession, extractBearer } = require('./jwt');
 const { issueSurrealAccessToken } = require('./surreal-client');
 const { loginRateLimit, recordAuthResult } = require('./rate-limiter');
+const auditLog = require('./audit-log');
 
 const router = express.Router();
 
@@ -22,6 +23,11 @@ router.post('/login', loginRateLimit(), async (req, res) => {
       const limitInfo = recordAuthResult(req, false);
       if (limitInfo?.locked) {
         res.set('Retry-After', String(Math.ceil(limitInfo.retryAfterMs / 1000)));
+        auditLog.logLoginFailure(
+          login,
+          req.socket?.remoteAddress || req.ip,
+          'rate_limited'
+        ).catch(() => {});
         return res.status(429).json({
           ok: false,
           error: 'This account is temporarily locked due to repeated failed logins.',
@@ -31,6 +37,11 @@ router.post('/login', loginRateLimit(), async (req, res) => {
           lockoutMs: limitInfo.lockoutMs,
         });
       }
+      auditLog.logLoginFailure(
+        login,
+        req.socket?.remoteAddress || req.ip,
+        'invalid_credentials'
+      ).catch(() => {});
       return res.status(401).json({
         ok: false,
         error: 'Invalid credentials',
@@ -51,6 +62,14 @@ router.post('/login', loginRateLimit(), async (req, res) => {
       userId: user.id,
       login: user.login,
     });
+
+    // Audit log the successful login (for the login audit trail).
+    auditLog.logLoginSuccess(
+      user.id,
+      user.login,
+      session.roles,
+      req.socket?.remoteAddress || req.ip
+    ).catch(() => {});
 
     let surrealToken = null;
     try {
@@ -98,6 +117,8 @@ router.post('/logout', async (req, res) => {
     // Pass the token's `exp` so the revocation store can GC expired rows
     // after the natural TTL elapses.
     await revokeSession(payload.jti, payload.exp);
+    // Audit log the session revocation.
+    auditLog.logSessionRevoked(payload.jti, payload.sub, payload.login).catch(() => {});
     return res.json({ ok: true });
   } catch {
     // Idempotent logout

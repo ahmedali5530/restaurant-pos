@@ -15,6 +15,7 @@ const authRoutes = require('./src/auth.routes');
 const { attachRpcRelay } = require('./src/ws-relay');
 const { getClient, initSurrealClient } = require('./src/surreal-client');
 const { verifySession, extractBearer, _revocationStore } = require('./src/jwt');
+const auditLog = require('./src/audit-log');
 
 const app = express();
 const PORT = Number(process.env.GATEWAY_PORT || 3142);
@@ -114,8 +115,13 @@ void initSurrealClient()
       const client = await getClient();
       _revocationStore.setSurrealClient(client);
       await _revocationStore.triggerBootstrap();
+      // Wire the same Surreal client into the audit logger so it can persist
+      // audit entries (login success/failure, permission denials, session
+      // revocations) to the audit_log table.
+      auditLog.setSurrealClient(client);
+      console.log('Audit logger connected to SurrealDB');
     } catch (err) {
-      console.warn('Revocation store bootstrap failed (operating in-memory only):', err.message);
+      console.warn('Revocation store / audit logger bootstrap failed (operating in-memory only):', err.message);
     }
   })
   .catch((err) => {
