@@ -21,7 +21,8 @@
     "shifts": "Diensten",
     "tipsDefinition": "Fooidefinitie",
     "accessTab": "Toegang tot {{title}}",
-    "ariaLabel": "Beheertabs"
+    "ariaLabel": "Beheertabs",
+    "securityAlerts": "Beveiligingsmeldingen"
   },
   "columns": {
     "photo": "Foto",
@@ -878,5 +879,29 @@
       "saveFailed": "Korting kon niet worden opgeslagen.",
       "createReasonFailed": "Kortingsreden kon niet worden aangemaakt."
     }
+  },
+  "securityAlerts": {
+    "noAccess": "Beheerdersrol vereist om beveiligingsmeldingen te bekijken.",
+    "loading": "Meldingen laden…",
+    "error": "Meldingen laden mislukt",
+    "critical": "Kritiek",
+    "warning": "Waarschuwing",
+    "info": "Info",
+    "noAlerts": "Geen open meldingen",
+    "noAlertsDescription": "De anomaliedetector heeft geen verdachte activiteit gemarkeerd.",
+    "count": "×{{n}}",
+    "actor": "Actor",
+    "actorId": "Actor ID",
+    "actorRoles": "Actor rollen",
+    "sourceIp": "Bron-IP",
+    "emittedAt": "Uitgegeven op",
+    "ruleType": "Regeltype",
+    "detailTitle": "Beveiligingsmelding",
+    "resolutionNotes": "Oplossingsnotities (optioneel)",
+    "resolutionNotesPlaceholder": "bijv. Onderzocht — valse melding van geautomatiseerde test",
+    "acknowledge": "Erkennen",
+    "hideDetails": "▼ Details verbergen",
+    "showDetails": "▶ Details tonen",
+    "badgeTooltip": "{{count}} open kritieke melding(en)"
   }
 }
