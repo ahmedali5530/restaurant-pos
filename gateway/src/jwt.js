@@ -31,12 +31,22 @@ function parseTtlSeconds(ttl) {
   return n;
 }
 
-async function signSession({ userId, login }) {
+async function signSession({ userId, login, roles }) {
   const jti = crypto.randomUUID();
+  // Extract top-level role sections from the hierarchical permission IDs
+  // (e.g. 'admin.dishes.create' → 'admin'). The SurrealDB PERMISSIONS
+  // expressions check `$auth.roles CONTAINS 'admin'` etc. — they need the
+  // top-level sections, not the full hierarchical paths.
+  const topLevelRoles = [...new Set(
+    (Array.isArray(roles) ? roles : [])
+      .map((r) => String(r || '').trim().split('.')[0])
+      .filter(Boolean)
+  )];
   const token = await new SignJWT({
     sub: String(userId),
     login: String(login || ''),
     typ: 'pos_session',
+    roles: topLevelRoles,
   })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
@@ -45,7 +55,7 @@ async function signSession({ userId, login }) {
     .setIssuer('posr-gateway')
     .sign(key);
 
-  return { token, jti, expiresIn: parseTtlSeconds(TTL) };
+  return { token, jti, expiresIn: parseTtlSeconds(TTL), roles: topLevelRoles };
 }
 
 async function verifySession(token) {
