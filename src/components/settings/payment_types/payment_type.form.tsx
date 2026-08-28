@@ -22,6 +22,7 @@ import {GATEWAY_CATALOG, getGatewayDescriptor} from "@/lib/payment/gateway-catal
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { TaxForm } from "@/components/settings/taxes/tax.form.tsx";
+import { saveGatewayCredentials } from "@/lib/payment.service.ts";
 
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 interface Props {
@@ -87,6 +88,27 @@ function getGatewayConfigValues(config: PaymentType["gateway_config"]) {
     merchant_id: cfg.merchant_id || "",
     integrity_salt: cfg.integrity_salt || "",
   };
+}
+
+/**
+ * SECURITY: gateway credentials are now stored encrypted at rest
+ * (gateway_config_encrypted field) and are NEVER sent to the browser. When
+ * editing an existing payment type, the form fields will be empty — this is
+ * intentional. The operator enters new values to replace the stored (encrypted)
+ * credentials. Leaving a field empty means "keep the existing value" — the
+ * server merges the new values with the existing encrypted blob.
+ *
+ * The form shows a hint banner when editing an existing payment type with a
+ * gateway configured, so the operator understands why the fields are empty.
+ */
+function hasExistingEncryptedCredentials(data: PaymentType | undefined): boolean {
+  // The SPA reads payment_type records directly via Surreal /rpc. The
+  // gateway_config_encrypted field is either a string ("enc:v1:...") or NONE.
+  // We check for a non-empty string to detect existing encrypted credentials.
+  // We do NOT decrypt or display the ciphertext — it's meaningless to the
+  // operator and would leak the format.
+  const v = (data as any)?.gateway_config_encrypted;
+  return typeof v === 'string' && v.length > 0;
 }
 
 export const PaymentTypeForm = ({
@@ -161,30 +183,37 @@ export const PaymentTypeForm = ({
 
     vals.priority = Number(vals.priority);
     vals.type = values.type.value;
-    if (values.type.value === 'Remote') {
-      const cleanedGatewayConfig = Object.fromEntries(
-        Object.entries(values.gateway_config || {}).filter(([, value]) => {
+
+    // Extract non-empty gateway credential values. Declared here (outside the
+    // Remote branch) so we can reference it later when deciding whether to
+    // call the encrypted-save endpoint.
+    const cleanedGatewayConfig: Record<string, string> = Object.fromEntries(
+      Object.entries(values.gateway_config || {})
+        .filter(([, value]) => {
           return value !== undefined && value !== null && String(value).trim() !== '';
         })
-      );
+        .map(([key, value]) => [key, String(value)])
+    );
+
+    if (values.type.value === 'Remote') {
       vals.gateway = values.gateway?.value || null;
       vals.gateway_mode = values.gateway_mode?.value || null;
 
-      const existingGatewayConfigId = getGatewayConfigId(data?.gateway_config);
-      let gatewayConfigId = existingGatewayConfigId;
-
-      if (values.gateway && Object.keys(cleanedGatewayConfig).length > 0) {
-        if (gatewayConfigId) {
-          await db.merge(gatewayConfigId, cleanedGatewayConfig);
-        } else {
-          const [createdGatewayConfig] = await db.create(Tables.payment_type_gateway_configs, cleanedGatewayConfig);
-          gatewayConfigId = createdGatewayConfig?.id?.toString?.() || null;
-        }
-      } else {
-        gatewayConfigId = null;
-      }
-
-      vals.gateway_config = gatewayConfigId ? new StringRecordId(gatewayConfigId) : null;
+      // SECURITY: gateway credentials are saved separately via the encrypted
+      // /payments/credentials/:paymentTypeId endpoint. They MUST NOT be written
+      // to the payment_type_gateway_configs table directly via /rpc — that
+      // would store them in plaintext. The payment_type record itself only
+      // holds a (now-optional) link to a config record for non-secret fields.
+      //
+      // Flow:
+      //   1. Save the payment_type record first (without gateway_config) so we
+      //      have its id (for new records) or it's updated (for existing).
+      //   2. If there are credentials to save, POST them to the encrypted
+      //      endpoint — the server writes to gateway_config_encrypted and
+      //      clears the legacy plaintext field.
+      //   3. The payment_type.gateway_config link field is left null — the
+      //      payments service reads from gateway_config_encrypted transparently.
+      vals.gateway_config = null;
     } else {
       vals.gateway = null;
       vals.gateway_mode = null;
@@ -201,18 +230,47 @@ export const PaymentTypeForm = ({
     vals.discounts = null;
     vals.has_discount = false;
 
+    // Capture the cleaned credentials before we strip them — we'll save them
+    // via the encrypted endpoint after the payment_type record is persisted.
+    const credentialsToSave = (vals.type === 'Remote' && values.gateway && Object.keys(cleanedGatewayConfig || {}).length > 0)
+      ? cleanedGatewayConfig
+      : null;
+
     try {
+      let savedPaymentTypeId: string | null = null;
       if(data?.id){
         await db.update(toRecordId(data.id), {
           ...vals
-        })
+        });
+        savedPaymentTypeId = String(data.id);
       }else{
-        await db.create(Tables.payment_types, {
+        const [created] = await db.create(Tables.payment_types, {
           ...vals
         });
+        savedPaymentTypeId = created?.id?.toString?.() || null;
       }
 
-      
+      // Now save the gateway credentials via the encrypted endpoint (if any).
+      // This happens AFTER the payment_type record exists — the server needs
+      // the id to know which record to update.
+      if (credentialsToSave && savedPaymentTypeId) {
+        try {
+          await saveGatewayCredentials(savedPaymentTypeId, credentialsToSave);
+        } catch (err: any) {
+          // The payment_type was saved, but the credentials failed to encrypt.
+          // Surface the error — the operator should retry. The payment_type
+          // itself is functional (e.g. for Cash/Card) but the remote gateway
+          // won't work until credentials are saved.
+          toast.error(t('toast:admin.gatewayCredentialsSaveFailed', {
+            defaultValue: 'Payment type saved, but gateway credentials failed to save: {{error}}',
+            error: err?.message || String(err),
+          }));
+          // Don't close the modal — let the operator retry.
+          return;
+        }
+      }
+
+
       await emitEntityCrudSave({
         domain: 'manage',
         table: Tables.payment_types,
@@ -334,6 +392,16 @@ export const PaymentTypeForm = ({
           {isRemoteType && selectedGatewayDescriptor && (
             <div className="mb-3 border rounded p-3">
               <h4 className="font-medium mb-3">Gateway Keys</h4>
+              {hasExistingEncryptedCredentials(data) && (
+                <div className="mb-3 p-2 bg-amber-50 border border-amber-200 rounded text-sm text-amber-800 dark:bg-amber-950/30 dark:border-amber-800 dark:text-amber-200">
+                  <strong>{t('admin:forms.encryptedCredentialsHint', {
+                    defaultValue: 'Credentials are stored encrypted.'
+                  })}</strong>{' '}
+                  {t('admin:forms.encryptedCredentialsExplanation', {
+                    defaultValue: 'Fields are empty for security — enter new values only to replace existing credentials. Leave blank to keep the current values.'
+                  })}
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3 mb-3">
                 {selectedGatewayDescriptor.fields.map((field) => (
                   <InputField
