@@ -17,6 +17,7 @@ import { AdminTaxes } from "@/components/settings/taxes";
 import { AdminUsers } from "@/components/settings/users";
 import { SecurityAlertsPanel } from "@/components/admin/security-alerts";
 import { GiftCardManagement } from "@/components/admin/gift-card-management.tsx";
+import { MarketingManagement } from "@/components/admin/marketing-management.tsx";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {AdminMenus} from "@/components/settings/menu";
 import {AdminPrints} from "@/components/settings/prints";
@@ -46,6 +47,7 @@ const ADMIN_TAB_KEYS = [
   'users',
   'security_alerts',
   'gift_cards',
+  'marketing',
 ] as const;
 
 type AdminTabKey = (typeof ADMIN_TAB_KEYS)[number];
@@ -70,6 +72,7 @@ const TAB_I18N_KEYS: Record<AdminTabKey, string> = {
   users: 'tabs.users',
   security_alerts: 'tabs.securityAlerts',
   gift_cards: 'tabs.giftCards',
+  marketing: 'tabs.marketing',
 };
 
 /** Stable permission codes stored in user roles — not translated labels. */
@@ -93,6 +96,7 @@ const ADMIN_TAB_MODULES: Record<AdminTabKey, string> = {
   users: 'admin.users',
   security_alerts: 'admin.security_alerts',
   gift_cards: 'admin.gift_cards',
+  marketing: 'admin.marketing',
 };
 
 export const Admin = () => {
@@ -121,6 +125,7 @@ export const Admin = () => {
     users: { component: <AdminUsers/>, title: t('tabs.users') },
     security_alerts: { component: <SecurityAlertsPanel/>, title: t('tabs.securityAlerts') },
     gift_cards: { component: <GiftCardManagement/>, title: t('tabs.giftCards', { defaultValue: 'Gift Cards' }) },
+    marketing: { component: <MarketingManagement/>, title: t('tabs.marketing', { defaultValue: 'Marketing' }) },
   }), [t]);
 
   return (
