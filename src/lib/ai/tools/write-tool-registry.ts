@@ -1,10 +1,12 @@
 import type {OpenAIToolDefinition} from "@/lib/openai.service.ts";
 import type {AiReportToolDomain} from "@/lib/ai/tools/categories.ts";
 import {hasWritePermissionModule} from "@/lib/ai/tools/write-permissions.ts";
+import {WRITE_INTENT_PATTERN} from "@/lib/ai/tools/write-intent-i18n.ts";
 import {WRITE_TOOL_REGISTRY, type WriteToolRegistryEntry} from "@/lib/ai/tools/write-tool-entries.ts";
 
 export type {WriteToolRegistryEntry} from "@/lib/ai/tools/write-tool-entries.ts";
 export {buildWriteToolPermissionMap} from "@/lib/ai/tools/write-tool-entries.ts";
+export {WRITE_INTENT_PATTERN} from "@/lib/ai/tools/write-intent-i18n.ts";
 
 const toolNameIndex = new Map<string, WriteToolRegistryEntry>();
 const configIdIndex = new Map<string, WriteToolRegistryEntry>();
@@ -35,9 +37,6 @@ const isCreateTool = (toolName: string, entry: WriteToolRegistryEntry) =>
 
 const isUpdateTool = (toolName: string, entry: WriteToolRegistryEntry) =>
   toolName === entry.updateToolName;
-
-export const WRITE_INTENT_PATTERN =
-  /\b(add|create|new|update|change|modify|set|edit|raise|lower|increase|decrease|rename|assign|attach|hire|import)\b/i;
 
 const entryMatchesDomains = (
   entry: WriteToolRegistryEntry,

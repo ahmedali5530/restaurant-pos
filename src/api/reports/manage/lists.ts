@@ -1,5 +1,5 @@
 import {Tables} from "@/api/db/tables.ts";
-import {recordToString} from "@/api/reports/shared/records.ts";
+import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DbClient} from "@/api/reports/shared/types.ts";
 
@@ -14,7 +14,7 @@ const matchesSearch = (haystack: string, search: string) =>
 
 const mapNameId = (rows: Array<{id: unknown; name?: string}>) =>
   rows.map(row => ({
-    id: recordToString(row.id),
+    id: recordIdToString(row.id),
     name: row.name ?? "Unknown",
   }));
 
@@ -30,7 +30,7 @@ export const listFloors = async (db: DbClient, options: ListOptions = {}) => {
   const rows = unwrapQueryResult<{id: unknown; name?: string; priority?: number}>(await db.query(query));
   return rows
     .map(row => ({
-      id: recordToString(row.id),
+      id: recordIdToString(row.id),
       name: row.name ?? "Unknown",
       priority: row.priority ?? 0,
     }))
@@ -60,7 +60,7 @@ export const listTables = async (db: DbClient, options: TableListOptions = {}) =
     .map(row => {
       const floor = row.floor_name ?? row.floor?.name ?? "";
       return {
-        id: recordToString(row.id),
+        id: recordIdToString(row.id),
         name: row.name ?? "",
         number: String(row.number ?? ""),
         floor_name: floor,
@@ -115,7 +115,7 @@ export const listTaxes = async (db: DbClient, options: ListOptions = {}) => {
   );
   return rows
     .map(row => ({
-      id: recordToString(row.id),
+      id: recordIdToString(row.id),
       name: row.name ?? "Unknown",
       rate: row.rate ?? 0,
       priority: row.priority ?? 0,
@@ -147,7 +147,7 @@ export const listDiscounts = async (db: DbClient, options: DiscountListOptions =
 
   return rows
     .map(row => ({
-      id: recordToString(row.id),
+      id: recordIdToString(row.id),
       name: row.name ?? "Unknown",
       type: row.type ?? "",
       category: row.category ?? "",
@@ -185,7 +185,7 @@ export const listPaymentTypes = async (db: DbClient, options: ListOptions = {}) 
   );
   return rows
     .map(row => ({
-      id: recordToString(row.id),
+      id: recordIdToString(row.id),
       name: row.name ?? "Unknown",
       type: row.type ?? "",
       priority: row.priority ?? 0,
@@ -225,7 +225,7 @@ export const listCoupons = async (db: DbClient, options: ListOptions = {}) => {
 
   return rows
     .map(row => ({
-      id: recordToString(row.id),
+      id: recordIdToString(row.id),
       code: row.code ?? "",
       description: row.description ?? "",
       coupon_type: row.coupon_type ?? "",
@@ -282,7 +282,7 @@ export const getMenuItems = async (db: DbClient, options: MenuItemsOptions = {})
       .map(row => {
         const item = row.menu_item;
         return {
-          id: recordToString(item?.id ?? row.id),
+          id: recordIdToString(item?.id ?? row.id),
           name: item?.name ?? row.name ?? "",
           number: String(item?.number ?? row.number ?? ""),
           menu_name: row.menu_name ?? row.menu?.name ?? "",
@@ -302,7 +302,7 @@ export const getMenuItems = async (db: DbClient, options: MenuItemsOptions = {})
   );
   return rows
     .map(row => ({
-      id: recordToString(row.id),
+      id: recordIdToString(row.id),
       name: row.name ?? "",
       number: String(row.number ?? ""),
       menu_name: "",
@@ -336,7 +336,7 @@ export const listPrinters = async (db: DbClient, options: ListOptions = {}) => {
   );
   return rows
     .map(row => ({
-      id: recordToString(row.id),
+      id: recordIdToString(row.id),
       name: row.name ?? "Unknown",
       type: row.type ?? "",
       priority: row.priority ?? 0,
@@ -368,7 +368,7 @@ export const listUsers = async (db: DbClient, options: ListOptions = {}) => {
     .map(row => {
       const name = `${row.first_name ?? ""} ${row.last_name ?? ""}`.trim();
       return {
-        id: recordToString(row.id),
+        id: recordIdToString(row.id),
         name,
         login: row.login ?? "",
         login_method: row.login_method ?? "pin",
@@ -412,7 +412,7 @@ export const listShifts = async (db: DbClient, options: ListOptions = {}) => {
 
   return rows
     .map(row => ({
-      id: recordToString(row.id),
+      id: recordIdToString(row.id),
       name: row.name ?? "Unknown",
       start_time: row.start_time ?? "",
       end_time: row.end_time ?? "",

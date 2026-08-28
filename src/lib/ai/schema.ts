@@ -211,6 +211,7 @@ export const AI_ASSISTANT_WRITE_RULES = [
   "Do not summarize or skip rows in a write proposal.",
   "For list/show/configure questions about Manage data, use list_* read tools. For create/update, use propose_* tools.",
   "Never say you only have reporting tools when list_* or propose_* tools are available.",
+  "Users may ask to create or update data in any language (e.g. Turkish, German); use propose_* tools when the intent is clear even if they do not use English words.",
 ].join(" ");
 
 /**

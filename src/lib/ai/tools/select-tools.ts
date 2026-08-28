@@ -15,7 +15,7 @@ import {
 } from "@/lib/ai/tools/categories.ts";
 import {filterToolsByPermissions} from "@/lib/ai/tools/permissions.ts";
 
-const SALES_KEYWORDS = /\b(sales|revenue|dishes?|dish|product|menu|items|server|servers|tips?|tip|voids?|discount|coupon|tax|day[\s-]?part|product mix|top selling|unsold|haven't sold|hasn't sold|dashboard|health overview|kpi|ticket\s*time|fastest|slowest|plowhorses?|puzzles?|menu\s+engineering|accountability|turn[\s-]?around)\b/i;
+const SALES_KEYWORDS = /\b(sales|revenue|dishes?|dish|product|menu|items|server|servers|tips?|tip|voids?|discount|coupon|tax|day[\s-]?part|product mix|top selling|unsold|haven't sold|hasn't sold|dashboard|health overview|kpi|ticket\s*time|fastest|slowest|plowhorses?|puzzles?|menu\s+engineering|accountability|turn[\s-]?around|yemek|yemeği|menü)\b/i;
 const INVENTORY_KEYWORDS = /\b(inventory|stock|reorder|consumption|issuance|issued|waste|purchase\s+orders?|pending\s+approval|awaiting\s+approval|purchase|issue|adjustment|ledger|location|transfer|kitchen reconciliation|sale vs consumption|below reorder)\b/i;
 const OPERATIONS_KEYWORDS = /\b(orders?|order\s*id|order:|order\s+detail|dossier|everything\s+for\s+order|delivery|expense|activity log|audit|cash closing|closing|clocked in|clock[\s-]?in|active session|prep|preparation|delay|kitchen|station|cancel|comp|modified|settled|fraud|fraudulent|suspicious|anomal\w*|tamper(?:ing)?|unauthorized|theft)\b/i;
 const LABOR_KEYWORDS = /\b(labor|labour|payroll|overtime|attendance|scheduled|shift|employee|staff cost|labor cost|labor percent|labor %|workforce|hr|over[\s-]?staff|hourly)\b/i;

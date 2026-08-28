@@ -16,6 +16,8 @@ export const RELEASES: ReleaseNotes[] = [
       'Write proposal review for wide configs (e.g. discounts) now uses a readable card layout with only filled-in fields instead of squeezing dozens of columns into one row.',
       'Discount write proposals no longer send null max_cap values that could fail SurrealDB schema coercion on confirm.',
       'The floating AI assistant now appears only on back-office screens (Manage, Inventory, Reports, HR, Accounts, Integrations, Tips, and Clock) and is hidden on cashier-facing POS screens.',
+      'Discount import and list tools now preserve full Surreal record ids (e.g. category:…) for BXGY targets instead of stripping the table prefix.',
+      'Assistant write tools now recognize create/update requests in Turkish and other supported languages, not only English keywords.',
     ],
   },
   {

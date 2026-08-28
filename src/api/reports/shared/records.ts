@@ -61,3 +61,10 @@ export const toQueryRecordId = (
 
   return new StringRecordId(id);
 };
+
+/** Ensure a value is a full table:id string for persistence and discount targets. */
+export const qualifyRecordId = (value: unknown, table: string): string => {
+  const normalized = recordIdToString(value);
+  if (!normalized) return "";
+  return normalized.includes(":") ? normalized : `${table}:${normalized}`;
+};

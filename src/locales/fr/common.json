@@ -203,7 +203,7 @@
   "aiAssistant": {
     "open": "Ouvrir {{name}}",
     "title": "{{name}} – Assistant IA",
-    "placeholder": "Posez des questions sur les ventes ou demandez d'ajouter/mettre à jour un plat…",
+    "placeholder": "Posez des questions sur ventes, stocks, gestion ou demandez une création/mise à jour…",
     "reviewPrompt": "J'ai préparé {{count}} modification(s) de {{entity}} à examiner ci-dessous.",
     "reviewTitle": "Examiner les modifications",
     "confirm": "Confirmer",
@@ -223,7 +223,7 @@
       "salesToday": "Afficher le résumé des ventes d'aujourd'hui",
       "tablesFloor": "Lister les tables de l'étage Delivery",
       "bogoDiscount": "Créer une remise BOGO automatique pour les entrées",
-      "addDish": "Ajouter un nouveau plat Margherita à 9 €",
+      "addDish": "Ajouter un nouveau plat Margherita à x €",
       "listUsers": "Lister tous les utilisateurs POS",
       "inventoryStock": "Afficher les articles en stock sous le seuil de réapprovisionnement"
     },

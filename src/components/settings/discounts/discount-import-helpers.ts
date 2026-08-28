@@ -1,6 +1,6 @@
 import {Tables} from "@/api/db/tables.ts";
 import type {BuyXGetYCondition, DiscountSchedule, DiscountTargets} from "@/api/model/discount.ts";
-import {recordToString} from "@/api/reports/shared/records.ts";
+import {qualifyRecordId, recordIdToString} from "@/api/reports/shared/records.ts";
 import {DISCOUNT_CATEGORIES, STACKING_MODES, TAX_TREATMENTS} from "@/lib/discount-engine/types.ts";
 import type {ImportDbLike} from "@/lib/data-import/types.ts";
 
@@ -21,6 +21,9 @@ const parseStringList = (value: unknown): string[] => {
   return [];
 };
 
+const looksLikeBareRecordId = (value: string): boolean =>
+  /^[a-zA-Z0-9_-]+$/.test(value) && value.length >= 8;
+
 async function resolveIdsByNames(
   db: ImportDbLike,
   table: string,
@@ -28,7 +31,15 @@ async function resolveIdsByNames(
   searchFields: string[] = ["name"],
 ): Promise<string[]> {
   const ids: string[] = [];
-  for (const name of names) {
+  for (const raw of names) {
+    const token = String(raw ?? "").trim();
+    if (!token) continue;
+
+    if (token.includes(":")) {
+      ids.push(qualifyRecordId(token, table));
+      continue;
+    }
+
     let found: unknown = null;
     for (const field of searchFields) {
       const rows = unwrapRows<{id: unknown}>(
@@ -36,7 +47,7 @@ async function resolveIdsByNames(
           `SELECT id FROM ${table}
            WHERE deleted_at = NONE AND string::lowercase(${field}) = string::lowercase($name)
            LIMIT 1`,
-          {name},
+          {name: token},
         ),
       );
       if (rows[0]?.id) {
@@ -44,10 +55,16 @@ async function resolveIdsByNames(
         break;
       }
     }
-    if (!found) {
-      throw new Error(`${table} not found: ${name}`);
+
+    if (!found && looksLikeBareRecordId(token)) {
+      ids.push(qualifyRecordId(token, table));
+      continue;
     }
-    ids.push(recordToString(found));
+
+    if (!found) {
+      throw new Error(`${table} not found: ${token}`);
+    }
+    ids.push(qualifyRecordId(found, table));
   }
   return ids;
 }

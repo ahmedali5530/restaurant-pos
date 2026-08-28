@@ -203,7 +203,7 @@
   "aiAssistant": {
     "open": "Abrir {{name}}",
     "title": "{{name}} – Asistente de IA",
-    "placeholder": "Pregunte sobre ventas o pida agregar/actualizar un plato…",
+    "placeholder": "Pregunte sobre ventas, inventario, gestión o solicite crear/actualizar…",
     "reviewPrompt": "He preparado {{count}} cambio(s) de {{entity}} para que los revise a continuación.",
     "reviewTitle": "Revisar cambios",
     "confirm": "Confirmar",
@@ -223,7 +223,7 @@
       "salesToday": "Muéstrame el resumen de ventas de hoy",
       "tablesFloor": "Lista las mesas del piso Delivery",
       "bogoDiscount": "Crear descuento BOGO automático para entrantes",
-      "addDish": "Agregar un plato nuevo Margherita a $9",
+      "addDish": "Agregar un plato nuevo Margherita a $x",
       "listUsers": "Listar todos los usuarios del POS",
       "inventoryStock": "Mostrar artículos de inventario bajo el nivel de reorden"
     },

@@ -203,7 +203,7 @@
   "aiAssistant": {
     "open": "{{name}}'i aç",
     "title": "{{name}} – Yapay Zeka Asistanı",
-    "placeholder": "Satışlar hakkında sorun veya yemek ekleme/güncelleme isteyin…",
+    "placeholder": "Satış, envanter, yönetim hakkında sorun veya oluşturma/güncelleme isteyin…",
     "reviewPrompt": "Aşağıda incelemeniz için {{count}} {{entity}} değişikliği hazırladım.",
     "reviewTitle": "Değişiklikleri incele",
     "confirm": "Onayla",
@@ -223,7 +223,7 @@
       "salesToday": "Bugünün satış özetini göster",
       "tablesFloor": "Delivery katındaki masaları listele",
       "bogoDiscount": "Başlangıçlar için otomatik BOGO indirimi oluştur",
-      "addDish": "9 TL'ye yeni Margherita yemeği ekle",
+      "addDish": "x TL'ye yeni Margherita yemeği ekle",
       "listUsers": "Tüm POS kullanıcılarını listele",
       "inventoryStock": "Yeniden sipariş seviyesinin altındaki stokları göster"
     },

@@ -44,6 +44,12 @@ import {
   fetchExistingScheduledShiftRaw,
   fetchExistingTableRaw,
 } from "@/lib/ai/tools/write-tool-fetchers.ts";
+import {
+  CATEGORY_WRITE_KEYWORDS,
+  DISCOUNT_WRITE_KEYWORDS,
+  DISH_WRITE_KEYWORDS,
+  TABLE_WRITE_KEYWORDS,
+} from "@/lib/ai/tools/write-intent-i18n.ts";
 
 export type WriteToolRegistryEntry = {
   configId: string;
@@ -448,7 +454,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
     createToolName: "propose_create_dishes",
     updateToolName: "propose_update_dishes",
     permissionModules: {create: "admin.dishes.create", update: "admin.dishes.update"},
-    keywords: /\b(dish|dishes|menu item|menu items)\b/i,
+    keywords: DISH_WRITE_KEYWORDS,
     domains: ["sales", "lookup"],
     createConfig: createDishImportConfig,
     mergeUpdatePatches: mergeDishUpdatePatches,
@@ -460,7 +466,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
     createToolName: "propose_create_categories",
     updateToolName: "propose_update_categories",
     permissionModules: {create: "admin.categories.create", update: "admin.categories.update"},
-    keywords: /\b(categor(?:y|ies)|menu categor(?:y|ies))\b/i,
+    keywords: CATEGORY_WRITE_KEYWORDS,
     domains: ["sales", "lookup"],
     createConfig: createCategoryImportConfig,
     mergeUpdatePatches: mergeCategoryUpdatePatches,
@@ -479,7 +485,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
     createToolName: "propose_create_tables",
     updateToolName: "propose_update_tables",
     permissionModules: {create: "admin.tables.create", update: "admin.tables.update"},
-    keywords: /\b(table|tables|floor table)\b/i,
+    keywords: TABLE_WRITE_KEYWORDS,
     domains: ["manage", "operations"],
     createConfig: createTableImportConfig,
     mergeUpdatePatches: mergeTableUpdatePatches,
@@ -657,7 +663,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
     createToolName: "propose_create_discounts",
     updateToolName: "propose_update_discounts",
     permissionModules: {create: "admin.discounts.create", update: "admin.discounts.update"},
-    keywords: /\b(discount|discounts|buy.?x.?get.?y|bxgy|buy \d+ get \d+)\b/i,
+    keywords: DISCOUNT_WRITE_KEYWORDS,
     domains: ["manage", "sales"],
     actionKeywords: /\b(add|create|update|change|set|new|buy \d+ get \d+|free on)\b/i,
     createConfig: createDiscountImportConfig,

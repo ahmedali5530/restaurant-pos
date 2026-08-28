@@ -203,7 +203,7 @@
   "aiAssistant": {
     "open": "{{name}} openen",
     "title": "{{name}} – AI-assistent",
-    "placeholder": "Vraag over verkopen of vraag om een gerecht toe te voegen/bij te werken…",
+    "placeholder": "Vraag over verkopen, voorraad, beheer of vraag om aanmaken/bijwerken…",
     "reviewPrompt": "Ik heb {{count}} {{entity}}-wijziging(en) voor u klaargezet om hieronder te bekijken.",
     "reviewTitle": "Wijzigingen bekijken",
     "confirm": "Bevestigen",
@@ -223,7 +223,7 @@
       "salesToday": "Toon de verkoopsamenvatting van vandaag",
       "tablesFloor": "Lijst tafels op de Delivery-verdieping",
       "bogoDiscount": "Automatische BOGO-korting voor voorgerechten maken",
-      "addDish": "Nieuw gerecht Margherita toevoegen voor €9",
+      "addDish": "Nieuw gerecht Margherita toevoegen voor €x",
       "listUsers": "Alle POS-gebruikers weergeven",
       "inventoryStock": "Voorraadartikelen onder bestelniveau tonen"
     },

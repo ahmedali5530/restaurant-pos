@@ -202,7 +202,7 @@
   "aiAssistant": {
     "open": "Open {{name}}",
     "title": "{{name}} - AI Assistant",
-    "placeholder": "Ask about sales, or ask to add/update a dish…",
+    "placeholder": "Ask about sales, inventory, manage—or request a create or update…",
     "reviewPrompt": "I've prepared {{count}} {{entity}} change(s) for you to review below.",
     "reviewTitle": "Review changes",
     "confirm": "Confirm",
@@ -222,7 +222,7 @@
       "salesToday": "Show me today's sales summary",
       "tablesFloor": "List tables on the Delivery floor",
       "bogoDiscount": "Create automatic BOGO discount for starters",
-      "addDish": "Add a new dish Margherita at $9",
+      "addDish": "Add a new dish Margherita for x price",
       "listUsers": "List all POS users",
       "inventoryStock": "Show inventory items below reorder level"
     },

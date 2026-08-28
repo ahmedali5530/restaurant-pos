@@ -203,7 +203,7 @@
   "aiAssistant": {
     "open": "{{name}} öffnen",
     "title": "{{name}} – KI-Assistent",
-    "placeholder": "Fragen Sie nach Umsätzen oder bitten Sie, ein Gericht hinzuzufügen/zu aktualisieren…",
+    "placeholder": "Fragen Sie zu Umsatz, Inventar und Verwaltung — oder bitten Sie um Erstellen/Aktualisieren…",
     "reviewPrompt": "Ich habe {{count}} {{entity}}-Änderung(en) zur Überprüfung vorbereitet.",
     "reviewTitle": "Änderungen überprüfen",
     "confirm": "Bestätigen",
@@ -223,7 +223,7 @@
       "salesToday": "Zeigen Sie mir die heutige Umsatzübersicht",
       "tablesFloor": "Tische auf der Delivery-Etage auflisten",
       "bogoDiscount": "Automatischen BOGO-Rabatt für Vorspeisen erstellen",
-      "addDish": "Neues Gericht Margherita für 9 € hinzufügen",
+      "addDish": "Neues Gericht Margherita für x € hinzufügen",
       "listUsers": "Alle POS-Benutzer auflisten",
       "inventoryStock": "Lagerartikel unter Mindestbestand anzeigen"
     },

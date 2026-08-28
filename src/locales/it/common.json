@@ -203,7 +203,7 @@
   "aiAssistant": {
     "open": "Apri {{name}}",
     "title": "{{name}} – Assistente IA",
-    "placeholder": "Chiedi informazioni sulle vendite o richiedi di aggiungere/aggiornare un piatto…",
+    "placeholder": "Chiedi di vendite, inventario, gestione o richiedi creazione/aggiornamento…",
     "reviewPrompt": "Ho preparato {{count}} modifica/he di {{entity}} da rivedere qui sotto.",
     "reviewTitle": "Rivedi modifiche",
     "confirm": "Conferma",
@@ -223,7 +223,7 @@
       "salesToday": "Mostrami il riepilogo vendite di oggi",
       "tablesFloor": "Elenca i tavoli del piano Delivery",
       "bogoDiscount": "Crea sconto BOGO automatico per gli antipasti",
-      "addDish": "Aggiungi un nuovo piatto Margherita a 9 €",
+      "addDish": "Aggiungi un nuovo piatto Margherita a x €",
       "listUsers": "Elenca tutti gli utenti POS",
       "inventoryStock": "Mostra articoli di magazzino sotto il livello di riordino"
     },
