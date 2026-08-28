@@ -6,7 +6,8 @@ export type AiReportToolDomain =
   | "labor"
   | "accounts"
   | "chart"
-  | "lookup";
+  | "lookup"
+  | "manage";
 
 export const AI_REPORT_TOOL_CATEGORIES: Record<AiReportToolDomain | "core", readonly string[]> = {
   core: ["resolve_date_range"],
@@ -89,6 +90,25 @@ export const AI_REPORT_TOOL_CATEGORIES: Record<AiReportToolDomain | "core", read
     "list_menu_items",
     "list_inventory_items",
   ],
+  manage: [
+    "list_floors",
+    "list_tables",
+    "list_modifier_groups",
+    "list_kitchens",
+    "list_taxes",
+    "list_discounts",
+    "list_order_types",
+    "list_payment_types",
+    "list_extras",
+    "list_coupons",
+    "list_menus",
+    "get_menu_items",
+    "list_workflows",
+    "list_printers",
+    "list_users",
+    "list_roles",
+    "list_shifts",
+  ],
 };
 
 export const ALL_AI_REPORT_TOOL_NAMES = [
@@ -101,4 +121,5 @@ export const ALL_AI_REPORT_TOOL_NAMES = [
   ...AI_REPORT_TOOL_CATEGORIES.accounts,
   ...AI_REPORT_TOOL_CATEGORIES.chart,
   ...AI_REPORT_TOOL_CATEGORIES.lookup,
+  ...AI_REPORT_TOOL_CATEGORIES.manage,
 ];

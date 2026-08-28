@@ -57,11 +57,17 @@ function splitMulti(value: any): string[] {
     .filter(Boolean);
 }
 
+function isEmptyPlaceholder(value: any): boolean {
+  if (value === null || value === undefined || value === "") return true;
+  const normalized = String(value).trim().toLowerCase();
+  return ["—", "-", "n/a", "na", "none", "null", "undefined", "nil"].includes(normalized);
+}
+
 function coerceFieldValue(
   field: ImportField,
   raw: any
 ): {value: any; issue?: ImportIssue} {
-  if (raw === null || raw === undefined || raw === "") {
+  if (raw === null || raw === undefined || raw === "" || (field.optional && isEmptyPlaceholder(raw))) {
     if (field.defaultValue !== undefined) {
       return {value: field.defaultValue};
     }
@@ -76,6 +82,9 @@ function coerceFieldValue(
     case "number": {
       const v = coerceNumber(raw);
       if (v === null && String(raw).trim() !== "") {
+        if (field.optional) {
+          return {value: null};
+        }
         return {
           value: null,
           issue: {
@@ -91,6 +100,9 @@ function coerceFieldValue(
     case "boolean": {
       const v = coerceBoolean(raw);
       if (v === null && String(raw).trim() !== "") {
+        if (field.optional) {
+          return {value: field.defaultValue ?? null};
+        }
         return {
           value: null,
           issue: {
@@ -188,7 +200,25 @@ export function normalizeRecords(
     for (const field of config.fields) {
       if (!field.transform) continue;
       try {
-        values[field.name] = field.transform(values[field.name], values);
+        const before = values[field.name];
+        const after = field.transform(values[field.name], values);
+        values[field.name] = after;
+        if (
+          before !== null &&
+          before !== undefined &&
+          before !== "" &&
+          after !== null &&
+          after !== undefined &&
+          after !== "" &&
+          String(before).trim() !== String(after).trim()
+        ) {
+          issues.push({
+            field: field.name,
+            code: "auto_corrected",
+            severity: "warning",
+            message: `Matched "${String(before).trim()}" → "${String(after).trim()}"`,
+          });
+        }
       } catch (err: any) {
         issues.push({
           field: field.name,

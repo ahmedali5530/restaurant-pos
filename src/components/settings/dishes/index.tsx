@@ -14,6 +14,8 @@ import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {createDishImportConfig} from "@/components/settings/dishes/dish.import.config.ts";
 import {createDishIngredientsImportConfig} from "@/components/settings/dishes/dish-ingredients.import.config.ts";
 import {createDishModifiersImportConfig} from "@/components/settings/dishes/dish-modifiers.import.config.ts";
+import {createSmartMenuImportConfig} from "@/components/settings/dishes/smart-menu.import.config.ts";
+import {Dropdown, DropdownItem} from "@/components/common/react-aria/dropdown.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {DishView} from "@/components/settings/dishes/dish.view.tsx";
@@ -43,6 +45,7 @@ export const AdminDishes = () => {
   const [dishImportModal, setImportModal] = useState(false);
   const [ingredientsImportModal, setIngredientsImportModal] = useState(false);
   const [modifierGroupsImportModal, setModifierGroupsImportModal] = useState(false);
+  const [menuStructureImportModal, setMenuStructureImportModal] = useState(false);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [bulkEdit, setBulkEdit] = useState({
     state: false,
@@ -59,6 +62,10 @@ export const AdminDishes = () => {
   );
   const modifiersImportConfig = useMemo(
     () => createDishModifiersImportConfig({db, t}),
+    [db, t]
+  );
+  const menuStructureImportConfig = useMemo(
+    () => createSmartMenuImportConfig({db, t}),
     [db, t]
   );
 
@@ -229,24 +236,34 @@ export const AdminDishes = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button variant="primary" onClick={() => {
-            protectAction(() => setImportModal(true), {
-              module: 'admin.dishes.import',
-              description: getAccessRuleChildLabel('admin.dishes.import'),
-            });
-          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImportDishes')}</Button>,
-          <Button variant="primary" onClick={() => {
-            protectAction(() => setIngredientsImportModal(true), {
-              module: 'admin.dishes.import',
-              description: getAccessRuleChildLabel('admin.dishes.import'),
-            });
-          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImportIngredients')}</Button>,
-          <Button variant="primary" onClick={() => {
-            protectAction(() => setModifierGroupsImportModal(true), {
-              module: 'admin.dishes.import',
-              description: getAccessRuleChildLabel('admin.dishes.import'),
-            });
-          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImportModifierGroups')}</Button>,
+          <Dropdown
+            key="ai-import"
+            label={<><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</>}
+            onAction={(key) => {
+              protectAction(() => {
+                if (key === 'dishes') setImportModal(true);
+                else if (key === 'ingredients') setIngredientsImportModal(true);
+                else if (key === 'modifier_groups') setModifierGroupsImportModal(true);
+                else if (key === 'menu_structure') setMenuStructureImportModal(true);
+              }, {
+                module: 'admin.dishes.import',
+                description: getAccessRuleChildLabel('admin.dishes.import'),
+              });
+            }}
+          >
+            <DropdownItem id="dishes" textValue={t('buttons.smartImportDishes')} className="text-left min-w-[16rem]">
+              {t('buttons.smartImportDishes')}
+            </DropdownItem>
+            <DropdownItem id="ingredients" textValue={t('buttons.smartImportIngredients')} className="text-left min-w-[16rem]">
+              {t('buttons.smartImportIngredients')}
+            </DropdownItem>
+            <DropdownItem id="modifier_groups" textValue={t('buttons.smartImportModifierGroups')} className="text-left min-w-[16rem]">
+              {t('buttons.smartImportModifierGroups')}
+            </DropdownItem>
+            <DropdownItem id="menu_structure" textValue={t('buttons.smartImportMenuStructure')} className="text-left min-w-[16rem]">
+              {t('buttons.smartImportMenuStructure')}
+            </DropdownItem>
+          </Dropdown>,
           <Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
@@ -315,7 +332,7 @@ export const AdminDishes = () => {
           defaultMatchFields={['number']}
           onExport={async () => {
             const [dishes] = await db.query(
-              `SELECT * FROM ${Tables.dishes} WHERE deleted_at = none FETCH categories, tax`
+              `SELECT * FROM ${Tables.dishes} WHERE deleted_at = none FETCH categories`
             );
             return (dishes as Dish[]).map((d) => ({
               name: d.name ?? '',
@@ -324,7 +341,6 @@ export const AdminDishes = () => {
               price: String(d.price ?? ''),
               cost: String(d.cost ?? ''),
               categories: (d.categories ?? []).map((c) => c.name).join('|'),
-              tax: d.tax?.name ?? '',
             }));
           }}
           onDone={() => loadHook.fetchData()}
@@ -379,6 +395,17 @@ export const AdminDishes = () => {
               should_auto_select: edge.should_auto_select ? 'true' : 'false',
             }));
           }}
+          onDone={() => loadHook.fetchData()}
+        />
+      )}
+
+      {menuStructureImportModal && (
+        <DataImportModal
+          isOpen
+          onClose={() => setMenuStructureImportModal(false)}
+          config={menuStructureImportConfig}
+          title={t('forms.smartImportMenuStructureTitle')}
+          enableImportModes={false}
           onDone={() => loadHook.fetchData()}
         />
       )}

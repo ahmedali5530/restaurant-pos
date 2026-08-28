@@ -5,11 +5,12 @@ import type {
   ImportField,
   ImportRecord,
   ImportRowContext,
+  ResolvedReference,
 } from "@/lib/data-import/types.ts";
 import {
   parseImportBool,
+  requireRefId,
   resolveDishByNumberOrName,
-  resolveInventoryItem,
   type TFunc,
 } from "@/lib/data-import/helpers.ts";
 import {
@@ -39,10 +40,19 @@ export function createDishIngredientsImportConfig({
     {
       name: "ingredient",
       label: t("admin:columns.ingredientNameOrNumber"),
-      type: "string",
+      type: "reference",
       required: true,
       aliases: ["Ingredient", "Ingredient name", "Name", "Number", "Item", "Code", "SKU"],
-      description: t("admin:columns.ingredientNameOrNumber"),
+      description: t("common:dataImport.ingredientMustExist", {
+        defaultValue:
+          "Must match an existing inventory item name or code exactly (case-insensitive). Pick from the list if unresolved.",
+      }),
+      lookup: {
+        table: Tables.inventory_items,
+        searchFields: ["name", "code"],
+        strategy: "require_selection",
+        softDelete: false,
+      },
     },
     {
       name: "uom",
@@ -85,13 +95,20 @@ export function createDishIngredientsImportConfig({
     matchFields: ["dish_number", "ingredient"],
     defaultMode: "create",
     db,
-    extractionInstructions:
-      "Extract dish recipe ingredient rows with dish (name or number), ingredient (name or code/number), optional UOM for display, quantity, optional cost, and price-lock flag.",
+    extractionInstructions: [
+      "Extract dish recipe ingredient rows with dish (name or number), ingredient (name or code), optional UOM, quantity, optional cost, and price-lock flag.",
+      "For `ingredient`, copy the name or code EXACTLY as printed on the document — character for character.",
+      "Do NOT correct spelling, OCR typos, punctuation, spacing, or casing on ingredient names or codes.",
+      "Do NOT substitute a similar-looking inventory name. Unusual or misspelled text may be a real inventory item code/name in the system.",
+      "If an ingredient is unreadable, use null rather than guessing a cleaned-up name.",
+    ].join(" "),
     onImportRow: async (record: ImportRecord, ctx: ImportRowContext) => {
       const v = record.values;
       const dishKey = String(v.dish_number ?? "").trim();
-      const ingredientKey = String(v.ingredient ?? "").trim();
       if (!dishKey) throw new Error(t("toast:admin.invalidDishNameOrNumber"));
+
+      const ingredientRef = v.ingredient as ResolvedReference | null;
+      const ingredientKey = String(ingredientRef?.label ?? "").trim();
       if (!ingredientKey) throw new Error(t("toast:admin.invalidIngredient"));
 
       const dishResult = await resolveDishByNumberOrName(db, dishKey);
@@ -104,13 +121,17 @@ export function createDishIngredientsImportConfig({
       const dish = dishResult.dish;
       const dishId = toRecordId(dish.id);
 
-      const inventoryItem = await resolveInventoryItem(db, ingredientKey);
+      const itemId = requireRefId(ingredientRef, t("toast:admin.invalidIngredient"));
+
+      const [itemRows] = await db.query(
+        `SELECT * FROM ${Tables.inventory_items} WHERE id = $id LIMIT 1`,
+        {id: itemId}
+      );
+      const inventoryItem = itemRows?.[0];
       if (!inventoryItem) throw new Error(t("toast:admin.invalidIngredient"));
       if (!canUseInDishRecipe(inventoryItem)) {
         throw new Error(t("toast:admin.invalidIngredientType"));
       }
-
-      const itemId = toRecordId(inventoryItem.id);
 
       const quantity = Number(v.quantity);
       if (!Number.isFinite(quantity) || quantity <= 0) {

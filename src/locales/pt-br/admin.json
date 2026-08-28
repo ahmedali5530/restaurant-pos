@@ -90,7 +90,11 @@
     "isPriceLocked": "Preço bloqueado",
     "hasRequiredModifiers": "Tem modificadores obrigatórios",
     "shouldAutoOpen": "Abrir automaticamente",
-    "shouldAutoSelect": "Selecionar automaticamente"
+    "shouldAutoSelect": "Selecionar automaticamente",
+    "recordType": "Tipo de linha",
+    "dishName": "Prato",
+    "parentModifier": "Tamanho pai",
+    "nextGroup": "Próximo grupo"
   },
   "entities": {
     "dish": "Prato",
@@ -146,7 +150,8 @@
     "smartImportDishes": "Importação IA",
     "smartImport": "Importação IA",
     "smartImportIngredients": "Importação IA de ingredientes",
-    "smartImportModifierGroups": "Importação IA de grupos de modificadores"
+    "smartImportModifierGroups": "Importação IA de grupos de modificadores",
+    "smartImportMenuStructure": "Importar estrutura do cardápio com IA"
   },
   "delete": {
     "dish": "Excluir item {{name}}",
@@ -350,7 +355,8 @@
     "smartImportPaymentTypesTitle": "Importação IA de tipos de pagamento",
     "smartImportExtrasTitle": "Importação IA de extras",
     "smartImportKitchensTitle": "Importação IA de cozinhas",
-    "smartImportStandaloneModifierGroupsTitle": "Importação IA de grupos de modificadores"
+    "smartImportStandaloneModifierGroupsTitle": "Importação IA de grupos de modificadores",
+    "smartImportMenuStructureTitle": "Importar estrutura do cardápio (tamanhos, adicionais, vínculos)"
   },
   "dishView": {
     "detailsTitle": "Detalhes do prato",

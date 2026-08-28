@@ -22,6 +22,7 @@ export type ImportIssueCode =
   | "invalid_type"
   | "unresolved_reference"
   | "ambiguous_reference"
+  | "auto_corrected"
   | "low_confidence"
   | "duplicate"
   | "custom";
@@ -68,6 +69,11 @@ export type ImportField = {
   /** Alternate CSV/Excel header names for auto-mapping */
   aliases?: string[];
   defaultValue?: any;
+  /**
+   * When set, the field value must match one of these (case-insensitive)
+   * after transform. Used for enums like UOM.
+   */
+  allowedValues?: string[];
   /** Post-parse transform (runs after type coercion) */
   transform?: (value: any, row: Record<string, any>) => any;
   lookup?: ImportFieldLookup;
@@ -91,10 +97,23 @@ export type ImportRecord = {
 
 export type ImportShape = "records" | "document";
 
+/** How OCR JSON is expected before review-row expansion. */
+export type ExtractionResponseMode = "records" | "graph";
+
 export type ImportRowContext = {
   mode: CsvImportMode;
   matchFields: string[];
   index: number;
+};
+
+export type ImportBatchContext = ImportRowContext & {
+  signal?: AbortSignal;
+  onProgress?: (current: number, total: number) => void;
+};
+
+export type ImportBatchResult = {
+  imported: number;
+  failed: Array<{index: number; message: string}>;
 };
 
 export type ImportSummary = {
@@ -122,13 +141,38 @@ export type ImportConfiguration = {
    * This is the only place entity-specific extraction wording should live.
    */
   extractionInstructions: string;
+  /**
+   * Optional async enrichment appended to extractionInstructions before OCR
+   * (e.g. known category/location names from the database).
+   */
+  enrichExtractionContext?: (db: ImportDbLike) => Promise<string>;
+  /**
+   * `graph` — OCR returns a nested JSON document described in extractionInstructions;
+   * `onExpandExtracted` must flatten it into review rows.
+   * Default `records` — flat `{records:[...]}` matching `fields`.
+   */
+  extractionResponseMode?: ExtractionResponseMode;
+  /**
+   * Expand a parsed graph (or raw AI object) into flat field rows before normalize.
+   * Required when `extractionResponseMode` is `graph`.
+   */
+  onExpandExtracted?: (parsed: any) => Array<Record<string, any>>;
   matchFields?: string[];
   defaultMode?: CsvImportMode;
   /**
    * Persist one validated review row. Throws on failure.
    * Return value is ignored; success is inferred from no throw.
+   * Skipped when `onImportBatch` is provided.
    */
   onImportRow: (record: ImportRecord, ctx: ImportRowContext) => Promise<void>;
+  /**
+   * Optional ordered batch import. When set, replaces per-row `onImportRow`
+   * after references are created. Use for multi-entity graphs with dependencies.
+   */
+  onImportBatch?: (
+    records: ImportRecord[],
+    ctx: ImportBatchContext
+  ) => Promise<ImportBatchResult | void>;
   /**
    * Optional: create a missing reference when strategy is `create`
    * and the user confirmed create (or auto-create is enabled).

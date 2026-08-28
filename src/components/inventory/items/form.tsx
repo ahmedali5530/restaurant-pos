@@ -26,6 +26,7 @@ import {
   itemTypesToSelectOptions,
   normalizeItemTypes,
 } from "@/utils/inventoryItemTypes.ts";
+import {getInventoryUomOptions} from "@/utils/inventoryUom.ts";
 import {InventoryItemType} from "@/api/model/inventory_item.ts";
 import {getReorderLevelForStore} from "@/utils/inventory.ts";
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
@@ -340,10 +341,7 @@ export const InventoryItemForm = ({
                 name="uom"
                 render={({ field }) => (
                   <ReactSelect
-                    options={['KG', 'G', 'L', 'ML', 'PC', 'DZN', 'PK'].map(item => ({
-                      label: item,
-                      value: item
-                    }))}
+                    options={getInventoryUomOptions()}
                     value={field.value}
                     onChange={field.onChange}
                   />

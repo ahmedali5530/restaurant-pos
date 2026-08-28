@@ -90,7 +90,11 @@
     "isPriceLocked": "Preis gesperrt",
     "hasRequiredModifiers": "Erforderliche Modifier",
     "shouldAutoOpen": "Automatisch öffnen",
-    "shouldAutoSelect": "Automatisch auswählen"
+    "shouldAutoSelect": "Automatisch auswählen",
+    "recordType": "Zeilentyp",
+    "dishName": "Gericht",
+    "parentModifier": "Übergeordnete Größe",
+    "nextGroup": "Nächste Gruppe"
   },
   "entities": {
     "dish": "Gericht",
@@ -146,7 +150,8 @@
     "smartImportDishes": "KI-Import",
     "smartImport": "KI-Import",
     "smartImportIngredients": "Zutaten KI-Import",
-    "smartImportModifierGroups": "Modifiergruppen KI-Import"
+    "smartImportModifierGroups": "Modifiergruppen KI-Import",
+    "smartImportMenuStructure": "KI-Import Menüstruktur"
   },
   "delete": {
     "dish": "Artikel {{name}} löschen",
@@ -350,7 +355,8 @@
     "smartImportPaymentTypesTitle": "Zahlungsarten KI-Import",
     "smartImportExtrasTitle": "Extras KI-Import",
     "smartImportKitchensTitle": "Küchen KI-Import",
-    "smartImportStandaloneModifierGroupsTitle": "Modifiergruppen KI-Import"
+    "smartImportStandaloneModifierGroupsTitle": "Modifiergruppen KI-Import",
+    "smartImportMenuStructureTitle": "KI-Import Menüstruktur (Größen, Toppings, Verknüpfungen)"
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",

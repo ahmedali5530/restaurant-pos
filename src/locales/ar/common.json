@@ -156,6 +156,11 @@
     "importingProgress": "جارٍ استيراد الصف {{current}} من {{total}}…",
     "reviewHelp": "{{count}} سجلات جاهزة للمراجعة. صحّح الخلايا المميزة قبل الاستيراد.",
     "blockingErrors": "ما زال هناك أخطاء في {{count}} صف/صفوف",
+    "filterLabel": "عرض:",
+    "filterAll": "الكل ({{count}})",
+    "filterValid": "صالح ({{count}})",
+    "filterInvalid": "غير صالح ({{count}})",
+    "noMatchingFilter": "لا توجد صفوف تطابق هذا الفلتر.",
     "revalidate": "إعادة التحقق",
     "addRow": "إضافة صف",
     "removeRow": "إزالة الصف",
@@ -181,6 +186,48 @@
     "unresolvedTax": "ضريبة غير محلولة: {{name}}",
     "cannotCreateCategory": "تعذر إنشاء الفئة (قاعدة البيانات غير متاحة).",
     "pasteHint": "أو الصق بـ Ctrl+V / Cmd+V (ملف أو صورة أو خلايا Excel)",
-    "pasteUnsupported": "الحافظة لا تحتوي على ملف أو صورة أو جدول مدعوم."
+    "pasteUnsupported": "الحافظة لا تحتوي على ملف أو صورة أو جدول مدعوم.",
+    "unknownRecordType": "نوع صف غير معروف: {{type}}",
+    "selectValue": "اختر…",
+    "enumValues": {
+      "record_type": {
+        "dish": "طبق",
+        "size_option": "خيار حجم",
+        "addon_option": "خيار إضافة",
+        "dish_link": "ربط طبق ↔ مجموعة",
+        "nested_override": "تجاوز سعر متداخل"
+      }
+    },
+    "ingredientMustExist": "يجب أن يطابق اسم أو رمز صنف مخزون موجود تماماً (بدون حساسية لحالة الأحرف). اختر من القائمة إن لم يُحل."
+  },
+  "aiAssistant": {
+    "open": "فتح {{name}}",
+    "title": "{{name}} – مساعد الذكاء الاصطناعي",
+    "placeholder": "اسأل عن المبيعات والمخزون والإدارة، أو اطلب إنشاء/تحديث…",
+    "reviewPrompt": "لقد أعددت {{count}} تغيير(ات) على {{entity}} للمراجعة أدناه.",
+    "reviewTitle": "مراجعة التغييرات",
+    "confirm": "تأكيد",
+    "applied": "تم التطبيق: {{imported}} تم إنشاؤها/تحديثها، {{failed}} فشلت، {{skipped}} تم تخطيها.",
+    "cancelled": "ألغى المستخدم هذا التغيير.",
+    "sessionExpired": "انتهت جلستك. يرجى تسجيل الدخول مرة أخرى.",
+    "issues": "المشكلات",
+    "expand": "توسيع المساعد",
+    "collapse": "تصغير المساعد",
+    "clear": "مسح",
+    "clearConversation": "مسح المحادثة",
+    "clearConfirm": "هل تريد مسح محادثة المساعد على هذا الجهاز؟",
+    "working": "{{name}} يعمل على طلبك…",
+    "examplesTitle": "ما يمكنك أن تسأل",
+    "examplesHint": "انقر على مثال لتجربته مع {{name}}:",
+    "examples": {
+      "salesToday": "أظهر ملخص مبيعات اليوم",
+      "tablesFloor": "اعرض الطاولات في طابق التوصيل",
+      "bogoDiscount": "أنشئ خصم BOGO تلقائي للمقبلات",
+      "addDish": "أضف طبقًا جديدًا مارغريتا بـ x",
+      "listUsers": "اعرض جميع مستخدمي نقطة البيع",
+      "inventoryStock": "اعرض أصناف المخزون تحت حد إعادة الطلب"
+    },
+    "unknownConfig": "تكوين استيراد غير معروف للمعاينة.",
+    "passwordWillBeSet": "سيتم تعيين كلمة المرور عند التأكيد"
   }
 }

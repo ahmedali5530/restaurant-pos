@@ -1,4 +1,5 @@
 import { User } from "@/api/model/user.ts";
+import { toRecordId } from "@/lib/utils.ts";
 
 export type AccessRuleModule = {
   label: string;
@@ -651,6 +652,40 @@ export const getUserModules = (user?: User): string[] => {
   const modules = [...modulesFromRoles, ...(user.roles || [])];
 
   return normalizeModules(modules);
+};
+
+type DbQueryClient = {
+  query: (sql: string, params?: unknown) => Promise<unknown>;
+};
+
+/**
+ * Resolve permission modules for the current user — mirrors protectAction's
+ * server-side role fetch so the AI assistant sees the same grants as Manage UI.
+ */
+export const fetchUserModules = async (
+  db: DbQueryClient,
+  user?: User,
+): Promise<string[]> => {
+  if (!user?.id) return [];
+
+  if (getProtectModulesSource() === "memory") {
+    return getUserModules(user);
+  }
+
+  try {
+    const result = await db.query(
+      `SELECT * FROM ONLY ${toRecordId(user.id)} WHERE deleted_at = none FETCH user_role`,
+    ) as [User?];
+    const row = Array.isArray(result) ? result[0] : undefined;
+    const fromRole = normalizeModules(row?.user_role?.roles);
+    if (fromRole.length) {
+      return fromRole;
+    }
+  } catch {
+    // fall back to the in-memory login snapshot
+  }
+
+  return getUserModules(user);
 };
 
 export type ProtectModulesSource = "server" | "memory";

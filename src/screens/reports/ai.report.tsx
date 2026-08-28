@@ -1,7 +1,5 @@
-import {useCallback, useEffect, useMemo, useRef, useState, type ReactNode} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useTranslation} from "react-i18next";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import {useDB} from "@/api/db/db.ts";
 import {useDatabase} from "@/hooks/useDatabase.ts";
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
@@ -10,10 +8,10 @@ import {Textarea} from "@/components/common/input/textarea.tsx";
 import {AiExamplePrompts} from "@/components/reports/ai/ai.example.prompts.tsx";
 import {AiFormatSelector} from "@/components/reports/ai/ai.format.selector.tsx";
 import {AiReportCharts} from "@/components/reports/ai/ai.report.charts.tsx";
+import {AiMarkdown} from "@/components/reports/ai/ai.markdown.tsx";
 import type {DbClient} from "@/api/reports/shared/types.ts";
 import {runAiReportAgent, type AiReportAgentResult} from "@/lib/ai/agent.ts";
 import type {AiOrderRef} from "@/lib/ai/order-refs.ts";
-import {linkifyOrderChildren, ReceiptMarkdownLink} from "@/lib/ai/order-receipt-links.tsx";
 import {orderReceiptUrl} from "@/routes/posr.ts";
 import {AI_EXAMPLE_PROMPTS} from "@/lib/ai/example.prompts.ts";
 import {
@@ -28,84 +26,7 @@ import {
 import {AiQuotaError, fetchAiUsage, type AiUsageStatus} from "@/lib/openai.service.ts";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
-
-const buildMarkdownComponents = (orderRefs: AiOrderRef[]) => ({
-  h1: ({children}: {children?: ReactNode}) => (
-    <h1 className="text-2xl font-bold text-gray-900 mb-4 mt-6 first:mt-0">{children}</h1>
-  ),
-  h2: ({children}: {children?: ReactNode}) => (
-    <h2 className="text-xl font-semibold text-gray-800 mb-3 mt-5 first:mt-0">{children}</h2>
-  ),
-  h3: ({children}: {children?: ReactNode}) => (
-    <h3 className="text-lg font-semibold text-gray-800 mb-2 mt-4 first:mt-0">{children}</h3>
-  ),
-  p: ({children}: {children?: ReactNode}) => (
-    <p className="mb-3 text-gray-800 leading-relaxed last:mb-0">
-      {linkifyOrderChildren(children, orderRefs)}
-    </p>
-  ),
-  ul: ({children}: {children?: ReactNode}) => (
-    <ul className="mb-3 list-disc pl-6 text-gray-800 space-y-1">{children}</ul>
-  ),
-  ol: ({children}: {children?: ReactNode}) => (
-    <ol className="mb-3 list-decimal pl-6 text-gray-800 space-y-1">{children}</ol>
-  ),
-  li: ({children}: {children?: ReactNode}) => (
-    <li className="leading-relaxed">{linkifyOrderChildren(children, orderRefs)}</li>
-  ),
-  strong: ({children}: {children?: ReactNode}) => (
-    <strong className="font-semibold text-gray-900">{children}</strong>
-  ),
-  code: ({children, className}: {children?: ReactNode; className?: string}) => {
-    const isBlock = className?.includes("language-");
-    if (isBlock) {
-      return (
-        <code className="block overflow-x-auto rounded bg-gray-100 p-3 text-sm text-gray-800 my-3">
-          {children}
-        </code>
-      );
-    }
-    return (
-      <code className="rounded bg-gray-100 px-1.5 py-0.5 text-sm text-gray-800">{children}</code>
-    );
-  },
-  pre: ({children}: {children?: ReactNode}) => (
-    <pre className="mb-3 overflow-x-auto">{children}</pre>
-  ),
-  table: ({children}: {children?: ReactNode}) => (
-    <div className="my-4 overflow-x-auto rounded-lg border border-neutral-200">
-      <table className="min-w-full border-collapse bg-white text-sm">{children}</table>
-    </div>
-  ),
-  thead: ({children}: {children?: ReactNode}) => (
-    <thead className="bg-neutral-50">{children}</thead>
-  ),
-  tbody: ({children}: {children?: ReactNode}) => (
-    <tbody className="divide-y divide-neutral-100 bg-white">{children}</tbody>
-  ),
-  tr: ({children}: {children?: ReactNode}) => (
-    <tr className="divide-x divide-neutral-100">{children}</tr>
-  ),
-  th: ({children}: {children?: ReactNode}) => (
-    <th className="px-4 py-3 text-left text-sm font-semibold text-neutral-700 whitespace-nowrap">
-      {children}
-    </th>
-  ),
-  td: ({children}: {children?: ReactNode}) => (
-    <td className="px-4 py-3 text-sm text-neutral-800 align-top">
-      {linkifyOrderChildren(children, orderRefs)}
-    </td>
-  ),
-  a: ({href, children}: {href?: string; children?: ReactNode}) => (
-    <ReceiptMarkdownLink href={href}>{children}</ReceiptMarkdownLink>
-  ),
-  blockquote: ({children}: {children?: ReactNode}) => (
-    <blockquote className="mb-3 border-l-4 border-primary-300 pl-4 text-gray-600 italic">
-      {children}
-    </blockquote>
-  ),
-  hr: () => <hr className="my-4 border-gray-200"/>,
-});
+import {getUserModules} from "@/lib/access.rules.ts";
 
 type ConversationEntry = {role: "user" | "assistant"; content: string};
 
@@ -187,10 +108,7 @@ export const AiReport = () => {
     query: (sql, params) => queryRef.current(sql, params),
   }), []);
 
-  const allowedModules = useMemo(() => {
-    const roles = user?.user_role?.roles ?? user?.role?.roles ?? [];
-    return Array.isArray(roles) ? roles as string[] : [];
-  }, [user?.user_role?.roles, user?.role?.roles]);
+  const allowedModules = useMemo(() => getUserModules(user), [user]);
 
   const applyResult = useCallback((result: AiReportAgentResult, userPrompt: string) => {
     setResponse(result.answer);
@@ -302,11 +220,6 @@ export const AiReport = () => {
     })();
   }, [isConnected]);
 
-  const markdownComponents = useMemo(
-    () => buildMarkdownComponents(orderRefs),
-    [orderRefs],
-  );
-
   const receiptHref = useMemo(() => {
     const usedDetail = toolsUsed.some((tool) => tool.name === "get_order_detail");
     const ref = usedDetail ? orderRefs[0] : undefined;
@@ -407,9 +320,7 @@ export const AiReport = () => {
             )}
             {response && (
               <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-gray-800">
-                <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                  {response}
-                </ReactMarkdown>
+                <AiMarkdown orderRefs={orderRefs}>{response}</AiMarkdown>
               </div>
             )}
           </div>

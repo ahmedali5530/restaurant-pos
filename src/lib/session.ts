@@ -177,6 +177,68 @@ export function invalidateGatewaySession(): void {
   }
 }
 
+export class SessionAuthError extends Error {
+  constructor(message = 'Session expired. Please sign in again.') {
+    super(message);
+    this.name = 'SessionAuthError';
+  }
+}
+
+export function isSidecarSessionAuthFailure(status: number, errorMessage?: string): boolean {
+  if (status !== 401) {
+    return false;
+  }
+  const msg = String(errorMessage ?? '').toLowerCase();
+  return (
+    msg.includes('unauthorized') ||
+    msg.includes('invalid or expired session') ||
+    msg.includes('invalid token type')
+  );
+}
+
+export type ApiErrorBody = {
+  ok?: boolean;
+  success?: boolean;
+  error?: string;
+};
+
+/**
+ * Decide whether a failed fetch to a sidecar (api, payments, etc.) should clear
+ * the POS session. Module routes wrap errors as `{ success: false }`; gateway
+ * session middleware uses `{ ok: false }`. Upstream AI 401s must not log the
+ * user out.
+ */
+export function shouldInvalidateSessionFromApiError(
+  status: number,
+  body: ApiErrorBody | null,
+  errorMessage?: string,
+): boolean {
+  if (!isGatewayAuthEnabled() || status !== 401) {
+    return false;
+  }
+  if (body?.ok === false) {
+    return isSidecarSessionAuthFailure(status, errorMessage);
+  }
+  if (body?.success === false) {
+    return false;
+  }
+  const msg = String(errorMessage ?? '').toLowerCase();
+  return msg.includes('invalid or expired session') || msg.includes('invalid token type');
+}
+
+/** Invalidate gateway session when a sidecar rejects the POS session JWT. */
+export function invalidateSessionOnSidecarAuthFailure(
+  status: number,
+  errorMessage?: string,
+  body: ApiErrorBody | null = null,
+): boolean {
+  if (!shouldInvalidateSessionFromApiError(status, body, errorMessage)) {
+    return false;
+  }
+  invalidateGatewaySession();
+  return true;
+}
+
 /** Append gateway session JWT to the Surreal WS URL for the relay. */
 export function withGatewayWsToken(wsUrl: string, sessionToken: string): string {
   try {

@@ -23,6 +23,7 @@ import {AutoClockOutProvider} from "@/providers/auto-clock-out.provider.tsx";
 import {I18nProvider} from "@/providers/i18n.provider.tsx";
 import {AppRoutes} from "@/routes/app.routes.tsx";
 import {IntegrationProvider} from "@/providers/integration.provider.tsx";
+import {AiAssistantWidget} from "@/components/ai-assistant/assistant-widget.tsx";
 
 
 // react query client wrapper
@@ -70,6 +71,7 @@ function App() {
                             <SessionIdleProvider>
                               <AutoClockOutProvider>
                                 <GlobalDeliveryOrderPopup/>
+                                <AiAssistantWidget/>
                                 <AppRoutes/>
                               </AutoClockOutProvider>
                             </SessionIdleProvider>

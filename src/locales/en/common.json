@@ -155,6 +155,11 @@
     "importingProgress": "Importing row {{current}} of {{total}}…",
     "reviewHelp": "{{count}} records ready for review. Fix highlighted cells before importing.",
     "blockingErrors": "{{count}} row(s) still have errors",
+    "filterLabel": "Show:",
+    "filterAll": "All ({{count}})",
+    "filterValid": "Valid ({{count}})",
+    "filterInvalid": "Invalid ({{count}})",
+    "noMatchingFilter": "No rows match this filter.",
     "revalidate": "Re-check",
     "addRow": "Add row",
     "removeRow": "Remove row",
@@ -176,11 +181,53 @@
     "keepUnresolved": "Needs selection",
     "yes": "Yes",
     "no": "No",
-    "unresolvedCategory": "Unresolved category: {{name}}",
-    "unresolvedTax": "Unresolved tax: {{name}}",
+    "unresolvedCategory": "Unresolved category \"{{name}}\"",
+    "unresolvedTax": "Unresolved tax \"{{name}}\"",
     "cannotCreateCategory": "Cannot create category (database unavailable).",
     "pasteHint": "Or paste with Ctrl+V / Cmd+V (file, image, or Excel cells)",
-    "pasteUnsupported": "Clipboard has no supported file, image, or table data."
+    "pasteUnsupported": "Clipboard has no supported file, image, or table data.",
+    "unknownRecordType": "Unknown row type: {{type}}",
+    "selectValue": "Select…",
+    "enumValues": {
+      "record_type": {
+        "dish": "Dish",
+        "size_option": "Size option",
+        "addon_option": "Addon option",
+        "dish_link": "Dish ↔ group link",
+        "nested_override": "Nested price override"
+      }
+    },
+    "ingredientMustExist": "Must match an existing inventory item name or code exactly (case-insensitive). Pick from the list if unresolved."
+  },
+  "aiAssistant": {
+    "open": "Open {{name}}",
+    "title": "{{name}} - AI Assistant",
+    "placeholder": "Ask about sales, inventory, manage—or request a create or update…",
+    "reviewPrompt": "I've prepared {{count}} {{entity}} change(s) for you to review below.",
+    "reviewTitle": "Review changes",
+    "confirm": "Confirm",
+    "applied": "Applied: {{imported}} created/updated, {{failed}} failed, {{skipped}} skipped.",
+    "cancelled": "User cancelled this change.",
+    "sessionExpired": "Your session expired. Please sign in again.",
+    "issues": "Issues",
+    "expand": "Expand assistant",
+    "collapse": "Collapse assistant",
+    "clear": "Clear",
+    "clearConversation": "Clear conversation",
+    "clearConfirm": "Clear this assistant conversation on this device?",
+    "working": "{{name}} is working on your request…",
+    "examplesTitle": "What you can ask",
+    "examplesHint": "Click a prompt to try it with {{name}}:",
+    "examples": {
+      "salesToday": "Show me today's sales summary",
+      "tablesFloor": "List tables on the Delivery floor",
+      "bogoDiscount": "Create automatic BOGO discount for starters",
+      "addDish": "Add a new dish Margherita for x price",
+      "listUsers": "List all POS users",
+      "inventoryStock": "Show inventory items below reorder level"
+    },
+    "unknownConfig": "Unknown import configuration for preview.",
+    "passwordWillBeSet": "Password will be set on confirm"
   },
   "loading": "Loading..."
 }

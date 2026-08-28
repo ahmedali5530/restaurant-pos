@@ -1,3 +1,4 @@
+import {memo, useMemo} from "react";
 import {useTranslation} from "react-i18next";
 import {Input} from "@/components/common/input/input.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
@@ -17,6 +18,12 @@ type Props = {
 
 function issuesForField(record: ImportRecord, fieldName: string): ImportIssue[] {
   return record.issues.filter((i) => i.field === fieldName);
+}
+
+function fieldIssuesSignature(record: ImportRecord, fieldName: string): string {
+  return issuesForField(record, fieldName)
+    .map((i) => `${i.code}:${i.severity}:${i.message}`)
+    .join("|");
 }
 
 function buildReferenceOptions(
@@ -44,7 +51,40 @@ function buildReferenceOptions(
   return base;
 }
 
-export const DataImportReviewCell = ({field, record, onChange}: Props) => {
+function valuesEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (typeof a === "object" && typeof b === "object") {
+    try {
+      return JSON.stringify(a) === JSON.stringify(b);
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+function importSelectStyles(hasError: boolean, hasWarning: boolean) {
+  if (!hasError && !hasWarning) return undefined;
+  const borderColor = hasError ? "rgb(244 63 94)" : "rgb(245 158 11)";
+  const focusRing = hasError ? "0 0 0 2px rgb(254 202 202)" : "0 0 0 2px rgb(253 230 138)";
+  return {
+    control: (base: any, state: any) => ({
+      ...base,
+      minHeight: state.selectProps.size === "lg" ? "48px" : "40px",
+      borderColor,
+      borderWidth: 2,
+      ":hover": {borderColor},
+      boxShadow: state.isFocused ? focusRing : "none",
+    }),
+  };
+}
+
+export const DataImportReviewCell = memo(function DataImportReviewCell({
+  field,
+  record,
+  onChange,
+}: Props) {
   const {t} = useTranslation("common");
   const issues = issuesForField(record, field.name);
   const hasError = issues.some((i) => i.severity === "error");
@@ -52,16 +92,29 @@ export const DataImportReviewCell = ({field, record, onChange}: Props) => {
   const title = issues.map((i) => i.message).join("; ") || undefined;
 
   const cellClass = cn(
-    "min-w-[8rem]",
-    hasError && "ring-2 ring-danger/60 rounded",
-    hasWarning && "ring-2 ring-warning/60 rounded"
+    "min-w-0 max-h-10 overflow-hidden rounded",
+    hasError && "ring-2 ring-inset ring-danger",
+    hasWarning && "ring-2 ring-inset ring-warning"
+  );
+  const selectStyles = importSelectStyles(hasError, hasWarning);
+
+  const refValue =
+    field.type === "reference"
+      ? ((record.values[field.name] as ResolvedReference | null) ?? null)
+      : null;
+  const referenceOptions = useMemo(
+    () =>
+      field.type === "reference"
+        ? buildReferenceOptions(refValue, field, (name) =>
+            t("dataImport.createReference", {name})
+          )
+        : [],
+    [field, refValue, t]
   );
 
   if (field.type === "reference") {
-    const ref = (record.values[field.name] as ResolvedReference | null) ?? null;
-    const options = buildReferenceOptions(ref, field, (name) =>
-      t("dataImport.createReference", {name})
-    );
+    const ref = refValue;
+    const options = referenceOptions;
     const selected =
       ref?.id
         ? options.find((o) => o.value === ref.id) ?? {
@@ -95,6 +148,7 @@ export const DataImportReviewCell = ({field, record, onChange}: Props) => {
               onChange({label: opt.label, id: val});
             }}
             isClearable
+            styles={selectStyles}
             menuPortalTarget={document.body}
             className="text-sm"
           />
@@ -144,48 +198,52 @@ export const DataImportReviewCell = ({field, record, onChange}: Props) => {
 
     return (
       <div className={cellClass} title={title}>
-        <div>
-          <ReactSelect
-            isMulti
-            options={options}
-            value={selected}
-            placeholder={
-              refs.find((r) => r.label && !r.id)?.label ||
-              t("dataImport.selectReference")
-            }
-            onChange={(opts: any) => {
-              const next: ResolvedReference[] = (opts || []).map((o: any) => {
-                const val = String(o.value);
-                if (val.startsWith("__create__:")) {
-                  return {label: val.slice("__create__:".length), create: true};
-                }
-                if (val.startsWith("__label__:")) {
-                  return {label: val.slice("__label__:".length)};
-                }
-                return {label: o.label, id: val};
-              });
-              onChange(next);
-            }}
-            menuPortalTarget={document.body}
-            className="text-sm"
-          />
-        </div>
-        {refs.some((r) => r.label && !r.id && !r.create) &&
-          field.lookup?.strategy === "create" && (
-            <button
-              type="button"
-              className="text-xs text-primary mt-1 underline"
-              onClick={() =>
-                onChange(
-                  refs.map((r) =>
-                    r.id || r.create ? r : {...r, create: true}
-                  )
-                )
+        <div className="flex items-center gap-1 min-w-0">
+          <div className="flex-1 min-w-0">
+            <ReactSelect
+              isMulti
+              options={options}
+              value={selected}
+              placeholder={
+                refs.find((r) => r.label && !r.id)?.label ||
+                t("dataImport.selectReference")
               }
-            >
-              {t("dataImport.createAllUnresolved")}
-            </button>
-          )}
+              onChange={(opts: any) => {
+                const next: ResolvedReference[] = (opts || []).map((o: any) => {
+                  const val = String(o.value);
+                  if (val.startsWith("__create__:")) {
+                    return {label: val.slice("__create__:".length), create: true};
+                  }
+                  if (val.startsWith("__label__:")) {
+                    return {label: val.slice("__label__:".length)};
+                  }
+                  return {label: o.label, id: val};
+                });
+                onChange(next);
+              }}
+              styles={selectStyles}
+              menuPortalTarget={document.body}
+              className="text-sm"
+            />
+          </div>
+          {refs.some((r) => r.label && !r.id && !r.create) &&
+            field.lookup?.strategy === "create" && (
+              <button
+                type="button"
+                className="shrink-0 text-xs text-primary underline whitespace-nowrap"
+                title={t("dataImport.createAllUnresolved")}
+                onClick={() =>
+                  onChange(
+                    refs.map((r) =>
+                      r.id || r.create ? r : {...r, create: true}
+                    )
+                  )
+                }
+              >
+                +
+              </button>
+            )}
+        </div>
       </div>
     );
   }
@@ -212,7 +270,42 @@ export const DataImportReviewCell = ({field, record, onChange}: Props) => {
               if (!opt?.value) onChange(null);
               else onChange(opt.value === "true");
             }}
+            styles={selectStyles}
             menuPortalTarget={document.body}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (field.allowedValues?.length) {
+    const raw = record.values[field.name];
+    const current =
+      raw === null || raw === undefined || raw === "" ? "" : String(raw);
+    const options = field.allowedValues.map((value) => ({
+      value,
+      label: t(`dataImport.enumValues.${field.name}.${value}`, {
+        defaultValue: value.replace(/_/g, " "),
+      }),
+    }));
+    const selected = options.find(
+      (o) => o.value.toLowerCase() === current.toLowerCase()
+    );
+
+    return (
+      <div className={cellClass} title={title}>
+        <div>
+          <ReactSelect
+            options={options}
+            value={selected ?? (current ? {label: current, value: current} : null)}
+            placeholder={t("dataImport.selectValue", {defaultValue: "Select…"})}
+            onChange={(opt: any) => {
+              onChange(opt?.value ? String(opt.value) : null);
+            }}
+            isClearable={!field.required}
+            styles={selectStyles}
+            menuPortalTarget={document.body}
+            className="text-sm"
           />
         </div>
       </div>
@@ -247,4 +340,12 @@ export const DataImportReviewCell = ({field, record, onChange}: Props) => {
       </div>
     </div>
   );
-};
+}, (prev, next) => {
+  const fieldName = prev.field.name;
+  if (prev.field !== next.field) return false;
+  if (prev.record.skipped !== next.record.skipped) return false;
+  if (!valuesEqual(prev.record.values[fieldName], next.record.values[fieldName])) {
+    return false;
+  }
+  return fieldIssuesSignature(prev.record, fieldName) === fieldIssuesSignature(next.record, fieldName);
+});

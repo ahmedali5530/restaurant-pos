@@ -32,6 +32,30 @@ export function buildExtractionPrompt(config: ImportConfiguration): string {
     return bits.join(" ");
   });
 
+  const isGraph = config.extractionResponseMode === "graph";
+
+  if (isGraph) {
+    return [
+      "You are a document data extraction engine.",
+      "Extract a structured menu graph from the provided document image(s).",
+      "Return ONLY valid JSON (no markdown fences).",
+      "",
+      `Target entity: ${config.entityLabel}`,
+      "After expansion, reviewers edit flat rows with these fields:",
+      ...fieldLines,
+      "",
+      "Rules:",
+      "- Follow the JSON shape described in Additional instructions exactly.",
+      "- Do NOT invent prices, sizes, or items that are not present or clearly implied.",
+      "- Prefer the document's original language for text fields.",
+      "- Numbers must be plain JSON numbers without currency symbols.",
+      "- Omit size codes that are not listed for a price block.",
+      "",
+      "Additional instructions:",
+      config.extractionInstructions.trim(),
+    ].join("\n");
+  }
+
   return [
     "You are a document data extraction engine.",
     "Extract structured records from the provided document image(s).",

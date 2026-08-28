@@ -28,6 +28,10 @@ export type UseDataImportOptions = {
   config: ImportConfiguration;
 };
 
+export type RecordsUpdater =
+  | ImportRecord[]
+  | ((prev: ImportRecord[]) => ImportRecord[]);
+
 export function useDataImport({config}: UseDataImportOptions) {
   const [step, setStep] = useState<DataImportStep>("upload");
   const [file, setFile] = useState<File | null>(null);
@@ -145,9 +149,24 @@ export function useDataImport({config}: UseDataImportOptions) {
     [applyPipelineResult, cancel, config, structured]
   );
 
-  const updateRecords = useCallback((next: ImportRecord[]) => {
-    setRecords(next);
+  const updateRecords = useCallback((next: RecordsUpdater) => {
+    setRecords((prev) => (typeof next === "function" ? next(prev) : next));
   }, []);
+
+  const patchRecordAt = useCallback(
+    (index: number, patch: (record: ImportRecord) => ImportRecord) => {
+      setRecords((prev) => {
+        const current = prev[index];
+        if (!current) return prev;
+        const updated = patch(current);
+        if (updated === current) return prev;
+        const next = prev.slice();
+        next[index] = updated;
+        return next;
+      });
+    },
+    []
+  );
 
   const revalidate = useCallback(async () => {
     const next = await revalidateImportRecords(config, records);
@@ -204,6 +223,7 @@ export function useDataImport({config}: UseDataImportOptions) {
     startWithFile,
     confirmMapping,
     updateRecords,
+    patchRecordAt,
     revalidate,
     confirmImport,
     cancel,

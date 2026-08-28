@@ -6,6 +6,7 @@ import type {
   ImportRecord,
   ResolvedReference,
 } from "@/lib/data-import/types.ts";
+import {findBestSmartMatch} from "@/lib/data-import/fuzzy.ts";
 import {requireRefId, type TFunc} from "@/lib/data-import/helpers.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {
@@ -14,6 +15,36 @@ import {
   findCsvImportMatches,
   writeCsvImportRow,
 } from "@/utils/csv-import.ts";
+import {parseItemTypesInput} from "@/utils/inventoryItemTypes.ts";
+import {
+  formatUomList,
+  INVENTORY_UOMS,
+  normalizeUom,
+} from "@/utils/inventoryUom.ts";
+
+const CATALOG_PROMPT_LIMIT = 80;
+
+async function loadNameCatalog(
+  db: ImportDbLike,
+  table: string,
+  softDelete = false
+): Promise<string[]> {
+  const where = softDelete ? "WHERE deleted_at = none" : "";
+  const [rows] = await db.query(`SELECT name FROM ${table} ${where}`);
+  return (rows ?? [])
+    .map((r: any) => String(r.name ?? "").trim())
+    .filter(Boolean);
+}
+
+function formatCatalogLine(label: string, names: string[]): string {
+  if (names.length === 0) return "";
+  const shown = names.slice(0, CATALOG_PROMPT_LIMIT);
+  const suffix =
+    names.length > CATALOG_PROMPT_LIMIT
+      ? ` (and ${names.length - CATALOG_PROMPT_LIMIT} more)`
+      : "";
+  return `${label}: ${shown.join(", ")}${suffix}`;
+}
 
 export function createInventoryItemImportConfig({
   db,
@@ -33,11 +64,25 @@ export function createInventoryItemImportConfig({
       lookup: {
         table: Tables.inventory_categories,
         searchFields: ["name"],
-        strategy: "case_insensitive",
+        strategy: "fuzzy",
         softDelete: false,
       },
     },
-    {name: "uom", label: t("inventory:columns.uom"), type: "string", required: true, aliases: ["UOM", "Unit"]},
+    {
+      name: "uom",
+      label: t("inventory:columns.uom"),
+      type: "string",
+      required: true,
+      aliases: ["UOM", "Unit"],
+      description: `Must be one of: ${formatUomList()}`,
+      allowedValues: [...INVENTORY_UOMS],
+      transform: (value) => {
+        if (value === null || value === undefined || value === "") return value;
+        const raw = String(value).trim();
+        if (!raw) return raw;
+        return normalizeUom(raw) ?? raw;
+      },
+    },
     {name: "base_quantity", label: t("inventory:columns.baseQuantity"), type: "number", defaultValue: 1},
     {name: "price", label: t("inventory:columns.price"), type: "number", defaultValue: 0},
     {name: "average_price", label: t("inventory:columns.avgPrice"), type: "number", defaultValue: 0, optional: true},
@@ -49,7 +94,7 @@ export function createInventoryItemImportConfig({
       lookup: {
         table: Tables.inventory_locations,
         searchFields: ["name"],
-        strategy: "case_insensitive",
+        strategy: "fuzzy",
         softDelete: false,
       },
     },
@@ -61,7 +106,7 @@ export function createInventoryItemImportConfig({
       lookup: {
         table: Tables.inventory_suppliers,
         searchFields: ["name"],
-        strategy: "case_insensitive",
+        strategy: "fuzzy",
         softDelete: false,
       },
     },
@@ -71,6 +116,11 @@ export function createInventoryItemImportConfig({
       type: "string",
       optional: true,
       aliases: ["Item types", "Types"],
+      transform: (value) => {
+        if (value === null || value === undefined || value === "") return value;
+        const types = parseItemTypesInput(value);
+        return types.join(", ");
+      },
     },
     {
       name: "reorder_levels",
@@ -90,13 +140,40 @@ export function createInventoryItemImportConfig({
     matchFields: ["code"],
     defaultMode: "create",
     db,
-    extractionInstructions:
-      "Extract inventory items with name, code, category, UOM, quantities, prices, locations, and suppliers. Do not invent codes.",
+    extractionInstructions: [
+      "Extract inventory items with name, code, category, UOM, quantities, prices, locations, and suppliers.",
+      "Do not invent codes.",
+      `UOM must be one of: ${formatUomList()}. Map synonyms (kg, kilogram, pcs, litre, etc.) to these codes.`,
+      "For category, locations, and suppliers, prefer exact names from the Known values list when the document text is a close or extended variant (e.g. \"Main store\" → \"Main\").",
+      "item_types must be raw, semi_finished, and/or finished.",
+    ].join(" "),
+    enrichExtractionContext: async (database) => {
+      const [categories, locations, suppliers] = await Promise.all([
+        loadNameCatalog(database, Tables.inventory_categories),
+        loadNameCatalog(database, Tables.inventory_locations),
+        loadNameCatalog(database, Tables.inventory_suppliers),
+      ]);
+      const lines = [
+        formatCatalogLine("Known categories", categories),
+        formatCatalogLine("Known locations", locations),
+        formatCatalogLine("Known suppliers", suppliers),
+      ].filter(Boolean);
+      if (lines.length === 0) return "";
+      return ["Known values (prefer these exact labels when matching):", ...lines].join("\n");
+    },
     onImportRow: async (record: ImportRecord, ctx) => {
       const v = record.values;
       const name = String(v.name ?? "").trim();
       const code = String(v.code ?? "").trim();
       if (!name || !code) throw new Error(t("validation:required"));
+
+      const uomRaw = String(v.uom ?? "").trim();
+      const uom = normalizeUom(uomRaw);
+      if (!uom) {
+        throw new Error(
+          `Invalid UOM "${uomRaw}". Expected one of: ${formatUomList()}`
+        );
+      }
 
       const categoryId = requireRefId(
         v.category as ResolvedReference,
@@ -116,6 +193,11 @@ export function createInventoryItemImportConfig({
         return toRecordId(r.id);
       });
 
+      const locationCandidates = locations.map((item) => ({
+        label: item.name,
+        id: item.id,
+      }));
+
       const reorderLevels: Record<string, number> = {};
       const reorderRaw = String(v.reorder_levels ?? "").trim();
       if (reorderRaw) {
@@ -124,7 +206,15 @@ export function createInventoryItemImportConfig({
           if (!locationName || !levelStr) {
             throw new Error(`Invalid reorder level entry "${entry.trim()}"`);
           }
-          const location = locations.find((item) => item.name === locationName);
+          let location = locations.find(
+            (item) => item.name.toLowerCase() === locationName.toLowerCase()
+          );
+          if (!location) {
+            const smart = findBestSmartMatch(locationName, locationCandidates);
+            if (smart?.kind === "match") {
+              location = locations.find((item) => item.id === smart.match.id);
+            }
+          }
           if (!location) {
             throw new Error(`Invalid location in reorder levels "${locationName}"`);
           }
@@ -137,14 +227,12 @@ export function createInventoryItemImportConfig({
       }
 
       const itemTypesRaw = String(v.item_types ?? "").trim();
-      const item_types = itemTypesRaw
-        ? itemTypesRaw.split(",").map((s) => s.trim()).filter(Boolean)
-        : undefined;
+      const item_types = itemTypesRaw ? parseItemTypesInput(itemTypesRaw) : undefined;
 
       const payload: any = {
         name,
         code,
-        uom: String(v.uom ?? "").trim(),
+        uom,
         category: categoryId,
         base_quantity: Number(v.base_quantity ?? 1) || 1,
         suppliers,

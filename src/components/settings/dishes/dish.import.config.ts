@@ -101,19 +101,6 @@ export function createDishImportConfig({
         },
       },
     },
-    {
-      name: "tax",
-      label: t("admin:columns.tax", {defaultValue: "Tax"}),
-      type: "reference",
-      optional: true,
-      aliases: ["Tax", "VAT", "GST"],
-      description: "Tax name if shown on the document",
-      lookup: {
-        table: Tables.taxes,
-        searchFields: ["name"],
-        strategy: "require_selection",
-      },
-    },
   ];
 
   return {
@@ -130,7 +117,7 @@ export function createDishImportConfig({
       "Map product names to `name`, prices to `price`, and section/category headings to `categories`.",
       "If a section header applies to multiple items below it, use that section as the category for those items.",
       "Do not invent missing prices or names. Use null when unknown.",
-      "Ignore modifiers, extras, and allergen notes unless they are clearly priced as separate products.",
+      "Ignore modifiers, extras, taxes, and allergen notes unless they are clearly priced as separate products.",
     ].join(" "),
     onImportRow: async (record: ImportRecord, ctx) => {
       const values = record.values;
@@ -162,17 +149,6 @@ export function createDishImportConfig({
         return toRecordId(ref.id);
       });
 
-      const taxRef = values.tax as ResolvedReference | null;
-      let taxId: any | undefined;
-      if (taxRef?.label) {
-        if (!taxRef.id) {
-          throw new Error(
-            t("common:dataImport.unresolvedTax", {name: taxRef.label})
-          );
-        }
-        taxId = toRecordId(taxRef.id);
-      }
-
       const rowData: Record<string, string> = {
         name,
         number,
@@ -193,9 +169,6 @@ export function createDishImportConfig({
         cost: Number.isFinite(cost) ? cost : 0,
         categories: categoryIds,
       };
-      if (taxId) {
-        dishData.tax = taxId;
-      }
 
       const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
         if (field === "price") {
@@ -207,7 +180,7 @@ export function createDishImportConfig({
         if (field === "priority") {
           return {column: "priority", value: Number(value)};
         }
-        if (field === "categories" || field === "tax") {
+        if (field === "categories") {
           throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
         }
         return {column: field, value};

@@ -1,5 +1,9 @@
 import {apiUrl} from "@/lib/api.service.ts";
-import {authHeaders} from "@/lib/session.ts";
+import {
+  authHeaders,
+  invalidateSessionOnSidecarAuthFailure,
+  SessionAuthError,
+} from "@/lib/session.ts";
 
 // Chat completions are proxied through the backend `api` service so profile
 // keys, URLs, and models never ship in the client bundle. See `api/src/modules/ai`.
@@ -124,20 +128,16 @@ const throwFromFailedResponse = async (response: Response): Promise<never> => {
   let code: string | undefined;
   let daily: AiQuotaBucket | undefined;
   let monthly: AiQuotaBucket | undefined;
+  let parsedBody: {ok?: boolean; success?: boolean; error?: string; code?: string; daily?: AiQuotaBucket; monthly?: AiQuotaBucket} | null = null;
 
   try {
-    const parsed = JSON.parse(errorText) as {
-      error?: string;
-      code?: string;
-      daily?: AiQuotaBucket;
-      monthly?: AiQuotaBucket;
-    };
-    if (parsed?.error) {
-      message = parsed.error;
+    parsedBody = JSON.parse(errorText) as typeof parsedBody;
+    if (parsedBody?.error) {
+      message = parsedBody.error;
     }
-    code = parsed?.code;
-    daily = parsed?.daily;
-    monthly = parsed?.monthly;
+    code = parsedBody?.code;
+    daily = parsedBody?.daily;
+    monthly = parsedBody?.monthly;
   } catch {
     // Non-JSON error body; use raw text.
   }
@@ -150,6 +150,10 @@ const throwFromFailedResponse = async (response: Response): Promise<never> => {
       daily,
       monthly,
     );
+  }
+
+  if (invalidateSessionOnSidecarAuthFailure(response.status, message, parsedBody)) {
+    throw new SessionAuthError();
   }
 
   throw new Error(message || `AI request failed with status ${response.status}`);

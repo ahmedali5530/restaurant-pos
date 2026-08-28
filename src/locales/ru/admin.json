@@ -90,7 +90,11 @@
     "isPriceLocked": "Цена зафиксирована",
     "hasRequiredModifiers": "Есть обязательные модификаторы",
     "shouldAutoOpen": "Автооткрытие",
-    "shouldAutoSelect": "Автовыбор"
+    "shouldAutoSelect": "Автовыбор",
+    "recordType": "Тип строки",
+    "dishName": "Блюдо",
+    "parentModifier": "Родительский размер",
+    "nextGroup": "Следующая группа"
   },
   "entities": {
     "dish": "Блюдо",
@@ -146,7 +150,8 @@
     "smartImportDishes": "ИИ-импорт",
     "smartImport": "ИИ-импорт",
     "smartImportIngredients": "ИИ-импорт ингредиентов",
-    "smartImportModifierGroups": "ИИ-импорт групп модификаторов"
+    "smartImportModifierGroups": "ИИ-импорт групп модификаторов",
+    "smartImportMenuStructure": "ИИ-импорт структуры меню"
   },
   "delete": {
     "dish": "Удалить позицию {{name}}",
@@ -350,7 +355,8 @@
     "smartImportPaymentTypesTitle": "ИИ-импорт типов оплаты",
     "smartImportExtrasTitle": "ИИ-импорт дополнений",
     "smartImportKitchensTitle": "ИИ-импорт кухонь",
-    "smartImportStandaloneModifierGroupsTitle": "ИИ-импорт групп модификаторов"
+    "smartImportStandaloneModifierGroupsTitle": "ИИ-импорт групп модификаторов",
+    "smartImportMenuStructureTitle": "ИИ-импорт структуры меню (размеры, топпинги, связи)"
   },
   "dishView": {
     "detailsTitle": "Детали блюда",

@@ -1,5 +1,5 @@
 import {throwIfAborted} from "@/lib/data-import/abort.ts";
-import {findBestFuzzyMatch} from "@/lib/data-import/fuzzy.ts";
+import {findBestSmartMatch} from "@/lib/data-import/fuzzy.ts";
 import type {
   ImportConfiguration,
   ImportDbLike,
@@ -9,7 +9,34 @@ import type {
   ResolvedReference,
 } from "@/lib/data-import/types.ts";
 
-type Candidate = {label: string; value: string};
+type Candidate = {
+  label: string;
+  value: string;
+  /** Extra strings that also resolve to this candidate (e.g. inventory code). */
+  matchLabels?: string[];
+};
+
+function allLabels(c: Candidate): string[] {
+  const labels = [c.label, ...(c.matchLabels ?? [])];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of labels) {
+    const s = String(raw ?? "").trim();
+    if (!s) continue;
+    const key = s.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(s);
+  }
+  return out;
+}
+
+function matchesLabel(c: Candidate, trimmed: string, exact: boolean): boolean {
+  const lower = trimmed.toLowerCase();
+  return allLabels(c).some((label) =>
+    exact ? label === trimmed : label.toLowerCase() === lower
+  );
+}
 
 async function loadCandidates(
   db: ImportDbLike,
@@ -18,19 +45,48 @@ async function loadCandidates(
   const lookup = field.lookup;
   if (!lookup) return [];
 
-  const searchField = lookup.searchFields[0] || "name";
+  const searchFields =
+    lookup.searchFields?.length > 0 ? lookup.searchFields : ["name"];
   const soft = lookup.softDelete !== false;
   const where = soft ? "WHERE deleted_at = none" : "";
+  const selectFields = Array.from(new Set(["id", ...searchFields]));
   const [rows] = await db.query(
-    `SELECT id, ${searchField} AS label FROM ${lookup.table} ${where}`
+    `SELECT ${selectFields.join(", ")} FROM ${lookup.table} ${where}`
   );
 
   return (rows ?? [])
-    .map((r: any) => ({
-      label: String(r.label ?? ""),
-      value: String(r.id ?? ""),
-    }))
-    .filter((c: Candidate) => c.label && c.value);
+    .map((r: any) => {
+      const value = String(r.id ?? "");
+      if (!value) return null;
+
+      const primary = String(r[searchFields[0]] ?? "").trim();
+      const extras = searchFields
+        .slice(1)
+        .map((f) => String(r[f] ?? "").trim())
+        .filter(Boolean);
+
+      let label = primary;
+      if (
+        searchFields.includes("name") &&
+        searchFields.includes("code") &&
+        primary &&
+        String(r.code ?? "").trim()
+      ) {
+        label = `${primary} (${String(r.code).trim()})`;
+      } else if (!label && extras.length) {
+        label = extras[0];
+      }
+
+      const matchLabels = [primary, ...extras].filter(Boolean);
+      if (!label && !matchLabels.length) return null;
+
+      return {
+        label: label || matchLabels[0],
+        value,
+        matchLabels: matchLabels.length ? matchLabels : undefined,
+      } satisfies Candidate;
+    })
+    .filter((c: Candidate | null): c is Candidate => Boolean(c?.label && c?.value));
 }
 
 function matchOne(
@@ -44,15 +100,19 @@ function matchOne(
   }
 
   const lower = trimmed.toLowerCase();
+  const dropdownCandidates = candidates.map((c) => ({
+    label: c.label,
+    value: c.value,
+  }));
 
   if (strategy === "exact") {
-    const hits = candidates.filter((c) => c.label === trimmed);
+    const hits = candidates.filter((c) => matchesLabel(c, trimmed, true));
     if (hits.length === 1) {
-      return {resolved: {label: trimmed, id: hits[0].value}};
+      return {resolved: {label: hits[0].label, id: hits[0].value}};
     }
     if (hits.length > 1) {
       return {
-        resolved: {label: trimmed, candidates},
+        resolved: {label: trimmed, candidates: dropdownCandidates},
         issue: {
           code: "ambiguous_reference",
           severity: "error",
@@ -63,13 +123,13 @@ function matchOne(
   }
 
   if (strategy === "case_insensitive" || strategy === "create" || strategy === "require_selection") {
-    const hits = candidates.filter((c) => c.label.toLowerCase() === lower);
+    const hits = candidates.filter((c) => matchesLabel(c, trimmed, false));
     if (hits.length === 1) {
-      return {resolved: {label: trimmed, id: hits[0].value}};
+      return {resolved: {label: hits[0].label, id: hits[0].value}};
     }
     if (hits.length > 1) {
       return {
-        resolved: {label: trimmed, candidates},
+        resolved: {label: trimmed, candidates: dropdownCandidates},
         issue: {
           code: "ambiguous_reference",
           severity: "error",
@@ -80,15 +140,42 @@ function matchOne(
   }
 
   if (strategy === "fuzzy") {
-    const best = findBestFuzzyMatch(trimmed, candidates);
-    if (best) {
-      return {resolved: {label: trimmed, id: best.match.value}};
+    // Fuzzy matches display labels only (not alternate codes) to avoid
+    // accidental remaps from short codes to similarly spelled names.
+    const result = findBestSmartMatch(trimmed, dropdownCandidates);
+    if (result?.kind === "match") {
+      const canonical = result.match.label;
+      const resolved: ResolvedReference = {
+        label: canonical,
+        id: result.match.value,
+      };
+      if (!result.exact && canonical.toLowerCase() !== lower) {
+        return {
+          resolved,
+          issue: {
+            code: "auto_corrected",
+            severity: "warning",
+            message: `Matched "${trimmed}" → "${canonical}"`,
+          },
+        };
+      }
+      return {resolved};
+    }
+    if (result?.kind === "ambiguous") {
+      return {
+        resolved: {label: trimmed, candidates: result.candidates},
+        issue: {
+          code: "ambiguous_reference",
+          severity: "error",
+          message: `Multiple matches for "${trimmed}"`,
+        },
+      };
     }
   }
 
   if (strategy === "create") {
     return {
-      resolved: {label: trimmed, create: true, candidates},
+      resolved: {label: trimmed, create: true, candidates: dropdownCandidates},
       issue: {
         code: "unresolved_reference",
         severity: "warning",
@@ -101,7 +188,7 @@ function matchOne(
   return {
     resolved: {
       label: trimmed,
-      candidates,
+      candidates: dropdownCandidates,
     },
     issue: {
       code: "unresolved_reference",
@@ -134,7 +221,7 @@ export async function resolveReferences(
       cache.set(field.name, await loadCandidates(db, field));
     }
     const candidates = cache.get(field.name) || [];
-    field.candidates = candidates;
+    field.candidates = candidates.map((c) => ({label: c.label, value: c.value}));
     const strategy = field.lookup.strategy;
 
     for (const record of records) {
@@ -255,4 +342,3 @@ async function createOneReference(
   const [created] = await db.create(field.lookup.table, payload);
   return {id: String(created.id), label: trimmed};
 }
-
