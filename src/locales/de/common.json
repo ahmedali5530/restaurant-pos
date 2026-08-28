@@ -96,7 +96,14 @@
   },
   "lock": {
     "lockedBy": "Gesperrt von {{name}}",
-    "onlyUserCanLogin": "Nur {{name}} kann sich jetzt anmelden"
+    "onlyUserCanLogin": "Nur {{name}} kann sich jetzt anmelden",
+    "lockedTitle": "Sitzung Gesperrt",
+    "enterPinToUnlock": "PIN eingeben zum Entsperren",
+    "unknownUser": "Benutzer",
+    "unlock": "Entsperren",
+    "switchUser": "Benutzer wechseln",
+    "digit": "Ziffer {{d}}",
+    "backspace": "Löschen"
   },
   "table": {
     "page": "Seite",

@@ -21,7 +21,8 @@
     "shifts": "الورديات",
     "tipsDefinition": "تعريف الإكراميات",
     "accessTab": "الوصول إلى {{title}}",
-    "ariaLabel": "علامات تبويب الإدارة"
+    "ariaLabel": "علامات تبويب الإدارة",
+    "securityAlerts": "تنبيهات الأمان"
   },
   "columns": {
     "photo": "الصورة",
@@ -868,5 +869,29 @@
       "saveFailed": "تعذر حفظ الخصم.",
       "createReasonFailed": "تعذر إنشاء سبب الخصم."
     }
+  },
+  "securityAlerts": {
+    "noAccess": "مطلوب دور المسؤول لعرض تنبيهات الأمان.",
+    "loading": "جاري تحميل التنبيهات…",
+    "error": "فشل تحميل التنبيهات",
+    "critical": "حرج",
+    "warning": "تحذير",
+    "info": "معلومات",
+    "noAlerts": "لا توجد تنبيهات مفتوحة",
+    "noAlertsDescription": "لم يحدد كاشف الشذوذ أي نشاط مشبوه.",
+    "count": "×{{n}}",
+    "actor": "الفاعل",
+    "actorId": "معرف الفاعل",
+    "actorRoles": "أدوار الفاعل",
+    "sourceIp": "عنوان IP المصدر",
+    "emittedAt": "صدر في",
+    "ruleType": "نوع القاعدة",
+    "detailTitle": "تنبيه أمني",
+    "resolutionNotes": "ملاحظات الحل (اختياري)",
+    "resolutionNotesPlaceholder": "مثال: تم التحقيق — إنذار كاذب من اختبار آلي",
+    "acknowledge": "إقرار",
+    "hideDetails": "▼ إخفاء التفاصيل",
+    "showDetails": "▶ إظهار التفاصيل",
+    "badgeTooltip": "{{count}} تنبيه حرج مفتوح"
   }
 }
