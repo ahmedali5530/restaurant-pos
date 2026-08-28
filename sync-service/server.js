@@ -39,7 +39,24 @@ async function main() {
     });
   });
 
+  // SECURITY: The /stats endpoint leaks sync topology (table count, processed/
+  // failed event counts, last error message). Without auth, anyone on the
+  // network can probe it. /health is intentionally open (for Docker health
+  // checks + load balancers) but only returns a boolean — /stats returns
+  // detailed data that an attacker could use to plan an attack.
+  //
+  // When SYNC_STATS_SECRET is set, the caller must send it in the
+  // X-Sync-Stats-Secret header. When unset (dev/local), /stats is open.
+  const statsSecret = process.env.SYNC_STATS_SECRET || '';
+
   app.get('/stats', (req, res) => {
+    if (statsSecret) {
+      const provided = req.get('x-sync-stats-secret') || '';
+      if (provided !== statsSecret) {
+        return res.status(403).json({ ok: false, error: 'Forbidden' });
+      }
+    }
+
     if (!manager) {
       res.json({
         enabled: false,

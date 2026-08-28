@@ -61,7 +61,7 @@ router.post('/login', loginRateLimit(), async (req, res) => {
   }
 });
 
-router.get('/session', async (req, res) => {
+router.get('/session', loginRateLimit(), async (req, res) => {
   try {
     const payload = await verifySession(extractBearer(req));
     return res.json({ ok: true, session: payload });
@@ -87,7 +87,7 @@ router.post('/logout', async (req, res) => {
  * Refresh Surreal access token for an existing gateway session.
  * Used when the Surreal token expires but the POS session is still valid.
  */
-router.post('/db-token', async (req, res) => {
+router.post('/db-token', loginRateLimit(), async (req, res) => {
   try {
     await verifySession(extractBearer(req));
     const surrealToken = await issueSurrealAccessToken();
