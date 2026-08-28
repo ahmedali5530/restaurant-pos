@@ -5,6 +5,7 @@ const { authenticatePosUser } = require('./auth.service');
 const { signSession, verifySession, revokeSession, extractBearer } = require('./jwt');
 const { issueSurrealAccessToken } = require('./surreal-client');
 const { loginRateLimit, recordAuthResult } = require('./rate-limiter');
+const auditLog = require('./audit-log');
 
 const router = express.Router();
 
@@ -20,6 +21,12 @@ router.post('/login', loginRateLimit(), async (req, res) => {
       // rate limiting a 4-digit PIN can be brute-forced in ~10,000 requests,
       // which bcrypt's slow compare alone cannot prevent.
       recordAuthResult(req, false);
+      // Audit log the failed login attempt.
+      auditLog.logLoginFailure(
+        login,
+        req.socket?.remoteAddress || req.ip,
+        'invalid_credentials'
+      ).catch(() => {});
       return res.status(401).json({ ok: false, error: 'Invalid credentials' });
     }
 
@@ -30,6 +37,14 @@ router.post('/login', loginRateLimit(), async (req, res) => {
       login: user.login,
       roles: user.roles || [],
     });
+
+    // Audit log the successful login (for the login audit trail).
+    auditLog.logLoginSuccess(
+      user.id,
+      user.login,
+      session.roles,
+      req.socket?.remoteAddress || req.ip
+    ).catch(() => {});
 
     // When GATEWAY_USE_JWT_AS_SURREAL_TOKEN=true, the SPA authenticates to
     // SurrealDB using the session JWT itself (verified via DEFINE TOKEN on the
@@ -87,6 +102,8 @@ router.post('/logout', async (req, res) => {
     // Pass the token's `exp` so the revocation store can GC expired rows
     // after the natural TTL elapses.
     await revokeSession(payload.jti, payload.exp);
+    // Audit log the session revocation.
+    auditLog.logSessionRevoked(payload.jti, payload.sub, payload.login).catch(() => {});
     return res.json({ ok: true });
   } catch {
     // Idempotent logout
