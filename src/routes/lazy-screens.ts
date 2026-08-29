@@ -270,3 +270,7 @@ export const FoodCostTrendScreen = lazy(() =>
 export const RecipeOptimizationScreen = lazy(() =>
   import('@/screens/reports/recipe.optimization.report.tsx').then(m => ({default: m.RecipeOptimizationScreen}))
 );
+
+export const SegmentationScreen = lazy(() =>
+  import('@/screens/reports/segmentation.report.tsx').then(m => ({default: m.SegmentationScreen}))
+);

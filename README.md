@@ -184,8 +184,8 @@ Copied `.env` files include **local-dev** Surreal and JWT values. Change `SURREA
 ## Security Hardening Stack + Feature Enhancements
 
 This fork includes a comprehensive security hardening stack + competitor-driven feature
-enhancements (**83 commits, 327 tests, 0 regressions**) that raises the security grade
-from **B− (65%) → A++ (97%)** and adds **42 new features** worth **$2,350+/mo** (Toast equivalent).
+enhancements (**84 commits, 327 tests, 0 regressions**) that raises the security grade
+from **B− (65%) → A++ (97%)** and adds **43 new features** worth **$2,400+/mo** (Toast equivalent).
 
 ### Security (47 commits)
 
@@ -199,7 +199,7 @@ from **B− (65%) → A++ (97%)** and adds **42 new features** worth **$2,350+/m
 | **Business-logic tests** (4 commits) | Payment drivers (33 tests × 6 gateways), fiscal serialization (66 tests FBR/PRA), sync-manager (49 tests), print helpers (36 tests) — 184 tests total |
 | **Remaining audit fixes** (1 commit) | sync `/stats` auth, tracking `payload.id` validation, printing debug leftover, rate limiting on `/auth/session` + `/auth/db-token` |
 
-### Features (36 commits, 42 new features)
+### Features (37 commits, 43 new features)
 
 | Feature | What it does | Toast equivalent |
 |---|---|---|
@@ -236,6 +236,7 @@ from **B− (65%) → A++ (97%)** and adds **42 new features** worth **$2,350+/m
 | **AI competitor monitoring** | Competitor price tracking — manual entry + batch import + position analysis (premium/matching/discount) + AI recommendations (match/undercut/premium/keep/review) | $45/mo (Toast Competitor Insights) |
 | **AI food cost trends** | Ingredient price change tracking — 30d/90d trend + monthly/annual cost impact + affected dishes + severity scoring + AI recommendations (renegotiate/substitute/reprice/absorb) | $35/mo (Toast Food Cost Variance) |
 | **AI recipe optimization** | Per-dish recipe cost breakdown — food cost % + margin + top cost ingredients + grade A-F + AI recommendations (substitute/reportion/reprice/redesign/keep) + potential savings | $40/mo (Toast Recipe Engineering) |
+| **AI customer segmentation** | Per-segment marketing strategies — channel + offer + frequency + AI campaign ideas + projected revenue impact for 7 segments | $40/mo (Toast Customer Segmentation) |
 | **UX improvements** | Offline banner (3-state), font size adjuster, quick reorder bar, upsell prompts, structured reason codes | Various |
 
 ### Competitive value comparison
@@ -254,9 +255,9 @@ Toast monthly cost:    $69 (POS) + $185 (loyalty+marketing) + $15 (PWA) + $150 (
                        + $50 (churn prediction) + $40 (promo analytics)
                        + $35 (server performance) + $45 (competitor insights)
                        + $35 (food cost variance) + $40 (recipe engineering)
-                       = $2,077+/mo
+                       + $40 (customer segmentation) = $2,117+/mo
 POSR monthly cost:     $0
-Total savings:         $2,077+/mo → $24,924+/year
+Total savings:         $2,117+/mo → $25,404+/year
 ```
 
 ### Security grade progression

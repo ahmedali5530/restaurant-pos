@@ -45,6 +45,7 @@ import {
   REPORTS_COMPETITOR_MONITORING,
   REPORTS_FOOD_COST_TRENDS,
   REPORTS_RECIPE_OPTIMIZATION,
+  REPORTS_SEGMENTATION,
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
   REPORTS_CONSUMPTION,
@@ -182,6 +183,7 @@ import {
   CompetitorMonitoringScreen,
   FoodCostTrendScreen,
   RecipeOptimizationScreen,
+  SegmentationScreen,
   TablesideScreen,
 } from "@/routes/lazy-screens.ts";
 
@@ -246,6 +248,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_COMPETITOR_MONITORING} element={<CompetitorMonitoringScreen/>}/>
         <Route path={REPORTS_FOOD_COST_TRENDS} element={<FoodCostTrendScreen/>}/>
         <Route path={REPORTS_RECIPE_OPTIMIZATION} element={<RecipeOptimizationScreen/>}/>
+        <Route path={REPORTS_SEGMENTATION} element={<SegmentationScreen/>}/>
         <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
         <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
         <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>
