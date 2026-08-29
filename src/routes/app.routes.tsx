@@ -53,6 +53,7 @@ import {
   REPORTS_REVPASH,
   REPORTS_CUSTOMER_JOURNEY,
   REPORTS_SEASONAL_TRENDS,
+  REPORTS_GUEST_PREFERENCES,
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
   REPORTS_CONSUMPTION,
@@ -198,6 +199,7 @@ import {
   RevPASHScreen,
   JourneyScreen,
   SeasonalScreen,
+  GuestPreferenceScreen,
   TablesideScreen,
 } from "@/routes/lazy-screens.ts";
 
@@ -270,6 +272,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_REVPASH} element={<RevPASHScreen/>}/>
         <Route path={REPORTS_CUSTOMER_JOURNEY} element={<JourneyScreen/>}/>
         <Route path={REPORTS_SEASONAL_TRENDS} element={<SeasonalScreen/>}/>
+        <Route path={REPORTS_GUEST_PREFERENCES} element={<GuestPreferenceScreen/>}/>
         <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
         <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
         <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>

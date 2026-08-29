@@ -302,3 +302,7 @@ export const JourneyScreen = lazy(() =>
 export const SeasonalScreen = lazy(() =>
   import('@/screens/reports/seasonal.report.tsx').then(m => ({default: m.SeasonalScreen}))
 );
+
+export const GuestPreferenceScreen = lazy(() =>
+  import('@/screens/reports/guest.preference.report.tsx').then(m => ({default: m.GuestPreferenceScreen}))
+);

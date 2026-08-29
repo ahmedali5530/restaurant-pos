@@ -128,6 +128,7 @@ export const REPORTS_TIP_ANALYTICS = REPORTS + '/tip-analytics';
 export const REPORTS_REVPASH = REPORTS + '/revpash';
 export const REPORTS_CUSTOMER_JOURNEY = REPORTS + '/customer-journey';
 export const REPORTS_SEASONAL_TRENDS = REPORTS + '/seasonal-trends';
+export const REPORTS_GUEST_PREFERENCES = REPORTS + '/guest-preferences';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';

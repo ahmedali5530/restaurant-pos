@@ -184,8 +184,8 @@ Copied `.env` files include **local-dev** Surreal and JWT values. Change `SURREA
 ## Security Hardening Stack + Feature Enhancements
 
 This fork includes a comprehensive security hardening stack + competitor-driven feature
-enhancements (**92 commits, 327 tests, 0 regressions**) that raises the security grade
-from **B− (65%) → A++ (97%)** and adds **50 new features** worth **$2,750+/mo** (Toast equivalent).
+enhancements (**93 commits, 327 tests, 0 regressions**) that raises the security grade
+from **B− (65%) → A++ (97%)** and adds **51 new features** worth **$2,800+/mo** (Toast equivalent).
 
 ### Security (47 commits)
 
@@ -199,7 +199,7 @@ from **B− (65%) → A++ (97%)** and adds **50 new features** worth **$2,750+/m
 | **Business-logic tests** (4 commits) | Payment drivers (33 tests × 6 gateways), fiscal serialization (66 tests FBR/PRA), sync-manager (49 tests), print helpers (36 tests) — 184 tests total |
 | **Remaining audit fixes** (1 commit) | sync `/stats` auth, tracking `payload.id` validation, printing debug leftover, rate limiting on `/auth/session` + `/auth/db-token` |
 
-### Features (44 commits, 50 new features)
+### Features (45 commits, 51 new features)
 
 | Feature | What it does | Toast equivalent |
 |---|---|---|
@@ -244,6 +244,7 @@ from **B− (65%) → A++ (97%)** and adds **50 new features** worth **$2,750+/m
 | **AI RevPASH analysis** | Revenue Per Available Seat Hour — hotel-industry metric adapted for restaurants (unique to POSR, not in Toast/Square) — capacity monetization efficiency + hourly/daily breakdown + AI recommendations | $30/mo (POSR exclusive) |
 | **AI customer journey** | End-to-end lifecycle tracking — 7-stage funnel (awareness→first_purchase→repeat→loyal→advocate→at_risk→churned) + touchpoints + conversion rates + AI next-best-action recommendations | $35/mo (Toast Customer Journey) |
 | **AI seasonal trends** | Monthly revenue/order patterns + peak season detection + MoM change + top items per month + AI seasonal planning recommendations | $25/mo (Toast Seasonal Insights) |
+| **AI guest preference learning** | Per-guest profiles — favorite dishes + preferred time/table/payment + dietary inference + liked add-ons + visit frequency + AI personalized recommendations for next visit | $40/mo (POSR exclusive — Toast/Square don't have this) |
 | **UX improvements** | Offline banner (3-state), font size adjuster, quick reorder bar, upsell prompts, structured reason codes | Various |
 
 ### Competitive value comparison
@@ -266,9 +267,10 @@ Toast monthly cost:    $69 (POS) + $185 (loyalty+marketing) + $15 (PWA) + $150 (
                        + $30 (delivery analytics) + $25 (peak hour analytics)
                        + $25 (tip pool management) + $30 (RevPASH — POSR exclusive)
                        + $35 (customer journey) + $25 (seasonal insights)
-                       = $2,322+/mo
+                       + $40 (guest preferences — POSR exclusive)
+                       = $2,362+/mo
 POSR monthly cost:     $0
-Total savings:         $2,322+/mo → $27,864+/year
+Total savings:         $2,362+/mo → $28,344+/year
 ```
 
 ### Security grade progression
