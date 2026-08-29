@@ -282,3 +282,7 @@ export const LaborOptimizationScreen = lazy(() =>
 export const DeliveryAnalyticsScreen = lazy(() =>
   import('@/screens/reports/delivery.analytics.report.tsx').then(m => ({default: m.DeliveryAnalyticsScreen}))
 );
+
+export const PeakHourScreen = lazy(() =>
+  import('@/screens/reports/peak.hour.report.tsx').then(m => ({default: m.PeakHourScreen}))
+);
