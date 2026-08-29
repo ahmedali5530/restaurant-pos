@@ -121,6 +121,7 @@ export const REPORTS_COMPETITOR_MONITORING = REPORTS + '/competitor-monitoring';
 export const REPORTS_FOOD_COST_TRENDS = REPORTS + '/food-cost-trends';
 export const REPORTS_RECIPE_OPTIMIZATION = REPORTS + '/recipe-optimization';
 export const REPORTS_SEGMENTATION = REPORTS + '/segmentation';
+export const REPORTS_LABOR_OPTIMIZATION = REPORTS + '/labor-optimization';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';
