@@ -262,3 +262,7 @@ export const ServerPerformanceScreen = lazy(() =>
 export const CompetitorMonitoringScreen = lazy(() =>
   import('@/screens/reports/competitor.monitoring.report.tsx').then(m => ({default: m.CompetitorMonitoringScreen}))
 );
+
+export const FoodCostTrendScreen = lazy(() =>
+  import('@/screens/reports/food.cost.trend.report.tsx').then(m => ({default: m.FoodCostTrendScreen}))
+);
