@@ -185,7 +185,7 @@ function printBillLayout(printer, bill, config, opts) {
       printCenteredText(printer, checkClosedLabel, { style: 'bold' });
     }
 
-    return printQrCodes(printer, qrItems).then(() => {
+    return printQrCodes(printer, qrItems, cfg).then(() => {
       printPrintingTimestamp(printer, cfg);
       printer.cut();
     });
@@ -231,12 +231,12 @@ function printQrDescription(printer, description) {
     .forEach((line) => printCenteredText(printer, line));
 }
 
-function printQrCodes(printer, items) {
+function printQrCodes(printer, items, config) {
   if (!items || items.length === 0) return Promise.resolve();
 
   return items.reduce((chain, item, index) => {
     return chain.then(() =>
-      printQrCode(printer, item.value, item.logo).then(() => {
+      printQrCode(printer, item.value, item.logo, config).then(() => {
         printQrDescription(printer, item.description);
         if (index < items.length - 1) {
           printer.feed(2);
@@ -251,11 +251,12 @@ function printQrCodes(printer, items) {
  * @param {Object} printer
  * @param {string} value
  * @param {string} [logo]
+ * @param {Object} [config]
  */
-function printQrCode(printer, value, logo) {
+function printQrCode(printer, value, logo, config) {
   if (!value) return Promise.resolve();
 
-  return printFiscalQrRow(printer, value, logo).then(() => {
+  return printFiscalQrRow(printer, value, logo, config).then(() => {
     try {
       printer.feed(1);
     } catch (e) {

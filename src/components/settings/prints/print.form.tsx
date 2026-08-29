@@ -24,6 +24,7 @@ interface Props {
 type PrintFormValues = {
   showLogo?: boolean
   logo?: ArrayBuffer | null
+  logoOffsetX?: number
   headerSections?: ReceiptSection[]
   footerSections?: ReceiptSection[]
   showVatNumber?: boolean
@@ -271,6 +272,29 @@ export const PrintForm = ({
                     )}
                   />
                 )}
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-3">
+              <div>
+                <Controller
+                  name="logoOffsetX"
+                  control={control}
+                  render={({field}) => (
+                    <div>
+                      <Input
+                        label={t('forms.logoOffsetX')}
+                        type="number"
+                        value={field.value ?? 0}
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          field.onChange(raw === '' ? 0 : Number(raw));
+                        }}
+                      />
+                      <p className="text-xs text-neutral-500 mt-1">{t('forms.logoOffsetXHint')}</p>
+                    </div>
+                  )}
+                />
               </div>
             </div>
 

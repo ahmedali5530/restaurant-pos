@@ -16,7 +16,12 @@ const DEFAULT_OPTIONS = { encoding: 'UTF-8', width: 42 };
  * @returns {Promise<void>}
  */
 function printOnDevice(device, escposOptions, printType, data, config) {
-  const printer = new escpos.Printer(device, { ...DEFAULT_OPTIONS, ...escposOptions });
+  const escposOpts = { ...DEFAULT_OPTIONS, ...escposOptions };
+  const printer = new escpos.Printer(device, escposOpts);
+  const configWithPrinter = {
+    ...config,
+    escposLineWidth: escposOpts.width,
+  };
 
   return new Promise((resolve, reject) => {
     device.open((openErr) => {
@@ -26,7 +31,7 @@ function printOnDevice(device, escposOptions, printType, data, config) {
 
       const builder = getBuilder(printType);
 
-      Promise.resolve(builder.build(printer, data, config))
+      Promise.resolve(builder.build(printer, data, configWithPrinter))
         .then(() => {
           return new Promise((res, rej) => {
             printer.close((closeErr) => (closeErr ? rej(closeErr) : res()));

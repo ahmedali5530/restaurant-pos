@@ -276,6 +276,8 @@
     "rightMargin": "Sağ kenar boşluğu",
     "bottomDescription": "Alt açıklama",
     "removeLogo": "Logoyu kaldır",
+    "logoOffsetX": "Logo yatay konumu",
+    "logoOffsetXHint": "Logoyu nokta cinsinden kaydırın (negatif = sola, pozitif = sağa). Ortalanmış metinle hizalanana kadar yazıcıya göre ayarlayın.",
     "nameOfItem": "Ürün adı",
     "numberOfItem": "Ürün numarası",
     "costOfItem": "Ürün maliyeti",

@@ -276,6 +276,8 @@
     "rightMargin": "الهامش الأيمن",
     "bottomDescription": "الوصف السفلي",
     "removeLogo": "إزالة الشعار",
+    "logoOffsetX": "الإزاحة الأفقية للشعار",
+    "logoOffsetXHint": "انقل الشعار بالنقاط (سالب = يسار، موجب = يمين). اضبطه لكل طابعة حتى يتماشى مع النص المتمركز.",
     "nameOfItem": "اسم الصنف",
     "numberOfItem": "رقم الصنف",
     "costOfItem": "تكلفة الصنف",

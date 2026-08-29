@@ -24,6 +24,7 @@ export function createPrintSettingsImportConfig({db, t}: {db: ImportDbLike; t: T
     {name: "left_margin", label: t("admin:forms.leftMargin"), type: "number", optional: true},
     {name: "right_margin", label: t("admin:forms.rightMargin"), type: "number", optional: true},
     {name: "show_logo", label: t("admin:forms.showLogo"), type: "boolean", optional: true},
+    {name: "logoOffsetX", label: t("admin:forms.logoOffsetX"), type: "number", optional: true},
     {name: "show_vat_number", label: t("admin:forms.showVatNumber"), type: "boolean", optional: true},
     {name: "vat_name", label: t("admin:forms.vatName"), type: "string", optional: true},
     {name: "vat_number", label: t("admin:forms.vatNumber"), type: "string", optional: true},

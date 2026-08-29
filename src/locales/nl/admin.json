@@ -276,6 +276,8 @@
     "rightMargin": "Rechtermarge",
     "bottomDescription": "Onderste beschrijving",
     "removeLogo": "Logo verwijderen",
+    "logoOffsetX": "Horizontale logo-offset",
+    "logoOffsetXHint": "Verschuif het logo in dots (negatief = links, positief = rechts). Stel per printer af tot het uitlijnt met gecentreerde tekst.",
     "nameOfItem": "Naam van artikel",
     "numberOfItem": "Nummer van artikel",
     "costOfItem": "Kosten van artikel",

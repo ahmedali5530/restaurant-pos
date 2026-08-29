@@ -296,6 +296,8 @@
     "removeSectionImage": "Remove section image",
     "deleteReceiptSection": "Are you sure you want to remove this receipt section? This cannot be undone until you save.",
     "removeLogo": "Remove logo",
+    "logoOffsetX": "Logo horizontal offset",
+    "logoOffsetXHint": "Shift the logo in dots (negative = left, positive = right). Tune per printer until it matches centered text.",
     "nameOfItem": "Name of item",
     "numberOfItem": "Number of item",
     "costOfItem": "Cost of item",

@@ -276,6 +276,8 @@
     "rightMargin": "Marge droite",
     "bottomDescription": "Description en bas",
     "removeLogo": "Supprimer le logo",
+    "logoOffsetX": "Décalage horizontal du logo",
+    "logoOffsetXHint": "Décale le logo en points (négatif = gauche, positif = droite). Ajustez par imprimante jusqu'à l'alignement avec le texte centré.",
     "nameOfItem": "Nom de l'article",
     "numberOfItem": "Numéro de l'article",
     "costOfItem": "Coût de l'article",

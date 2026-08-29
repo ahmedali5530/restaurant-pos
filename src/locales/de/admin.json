@@ -276,6 +276,8 @@
     "rightMargin": "Rechter Rand",
     "bottomDescription": "Untere Beschreibung",
     "removeLogo": "Logo entfernen",
+    "logoOffsetX": "Horizontale Logo-Verschiebung",
+    "logoOffsetXHint": "Logo in Punkten verschieben (negativ = links, positiv = rechts). Pro Drucker anpassen, bis es mit zentriertem Text übereinstimmt.",
     "nameOfItem": "Artikelname",
     "numberOfItem": "Artikelnummer",
     "costOfItem": "Artikelkosten",

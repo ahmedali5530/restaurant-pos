@@ -4,11 +4,21 @@ const escpos = require('escpos');
 const Image = escpos.Image;
 
 const PRINTER_WIDTH = 42;
+/** ESC/POS firmware default printable columns (escpos lib default). */
+const FIRMWARE_LINE_COLS = 48;
+/** Full 80mm printable columns (72 cols × 8 dots = 576). */
+const FULL_80MM_LINE_COLS = 72;
+/** Dots per column at standard 8-dot font pitch. */
+const DOTS_PER_COL = 8;
 /**
- * Printable bit-image width for ESC $ horizontal positioning (80mm @ ~180–203 dpi).
- * 58mm printers typically clamp positions past ~384; centering a 150px logo still lands correctly.
+ * Default bit-image paper width — midpoint of 48-col (384) and 72-col (576) = 480 dots.
+ * Matches ESC a text center on typical 80mm printers running in 42/48-char mode.
+ * Override with paperWidthPx or PRINT_PAPER_WIDTH_PX if needed.
  */
-const PAPER_IMAGE_WIDTH_PX = 576;
+const DEFAULT_IMAGE_LINE_COLS = Math.round((FIRMWARE_LINE_COLS + FULL_80MM_LINE_COLS) / 2);
+const PAPER_IMAGE_WIDTH_PX = DEFAULT_IMAGE_LINE_COLS * DOTS_PER_COL;
+/** Full 80mm printable width (72 cols × 8 dots). */
+const PAPER_IMAGE_WIDTH_80MM_PX = FULL_80MM_LINE_COLS * DOTS_PER_COL;
 /** Max content width when scaling full-bleed images (safe for 58mm). */
 const MAX_IMAGE_WIDTH_PX = 384;
 /** Store logo + header/footer + provider logos: fixed contain box (no stretch). */
@@ -21,6 +31,8 @@ const DEFAULTS = {
   topMargin: 0,
   leftMargin: 0,
   rightMargin: 0,
+  /** Printable bit-image width in dots (default 480; set 576 for full 80mm). */
+  paperWidthPx: PAPER_IMAGE_WIDTH_PX,
   logo: '',
   showItemNumber: false,
   showItemName: true,
@@ -28,6 +40,8 @@ const DEFAULTS = {
   showItemQuantity: true,
   showItemTotal: false,
   showLogo: false,
+  /** Horizontal logo shift in dots (negative = left, positive = right). */
+  logoOffsetX: 0,
   showVatNumber: false,
   vatName: 'VAT',
   vatNumber: '',
@@ -187,6 +201,10 @@ function normalizeConfig(c = {}) {
     const x = parseInt(v, 10);
     return Number.isNaN(x) ? (def !== undefined ? def : 0) : Math.max(0, x);
   };
+  const signedInt = (v, def) => {
+    const x = parseInt(v, 10);
+    return Number.isNaN(x) ? (def !== undefined ? def : 0) : x;
+  };
   return {
     bottomMargin: num(c.bottomMargin, DEFAULTS.bottomMargin),
     topMargin: num(c.topMargin, DEFAULTS.topMargin),
@@ -199,6 +217,7 @@ function normalizeConfig(c = {}) {
     showItemQuantity: Boolean(c.showItemQuantity !== undefined ? c.showItemQuantity : DEFAULTS.showItemQuantity),
     showItemTotal: Boolean(c.showItemTotal !== undefined ? c.showItemTotal : DEFAULTS.showItemTotal),
     showLogo: Boolean(c.showLogo !== undefined ? c.showLogo : DEFAULTS.showLogo),
+    logoOffsetX: signedInt(c.logoOffsetX, DEFAULTS.logoOffsetX),
     showVatNumber: Boolean(c.showVatNumber !== undefined ? c.showVatNumber : DEFAULTS.showVatNumber),
     vatName: String(n(c.vatName, DEFAULTS.vatName) || 'VAT'),
     vatNumber: String(n(c.vatNumber, DEFAULTS.vatNumber)),
@@ -208,6 +227,7 @@ function normalizeConfig(c = {}) {
       : String(n(c.currencySymbol, DEFAULTS.currencySymbol) || '$'),
     headerSections: normalizeSections(c.headerSections),
     footerSections: normalizeSections(c.footerSections),
+    paperWidthPx: resolvePaperWidthPx(c),
     showInclusivePrices: Boolean(c.showInclusivePrices),
     decimal_place: c.decimal_place,
     labels: c.labels && typeof c.labels === 'object' ? c.labels : {},
@@ -230,6 +250,53 @@ function resolveTimezone(fromConfig) {
     (typeof process.env.TZ === 'string' && process.env.TZ.trim()) ||
     '';
   return fromEnv || undefined;
+}
+
+/**
+ * Column count for image centering: midpoint between firmware 48-col and full 80mm 72-col.
+ * @param {unknown} escposLineWidth
+ * @returns {number}
+ */
+function resolveImageLineCols(escposLineWidth) {
+  const cols = parseInt(escposLineWidth, 10);
+  const lineCols = Math.max(
+    !Number.isNaN(cols) && cols >= 8 ? cols : 0,
+    FIRMWARE_LINE_COLS
+  );
+  return Math.round((lineCols + FULL_80MM_LINE_COLS) / 2);
+}
+
+/**
+ * Resolve printable paper width in dots for bit-image centering.
+ * Text centering (ESC a) uses the printer firmware column width, not PRINTER_WIDTH.
+ * @param {Object} [config]
+ * @returns {number}
+ */
+function resolvePaperWidthPx(config) {
+  const cfg = config || {};
+  const fromEnv = process.env.PRINT_PAPER_WIDTH_PX;
+  if (fromEnv != null && String(fromEnv).trim()) {
+    const n = parseInt(String(fromEnv).trim(), 10);
+    if (!Number.isNaN(n) && n >= 8) return n;
+  }
+  if (cfg.paperWidthPx != null && cfg.paperWidthPx !== '') {
+    const n = parseInt(cfg.paperWidthPx, 10);
+    if (!Number.isNaN(n) && n >= 8) return n;
+  }
+  const imageCols = resolveImageLineCols(cfg.escposLineWidth);
+  return Math.ceil(imageCols * DOTS_PER_COL / 8) * 8;
+}
+
+/**
+ * Horizontal logo offset in dots from print settings (negative = left, positive = right).
+ * @param {Object} [config]
+ * @returns {number}
+ */
+function resolveLogoOffsetX(config) {
+  const cfg = config || {};
+  if (cfg.logoOffsetX == null || cfg.logoOffsetX === '') return DEFAULTS.logoOffsetX;
+  const n = parseInt(cfg.logoOffsetX, 10);
+  return Number.isNaN(n) ? DEFAULTS.logoOffsetX : n;
 }
 
 function getEffectiveLineWidth(size) {
@@ -398,13 +465,36 @@ function applyMargins(printer, config) {
 }
 
 /**
+ * Compute full paper-width canvas dimensions for a logo/QR box image.
+ * @param {number} boxSize
+ * @param {number} [paperWidth]
+ * @param {string} [hAlign]
+ * @param {number} [offsetX]
+ * @returns {{ canvasWidth: number, side: number, dx: number }}
+ */
+function computeBoxCanvasLayout(boxSize, paperWidth, hAlign, offsetX) {
+  const side = Math.max(8, Math.ceil(boxSize / 8) * 8);
+  const rawPaperWidth = Math.max(side, paperWidth || PAPER_IMAGE_WIDTH_PX);
+  const canvasWidth = Math.max(8, Math.ceil(rawPaperWidth / 8) * 8);
+  let dx = 0;
+  const align = hAlign === 'left' || hAlign === 'right' ? hAlign : 'center';
+  if (align === 'center') dx = Math.floor((canvasWidth - side) / 2);
+  else if (align === 'right') dx = canvasWidth - side;
+  const shift = Math.floor(Number(offsetX) || 0);
+  if (shift) {
+    dx = Math.max(0, Math.min(canvasWidth - side, dx + shift));
+  }
+  return { canvasWidth, side, dx };
+}
+
+/**
  * Resize/re-encode image for thermal.
- * - boxSize: tight N×N contain square (no stretch). Horizontal center is done at print via ESC $.
+ * - boxSize: N×N contain square on a full paperWidth canvas (centering baked into bitmap).
  * - maxWidth only: scale preserving aspect, pad width to multiple of 8
  * Always returns PNG so get-pixels / escpos Image.load get a consistent format.
  * @param {Buffer} buf
  * @param {string} [mime]
- * @param {{ maxWidth?: number, forceMono?: boolean, boxSize?: number, paperWidth?: number, hAlign?: string }} [opts]
+ * @param {{ maxWidth?: number, forceMono?: boolean, boxSize?: number, paperWidth?: number, hAlign?: string, logoOffsetX?: number }} [opts]
  * @returns {Promise<Buffer|null>}
  */
 function prepareImageForPrint(buf, mime, opts) {
@@ -425,15 +515,18 @@ function prepareImageForPrint(buf, mime, opts) {
           }
 
           if (boxSize > 0) {
-            // Tight square only — padding left/right white on a full paper canvas left-aligns
-            // on 80mm printers (paper wider than 384). Centering is applyAbsoluteHorizontalPosition.
-            const side = Math.max(8, Math.ceil(boxSize / 8) * 8);
-            const canvas = createCanvas(side, side);
+            const { canvasWidth, side, dx } = computeBoxCanvasLayout(
+              boxSize,
+              options.paperWidth || PAPER_IMAGE_WIDTH_PX,
+              hAlign,
+              options.logoOffsetX
+            );
+            const canvas = createCanvas(canvasWidth, side);
             const ctx = canvas.getContext('2d');
             ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, side, side);
-            drawContainInSquare(ctx, img, 0, 0, side);
-            if (forceMono) forceCanvasMono(ctx, side, side);
+            ctx.fillRect(0, 0, canvasWidth, side);
+            drawContainInSquare(ctx, img, dx, 0, side);
+            if (forceMono) forceCanvasMono(ctx, canvasWidth, side);
             resolve(canvas.toBuffer('image/png'));
             return;
           }
@@ -470,19 +563,23 @@ function prepareImageForPrint(buf, mime, opts) {
 }
 
 /**
- * Print store / header / footer image: 150×150 contain, paper-padded, D24.
+ * Print store / header / footer image: 150×150 contain on full paper-width canvas, D24.
  * @param {Object} printer - escpos Printer
  * @param {*} logo
- * @param {{ align?: string, hAlign?: string }} opts
+ * @param {{ align?: string, hAlign?: string }} [opts]
+ * @param {Object} [config]
  * @returns {Promise<void>}
  */
-function printLogo(printer, logo, opts) {
+function printLogo(printer, logo, opts, config) {
   const options = opts || {};
   const hAlign = options.hAlign || options.align || 'center';
+  const paperWidth = resolvePaperWidthPx(config);
+  const logoOffsetX = resolveLogoOffsetX(config);
   return printEscposImage(printer, logo, {
     boxSize: STORE_LOGO_BOX_PX,
-    paperWidth: PAPER_IMAGE_WIDTH_PX,
+    paperWidth,
     hAlign,
+    logoOffsetX,
     align: 'lt',
     forceMono: true,
   }).then((ok) => {
@@ -580,9 +677,10 @@ function feedBottomMargin(printer, config) {
  * Print configured receipt sections (text or image).
  * @param {Object} printer
  * @param {Array} sections
+ * @param {Object} [config]
  * @returns {Promise<void>}
  */
-function printSections(printer, sections) {
+function printSections(printer, sections, config) {
   const list = normalizeSections(sections).filter((section) => section.enabled);
   let chain = Promise.resolve();
 
@@ -593,8 +691,8 @@ function printSections(printer, sections) {
           console.warn('[print] skipping empty image section');
           return Promise.resolve();
         }
-        // Same pipeline as store logo: 150×150 contain + paper pad + feed after
-        return printLogo(printer, section.content, { align: section.align, hAlign: section.align });
+        // Same pipeline as store logo: 150×150 contain on full paper canvas + feed after
+        return printLogo(printer, section.content, { align: section.align, hAlign: section.align }, config);
       }
       if (section.type === 'text' && section.content) {
         printAlignedText(printer, section.content, section.align, {
@@ -618,10 +716,10 @@ function printReceiptHeader(printer, config) {
   applyMargins(printer, config);
   hardResetLayout(printer);
   const logoPromise = config.showLogo && config.logo
-    ? printLogo(printer, config.logo, { align: 'center' })
+    ? printLogo(printer, config.logo, { align: 'center' }, config)
     : Promise.resolve();
   return logoPromise
-    .then(() => printSections(printer, config.headerSections || []))
+    .then(() => printSections(printer, config.headerSections || [], config))
     .then(() => hardResetLayout(printer));
 }
 
@@ -633,7 +731,7 @@ function printReceiptHeader(printer, config) {
  */
 function printFooterSections(printer, config) {
   hardResetLayout(printer);
-  return printSections(printer, config.footerSections || []).then(() => {
+  return printSections(printer, config.footerSections || [], config).then(() => {
     hardResetLayout(printer);
   });
 }
@@ -950,8 +1048,8 @@ function setAbsoluteHorizontalPosition(printer, dots) {
  * Synchronous ESC * d24 bit-image write (double density, correct aspect ratio).
  * m=33 = 24-dot double density (~180 dpi H and V). m=32 (s24) is single density
  * horizontally (~90 dpi) and stretches images ~2× wide.
- * Horizontally centers (or left/right) via ESC $ on each strip — bitmaps always start
- * at the current print head position, and white canvas padding alone is wrong for 80mm paper.
+ * Logo/QR box images are centered in prepareImageForPrint (full paper-width canvas).
+ * ESC $ offset below applies to narrower maxWidth-only images that were not paper-padded.
  * @param {Object} printer
  * @param {Object} image - escpos Image instance
  * @param {{ paperWidth?: number, hAlign?: string }} [opts]
@@ -962,6 +1060,8 @@ function writeBitmapD24(printer, image, opts) {
   const hAlign = options.hAlign === 'left' || options.hAlign === 'right' ? options.hAlign : 'center';
   const imgW = image && image.size && image.size.width ? image.size.width : 0;
   let offset = 0;
+  // Full paper-width bitmaps (logos, QR) print at offset 0 — centering is in the canvas.
+  // Skip ESC $ when image already spans the target paper width (avoids double-offset).
   if (imgW > 0 && paperWidth > imgW) {
     if (hAlign === 'center') offset = Math.floor((paperWidth - imgW) / 2);
     else if (hAlign === 'right') offset = paperWidth - imgW;
@@ -1062,6 +1162,7 @@ async function printEscposImage(printer, input, opts) {
       boxSize: options.boxSize,
       paperWidth: options.paperWidth || PAPER_IMAGE_WIDTH_PX,
       hAlign: options.hAlign || 'center',
+      logoOffsetX: options.logoOffsetX,
     });
     if (!pngBuf || !pngBuf.length) {
       console.warn('[print] printEscposImage: prepare failed');
@@ -1121,16 +1222,18 @@ async function printEscposImage(printer, input, opts) {
  * @param {Object} printer
  * @param {Buffer} buf
  * @param {string} [mime='image/png']
+ * @param {Object} [config]
  * @returns {Promise<boolean>}
  */
-async function printImageBuffer(printer, buf, mime) {
+async function printImageBuffer(printer, buf, mime, config) {
   if (!buf || !buf.length) return false;
   return printEscposImage(printer, buf, {
     mime: mime || detectImageMime(buf),
     align: 'lt',
     boxSize: STORE_LOGO_BOX_PX,
-    paperWidth: PAPER_IMAGE_WIDTH_PX,
+    paperWidth: resolvePaperWidthPx(config),
     hAlign: 'center',
+    logoOffsetX: resolveLogoOffsetX(config),
     forceMono: true,
   });
 }
@@ -1139,10 +1242,13 @@ async function printImageBuffer(printer, buf, mime) {
  * Print QR via native escpos, or QR PNG + same image pipeline as logos.
  * @param {Object} printer
  * @param {string} qrValue
+ * @param {Object} [config]
  * @returns {Promise<boolean>}
  */
-async function printFiscalQrOnly(printer, qrValue) {
+async function printFiscalQrOnly(printer, qrValue, config) {
   if (!qrValue) return false;
+  const paperWidth = resolvePaperWidthPx(config);
+  const logoOffsetX = resolveLogoOffsetX(config);
 
   // Prefer raster QR image so it uses the same reliable D24 path when native fails
   try {
@@ -1152,8 +1258,9 @@ async function printFiscalQrOnly(printer, qrValue) {
       mime: 'image/png',
       align: 'lt',
       boxSize: FISCAL_QR_PX,
-      paperWidth: PAPER_IMAGE_WIDTH_PX,
+      paperWidth,
       hAlign: 'center',
+      logoOffsetX,
       forceMono: true,
     });
     if (ok) {
@@ -1209,10 +1316,13 @@ async function printFiscalQrOnly(printer, qrValue) {
  * @param {Object} printer
  * @param {string} qrValue
  * @param {string} [logoDataUri]
+ * @param {Object} [config]
  * @returns {Promise<boolean>}
  */
-async function printFiscalQrRow(printer, qrValue, logoDataUri) {
+async function printFiscalQrRow(printer, qrValue, logoDataUri, config) {
   if (!qrValue) return false;
+  const paperWidth = resolvePaperWidthPx(config);
+  const logoOffsetX = resolveLogoOffsetX(config);
   const hasLogo = Boolean(logoDataUri && String(logoDataUri).trim());
   console.info(
     '[print] fiscal stacked',
@@ -1224,8 +1334,9 @@ async function printFiscalQrRow(printer, qrValue, logoDataUri) {
   if (hasLogo) {
     const logoOk = await printEscposImage(printer, logoDataUri, {
       boxSize: STORE_LOGO_BOX_PX,
-      paperWidth: PAPER_IMAGE_WIDTH_PX,
+      paperWidth,
       hAlign: 'center',
+      logoOffsetX,
       align: 'lt',
       forceMono: true,
     });
@@ -1240,7 +1351,7 @@ async function printFiscalQrRow(printer, qrValue, logoDataUri) {
     }
   }
 
-  const qrOk = await printFiscalQrOnly(printer, qrValue);
+  const qrOk = await printFiscalQrOnly(printer, qrValue, config);
   if (!qrOk) {
     console.warn('[print] fiscal QR print failed');
   }
@@ -1253,10 +1364,11 @@ async function printFiscalQrRow(printer, qrValue, logoDataUri) {
  * @param {Object} printer
  * @param {string} qrValue
  * @param {string} [logoDataUri]
+ * @param {Object} [config]
  * @returns {Promise<void>}
  */
-async function printFiscalLogoThenQrFallback(printer, qrValue, logoDataUri) {
-  await printFiscalQrRow(printer, qrValue, logoDataUri);
+async function printFiscalLogoThenQrFallback(printer, qrValue, logoDataUri, config) {
+  await printFiscalQrRow(printer, qrValue, logoDataUri, config);
 }
 
 module.exports = {
@@ -1297,9 +1409,16 @@ module.exports = {
   detectImageMime,
   decodeImageInput,
   prepareImageForPrint,
+  computeBoxCanvasLayout,
+  resolvePaperWidthPx,
+  resolveLogoOffsetX,
   writeBitmapD24,
   PRINTER_WIDTH,
   MAX_IMAGE_WIDTH_PX,
   PAPER_IMAGE_WIDTH_PX,
+  PAPER_IMAGE_WIDTH_80MM_PX,
+  FIRMWARE_LINE_COLS,
+  FULL_80MM_LINE_COLS,
+  DOTS_PER_COL,
   STORE_LOGO_BOX_PX,
 };

@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-08-29',
+    title: 'Receipt logo centering on thermal printers',
+    items: [
+      'Store logos, header/footer images, and fiscal provider logos bake horizontal centering into the printed bitmap for consistent placement across printer firmware.',
+      'Print settings now include a logo horizontal offset (dots) so you can fine-tune alignment per printer — use negative values to shift left, positive to shift right.',
+    ],
+  },
+  {
     date: '2026-08-28',
     title: 'AI assistant help and markdown tables',
     items: [

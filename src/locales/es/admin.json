@@ -276,6 +276,8 @@
     "rightMargin": "Margen derecho",
     "bottomDescription": "Descripción inferior",
     "removeLogo": "Quitar logo",
+    "logoOffsetX": "Desplazamiento horizontal del logo",
+    "logoOffsetXHint": "Desplaza el logo en puntos (negativo = izquierda, positivo = derecha). Ajústelo por impresora hasta alinearlo con el texto centrado.",
     "nameOfItem": "Nombre del artículo",
     "numberOfItem": "Número del artículo",
     "costOfItem": "Costo del artículo",
