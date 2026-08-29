@@ -109,6 +109,7 @@ export const REPORTS_CASH_FLOW = REPORTS + '/cash-flow';
 export const REPORTS_VENDOR_PERFORMANCE = REPORTS + '/vendor-performance';
 export const REPORTS_TABLE_TURNOVER = REPORTS + '/table-turnover';
 export const REPORTS_DYNAMIC_PRICING = REPORTS + '/dynamic-pricing';
+export const REPORTS_FORECAST_ACCURACY = REPORTS + '/forecast-accuracy';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';
