@@ -43,7 +43,8 @@ import {
   faBrain, faChartLine, faBoxOpen, faUtensils, faHeart, faTrash,
   faCalendarWeek, faWallet, faTruck, faChair, faTags, faBullseye,
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
-  faUsers, faUserMinus, faPercentage,
+  faUsers, faUserMinus, faPercentage, faStore, faChartBar,
+  faDollarSign, faClock,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -52,6 +53,9 @@ import {
   REPORTS_CASH_FLOW, REPORTS_VENDOR_PERFORMANCE, REPORTS_TABLE_TURNOVER,
   REPORTS_DYNAMIC_PRICING, REPORTS_FORECAST_ACCURACY, REPORTS_UPSELL_EFFECTIVENESS,
   REPORTS_CUSTOMER_CLV, REPORTS_CHURN_PREDICTION, REPORTS_PROMO_EFFECTIVENESS,
+  REPORTS_SERVER_PERFORMANCE, REPORTS_COMPETITOR_MONITORING,
+  REPORTS_FOOD_COST_TRENDS, REPORTS_RECIPE_OPTIMIZATION,
+  REPORTS_SEGMENTATION, REPORTS_LABOR_OPTIMIZATION,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -89,12 +93,14 @@ export function AiCommandCenterScreen() {
   const loadAllMetrics = useCallback(async () => {
     setLoading(true);
     try {
-      // Parallel fetch of all 15 AI feature summaries
+      // Parallel fetch of all 21 AI feature summaries
       const [
         forecastData, menuData, sentimentData, wasteData,
         scheduleData, cashData, vendorData, turnoverData,
         pricingData, accuracyData, upsellData, reorderData,
         clvData, churnData, promoData,
+        serverData, competitorData, foodCostData,
+        recipeData, segmentationData, laborData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -111,6 +117,12 @@ export function AiCommandCenterScreen() {
         fetchCLVSummary(db),
         fetchChurnSummary(db),
         fetchPromoSummary(db),
+        fetchServerSummary(db),
+        fetchCompetitorSummary(db),
+        fetchFoodCostSummary(db),
+        fetchRecipeSummary(db),
+        fetchSegmentationSummary(db),
+        fetchLaborSummary(db),
       ]);
 
       setMetrics([
@@ -118,6 +130,8 @@ export function AiCommandCenterScreen() {
         wasteData, scheduleData, cashData, vendorData,
         turnoverData, pricingData, accuracyData, upsellData,
         clvData, churnData, promoData,
+        serverData, competitorData, foodCostData,
+        recipeData, segmentationData, laborData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -229,7 +243,7 @@ export function AiCommandCenterScreen() {
 
             {/* Footer */}
             <div className="text-xs text-neutral-500 text-center pt-4">
-              POSR AI Command Center · 15 AI-powered features · Click any card for full report
+              POSR AI Command Center · 21 AI-powered features · Click any card for full report
             </div>
           </>
         )}
@@ -664,6 +678,131 @@ async function fetchPromoSummary(db: any): Promise<MetricCard> {
   } catch {
     return neutralCard('Promo Effectiveness', faPercentage, 'text-orange-600', REPORTS_PROMO_EFFECTIVENESS);
   }
+}
+
+async function fetchServerSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT avg(overall_score) AS avg_score, count() AS count,
+         sum(IF grade = 'F' THEN 1 END) AS failing
+       FROM server_performance WHERE expires_at > time::now()`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const s = list[0];
+    if (!s || s.count === 0) return neutralCard('Server Performance', faUsers, 'text-blue-600', REPORTS_SERVER_PERFORMANCE);
+    return {
+      title: 'Server Performance',
+      icon: faUsers, color: 'text-blue-600',
+      primary: `${Math.round(s.avg_score ?? 0)}/100`,
+      secondary: `${s.count} servers · ${s.failing ?? 0} underperforming`,
+      health: (s.failing ?? 0) > 2 ? 'warning' : 'good',
+      link: REPORTS_SERVER_PERFORMANCE, linkLabel: 'View servers',
+    };
+  } catch { return neutralCard('Server Performance', faUsers, 'text-blue-600', REPORTS_SERVER_PERFORMANCE); }
+}
+
+async function fetchCompetitorSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, avg(price_diff_pct) AS avg_diff
+       FROM competitor_price`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const c = list[0];
+    if (!c || c.total === 0) return neutralCard('Competitor Monitoring', faStore, 'text-orange-600', REPORTS_COMPETITOR_MONITORING);
+    return {
+      title: 'Competitor Monitoring',
+      icon: faStore, color: 'text-orange-600',
+      primary: `${c.total} compared`,
+      secondary: `Avg ${Math.round(c.avg_diff ?? 0)}% vs competitors`,
+      health: 'neutral',
+      link: REPORTS_COMPETITOR_MONITORING, linkLabel: 'View competitors',
+    };
+  } catch { return neutralCard('Competitor Monitoring', faStore, 'text-orange-600', REPORTS_COMPETITOR_MONITORING); }
+}
+
+async function fetchFoodCostSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT sum(IF trend_direction = 'rising' THEN 1 END) AS rising,
+         sum(annual_cost_impact) AS impact
+       FROM food_cost_trend WHERE expires_at > time::now()`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const f = list[0];
+    if (!f) return neutralCard('Food Cost Trends', faChartBar, 'text-emerald-600', REPORTS_FOOD_COST_TRENDS);
+    return {
+      title: 'Food Cost Trends',
+      icon: faChartBar, color: 'text-emerald-600',
+      primary: `${f.rising ?? 0} rising items`,
+      secondary: `Annual impact: ${withCurrency(f.impact ?? 0)}`,
+      health: (f.rising ?? 0) > 5 ? 'warning' : 'neutral',
+      link: REPORTS_FOOD_COST_TRENDS, linkLabel: 'View food costs',
+    };
+  } catch { return neutralCard('Food Cost Trends', faChartBar, 'text-emerald-600', REPORTS_FOOD_COST_TRENDS); }
+}
+
+async function fetchRecipeSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT avg(food_cost_pct) AS avg_fc,
+         sum(IF grade IN ['D','F'] THEN 1 END) AS critical
+       FROM recipe_cost_analysis WHERE expires_at > time::now()`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const r = list[0];
+    if (!r) return neutralCard('Recipe Optimization', faUtensils, 'text-violet-600', REPORTS_RECIPE_OPTIMIZATION);
+    return {
+      title: 'Recipe Optimization',
+      icon: faUtensils, color: 'text-violet-600',
+      primary: `${Math.round(r.avg_fc ?? 0)}% avg food cost`,
+      secondary: `${r.critical ?? 0} dishes need attention`,
+      health: (r.critical ?? 0) > 3 ? 'warning' : 'neutral',
+      link: REPORTS_RECIPE_OPTIMIZATION, linkLabel: 'View recipes',
+    };
+  } catch { return neutralCard('Recipe Optimization', faUtensils, 'text-violet-600', REPORTS_RECIPE_OPTIMIZATION); }
+}
+
+async function fetchSegmentationSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT sum(customer_count) AS customers, sum(projected_revenue_impact) AS impact
+       FROM segment_strategy WHERE expires_at > time::now()`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const s = list[0];
+    if (!s || s.customers === 0) return neutralCard('Customer Segmentation', faUsers, 'text-violet-600', REPORTS_SEGMENTATION);
+    return {
+      title: 'Customer Segmentation',
+      icon: faUsers, color: 'text-violet-600',
+      primary: `${s.customers} customers`,
+      secondary: `Projected impact: ${withCurrency(s.impact ?? 0)}/mo`,
+      health: 'neutral',
+      link: REPORTS_SEGMENTATION, linkLabel: 'View segments',
+    };
+  } catch { return neutralCard('Customer Segmentation', faUsers, 'text-violet-600', REPORTS_SEGMENTATION); }
+}
+
+async function fetchLaborSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT labor_cost_pct, health_status, total_hours
+       FROM labor_cost_analysis WHERE expires_at > time::now()
+       ORDER BY generated_at DESC LIMIT 1`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const l = list[0];
+    if (!l) return neutralCard('Labor Cost Optimization', faClock, 'text-blue-600', REPORTS_LABOR_OPTIMIZATION);
+    const health = (l.health_status ?? 'healthy') as MetricCard['health'];
+    return {
+      title: 'Labor Cost',
+      icon: faClock, color: 'text-blue-600',
+      primary: `${l.labor_cost_pct}% of revenue`,
+      secondary: `${l.total_hours} hours`,
+      health,
+      link: REPORTS_LABOR_OPTIMIZATION, linkLabel: 'View labor',
+    };
+  } catch { return neutralCard('Labor Cost Optimization', faClock, 'text-blue-600', REPORTS_LABOR_OPTIMIZATION); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
