@@ -278,3 +278,7 @@ export const SegmentationScreen = lazy(() =>
 export const LaborOptimizationScreen = lazy(() =>
   import('@/screens/reports/labor.optimization.report.tsx').then(m => ({default: m.LaborOptimizationScreen}))
 );
+
+export const DeliveryAnalyticsScreen = lazy(() =>
+  import('@/screens/reports/delivery.analytics.report.tsx').then(m => ({default: m.DeliveryAnalyticsScreen}))
+);
