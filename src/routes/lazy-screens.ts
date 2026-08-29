@@ -254,3 +254,7 @@ export const ChurnPredictionScreen = lazy(() =>
 export const PromoEffectivenessScreen = lazy(() =>
   import('@/screens/reports/promo.effectiveness.report.tsx').then(m => ({default: m.PromoEffectivenessScreen}))
 );
+
+export const ServerPerformanceScreen = lazy(() =>
+  import('@/screens/reports/server.performance.report.tsx').then(m => ({default: m.ServerPerformanceScreen}))
+);
