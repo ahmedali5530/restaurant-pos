@@ -266,3 +266,7 @@ export const CompetitorMonitoringScreen = lazy(() =>
 export const FoodCostTrendScreen = lazy(() =>
   import('@/screens/reports/food.cost.trend.report.tsx').then(m => ({default: m.FoodCostTrendScreen}))
 );
+
+export const RecipeOptimizationScreen = lazy(() =>
+  import('@/screens/reports/recipe.optimization.report.tsx').then(m => ({default: m.RecipeOptimizationScreen}))
+);
