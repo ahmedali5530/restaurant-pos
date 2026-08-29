@@ -54,6 +54,9 @@ import {
   listInventoryItems,
   type InventoryMovementType,
 } from "@/api/reports/inventory/index.ts";
+import {getInventoryDocuments} from "@/api/reports/inventory/documents.ts";
+import type {InventoryDocumentStatus} from "@/api/model/inventory_document.ts";
+import type {InventoryDocumentType} from "@/lib/ai/inventory-operation-query.ts";
 import {getOrders} from "@/api/reports/operations/orders.ts";
 import {getOrderDetail} from "@/api/reports/operations/order-detail.ts";
 import {extractOrderStatusesFromArgs, inferOrderStatusesFromPrompt, isOrderListByStatusPrompt} from "@/lib/ai/order-query.ts";
@@ -260,6 +263,14 @@ export const executeAiReportTool = async (
       return getInventoryMovements(db, {
         ...parseOptionalDateRangeArgs(args),
         type: String(args.type) as InventoryMovementType,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "get_inventory_documents":
+      return getInventoryDocuments(db, {
+        ...parseOptionalDateRangeArgs(args),
+        documentType: String(args.documentType) as InventoryDocumentType,
+        documentStatus: args.documentStatus ? String(args.documentStatus) as InventoryDocumentStatus : undefined,
         limit: args.limit ? Number(args.limit) : 50,
       });
 

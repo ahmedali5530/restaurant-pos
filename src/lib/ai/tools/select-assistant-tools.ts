@@ -1,6 +1,6 @@
 import type {OpenAIToolDefinition} from "@/lib/openai.service.ts";
 import {isLocalAiReportCompactMode} from "@/lib/ai/config.ts";
-import {selectToolsForPrompt} from "@/lib/ai/tools/select-tools.ts";
+import {selectToolsForPrompt, applyPromptToolFilters, detectDomainsForPrompt} from "@/lib/ai/tools/select-tools.ts";
 import type {AiReportToolDomain} from "@/lib/ai/tools/categories.ts";
 import {AI_REPORT_TOOLS} from "@/lib/ai/tools/definitions.ts";
 import {filterToolsByPermissions} from "@/lib/ai/tools/permissions.ts";
@@ -43,23 +43,31 @@ const resolveReadTools = (
     return {readTools: tools, domains};
   }
 
+  const resolvedDomains = detectDomainsForPrompt(prompt);
   const nameSet = new Set(ASSISTANT_CORE_READ_TOOLS);
-  for (const tool of tools) {
-    nameSet.add(tool.function.name);
+  const filteredNames = applyPromptToolFilters(
+    AI_REPORT_TOOLS.map(tool => tool.function.name),
+    prompt,
+  );
+  for (const name of filteredNames) {
+    nameSet.add(name);
   }
 
-  if (domains.includes("manage")) {
+  if (resolvedDomains.includes("manage")) {
     for (const tool of resolveManageReadTools(allowedModules)) {
       nameSet.add(tool.function.name);
     }
   }
 
-  const readTools = AI_REPORT_TOOLS.filter(tool => nameSet.has(tool.function.name));
+  const order = new Map(filteredNames.map((name, index) => [name, index]));
+  const readTools = AI_REPORT_TOOLS
+    .filter(tool => nameSet.has(tool.function.name))
+    .sort((a, b) => (order.get(a.function.name) ?? 999) - (order.get(b.function.name) ?? 999));
   const filtered = allowedModules.length
     ? filterToolsByPermissions(readTools, allowedModules)
     : readTools;
 
-  return {readTools: filtered, domains};
+  return {readTools: filtered, domains: resolvedDomains};
 };
 
 export const selectAssistantToolsForPrompt = (

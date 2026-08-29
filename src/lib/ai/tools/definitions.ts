@@ -197,7 +197,11 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_inventory_movements",
-      description: "Get inventory ledger movements by reference type: purchase, purchase_return, issue, issue_return, waste, adjustment, transfer_in, transfer_out, production_input, production_output, buffet_consumption.",
+      description:
+        "Get posted inventory ledger movements aggregated by item for a reference type "
+        + "(purchase, purchase_return, issue, issue_return, waste, adjustment, transfer, production, buffet). "
+        + "For purchase receipts with invoice/supplier detail, prefer get_inventory_documents with documentType=purchase. "
+        + "Never use for purchase orders — those are get_purchase_orders.",
       parameters: {
         type: "object",
         properties: {
@@ -221,6 +225,43 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
           limit: {type: "number", default: 50},
         },
         required: ["type"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_inventory_documents",
+      description:
+        "Get posted inventory documents with headers and totals: purchases (supplier receipts), "
+        + "purchase returns, issues, issue returns, waste, adjustments, stock transfers. "
+        + "Use when the user asks about purchases/purchase report/history — NOT purchase orders "
+        + "(approval workflow: use get_purchase_orders only when they say purchase order or PO). "
+        + "For voided/cancelled inventory purchases use documentStatus=voided or cancelled — NOT get_voids (POS order dish voids).",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateRangeProps,
+          documentType: {
+            type: "string",
+            enum: [
+              "purchase",
+              "purchase_return",
+              "issue",
+              "issue_return",
+              "waste",
+              "adjustment",
+              "transfer",
+            ],
+          },
+          documentStatus: {
+            type: "string",
+            enum: ["draft", "approved", "posted", "cancelled", "voided"],
+            description: "Optional lifecycle filter. Use voided for voided inventory purchases/receipts.",
+          },
+          limit: {type: "number", default: 50},
+        },
+        required: ["documentType"],
       },
     },
   },
@@ -280,7 +321,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_purchase_orders",
-      description: "Get purchase order documents (Draft, Pending Approval, Approved, Fulfilled) with line items and totals. Use for PO / approval questions — NOT for posted purchase ledger movements (use get_inventory_movements with type purchase for those).",
+      description: "Get purchase order documents (Draft, Pending Approval, Approved, Fulfilled) with line items and totals. Use ONLY when the user says purchase order, PO, or procurement approval — NOT for purchases/purchase history (use get_inventory_documents with documentType=purchase).",
       parameters: {
         type: "object",
         properties: {

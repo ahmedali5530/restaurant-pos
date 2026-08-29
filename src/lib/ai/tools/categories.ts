@@ -34,6 +34,7 @@ export const AI_REPORT_TOOL_CATEGORIES: Record<AiReportToolDomain | "core", read
   ],
   inventory: [
     "get_current_inventory",
+    "get_inventory_documents",
     "get_inventory_movements",
     "get_consumption",
     "get_issuance",

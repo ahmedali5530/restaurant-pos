@@ -18,6 +18,8 @@ export const RELEASES: ReleaseNotes[] = [
       'The floating AI assistant now appears only on back-office screens (Manage, Inventory, Reports, HR, Accounts, Integrations, Tips, and Clock) and is hidden on cashier-facing POS screens.',
       'Discount import and list tools now preserve full Surreal record ids (e.g. category:…) for BXGY targets instead of stripping the table prefix.',
       'Assistant write tools now recognize create/update requests in Turkish and other supported languages, not only English keywords.',
+      'Assistant now routes purchase history to posted inventory purchases (get_inventory_documents) instead of purchase orders, with dedicated support for issues, returns, waste, adjustments, and transfers.',
+      'Voided inventory purchases now query get_inventory_documents with documentStatus=voided instead of POS order voids (get_voids) or purchase orders.',
     ],
   },
   {

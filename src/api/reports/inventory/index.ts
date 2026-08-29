@@ -413,3 +413,6 @@ export const getPurchaseOrders = async (
     orders,
   };
 };
+
+export {getInventoryDocuments} from "@/api/reports/inventory/documents.ts";
+export type {InventoryDocumentSummary} from "@/api/reports/inventory/documents.ts";

@@ -6,6 +6,7 @@ import {isTipsPrompt} from "@/lib/ai/tip-query.ts";
 import {FRAUD_AUDIT_TOOL_NAMES, isFraudSuspiciousPrompt} from "@/lib/ai/fraud-query.ts";
 import {isPurchaseOrderPrompt} from "@/lib/ai/purchase-order-query.ts";
 import {isInventoryNeedPrompt, isStaffNeedPrompt} from "@/lib/ai/demand-query.ts";
+import {isPurchaseLedgerPrompt, shouldExcludePurchaseOrderTool, shouldExcludePosVoidTools, shouldPreferInventoryDocumentsTool} from "@/lib/ai/inventory-operation-query.ts";
 import type {OpenAIToolDefinition} from "@/lib/openai.service.ts";
 import {AI_REPORT_TOOLS} from "@/lib/ai/tools/definitions.ts";
 import {AI_REPORT_COMPACT_TOOLS, getCompactToolByName} from "@/lib/ai/tools/compact-definitions.ts";
@@ -61,7 +62,9 @@ const detectDomainsFromPrompt = (prompt: string, format: AiReportFormat): Set<Ai
     domains.add("analysis");
   }
 
-  if (SALES_KEYWORDS.test(prompt)) {
+  if (SALES_KEYWORDS.test(prompt) && !isPurchaseLedgerPrompt(prompt)) {
+    domains.add("sales");
+  } else if (SALES_KEYWORDS.test(prompt.replace(/\bvoid(?:ed|s)?\b/gi, ""))) {
     domains.add("sales");
   }
   if (INVENTORY_KEYWORDS.test(prompt)) {
@@ -139,6 +142,31 @@ const collectToolNames = (domains: Set<AiReportToolDomain>, prompt: string): str
   return Array.from(names);
 };
 
+const filterInventoryToolsForPrompt = (toolNames: string[], prompt: string): string[] => {
+  let names = toolNames;
+  if (shouldExcludePurchaseOrderTool(prompt)) {
+    names = names.filter(name => name !== "get_purchase_orders");
+  }
+  if (shouldExcludePosVoidTools(prompt)) {
+    names = names.filter(name => name !== "get_voids" && name !== "get_void_and_cancel_summary");
+  }
+  return names;
+};
+
+const prioritizeInventoryDocumentTool = (toolNames: string[], prompt: string): string[] => {
+  if (!shouldPreferInventoryDocumentsTool(prompt)) {
+    return toolNames;
+  }
+  const rest = toolNames.filter(name => name !== "get_inventory_documents");
+  return ["get_inventory_documents", ...rest];
+};
+
+export const applyPromptToolFilters = (toolNames: string[], prompt: string): string[] => {
+  let names = filterInventoryToolsForPrompt(toolNames, prompt);
+  names = prioritizeInventoryDocumentTool(names, prompt);
+  return names;
+};
+
 const resolveToolDefinitions = (toolNames: string[], compact: boolean): OpenAIToolDefinition[] => {
   if (!compact) {
     const nameSet = new Set(toolNames);
@@ -170,7 +198,7 @@ export const selectToolsForPrompt = (
   }
 
   const domains = detectDomainsFromPrompt(prompt, format);
-  const toolNames = collectToolNames(domains, prompt);
+  let toolNames = applyPromptToolFilters(collectToolNames(domains, prompt), prompt);
   let tools = resolveToolDefinitions(toolNames, true);
 
   if (allowedModules.length) {

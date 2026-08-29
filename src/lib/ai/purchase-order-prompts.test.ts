@@ -43,6 +43,12 @@ describe("purchase order vs POS order routing", () => {
     expect(names).not.toContain("get_orders");
   });
 
+  it("routes purchases to inventory documents, not purchase orders", () => {
+    const names = toolNames("Inventory purchase movements this week");
+    expect(names).toContain("get_inventory_documents");
+    expect(names).not.toContain("get_purchase_orders");
+  });
+
   it("infers Pending Approval status", () => {
     expect(inferPurchaseOrderStatusesFromPrompt("Open purchase orders awaiting approval")).toEqual([
       "Pending Approval",

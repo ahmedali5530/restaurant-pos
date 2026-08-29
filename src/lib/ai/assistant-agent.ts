@@ -15,6 +15,7 @@ import {buildWriteProposal, type TFunc, type WriteProposal} from "@/lib/ai/tools
 import {selectAssistantToolsForPrompt} from "@/lib/ai/tools/select-assistant-tools.ts";
 import type {AiReportToolDomain} from "@/lib/ai/tools/categories.ts";
 import {type AiChartSpec, dedupeCharts} from "@/lib/ai/charts.ts";
+import {tryInventoryOperationFastPath} from "@/lib/ai/inventory-operation-fast-path.ts";
 
 const MAX_ITERATIONS = 10;
 const WRITE_TOOL_NAME_SET = new Set(listWriteToolNames());
@@ -178,6 +179,25 @@ export async function runAiAssistantAgent(
     ...priorMessages,
     {role: "user", content: trimmed},
   ];
+
+  const inventoryFastPath = await tryInventoryOperationFastPath(db, trimmed, {
+    onToolStart: options.onToolStart,
+  });
+  if (inventoryFastPath) {
+    const response = await callOpenAIChat({
+      messages: [
+        ...messages,
+        {role: "user", content: inventoryFastPath.instruction},
+      ],
+      tools: [],
+      task: options.task ?? "reporting",
+    });
+    const answer = messageText(response.choices[0]?.message?.content);
+    if (!answer) {
+      throw new Error("AI returned an empty response.");
+    }
+    return {type: "answer", answer, charts: [], messages};
+  }
 
   return runLoop(db, t, messages, {...options, prompt: trimmed, tools});
 }
