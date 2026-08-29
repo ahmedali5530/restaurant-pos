@@ -246,3 +246,7 @@ export const AnomalyAlertsScreen = lazy(() =>
 export const CustomerCLVScreen = lazy(() =>
   import('@/screens/reports/customer.clv.report.tsx').then(m => ({default: m.CustomerCLVScreen}))
 );
+
+export const ChurnPredictionScreen = lazy(() =>
+  import('@/screens/reports/churn.prediction.report.tsx').then(m => ({default: m.ChurnPredictionScreen}))
+);
