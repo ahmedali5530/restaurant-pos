@@ -28,6 +28,11 @@ export const RELEASES: ReleaseNotes[] = [
       'Assistant write tools now recognize create/update requests in Turkish and other supported languages, not only English keywords.',
       'Assistant now routes purchase history to posted inventory purchases (get_inventory_documents) instead of purchase orders, with dedicated support for issues, returns, waste, adjustments, and transfers.',
       'Voided inventory purchases now query get_inventory_documents with documentStatus=voided instead of POS order voids (get_voids) or purchase orders.',
+      'HR employee lookups (employee#, employee number) now use get_employee_detail / list_employees from HR — not POS list_users.',
+      'get_employee_detail now returns the full employee dossier (pay, schedule, attendance, leave, payroll, documents, performance) automatically.',
+      'HR read tools added for departments, positions, cost centers, and leave requests.',
+      'Assistant answers each message in isolation so a new question no longer repeats results from earlier ones in the chat.',
+      'Modifier group option price changes now use propose_update_modifier_groups (group + option + price), not base dish updates.',
     ],
   },
   {

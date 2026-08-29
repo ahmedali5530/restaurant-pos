@@ -69,6 +69,11 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
 - Labor reports: get_labor_dashboard_snapshot, get_daily_labor_cost, get_overtime_report, etc.
 - Staff needed for this Friday / next N days: forecast_staff_need only (hours + headcount vs last same weekday and published schedule). Pass localEvents from the prompt; never invent.
 - Session sales per order taker: get_current_session_sales. Date-range server sales: get_server_sales.`,
+  hr: `- HR employees (${Tables.employees}): use list_employees or get_employee_detail by employee_number (e.g. 00001) or employee:… id.
+- get_employee_detail returns the full dossier automatically: pay profile, shifts, attendance/time entries, leave balances/requests, payroll snapshots, adjustments, documents, performance notes, assignment history, linked POS user.
+- HR employees are NOT POS system users (${Tables.users}) — never use list_users for employee# / employee number / HR profile questions.
+- HR org: list_departments, list_positions, list_cost_centers. Leave requests: list_hr_leave_requests.
+- Labor reports (overtime, payroll summary, attendance aggregates): existing get_overtime_report, get_attendance_report, get_payroll_summary tools with date ranges.`,
   accounts: `- GL tables: ${Tables.accounts}, ${Tables.account_groups}, ${Tables.account_journal_entries}, ${Tables.account_journal_lines}.
 - Financial statements use posted journal lines only (entry.status = 'posted'). Read-only — no create/reverse entries.
 - Trial balance: get_trial_balance. Balance sheet: get_balance_sheet. P&L: get_profit_loss. Cash flow: get_cash_flow.
@@ -86,6 +91,7 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
   lookup: `- Use list_staff, list_categories, list_menu_items, or list_inventory_items for name-to-ID resolution.`,
   manage: `- Manage configuration (not sales totals): use list_* tools for floors, tables, discounts, taxes, users, roles, menus, kitchens, coupons, workflows, printers, shifts, etc.
 - For "tables on X floor": call list_tables with floor_name. For BXGY or scoped discounts: list_discounts, list_categories, list_menu_items first, then propose_create_discounts.
+- Modifier group option prices (sizes/toppings): use propose_update_modifier_groups with group + modifier + price — never propose_update_dishes (that changes the base menu item).
 - For changes: use propose_* tools — never claim tools are missing when list_* or propose_* appear in your tool list.`,
 };
 
@@ -123,6 +129,8 @@ const FULL_WORKFLOW = `Workflow:
 7b. For purchase orders / POs / pending approval: use get_purchase_orders — never get_orders and never get_inventory_documents.
 7c. For purchases / purchase history / purchase report / supplier receipts: use get_inventory_documents with documentType=purchase — never get_purchase_orders. For voided inventory purchases use documentStatus=voided — never get_voids (that is POS order dish voids).
 7d. For issue, purchase return, waste, adjustment, transfer documents: use get_inventory_documents with the matching documentType.
+7e. For HR employees / employee# / employee number: use get_employee_detail or list_employees — never list_users (POS login accounts). get_employee_detail includes all linked HR data automatically.
+7f. For HR departments/positions/cost centers: list_departments, list_positions, list_cost_centers. For leave requests: list_hr_leave_requests.
 8. For unsold / no-sales products: use get_unsold_products with phrase like "last 60 days" — never infer unsold items from get_top_selling_dishes or get_product_mix alone.
 9. For current clock-in session sales per order taker: use get_current_session_sales — not get_server_sales (which uses date ranges, not time_entry sessions).
 10. For tips collected / tip distribution shares: use get_tips with phrase (e.g. today). tipsCollected sums order tip_amount on paid orders. projectedShares shows each staff member's weighted share from tip_distribution settings.
@@ -148,6 +156,7 @@ ${buildDateContextBlock()}
 Date format for tool parameters: ${QUERY_DATE_FORMAT}. Currency: ${APP_CURRENCY} (${CURRENCY_SYMBOL}).
 
 Rules:
+- Each request is standalone: you only receive the current user message, not earlier chat. Answer only that question — never merge or repeat results from other topics the user may have asked before in the UI.
 - For relative dates, call resolve_date_range or pass phrase to tools — do not compute startDate/endDate from memory.
 - Use tool results for all numbers. Explain tool errors plainly.
 - Answer clearly with specific figures from tool output.
@@ -207,6 +216,7 @@ export const getAiReportSystemPrompt = (
  * Kept short so compact mode stays lightweight.
  */
 export const AI_ASSISTANT_WRITE_RULES = [
+  "Each user message is a standalone question — you only see that message (not earlier chat). Answer only what they just asked; never combine, recap, or apologize for prior topics.",
   "You can also propose create/update changes using the propose_* tools.",
   "The propose_* tools NEVER save anything — they only prepare a change for the user to review.",
   "After calling a propose_* tool, stop and wait; do not call it again or assume it was applied.",

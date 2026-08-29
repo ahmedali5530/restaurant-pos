@@ -41,6 +41,7 @@ import {
   fetchExistingDishModifierRaw,
   fetchExistingDishRaw,
   fetchExistingInventoryItemRaw,
+  fetchExistingModifierGroupOptionRaw,
   fetchExistingScheduledShiftRaw,
   fetchExistingTableRaw,
 } from "@/lib/ai/tools/write-tool-fetchers.ts";
@@ -106,6 +107,7 @@ const mergeEmployeeUpdatePatches = createMergeUpdatePatchesByMatchFields(Tables.
 const mergeDepartmentUpdatePatches = createMergeUpdatePatchesByMatchFields(Tables.departments, ["name"], {
   softDelete: false,
 });
+const mergeModifierGroupUpdatePatches = createMergeUpdatePatchesByFetcher(fetchExistingModifierGroupOptionRaw);
 const mergeKitchenUpdatePatches = createMergeUpdatePatchesByMatchFields(Tables.kitchens, ["name"], {
   softDelete: true,
 });
@@ -338,8 +340,19 @@ const departmentFields: WriteFieldSpec[] = [
 ];
 
 const modifierGroupFields: WriteFieldSpec[] = [
-  {name: "group", type: "string", requiredOnCreate: true, description: "Modifier group name"},
-  {name: "modifier", type: "string", requiredOnCreate: true, description: "Dish name or number used as modifier option"},
+  {name: "group", type: "string", requiredOnCreate: true, description: "Modifier group name (e.g. Select pizza size)"},
+  {
+    name: "modifier",
+    type: "string",
+    requiredOnCreate: true,
+    description: "Modifier option name within the group (e.g. Small) — not the base menu item",
+  },
+  {
+    name: "price",
+    type: "number",
+    requiredOnCreate: true,
+    description: "Modifier option price within the group — not the base dish price",
+  },
   {name: "priority", type: "number"},
 ];
 
@@ -725,16 +738,24 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
     createToolName: "propose_create_modifier_groups",
     updateToolName: "propose_update_modifier_groups",
     permissionModules: {create: "admin.modifier_groups.create", update: "admin.modifier_groups.update"},
-    keywords: /\b(modifier group|modifier groups)\b/i,
+    keywords: /\b(modifier groups?|modifier option|size option|topping option)\b/i,
     domains: ["manage", "sales"],
+    actionKeywords: /\b(add|create|update|change|set|new|increase|decrease|raise|lower|price)\b/i,
     createConfig: createModifierGroupImportConfig,
+    mergeUpdatePatches: mergeModifierGroupUpdatePatches,
     buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
-      entityLabel: "Modifier group",
+      entityLabel: "Modifier group option",
       recordsArgKey: "modifier_groups",
       createToolName: "propose_create_modifier_groups",
       updateToolName: "propose_update_modifier_groups",
       matchFields: ["group", "modifier"],
       fields: modifierGroupFields,
+      createDescription:
+        "Propose adding a modifier option to a modifier group with its option price. "
+        + "Use for sizes/toppings/add-ons — not base dish price.",
+      updateDescription:
+        "Propose updating a modifier option price within a modifier group (group + modifier name). "
+        + "Do NOT use propose_update_dishes — that changes the base menu item price, not the modifier option price.",
     }),
   },
   {

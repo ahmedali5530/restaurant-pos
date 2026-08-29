@@ -70,6 +70,23 @@ describe("detectWriteToolsForPrompt", () => {
     expect(names).toContain("propose_update_dishes");
   });
 
+  it("routes modifier group option price updates away from dishes", () => {
+    const prompt = "increase price of Small size in Select pizza size modifier group to 699";
+    const names = toolNames(prompt, ["admin.modifier_groups.update", "admin.dishes.update"], ["manage"]);
+    expect(names).toContain("propose_update_modifier_groups");
+    expect(names).not.toContain("propose_update_dishes");
+  });
+
+  it("listPermittedWriteTools excludes dishes for modifier group price prompts", () => {
+    const prompt = "increase price of Small in Select pizza size modifier group to 699";
+    const names = listPermittedWriteTools(
+      ["admin.dishes.update", "admin.modifier_groups.update"],
+      prompt,
+    ).map(tool => tool.function.name);
+    expect(names).toContain("propose_update_modifier_groups");
+    expect(names).not.toContain("propose_update_dishes");
+  });
+
   it("listPermittedWriteTools returns every tool the modules cover", () => {
     const names = listPermittedWriteTools(["admin.dishes.update"]).map(tool => tool.function.name);
     expect(names).toContain("propose_update_dishes");

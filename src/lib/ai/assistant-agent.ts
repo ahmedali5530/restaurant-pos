@@ -16,6 +16,7 @@ import {selectAssistantToolsForPrompt} from "@/lib/ai/tools/select-assistant-too
 import type {AiReportToolDomain} from "@/lib/ai/tools/categories.ts";
 import {type AiChartSpec, dedupeCharts} from "@/lib/ai/charts.ts";
 import {tryInventoryOperationFastPath} from "@/lib/ai/inventory-operation-fast-path.ts";
+import {tryEmployeeDetailFastPath} from "@/lib/ai/employee-fast-path.ts";
 
 const MAX_ITERATIONS = 10;
 const WRITE_TOOL_NAME_SET = new Set(listWriteToolNames());
@@ -154,13 +155,12 @@ async function runLoop(
   throw new Error("Assistant exceeded maximum tool iterations. Try a simpler request.");
 }
 
-/** Start a new turn from a user prompt. */
+/** Start a new turn from a user prompt (single-turn — no prior chat sent to the model). */
 export async function runAiAssistantAgent(
   db: AssistantDbClient,
   t: TFunc,
   prompt: string,
   options: AssistantAgentOptions,
-  history: OpenAIChatMessage[] = [],
 ): Promise<AssistantAgentResult> {
   const trimmed = prompt.trim();
   if (!trimmed) {
@@ -172,23 +172,29 @@ export async function runAiAssistantAgent(
     .map(tool => tool.function.name)
     .filter(name => WRITE_TOOL_NAME_SET.has(name));
   const systemContent = getAiAssistantSystemPrompt(domains, compact, writeToolNames);
-  const priorMessages = stripSystemMessages(history);
 
-  const messages: OpenAIChatMessage[] = [
+  const turnMessages = (extra?: OpenAIChatMessage[]): OpenAIChatMessage[] => [
     {role: "system", content: systemContent},
-    ...priorMessages,
     {role: "user", content: trimmed},
+    ...(extra ?? []),
   ];
+
+  const fastPathMessages = (instruction: string): OpenAIChatMessage[] =>
+    turnMessages([{role: "user", content: instruction}]);
+
+  const finishAnswer = (answer: string, extra?: OpenAIChatMessage[]): AssistantAgentResult => ({
+    type: "answer",
+    answer,
+    charts: [],
+    messages: turnMessages([...(extra ?? []), {role: "assistant", content: answer}]),
+  });
 
   const inventoryFastPath = await tryInventoryOperationFastPath(db, trimmed, {
     onToolStart: options.onToolStart,
   });
   if (inventoryFastPath) {
     const response = await callOpenAIChat({
-      messages: [
-        ...messages,
-        {role: "user", content: inventoryFastPath.instruction},
-      ],
+      messages: fastPathMessages(inventoryFastPath.instruction),
       tools: [],
       task: options.task ?? "reporting",
     });
@@ -196,10 +202,26 @@ export async function runAiAssistantAgent(
     if (!answer) {
       throw new Error("AI returned an empty response.");
     }
-    return {type: "answer", answer, charts: [], messages};
+    return finishAnswer(answer);
   }
 
-  return runLoop(db, t, messages, {...options, prompt: trimmed, tools});
+  const employeeFastPath = await tryEmployeeDetailFastPath(db, trimmed, {
+    onToolStart: options.onToolStart,
+  });
+  if (employeeFastPath) {
+    const response = await callOpenAIChat({
+      messages: fastPathMessages(employeeFastPath.instruction),
+      tools: [],
+      task: options.task ?? "reporting",
+    });
+    const answer = messageText(response.choices[0]?.message?.content);
+    if (!answer) {
+      throw new Error("AI returned an empty response.");
+    }
+    return finishAnswer(answer);
+  }
+
+  return runLoop(db, t, turnMessages(), {...options, prompt: trimmed, tools});
 }
 
 /**

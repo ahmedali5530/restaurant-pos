@@ -521,12 +521,29 @@ function prepareImageForPrint(buf, mime, opts) {
               hAlign,
               options.logoOffsetX
             );
-            const canvas = createCanvas(canvasWidth, side);
+            const fitHeight = options.fitHeight === true;
+            let canvasH = side;
+            let drawW = side;
+            let drawH = side;
+            let drawX = dx;
+            let drawY = 0;
+            if (fitHeight) {
+              const scale = Math.min(side / img.width, side / img.height);
+              drawW = Math.max(1, Math.round(img.width * scale));
+              drawH = Math.max(1, Math.round(img.height * scale));
+              drawX = dx + Math.floor((side - drawW) / 2);
+              canvasH = Math.max(8, Math.ceil(drawH / 8) * 8);
+            }
+            const canvas = createCanvas(canvasWidth, canvasH);
             const ctx = canvas.getContext('2d');
             ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, canvasWidth, side);
-            drawContainInSquare(ctx, img, dx, 0, side);
-            if (forceMono) forceCanvasMono(ctx, canvasWidth, side);
+            ctx.fillRect(0, 0, canvasWidth, canvasH);
+            if (fitHeight) {
+              ctx.drawImage(img, drawX, drawY, drawW, drawH);
+            } else {
+              drawContainInSquare(ctx, img, dx, 0, side);
+            }
+            if (forceMono) forceCanvasMono(ctx, canvasWidth, canvasH);
             resolve(canvas.toBuffer('image/png'));
             return;
           }
@@ -651,16 +668,11 @@ function printPrintingTimestamp(printer, config) {
   const ts = formatPrintingTimestamp(config);
   if (!ts) return;
   try {
-    if (typeof printer.feed === 'function') printer.feed(2);
+    if (typeof printer.feed === 'function') printer.feed(1);
   } catch (e) {
     // ignore
   }
   printCenteredText(printer, ts);
-  try {
-    if (typeof printer.feed === 'function') printer.feed(2);
-  } catch (e) {
-    // ignore
-  }
 }
 
 /**
@@ -1163,6 +1175,7 @@ async function printEscposImage(printer, input, opts) {
       paperWidth: options.paperWidth || PAPER_IMAGE_WIDTH_PX,
       hAlign: options.hAlign || 'center',
       logoOffsetX: options.logoOffsetX,
+      fitHeight: options.fitHeight === true,
     });
     if (!pngBuf || !pngBuf.length) {
       console.warn('[print] printEscposImage: prepare failed');
@@ -1261,12 +1274,12 @@ async function printFiscalQrOnly(printer, qrValue, config) {
       paperWidth,
       hAlign: 'center',
       logoOffsetX,
+      fitHeight: true,
       forceMono: true,
     });
     if (ok) {
       try {
         hardResetLayout(printer);
-        if (typeof printer.feed === 'function') printer.feed(1);
       } catch (e) {
         // ignore
       }
@@ -1337,6 +1350,7 @@ async function printFiscalQrRow(printer, qrValue, logoDataUri, config) {
       paperWidth,
       hAlign: 'center',
       logoOffsetX,
+      fitHeight: true,
       align: 'lt',
       forceMono: true,
     });
@@ -1345,7 +1359,6 @@ async function printFiscalQrRow(printer, qrValue, logoDataUri, config) {
     }
     try {
       hardResetLayout(printer);
-      if (typeof printer.feed === 'function') printer.feed(1);
     } catch (e) {
       // ignore
     }

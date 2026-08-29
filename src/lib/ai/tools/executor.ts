@@ -54,6 +54,8 @@ import {
   listInventoryItems,
   type InventoryMovementType,
 } from "@/api/reports/inventory/index.ts";
+import {getEmployeeDetail, listEmployees} from "@/api/reports/hr/employees.ts";
+import {listCostCenters, listDepartments, listHrLeaveRequests, listPositions} from "@/api/reports/hr/org.ts";
 import {getInventoryDocuments} from "@/api/reports/inventory/documents.ts";
 import type {InventoryDocumentStatus} from "@/api/model/inventory_document.ts";
 import type {InventoryDocumentType} from "@/lib/ai/inventory-operation-query.ts";
@@ -536,6 +538,45 @@ export const executeAiReportTool = async (
     case "list_shifts":
       return listShifts(db, {
         search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "list_employees":
+      return listEmployees(db, {
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "get_employee_detail":
+      return getEmployeeDetail(db, {
+        employeeNumber: args.employee_number ? String(args.employee_number) : undefined,
+        employeeId: args.employee_id ? String(args.employee_id) : undefined,
+      });
+
+    case "list_departments":
+      return listDepartments(db, {
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "list_positions":
+      return listPositions(db, {
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "list_cost_centers":
+      return listCostCenters(db, {
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "list_hr_leave_requests":
+      return listHrLeaveRequests(db, {
+        ...parseOptionalDateRangeArgs(args),
+        employeeNumber: args.employee_number ? String(args.employee_number) : undefined,
+        employeeId: args.employee_id ? String(args.employee_id) : undefined,
+        status: args.status ? String(args.status) : undefined,
         limit: args.limit ? Number(args.limit) : 50,
       });
 

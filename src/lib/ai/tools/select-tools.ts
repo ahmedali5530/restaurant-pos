@@ -7,6 +7,7 @@ import {FRAUD_AUDIT_TOOL_NAMES, isFraudSuspiciousPrompt} from "@/lib/ai/fraud-qu
 import {isPurchaseOrderPrompt} from "@/lib/ai/purchase-order-query.ts";
 import {isInventoryNeedPrompt, isStaffNeedPrompt} from "@/lib/ai/demand-query.ts";
 import {isPurchaseLedgerPrompt, shouldExcludePurchaseOrderTool, shouldExcludePosVoidTools, shouldPreferInventoryDocumentsTool} from "@/lib/ai/inventory-operation-query.ts";
+import {isEmployeeDetailPrompt, isHrEmployeePrompt, isHrOperationPrompt} from "@/lib/ai/employee-query.ts";
 import type {OpenAIToolDefinition} from "@/lib/openai.service.ts";
 import {AI_REPORT_TOOLS} from "@/lib/ai/tools/definitions.ts";
 import {AI_REPORT_COMPACT_TOOLS, getCompactToolByName} from "@/lib/ai/tools/compact-definitions.ts";
@@ -60,6 +61,10 @@ const detectDomainsFromPrompt = (prompt: string, format: AiReportFormat): Set<Ai
   if (isStaffNeedPrompt(prompt)) {
     domains.add("labor");
     domains.add("analysis");
+  }
+  if (isHrOperationPrompt(prompt)) {
+    domains.add("hr");
+    domains.add("labor");
   }
 
   if (SALES_KEYWORDS.test(prompt) && !isPurchaseLedgerPrompt(prompt)) {
@@ -150,7 +155,18 @@ const filterInventoryToolsForPrompt = (toolNames: string[], prompt: string): str
   if (shouldExcludePosVoidTools(prompt)) {
     names = names.filter(name => name !== "get_voids" && name !== "get_void_and_cancel_summary");
   }
+  if (isHrEmployeePrompt(prompt)) {
+    names = names.filter(name => name !== "list_users" && name !== "list_staff");
+  }
   return names;
+};
+
+const prioritizeEmployeeDetailTool = (toolNames: string[], prompt: string): string[] => {
+  if (!isEmployeeDetailPrompt(prompt)) {
+    return toolNames;
+  }
+  const rest = toolNames.filter(name => name !== "get_employee_detail");
+  return ["get_employee_detail", ...rest];
 };
 
 const prioritizeInventoryDocumentTool = (toolNames: string[], prompt: string): string[] => {
@@ -164,6 +180,7 @@ const prioritizeInventoryDocumentTool = (toolNames: string[], prompt: string): s
 export const applyPromptToolFilters = (toolNames: string[], prompt: string): string[] => {
   let names = filterInventoryToolsForPrompt(toolNames, prompt);
   names = prioritizeInventoryDocumentTool(names, prompt);
+  names = prioritizeEmployeeDetailTool(names, prompt);
   return names;
 };
 

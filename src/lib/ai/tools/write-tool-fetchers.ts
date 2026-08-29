@@ -146,6 +146,40 @@ export async function fetchExistingDishIngredientRaw(
   };
 }
 
+export async function fetchExistingModifierGroupOptionRaw(
+  db: ImportDbLike,
+  patch: Record<string, unknown>,
+): Promise<Record<string, unknown> | null> {
+  const groupName = String(patch.group ?? "").trim();
+  const modifierLabel = String(patch.modifier ?? "").trim();
+  if (!groupName || !modifierLabel) return null;
+
+  const [groups] = await db.query(
+    `SELECT id, name, priority, modifiers FROM ${Tables.modifier_groups}
+     WHERE string::lowercase(name) = string::lowercase($name) AND deleted_at = none
+     FETCH modifiers, modifiers.modifier`,
+    {name: groupName},
+  );
+  const group = groups?.[0];
+  if (!group) return null;
+
+  const key = modifierLabel.toLowerCase();
+  const option = (group.modifiers ?? []).find((item: any) => {
+    const dish = item?.modifier;
+    const name = String(dish?.name ?? "").toLowerCase();
+    const number = String(dish?.number ?? "").toLowerCase();
+    return name === key || number === key || name.includes(key) || key.includes(name);
+  });
+  if (!option) return null;
+
+  return {
+    group: group.name,
+    modifier: option.modifier?.name ?? modifierLabel,
+    price: option.price,
+    priority: group.priority,
+  };
+}
+
 export async function fetchExistingInventoryItemRaw(
   db: ImportDbLike,
   code: string,

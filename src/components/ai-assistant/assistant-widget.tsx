@@ -116,7 +116,7 @@ export function AiAssistantWidget() {
       if (cancelled) return;
       if (snapshot) {
         setEntries(snapshot.entries);
-        setHistory(snapshot.history);
+        setHistory([]);
       } else {
         setEntries([]);
         setHistory([]);
@@ -133,11 +133,11 @@ export function AiAssistantWidget() {
     if (!userId || !hydrated) return;
 
     const timer = window.setTimeout(() => {
-      void saveAssistantConversation(userId, {entries, history});
+      void saveAssistantConversation(userId, {entries, history: []});
     }, 250);
 
     return () => window.clearTimeout(timer);
-  }, [userId, hydrated, entries, history]);
+  }, [userId, hydrated, entries]);
 
   useEffect(() => {
     if (!visible) {
@@ -217,14 +217,15 @@ export function AiAssistantWidget() {
   }, [entries.length, history.length, loading, t, userId]);
 
   const applyResult = useCallback((result: AssistantAgentResult) => {
-    setHistory(result.messages);
     if (result.type === "answer") {
+      setHistory([]);
       if (shouldAutoExpand(result.answer)) {
         setExpanded(true);
       }
       setEntries(prev => [...prev, {role: "assistant", content: result.answer}]);
       setPending(null);
     } else {
+      setHistory(result.messages);
       setPending({proposal: result.proposal, toolCallId: result.toolCallId});
       setExpanded(true);
       setEntries(prev => [
@@ -251,7 +252,7 @@ export function AiAssistantWidget() {
     setError(null);
 
     try {
-      const result = await runAiAssistantAgent(db, t, trimmed, {allowedModules}, history);
+      const result = await runAiAssistantAgent(db, t, trimmed, {allowedModules});
       applyResult(result);
     } catch (err) {
       if (err instanceof SessionAuthError) {

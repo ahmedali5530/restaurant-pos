@@ -4,6 +4,7 @@ export type AiReportToolDomain =
   | "operations"
   | "analysis"
   | "labor"
+  | "hr"
   | "accounts"
   | "chart"
   | "lookup"
@@ -74,6 +75,14 @@ export const AI_REPORT_TOOL_CATEGORIES: Record<AiReportToolDomain | "core", read
     "get_ai_labor_datasets",
     "get_hourly_labor_vs_sales",
   ],
+  hr: [
+    "list_employees",
+    "get_employee_detail",
+    "list_departments",
+    "list_positions",
+    "list_cost_centers",
+    "list_hr_leave_requests",
+  ],
   accounts: [
     "get_trial_balance",
     "get_balance_sheet",
@@ -119,6 +128,7 @@ export const ALL_AI_REPORT_TOOL_NAMES = [
   ...AI_REPORT_TOOL_CATEGORIES.operations,
   ...AI_REPORT_TOOL_CATEGORIES.analysis,
   ...AI_REPORT_TOOL_CATEGORIES.labor,
+  ...AI_REPORT_TOOL_CATEGORIES.hr,
   ...AI_REPORT_TOOL_CATEGORIES.accounts,
   ...AI_REPORT_TOOL_CATEGORIES.chart,
   ...AI_REPORT_TOOL_CATEGORIES.lookup,

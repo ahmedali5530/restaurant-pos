@@ -81,12 +81,38 @@ export const listModifierGroups = async (db: DbClient, options: ListOptions = {}
   const limit = options.limit ?? 50;
   const search = normalizeSearch(options.search);
   const query = `
-    SELECT id, name, priority FROM ${Tables.modifier_groups}
+    SELECT id, name, priority, modifiers FROM ${Tables.modifier_groups}
     WHERE deleted_at = NONE
     ORDER BY priority ASC, name ASC
     LIMIT ${limit}
+    FETCH modifiers, modifiers.modifier
   `;
-  return mapNameId(unwrapQueryResult(await db.query(query))).filter(row => matchesSearch(row.name, search));
+  const rows = unwrapQueryResult<{
+    id: unknown;
+    name?: string;
+    priority?: number;
+    modifiers?: Array<{price?: number; modifier?: {name?: string; number?: string}}>;
+  }>(await db.query(query));
+
+  return rows
+    .map(row => ({
+      id: recordIdToString(row.id),
+      name: row.name ?? "Unknown",
+      priority: row.priority ?? 0,
+      options: (row.modifiers ?? []).map(option => ({
+        name: option.modifier?.name ?? "Unknown",
+        number: option.modifier?.number ?? undefined,
+        price: option.price ?? 0,
+      })),
+    }))
+    .filter(row => {
+      if (!search) return true;
+      if (matchesSearch(row.name, search)) return true;
+      return row.options.some(option =>
+        matchesSearch(option.name, search)
+        || matchesSearch(String(option.number ?? ""), search),
+      );
+    });
 };
 
 export const listKitchens = async (db: DbClient, options: ListOptions = {}) => {

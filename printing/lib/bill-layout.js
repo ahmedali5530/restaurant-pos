@@ -176,7 +176,6 @@ function printBillLayout(printer, bill, config, opts) {
   if (thankYou) {
     printer.feed(1);
     printCenteredText(printer, thankYou);
-    printer.feed(2);
   }
 
   const qrItems = normalizeQrItems(qrcodes, qrcode);
@@ -242,7 +241,7 @@ function printQrCodes(printer, items, config) {
       printQrCode(printer, item.value, item.logo, config).then(() => {
         printQrDescription(printer, item.description);
         if (index < items.length - 1) {
-          printer.feed(2);
+          printer.feed(1);
         }
       })
     );
@@ -259,13 +258,7 @@ function printQrCodes(printer, items, config) {
 function printQrCode(printer, value, logo, config) {
   if (!value) return Promise.resolve();
 
-  return printFiscalQrRow(printer, value, logo, config).then(() => {
-    try {
-      printer.feed(1);
-    } catch (e) {
-      // ignore
-    }
-  });
+  return printFiscalQrRow(printer, value, logo, config);
 }
 
 module.exports = { printBillLayout };

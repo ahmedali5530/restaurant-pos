@@ -1,6 +1,7 @@
 import type {OpenAIToolDefinition} from "@/lib/openai.service.ts";
 import {normalizeModules} from "@/lib/access.rules.ts";
 import {MANAGE_TOOL_PERMISSION_MODULES} from "@/lib/ai/tools/manage-permissions.ts";
+import {HR_TOOL_PERMISSION_MODULES} from "@/lib/ai/tools/hr-permissions.ts";
 
 /** Maps tool names to report permission modules. */
 export const TOOL_PERMISSION_MODULES: Record<string, string | string[]> = {
@@ -82,14 +83,19 @@ export const TOOL_PERMISSION_MODULES: Record<string, string | string[]> = {
   get_account_statement: ["accounts.customer_statement", "accounts.supplier_statement"],
   list_accounts: "accounts.chart_of_accounts",
   ...MANAGE_TOOL_PERMISSION_MODULES,
+  ...HR_TOOL_PERMISSION_MODULES,
 };
 
 const hasReadModuleAccess = (module: string, normalizedAllowed: string[]): boolean => {
   if (normalizedAllowed.includes(module) || normalizedAllowed.includes("reports.ai")) {
     return true;
   }
-  if (module.startsWith("admin.")) {
-    return normalizedAllowed.some(allowed => allowed === module || allowed.startsWith(`${module}.`));
+  if (module.startsWith("admin.") || module.startsWith("hr.")) {
+    return normalizedAllowed.some(allowed =>
+      allowed === module
+      || module.startsWith(`${allowed}.`)
+      || allowed.startsWith(`${module}.`),
+    );
   }
   return false;
 };

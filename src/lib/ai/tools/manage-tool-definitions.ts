@@ -32,7 +32,7 @@ export const AI_MANAGE_READ_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_modifier_groups",
-      description: "List modifier groups configured in Manage.",
+      description: "List modifier groups with each option name and modifier option price (not base dish price).",
       parameters: {type: "object", properties: searchLimitProps},
     },
   },

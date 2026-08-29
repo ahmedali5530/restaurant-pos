@@ -61,8 +61,20 @@ const entryMatchesPrompt = (
 };
 
 const isDishRelationPrompt = (prompt: string): boolean =>
-  /\bmodifier\b/i.test(prompt)
+  isModifierGroupOptionPrompt(prompt)
+  || (/\bmodifier\b/i.test(prompt) && !/\b(?:menu\s+)?(?:dish|dishes)\b/i.test(prompt))
   || (/\bingredient\b/i.test(prompt) && /\bdish\b/i.test(prompt));
+
+export const isModifierGroupOptionPrompt = (prompt: string): boolean => {
+  const text = prompt.trim();
+  if (!text) return false;
+  if (/\bmodifier\s+groups?\b/i.test(text)) return true;
+  if (/\b(?:small|medium|large|family|party|size|topping|crust|addon|add-on)\b/i.test(text)
+    && /\b(?:modifier|group|option)\b/i.test(text)) {
+    return true;
+  }
+  return false;
+};
 
 export type DetectWriteToolsOptions = {
   domains?: AiReportToolDomain[];
@@ -106,9 +118,13 @@ const appendPermittedToolsForEntry = (
 };
 
 /** Every propose_* tool the user is allowed to call (no keyword filter). */
-export const listPermittedWriteTools = (allowedModules: string[]): OpenAIToolDefinition[] => {
+export const listPermittedWriteTools = (
+  allowedModules: string[],
+  prompt = "",
+): OpenAIToolDefinition[] => {
   const matched: OpenAIToolDefinition[] = [];
   for (const entry of WRITE_TOOL_REGISTRY) {
+    if (entry.configId === "dishes" && isDishRelationPrompt(prompt)) continue;
     appendPermittedToolsForEntry(entry, allowedModules, matched);
   }
   return matched;

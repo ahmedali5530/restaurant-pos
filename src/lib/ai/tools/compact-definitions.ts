@@ -1,5 +1,6 @@
 import type {OpenAIToolDefinition} from "@/lib/openai.service.ts";
 import {AI_MANAGE_READ_TOOLS} from "@/lib/ai/tools/manage-tool-definitions.ts";
+import {AI_HR_READ_TOOLS} from "@/lib/ai/tools/hr-tool-definitions.ts";
 
 const dateParams = {
   phrase: {type: "string"},
@@ -817,6 +818,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     },
   },
   ...AI_MANAGE_READ_TOOLS,
+  ...AI_HR_READ_TOOLS,
 ];
 
 const COMPACT_TOOL_BY_NAME = new Map(
