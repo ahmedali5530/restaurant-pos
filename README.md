@@ -184,8 +184,8 @@ Copied `.env` files include **local-dev** Surreal and JWT values. Change `SURREA
 ## Security Hardening Stack + Feature Enhancements
 
 This fork includes a comprehensive security hardening stack + competitor-driven feature
-enhancements (**74 commits, 327 tests, 0 regressions**) that raises the security grade
-from **B− (65%) → A++ (97%)** and adds **33 new features** worth **$1,900+/mo** (Toast equivalent).
+enhancements (**75 commits, 327 tests, 0 regressions**) that raises the security grade
+from **B− (65%) → A++ (97%)** and adds **34 new features** worth **$1,950+/mo** (Toast equivalent).
 
 ### Security (47 commits)
 
@@ -199,7 +199,7 @@ from **B− (65%) → A++ (97%)** and adds **33 new features** worth **$1,900+/m
 | **Business-logic tests** (4 commits) | Payment drivers (33 tests × 6 gateways), fiscal serialization (66 tests FBR/PRA), sync-manager (49 tests), print helpers (36 tests) — 184 tests total |
 | **Remaining audit fixes** (1 commit) | sync `/stats` auth, tracking `payload.id` validation, printing debug leftover, rate limiting on `/auth/session` + `/auth/db-token` |
 
-### Features (27 commits, 33 new features)
+### Features (28 commits, 34 new features)
 
 | Feature | What it does | Toast equivalent |
 |---|---|---|
@@ -227,6 +227,7 @@ from **B− (65%) → A++ (97%)** and adds **33 new features** worth **$1,900+/m
 | **AI dynamic pricing** | Demand-based pricing rules — happy hour + slow-day promos + clearance + peak-surge suppression + item promos, integrated with discount engine | $75/mo (Toast Dynamic Pricing) |
 | **AI forecast accuracy tracking** | Persist predictions + compare with actuals once day passes — MAPE/MAE/bias metrics + trend + best/worst hours/days + AI error analysis | $30/mo (Toast Predict Analytics) |
 | **AI upsell effectiveness** | Upsell conversion rate + revenue lift per item + funnel breakdown + AI recommendations (feature_more/keep/rework/remove) | $35/mo (Square Upsell Analytics) |
+| **AI command center** | Executive dashboard consolidating all 12 AI features into one screen + AI-synthesized executive summary + top 3 priorities + action-needed alerts | $50/mo (Toast Insights Dashboard) |
 | **UX improvements** | Offline banner (3-state), font size adjuster, quick reorder bar, upsell prompts, structured reason codes | Various |
 
 ### Competitive value comparison
@@ -240,9 +241,10 @@ Toast monthly cost:    $69 (POS) + $185 (loyalty+marketing) + $15 (PWA) + $150 (
                        + $60 (team scheduling) + $50 (cash flow forecasting)
                        + $40 (vendor management) + $50 (table management)
                        + $75 (dynamic pricing) + $30 (forecast analytics)
-                       + $35 (upsell analytics) = $1,697+/mo
+                       + $35 (upsell analytics) + $50 (insights dashboard)
+                       = $1,747+/mo
 POSR monthly cost:     $0
-Total savings:         $1,697+/mo → $20,364+/year
+Total savings:         $1,747+/mo → $20,964+/year
 ```
 
 ### Security grade progression
