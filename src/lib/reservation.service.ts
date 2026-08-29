@@ -223,6 +223,75 @@ export async function getReservationsByDate(
   return Array.isArray(result) ? result : [];
 }
 
+/**
+ * Get active reservations (pending or confirmed) for a specific table on a given date.
+ *
+ * Used by the Tableside UI to show waiters which tables have upcoming bookings
+ * and to surface a "Seat reservation" action when the party arrives.
+ *
+ * Returns reservations sorted by time ascending. Includes both 'pending' and
+ * 'confirmed' statuses (waiter can seat either — seating auto-confirms).
+ */
+export async function getReservationsForTable(
+  db: ReturnType<typeof useDB>,
+  tableId: string,
+  date?: string
+): Promise<Reservation[]> {
+  const targetDate = date ?? new Date().toISOString().split('T')[0];
+  try {
+    const result = await db.query<Reservation[]>(`
+      SELECT * FROM ${RESERVATION}
+      WHERE date >= $dateStart AND date < $dateEnd
+        AND status IN ['pending', 'confirmed']
+        AND (table.id = $tableId OR table = type::record($tableId))
+      ORDER BY date ASC;
+    `, {
+      dateStart: `${targetDate}T00:00:00Z`,
+      dateEnd: `${targetDate}T23:59:59Z`,
+      tableId,
+    });
+    return Array.isArray(result) ? result : [];
+  } catch (err) {
+    console.warn('[reservation] getReservationsForTable failed', err);
+    return [];
+  }
+}
+
+/**
+ * Get all reservations for today that are not yet seated, across all tables.
+ *
+ * Used by the Tableside grid view to badge tables that have an upcoming
+ * reservation (so waiters can plan seating without opening each table).
+ */
+export async function getTodayReservationsByTable(
+  db: ReturnType<typeof useDB>
+): Promise<Record<string, Reservation[]>> {
+  const today = new Date().toISOString().split('T')[0];
+  try {
+    const result = await db.query<Reservation[]>(`
+      SELECT * FROM ${RESERVATION}
+      WHERE date >= $dateStart AND date < $dateEnd
+        AND status IN ['pending', 'confirmed']
+      ORDER BY date ASC;
+    `, {
+      dateStart: `${today}T00:00:00Z`,
+      dateEnd: `${today}T23:59:59Z`,
+    });
+    const list = Array.isArray(result) ? result : [];
+    const byTable: Record<string, Reservation[]> = {};
+    for (const r of list) {
+      const tid = (r as any).table?.id?.toString?.() ?? (r as any).table?.toString?.() ?? '';
+      if (!tid) continue;
+      if (!byTable[tid]) byTable[tid] = [];
+      byTable[tid].push(r);
+    }
+    return byTable;
+  } catch (err) {
+    console.warn('[reservation] getTodayReservationsByTable failed', err);
+    return {};
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Waitlist service
 // ---------------------------------------------------------------------------

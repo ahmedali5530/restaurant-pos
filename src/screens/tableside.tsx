@@ -33,11 +33,17 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useSecurity } from '@/hooks/useSecurity.ts';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUtensils, faArrowLeft, faPlus, faMinus, faTrash, faFire, faCheck, faChair, faClock } from '@fortawesome/free-solid-svg-icons';
+import { faUtensils, faArrowLeft, faPlus, faMinus, faTrash, faFire, faCheck, faChair, faClock, faCalendarCheck, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import { OrderStatus } from '@/api/model/order.ts';
 import { toRecordId } from '@/lib/utils.ts';
 import { withCurrency } from '@/lib/utils.ts';
 import { nowSurrealDateTime } from '@/lib/datetime.ts';
+import {
+  getReservationsForTable,
+  getTodayReservationsByTable,
+  seatReservation,
+  type Reservation,
+} from '@/lib/reservation.service.ts';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -94,6 +100,10 @@ export function TablesideScreen() {
   const [covers, setCovers] = useState<number>(2);
   const [sending, setSending] = useState(false);
   const [tableStates, setTableStates] = useState<Record<string, string>>({});
+  const [todayReservations, setTodayReservations] = useState<Record<string, Reservation[]>>({});
+  const [tableReservations, setTableReservations] = useState<Reservation[]>([]);
+  const [showReservationPanel, setShowReservationPanel] = useState(false);
+  const [seatingReservationId, setSeatingReservationId] = useState<string | null>(null);
 
   // Derived data
   const floors = useMemo(() => settings.floors ?? [], [settings.floors]);
@@ -148,6 +158,9 @@ export function TablesideScreen() {
         if (tid) states[tid] = o.status ?? 'occupied';
       }
       setTableStates(states);
+      // Also refresh today's reservations (so badges stay current as parties are seated)
+      const resByTable = await getTodayReservationsByTable(db);
+      setTodayReservations(resByTable);
     } catch (err) {
       // Non-fatal — fall back to "free" for all tables
       console.warn('[tableside] refreshTableStates failed', err);
@@ -191,7 +204,7 @@ export function TablesideScreen() {
   const cartTotal = useMemo(() => cart.reduce((sum, l) => sum + l.price * l.quantity, 0), [cart]);
   const cartCount = useMemo(() => cart.reduce((sum, l) => sum + l.quantity, 0), [cart]);
 
-  // Open table → load existing open order (if any)
+  // Open table → load existing open order (if any) + load reservations for this table
   const openTable = useCallback(async (table: any) => {
     const tableId = table.id?.toString() ?? '';
     setSelectedTable({
@@ -203,6 +216,15 @@ export function TablesideScreen() {
     // Reset cart for new table
     setCart([]);
     setCovers(table.covers ?? 2);
+    setShowReservationPanel(false);
+    // Load reservations for this table today
+    try {
+      const reservations = await getReservationsForTable(db, tableId);
+      setTableReservations(reservations);
+    } catch (err) {
+      console.warn('[tableside] load reservations failed', err);
+      setTableReservations([]);
+    }
     // If table is occupied, try to load its open order
     try {
       const result = await db.query<any[]>(
@@ -292,8 +314,53 @@ export function TablesideScreen() {
   const closeTable = useCallback(() => {
     setSelectedTable(null);
     setCart([]);
+    setTableReservations([]);
+    setShowReservationPanel(false);
     refreshTableStates();
   }, [refreshTableStates]);
+
+  // Seat a reservation on the current table — marks the reservation as 'seated',
+  // sets the table's covers to the party size, and dismisses the panel.
+  const handleSeatReservation = useCallback(async (reservation: Reservation) => {
+    if (!selectedTable) return;
+    setSeatingReservationId(reservation.id);
+    try {
+      await seatReservation(db, reservation.id, selectedTable.tableId);
+      // Update local state: covers = party size, remove from tableReservations
+      setCovers(reservation.party_size ?? 2);
+      setTableReservations(prev => prev.filter(r => r.id !== reservation.id));
+      setTodayReservations(prev => {
+        const next = { ...prev };
+        const list = next[selectedTable.tableId];
+        if (list) {
+          next[selectedTable.tableId] = list.filter(r => r.id !== reservation.id);
+        }
+        return next;
+      });
+      setShowReservationPanel(false);
+      toast.success(`Seated ${reservation.customer_name} (party of ${reservation.party_size})`);
+    } catch (err) {
+      console.error('[tableside] seatReservation failed', err);
+      toast.error('Failed to seat reservation');
+    } finally {
+      setSeatingReservationId(null);
+    }
+  }, [db, selectedTable]);
+
+  // Format reservation time for display (e.g. "19:30")
+  const formatReservationTime = (dateStr: string): string => {
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch {
+      return '—';
+    }
+  };
+
+  // Next upcoming reservation for the current table (earliest)
+  const nextReservation = useMemo(() => {
+    return tableReservations[0] ?? null;
+  }, [tableReservations]);
 
   // ===========================================================================
   // RENDER — Table grid view
@@ -342,18 +409,37 @@ export function TablesideScreen() {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
               {tables.map(table => {
                 const tid = table.id?.toString() ?? '';
-                const status = tableStates[tid] ? 'occupied' : 'free';
+                const occupied = !!tableStates[tid];
+                const status = occupied ? 'occupied' : 'free';
                 const st = TABLE_STATUS[status as keyof typeof TABLE_STATUS];
+                // Upcoming reservation for this table today
+                const upcoming = todayReservations[tid];
+                const nextRes = upcoming?.[0];
+                const hasReservation = !occupied && upcoming && upcoming.length > 0;
+                // If there's a reservation and table is free, show as 'reserved' color
+                const effectiveStatus = hasReservation ? 'reserved' : status;
+                const effectiveStyle = TABLE_STATUS[effectiveStatus as keyof typeof TABLE_STATUS];
                 return (
                   <button
                     key={tid}
                     onClick={() => openTable(table)}
-                    className={`${TILE_BTN} ${st.bg} border-2 flex flex-col items-center justify-center gap-2 min-h-[120px]`}
+                    className={`${TILE_BTN} ${effectiveStyle.bg} border-2 flex flex-col items-center justify-center gap-2 min-h-[120px] relative`}
                     data-testid={`tableside-table-${tid}`}
                   >
-                    <FontAwesomeIcon icon={st.icon} className="text-3xl" />
+                    {hasReservation && (
+                      <span className="absolute top-1.5 right-1.5 bg-amber-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold" title={`${upcoming!.length} upcoming reservation(s)`}>
+                        {upcoming!.length}
+                      </span>
+                    )}
+                    <FontAwesomeIcon icon={effectiveStyle.icon} className="text-3xl" />
                     <span className="text-xl font-bold">{table.name ?? table.number}</span>
-                    <span className="text-xs uppercase tracking-wide opacity-75">{st.label}</span>
+                    <span className="text-xs uppercase tracking-wide opacity-75">{effectiveStyle.label}</span>
+                    {nextRes && (
+                      <span className="text-[10px] opacity-75 flex items-center gap-1">
+                        <FontAwesomeIcon icon={faCalendarCheck} />
+                        {formatReservationTime(nextRes.date)}
+                      </span>
+                    )}
                   </button>
                 );
               })}
@@ -387,10 +473,25 @@ export function TablesideScreen() {
                 ? <span className="text-rose-600 font-medium ml-1">Open order</span>
                 : <span className="text-emerald-600 font-medium ml-1">New order</span>
               }
+              {nextReservation && (
+                <span className="ml-2 text-amber-600 font-medium flex items-center gap-1 inline-flex">
+                  <FontAwesomeIcon icon={faCalendarCheck} />
+                  Next: {formatReservationTime(nextReservation.date)}
+                </span>
+              )}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
+          {tableReservations.length > 0 && (
+            <button
+              onClick={() => setShowReservationPanel(s => !s)}
+              className={`${TILE_BTN} ${showReservationPanel ? 'bg-amber-500 text-white' : 'bg-amber-50 text-amber-700 border border-amber-300'} gap-2`}
+            >
+              <FontAwesomeIcon icon={faCalendarCheck} />
+              {tableReservations.length} reservation{tableReservations.length !== 1 ? 's' : ''}
+            </button>
+          )}
           <label className="text-sm text-neutral-500">Covers</label>
           <div className="flex items-center gap-2">
             <button
@@ -409,6 +510,61 @@ export function TablesideScreen() {
           </div>
         </div>
       </header>
+
+      {/* Reservation panel — collapsible, shows when waiter taps the reservation badge */}
+      {showReservationPanel && tableReservations.length > 0 && (
+        <div className="bg-amber-50 border-b border-amber-200 px-4 py-3">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-semibold text-amber-800 flex items-center gap-2">
+              <FontAwesomeIcon icon={faCalendarCheck} />
+              Upcoming reservations for {selectedTable.tableName}
+            </h3>
+            <button
+              onClick={() => setShowReservationPanel(false)}
+              className="text-amber-700 hover:text-amber-900 text-sm"
+            >
+              ✕ Close
+            </button>
+          </div>
+          <div className="space-y-2 max-h-60 overflow-y-auto">
+            {tableReservations.map(r => (
+              <div key={r.id} className="bg-white rounded-lg border border-amber-200 p-3 flex items-center justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold">{r.customer_name}</span>
+                    <span className="inline-flex items-center gap-1 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                      <FontAwesomeIcon icon={faUserGroup} />
+                      Party of {r.party_size}
+                    </span>
+                    <span className="text-xs bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded-full">
+                      {formatReservationTime(r.date)}
+                    </span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${r.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                      {r.status}
+                    </span>
+                  </div>
+                  {r.special_requests && (
+                    <div className="text-xs text-neutral-500 mt-1 italic">
+                      "{r.special_requests}"
+                    </div>
+                  )}
+                  {r.customer_phone && (
+                    <div className="text-xs text-neutral-500 mt-0.5">📞 {r.customer_phone}</div>
+                  )}
+                </div>
+                <button
+                  onClick={() => handleSeatReservation(r)}
+                  disabled={seatingReservationId === r.id}
+                  className={`${TILE_BTN} bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-50 gap-2 flex-shrink-0`}
+                >
+                  <FontAwesomeIcon icon={faCheck} spin={seatingReservationId === r.id} />
+                  {seatingReservationId === r.id ? 'Seating…' : 'Seat party'}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Category tabs — horizontal scroll */}
       <div className="bg-white border-b border-neutral-200 px-4 py-2 flex gap-2 overflow-x-auto">
