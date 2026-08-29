@@ -184,8 +184,8 @@ Copied `.env` files include **local-dev** Surreal and JWT values. Change `SURREA
 ## Security Hardening Stack + Feature Enhancements
 
 This fork includes a comprehensive security hardening stack + competitor-driven feature
-enhancements (**78 commits, 327 tests, 0 regressions**) that raises the security grade
-from **B− (65%) → A++ (97%)** and adds **37 new features** worth **$2,100+/mo** (Toast equivalent).
+enhancements (**79 commits, 327 tests, 0 regressions**) that raises the security grade
+from **B− (65%) → A++ (97%)** and adds **38 new features** worth **$2,150+/mo** (Toast equivalent).
 
 ### Security (47 commits)
 
@@ -199,7 +199,7 @@ from **B− (65%) → A++ (97%)** and adds **37 new features** worth **$2,100+/m
 | **Business-logic tests** (4 commits) | Payment drivers (33 tests × 6 gateways), fiscal serialization (66 tests FBR/PRA), sync-manager (49 tests), print helpers (36 tests) — 184 tests total |
 | **Remaining audit fixes** (1 commit) | sync `/stats` auth, tracking `payload.id` validation, printing debug leftover, rate limiting on `/auth/session` + `/auth/db-token` |
 
-### Features (31 commits, 37 new features)
+### Features (32 commits, 38 new features)
 
 | Feature | What it does | Toast equivalent |
 |---|---|---|
@@ -231,6 +231,7 @@ from **B− (65%) → A++ (97%)** and adds **37 new features** worth **$2,100+/m
 | **AI anomaly detection** | Real-time operational monitoring — 9 detection rules (sales drop, waste spike, cash flow, stockout, sentiment drop, no-show, vendor delay, staffing gap, forecast error) + AI insight per alert + deduplication | $40/mo (Toast Smart Alerts) |
 | **AI customer lifetime value** | RFM segmentation + historical CLV + predictive CLV + churn risk + 7 segments (champion/loyal/potential/new/at_risk/cant_lose/hibernating) + AI recommendations | $45/mo (Toast Customer 360) |
 | **AI churn prediction** | At-risk customer identification + AI personalized retention messages + priority tiers (critical/high/moderate) + retention action tracking + churn trend + save rate | $50/mo (Toast Customer Retention) |
+| **AI promo effectiveness** | Promotion ROI measurement — redemption rate + revenue generated + order lift + new customer acquisition + repeat rate + AI recommendations (scale/keep/rework/kill) | $40/mo (Toast Promo Analytics) |
 | **UX improvements** | Offline banner (3-state), font size adjuster, quick reorder bar, upsell prompts, structured reason codes | Various |
 
 ### Competitive value comparison
@@ -246,9 +247,10 @@ Toast monthly cost:    $69 (POS) + $185 (loyalty+marketing) + $15 (PWA) + $150 (
                        + $75 (dynamic pricing) + $30 (forecast analytics)
                        + $35 (upsell analytics) + $50 (insights dashboard)
                        + $40 (smart alerts) + $45 (customer 360)
-                       + $50 (churn prediction) = $1,882+/mo
+                       + $50 (churn prediction) + $40 (promo analytics)
+                       = $1,922+/mo
 POSR monthly cost:     $0
-Total savings:         $1,882+/mo → $22,584+/year
+Total savings:         $1,922+/mo → $23,064+/year
 ```
 
 ### Security grade progression

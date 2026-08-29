@@ -40,6 +40,7 @@ import {
   REPORTS_ANOMALY_ALERTS,
   REPORTS_CUSTOMER_CLV,
   REPORTS_CHURN_PREDICTION,
+  REPORTS_PROMO_EFFECTIVENESS,
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
   REPORTS_CONSUMPTION,
@@ -172,6 +173,7 @@ import {
   AnomalyAlertsScreen,
   CustomerCLVScreen,
   ChurnPredictionScreen,
+  PromoEffectivenessScreen,
   TablesideScreen,
 } from "@/routes/lazy-screens.ts";
 
@@ -231,6 +233,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_ANOMALY_ALERTS} element={<AnomalyAlertsScreen/>}/>
         <Route path={REPORTS_CUSTOMER_CLV} element={<CustomerCLVScreen/>}/>
         <Route path={REPORTS_CHURN_PREDICTION} element={<ChurnPredictionScreen/>}/>
+        <Route path={REPORTS_PROMO_EFFECTIVENESS} element={<PromoEffectivenessScreen/>}/>
         <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
         <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
         <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>
