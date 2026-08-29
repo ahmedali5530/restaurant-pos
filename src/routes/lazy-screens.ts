@@ -194,3 +194,7 @@ export const InventoryDocumentPrintPage = lazy(() =>
 export const DemandForecastScreen = lazy(() =>
   import('@/screens/reports/demand.forecast.report.tsx').then(m => ({default: m.DemandForecastScreen}))
 );
+
+export const MenuOptimizationScreen = lazy(() =>
+  import('@/screens/reports/menu.optimization.report.tsx').then(m => ({default: m.MenuOptimizationScreen}))
+);
