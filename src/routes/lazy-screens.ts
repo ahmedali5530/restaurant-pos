@@ -294,3 +294,7 @@ export const TipAnalyticsScreen = lazy(() =>
 export const RevPASHScreen = lazy(() =>
   import('@/screens/reports/revpash.report.tsx').then(m => ({default: m.RevPASHScreen}))
 );
+
+export const JourneyScreen = lazy(() =>
+  import('@/screens/reports/journey.report.tsx').then(m => ({default: m.JourneyScreen}))
+);
