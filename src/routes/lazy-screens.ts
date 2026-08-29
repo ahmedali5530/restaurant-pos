@@ -222,3 +222,7 @@ export const VendorPerformanceScreen = lazy(() =>
 export const TableTurnoverScreen = lazy(() =>
   import('@/screens/reports/turnover.report.tsx').then(m => ({default: m.TableTurnoverScreen}))
 );
+
+export const DynamicPricingScreen = lazy(() =>
+  import('@/screens/reports/dynamic.pricing.report.tsx').then(m => ({default: m.DynamicPricingScreen}))
+);

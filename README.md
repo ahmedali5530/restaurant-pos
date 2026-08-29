@@ -184,8 +184,8 @@ Copied `.env` files include **local-dev** Surreal and JWT values. Change `SURREA
 ## Security Hardening Stack + Feature Enhancements
 
 This fork includes a comprehensive security hardening stack + competitor-driven feature
-enhancements (**71 commits, 327 tests, 0 regressions**) that raises the security grade
-from **B− (65%) → A++ (97%)** and adds **30 new features** worth **$1,700+/mo** (Toast equivalent).
+enhancements (**72 commits, 327 tests, 0 regressions**) that raises the security grade
+from **B− (65%) → A++ (97%)** and adds **31 new features** worth **$1,800+/mo** (Toast equivalent).
 
 ### Security (47 commits)
 
@@ -199,7 +199,7 @@ from **B− (65%) → A++ (97%)** and adds **30 new features** worth **$1,700+/m
 | **Business-logic tests** (4 commits) | Payment drivers (33 tests × 6 gateways), fiscal serialization (66 tests FBR/PRA), sync-manager (49 tests), print helpers (36 tests) — 184 tests total |
 | **Remaining audit fixes** (1 commit) | sync `/stats` auth, tracking `payload.id` validation, printing debug leftover, rate limiting on `/auth/session` + `/auth/db-token` |
 
-### Features (24 commits, 30 new features)
+### Features (25 commits, 31 new features)
 
 | Feature | What it does | Toast equivalent |
 |---|---|---|
@@ -224,6 +224,7 @@ from **B− (65%) → A++ (97%)** and adds **30 new features** worth **$1,700+/m
 | **AI cash flow forecasting** | 30-day cash position projection — revenue + payroll + payables + recurring expenses + AI insights + runway calculation + health status | $50/mo (Lightspeed Financial Insights) |
 | **AI vendor performance** | Supplier scorecards — on-time delivery + quality + price competitiveness + AI recommendations (renegotiate/diversify/consolidate/drop) + projected savings | $40/mo (Square Vendor Management) |
 | **AI table turnover** | Per-table occupancy, turnover rate, revenue per table-hour, capacity utilization, idle time + AI floor optimization recommendations | $50/mo (Toast Table Management) |
+| **AI dynamic pricing** | Demand-based pricing rules — happy hour + slow-day promos + clearance + peak-surge suppression + item promos, integrated with discount engine | $75/mo (Toast Dynamic Pricing) |
 | **UX improvements** | Offline banner (3-state), font size adjuster, quick reorder bar, upsell prompts, structured reason codes | Various |
 
 ### Competitive value comparison
@@ -236,9 +237,9 @@ Toast monthly cost:    $69 (POS) + $185 (loyalty+marketing) + $15 (PWA) + $150 (
                        + $50 (customer insights) + $40 (waste management)
                        + $60 (team scheduling) + $50 (cash flow forecasting)
                        + $40 (vendor management) + $50 (table management)
-                       = $1,557+/mo
+                       + $75 (dynamic pricing) = $1,632+/mo
 POSR monthly cost:     $0
-Total savings:         $1,557+/mo → $18,684+/year
+Total savings:         $1,632+/mo → $19,584+/year
 ```
 
 ### Security grade progression
