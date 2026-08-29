@@ -103,6 +103,7 @@ export const REPORTS_AI = REPORTS + '/ai';
 export const REPORTS_FORECAST = REPORTS + '/forecast';
 export const REPORTS_MENU_OPTIMIZATION = REPORTS + '/menu-optimization';
 export const REPORTS_SENTIMENT = REPORTS + '/sentiment';
+export const REPORTS_WASTE_INTELLIGENCE = REPORTS + '/waste-intelligence';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';
