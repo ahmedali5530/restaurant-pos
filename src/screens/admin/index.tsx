@@ -21,6 +21,7 @@ import { MarketingManagement } from "@/components/admin/marketing-management.tsx
 import { ReservationManagement } from "@/components/admin/reservation-management.tsx";
 import { AdminCurrencies } from "@/components/admin/currency-management.tsx";
 import { KdsSettingsPanel } from "@/components/admin/kds-settings.tsx";
+import { ReorderDashboard } from "@/components/inventory/reorder-dashboard.tsx";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {AdminMenus} from "@/components/settings/menu";
 import {AdminPrints} from "@/components/settings/prints";
@@ -54,6 +55,7 @@ const ADMIN_TAB_KEYS = [
   'reservations',
   'currencies',
   'kds',
+  'reorder',
 ] as const;
 
 type AdminTabKey = (typeof ADMIN_TAB_KEYS)[number];
@@ -82,6 +84,7 @@ const TAB_I18N_KEYS: Record<AdminTabKey, string> = {
   reservations: 'tabs.reservations',
   currencies: 'tabs.currencies',
   kds: 'tabs.kds',
+  reorder: 'tabs.reorder',
 };
 
 /** Stable permission codes stored in user roles — not translated labels. */
@@ -109,6 +112,7 @@ const ADMIN_TAB_MODULES: Record<AdminTabKey, string> = {
   reservations: 'admin.reservations',
   currencies: 'admin.currencies',
   kds: 'admin.kds',
+  reorder: 'admin.reorder',
 };
 
 export const Admin = () => {
@@ -141,6 +145,7 @@ export const Admin = () => {
     reservations: { component: <ReservationManagement/>, title: t('tabs.reservations', { defaultValue: 'Reservations' }) },
     currencies: { component: <AdminCurrencies/>, title: t('tabs.currencies', { defaultValue: 'Currencies' }) },
     kds: { component: <KdsSettingsPanel/>, title: t('tabs.kds', { defaultValue: 'KDS' }) },
+    reorder: { component: <ReorderDashboard/>, title: t('tabs.reorder', { defaultValue: 'AI Reorder' }) },
   }), [t]);
 
   return (

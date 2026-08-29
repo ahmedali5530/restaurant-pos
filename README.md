@@ -184,8 +184,8 @@ Copied `.env` files include **local-dev** Surreal and JWT values. Change `SURREA
 ## Security Hardening Stack + Feature Enhancements
 
 This fork includes a comprehensive security hardening stack + competitor-driven feature
-enhancements (**63 commits, 327 tests, 0 regressions**) that raises the security grade
-from **B− (65%) → A++ (97%)** and adds **22 new features** worth **$1,200+/mo** (Toast equivalent).
+enhancements (**64 commits, 327 tests, 0 regressions**) that raises the security grade
+from **B− (65%) → A++ (97%)** and adds **23 new features** worth **$1,250+/mo** (Toast equivalent).
 
 ### Security (47 commits)
 
@@ -199,7 +199,7 @@ from **B− (65%) → A++ (97%)** and adds **22 new features** worth **$1,200+/m
 | **Business-logic tests** (4 commits) | Payment drivers (33 tests × 6 gateways), fiscal serialization (66 tests FBR/PRA), sync-manager (49 tests), print helpers (36 tests) — 184 tests total |
 | **Remaining audit fixes** (1 commit) | sync `/stats` auth, tracking `payload.id` validation, printing debug leftover, rate limiting on `/auth/session` + `/auth/db-token` |
 
-### Features (16 commits, 22 new features)
+### Features (17 commits, 23 new features)
 
 | Feature | What it does | Toast equivalent |
 |---|---|---|
@@ -216,6 +216,7 @@ from **B− (65%) → A++ (97%)** and adds **22 new features** worth **$1,200+/m
 | **Multi-currency** | ECB exchange rates (free, no API key) + 18 seeded currencies + cross-rate derivation + dual-currency display + 4 rounding modes | $165/mo (higher tier) |
 | **Tableside ordering** | Waiter-facing tablet UI (≥56px touch targets, high-contrast) — table grid + category tabs + cart + Send to Kitchen | $9/employee/mo |
 | **KDS enhancement** | Aging colors (green/yellow/red) + bump-bar keyboard navigation + expeditor view + per-station bottleneck stats | $69/mo/station |
+| **AI inventory reorder** | Predictive purchase suggestions — consumption rate + demand forecast + lead time + par-level + AI refinement + auto-PO generation | $50/mo (Lightspeed Pro) |
 | **UX improvements** | Offline banner (3-state), font size adjuster, quick reorder bar, upsell prompts, structured reason codes | Various |
 
 ### Competitive value comparison
@@ -224,9 +225,9 @@ from **B− (65%) → A++ (97%)** and adds **22 new features** worth **$1,200+/m
 Toast monthly cost:    $69 (POS) + $185 (loyalty+marketing) + $15 (PWA) + $150 (3 delivery)
                        + $69 (AI) + $350 (reservations) + $165 (multi-currency)
                        + $45 (tableside, 5 employees) + $69 (KDS, 1 station)
-                       = $1,117+/mo
+                       + $50 (smart reorder) = $1,167+/mo
 POSR monthly cost:     $0
-Total savings:         $1,117+/mo → $13,404+/year
+Total savings:         $1,167+/mo → $14,004+/year
 ```
 
 ### Security grade progression
