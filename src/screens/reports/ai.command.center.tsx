@@ -45,6 +45,7 @@ import {
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
   faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
+  faCalendarAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -58,6 +59,8 @@ import {
   REPORTS_SEGMENTATION, REPORTS_LABOR_OPTIMIZATION,
   REPORTS_DELIVERY_ANALYTICS, REPORTS_PEAK_HOUR,
   REPORTS_TIP_ANALYTICS, REPORTS_REVPASH,
+  REPORTS_CUSTOMER_JOURNEY, REPORTS_SEASONAL_TRENDS,
+  REPORTS_GUEST_PREFERENCES,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -95,7 +98,7 @@ export function AiCommandCenterScreen() {
   const loadAllMetrics = useCallback(async () => {
     setLoading(true);
     try {
-      // Parallel fetch of all 24 AI feature summaries
+      // Parallel fetch of all 26 AI feature summaries
       const [
         forecastData, menuData, sentimentData, wasteData,
         scheduleData, cashData, vendorData, turnoverData,
@@ -104,6 +107,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
+        seasonalData, guestPrefData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -129,6 +133,8 @@ export function AiCommandCenterScreen() {
         fetchDeliverySummary(db),
         fetchTipSummary(db),
         fetchRevPASHSummary(db),
+        fetchSeasonalSummary(db),
+        fetchGuestPrefSummary(db),
       ]);
 
       setMetrics([
@@ -139,6 +145,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
+        seasonalData, guestPrefData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -250,7 +257,7 @@ export function AiCommandCenterScreen() {
 
             {/* Footer */}
             <div className="text-xs text-neutral-500 text-center pt-4">
-              POSR AI Command Center · 24 AI-powered features · Click any card for full report
+              POSR AI Command Center · 26 AI-powered features · Click any card for full report
             </div>
           </>
         )}
@@ -873,6 +880,46 @@ async function fetchRevPASHSummary(db: any): Promise<MetricCard> {
       link: REPORTS_REVPASH, linkLabel: 'View RevPASH',
     };
   } catch { return neutralCard('RevPASH', faGaugeHigh, 'text-violet-600', REPORTS_REVPASH); }
+}
+
+async function fetchSeasonalSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS count, sum(IF is_peak_season THEN 1 END) AS peak_months
+       FROM seasonal_trend WHERE expires_at > time::now()`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const s = list[0];
+    if (!s || s.count === 0) return neutralCard('Seasonal Trends', faCalendarAlt, 'text-blue-600', REPORTS_SEASONAL_TRENDS);
+    return {
+      title: 'Seasonal Trends',
+      icon: faCalendarAlt, color: 'text-blue-600',
+      primary: `${s.peak_months ?? 0} peak months`,
+      secondary: `${s.count} months analyzed`,
+      health: 'neutral',
+      link: REPORTS_SEASONAL_TRENDS, linkLabel: 'View seasons',
+    };
+  } catch { return neutralCard('Seasonal Trends', faCalendarAlt, 'text-blue-600', REPORTS_SEASONAL_TRENDS); }
+}
+
+async function fetchGuestPrefSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS count, avg(total_visits) AS avg_visits
+       FROM guest_preference WHERE expires_at > time::now()`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const g = list[0];
+    if (!g || g.count === 0) return neutralCard('Guest Preferences', faUsers, 'text-violet-600', REPORTS_GUEST_PREFERENCES);
+    return {
+      title: 'Guest Preferences',
+      icon: faUsers, color: 'text-violet-600',
+      primary: `${g.count} guests profiled`,
+      secondary: `Avg ${Math.round(g.avg_visits ?? 0)} visits/guest`,
+      health: 'good',
+      link: REPORTS_GUEST_PREFERENCES, linkLabel: 'View guests',
+    };
+  } catch { return neutralCard('Guest Preferences', faUsers, 'text-violet-600', REPORTS_GUEST_PREFERENCES); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
