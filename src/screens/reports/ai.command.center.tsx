@@ -43,6 +43,7 @@ import {
   faBrain, faChartLine, faBoxOpen, faUtensils, faHeart, faTrash,
   faCalendarWeek, faWallet, faTruck, faChair, faTags, faBullseye,
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
+  faUsers, faUserMinus, faPercentage,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -50,6 +51,7 @@ import {
   REPORTS_WASTE_INTELLIGENCE, REPORTS_SCHEDULING_OPTIMIZATION,
   REPORTS_CASH_FLOW, REPORTS_VENDOR_PERFORMANCE, REPORTS_TABLE_TURNOVER,
   REPORTS_DYNAMIC_PRICING, REPORTS_FORECAST_ACCURACY, REPORTS_UPSELL_EFFECTIVENESS,
+  REPORTS_CUSTOMER_CLV, REPORTS_CHURN_PREDICTION, REPORTS_PROMO_EFFECTIVENESS,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -87,11 +89,12 @@ export function AiCommandCenterScreen() {
   const loadAllMetrics = useCallback(async () => {
     setLoading(true);
     try {
-      // Parallel fetch of all 12 AI feature summaries
+      // Parallel fetch of all 15 AI feature summaries
       const [
         forecastData, menuData, sentimentData, wasteData,
         scheduleData, cashData, vendorData, turnoverData,
         pricingData, accuracyData, upsellData, reorderData,
+        clvData, churnData, promoData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -105,12 +108,16 @@ export function AiCommandCenterScreen() {
         fetchAccuracySummary(db),
         fetchUpsellSummary(db),
         fetchReorderSummary(db),
+        fetchCLVSummary(db),
+        fetchChurnSummary(db),
+        fetchPromoSummary(db),
       ]);
 
       setMetrics([
         forecastData, reorderData, menuData, sentimentData,
         wasteData, scheduleData, cashData, vendorData,
         turnoverData, pricingData, accuracyData, upsellData,
+        clvData, churnData, promoData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -222,7 +229,7 @@ export function AiCommandCenterScreen() {
 
             {/* Footer */}
             <div className="text-xs text-neutral-500 text-center pt-4">
-              POSR AI Command Center · 12 AI-powered features · Click any card for full report
+              POSR AI Command Center · 15 AI-powered features · Click any card for full report
             </div>
           </>
         )}
@@ -582,6 +589,82 @@ async function fetchUpsellSummary(db: any): Promise<MetricCard> {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+async function fetchCLVSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT avg(total_clv) AS avg_clv, count() AS count,
+         sum(IF segment = 'at_risk' THEN 1 END) + sum(IF segment = 'cant_lose' THEN 1 END) AS at_risk
+       FROM customer_clv WHERE expires_at > time::now()`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const c = list[0];
+    if (!c || c.count === 0) return neutralCard('Customer CLV', faUsers, 'text-violet-600', REPORTS_CUSTOMER_CLV);
+    return {
+      title: 'Customer CLV',
+      icon: faUsers,
+      color: 'text-violet-600',
+      primary: `$${Math.round(c.avg_clv ?? 0)}`,
+      secondary: `${c.count} customers · ${c.at_risk ?? 0} at risk`,
+      health: (c.at_risk ?? 0) > 5 ? 'warning' : 'good',
+      link: REPORTS_CUSTOMER_CLV,
+      linkLabel: 'View CLV',
+    };
+  } catch {
+    return neutralCard('Customer CLV', faUsers, 'text-violet-600', REPORTS_CUSTOMER_CLV);
+  }
+}
+
+async function fetchChurnSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT at_risk_count, critical_count, churn_rate, revenue_at_risk
+       FROM churn_snapshot ORDER BY snapshot_date DESC LIMIT 1`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const c = list[0];
+    if (!c) return neutralCard('Churn Prediction', faUserMinus, 'text-rose-600', REPORTS_CHURN_PREDICTION);
+    const rate = c.churn_rate ?? 0;
+    return {
+      title: 'Churn Prediction',
+      icon: faUserMinus,
+      color: 'text-rose-600',
+      primary: `${c.at_risk_count ?? 0} at risk`,
+      secondary: `${rate.toFixed(0)}% churn rate · ${withCurrency(c.revenue_at_risk ?? 0)} at risk`,
+      health: rate > 30 ? 'critical' : rate > 15 ? 'warning' : 'good',
+      link: REPORTS_CHURN_PREDICTION,
+      linkLabel: 'View churn',
+    };
+  } catch {
+    return neutralCard('Churn Prediction', faUserMinus, 'text-rose-600', REPORTS_CHURN_PREDICTION);
+  }
+}
+
+async function fetchPromoSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT times_redeemed, total_discount_given, revenue_generated, roi
+       FROM promo_effectiveness WHERE is_overall = true AND expires_at > time::now()
+       ORDER BY generated_at DESC LIMIT 1`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const p = list[0];
+    if (!p) return neutralCard('Promo Effectiveness', faPercentage, 'text-orange-600', REPORTS_PROMO_EFFECTIVENESS);
+    const roi = p.roi ?? 0;
+    return {
+      title: 'Promo Effectiveness',
+      icon: faPercentage,
+      color: 'text-orange-600',
+      primary: `${roi > 0 ? '+' : ''}${roi}% ROI`,
+      secondary: `${p.times_redeemed ?? 0} redemptions · ${withCurrency(p.revenue_generated ?? 0)} revenue`,
+      health: roi > 100 ? 'good' : roi > 0 ? 'watch' : 'warning',
+      link: REPORTS_PROMO_EFFECTIVENESS,
+      linkLabel: 'View promos',
+    };
+  } catch {
+    return neutralCard('Promo Effectiveness', faPercentage, 'text-orange-600', REPORTS_PROMO_EFFECTIVENESS);
+  }
+}
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
   return {
