@@ -290,3 +290,7 @@ export const PeakHourScreen = lazy(() =>
 export const TipAnalyticsScreen = lazy(() =>
   import('@/screens/reports/tip.analytics.report.tsx').then(m => ({default: m.TipAnalyticsScreen}))
 );
+
+export const RevPASHScreen = lazy(() =>
+  import('@/screens/reports/revpash.report.tsx').then(m => ({default: m.RevPASHScreen}))
+);

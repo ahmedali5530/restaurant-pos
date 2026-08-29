@@ -50,6 +50,7 @@ import {
   REPORTS_DELIVERY_ANALYTICS,
   REPORTS_PEAK_HOUR,
   REPORTS_TIP_ANALYTICS,
+  REPORTS_REVPASH,
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
   REPORTS_CONSUMPTION,
@@ -192,6 +193,7 @@ import {
   DeliveryAnalyticsScreen,
   PeakHourScreen,
   TipAnalyticsScreen,
+  RevPASHScreen,
   TablesideScreen,
 } from "@/routes/lazy-screens.ts";
 
@@ -261,6 +263,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_DELIVERY_ANALYTICS} element={<DeliveryAnalyticsScreen/>}/>
         <Route path={REPORTS_PEAK_HOUR} element={<PeakHourScreen/>}/>
         <Route path={REPORTS_TIP_ANALYTICS} element={<TipAnalyticsScreen/>}/>
+        <Route path={REPORTS_REVPASH} element={<RevPASHScreen/>}/>
         <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
         <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
         <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>
