@@ -286,3 +286,7 @@ export const DeliveryAnalyticsScreen = lazy(() =>
 export const PeakHourScreen = lazy(() =>
   import('@/screens/reports/peak.hour.report.tsx').then(m => ({default: m.PeakHourScreen}))
 );
+
+export const TipAnalyticsScreen = lazy(() =>
+  import('@/screens/reports/tip.analytics.report.tsx').then(m => ({default: m.TipAnalyticsScreen}))
+);

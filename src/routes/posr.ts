@@ -124,6 +124,7 @@ export const REPORTS_SEGMENTATION = REPORTS + '/segmentation';
 export const REPORTS_LABOR_OPTIMIZATION = REPORTS + '/labor-optimization';
 export const REPORTS_DELIVERY_ANALYTICS = REPORTS + '/delivery-analytics';
 export const REPORTS_PEAK_HOUR = REPORTS + '/peak-hour';
+export const REPORTS_TIP_ANALYTICS = REPORTS + '/tip-analytics';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';
