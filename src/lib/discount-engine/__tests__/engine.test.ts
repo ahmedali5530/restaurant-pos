@@ -84,9 +84,71 @@ describe('calculator', () => {
     const items = [
       { id: 'line:1', lineTotal: 15, quantity: 1, itemId: 'dish:burger', categoryIds: [] },
       { id: 'line:2', lineTotal: 15, quantity: 1, itemId: 'dish:burger', categoryIds: [] },
+      { id: 'line:3', lineTotal: 15, quantity: 1, itemId: 'dish:burger', categoryIds: [] },
     ]
     const { appliedAmount } = computeScopedDiscount(d, items)
     expect(appliedAmount).toBe(15)
+  })
+
+  const sameItemBxgy = () => baseDiscount({
+    category: 'buy_x_get_y',
+    conditions: {
+      buy_quantity: 2,
+      get_quantity: 1,
+      buy_targets: { item_ids: ['dish:burger'] },
+      get_targets: { item_ids: ['dish:burger'] },
+      get_value_type: 'free',
+      get_value: 100,
+    },
+  })
+
+  const burgerLines = (count: number, unitPrice = 10) =>
+    Array.from({ length: count }, (_, i) => ({
+      id: `line:${i + 1}`,
+      lineTotal: unitPrice,
+      quantity: 1,
+      itemId: 'dish:burger',
+      categoryIds: [] as string[],
+    }))
+
+  it('bxgy same-pool buy 2 get 1 gives no discount below 3 items', () => {
+    const { appliedAmount } = computeScopedDiscount(sameItemBxgy(), burgerLines(2))
+    expect(appliedAmount).toBe(0)
+  })
+
+  it('bxgy same-pool buy 2 get 1 gives 1 free for 3-5 items', () => {
+    expect(computeScopedDiscount(sameItemBxgy(), burgerLines(3)).appliedAmount).toBe(10)
+    expect(computeScopedDiscount(sameItemBxgy(), burgerLines(4)).appliedAmount).toBe(10)
+    expect(computeScopedDiscount(sameItemBxgy(), burgerLines(5)).appliedAmount).toBe(10)
+  })
+
+  it('bxgy same-pool buy 2 get 1 gives 2 free for 6-8 items', () => {
+    expect(computeScopedDiscount(sameItemBxgy(), burgerLines(6)).appliedAmount).toBe(20)
+    expect(computeScopedDiscount(sameItemBxgy(), burgerLines(7)).appliedAmount).toBe(20)
+    expect(computeScopedDiscount(sameItemBxgy(), burgerLines(8)).appliedAmount).toBe(20)
+  })
+
+  it('bxgy different-pool buy 2 get 1 uses buy quantity only for set count', () => {
+    const d = baseDiscount({
+      category: 'buy_x_get_y',
+      conditions: {
+        buy_quantity: 2,
+        get_quantity: 1,
+        buy_targets: { item_ids: ['dish:pizza'] },
+        get_targets: { item_ids: ['dish:soda'] },
+        get_value_type: 'free',
+        get_value: 100,
+      },
+    })
+    const items = [
+      ...burgerLines(4).map((line, i) => ({ ...line, id: `pizza:${i + 1}`, itemId: 'dish:pizza' })),
+      { id: 'soda:1', lineTotal: 5, quantity: 1, itemId: 'dish:soda', categoryIds: [] },
+      { id: 'soda:2', lineTotal: 5, quantity: 1, itemId: 'dish:soda', categoryIds: [] },
+    ]
+    const { appliedAmount, lineAllocations } = computeScopedDiscount(d, items)
+    expect(appliedAmount).toBe(10)
+    expect(lineAllocations).toHaveLength(2)
+    expect(lineAllocations?.every(l => l.orderItemId.startsWith('soda:'))).toBe(true)
   })
 
   it('bxgy returns zero when line total is zero', () => {

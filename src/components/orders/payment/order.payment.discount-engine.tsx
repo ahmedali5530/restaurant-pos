@@ -24,12 +24,14 @@ import {Input} from "@/components/common/input/input.tsx";
 interface Props {
   order: Order
   discountLines: AppliedDiscountLine[]
+  automaticLines?: AppliedDiscountLine[]
   onApply: (lines: AppliedDiscountLine[]) => void
 }
 
 export const OrderPaymentDiscountEngine = ({
   order,
   discountLines,
+  automaticLines = [],
   onApply,
 }: Props) => {
   const { t } = useTranslation(['payment', 'common'])
@@ -162,11 +164,23 @@ export const OrderPaymentDiscountEngine = ({
           {t('discount.noDiscount')}
         </Button>
 
-        {draftLines.length > 0 && (
+        {(automaticLines.length > 0 || draftLines.length > 0) && (
           <div className="flex flex-col gap-2 border rounded-lg p-3">
             <div className="font-semibold">{t('discount.applied')}</div>
+            {automaticLines.map((line, idx) => (
+              <div
+                key={`auto:${line.discountId}:${idx}`}
+                className="flex justify-between items-center text-neutral-600"
+              >
+                <div className="flex flex-col gap-0.5">
+                  <span>{line.name}</span>
+                  <span className="text-xs text-neutral-500">{t('discount.automaticBadge')}</span>
+                </div>
+                <span>{withCurrency(line.appliedAmount)}</span>
+              </div>
+            ))}
             {draftLines.map((line, idx) => (
-              <div key={idx} className="flex justify-between items-center">
+              <div key={`manual:${line.discountId}:${idx}`} className="flex justify-between items-center">
                 <span>{line.name}</span>
                 <div className="flex gap-2 items-center">
                   <span>{withCurrency(line.appliedAmount)}</span>

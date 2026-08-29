@@ -41,6 +41,7 @@
     "label": "خصم",
     "withMaxCap": "بحد أقصى {{amount}}",
     "applied": "مطبّق",
+    "automaticBadge": "تلقائي",
     "selectItems": "اختر العناصر",
     "reason": "السبب",
     "reasonNotes": "ملاحظات (اختياري)",

@@ -868,7 +868,7 @@ export const OrderPayment = ({
             }}>
               <div>
                 {t('tabs.discount')}{' '}
-                {discountLines.length > 0 && `(${discountLines.length})`}{' '}
+                {cartTotals.discountLines.length > 0 && `(${cartTotals.discountLines.length})`}{' '}
                 <FontAwesomeIcon icon={faPencil}/>
               </div>
               <div className="text-right">{withCurrency(cartTotals.discountTotal)}</div>
@@ -992,6 +992,7 @@ export const OrderPayment = ({
             <OrderPaymentDiscountEngine
               order={order}
               discountLines={discountLines.filter(l => l.applicationType === 'manual')}
+              automaticLines={cartTotals.discountLines.filter(l => l.applicationType === 'automatic')}
               onApply={(manualLines) => {
                 const autoLines = cartTotals.discountLines.filter(l => l.applicationType === 'automatic');
                 setDiscountLines([...autoLines, ...manualLines]);

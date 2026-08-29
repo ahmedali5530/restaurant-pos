@@ -41,6 +41,7 @@
     "label": "Remise",
     "withMaxCap": "avec plafond de {{amount}}",
     "applied": "Appliquée",
+    "automaticBadge": "Automatique",
     "selectItems": "Sélectionner les articles",
     "reason": "Motif",
     "reasonNotes": "Notes (optionnel)",

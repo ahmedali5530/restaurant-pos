@@ -41,6 +41,7 @@
     "label": "Скидка",
     "withMaxCap": "с максимумом {{amount}}",
     "applied": "Применено",
+    "automaticBadge": "Автоматически",
     "selectItems": "Выбрать позиции",
     "reason": "Причина",
     "reasonNotes": "Заметки (необязательно)",

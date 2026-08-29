@@ -8,7 +8,7 @@ import {
 import type { EvaluableLineItem } from '@/lib/discount-engine/types.ts'
 import { roundCurrency } from '@/lib/discount-engine/rounding.ts'
 import { safeNumber } from '@/lib/utils.ts'
-import { anyCategoryMatches, targetIdsInclude } from '@/lib/discount-engine/target-ids.ts'
+import { anyCategoryMatches, bxgyPoolsOverlap, targetIdsInclude } from '@/lib/discount-engine/target-ids.ts'
 
 export interface ComputeInput {
   discount: Discount
@@ -118,7 +118,10 @@ export const computeBxgyCandidates = (
     })
 
   const totalBuyQty = buyItems.reduce((s, i) => s + safeNumber(i.quantity), 0)
-  const sets = Math.floor(totalBuyQty / conditions.buy_quantity)
+  const setSize = bxgyPoolsOverlap(conditions, { manualSelection })
+    ? conditions.buy_quantity + conditions.get_quantity
+    : conditions.buy_quantity
+  const sets = Math.floor(totalBuyQty / setSize)
 
   if (sets <= 0) return []
 

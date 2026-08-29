@@ -41,6 +41,7 @@
     "label": "Rabatt",
     "withMaxCap": "mit Höchstbetrag von {{amount}}",
     "applied": "Angewendet",
+    "automaticBadge": "Automatisch",
     "selectItems": "Artikel auswählen",
     "reason": "Grund",
     "reasonNotes": "Notizen (optional)",

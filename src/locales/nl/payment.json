@@ -41,6 +41,7 @@
     "label": "Korting",
     "withMaxCap": "met maximum van {{amount}}",
     "applied": "Toegepast",
+    "automaticBadge": "Automatisch",
     "selectItems": "Artikelen selecteren",
     "reason": "Reden",
     "reasonNotes": "Notities (optioneel)",

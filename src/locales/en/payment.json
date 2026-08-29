@@ -41,6 +41,7 @@
     "label": "Discount",
     "withMaxCap": "with max cap of {{amount}}",
     "applied": "Applied",
+    "automaticBadge": "Automatic",
     "selectItems": "Select items",
     "reason": "Reason",
     "reasonNotes": "Notes (optional)",

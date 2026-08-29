@@ -41,6 +41,7 @@
     "label": "İndirim",
     "withMaxCap": "maksimum {{amount}} ile",
     "applied": "Uygulandı",
+    "automaticBadge": "Otomatik",
     "selectItems": "Ürünleri seç",
     "reason": "Neden",
     "reasonNotes": "Notlar (isteğe bağlı)",

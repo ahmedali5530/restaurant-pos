@@ -41,6 +41,7 @@
     "label": "Desconto",
     "withMaxCap": "com teto máximo de {{amount}}",
     "applied": "Aplicado",
+    "automaticBadge": "Automático",
     "selectItems": "Selecionar itens",
     "reason": "Motivo",
     "reasonNotes": "Notas (opcional)",
