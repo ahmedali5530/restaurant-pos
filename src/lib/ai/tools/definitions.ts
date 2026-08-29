@@ -1,4 +1,5 @@
 import type {OpenAIToolDefinition} from "@/lib/openai.service.ts";
+import {AI_MANAGE_READ_TOOLS} from "@/lib/ai/tools/manage-tool-definitions.ts";
 
 const dateRangeProps = {
   startDate: {type: "string", description: "Optional start datetime in DB format"},
@@ -944,4 +945,5 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
       },
     },
   },
+  ...AI_MANAGE_READ_TOOLS,
 ];

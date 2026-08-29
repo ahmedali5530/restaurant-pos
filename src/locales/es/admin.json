@@ -91,7 +91,11 @@
     "isPriceLocked": "Precio bloqueado",
     "hasRequiredModifiers": "Tiene modificadores requeridos",
     "shouldAutoOpen": "Abrir automáticamente",
-    "shouldAutoSelect": "Seleccionar automáticamente"
+    "shouldAutoSelect": "Seleccionar automáticamente",
+    "recordType": "Tipo de fila",
+    "dishName": "Plato",
+    "parentModifier": "Tamaño padre",
+    "nextGroup": "Grupo siguiente"
   },
   "entities": {
     "dish": "Plato",
@@ -147,7 +151,8 @@
     "smartImportDishes": "Importación IA",
     "smartImport": "Importación IA",
     "smartImportIngredients": "Importación IA de ingredientes",
-    "smartImportModifierGroups": "Importación IA de grupos de modificadores"
+    "smartImportModifierGroups": "Importación IA de grupos de modificadores",
+    "smartImportMenuStructure": "Importar estructura del menú con IA"
   },
   "delete": {
     "dish": "Eliminar artículo {{name}}",
@@ -351,7 +356,8 @@
     "smartImportPaymentTypesTitle": "Importación IA de tipos de pago",
     "smartImportExtrasTitle": "Importación IA de extras",
     "smartImportKitchensTitle": "Importación IA de cocinas",
-    "smartImportStandaloneModifierGroupsTitle": "Importación IA de grupos de modificadores"
+    "smartImportStandaloneModifierGroupsTitle": "Importación IA de grupos de modificadores",
+    "smartImportMenuStructureTitle": "Importar estructura del menú (tamaños, extras, enlaces)"
   },
   "dishView": {
     "detailsTitle": "Detalles del plato",

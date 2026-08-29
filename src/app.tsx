@@ -24,6 +24,7 @@ import {I18nProvider} from "@/providers/i18n.provider.tsx";
 import {AppRoutes} from "@/routes/app.routes.tsx";
 import {IntegrationProvider} from "@/providers/integration.provider.tsx";
 import {OfflineModeBanner} from "@/components/common/offline-banner.tsx";
+import {AiAssistantWidget} from "@/components/ai-assistant/assistant-widget.tsx";
 
 
 // react query client wrapper
@@ -72,6 +73,7 @@ function App() {
                               <AutoClockOutProvider>
                                 <OfflineModeBanner/>
                                 <GlobalDeliveryOrderPopup/>
+                                <AiAssistantWidget/>
                                 <AppRoutes/>
                               </AutoClockOutProvider>
                             </SessionIdleProvider>

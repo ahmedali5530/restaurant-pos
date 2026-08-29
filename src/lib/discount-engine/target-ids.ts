@@ -49,7 +49,8 @@ export const mergeTargetsFromRecord = (discount: Discount): DiscountTargets => {
   return targets
 }
 
-export const sanitizeTargetsForSave = (targets: DiscountTargets): DiscountTargets | null => {
+export const sanitizeTargetsForSave = (targets: DiscountTargets | null | undefined): DiscountTargets | null => {
+  if (!targets) return null;
   const result: DiscountTargets = {}
 
   if (targets.item_ids?.length) {
@@ -82,17 +83,18 @@ export const targetIdsInclude = (haystack: string[] | undefined, needle: unknown
 
 export const validateTargetsForScope = (
   scope: string | undefined,
-  targets: DiscountTargets
+  targets: DiscountTargets | null | undefined
 ): boolean => {
+  const safeTargets = targets ?? {};
   switch (scope) {
     case 'item':
-      return (targets.item_ids?.length ?? 0) >= 1
+      return (safeTargets.item_ids?.length ?? 0) >= 1
     case 'category':
-      return (targets.category_ids?.length ?? 0) >= 1
+      return (safeTargets.category_ids?.length ?? 0) >= 1
     case 'floor':
-      return (targets.floor_ids?.length ?? 0) >= 1
+      return (safeTargets.floor_ids?.length ?? 0) >= 1
     case 'customer':
-      return (targets.customer_tags?.length ?? 0) >= 1
+      return (safeTargets.customer_tags?.length ?? 0) >= 1
     default:
       return true
   }

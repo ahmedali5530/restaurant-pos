@@ -163,6 +163,11 @@
     "importingProgress": "Rij {{current}} van {{total}} importeren…",
     "reviewHelp": "{{count}} records klaar voor controle. Corrigeer gemarkeerde cellen vóór import.",
     "blockingErrors": "{{count}} rij(en) hebben nog fouten",
+    "filterLabel": "Tonen:",
+    "filterAll": "Alle ({{count}})",
+    "filterValid": "Geldig ({{count}})",
+    "filterInvalid": "Ongeldig ({{count}})",
+    "noMatchingFilter": "Geen rijen komen overeen met dit filter.",
     "revalidate": "Opnieuw controleren",
     "addRow": "Rij toevoegen",
     "removeRow": "Rij verwijderen",
@@ -188,7 +193,49 @@
     "unresolvedTax": "Onopgeloste belasting: {{name}}",
     "cannotCreateCategory": "Kan categorie niet maken (database niet beschikbaar).",
     "pasteHint": "Of plak met Ctrl+V / Cmd+V (bestand, afbeelding of Excel-cellen)",
-    "pasteUnsupported": "Het klembord bevat geen ondersteund bestand, afbeelding of tabel."
+    "pasteUnsupported": "Het klembord bevat geen ondersteund bestand, afbeelding of tabel.",
+    "unknownRecordType": "Onbekend rijtype: {{type}}",
+    "selectValue": "Selecteer…",
+    "enumValues": {
+      "record_type": {
+        "dish": "Gerecht",
+        "size_option": "Maatoptie",
+        "addon_option": "Extra-optie",
+        "dish_link": "Koppeling gerecht ↔ groep",
+        "nested_override": "Geneste prijsoverschrijving"
+      }
+    },
+    "ingredientMustExist": "Moet exact overeenkomen met een bestaande voorraadartikelnaam of -code (hoofdletterongevoelig). Kies uit de lijst als het niet is opgelost."
+  },
+  "aiAssistant": {
+    "open": "{{name}} openen",
+    "title": "{{name}} – AI-assistent",
+    "placeholder": "Vraag over verkopen, voorraad, beheer of vraag om aanmaken/bijwerken…",
+    "reviewPrompt": "Ik heb {{count}} {{entity}}-wijziging(en) voor u klaargezet om hieronder te bekijken.",
+    "reviewTitle": "Wijzigingen bekijken",
+    "confirm": "Bevestigen",
+    "applied": "Toegepast: {{imported}} aangemaakt/bijgewerkt, {{failed}} mislukt, {{skipped}} overgeslagen.",
+    "cancelled": "Gebruiker heeft deze wijziging geannuleerd.",
+    "sessionExpired": "Uw sessie is verlopen. Meld u opnieuw aan.",
+    "issues": "Problemen",
+    "expand": "Assistent vergroten",
+    "collapse": "Assistent verkleinen",
+    "clear": "Wissen",
+    "clearConversation": "Gesprek wissen",
+    "clearConfirm": "Dit assistentgesprek op dit apparaat wissen?",
+    "working": "{{name}} werkt aan je verzoek…",
+    "examplesTitle": "Wat je kunt vragen",
+    "examplesHint": "Klik op een voorbeeld om het met {{name}} te proberen:",
+    "examples": {
+      "salesToday": "Toon de verkoopsamenvatting van vandaag",
+      "tablesFloor": "Lijst tafels op de Delivery-verdieping",
+      "bogoDiscount": "Automatische BOGO-korting voor voorgerechten maken",
+      "addDish": "Nieuw gerecht Margherita toevoegen voor €x",
+      "listUsers": "Alle POS-gebruikers weergeven",
+      "inventoryStock": "Voorraadartikelen onder bestelniveau tonen"
+    },
+    "unknownConfig": "Onbekende importconfiguratie voor voorbeeld.",
+    "passwordWillBeSet": "Wachtwoord wordt ingesteld bij bevestiging"
   },
   "offline": {
     "disconnected": "⚠ Offline — wijzigingen worden gesynchroniseerd bij herverbinding",

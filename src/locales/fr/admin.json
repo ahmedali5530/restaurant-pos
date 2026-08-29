@@ -91,7 +91,11 @@
     "isPriceLocked": "Prix verrouillé",
     "hasRequiredModifiers": "Modificateurs requis",
     "shouldAutoOpen": "Ouverture auto",
-    "shouldAutoSelect": "Sélection auto"
+    "shouldAutoSelect": "Sélection auto",
+    "recordType": "Type de ligne",
+    "dishName": "Plat",
+    "parentModifier": "Taille parente",
+    "nextGroup": "Groupe suivant"
   },
   "entities": {
     "dish": "Plat",
@@ -147,7 +151,8 @@
     "smartImportDishes": "Import IA",
     "smartImport": "Import IA",
     "smartImportIngredients": "Import IA des ingrédients",
-    "smartImportModifierGroups": "Import IA des groupes de modificateurs"
+    "smartImportModifierGroups": "Import IA des groupes de modificateurs",
+    "smartImportMenuStructure": "Import IA structure du menu"
   },
   "delete": {
     "dish": "Supprimer l'article {{name}}",
@@ -351,7 +356,8 @@
     "smartImportPaymentTypesTitle": "Import IA des types de paiement",
     "smartImportExtrasTitle": "Import IA des suppléments",
     "smartImportKitchensTitle": "Import IA des cuisines",
-    "smartImportStandaloneModifierGroupsTitle": "Import IA des groupes de modificateurs"
+    "smartImportStandaloneModifierGroupsTitle": "Import IA des groupes de modificateurs",
+    "smartImportMenuStructureTitle": "Import IA structure du menu (tailles, suppléments, liens)"
   },
   "dishView": {
     "detailsTitle": "Détails du plat",

@@ -5,7 +5,10 @@ import {
 } from "@/lib/openai.service.ts";
 import {throwIfAborted} from "@/lib/data-import/abort.ts";
 import {buildExtractionPrompt} from "@/lib/data-import/extract/prompt.ts";
-import {parseExtractionResponse} from "@/lib/data-import/extract/parse-response.ts";
+import {
+  parseExtractionResponse,
+  parseGraphExtractionResponse,
+} from "@/lib/data-import/extract/parse-response.ts";
 import {rasterizePdfPages, MAX_PDF_PAGES_DEFAULT} from "@/lib/data-import/extract/pdf.ts";
 import type {
   ImportConfiguration,
@@ -49,7 +52,21 @@ async function extractFromImageUrls(
   options?: {signal?: AbortSignal}
 ): Promise<RawExtractedRecords> {
   throwIfAborted(options?.signal);
-  const prompt = buildExtractionPrompt(config);
+  let promptConfig = config;
+  if (config.enrichExtractionContext && config.db) {
+    try {
+      const extra = await config.enrichExtractionContext(config.db);
+      if (extra?.trim()) {
+        promptConfig = {
+          ...config,
+          extractionInstructions: `${config.extractionInstructions.trim()}\n\n${extra.trim()}`,
+        };
+      }
+    } catch {
+      // Catalog enrichment is best-effort; extraction still runs.
+    }
+  }
+  const prompt = buildExtractionPrompt(promptConfig);
   const content: OpenAIContentPart[] = [
     {type: "text", text: prompt},
     ...imageUrls.map(
@@ -89,6 +106,12 @@ async function extractFromImageUrls(
 
   const rawContent = response.choices[0]?.message?.content;
   const text = typeof rawContent === "string" ? rawContent : "";
+  if (config.extractionResponseMode === "graph") {
+    if (!config.onExpandExtracted) {
+      throw new Error("Graph extraction requires onExpandExtracted.");
+    }
+    return parseGraphExtractionResponse(text, config.onExpandExtracted);
+  }
   return parseExtractionResponse(
     text,
     config.fields.map((f) => f.name)

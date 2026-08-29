@@ -91,7 +91,11 @@
     "isPriceLocked": "Fiyat kilitli",
     "hasRequiredModifiers": "Zorunlu modifikatörler var",
     "shouldAutoOpen": "Otomatik aç",
-    "shouldAutoSelect": "Otomatik seç"
+    "shouldAutoSelect": "Otomatik seç",
+    "recordType": "Satır tipi",
+    "dishName": "Yemek",
+    "parentModifier": "Üst boyut",
+    "nextGroup": "Sonraki grup"
   },
   "entities": {
     "dish": "Yemek",
@@ -147,7 +151,8 @@
     "smartImportDishes": "YZ içe aktarma",
     "smartImport": "YZ içe aktarma",
     "smartImportIngredients": "Malzemeleri YZ ile içe aktar",
-    "smartImportModifierGroups": "Modifikatör gruplarını YZ ile içe aktar"
+    "smartImportModifierGroups": "Modifikatör gruplarını YZ ile içe aktar",
+    "smartImportMenuStructure": "YZ ile menü yapısı içe aktar"
   },
   "delete": {
     "dish": "{{name}} ürününü sil",
@@ -351,7 +356,8 @@
     "smartImportPaymentTypesTitle": "Ödeme türlerini YZ ile içe aktar",
     "smartImportExtrasTitle": "Ekstraları YZ ile içe aktar",
     "smartImportKitchensTitle": "Mutfakları YZ ile içe aktar",
-    "smartImportStandaloneModifierGroupsTitle": "Modifikatör gruplarını YZ ile içe aktar"
+    "smartImportStandaloneModifierGroupsTitle": "Modifikatör gruplarını YZ ile içe aktar",
+    "smartImportMenuStructureTitle": "YZ ile menü yapısı içe aktar (boyutlar, ekstralar, bağlantılar)"
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",

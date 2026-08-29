@@ -91,7 +91,11 @@
     "isPriceLocked": "Price locked",
     "hasRequiredModifiers": "Has required modifiers",
     "shouldAutoOpen": "Auto open",
-    "shouldAutoSelect": "Auto select"
+    "shouldAutoSelect": "Auto select",
+    "recordType": "Row type",
+    "dishName": "Dish",
+    "parentModifier": "Parent size",
+    "nextGroup": "Next group"
   },
   "entities": {
     "dish": "Dish",
@@ -147,7 +151,8 @@
     "importModifierGroups": "Import Modifier Groups",
     "smartImport": "AI Import",
     "smartImportIngredients": "AI Import Ingredients",
-    "smartImportModifierGroups": "AI Import Modifier Groups"
+    "smartImportModifierGroups": "AI Import Modifier Groups",
+    "smartImportMenuStructure": "AI Import Menu Structure"
   },
   "delete": {
     "dish": "Delete item {{name}}",
@@ -371,7 +376,8 @@
     "smartImportPaymentTypesTitle": "AI Import payment types",
     "smartImportExtrasTitle": "AI Import extras",
     "smartImportKitchensTitle": "AI Import kitchens",
-    "smartImportStandaloneModifierGroupsTitle": "AI Import modifier groups"
+    "smartImportStandaloneModifierGroupsTitle": "AI Import modifier groups",
+    "smartImportMenuStructureTitle": "AI Import menu structure (sizes, toppings, links)"
   },
   "dishView": {
     "detailsTitle": "Dish details",

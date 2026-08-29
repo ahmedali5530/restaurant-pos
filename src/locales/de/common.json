@@ -163,6 +163,11 @@
     "importingProgress": "Importiere Zeile {{current}} von {{total}}…",
     "reviewHelp": "{{count}} Datensätze zur Prüfung bereit. Korrigieren Sie markierte Zellen vor dem Import.",
     "blockingErrors": "{{count}} Zeile(n) haben noch Fehler",
+    "filterLabel": "Anzeigen:",
+    "filterAll": "Alle ({{count}})",
+    "filterValid": "Gültig ({{count}})",
+    "filterInvalid": "Ungültig ({{count}})",
+    "noMatchingFilter": "Keine Zeilen entsprechen diesem Filter.",
     "revalidate": "Erneut prüfen",
     "addRow": "Zeile hinzufügen",
     "removeRow": "Zeile entfernen",
@@ -188,7 +193,49 @@
     "unresolvedTax": "Ungelöste Steuer: {{name}}",
     "cannotCreateCategory": "Kategorie kann nicht erstellt werden (Datenbank nicht verfügbar).",
     "pasteHint": "Oder mit Strg+V / Cmd+V einfügen (Datei, Bild oder Excel-Zellen)",
-    "pasteUnsupported": "Die Zwischenablage enthält keine unterstützte Datei, kein Bild und keine Tabelle."
+    "pasteUnsupported": "Die Zwischenablage enthält keine unterstützte Datei, kein Bild und keine Tabelle.",
+    "unknownRecordType": "Unbekannter Zeilentyp: {{type}}",
+    "selectValue": "Auswählen…",
+    "enumValues": {
+      "record_type": {
+        "dish": "Gericht",
+        "size_option": "Größenoption",
+        "addon_option": "Zusatzoption",
+        "dish_link": "Gericht ↔ Gruppe",
+        "nested_override": "Verschachtelte Preisüberschreibung"
+      }
+    },
+    "ingredientMustExist": "Muss exakt mit einem vorhandenen Inventargegenstandsnamen oder -code übereinstimmen (Groß-/Kleinschreibung egal). Bei Bedarf aus der Liste wählen."
+  },
+  "aiAssistant": {
+    "open": "{{name}} öffnen",
+    "title": "{{name}} – KI-Assistent",
+    "placeholder": "Fragen Sie zu Umsatz, Inventar und Verwaltung — oder bitten Sie um Erstellen/Aktualisieren…",
+    "reviewPrompt": "Ich habe {{count}} {{entity}}-Änderung(en) zur Überprüfung vorbereitet.",
+    "reviewTitle": "Änderungen überprüfen",
+    "confirm": "Bestätigen",
+    "applied": "Angewendet: {{imported}} erstellt/aktualisiert, {{failed}} fehlgeschlagen, {{skipped}} übersprungen.",
+    "cancelled": "Benutzer hat diese Änderung abgebrochen.",
+    "sessionExpired": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.",
+    "issues": "Probleme",
+    "expand": "Assistent vergrößern",
+    "collapse": "Assistent verkleinern",
+    "clear": "Löschen",
+    "clearConversation": "Unterhaltung löschen",
+    "clearConfirm": "Diese Assistenten-Unterhaltung auf diesem Gerät löschen?",
+    "working": "{{name}} bearbeitet Ihre Anfrage…",
+    "examplesTitle": "Was Sie fragen können",
+    "examplesHint": "Klicken Sie auf einen Vorschlag für {{name}}:",
+    "examples": {
+      "salesToday": "Zeigen Sie mir die heutige Umsatzübersicht",
+      "tablesFloor": "Tische auf der Delivery-Etage auflisten",
+      "bogoDiscount": "Automatischen BOGO-Rabatt für Vorspeisen erstellen",
+      "addDish": "Neues Gericht Margherita für x € hinzufügen",
+      "listUsers": "Alle POS-Benutzer auflisten",
+      "inventoryStock": "Lagerartikel unter Mindestbestand anzeigen"
+    },
+    "unknownConfig": "Unbekannte Importkonfiguration für die Vorschau.",
+    "passwordWillBeSet": "Passwort wird bei Bestätigung gesetzt"
   },
   "offline": {
     "disconnected": "⚠ Offline — Änderungen werden bei Wiederverbindung synchronisiert",

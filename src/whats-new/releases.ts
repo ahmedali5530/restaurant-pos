@@ -7,6 +7,88 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-08-28',
+    title: 'AI assistant help and markdown tables',
+    items: [
+      'The assistant toolbar now has a ? button with clickable example prompts for sales, tables, discounts, dishes, users, and inventory.',
+      'Assistant display name is configurable via VITE_AI_ASSISTANT_NAME (defaults to Kashif).',
+      'Markdown tables in assistant answers now render correctly instead of showing raw pipe text.',
+      'Write proposal review for wide configs (e.g. discounts) now uses a readable card layout with only filled-in fields instead of squeezing dozens of columns into one row.',
+      'Discount write proposals no longer send null max_cap values that could fail SurrealDB schema coercion on confirm.',
+      'The floating AI assistant now appears only on back-office screens (Manage, Inventory, Reports, HR, Accounts, Integrations, Tips, and Clock) and is hidden on cashier-facing POS screens.',
+      'Discount import and list tools now preserve full Surreal record ids (e.g. category:…) for BXGY targets instead of stripping the table prefix.',
+      'Assistant write tools now recognize create/update requests in Turkish and other supported languages, not only English keywords.',
+    ],
+  },
+  {
+    date: '2026-08-28',
+    title: 'Kashif Manage parity',
+    items: [
+      'The AI assistant can now list Manage configuration data — floors, tables, discounts, users, roles, kitchens, coupons, menus, workflows, printers, and more — using dedicated list_* read tools gated on admin permissions.',
+      'Discount write proposals now support BXGY rules, targets, schedules, stacking/tax fields, and automatic discounts scoped to categories or items.',
+      'Write tools added for modifier groups, kitchens, extras, smart menu import, coupons, menus, workflows, printers, print settings, users, roles, shifts, and tip distribution.',
+      'Manage questions like "tables on Delivery floor" route to list_tables and list_floors instead of reporting-only tools.',
+    ],
+  },
+  {
+    date: '2026-08-28',
+    title: 'AI assistant CRUD expansion',
+    items: [
+      'The AI assistant can now propose create/update changes for categories, tables, floors, taxes, order types, payment types, discounts, dish modifiers, dish ingredients, inventory items, scheduled shifts, employees, and departments.',
+      'Write tools reuse the same import validation pipeline as AI Import, with permission checks matching each Manage, Inventory, and HR screen.',
+      'Inventory and floor write tools require an explicit action verb in the prompt to avoid clashing with read-only inventory questions.',
+    ],
+  },
+  {
+    date: '2026-08-28',
+    title: 'AI assistant improvements',
+    items: [
+      'The floating AI assistant now renders markdown tables and lists properly, so sales summaries and order lists are easy to read.',
+      'Expand the assistant panel from the header to view wide tables and long answers more comfortably.',
+      'The assistant sends only relevant tools per question to reduce token usage and improve response speed.',
+      'Write proposal previews are now generic and ready for more Manage entities beyond dishes.',
+      'The assistant now uses the same Kashif reporting persona and domain-aware prompts as AI Report, with a lightweight compact mode for everyday questions.',
+      'Assistant conversations are saved per user in IndexedDB on this device and survive page reloads until server persistence is added.',
+    ],
+  },
+  {
+    date: '2026-08-28',
+    title: 'Faster AI Import review for large menus',
+    items: [
+      'The AI Import review grid now virtualizes rows with TanStack Virtual, so large menu imports stay responsive while you edit cells.',
+      'Cell edits update only the changed row instead of re-rendering the entire grid, reducing input lag on big payloads.',
+      'Filter buttons let you show all, valid, or invalid rows only, and invalid cells now use a red border instead of blue.',
+      'Fixed review grid scroll jitter by using stable row heights and transform-based virtual row positioning.',
+    ],
+  },
+  {
+    date: '2026-08-27',
+    title: 'Safer Size groups in menu structure AI Import',
+    items: [
+      'AI Import Menu Structure keeps a distinct Size modifier group per size price matrix (e.g. Size – Classic vs Size – Crust).',
+      'Re-importing a second menu with different M/L/F/P prices no longer overwrites an existing Size group; a new unique group name is allocated instead.',
+      'OCR is guided with known Size groups and instructed not to model per-dish size prices as nested Size groups.',
+    ],
+  },
+  {
+    date: '2026-08-26',
+    title: 'Smarter inventory item AI Import',
+    items: [
+      'Inventory item AI Import now auto-corrects related data when the input is close but not exact (for example "Main store" → "Main"), and shows a review warning so you can confirm or override.',
+      'Units of measure are normalized to the standard list (KG, G, L, ML, PC, DZN, PK), including common synonyms like kilogram or pcs.',
+      'OCR extraction is guided with known categories, locations, suppliers, and allowed UOMs so the model prefers real catalog values.',
+    ],
+  },
+  {
+    date: '2026-08-26',
+    title: 'Smart menu AI import for modifiers',
+    items: [
+      'Dishes → AI Import Menu Structure extracts size price matrices and extras from menu images into dishes, Size groups, dish links, and nested topping price overrides.',
+      'Modifier group AI Import now suggests Size / Extra Topping group names and lets you create or pick existing modifier dishes in review.',
+      'Dish↔modifier-group AI Import defaults Size-like groups to required (1) and auto-open.',
+    ],
+  },
+  {
     date: '2026-08-25',
     title: 'Faster initial load',
     items: [

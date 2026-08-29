@@ -8,6 +8,10 @@ services:
     # VITE_* vars are read by Vite from the mounted .env / .env.local files.
     # Do not set them here: compose only substitutes from .env (not .env.local),
     # and container env vars override Vite's file-based loading.
+    # Shared gateway secrets (GATEWAY_JWT_SECRET, GATEWAY_AUTH_REQUIRED) must match across
+    # gateway, api, payment, printer, and tracking. Put them in each service's `.env.local`
+    # (or project root `.env.local` for sidecars). Do NOT rely on the dev default below —
+    # docker `environment:` overrides `env_file`, so gateway JWT vars are env_file-only.
     # Dev mode with Bun + Vite, binding to all interfaces.
     # Assumes you've already run `bun install` on the host.
     command: sh -c "bun run dev -- --host 0.0.0.0 --port 5173"
@@ -54,6 +58,8 @@ services:
         required: false
       - path: ./api/.env.local
         required: false
+      - path: ./.env.local
+        required: false
     volumes:
       - ./printing:/app
       - printer-node_modules:/app/node_modules
@@ -61,7 +67,6 @@ services:
       - PRINT_PORT=3132
       - PRINT_HOST=0.0.0.0
       - TZ=${VITE_APP_TIMEZONE:-UTC}
-      - GATEWAY_JWT_SECRET=${GATEWAY_JWT_SECRET:?Set a long random value in .env}
       - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
     command: sh -c "npm install && node server.js"
     ports:
@@ -81,6 +86,8 @@ services:
         required: false
       - path: ./payments/.env.local
         required: false
+      - path: ./.env.local
+        required: false
     environment:
       - PAYMENT_PORT=3134
       - PAYMENT_HOST=0.0.0.0
@@ -91,7 +98,6 @@ services:
       - SURREAL_USER=${SURREAL_USER:?Set SURREAL_USER in .env}
       - SURREAL_PASS=${SURREAL_PASS:?Set SURREAL_PASS in .env}
       - PAYMENT_LOG_LEVEL=debug
-      - GATEWAY_JWT_SECRET=${GATEWAY_JWT_SECRET:?Set a long random value in .env}
       - PAYMENT_ALLOWED_ORIGINS=${PAYMENT_ALLOWED_ORIGINS:-http://localhost:5173}
     command: sh -c "npm install && node server.js"
     ports:
@@ -118,8 +124,8 @@ services:
       # SYNC_SOURCE_* points at this compose's own surrealdb (the "source" of
       # this branch's changes), so it always reuses SURREAL_USER/SURREAL_PASS
       # rather than needing its own separate credential in .env.
-      - SYNC_SOURCE_USER=${SYNC_SOURCE_USER:?Set SYNC_SOURCE_USER in .env}
-      - SYNC_SOURCE_PASS=${SYNC_SOURCE_PASS:?Set SYNC_SOURCE_PASS in .env}
+      - SYNC_SOURCE_USER=${SURREAL_USER:?Set SURREAL_USER in .env or .env.local}
+      - SYNC_SOURCE_PASS=${SURREAL_PASS:?Set SURREAL_PASS in .env or .env.local}
       - SYNC_EXCLUDE_TABLES=${SYNC_EXCLUDE_TABLES:-}
       # SYNC_MASTER_* come from sync-service/.env or .env.local (dotenv).
       # Do not set SYNC_MASTER_URL=${SYNC_MASTER_URL:-} here — an empty value
@@ -139,6 +145,8 @@ services:
         required: false
       - path: ./tracking/.env.local
         required: false
+      - path: ./.env.local
+        required: false
     volumes:
       - ./tracking-api:/app
       - tracking-api-node_modules:/app/node_modules
@@ -150,7 +158,6 @@ services:
       - TRACKING_DB_NAME=posr
       - TRACKING_DB_USER=${SURREAL_USER:?Set SURREAL_USER in .env}
       - TRACKING_DB_PASS=${SURREAL_PASS:?Set SURREAL_PASS in .env}
-      - GATEWAY_JWT_SECRET=${GATEWAY_JWT_SECRET:?Set a long random value in .env}
       - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
     command: sh -c "npm install && npm start"
     ports:
@@ -175,7 +182,6 @@ services:
       - API_HOST=0.0.0.0
       - API_LOG_LEVEL=info
       - API_ALLOWED_ORIGINS=${API_ALLOWED_ORIGINS:-http://localhost:5173}
-      - GATEWAY_JWT_SECRET=${GATEWAY_JWT_SECRET:?Set a long random value in .env}
       - AI_ENABLED=${AI_ENABLED:-false}
       - AI_DAILY_LIMIT=${AI_DAILY_LIMIT:-}
       - AI_MONTHLY_LIMIT=${AI_MONTHLY_LIMIT:-}
@@ -203,7 +209,6 @@ services:
     environment:
       - GATEWAY_HOST=0.0.0.0
       - GATEWAY_PORT=3142
-      - GATEWAY_JWT_SECRET=${GATEWAY_JWT_SECRET:?Set a long random value in .env}
       - GATEWAY_JWT_TTL=${GATEWAY_JWT_TTL:-12h}
       - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
       - SURREAL_URL=ws://surrealdb:8000/rpc
@@ -285,4 +290,3 @@ volumes:
   tracking-api-node_modules:
   api-node_modules:
   gateway-node_modules:
-

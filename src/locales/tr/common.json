@@ -163,6 +163,11 @@
     "importingProgress": "{{total}} satırdan {{current}}. içe aktarılıyor…",
     "reviewHelp": "{{count}} kayıt inceleme için hazır. İçe aktarmadan önce vurgulanan hücreleri düzeltin.",
     "blockingErrors": "{{count}} satırda hâlâ hata var",
+    "filterLabel": "Göster:",
+    "filterAll": "Tümü ({{count}})",
+    "filterValid": "Geçerli ({{count}})",
+    "filterInvalid": "Geçersiz ({{count}})",
+    "noMatchingFilter": "Bu filtreye uyan satır yok.",
     "revalidate": "Yeniden kontrol et",
     "addRow": "Satır ekle",
     "removeRow": "Satırı kaldır",
@@ -188,7 +193,49 @@
     "unresolvedTax": "Çözülmemiş vergi: {{name}}",
     "cannotCreateCategory": "Kategori oluşturulamıyor (veritabanı kullanılamıyor).",
     "pasteHint": "Veya Ctrl+V / Cmd+V ile yapıştırın (dosya, görsel veya Excel hücreleri)",
-    "pasteUnsupported": "Panoda desteklenen bir dosya, görsel veya tablo verisi yok."
+    "pasteUnsupported": "Panoda desteklenen bir dosya, görsel veya tablo verisi yok.",
+    "unknownRecordType": "Bilinmeyen satır tipi: {{type}}",
+    "selectValue": "Seç…",
+    "enumValues": {
+      "record_type": {
+        "dish": "Yemek",
+        "size_option": "Boyut seçeneği",
+        "addon_option": "Ekstra seçeneği",
+        "dish_link": "Yemek ↔ grup bağlantısı",
+        "nested_override": "İç içe fiyat"
+      }
+    },
+    "ingredientMustExist": "Mevcut bir stok kalemi adı veya koduyla tam eşleşmelidir (büyük/küçük harf duyarsız). Çözülmezse listeden seçin."
+  },
+  "aiAssistant": {
+    "open": "{{name}}'i aç",
+    "title": "{{name}} – Yapay Zeka Asistanı",
+    "placeholder": "Satış, envanter, yönetim hakkında sorun veya oluşturma/güncelleme isteyin…",
+    "reviewPrompt": "Aşağıda incelemeniz için {{count}} {{entity}} değişikliği hazırladım.",
+    "reviewTitle": "Değişiklikleri incele",
+    "confirm": "Onayla",
+    "applied": "Uygulandı: {{imported}} oluşturuldu/güncellendi, {{failed}} başarısız, {{skipped}} atlandı.",
+    "cancelled": "Kullanıcı bu değişikliği iptal etti.",
+    "sessionExpired": "Oturumunuz sona erdi. Lütfen tekrar giriş yapın.",
+    "issues": "Sorunlar",
+    "expand": "Asistanı genişlet",
+    "collapse": "Asistanı daralt",
+    "clear": "Temizle",
+    "clearConversation": "Sohbeti temizle",
+    "clearConfirm": "Bu cihazdaki asistan sohbeti temizlensin mi?",
+    "working": "{{name}} isteğiniz üzerinde çalışıyor…",
+    "examplesTitle": "Ne sorabilirsiniz",
+    "examplesHint": "{{name}} ile denemek için bir örneğe tıklayın:",
+    "examples": {
+      "salesToday": "Bugünün satış özetini göster",
+      "tablesFloor": "Delivery katındaki masaları listele",
+      "bogoDiscount": "Başlangıçlar için otomatik BOGO indirimi oluştur",
+      "addDish": "x TL'ye yeni Margherita yemeği ekle",
+      "listUsers": "Tüm POS kullanıcılarını listele",
+      "inventoryStock": "Yeniden sipariş seviyesinin altındaki stokları göster"
+    },
+    "unknownConfig": "Önizleme için bilinmeyen içe aktarma yapılandırması.",
+    "passwordWillBeSet": "Onaylandığında şifre ayarlanacak"
   },
   "offline": {
     "disconnected": "⚠ Çevrimdışı — değişiklikler bağlantı восстановлена sync edilecek",

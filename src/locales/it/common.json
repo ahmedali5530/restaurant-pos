@@ -163,6 +163,11 @@
     "importingProgress": "Importazione riga {{current}} di {{total}}…",
     "reviewHelp": "{{count}} record pronti per la revisione. Correggi le celle evidenziate prima di importare.",
     "blockingErrors": "{{count}} riga/e hanno ancora errori",
+    "filterLabel": "Mostra:",
+    "filterAll": "Tutte ({{count}})",
+    "filterValid": "Valide ({{count}})",
+    "filterInvalid": "Non valide ({{count}})",
+    "noMatchingFilter": "Nessuna riga corrisponde a questo filtro.",
     "revalidate": "Ricontrolla",
     "addRow": "Aggiungi riga",
     "removeRow": "Rimuovi riga",
@@ -188,7 +193,49 @@
     "unresolvedTax": "Tassa non risolta: {{name}}",
     "cannotCreateCategory": "Impossibile creare la categoria (database non disponibile).",
     "pasteHint": "Oppure incolla con Ctrl+V / Cmd+V (file, immagine o celle Excel)",
-    "pasteUnsupported": "Gli appunti non contengono un file, un'immagine o una tabella supportati."
+    "pasteUnsupported": "Gli appunti non contengono un file, un'immagine o una tabella supportati.",
+    "unknownRecordType": "Tipo di riga sconosciuto: {{type}}",
+    "selectValue": "Seleziona…",
+    "enumValues": {
+      "record_type": {
+        "dish": "Piatto",
+        "size_option": "Opzione taglia",
+        "addon_option": "Opzione extra",
+        "dish_link": "Collegamento piatto ↔ gruppo",
+        "nested_override": "Override prezzo annidato"
+      }
+    },
+    "ingredientMustExist": "Deve corrispondere esattamente al nome o codice di un articolo di inventario esistente (senza distinzione maiuscole/minuscole). Seleziona dall’elenco se non risolto."
+  },
+  "aiAssistant": {
+    "open": "Apri {{name}}",
+    "title": "{{name}} – Assistente IA",
+    "placeholder": "Chiedi di vendite, inventario, gestione o richiedi creazione/aggiornamento…",
+    "reviewPrompt": "Ho preparato {{count}} modifica/he di {{entity}} da rivedere qui sotto.",
+    "reviewTitle": "Rivedi modifiche",
+    "confirm": "Conferma",
+    "applied": "Applicato: {{imported}} creati/aggiornati, {{failed}} non riusciti, {{skipped}} saltati.",
+    "cancelled": "L'utente ha annullato questa modifica.",
+    "sessionExpired": "La sessione è scaduta. Accedi di nuovo.",
+    "issues": "Problemi",
+    "expand": "Espandi assistente",
+    "collapse": "Riduci assistente",
+    "clear": "Cancella",
+    "clearConversation": "Cancella conversazione",
+    "clearConfirm": "Cancellare questa conversazione con l'assistente su questo dispositivo?",
+    "working": "{{name}} sta elaborando la tua richiesta…",
+    "examplesTitle": "Cosa puoi chiedere",
+    "examplesHint": "Fai clic su un esempio per provarlo con {{name}}:",
+    "examples": {
+      "salesToday": "Mostrami il riepilogo vendite di oggi",
+      "tablesFloor": "Elenca i tavoli del piano Delivery",
+      "bogoDiscount": "Crea sconto BOGO automatico per gli antipasti",
+      "addDish": "Aggiungi un nuovo piatto Margherita a x €",
+      "listUsers": "Elenca tutti gli utenti POS",
+      "inventoryStock": "Mostra articoli di magazzino sotto il livello di riordino"
+    },
+    "unknownConfig": "Configurazione di importazione sconosciuta per l'anteprima.",
+    "passwordWillBeSet": "La password verrà impostata alla conferma"
   },
   "offline": {
     "disconnected": "⚠ Offline — le modifiche verranno sincronizzate alla riconnessione",

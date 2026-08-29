@@ -2,7 +2,7 @@ import {Tables} from "@/api/db/tables.ts";
 import type {Order} from "@/api/model/order.ts";
 import type {OrderVoid} from "@/api/model/order_void.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
-import {recordToString} from "@/api/reports/shared/records.ts";
+import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {buildCreatedAtDateConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
@@ -288,7 +288,7 @@ export const listCategories = async (db: DbClient, options: {limit?: number} = {
   const limit = options.limit ?? 50;
   const query = `SELECT id, name FROM ${Tables.categories} ORDER BY name ASC LIMIT ${limit}`;
   const categories = unwrapQueryResult<{id: unknown; name?: string}>(await db.query(query));
-  return categories.map(cat => ({id: recordToString(cat.id), name: cat.name ?? "Unknown"}));
+  return categories.map(cat => ({id: recordIdToString(cat.id), name: cat.name ?? "Unknown"}));
 };
 
 export const getSalesDashboardSnapshot = async (db: DbClient, options: DateRangeFilter) => {

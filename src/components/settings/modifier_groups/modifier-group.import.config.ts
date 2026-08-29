@@ -5,11 +5,13 @@ import type {
   ImportField,
   ImportRecord,
   ImportRowContext,
+  ResolvedReference,
 } from "@/lib/data-import/types.ts";
-import {resolveDishByNumberOrName, type TFunc} from "@/lib/data-import/helpers.ts";
+import {requireRefId, type TFunc} from "@/lib/data-import/helpers.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {assertCsvMatchValues} from "@/utils/csv-import.ts";
+import {fetchNextSequentialNumber} from "@/utils/recordNumbers.ts";
 
 async function findGroupsByName(db: ImportDbLike, name: string): Promise<any[]> {
   const [rows] = await db.query(
@@ -41,6 +43,8 @@ export function createModifierGroupImportConfig({
   db: ImportDbLike;
   t: TFunc;
 }): ImportConfiguration {
+  let numberSeq: number | null = null;
+
   const fields: ImportField[] = [
     {
       name: "group",
@@ -48,6 +52,8 @@ export function createModifierGroupImportConfig({
       type: "string",
       required: true,
       aliases: ["Group", "Modifier group", "Name"],
+      description:
+        "Suggested modifier group name (e.g. Size, Size – Classic, Extra Topping)",
     },
     {
       name: "priority",
@@ -59,9 +65,22 @@ export function createModifierGroupImportConfig({
     {
       name: "modifier",
       label: t("admin:columns.dishNameOrNumber"),
-      type: "string",
+      type: "reference",
       required: true,
-      aliases: ["Modifier", "Dish", "Dish name", "Dish number"],
+      aliases: ["Modifier", "Dish", "Dish name", "Dish number", "Size", "Option"],
+      description:
+        "Dish used as the modifier option (e.g. Small, Medium, Extra Topping). Pick an existing dish or create a new one.",
+      lookup: {
+        table: Tables.dishes,
+        searchFields: ["name"],
+        strategy: "create",
+        createDefaults: {
+          price: 0,
+          cost: 0,
+          priority: 0,
+          categories: [],
+        },
+      },
     },
     {
       name: "price",
@@ -69,38 +88,67 @@ export function createModifierGroupImportConfig({
       type: "number",
       required: true,
       aliases: ["Price"],
+      description: "Price for this modifier option within the group",
     },
   ];
 
   return {
     id: "modifier_groups",
-    entityLabel: t("admin:buttons.modifierGroup", {defaultValue: "Modifier group"}),
+    entityLabel: t("admin:buttons.modifierGroup", {defaultValue: "modifier group"}),
     shape: "records",
     fields,
     matchFields: ["group", "modifier"],
     defaultMode: "create",
     db,
-    extractionInstructions:
-      "Extract modifier group lines with group name, optional display order (priority), dish name or number used as the modifier, and price. Nested next-group overrides are not imported. Dishes must already exist.",
+    extractionInstructions: [
+      "Extract modifier group lines from this menu document.",
+      "Return one record per selectable option (size, topping, addon, crust choice, etc.).",
+      "Suggest clear `group` names: use \"Size\" or \"Size – <tier name>\" when a block of items shares size price columns (S/M/L/F/P or Small/Medium/Large).",
+      "When several item blocks share different size price tables, use distinct group names per price matrix (e.g. Size – Classic, Size – Crust).",
+      "For global extras such as Extra Topping / Extra Cheese, use that phrase as the group name.",
+      "Map each size letter or size word to `modifier` as a full dish name (expand S→Small, M→Medium, L→Large, F→Family, P→Party when those conventions apply).",
+      "Put the listed option price in `price` as a plain number. Omit sizes that are not listed for that block; do not invent prices.",
+      "Ignore photos, decorative text, and allergen notes.",
+      "Nested next-group overrides are not imported in this flat import.",
+    ].join(" "),
+    onCreateMissingReference: async (field, label, createDb) => {
+      if (field.name !== "modifier") {
+        throw new Error(`Unsupported create for field "${field.name}"`);
+      }
+      if (numberSeq === null) {
+        numberSeq = await fetchNextSequentialNumber(createDb as any, Tables.dishes, "number");
+      }
+      const number = String(numberSeq);
+      numberSeq += 1;
+      const created = await createDb.create?.(Tables.dishes, {
+        name: label,
+        number,
+        price: 0,
+        cost: 0,
+        priority: 0,
+        categories: [],
+      });
+      const row = Array.isArray(created) ? created[0] : created;
+      if (!row?.id) {
+        throw new Error(t("common:csvImport.recordNotFound"));
+      }
+      return {id: String(row.id), label};
+    },
     onImportRow: async (record: ImportRecord, ctx: ImportRowContext) => {
       const values = record.values;
       const groupName = String(values.group ?? "").trim();
-      const modifierKey = String(values.modifier ?? "").trim();
-      if (!groupName || !modifierKey) throw new Error(t("validation:required"));
+      if (!groupName) throw new Error(t("validation:required"));
 
       const price = Number(values.price);
       if (!Number.isFinite(price)) throw new Error(t("validation:mustBeNumber"));
 
       const priority = Number(values.priority ?? 0) || 0;
 
-      const dishResult = await resolveDishByNumberOrName(db, modifierKey);
-      if (dishResult.status === "ambiguous") {
-        throw new Error(t("toast:admin.ambiguousDishName"));
-      }
-      if (dishResult.status !== "found") {
-        throw new Error(t("toast:admin.invalidDishNameOrNumber"));
-      }
-      const dishId = String(dishResult.dish.id);
+      const modifierRef = values.modifier as ResolvedReference | null;
+      const dishId = String(
+        requireRefId(modifierRef, t("toast:admin.invalidDishNameOrNumber"))
+      );
+      const modifierKey = String(modifierRef?.label ?? "").trim() || dishId;
 
       const rowData: Record<string, string> = {group: groupName, modifier: modifierKey};
       assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
@@ -128,7 +176,11 @@ export function createModifierGroupImportConfig({
       }
 
       if (ctx.mode === "create" && existingModifier) {
-        throw new Error(t("common:csvImport.multipleMatches", {defaultValue: "This modifier is already in the group"}));
+        throw new Error(
+          t("common:csvImport.multipleMatches", {
+            defaultValue: "This modifier is already in the group",
+          })
+        );
       }
 
       if (existingModifier) {

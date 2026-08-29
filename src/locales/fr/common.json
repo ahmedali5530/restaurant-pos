@@ -163,6 +163,11 @@
     "importingProgress": "Importation de la ligne {{current}} sur {{total}}…",
     "reviewHelp": "{{count}} enregistrements prêts à être examinés. Corrigez les cellules surlignées avant d'importer.",
     "blockingErrors": "{{count}} ligne(s) ont encore des erreurs",
+    "filterLabel": "Afficher :",
+    "filterAll": "Toutes ({{count}})",
+    "filterValid": "Valides ({{count}})",
+    "filterInvalid": "Invalides ({{count}})",
+    "noMatchingFilter": "Aucune ligne ne correspond à ce filtre.",
     "revalidate": "Revérifier",
     "addRow": "Ajouter une ligne",
     "removeRow": "Supprimer la ligne",
@@ -188,7 +193,49 @@
     "unresolvedTax": "Taxe non résolue : {{name}}",
     "cannotCreateCategory": "Impossible de créer la catégorie (base de données indisponible).",
     "pasteHint": "Ou collez avec Ctrl+V / Cmd+V (fichier, image ou cellules Excel)",
-    "pasteUnsupported": "Le presse-papiers ne contient aucun fichier, image ou tableau pris en charge."
+    "pasteUnsupported": "Le presse-papiers ne contient aucun fichier, image ou tableau pris en charge.",
+    "unknownRecordType": "Type de ligne inconnu : {{type}}",
+    "selectValue": "Sélectionner…",
+    "enumValues": {
+      "record_type": {
+        "dish": "Plat",
+        "size_option": "Option de taille",
+        "addon_option": "Option de supplément",
+        "dish_link": "Lien plat ↔ groupe",
+        "nested_override": "Prix imbriqué"
+      }
+    },
+    "ingredientMustExist": "Doit correspondre exactement au nom ou code d’un article d’inventaire existant (insensible à la casse). Choisissez dans la liste si non résolu."
+  },
+  "aiAssistant": {
+    "open": "Ouvrir {{name}}",
+    "title": "{{name}} – Assistant IA",
+    "placeholder": "Posez des questions sur ventes, stocks, gestion ou demandez une création/mise à jour…",
+    "reviewPrompt": "J'ai préparé {{count}} modification(s) de {{entity}} à examiner ci-dessous.",
+    "reviewTitle": "Examiner les modifications",
+    "confirm": "Confirmer",
+    "applied": "Appliqué : {{imported}} créés/mis à jour, {{failed}} échoués, {{skipped}} ignorés.",
+    "cancelled": "L'utilisateur a annulé cette modification.",
+    "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter.",
+    "issues": "Problèmes",
+    "expand": "Agrandir l'assistant",
+    "collapse": "Réduire l'assistant",
+    "clear": "Effacer",
+    "clearConversation": "Effacer la conversation",
+    "clearConfirm": "Effacer cette conversation avec l'assistant sur cet appareil ?",
+    "working": "{{name}} traite votre demande…",
+    "examplesTitle": "Ce que vous pouvez demander",
+    "examplesHint": "Cliquez sur un exemple pour l'essayer avec {{name}} :",
+    "examples": {
+      "salesToday": "Afficher le résumé des ventes d'aujourd'hui",
+      "tablesFloor": "Lister les tables de l'étage Delivery",
+      "bogoDiscount": "Créer une remise BOGO automatique pour les entrées",
+      "addDish": "Ajouter un nouveau plat Margherita à x €",
+      "listUsers": "Lister tous les utilisateurs POS",
+      "inventoryStock": "Afficher les articles en stock sous le seuil de réapprovisionnement"
+    },
+    "unknownConfig": "Configuration d'importation inconnue pour l'aperçu.",
+    "passwordWillBeSet": "Le mot de passe sera défini à la confirmation"
   },
   "offline": {
     "disconnected": "⚠ Hors ligne — les changements seront synchronisés à la reconnexion",

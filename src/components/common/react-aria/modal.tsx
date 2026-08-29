@@ -89,7 +89,7 @@ export const Modal: FunctionComponent<ModalProps> = ({
             <Dialog
               data-testid={props.testId}
               className={cn(
-                'react-aria-Dialog',
+                'react-aria-Dialog max-w-[100vw]',
                 size === "full" && "modal-full",
                 size === "sm" && "modal-sm",
                 size === 'lg' && 'modal-lg',

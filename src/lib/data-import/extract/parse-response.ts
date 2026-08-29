@@ -31,6 +31,15 @@ export function extractJsonText(raw: string): string {
   return text.trim();
 }
 
+export function parseJsonFromAi(raw: string): any {
+  const jsonText = extractJsonText(raw);
+  try {
+    return JSON.parse(jsonText);
+  } catch {
+    throw new Error("AI returned invalid JSON. Please try again or use a clearer file.");
+  }
+}
+
 /**
  * Parse AI JSON into raw records. Unknown keys are stripped later in normalize.
  * Accepts either { records: [...] } or a bare array.
@@ -39,13 +48,7 @@ export function parseExtractionResponse(
   raw: string,
   allowedFields: string[]
 ): RawExtractedRecords {
-  const jsonText = extractJsonText(raw);
-  let parsed: any;
-  try {
-    parsed = JSON.parse(jsonText);
-  } catch {
-    throw new Error("AI returned invalid JSON. Please try again or use a clearer file.");
-  }
+  const parsed = parseJsonFromAi(raw);
 
   let records: any[] = [];
   if (Array.isArray(parsed)) {
@@ -102,4 +105,19 @@ export function parseExtractionResponse(
     confidence: confidence.some((c) => Number.isFinite(c)) ? confidence : undefined,
     fieldConfidence: fieldConfidence.some(Boolean) ? fieldConfidence : undefined,
   };
+}
+
+/**
+ * Parse a graph-shaped AI response and expand it via `onExpandExtracted`.
+ */
+export function parseGraphExtractionResponse(
+  raw: string,
+  expand: (parsed: any) => Array<Record<string, any>>
+): RawExtractedRecords {
+  const parsed = parseJsonFromAi(raw);
+  if (!parsed || typeof parsed !== "object") {
+    throw new Error("AI response did not contain a menu graph object.");
+  }
+  const records = expand(parsed) ?? [];
+  return {records: Array.isArray(records) ? records : []};
 }
