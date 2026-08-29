@@ -218,3 +218,7 @@ export const CashFlowReportScreen = lazy(() =>
 export const VendorPerformanceScreen = lazy(() =>
   import('@/screens/reports/vendor.performance.report.tsx').then(m => ({default: m.VendorPerformanceScreen}))
 );
+
+export const TableTurnoverScreen = lazy(() =>
+  import('@/screens/reports/turnover.report.tsx').then(m => ({default: m.TableTurnoverScreen}))
+);
