@@ -15,6 +15,7 @@ import 'swiper/css';
 import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import {useSearchParams} from "react-router";
+import {UpsellPromptListener} from "@/components/orders/upsell-prompt-listener.tsx";
 
 export const Menu = () => {
   const {t: tNav} = useTranslation('navigation');
@@ -234,6 +235,7 @@ export const Menu = () => {
         <div className="bg-white rounded-xl flex flex-col h-full min-h-0 overflow-hidden" data-testid="menu-cart">
           <MenuCart/>
         </div>
+        <UpsellPromptListener/>
       </div>
     )
 
