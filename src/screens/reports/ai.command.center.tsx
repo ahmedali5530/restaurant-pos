@@ -56,6 +56,7 @@ import {
   REPORTS_SERVER_PERFORMANCE, REPORTS_COMPETITOR_MONITORING,
   REPORTS_FOOD_COST_TRENDS, REPORTS_RECIPE_OPTIMIZATION,
   REPORTS_SEGMENTATION, REPORTS_LABOR_OPTIMIZATION,
+  REPORTS_DELIVERY_ANALYTICS,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -93,7 +94,7 @@ export function AiCommandCenterScreen() {
   const loadAllMetrics = useCallback(async () => {
     setLoading(true);
     try {
-      // Parallel fetch of all 21 AI feature summaries
+      // Parallel fetch of all 22 AI feature summaries
       const [
         forecastData, menuData, sentimentData, wasteData,
         scheduleData, cashData, vendorData, turnoverData,
@@ -101,6 +102,7 @@ export function AiCommandCenterScreen() {
         clvData, churnData, promoData,
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
+        deliveryData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -123,6 +125,7 @@ export function AiCommandCenterScreen() {
         fetchRecipeSummary(db),
         fetchSegmentationSummary(db),
         fetchLaborSummary(db),
+        fetchDeliverySummary(db),
       ]);
 
       setMetrics([
@@ -132,6 +135,7 @@ export function AiCommandCenterScreen() {
         clvData, churnData, promoData,
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
+        deliveryData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -243,7 +247,7 @@ export function AiCommandCenterScreen() {
 
             {/* Footer */}
             <div className="text-xs text-neutral-500 text-center pt-4">
-              POSR AI Command Center · 21 AI-powered features · Click any card for full report
+              POSR AI Command Center · 22 AI-powered features · Click any card for full report
             </div>
           </>
         )}
@@ -803,6 +807,27 @@ async function fetchLaborSummary(db: any): Promise<MetricCard> {
       link: REPORTS_LABOR_OPTIMIZATION, linkLabel: 'View labor',
     };
   } catch { return neutralCard('Labor Cost Optimization', faClock, 'text-blue-600', REPORTS_LABOR_OPTIMIZATION); }
+}
+
+async function fetchDeliverySummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT sum(total_revenue) AS revenue, sum(total_orders) AS orders,
+         sum(commission_paid) AS commission, sum(net_revenue) AS net
+       FROM delivery_performance WHERE expires_at > time::now()`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const d = list[0];
+    if (!d || d.orders === 0) return neutralCard('Delivery Analytics', faTruck, 'text-orange-600', REPORTS_DELIVERY_ANALYTICS);
+    return {
+      title: 'Delivery Analytics',
+      icon: faTruck, color: 'text-orange-600',
+      primary: `${d.orders} orders`,
+      secondary: `${withCurrency(d.revenue)} revenue · ${withCurrency(d.commission)} commission`,
+      health: 'neutral',
+      link: REPORTS_DELIVERY_ANALYTICS, linkLabel: 'View delivery',
+    };
+  } catch { return neutralCard('Delivery Analytics', faTruck, 'text-orange-600', REPORTS_DELIVERY_ANALYTICS); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
