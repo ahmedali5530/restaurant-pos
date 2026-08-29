@@ -77,6 +77,7 @@ import {
   SETTINGS,
   INTEGRATIONS,
   SUMMARY,
+  TABLESIDE,
   TIP_DISTRIBUTION, ACCOUNTS,
 } from "@/routes/posr.ts";
 import {
@@ -143,6 +144,7 @@ import {
   VoidsReport,
   WasteReport,
   DemandForecastScreen,
+  TablesideScreen,
 } from "@/routes/lazy-screens.ts";
 
 export const AppRoutes = () => (
@@ -156,6 +158,7 @@ export const AppRoutes = () => (
       <Route path={SUMMARY} element={<Summary/>}/>
       <Route path={KITCHEN} element={<KitchenScreen/>}/>
       <Route path={CLOCK} element={<Clock/>}/>
+      <Route path={TABLESIDE} element={<TablesideScreen/>}/>
 
       <Route element={<SuspenseOutlet/>}>
         <Route path={CLOSING} element={<Closing/>}/>

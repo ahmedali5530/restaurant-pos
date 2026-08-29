@@ -19,6 +19,8 @@ import { SecurityAlertsPanel } from "@/components/admin/security-alerts";
 import { GiftCardManagement } from "@/components/admin/gift-card-management.tsx";
 import { MarketingManagement } from "@/components/admin/marketing-management.tsx";
 import { ReservationManagement } from "@/components/admin/reservation-management.tsx";
+import { AdminCurrencies } from "@/components/admin/currency-management.tsx";
+import { KdsSettingsPanel } from "@/components/admin/kds-settings.tsx";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {AdminMenus} from "@/components/settings/menu";
 import {AdminPrints} from "@/components/settings/prints";
@@ -50,6 +52,8 @@ const ADMIN_TAB_KEYS = [
   'gift_cards',
   'marketing',
   'reservations',
+  'currencies',
+  'kds',
 ] as const;
 
 type AdminTabKey = (typeof ADMIN_TAB_KEYS)[number];
@@ -76,6 +80,8 @@ const TAB_I18N_KEYS: Record<AdminTabKey, string> = {
   gift_cards: 'tabs.giftCards',
   marketing: 'tabs.marketing',
   reservations: 'tabs.reservations',
+  currencies: 'tabs.currencies',
+  kds: 'tabs.kds',
 };
 
 /** Stable permission codes stored in user roles — not translated labels. */
@@ -101,6 +107,8 @@ const ADMIN_TAB_MODULES: Record<AdminTabKey, string> = {
   gift_cards: 'admin.gift_cards',
   marketing: 'admin.marketing',
   reservations: 'admin.reservations',
+  currencies: 'admin.currencies',
+  kds: 'admin.kds',
 };
 
 export const Admin = () => {
@@ -131,6 +139,8 @@ export const Admin = () => {
     gift_cards: { component: <GiftCardManagement/>, title: t('tabs.giftCards', { defaultValue: 'Gift Cards' }) },
     marketing: { component: <MarketingManagement/>, title: t('tabs.marketing', { defaultValue: 'Marketing' }) },
     reservations: { component: <ReservationManagement/>, title: t('tabs.reservations', { defaultValue: 'Reservations' }) },
+    currencies: { component: <AdminCurrencies/>, title: t('tabs.currencies', { defaultValue: 'Currencies' }) },
+    kds: { component: <KdsSettingsPanel/>, title: t('tabs.kds', { defaultValue: 'KDS' }) },
   }), [t]);
 
   return (

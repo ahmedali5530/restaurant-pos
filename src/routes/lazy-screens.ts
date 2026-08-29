@@ -1,5 +1,9 @@
 import {lazy} from "react";
 
+export const TablesideScreen = lazy(() =>
+  import('@/screens/tableside').then(m => ({default: m.TablesideScreen}))
+);
+
 export const Closing = lazy(() =>
   import('@/screens/closing.tsx').then(m => ({default: m.Closing}))
 );

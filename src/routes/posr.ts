@@ -10,6 +10,7 @@ export const ADMIN = '/admin';
 export const SETTINGS = '/settings';
 export const INTEGRATIONS = '/integrations';
 export const CLOCK = '/clock';
+export const TABLESIDE = '/tableside';
 export const INVENTORY = '/inventory';
 export const INVENTORY_PRINT = '/inventory/print/:type/:id';
 
