@@ -113,6 +113,7 @@ export const REPORTS_FORECAST_ACCURACY = REPORTS + '/forecast-accuracy';
 export const REPORTS_UPSELL_EFFECTIVENESS = REPORTS + '/upsell-effectiveness';
 export const REPORTS_AI_COMMAND_CENTER = REPORTS + '/ai-command-center';
 export const REPORTS_ANOMALY_ALERTS = REPORTS + '/anomaly-alerts';
+export const REPORTS_CUSTOMER_CLV = REPORTS + '/customer-clv';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';

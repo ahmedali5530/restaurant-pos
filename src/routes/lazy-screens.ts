@@ -242,3 +242,7 @@ export const AiCommandCenterScreen = lazy(() =>
 export const AnomalyAlertsScreen = lazy(() =>
   import('@/screens/reports/anomaly.alerts.report.tsx').then(m => ({default: m.AnomalyAlertsScreen}))
 );
+
+export const CustomerCLVScreen = lazy(() =>
+  import('@/screens/reports/customer.clv.report.tsx').then(m => ({default: m.CustomerCLVScreen}))
+);
