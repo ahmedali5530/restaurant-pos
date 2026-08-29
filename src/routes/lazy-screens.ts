@@ -258,3 +258,7 @@ export const PromoEffectivenessScreen = lazy(() =>
 export const ServerPerformanceScreen = lazy(() =>
   import('@/screens/reports/server.performance.report.tsx').then(m => ({default: m.ServerPerformanceScreen}))
 );
+
+export const CompetitorMonitoringScreen = lazy(() =>
+  import('@/screens/reports/competitor.monitoring.report.tsx').then(m => ({default: m.CompetitorMonitoringScreen}))
+);

@@ -117,6 +117,7 @@ export const REPORTS_CUSTOMER_CLV = REPORTS + '/customer-clv';
 export const REPORTS_CHURN_PREDICTION = REPORTS + '/churn-prediction';
 export const REPORTS_PROMO_EFFECTIVENESS = REPORTS + '/promo-effectiveness';
 export const REPORTS_SERVER_PERFORMANCE = REPORTS + '/server-performance';
+export const REPORTS_COMPETITOR_MONITORING = REPORTS + '/competitor-monitoring';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';
