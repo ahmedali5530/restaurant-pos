@@ -184,8 +184,8 @@ Copied `.env` files include **local-dev** Surreal and JWT values. Change `SURREA
 ## Security Hardening Stack + Feature Enhancements
 
 This fork includes a comprehensive security hardening stack + competitor-driven feature
-enhancements (**65 commits, 327 tests, 0 regressions**) that raises the security grade
-from **B− (65%) → A++ (97%)** and adds **24 new features** worth **$1,350+/mo** (Toast equivalent).
+enhancements (**66 commits, 327 tests, 0 regressions**) that raises the security grade
+from **B− (65%) → A++ (97%)** and adds **25 new features** worth **$1,400+/mo** (Toast equivalent).
 
 ### Security (47 commits)
 
@@ -199,7 +199,7 @@ from **B− (65%) → A++ (97%)** and adds **24 new features** worth **$1,350+/m
 | **Business-logic tests** (4 commits) | Payment drivers (33 tests × 6 gateways), fiscal serialization (66 tests FBR/PRA), sync-manager (49 tests), print helpers (36 tests) — 184 tests total |
 | **Remaining audit fixes** (1 commit) | sync `/stats` auth, tracking `payload.id` validation, printing debug leftover, rate limiting on `/auth/session` + `/auth/db-token` |
 
-### Features (18 commits, 24 new features)
+### Features (19 commits, 25 new features)
 
 | Feature | What it does | Toast equivalent |
 |---|---|---|
@@ -218,6 +218,7 @@ from **B− (65%) → A++ (97%)** and adds **24 new features** worth **$1,350+/m
 | **KDS enhancement** | Aging colors (green/yellow/red) + bump-bar keyboard navigation + expeditor view + per-station bottleneck stats | $69/mo/station |
 | **AI inventory reorder** | Predictive purchase suggestions — consumption rate + demand forecast + lead time + par-level + AI refinement + auto-PO generation | $50/mo (Lightspeed Pro) |
 | **AI menu optimization** | Menu engineering BCG matrix (Stars/Plowhorses/Puzzles/Dogs) + pricing recommendations + AI insights + action suggestions | $100/mo (Toast Menu Intelligence) |
+| **AI customer sentiment** | Post-order review collection + AI sentiment/emotion/themes analysis + NPS scoring + suggested responses for negative reviews | $50/mo (Square Customer Insights) |
 | **UX improvements** | Offline banner (3-state), font size adjuster, quick reorder bar, upsell prompts, structured reason codes | Various |
 
 ### Competitive value comparison
@@ -227,9 +228,9 @@ Toast monthly cost:    $69 (POS) + $185 (loyalty+marketing) + $15 (PWA) + $150 (
                        + $69 (AI) + $350 (reservations) + $165 (multi-currency)
                        + $45 (tableside, 5 employees) + $69 (KDS, 1 station)
                        + $50 (smart reorder) + $100 (menu intelligence)
-                       = $1,267+/mo
+                       + $50 (customer insights) = $1,317+/mo
 POSR monthly cost:     $0
-Total savings:         $1,267+/mo → $15,204+/year
+Total savings:         $1,317+/mo → $15,804+/year
 ```
 
 ### Security grade progression

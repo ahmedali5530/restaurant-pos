@@ -198,3 +198,7 @@ export const DemandForecastScreen = lazy(() =>
 export const MenuOptimizationScreen = lazy(() =>
   import('@/screens/reports/menu.optimization.report.tsx').then(m => ({default: m.MenuOptimizationScreen}))
 );
+
+export const SentimentReportScreen = lazy(() =>
+  import('@/screens/reports/sentiment.report.tsx').then(m => ({default: m.SentimentReportScreen}))
+);
