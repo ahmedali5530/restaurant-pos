@@ -298,3 +298,7 @@ export const RevPASHScreen = lazy(() =>
 export const JourneyScreen = lazy(() =>
   import('@/screens/reports/journey.report.tsx').then(m => ({default: m.JourneyScreen}))
 );
+
+export const SeasonalScreen = lazy(() =>
+  import('@/screens/reports/seasonal.report.tsx').then(m => ({default: m.SeasonalScreen}))
+);
