@@ -238,3 +238,7 @@ export const UpsellEffectivenessScreen = lazy(() =>
 export const AiCommandCenterScreen = lazy(() =>
   import('@/screens/reports/ai.command.center.tsx').then(m => ({default: m.AiCommandCenterScreen}))
 );
+
+export const AnomalyAlertsScreen = lazy(() =>
+  import('@/screens/reports/anomaly.alerts.report.tsx').then(m => ({default: m.AnomalyAlertsScreen}))
+);
