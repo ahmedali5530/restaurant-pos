@@ -44,7 +44,7 @@ import {
   faCalendarWeek, faWallet, faTruck, faChair, faTags, faBullseye,
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
-  faDollarSign, faClock,
+  faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -56,7 +56,8 @@ import {
   REPORTS_SERVER_PERFORMANCE, REPORTS_COMPETITOR_MONITORING,
   REPORTS_FOOD_COST_TRENDS, REPORTS_RECIPE_OPTIMIZATION,
   REPORTS_SEGMENTATION, REPORTS_LABOR_OPTIMIZATION,
-  REPORTS_DELIVERY_ANALYTICS,
+  REPORTS_DELIVERY_ANALYTICS, REPORTS_PEAK_HOUR,
+  REPORTS_TIP_ANALYTICS, REPORTS_REVPASH,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -94,7 +95,7 @@ export function AiCommandCenterScreen() {
   const loadAllMetrics = useCallback(async () => {
     setLoading(true);
     try {
-      // Parallel fetch of all 22 AI feature summaries
+      // Parallel fetch of all 24 AI feature summaries
       const [
         forecastData, menuData, sentimentData, wasteData,
         scheduleData, cashData, vendorData, turnoverData,
@@ -102,7 +103,7 @@ export function AiCommandCenterScreen() {
         clvData, churnData, promoData,
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
-        deliveryData,
+        deliveryData, tipData, revpashData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -126,6 +127,8 @@ export function AiCommandCenterScreen() {
         fetchSegmentationSummary(db),
         fetchLaborSummary(db),
         fetchDeliverySummary(db),
+        fetchTipSummary(db),
+        fetchRevPASHSummary(db),
       ]);
 
       setMetrics([
@@ -135,7 +138,7 @@ export function AiCommandCenterScreen() {
         clvData, churnData, promoData,
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
-        deliveryData,
+        deliveryData, tipData, revpashData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -247,7 +250,7 @@ export function AiCommandCenterScreen() {
 
             {/* Footer */}
             <div className="text-xs text-neutral-500 text-center pt-4">
-              POSR AI Command Center · 22 AI-powered features · Click any card for full report
+              POSR AI Command Center · 24 AI-powered features · Click any card for full report
             </div>
           </>
         )}
@@ -828,6 +831,48 @@ async function fetchDeliverySummary(db: any): Promise<MetricCard> {
       link: REPORTS_DELIVERY_ANALYTICS, linkLabel: 'View delivery',
     };
   } catch { return neutralCard('Delivery Analytics', faTruck, 'text-orange-600', REPORTS_DELIVERY_ANALYTICS); }
+}
+
+async function fetchTipSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT total_tips, tip_frequency, equity_score
+       FROM tip_distribution_analysis WHERE expires_at > time::now()
+       ORDER BY generated_at DESC LIMIT 1`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const t = list[0];
+    if (!t) return neutralCard('Tip Analytics', faHandHoldingDollar, 'text-emerald-600', REPORTS_TIP_ANALYTICS);
+    return {
+      title: 'Tip Analytics',
+      icon: faHandHoldingDollar, color: 'text-emerald-600',
+      primary: withCurrency(t.total_tips ?? 0),
+      secondary: `${t.tip_frequency ?? 0}% tipped · equity ${t.equity_score ?? 0}/100`,
+      health: (t.equity_score ?? 100) >= 80 ? 'good' : (t.equity_score ?? 100) >= 60 ? 'watch' : 'warning',
+      link: REPORTS_TIP_ANALYTICS, linkLabel: 'View tips',
+    };
+  } catch { return neutralCard('Tip Analytics', faHandHoldingDollar, 'text-emerald-600', REPORTS_TIP_ANALYTICS); }
+}
+
+async function fetchRevPASHSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT revpash, benchmark_grade, total_seats
+       FROM revpash_analysis WHERE expires_at > time::now()
+       ORDER BY generated_at DESC LIMIT 1`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const r = list[0];
+    if (!r) return neutralCard('RevPASH', faGaugeHigh, 'text-violet-600', REPORTS_REVPASH);
+    return {
+      title: 'RevPASH',
+      icon: faGaugeHigh, color: 'text-violet-600',
+      primary: `$${r.revpash ?? 0}/hr`,
+      secondary: `Grade ${r.benchmark_grade ?? 'C'} · ${r.total_seats ?? 0} seats`,
+      health: (r.revpash ?? 0) > 10 ? 'good' : (r.revpash ?? 0) > 5 ? 'watch' : 'warning',
+      link: REPORTS_REVPASH, linkLabel: 'View RevPASH',
+    };
+  } catch { return neutralCard('RevPASH', faGaugeHigh, 'text-violet-600', REPORTS_REVPASH); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
