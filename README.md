@@ -184,8 +184,8 @@ Copied `.env` files include **local-dev** Surreal and JWT values. Change `SURREA
 ## Security Hardening Stack + Feature Enhancements
 
 This fork includes a comprehensive security hardening stack + competitor-driven feature
-enhancements (**68 commits, 327 tests, 0 regressions**) that raises the security grade
-from **B− (65%) → A++ (97%)** and adds **27 new features** worth **$1,550+/mo** (Toast equivalent).
+enhancements (**69 commits, 327 tests, 0 regressions**) that raises the security grade
+from **B− (65%) → A++ (97%)** and adds **28 new features** worth **$1,600+/mo** (Toast equivalent).
 
 ### Security (47 commits)
 
@@ -199,7 +199,7 @@ from **B− (65%) → A++ (97%)** and adds **27 new features** worth **$1,550+/m
 | **Business-logic tests** (4 commits) | Payment drivers (33 tests × 6 gateways), fiscal serialization (66 tests FBR/PRA), sync-manager (49 tests), print helpers (36 tests) — 184 tests total |
 | **Remaining audit fixes** (1 commit) | sync `/stats` auth, tracking `payload.id` validation, printing debug leftover, rate limiting on `/auth/session` + `/auth/db-token` |
 
-### Features (21 commits, 27 new features)
+### Features (22 commits, 28 new features)
 
 | Feature | What it does | Toast equivalent |
 |---|---|---|
@@ -221,6 +221,7 @@ from **B− (65%) → A++ (97%)** and adds **27 new features** worth **$1,550+/m
 | **AI customer sentiment** | Post-order review collection + AI sentiment/emotion/themes analysis + NPS scoring + suggested responses for negative reviews | $50/mo (Square Customer Insights) |
 | **AI waste tracking** | Waste pattern detection (item/time/day/staff/reason) + severity scoring + AI recommendations + projected savings + benchmark vs industry | $40/mo (Toast Waste Management) |
 | **AI staff scheduling** | Demand-driven shift generation + cost-optimized greedy assignment + overtime avoidance + AI refinement + projected savings vs naive uniform staffing | $60/mo (Lightspeed Team Schedule) |
+| **AI cash flow forecasting** | 30-day cash position projection — revenue + payroll + payables + recurring expenses + AI insights + runway calculation + health status | $50/mo (Lightspeed Financial Insights) |
 | **UX improvements** | Offline banner (3-state), font size adjuster, quick reorder bar, upsell prompts, structured reason codes | Various |
 
 ### Competitive value comparison
@@ -231,9 +232,10 @@ Toast monthly cost:    $69 (POS) + $185 (loyalty+marketing) + $15 (PWA) + $150 (
                        + $45 (tableside, 5 employees) + $69 (KDS, 1 station)
                        + $50 (smart reorder) + $100 (menu intelligence)
                        + $50 (customer insights) + $40 (waste management)
-                       + $60 (team scheduling) = $1,417+/mo
+                       + $60 (team scheduling) + $50 (cash flow forecasting)
+                       = $1,467+/mo
 POSR monthly cost:     $0
-Total savings:         $1,417+/mo → $17,004+/year
+Total savings:         $1,467+/mo → $17,604+/year
 ```
 
 ### Security grade progression

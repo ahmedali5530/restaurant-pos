@@ -105,6 +105,7 @@ export const REPORTS_MENU_OPTIMIZATION = REPORTS + '/menu-optimization';
 export const REPORTS_SENTIMENT = REPORTS + '/sentiment';
 export const REPORTS_WASTE_INTELLIGENCE = REPORTS + '/waste-intelligence';
 export const REPORTS_SCHEDULING_OPTIMIZATION = REPORTS + '/scheduling-optimization';
+export const REPORTS_CASH_FLOW = REPORTS + '/cash-flow';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';

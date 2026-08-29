@@ -210,3 +210,7 @@ export const WasteIntelligenceScreen = lazy(() =>
 export const SchedulingOptimizationScreen = lazy(() =>
   import('@/screens/reports/scheduling.optimization.report.tsx').then(m => ({default: m.SchedulingOptimizationScreen}))
 );
+
+export const CashFlowReportScreen = lazy(() =>
+  import('@/screens/reports/cash.flow.report.tsx').then(m => ({default: m.CashFlowReportScreen}))
+);
