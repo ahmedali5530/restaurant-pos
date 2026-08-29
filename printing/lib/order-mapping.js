@@ -457,7 +457,7 @@ function getOrderPriority(order) {
 }
 
 /**
- * Detail label for a discount line: "Summer Sale (10%)" or "Summer Sale".
+ * Detail label for a discount line: "10% Summer Sale" or "50 Summer Sale".
  * @param {string|null|undefined} name
  * @param {string|null|undefined} valueType
  * @param {number|null|undefined} rate
@@ -467,14 +467,17 @@ function formatDiscountDetail(name, valueType, rate) {
   const base = name || '';
   const n = Number(rate || 0);
   const isPercent = valueType === 'percent' || (!valueType && n > 0);
+  if (valueType === 'fixed_amount' && n > 0) {
+    return base ? n + ' ' + base : String(n);
+  }
   if (isPercent && n > 0) {
-    return base ? base + ' (' + n + '%)' : n + '%';
+    return base ? n + '% ' + base : n + '%';
   }
   return base;
 }
 
 /**
- * Single-discount header: "Discount (Summer Sale 10%)" — matches tax style.
+ * Single-discount header: "Discount (10% Summer Sale)" — value before name.
  * @param {string|null|undefined} name
  * @param {string|null|undefined} valueType
  * @param {number|null|undefined} rate
@@ -485,8 +488,11 @@ function formatDiscountMinimal(name, valueType, rate, fallback) {
   const label = fallback || 'Discount';
   const n = Number(rate || 0);
   const isPercent = valueType === 'percent' || (!valueType && n > 0);
+  if (name && valueType === 'fixed_amount' && n > 0) {
+    return label + ' (' + n + ' ' + name + ')';
+  }
   if (name && isPercent && n > 0) {
-    return label + ' (' + name + ' ' + n + '%)';
+    return label + ' (' + n + '% ' + name + ')';
   }
   if (name) {
     return label + ' (' + name + ')';
@@ -510,7 +516,7 @@ function mapOrderToBill(order, opts) {
   const pay = getOrderPaymentSummary(order, total);
   const items = getOrderItems(order, showInclusivePrices);
   const tipLabel = order && order.tip_type === 'Percent' ? 'Tip %' : 'Tip';
-  const discountLines = (order.order_discounts || [])
+  let discountLines = (order.order_discounts || [])
     .filter((od) => od && !od.removed_at)
     .map((od) => ({
       name: formatDiscountDetail(od.name, od.value_type, od.applied_rate),
@@ -521,6 +527,20 @@ function mapOrderToBill(order, opts) {
     }));
   const discountName = order && order.discount && order.discount.name ? order.discount.name : null;
   const discountRate = order && order.discount_rate != null ? Number(order.discount_rate) : 0;
+  const discountValueType = order && order.discount && order.discount.value_type
+    ? order.discount.value_type
+    : (discountRate > 0 ? 'percent' : null);
+
+  if (discountLines.length === 0 && tot.discountAmount > 0) {
+    discountLines = [{
+      name: formatDiscountDetail(discountName, discountValueType, discountRate),
+      rawName: discountName || '',
+      valueType: discountValueType,
+      rate: discountRate,
+      amount: tot.discountAmount,
+    }];
+  }
+
   return {
     orderId: getOrderId(order),
     table: getOrderTable(order),
@@ -530,10 +550,10 @@ function mapOrderToBill(order, opts) {
     items,
     itemsCount: items.length,
     itemsTotal: tot.itemsTotal,
-    discount: !!order.discount || discountLines.length > 0,
+    discount: discountLines.length > 0 || tot.discountAmount > 0,
     discountAmount: tot.discountAmount,
     discountLines,
-    discountLabel: formatDiscountMinimal(discountName, null, discountRate),
+    discountLabel: formatDiscountMinimal(discountName, discountValueType, discountRate),
     tax: tot.tax,
     taxLabel: getOrderTaxLabel(order),
     serviceChargeLabel: getOrderServiceChargeLabel(order),

@@ -36,6 +36,7 @@ import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
 import {useIntegrationManager} from "@/providers/integration.provider.tsx";
 import { hasTempPrint, requestBillPrint } from "@/lib/order-print.ts";
+import { fetchOrderFull } from "@/lib/order-fetch.ts";
 import {
   fiscalShouldBlockBeforePaid,
   loadOrderForFiscal,
@@ -623,10 +624,16 @@ const OrderPaymentReceivingContent = ({
                       description: 'Print temp bill',
                       payload: { order: order.id.toString() },
                       userId: page?.user?.id?.toString?.() ?? page?.user?.id,
-                      doPrint: () => dispatchPrint(db, PRINT_TYPE.presale_bill, {
-                        order,
-                        taxes: allTaxes?.data
-                      }, {userId: page?.user?.id}),
+                      doPrint: async () => {
+                        const full = await fetchOrderFull(db, order.id);
+                        if (!full) {
+                          throw new Error('Failed to load order for temp bill print');
+                        }
+                        await dispatchPrint(db, PRINT_TYPE.presale_bill, {
+                          order: full,
+                          taxes: allTaxes?.data
+                        }, {userId: page?.user?.id});
+                      },
                       onPrinted: () => setTempPrinted(true),
                     });
                   }}

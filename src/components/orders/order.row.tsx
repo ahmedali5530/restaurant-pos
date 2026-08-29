@@ -20,7 +20,7 @@ export const OrderRow = ({
 }: Props) => {
   const {t} = useTranslation('orders');
   const db = useDB();
-  const {rootRef, displayOrder: order, cardReady, isHydrating} = useOrderCardHydrate(snapshot);
+  const {rootRef, displayOrder: order, cardReady, isHydrating, retryHydrate} = useOrderCardHydrate(snapshot);
   const itemsTotal = cardReady ? calculateOrderTotal(order) : 0;
   const [paymentOrder, setPaymentOrder] = useState<OrderModel | null>(null);
   const [isLoadingFull, setIsLoadingFull] = useState(false);
@@ -134,6 +134,7 @@ export const OrderRow = ({
       {paymentOrder && (
         <OrderPayment order={paymentOrder} onClose={() => {
           setPaymentOrder(null);
+          void retryHydrate();
         }}/>
       )}
     </>

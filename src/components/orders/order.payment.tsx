@@ -73,10 +73,6 @@ export const OrderPayment = ({
 
   const [page] = useAtom(appPage);
 
-  const closeModal = () => {
-    onClose();
-  }
-
   const itemsTotal = calculateOrderTotal(order);
   const [paymentTypes, setPaymentTypes] = useState<OrderPaymentModal[]>([]);
 
@@ -745,6 +741,35 @@ export const OrderPayment = ({
 
     void run();
   }, [saveOrderProgress, isInitialized]);
+
+  const flushOrderProgress = async () => {
+    if (!isInitialized) {
+      return;
+    }
+
+    while (saveInFlightRef.current || savePendingRef.current) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+
+    saveInFlightRef.current = true;
+    try {
+      do {
+        savePendingRef.current = false;
+        await saveOrderProgressRef.current();
+      } while (savePendingRef.current);
+    } finally {
+      saveInFlightRef.current = false;
+    }
+  };
+
+  const closeModal = async () => {
+    try {
+      await flushOrderProgress();
+    } catch (error) {
+      console.error('Failed to flush order progress on close', error);
+    }
+    onClose();
+  };
 
   const [pageState] = useAtom(appPage);
   const {

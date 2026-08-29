@@ -107,24 +107,30 @@ export const OrderTotals = ({order, cart, className}: Props) => {
       ?.reduce((prev, item) => Number(prev) + Number(item.payable ?? 0) - Number(item.amount ?? 0), 0)
   }, [order?.payments]);
 
-  /** Detail label for a discount line: "Summer Sale (10%)" or "Summer Sale" */
+  /** Detail label for a discount line: "10% Summer Sale" or "50 Summer Sale" */
   const formatDiscountDetail = (name: string | undefined | null, valueType?: string | null, rate?: number | null) => {
     const base = name || '';
     const n = Number(rate ?? 0);
     const isPercent = valueType === 'percent' || (!valueType && n > 0);
+    if (valueType === 'fixed_amount' && n > 0) {
+      return base ? `${n} ${base}` : `${n}`;
+    }
     if (isPercent && n > 0) {
-      return base ? `${base} (${n}%)` : `${n}%`;
+      return base ? `${n}% ${base}` : `${n}%`;
     }
     return base;
   };
 
-  /** Single-discount header: "Discount (Summer Sale 10%)" — matches tax style */
+  /** Single-discount header: "Discount (10% Summer Sale)" — value before name */
   const formatDiscountMinimal = (name: string | undefined | null, valueType?: string | null, rate?: number | null) => {
     const label = t('totals.discount');
     const n = Number(rate ?? 0);
     const isPercent = valueType === 'percent' || (!valueType && n > 0);
+    if (name && valueType === 'fixed_amount' && n > 0) {
+      return `${label} (${n} ${name})`;
+    }
     if (name && isPercent && n > 0) {
-      return `${label} (${name} ${n}%)`;
+      return `${label} (${n}% ${name})`;
     }
     if (name) {
       return `${label} (${name})`;
@@ -188,7 +194,7 @@ export const OrderTotals = ({order, cart, className}: Props) => {
         </>
       ) : showLegacyDiscount ? (
         <div className="flex">
-          <div className="flex-1">{formatDiscountMinimal(order?.discount?.name, null, order?.discount_rate)}</div>
+          <div className="flex-1">{formatDiscountMinimal(order?.discount?.name, order?.discount?.value_type, order?.discount_rate)}</div>
           <div className="text-right">{withCurrency(preview.discountAmount)}</div>
         </div>
       ) : null}

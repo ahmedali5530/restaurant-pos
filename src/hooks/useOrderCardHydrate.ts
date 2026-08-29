@@ -23,8 +23,9 @@ export function useOrderCardHydrate(snapshot: Order) {
     inFlightKeyRef.current = null;
   }, [snapshotKey]);
 
-  const hydrate = useCallback(async () => {
-    if (inFlightKeyRef.current === snapshotKey) {
+  const hydrate = useCallback(async (options?: { force?: boolean }) => {
+    const force = options?.force === true;
+    if (!force && inFlightKeyRef.current === snapshotKey) {
       return;
     }
     inFlightKeyRef.current = snapshotKey;
@@ -84,6 +85,6 @@ export function useOrderCardHydrate(snapshot: Order) {
     cardReady: cardOrder != null,
     isHydrating,
     hydrateError,
-    retryHydrate: hydrate,
+    retryHydrate: () => hydrate({ force: true }),
   };
 }

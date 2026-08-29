@@ -18,7 +18,7 @@ const {
 } = require('./receipt-helpers');
 
 /**
- * Single-discount header: "Discount (Summer Sale 10%)".
+ * Single-discount header: "Discount (10% Summer Sale)" — value before name.
  * @param {string|null|undefined} name
  * @param {string|null|undefined} valueType
  * @param {number|null|undefined} rate
@@ -29,8 +29,11 @@ function formatDiscountMinimalPrint(name, valueType, rate, fallback) {
   const label = fallback || 'Discount';
   const n = Number(rate || 0);
   const isPercent = valueType === 'percent' || (!valueType && n > 0);
+  if (name && valueType === 'fixed_amount' && n > 0) {
+    return label + ' (' + n + ' ' + name + ')';
+  }
   if (name && isPercent && n > 0) {
-    return label + ' (' + name + ' ' + n + '%)';
+    return label + ' (' + n + '% ' + name + ')';
   }
   if (name) {
     return label + ' (' + name + ')';
@@ -129,8 +132,8 @@ function printBillLayout(printer, bill, config, opts) {
     bill.discountLines.forEach((d) => {
       printLineLeftRight(printer, '  ' + (d.name || discountLabel), '-' + formatMoney(d.amount, sym));
     });
-  } else if (bill.discount && bill.discountAmount != null && Number(bill.discountAmount) !== 0) {
-    printLineLeftRight(printer, bill.discountLabel || discountLabel, formatMoney(bill.discountAmount, sym));
+  } else if (bill.discountAmount != null && Number(bill.discountAmount) !== 0) {
+    printLineLeftRight(printer, bill.discountLabel || discountLabel, '-' + formatMoney(bill.discountAmount, sym));
   }
   if (bill.serviceChargeLabel && bill.serviceChargeAmount != null && Number(bill.serviceChargeAmount) !== 0) {
     printLineLeftRight(printer, bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym));
