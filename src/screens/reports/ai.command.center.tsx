@@ -45,7 +45,7 @@ import {
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
   faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
-  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner,
+  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -68,6 +68,7 @@ import {
   REPORTS_STAFF_TURNOVER,
   REPORTS_YIELD_VARIANCE,
   REPORTS_KITCHEN_BOTTLENECK,
+  REPORTS_WIN_BACK,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -114,7 +115,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -149,6 +150,7 @@ export function AiCommandCenterScreen() {
         fetchStaffTurnoverSummary(db),
         fetchYieldSummary(db),
         fetchKitchenSummary(db),
+        fetchWinBackSummary(db),
       ]);
 
       setMetrics([
@@ -159,7 +161,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -1094,6 +1096,30 @@ async function fetchKitchenSummary(db: any): Promise<MetricCard> {
       link: REPORTS_KITCHEN_BOTTLENECK, linkLabel: 'View alerts',
     };
   } catch { return neutralCard('Kitchen Bottleneck', faFireBurner, 'text-rose-600', REPORTS_KITCHEN_BOTTLENECK); }
+}
+
+async function fetchWinBackSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total,
+         math::count(winback_level IN ['critical', 'high']) AS winnable,
+         math::sum(est_clv_recovered) AS recoverable
+       FROM winback_prediction
+       WHERE winback_score >= 35 AND action_taken = 'none'
+       GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const w = list[0];
+    if (!w || w.count === 0) return neutralCard('Customer Win-Back', faHeartCrack, 'text-rose-600', REPORTS_WIN_BACK);
+    return {
+      title: 'Customer Win-Back',
+      icon: faHeartCrack, color: 'text-rose-600',
+      primary: `${w.winnable} winnable`,
+      secondary: `${w.count} churned · ${withCurrency(w.recoverable)} CLV`,
+      health: w.winnable > 0 ? 'warning' : 'good',
+      link: REPORTS_WIN_BACK, linkLabel: 'View candidates',
+    };
+  } catch { return neutralCard('Customer Win-Back', faHeartCrack, 'text-rose-600', REPORTS_WIN_BACK); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {

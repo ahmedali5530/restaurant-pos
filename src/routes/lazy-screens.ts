@@ -342,3 +342,7 @@ export const YieldVarianceScreen = lazy(() =>
 export const KitchenBottleneckScreen = lazy(() =>
   import('@/screens/reports/kitchen.bottleneck.report.tsx').then(m => ({default: m.KitchenBottleneckScreen}))
 );
+
+export const WinBackScreen = lazy(() =>
+  import('@/screens/reports/winback.report.tsx').then(m => ({default: m.WinBackScreen}))
+);
