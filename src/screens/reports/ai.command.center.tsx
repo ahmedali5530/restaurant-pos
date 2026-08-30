@@ -83,6 +83,7 @@ import {
   REPORTS_SEATING_OPTIMIZATION,
   REPORTS_SATISFACTION_PREDICTION,
   REPORTS_ABANDONED_CART,
+  REPORTS_BRANCH_COMPARISON,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -129,7 +130,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -179,6 +180,7 @@ export function AiCommandCenterScreen() {
         fetchSeatingSummary(db),
         fetchSatisfactionSummary(db),
         fetchAbandonedSummary(db),
+        fetchBranchCompSummary(db),
       ]);
 
       setMetrics([
@@ -189,7 +191,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -1492,6 +1494,30 @@ async function fetchAbandonedSummary(db: any): Promise<MetricCard> {
       link: REPORTS_ABANDONED_CART, linkLabel: 'View carts',
     };
   } catch { return neutralCard('Abandoned Cart', faCartShopping, 'text-amber-600', REPORTS_ABANDONED_CART); }
+}
+
+async function fetchBranchCompSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total,
+         math::max(overall_score) AS top_score,
+         math::min(overall_score) AS low_score
+       FROM branch_comparison
+       WHERE analyzed_at > time::now() - 24h
+       GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const b = list[0];
+    if (!b || b.count === 0) return neutralCard('Branch Comparison', faStore, 'text-blue-600', REPORTS_BRANCH_COMPARISON);
+    return {
+      title: 'Branch Comparison',
+      icon: faStore, color: 'text-blue-600',
+      primary: `${b.total} branches`,
+      secondary: `top ${b.top_score} · low ${b.low_score}`,
+      health: b.low_score < 40 ? 'warning' : 'good',
+      link: REPORTS_BRANCH_COMPARISON, linkLabel: 'View comparison',
+    };
+  } catch { return neutralCard('Branch Comparison', faStore, 'text-blue-600', REPORTS_BRANCH_COMPARISON); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
