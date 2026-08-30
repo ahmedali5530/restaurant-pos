@@ -310,3 +310,7 @@ export const GuestPreferenceScreen = lazy(() =>
 export const ShrinkageScreen = lazy(() =>
   import('@/screens/reports/shrinkage.report.tsx').then(m => ({default: m.ShrinkageScreen}))
 );
+
+export const RevenueForecastScreen = lazy(() =>
+  import('@/screens/reports/revenue.forecast.report.tsx').then(m => ({default: m.RevenueForecastScreen}))
+);
