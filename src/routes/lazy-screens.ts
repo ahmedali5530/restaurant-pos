@@ -350,3 +350,7 @@ export const WinBackScreen = lazy(() =>
 export const ChargebackRiskScreen = lazy(() =>
   import('@/screens/reports/chargeback.risk.report.tsx').then(m => ({default: m.ChargebackRiskScreen}))
 );
+
+export const PriceElasticityScreen = lazy(() =>
+  import('@/screens/reports/price.elasticity.report.tsx').then(m => ({default: m.PriceElasticityScreen}))
+);

@@ -70,6 +70,7 @@ import {
   REPORTS_KITCHEN_BOTTLENECK,
   REPORTS_WIN_BACK,
   REPORTS_CHARGEBACK_RISK,
+  REPORTS_PRICE_ELASTICITY,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -116,7 +117,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -153,6 +154,7 @@ export function AiCommandCenterScreen() {
         fetchKitchenSummary(db),
         fetchWinBackSummary(db),
         fetchChargebackSummary(db),
+        fetchElasticitySummary(db),
       ]);
 
       setMetrics([
@@ -163,7 +165,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -1147,6 +1149,30 @@ async function fetchChargebackSummary(db: any): Promise<MetricCard> {
       link: REPORTS_CHARGEBACK_RISK, linkLabel: 'View alerts',
     };
   } catch { return neutralCard('Chargeback Risk', faCreditCard, 'text-rose-600', REPORTS_CHARGEBACK_RISK); }
+}
+
+async function fetchElasticitySummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total,
+         math::count(recommended_action != 'keep_price') AS actionable,
+         math::sum(est_weekly_revenue_change) AS weekly_impact
+       FROM price_elasticity_result
+       WHERE action_taken = 'none'
+       GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const e = list[0];
+    if (!e || e.count === 0) return neutralCard('Price Elasticity', faChartLine, 'text-emerald-600', REPORTS_PRICE_ELASTICITY);
+    return {
+      title: 'Price Elasticity',
+      icon: faChartLine, color: 'text-emerald-600',
+      primary: `${e.actionable} actionable`,
+      secondary: `${e.count} items · ${withCurrency(e.weekly_impact)}/wk`,
+      health: e.actionable > 0 ? 'warning' : 'good',
+      link: REPORTS_PRICE_ELASTICITY, linkLabel: 'View analysis',
+    };
+  } catch { return neutralCard('Price Elasticity', faChartLine, 'text-emerald-600', REPORTS_PRICE_ELASTICITY); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
