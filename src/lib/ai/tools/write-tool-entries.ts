@@ -513,10 +513,17 @@ const tipDistributionFields: WriteFieldSpec[] = [
 const smartMenuFields: WriteFieldSpec[] = [
   {name: "record_type", type: "string", requiredOnCreate: true},
   {name: "name", type: "string"},
-  {name: "group_name", type: "string"},
-  {name: "category", type: "string"},
-  {name: "price", type: "number"},
   {name: "number", type: "string"},
+  {name: "category", type: "string"},
+  {name: "group_name", type: "string"},
+  {name: "modifier", type: "string", description: "Size or addon dish name"},
+  {name: "price", type: "number"},
+  {name: "dish_name", type: "string"},
+  {name: "parent_modifier", type: "string"},
+  {name: "next_group", type: "string"},
+  {name: "has_required_modifiers", type: "boolean"},
+  {name: "required_modifiers", type: "number"},
+  {name: "should_auto_open", type: "boolean"},
 ];
 
 export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [

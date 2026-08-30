@@ -190,7 +190,11 @@ export async function validateRecords(
         return true;
       });
     }
-    await resolveReferences(config, records, {signal: options?.signal});
+    if (config.onResolveReferences) {
+      await config.onResolveReferences(config, records, {signal: options?.signal});
+    } else {
+      await resolveReferences(config, records, {signal: options?.signal});
+    }
   }
 
   for (const record of records) {

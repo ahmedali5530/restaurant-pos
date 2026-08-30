@@ -9,6 +9,7 @@ import type {
   ResolvedReference,
 } from "@/lib/data-import/types.ts";
 import {requireRefId, type TFunc} from "@/lib/data-import/helpers.ts";
+import {resolveReferences} from "@/lib/data-import/resolve-refs.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {fetchNextSequentialNumber} from "@/utils/recordNumbers.ts";
@@ -293,22 +294,160 @@ async function findGroupByName(db: ImportDbLike, name: string): Promise<any | nu
   return rows?.[0] ?? null;
 }
 
-function modifierForDish(group: any, dishId: string): any | undefined {
-  const target = recordIdToString(dishId) || dishId;
-  return (group?.modifiers ?? []).find((item: any) => {
-    const nested = item?.modifier;
-    const nestedId = nested?.id ?? nested;
-    return (recordIdToString(nestedId) || String(nestedId ?? "")) === target;
-  });
-}
-
 function modifierOptionName(modifierRow: any): string {
   const dish = modifierRow?.modifier;
   return String(dish?.name ?? "").trim();
 }
 
-function modifierIds(group: any): any[] {
-  return (group?.modifiers ?? []).map((item: any) => toRecordId(item.id ?? item));
+type GroupBatchState = {
+  id: string;
+  name: string;
+  /** option dish id -> modifier row id */
+  modifierByDishId: Map<string, string>;
+  /** normalized option name -> modifier row id */
+  modifierByOptionName: Map<string, string>;
+};
+
+async function loadModifierOptionDishes(
+  db: ImportDbLike
+): Promise<Array<{id: string; name: string}>> {
+  const [rows] = await db.query(
+    `SELECT id, name FROM ${Tables.dishes}
+     WHERE deleted_at = none
+       AND id IN (SELECT VALUE modifier FROM ${Tables.modifiers} WHERE modifier != NONE)
+     ORDER BY name ASC`
+  );
+  const seen = new Set<string>();
+  const out: Array<{id: string; name: string}> = [];
+  for (const row of rows ?? []) {
+    const id = recordIdToString(row?.id) || String(row?.id ?? "");
+    const name = String(row?.name ?? "").trim();
+    if (!id || !name || seen.has(id)) continue;
+    seen.add(id);
+    out.push({id, name});
+  }
+  return out;
+}
+
+async function findModifierOptionDishByName(
+  db: ImportDbLike,
+  name: string
+): Promise<string | null> {
+  const key = normKey(name);
+  if (!key) return null;
+  const options = await loadModifierOptionDishes(db);
+  const hits = options.filter((o) => normKey(o.name) === key);
+  if (hits.length === 1) return hits[0].id;
+  return null;
+}
+
+async function allocateUniqueDishNumber(
+  db: ImportDbLike,
+  ensureNumber: (current: any) => Promise<string>,
+  preferred?: string | null
+): Promise<string> {
+  let number =
+    preferred !== null && preferred !== undefined && String(preferred).trim()
+      ? String(preferred).trim()
+      : await ensureNumber(null);
+  for (let attempt = 0; attempt < 500; attempt++) {
+    const [rows] = await db.query(
+      `SELECT id FROM ${Tables.dishes} WHERE number = $number AND deleted_at = none LIMIT 1`,
+      {number}
+    );
+    if (!rows?.[0]?.id) return number;
+    number = await ensureNumber(null);
+  }
+  throw new Error("Could not allocate a unique dish number");
+}
+
+async function appendModifierToGroup(
+  db: ImportDbLike,
+  groupId: string,
+  modifierId: string
+): Promise<void> {
+  const groupRec = toRecordId(groupId);
+  const modifierRec = toRecordId(modifierId);
+  await db.query(`UPDATE $group SET modifiers += $modifier`, {
+    group: groupRec,
+    modifier: modifierRec,
+  });
+}
+
+async function resolveSmartMenuReferences(
+  config: ImportConfiguration,
+  records: ImportRecord[],
+  options?: {signal?: AbortSignal}
+): Promise<void> {
+  const db = config.db;
+  if (!db) return;
+
+  const modifierField = config.fields.find((f) => f.name === "modifier");
+  const savedModifierLookup = modifierField?.lookup;
+  if (modifierField) {
+    delete (modifierField as {lookup?: ImportField["lookup"]}).lookup;
+  }
+
+  await resolveReferences(config, records, options);
+
+  if (modifierField && savedModifierLookup) {
+    modifierField.lookup = savedModifierLookup;
+  }
+
+  const modifierOptions = await loadModifierOptionDishes(db);
+  const dropdownCandidates = modifierOptions.map((c) => ({
+    label: c.name,
+    value: c.id,
+  }));
+
+  for (const record of records) {
+    const type = String(record.values.record_type ?? "").trim();
+    if (type !== "size_option" && type !== "addon_option") continue;
+
+    const ref = record.values.modifier as ResolvedReference | null;
+    if (!ref?.label) {
+      record.values.modifier = null;
+      continue;
+    }
+
+    // User explicitly picked an existing dish in review.
+    if (ref.id && ref.create !== true) continue;
+
+    const label = ref.label.trim();
+    const key = normKey(label);
+    const hits = modifierOptions.filter((o) => normKey(o.name) === key);
+
+    if (hits.length === 1) {
+      record.values.modifier = {label: hits[0].name, id: hits[0].id, create: false};
+      continue;
+    }
+
+    if (hits.length > 1) {
+      record.values.modifier = {
+        label,
+        candidates: hits.map((h) => ({label: h.name, value: h.id})),
+      };
+      record.issues.push({
+        field: "modifier",
+        code: "ambiguous_reference",
+        severity: "error",
+        message: `Multiple modifier-option dishes match "${label}"`,
+      });
+      continue;
+    }
+
+    record.values.modifier = {
+      label,
+      create: true,
+      candidates: dropdownCandidates,
+    };
+    record.issues.push({
+      field: "modifier",
+      code: "unresolved_reference",
+      severity: "warning",
+      message: `"${label}" will be created`,
+    });
+  }
 }
 
 function groupConflictsWithPrices(
@@ -619,6 +758,7 @@ export function createSmartMenuImportConfig({
       ].join("\n");
     },
     onExpandExtracted: expandSmartMenuGraph,
+    onResolveReferences: resolveSmartMenuReferences,
     onCreateMissingReference: async (field, label, createDb) => {
       if (field.name === "category") {
         const created = await createDb.create?.(Tables.categories, {
@@ -668,33 +808,17 @@ async function importSmartMenuBatch({
   ensureNumber: (current: any) => Promise<string>;
 }): Promise<ImportBatchResult> {
   const result: ImportBatchResult = {imported: 0, failed: []};
+  /** Batch-created parent pizzas only — never prefilled from catalog by name. */
   const dishIdByName = new Map<string, string>();
-  const groupIdByName = new Map<string, string>();
-  /** groupName -> sizeName -> modifier record id */
-  const sizeModifierByGroup = new Map<string, Map<string, string>>();
-  /** addon groupName -> nested modifier id (the Extra Topping option) */
-  const addonModifierByGroup = new Map<string, string>();
+  /** Batch-created option dishes (Small, Extra Topping, …). */
+  const optionDishIdByName = new Map<string, string>();
+  const groupStateByName = new Map<string, GroupBatchState>();
 
   const fail = (index: number, message: string) => {
     result.failed.push({index, message});
   };
 
   await remapSizeGroupsForPriceSafety(db, records);
-
-  // Prefill dish map from DB for link resolution
-  const dishNames = records
-    .map((r) => String(r.values.dish_name ?? r.values.name ?? "").trim())
-    .filter(Boolean);
-  for (const name of [...new Set(dishNames)]) {
-    const [rows] = await db.query(
-      `SELECT id, name FROM ${Tables.dishes}
-       WHERE string::lowercase(name) = string::lowercase($name) AND deleted_at = none LIMIT 1`,
-      {name}
-    );
-    if (rows?.[0]?.id) {
-      dishIdByName.set(normKey(name), String(rows[0].id));
-    }
-  }
 
   for (let i = 0; i < records.length; i++) {
     throwIfAbortedSafe(ctx.signal);
@@ -716,9 +840,9 @@ async function importSmartMenuBatch({
           t,
           v,
           kind: "size",
-          groupIdByName,
-          sizeModifierByGroup,
-          addonModifierByGroup,
+          ensureNumber,
+          optionDishIdByName,
+          groupStateByName,
         });
         result.imported += 1;
         continue;
@@ -729,15 +853,15 @@ async function importSmartMenuBatch({
           t,
           v,
           kind: "addon",
-          groupIdByName,
-          sizeModifierByGroup,
-          addonModifierByGroup,
+          ensureNumber,
+          optionDishIdByName,
+          groupStateByName,
         });
         result.imported += 1;
         continue;
       }
       if (type === "dish_link") {
-        await importDishLinkRow({db, t, v, dishIdByName, groupIdByName});
+        await importDishLinkRow({db, t, v, dishIdByName, groupStateByName});
         result.imported += 1;
         continue;
       }
@@ -746,9 +870,7 @@ async function importSmartMenuBatch({
           db,
           t,
           v,
-          groupIdByName,
-          sizeModifierByGroup,
-          addonModifierByGroup,
+          groupStateByName,
         });
         result.imported += 1;
         continue;
@@ -784,23 +906,14 @@ async function importDishRow({
   const name = String(v.name ?? v.dish_name ?? "").trim();
   if (!name) throw new Error(t("validation:required"));
 
-  const existingId = dishIdByName.get(normKey(name));
-  if (existingId) return;
+  const batchId = dishIdByName.get(normKey(name));
+  if (batchId) return;
 
-  const number = await ensureNumber(v.number);
+  const number = await allocateUniqueDishNumber(db, ensureNumber, v.number);
   const categoryRef = v.category as ResolvedReference | null;
   const categories: any[] = [];
   if (categoryRef?.label) {
     categories.push(requireRefId(categoryRef, t("toast:admin.invalidCategories")));
-  }
-
-  const [byNumber] = await db.query(
-    `SELECT id FROM ${Tables.dishes} WHERE number = $number AND deleted_at = none LIMIT 1`,
-    {number}
-  );
-  if (byNumber?.[0]?.id) {
-    dishIdByName.set(normKey(name), String(byNumber[0].id));
-    return;
   }
 
   const created = await db.create?.(Tables.dishes, {
@@ -813,7 +926,121 @@ async function importDishRow({
   });
   const row = Array.isArray(created) ? created[0] : created;
   if (!row?.id) throw new Error(t("common:csvImport.recordNotFound"));
-  dishIdByName.set(normKey(name), String(row.id));
+  dishIdByName.set(normKey(name), recordIdToString(row.id) || String(row.id));
+}
+
+async function ensureOptionDishId({
+  db,
+  t,
+  ensureNumber,
+  modifierRef,
+  optionDishIdByName,
+}: {
+  db: ImportDbLike;
+  t: TFunc;
+  ensureNumber: (current: any) => Promise<string>;
+  modifierRef: ResolvedReference | null;
+  optionDishIdByName: Map<string, string>;
+}): Promise<{dishId: string; optionName: string}> {
+  const optionName = String(modifierRef?.label ?? "").trim();
+  if (!optionName) throw new Error(t("toast:admin.invalidDishNameOrNumber"));
+
+  if (modifierRef?.id && modifierRef.create !== true) {
+    return {dishId: recordIdToString(modifierRef.id) || String(modifierRef.id), optionName};
+  }
+
+  const batchId = optionDishIdByName.get(normKey(optionName));
+  if (batchId) return {dishId: batchId, optionName};
+
+  const sharedId = await findModifierOptionDishByName(db, optionName);
+  if (sharedId) {
+    optionDishIdByName.set(normKey(optionName), sharedId);
+    return {dishId: sharedId, optionName};
+  }
+
+  const number = await allocateUniqueDishNumber(db, ensureNumber, null);
+  const created = await db.create?.(Tables.dishes, {
+    name: optionName,
+    number,
+    price: 0,
+    cost: 0,
+    priority: 0,
+    categories: [],
+  });
+  const row = Array.isArray(created) ? created[0] : created;
+  if (!row?.id) throw new Error(t("common:csvImport.recordNotFound"));
+  const dishId = recordIdToString(row.id) || String(row.id);
+  optionDishIdByName.set(normKey(optionName), dishId);
+  return {dishId, optionName};
+}
+
+async function ensureGroupState({
+  db,
+  groupName,
+  kind,
+  groupStateByName,
+}: {
+  db: ImportDbLike;
+  groupName: string;
+  kind: "size" | "addon";
+  groupStateByName: Map<string, GroupBatchState>;
+}): Promise<GroupBatchState> {
+  const key = normKey(groupName);
+  const existing = groupStateByName.get(key);
+  if (existing) return existing;
+
+  const group = await findGroupByName(db, groupName);
+  if (group?.id) {
+    const state: GroupBatchState = {
+      id: recordIdToString(group.id) || String(group.id),
+      name: String(group.name ?? groupName),
+      modifierByDishId: new Map(),
+      modifierByOptionName: new Map(),
+    };
+    for (const item of asArray(group.modifiers)) {
+      const modifierId = recordIdToString(item?.id) || String(item?.id ?? "");
+      const dish = item?.modifier;
+      const dishId = recordIdToString(dish?.id ?? dish) || String(dish?.id ?? dish ?? "");
+      const optionName = modifierOptionName(item);
+      if (modifierId) {
+        if (dishId) state.modifierByDishId.set(dishId, modifierId);
+        if (optionName) state.modifierByOptionName.set(normKey(optionName), modifierId);
+      }
+    }
+    groupStateByName.set(key, state);
+    return state;
+  }
+
+  const createdGroup = await db.create?.(Tables.modifier_groups, {
+    name: groupName,
+    priority: kind === "size" ? 0 : 1,
+    modifiers: [],
+  });
+  const groupRow = Array.isArray(createdGroup) ? createdGroup[0] : createdGroup;
+  if (!groupRow?.id) throw new Error("Could not create modifier group");
+  const state: GroupBatchState = {
+    id: recordIdToString(groupRow.id) || String(groupRow.id),
+    name: groupName,
+    modifierByDishId: new Map(),
+    modifierByOptionName: new Map(),
+  };
+  groupStateByName.set(key, state);
+  return state;
+}
+
+async function forkGroupState({
+  db,
+  baseName,
+  groupStateByName,
+  kind,
+}: {
+  db: ImportDbLike;
+  baseName: string;
+  groupStateByName: Map<string, GroupBatchState>;
+  kind: "size" | "addon";
+}): Promise<GroupBatchState> {
+  const uniqueName = await allocateUniqueGroupName(db, baseName);
+  return ensureGroupState({db, groupName: uniqueName, kind, groupStateByName});
 }
 
 async function importGroupOptionRow({
@@ -821,90 +1048,75 @@ async function importGroupOptionRow({
   t,
   v,
   kind,
-  groupIdByName,
-  sizeModifierByGroup,
-  addonModifierByGroup,
+  ensureNumber,
+  optionDishIdByName,
+  groupStateByName,
 }: {
   db: ImportDbLike;
   t: TFunc;
   v: Record<string, any>;
   kind: "size" | "addon";
-  groupIdByName: Map<string, string>;
-  sizeModifierByGroup: Map<string, Map<string, string>>;
-  addonModifierByGroup: Map<string, string>;
+  ensureNumber: (current: any) => Promise<string>;
+  optionDishIdByName: Map<string, string>;
+  groupStateByName: Map<string, GroupBatchState>;
 }) {
-  const groupName = String(v.group_name ?? "").trim();
+  let groupName = String(v.group_name ?? "").trim();
   if (!groupName) throw new Error(t("validation:required"));
   const price = Number(v.price);
   if (!Number.isFinite(price)) throw new Error(t("validation:mustBeNumber"));
 
   const modifierRef = v.modifier as ResolvedReference | null;
-  const dishId = String(requireRefId(modifierRef, t("toast:admin.invalidDishNameOrNumber")));
-  const optionName = String(modifierRef?.label ?? v.name ?? "").trim();
+  const {dishId, optionName} = await ensureOptionDishId({
+    db,
+    t,
+    ensureNumber,
+    modifierRef,
+    optionDishIdByName,
+  });
+  const dishKey = recordIdToString(dishId) || dishId;
 
-  let group = await findGroupByName(db, groupName);
-  let groupId = group ? String(group.id) : groupIdByName.get(normKey(groupName));
+  let state = await ensureGroupState({db, groupName, kind, groupStateByName});
 
-  if (groupId && !group) {
-    group = await findGroupByName(db, groupName);
-  }
+  const existingModifierId =
+    state.modifierByDishId.get(dishKey) ??
+    state.modifierByOptionName.get(normKey(optionName));
 
-  const existingModifier = group ? modifierForDish(group, dishId) : undefined;
-  let modifierId: string;
-
-  if (existingModifier?.id) {
-    const existingPrice = Number(existingModifier.price);
-    // Never overwrite a different price on a reused group (safety net after remap).
-    if (!Number.isFinite(existingPrice) || pricesNearlyEqual(existingPrice, price)) {
+  if (existingModifierId) {
+    const [rows] = await db.query(
+      `SELECT id, price FROM ${Tables.modifiers} WHERE id = $id LIMIT 1`,
+      {id: toRecordId(existingModifierId)}
+    );
+    const existingPrice = Number(rows?.[0]?.price);
+    if (Number.isFinite(existingPrice) && !pricesNearlyEqual(existingPrice, price)) {
+      state = await forkGroupState({db, baseName: groupName, groupStateByName, kind});
+      groupName = state.name;
+      v.group_name = groupName;
+    } else {
       if (!Number.isFinite(existingPrice)) {
-        await db.merge?.(existingModifier.id, {
+        await db.merge?.(existingModifierId, {
           modifier: toRecordId(dishId),
           price,
         });
       }
-    }
-    modifierId = String(existingModifier.id);
-  } else {
-    const createdModifier = await db.create?.(Tables.modifiers, {
-      modifier: toRecordId(dishId),
-      price,
-      allowed_next_groups: [],
-      next_group_overrides: [],
-    });
-    const modifierRow = Array.isArray(createdModifier) ? createdModifier[0] : createdModifier;
-    if (!modifierRow?.id) throw new Error(t("common:csvImport.recordNotFound"));
-    modifierId = String(modifierRow.id);
-
-    if (group) {
-      await db.merge?.(group.id, {
-        name: groupName,
-        modifiers: [...modifierIds(group), toRecordId(modifierRow.id)],
-      });
-      groupId = String(group.id);
-    } else {
-      const createdGroup = await db.create?.(Tables.modifier_groups, {
-        name: groupName,
-        priority: kind === "size" ? 0 : 1,
-        modifiers: [toRecordId(modifierRow.id)],
-      });
-      const groupRow = Array.isArray(createdGroup) ? createdGroup[0] : createdGroup;
-      if (!groupRow?.id) throw new Error(t("common:csvImport.recordNotFound"));
-      groupId = String(groupRow.id);
+      state.modifierByDishId.set(dishKey, existingModifierId);
+      state.modifierByOptionName.set(normKey(optionName), existingModifierId);
+      return;
     }
   }
 
-  if (!groupId) throw new Error(t("toast:admin.invalidModifierGroup"));
-  groupIdByName.set(normKey(groupName), groupId);
+  const createdModifier = await db.create?.(Tables.modifiers, {
+    modifier: toRecordId(dishId),
+    price,
+    allowed_next_groups: [],
+    next_group_overrides: [],
+  });
+  const modifierRow = Array.isArray(createdModifier) ? createdModifier[0] : createdModifier;
+  if (!modifierRow?.id) throw new Error(t("common:csvImport.recordNotFound"));
+  const modifierId = recordIdToString(modifierRow.id) || String(modifierRow.id);
 
-  if (kind === "size" && optionName) {
-    if (!sizeModifierByGroup.has(normKey(groupName))) {
-      sizeModifierByGroup.set(normKey(groupName), new Map());
-    }
-    sizeModifierByGroup.get(normKey(groupName))!.set(normKey(optionName), modifierId);
-  }
-  if (kind === "addon") {
-    addonModifierByGroup.set(normKey(groupName), modifierId);
-  }
+  await appendModifierToGroup(db, state.id, modifierId);
+  state.modifierByDishId.set(dishKey, modifierId);
+  state.modifierByOptionName.set(normKey(optionName), modifierId);
 }
 
 async function importDishLinkRow({
@@ -912,37 +1124,35 @@ async function importDishLinkRow({
   t,
   v,
   dishIdByName,
-  groupIdByName,
+  groupStateByName,
 }: {
   db: ImportDbLike;
   t: TFunc;
   v: Record<string, any>;
   dishIdByName: Map<string, string>;
-  groupIdByName: Map<string, string>;
+  groupStateByName: Map<string, GroupBatchState>;
 }) {
   const dishName = String(v.dish_name ?? v.name ?? "").trim();
   const groupName = String(v.group_name ?? "").trim();
   if (!dishName || !groupName) throw new Error(t("validation:required"));
 
-  let dishId = dishIdByName.get(normKey(dishName));
+  const dishId = dishIdByName.get(normKey(dishName));
   if (!dishId) {
-    const [rows] = await db.query(
-      `SELECT id FROM ${Tables.dishes}
-       WHERE string::lowercase(name) = string::lowercase($name) AND deleted_at = none LIMIT 1`,
-      {name: dishName}
-    );
-    if (!rows?.[0]?.id) throw new Error(t("toast:admin.invalidDishNameOrNumber"));
-    dishId = String(rows[0].id);
-    dishIdByName.set(normKey(dishName), dishId);
+    throw new Error(t("toast:admin.invalidDishNameOrNumber"));
   }
 
-  let groupId = groupIdByName.get(normKey(groupName));
-  if (!groupId) {
+  let groupState = groupStateByName.get(normKey(groupName));
+  if (!groupState) {
     const group = await findGroupByName(db, groupName);
     if (!group?.id) throw new Error(t("toast:admin.invalidModifierGroup"));
-    groupId = String(group.id);
-    groupIdByName.set(normKey(groupName), groupId);
+    groupState = await ensureGroupState({
+      db,
+      groupName: String(group.name ?? groupName),
+      kind: "size",
+      groupStateByName,
+    });
   }
+  const groupId = groupState.id;
 
   const hasRequired =
     v.has_required_modifiers === true ||
@@ -996,16 +1206,12 @@ async function importNestedOverrideRow({
   db,
   t,
   v,
-  groupIdByName,
-  sizeModifierByGroup,
-  addonModifierByGroup,
+  groupStateByName,
 }: {
   db: ImportDbLike;
   t: TFunc;
   v: Record<string, any>;
-  groupIdByName: Map<string, string>;
-  sizeModifierByGroup: Map<string, Map<string, string>>;
-  addonModifierByGroup: Map<string, string>;
+  groupStateByName: Map<string, GroupBatchState>;
 }) {
   const parentGroupName = String(v.group_name ?? "").trim();
   const parentModifierName = String(v.parent_modifier ?? "").trim();
@@ -1017,46 +1223,31 @@ async function importNestedOverrideRow({
   }
   if (!Number.isFinite(price)) throw new Error(t("validation:mustBeNumber"));
 
-  let nextGroupId = groupIdByName.get(normKey(nextGroupName));
-  if (!nextGroupId) {
-    const g = await findGroupByName(db, nextGroupName);
-    if (!g?.id) throw new Error(t("toast:admin.invalidModifierGroup"));
-    nextGroupId = String(g.id);
-    groupIdByName.set(normKey(nextGroupName), nextGroupId);
+  const parentState = groupStateByName.get(normKey(parentGroupName));
+  if (!parentState) {
+    throw new Error(t("toast:admin.invalidModifierGroup"));
   }
 
-  let nestedModifierId = addonModifierByGroup.get(normKey(nextGroupName));
-  if (!nestedModifierId) {
-    const g = await findGroupByName(db, nextGroupName);
-    const match = (g?.modifiers ?? []).find((m: any) => {
-      const dish = m?.modifier;
-      const dishName = dish?.name ?? "";
-      return normKey(dishName) === normKey(nestedName);
+  let nextState = groupStateByName.get(normKey(nextGroupName));
+  if (!nextState) {
+    nextState = await ensureGroupState({
+      db,
+      groupName: nextGroupName,
+      kind: "addon",
+      groupStateByName,
     });
-    if (!match?.id) throw new Error(t("toast:admin.invalidDishNameOrNumber"));
-    nestedModifierId = String(match.id);
-    addonModifierByGroup.set(normKey(nextGroupName), nestedModifierId);
   }
 
-  let parentModifierId = sizeModifierByGroup
-    .get(normKey(parentGroupName))
-    ?.get(normKey(parentModifierName));
-
+  const parentModifierId =
+    parentState.modifierByOptionName.get(normKey(parentModifierName));
   if (!parentModifierId) {
-    const g = await findGroupByName(db, parentGroupName);
-    const match = (g?.modifiers ?? []).find((m: any) => {
-      const dish = m?.modifier;
-      const dishName = dish?.name ?? "";
-      return normKey(dishName) === normKey(parentModifierName);
-    });
-    if (!match?.id) throw new Error(t("toast:admin.invalidDishNameOrNumber"));
-    parentModifierId = String(match.id);
-    if (!sizeModifierByGroup.has(normKey(parentGroupName))) {
-      sizeModifierByGroup.set(normKey(parentGroupName), new Map());
-    }
-    sizeModifierByGroup
-      .get(normKey(parentGroupName))!
-      .set(normKey(parentModifierName), parentModifierId);
+    throw new Error(t("toast:admin.invalidDishNameOrNumber"));
+  }
+
+  const nestedModifierId =
+    nextState.modifierByOptionName.get(normKey(nestedName));
+  if (!nestedModifierId) {
+    throw new Error(t("toast:admin.invalidDishNameOrNumber"));
   }
 
   const [parentRows] = await db.query(
@@ -1066,7 +1257,7 @@ async function importNestedOverrideRow({
   const parent = parentRows?.[0];
   if (!parent?.id) throw new Error(t("common:csvImport.recordNotFound"));
 
-  const nextGroupRec = toRecordId(nextGroupId);
+  const nextGroupRec = toRecordId(nextState.id);
   const allowed = asArray(parent.allowed_next_groups).map((g: any) => toRecordId(g?.id ?? g));
   const allowedKeys = new Set(allowed.map((id: any) => recordIdToString(id) || String(id)));
   const nextKey = recordIdToString(nextGroupRec) || String(nextGroupRec);
@@ -1084,7 +1275,7 @@ async function importNestedOverrideRow({
   }));
 
   let groupOverride = overrides.find(
-    (o) => normKey(o.group_id) === normKey(nextKey) || o.group_id === nextGroupId
+    (o) => normKey(o.group_id) === normKey(nextKey) || o.group_id === nextState!.id
   );
   if (!groupOverride) {
     groupOverride = {group_id: nextKey, items: []};

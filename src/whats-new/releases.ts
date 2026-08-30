@@ -8,6 +8,16 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-08-30',
+    title: 'Menu structure AI import persist fix',
+    items: [
+      'AI Import Menu Structure now reliably creates modifier groups, size options, dish links, and nested topping overrides on confirm — not just in the review grid.',
+      'Menu structure import always creates new parent dishes for the uploaded menu instead of attaching Size groups to an existing catalog dish with a similar name.',
+      'Size and addon options only reuse existing dishes when they are already modifier options (or when you explicitly pick them in review).',
+      'Modifier groups append options safely without dropping earlier sizes when confirming a large import.',
+    ],
+  },
+  {
+    date: '2026-08-30',
     title: 'AI assistant capability expansion',
     items: [
       'Kitchen routing: get_kitchen_detail shows dish assignments; propose_update_kitchens supports items_add and items_remove.',

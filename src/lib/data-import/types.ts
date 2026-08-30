@@ -182,6 +182,15 @@ export type ImportConfiguration = {
     label: string,
     db: ImportDbLike
   ) => Promise<{id: string; label: string}>;
+  /**
+   * Optional override for reference resolution during validate.
+   * When set, replaces the default resolveReferences pass.
+   */
+  onResolveReferences?: (
+    config: ImportConfiguration,
+    records: ImportRecord[],
+    options?: {signal?: AbortSignal}
+  ) => Promise<void>;
   /** Optional DB handle for lookup resolution during validate */
   db?: ImportDbLike;
 };

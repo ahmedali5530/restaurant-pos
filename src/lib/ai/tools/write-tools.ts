@@ -2,6 +2,7 @@ import type {ImportConfiguration, ImportDbLike, ImportRecord} from "@/lib/data-i
 import {normalizeRecords} from "@/lib/data-import/normalize.ts";
 import {validateRecords} from "@/lib/data-import/validate.ts";
 import type {CsvImportMode} from "@/utils/csv-import.ts";
+import {expandSmartMenuGraph} from "@/components/settings/dishes/smart-menu.import.config.ts";
 import {
   getWriteRegistryEntry,
   getWriteModeForTool,
@@ -123,9 +124,20 @@ export const buildWriteProposal = async (
   const config = entry.deleteToolName === toolName && entry.deleteConfig
     ? entry.deleteConfig({db, t, context})
     : entry.createConfig({db, t, context});
-  const rawRecords = Array.isArray(args[entry.recordsArgKey])
+  let rawRecords = Array.isArray(args[entry.recordsArgKey])
     ? args[entry.recordsArgKey] as Array<Record<string, unknown>>
     : [];
+
+  if (
+    entry.configId === "smart_menu" &&
+    rawRecords.length === 0 &&
+    (Array.isArray(args.dishes) ||
+      Array.isArray(args.price_groups) ||
+      Array.isArray(args.addons) ||
+      Array.isArray(args.links))
+  ) {
+    rawRecords = expandSmartMenuGraph(args) as Array<Record<string, unknown>>;
+  }
 
   const records = mode === "update" && entry.mergeUpdatePatches && entry.deleteToolName !== toolName
     ? await entry.mergeUpdatePatches(db, rawRecords)

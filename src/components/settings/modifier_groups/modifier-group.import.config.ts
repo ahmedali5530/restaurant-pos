@@ -32,10 +32,6 @@ function modifierForDish(group: any, dishId: string): any | undefined {
   });
 }
 
-function modifierIds(group: any): any[] {
-  return (group.modifiers ?? []).map((item: any) => toRecordId(item.id ?? item));
-}
-
 export function createModifierGroupImportConfig({
   db,
   t,
@@ -202,18 +198,19 @@ export function createModifierGroupImportConfig({
       if (!modifierRow?.id) throw new Error(t("common:csvImport.recordNotFound"));
 
       if (group) {
-        await db.merge?.(group.id, {
-          name: groupName,
-          priority,
-          modifiers: [...modifierIds(group), modifierRow.id],
+        const modifierId = recordIdToString(modifierRow.id) || String(modifierRow.id);
+        await db.query(`UPDATE $group SET modifiers += $modifier`, {
+          group: toRecordId(group.id),
+          modifier: toRecordId(modifierId),
         });
+        await db.merge?.(group.id, {name: groupName, priority});
         return;
       }
 
       await db.create?.(Tables.modifier_groups, {
         name: groupName,
         priority,
-        modifiers: [modifierRow.id],
+        modifiers: [toRecordId(modifierRow.id)],
       });
     },
   };
