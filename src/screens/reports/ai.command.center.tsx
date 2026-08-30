@@ -45,7 +45,7 @@ import {
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
   faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
-  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus,
+  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -64,6 +64,7 @@ import {
   REPORTS_NOSHOW_PREDICTION,
   REPORTS_ORDER_FRAUD,
   REPORTS_FOOD_SAFETY,
+  REPORTS_ENERGY_OPTIMIZATION,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -110,7 +111,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -141,6 +142,7 @@ export function AiCommandCenterScreen() {
         fetchNoShowSummary(db),
         fetchFraudSummary(db),
         fetchFoodSafetySummary(db),
+        fetchEnergySummary(db),
       ]);
 
       setMetrics([
@@ -151,7 +153,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -994,6 +996,28 @@ async function fetchFoodSafetySummary(db: any): Promise<MetricCard> {
       link: REPORTS_FOOD_SAFETY, linkLabel: 'View alerts',
     };
   } catch { return neutralCard('Food Safety', faShieldVirus, 'text-emerald-600', REPORTS_FOOD_SAFETY); }
+}
+
+async function fetchEnergySummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total,
+         math::count(severity = 'critical') AS critical,
+         math::sum(estimated_waste) AS total_waste
+       FROM energy_alert WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const e = list[0];
+    if (!e || e.count === 0) return neutralCard('Energy Optimization', faBolt, 'text-amber-500', REPORTS_ENERGY_OPTIMIZATION);
+    return {
+      title: 'Energy Optimization',
+      icon: faBolt, color: 'text-amber-500',
+      primary: `${e.critical} critical`,
+      secondary: `${e.count} alerts · ${withCurrency(e.total_waste)}/yr waste`,
+      health: e.critical > 0 ? 'critical' : 'warning',
+      link: REPORTS_ENERGY_OPTIMIZATION, linkLabel: 'View alerts',
+    };
+  } catch { return neutralCard('Energy Optimization', faBolt, 'text-amber-500', REPORTS_ENERGY_OPTIMIZATION); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {

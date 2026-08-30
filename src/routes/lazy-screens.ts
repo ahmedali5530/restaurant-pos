@@ -326,3 +326,7 @@ export const OrderFraudScreen = lazy(() =>
 export const FoodSafetyScreen = lazy(() =>
   import('@/screens/reports/food.safety.report.tsx').then(m => ({default: m.FoodSafetyScreen}))
 );
+
+export const EnergyOptimizationScreen = lazy(() =>
+  import('@/screens/reports/energy.optimization.report.tsx').then(m => ({default: m.EnergyOptimizationScreen}))
+);
