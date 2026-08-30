@@ -45,7 +45,7 @@ import {
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
   faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
-  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard,
+  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -71,6 +71,7 @@ import {
   REPORTS_WIN_BACK,
   REPORTS_CHARGEBACK_RISK,
   REPORTS_PRICE_ELASTICITY,
+  REPORTS_PROMO_ABUSE,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -117,7 +118,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -155,6 +156,7 @@ export function AiCommandCenterScreen() {
         fetchWinBackSummary(db),
         fetchChargebackSummary(db),
         fetchElasticitySummary(db),
+        fetchPromoAbuseSummary(db),
       ]);
 
       setMetrics([
@@ -165,7 +167,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -1173,6 +1175,28 @@ async function fetchElasticitySummary(db: any): Promise<MetricCard> {
       link: REPORTS_PRICE_ELASTICITY, linkLabel: 'View analysis',
     };
   } catch { return neutralCard('Price Elasticity', faChartLine, 'text-emerald-600', REPORTS_PRICE_ELASTICITY); }
+}
+
+async function fetchPromoAbuseSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total,
+         math::count(severity = 'critical') AS critical,
+         math::sum(estimated_loss) AS total_loss
+       FROM promo_abuse_alert WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const p = list[0];
+    if (!p || p.count === 0) return neutralCard('Promo Abuse', faTag, 'text-rose-600', REPORTS_PROMO_ABUSE);
+    return {
+      title: 'Promo Abuse',
+      icon: faTag, color: 'text-rose-600',
+      primary: `${p.critical} critical`,
+      secondary: `${p.count} alerts · ${withCurrency(p.total_loss)} loss`,
+      health: p.critical > 0 ? 'critical' : 'warning',
+      link: REPORTS_PROMO_ABUSE, linkLabel: 'View alerts',
+    };
+  } catch { return neutralCard('Promo Abuse', faTag, 'text-rose-600', REPORTS_PROMO_ABUSE); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {

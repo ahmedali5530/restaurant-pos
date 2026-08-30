@@ -141,6 +141,7 @@ export const REPORTS_KITCHEN_BOTTLENECK = REPORTS + '/kitchen-bottleneck';
 export const REPORTS_WIN_BACK = REPORTS + '/win-back';
 export const REPORTS_CHARGEBACK_RISK = REPORTS + '/chargeback-risk';
 export const REPORTS_PRICE_ELASTICITY = REPORTS + '/price-elasticity';
+export const REPORTS_PROMO_ABUSE = REPORTS + '/promo-abuse';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';

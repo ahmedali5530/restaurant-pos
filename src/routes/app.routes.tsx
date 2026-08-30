@@ -66,6 +66,7 @@ import {
   REPORTS_WIN_BACK,
   REPORTS_CHARGEBACK_RISK,
   REPORTS_PRICE_ELASTICITY,
+  REPORTS_PROMO_ABUSE,
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
   REPORTS_CONSUMPTION,
@@ -224,6 +225,7 @@ import {
   WinBackScreen,
   ChargebackRiskScreen,
   PriceElasticityScreen,
+  PromoAbuseScreen,
   TablesideScreen,
 } from "@/routes/lazy-screens.ts";
 
@@ -309,6 +311,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_WIN_BACK} element={<WinBackScreen/>}/>
         <Route path={REPORTS_CHARGEBACK_RISK} element={<ChargebackRiskScreen/>}/>
         <Route path={REPORTS_PRICE_ELASTICITY} element={<PriceElasticityScreen/>}/>
+        <Route path={REPORTS_PROMO_ABUSE} element={<PromoAbuseScreen/>}/>
         <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
         <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
         <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>

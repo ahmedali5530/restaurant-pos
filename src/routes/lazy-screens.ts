@@ -354,3 +354,7 @@ export const ChargebackRiskScreen = lazy(() =>
 export const PriceElasticityScreen = lazy(() =>
   import('@/screens/reports/price.elasticity.report.tsx').then(m => ({default: m.PriceElasticityScreen}))
 );
+
+export const PromoAbuseScreen = lazy(() =>
+  import('@/screens/reports/promo.abuse.report.tsx').then(m => ({default: m.PromoAbuseScreen}))
+);
