@@ -8,6 +8,18 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-08-30',
+    title: 'Security hardening (Phase 1)',
+    items: [
+      'Login rate limiting: 5 failed PIN attempts per IP/login triggers a 15-minute lockout (configurable via AUTH_LOGIN_* env vars).',
+      'JWT session revocation now persists across gateway restarts (revoked_session table).',
+      'PayPal webhooks reject unsigned payloads by default; set PAYPAL_ALLOW_UNSIGNED_WEBHOOKS=true only in dev.',
+      'API CORS denies cross-origin requests when API_ALLOWED_ORIGINS is unset (fail-closed).',
+      'Fiscal invoice proxy restricted to an SSRF allow-list; OAuth tokens refuse plaintext storage in production without INTEGRATION_TOKEN_ENCRYPTION_KEY.',
+      'Sync /stats endpoint can require SYNC_STATS_SECRET; tracking IDs validated to prevent record overwrite.',
+    ],
+  },
+  {
+    date: '2026-08-30',
     title: 'Menu structure AI import persist fix',
     items: [
       'AI Import Menu Structure now reliably creates modifier groups, size options, dish links, and nested topping overrides on confirm — not just in the review grid.',
