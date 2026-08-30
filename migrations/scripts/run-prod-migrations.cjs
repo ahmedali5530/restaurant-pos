@@ -75,6 +75,11 @@ const MIGRATION_PLAN = [
   { id: '2026_08_22_order_list_indexes', file: '2026_08_22_order_list_indexes.surql' },
   { id: '2026_08_30_hot_path_indexes', file: '2026_08_30_hot_path_indexes.surql' },
   { id: '2026_08_27_revoked_session_store', file: '2026_08_27_revoked_session_store.surql' },
+  { id: '2026_08_27_payment_credential_encryption', file: '2026_08_27_payment_credential_encryption.surql' },
+  {
+    id: '2026_08_27_payment_credential_encryption_backfill',
+    backfill: 'encrypt-existing-payment-credentials.cjs',
+  },
 ];
 
 const rows = (result) => {

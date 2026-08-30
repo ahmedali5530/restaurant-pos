@@ -8,6 +8,15 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-08-30',
+    title: 'Security hardening (Phase 2)',
+    items: [
+      'Payment gateway credentials (Stripe, M-Pesa, Telebirr, etc.) are now encrypted at rest with AES-256-GCM in gateway_config_encrypted.',
+      'New POST/DELETE /payments/credentials/:paymentTypeId endpoints encrypt credentials server-side and clear the legacy plaintext gateway_config field.',
+      'Existing plaintext credentials are migrated by encrypt-existing-payment-credentials.cjs — set PAYMENT_CREDENTIAL_ENCRYPTION_KEY (or reuse INTEGRATION_TOKEN_ENCRYPTION_KEY) before deploy.',
+    ],
+  },
+  {
+    date: '2026-08-30',
     title: 'Security hardening (Phase 1)',
     items: [
       'Login rate limiting: 5 failed PIN attempts per IP/login triggers a 15-minute lockout (configurable via AUTH_LOGIN_* env vars).',
