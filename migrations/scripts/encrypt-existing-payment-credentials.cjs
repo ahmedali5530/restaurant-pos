@@ -29,7 +29,12 @@
  */
 
 const path = require('path');
+const WS = require('ws');
 const { Surreal } = require('surrealdb');
+
+if (typeof global.WebSocket === 'undefined') {
+  global.WebSocket = WS;
+}
 
 const DB_NS = process.env.SURREAL_NS || 'posr';
 const DB_NAME = process.env.SURREAL_DB || 'posr';
@@ -70,11 +75,9 @@ if (!KEY_ENV) {
 async function main() {
   console.log('Connecting to', DB_URL, 'ns=' + DB_NS, 'db=' + DB_NAME);
   const db = new Surreal();
-  await db.connect(DB_URL, {
-    namespace: DB_NS,
-    database: DB_NAME,
-    auth: { username: DB_USER, password: DB_PASS },
-  });
+  await db.connect(DB_URL);
+  await db.signin({ username: DB_USER, password: DB_PASS });
+  await db.use({ namespace: DB_NS, database: DB_NAME });
 
   // Select all payment types that have a plaintext gateway_config but no
   // encrypted field yet. We FETCH both to check the encrypted one isn't already

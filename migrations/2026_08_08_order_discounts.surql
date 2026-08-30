@@ -1,7 +1,7 @@
 -- Denormalize order_discount record IDs on order so FETCH order_discounts works
 -- (mirrors order_taxes on order for multi-tax display).
 
-DEFINE FIELD order_discounts ON order TYPE option<array<record<order_discount>>|null>
+DEFINE FIELD IF NOT EXISTS order_discounts ON order TYPE option<array<record<order_discount>>|null>
   PERMISSIONS FOR create FULL FOR select FULL FOR update FULL;
 
 -- Backfill from existing junction rows (active lines only).
