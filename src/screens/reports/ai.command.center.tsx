@@ -45,7 +45,7 @@ import {
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
   faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
-  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck, faExchangeAlt, faGraduationCap,
+  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck, faExchangeAlt, faGraduationCap, faFaceSmile,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -81,6 +81,7 @@ import {
   REPORTS_RECIPE_SUBSTITUTION,
   REPORTS_TRAINING_NEED,
   REPORTS_SEATING_OPTIMIZATION,
+  REPORTS_SATISFACTION_PREDICTION,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -127,7 +128,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -175,6 +176,7 @@ export function AiCommandCenterScreen() {
         fetchSubstitutionSummary(db),
         fetchTrainingSummary(db),
         fetchSeatingSummary(db),
+        fetchSatisfactionSummary(db),
       ]);
 
       setMetrics([
@@ -185,7 +187,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -1437,6 +1439,32 @@ async function fetchSeatingSummary(db: any): Promise<MetricCard> {
       link: REPORTS_SEATING_OPTIMIZATION, linkLabel: 'View suggestions',
     };
   } catch { return neutralCard('Seating Optimization', faChair, 'text-amber-600', REPORTS_SEATING_OPTIMIZATION); }
+}
+
+async function fetchSatisfactionSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total,
+         math::count(satisfaction_level = 'critical') AS critical,
+         math::count(satisfaction_level = 'delighted') AS delighted,
+         math::mean(satisfaction_score) AS avg_score
+       FROM satisfaction_prediction
+       WHERE action_taken = 'none'
+         AND predicted_at > time::now() - 4h
+       GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const s = list[0];
+    if (!s || s.count === 0) return neutralCard('Satisfaction', faFaceSmile, 'text-violet-600', REPORTS_SATISFACTION_PREDICTION);
+    return {
+      title: 'Satisfaction',
+      icon: faFaceSmile, color: 'text-violet-600',
+      primary: `${s.critical} critical`,
+      secondary: `${s.delighted} delighted · avg ${Math.round(s.avg_score)}/100`,
+      health: s.critical > 0 ? 'critical' : 'good',
+      link: REPORTS_SATISFACTION_PREDICTION, linkLabel: 'View predictions',
+    };
+  } catch { return neutralCard('Satisfaction', faFaceSmile, 'text-violet-600', REPORTS_SATISFACTION_PREDICTION); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
