@@ -91,6 +91,7 @@
     "modifierGroupSaved": "Группа модификаторов {{name}} сохранена",
     "orderTypeSaved": "Тип заказа {{name}} сохранён",
     "paymentTypeSaved": "Тип оплаты {{name}} сохранён",
+    "gatewayCredentialsSaveFailed": "Тип оплаты сохранён, но не удалось сохранить учётные данные шлюза: {{error}}",
     "printerSaved": "Принтер {{name}} сохранён",
     "printSettingsSaved": "Настройки печати сохранены",
     "roleSaved": "Роль {{name}} сохранена",

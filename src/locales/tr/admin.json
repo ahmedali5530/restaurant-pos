@@ -239,6 +239,8 @@
     "updatePaymentType": "{{name}} güncelle",
     "selectProvider": "Sağlayıcı seçin (isteğe bağlı)",
     "sandboxLive": "sandbox / live",
+    "encryptedCredentialsHint": "Kimlik bilgileri şifreli olarak saklanır.",
+    "encryptedCredentialsExplanation": "Alanlar güvenlik nedeniyle boştur — yalnızca mevcut kimlik bilgilerini değiştirmek için yeni değerler girin. Mevcut değerleri korumak için boş bırakın.",
     "createExtra": "Yeni ekstra oluştur",
     "updateExtra": "{{name}} güncelle",
     "createTax": "Yeni vergi oluştur",

@@ -262,7 +262,6 @@ export const PaymentTypeForm = ({
           // itself is functional (e.g. for Cash/Card) but the remote gateway
           // won't work until credentials are saved.
           toast.error(t('toast:admin.gatewayCredentialsSaveFailed', {
-            defaultValue: 'Payment type saved, but gateway credentials failed to save: {{error}}',
             error: err?.message || String(err),
           }));
           // Don't close the modal — let the operator retry.
@@ -394,12 +393,8 @@ export const PaymentTypeForm = ({
               <h4 className="font-medium mb-3">Gateway Keys</h4>
               {hasExistingEncryptedCredentials(data) && (
                 <div className="mb-3 p-2 bg-amber-50 border border-amber-200 rounded text-sm text-amber-800 dark:bg-amber-950/30 dark:border-amber-800 dark:text-amber-200">
-                  <strong>{t('admin:forms.encryptedCredentialsHint', {
-                    defaultValue: 'Credentials are stored encrypted.'
-                  })}</strong>{' '}
-                  {t('admin:forms.encryptedCredentialsExplanation', {
-                    defaultValue: 'Fields are empty for security — enter new values only to replace existing credentials. Leave blank to keep the current values.'
-                  })}
+                  <strong>{t('admin:forms.encryptedCredentialsHint')}</strong>{' '}
+                  {t('admin:forms.encryptedCredentialsExplanation')}
                 </div>
               )}
               <div className="grid grid-cols-2 gap-3 mb-3">

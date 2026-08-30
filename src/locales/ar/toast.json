@@ -91,6 +91,7 @@
     "modifierGroupSaved": "تم حفظ مجموعة المعدّلات {{name}}",
     "orderTypeSaved": "تم حفظ نوع الطلب {{name}}",
     "paymentTypeSaved": "تم حفظ نوع الدفع {{name}}",
+    "gatewayCredentialsSaveFailed": "تم حفظ نوع الدفع، لكن فشل حفظ بيانات اعتماد البوابة: {{error}}",
     "printerSaved": "تم حفظ الطابعة {{name}}",
     "printSettingsSaved": "تم حفظ إعدادات الطباعة",
     "roleSaved": "تم حفظ الدور {{name}}",

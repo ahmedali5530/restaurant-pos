@@ -239,6 +239,8 @@
     "updatePaymentType": "Aggiorna {{name}}",
     "selectProvider": "Seleziona provider (facoltativo)",
     "sandboxLive": "sandbox / live",
+    "encryptedCredentialsHint": "Le credenziali sono memorizzate in forma crittografata.",
+    "encryptedCredentialsExplanation": "I campi sono vuoti per sicurezza — inserisci nuovi valori solo per sostituire le credenziali esistenti. Lascia vuoto per mantenere i valori attuali.",
     "createExtra": "Crea nuovo extra",
     "updateExtra": "Aggiorna {{name}}",
     "createTax": "Crea nuova IVA",

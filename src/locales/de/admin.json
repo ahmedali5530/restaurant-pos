@@ -239,6 +239,8 @@
     "updatePaymentType": "{{name}} aktualisieren",
     "selectProvider": "Anbieter auswählen (optional)",
     "sandboxLive": "Sandbox / Live",
+    "encryptedCredentialsHint": "Zugangsdaten werden verschlüsselt gespeichert.",
+    "encryptedCredentialsExplanation": "Felder sind aus Sicherheitsgründen leer — geben Sie nur neue Werte ein, um vorhandene Zugangsdaten zu ersetzen. Leer lassen, um die aktuellen Werte beizubehalten.",
     "createExtra": "Neues Extra erstellen",
     "updateExtra": "{{name}} aktualisieren",
     "createTax": "Neue Steuer erstellen",

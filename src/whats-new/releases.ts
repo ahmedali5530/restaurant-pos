@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-08-30',
+    title: 'Security hardening (Phase 3)',
+    items: [
+      'Payment type settings now save gateway credentials via the encrypted /payments/credentials endpoint instead of writing plaintext to the database.',
+      'When editing a remote payment type, credential fields stay empty for security — enter new values only to replace stored credentials.',
+    ],
+  },
+  {
+    date: '2026-08-30',
     title: 'Security hardening (Phase 2)',
     items: [
       'Payment gateway credentials (Stripe, M-Pesa, Telebirr, etc.) are now encrypted at rest with AES-256-GCM in gateway_config_encrypted.',
