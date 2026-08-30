@@ -133,6 +133,7 @@ export const REPORTS_SHRINKAGE = REPORTS + '/shrinkage-detection';
 export const REPORTS_REVENUE_FORECAST = REPORTS + '/revenue-forecast';
 export const REPORTS_NOSHOW_PREDICTION = REPORTS + '/no-show-prediction';
 export const REPORTS_ORDER_FRAUD = REPORTS + '/order-fraud';
+export const REPORTS_FOOD_SAFETY = REPORTS + '/food-safety';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';

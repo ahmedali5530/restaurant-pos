@@ -322,3 +322,7 @@ export const NoShowPredictionScreen = lazy(() =>
 export const OrderFraudScreen = lazy(() =>
   import('@/screens/reports/order.fraud.report.tsx').then(m => ({default: m.OrderFraudScreen}))
 );
+
+export const FoodSafetyScreen = lazy(() =>
+  import('@/screens/reports/food.safety.report.tsx').then(m => ({default: m.FoodSafetyScreen}))
+);
