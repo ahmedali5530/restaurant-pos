@@ -346,3 +346,7 @@ export const KitchenBottleneckScreen = lazy(() =>
 export const WinBackScreen = lazy(() =>
   import('@/screens/reports/winback.report.tsx').then(m => ({default: m.WinBackScreen}))
 );
+
+export const ChargebackRiskScreen = lazy(() =>
+  import('@/screens/reports/chargeback.risk.report.tsx').then(m => ({default: m.ChargebackRiskScreen}))
+);

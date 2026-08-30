@@ -64,6 +64,7 @@ import {
   REPORTS_YIELD_VARIANCE,
   REPORTS_KITCHEN_BOTTLENECK,
   REPORTS_WIN_BACK,
+  REPORTS_CHARGEBACK_RISK,
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
   REPORTS_CONSUMPTION,
@@ -220,6 +221,7 @@ import {
   YieldVarianceScreen,
   KitchenBottleneckScreen,
   WinBackScreen,
+  ChargebackRiskScreen,
   TablesideScreen,
 } from "@/routes/lazy-screens.ts";
 
@@ -303,6 +305,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_YIELD_VARIANCE} element={<YieldVarianceScreen/>}/>
         <Route path={REPORTS_KITCHEN_BOTTLENECK} element={<KitchenBottleneckScreen/>}/>
         <Route path={REPORTS_WIN_BACK} element={<WinBackScreen/>}/>
+        <Route path={REPORTS_CHARGEBACK_RISK} element={<ChargebackRiskScreen/>}/>
         <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
         <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
         <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>

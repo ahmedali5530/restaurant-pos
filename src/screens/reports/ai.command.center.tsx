@@ -45,7 +45,7 @@ import {
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
   faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
-  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack,
+  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -69,6 +69,7 @@ import {
   REPORTS_YIELD_VARIANCE,
   REPORTS_KITCHEN_BOTTLENECK,
   REPORTS_WIN_BACK,
+  REPORTS_CHARGEBACK_RISK,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -115,7 +116,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -151,6 +152,7 @@ export function AiCommandCenterScreen() {
         fetchYieldSummary(db),
         fetchKitchenSummary(db),
         fetchWinBackSummary(db),
+        fetchChargebackSummary(db),
       ]);
 
       setMetrics([
@@ -161,7 +163,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -1120,6 +1122,31 @@ async function fetchWinBackSummary(db: any): Promise<MetricCard> {
       link: REPORTS_WIN_BACK, linkLabel: 'View candidates',
     };
   } catch { return neutralCard('Customer Win-Back', faHeartCrack, 'text-rose-600', REPORTS_WIN_BACK); }
+}
+
+async function fetchChargebackSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total,
+         math::count(risk_level = 'critical') AS critical,
+         math::sum(est_chargeback_cost) AS exposure
+       FROM chargeback_risk_alert
+       WHERE risk_score >= 35 AND action_taken = 'none'
+         AND detected_at > time::now() - 24h
+       GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const c = list[0];
+    if (!c || c.count === 0) return neutralCard('Chargeback Risk', faCreditCard, 'text-rose-600', REPORTS_CHARGEBACK_RISK);
+    return {
+      title: 'Chargeback Risk',
+      icon: faCreditCard, color: 'text-rose-600',
+      primary: `${c.critical} critical`,
+      secondary: `${c.count} at-risk · ${withCurrency(c.exposure)} exposure`,
+      health: c.critical > 0 ? 'critical' : 'warning',
+      link: REPORTS_CHARGEBACK_RISK, linkLabel: 'View alerts',
+    };
+  } catch { return neutralCard('Chargeback Risk', faCreditCard, 'text-rose-600', REPORTS_CHARGEBACK_RISK); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {

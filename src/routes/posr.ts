@@ -139,6 +139,7 @@ export const REPORTS_STAFF_TURNOVER = REPORTS + '/staff-turnover';
 export const REPORTS_YIELD_VARIANCE = REPORTS + '/yield-variance';
 export const REPORTS_KITCHEN_BOTTLENECK = REPORTS + '/kitchen-bottleneck';
 export const REPORTS_WIN_BACK = REPORTS + '/win-back';
+export const REPORTS_CHARGEBACK_RISK = REPORTS + '/chargeback-risk';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';
