@@ -7,6 +7,15 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-08-30',
+    title: 'Database performance indexes',
+    items: [
+      'Added hot-path SurrealDB indexes on orders, inventory documents, time entries, journal entries, tracking, and related line-item tables to speed up list screens and reports.',
+      'Index builds run concurrently on large tables so POS writes are not blocked during deployment.',
+      'Report date filters still use time::format — a follow-up change will switch those to datetime ranges so created_at indexes apply to all sales and inventory reports.',
+    ],
+  },
+  {
     date: '2026-08-29',
     title: 'Receipt logo centering on thermal printers',
     items: [
