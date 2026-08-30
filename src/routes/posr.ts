@@ -143,6 +143,7 @@ export const REPORTS_CHARGEBACK_RISK = REPORTS + '/chargeback-risk';
 export const REPORTS_PRICE_ELASTICITY = REPORTS + '/price-elasticity';
 export const REPORTS_PROMO_ABUSE = REPORTS + '/promo-abuse';
 export const REPORTS_MENU_PAIRING = REPORTS + '/menu-pairing';
+export const REPORTS_WAIT_PREDICTION = REPORTS + '/wait-prediction';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';

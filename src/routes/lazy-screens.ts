@@ -362,3 +362,7 @@ export const PromoAbuseScreen = lazy(() =>
 export const MenuPairingScreen = lazy(() =>
   import('@/screens/reports/menu.pairing.report.tsx').then(m => ({default: m.MenuPairingScreen}))
 );
+
+export const WaitPredictionScreen = lazy(() =>
+  import('@/screens/reports/wait.prediction.report.tsx').then(m => ({default: m.WaitPredictionScreen}))
+);

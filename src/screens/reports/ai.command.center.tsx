@@ -45,7 +45,7 @@ import {
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
   faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
-  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink,
+  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -73,6 +73,7 @@ import {
   REPORTS_PRICE_ELASTICITY,
   REPORTS_PROMO_ABUSE,
   REPORTS_MENU_PAIRING,
+  REPORTS_WAIT_PREDICTION,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -119,7 +120,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -159,6 +160,7 @@ export function AiCommandCenterScreen() {
         fetchElasticitySummary(db),
         fetchPromoAbuseSummary(db),
         fetchPairingSummary(db),
+        fetchWaitPredSummary(db),
       ]);
 
       setMetrics([
@@ -169,7 +171,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -1221,6 +1223,31 @@ async function fetchPairingSummary(db: any): Promise<MetricCard> {
       link: REPORTS_MENU_PAIRING, linkLabel: 'View pairings',
     };
   } catch { return neutralCard('Menu Pairing', faLink, 'text-violet-600', REPORTS_MENU_PAIRING); }
+}
+
+async function fetchWaitPredSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total,
+         math::mean(predicted_wait_min) AS avg_wait,
+         math::count(est_walkaway_risk > 0.5) AS high_risk
+       FROM wait_prediction
+       WHERE actual_wait_min IS NONE
+         AND predicted_at > time::now() - 2h
+       GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const w = list[0];
+    if (!w || w.count === 0) return neutralCard('Wait Prediction', faHourglassHalf, 'text-amber-600', REPORTS_WAIT_PREDICTION);
+    return {
+      title: 'Wait Prediction',
+      icon: faHourglassHalf, color: 'text-amber-600',
+      primary: `${w.count} waiting`,
+      secondary: `avg ${Math.round(w.avg_wait ?? 0)} min · ${w.high_risk} at-risk`,
+      health: w.high_risk > 0 ? 'warning' : 'good',
+      link: REPORTS_WAIT_PREDICTION, linkLabel: 'View predictions',
+    };
+  } catch { return neutralCard('Wait Prediction', faHourglassHalf, 'text-amber-600', REPORTS_WAIT_PREDICTION); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
