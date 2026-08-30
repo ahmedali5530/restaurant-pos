@@ -366,3 +366,7 @@ export const MenuPairingScreen = lazy(() =>
 export const WaitPredictionScreen = lazy(() =>
   import('@/screens/reports/wait.prediction.report.tsx').then(m => ({default: m.WaitPredictionScreen}))
 );
+
+export const PromoForecastScreen = lazy(() =>
+  import('@/screens/reports/promo.forecast.report.tsx').then(m => ({default: m.PromoForecastScreen}))
+);
