@@ -45,7 +45,7 @@ import {
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
   faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
-  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn,
+  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -76,6 +76,7 @@ import {
   REPORTS_WAIT_PREDICTION,
   REPORTS_PROMO_FORECAST,
   REPORTS_CLV_TRAJECTORY,
+  REPORTS_SPOILAGE_PREDICTION,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -122,7 +123,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -165,6 +166,7 @@ export function AiCommandCenterScreen() {
         fetchWaitPredSummary(db),
         fetchPromoForecastSummary(db),
         fetchCLVTrajectorySummary(db),
+        fetchSpoilageSummary(db),
       ]);
 
       setMetrics([
@@ -175,7 +177,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -1302,6 +1304,32 @@ async function fetchCLVTrajectorySummary(db: any): Promise<MetricCard> {
       link: REPORTS_CLV_TRAJECTORY, linkLabel: 'View trajectories',
     };
   } catch { return neutralCard('CLV Trajectory', faChartLine, 'text-blue-600', REPORTS_CLV_TRAJECTORY); }
+}
+
+async function fetchSpoilageSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total,
+         math::count(risk_level = 'critical') AS critical,
+         math::sum(est_spoilage_cost) AS total_cost
+       FROM spoilage_prediction
+       WHERE will_spoil = true
+         AND action_taken = 'none'
+         AND predicted_at > time::now() - 24h
+       GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const s = list[0];
+    if (!s || s.count === 0) return neutralCard('Spoilage Prediction', faClockRotateLeft, 'text-amber-600', REPORTS_SPOILAGE_PREDICTION);
+    return {
+      title: 'Spoilage Prediction',
+      icon: faClockRotateLeft, color: 'text-amber-600',
+      primary: `${s.critical} critical`,
+      secondary: `${s.count} at-risk · ${withCurrency(s.total_cost)} cost`,
+      health: s.critical > 0 ? 'critical' : 'warning',
+      link: REPORTS_SPOILAGE_PREDICTION, linkLabel: 'View predictions',
+    };
+  } catch { return neutralCard('Spoilage Prediction', faClockRotateLeft, 'text-amber-600', REPORTS_SPOILAGE_PREDICTION); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {

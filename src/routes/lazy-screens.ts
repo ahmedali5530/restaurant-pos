@@ -374,3 +374,7 @@ export const PromoForecastScreen = lazy(() =>
 export const CLVTrajectoryScreen = lazy(() =>
   import('@/screens/reports/clv.trajectory.report.tsx').then(m => ({default: m.CLVTrajectoryScreen}))
 );
+
+export const SpoilagePredictionScreen = lazy(() =>
+  import('@/screens/reports/spoilage.prediction.report.tsx').then(m => ({default: m.SpoilagePredictionScreen}))
+);

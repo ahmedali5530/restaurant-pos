@@ -146,6 +146,7 @@ export const REPORTS_MENU_PAIRING = REPORTS + '/menu-pairing';
 export const REPORTS_WAIT_PREDICTION = REPORTS + '/wait-prediction';
 export const REPORTS_PROMO_FORECAST = REPORTS + '/promo-forecast';
 export const REPORTS_CLV_TRAJECTORY = REPORTS + '/clv-trajectory';
+export const REPORTS_SPOILAGE_PREDICTION = REPORTS + '/spoilage-prediction';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';
