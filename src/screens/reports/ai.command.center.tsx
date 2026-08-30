@@ -45,7 +45,7 @@ import {
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
   faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
-  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft,
+  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -77,6 +77,7 @@ import {
   REPORTS_PROMO_FORECAST,
   REPORTS_CLV_TRAJECTORY,
   REPORTS_SPOILAGE_PREDICTION,
+  REPORTS_VISIT_CADENCE,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -123,7 +124,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -167,6 +168,7 @@ export function AiCommandCenterScreen() {
         fetchPromoForecastSummary(db),
         fetchCLVTrajectorySummary(db),
         fetchSpoilageSummary(db),
+        fetchCadenceSummary(db),
       ]);
 
       setMetrics([
@@ -177,7 +179,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -1330,6 +1332,31 @@ async function fetchSpoilageSummary(db: any): Promise<MetricCard> {
       link: REPORTS_SPOILAGE_PREDICTION, linkLabel: 'View predictions',
     };
   } catch { return neutralCard('Spoilage Prediction', faClockRotateLeft, 'text-amber-600', REPORTS_SPOILAGE_PREDICTION); }
+}
+
+async function fetchCadenceSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total,
+         math::count(overdue_status IN ['overdue', 'significantly_overdue']) AS overdue,
+         math::sum(est_next_visit_value) AS total_value
+       FROM visit_cadence
+       WHERE action_taken = 'none'
+         AND overdue_status != 'on_track'
+       GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const c = list[0];
+    if (!c || c.count === 0) return neutralCard('Visit Cadence', faCalendarCheck, 'text-blue-600', REPORTS_VISIT_CADENCE);
+    return {
+      title: 'Visit Cadence',
+      icon: faCalendarCheck, color: 'text-blue-600',
+      primary: `${c.overdue} overdue`,
+      secondary: `${c.count} actionable · ${withCurrency(c.total_value)} value`,
+      health: c.overdue > 0 ? 'warning' : 'good',
+      link: REPORTS_VISIT_CADENCE, linkLabel: 'View cadences',
+    };
+  } catch { return neutralCard('Visit Cadence', faCalendarCheck, 'text-blue-600', REPORTS_VISIT_CADENCE); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
