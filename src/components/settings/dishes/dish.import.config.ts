@@ -101,6 +101,27 @@ export function createDishImportConfig({
         },
       },
     },
+    {
+      name: "workflow",
+      label: "Workflow",
+      type: "reference",
+      optional: true,
+      aliases: ["Workflow"],
+      description: "Kitchen workflow name for multi-stage routing",
+      lookup: {
+        table: Tables.workflows,
+        searchFields: ["name"],
+        strategy: "case_insensitive",
+      },
+    },
+    {
+      name: "stage_overrides",
+      label: "Stage overrides",
+      type: "string",
+      optional: true,
+      aliases: ["Stage overrides", "Overrides"],
+      description: "JSON object mapping workflow stage name to kitchen name",
+    },
   ];
 
   return {
@@ -169,6 +190,42 @@ export function createDishImportConfig({
         cost: Number.isFinite(cost) ? cost : 0,
         categories: categoryIds,
       };
+
+      const workflowRef = values.workflow as ResolvedReference | undefined;
+      if (workflowRef?.id) {
+        dishData.workflow = toRecordId(workflowRef.id);
+        const overridesRaw = String(values.stage_overrides ?? "").trim();
+        if (overridesRaw) {
+          let overrideMap: Record<string, string>;
+          try {
+            overrideMap = JSON.parse(overridesRaw) as Record<string, string>;
+          } catch {
+            throw new Error("Invalid stage_overrides JSON");
+          }
+          const [stages] = await db.query(
+            `SELECT id, name, kitchen FROM ${Tables.workflow_stages} WHERE workflow = $wf FETCH kitchen`,
+            {wf: toRecordId(workflowRef.id)},
+          );
+          const stageOverrides: Record<string, unknown> = {};
+          for (const [stageName, kitchenName] of Object.entries(overrideMap)) {
+            const stage = (stages ?? []).find((s: any) =>
+              String(s.name ?? "").toLowerCase() === stageName.toLowerCase(),
+            );
+            const kitchen = (stages ?? []).find((s: any) =>
+              String(s.kitchen?.name ?? "").toLowerCase() === String(kitchenName).toLowerCase(),
+            )?.kitchen;
+            if (stage?.id && kitchen?.id) {
+              stageOverrides[String(stage.id)] = toRecordId(kitchen.id);
+            }
+          }
+          dishData.stage_overrides = Object.keys(stageOverrides).length > 0 ? stageOverrides : null;
+        } else {
+          dishData.stage_overrides = null;
+        }
+      } else if (values.workflow === null || values.workflow === "") {
+        dishData.workflow = null;
+        dishData.stage_overrides = null;
+      }
 
       const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
         if (field === "price") {

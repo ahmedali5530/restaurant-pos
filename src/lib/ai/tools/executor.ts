@@ -13,6 +13,7 @@ import {
   listStaff,
 } from "@/api/reports/sales/extended.ts";
 import {
+  getKitchenDetail,
   getMenuItems,
   listCoupons,
   listDiscounts,
@@ -31,7 +32,7 @@ import {
   listUsers,
   listWorkflows,
 } from "@/api/reports/manage/lists.ts";
-import {getTips} from "@/api/reports/sales/tips.ts";
+import {listInventoryLocations, listSuppliers} from "@/api/reports/inventory/lists.ts";
 import {
   estimatePriceChangeImpact,
   getMenuEngineeringMatrix,
@@ -457,6 +458,24 @@ export const executeAiReportTool = async (
 
     case "list_kitchens":
       return listKitchens(db, {
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "get_kitchen_detail":
+      return getKitchenDetail(db, {
+        name: args.name ? String(args.name) : undefined,
+        search: args.search ? String(args.search) : undefined,
+      });
+
+    case "list_suppliers":
+      return listSuppliers(db, {
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "list_inventory_locations":
+      return listInventoryLocations(db, {
         search: args.search ? String(args.search) : undefined,
         limit: args.limit ? Number(args.limit) : 50,
       });

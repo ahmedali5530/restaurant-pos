@@ -99,6 +99,7 @@ export function AiAssistantWidget() {
   const completionPulseTimerRef = useRef<number | null>(null);
 
   const userId = user?.id ? String(user.id) : null;
+  const writeContext = user ? {userId: String(user.id), user: {id: String(user.id)}} : undefined;
   const allowedModules = useAllowedModules(user);
 
   useEffect(() => {
@@ -252,7 +253,7 @@ export function AiAssistantWidget() {
     setError(null);
 
     try {
-      const result = await runAiAssistantAgent(db, t, trimmed, {allowedModules});
+      const result = await runAiAssistantAgent(db, t, trimmed, {allowedModules, writeContext});
       applyResult(result);
     } catch (err) {
       if (err instanceof SessionAuthError) {
@@ -276,7 +277,9 @@ export function AiAssistantWidget() {
     setError(null);
 
     try {
-      const summary = await commitWriteProposal(db, t, proposal);
+      const summary = await commitWriteProposal(db, t, proposal, {
+        context: writeContext,
+      });
       setEntries(prev => [
         ...prev,
         {
@@ -290,7 +293,7 @@ export function AiAssistantWidget() {
         },
       ]);
       const result = await resumeAiAssistantAgent(
-        db, t, history, toolCallId, {confirmed: true, summary}, {allowedModules},
+        db, t, history, toolCallId, {confirmed: true, summary}, {allowedModules, writeContext},
       );
       applyResult(result);
     } catch (err) {
@@ -298,7 +301,7 @@ export function AiAssistantWidget() {
       setError(message);
       try {
         const result = await resumeAiAssistantAgent(
-          db, t, history, toolCallId, {confirmed: false, error: message}, {allowedModules},
+          db, t, history, toolCallId, {confirmed: false, error: message}, {allowedModules, writeContext},
         );
         applyResult(result);
       } catch {
@@ -321,7 +324,7 @@ export function AiAssistantWidget() {
       const result = await resumeAiAssistantAgent(
         db, t, history, toolCallId,
         {confirmed: false, error: t("common:aiAssistant.cancelled")},
-        {allowedModules},
+        {allowedModules, writeContext},
       );
       applyResult(result);
     } catch (err) {

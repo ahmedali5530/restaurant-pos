@@ -127,6 +127,51 @@ export const listKitchens = async (db: DbClient, options: ListOptions = {}) => {
   return mapNameId(unwrapQueryResult(await db.query(query))).filter(row => matchesSearch(row.name, search));
 };
 
+type KitchenDetailOptions = {name?: string; search?: string};
+
+export const getKitchenDetail = async (db: DbClient, options: KitchenDetailOptions = {}) => {
+  const search = normalizeSearch(options.search ?? options.name);
+  const nameFilter = normalizeSearch(options.name);
+  const query = `
+    SELECT id, name, priority, items, printers FROM ${Tables.kitchens}
+    WHERE deleted_at = NONE
+    ORDER BY priority ASC, name ASC
+    LIMIT 50
+    FETCH items, printers
+  `;
+  const rows = unwrapQueryResult<{
+    id: unknown;
+    name?: string;
+    priority?: number;
+    items?: Array<{id?: unknown; name?: string; number?: string | number}>;
+    printers?: Array<{id?: unknown; name?: string}>;
+  }>(await db.query(query));
+
+  return rows
+    .map(row => ({
+      id: recordIdToString(row.id),
+      name: row.name ?? "Unknown",
+      priority: row.priority ?? 0,
+      items: (row.items ?? []).map(item => ({
+        id: recordIdToString(item.id),
+        name: item.name ?? "",
+        number: String(item.number ?? ""),
+      })),
+      printers: (row.printers ?? []).map(printer => ({
+        id: recordIdToString(printer.id),
+        name: printer.name ?? "",
+      })),
+    }))
+    .filter(row => {
+      if (nameFilter && !row.name.toLowerCase().includes(nameFilter)) return false;
+      if (!search) return true;
+      if (matchesSearch(row.name, search)) return true;
+      return row.items.some(item =>
+        matchesSearch(item.name, search) || matchesSearch(item.number, search),
+      );
+    });
+};
+
 export const listTaxes = async (db: DbClient, options: ListOptions = {}) => {
   const limit = options.limit ?? 50;
   const search = normalizeSearch(options.search);
@@ -345,7 +390,40 @@ export const listWorkflows = async (db: DbClient, options: ListOptions = {}) => 
     ORDER BY name ASC
     LIMIT ${limit}
   `;
-  return mapNameId(unwrapQueryResult(await db.query(query))).filter(row => matchesSearch(row.name, search));
+  const workflows = mapNameId(unwrapQueryResult(await db.query(query))).filter(row => matchesSearch(row.name, search));
+  if (workflows.length === 0) return [];
+
+  const ids = workflows.map(w => w.id);
+  const stageQuery = `
+    SELECT workflow, name, sequence, kitchen.name AS kitchen_name FROM ${Tables.workflow_stages}
+    WHERE workflow IN $workflows
+    ORDER BY sequence ASC
+    FETCH kitchen
+  `;
+  const stages = unwrapQueryResult<{
+    workflow: unknown;
+    name?: string;
+    sequence?: number;
+    kitchen_name?: string;
+    kitchen?: {name?: string};
+  }>(await db.query(stageQuery, {workflows: ids}));
+
+  const stagesByWorkflow = new Map<string, Array<{name: string; sequence: number; kitchen_name: string}>>();
+  for (const stage of stages) {
+    const wfId = recordIdToString(stage.workflow);
+    const list = stagesByWorkflow.get(wfId) ?? [];
+    list.push({
+      name: stage.name ?? "",
+      sequence: stage.sequence ?? 0,
+      kitchen_name: stage.kitchen_name ?? stage.kitchen?.name ?? "",
+    });
+    stagesByWorkflow.set(wfId, list);
+  }
+
+  return workflows.slice(0, limit).map(wf => ({
+    ...wf,
+    stages: stagesByWorkflow.get(wf.id) ?? [],
+  }));
 };
 
 export const listPrinters = async (db: DbClient, options: ListOptions = {}) => {

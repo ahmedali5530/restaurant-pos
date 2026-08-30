@@ -54,7 +54,8 @@ export const AI_EXAMPLE_PROMPTS: AiExamplePrompt[] = [
   {category: "inventory", prompt: "Inventory purchase movements this week"},
   {category: "inventory", prompt: "Open purchase orders awaiting approval"},
   {category: "inventory", prompt: "Show inventory adjustments this month"},
-  {category: "inventory", prompt: "Which items are below reorder after recent adjustments?"},
+  {category: "inventory", prompt: "Record a purchase of 10kg flour from Main Supplier to Store location"},
+  {category: "inventory", prompt: "Post waste for 2kg chicken breast at Main Store"},
 
   // Operations
   {category: "operations", prompt: "Who are my top 3 fastest and slowest servers by ticket time this week?"},
@@ -71,7 +72,8 @@ export const AI_EXAMPLE_PROMPTS: AiExamplePrompt[] = [
   {category: "operations", prompt: "Activity log audit for today"},
   {category: "operations", prompt: "Show suspicious cash register activity this week"},
   {category: "operations", prompt: "Investigate potential fraud — voids, discounts, and tracking records"},
-  {category: "operations", prompt: "Cash closing summary for yesterday"},
+  {category: "operations", prompt: "Add Margherita pizza to Grill kitchen station"},
+  {category: "operations", prompt: "Show dishes assigned to Grill kitchen"},
 
   // Labor
   {category: "labor", prompt: "How many staff do I need this Friday?"},

@@ -348,6 +348,34 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
   {
     type: "function",
     function: {
+      name: "list_suppliers",
+      description: "List inventory suppliers by name (for purchase proposals).",
+      parameters: {
+        type: "object",
+        properties: {
+          search: {type: "string"},
+          limit: {type: "number", default: 50},
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "list_inventory_locations",
+      description: "List inventory stock locations (stores, kitchens, etc.).",
+      parameters: {
+        type: "object",
+        properties: {
+          search: {type: "string"},
+          limit: {type: "number", default: 50},
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "get_expenses",
       description: "Get expenses from day closings by category.",
       parameters: {type: "object", properties: dateRangeProps},

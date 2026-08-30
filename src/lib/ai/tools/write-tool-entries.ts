@@ -1,6 +1,7 @@
 import type {OpenAIToolDefinition} from "@/lib/openai.service.ts";
 import type {AiReportToolDomain} from "@/lib/ai/tools/categories.ts";
 import type {ImportConfiguration, ImportDbLike} from "@/lib/data-import/types.ts";
+import type {WriteToolContext} from "@/lib/ai/tools/write-tools.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {createDishImportConfig} from "@/components/settings/dishes/dish.import.config.ts";
 import {createCategoryImportConfig} from "@/components/settings/categories/category.import.config.ts";
@@ -29,14 +30,32 @@ import {createShiftImportConfig} from "@/components/settings/users/shifts/shift.
 import {createTipDistributionImportConfig} from "@/components/settings/prints/print-settings.import.config.ts";
 import {createEmployeeImportConfig} from "@/components/hr/employees/employee.import.config.ts";
 import {createDepartmentImportConfig} from "@/components/hr/departments/department.import.config.ts";
+import {createSupplierImportConfig} from "@/components/inventory/suppliers/supplier.import.config.ts";
+import {createLocationImportConfig} from "@/components/inventory/locations/location.import.config.ts";
+import {
+  createAiAdjustmentImportConfig,
+  createAiIssueImportConfig,
+  createAiPurchaseImportConfig,
+  createAiWasteImportConfig,
+} from "@/lib/ai/import-configs/inventory-documents.ts";
+import {
+  createAiAttendanceImportConfig,
+  createCostCenterImportConfig,
+  createLeaveRequestImportConfig,
+  createPositionImportConfig,
+} from "@/lib/ai/import-configs/hr-documents.ts";
+import {createAiAccountImportConfig, createAiJournalEntryImportConfig} from "@/lib/ai/import-configs/accounts.ts";
+import {createSoftDeleteImportConfig} from "@/lib/ai/import-configs/soft-delete.ts";
 import type {TFunc} from "@/lib/ai/tools/write-tools.ts";
 import {
   buildWriteToolDefinitionsFromFields,
+  buildDeleteToolDefinitionFromFields,
   createMergeUpdatePatchesByFetcher,
   createMergeUpdatePatchesByMatchFields,
   type WriteFieldSpec,
 } from "@/lib/ai/tools/write-tool-helpers.ts";
 import {
+  fetchExistingKitchenRaw,
   fetchExistingDishIngredientRaw,
   fetchExistingDishModifierRaw,
   fetchExistingDishRaw,
@@ -57,13 +76,15 @@ export type WriteToolRegistryEntry = {
   recordsArgKey: string;
   createToolName: string;
   updateToolName?: string;
-  permissionModules: {create: string; update: string};
+  deleteToolName?: string;
+  permissionModules: {create: string; update: string; delete?: string};
   keywords: RegExp;
   /** Report domains used to route write tools when the prompt has write intent but weak entity keywords. */
   domains?: AiReportToolDomain[];
   /** When set, prompt must also match this (reduces false positives e.g. inventory reports). */
   actionKeywords?: RegExp;
-  createConfig: (opts: {db: ImportDbLike; t: TFunc}) => ImportConfiguration;
+  createConfig: (opts: {db: ImportDbLike; t: TFunc; context?: WriteToolContext}) => ImportConfiguration;
+  deleteConfig?: (opts: {db: ImportDbLike; t: TFunc; context?: WriteToolContext}) => ImportConfiguration;
   mergeUpdatePatches?: (
     db: ImportDbLike,
     patches: Array<Record<string, unknown>>,
@@ -108,9 +129,41 @@ const mergeDepartmentUpdatePatches = createMergeUpdatePatchesByMatchFields(Table
   softDelete: false,
 });
 const mergeModifierGroupUpdatePatches = createMergeUpdatePatchesByFetcher(fetchExistingModifierGroupOptionRaw);
-const mergeKitchenUpdatePatches = createMergeUpdatePatchesByMatchFields(Tables.kitchens, ["name"], {
-  softDelete: true,
-});
+const normalizeLabelList = (value: unknown): string[] => {
+  if (!Array.isArray(value)) return [];
+  return value.map(v => String(v).trim()).filter(Boolean);
+};
+
+const mergeKitchenUpdatePatches = async (
+  db: ImportDbLike,
+  patches: Array<Record<string, unknown>>,
+): Promise<Array<Record<string, unknown>>> =>
+  Promise.all(patches.map(async (patch) => {
+    const existing = await fetchExistingKitchenRaw(db, patch);
+    const base = existing ? {...existing, ...patch} : patch;
+
+    let items = normalizeLabelList(base.items);
+    const toAdd = normalizeLabelList(patch.items_add);
+    const toRemove = new Set(normalizeLabelList(patch.items_remove).map(s => s.toLowerCase()));
+
+    if (toAdd.length) {
+      const existingLower = new Set(items.map(s => s.toLowerCase()));
+      for (const label of toAdd) {
+        if (!existingLower.has(label.toLowerCase())) items.push(label);
+      }
+    }
+    if (toRemove.size) {
+      items = items.filter(i => !toRemove.has(i.toLowerCase()));
+    }
+    if (patch.items) {
+      items = normalizeLabelList(patch.items);
+    }
+
+    const merged = {...base, items};
+    delete merged.items_add;
+    delete merged.items_remove;
+    return merged;
+  }));
 const mergeExtraUpdatePatches = createMergeUpdatePatchesByMatchFields(Tables.extras, ["name"], {
   softDelete: true,
 });
@@ -158,6 +211,8 @@ const DISH_CREATE_TOOL: OpenAIToolDefinition = {
               cost: {type: "number", default: 0},
               categories: {type: "array", items: {type: "string"}},
               tax: {type: "string"},
+              workflow: {type: "string", description: "Workflow name for multi-stage kitchen routing"},
+              stage_overrides: {type: "string", description: "JSON map of stage name to kitchen name"},
             },
             required: ["name", "price", "categories"],
           },
@@ -189,6 +244,8 @@ const DISH_UPDATE_TOOL: OpenAIToolDefinition = {
               cost: {type: "number"},
               categories: {type: "array", items: {type: "string"}},
               tax: {type: "string"},
+              workflow: {type: "string", description: "Workflow name for multi-stage kitchen routing"},
+              stage_overrides: {type: "string", description: "JSON map of stage name to kitchen name"},
             },
             required: ["number"],
           },
@@ -359,7 +416,9 @@ const modifierGroupFields: WriteFieldSpec[] = [
 const kitchenFields: WriteFieldSpec[] = [
   {name: "name", type: "string", requiredOnCreate: true},
   {name: "priority", type: "number"},
-  {name: "items", type: "string[]", description: "Dish names or numbers"},
+  {name: "items", type: "string[]", description: "Full dish list (names or numbers) — replaces all assignments"},
+  {name: "items_add", type: "string[]", description: "Dishes to append to this kitchen"},
+  {name: "items_remove", type: "string[]", description: "Dishes to remove from this kitchen"},
   {name: "printers", type: "string[]", description: "Printer names"},
 ];
 
@@ -466,12 +525,36 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
     recordsArgKey: "dishes",
     createToolName: "propose_create_dishes",
     updateToolName: "propose_update_dishes",
-    permissionModules: {create: "admin.dishes.create", update: "admin.dishes.update"},
+    deleteToolName: "propose_delete_dishes",
+    permissionModules: {
+      create: "admin.dishes.create",
+      update: "admin.dishes.update",
+      delete: "admin.dishes.delete",
+    },
     keywords: DISH_WRITE_KEYWORDS,
     domains: ["sales", "lookup"],
     createConfig: createDishImportConfig,
+    deleteConfig: ({db, t}) => createSoftDeleteImportConfig({
+      db,
+      t,
+      table: Tables.dishes,
+      configId: "dishes",
+      entityLabel: "Dish",
+      matchFields: ["number"],
+      matchFieldDescriptions: {number: "Dish number"},
+    }),
     mergeUpdatePatches: mergeDishUpdatePatches,
-    buildToolDefinitions: () => [DISH_CREATE_TOOL, DISH_UPDATE_TOOL],
+    buildToolDefinitions: () => [
+      DISH_CREATE_TOOL,
+      DISH_UPDATE_TOOL,
+      buildDeleteToolDefinitionFromFields({
+        entityLabel: "Dish",
+        recordsArgKey: "dishes",
+        deleteToolName: "propose_delete_dishes",
+        matchFields: ["number"],
+        fields: [{name: "number", type: "string", requiredOnCreate: true, description: "Dish number"}],
+      }),
+    ],
   },
   {
     configId: "categories",
@@ -763,20 +846,45 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
     recordsArgKey: "kitchens",
     createToolName: "propose_create_kitchens",
     updateToolName: "propose_update_kitchens",
-    permissionModules: {create: "admin.kitchens.create", update: "admin.kitchens.update"},
-    keywords: /\b(kitchen|kitchens)\b/i,
+    deleteToolName: "propose_delete_kitchens",
+    permissionModules: {
+      create: "admin.kitchens.create",
+      update: "admin.kitchens.update",
+      delete: "admin.kitchens.delete",
+    },
+    keywords: /\b(kitchen|kitchens|station)\b/i,
     domains: ["manage"],
-    actionKeywords: /\b(add|create|update|change|set|new)\b/i,
+    actionKeywords: /\b(add|create|update|change|set|new|remove|delete|detach)\b/i,
     createConfig: createKitchenImportConfig,
-    mergeUpdatePatches: mergeKitchenUpdatePatches,
-    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
+    deleteConfig: ({db, t}) => createSoftDeleteImportConfig({
+      db,
+      t,
+      table: Tables.kitchens,
+      configId: "kitchens",
       entityLabel: "Kitchen",
-      recordsArgKey: "kitchens",
-      createToolName: "propose_create_kitchens",
-      updateToolName: "propose_update_kitchens",
       matchFields: ["name"],
-      fields: kitchenFields,
     }),
+    mergeUpdatePatches: mergeKitchenUpdatePatches,
+    buildToolDefinitions: () => [
+      ...buildWriteToolDefinitionsFromFields({
+        entityLabel: "Kitchen",
+        recordsArgKey: "kitchens",
+        createToolName: "propose_create_kitchens",
+        updateToolName: "propose_update_kitchens",
+        matchFields: ["name"],
+        fields: kitchenFields,
+        updateDescription:
+          "Propose updating kitchen stations. Use items_add/items_remove for dish routing, or items to replace all. " +
+          "Call get_kitchen_detail first to see current dish assignments.",
+      }),
+      buildDeleteToolDefinitionFromFields({
+        entityLabel: "Kitchen",
+        recordsArgKey: "kitchens",
+        deleteToolName: "propose_delete_kitchens",
+        matchFields: ["name"],
+        fields: [{name: "name", type: "string", requiredOnCreate: true}],
+      }),
+    ],
   },
   {
     configId: "extras",
@@ -990,6 +1098,300 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       createDescription: "Propose updating tip distribution weights by role name and user login.",
     }),
   },
+  {
+    configId: "inventory_purchases",
+    recordsArgKey: "purchases",
+    createToolName: "propose_create_purchases",
+    permissionModules: {create: "inventory.purchases", update: "inventory.purchases"},
+    keywords: /\b(purchase|purchases|buy|received|receipt)\b/i,
+    domains: ["inventory"],
+    actionKeywords: /\b(add|create|record|post|receive)\b/i,
+    createConfig: ({db, t, context}) => createAiPurchaseImportConfig({db, t, context}),
+    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
+      entityLabel: "Purchase",
+      recordsArgKey: "purchases",
+      createToolName: "propose_create_purchases",
+      matchFields: [],
+      fields: [
+        {name: "item", type: "string", requiredOnCreate: true},
+        {name: "quantity", type: "number", requiredOnCreate: true},
+        {name: "price", type: "number", requiredOnCreate: true},
+        {name: "supplier", type: "string", requiredOnCreate: true},
+        {name: "location", type: "string", requiredOnCreate: true},
+        {name: "post", type: "boolean"},
+        {name: "comments", type: "string"},
+      ],
+    }),
+  },
+  {
+    configId: "inventory_wastes",
+    recordsArgKey: "wastes",
+    createToolName: "propose_create_wastes",
+    permissionModules: {create: "inventory.wastes", update: "inventory.wastes"},
+    keywords: /\b(waste|wastage|spoilage|spoil)\b/i,
+    domains: ["inventory"],
+    actionKeywords: /\b(add|create|record|post)\b/i,
+    createConfig: ({db, t, context}) => createAiWasteImportConfig({db, t, context}),
+    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
+      entityLabel: "Waste",
+      recordsArgKey: "wastes",
+      createToolName: "propose_create_wastes",
+      matchFields: [],
+      fields: [
+        {name: "item", type: "string", requiredOnCreate: true},
+        {name: "quantity", type: "number", requiredOnCreate: true},
+        {name: "location", type: "string", requiredOnCreate: true},
+        {name: "post", type: "boolean"},
+        {name: "comments", type: "string"},
+      ],
+    }),
+  },
+  {
+    configId: "inventory_issues",
+    recordsArgKey: "issues",
+    createToolName: "propose_create_issues",
+    permissionModules: {create: "inventory.issues", update: "inventory.issues"},
+    keywords: /\b(issue|issues|issuance|issued)\b/i,
+    domains: ["inventory"],
+    actionKeywords: /\b(add|create|record|post)\b/i,
+    createConfig: ({db, t, context}) => createAiIssueImportConfig({db, t, context}),
+    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
+      entityLabel: "Issue",
+      recordsArgKey: "issues",
+      createToolName: "propose_create_issues",
+      matchFields: [],
+      fields: [
+        {name: "item", type: "string", requiredOnCreate: true},
+        {name: "quantity", type: "number", requiredOnCreate: true},
+        {name: "location", type: "string", requiredOnCreate: true},
+        {name: "post", type: "boolean"},
+        {name: "comments", type: "string"},
+      ],
+    }),
+  },
+  {
+    configId: "inventory_adjustments",
+    recordsArgKey: "adjustments",
+    createToolName: "propose_create_adjustments",
+    permissionModules: {create: "inventory.adjustments", update: "inventory.adjustments"},
+    keywords: /\b(adjustment|adjustments|stock adjustment)\b/i,
+    domains: ["inventory"],
+    actionKeywords: /\b(add|create|record|post)\b/i,
+    createConfig: ({db, t, context}) => createAiAdjustmentImportConfig({db, t, context}),
+    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
+      entityLabel: "Adjustment",
+      recordsArgKey: "adjustments",
+      createToolName: "propose_create_adjustments",
+      matchFields: [],
+      fields: [
+        {name: "item", type: "string", requiredOnCreate: true},
+        {name: "quantity_change", type: "number", requiredOnCreate: true},
+        {name: "location", type: "string", requiredOnCreate: true},
+        {name: "post", type: "boolean"},
+        {name: "comments", type: "string"},
+      ],
+    }),
+  },
+  {
+    configId: "inventory_suppliers",
+    recordsArgKey: "suppliers",
+    createToolName: "propose_create_suppliers",
+    updateToolName: "propose_update_suppliers",
+    permissionModules: {create: "inventory.suppliers", update: "inventory.suppliers"},
+    keywords: /\b(supplier|suppliers|vendor|vendors)\b/i,
+    domains: ["inventory"],
+    actionKeywords: /\b(add|create|update|change|set|new)\b/i,
+    createConfig: createSupplierImportConfig,
+    mergeUpdatePatches: createMergeUpdatePatchesByMatchFields(Tables.inventory_suppliers, ["name"], {softDelete: false}),
+    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
+      entityLabel: "Supplier",
+      recordsArgKey: "suppliers",
+      createToolName: "propose_create_suppliers",
+      updateToolName: "propose_update_suppliers",
+      matchFields: ["name"],
+      fields: [
+        {name: "name", type: "string", requiredOnCreate: true},
+        {name: "address", type: "string"},
+        {name: "phone", type: "string"},
+        {name: "email", type: "string"},
+      ],
+    }),
+  },
+  {
+    configId: "inventory_locations",
+    recordsArgKey: "locations",
+    createToolName: "propose_create_locations",
+    updateToolName: "propose_update_locations",
+    permissionModules: {create: "inventory.locations", update: "inventory.locations"},
+    keywords: /\b(inventory location|stock location|warehouse|store location)\b/i,
+    domains: ["inventory"],
+    actionKeywords: /\b(add|create|update|change|set|new)\b/i,
+    createConfig: createLocationImportConfig,
+    mergeUpdatePatches: createMergeUpdatePatchesByMatchFields(Tables.inventory_locations, ["name"], {softDelete: true}),
+    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
+      entityLabel: "Location",
+      recordsArgKey: "locations",
+      createToolName: "propose_create_locations",
+      updateToolName: "propose_update_locations",
+      matchFields: ["name"],
+      fields: [
+        {name: "name", type: "string", requiredOnCreate: true},
+        {name: "type", type: "string", requiredOnCreate: true, description: "Store, Kitchen, etc."},
+        {name: "is_active", type: "boolean"},
+      ],
+    }),
+  },
+  {
+    configId: "positions",
+    recordsArgKey: "positions",
+    createToolName: "propose_create_positions",
+    updateToolName: "propose_update_positions",
+    permissionModules: {create: "hr.positions", update: "hr.positions"},
+    keywords: /\b(position|positions|job title)\b/i,
+    domains: ["hr"],
+    actionKeywords: /\b(add|create|update|change|set|new)\b/i,
+    createConfig: createPositionImportConfig,
+    mergeUpdatePatches: createMergeUpdatePatchesByMatchFields(Tables.positions, ["code"], {softDelete: false}),
+    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
+      entityLabel: "Position",
+      recordsArgKey: "positions",
+      createToolName: "propose_create_positions",
+      updateToolName: "propose_update_positions",
+      matchFields: ["code"],
+      fields: [
+        {name: "code", type: "string", requiredOnCreate: true},
+        {name: "name", type: "string", requiredOnCreate: true},
+        {name: "department", type: "string"},
+        {name: "default_cost_center", type: "string"},
+        {name: "is_active", type: "boolean"},
+      ],
+    }),
+  },
+  {
+    configId: "cost_centers",
+    recordsArgKey: "cost_centers",
+    createToolName: "propose_create_cost_centers",
+    updateToolName: "propose_update_cost_centers",
+    permissionModules: {create: "hr.cost_centers", update: "hr.cost_centers"},
+    keywords: /\b(cost center|cost centres?)\b/i,
+    domains: ["hr"],
+    actionKeywords: /\b(add|create|update|change|set|new)\b/i,
+    createConfig: createCostCenterImportConfig,
+    mergeUpdatePatches: createMergeUpdatePatchesByMatchFields(Tables.cost_centers, ["code"], {softDelete: false}),
+    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
+      entityLabel: "Cost center",
+      recordsArgKey: "cost_centers",
+      createToolName: "propose_create_cost_centers",
+      updateToolName: "propose_update_cost_centers",
+      matchFields: ["code"],
+      fields: [
+        {name: "code", type: "string", requiredOnCreate: true},
+        {name: "name", type: "string", requiredOnCreate: true},
+        {name: "is_active", type: "boolean"},
+      ],
+    }),
+  },
+  {
+    configId: "leave_requests",
+    recordsArgKey: "leave_requests",
+    createToolName: "propose_create_leave_requests",
+    permissionModules: {create: "hr.leave", update: "hr.leave"},
+    keywords: /\b(leave request|time off|pto|vacation request)\b/i,
+    domains: ["hr"],
+    actionKeywords: /\b(add|create|request|submit)\b/i,
+    createConfig: createLeaveRequestImportConfig,
+    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
+      entityLabel: "Leave request",
+      recordsArgKey: "leave_requests",
+      createToolName: "propose_create_leave_requests",
+      matchFields: [],
+      fields: [
+        {name: "employee", type: "string", requiredOnCreate: true},
+        {name: "leave_type", type: "string", requiredOnCreate: true},
+        {name: "start_date", type: "string", requiredOnCreate: true},
+        {name: "end_date", type: "string", requiredOnCreate: true},
+        {name: "days", type: "number"},
+        {name: "reason", type: "string"},
+      ],
+    }),
+  },
+  {
+    configId: "time_entries",
+    recordsArgKey: "attendance",
+    createToolName: "propose_create_attendance",
+    updateToolName: "propose_update_attendance",
+    permissionModules: {create: "hr.attendance", update: "hr.attendance"},
+    keywords: /\b(attendance|clock in|clock out|time entry|punch)\b/i,
+    domains: ["hr", "labor"],
+    actionKeywords: /\b(add|create|update|correct|fix|record)\b/i,
+    createConfig: ({db, t, context}) => createAiAttendanceImportConfig({db, t, context}),
+    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
+      entityLabel: "Attendance",
+      recordsArgKey: "attendance",
+      createToolName: "propose_create_attendance",
+      updateToolName: "propose_update_attendance",
+      matchFields: ["employee", "clock_in"],
+      fields: [
+        {name: "employee", type: "string", requiredOnCreate: true},
+        {name: "clock_in", type: "string", requiredOnCreate: true},
+        {name: "clock_out", type: "string", requiredOnCreate: true},
+        {name: "notes", type: "string"},
+      ],
+    }),
+  },
+  {
+    configId: "accounts",
+    recordsArgKey: "accounts",
+    createToolName: "propose_create_accounts",
+    updateToolName: "propose_update_accounts",
+    permissionModules: {create: "accounts.chart_of_accounts", update: "accounts.chart_of_accounts"},
+    keywords: /\b(chart of accounts|account code|coa|gl account)\b/i,
+    domains: ["accounts"],
+    actionKeywords: /\b(add|create|update|change|set|new)\b/i,
+    createConfig: createAiAccountImportConfig,
+    mergeUpdatePatches: createMergeUpdatePatchesByMatchFields(Tables.accounts, ["code"], {softDelete: false}),
+    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
+      entityLabel: "Account",
+      recordsArgKey: "accounts",
+      createToolName: "propose_create_accounts",
+      updateToolName: "propose_update_accounts",
+      matchFields: ["code"],
+      fields: [
+        {name: "code", type: "string", requiredOnCreate: true},
+        {name: "name", type: "string", requiredOnCreate: true},
+        {name: "group_code", type: "string", requiredOnCreate: true},
+        {name: "normal_balance", type: "string", requiredOnCreate: true},
+        {name: "parent_code", type: "string"},
+        {name: "is_active", type: "boolean"},
+        {name: "notes", type: "string"},
+      ],
+    }),
+  },
+  {
+    configId: "journal_entries",
+    recordsArgKey: "journal_entries",
+    createToolName: "propose_create_journal_entries",
+    permissionModules: {create: "accounts.journal_entries", update: "accounts.journal_entries"},
+    keywords: /\b(journal entry|journal entries|gl entry|debit|credit)\b/i,
+    domains: ["accounts"],
+    actionKeywords: /\b(add|create|post|record)\b/i,
+    createConfig: ({db, t, context}) => createAiJournalEntryImportConfig({db, t, context}),
+    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
+      entityLabel: "Journal entry",
+      recordsArgKey: "journal_entries",
+      createToolName: "propose_create_journal_entries",
+      matchFields: [],
+      fields: [
+        {name: "reference", type: "string", requiredOnCreate: true},
+        {name: "entry_date", type: "string", requiredOnCreate: true},
+        {name: "description", type: "string"},
+        {name: "account", type: "string", requiredOnCreate: true},
+        {name: "debit", type: "number"},
+        {name: "credit", type: "number"},
+        {name: "line_description", type: "string"},
+      ],
+    }),
+  },
 ];
 
 export const buildWriteToolPermissionMap = (): Record<string, string> => {
@@ -998,6 +1400,9 @@ export const buildWriteToolPermissionMap = (): Record<string, string> => {
     map[entry.createToolName] = entry.permissionModules.create;
     if (entry.updateToolName) {
       map[entry.updateToolName] = entry.permissionModules.update;
+    }
+    if (entry.deleteToolName && entry.permissionModules.delete) {
+      map[entry.deleteToolName] = entry.permissionModules.delete;
     }
   }
   return map;

@@ -2,12 +2,44 @@ import {Tables} from "@/api/db/tables.ts";
 import type {ImportDbLike} from "@/lib/data-import/types.ts";
 import {getReorderLevelForStore} from "@/utils/inventory.ts";
 
+export async function fetchExistingKitchenRaw(
+  db: ImportDbLike,
+  patch: Record<string, unknown>,
+): Promise<Record<string, unknown> | null> {
+  const name = String(patch.name ?? "").trim();
+  if (!name) return null;
+
+  const [rows] = await db.query(
+    `SELECT id, name, priority, items, printers FROM ${Tables.kitchens}
+     WHERE string::lowercase(name) = string::lowercase($name) AND deleted_at = none
+     FETCH items, printers`,
+    {name},
+  );
+  const row = rows?.[0];
+  if (!row) return null;
+
+  const items = (row.items ?? []).map((item: any) => {
+    const dishName = String(item?.name ?? "").trim();
+    const dishNumber = String(item?.number ?? "").trim();
+    return dishNumber || dishName;
+  }).filter(Boolean);
+
+  const printers = (row.printers ?? []).map((p: any) => String(p?.name ?? "").trim()).filter(Boolean);
+
+  return {
+    name: row.name,
+    priority: row.priority,
+    items,
+    printers,
+  };
+}
+
 export async function fetchExistingDishRaw(
   db: ImportDbLike,
   number: string,
 ): Promise<Record<string, unknown> | null> {
   const [rows] = await db.query(
-    `SELECT * FROM ${Tables.dishes} WHERE number = $number AND deleted_at = none LIMIT 1 FETCH categories, tax`,
+    `SELECT * FROM ${Tables.dishes} WHERE number = $number AND deleted_at = none LIMIT 1 FETCH categories, tax, workflow`,
     {number},
   );
   const dish = rows?.[0];
@@ -22,6 +54,29 @@ export async function fetchExistingDishRaw(
     ? {label: String(dish.tax.name ?? ""), id: String(dish.tax.id)}
     : undefined;
 
+  const workflowName = dish.workflow?.name ? String(dish.workflow.name) : undefined;
+  let stageOverridesJson: string | undefined;
+  if (dish.stage_overrides && dish.workflow?.id) {
+    const [stages] = await db.query(
+      `SELECT id, name, kitchen.name AS kitchen_name FROM ${Tables.workflow_stages}
+       WHERE workflow = $wf ORDER BY sequence ASC FETCH kitchen`,
+      {wf: dish.workflow.id},
+    );
+    const overrideMap: Record<string, string> = {};
+    for (const [stageId, kitchenId] of Object.entries(dish.stage_overrides as Record<string, unknown>)) {
+      const stage = (stages ?? []).find((s: any) => String(s.id) === String(stageId));
+      const kitchen = (stages ?? []).find((s: any) =>
+        String(s.kitchen?.id ?? s.kitchen) === String(kitchenId),
+      );
+      if (stage?.name && kitchen?.kitchen_name) {
+        overrideMap[stage.name] = kitchen.kitchen_name;
+      }
+    }
+    if (Object.keys(overrideMap).length > 0) {
+      stageOverridesJson = JSON.stringify(overrideMap);
+    }
+  }
+
   return {
     name: dish.name,
     number: dish.number,
@@ -30,6 +85,8 @@ export async function fetchExistingDishRaw(
     cost: dish.cost,
     categories,
     tax,
+    workflow: workflowName,
+    stage_overrides: stageOverridesJson,
   };
 }
 

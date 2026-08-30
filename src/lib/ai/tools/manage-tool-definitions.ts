@@ -40,8 +40,24 @@ export const AI_MANAGE_READ_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_kitchens",
-      description: "List kitchen stations.",
+      description: "List kitchen stations (name and priority only). Use get_kitchen_detail for dish assignments.",
       parameters: {type: "object", properties: searchLimitProps},
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_kitchen_detail",
+      description:
+        "Get kitchen station details including assigned dishes (names/numbers) and printers. " +
+        "Use before propose_update_kitchens when adding or removing dishes.",
+      parameters: {
+        type: "object",
+        properties: {
+          name: {type: "string", description: "Kitchen name (partial match)"},
+          search: {type: "string", description: "Search kitchen or dish name"},
+        },
+      },
     },
   },
   {
@@ -125,7 +141,7 @@ export const AI_MANAGE_READ_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_workflows",
-      description: "List kitchen workflows.",
+      description: "List kitchen workflows with stages and target kitchen per stage.",
       parameters: {type: "object", properties: searchLimitProps},
     },
   },
