@@ -382,3 +382,7 @@ export const SpoilagePredictionScreen = lazy(() =>
 export const VisitCadenceScreen = lazy(() =>
   import('@/screens/reports/visit.cadence.report.tsx').then(m => ({default: m.VisitCadenceScreen}))
 );
+
+export const RecipeSubstitutionScreen = lazy(() =>
+  import('@/screens/reports/recipe.substitution.report.tsx').then(m => ({default: m.RecipeSubstitutionScreen}))
+);

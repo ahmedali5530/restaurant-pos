@@ -45,7 +45,7 @@ import {
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
   faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
-  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck,
+  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck, faExchangeAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -78,6 +78,7 @@ import {
   REPORTS_CLV_TRAJECTORY,
   REPORTS_SPOILAGE_PREDICTION,
   REPORTS_VISIT_CADENCE,
+  REPORTS_RECIPE_SUBSTITUTION,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -124,7 +125,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -169,6 +170,7 @@ export function AiCommandCenterScreen() {
         fetchCLVTrajectorySummary(db),
         fetchSpoilageSummary(db),
         fetchCadenceSummary(db),
+        fetchSubstitutionSummary(db),
       ]);
 
       setMetrics([
@@ -179,7 +181,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -1357,6 +1359,32 @@ async function fetchCadenceSummary(db: any): Promise<MetricCard> {
       link: REPORTS_VISIT_CADENCE, linkLabel: 'View cadences',
     };
   } catch { return neutralCard('Visit Cadence', faCalendarCheck, 'text-blue-600', REPORTS_VISIT_CADENCE); }
+}
+
+async function fetchSubstitutionSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total,
+         math::count(trigger_reason = 'stockout') AS stockout,
+         math::sum(est_monthly_savings) AS savings
+       FROM substitution_suggestion
+       WHERE action_taken = 'none'
+         AND overall_score >= 0.5
+         AND suggested_at > time::now() - 24h
+       GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const s = list[0];
+    if (!s || s.count === 0) return neutralCard('Recipe Substitution', faExchangeAlt, 'text-violet-600', REPORTS_RECIPE_SUBSTITUTION);
+    return {
+      title: 'Recipe Substitution',
+      icon: faExchangeAlt, color: 'text-violet-600',
+      primary: `${s.stockout} stockout`,
+      secondary: `${s.count} suggestions · ${withCurrency(s.savings)}/mo`,
+      health: s.stockout > 0 ? 'warning' : 'good',
+      link: REPORTS_RECIPE_SUBSTITUTION, linkLabel: 'View suggestions',
+    };
+  } catch { return neutralCard('Recipe Substitution', faExchangeAlt, 'text-violet-600', REPORTS_RECIPE_SUBSTITUTION); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
