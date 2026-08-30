@@ -45,7 +45,7 @@ import {
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
   faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
-  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck, faExchangeAlt, faGraduationCap, faFaceSmile, faCartShopping, faFileShield,
+  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck, faExchangeAlt, faGraduationCap, faFaceSmile, faCartShopping, faFileShield, faGiftCard,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -85,6 +85,7 @@ import {
   REPORTS_ABANDONED_CART,
   REPORTS_BRANCH_COMPARISON,
   REPORTS_COMPLIANCE_TRACKING,
+  REPORTS_GIFTCARD_FRAUD,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -131,7 +132,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -183,6 +184,7 @@ export function AiCommandCenterScreen() {
         fetchAbandonedSummary(db),
         fetchBranchCompSummary(db),
         fetchComplianceSummary(db),
+        fetchGiftCardFraudSummary(db),
       ]);
 
       setMetrics([
@@ -193,7 +195,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -1545,6 +1547,28 @@ async function fetchComplianceSummary(db: any): Promise<MetricCard> {
       link: REPORTS_COMPLIANCE_TRACKING, linkLabel: 'View alerts',
     };
   } catch { return neutralCard('Compliance', faFileShield, 'text-emerald-600', REPORTS_COMPLIANCE_TRACKING); }
+}
+
+async function fetchGiftCardFraudSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total,
+         math::count(severity = 'critical') AS critical,
+         math::sum(estimated_loss) AS total_loss
+       FROM giftcard_fraud_alert WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const g = list[0];
+    if (!g || g.count === 0) return neutralCard('Gift Card Fraud', faGiftCard, 'text-rose-600', REPORTS_GIFTCARD_FRAUD);
+    return {
+      title: 'Gift Card Fraud',
+      icon: faGiftCard, color: 'text-rose-600',
+      primary: `${g.critical} critical`,
+      secondary: `${g.count} alerts · ${withCurrency(g.total_loss)} loss`,
+      health: g.critical > 0 ? 'critical' : 'warning',
+      link: REPORTS_GIFTCARD_FRAUD, linkLabel: 'View alerts',
+    };
+  } catch { return neutralCard('Gift Card Fraud', faGiftCard, 'text-rose-600', REPORTS_GIFTCARD_FRAUD); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {

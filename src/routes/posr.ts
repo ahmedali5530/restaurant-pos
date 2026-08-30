@@ -155,6 +155,7 @@ export const REPORTS_SATISFACTION_PREDICTION = REPORTS + '/satisfaction-predicti
 export const REPORTS_ABANDONED_CART = REPORTS + '/abandoned-cart';
 export const REPORTS_BRANCH_COMPARISON = REPORTS + '/branch-comparison';
 export const REPORTS_COMPLIANCE_TRACKING = REPORTS + '/compliance-tracking';
+export const REPORTS_GIFTCARD_FRAUD = REPORTS + '/giftcard-fraud';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';

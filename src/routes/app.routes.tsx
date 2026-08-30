@@ -80,6 +80,7 @@ import {
   REPORTS_ABANDONED_CART,
   REPORTS_BRANCH_COMPARISON,
   REPORTS_COMPLIANCE_TRACKING,
+  REPORTS_GIFTCARD_FRAUD,
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
   REPORTS_CONSUMPTION,
@@ -252,6 +253,7 @@ import {
   AbandonedCartScreen,
   BranchComparisonScreen,
   ComplianceTrackingScreen,
+  GiftCardFraudScreen,
   TablesideScreen,
 } from "@/routes/lazy-screens.ts";
 
@@ -351,6 +353,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_ABANDONED_CART} element={<AbandonedCartScreen/>}/>
         <Route path={REPORTS_BRANCH_COMPARISON} element={<BranchComparisonScreen/>}/>
         <Route path={REPORTS_COMPLIANCE_TRACKING} element={<ComplianceTrackingScreen/>}/>
+        <Route path={REPORTS_GIFTCARD_FRAUD} element={<GiftCardFraudScreen/>}/>
         <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
         <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
         <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>

@@ -410,3 +410,7 @@ export const BranchComparisonScreen = lazy(() =>
 export const ComplianceTrackingScreen = lazy(() =>
   import('@/screens/reports/compliance.tracking.report.tsx').then(m => ({default: m.ComplianceTrackingScreen}))
 );
+
+export const GiftCardFraudScreen = lazy(() =>
+  import('@/screens/reports/giftcard.fraud.report.tsx').then(m => ({default: m.GiftCardFraudScreen}))
+);
