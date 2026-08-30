@@ -386,3 +386,7 @@ export const VisitCadenceScreen = lazy(() =>
 export const RecipeSubstitutionScreen = lazy(() =>
   import('@/screens/reports/recipe.substitution.report.tsx').then(m => ({default: m.RecipeSubstitutionScreen}))
 );
+
+export const TrainingNeedScreen = lazy(() =>
+  import('@/screens/reports/training.need.report.tsx').then(m => ({default: m.TrainingNeedScreen}))
+);

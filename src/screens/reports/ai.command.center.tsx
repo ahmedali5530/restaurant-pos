@@ -45,7 +45,7 @@ import {
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
   faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
-  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck, faExchangeAlt,
+  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck, faExchangeAlt, faGraduationCap,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -79,6 +79,7 @@ import {
   REPORTS_SPOILAGE_PREDICTION,
   REPORTS_VISIT_CADENCE,
   REPORTS_RECIPE_SUBSTITUTION,
+  REPORTS_TRAINING_NEED,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -125,7 +126,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -171,6 +172,7 @@ export function AiCommandCenterScreen() {
         fetchSpoilageSummary(db),
         fetchCadenceSummary(db),
         fetchSubstitutionSummary(db),
+        fetchTrainingSummary(db),
       ]);
 
       setMetrics([
@@ -181,7 +183,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -1385,6 +1387,30 @@ async function fetchSubstitutionSummary(db: any): Promise<MetricCard> {
       link: REPORTS_RECIPE_SUBSTITUTION, linkLabel: 'View suggestions',
     };
   } catch { return neutralCard('Recipe Substitution', faExchangeAlt, 'text-violet-600', REPORTS_RECIPE_SUBSTITUTION); }
+}
+
+async function fetchTrainingSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total,
+         math::count(need_level = 'critical') AS critical,
+         math::sum(est_cost_of_inaction) AS total_cost
+       FROM training_need_prediction
+       WHERE need_score >= 35 AND action_taken = 'none'
+       GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const t = list[0];
+    if (!t || t.count === 0) return neutralCard('Training Need', faGraduationCap, 'text-blue-600', REPORTS_TRAINING_NEED);
+    return {
+      title: 'Training Need',
+      icon: faGraduationCap, color: 'text-blue-600',
+      primary: `${t.critical} critical`,
+      secondary: `${t.count} needs · ${withCurrency(t.total_cost)} cost`,
+      health: t.critical > 0 ? 'critical' : 'warning',
+      link: REPORTS_TRAINING_NEED, linkLabel: 'View needs',
+    };
+  } catch { return neutralCard('Training Need', faGraduationCap, 'text-blue-600', REPORTS_TRAINING_NEED); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {

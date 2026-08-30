@@ -149,6 +149,7 @@ export const REPORTS_CLV_TRAJECTORY = REPORTS + '/clv-trajectory';
 export const REPORTS_SPOILAGE_PREDICTION = REPORTS + '/spoilage-prediction';
 export const REPORTS_VISIT_CADENCE = REPORTS + '/visit-cadence';
 export const REPORTS_RECIPE_SUBSTITUTION = REPORTS + '/recipe-substitution';
+export const REPORTS_TRAINING_NEED = REPORTS + '/training-need';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';

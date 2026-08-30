@@ -74,6 +74,7 @@ import {
   REPORTS_SPOILAGE_PREDICTION,
   REPORTS_VISIT_CADENCE,
   REPORTS_RECIPE_SUBSTITUTION,
+  REPORTS_TRAINING_NEED,
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
   REPORTS_CONSUMPTION,
@@ -240,6 +241,7 @@ import {
   SpoilagePredictionScreen,
   VisitCadenceScreen,
   RecipeSubstitutionScreen,
+  TrainingNeedScreen,
   TablesideScreen,
 } from "@/routes/lazy-screens.ts";
 
@@ -333,6 +335,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_SPOILAGE_PREDICTION} element={<SpoilagePredictionScreen/>}/>
         <Route path={REPORTS_VISIT_CADENCE} element={<VisitCadenceScreen/>}/>
         <Route path={REPORTS_RECIPE_SUBSTITUTION} element={<RecipeSubstitutionScreen/>}/>
+        <Route path={REPORTS_TRAINING_NEED} element={<TrainingNeedScreen/>}/>
         <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
         <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
         <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>
