@@ -137,6 +137,7 @@ export const REPORTS_FOOD_SAFETY = REPORTS + '/food-safety';
 export const REPORTS_ENERGY_OPTIMIZATION = REPORTS + '/energy-optimization';
 export const REPORTS_STAFF_TURNOVER = REPORTS + '/staff-turnover';
 export const REPORTS_YIELD_VARIANCE = REPORTS + '/yield-variance';
+export const REPORTS_KITCHEN_BOTTLENECK = REPORTS + '/kitchen-bottleneck';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';

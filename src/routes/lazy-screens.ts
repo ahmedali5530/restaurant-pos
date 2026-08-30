@@ -338,3 +338,7 @@ export const StaffTurnoverScreen = lazy(() =>
 export const YieldVarianceScreen = lazy(() =>
   import('@/screens/reports/yield.variance.report.tsx').then(m => ({default: m.YieldVarianceScreen}))
 );
+
+export const KitchenBottleneckScreen = lazy(() =>
+  import('@/screens/reports/kitchen.bottleneck.report.tsx').then(m => ({default: m.KitchenBottleneckScreen}))
+);
