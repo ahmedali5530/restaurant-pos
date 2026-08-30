@@ -152,6 +152,7 @@ export const REPORTS_RECIPE_SUBSTITUTION = REPORTS + '/recipe-substitution';
 export const REPORTS_TRAINING_NEED = REPORTS + '/training-need';
 export const REPORTS_SEATING_OPTIMIZATION = REPORTS + '/seating-optimization';
 export const REPORTS_SATISFACTION_PREDICTION = REPORTS + '/satisfaction-prediction';
+export const REPORTS_ABANDONED_CART = REPORTS + '/abandoned-cart';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';
