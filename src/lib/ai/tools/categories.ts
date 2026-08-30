@@ -43,6 +43,8 @@ export const AI_REPORT_TOOL_CATEGORIES: Record<AiReportToolDomain | "core", read
     "get_sale_vs_consumption",
     "get_kitchen_reconciliation",
     "get_purchase_orders",
+    "list_suppliers",
+    "list_inventory_locations",
   ],
   operations: [
     "get_orders",
@@ -104,6 +106,7 @@ export const AI_REPORT_TOOL_CATEGORIES: Record<AiReportToolDomain | "core", read
     "list_floors",
     "list_tables",
     "list_modifier_groups",
+    "get_kitchen_detail",
     "list_kitchens",
     "list_taxes",
     "list_discounts",

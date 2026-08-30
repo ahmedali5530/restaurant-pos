@@ -7,6 +7,7 @@ const WRITE_INTENT_VERBS = [
   // English
   "add", "create", "new", "update", "change", "modify", "set", "edit",
   "raise", "lower", "increase", "decrease", "rename", "assign", "attach", "hire", "import",
+  "remove", "delete", "detach",
   // Turkish
   "ekle", "oluştur", "yeni", "güncelle", "değiştir", "düzenle", "ata", "kaydet",
   // German

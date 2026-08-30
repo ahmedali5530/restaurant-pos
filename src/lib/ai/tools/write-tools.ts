@@ -88,9 +88,15 @@ async function buildProposal(
   };
 }
 
+export type WriteToolContext = {
+  userId?: string;
+  user?: {id: string};
+};
+
 export type BuildWriteProposalOptions = {
   db: ImportDbLike;
   t: TFunc;
+  context?: WriteToolContext;
 };
 
 /**
@@ -103,7 +109,7 @@ export const buildWriteProposal = async (
   args: Record<string, unknown>,
   options: BuildWriteProposalOptions,
 ): Promise<WriteProposal> => {
-  const {db, t} = options;
+  const {db, t, context} = options;
   const entry = getWriteRegistryEntry(toolName);
   if (!entry) {
     throw new Error(`Unknown write tool: ${toolName}`);
@@ -114,14 +120,17 @@ export const buildWriteProposal = async (
     throw new Error(`Unknown write tool mode: ${toolName}`);
   }
 
-  const config = entry.createConfig({db, t});
+  const config = entry.deleteToolName === toolName && entry.deleteConfig
+    ? entry.deleteConfig({db, t, context})
+    : entry.createConfig({db, t, context});
   const rawRecords = Array.isArray(args[entry.recordsArgKey])
     ? args[entry.recordsArgKey] as Array<Record<string, unknown>>
     : [];
 
-  const records = mode === "update" && entry.mergeUpdatePatches
+  const records = mode === "update" && entry.mergeUpdatePatches && entry.deleteToolName !== toolName
     ? await entry.mergeUpdatePatches(db, rawRecords)
     : rawRecords;
 
-  return buildProposal(toolName, config, mode, records);
+  const proposal = await buildProposal(toolName, config, mode, records);
+  return {...proposal, configId: entry.configId};
 };

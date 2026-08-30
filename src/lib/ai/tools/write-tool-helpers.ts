@@ -129,6 +129,40 @@ export const buildWriteToolDefinitionsFromFields = (
   ];
 };
 
+export const buildDeleteToolDefinitionFromFields = (
+  opts: {
+    entityLabel: string;
+    recordsArgKey: string;
+    deleteToolName: string;
+    fields: WriteFieldSpec[];
+    matchFields: string[];
+    deleteDescription?: string;
+  },
+): OpenAIToolDefinition => {
+  const entityLower = opts.entityLabel.toLowerCase();
+  return {
+    type: "function",
+    function: {
+      name: opts.deleteToolName,
+      description:
+        opts.deleteDescription ??
+        `Propose soft-deleting one or more ${entityLower} records. This does NOT save anything — ` +
+        `it only prepares a preview for the user to review and confirm.`,
+      parameters: {
+        type: "object",
+        properties: {
+          [opts.recordsArgKey]: {
+            type: "array",
+            description: `One entry per ${entityLower} to delete (match fields required).`,
+            items: buildItemSchema(opts.fields, "update", opts.matchFields),
+          },
+        },
+        required: [opts.recordsArgKey],
+      },
+    },
+  };
+};
+
 const patchMatchValue = (patch: Record<string, unknown>, field: string): string =>
   String(patch[field] ?? "").trim();
 

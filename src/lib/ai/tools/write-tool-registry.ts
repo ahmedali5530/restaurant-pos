@@ -16,6 +16,9 @@ for (const entry of WRITE_TOOL_REGISTRY) {
   if (entry.updateToolName) {
     toolNameIndex.set(entry.updateToolName, entry);
   }
+  if (entry.deleteToolName) {
+    toolNameIndex.set(entry.deleteToolName, entry);
+  }
   configIdIndex.set(entry.configId, entry);
 }
 
@@ -99,6 +102,9 @@ export const detectWriteToolsForPrompt = (
   return matched;
 };
 
+const isDeleteTool = (toolName: string, entry: WriteToolRegistryEntry) =>
+  toolName === entry.deleteToolName;
+
 const appendPermittedToolsForEntry = (
   entry: WriteToolRegistryEntry,
   allowedModules: string[],
@@ -111,7 +117,9 @@ const appendPermittedToolsForEntry = (
       ? entry.permissionModules.create
       : isUpdateTool(name, entry)
         ? entry.permissionModules.update
-        : null;
+        : isDeleteTool(name, entry)
+          ? entry.permissionModules.delete
+          : null;
     if (!module || !hasWritePermissionModule(module, allowedModules)) continue;
     matched.push(tool);
   }
@@ -135,5 +143,6 @@ export const getWriteModeForTool = (toolName: string): "create" | "update" | nul
   if (!entry) return null;
   if (toolName === entry.createToolName) return "create";
   if (toolName === entry.updateToolName) return "update";
+  if (toolName === entry.deleteToolName) return "update";
   return null;
 };

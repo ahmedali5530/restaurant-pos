@@ -1,7 +1,7 @@
 import type {ImportDbLike} from "@/lib/data-import/types.ts";
 import type {ImportSummary} from "@/lib/data-import/types.ts";
 import {runImport} from "@/lib/data-import/run-import.ts";
-import type {TFunc, WriteProposal} from "@/lib/ai/tools/write-tools.ts";
+import type {TFunc, WriteProposal, WriteToolContext} from "@/lib/ai/tools/write-tools.ts";
 import {getWriteRegistryEntryByConfigId} from "@/lib/ai/tools/write-tool-registry.ts";
 
 /**
@@ -19,14 +19,20 @@ export async function commitWriteProposal(
   db: ImportDbLike,
   t: TFunc,
   proposal: WriteProposal,
-  options: {signal?: AbortSignal; onProgress?: (current: number, total: number) => void} = {},
+  options: {
+    signal?: AbortSignal;
+    onProgress?: (current: number, total: number) => void;
+    context?: WriteToolContext;
+  } = {},
 ): Promise<ImportSummary> {
   const entry = getWriteRegistryEntryByConfigId(proposal.configId);
   if (!entry) {
     throw new Error(`No write executor registered for config "${proposal.configId}"`);
   }
 
-  const config = entry.createConfig({db, t});
+  const config = entry.deleteToolName === proposal.toolName && entry.deleteConfig
+    ? entry.deleteConfig({db, t, context: options.context})
+    : entry.createConfig({db, t, context: options.context});
 
   return runImport(config, proposal.records, {
     mode: proposal.mode,

@@ -11,7 +11,7 @@ import {getAiAssistantSystemPrompt} from "@/lib/ai/schema.ts";
 import {executeAiReportTool, type ExecuteToolContext} from "@/lib/ai/tools/executor.ts";
 import {filterWriteToolsByPermissions, canUseWriteTool} from "@/lib/ai/tools/write-permissions.ts";
 import {listWriteToolNames} from "@/lib/ai/tools/write-tool-registry.ts";
-import {buildWriteProposal, type TFunc, type WriteProposal} from "@/lib/ai/tools/write-tools.ts";
+import {buildWriteProposal, type TFunc, type WriteProposal, type WriteToolContext} from "@/lib/ai/tools/write-tools.ts";
 import {selectAssistantToolsForPrompt} from "@/lib/ai/tools/select-assistant-tools.ts";
 import type {AiReportToolDomain} from "@/lib/ai/tools/categories.ts";
 import {type AiChartSpec, dedupeCharts} from "@/lib/ai/charts.ts";
@@ -49,6 +49,7 @@ export type AssistantAgentOptions = {
   signal?: AbortSignal;
   /** User prompt for tool routing; derived from history on resume when omitted. */
   prompt?: string;
+  writeContext?: WriteToolContext;
 };
 
 export type AssistantAgentResult =
@@ -135,7 +136,7 @@ async function runLoop(
         // Build the proposal, then STOP — do not resolve this tool_call and
         // do not continue the loop. The caller must show the preview and
         // call resumeAiAssistantAgent() once the user confirms or cancels.
-        const proposal = await buildWriteProposal(name, args, {db, t});
+        const proposal = await buildWriteProposal(name, args, {db, t, context: options.writeContext});
         return {type: "write_proposal", proposal, toolCallId: toolCall.id, charts: dedupeCharts(context.charts), messages};
       }
 

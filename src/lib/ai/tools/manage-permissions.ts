@@ -4,6 +4,7 @@ export const MANAGE_TOOL_PERMISSION_MODULES: Record<string, string> = {
   list_tables: "admin.tables",
   list_modifier_groups: "admin.modifier_groups",
   list_kitchens: "admin.kitchens",
+  get_kitchen_detail: "admin.kitchens",
   list_taxes: "admin.taxes",
   list_discounts: "admin.discounts",
   list_order_types: "admin.order_types",

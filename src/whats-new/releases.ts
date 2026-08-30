@@ -8,6 +8,19 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-08-30',
+    title: 'AI assistant capability expansion',
+    items: [
+      'Kitchen routing: get_kitchen_detail shows dish assignments; propose_update_kitchens supports items_add and items_remove.',
+      'Dish workflow routing via propose_update_dishes (workflow + stage_overrides).',
+      'Inventory write proposals: purchases, issues, waste, adjustments, suppliers, and locations.',
+      'HR write proposals: positions, cost centers, leave requests, and attendance corrections.',
+      'Accounts write proposals: chart of accounts and journal entries.',
+      'Soft-delete proposals for kitchens and dishes (propose_delete_*).',
+      'list_suppliers and list_inventory_locations read tools for inventory write prompts.',
+    ],
+  },
+  {
+    date: '2026-08-30',
     title: 'Database performance indexes',
     items: [
       'Added hot-path SurrealDB indexes on orders, inventory documents, time entries, journal entries, tracking, and related line-item tables to speed up list screens and reports.',

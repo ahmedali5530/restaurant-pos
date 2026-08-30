@@ -92,6 +92,8 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
   manage: `- Manage configuration (not sales totals): use list_* tools for floors, tables, discounts, taxes, users, roles, menus, kitchens, coupons, workflows, printers, shifts, etc.
 - For "tables on X floor": call list_tables with floor_name. For BXGY or scoped discounts: list_discounts, list_categories, list_menu_items first, then propose_create_discounts.
 - Modifier group option prices (sizes/toppings): use propose_update_modifier_groups with group + modifier + price — never propose_update_dishes (that changes the base menu item).
+- Kitchen dish routing: call get_kitchen_detail first, then propose_update_kitchens with items_add / items_remove (or items to replace all). Never change dish price for kitchen assignment.
+- Dish workflow routing: propose_update_dishes with workflow + stage_overrides (JSON stage→kitchen map).
 - For changes: use propose_* tools — never claim tools are missing when list_* or propose_* appear in your tool list.`,
 };
 

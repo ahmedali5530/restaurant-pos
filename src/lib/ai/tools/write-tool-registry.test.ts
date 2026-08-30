@@ -87,6 +87,37 @@ describe("detectWriteToolsForPrompt", () => {
     expect(names).not.toContain("propose_update_dishes");
   });
 
+  it("routes kitchen dish add/remove away from dish updates", () => {
+    const prompt = "add Margherita pizza to Grill kitchen";
+    const names = toolNames(prompt, ["admin.kitchens.update", "admin.dishes.update"], ["manage"]);
+    expect(names).toContain("propose_update_kitchens");
+    expect(names).not.toContain("propose_update_dishes");
+  });
+
+  it("routes remove dish from kitchen with delete verb", () => {
+    const prompt = "remove Margherita from Grill kitchen";
+    const names = toolNames(prompt, ["admin.kitchens.update"], ["manage"]);
+    expect(names).toContain("propose_update_kitchens");
+  });
+
+  it("routes inventory purchase create", () => {
+    const names = toolNames(
+      "record a purchase of 10 kg flour from ABC Supplier to Main Store",
+      ["inventory.purchases"],
+      ["inventory"],
+    );
+    expect(names).toContain("propose_create_purchases");
+  });
+
+  it("routes journal entry create for accounts domain", () => {
+    const names = toolNames(
+      "create journal entry debit Cash 100 credit Sales 100",
+      ["accounts.journal_entries"],
+      ["accounts"],
+    );
+    expect(names).toContain("propose_create_journal_entries");
+  });
+
   it("listPermittedWriteTools returns every tool the modules cover", () => {
     const names = listPermittedWriteTools(["admin.dishes.update"]).map(tool => tool.function.name);
     expect(names).toContain("propose_update_dishes");
@@ -95,9 +126,10 @@ describe("detectWriteToolsForPrompt", () => {
 });
 
 describe("getWriteModeForTool", () => {
-  it("resolves create and update modes", () => {
+  it("resolves create, update, and delete modes", () => {
     expect(getWriteModeForTool("propose_create_categories")).toBe("create");
     expect(getWriteModeForTool("propose_update_tables")).toBe("update");
+    expect(getWriteModeForTool("propose_delete_kitchens")).toBe("update");
     expect(getWriteModeForTool("unknown_tool")).toBeNull();
   });
 });
