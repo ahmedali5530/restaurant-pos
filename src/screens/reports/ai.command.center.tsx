@@ -45,7 +45,7 @@ import {
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
   faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
-  faCalendarAlt, faCalendarXmark,
+  faCalendarAlt, faCalendarXmark, faUserSecret,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -62,6 +62,7 @@ import {
   REPORTS_CUSTOMER_JOURNEY, REPORTS_SEASONAL_TRENDS,
   REPORTS_GUEST_PREFERENCES,
   REPORTS_NOSHOW_PREDICTION,
+  REPORTS_ORDER_FRAUD,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -108,7 +109,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData,
+        seasonalData, guestPrefData, noShowData, fraudData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -137,6 +138,7 @@ export function AiCommandCenterScreen() {
         fetchSeasonalSummary(db),
         fetchGuestPrefSummary(db),
         fetchNoShowSummary(db),
+        fetchFraudSummary(db),
       ]);
 
       setMetrics([
@@ -147,7 +149,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData,
+        seasonalData, guestPrefData, noShowData, fraudData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -946,6 +948,29 @@ async function fetchNoShowSummary(db: any): Promise<MetricCard> {
       link: REPORTS_NOSHOW_PREDICTION, linkLabel: 'View predictions',
     };
   } catch { return neutralCard('No-Show Prediction', faCalendarXmark, 'text-rose-600', REPORTS_NOSHOW_PREDICTION); }
+}
+
+async function fetchFraudSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS count,
+         math::count(severity = 'critical') AS critical,
+         math::sum(estimated_loss) AS total_loss
+       FROM order_fraud_alert WHERE status = 'open'
+       GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const f = list[0];
+    if (!f || f.count === 0) return neutralCard('Order Fraud', faUserSecret, 'text-rose-700', REPORTS_ORDER_FRAUD);
+    return {
+      title: 'Order Fraud',
+      icon: faUserSecret, color: 'text-rose-700',
+      primary: `${f.critical} critical`,
+      secondary: `${f.count} alerts · ${withCurrency(f.total_loss)} est. loss`,
+      health: f.critical > 0 ? 'critical' : 'warning',
+      link: REPORTS_ORDER_FRAUD, linkLabel: 'View alerts',
+    };
+  } catch { return neutralCard('Order Fraud', faUserSecret, 'text-rose-700', REPORTS_ORDER_FRAUD); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {

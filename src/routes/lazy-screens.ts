@@ -318,3 +318,7 @@ export const RevenueForecastScreen = lazy(() =>
 export const NoShowPredictionScreen = lazy(() =>
   import('@/screens/reports/noshow.prediction.report.tsx').then(m => ({default: m.NoShowPredictionScreen}))
 );
+
+export const OrderFraudScreen = lazy(() =>
+  import('@/screens/reports/order.fraud.report.tsx').then(m => ({default: m.OrderFraudScreen}))
+);
