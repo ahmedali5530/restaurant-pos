@@ -390,3 +390,7 @@ export const RecipeSubstitutionScreen = lazy(() =>
 export const TrainingNeedScreen = lazy(() =>
   import('@/screens/reports/training.need.report.tsx').then(m => ({default: m.TrainingNeedScreen}))
 );
+
+export const SeatingOptimizationScreen = lazy(() =>
+  import('@/screens/reports/seating.optimization.report.tsx').then(m => ({default: m.SeatingOptimizationScreen}))
+);

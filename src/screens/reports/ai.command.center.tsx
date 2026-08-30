@@ -80,6 +80,7 @@ import {
   REPORTS_VISIT_CADENCE,
   REPORTS_RECIPE_SUBSTITUTION,
   REPORTS_TRAINING_NEED,
+  REPORTS_SEATING_OPTIMIZATION,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -126,7 +127,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -173,6 +174,7 @@ export function AiCommandCenterScreen() {
         fetchCadenceSummary(db),
         fetchSubstitutionSummary(db),
         fetchTrainingSummary(db),
+        fetchSeatingSummary(db),
       ]);
 
       setMetrics([
@@ -183,7 +185,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -1411,6 +1413,30 @@ async function fetchTrainingSummary(db: any): Promise<MetricCard> {
       link: REPORTS_TRAINING_NEED, linkLabel: 'View needs',
     };
   } catch { return neutralCard('Training Need', faGraduationCap, 'text-blue-600', REPORTS_TRAINING_NEED); }
+}
+
+async function fetchSeatingSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total,
+         math::mean(overall_score) AS avg_score
+       FROM seating_suggestion
+       WHERE action_taken = 'none'
+         AND suggested_at > time::now() - 30m
+       GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const s = list[0];
+    if (!s || s.count === 0) return neutralCard('Seating Optimization', faChair, 'text-amber-600', REPORTS_SEATING_OPTIMIZATION);
+    return {
+      title: 'Seating Optimization',
+      icon: faChair, color: 'text-amber-600',
+      primary: `${s.count} suggestions`,
+      secondary: `avg score ${Math.round(s.avg_score * 100)}/100`,
+      health: s.avg_score > 0.7 ? 'good' : 'warning',
+      link: REPORTS_SEATING_OPTIMIZATION, linkLabel: 'View suggestions',
+    };
+  } catch { return neutralCard('Seating Optimization', faChair, 'text-amber-600', REPORTS_SEATING_OPTIMIZATION); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
