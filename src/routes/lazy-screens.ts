@@ -358,3 +358,7 @@ export const PriceElasticityScreen = lazy(() =>
 export const PromoAbuseScreen = lazy(() =>
   import('@/screens/reports/promo.abuse.report.tsx').then(m => ({default: m.PromoAbuseScreen}))
 );
+
+export const MenuPairingScreen = lazy(() =>
+  import('@/screens/reports/menu.pairing.report.tsx').then(m => ({default: m.MenuPairingScreen}))
+);
