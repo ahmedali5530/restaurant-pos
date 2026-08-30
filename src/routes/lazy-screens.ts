@@ -406,3 +406,7 @@ export const AbandonedCartScreen = lazy(() =>
 export const BranchComparisonScreen = lazy(() =>
   import('@/screens/reports/branch.comparison.report.tsx').then(m => ({default: m.BranchComparisonScreen}))
 );
+
+export const ComplianceTrackingScreen = lazy(() =>
+  import('@/screens/reports/compliance.tracking.report.tsx').then(m => ({default: m.ComplianceTrackingScreen}))
+);

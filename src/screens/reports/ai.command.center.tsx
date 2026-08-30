@@ -45,7 +45,7 @@ import {
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
   faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
-  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck, faExchangeAlt, faGraduationCap, faFaceSmile, faCartShopping,
+  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck, faExchangeAlt, faGraduationCap, faFaceSmile, faCartShopping, faFileShield,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -84,6 +84,7 @@ import {
   REPORTS_SATISFACTION_PREDICTION,
   REPORTS_ABANDONED_CART,
   REPORTS_BRANCH_COMPARISON,
+  REPORTS_COMPLIANCE_TRACKING,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -130,7 +131,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -181,6 +182,7 @@ export function AiCommandCenterScreen() {
         fetchSatisfactionSummary(db),
         fetchAbandonedSummary(db),
         fetchBranchCompSummary(db),
+        fetchComplianceSummary(db),
       ]);
 
       setMetrics([
@@ -191,7 +193,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -1518,6 +1520,31 @@ async function fetchBranchCompSummary(db: any): Promise<MetricCard> {
       link: REPORTS_BRANCH_COMPARISON, linkLabel: 'View comparison',
     };
   } catch { return neutralCard('Branch Comparison', faStore, 'text-blue-600', REPORTS_BRANCH_COMPARISON); }
+}
+
+async function fetchComplianceSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total,
+         math::count(status = 'expired') AS expired,
+         math::sum(est_fine_risk) AS total_fine
+       FROM compliance_alert
+       WHERE action_taken = 'none'
+         AND detected_at > time::now() - 24h
+       GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const c = list[0];
+    if (!c || c.count === 0) return neutralCard('Compliance', faFileShield, 'text-emerald-600', REPORTS_COMPLIANCE_TRACKING);
+    return {
+      title: 'Compliance',
+      icon: faFileShield, color: 'text-emerald-600',
+      primary: `${c.expired} expired`,
+      secondary: `${c.count} alerts · ${withCurrency(c.total_fine)} risk`,
+      health: c.expired > 0 ? 'critical' : 'warning',
+      link: REPORTS_COMPLIANCE_TRACKING, linkLabel: 'View alerts',
+    };
+  } catch { return neutralCard('Compliance', faFileShield, 'text-emerald-600', REPORTS_COMPLIANCE_TRACKING); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
