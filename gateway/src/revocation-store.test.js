@@ -69,3 +69,13 @@ test('_reset clears all state', async () => {
   store._reset();
   assert.equal(await store.isRevoked('jti_persist'), false);
 });
+
+test('isRevoked treats Surreal empty result [[]] as not revoked', async () => {
+  const fakeClient = {
+    query: async () => [[]],
+  };
+  store._reset();
+  store.setSurrealClient(fakeClient);
+  await store.triggerBootstrap();
+  assert.equal(await store.isRevoked('jti_fresh'), false);
+});

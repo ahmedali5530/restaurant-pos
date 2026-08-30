@@ -41,6 +41,12 @@ const TABLE = 'revoked_session';
 const NEGATIVE_CACHE_TTL_MS = 5 * 1000; // re-check Surreal every 5s for a jti
 const negativeCache = new Map(); // jti -> lastCheckedAt
 
+/** Surreal query results are nested: [[{...}, ...]]. Flatten to row objects. */
+function queryRows(result) {
+  const first = Array.isArray(result) ? result[0] : undefined;
+  return Array.isArray(first) ? first : [];
+}
+
 function setSurrealClient(client) {
   surrealClient = client;
   // Kick off the bootstrap load as soon as the client is wired up.
@@ -58,7 +64,7 @@ async function triggerBootstrap() {
         `SELECT jti FROM ${TABLE} WHERE expires_at > $now`,
         { now }
       );
-      const loaded = Array.isArray(rows) ? rows : [];
+      const loaded = queryRows(rows);
       for (const row of loaded) {
         if (row && row.jti) memoryCache.add(String(row.jti));
       }
@@ -144,7 +150,7 @@ async function isRevoked(jti) {
     const rows = await surrealClient.query(`SELECT jti FROM ${TABLE} WHERE jti = $jti LIMIT 1`, {
       jti: jtiStr,
     });
-    const found = Array.isArray(rows) && rows.length > 0;
+    const found = queryRows(rows).length > 0;
     negativeCache.set(jtiStr, now);
     if (found) {
       memoryCache.add(jtiStr);
