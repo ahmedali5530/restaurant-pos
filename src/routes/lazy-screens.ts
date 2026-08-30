@@ -334,3 +334,7 @@ export const EnergyOptimizationScreen = lazy(() =>
 export const StaffTurnoverScreen = lazy(() =>
   import('@/screens/reports/staff.turnover.report.tsx').then(m => ({default: m.StaffTurnoverScreen}))
 );
+
+export const YieldVarianceScreen = lazy(() =>
+  import('@/screens/reports/yield.variance.report.tsx').then(m => ({default: m.YieldVarianceScreen}))
+);
