@@ -370,3 +370,7 @@ export const WaitPredictionScreen = lazy(() =>
 export const PromoForecastScreen = lazy(() =>
   import('@/screens/reports/promo.forecast.report.tsx').then(m => ({default: m.PromoForecastScreen}))
 );
+
+export const CLVTrajectoryScreen = lazy(() =>
+  import('@/screens/reports/clv.trajectory.report.tsx').then(m => ({default: m.CLVTrajectoryScreen}))
+);

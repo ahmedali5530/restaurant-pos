@@ -75,6 +75,7 @@ import {
   REPORTS_MENU_PAIRING,
   REPORTS_WAIT_PREDICTION,
   REPORTS_PROMO_FORECAST,
+  REPORTS_CLV_TRAJECTORY,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -121,7 +122,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -163,6 +164,7 @@ export function AiCommandCenterScreen() {
         fetchPairingSummary(db),
         fetchWaitPredSummary(db),
         fetchPromoForecastSummary(db),
+        fetchCLVTrajectorySummary(db),
       ]);
 
       setMetrics([
@@ -173,7 +175,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -1274,6 +1276,32 @@ async function fetchPromoForecastSummary(db: any): Promise<MetricCard> {
       link: REPORTS_PROMO_FORECAST, linkLabel: 'View forecasts',
     };
   } catch { return neutralCard('Promo Forecast', faBullhorn, 'text-amber-600', REPORTS_PROMO_FORECAST); }
+}
+
+async function fetchCLVTrajectorySummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total,
+         math::count(trajectory = 'churning') AS churning,
+         math::count(trajectory = 'declining') AS declining,
+         math::count(trajectory = 'accelerating') AS accelerating
+       FROM clv_trajectory
+       WHERE action_taken = 'none'
+         AND trajectory != 'stable'
+       GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const c = list[0];
+    if (!c || c.count === 0) return neutralCard('CLV Trajectory', faChartLine, 'text-blue-600', REPORTS_CLV_TRAJECTORY);
+    return {
+      title: 'CLV Trajectory',
+      icon: faChartLine, color: 'text-blue-600',
+      primary: `${c.churning + c.declining} slipping`,
+      secondary: `${c.accelerating} growing · ${c.total} actionable`,
+      health: c.churning > 0 ? 'critical' : (c.declining > 0 ? 'warning' : 'good'),
+      link: REPORTS_CLV_TRAJECTORY, linkLabel: 'View trajectories',
+    };
+  } catch { return neutralCard('CLV Trajectory', faChartLine, 'text-blue-600', REPORTS_CLV_TRAJECTORY); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
