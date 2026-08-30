@@ -45,7 +45,7 @@ import {
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
   faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
-  faCalendarAlt,
+  faCalendarAlt, faCalendarXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -61,6 +61,7 @@ import {
   REPORTS_TIP_ANALYTICS, REPORTS_REVPASH,
   REPORTS_CUSTOMER_JOURNEY, REPORTS_SEASONAL_TRENDS,
   REPORTS_GUEST_PREFERENCES,
+  REPORTS_NOSHOW_PREDICTION,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -107,7 +108,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData,
+        seasonalData, guestPrefData, noShowData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -135,6 +136,7 @@ export function AiCommandCenterScreen() {
         fetchRevPASHSummary(db),
         fetchSeasonalSummary(db),
         fetchGuestPrefSummary(db),
+        fetchNoShowSummary(db),
       ]);
 
       setMetrics([
@@ -145,7 +147,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData,
+        seasonalData, guestPrefData, noShowData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -920,6 +922,30 @@ async function fetchGuestPrefSummary(db: any): Promise<MetricCard> {
       link: REPORTS_GUEST_PREFERENCES, linkLabel: 'View guests',
     };
   } catch { return neutralCard('Guest Preferences', faUsers, 'text-violet-600', REPORTS_GUEST_PREFERENCES); }
+}
+
+async function fetchNoShowSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS count,
+         math::count(risk_level IN ['critical', 'high']) AS at_risk,
+         math::sum(est_revenue_at_risk) AS revenue
+       FROM noshow_prediction
+       WHERE reservation_date > time::now() AND action_taken = 'none'
+       GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const n = list[0];
+    if (!n || n.count === 0) return neutralCard('No-Show Prediction', faCalendarXmark, 'text-rose-600', REPORTS_NOSHOW_PREDICTION);
+    return {
+      title: 'No-Show Prediction',
+      icon: faCalendarXmark, color: 'text-rose-600',
+      primary: `${n.at_risk} at-risk`,
+      secondary: `${n.count} upcoming · ${withCurrency(n.revenue)} at risk`,
+      health: n.at_risk > 0 ? 'warning' : 'good',
+      link: REPORTS_NOSHOW_PREDICTION, linkLabel: 'View predictions',
+    };
+  } catch { return neutralCard('No-Show Prediction', faCalendarXmark, 'text-rose-600', REPORTS_NOSHOW_PREDICTION); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {

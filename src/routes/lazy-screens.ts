@@ -314,3 +314,7 @@ export const ShrinkageScreen = lazy(() =>
 export const RevenueForecastScreen = lazy(() =>
   import('@/screens/reports/revenue.forecast.report.tsx').then(m => ({default: m.RevenueForecastScreen}))
 );
+
+export const NoShowPredictionScreen = lazy(() =>
+  import('@/screens/reports/noshow.prediction.report.tsx').then(m => ({default: m.NoShowPredictionScreen}))
+);
