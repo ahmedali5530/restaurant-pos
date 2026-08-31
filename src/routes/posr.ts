@@ -168,6 +168,7 @@ export const REPORTS_WEATHER_IMPACT = REPORTS + '/weather-impact';
 export const REPORTS_PEAK_PRICING = REPORTS + '/peak-pricing';
 export const REPORTS_TABLE_UTILIZATION = REPORTS + '/table-utilization';
 export const REPORTS_OVERTIME_PREDICTION = REPORTS + '/overtime-prediction';
+export const REPORTS_LOYALTY_ROI = REPORTS + '/loyalty-roi';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';

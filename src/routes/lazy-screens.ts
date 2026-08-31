@@ -462,3 +462,7 @@ export const TableUtilizationScreen = lazy(() =>
 export const OvertimePredictionScreen = lazy(() =>
   import('@/screens/reports/overtime.prediction.report.tsx').then(m => ({default: m.OvertimePredictionScreen}))
 );
+
+export const LoyaltyRoiScreen = lazy(() =>
+  import('@/screens/reports/loyalty.roi.report.tsx').then(m => ({default: m.LoyaltyRoiScreen}))
+);
