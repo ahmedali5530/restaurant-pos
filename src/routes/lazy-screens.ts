@@ -490,3 +490,7 @@ export const OverbookingScreen = lazy(() =>
 export const ReservationCascadeScreen = lazy(() =>
   import('@/screens/reports/reservation.cascade.report.tsx').then(m => ({default: m.ReservationCascadeScreen}))
 );
+
+export const VibeOptimizerScreen = lazy(() =>
+  import('@/screens/reports/vibe.optimizer.report.tsx').then(m => ({default: m.VibeOptimizerScreen}))
+);

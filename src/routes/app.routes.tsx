@@ -100,6 +100,7 @@ import {
   REPORTS_ALLERGEN_RISK,
   REPORTS_OVERBOOKING,
   REPORTS_RESERVATION_CASCADE,
+  REPORTS_VIBE_OPTIMIZER,
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
   REPORTS_CONSUMPTION,
@@ -292,6 +293,7 @@ import {
   AllergenRiskScreen,
   OverbookingScreen,
   ReservationCascadeScreen,
+  VibeOptimizerScreen,
   TablesideScreen,
 } from "@/routes/lazy-screens.ts";
 
@@ -411,6 +413,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_ALLERGEN_RISK} element={<AllergenRiskScreen/>}/>
         <Route path={REPORTS_OVERBOOKING} element={<OverbookingScreen/>}/>
         <Route path={REPORTS_RESERVATION_CASCADE} element={<ReservationCascadeScreen/>}/>
+        <Route path={REPORTS_VIBE_OPTIMIZER} element={<VibeOptimizerScreen/>}/>
         <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
         <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
         <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>

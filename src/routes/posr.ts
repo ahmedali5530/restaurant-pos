@@ -175,6 +175,7 @@ export const REPORTS_SERVER_COACH = REPORTS + '/server-coach';
 export const REPORTS_ALLERGEN_RISK = REPORTS + '/allergen-risk';
 export const REPORTS_OVERBOOKING = REPORTS + '/overbooking';
 export const REPORTS_RESERVATION_CASCADE = REPORTS + '/reservation-cascade';
+export const REPORTS_VIBE_OPTIMIZER = REPORTS + '/vibe-optimizer';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';
