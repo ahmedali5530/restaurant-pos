@@ -161,6 +161,7 @@ export const REPORTS_BUFFET_DEMAND = REPORTS + '/buffet-demand';
 export const REPORTS_DELIVERY_ROUTE = REPORTS + '/delivery-route';
 export const REPORTS_SERVER_LOAD_BALANCER = REPORTS + '/server-load-balancer';
 export const REPORTS_DISH_PROFITABILITY = REPORTS + '/dish-profitability';
+export const REPORTS_CASH_DRAWER_ANOMALY = REPORTS + '/cash-drawer-anomaly';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';

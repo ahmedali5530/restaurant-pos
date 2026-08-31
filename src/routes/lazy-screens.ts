@@ -434,3 +434,7 @@ export const ServerLoadBalancerScreen = lazy(() =>
 export const DishProfitabilityScreen = lazy(() =>
   import('@/screens/reports/dish.profitability.report.tsx').then(m => ({default: m.DishProfitabilityScreen}))
 );
+
+export const CashDrawerAnomalyScreen = lazy(() =>
+  import('@/screens/reports/cash.drawer.anomaly.report.tsx').then(m => ({default: m.CashDrawerAnomalyScreen}))
+);
