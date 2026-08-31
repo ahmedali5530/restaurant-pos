@@ -450,3 +450,7 @@ export const ComplaintPatternScreen = lazy(() =>
 export const WeatherImpactScreen = lazy(() =>
   import('@/screens/reports/weather.impact.report.tsx').then(m => ({default: m.WeatherImpactScreen}))
 );
+
+export const PeakPricingScreen = lazy(() =>
+  import('@/screens/reports/peak.pricing.report.tsx').then(m => ({default: m.PeakPricingScreen}))
+);

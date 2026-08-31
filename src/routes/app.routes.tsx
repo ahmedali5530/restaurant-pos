@@ -90,6 +90,7 @@ import {
   REPORTS_CASH_EARLY_WARNING,
   REPORTS_COMPLAINT_PATTERN,
   REPORTS_WEATHER_IMPACT,
+  REPORTS_PEAK_PRICING,
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
   REPORTS_CONSUMPTION,
@@ -272,6 +273,7 @@ import {
   CashEarlyWarningScreen,
   ComplaintPatternScreen,
   WeatherImpactScreen,
+  PeakPricingScreen,
   TablesideScreen,
 } from "@/routes/lazy-screens.ts";
 
@@ -381,6 +383,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_CASH_EARLY_WARNING} element={<CashEarlyWarningScreen/>}/>
         <Route path={REPORTS_COMPLAINT_PATTERN} element={<ComplaintPatternScreen/>}/>
         <Route path={REPORTS_WEATHER_IMPACT} element={<WeatherImpactScreen/>}/>
+        <Route path={REPORTS_PEAK_PRICING} element={<PeakPricingScreen/>}/>
         <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
         <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
         <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>

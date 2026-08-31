@@ -95,6 +95,7 @@ import {
   REPORTS_CASH_EARLY_WARNING,
   REPORTS_COMPLAINT_PATTERN,
   REPORTS_WEATHER_IMPACT,
+  REPORTS_PEAK_PRICING,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -203,6 +204,7 @@ export function AiCommandCenterScreen() {
         fetchCashWarningSummary(db),
         fetchComplaintPatternSummary(db),
         fetchWeatherSummary(db),
+        fetchPeakPricingSummary(db),
       ]);
 
       setMetrics([
@@ -1746,6 +1748,23 @@ async function fetchWeatherSummary(db: any): Promise<MetricCard> {
       link: REPORTS_WEATHER_IMPACT, linkLabel: 'View analysis',
     };
   } catch { return neutralCard('Weather Impact', faCloudSun, 'text-blue-500', REPORTS_WEATHER_IMPACT); }
+}
+
+async function fetchPeakPricingSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(pricing_tier = 'surge') AS surge, math::sum(est_revenue_lift) AS lift
+       FROM peak_pricing_rule WHERE status IN ('pending', 'active') GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const p = list[0];
+    if (!p || p.count === 0) return neutralCard('Peak Pricing', faTags, 'text-rose-600', REPORTS_PEAK_PRICING);
+    return {
+      title: 'Peak Pricing', icon: faTags, color: 'text-rose-600',
+      primary: `${p.surge} surge`, secondary: `${p.total} rules · ${withCurrency(p.lift)} lift`,
+      health: 'good', link: REPORTS_PEAK_PRICING, linkLabel: 'View rules',
+    };
+  } catch { return neutralCard('Peak Pricing', faTags, 'text-rose-600', REPORTS_PEAK_PRICING); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {

@@ -165,6 +165,7 @@ export const REPORTS_CASH_DRAWER_ANOMALY = REPORTS + '/cash-drawer-anomaly';
 export const REPORTS_CASH_EARLY_WARNING = REPORTS + '/cash-early-warning';
 export const REPORTS_COMPLAINT_PATTERN = REPORTS + '/complaint-pattern';
 export const REPORTS_WEATHER_IMPACT = REPORTS + '/weather-impact';
+export const REPORTS_PEAK_PRICING = REPORTS + '/peak-pricing';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';
