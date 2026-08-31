@@ -470,3 +470,7 @@ export const LoyaltyRoiScreen = lazy(() =>
 export const ProcurementScreen = lazy(() =>
   import('@/screens/reports/procurement.report.tsx').then(m => ({default: m.ProcurementScreen}))
 );
+
+export const MenuRotationScreen = lazy(() =>
+  import('@/screens/reports/menu.rotation.report.tsx').then(m => ({default: m.MenuRotationScreen}))
+);
