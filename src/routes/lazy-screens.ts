@@ -474,3 +474,7 @@ export const ProcurementScreen = lazy(() =>
 export const MenuRotationScreen = lazy(() =>
   import('@/screens/reports/menu.rotation.report.tsx').then(m => ({default: m.MenuRotationScreen}))
 );
+
+export const ServerCoachScreen = lazy(() =>
+  import('@/screens/reports/server.coach.report.tsx').then(m => ({default: m.ServerCoachScreen}))
+);

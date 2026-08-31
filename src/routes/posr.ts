@@ -171,6 +171,7 @@ export const REPORTS_OVERTIME_PREDICTION = REPORTS + '/overtime-prediction';
 export const REPORTS_LOYALTY_ROI = REPORTS + '/loyalty-roi';
 export const REPORTS_PROCUREMENT = REPORTS + '/procurement';
 export const REPORTS_MENU_ROTATION = REPORTS + '/menu-rotation';
+export const REPORTS_SERVER_COACH = REPORTS + '/server-coach';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';
