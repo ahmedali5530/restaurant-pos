@@ -82,6 +82,7 @@ import {
   REPORTS_COMPLIANCE_TRACKING,
   REPORTS_GIFTCARD_FRAUD,
   REPORTS_REFUND_ABUSE,
+  REPORTS_BUFFET_DEMAND,
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
   REPORTS_CONSUMPTION,
@@ -256,6 +257,7 @@ import {
   ComplianceTrackingScreen,
   GiftCardFraudScreen,
   RefundAbuseScreen,
+  BuffetDemandScreen,
   TablesideScreen,
 } from "@/routes/lazy-screens.ts";
 
@@ -357,6 +359,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_COMPLIANCE_TRACKING} element={<ComplianceTrackingScreen/>}/>
         <Route path={REPORTS_GIFTCARD_FRAUD} element={<GiftCardFraudScreen/>}/>
         <Route path={REPORTS_REFUND_ABUSE} element={<RefundAbuseScreen/>}/>
+        <Route path={REPORTS_BUFFET_DEMAND} element={<BuffetDemandScreen/>}/>
         <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
         <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
         <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>

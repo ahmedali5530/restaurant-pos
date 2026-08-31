@@ -87,6 +87,7 @@ import {
   REPORTS_COMPLIANCE_TRACKING,
   REPORTS_GIFTCARD_FRAUD,
   REPORTS_REFUND_ABUSE,
+  REPORTS_BUFFET_DEMAND,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -133,7 +134,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -187,6 +188,7 @@ export function AiCommandCenterScreen() {
         fetchComplianceSummary(db),
         fetchGiftCardFraudSummary(db),
         fetchRefundAbuseSummary(db),
+        fetchBuffetDemandSummary(db),
       ]);
 
       setMetrics([
@@ -197,7 +199,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -1588,6 +1590,23 @@ async function fetchRefundAbuseSummary(db: any): Promise<MetricCard> {
       health: r.critical > 0 ? 'critical' : 'warning', link: REPORTS_REFUND_ABUSE, linkLabel: 'View alerts',
     };
   } catch { return neutralCard('Refund Abuse', faRotateLeft, 'text-rose-600', REPORTS_REFUND_ABUSE); }
+}
+
+async function fetchBuffetDemandSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::mean(predicted_guests) AS avg_guests, math::sum(est_waste_prevention) AS waste_prev
+       FROM buffet_demand_prediction WHERE predicted_at > time::now() - 24h AND business_date > time::now() GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const b = list[0];
+    if (!b || b.count === 0) return neutralCard('Buffet Demand', faUtensils, 'text-amber-600', REPORTS_BUFFET_DEMAND);
+    return {
+      title: 'Buffet Demand', icon: faUtensils, color: 'text-amber-600',
+      primary: `${b.total} sessions`, secondary: `avg ${Math.round(b.avg_guests)} guests · ${withCurrency(b.waste_prev)} saved`,
+      health: 'good', link: REPORTS_BUFFET_DEMAND, linkLabel: 'View predictions',
+    };
+  } catch { return neutralCard('Buffet Demand', faUtensils, 'text-amber-600', REPORTS_BUFFET_DEMAND); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
