@@ -430,3 +430,7 @@ export const DeliveryRouteScreen = lazy(() =>
 export const ServerLoadBalancerScreen = lazy(() =>
   import('@/screens/reports/server.load.balancer.report.tsx').then(m => ({default: m.ServerLoadBalancerScreen}))
 );
+
+export const DishProfitabilityScreen = lazy(() =>
+  import('@/screens/reports/dish.profitability.report.tsx').then(m => ({default: m.DishProfitabilityScreen}))
+);

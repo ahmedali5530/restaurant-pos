@@ -45,7 +45,7 @@ import {
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
   faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
-  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck, faExchangeAlt, faGraduationCap, faFaceSmile, faCartShopping, faFileShield, faGiftCard, faRotateLeft, faRoute, faUserGear,
+  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck, faExchangeAlt, faGraduationCap, faFaceSmile, faCartShopping, faFileShield, faGiftCard, faRotateLeft, faRoute, faUserGear, faCalculator,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -90,6 +90,7 @@ import {
   REPORTS_BUFFET_DEMAND,
   REPORTS_DELIVERY_ROUTE,
   REPORTS_SERVER_LOAD_BALANCER,
+  REPORTS_DISH_PROFITABILITY,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -136,7 +137,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -193,6 +194,7 @@ export function AiCommandCenterScreen() {
         fetchBuffetDemandSummary(db),
         fetchDeliveryRouteSummary(db),
         fetchServerBalancerSummary(db),
+        fetchDishProfitSummary(db),
       ]);
 
       setMetrics([
@@ -203,7 +205,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -1646,6 +1648,24 @@ async function fetchServerBalancerSummary(db: any): Promise<MetricCard> {
       health: s.overloaded > 0 ? 'warning' : 'good', link: REPORTS_SERVER_LOAD_BALANCER, linkLabel: 'View assignments',
     };
   } catch { return neutralCard('Server Balancer', faUserGear, 'text-blue-600', REPORTS_SERVER_LOAD_BALANCER); }
+}
+
+async function fetchDishProfitSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(profitability_grade = 'F') AS failing,
+         math::sum(hidden_loss) AS hidden
+       FROM dish_profitability WHERE analyzed_at > time::now() - 24h GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const d = list[0];
+    if (!d || d.count === 0) return neutralCard('Dish Profit', faCalculator, 'text-emerald-600', REPORTS_DISH_PROFITABILITY);
+    return {
+      title: 'Dish Profit', icon: faCalculator, color: 'text-emerald-600',
+      primary: `${d.failing} failing`, secondary: `${d.total} dishes · ${withCurrency(d.hidden)} hidden loss`,
+      health: d.failing > 0 ? 'warning' : 'good', link: REPORTS_DISH_PROFITABILITY, linkLabel: 'View analysis',
+    };
+  } catch { return neutralCard('Dish Profit', faCalculator, 'text-emerald-600', REPORTS_DISH_PROFITABILITY); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
