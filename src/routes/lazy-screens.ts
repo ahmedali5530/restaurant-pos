@@ -478,3 +478,7 @@ export const MenuRotationScreen = lazy(() =>
 export const ServerCoachScreen = lazy(() =>
   import('@/screens/reports/server.coach.report.tsx').then(m => ({default: m.ServerCoachScreen}))
 );
+
+export const AllergenRiskScreen = lazy(() =>
+  import('@/screens/reports/allergen.risk.report.tsx').then(m => ({default: m.AllergenRiskScreen}))
+);

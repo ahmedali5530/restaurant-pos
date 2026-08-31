@@ -102,6 +102,7 @@ import {
   REPORTS_PROCUREMENT,
   REPORTS_MENU_ROTATION,
   REPORTS_SERVER_COACH,
+  REPORTS_ALLERGEN_RISK,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -148,7 +149,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -217,6 +218,7 @@ export function AiCommandCenterScreen() {
         fetchProcurementSummary(db),
         fetchMenuRotationSummary(db),
         fetchServerCoachSummary(db),
+        fetchAllergenRiskSummary(db),
       ]);
 
       setMetrics([
@@ -227,7 +229,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -1891,6 +1893,26 @@ async function fetchServerCoachSummary(db: any): Promise<MetricCard> {
       health: s.declining > 0 ? 'critical' : s.gaps > 0 ? 'warning' : 'good', link: REPORTS_SERVER_COACH, linkLabel: 'View plans',
     };
   } catch { return neutralCard('Server Coach', faUserGraduate, 'text-violet-600', REPORTS_SERVER_COACH); }
+}
+
+async function fetchAllergenRiskSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT
+         count() AS total,
+         math::count(severity = 'critical') AS critical,
+         math::count(rule_id = 'repeat_offender') AS repeat_offender
+       FROM allergen_risk_alert WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const a = list[0];
+    if (!a || a.count === 0) return neutralCard('Allergen Risk', faTriangleExclamation, 'text-rose-600', REPORTS_ALLERGEN_RISK);
+    return {
+      title: 'Allergen Risk', icon: faTriangleExclamation, color: 'text-rose-600',
+      primary: `${a.critical} critical`, secondary: `${a.total} alerts · ${a.repeat_offender} repeat offenders`,
+      health: a.critical > 0 ? 'critical' : a.total > 0 ? 'warning' : 'good', link: REPORTS_ALLERGEN_RISK, linkLabel: 'View alerts',
+    };
+  } catch { return neutralCard('Allergen Risk', faTriangleExclamation, 'text-rose-600', REPORTS_ALLERGEN_RISK); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
