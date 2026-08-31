@@ -96,6 +96,7 @@ import {
   REPORTS_COMPLAINT_PATTERN,
   REPORTS_WEATHER_IMPACT,
   REPORTS_PEAK_PRICING,
+  REPORTS_TABLE_UTILIZATION,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -205,6 +206,7 @@ export function AiCommandCenterScreen() {
         fetchComplaintPatternSummary(db),
         fetchWeatherSummary(db),
         fetchPeakPricingSummary(db),
+        fetchTableUtilSummary(db),
       ]);
 
       setMetrics([
@@ -1765,6 +1767,23 @@ async function fetchPeakPricingSummary(db: any): Promise<MetricCard> {
       health: 'good', link: REPORTS_PEAK_PRICING, linkLabel: 'View rules',
     };
   } catch { return neutralCard('Peak Pricing', faTags, 'text-rose-600', REPORTS_PEAK_PRICING); }
+}
+
+async function fetchTableUtilSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(severity = 'critical') AS critical, math::sum(est_revenue_loss) AS loss
+       FROM table_utilization_alert WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const t = list[0];
+    if (!t || t.count === 0) return neutralCard('Table Utilization', faChair, 'text-amber-600', REPORTS_TABLE_UTILIZATION);
+    return {
+      title: 'Table Utilization', icon: faChair, color: 'text-amber-600',
+      primary: `${t.critical} critical`, secondary: `${t.total} issues · ${withCurrency(t.loss)} loss`,
+      health: t.critical > 0 ? 'critical' : 'warning', link: REPORTS_TABLE_UTILIZATION, linkLabel: 'View alerts',
+    };
+  } catch { return neutralCard('Table Utilization', faChair, 'text-amber-600', REPORTS_TABLE_UTILIZATION); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {

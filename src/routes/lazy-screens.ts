@@ -454,3 +454,7 @@ export const WeatherImpactScreen = lazy(() =>
 export const PeakPricingScreen = lazy(() =>
   import('@/screens/reports/peak.pricing.report.tsx').then(m => ({default: m.PeakPricingScreen}))
 );
+
+export const TableUtilizationScreen = lazy(() =>
+  import('@/screens/reports/table.utilization.report.tsx').then(m => ({default: m.TableUtilizationScreen}))
+);
