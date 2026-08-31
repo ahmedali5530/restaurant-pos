@@ -92,6 +92,7 @@ import {
   REPORTS_SERVER_LOAD_BALANCER,
   REPORTS_DISH_PROFITABILITY,
   REPORTS_CASH_DRAWER_ANOMALY,
+  REPORTS_CASH_EARLY_WARNING,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -138,7 +139,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -197,6 +198,7 @@ export function AiCommandCenterScreen() {
         fetchServerBalancerSummary(db),
         fetchDishProfitSummary(db),
         fetchCashDrawerSummary(db),
+        fetchCashWarningSummary(db),
       ]);
 
       setMetrics([
@@ -207,7 +209,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -1685,6 +1687,26 @@ async function fetchCashDrawerSummary(db: any): Promise<MetricCard> {
       health: c.critical > 0 ? 'critical' : 'warning', link: REPORTS_CASH_DRAWER_ANOMALY, linkLabel: 'View alerts',
     };
   } catch { return neutralCard('Cash Drawer', faCashRegister, 'text-rose-600', REPORTS_CASH_DRAWER_ANOMALY); }
+}
+
+async function fetchCashWarningSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT warning_level, min_projected_balance, est_days_until_negative
+       FROM cash_early_warning ORDER BY predicted_at DESC LIMIT 1`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const w = list[0];
+    if (!w) return neutralCard('Cash Warning', faTriangleExclamation, 'text-rose-600', REPORTS_CASH_EARLY_WARNING);
+    const level = w.warning_level ?? 'safe';
+    return {
+      title: 'Cash Warning', icon: faTriangleExclamation,
+      color: level === 'emergency' || level === 'critical' ? 'text-rose-600' : level === 'caution' ? 'text-amber-600' : 'text-emerald-600',
+      primary: level, secondary: `min ${withCurrency(w.min_projected_balance)} in 7d`,
+      health: level === 'emergency' || level === 'critical' ? 'critical' : level === 'caution' ? 'warning' : 'good',
+      link: REPORTS_CASH_EARLY_WARNING, linkLabel: 'View projection',
+    };
+  } catch { return neutralCard('Cash Warning', faTriangleExclamation, 'text-rose-600', REPORTS_CASH_EARLY_WARNING); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {

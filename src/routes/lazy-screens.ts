@@ -438,3 +438,7 @@ export const DishProfitabilityScreen = lazy(() =>
 export const CashDrawerAnomalyScreen = lazy(() =>
   import('@/screens/reports/cash.drawer.anomaly.report.tsx').then(m => ({default: m.CashDrawerAnomalyScreen}))
 );
+
+export const CashEarlyWarningScreen = lazy(() =>
+  import('@/screens/reports/cash.early.warning.report.tsx').then(m => ({default: m.CashEarlyWarningScreen}))
+);
