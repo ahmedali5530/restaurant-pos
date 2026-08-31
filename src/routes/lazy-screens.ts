@@ -458,3 +458,7 @@ export const PeakPricingScreen = lazy(() =>
 export const TableUtilizationScreen = lazy(() =>
   import('@/screens/reports/table.utilization.report.tsx').then(m => ({default: m.TableUtilizationScreen}))
 );
+
+export const OvertimePredictionScreen = lazy(() =>
+  import('@/screens/reports/overtime.prediction.report.tsx').then(m => ({default: m.OvertimePredictionScreen}))
+);

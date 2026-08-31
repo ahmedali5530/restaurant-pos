@@ -97,6 +97,7 @@ import {
   REPORTS_WEATHER_IMPACT,
   REPORTS_PEAK_PRICING,
   REPORTS_TABLE_UTILIZATION,
+  REPORTS_OVERTIME_PREDICTION,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -207,6 +208,7 @@ export function AiCommandCenterScreen() {
         fetchWeatherSummary(db),
         fetchPeakPricingSummary(db),
         fetchTableUtilSummary(db),
+        fetchOvertimeSummary(db),
       ]);
 
       setMetrics([
@@ -1784,6 +1786,23 @@ async function fetchTableUtilSummary(db: any): Promise<MetricCard> {
       health: t.critical > 0 ? 'critical' : 'warning', link: REPORTS_TABLE_UTILIZATION, linkLabel: 'View alerts',
     };
   } catch { return neutralCard('Table Utilization', faChair, 'text-amber-600', REPORTS_TABLE_UTILIZATION); }
+}
+
+async function fetchOvertimeSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(risk_level = 'critical') AS critical, math::sum(overtime_cost) AS cost
+       FROM overtime_prediction WHERE risk_level != 'low' AND action_taken = 'none' AND predicted_at > time::now() - 4h GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const o = list[0];
+    if (!o || o.count === 0) return neutralCard('Overtime Risk', faClock, 'text-orange-600', REPORTS_OVERTIME_PREDICTION);
+    return {
+      title: 'Overtime Risk', icon: faClock, color: 'text-orange-600',
+      primary: `${o.critical} critical`, secondary: `${o.total} at-risk · ${withCurrency(o.cost)} OT`,
+      health: o.critical > 0 ? 'critical' : 'warning', link: REPORTS_OVERTIME_PREDICTION, linkLabel: 'View predictions',
+    };
+  } catch { return neutralCard('Overtime Risk', faClock, 'text-orange-600', REPORTS_OVERTIME_PREDICTION); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
