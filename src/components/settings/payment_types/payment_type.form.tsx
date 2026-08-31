@@ -14,7 +14,6 @@ import { PaymentType, PaymentTypeGatewayConfig } from "@/api/model/payment_type.
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { Tax } from "@/api/model/tax.ts";
-import { StringRecordId } from "surrealdb";
 import {toRecordId} from "@/lib/utils.ts";
 import {useTranslation} from 'react-i18next';
 import i18n from '@/lib/i18n.ts';
@@ -64,15 +63,23 @@ const EMPTY_GATEWAY_CONFIG = {
   integrity_salt: "",
 };
 
-function getGatewayConfigId(config: PaymentType["gateway_config"]): string | null {
-  if (!config) return null;
-  if (typeof config === "string") return config;
-  if (typeof config === "object" && "id" in config && config.id) {
-    return String(config.id);
+function resolveSelectRecordId(option: { value?: unknown } | null | undefined) {
+  const raw = option?.value;
+  if (raw === undefined || raw === null || raw === '') {
+    return null;
+  }
+  return toRecordId(raw);
+}
+
+function paymentTypeIdToString(id: unknown): string | null {
+  if (id == null) return null;
+  if (typeof id === 'string') return id;
+  if (typeof id === 'object' && typeof (id as { toString?: () => string }).toString === 'function') {
+    const text = String(id);
+    return text.includes(':') ? text : null;
   }
   return null;
 }
-
 function getGatewayConfigValues(config: PaymentType["gateway_config"]) {
   if (!config || typeof config === "string") {
     return { ...EMPTY_GATEWAY_CONFIG };
@@ -132,7 +139,6 @@ export const PaymentTypeForm = ({
   useEffect(() => {
     if(data){
       reset({
-        ...data,
         name: data.name,
         priority: String(data.priority),
         type: {
@@ -150,8 +156,8 @@ export const PaymentTypeForm = ({
         gateway_config: getGatewayConfigValues(data.gateway_config),
         tax: (data.tax ? {
           label: `${data?.tax?.name} ${data?.tax?.rate}%`,
-          value: data?.tax?.id?.toString()
-        } : undefined),
+          value: data?.tax?.id != null ? String(data.tax.id) : undefined
+        } : null),
       });
     }
   }, [data]);
@@ -179,10 +185,7 @@ export const PaymentTypeForm = ({
   const selectedGatewayDescriptor = getGatewayDescriptor(selectedGateway?.value);
 
   const onSubmit = async (values: any) => {
-    const vals = {...values};
-
-    vals.priority = Number(vals.priority);
-    vals.type = values.type.value;
+    const isRemote = values.type?.value === 'Remote';
 
     // Extract non-empty gateway credential values. Declared here (outside the
     // Remote branch) so we can reference it later when deciding whether to
@@ -195,59 +198,31 @@ export const PaymentTypeForm = ({
         .map(([key, value]) => [key, String(value)])
     );
 
-    if (values.type.value === 'Remote') {
-      vals.gateway = values.gateway?.value || null;
-      vals.gateway_mode = values.gateway_mode?.value || null;
+    const payload: Record<string, unknown> = {
+      name: values.name,
+      priority: Number(values.priority),
+      type: values.type.value,
+      gateway: isRemote ? (values.gateway?.value || null) : null,
+      gateway_mode: isRemote ? (values.gateway_mode?.value || null) : null,
+      // Credentials are saved via the encrypted endpoint — never write plaintext here.
+      gateway_config: null,
+      tax: resolveSelectRecordId(values.tax),
+      discounts: null,
+      has_discount: false,
+    };
 
-      // SECURITY: gateway credentials are saved separately via the encrypted
-      // /payments/credentials/:paymentTypeId endpoint. They MUST NOT be written
-      // to the payment_type_gateway_configs table directly via /rpc — that
-      // would store them in plaintext. The payment_type record itself only
-      // holds a (now-optional) link to a config record for non-secret fields.
-      //
-      // Flow:
-      //   1. Save the payment_type record first (without gateway_config) so we
-      //      have its id (for new records) or it's updated (for existing).
-      //   2. If there are credentials to save, POST them to the encrypted
-      //      endpoint — the server writes to gateway_config_encrypted and
-      //      clears the legacy plaintext field.
-      //   3. The payment_type.gateway_config link field is left null — the
-      //      payments service reads from gateway_config_encrypted transparently.
-      vals.gateway_config = null;
-    } else {
-      vals.gateway = null;
-      vals.gateway_mode = null;
-      vals.gateway_config = null;
-    }
-
-    if(values.tax){
-      vals.tax = new StringRecordId(values.tax.value);
-    } else {
-      vals.tax = null;
-    }
-
-    // Discounts are configured on discount records (targets.payment_type_ids)
-    vals.discounts = null;
-    vals.has_discount = false;
-
-    // Capture the cleaned credentials before we strip them — we'll save them
-    // via the encrypted endpoint after the payment_type record is persisted.
-    const credentialsToSave = (vals.type === 'Remote' && values.gateway && Object.keys(cleanedGatewayConfig || {}).length > 0)
+    const credentialsToSave = (isRemote && values.gateway && Object.keys(cleanedGatewayConfig).length > 0)
       ? cleanedGatewayConfig
       : null;
 
     try {
       let savedPaymentTypeId: string | null = null;
       if(data?.id){
-        await db.update(toRecordId(data.id), {
-          ...vals
-        });
-        savedPaymentTypeId = String(data.id);
+        await db.update(toRecordId(data.id), payload);
+        savedPaymentTypeId = paymentTypeIdToString(data.id);
       }else{
-        const [created] = await db.create(Tables.payment_types, {
-          ...vals
-        });
-        savedPaymentTypeId = created?.id?.toString?.() || null;
+        const [created] = await db.create(Tables.payment_types, payload);
+        savedPaymentTypeId = paymentTypeIdToString(created?.id);
       }
 
       // Now save the gateway credentials via the encrypted endpoint (if any).
