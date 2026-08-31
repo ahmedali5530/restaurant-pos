@@ -45,7 +45,7 @@ import {
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
   faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
-  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck, faExchangeAlt, faGraduationCap, faFaceSmile, faCartShopping, faFileShield, faGiftCard,
+  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck, faExchangeAlt, faGraduationCap, faFaceSmile, faCartShopping, faFileShield, faGiftCard, faRotateLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -86,6 +86,7 @@ import {
   REPORTS_BRANCH_COMPARISON,
   REPORTS_COMPLIANCE_TRACKING,
   REPORTS_GIFTCARD_FRAUD,
+  REPORTS_REFUND_ABUSE,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -132,7 +133,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -185,6 +186,7 @@ export function AiCommandCenterScreen() {
         fetchBranchCompSummary(db),
         fetchComplianceSummary(db),
         fetchGiftCardFraudSummary(db),
+        fetchRefundAbuseSummary(db),
       ]);
 
       setMetrics([
@@ -195,7 +197,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -1569,6 +1571,23 @@ async function fetchGiftCardFraudSummary(db: any): Promise<MetricCard> {
       link: REPORTS_GIFTCARD_FRAUD, linkLabel: 'View alerts',
     };
   } catch { return neutralCard('Gift Card Fraud', faGiftCard, 'text-rose-600', REPORTS_GIFTCARD_FRAUD); }
+}
+
+async function fetchRefundAbuseSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(severity = 'critical') AS critical, math::sum(estimated_loss) AS total_loss
+       FROM refund_abuse_alert WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const r = list[0];
+    if (!r || r.count === 0) return neutralCard('Refund Abuse', faRotateLeft, 'text-rose-600', REPORTS_REFUND_ABUSE);
+    return {
+      title: 'Refund Abuse', icon: faRotateLeft, color: 'text-rose-600',
+      primary: `${r.critical} critical`, secondary: `${r.count} alerts · ${withCurrency(r.total_loss)} loss`,
+      health: r.critical > 0 ? 'critical' : 'warning', link: REPORTS_REFUND_ABUSE, linkLabel: 'View alerts',
+    };
+  } catch { return neutralCard('Refund Abuse', faRotateLeft, 'text-rose-600', REPORTS_REFUND_ABUSE); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {

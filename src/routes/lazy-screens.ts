@@ -414,3 +414,7 @@ export const ComplianceTrackingScreen = lazy(() =>
 export const GiftCardFraudScreen = lazy(() =>
   import('@/screens/reports/giftcard.fraud.report.tsx').then(m => ({default: m.GiftCardFraudScreen}))
 );
+
+export const RefundAbuseScreen = lazy(() =>
+  import('@/screens/reports/refund.abuse.report.tsx').then(m => ({default: m.RefundAbuseScreen}))
+);
