@@ -98,24 +98,36 @@ function getGatewayConfigValues(config: PaymentType["gateway_config"]) {
 }
 
 /**
- * SECURITY: gateway credentials are now stored encrypted at rest
- * (gateway_config_encrypted field) and are NEVER sent to the browser. When
- * editing an existing payment type, the form fields will be empty — this is
- * intentional. The operator enters new values to replace the stored (encrypted)
- * credentials. Leaving a field empty means "keep the existing value" — the
- * server merges the new values with the existing encrypted blob.
- *
- * The form shows a hint banner when editing an existing payment type with a
- * gateway configured, so the operator understands why the fields are empty.
+ * SECURITY: gateway credentials are stored encrypted at rest and are never sent
+ * to the browser. When editing an existing Remote payment type, credential fields
+ * stay empty on purpose — enter new values only to replace stored secrets.
  */
-function hasExistingEncryptedCredentials(data: PaymentType | undefined): boolean {
-  // The SPA reads payment_type records directly via Surreal /rpc. The
-  // gateway_config_encrypted field is either a string ("enc:v1:...") or NONE.
-  // We check for a non-empty string to detect existing encrypted credentials.
-  // We do NOT decrypt or display the ciphertext — it's meaningless to the
-  // operator and would leak the format.
-  const v = (data as any)?.gateway_config_encrypted;
-  return typeof v === 'string' && v.length > 0;
+function shouldShowEncryptedCredentialsHint(
+  data: PaymentType | undefined,
+  isRemoteType: boolean,
+  gatewayValue: string | undefined,
+): boolean {
+  if (!data?.id || !isRemoteType || !gatewayValue) {
+    return false;
+  }
+
+  const encrypted = (data as { gateway_config_encrypted?: unknown }).gateway_config_encrypted;
+  if (typeof encrypted === 'string' && encrypted.length > 0) {
+    return true;
+  }
+
+  const legacy = data.gateway_config;
+  if (legacy) {
+    if (typeof legacy === 'string') {
+      return true;
+    }
+    if (typeof legacy === 'object') {
+      return Object.values(legacy).some((v) => v != null && String(v).trim() !== '');
+    }
+  }
+
+  // Existing Remote type with a gateway — credentials live server-side (encrypted).
+  return true;
 }
 
 export const PaymentTypeForm = ({
@@ -183,6 +195,11 @@ export const PaymentTypeForm = ({
   const selectedGateway = watch('gateway');
   const isRemoteType = selectedType?.value === 'Remote';
   const selectedGatewayDescriptor = getGatewayDescriptor(selectedGateway?.value);
+  const showEncryptedCredentialsHint = shouldShowEncryptedCredentialsHint(
+    data,
+    isRemoteType,
+    selectedGateway?.value || data?.gateway,
+  );
 
   const onSubmit = async (values: any) => {
     const isRemote = values.type?.value === 'Remote';
@@ -366,7 +383,7 @@ export const PaymentTypeForm = ({
           {isRemoteType && selectedGatewayDescriptor && (
             <div className="mb-3 border rounded p-3">
               <h4 className="font-medium mb-3">Gateway Keys</h4>
-              {hasExistingEncryptedCredentials(data) && (
+              {showEncryptedCredentialsHint && (
                 <div className="mb-3 p-2 bg-amber-50 border border-amber-200 rounded text-sm text-amber-800 dark:bg-amber-950/30 dark:border-amber-800 dark:text-amber-200">
                   <strong>{t('admin:forms.encryptedCredentialsHint')}</strong>{' '}
                   {t('admin:forms.encryptedCredentialsExplanation')}
