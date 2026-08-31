@@ -482,3 +482,7 @@ export const ServerCoachScreen = lazy(() =>
 export const AllergenRiskScreen = lazy(() =>
   import('@/screens/reports/allergen.risk.report.tsx').then(m => ({default: m.AllergenRiskScreen}))
 );
+
+export const OverbookingScreen = lazy(() =>
+  import('@/screens/reports/overbooking.report.tsx').then(m => ({default: m.OverbookingScreen}))
+);
