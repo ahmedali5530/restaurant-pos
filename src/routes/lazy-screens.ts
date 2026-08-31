@@ -426,3 +426,7 @@ export const BuffetDemandScreen = lazy(() =>
 export const DeliveryRouteScreen = lazy(() =>
   import('@/screens/reports/delivery.route.report.tsx').then(m => ({default: m.DeliveryRouteScreen}))
 );
+
+export const ServerLoadBalancerScreen = lazy(() =>
+  import('@/screens/reports/server.load.balancer.report.tsx').then(m => ({default: m.ServerLoadBalancerScreen}))
+);
