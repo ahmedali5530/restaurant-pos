@@ -486,3 +486,7 @@ export const AllergenRiskScreen = lazy(() =>
 export const OverbookingScreen = lazy(() =>
   import('@/screens/reports/overbooking.report.tsx').then(m => ({default: m.OverbookingScreen}))
 );
+
+export const ReservationCascadeScreen = lazy(() =>
+  import('@/screens/reports/reservation.cascade.report.tsx').then(m => ({default: m.ReservationCascadeScreen}))
+);
