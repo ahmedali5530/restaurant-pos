@@ -422,3 +422,7 @@ export const RefundAbuseScreen = lazy(() =>
 export const BuffetDemandScreen = lazy(() =>
   import('@/screens/reports/buffet.demand.report.tsx').then(m => ({default: m.BuffetDemandScreen}))
 );
+
+export const DeliveryRouteScreen = lazy(() =>
+  import('@/screens/reports/delivery.route.report.tsx').then(m => ({default: m.DeliveryRouteScreen}))
+);
