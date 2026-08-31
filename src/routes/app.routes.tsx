@@ -88,6 +88,7 @@ import {
   REPORTS_DISH_PROFITABILITY,
   REPORTS_CASH_DRAWER_ANOMALY,
   REPORTS_CASH_EARLY_WARNING,
+  REPORTS_COMPLAINT_PATTERN,
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
   REPORTS_CONSUMPTION,
@@ -268,6 +269,7 @@ import {
   DishProfitabilityScreen,
   CashDrawerAnomalyScreen,
   CashEarlyWarningScreen,
+  ComplaintPatternScreen,
   TablesideScreen,
 } from "@/routes/lazy-screens.ts";
 
@@ -375,6 +377,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_DISH_PROFITABILITY} element={<DishProfitabilityScreen/>}/>
         <Route path={REPORTS_CASH_DRAWER_ANOMALY} element={<CashDrawerAnomalyScreen/>}/>
         <Route path={REPORTS_CASH_EARLY_WARNING} element={<CashEarlyWarningScreen/>}/>
+        <Route path={REPORTS_COMPLAINT_PATTERN} element={<ComplaintPatternScreen/>}/>
         <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
         <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
         <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>

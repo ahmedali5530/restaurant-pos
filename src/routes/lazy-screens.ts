@@ -442,3 +442,7 @@ export const CashDrawerAnomalyScreen = lazy(() =>
 export const CashEarlyWarningScreen = lazy(() =>
   import('@/screens/reports/cash.early.warning.report.tsx').then(m => ({default: m.CashEarlyWarningScreen}))
 );
+
+export const ComplaintPatternScreen = lazy(() =>
+  import('@/screens/reports/complaint.pattern.report.tsx').then(m => ({default: m.ComplaintPatternScreen}))
+);
