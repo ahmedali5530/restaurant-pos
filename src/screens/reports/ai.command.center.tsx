@@ -45,7 +45,7 @@ import {
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
   faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
-  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck, faExchangeAlt, faGraduationCap, faFaceSmile, faCartShopping, faFileShield, faGiftCard, faRotateLeft, faRoute, faUserGear, faCalculator, faCashRegister, faCommentDots,
+  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck, faExchangeAlt, faGraduationCap, faFaceSmile, faCartShopping, faFileShield, faGiftCard, faRotateLeft, faRoute, faUserGear, faCalculator, faCashRegister, faCommentDots, faCloudSun,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -94,6 +94,7 @@ import {
   REPORTS_CASH_DRAWER_ANOMALY,
   REPORTS_CASH_EARLY_WARNING,
   REPORTS_COMPLAINT_PATTERN,
+  REPORTS_WEATHER_IMPACT,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -140,7 +141,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -201,6 +202,7 @@ export function AiCommandCenterScreen() {
         fetchCashDrawerSummary(db),
         fetchCashWarningSummary(db),
         fetchComplaintPatternSummary(db),
+        fetchWeatherSummary(db),
       ]);
 
       setMetrics([
@@ -1726,6 +1728,24 @@ async function fetchComplaintPatternSummary(db: any): Promise<MetricCard> {
       health: c.critical > 0 ? 'critical' : 'warning', link: REPORTS_COMPLAINT_PATTERN, linkLabel: 'View patterns',
     };
   } catch { return neutralCard('Complaint Patterns', faCommentDots, 'text-amber-600', REPORTS_COMPLAINT_PATTERN); }
+}
+
+async function fetchWeatherSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT condition, avg_temp, expected_revenue, rain_impact_pct
+       FROM weather_impact ORDER BY analyzed_at DESC LIMIT 1`
+    );
+    const rows = Array.isArray(result) ? result.flat() : [];
+    const w = rows[0];
+    if (!w) return neutralCard('Weather Impact', faCloudSun, 'text-blue-500', REPORTS_WEATHER_IMPACT);
+    return {
+      title: 'Weather Impact', icon: faCloudSun, color: 'text-blue-500',
+      primary: w.condition ?? '—', secondary: `${w.avg_temp ?? '—'}°C · rain impact ${w.rain_impact_pct ?? '—'}%`,
+      health: (w.rain_impact_pct ?? 0) < -0.1 ? 'warning' : 'good',
+      link: REPORTS_WEATHER_IMPACT, linkLabel: 'View analysis',
+    };
+  } catch { return neutralCard('Weather Impact', faCloudSun, 'text-blue-500', REPORTS_WEATHER_IMPACT); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
