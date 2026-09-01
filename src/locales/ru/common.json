@@ -105,7 +105,14 @@
   },
   "lock": {
     "lockedBy": "Заблокировано пользователем {{name}}",
-    "onlyUserCanLogin": "Сейчас может войти только {{name}}"
+    "onlyUserCanLogin": "Сейчас может войти только {{name}}",
+    "lockedTitle": "Сессия Заблокирована",
+    "enterPinToUnlock": "Введите PIN-код для разблокировки",
+    "unknownUser": "Пользователь",
+    "unlock": "Разблокировать",
+    "switchUser": "Сменить пользователя",
+    "digit": "Цифра {{d}}",
+    "backspace": "Удалить"
   },
   "table": {
     "page": "Страница",

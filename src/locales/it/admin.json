@@ -21,7 +21,8 @@
     "shifts": "Turni",
     "tipsDefinition": "Definizione mance",
     "accessTab": "Accedi a {{title}}",
-    "ariaLabel": "Schede amministrazione"
+    "ariaLabel": "Schede amministrazione",
+    "securityAlerts": "Avvisi di Sicurezza"
   },
   "columns": {
     "photo": "Foto",
@@ -633,6 +634,7 @@
       "admin.tips_definition.create": "Crea Definizione mance",
       "admin.tips_definition.update": "Aggiorna Definizione mance",
       "admin.tips_definition.delete": "Elimina Definizione mance",
+      "admin.security_alerts": "Avvisi di sicurezza",
       "tips": "Mance",
       "tips.calculation": "Calcolo mance",
       "tips.payout": "Gestione pagamenti",
@@ -878,5 +880,29 @@
       "saveFailed": "Impossibile salvare lo sconto.",
       "createReasonFailed": "Impossibile creare il motivo sconto."
     }
+  },
+  "securityAlerts": {
+    "noAccess": "Ruolo amministratore richiesto per visualizzare avvisi di sicurezza.",
+    "loading": "Caricamento avvisi…",
+    "error": "Caricamento avvisi fallito",
+    "critical": "Critico",
+    "warning": "Avviso",
+    "info": "Info",
+    "noAlerts": "Nessun avviso aperto",
+    "noAlertsDescription": "Il rilevatore di anomalie non ha segnalato attività sospette.",
+    "count": "×{{n}}",
+    "actor": "Attore",
+    "actorId": "ID attore",
+    "actorRoles": "Ruoli attore",
+    "sourceIp": "IP sorgente",
+    "emittedAt": "Emesso il",
+    "ruleType": "Tipo di regola",
+    "detailTitle": "Avviso di Sicurezza",
+    "resolutionNotes": "Note di risoluzione (opzionale)",
+    "resolutionNotesPlaceholder": "es. Investigato — falso allarme da test automatizzato",
+    "acknowledge": "Riconosci",
+    "hideDetails": "▼ Nascondi dettagli",
+    "showDetails": "▶ Mostra dettagli",
+    "badgeTooltip": "{{count}} avviso/i critico/i aperto/i"
   }
 }

@@ -21,7 +21,8 @@
     "shifts": "Vardiyalar",
     "tipsDefinition": "Bahşiş tanımı",
     "accessTab": "{{title}} modülüne eriş",
-    "ariaLabel": "Yönetim sekmeleri"
+    "ariaLabel": "Yönetim sekmeleri",
+    "securityAlerts": "Güvenlik Uyarıları"
   },
   "columns": {
     "photo": "Fotoğraf",
@@ -633,6 +634,7 @@
       "admin.tips_definition.create": "Oluştur Bahşiş tanımı",
       "admin.tips_definition.update": "Güncelle Bahşiş tanımı",
       "admin.tips_definition.delete": "Sil Bahşiş tanımı",
+      "admin.security_alerts": "Güvenlik uyarıları",
       "tips": "Bahşişler",
       "tips.calculation": "Bahşiş Hesaplama",
       "tips.payout": "Ödeme Yönetimi",
@@ -878,5 +880,29 @@
       "saveFailed": "İndirim kaydedilemedi.",
       "createReasonFailed": "İndirim nedeni oluşturulamadı."
     }
+  },
+  "securityAlerts": {
+    "noAccess": "Güvenlik uyarılarını görüntülemek için yönetici rolü gereklidir.",
+    "loading": "Uyarılar yükleniyor…",
+    "error": "Uyarılar yüklenemedi",
+    "critical": "Kritik",
+    "warning": "Uyarı",
+    "info": "Bilgi",
+    "noAlerts": "Açık uyarı yok",
+    "noAlertsDescription": "Anomali dedektörü şüpheli aktivite işaretlemedi.",
+    "count": "×{{n}}",
+    "actor": "Aktör",
+    "actorId": "Aktör ID",
+    "actorRoles": "Aktör rolleri",
+    "sourceIp": "Kaynak IP",
+    "emittedAt": "Yayınlandı",
+    "ruleType": "Kural türü",
+    "detailTitle": "Güvenlik Uyarısı",
+    "resolutionNotes": "Çözüm notları (isteğe bağlı)",
+    "resolutionNotesPlaceholder": "ör. İncelendi — otomatik testten yanlış alarm",
+    "acknowledge": "Kabul et",
+    "hideDetails": "▼ Detayları gizle",
+    "showDetails": "▶ Detayları göster",
+    "badgeTooltip": "{{count}} açık kritik uyarı"
   }
 }

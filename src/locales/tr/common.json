@@ -105,7 +105,14 @@
   },
   "lock": {
     "lockedBy": "{{name}} tarafından kilitlendi",
-    "onlyUserCanLogin": "Şu anda yalnızca {{name}} giriş yapabilir"
+    "onlyUserCanLogin": "Şu anda yalnızca {{name}} giriş yapabilir",
+    "lockedTitle": "Oturum Kilitli",
+    "enterPinToUnlock": "Kilidi açmak için PIN girin",
+    "unknownUser": "Kullanıcı",
+    "unlock": "Kilidi Aç",
+    "switchUser": "Kullanıcı değiştir",
+    "digit": "Rakam {{d}}",
+    "backspace": "Geri al"
   },
   "table": {
     "page": "Sayfa",

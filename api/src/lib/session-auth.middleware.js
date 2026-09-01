@@ -35,6 +35,10 @@ function extractBearer(req) {
 
 function createSessionAuthMiddleware(options = {}) {
   const optional = Boolean(options.optional);
+  // Optional hook: services can register a denial callback to log to their
+  // own audit store. The gateway uses this to write to the audit_log table.
+  // If unset, denials are not logged (only the 401 response is sent).
+  const onDenied = typeof options.onDenied === 'function' ? options.onDenied : null;
 
   return async function sessionAuthMiddleware(req, res, next) {
     if (!authRequired()) {
@@ -52,6 +56,9 @@ function createSessionAuthMiddleware(options = {}) {
     const token = extractBearer(req);
     if (!token) {
       if (optional) return next();
+      if (onDenied) {
+        try { await onDenied(req, 401, 'No bearer token'); } catch {}
+      }
       return res.status(401).json({ ok: false, error: 'Unauthorized' });
     }
 
@@ -61,11 +68,17 @@ function createSessionAuthMiddleware(options = {}) {
         algorithms: ['HS256'],
       });
       if (payload.typ !== 'pos_session') {
+        if (onDenied) {
+          try { await onDenied(req, 401, 'Invalid token type'); } catch {}
+        }
         return res.status(401).json({ ok: false, error: 'Invalid token type' });
       }
       req.posSession = payload;
       return next();
     } catch {
+      if (onDenied) {
+        try { await onDenied(req, 401, 'Invalid or expired session'); } catch {}
+      }
       return res.status(401).json({ ok: false, error: 'Invalid or expired session' });
     }
   };
@@ -83,13 +96,9 @@ function createCorsOriginDelegate() {
     .filter(Boolean);
 
   return function originDelegate(origin, cb) {
-    // No Origin header = same-origin or a non-browser caller — always fine.
     if (!origin) {
       return cb(null, true);
     }
-    // An unset/empty allow-list must NOT mean "allow every origin" — only an
-    // explicit '*' (operator's own deliberate choice) or an explicitly
-    // listed origin passes.
     if (allowed.includes('*') || allowed.includes(origin)) {
       return cb(null, true);
     }

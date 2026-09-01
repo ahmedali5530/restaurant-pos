@@ -17,6 +17,16 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
+    date: '2026-09-01',
+    title: 'Security audit log and alerts',
+    items: [
+      'Login success, failed login, logout, and permission denials are now written to a structured audit_log table.',
+      'Anomaly detector script (migrations/scripts/anomaly-detector.cjs) surfaces suspicious patterns as security alerts.',
+      'Admin → Security Alerts shows open alerts with acknowledge workflow and a sidebar badge for critical items.',
+      'Run anomaly-detector.cjs on a schedule (e.g. cron every 5 minutes) after deploying migrations.',
+    ],
+  },
+  {
     date: '2026-08-30',
     title: 'Security hardening (Phase 3)',
     items: [

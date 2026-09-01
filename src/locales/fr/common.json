@@ -105,7 +105,14 @@
   },
   "lock": {
     "lockedBy": "Verrouillé par {{name}}",
-    "onlyUserCanLogin": "Seul {{name}} peut se connecter pour le moment"
+    "onlyUserCanLogin": "Seul {{name}} peut se connecter pour le moment",
+    "lockedTitle": "Session Verrouillée",
+    "enterPinToUnlock": "Saisissez votre code PIN pour déverrouiller",
+    "unknownUser": "Utilisateur",
+    "unlock": "Déverrouiller",
+    "switchUser": "Changer d'utilisateur",
+    "digit": "Chiffre {{d}}",
+    "backspace": "Effacer"
   },
   "table": {
     "page": "Page",

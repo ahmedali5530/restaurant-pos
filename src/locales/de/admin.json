@@ -21,7 +21,8 @@
     "shifts": "Schichten",
     "tipsDefinition": "Trinkgeld-Definition",
     "accessTab": "Zugriff auf {{title}}",
-    "ariaLabel": "Verwaltungsregisterkarten"
+    "ariaLabel": "Verwaltungsregisterkarten",
+    "securityAlerts": "Sicherheitswarnungen"
   },
   "columns": {
     "photo": "Foto",
@@ -633,6 +634,7 @@
       "admin.tips_definition.create": "Erstellen Trinkgeld-Definition",
       "admin.tips_definition.update": "Aktualisieren Trinkgeld-Definition",
       "admin.tips_definition.delete": "Löschen Trinkgeld-Definition",
+      "admin.security_alerts": "Sicherheitswarnungen",
       "tips": "Trinkgeld",
       "tips.calculation": "Trinkgeldberechnung",
       "tips.payout": "Auszahlungsverwaltung",
@@ -878,5 +880,29 @@
       "saveFailed": "Rabatt konnte nicht gespeichert werden.",
       "createReasonFailed": "Rabattgrund konnte nicht erstellt werden."
     }
+  },
+  "securityAlerts": {
+    "noAccess": "Administratorrolle erforderlich, um Sicherheitswarnungen anzuzeigen.",
+    "loading": "Warnungen werden geladen…",
+    "error": "Warnungen konnten nicht geladen werden",
+    "critical": "Kritisch",
+    "warning": "Warnung",
+    "info": "Info",
+    "noAlerts": "Keine offenen Warnungen",
+    "noAlertsDescription": "Der Anomalie-Detektor hat keine verdächtige Aktivität markiert.",
+    "count": "×{{n}}",
+    "actor": "Akteur",
+    "actorId": "Akteur-ID",
+    "actorRoles": "Akteur-Rollen",
+    "sourceIp": "Quell-IP",
+    "emittedAt": "Ausgegeben am",
+    "ruleType": "Regeltyp",
+    "detailTitle": "Sicherheitswarnung",
+    "resolutionNotes": "Lösungshinweise (optional)",
+    "resolutionNotesPlaceholder": "z.B. Untersucht — Fehlalarm vom automatisierten Test",
+    "acknowledge": "Bestätigen",
+    "hideDetails": "▼ Details ausblenden",
+    "showDetails": "▶ Details anzeigen",
+    "badgeTooltip": "{{count}} offene kritische Warnung(en)"
   }
 }

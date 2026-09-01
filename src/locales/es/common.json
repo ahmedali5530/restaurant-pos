@@ -105,7 +105,14 @@
   },
   "lock": {
     "lockedBy": "Bloqueado por {{name}}",
-    "onlyUserCanLogin": "Solo {{name}} puede iniciar sesión ahora"
+    "onlyUserCanLogin": "Solo {{name}} puede iniciar sesión ahora",
+    "lockedTitle": "Sesión Bloqueada",
+    "enterPinToUnlock": "Ingrese su PIN para desbloquear",
+    "unknownUser": "Usuario",
+    "unlock": "Desbloquear",
+    "switchUser": "Cambiar usuario",
+    "digit": "Dígito {{d}}",
+    "backspace": "Borrar"
   },
   "table": {
     "page": "Página",
