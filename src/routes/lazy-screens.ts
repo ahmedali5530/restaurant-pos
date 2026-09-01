@@ -1,5 +1,9 @@
 import {lazy} from "react";
 
+export const TablesideScreen = lazy(() =>
+  import('@/screens/tableside').then(m => ({default: m.TablesideScreen}))
+);
+
 export const Closing = lazy(() =>
   import('@/screens/closing.tsx').then(m => ({default: m.Closing}))
 );
@@ -186,4 +190,290 @@ export const LaborScheduleRosterReport = lazy(() =>
 );
 export const InventoryDocumentPrintPage = lazy(() =>
   import('@/screens/inventory/document.print.tsx').then(m => ({default: m.InventoryDocumentPrintPage}))
+);
+export const DemandForecastScreen = lazy(() =>
+  import('@/screens/reports/demand.forecast.report.tsx').then(m => ({default: m.DemandForecastScreen}))
+);
+
+export const MenuOptimizationScreen = lazy(() =>
+  import('@/screens/reports/menu.optimization.report.tsx').then(m => ({default: m.MenuOptimizationScreen}))
+);
+
+export const SentimentReportScreen = lazy(() =>
+  import('@/screens/reports/sentiment.report.tsx').then(m => ({default: m.SentimentReportScreen}))
+);
+
+export const WasteIntelligenceScreen = lazy(() =>
+  import('@/screens/reports/waste.intelligence.report.tsx').then(m => ({default: m.WasteIntelligenceScreen}))
+);
+
+export const SchedulingOptimizationScreen = lazy(() =>
+  import('@/screens/reports/scheduling.optimization.report.tsx').then(m => ({default: m.SchedulingOptimizationScreen}))
+);
+
+export const CashFlowReportScreen = lazy(() =>
+  import('@/screens/reports/cash.flow.report.tsx').then(m => ({default: m.CashFlowReportScreen}))
+);
+
+export const VendorPerformanceScreen = lazy(() =>
+  import('@/screens/reports/vendor.performance.report.tsx').then(m => ({default: m.VendorPerformanceScreen}))
+);
+
+export const TableTurnoverScreen = lazy(() =>
+  import('@/screens/reports/turnover.report.tsx').then(m => ({default: m.TableTurnoverScreen}))
+);
+
+export const DynamicPricingScreen = lazy(() =>
+  import('@/screens/reports/dynamic.pricing.report.tsx').then(m => ({default: m.DynamicPricingScreen}))
+);
+
+export const ForecastAccuracyScreen = lazy(() =>
+  import('@/screens/reports/forecast.accuracy.report.tsx').then(m => ({default: m.ForecastAccuracyScreen}))
+);
+
+export const UpsellEffectivenessScreen = lazy(() =>
+  import('@/screens/reports/upsell.effectiveness.report.tsx').then(m => ({default: m.UpsellEffectivenessScreen}))
+);
+
+export const AiCommandCenterScreen = lazy(() =>
+  import('@/screens/reports/ai.command.center.tsx').then(m => ({default: m.AiCommandCenterScreen}))
+);
+
+export const AnomalyAlertsScreen = lazy(() =>
+  import('@/screens/reports/anomaly.alerts.report.tsx').then(m => ({default: m.AnomalyAlertsScreen}))
+);
+
+export const CustomerCLVScreen = lazy(() =>
+  import('@/screens/reports/customer.clv.report.tsx').then(m => ({default: m.CustomerCLVScreen}))
+);
+
+export const ChurnPredictionScreen = lazy(() =>
+  import('@/screens/reports/churn.prediction.report.tsx').then(m => ({default: m.ChurnPredictionScreen}))
+);
+
+export const PromoEffectivenessScreen = lazy(() =>
+  import('@/screens/reports/promo.effectiveness.report.tsx').then(m => ({default: m.PromoEffectivenessScreen}))
+);
+
+export const ServerPerformanceScreen = lazy(() =>
+  import('@/screens/reports/server.performance.report.tsx').then(m => ({default: m.ServerPerformanceScreen}))
+);
+
+export const CompetitorMonitoringScreen = lazy(() =>
+  import('@/screens/reports/competitor.monitoring.report.tsx').then(m => ({default: m.CompetitorMonitoringScreen}))
+);
+
+export const FoodCostTrendScreen = lazy(() =>
+  import('@/screens/reports/food.cost.trend.report.tsx').then(m => ({default: m.FoodCostTrendScreen}))
+);
+
+export const RecipeOptimizationScreen = lazy(() =>
+  import('@/screens/reports/recipe.optimization.report.tsx').then(m => ({default: m.RecipeOptimizationScreen}))
+);
+
+export const SegmentationScreen = lazy(() =>
+  import('@/screens/reports/segmentation.report.tsx').then(m => ({default: m.SegmentationScreen}))
+);
+
+export const LaborOptimizationScreen = lazy(() =>
+  import('@/screens/reports/labor.optimization.report.tsx').then(m => ({default: m.LaborOptimizationScreen}))
+);
+
+export const DeliveryAnalyticsScreen = lazy(() =>
+  import('@/screens/reports/delivery.analytics.report.tsx').then(m => ({default: m.DeliveryAnalyticsScreen}))
+);
+
+export const PeakHourScreen = lazy(() =>
+  import('@/screens/reports/peak.hour.report.tsx').then(m => ({default: m.PeakHourScreen}))
+);
+
+export const TipAnalyticsScreen = lazy(() =>
+  import('@/screens/reports/tip.analytics.report.tsx').then(m => ({default: m.TipAnalyticsScreen}))
+);
+
+export const RevPASHScreen = lazy(() =>
+  import('@/screens/reports/revpash.report.tsx').then(m => ({default: m.RevPASHScreen}))
+);
+
+export const JourneyScreen = lazy(() =>
+  import('@/screens/reports/journey.report.tsx').then(m => ({default: m.JourneyScreen}))
+);
+
+export const SeasonalScreen = lazy(() =>
+  import('@/screens/reports/seasonal.report.tsx').then(m => ({default: m.SeasonalScreen}))
+);
+
+export const GuestPreferenceScreen = lazy(() =>
+  import('@/screens/reports/guest.preference.report.tsx').then(m => ({default: m.GuestPreferenceScreen}))
+);
+
+export const ShrinkageScreen = lazy(() =>
+  import('@/screens/reports/shrinkage.report.tsx').then(m => ({default: m.ShrinkageScreen}))
+);
+
+export const RevenueForecastScreen = lazy(() =>
+  import('@/screens/reports/revenue.forecast.report.tsx').then(m => ({default: m.RevenueForecastScreen}))
+);
+
+export const NoShowPredictionScreen = lazy(() =>
+  import('@/screens/reports/noshow.prediction.report.tsx').then(m => ({default: m.NoShowPredictionScreen}))
+);
+
+export const OrderFraudScreen = lazy(() =>
+  import('@/screens/reports/order.fraud.report.tsx').then(m => ({default: m.OrderFraudScreen}))
+);
+
+export const FoodSafetyScreen = lazy(() =>
+  import('@/screens/reports/food.safety.report.tsx').then(m => ({default: m.FoodSafetyScreen}))
+);
+
+export const EnergyOptimizationScreen = lazy(() =>
+  import('@/screens/reports/energy.optimization.report.tsx').then(m => ({default: m.EnergyOptimizationScreen}))
+);
+
+export const StaffTurnoverScreen = lazy(() =>
+  import('@/screens/reports/staff.turnover.report.tsx').then(m => ({default: m.StaffTurnoverScreen}))
+);
+
+export const YieldVarianceScreen = lazy(() =>
+  import('@/screens/reports/yield.variance.report.tsx').then(m => ({default: m.YieldVarianceScreen}))
+);
+
+export const KitchenBottleneckScreen = lazy(() =>
+  import('@/screens/reports/kitchen.bottleneck.report.tsx').then(m => ({default: m.KitchenBottleneckScreen}))
+);
+
+export const WinBackScreen = lazy(() =>
+  import('@/screens/reports/winback.report.tsx').then(m => ({default: m.WinBackScreen}))
+);
+
+export const ChargebackRiskScreen = lazy(() =>
+  import('@/screens/reports/chargeback.risk.report.tsx').then(m => ({default: m.ChargebackRiskScreen}))
+);
+
+export const PriceElasticityScreen = lazy(() =>
+  import('@/screens/reports/price.elasticity.report.tsx').then(m => ({default: m.PriceElasticityScreen}))
+);
+
+export const PromoAbuseScreen = lazy(() =>
+  import('@/screens/reports/promo.abuse.report.tsx').then(m => ({default: m.PromoAbuseScreen}))
+);
+
+export const MenuPairingScreen = lazy(() =>
+  import('@/screens/reports/menu.pairing.report.tsx').then(m => ({default: m.MenuPairingScreen}))
+);
+
+export const WeatherImpactScreen = lazy(() =>
+  import('@/screens/reports/weather.impact.report.tsx').then(m => ({default: m.WeatherImpactScreen}))
+);
+export const PeakPricingScreen = lazy(() =>
+  import('@/screens/reports/peak.pricing.report.tsx').then(m => ({default: m.PeakPricingScreen}))
+);
+export const TableUtilizationScreen = lazy(() =>
+  import('@/screens/reports/table.utilization.report.tsx').then(m => ({default: m.TableUtilizationScreen}))
+);
+export const OvertimePredictionScreen = lazy(() =>
+  import('@/screens/reports/overtime.prediction.report.tsx').then(m => ({default: m.OvertimePredictionScreen}))
+);
+export const LoyaltyRoiScreen = lazy(() =>
+  import('@/screens/reports/loyalty.roi.report.tsx').then(m => ({default: m.LoyaltyRoiScreen}))
+);
+export const ProcurementScreen = lazy(() =>
+  import('@/screens/reports/procurement.report.tsx').then(m => ({default: m.ProcurementScreen}))
+);
+export const MenuRotationScreen = lazy(() =>
+  import('@/screens/reports/menu.rotation.report.tsx').then(m => ({default: m.MenuRotationScreen}))
+);
+export const ServerCoachScreen = lazy(() =>
+  import('@/screens/reports/server.coach.report.tsx').then(m => ({default: m.ServerCoachScreen}))
+);
+export const AllergenRiskScreen = lazy(() =>
+  import('@/screens/reports/allergen.risk.report.tsx').then(m => ({default: m.AllergenRiskScreen}))
+);
+export const OverbookingScreen = lazy(() =>
+  import('@/screens/reports/overbooking.report.tsx').then(m => ({default: m.OverbookingScreen}))
+);
+export const ReservationCascadeScreen = lazy(() =>
+  import('@/screens/reports/reservation.cascade.report.tsx').then(m => ({default: m.ReservationCascadeScreen}))
+);
+export const VibeOptimizerScreen = lazy(() =>
+  import('@/screens/reports/vibe.optimizer.report.tsx').then(m => ({default: m.VibeOptimizerScreen}))
+);
+export const EnergyVampireScreen = lazy(() =>
+  import('@/screens/reports/energy.vampire.report.tsx').then(m => ({default: m.EnergyVampireScreen}))
+);
+export const ReviewResponseScreen = lazy(() =>
+  import('@/screens/reports/review.response.report.tsx').then(m => ({default: m.ReviewResponseScreen}))
+);
+export const SocialContentScreen = lazy(() =>
+  import('@/screens/reports/social.content.report.tsx').then(m => ({default: m.SocialContentScreen}))
+);
+export const CateringOptimizerScreen = lazy(() =>
+  import('@/screens/reports/catering.optimizer.report.tsx').then(m => ({default: m.CateringOptimizerScreen}))
+);
+export const EquipmentMaintenanceScreen = lazy(() =>
+  import('@/screens/reports/equipment.maintenance.report.tsx').then(m => ({default: m.EquipmentMaintenanceScreen}))
+);
+export const MilestoneCampaignScreen = lazy(() =>
+  import('@/screens/reports/milestone.campaign.report.tsx').then(m => ({default: m.MilestoneCampaignScreen}))
+);
+export const SchedulePreferenceScreen = lazy(() =>
+  import('@/screens/reports/schedule.preference.report.tsx').then(m => ({default: m.SchedulePreferenceScreen}))
+);
+export const FloorPlanOptimizerScreen = lazy(() =>
+  import('@/screens/reports/floor.plan.optimizer.report.tsx').then(m => ({default: m.FloorPlanOptimizerScreen}))
+);
+export const OnlineFraudDetectorScreen = lazy(() =>
+  import('@/screens/reports/online.fraud.detector.report.tsx').then(m => ({default: m.OnlineFraudDetectorScreen}))
+);
+export const RecipeScalingScreen = lazy(() =>
+  import('@/screens/reports/recipe.scaling.report.tsx').then(m => ({default: m.RecipeScalingScreen}))
+);
+
+export const WinePairingScreen = lazy(() =>
+  import('@/screens/reports/wine.pairing.report.tsx').then(m => ({default: m.WinePairingScreen}))
+);
+
+export const StaffGamificationScreen = lazy(() =>
+  import('@/screens/reports/staff.gamification.report.tsx').then(m => ({default: m.StaffGamificationScreen}))
+);
+
+export const KitchenPrepSchedulerScreen = lazy(() =>
+  import('@/screens/reports/kitchen.prep.scheduler.report.tsx').then(m => ({default: m.KitchenPrepSchedulerScreen}))
+);
+
+export const InventoryTransferScreen = lazy(() =>
+  import('@/screens/reports/inventory.transfer.report.tsx').then(m => ({default: m.InventoryTransferScreen}))
+);
+
+export const SentimentTrendScreen = lazy(() =>
+  import('@/screens/reports/sentiment.trend.report.tsx').then(m => ({default: m.SentimentTrendScreen}))
+);
+
+export const CleaningSchedulerScreen = lazy(() =>
+  import('@/screens/reports/cleaning.scheduler.report.tsx').then(m => ({default: m.CleaningSchedulerScreen}))
+);
+
+export const DriverCoachScreen = lazy(() =>
+  import('@/screens/reports/driver.coach.report.tsx').then(m => ({default: m.DriverCoachScreen}))
+);
+
+export const ExpiryTrackerScreen = lazy(() =>
+  import('@/screens/reports/expiry.tracker.report.tsx').then(m => ({default: m.ExpiryTrackerScreen}))
+);
+
+export const AdTargetingScreen = lazy(() =>
+  import('@/screens/reports/ad.targeting.report.tsx').then(m => ({default: m.AdTargetingScreen}))
+);
+
+export const LocalSeoScreen = lazy(() =>
+  import('@/screens/reports/local.seo.report.tsx').then(m => ({default: m.LocalSeoScreen}))
+);
+
+export const PricePsychologyScreen = lazy(() =>
+  import('@/screens/reports/price.psychology.report.tsx').then(m => ({default: m.PricePsychologyScreen}))
+);
+
+export const CashStressTestScreen = lazy(() =>
+  import('@/screens/reports/cash.stress.test.report.tsx').then(m => ({default: m.CashStressTestScreen}))
 );

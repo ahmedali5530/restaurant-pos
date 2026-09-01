@@ -21,7 +21,8 @@
     "shifts": "Services",
     "tipsDefinition": "Définition des pourboires",
     "accessTab": "Accéder à {{title}}",
-    "ariaLabel": "Onglets d'administration"
+    "ariaLabel": "Onglets d'administration",
+    "securityAlerts": "Alertes de Sécurité"
   },
   "columns": {
     "photo": "Photo",
@@ -876,5 +877,29 @@
       "saveFailed": "Impossible d'enregistrer la remise.",
       "createReasonFailed": "Impossible de créer le motif de remise."
     }
+  },
+  "securityAlerts": {
+    "noAccess": "Rôle administrateur requis pour consulter les alertes de sécurité.",
+    "loading": "Chargement des alertes…",
+    "error": "Échec du chargement des alertes",
+    "critical": "Critique",
+    "warning": "Avertissement",
+    "info": "Info",
+    "noAlerts": "Aucune alerte ouverte",
+    "noAlertsDescription": "Le détecteur d'anomalies n'a signalé aucune activité suspecte.",
+    "count": "×{{n}}",
+    "actor": "Acteur",
+    "actorId": "ID acteur",
+    "actorRoles": "Rôles de l'acteur",
+    "sourceIp": "IP source",
+    "emittedAt": "Émis le",
+    "ruleType": "Type de règle",
+    "detailTitle": "Alerte de Sécurité",
+    "resolutionNotes": "Notes de résolution (optionnel)",
+    "resolutionNotesPlaceholder": "ex. Enquêté — fausse alarme de test automatisé",
+    "acknowledge": "Accuser réception",
+    "hideDetails": "▼ Masquer détails",
+    "showDetails": "▶ Afficher détails",
+    "badgeTooltip": "{{count}} alerte(s) critique(s) ouverte(s)"
   }
 }

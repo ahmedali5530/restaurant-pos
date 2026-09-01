@@ -96,7 +96,14 @@
   },
   "lock": {
     "lockedBy": "Bloccato da {{name}}",
-    "onlyUserCanLogin": "Solo {{name}} può accedere ora"
+    "onlyUserCanLogin": "Solo {{name}} può accedere ora",
+    "lockedTitle": "Sessione Bloccata",
+    "enterPinToUnlock": "Inserisci il PIN per sbloccare",
+    "unknownUser": "Utente",
+    "unlock": "Sblocca",
+    "switchUser": "Cambia utente",
+    "digit": "Cifra {{d}}",
+    "backspace": "Cancella"
   },
   "table": {
     "page": "Pagina",
@@ -229,5 +236,10 @@
     },
     "unknownConfig": "Configurazione di importazione sconosciuta per l'anteprima.",
     "passwordWillBeSet": "La password verrà impostata alla conferma"
+  },
+  "offline": {
+    "disconnected": "⚠ Offline — le modifiche verranno sincronizzate alla riconnessione",
+    "reconnected": "✓ Connessione ripristinata",
+    "retry": "Riprova"
   }
 }

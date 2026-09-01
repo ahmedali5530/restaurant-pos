@@ -10,6 +10,7 @@ import {
   faList, faLock,
   faMotorcycle,
   faStore,
+  faTableScreen,
   faUtensils, faUsers, faWarehouse, faWrench,
   faClock,
   faPowerOff,
@@ -30,6 +31,7 @@ import {
   INVENTORY,
   HR,
   KITCHEN,
+  TABLESIDE,
   ORDER_DISPLAY,
   MENU,
   ORDERS,
@@ -44,12 +46,14 @@ import { useSecurity } from "@/hooks/useSecurity.ts";
 import ScrollContainer from "react-indiana-drag-scroll";
 import { useTranslation } from "react-i18next";
 import { lockSession, logoutSession } from "@/lib/session.actions.ts";
+import { SecurityAlertsBadge } from "@/components/admin/security-alerts/alert-badge.tsx";
 
 const SIDEBAR_NAV_TEST_IDS: Partial<Record<string, string>> = {
   [MENU]: 'nav-menu',
   [ORDERS]: 'nav-orders',
   [SUMMARY]: 'nav-summary',
   [KITCHEN]: 'nav-kitchen',
+  [TABLESIDE]: 'nav-tableside',
   [ORDER_DISPLAY]: 'nav-order-display',
   [DELIVERY]: 'nav-delivery',
   [CLOSING]: 'nav-closing',
@@ -91,6 +95,7 @@ export const Sidebar = () => {
     { title: t('sidebar.orders'), icon: <FontAwesomeIcon icon={faList} size="lg"/>, link: ORDERS, role: 'orders' },
     { title: t('sidebar.summary'), icon: <FontAwesomeIcon icon={faClipboardList} size="lg"/>, link: SUMMARY, role: 'summary' },
     { title: t('sidebar.kitchen'), icon: <FontAwesomeIcon icon={faUtensils} size="lg"/>, link: KITCHEN, role: 'kitchen' },
+    { title: t('sidebar.tableside', { defaultValue: 'Tableside' }), icon: <FontAwesomeIcon icon={faTableScreen} size="lg"/>, link: TABLESIDE, role: 'tableside' },
     { title: t('sidebar.orderDisplay'), icon: <FontAwesomeIcon icon={faDisplay} size="lg"/>, link: ORDER_DISPLAY, role: 'order_display' },
     { title: t('sidebar.delivery'), icon: <FontAwesomeIcon icon={faMotorcycle} size="lg"/>, link: DELIVERY, role: 'delivery' },
     { title: t('sidebar.closing'), icon: <FontAwesomeIcon icon={faStore} size="lg"/>, link: CLOSING, role: 'closing' },
@@ -129,7 +134,7 @@ export const Sidebar = () => {
                   protectedNavigate(item.link, item.role);
                 }}
                 className={cn(
-                  'flex flex-col text-center cursor-pointer p-[0.4rem] gap-1 rounded-xl pressable no-underline w-full',
+                  'relative flex flex-col text-center cursor-pointer p-[0.4rem] gap-1 rounded-xl pressable no-underline w-full',
                   pathInfo === item.link ? 'shadow-xl bg-gradient active:shadow-none' : 'text-neutral-900 border-[3px] border-transparent'
                 )}
                 key={item.title}
@@ -139,6 +144,7 @@ export const Sidebar = () => {
               >
                 <span className="icon">{item.icon}</span>
                 <span className="label text-[12px]">{item.title}</span>
+                {item.link === ADMIN && <SecurityAlertsBadge />}
               </button>
             ))}
           </div>

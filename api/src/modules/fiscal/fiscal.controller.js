@@ -33,6 +33,67 @@ function isHttpUrl(value) {
   }
 }
 
+/**
+ * SECURITY: SSRF guard.
+ *
+ * Without an allow-list, /fiscal/invoice accepts any http(s) URL from the SPA
+ * (which means any logged-in POS user) and proxies it server-side with the
+ * caller-supplied bearerToken. That turns the API into an open SSRF relay:
+ *   - probes against internal IPs (http://192.168.1.1, http://169.254.169.254 ...)
+ *   - port scanning of the docker network
+ *   - bypassing firewalls that trust the api container
+ *
+ * When FISCAL_ALLOWED_UPSTREAMS is set (comma-separated hostnames or exact
+ * origins), only those hosts may be proxied. When unset, we default to the
+ * known Pakistan fiscal authorities (FBR + PRA) and the loopback dev proxy.
+ * Set FISCAL_ALLOWED_UPSTREAMS explicitly in production to match your region.
+ */
+const DEFAULT_FISCAL_UPSTREAMS = [
+  'ims.fbr.gov.pk',        // Pakistan FBR Live
+  'fwbs.fbr.gov.pk',       // Pakistan FBR Sandbox
+  'ebirfiler.fbropen.gov.pk', // legacy FBR sandbox
+  'prs.punjab.gov.pk',     // Pakistan PRA (Punjab Revenue Authority)
+  'localhost',
+  '127.0.0.1',
+];
+
+function getFiscalAllowList() {
+  const raw = process.env.FISCAL_ALLOWED_UPSTREAMS || '';
+  const list = raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  // Merge with defaults — defaults can be removed by setting
+  // FISCAL_ALLOWED_UPSTREAMS_STRICT=true and listing only the hosts you trust.
+  if (process.env.FISCAL_ALLOWED_UPSTREAMS_STRICT === 'true') {
+    return list;
+  }
+  return [...new Set([...list, ...DEFAULT_FISCAL_UPSTREAMS])];
+}
+
+function isUpstreamAllowed(url, allowList) {
+  let parsed;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return false;
+  }
+  const host = parsed.hostname.toLowerCase();
+  // Block obvious metadata/SSRF targets even if a wildcard sneaks in.
+  const BLOCKED = new Set([
+    '169.254.169.254', // AWS / GCP / Azure IMDS
+    'metadata',
+    '0.0.0.0',
+  ]);
+  if (BLOCKED.has(host)) return false;
+  // Allow exact host match.
+  if (allowList.map((h) => h.toLowerCase()).includes(host)) return true;
+  // Allow subdomain match (e.g. allow-list "fbr.gov.pk" matches "ims.fbr.gov.pk").
+  return allowList.some(
+    (h) => h && host.endsWith('.' + h.toLowerCase())
+  );
+}
+
 function pickUpstreamUrl(body) {
   if (!body || typeof body !== 'object' || Array.isArray(body)) return '';
   // Accept several aliases — clients / manual tests may use any of these.
@@ -127,6 +188,28 @@ async function proxyInvoice(req, res, next) {
         }
       );
     }
+
+    // SECURITY: SSRF allow-list check. Rejects any upstream host not on
+    // FISCAL_ALLOWED_UPSTREAMS (+ defaults unless strict mode is on).
+    const allowList = getFiscalAllowList();
+    if (!isUpstreamAllowed(url, allowList)) {
+      const parsed = new URL(url);
+      logger.warn('fiscal', 'upstream host rejected by allow-list', {
+        host: parsed.hostname,
+        url,
+      });
+      return sendError(
+        res,
+        403,
+        'upstream host is not allowed',
+        {
+          host: parsed.hostname,
+          hint:
+            'Add the host to FISCAL_ALLOWED_UPSTREAMS (comma-separated), or set FISCAL_ALLOWED_UPSTREAMS_STRICT=true to deny the defaults.',
+        }
+      );
+    }
+
     if (typeof bearerToken !== 'string' || !bearerToken.trim()) {
       return sendError(res, 400, 'bearerToken is required');
     }
@@ -182,6 +265,8 @@ module.exports = {
   proxyInvoice,
   normalizeUpstreamUrl,
   isHttpUrl,
+  isUpstreamAllowed,
+  getFiscalAllowList,
   pickUpstreamUrl,
   resolveRequestBody,
 };

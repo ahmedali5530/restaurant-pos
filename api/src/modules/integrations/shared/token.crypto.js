@@ -5,7 +5,14 @@
  * Shared by all cloud accounting providers (QBO, Xero, ...).
  *
  * Encryption key: INTEGRATION_TOKEN_ENCRYPTION_KEY environment variable
- * (32-byte hex string). If unset, tokens are stored as plain text with a warning.
+ * (32-byte hex string). If unset:
+ *   - NODE_ENV=production: encrypt() throws (refuses to start serving requests
+ *     that would otherwise persist plaintext OAuth tokens). decrypt() still
+ *     accepts PLAINTEXT: payloads so an existing store can be migrated after
+ *     the operator sets the key.
+ *   - otherwise (dev/test): tokens are stored with a `PLAINTEXT:` prefix and a
+ *     warning — convenient for local docker-compose without forcing operators
+ *     to generate a key for the first run.
  * Algorithm: AES-256-GCM with random 16-byte IV prepended.
  */
 
@@ -16,10 +23,30 @@ const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 16;
 const AUTH_TAG_LENGTH = 16;
 
+const IS_PROD = String(process.env.NODE_ENV || '').toLowerCase() === 'production';
+
+let plaintextRefusalLogged = false;
+
 function getEncryptionKey() {
   const raw = process.env.INTEGRATION_TOKEN_ENCRYPTION_KEY;
   if (!raw) {
-    logger.warn('integrations.crypto', 'INTEGRATION_TOKEN_ENCRYPTION_KEY not set — tokens stored as plain text (not suitable for production)');
+    if (IS_PROD) {
+      // Don't spam the log per-call — this is checked on every encrypt().
+      if (!plaintextRefusalLogged) {
+        logger.error(
+          'integrations.crypto',
+          'INTEGRATION_TOKEN_ENCRYPTION_KEY is not set and NODE_ENV=production — refusing to encrypt OAuth tokens. ' +
+            'Generate with: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))" and restart.'
+        );
+        plaintextRefusalLogged = true;
+      }
+      return null;
+    }
+    logger.warn(
+      'integrations.crypto',
+      'INTEGRATION_TOKEN_ENCRYPTION_KEY not set — tokens stored as plain text (not suitable for production). ' +
+        'Set NODE_ENV=production to enforce encryption.'
+    );
     return null;
   }
   try {
@@ -44,6 +71,13 @@ function getEncryptionKey() {
 function encrypt(plaintext) {
   const key = getEncryptionKey();
   if (!key) {
+    if (IS_PROD) {
+      // Hard refusal — never silently store plaintext OAuth tokens in production.
+      throw new Error(
+        'INTEGRATION_TOKEN_ENCRYPTION_KEY is not set; refusing to encrypt OAuth token in production. ' +
+          'Set the env var (64 hex chars) and restart the API.'
+      );
+    }
     return `PLAINTEXT:${plaintext}`;
   }
   const iv = crypto.randomBytes(IV_LENGTH);
@@ -58,6 +92,14 @@ function decrypt(ciphertext) {
     return undefined;
   }
   if (String(ciphertext).startsWith('PLAINTEXT:')) {
+    // Allow reading legacy plaintext payloads so operators can migrate to
+    // encrypted storage by setting the key and re-saving each credential.
+    if (IS_PROD) {
+      logger.warn(
+        'integrations.crypto',
+        'Decrypting a PLAINTEXT: credential in production — re-save the OAuth connection to encrypt it at rest.'
+      );
+    }
     return String(ciphertext).slice('PLAINTEXT:'.length);
   }
   const key = getEncryptionKey();
@@ -79,4 +121,4 @@ function decrypt(ciphertext) {
   }
 }
 
-module.exports = { encrypt, decrypt };
+module.exports = { encrypt, decrypt, isProductionMode: () => IS_PROD };

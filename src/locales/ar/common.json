@@ -96,7 +96,14 @@
   },
   "lock": {
     "lockedBy": "مقفل بواسطة {{name}}",
-    "onlyUserCanLogin": "يمكن لـ {{name}} فقط تسجيل الدخول الآن"
+    "onlyUserCanLogin": "يمكن لـ {{name}} فقط تسجيل الدخول الآن",
+    "lockedTitle": "الجلسة مقفلة",
+    "enterPinToUnlock": "أدخل رمز PIN للفتح",
+    "unknownUser": "مستخدم",
+    "unlock": "فتح",
+    "switchUser": "تبديل المستخدم",
+    "digit": "رقم {{d}}",
+    "backspace": "حذف"
   },
   "table": {
     "page": "صفحة",
@@ -229,5 +236,10 @@
     },
     "unknownConfig": "تكوين استيراد غير معروف للمعاينة.",
     "passwordWillBeSet": "سيتم تعيين كلمة المرور عند التأكيد"
+  },
+  "offline": {
+    "disconnected": "⚠ غير متصل — ستتم مزامنة التغييرات عند إعادة الاتصال",
+    "reconnected": "✓ تم استعادة الاتصال",
+    "retry": "إعادة المحاولة"
   }
 }

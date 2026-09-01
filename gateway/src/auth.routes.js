@@ -4,10 +4,12 @@ const express = require('express');
 const { authenticatePosUser } = require('./auth.service');
 const { signSession, verifySession, revokeSession, extractBearer } = require('./jwt');
 const { issueSurrealAccessToken } = require('./surreal-client');
+const { loginRateLimit, recordAuthResult } = require('./rate-limiter');
+const auditLog = require('./audit-log');
 
 const router = express.Router();
 
-router.post('/login', async (req, res) => {
+router.post('/login', loginRateLimit(), async (req, res) => {
   try {
     const method = req.body?.method === 'form' ? 'form' : 'pin';
     const login = req.body?.login;
@@ -15,23 +17,55 @@ router.post('/login', async (req, res) => {
 
     const user = await authenticatePosUser({ method, login, password });
     if (!user) {
+      // SECURITY: record the failure for both IP and login buckets. Without
+      // rate limiting a 4-digit PIN can be brute-forced in ~10,000 requests,
+      // which bcrypt's slow compare alone cannot prevent.
+      recordAuthResult(req, false);
+      // Audit log the failed login attempt.
+      auditLog.logLoginFailure(
+        login,
+        req.socket?.remoteAddress || req.ip,
+        'invalid_credentials'
+      ).catch(() => {});
       return res.status(401).json({ ok: false, error: 'Invalid credentials' });
     }
+
+    recordAuthResult(req, true);
 
     const session = await signSession({
       userId: user.id,
       login: user.login,
+      roles: user.roles || [],
+      branchId: user.branch_id || null,
     });
 
+    // Audit log the successful login (for the login audit trail).
+    auditLog.logLoginSuccess(
+      user.id,
+      user.login,
+      session.roles,
+      req.socket?.remoteAddress || req.ip
+    ).catch(() => {});
+
+    // When GATEWAY_USE_JWT_AS_SURREAL_TOKEN=true, the SPA authenticates to
+    // SurrealDB using the session JWT itself (verified via DEFINE TOKEN on the
+    // DB). When false (default), the gateway signs in with root and issues a
+    // root-scoped access token — the legacy behaviour. See RBAC-DESIGN.md.
+    const useJwtAsSurrealToken =
+      String(process.env.GATEWAY_USE_JWT_AS_SURREAL_TOKEN || '').toLowerCase() === 'true';
     let surrealToken = null;
-    try {
-      surrealToken = await issueSurrealAccessToken();
-    } catch (err) {
-      console.error('Failed to issue Surreal access token', err);
-      return res.status(503).json({
-        ok: false,
-        error: 'Database session unavailable',
-      });
+    if (useJwtAsSurrealToken) {
+      surrealToken = session.token;
+    } else {
+      try {
+        surrealToken = await issueSurrealAccessToken();
+      } catch (err) {
+        console.error('Failed to issue Surreal access token', err);
+        return res.status(503).json({
+          ok: false,
+          error: 'Database session unavailable',
+        });
+      }
     }
 
     return res.json({
@@ -54,7 +88,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.get('/session', async (req, res) => {
+router.get('/session', loginRateLimit(), async (req, res) => {
   try {
     const payload = await verifySession(extractBearer(req));
     return res.json({ ok: true, session: payload });
@@ -66,7 +100,11 @@ router.get('/session', async (req, res) => {
 router.post('/logout', async (req, res) => {
   try {
     const payload = await verifySession(extractBearer(req));
-    revokeSession(payload.jti);
+    // Pass the token's `exp` so the revocation store can GC expired rows
+    // after the natural TTL elapses.
+    await revokeSession(payload.jti, payload.exp);
+    // Audit log the session revocation.
+    auditLog.logSessionRevoked(payload.jti, payload.sub, payload.login).catch(() => {});
     return res.json({ ok: true });
   } catch {
     // Idempotent logout
@@ -78,9 +116,17 @@ router.post('/logout', async (req, res) => {
  * Refresh Surreal access token for an existing gateway session.
  * Used when the Surreal token expires but the POS session is still valid.
  */
-router.post('/db-token', async (req, res) => {
+router.post('/db-token', loginRateLimit(), async (req, res) => {
   try {
-    await verifySession(extractBearer(req));
+    const token = extractBearer(req);
+    await verifySession(token);
+    // When GATEWAY_USE_JWT_AS_SURREAL_TOKEN=true, the "Surreal token" IS the
+    // session JWT — no separate root sign-in needed.
+    const useJwtAsSurrealToken =
+      String(process.env.GATEWAY_USE_JWT_AS_SURREAL_TOKEN || '').toLowerCase() === 'true';
+    if (useJwtAsSurrealToken) {
+      return res.json({ ok: true, surrealToken: token });
+    }
     const surrealToken = await issueSurrealAccessToken();
     return res.json({ ok: true, surrealToken });
   } catch (err) {

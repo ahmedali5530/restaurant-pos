@@ -17,6 +17,7 @@ import {InventorySettingsCard} from "@/components/user_settings/inventory_settin
 import {WhatsNewSettingsCard} from "@/components/user_settings/whats_new.tsx";
 import {SessionSecuritySettingsCard} from "@/components/user_settings/session_security.tsx";
 import {AutoClockOutSettingsCard} from "@/components/user_settings/auto_clock_out.tsx";
+import {FontSizeAdjuster} from "@/components/user_settings/font-size-adjuster.tsx";
 import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import {PropsWithChildren} from "react";
@@ -48,6 +49,7 @@ export const Settings = () => {
         <MasonryItem><ShowInclusivePricesSettingsCard /></MasonryItem>
         <MasonryItem><CurrencySymbolSettingsCard /></MasonryItem>
         <MasonryItem><TouchSettings /></MasonryItem>
+        <MasonryItem><FontSizeAdjuster /></MasonryItem>
         <MasonryItem><TableSelectionSettings /></MasonryItem>
         <MasonryItem><InventorySettingsCard /></MasonryItem>
         <MasonryItem><ItemsVisibilityConfig /></MasonryItem>

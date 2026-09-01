@@ -92,7 +92,7 @@ export const MenuDishes = () => {
     swiperRef.current?.slideTo(0, 0);
   }, [categoryId, searchOpen, searchBuffer, slides]);
 
-  const onClick = (item: MenuItem, selectedGroups?: CartModifierGroup[]) => {
+  const onClick = async (item: MenuItem, selectedGroups?: CartModifierGroup[]) => {
     if (orderTakingBlocked) {
       toast.warning(enforcement.message ?? i18n.t('closing:orderTakingDisabled'));
       return;
@@ -108,6 +108,25 @@ export const MenuDishes = () => {
         ...prev.cart,
       ]
     }));
+
+    // Upsell prompt: check if the dish has upsell-eligible modifier groups
+    // and show a modal suggesting add-ons. Dispatches an event that the
+    // UpsellPrompt component (mounted in MenuCart) listens for.
+    if (item.dish && !selectedGroups) {
+      // Only show upsell when no modifier groups were selected (quick add)
+      // — when the modifier modal is shown, the user already sees all options
+      try {
+        const { extractUpsellItems } = await import('@/components/orders/upsell-prompt.tsx');
+        const upsellItems = extractUpsellItems(item.dish, []);
+        if (upsellItems.length > 0) {
+          window.dispatchEvent(new CustomEvent('posr-show-upsell', {
+            detail: { dishName: item.dish?.name || 'Item', upsellItems }
+          }));
+        }
+      } catch {
+        // upsell-prompt module may not be loaded — silently skip
+      }
+    }
   };
 
   const toggleSearch = () => {

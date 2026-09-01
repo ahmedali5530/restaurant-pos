@@ -96,7 +96,14 @@
   },
   "lock": {
     "lockedBy": "Locked by {{name}}",
-    "onlyUserCanLogin": "Only {{name}} can login now"
+    "onlyUserCanLogin": "Only {{name}} can login now",
+    "lockedTitle": "Session Locked",
+    "enterPinToUnlock": "Enter your PIN to unlock",
+    "unknownUser": "User",
+    "unlock": "Unlock",
+    "switchUser": "Switch user",
+    "digit": "Digit {{d}}",
+    "backspace": "Backspace"
   },
   "table": {
     "page": "Page",
@@ -229,5 +236,10 @@
     "unknownConfig": "Unknown import configuration for preview.",
     "passwordWillBeSet": "Password will be set on confirm"
   },
-  "loading": "Loading..."
+  "loading": "Loading...",
+  "offline": {
+    "disconnected": "⚠ Offline — changes will sync when reconnected",
+    "reconnected": "✓ Connection restored",
+    "retry": "Retry"
+  }
 }

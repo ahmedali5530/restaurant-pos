@@ -59,20 +59,30 @@ const allowedOrigins = (process.env.API_ALLOWED_ORIGINS || '')
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+// SECURITY: fail-closed when no origins are allow-listed. The previous behaviour
+// passed `cors(undefined)` when API_ALLOWED_ORIGINS was unset, which silently
+// allowed ALL cross-origin requests. The gateway already denies by default; the
+// API must mirror that posture. Set API_ALLOWED_ORIGINS explicitly in .env.
+if (!allowedOrigins.length && process.env.NODE_ENV !== 'test') {
+  logger.warn(
+    'server',
+    'API_ALLOWED_ORIGINS is not set. CORS will deny all cross-origin requests. ' +
+      'Set it explicitly in api/.env (comma-separated list of frontend origins).'
+  );
+}
+
 app.use(
-  cors(
-    allowedOrigins.length
-      ? {
-          origin(origin, callback) {
-            // Allow same-origin / non-browser callers (no Origin header).
-            if (!origin || allowedOrigins.includes(origin)) {
-              return callback(null, true);
-            }
-            return callback(new Error(`Origin ${origin} is not allowed`));
-          },
-        }
-      : undefined
-  )
+  cors({
+    // When the allow-list is empty we deny every Origin header (browser-side
+    // cross-origin request). Same-origin / non-browser callers (no Origin
+    // header) are still accepted.
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error(`Origin ${origin} is not allowed by API_ALLOWED_ORIGINS`));
+    },
+  })
 );
 
 app.use(express.json({ limit: '2mb' }));
@@ -104,7 +114,10 @@ app.use((err, req, res, next) => {
 function start() {
   app.listen(PORT, HOST, () => {
     logger.info('server', `API server listening on http://${HOST}:${PORT}`);
-    logger.info('server', `Allowed origins: ${allowedOrigins.length ? allowedOrigins.join(', ') : '(all)'}`);
+    logger.info(
+      'server',
+      `Allowed origins: ${allowedOrigins.length ? allowedOrigins.join(', ') : '(none — CORS denies all cross-origin)'}`
+    );
     for (const module of modules) {
       logger.info('server', `Mounted module '${module.name}' at ${module.basePath}`);
     }

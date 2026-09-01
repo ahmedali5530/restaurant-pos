@@ -96,7 +96,14 @@
   },
   "lock": {
     "lockedBy": "Vergrendeld door {{name}}",
-    "onlyUserCanLogin": "Alleen {{name}} kan nu inloggen"
+    "onlyUserCanLogin": "Alleen {{name}} kan nu inloggen",
+    "lockedTitle": "Sessie Vergrendeld",
+    "enterPinToUnlock": "Voer uw PIN in om te ontgrendelen",
+    "unknownUser": "Gebruiker",
+    "unlock": "Ontgrendelen",
+    "switchUser": "Gebruiker wisselen",
+    "digit": "Cijfer {{d}}",
+    "backspace": "Wissen"
   },
   "table": {
     "page": "Pagina",
@@ -229,5 +236,10 @@
     },
     "unknownConfig": "Onbekende importconfiguratie voor voorbeeld.",
     "passwordWillBeSet": "Wachtwoord wordt ingesteld bij bevestiging"
+  },
+  "offline": {
+    "disconnected": "⚠ Offline — wijzigingen worden gesynchroniseerd bij herverbinding",
+    "reconnected": "✓ Verbinding hersteld",
+    "retry": "Opnieuw"
   }
 }

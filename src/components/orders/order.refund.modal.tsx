@@ -23,6 +23,7 @@ import {useTranslation} from "react-i18next";
 import {useIntegrationManager} from "@/providers/integration.provider.tsx";
 import {publishSaleRefunded} from "@/integrations/accounting/events/publish.ts";
 import {nanoid} from "nanoid";
+import {ReasonCodeSelector} from "@/components/orders/reason-code-selector.tsx";
 
 interface OrderRefundModalProps {
   order: OrderModel
@@ -296,20 +297,15 @@ export const OrderRefundModal = ({
             )}
           </div>
 
-          {/* Right side - Reason */}
+          {/* Right side - Reason (structured + notes) */}
           <div className="flex-1 flex flex-col min-w-0">
-            <label className="block text-sm font-semibold mb-2">{t('refund.reason')}</label>
-            <div className="flex-1" style={{ minHeight: 0 }}>
-              <Textarea
-                value={reason}
-                onChange={(event) => setReason(event.currentTarget.value)}
-                rows={12}
-                placeholder={t('refund.reasonPlaceholder')}
-                enableKeyboard
-                className="w-full h-full"
-                style={{ minHeight: '400px' }}
-              />
-            </div>
+            <ReasonCodeSelector
+              type="refund"
+              value={null}
+              onChange={() => {}}
+              notes={reason}
+              onNotesChange={setReason}
+            />
           </div>
         </div>
 

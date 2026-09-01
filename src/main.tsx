@@ -1,6 +1,10 @@
 import { i18nReady } from '@/lib/i18n.ts'
+import { registerServiceWorker } from '@/lib/push-notifications.ts'
 
 await i18nReady
+
+// Register PWA service worker (offline caching + push notifications)
+registerServiceWorker()
 
 const { default: App } = await import('./app.tsx')
 import ReactDOM from 'react-dom/client'

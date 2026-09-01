@@ -96,7 +96,14 @@
   },
   "lock": {
     "lockedBy": "Verrouillé par {{name}}",
-    "onlyUserCanLogin": "Seul {{name}} peut se connecter pour le moment"
+    "onlyUserCanLogin": "Seul {{name}} peut se connecter pour le moment",
+    "lockedTitle": "Session Verrouillée",
+    "enterPinToUnlock": "Saisissez votre code PIN pour déverrouiller",
+    "unknownUser": "Utilisateur",
+    "unlock": "Déverrouiller",
+    "switchUser": "Changer d'utilisateur",
+    "digit": "Chiffre {{d}}",
+    "backspace": "Effacer"
   },
   "table": {
     "page": "Page",
@@ -229,5 +236,10 @@
     },
     "unknownConfig": "Configuration d'importation inconnue pour l'aperçu.",
     "passwordWillBeSet": "Le mot de passe sera défini à la confirmation"
+  },
+  "offline": {
+    "disconnected": "⚠ Hors ligne — les changements seront synchronisés à la reconnexion",
+    "reconnected": "✓ Connexion rétablie",
+    "retry": "Réessayer"
   }
 }

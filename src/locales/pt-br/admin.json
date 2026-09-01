@@ -21,7 +21,8 @@
     "shifts": "Turnos",
     "tipsDefinition": "Definição de gorjetas",
     "accessTab": "Acessar {{title}}",
-    "ariaLabel": "Abas de administração"
+    "ariaLabel": "Abas de administração",
+    "securityAlerts": "Alertas de Segurança"
   },
   "columns": {
     "photo": "Foto",
@@ -876,5 +877,29 @@
       "saveFailed": "Não foi possível salvar o desconto.",
       "createReasonFailed": "Não foi possível criar o motivo de desconto."
     }
+  },
+  "securityAlerts": {
+    "noAccess": "Requer papel de administrador para visualizar alertas de segurança.",
+    "loading": "Carregando alertas…",
+    "error": "Falha ao carregar alertas",
+    "critical": "Crítico",
+    "warning": "Aviso",
+    "info": "Info",
+    "noAlerts": "Sem alertas abertos",
+    "noAlertsDescription": "O detector de anomalias não sinalizou atividade suspeita.",
+    "count": "×{{n}}",
+    "actor": "Ator",
+    "actorId": "ID do ator",
+    "actorRoles": "Papéis do ator",
+    "sourceIp": "IP de origem",
+    "emittedAt": "Emitido em",
+    "ruleType": "Tipo de regra",
+    "detailTitle": "Alerta de Segurança",
+    "resolutionNotes": "Notas de resolução (opcional)",
+    "resolutionNotesPlaceholder": "ex. Investigado — falso alarme de teste automatizado",
+    "acknowledge": "Reconhecer",
+    "hideDetails": "▼ Ocultar detalhes",
+    "showDetails": "▶ Mostrar detalhes",
+    "badgeTooltip": "{{count}} alerta(s) crítico(s) aberto(s)"
   }
 }

@@ -742,4 +742,6 @@ module.exports = {
   mapOrderToKitchen,
   getRefundOrderItems,
   mapOrderToRefund,
+  // Exported for testing — used internally by getOrderItems
+  inflateInclusiveAmount,
 };

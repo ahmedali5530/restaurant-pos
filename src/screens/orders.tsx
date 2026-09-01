@@ -28,6 +28,7 @@ import {toRecordId} from "@/lib/utils.ts";
 import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
+import {QuickReorder, useQuickReorder} from "@/components/orders/quick-reorder.tsx";
 import {translateOrderStatus} from "@/lib/order.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
@@ -44,6 +45,7 @@ export const Orders = () => {
   const {t: tNav} = useTranslation('navigation');
   const db = useDB();
   const {protectAction} = useSecurity();
+  const {items: quickReorderItems} = useQuickReorder();
   const liveQueryRef = useRef<LiveSubscription | null>(null);
   const fetchOrdersRef = useRef<() => Promise<void>>(() => Promise.resolve());
   const fetchOrdersTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -327,6 +329,16 @@ export const Orders = () => {
     <Layout containerClassName="overflow-hidden">
       <DocumentTitle parts={[tNav('sidebar.orders')]} />
       <div className="flex gap-5 p-3 flex-col" data-testid="orders-page">
+        {/* Quick reorder bar — one-tap reorder of frequently ordered items */}
+        {quickReorderItems.length > 0 && (
+          <QuickReorder
+            items={quickReorderItems}
+            onReorder={(item) => {
+              // Dispatch a custom event that the menu/cart can listen for
+              window.dispatchEvent(new CustomEvent('posr-quick-reorder', { detail: item }));
+            }}
+          />
+        )}
         <div className="h-[60px] flex-0 rounded-xl bg-white flex items-center px-3 gap-3" data-testid="orders-filters">
           <div className="min-w-[200px]">
             <ReactSelect

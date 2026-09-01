@@ -58,3 +58,6 @@ backups/surrealdb
 api/.env
 gateway/.env
 payments/.env
+migrations/scripts/node_modules/
+migrations/scripts/package.json
+migrations/scripts/package-lock.json

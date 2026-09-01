@@ -14,7 +14,10 @@ const { SignJWT, jwtVerify } = require('jose');
 const TTL = process.env.GATEWAY_JWT_TTL || '12h';
 const key = crypto.createSecretKey(Buffer.from(SECRET, 'utf8'));
 
-const revoked = new Set();
+// Durable revocation store. Was previously an in-memory `Set` that was lost on
+// every restart, allowing revoked sessions to be revalidated until their TTL
+// expired. See ./revocation-store.js for details.
+const revocation = require('./revocation-store');
 
 function parseTtlSeconds(ttl) {
   if (!ttl) return 12 * 60 * 60;
@@ -28,13 +31,30 @@ function parseTtlSeconds(ttl) {
   return n;
 }
 
-async function signSession({ userId, login }) {
+async function signSession({ userId, login, roles, branchId }) {
   const jti = crypto.randomUUID();
-  const token = await new SignJWT({
+  // Extract top-level role sections from the hierarchical permission IDs
+  // (e.g. 'admin.dishes.create' → 'admin'). The SurrealDB PERMISSIONS
+  // expressions check `$auth.roles CONTAINS 'admin'` etc. — they need the
+  // top-level sections, not the full hierarchical paths.
+  const topLevelRoles = [...new Set(
+    (Array.isArray(roles) ? roles : [])
+      .map((r) => String(r || '').trim().split('.')[0])
+      .filter(Boolean)
+  )];
+  const jwtPayload = {
     sub: String(userId),
     login: String(login || ''),
     typ: 'pos_session',
-  })
+    roles: topLevelRoles,
+  };
+  // branch_id is optional — only included when the user has a home branch.
+  // When absent, $auth.branch_id is undefined in SurrealDB, and PERMISSIONS
+  // expressions that check branch_id fall through (e.g. super admins see all).
+  if (branchId) {
+    jwtPayload.branch_id = String(branchId);
+  }
+  const token = await new SignJWT(jwtPayload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime(TTL)
@@ -42,7 +62,7 @@ async function signSession({ userId, login }) {
     .setIssuer('posr-gateway')
     .sign(key);
 
-  return { token, jti, expiresIn: parseTtlSeconds(TTL) };
+  return { token, jti, expiresIn: parseTtlSeconds(TTL), roles: topLevelRoles, branchId: branchId || null };
 }
 
 async function verifySession(token) {
@@ -70,7 +90,7 @@ async function verifySession(token) {
     throw err;
   }
 
-  if (payload.jti && revoked.has(String(payload.jti))) {
+  if (payload.jti && (await revocation.isRevoked(payload.jti))) {
     const err = new Error('Session revoked');
     err.status = 401;
     throw err;
@@ -79,8 +99,9 @@ async function verifySession(token) {
   return payload;
 }
 
-function revokeSession(jti) {
-  if (jti) revoked.add(String(jti));
+async function revokeSession(jti, expiresAtSeconds) {
+  if (!jti) return;
+  await revocation.revoke(jti, expiresAtSeconds);
 }
 
 function extractBearer(req) {
@@ -96,4 +117,6 @@ module.exports = {
   verifySession,
   revokeSession,
   extractBearer,
+  // Exposed for wiring the Surreal client at boot (see gateway/server.js).
+  _revocationStore: revocation,
 };
