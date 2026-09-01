@@ -45,7 +45,7 @@ import {
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
   faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
-  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck, faExchangeAlt, faGraduationCap, faFaceSmile, faCartShopping, faFileShield, faGiftCard, faRotateLeft, faRoute, faUserGear, faCalculator, faCashRegister, faCommentDots, faCloudSun, faCrown, faUserPlus, faTruckFast, faArrowsRotate, faUserGraduate, faHandshake, faCalendarPlus, faWater, faMusic, faPlugCircleXmark, faShareNodes, faWrench, faCakeCandles, faTableColumns, faShieldHalved, faScaleBalanced, faWineGlass, faTrophy, faBroom, faMagnifyingGlassLocation, faCalendarStar, faHeartCircleCheck, faHandshakeSimple, faComments, faCartPlus,
+  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck, faExchangeAlt, faGraduationCap, faFaceSmile, faCartShopping, faFileShield, faGiftCard, faRotateLeft, faRoute, faUserGear, faCalculator, faCashRegister, faCommentDots, faCloudSun, faCrown, faUserPlus, faTruckFast, faArrowsRotate, faUserGraduate, faHandshake, faCalendarPlus, faWater, faMusic, faPlugCircleXmark, faShareNodes, faWrench, faCakeCandles, faTableColumns, faShieldHalved, faScaleBalanced, faWineGlass, faTrophy, faBroom, faMagnifyingGlassLocation, faCalendarStar, faHeartCircleCheck, faHandshakeSimple, faComments, faCartPlus, faListCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -135,6 +135,7 @@ import {
   REPORTS_FEEDBACK_LOOP,
   REPORTS_CROSS_SELL,
   REPORTS_DISH_POPULARITY,
+  REPORTS_WAITLIST_OPTIMIZER,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -181,7 +182,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, recipeScaleData, wineData, gamificationData, kitchenPrepData, transferData, sentimentTrendData, cleaningData, driverCoachData, expiryData, adTargetingData, localSeoData, pricePsychData, stressTestData, eventMenuData, retentionData, negotiationData, maintBudgetData, feedbackLoopData, crossSellData, dishPopData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, recipeScaleData, wineData, gamificationData, kitchenPrepData, transferData, sentimentTrendData, cleaningData, driverCoachData, expiryData, adTargetingData, localSeoData, pricePsychData, stressTestData, eventMenuData, retentionData, negotiationData, maintBudgetData, feedbackLoopData, crossSellData, dishPopData, waitlistData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -283,6 +284,7 @@ export function AiCommandCenterScreen() {
         fetchFeedbackLoopSummary(db),
         fetchCrossSellSummary(db),
         fetchDishPopSummary(db),
+        fetchWaitlistSummary(db),
       ]);
 
       setMetrics([
@@ -293,7 +295,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, recipeScaleData, wineData, gamificationData, kitchenPrepData, transferData, sentimentTrendData, cleaningData, driverCoachData, expiryData, adTargetingData, localSeoData, pricePsychData, stressTestData, eventMenuData, retentionData, negotiationData, maintBudgetData, feedbackLoopData, crossSellData, dishPopData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, recipeScaleData, wineData, gamificationData, kitchenPrepData, transferData, sentimentTrendData, cleaningData, driverCoachData, expiryData, adTargetingData, localSeoData, pricePsychData, stressTestData, eventMenuData, retentionData, negotiationData, maintBudgetData, feedbackLoopData, crossSellData, dishPopData, waitlistData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -2558,6 +2560,23 @@ async function fetchDishPopSummary(db: any): Promise<MetricCard> {
       health: 'good', link: REPORTS_DISH_POPULARITY, linkLabel: 'View predictions',
     };
   } catch { return neutralCard('Dish Popularity', faLightbulb, 'text-amber-600', REPORTS_DISH_POPULARITY); }
+}
+
+async function fetchWaitlistSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(severity = 'critical') AS critical, math::sum(est_walk_away_cost) AS cost
+       FROM waitlist_optimization WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const w = list[0];
+    if (!w || w.count === 0) return neutralCard('Waitlist', faListCheck, 'text-violet-600', REPORTS_WAITLIST_OPTIMIZER);
+    return {
+      title: 'Waitlist', icon: faListCheck, color: 'text-violet-600',
+      primary: `${w.total} alerts`, secondary: `${w.critical} critical · ${withCurrency(w.cost)} at risk`,
+      health: w.critical > 0 ? 'critical' : 'warning', link: REPORTS_WAITLIST_OPTIMIZER, linkLabel: 'View waitlist',
+    };
+  } catch { return neutralCard('Waitlist', faListCheck, 'text-violet-600', REPORTS_WAITLIST_OPTIMIZER); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
