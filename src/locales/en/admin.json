@@ -808,6 +808,7 @@
       "admin.tips_definition.create": "Create tips definition",
       "admin.tips_definition.update": "Update tips definition",
       "admin.tips_definition.delete": "Delete tips definition",
+      "admin.security_alerts": "Security alerts",
       "tips": "Tips",
       "tips.calculation": "Tip Calculation",
       "tips.payout": "Payout Management",

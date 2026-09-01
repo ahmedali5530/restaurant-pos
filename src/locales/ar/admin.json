@@ -634,6 +634,7 @@
       "admin.tips_definition.create": "إنشاء تعريف الإكراميات",
       "admin.tips_definition.update": "تحديث تعريف الإكراميات",
       "admin.tips_definition.delete": "حذف تعريف الإكراميات",
+      "admin.security_alerts": "تنبيهات الأمان",
       "tips": "الإكراميات",
       "tips.calculation": "حساب الإكراميات",
       "tips.payout": "إدارة المدفوعات",

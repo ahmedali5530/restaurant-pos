@@ -634,6 +634,7 @@
       "admin.tips_definition.create": "Erstellen Trinkgeld-Definition",
       "admin.tips_definition.update": "Aktualisieren Trinkgeld-Definition",
       "admin.tips_definition.delete": "Löschen Trinkgeld-Definition",
+      "admin.security_alerts": "Sicherheitswarnungen",
       "tips": "Trinkgeld",
       "tips.calculation": "Trinkgeldberechnung",
       "tips.payout": "Auszahlungsverwaltung",

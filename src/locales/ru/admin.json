@@ -634,6 +634,7 @@
       "admin.tips_definition.create": "Создать Определение чаевых",
       "admin.tips_definition.update": "Обновить Определение чаевых",
       "admin.tips_definition.delete": "Удалить Определение чаевых",
+      "admin.security_alerts": "Оповещения безопасности",
       "tips": "Чаевые",
       "tips.calculation": "Расчёт чаевых",
       "tips.payout": "Управление выплатами",

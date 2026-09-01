@@ -634,6 +634,7 @@
       "admin.tips_definition.create": "Crear Definición de propinas",
       "admin.tips_definition.update": "Actualizar Definición de propinas",
       "admin.tips_definition.delete": "Eliminar Definición de propinas",
+      "admin.security_alerts": "Alertas de seguridad",
       "tips": "Propinas",
       "tips.calculation": "Cálculo de propinas",
       "tips.payout": "Gestión de pagos",

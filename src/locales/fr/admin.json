@@ -634,6 +634,7 @@
       "admin.tips_definition.create": "Créer Définition des pourboires",
       "admin.tips_definition.update": "Mettre à jour Définition des pourboires",
       "admin.tips_definition.delete": "Supprimer Définition des pourboires",
+      "admin.security_alerts": "Alertes de sécurité",
       "tips": "Pourboires",
       "tips.calculation": "Calcul des pourboires",
       "tips.payout": "Gestion des versements",

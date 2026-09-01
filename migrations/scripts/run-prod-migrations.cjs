@@ -80,6 +80,12 @@ const MIGRATION_PLAN = [
     id: '2026_08_27_payment_credential_encryption_backfill',
     backfill: 'encrypt-existing-payment-credentials.cjs',
   },
+  { id: '2026_08_28_audit_log_events', file: '2026_08_28_audit_log_events.surql' },
+  { id: '2026_08_28_security_alerts', file: '2026_08_28_security_alerts.surql' },
+  {
+    id: '2026_08_28_security_alerts_access_backfill',
+    backfill: 'backfill-security-alerts-access.cjs',
+  },
 ];
 
 const rows = (result) => {

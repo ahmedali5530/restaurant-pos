@@ -12,6 +12,7 @@ const http = require('http');
 const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./src/auth.routes');
+const { getUserRoleModules, hasSecurityAlertsAccess } = require('./src/auth.service');
 const { attachRpcRelay } = require('./src/ws-relay');
 const { getClient, initSurrealClient } = require('./src/surreal-client');
 const { verifySession, extractBearer, _revocationStore } = require('./src/jwt');
@@ -98,9 +99,13 @@ app.post('/auth/verify', async (req, res) => {
 app.get('/alerts', async (req, res) => {
   try {
     const payload = await verifySession(extractBearer(req));
-    // Only admin / super_admin can read alerts.
-    const roles = payload.roles || [];
-    if (!roles.includes('admin') && !roles.includes('super_admin')) {
+    const jwtRoles = payload.roles || [];
+    let allowed = hasSecurityAlertsAccess(jwtRoles);
+    if (!allowed) {
+      const modules = await getUserRoleModules(payload.sub);
+      allowed = hasSecurityAlertsAccess(modules);
+    }
+    if (!allowed) {
       return res.status(403).json({ ok: false, error: 'Admin role required to read alerts' });
     }
 
@@ -137,8 +142,13 @@ app.get('/alerts', async (req, res) => {
 app.post('/alerts/:id/acknowledge', async (req, res) => {
   try {
     const payload = await verifySession(extractBearer(req));
-    const roles = payload.roles || [];
-    if (!roles.includes('admin') && !roles.includes('super_admin')) {
+    const jwtRoles = payload.roles || [];
+    let allowed = hasSecurityAlertsAccess(jwtRoles);
+    if (!allowed) {
+      const modules = await getUserRoleModules(payload.sub);
+      allowed = hasSecurityAlertsAccess(modules);
+    }
+    if (!allowed) {
       return res.status(403).json({ ok: false, error: 'Admin role required' });
     }
 

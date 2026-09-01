@@ -634,6 +634,7 @@
       "admin.tips_definition.create": "Aanmaken Fooidefinitie",
       "admin.tips_definition.update": "Bijwerken Fooidefinitie",
       "admin.tips_definition.delete": "Verwijderen Fooidefinitie",
+      "admin.security_alerts": "Beveiligingsmeldingen",
       "tips": "Fooien",
       "tips.calculation": "Fooiberekening",
       "tips.payout": "Uitbetalingsbeheer",

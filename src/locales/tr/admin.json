@@ -634,6 +634,7 @@
       "admin.tips_definition.create": "Oluştur Bahşiş tanımı",
       "admin.tips_definition.update": "Güncelle Bahşiş tanımı",
       "admin.tips_definition.delete": "Sil Bahşiş tanımı",
+      "admin.security_alerts": "Güvenlik uyarıları",
       "tips": "Bahşişler",
       "tips.calculation": "Bahşiş Hesaplama",
       "tips.payout": "Ödeme Yönetimi",

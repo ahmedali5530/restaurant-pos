@@ -634,6 +634,7 @@
       "admin.tips_definition.create": "Crea Definizione mance",
       "admin.tips_definition.update": "Aggiorna Definizione mance",
       "admin.tips_definition.delete": "Elimina Definizione mance",
+      "admin.security_alerts": "Avvisi di sicurezza",
       "tips": "Mance",
       "tips.calculation": "Calcolo mance",
       "tips.payout": "Gestione pagamenti",

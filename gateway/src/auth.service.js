@@ -84,6 +84,51 @@ async function authenticatePosUser({ method, login, password }) {
   });
 }
 
+async function getUserRoleModules(userId) {
+  if (!userId) return [];
+  const db = await getClient();
+  const result = await db.query(
+    `SELECT * FROM user WHERE id = $userId AND deleted_at = NONE FETCH user_role LIMIT 1`,
+    { userId: String(userId) }
+  );
+  const rows = Array.isArray(result) ? result[0] : result;
+  const user = Array.isArray(rows) ? rows[0] : null;
+  if (!user) return [];
+
+  let fetchedRole = user.user_role;
+  const roleId =
+    typeof user.user_role === 'object' ? user.user_role?.id : user.user_role;
+
+  if (roleId && (!fetchedRole || !Array.isArray(fetchedRole.roles))) {
+    const roleResult = await db.query(
+      `SELECT * FROM user_role WHERE id = $roleId AND deleted_at = NONE LIMIT 1`,
+      { roleId }
+    );
+    const roleRows = Array.isArray(roleResult) ? roleResult[0] : roleResult;
+    if (Array.isArray(roleRows) && roleRows[0]) {
+      fetchedRole = roleRows[0];
+    }
+  }
+
+  return fetchedRole?.roles ? [...new Set(fetchedRole.roles.map(String))] : [];
+}
+
+function hasSecurityAlertsAccess(roleModules) {
+  if (!Array.isArray(roleModules)) return false;
+  return roleModules.some((r) => {
+    const s = String(r);
+    return (
+      s === 'admin' ||
+      s === 'super_admin' ||
+      s === 'admin.*' ||
+      s === 'admin.security_alerts' ||
+      s.startsWith('admin.')
+    );
+  });
+}
+
 module.exports = {
   authenticatePosUser,
+  getUserRoleModules,
+  hasSecurityAlertsAccess,
 };

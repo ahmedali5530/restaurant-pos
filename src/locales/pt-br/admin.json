@@ -634,6 +634,7 @@
       "admin.tips_definition.create": "Criar Definição de gorjetas",
       "admin.tips_definition.update": "Atualizar Definição de gorjetas",
       "admin.tips_definition.delete": "Excluir Definição de gorjetas",
+      "admin.security_alerts": "Alertas de segurança",
       "tips": "Gorjetas",
       "tips.calculation": "Cálculo de gorjetas",
       "tips.payout": "Gestão de pagamentos",
