@@ -223,6 +223,7 @@ export const REPORTS_PRICE_PSYCHOLOGY = REPORTS + '/price-psychology';
 export const REPORTS_CASH_STRESS_TEST = REPORTS + '/cash-stress-test';
 export const REPORTS_EVENT_MENU = REPORTS + '/event-menu';
 export const REPORTS_RETENTION_PROGRAM = REPORTS + '/retention-program';
+export const REPORTS_SUPPLIER_NEGOTIATION = REPORTS + '/supplier-negotiation';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';

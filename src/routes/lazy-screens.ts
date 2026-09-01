@@ -485,3 +485,7 @@ export const EventMenuScreen = lazy(() =>
 export const RetentionProgramScreen = lazy(() =>
   import('@/screens/reports/retention.program.report.tsx').then(m => ({default: m.RetentionProgramScreen}))
 );
+
+export const SupplierNegotiationScreen = lazy(() =>
+  import('@/screens/reports/supplier.negotiation.report.tsx').then(m => ({default: m.SupplierNegotiationScreen}))
+);
