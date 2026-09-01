@@ -118,6 +118,7 @@ import {
   REPORTS_RECIPE_SCALING,
   REPORTS_WINE_PAIRING,
   REPORTS_STAFF_GAMIFICATION,
+  REPORTS_KITCHEN_PREP_SCHEDULER,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -164,7 +165,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, recipeScaleData, wineData, gamificationData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, recipeScaleData, wineData, gamificationData, kitchenPrepData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -249,6 +250,7 @@ export function AiCommandCenterScreen() {
         fetchRecipeScaleSummary(db),
         fetchWineSummary(db),
         fetchGamificationSummary(db),
+        fetchKitchenPrepSummary(db),
       ]);
 
       setMetrics([
@@ -259,7 +261,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, recipeScaleData, wineData, gamificationData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, recipeScaleData, wineData, gamificationData, kitchenPrepData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -2234,6 +2236,23 @@ async function fetchGamificationSummary(db: any): Promise<MetricCard> {
       health: 'good', link: REPORTS_STAFF_GAMIFICATION, linkLabel: 'View game',
     };
   } catch { return neutralCard('Gamification', faTrophy, 'text-amber-600', REPORTS_STAFF_GAMIFICATION); }
+}
+
+async function fetchKitchenPrepSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(rule_id = 'prep_now') AS prep_now, math::count(rule_id = 'capacity_warning') AS capacity
+       FROM kitchen_prep_schedule WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const k = list[0];
+    if (!k || k.count === 0) return neutralCard('Kitchen Prep', faFireBurner, 'text-rose-600', REPORTS_KITCHEN_PREP_SCHEDULER);
+    return {
+      title: 'Kitchen Prep', icon: faFireBurner, color: 'text-rose-600',
+      primary: `${k.prep_now} prep now`, secondary: `${k.total} dishes · ${k.capacity} capacity warnings`,
+      health: k.capacity > 0 ? 'critical' : k.prep_now > 0 ? 'warning' : 'good', link: REPORTS_KITCHEN_PREP_SCHEDULER, linkLabel: 'View schedule',
+    };
+  } catch { return neutralCard('Kitchen Prep', faFireBurner, 'text-rose-600', REPORTS_KITCHEN_PREP_SCHEDULER); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {

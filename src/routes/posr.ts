@@ -211,6 +211,7 @@ export const REPORTS_ONLINE_FRAUD_DETECTOR = REPORTS + '/online-fraud-detector';
 export const REPORTS_RECIPE_SCALING = REPORTS + '/recipe-scaling';
 export const REPORTS_WINE_PAIRING = REPORTS + '/wine-pairing';
 export const REPORTS_STAFF_GAMIFICATION = REPORTS + '/staff-gamification';
+export const REPORTS_KITCHEN_PREP_SCHEDULER = REPORTS + '/kitchen-prep-scheduler';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';

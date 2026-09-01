@@ -437,3 +437,7 @@ export const WinePairingScreen = lazy(() =>
 export const StaffGamificationScreen = lazy(() =>
   import('@/screens/reports/staff.gamification.report.tsx').then(m => ({default: m.StaffGamificationScreen}))
 );
+
+export const KitchenPrepSchedulerScreen = lazy(() =>
+  import('@/screens/reports/kitchen.prep.scheduler.report.tsx').then(m => ({default: m.KitchenPrepSchedulerScreen}))
+);

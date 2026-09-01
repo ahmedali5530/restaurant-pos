@@ -92,6 +92,7 @@ import {
   REPORTS_RECIPE_SCALING,
   REPORTS_WINE_PAIRING,
   REPORTS_STAFF_GAMIFICATION,
+  REPORTS_KITCHEN_PREP_SCHEDULER,
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
   REPORTS_CONSUMPTION,
@@ -276,6 +277,7 @@ import {
   RecipeScalingScreen,
   WinePairingScreen,
   StaffGamificationScreen,
+  KitchenPrepSchedulerScreen,
   TablesideScreen,
 } from "@/routes/lazy-screens.ts";
 
@@ -387,6 +389,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_RECIPE_SCALING} element={<RecipeScalingScreen/>}/>
         <Route path={REPORTS_WINE_PAIRING} element={<WinePairingScreen/>}/>
         <Route path={REPORTS_STAFF_GAMIFICATION} element={<StaffGamificationScreen/>}/>
+        <Route path={REPORTS_KITCHEN_PREP_SCHEDULER} element={<KitchenPrepSchedulerScreen/>}/>
         <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
         <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
         <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>
