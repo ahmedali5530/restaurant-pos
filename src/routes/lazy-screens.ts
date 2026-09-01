@@ -477,3 +477,7 @@ export const PricePsychologyScreen = lazy(() =>
 export const CashStressTestScreen = lazy(() =>
   import('@/screens/reports/cash.stress.test.report.tsx').then(m => ({default: m.CashStressTestScreen}))
 );
+
+export const EventMenuScreen = lazy(() =>
+  import('@/screens/reports/event.menu.report.tsx').then(m => ({default: m.EventMenuScreen}))
+);
