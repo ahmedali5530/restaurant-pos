@@ -32,8 +32,9 @@
 
 import { createStore, get, set, del, keys } from 'idb-keyval';
 
-// Separate IndexedDB store for the write queue (not shared with integration queue)
-const QUEUE_STORE = createStore('posr-react', 'offline-write-queue');
+// Dedicated DB name — `posr-react` already exists with only `jotai-storage`;
+// idb-keyval cannot add new object stores to an existing database.
+const QUEUE_STORE = createStore('posr-react-offline-write-queue', 'keyval');
 
 export type QueueOperation = 'create' | 'update' | 'merge' | 'delete';
 
