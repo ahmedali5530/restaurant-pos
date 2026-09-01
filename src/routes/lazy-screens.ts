@@ -481,3 +481,7 @@ export const CashStressTestScreen = lazy(() =>
 export const EventMenuScreen = lazy(() =>
   import('@/screens/reports/event.menu.report.tsx').then(m => ({default: m.EventMenuScreen}))
 );
+
+export const RetentionProgramScreen = lazy(() =>
+  import('@/screens/reports/retention.program.report.tsx').then(m => ({default: m.RetentionProgramScreen}))
+);
