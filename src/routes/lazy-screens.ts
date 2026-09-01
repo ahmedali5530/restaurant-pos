@@ -518,3 +518,7 @@ export const EquipmentMaintenanceScreen = lazy(() =>
 export const MilestoneCampaignScreen = lazy(() =>
   import('@/screens/reports/milestone.campaign.report.tsx').then(m => ({default: m.MilestoneCampaignScreen}))
 );
+
+export const SchedulePreferenceScreen = lazy(() =>
+  import('@/screens/reports/schedule.preference.report.tsx').then(m => ({default: m.SchedulePreferenceScreen}))
+);

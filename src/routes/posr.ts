@@ -182,6 +182,7 @@ export const REPORTS_SOCIAL_CONTENT = REPORTS + '/social-content';
 export const REPORTS_CATERING_OPTIMIZER = REPORTS + '/catering-optimizer';
 export const REPORTS_EQUIPMENT_MAINTENANCE = REPORTS + '/equipment-maintenance';
 export const REPORTS_MILESTONE_CAMPAIGN = REPORTS + '/milestone-campaign';
+export const REPORTS_SCHEDULE_PREFERENCE = REPORTS + '/schedule-preference';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';

@@ -112,6 +112,7 @@ import {
   REPORTS_CATERING_OPTIMIZER,
   REPORTS_EQUIPMENT_MAINTENANCE,
   REPORTS_MILESTONE_CAMPAIGN,
+  REPORTS_SCHEDULE_PREFERENCE,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -158,7 +159,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -237,6 +238,7 @@ export function AiCommandCenterScreen() {
         fetchCateringSummary(db),
         fetchEquipMaintSummary(db),
         fetchMilestoneSummary(db),
+        fetchSchedPrefSummary(db),
       ]);
 
       setMetrics([
@@ -247,7 +249,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -2110,6 +2112,27 @@ async function fetchMilestoneSummary(db: any): Promise<MetricCard> {
       health: 'good', link: REPORTS_MILESTONE_CAMPAIGN, linkLabel: 'View campaigns',
     };
   } catch { return neutralCard('Milestones', faCakeCandles, 'text-pink-600', REPORTS_MILESTONE_CAMPAIGN); }
+}
+
+async function fetchSchedPrefSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT
+         count() AS total,
+         count(DISTINCT staff_id) AS staff,
+         math::count(severity = 'critical') AS critical,
+         math::mean(satisfaction_score) AS satisfaction
+       FROM schedule_preference WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const s = list[0];
+    if (!s || s.count === 0) return neutralCard('Schedule Preferences', faCalendarCheck, 'text-violet-600', REPORTS_SCHEDULE_PREFERENCE);
+    return {
+      title: 'Schedule Preferences', icon: faCalendarCheck, color: 'text-violet-600',
+      primary: `${s.staff} staff`, secondary: `${s.total} prefs · ${s.critical} critical · ${s.satisfaction.toFixed(0)}/100 sat`,
+      health: s.critical > 0 ? 'critical' : 'good', link: REPORTS_SCHEDULE_PREFERENCE, linkLabel: 'View preferences',
+    };
+  } catch { return neutralCard('Schedule Preferences', faCalendarCheck, 'text-violet-600', REPORTS_SCHEDULE_PREFERENCE); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
