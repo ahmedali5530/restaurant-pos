@@ -225,6 +225,7 @@ export const REPORTS_EVENT_MENU = REPORTS + '/event-menu';
 export const REPORTS_RETENTION_PROGRAM = REPORTS + '/retention-program';
 export const REPORTS_SUPPLIER_NEGOTIATION = REPORTS + '/supplier-negotiation';
 export const REPORTS_MAINTENANCE_BUDGET = REPORTS + '/maintenance-budget';
+export const REPORTS_FEEDBACK_LOOP = REPORTS + '/feedback-loop';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';
