@@ -8,6 +8,16 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-09-01',
+    title: 'Offline POS write queue',
+    items: [
+      'When the SurrealDB WebSocket drops, create/update/merge/delete writes are queued in IndexedDB instead of failing.',
+      'A top banner shows offline status, pending change count, and retry/sync controls.',
+      'Queued writes replay automatically when the connection is restored (after a 2-second stability delay).',
+      'The app stays usable after the first successful connection — you are no longer kicked to the connecting screen on brief outages.',
+    ],
+  },
+  {
+    date: '2026-09-01',
     title: 'Security audit log and alerts',
     items: [
       'Login success, failed login, logout, and permission denials are now written to a structured audit_log table.',

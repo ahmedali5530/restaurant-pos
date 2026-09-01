@@ -24,6 +24,7 @@ import {I18nProvider} from "@/providers/i18n.provider.tsx";
 import {AppRoutes} from "@/routes/app.routes.tsx";
 import {IntegrationProvider} from "@/providers/integration.provider.tsx";
 import {AiAssistantWidget} from "@/components/ai-assistant/assistant-widget.tsx";
+import {OfflineModeBanner} from "@/components/common/offline-banner.tsx";
 
 
 // react query client wrapper
@@ -59,6 +60,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ConfigProvider theme={appAntdTheme}>
         <DatabaseProvider>
+          <OfflineModeBanner />
           <IntegrationProvider>
             <AutoCheckCloseProvider>
               <ClosingCycleEnforcementProvider>
