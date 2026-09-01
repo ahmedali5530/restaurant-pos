@@ -219,6 +219,7 @@ export const REPORTS_DRIVER_COACH = REPORTS + '/driver-coach';
 export const REPORTS_EXPIRY_TRACKER = REPORTS + '/expiry-tracker';
 export const REPORTS_AD_TARGETING = REPORTS + '/ad-targeting';
 export const REPORTS_LOCAL_SEO = REPORTS + '/local-seo';
+export const REPORTS_PRICE_PSYCHOLOGY = REPORTS + '/price-psychology';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';

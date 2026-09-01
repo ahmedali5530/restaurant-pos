@@ -100,6 +100,7 @@ import {
   REPORTS_EXPIRY_TRACKER,
   REPORTS_AD_TARGETING,
   REPORTS_LOCAL_SEO,
+  REPORTS_PRICE_PSYCHOLOGY,
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
   REPORTS_CONSUMPTION,
@@ -292,6 +293,7 @@ import {
   ExpiryTrackerScreen,
   AdTargetingScreen,
   LocalSeoScreen,
+  PricePsychologyScreen,
   TablesideScreen,
 } from "@/routes/lazy-screens.ts";
 
@@ -411,6 +413,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_EXPIRY_TRACKER} element={<ExpiryTrackerScreen/>}/>
         <Route path={REPORTS_AD_TARGETING} element={<AdTargetingScreen/>}/>
         <Route path={REPORTS_LOCAL_SEO} element={<LocalSeoScreen/>}/>
+        <Route path={REPORTS_PRICE_PSYCHOLOGY} element={<PricePsychologyScreen/>}/>
         <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
         <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
         <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>

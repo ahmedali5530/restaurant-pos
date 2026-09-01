@@ -469,3 +469,7 @@ export const AdTargetingScreen = lazy(() =>
 export const LocalSeoScreen = lazy(() =>
   import('@/screens/reports/local.seo.report.tsx').then(m => ({default: m.LocalSeoScreen}))
 );
+
+export const PricePsychologyScreen = lazy(() =>
+  import('@/screens/reports/price.psychology.report.tsx').then(m => ({default: m.PricePsychologyScreen}))
+);
