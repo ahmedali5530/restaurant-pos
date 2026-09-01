@@ -68,27 +68,6 @@ import {
   REPORTS_PRICE_ELASTICITY,
   REPORTS_PROMO_ABUSE,
   REPORTS_MENU_PAIRING,
-  REPORTS_WAIT_PREDICTION,
-  REPORTS_PROMO_FORECAST,
-  REPORTS_CLV_TRAJECTORY,
-  REPORTS_SPOILAGE_PREDICTION,
-  REPORTS_VISIT_CADENCE,
-  REPORTS_RECIPE_SUBSTITUTION,
-  REPORTS_TRAINING_NEED,
-  REPORTS_SEATING_OPTIMIZATION,
-  REPORTS_SATISFACTION_PREDICTION,
-  REPORTS_ABANDONED_CART,
-  REPORTS_BRANCH_COMPARISON,
-  REPORTS_COMPLIANCE_TRACKING,
-  REPORTS_GIFTCARD_FRAUD,
-  REPORTS_REFUND_ABUSE,
-  REPORTS_BUFFET_DEMAND,
-  REPORTS_DELIVERY_ROUTE,
-  REPORTS_SERVER_LOAD_BALANCER,
-  REPORTS_DISH_PROFITABILITY,
-  REPORTS_CASH_DRAWER_ANOMALY,
-  REPORTS_CASH_EARLY_WARNING,
-  REPORTS_COMPLAINT_PATTERN,
   REPORTS_WEATHER_IMPACT,
   REPORTS_PEAK_PRICING,
   REPORTS_TABLE_UTILIZATION,
@@ -110,6 +89,7 @@ import {
   REPORTS_SCHEDULE_PREFERENCE,
   REPORTS_FLOOR_PLAN_OPTIMIZER,
   REPORTS_ONLINE_FRAUD_DETECTOR,
+  REPORTS_RECIPE_SCALING,
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
   REPORTS_CONSUMPTION,
@@ -270,27 +250,6 @@ import {
   PriceElasticityScreen,
   PromoAbuseScreen,
   MenuPairingScreen,
-  WaitPredictionScreen,
-  PromoForecastScreen,
-  CLVTrajectoryScreen,
-  SpoilagePredictionScreen,
-  VisitCadenceScreen,
-  RecipeSubstitutionScreen,
-  TrainingNeedScreen,
-  SeatingOptimizationScreen,
-  SatisfactionPredictionScreen,
-  AbandonedCartScreen,
-  BranchComparisonScreen,
-  ComplianceTrackingScreen,
-  GiftCardFraudScreen,
-  RefundAbuseScreen,
-  BuffetDemandScreen,
-  DeliveryRouteScreen,
-  ServerLoadBalancerScreen,
-  DishProfitabilityScreen,
-  CashDrawerAnomalyScreen,
-  CashEarlyWarningScreen,
-  ComplaintPatternScreen,
   WeatherImpactScreen,
   PeakPricingScreen,
   TableUtilizationScreen,
@@ -312,6 +271,7 @@ import {
   SchedulePreferenceScreen,
   FloorPlanOptimizerScreen,
   OnlineFraudDetectorScreen,
+  RecipeScalingScreen,
   TablesideScreen,
 } from "@/routes/lazy-screens.ts";
 
@@ -399,27 +359,6 @@ export const AppRoutes = () => (
         <Route path={REPORTS_PRICE_ELASTICITY} element={<PriceElasticityScreen/>}/>
         <Route path={REPORTS_PROMO_ABUSE} element={<PromoAbuseScreen/>}/>
         <Route path={REPORTS_MENU_PAIRING} element={<MenuPairingScreen/>}/>
-        <Route path={REPORTS_WAIT_PREDICTION} element={<WaitPredictionScreen/>}/>
-        <Route path={REPORTS_PROMO_FORECAST} element={<PromoForecastScreen/>}/>
-        <Route path={REPORTS_CLV_TRAJECTORY} element={<CLVTrajectoryScreen/>}/>
-        <Route path={REPORTS_SPOILAGE_PREDICTION} element={<SpoilagePredictionScreen/>}/>
-        <Route path={REPORTS_VISIT_CADENCE} element={<VisitCadenceScreen/>}/>
-        <Route path={REPORTS_RECIPE_SUBSTITUTION} element={<RecipeSubstitutionScreen/>}/>
-        <Route path={REPORTS_TRAINING_NEED} element={<TrainingNeedScreen/>}/>
-        <Route path={REPORTS_SEATING_OPTIMIZATION} element={<SeatingOptimizationScreen/>}/>
-        <Route path={REPORTS_SATISFACTION_PREDICTION} element={<SatisfactionPredictionScreen/>}/>
-        <Route path={REPORTS_ABANDONED_CART} element={<AbandonedCartScreen/>}/>
-        <Route path={REPORTS_BRANCH_COMPARISON} element={<BranchComparisonScreen/>}/>
-        <Route path={REPORTS_COMPLIANCE_TRACKING} element={<ComplianceTrackingScreen/>}/>
-        <Route path={REPORTS_GIFTCARD_FRAUD} element={<GiftCardFraudScreen/>}/>
-        <Route path={REPORTS_REFUND_ABUSE} element={<RefundAbuseScreen/>}/>
-        <Route path={REPORTS_BUFFET_DEMAND} element={<BuffetDemandScreen/>}/>
-        <Route path={REPORTS_DELIVERY_ROUTE} element={<DeliveryRouteScreen/>}/>
-        <Route path={REPORTS_SERVER_LOAD_BALANCER} element={<ServerLoadBalancerScreen/>}/>
-        <Route path={REPORTS_DISH_PROFITABILITY} element={<DishProfitabilityScreen/>}/>
-        <Route path={REPORTS_CASH_DRAWER_ANOMALY} element={<CashDrawerAnomalyScreen/>}/>
-        <Route path={REPORTS_CASH_EARLY_WARNING} element={<CashEarlyWarningScreen/>}/>
-        <Route path={REPORTS_COMPLAINT_PATTERN} element={<ComplaintPatternScreen/>}/>
         <Route path={REPORTS_WEATHER_IMPACT} element={<WeatherImpactScreen/>}/>
         <Route path={REPORTS_PEAK_PRICING} element={<PeakPricingScreen/>}/>
         <Route path={REPORTS_TABLE_UTILIZATION} element={<TableUtilizationScreen/>}/>
@@ -441,6 +380,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_SCHEDULE_PREFERENCE} element={<SchedulePreferenceScreen/>}/>
         <Route path={REPORTS_FLOOR_PLAN_OPTIMIZER} element={<FloorPlanOptimizerScreen/>}/>
         <Route path={REPORTS_ONLINE_FRAUD_DETECTOR} element={<OnlineFraudDetectorScreen/>}/>
+        <Route path={REPORTS_RECIPE_SCALING} element={<RecipeScalingScreen/>}/>
         <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
         <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
         <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>

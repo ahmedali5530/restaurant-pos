@@ -186,6 +186,30 @@ export const REPORTS_SCHEDULE_PREFERENCE = REPORTS + '/schedule-preference';
 export const REPORTS_FLOOR_PLAN_OPTIMIZER = REPORTS + '/floor-plan-optimizer';
 export const REPORTS_ONLINE_FRAUD_DETECTOR = REPORTS + '/online-fraud-detector';
 
+// Differentials 17-59 (batch addition)
+export const REPORTS_WEATHER_IMPACT = REPORTS + '/weather-impact';
+export const REPORTS_PEAK_PRICING = REPORTS + '/peak-pricing';
+export const REPORTS_TABLE_UTILIZATION = REPORTS + '/table-utilization';
+export const REPORTS_OVERTIME_PREDICTION = REPORTS + '/overtime-prediction';
+export const REPORTS_LOYALTY_ROI = REPORTS + '/loyalty-roi';
+export const REPORTS_PROCUREMENT = REPORTS + '/procurement';
+export const REPORTS_MENU_ROTATION = REPORTS + '/menu-rotation';
+export const REPORTS_SERVER_COACH = REPORTS + '/server-coach';
+export const REPORTS_ALLERGEN_RISK = REPORTS + '/allergen-risk';
+export const REPORTS_OVERBOOKING = REPORTS + '/overbooking';
+export const REPORTS_RESERVATION_CASCADE = REPORTS + '/reservation-cascade';
+export const REPORTS_VIBE_OPTIMIZER = REPORTS + '/vibe-optimizer';
+export const REPORTS_ENERGY_VAMPIRE = REPORTS + '/energy-vampire';
+export const REPORTS_REVIEW_RESPONSE = REPORTS + '/review-response';
+export const REPORTS_SOCIAL_CONTENT = REPORTS + '/social-content';
+export const REPORTS_CATERING_OPTIMIZER = REPORTS + '/catering-optimizer';
+export const REPORTS_EQUIPMENT_MAINTENANCE = REPORTS + '/equipment-maintenance';
+export const REPORTS_MILESTONE_CAMPAIGN = REPORTS + '/milestone-campaign';
+export const REPORTS_SCHEDULE_PREFERENCE = REPORTS + '/schedule-preference';
+export const REPORTS_FLOOR_PLAN_OPTIMIZER = REPORTS + '/floor-plan-optimizer';
+export const REPORTS_ONLINE_FRAUD_DETECTOR = REPORTS + '/online-fraud-detector';
+export const REPORTS_RECIPE_SCALING = REPORTS + '/recipe-scaling';
+
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';
 export const REPORTS_LABOR_WEEKLY_COST = REPORTS + '/labor-weekly-cost';
