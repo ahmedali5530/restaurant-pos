@@ -453,3 +453,7 @@ export const SentimentTrendScreen = lazy(() =>
 export const CleaningSchedulerScreen = lazy(() =>
   import('@/screens/reports/cleaning.scheduler.report.tsx').then(m => ({default: m.CleaningSchedulerScreen}))
 );
+
+export const DriverCoachScreen = lazy(() =>
+  import('@/screens/reports/driver.coach.report.tsx').then(m => ({default: m.DriverCoachScreen}))
+);
