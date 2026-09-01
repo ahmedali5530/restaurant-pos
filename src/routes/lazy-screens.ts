@@ -445,3 +445,7 @@ export const KitchenPrepSchedulerScreen = lazy(() =>
 export const InventoryTransferScreen = lazy(() =>
   import('@/screens/reports/inventory.transfer.report.tsx').then(m => ({default: m.InventoryTransferScreen}))
 );
+
+export const SentimentTrendScreen = lazy(() =>
+  import('@/screens/reports/sentiment.trend.report.tsx').then(m => ({default: m.SentimentTrendScreen}))
+);

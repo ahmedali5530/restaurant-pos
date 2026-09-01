@@ -213,6 +213,7 @@ export const REPORTS_WINE_PAIRING = REPORTS + '/wine-pairing';
 export const REPORTS_STAFF_GAMIFICATION = REPORTS + '/staff-gamification';
 export const REPORTS_KITCHEN_PREP_SCHEDULER = REPORTS + '/kitchen-prep-scheduler';
 export const REPORTS_INVENTORY_TRANSFER = REPORTS + '/inventory-transfer';
+export const REPORTS_SENTIMENT_TREND = REPORTS + '/sentiment-trend';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';
