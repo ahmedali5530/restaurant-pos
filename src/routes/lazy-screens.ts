@@ -506,3 +506,7 @@ export const ReviewResponseScreen = lazy(() =>
 export const SocialContentScreen = lazy(() =>
   import('@/screens/reports/social.content.report.tsx').then(m => ({default: m.SocialContentScreen}))
 );
+
+export const CateringOptimizerScreen = lazy(() =>
+  import('@/screens/reports/catering.optimizer.report.tsx').then(m => ({default: m.CateringOptimizerScreen}))
+);

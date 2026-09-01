@@ -104,6 +104,7 @@ import {
   REPORTS_ENERGY_VAMPIRE,
   REPORTS_REVIEW_RESPONSE,
   REPORTS_SOCIAL_CONTENT,
+  REPORTS_CATERING_OPTIMIZER,
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
   REPORTS_CONSUMPTION,
@@ -300,6 +301,7 @@ import {
   EnergyVampireScreen,
   ReviewResponseScreen,
   SocialContentScreen,
+  CateringOptimizerScreen,
   TablesideScreen,
 } from "@/routes/lazy-screens.ts";
 
@@ -423,6 +425,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_ENERGY_VAMPIRE} element={<EnergyVampireScreen/>}/>
         <Route path={REPORTS_REVIEW_RESPONSE} element={<ReviewResponseScreen/>}/>
         <Route path={REPORTS_SOCIAL_CONTENT} element={<SocialContentScreen/>}/>
+        <Route path={REPORTS_CATERING_OPTIMIZER} element={<CateringOptimizerScreen/>}/>
         <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
         <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
         <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>
