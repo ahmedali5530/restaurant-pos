@@ -498,3 +498,7 @@ export const VibeOptimizerScreen = lazy(() =>
 export const EnergyVampireScreen = lazy(() =>
   import('@/screens/reports/energy.vampire.report.tsx').then(m => ({default: m.EnergyVampireScreen}))
 );
+
+export const ReviewResponseScreen = lazy(() =>
+  import('@/screens/reports/review.response.report.tsx').then(m => ({default: m.ReviewResponseScreen}))
+);

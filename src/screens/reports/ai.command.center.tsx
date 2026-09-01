@@ -107,6 +107,7 @@ import {
   REPORTS_RESERVATION_CASCADE,
   REPORTS_VIBE_OPTIMIZER,
   REPORTS_ENERGY_VAMPIRE,
+  REPORTS_REVIEW_RESPONSE,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -153,7 +154,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -227,6 +228,7 @@ export function AiCommandCenterScreen() {
         fetchCascadeSummary(db),
         fetchVibeSummary(db),
         fetchVampireSummary(db),
+        fetchReviewResponseSummary(db),
       ]);
 
       setMetrics([
@@ -237,7 +239,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -2002,6 +2004,25 @@ async function fetchVampireSummary(db: any): Promise<MetricCard> {
       health: 'critical', link: REPORTS_ENERGY_VAMPIRE, linkLabel: 'View vampires',
     };
   } catch { return neutralCard('Energy Vampire', faPlugCircleXmark, 'text-rose-600', REPORTS_ENERGY_VAMPIRE); }
+}
+
+async function fetchReviewResponseSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT
+         count() AS total,
+         math::count(severity = 'critical') AS critical
+       FROM review_response WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const r = list[0];
+    if (!r || r.count === 0) return neutralCard('Review Responses', faCommentDots, 'text-violet-600', REPORTS_REVIEW_RESPONSE);
+    return {
+      title: 'Review Responses', icon: faCommentDots, color: 'text-violet-600',
+      primary: `${r.total} pending`, secondary: `${r.critical} critical · needs response`,
+      health: r.critical > 0 ? 'critical' : 'warning', link: REPORTS_REVIEW_RESPONSE, linkLabel: 'View queue',
+    };
+  } catch { return neutralCard('Review Responses', faCommentDots, 'text-violet-600', REPORTS_REVIEW_RESPONSE); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
