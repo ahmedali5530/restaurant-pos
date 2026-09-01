@@ -94,6 +94,15 @@
     "retryConnection": "Opnieuw verbinden",
     "connecting": "Verbinden met server..."
   },
+  "offline": {
+    "disconnected": "⚠ Offline — wijzigingen worden gesynchroniseerd bij herverbinding",
+    "disconnectedWithQueue": "⚠ Offline — {{count}} wijzigingen in wachtrij, worden gesynchroniseerd bij herverbinding",
+    "reconnected": "✓ Verbinding hersteld",
+    "retry": "Opnieuw verbinden",
+    "syncing": "{{count}} offline wijzigingen synchroniseren…",
+    "pendingSync": "{{count}} wijzigingen wachten op synchronisatie",
+    "syncNow": "Nu synchroniseren"
+  },
   "lock": {
     "lockedBy": "Vergrendeld door {{name}}",
     "onlyUserCanLogin": "Alleen {{name}} kan nu inloggen"

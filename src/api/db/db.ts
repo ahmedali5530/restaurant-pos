@@ -13,6 +13,7 @@ import {
 import {toast} from "sonner";
 import {useDatabase} from "@/hooks/useDatabase.ts";
 import {getSessionToken, isGatewayAuthEnabled} from "@/lib/session.ts";
+import {enqueueWrite} from "@/lib/offline-write-queue.ts";
 
 type QueryBindings = Record<string, unknown>;
 type DbThing = AnyRecordId | RecordIdRange | Table | string;
@@ -90,8 +91,9 @@ export const useDB = () => {
 
   // Prefer the live socket flag — React state can briefly lag after StrictMode/drop.
   const liveConnected = client.isConnected || isConnected;
+  const isOfflineCapable = !liveConnected && !isConnecting && !allowDisconnected;
 
-  if (!liveConnected && !isConnecting && !allowDisconnected) {
+  if (!liveConnected && !isConnecting && !allowDisconnected && !isOfflineCapable) {
     throw new Error('Database is not connected. Please ensure DatabaseProvider is wrapping your app and connection is established.');
   }
 
@@ -123,6 +125,22 @@ export const useDB = () => {
       toast.error(getErrorMessage(e));
       throw e;
     }
+  };
+
+  const runGuardedOffline = async <T>(
+    op: () => Promise<T>,
+    label: string,
+    offlineOp?: { operation: 'create' | 'update' | 'merge' | 'delete'; table?: string; recordId?: string; data?: any }
+  ): Promise<T> => {
+    if (isOfflineCapable && offlineOp) {
+      const queueId = await enqueueWrite(offlineOp.operation, {
+        table: offlineOp.table,
+        recordId: offlineOp.recordId,
+        data: offlineOp.data,
+      });
+      return { id: queueId, _offline: true, _queuedAt: Date.now() } as unknown as T;
+    }
+    return runGuarded(op, label);
   };
 
   const query = async <R extends unknown[] = any[]>(sql: string, parameters?: QueryBindings): Promise<R> => {
@@ -167,7 +185,7 @@ export const useDB = () => {
   const del = async <T = any>(
     thing: DbThing
   ): Promise<RecordResult<T> | RecordResult<T>[]> => {
-    return runGuarded(async () => {
+    return runGuardedOffline(async () => {
       if (import.meta.env.DEV) {
         console.group('DB Delete')
         console.info(thing);
@@ -182,11 +200,11 @@ export const useDB = () => {
         return client.delete<T>(normalizedThing);
       }
       return client.delete<T>(normalizedThing as AnyRecordId);
-    }, 'delete');
+    }, 'delete', { operation: 'delete', recordId: String(thing) });
   }
 
   async function insert<T = any>(thing: Table | string, data: Values<T> | Values<T>[]) {
-    return runGuarded(async () => {
+    return runGuardedOffline(async () => {
       if (import.meta.env.DEV) {
         console.group('DB Insert')
         console.info(thing);
@@ -195,7 +213,7 @@ export const useDB = () => {
       }
 
       return client.insert<T>(toTable(thing), data);
-    }, 'insert');
+    }, 'insert', { operation: 'create', table: String(thing), data });
   }
 
 
@@ -203,7 +221,7 @@ export const useDB = () => {
     thing: DbThing,
     data: Values<T>
   ) => {
-    return runGuarded(async () => {
+    return runGuardedOffline(async () => {
       if (import.meta.env.DEV) {
         console.group('DB Update')
         console.info(thing);
@@ -219,7 +237,7 @@ export const useDB = () => {
         return client.update<T>(normalizedThing).merge(data);
       }
       return client.update<T>(normalizedThing as AnyRecordId).merge(data);
-    }, 'updating');
+    }, 'updating', { operation: 'update', recordId: String(thing), data });
   }
 
   const patch = async <T extends Record<string, unknown> = Record<string, unknown>>(
@@ -249,7 +267,7 @@ export const useDB = () => {
     thing: DbThing,
     data: Values<T>
   ) => {
-    return runGuarded(async () => {
+    return runGuardedOffline(async () => {
       if (import.meta.env.DEV) {
         console.group('DB Merge')
         console.info(thing);
@@ -265,7 +283,7 @@ export const useDB = () => {
         return client.update<T>(normalizedThing).merge(data);
       }
       return client.update<T>(normalizedThing as AnyRecordId).merge(data);
-    }, 'merging');
+    }, 'merging', { operation: 'merge', recordId: String(thing), data });
   }
 
   const upsert = async <T extends Record<string, unknown> = Record<string, unknown>>(

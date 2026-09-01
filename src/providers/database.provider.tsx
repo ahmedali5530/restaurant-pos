@@ -69,6 +69,7 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
   const [error, setError] = useState<unknown>(null);
   const connectInFlight = useRef<Promise<void> | null>(null);
   const wasSessionReady = useRef(sessionReady);
+  const hasConnectedOnce = useRef(false);
 
   useEffect(() => {
     if (!gatewayMode) {
@@ -165,6 +166,7 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
 
         console.log("Successfully connected to SurrealDB");
         setIsConnected(true);
+        hasConnectedOnce.current = true;
       } catch (err) {
         setIsConnected(false);
         setIsError(true);
@@ -248,6 +250,14 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
   );
 
   useEffect(() => {
+    const onReconnect = () => {
+      void connect().catch(() => {});
+    };
+    window.addEventListener('posr-db-reconnect', onReconnect);
+    return () => window.removeEventListener('posr-db-reconnect', onReconnect);
+  }, [connect]);
+
+  useEffect(() => {
     const onUnhandledRejection = (event: PromiseRejectionEvent) => {
       const errorName = event?.reason?.name;
       if (errorName === "ConnectionUnavailable" || errorName === "EngineDisconnected") {
@@ -296,7 +306,7 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
     );
   }
 
-  if (isConnecting || !isConnected) {
+  if (isConnecting || (!isConnected && !hasConnectedOnce.current)) {
     console.log(`connecting to ${dbEndpointLabel()}...`);
     return (
       <DatabaseContext.Provider value={value}>

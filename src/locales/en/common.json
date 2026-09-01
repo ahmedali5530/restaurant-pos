@@ -94,6 +94,15 @@
     "retryConnection": "Retry Connection",
     "connecting": "Connecting to server..."
   },
+  "offline": {
+    "disconnected": "⚠ Offline — changes will sync when reconnected",
+    "disconnectedWithQueue": "⚠ Offline — {{count}} changes queued, will sync when reconnected",
+    "reconnected": "✓ Connection restored",
+    "retry": "Retry connection",
+    "syncing": "Syncing {{count}} offline changes…",
+    "pendingSync": "{{count}} changes queued for sync",
+    "syncNow": "Sync now"
+  },
   "lock": {
     "lockedBy": "Locked by {{name}}",
     "onlyUserCanLogin": "Only {{name}} can login now"

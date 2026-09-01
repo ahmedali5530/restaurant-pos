@@ -94,6 +94,15 @@
     "retryConnection": "Réessayer la connexion",
     "connecting": "Connexion au serveur..."
   },
+  "offline": {
+    "disconnected": "⚠ Hors ligne — les changements seront synchronisés à la reconnexion",
+    "disconnectedWithQueue": "⚠ Hors ligne — {{count}} changements en file d'attente, synchronisation à la reconnexion",
+    "reconnected": "✓ Connexion rétablie",
+    "retry": "Réessayer la connexion",
+    "syncing": "Synchronisation de {{count}} changements hors ligne…",
+    "pendingSync": "{{count}} changements en attente de synchronisation",
+    "syncNow": "Synchroniser maintenant"
+  },
   "lock": {
     "lockedBy": "Verrouillé par {{name}}",
     "onlyUserCanLogin": "Seul {{name}} peut se connecter pour le moment"

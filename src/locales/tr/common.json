@@ -94,6 +94,15 @@
     "retryConnection": "Bağlantıyı Yeniden Dene",
     "connecting": "Sunucuya bağlanılıyor..."
   },
+  "offline": {
+    "disconnected": "⚠ Çevrimdışı — değişiklikler yeniden bağlanınca senkronize edilecek",
+    "disconnectedWithQueue": "⚠ Çevrimdışı — {{count}} değişiklik kuyrukta, yeniden bağlanınca senkronize edilecek",
+    "reconnected": "✓ Bağlantı kuruldu",
+    "retry": "Bağlantıyı yeniden dene",
+    "syncing": "{{count}} çevrimdışı değişiklik senkronize ediliyor…",
+    "pendingSync": "{{count}} değişiklik senkronizasyon için kuyrukta",
+    "syncNow": "Şimdi senkronize et"
+  },
   "lock": {
     "lockedBy": "{{name}} tarafından kilitlendi",
     "onlyUserCanLogin": "Şu anda yalnızca {{name}} giriş yapabilir"

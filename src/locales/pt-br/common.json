@@ -94,6 +94,15 @@
     "retryConnection": "Tentar conexão novamente",
     "connecting": "Conectando ao servidor..."
   },
+  "offline": {
+    "disconnected": "⚠ Offline — alterações sincronizarão ao reconectar",
+    "disconnectedWithQueue": "⚠ Offline — {{count}} alterações na fila, sincronizarão ao reconectar",
+    "reconnected": "✓ Conexão restaurada",
+    "retry": "Tentar reconectar",
+    "syncing": "Sincronizando {{count}} alterações offline…",
+    "pendingSync": "{{count}} alterações na fila para sincronizar",
+    "syncNow": "Sincronizar agora"
+  },
   "lock": {
     "lockedBy": "Bloqueado por {{name}}",
     "onlyUserCanLogin": "Somente {{name}} pode fazer login agora"

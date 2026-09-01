@@ -94,6 +94,15 @@
     "retryConnection": "Verbindung erneut versuchen",
     "connecting": "Verbindung zum Server wird hergestellt..."
   },
+  "offline": {
+    "disconnected": "⚠ Offline — Änderungen werden bei Wiederverbindung synchronisiert",
+    "disconnectedWithQueue": "⚠ Offline — {{count}} Änderungen in Warteschlange, werden bei Wiederverbindung synchronisiert",
+    "reconnected": "✓ Verbindung wiederhergestellt",
+    "retry": "Erneut verbinden",
+    "syncing": "{{count}} Offline-Änderungen werden synchronisiert…",
+    "pendingSync": "{{count}} Änderungen warten auf Synchronisierung",
+    "syncNow": "Jetzt synchronisieren"
+  },
   "lock": {
     "lockedBy": "Gesperrt von {{name}}",
     "onlyUserCanLogin": "Nur {{name}} kann sich jetzt anmelden"
