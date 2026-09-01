@@ -514,3 +514,7 @@ export const CateringOptimizerScreen = lazy(() =>
 export const EquipmentMaintenanceScreen = lazy(() =>
   import('@/screens/reports/equipment.maintenance.report.tsx').then(m => ({default: m.EquipmentMaintenanceScreen}))
 );
+
+export const MilestoneCampaignScreen = lazy(() =>
+  import('@/screens/reports/milestone.campaign.report.tsx').then(m => ({default: m.MilestoneCampaignScreen}))
+);
