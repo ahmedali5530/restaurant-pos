@@ -449,3 +449,7 @@ export const InventoryTransferScreen = lazy(() =>
 export const SentimentTrendScreen = lazy(() =>
   import('@/screens/reports/sentiment.trend.report.tsx').then(m => ({default: m.SentimentTrendScreen}))
 );
+
+export const CleaningSchedulerScreen = lazy(() =>
+  import('@/screens/reports/cleaning.scheduler.report.tsx').then(m => ({default: m.CleaningSchedulerScreen}))
+);
