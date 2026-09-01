@@ -465,3 +465,7 @@ export const ExpiryTrackerScreen = lazy(() =>
 export const AdTargetingScreen = lazy(() =>
   import('@/screens/reports/ad.targeting.report.tsx').then(m => ({default: m.AdTargetingScreen}))
 );
+
+export const LocalSeoScreen = lazy(() =>
+  import('@/screens/reports/local.seo.report.tsx').then(m => ({default: m.LocalSeoScreen}))
+);
