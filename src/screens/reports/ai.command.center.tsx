@@ -45,7 +45,7 @@ import {
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
   faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
-  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck, faExchangeAlt, faGraduationCap, faFaceSmile, faCartShopping, faFileShield, faGiftCard, faRotateLeft, faRoute, faUserGear, faCalculator, faCashRegister, faCommentDots, faCloudSun, faCrown, faUserPlus, faTruckFast, faArrowsRotate, faUserGraduate, faHandshake, faCalendarPlus, faWater, faMusic, faPlugCircleXmark, faShareNodes, faWrench, faCakeCandles, faTableColumns, faShieldHalved,
+  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck, faExchangeAlt, faGraduationCap, faFaceSmile, faCartShopping, faFileShield, faGiftCard, faRotateLeft, faRoute, faUserGear, faCalculator, faCashRegister, faCommentDots, faCloudSun, faCrown, faUserPlus, faTruckFast, faArrowsRotate, faUserGraduate, faHandshake, faCalendarPlus, faWater, faMusic, faPlugCircleXmark, faShareNodes, faWrench, faCakeCandles, faTableColumns, faShieldHalved, faScaleBalanced, faWineGlass,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -115,6 +115,8 @@ import {
   REPORTS_SCHEDULE_PREFERENCE,
   REPORTS_FLOOR_PLAN_OPTIMIZER,
   REPORTS_ONLINE_FRAUD_DETECTOR,
+  REPORTS_RECIPE_SCALING,
+  REPORTS_WINE_PAIRING,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -161,7 +163,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, recipeScaleData, wineData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -243,6 +245,8 @@ export function AiCommandCenterScreen() {
         fetchSchedPrefSummary(db),
         fetchFloorPlanSummary(db),
         fetchOnlineFraudSummary(db),
+        fetchRecipeScaleSummary(db),
+        fetchWineSummary(db),
       ]);
 
       setMetrics([
@@ -253,7 +257,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, recipeScaleData, wineData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -2177,6 +2181,40 @@ async function fetchOnlineFraudSummary(db: any): Promise<MetricCard> {
       health: f.critical > 0 ? 'critical' : 'warning', link: REPORTS_ONLINE_FRAUD_DETECTOR, linkLabel: 'View alerts',
     };
   } catch { return neutralCard('Online Fraud', faShieldHalved, 'text-rose-600', REPORTS_ONLINE_FRAUD_DETECTOR); }
+}
+
+async function fetchRecipeScaleSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::sum(target_servings) AS servings, math::sum(est_savings) AS savings
+       FROM recipe_scaling WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const r = list[0];
+    if (!r || r.count === 0) return neutralCard('Recipe Scaling', faScaleBalanced, 'text-violet-600', REPORTS_RECIPE_SCALING);
+    return {
+      title: 'Recipe Scaling', icon: faScaleBalanced, color: 'text-violet-600',
+      primary: `${r.total} recipes`, secondary: `${r.servings} servings · ${withCurrency(r.savings)} savings`,
+      health: 'good', link: REPORTS_RECIPE_SCALING, linkLabel: 'View scalings',
+    };
+  } catch { return neutralCard('Recipe Scaling', faScaleBalanced, 'text-violet-600', REPORTS_RECIPE_SCALING); }
+}
+
+async function fetchWineSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(rule_id = 'classic_match') AS classic, math::sum(est_revenue_lift) AS lift
+       FROM wine_pairing WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const w = list[0];
+    if (!w || w.count === 0) return neutralCard('Sommelier', faWineGlass, 'text-rose-600', REPORTS_WINE_PAIRING);
+    return {
+      title: 'Sommelier', icon: faWineGlass, color: 'text-rose-600',
+      primary: `${w.classic} classic`, secondary: `${w.total} pairings · ${withCurrency(w.lift)} lift`,
+      health: 'good', link: REPORTS_WINE_PAIRING, linkLabel: 'View pairings',
+    };
+  } catch { return neutralCard('Sommelier', faWineGlass, 'text-rose-600', REPORTS_WINE_PAIRING); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {

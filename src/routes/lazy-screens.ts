@@ -429,3 +429,7 @@ export const OnlineFraudDetectorScreen = lazy(() =>
 export const RecipeScalingScreen = lazy(() =>
   import('@/screens/reports/recipe.scaling.report.tsx').then(m => ({default: m.RecipeScalingScreen}))
 );
+
+export const WinePairingScreen = lazy(() =>
+  import('@/screens/reports/wine.pairing.report.tsx').then(m => ({default: m.WinePairingScreen}))
+);
