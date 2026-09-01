@@ -39,7 +39,7 @@ export function OfflineModeBanner() {
   if (isEffectivelyConnected && (pendingCount > 0 || isReplaying)) {
     return (
       <div
-        className="fixed top-0 left-0 right-0 z-[9999] bg-warning-500 text-white text-center py-1.5 text-sm font-medium shadow-md flex items-center justify-center gap-3"
+        className="fixed top-0 left-0 right-0 z-[9999] bg-warning-500 text-white text-center py-1.5 text-sm font-medium shadow-md shadow-warning-600/30 flex items-center justify-center gap-3"
         data-testid="offline-banner-syncing"
         role="status"
         aria-live="polite"
@@ -53,7 +53,7 @@ export function OfflineModeBanner() {
         {!isReplaying && pendingCount > 0 && (
           <button
             onClick={() => void replayNow()}
-            className="ml-2 px-3 py-0.5 bg-white text-warning-600 rounded text-xs font-bold hover:bg-warning-50 transition-colors"
+            className="ml-2 px-3 py-0.5 bg-white text-warning-700 rounded text-xs font-bold hover:bg-warning-100 transition-colors"
           >
             {t("common:offline.syncNow", { defaultValue: "Sync now" })}
           </button>
@@ -65,7 +65,7 @@ export function OfflineModeBanner() {
   if (isEffectivelyConnected && showBanner) {
     return (
       <div
-        className="fixed top-0 left-0 right-0 z-[9999] bg-success-600 text-white text-center py-1.5 text-sm font-medium shadow-md transition-all"
+        className="fixed top-0 left-0 right-0 z-[9999] bg-success-600 text-white text-center py-1.5 text-sm font-medium shadow-md shadow-success-600/30 transition-all"
         data-testid="offline-banner-reconnected"
       >
         {t("common:offline.reconnected", { defaultValue: "✓ Connection restored" })}
@@ -75,7 +75,7 @@ export function OfflineModeBanner() {
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 z-[9999] bg-danger-600 text-white text-center py-2 text-sm font-medium shadow-lg flex items-center justify-center gap-3"
+      className="fixed top-0 left-0 right-0 z-[9999] bg-danger-600 text-white text-center py-2 text-sm font-medium shadow-lg shadow-danger-600/30 flex items-center justify-center gap-3"
       data-testid="offline-banner-disconnected"
       role="alert"
       aria-live="assertive"
@@ -91,7 +91,7 @@ export function OfflineModeBanner() {
       </span>
       <button
         onClick={handleRetry}
-        className="ml-2 px-3 py-0.5 bg-white text-danger-600 rounded text-xs font-bold hover:bg-danger-50 transition-colors"
+        className="ml-2 px-3 py-0.5 bg-white text-danger-700 rounded text-xs font-bold hover:bg-danger-100 transition-colors"
         aria-label={t("common:offline.retry", { defaultValue: "Retry connection" })}
       >
         {t("common:offline.retry", { defaultValue: "Retry" })}
