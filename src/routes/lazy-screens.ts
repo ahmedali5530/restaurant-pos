@@ -489,3 +489,7 @@ export const RetentionProgramScreen = lazy(() =>
 export const SupplierNegotiationScreen = lazy(() =>
   import('@/screens/reports/supplier.negotiation.report.tsx').then(m => ({default: m.SupplierNegotiationScreen}))
 );
+
+export const MaintenanceBudgetScreen = lazy(() =>
+  import('@/screens/reports/maintenance.budget.report.tsx').then(m => ({default: m.MaintenanceBudgetScreen}))
+);
