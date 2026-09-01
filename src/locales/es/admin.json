@@ -21,7 +21,8 @@
     "shifts": "Turnos",
     "tipsDefinition": "Definición de propinas",
     "accessTab": "Acceder a {{title}}",
-    "ariaLabel": "Pestañas de administración"
+    "ariaLabel": "Pestañas de administración",
+    "securityAlerts": "Alertas de Seguridad"
   },
   "columns": {
     "photo": "Foto",
@@ -633,6 +634,7 @@
       "admin.tips_definition.create": "Crear Definición de propinas",
       "admin.tips_definition.update": "Actualizar Definición de propinas",
       "admin.tips_definition.delete": "Eliminar Definición de propinas",
+      "admin.security_alerts": "Alertas de seguridad",
       "tips": "Propinas",
       "tips.calculation": "Cálculo de propinas",
       "tips.payout": "Gestión de pagos",
@@ -878,5 +880,29 @@
       "saveFailed": "No se pudo guardar el descuento.",
       "createReasonFailed": "No se pudo crear el motivo de descuento."
     }
+  },
+  "securityAlerts": {
+    "noAccess": "Se requiere rol de administrador para ver alertas de seguridad.",
+    "loading": "Cargando alertas…",
+    "error": "Error al cargar alertas",
+    "critical": "Crítico",
+    "warning": "Advertencia",
+    "info": "Info",
+    "noAlerts": "Sin alertas abiertas",
+    "noAlertsDescription": "El detector de anomalías no ha marcado actividad sospechosa.",
+    "count": "×{{n}}",
+    "actor": "Actor",
+    "actorId": "ID del actor",
+    "actorRoles": "Roles del actor",
+    "sourceIp": "IP de origen",
+    "emittedAt": "Emitido el",
+    "ruleType": "Tipo de regla",
+    "detailTitle": "Alerta de Seguridad",
+    "resolutionNotes": "Notas de resolución (opcional)",
+    "resolutionNotesPlaceholder": "ej. Investigado — falsa alarma de prueba automatizada",
+    "acknowledge": "Reconocer",
+    "hideDetails": "▼ Ocultar detalles",
+    "showDetails": "▶ Mostrar detalles",
+    "badgeTooltip": "{{count}} alerta(s) crítica(s) abierta(s)"
   }
 }

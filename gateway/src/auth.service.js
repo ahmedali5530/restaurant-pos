@@ -2,6 +2,15 @@
 
 const { getClient } = require('./surreal-client');
 
+/** SurrealDB 3.x: string record ids must use type::record(), not WHERE id = $id. */
+function firstQueryRow(result) {
+  if (!Array.isArray(result) || result.length === 0) return null;
+  const top = result[0];
+  if (Array.isArray(top)) return top[0] ?? null;
+  if (top && typeof top === 'object') return top;
+  return null;
+}
+
 function serializeUser(row) {
   if (!row) return null;
   const { password: _password, ...safe } = row;
@@ -64,12 +73,12 @@ async function authenticatePosUser({ method, login, password }) {
 
   if (roleId) {
     const roleResult = await db.query(
-      `SELECT * FROM user_role WHERE id = $roleId AND deleted_at = NONE LIMIT 1`,
-      { roleId }
+      `SELECT * FROM ONLY type::record($roleId) WHERE deleted_at = NONE`,
+      { roleId: String(roleId) }
     );
-    const roleRows = Array.isArray(roleResult) ? roleResult[0] : roleResult;
-    if (Array.isArray(roleRows) && roleRows[0]) {
-      fetchedRole = roleRows[0];
+    const roleRow = firstQueryRow(roleResult) || (Array.isArray(roleResult) ? roleResult[0] : null);
+    if (roleRow && typeof roleRow === 'object') {
+      fetchedRole = roleRow;
     }
   }
 
@@ -84,6 +93,50 @@ async function authenticatePosUser({ method, login, password }) {
   });
 }
 
+async function getUserRoleModules(userId) {
+  if (!userId) return [];
+  const db = await getClient();
+  const result = await db.query(
+    `SELECT * FROM ONLY type::record($userId) WHERE deleted_at = NONE FETCH user_role`,
+    { userId: String(userId) }
+  );
+  const user = firstQueryRow(result);
+  if (!user) return [];
+
+  let fetchedRole = user.user_role;
+  const roleId =
+    typeof user.user_role === 'object' ? user.user_role?.id : user.user_role;
+
+  if (roleId && (!fetchedRole || !Array.isArray(fetchedRole.roles))) {
+    const roleResult = await db.query(
+      `SELECT * FROM ONLY type::record($roleId) WHERE deleted_at = NONE`,
+      { roleId: String(roleId) }
+    );
+    const roleRow = firstQueryRow(roleResult) || (Array.isArray(roleResult) ? roleResult[0] : null);
+    if (roleRow && typeof roleRow === 'object') {
+      fetchedRole = roleRow;
+    }
+  }
+
+  return fetchedRole?.roles ? [...new Set(fetchedRole.roles.map(String))] : [];
+}
+
+function hasSecurityAlertsAccess(roleModules) {
+  if (!Array.isArray(roleModules)) return false;
+  return roleModules.some((r) => {
+    const s = String(r);
+    return (
+      s === 'admin' ||
+      s === 'super_admin' ||
+      s === 'admin.*' ||
+      s === 'admin.security_alerts' ||
+      s.startsWith('admin.')
+    );
+  });
+}
+
 module.exports = {
   authenticatePosUser,
+  getUserRoleModules,
+  hasSecurityAlertsAccess,
 };
