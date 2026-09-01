@@ -497,3 +497,7 @@ export const MaintenanceBudgetScreen = lazy(() =>
 export const FeedbackLoopScreen = lazy(() =>
   import('@/screens/reports/feedback.loop.report.tsx').then(m => ({default: m.FeedbackLoopScreen}))
 );
+
+export const CrossSellScreen = lazy(() =>
+  import('@/screens/reports/cross.sell.report.tsx').then(m => ({default: m.CrossSellScreen}))
+);
