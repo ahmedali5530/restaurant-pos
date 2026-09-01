@@ -100,6 +100,7 @@
     "modifierGroupSaved": "Modifier group {{name}} saved",
     "orderTypeSaved": "Order type {{name}} saved",
     "paymentTypeSaved": "Payment type {{name}} saved",
+    "gatewayCredentialsSaveFailed": "Payment type saved, but gateway credentials failed to save: {{error}}",
     "printerSaved": "Printer {{name}} saved",
     "printSettingsSaved": "Print settings saved",
     "roleSaved": "Role {{name}} saved",

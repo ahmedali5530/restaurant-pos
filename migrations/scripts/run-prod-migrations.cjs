@@ -25,8 +25,12 @@ if (typeof global.WebSocket === 'undefined') {
 const DB_URL = process.env.SURREAL_URL || 'ws://surrealdb:8000/rpc';
 const DB_NS = process.env.SURREAL_NS || 'posr';
 const DB_NAME = process.env.SURREAL_DB || 'posr';
-const DB_USER = process.env.SURREAL_USER || 'root';
-const DB_PASS = process.env.SURREAL_PASS || 'root';
+const DB_USER = process.env.SURREAL_USER;
+const DB_PASS = process.env.SURREAL_PASS;
+if (!DB_USER || !DB_PASS) {
+  console.error('ERROR: SURREAL_USER and SURREAL_PASS env vars are required. The previous root/root fallback was removed for security — set them explicitly (must match the existing SurrealDB root user created on first start).');
+  process.exit(1);
+}
 const SKIP_BACKFILL = process.env.SKIP_BACKFILL === '1';
 
 const REPO_ROOT = process.env.REPO_ROOT
@@ -70,6 +74,12 @@ const MIGRATION_PLAN = [
   { id: '2026_08_18_flexible_payroll', file: '2026_08_18_flexible_payroll.surql' },
   { id: '2026_08_22_order_list_indexes', file: '2026_08_22_order_list_indexes.surql' },
   { id: '2026_08_30_hot_path_indexes', file: '2026_08_30_hot_path_indexes.surql' },
+  { id: '2026_08_27_revoked_session_store', file: '2026_08_27_revoked_session_store.surql' },
+  { id: '2026_08_27_payment_credential_encryption', file: '2026_08_27_payment_credential_encryption.surql' },
+  {
+    id: '2026_08_27_payment_credential_encryption_backfill',
+    backfill: 'encrypt-existing-payment-credentials.cjs',
+  },
 ];
 
 const rows = (result) => {

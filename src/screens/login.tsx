@@ -29,14 +29,22 @@ import {
   getSessionToken,
   isGatewayAuthEnabled,
   setSessionTokens,
+  type GatewayLoginResponse,
 } from "@/lib/session.ts";
 
 const TIME_ENTRY_CHECK_RETRIES = 3;
 const TIME_ENTRY_RETRY_DELAY_MS = 400;
+const LOGIN_MAX_ATTEMPTS = 5;
+const LOGIN_LOCKOUT_MINUTES = 15;
 
 const sleep = (ms: number) => new Promise<void>((resolve) => {
   window.setTimeout(resolve, ms);
 });
+
+const formatRetryMinutes = (retryAfterMs?: number, lockoutMs?: number) => {
+  const ms = retryAfterMs ?? lockoutMs ?? LOGIN_LOCKOUT_MINUTES * 60 * 1000;
+  return Math.max(1, Math.ceil(ms / 60000));
+};
 
 export const Login = () => {
   const db = useDB();
@@ -137,10 +145,44 @@ export const Login = () => {
     return false;
   };
 
+  const getLockoutPolicyMessage = () => t('login.lockoutPolicy', {
+    maxAttempts: LOGIN_MAX_ATTEMPTS,
+    lockoutMinutes: LOGIN_LOCKOUT_MINUTES,
+    defaultValue: `After ${LOGIN_MAX_ATTEMPTS} failed attempts, your account will be locked for ${LOGIN_LOCKOUT_MINUTES} minutes.`,
+  });
+
+  const showLoginFailureToast = (result?: GatewayLoginResponse) => {
+    if (result?.status === 429 || result?.retryAfterMs != null) {
+      const minutes = formatRetryMinutes(result.retryAfterMs, result.lockoutMs);
+      const message = result.code === 'rate_limited_ip'
+        ? t('login.rateLimitedIp', { minutes, defaultValue: `Too many login attempts. Try again in ${minutes} minute(s).` })
+        : t('login.rateLimited', { minutes, defaultValue: `Too many login attempts. Try again in ${minutes} minute(s).` });
+      toast.error(message);
+      return;
+    }
+
+    const lockoutPolicy = gatewayAuth ? getLockoutPolicyMessage() : undefined;
+
+    if (result?.attemptsRemaining != null && result.attemptsRemaining > 0) {
+      toast.error(t('login.invalidCredentialsWithAttempts', {
+        count: result.attemptsRemaining,
+        defaultValue: `Invalid username or password. ${result.attemptsRemaining} attempt(s) remaining before lockout.`,
+      }), { description: lockoutPolicy });
+      return;
+    }
+
+    toast.error(t('login.invalidCredentials'), { description: lockoutPolicy });
+  };
+
+  const handleLoginFailure = (result?: GatewayLoginResponse) => {
+    showLoginFailureToast(result);
+    denyLogin();
+  };
+
   const checkLoginGateway = async (login: string, pass: string, method: 'pin'|'form') => {
     const result = await gatewayLogin({ method, login, password: pass });
     if (!result.ok || !result.token || !result.surrealToken || !result.user) {
-      denyLogin();
+      handleLoginFailure(result);
       return false;
     }
 
@@ -203,6 +245,7 @@ export const Login = () => {
       return afterUserAuthenticated(normalizedUser);
     }
 
+    showLoginFailureToast();
     denyLogin();
     return false;
   };
@@ -421,9 +464,6 @@ export const Login = () => {
             </div>
             <Button type="submit" variant="primary" data-testid="login-submit">{t('login.submit')}</Button>
           </form>
-        )}
-        {error && loginMethod === 'form' && (
-          <div className="text-danger-500 text-sm">{t('login.invalidCredentials')}</div>
         )}
       </div>
       <div className="size-[100px] bg-warning-500/10 absolute top-10 right-[30%] rounded-full pointer-events-none transition-all blur-lg"></div>

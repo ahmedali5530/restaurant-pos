@@ -36,6 +36,18 @@ async function handleWebhook(req, res, next) {
 
     const driverResult = await processWebhook(gateway, rawBody, req.headers, signature);
 
+    // SECURITY: refuse to persist any result whose driver explicitly marked the
+    // signature as invalid. Belt-and-suspenders alongside the per-driver
+    // REJECTED status — defends against future regressions where a driver
+    // might return RECEIVED with signatureValid=false.
+    if (driverResult.normalizedData?.signatureValid === false) {
+      logger.warn('webhook', 'Refusing to persist webhook — signature marked invalid', {
+        gateway,
+        status: driverResult.status,
+      });
+      return sendError(res, 401, 'Webhook signature verification failed');
+    }
+
     const orderKey =
       driverResult.orderKey ||
       (typeof getGatewayDriver(gateway).extractOrderKeyFromWebhook === 'function'
@@ -72,6 +84,16 @@ async function handleOrderWebhook(req, res, next) {
     const rawBody = req.body;
 
     const driverResult = await processWebhook(gateway, rawBody, req.headers, signature);
+
+    // SECURITY: same fail-closed guard as the legacy endpoint.
+    if (driverResult.normalizedData?.signatureValid === false) {
+      logger.warn('webhook', 'Refusing to persist order webhook — signature marked invalid', {
+        gateway,
+        orderKey,
+        status: driverResult.status,
+      });
+      return sendError(res, 401, 'Webhook signature verification failed');
+    }
 
     if (driverResult.status === WebhookStatus.RECEIVED) {
       await savePaymentWebhook({

@@ -91,6 +91,7 @@
     "modifierGroupSaved": "Grupo de modificadores {{name}} salvo",
     "orderTypeSaved": "Tipo de pedido {{name}} salvo",
     "paymentTypeSaved": "Tipo de pagamento {{name}} salvo",
+    "gatewayCredentialsSaveFailed": "Tipo de pagamento salvo, mas falha ao salvar credenciais do gateway: {{error}}",
     "printerSaved": "Impressora {{name}} salva",
     "printSettingsSaved": "Configurações de impressão salvas",
     "roleSaved": "Função {{name}} salva",

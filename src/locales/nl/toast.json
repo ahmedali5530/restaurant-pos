@@ -91,6 +91,7 @@
     "modifierGroupSaved": "Modificatiegroep {{name}} opgeslagen",
     "orderTypeSaved": "Bestellingstype {{name}} opgeslagen",
     "paymentTypeSaved": "Betaaltype {{name}} opgeslagen",
+    "gatewayCredentialsSaveFailed": "Betaaltype opgeslagen, maar gateway-inloggegevens konden niet worden opgeslagen: {{error}}",
     "printerSaved": "Printer {{name}} opgeslagen",
     "printSettingsSaved": "Afdrukinstellingen opgeslagen",
     "roleSaved": "Rol {{name}} opgeslagen",

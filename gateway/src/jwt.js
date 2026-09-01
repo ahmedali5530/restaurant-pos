@@ -14,7 +14,10 @@ const { SignJWT, jwtVerify } = require('jose');
 const TTL = process.env.GATEWAY_JWT_TTL || '12h';
 const key = crypto.createSecretKey(Buffer.from(SECRET, 'utf8'));
 
-const revoked = new Set();
+// Durable revocation store. Was previously an in-memory `Set` that was lost on
+// every restart, allowing revoked sessions to be revalidated until their TTL
+// expired. See ./revocation-store.js for details.
+const revocation = require('./revocation-store');
 
 function parseTtlSeconds(ttl) {
   if (!ttl) return 12 * 60 * 60;
@@ -70,7 +73,7 @@ async function verifySession(token) {
     throw err;
   }
 
-  if (payload.jti && revoked.has(String(payload.jti))) {
+  if (payload.jti && (await revocation.isRevoked(payload.jti))) {
     const err = new Error('Session revoked');
     err.status = 401;
     throw err;
@@ -79,8 +82,9 @@ async function verifySession(token) {
   return payload;
 }
 
-function revokeSession(jti) {
-  if (jti) revoked.add(String(jti));
+async function revokeSession(jti, expiresAtSeconds) {
+  if (!jti) return;
+  await revocation.revoke(jti, expiresAtSeconds);
 }
 
 function extractBearer(req) {
@@ -96,4 +100,6 @@ module.exports = {
   verifySession,
   revokeSession,
   extractBearer,
+  // Exposed for wiring the Surreal client at boot (see gateway/server.js).
+  _revocationStore: revocation,
 };

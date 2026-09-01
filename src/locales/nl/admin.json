@@ -239,6 +239,8 @@
     "updatePaymentType": "{{name}} bijwerken",
     "selectProvider": "Selecteer provider (optioneel)",
     "sandboxLive": "sandbox / live",
+    "encryptedCredentialsHint": "Inloggegevens worden versleuteld opgeslagen.",
+    "encryptedCredentialsExplanation": "Velden zijn om veiligheidsredenen leeg — voer alleen nieuwe waarden in om bestaande inloggegevens te vervangen. Laat leeg om de huidige waarden te behouden.",
     "createExtra": "Nieuw extra aanmaken",
     "updateExtra": "{{name}} bijwerken",
     "createTax": "Nieuwe belasting aanmaken",

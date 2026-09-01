@@ -239,6 +239,8 @@
     "updatePaymentType": "Mettre à jour {{name}}",
     "selectProvider": "Sélectionner un fournisseur (facultatif)",
     "sandboxLive": "sandbox / live",
+    "encryptedCredentialsHint": "Les identifiants sont stockés de manière chiffrée.",
+    "encryptedCredentialsExplanation": "Les champs sont vides pour des raisons de sécurité — saisissez de nouvelles valeurs uniquement pour remplacer les identifiants existants. Laissez vide pour conserver les valeurs actuelles.",
     "createExtra": "Créer un nouveau supplément",
     "updateExtra": "Mettre à jour {{name}}",
     "createTax": "Créer une nouvelle taxe",

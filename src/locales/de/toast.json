@@ -91,6 +91,7 @@
     "modifierGroupSaved": "Modifikatorgruppe {{name}} gespeichert",
     "orderTypeSaved": "Bestelltyp {{name}} gespeichert",
     "paymentTypeSaved": "Zahlungsart {{name}} gespeichert",
+    "gatewayCredentialsSaveFailed": "Zahlungsart gespeichert, aber Gateway-Zugangsdaten konnten nicht gespeichert werden: {{error}}",
     "printerSaved": "Drucker {{name}} gespeichert",
     "printSettingsSaved": "Druckeinstellungen gespeichert",
     "roleSaved": "Rolle {{name}} gespeichert",

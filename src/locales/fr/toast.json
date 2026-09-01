@@ -91,6 +91,7 @@
     "modifierGroupSaved": "Groupe de modificateurs {{name}} enregistré",
     "orderTypeSaved": "Type de commande {{name}} enregistré",
     "paymentTypeSaved": "Type de paiement {{name}} enregistré",
+    "gatewayCredentialsSaveFailed": "Type de paiement enregistré, mais l'enregistrement des identifiants du gateway a échoué : {{error}}",
     "printerSaved": "Imprimante {{name}} enregistrée",
     "printSettingsSaved": "Paramètres d'impression enregistrés",
     "roleSaved": "Rôle {{name}} enregistré",

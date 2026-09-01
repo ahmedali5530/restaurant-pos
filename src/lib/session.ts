@@ -80,11 +80,17 @@ export function authHeaders(init?: HeadersInit): Headers {
 
 export type GatewayLoginResponse = {
   ok: boolean;
+  status?: number;
   token?: string;
   surrealToken?: string;
   expiresIn?: number;
   user?: unknown;
   error?: string;
+  code?: string;
+  attemptsRemaining?: number;
+  maxAttempts?: number;
+  lockoutMs?: number;
+  retryAfterMs?: number;
 };
 
 export async function gatewayLogin(payload: {
@@ -97,11 +103,20 @@ export async function gatewayLogin(payload: {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
-  const data = (await res.json().catch(() => ({}))) as GatewayLoginResponse;
+  const data = (await res.json().catch(() => ({}))) as GatewayLoginResponse & Record<string, unknown>;
   if (!res.ok) {
-    return { ok: false, error: data.error || `Login failed (${res.status})` };
+    return {
+      ok: false,
+      status: res.status,
+      error: data.error || `Login failed (${res.status})`,
+      code: typeof data.code === 'string' ? data.code : undefined,
+      attemptsRemaining: typeof data.attemptsRemaining === 'number' ? data.attemptsRemaining : undefined,
+      maxAttempts: typeof data.maxAttempts === 'number' ? data.maxAttempts : undefined,
+      lockoutMs: typeof data.lockoutMs === 'number' ? data.lockoutMs : undefined,
+      retryAfterMs: typeof data.retryAfterMs === 'number' ? data.retryAfterMs : undefined,
+    };
   }
-  return data;
+  return { ...data, ok: true, status: res.status };
 }
 
 export async function gatewayLogout(): Promise<void> {

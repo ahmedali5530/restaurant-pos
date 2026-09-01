@@ -91,6 +91,7 @@
     "modifierGroupSaved": "{{name}} değiştirici grubu kaydedildi",
     "orderTypeSaved": "{{name}} sipariş türü kaydedildi",
     "paymentTypeSaved": "{{name}} ödeme türü kaydedildi",
+    "gatewayCredentialsSaveFailed": "Ödeme türü kaydedildi, ancak ağ geçidi kimlik bilgileri kaydedilemedi: {{error}}",
     "printerSaved": "{{name}} yazıcısı kaydedildi",
     "printSettingsSaved": "Yazdırma ayarları kaydedildi",
     "roleSaved": "{{name}} rolü kaydedildi",

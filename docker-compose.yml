@@ -223,6 +223,13 @@ services:
       - surrealdb
 
   backup:
+    # SECURITY NOTE: this service mounts /var/run/docker.sock so it can run
+    # `docker exec` against the surrealdb container for `surreal export`. The
+    # Docker socket grants effectively root on the host — anyone who can write
+    # to this service can escape to the host. For production hardening, prefer
+    # a Docker socket proxy (e.g. tecnativa/docker-socket-proxy) that only
+    # allows the `containers.exec` and `containers.exec.start` endpoints, and
+    # bind it read-only. See docs/security/BACKUP.md for a hardened example.
     image: docker:27-cli
     working_dir: /backup
     volumes:
@@ -231,7 +238,8 @@ services:
     environment:
       # Timezone for cron schedule (change if you need local time)
       - TZ=UTC
-      # SurrealDB auth + target namespace/database for export
+      # SurrealDB auth + target namespace/database for export.
+      # Compose interpolation forces these to be set at deploy time.
       - SURREAL_USER=${SURREAL_USER:?Set SURREAL_USER in .env}
       - SURREAL_PASS=${SURREAL_PASS:?Set SURREAL_PASS in .env}
       - SURREAL_NAMESPACE=posr
@@ -246,6 +254,12 @@ services:
       sh -c '
         set -eu;
         mkdir -p /backups;
+        # Validate credentials at boot — refuse to start if missing, so the
+        # generated run-backup.sh cannot accidentally fall back to root/root.
+        if [ -z "$${SURREAL_USER}" ] || [ -z "$${SURREAL_PASS}" ]; then
+          echo "ERROR: SURREAL_USER and SURREAL_PASS must be set (compose should have enforced this)" >&2;
+          exit 1;
+        fi;
         printf "%s\n" \
           "#!/bin/sh" \
           "set -eu" \
@@ -257,7 +271,7 @@ services:
           "db_container=\$${SURREAL_CONTAINER_NAME:-}" \
           "if [ -z \"\$$db_container\" ]; then db_container=\$$(docker ps --filter \"label=com.docker.compose.project=\$$project\" --filter \"label=com.docker.compose.service=surrealdb\" --format \"{{.Names}}\" | awk \"NR==1{print; exit}\"); fi" \
           "if [ -z \"\$$db_container\" ]; then echo \"No surrealdb container found\" >&2; exit 1; fi" \
-          "if docker exec \"\$$db_container\" /surreal --log none export --endpoint \"\$${SURREAL_ENDPOINT:-http://127.0.0.1:8000}\" --username \"\$${SURREAL_USER:-root}\" --password \"\$${SURREAL_PASS:-root}\" --namespace \"\$${SURREAL_NAMESPACE:-posr}\" --database \"\$${SURREAL_DATABASE:-posr}\" - > \"\$$file\"; then echo \"Created backup: \$$file\"; else rm -f \"\$$file\"; echo \"Backup export failed\" >&2; exit 1; fi" \
+          "if docker exec \"\$$db_container\" /surreal --log none export --endpoint \"\$${SURREAL_ENDPOINT:-http://127.0.0.1:8000}\" --username \"\$${SURREAL_USER}\" --password \"\$${SURREAL_PASS}\" --namespace \"\$${SURREAL_NAMESPACE:-posr}\" --database \"\$${SURREAL_DATABASE:-posr}\" - > \"\$$file\"; then echo \"Created backup: \$$file\"; else rm -f \"\$$file\"; echo \"Backup export failed\" >&2; exit 1; fi" \
           "ls -1t /backups/surrealdb-*.surql 2>/dev/null | sed -n \"\$$((retention+1)),\\\$$p\" | xargs -r rm -f" \
           > /usr/local/bin/run-backup.sh;
         chmod +x /usr/local/bin/run-backup.sh;

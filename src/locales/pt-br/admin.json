@@ -239,6 +239,8 @@
     "updatePaymentType": "Atualizar {{name}}",
     "selectProvider": "Selecionar provedor (opcional)",
     "sandboxLive": "sandbox / live",
+    "encryptedCredentialsHint": "As credenciais são armazenadas criptografadas.",
+    "encryptedCredentialsExplanation": "Os campos estão vazios por segurança — insira novos valores apenas para substituir as credenciais existentes. Deixe em branco para manter os valores atuais.",
     "createExtra": "Criar novo extra",
     "updateExtra": "Atualizar {{name}}",
     "createTax": "Criar novo imposto",

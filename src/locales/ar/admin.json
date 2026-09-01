@@ -239,6 +239,8 @@
     "updatePaymentType": "تحديث {{name}}",
     "selectProvider": "اختر مزود الخدمة (اختياري)",
     "sandboxLive": "sandbox / live",
+    "encryptedCredentialsHint": "يتم تخزين بيانات الاعتماد مشفرة.",
+    "encryptedCredentialsExplanation": "الحقول فارغة لأسباب أمنية — أدخل قيمًا جديدة فقط لاستبدال بيانات الاعتماد الموجودة. اتركها فارغة للاحتفاظ بالقيم الحالية.",
     "createExtra": "إنشاء إضافة جديدة",
     "updateExtra": "تحديث {{name}}",
     "createTax": "إنشاء ضريبة جديدة",
