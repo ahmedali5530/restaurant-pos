@@ -30,13 +30,13 @@ function buildReplayDb(client: ReturnType<typeof useDatabase>['client']) {
 }
 
 export function useOfflineQueue(): UseOfflineQueueResult {
-  const { isConnected, client } = useDatabase();
+  const { isEffectivelyConnected, client } = useDatabase();
   const [pendingCount, setPendingCount] = useState(0);
   const [isReplaying, setIsReplaying] = useState(false);
   const [lastReplayResult, setLastReplayResult] = useState<
     { synced: number; failed: number; remaining: number } | null
   >(null);
-  const wasConnected = useRef(isConnected);
+  const wasConnected = useRef(isEffectivelyConnected);
   const replayTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const refreshCount = useCallback(async () => {
@@ -50,7 +50,7 @@ export function useOfflineQueue(): UseOfflineQueueResult {
 
   const doReplay = useCallback(async () => {
     if (isReplaying) return;
-    if (!isConnected || !client.isConnected) return;
+    if (!isEffectivelyConnected || !client.isConnected) return;
 
     setIsReplaying(true);
     try {
@@ -63,23 +63,29 @@ export function useOfflineQueue(): UseOfflineQueueResult {
     } finally {
       setIsReplaying(false);
     }
-  }, [client, isConnected, isReplaying, refreshCount]);
+  }, [client, isEffectivelyConnected, isReplaying, refreshCount]);
 
   useEffect(() => {
-    if (isConnected && !wasConnected.current) {
+    if (isEffectivelyConnected && !wasConnected.current) {
       if (replayTimer.current) clearTimeout(replayTimer.current);
       replayTimer.current = setTimeout(() => {
         void doReplay();
       }, 2000);
     }
-    wasConnected.current = isConnected;
-  }, [isConnected, doReplay]);
+    wasConnected.current = isEffectivelyConnected;
+  }, [isEffectivelyConnected, doReplay]);
 
   useEffect(() => {
     const handler = () => void doReplay();
     window.addEventListener('posr-db-reconnect', handler);
     return () => window.removeEventListener('posr-db-reconnect', handler);
   }, [doReplay]);
+
+  useEffect(() => {
+    const onEnqueued = () => void refreshCount();
+    window.addEventListener('posr-offline-enqueued', onEnqueued);
+    return () => window.removeEventListener('posr-offline-enqueued', onEnqueued);
+  }, [refreshCount]);
 
   useEffect(() => {
     void refreshCount();

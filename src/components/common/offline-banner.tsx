@@ -1,20 +1,6 @@
 /**
  * OfflineModeBanner — persistent UI indicator shown when the SPA loses its
- * SurrealDB WebSocket connection.
- *
- * Research finding: "Cloud POS dies when internet dies" is the #3 pain point
- * in restaurant POS forums (18 mentions across Reddit, HN, Trustpilot).
- * Toast, Square, and Lightspeed all show a persistent banner when offline.
- *
- * POSR already has offline-first IndexedDB for integration queues, but the
- * SPA has no visual indicator when the WebSocket drops. This component:
- *   - Listens to the DatabaseProvider's connection state
- *   - Shows a red banner at the top when disconnected
- *   - Shows a yellow banner when reconnecting
- *   - Auto-hides when connection is restored (after 2s delay to avoid flicker)
- *   - Includes a "Retry" button for manual reconnection
- *
- * Placement: mounted in app.tsx, above all routes, below the header.
+ * SurrealDB WebSocket connection while the user is logged in.
  */
 
 import { useEffect, useState } from "react";
@@ -23,39 +9,37 @@ import { useOfflineQueue } from "@/hooks/useOfflineQueue.ts";
 import { useTranslation } from "react-i18next";
 
 export function OfflineModeBanner() {
-  const { isConnected } = useDatabase();
+  const { isEffectivelyConnected, hasSession } = useDatabase();
   const { pendingCount, isReplaying, replayNow } = useOfflineQueue();
   const { t } = useTranslation(["common"]);
   const [showBanner, setShowBanner] = useState(false);
-  const [wasConnected, setWasConnected] = useState(isConnected);
+  const [wasConnected, setWasConnected] = useState(isEffectivelyConnected);
 
   const handleRetry = () => {
-    window.dispatchEvent(new CustomEvent('posr-db-reconnect'));
+    window.dispatchEvent(new CustomEvent("posr-db-reconnect"));
     void replayNow();
   };
 
   useEffect(() => {
-    if (!isConnected) {
-      // Show banner immediately when disconnected
+    if (!isEffectivelyConnected) {
       setShowBanner(true);
-    } else if (wasConnected === false && isConnected) {
-      // Was disconnected, now reconnected — hide after 2s delay
+    } else if (wasConnected === false && isEffectivelyConnected) {
       const timer = setTimeout(() => setShowBanner(false), 2000);
       return () => clearTimeout(timer);
     }
-    setWasConnected(isConnected);
-  }, [isConnected, wasConnected]);
+    setWasConnected(isEffectivelyConnected);
+  }, [isEffectivelyConnected, wasConnected]);
 
-  // Show banner when there are pending writes even if connected (during replay)
-  if (isConnected && pendingCount === 0 && !showBanner) return null;
+  if (!hasSession) return null;
 
-  if (isConnected && !showBanner && pendingCount === 0) return null;
+  if (isEffectivelyConnected && pendingCount === 0 && !showBanner) return null;
 
-  // Connected + replaying → show yellow "syncing" banner
-  if (isConnected && (pendingCount > 0 || isReplaying)) {
+  if (isEffectivelyConnected && !showBanner && pendingCount === 0) return null;
+
+  if (isEffectivelyConnected && (pendingCount > 0 || isReplaying)) {
     return (
       <div
-        className="fixed top-0 left-0 right-0 z-[9999] bg-amber-500 text-white text-center py-1.5 text-sm font-medium shadow-md flex items-center justify-center gap-3"
+        className="fixed top-0 left-0 right-0 z-[9999] bg-warning-500 text-white text-center py-1.5 text-sm font-medium shadow-md flex items-center justify-center gap-3"
         data-testid="offline-banner-syncing"
         role="status"
         aria-live="polite"
@@ -69,7 +53,7 @@ export function OfflineModeBanner() {
         {!isReplaying && pendingCount > 0 && (
           <button
             onClick={() => void replayNow()}
-            className="ml-2 px-3 py-0.5 bg-white text-amber-600 rounded text-xs font-bold hover:bg-amber-50 transition-colors"
+            className="ml-2 px-3 py-0.5 bg-white text-warning-600 rounded text-xs font-bold hover:bg-warning-50 transition-colors"
           >
             {t("common:offline.syncNow", { defaultValue: "Sync now" })}
           </button>
@@ -78,11 +62,10 @@ export function OfflineModeBanner() {
     );
   }
 
-  // Reconnected — brief green "restored" message
-  if (isConnected && showBanner) {
+  if (isEffectivelyConnected && showBanner) {
     return (
       <div
-        className="fixed top-0 left-0 right-0 z-[9999] bg-green-600 text-white text-center py-1.5 text-sm font-medium shadow-md transition-all"
+        className="fixed top-0 left-0 right-0 z-[9999] bg-success-600 text-white text-center py-1.5 text-sm font-medium shadow-md transition-all"
         data-testid="offline-banner-reconnected"
       >
         {t("common:offline.reconnected", { defaultValue: "✓ Connection restored" })}
@@ -90,10 +73,9 @@ export function OfflineModeBanner() {
     );
   }
 
-  // Disconnected — red banner with queue count + retry
   return (
     <div
-      className="fixed top-0 left-0 right-0 z-[9999] bg-red-600 text-white text-center py-2 text-sm font-medium shadow-lg flex items-center justify-center gap-3"
+      className="fixed top-0 left-0 right-0 z-[9999] bg-danger-600 text-white text-center py-2 text-sm font-medium shadow-lg flex items-center justify-center gap-3"
       data-testid="offline-banner-disconnected"
       role="alert"
       aria-live="assertive"
@@ -109,7 +91,7 @@ export function OfflineModeBanner() {
       </span>
       <button
         onClick={handleRetry}
-        className="ml-2 px-3 py-0.5 bg-white text-red-600 rounded text-xs font-bold hover:bg-red-50 transition-colors"
+        className="ml-2 px-3 py-0.5 bg-white text-danger-600 rounded text-xs font-bold hover:bg-danger-50 transition-colors"
         aria-label={t("common:offline.retry", { defaultValue: "Retry connection" })}
       >
         {t("common:offline.retry", { defaultValue: "Retry" })}

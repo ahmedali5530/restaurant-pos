@@ -83,16 +83,14 @@ async function waitForClientConnected(
 
 export const useDB = () => {
   const databaseContext = useDatabase();
-  const {client, isConnected} = databaseContext;
+  const {client, isEffectivelyConnected, isBrowserOnline} = databaseContext;
 
   // Gateway pre-login: allow the hook so Login can render; queries still need a live connection.
   const allowDisconnected =
     isGatewayAuthEnabled() && !getSessionToken();
 
-  // Prefer the live socket flag — React state can briefly lag after StrictMode/drop.
-  const liveConnected = client.isConnected || isConnected;
-  // Offline writes are allowed whenever logged in and disconnected — including
-  // during background reconnect attempts (isConnecting must not block queuing).
+  const liveConnected = isEffectivelyConnected;
+  // Offline writes when logged in and browser/socket is down.
   const isOfflineCapable = !liveConnected && !allowDisconnected;
 
   if (!liveConnected && !allowDisconnected && !isOfflineCapable) {
@@ -104,11 +102,15 @@ export const useDB = () => {
       throw new DbNotReadyError('no_session', 'No POS session — login required');
     }
 
+    if (!isBrowserOnline) {
+      throw new DbNotReadyError('not_connected', 'Database is not connected');
+    }
+
     if (client.isConnected) {
       return;
     }
 
-    const ready = await waitForClientConnected(() => client.isConnected);
+    const ready = await waitForClientConnected(() => client.isConnected, 2_000);
 
     if (!ready || !client.isConnected) {
       throw new DbNotReadyError('not_connected', 'Database is not connected');
@@ -140,6 +142,7 @@ export const useDB = () => {
         recordId: offlineOp.recordId,
         data: offlineOp.data,
       });
+      window.dispatchEvent(new CustomEvent('posr-offline-enqueued'));
       return { id: queueId, _offline: true, _queuedAt: Date.now() } as unknown as T;
     }
     return runGuarded(op, label);
