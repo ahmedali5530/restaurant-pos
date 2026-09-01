@@ -24,21 +24,17 @@ import {
 } from "@/lib/alerts.service.ts";
 import { appPage } from "@/store/jotai.ts";
 import { useAtom } from "jotai";
+import { getUserModules, moduleMatchCandidates } from "@/lib/access.rules.ts";
 
 const POLL_INTERVAL_MS = 30 * 1000; // 30 seconds
 
-/** Check if the current user has admin or super_admin role. */
-function useIsAdmin(): boolean {
+const SECURITY_ALERTS_MODULE = "admin.security_alerts";
+
+function useHasSecurityAlertsAccess(): boolean {
   const [page] = useAtom(appPage);
-  const user: any = page.user;
-  const roles: string[] =
-    user?.user_role?.roles || user?.roles || user?.user_role?.permissions || [];
-  return roles.some(
-    (r: string) =>
-      r === "admin" ||
-      r === "super_admin" ||
-      r === "admin.*" ||
-      r.startsWith("admin.")
+  const modules = getUserModules(page.user);
+  return moduleMatchCandidates(SECURITY_ALERTS_MODULE).some((candidate) =>
+    modules.includes(candidate)
   );
 }
 
@@ -54,7 +50,7 @@ export interface UseSecurityAlertsResult {
 }
 
 export function useSecurityAlerts(): UseSecurityAlertsResult {
-  const isAdmin = useIsAdmin();
+  const isAdmin = useHasSecurityAlertsAccess();
   const queryClient = useQueryClient();
   const queryKey = ["security-alerts"];
 
@@ -113,7 +109,7 @@ export function useSecurityAlerts(): UseSecurityAlertsResult {
  * to avoid re-rendering the full alert list on every poll.
  */
 export function useSecurityAlertsBadge(): { criticalCount: number; isLoading: boolean } {
-  const isAdmin = useIsAdmin();
+  const isAdmin = useHasSecurityAlertsAccess();
 
   const { data, isLoading } = useQuery<SecurityAlert[], Error>({
     queryKey: ["security-alerts-badge"],

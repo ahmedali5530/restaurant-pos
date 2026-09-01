@@ -24,21 +24,23 @@ import {
 } from "@/lib/alerts.service.ts";
 import { AlertDetailModal } from "./alert-detail.tsx";
 import { Button } from "@/components/common/input/button.tsx";
+import { getUserModules, moduleMatchCandidates } from "@/lib/access.rules.ts";
 import { appPage } from "@/store/jotai.ts";
 import { useAtom } from "jotai";
+
+const SECURITY_ALERTS_MODULE = "admin.security_alerts";
 
 export function SecurityAlertsPanel() {
   const { t } = useTranslation(["admin", "common"]);
   const { alerts, criticalCount, warningCount, infoCount, isLoading, error, refresh } = useSecurityAlerts();
   const [selectedAlert, setSelectedAlert] = useState<SecurityAlert | null>(null);
   const [page] = useAtom(appPage);
-  const user: any = page.user;
-  const roles: string[] = user?.user_role?.roles || user?.roles || [];
-  const isAdmin = roles.some(
-    (r: string) => r === "admin" || r === "super_admin" || r.startsWith("admin.")
+  const modules = getUserModules(page.user);
+  const hasAccess = moduleMatchCandidates(SECURITY_ALERTS_MODULE).some((candidate) =>
+    modules.includes(candidate)
   );
 
-  if (!isAdmin) {
+  if (!hasAccess) {
     return (
       <div className="p-6 text-center text-neutral-500" data-testid="security-alerts-no-access">
         {t("admin:securityAlerts.noAccess", { defaultValue: "Admin role required to view security alerts." })}
