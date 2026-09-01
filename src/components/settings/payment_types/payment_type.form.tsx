@@ -384,7 +384,7 @@ export const PaymentTypeForm = ({
             <div className="mb-3 border rounded p-3">
               <h4 className="font-medium mb-3">Gateway Keys</h4>
               {showEncryptedCredentialsHint && (
-                <div className="mb-3 p-2 bg-amber-50 border border-amber-200 rounded text-sm text-amber-800 dark:bg-amber-950/30 dark:border-amber-800 dark:text-amber-200">
+                <div className="mb-3 p-2 bg-warning-50 border border-warning-200 rounded text-sm text-warning-800 dark:bg-warning-950/30 dark:border-warning-800 dark:text-warning-200">
                   <strong>{t('admin:forms.encryptedCredentialsHint')}</strong>{' '}
                   {t('admin:forms.encryptedCredentialsExplanation')}
                 </div>

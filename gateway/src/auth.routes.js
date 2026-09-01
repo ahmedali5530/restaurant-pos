@@ -19,8 +19,30 @@ router.post('/login', loginRateLimit(), async (req, res) => {
       // SECURITY: record the failure for both IP and login buckets. Without
       // rate limiting a 4-digit PIN can be brute-forced in ~10,000 requests,
       // which bcrypt's slow compare alone cannot prevent.
-      recordAuthResult(req, false);
-      return res.status(401).json({ ok: false, error: 'Invalid credentials' });
+      const limitInfo = recordAuthResult(req, false);
+      if (limitInfo?.locked) {
+        res.set('Retry-After', String(Math.ceil(limitInfo.retryAfterMs / 1000)));
+        return res.status(429).json({
+          ok: false,
+          error: 'This account is temporarily locked due to repeated failed logins.',
+          code: 'rate_limited_account',
+          retryAfterMs: limitInfo.retryAfterMs,
+          maxAttempts: limitInfo.maxAttempts,
+          lockoutMs: limitInfo.lockoutMs,
+        });
+      }
+      return res.status(401).json({
+        ok: false,
+        error: 'Invalid credentials',
+        code: 'invalid_credentials',
+        ...(limitInfo
+          ? {
+              attemptsRemaining: limitInfo.attemptsRemaining,
+              maxAttempts: limitInfo.maxAttempts,
+              lockoutMs: limitInfo.lockoutMs,
+            }
+          : {}),
+      });
     }
 
     recordAuthResult(req, true);

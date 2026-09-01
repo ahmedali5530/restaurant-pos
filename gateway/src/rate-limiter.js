@@ -148,7 +148,10 @@ function loginRateLimit() {
       return res.status(429).json({
         ok: false,
         error: 'Too many login attempts. Try again later.',
+        code: 'rate_limited_ip',
         retryAfterMs: ipCheck.retryAfterMs,
+        maxAttempts: MAX_ATTEMPTS,
+        lockoutMs: LOCKOUT_MS,
       });
     }
     if (loginKey) {
@@ -158,7 +161,10 @@ function loginRateLimit() {
         return res.status(429).json({
           ok: false,
           error: 'This account is temporarily locked due to repeated failed logins.',
+          code: 'rate_limited_account',
           retryAfterMs: loginCheck.retryAfterMs,
+          maxAttempts: MAX_ATTEMPTS,
+          lockoutMs: LOCKOUT_MS,
         });
       }
     }
@@ -168,19 +174,37 @@ function loginRateLimit() {
   };
 }
 
-/** Hook called after auth attempt resolves. Call with `success` boolean. */
+/** Hook called after auth attempt resolves. Call with `success` boolean.
+ *  Returns rate-limit metadata on failure (for 401 responses). */
 function recordAuthResult(req, success) {
-  if (!req._rateLimit || req._rateLimit.bypassed) return;
+  if (!req._rateLimit || req._rateLimit.bypassed) return null;
   const { ip, loginKey } = req._rateLimit;
   if (success) {
     if (loginKey) loginBuckets.clear(loginKey);
-    // Note: we do NOT clear the IP bucket on success — a single valid login
-    // from a brute-forcing IP should not reset the IP counter (otherwise an
-    // attacker who knows one valid PIN could reset their own budget).
-    return;
+    return null;
   }
-  if (loginKey) loginBuckets.recordFailure(loginKey);
-  ipBuckets.recordFailure(ip);
+
+  const loginResult = loginKey ? loginBuckets.recordFailure(loginKey) : null;
+  const ipResult = ipBuckets.recordFailure(ip);
+
+  if (loginResult?.locked || ipResult?.locked) {
+    const retryAfterMs = Math.max(loginResult?.retryAfterMs || 0, ipResult?.retryAfterMs || 0);
+    return {
+      locked: true,
+      retryAfterMs,
+      maxAttempts: MAX_ATTEMPTS,
+      lockoutMs: LOCKOUT_MS,
+    };
+  }
+
+  const loginRemaining = loginResult?.attemptsRemaining ?? MAX_ATTEMPTS;
+  const ipRemaining = ipResult?.attemptsRemaining ?? MAX_ATTEMPTS;
+  return {
+    locked: false,
+    attemptsRemaining: Math.min(loginRemaining, ipRemaining),
+    maxAttempts: MAX_ATTEMPTS,
+    lockoutMs: LOCKOUT_MS,
+  };
 }
 
 module.exports = {
