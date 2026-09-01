@@ -510,3 +510,7 @@ export const SocialContentScreen = lazy(() =>
 export const CateringOptimizerScreen = lazy(() =>
   import('@/screens/reports/catering.optimizer.report.tsx').then(m => ({default: m.CateringOptimizerScreen}))
 );
+
+export const EquipmentMaintenanceScreen = lazy(() =>
+  import('@/screens/reports/equipment.maintenance.report.tsx').then(m => ({default: m.EquipmentMaintenanceScreen}))
+);
