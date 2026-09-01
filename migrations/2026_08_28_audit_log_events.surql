@@ -24,7 +24,6 @@
 
 DEFINE TABLE IF NOT EXISTS audit_log TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
-DEFINE FIELD IF NOT EXISTS id            ON audit_log TYPE string DEFAULT rand::ulid();
 DEFINE FIELD IF NOT EXISTS occurred_at   ON audit_log TYPE datetime DEFAULT time::now();
 DEFINE FIELD IF NOT EXISTS actor_id      ON audit_log TYPE option<string>;
 DEFINE FIELD IF NOT EXISTS actor_login   ON audit_log TYPE option<string>;

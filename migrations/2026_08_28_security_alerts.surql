@@ -19,7 +19,6 @@
 
 DEFINE TABLE IF NOT EXISTS security_alert_rules TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
-DEFINE FIELD IF NOT EXISTS id          ON security_alert_rules TYPE string DEFAULT rand::ulid();
 DEFINE FIELD IF NOT EXISTS name        ON security_alert_rules TYPE string;
 DEFINE FIELD IF NOT EXISTS description ON security_alert_rules TYPE option<string>;
 DEFINE FIELD IF NOT EXISTS rule_type   ON security_alert_rules TYPE string;
@@ -45,7 +44,6 @@ DEFINE INDEX IF NOT EXISTS security_alert_rules_enabled ON security_alert_rules 
 
 DEFINE TABLE IF NOT EXISTS security_alerts TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
-DEFINE FIELD IF NOT EXISTS id            ON security_alerts TYPE string DEFAULT rand::ulid();
 DEFINE FIELD IF NOT EXISTS emitted_at    ON security_alerts TYPE datetime DEFAULT time::now();
 DEFINE FIELD IF NOT EXISTS rule_id       ON security_alerts TYPE option<string>;
 DEFINE FIELD IF NOT EXISTS rule_name     ON security_alerts TYPE string;
@@ -57,7 +55,7 @@ DEFINE FIELD IF NOT EXISTS actor_login   ON security_alerts TYPE option<string>;
 DEFINE FIELD IF NOT EXISTS actor_roles   ON security_alerts TYPE array<string> DEFAULT [];
 DEFINE FIELD IF NOT EXISTS source_ip     ON security_alerts TYPE option<string>;
 DEFINE FIELD IF NOT EXISTS count         ON security_alerts TYPE int DEFAULT 1;
-DEFINE FIELD IF NOT EXISTS details        ON security_alerts TYPE option<any>;
+DEFINE FIELD IF NOT EXISTS details        ON security_alerts TYPE any;
 DEFINE FIELD IF NOT EXISTS status        ON security_alerts TYPE string DEFAULT 'open';
   -- 'open' | 'acknowledged' | 'resolved' | 'false_positive'
 DEFINE FIELD IF NOT EXISTS acknowledged_by ON security_alerts TYPE option<string>;
