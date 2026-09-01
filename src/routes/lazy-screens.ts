@@ -457,3 +457,7 @@ export const CleaningSchedulerScreen = lazy(() =>
 export const DriverCoachScreen = lazy(() =>
   import('@/screens/reports/driver.coach.report.tsx').then(m => ({default: m.DriverCoachScreen}))
 );
+
+export const ExpiryTrackerScreen = lazy(() =>
+  import('@/screens/reports/expiry.tracker.report.tsx').then(m => ({default: m.ExpiryTrackerScreen}))
+);

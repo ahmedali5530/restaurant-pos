@@ -216,6 +216,7 @@ export const REPORTS_INVENTORY_TRANSFER = REPORTS + '/inventory-transfer';
 export const REPORTS_SENTIMENT_TREND = REPORTS + '/sentiment-trend';
 export const REPORTS_CLEANING_SCHEDULER = REPORTS + '/cleaning-scheduler';
 export const REPORTS_DRIVER_COACH = REPORTS + '/driver-coach';
+export const REPORTS_EXPIRY_TRACKER = REPORTS + '/expiry-tracker';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';
