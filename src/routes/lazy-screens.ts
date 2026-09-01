@@ -441,3 +441,7 @@ export const StaffGamificationScreen = lazy(() =>
 export const KitchenPrepSchedulerScreen = lazy(() =>
   import('@/screens/reports/kitchen.prep.scheduler.report.tsx').then(m => ({default: m.KitchenPrepSchedulerScreen}))
 );
+
+export const InventoryTransferScreen = lazy(() =>
+  import('@/screens/reports/inventory.transfer.report.tsx').then(m => ({default: m.InventoryTransferScreen}))
+);
