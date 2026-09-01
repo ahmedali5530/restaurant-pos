@@ -526,3 +526,7 @@ export const SchedulePreferenceScreen = lazy(() =>
 export const FloorPlanOptimizerScreen = lazy(() =>
   import('@/screens/reports/floor.plan.optimizer.report.tsx').then(m => ({default: m.FloorPlanOptimizerScreen}))
 );
+
+export const OnlineFraudDetectorScreen = lazy(() =>
+  import('@/screens/reports/online.fraud.detector.report.tsx').then(m => ({default: m.OnlineFraudDetectorScreen}))
+);
