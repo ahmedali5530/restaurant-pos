@@ -220,6 +220,7 @@ export const REPORTS_EXPIRY_TRACKER = REPORTS + '/expiry-tracker';
 export const REPORTS_AD_TARGETING = REPORTS + '/ad-targeting';
 export const REPORTS_LOCAL_SEO = REPORTS + '/local-seo';
 export const REPORTS_PRICE_PSYCHOLOGY = REPORTS + '/price-psychology';
+export const REPORTS_CASH_STRESS_TEST = REPORTS + '/cash-stress-test';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';

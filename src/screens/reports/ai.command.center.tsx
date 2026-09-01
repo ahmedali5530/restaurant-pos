@@ -127,6 +127,7 @@ import {
   REPORTS_AD_TARGETING,
   REPORTS_LOCAL_SEO,
   REPORTS_PRICE_PSYCHOLOGY,
+  REPORTS_CASH_STRESS_TEST,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -173,7 +174,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, recipeScaleData, wineData, gamificationData, kitchenPrepData, transferData, sentimentTrendData, cleaningData, driverCoachData, expiryData, adTargetingData, localSeoData, pricePsychData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, recipeScaleData, wineData, gamificationData, kitchenPrepData, transferData, sentimentTrendData, cleaningData, driverCoachData, expiryData, adTargetingData, localSeoData, pricePsychData, stressTestData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -267,6 +268,7 @@ export function AiCommandCenterScreen() {
         fetchAdTargetingSummary(db),
         fetchLocalSeoSummary(db),
         fetchPricePsychSummary(db),
+        fetchStressTestSummary(db),
       ]);
 
       setMetrics([
@@ -277,7 +279,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, recipeScaleData, wineData, gamificationData, kitchenPrepData, transferData, sentimentTrendData, cleaningData, driverCoachData, expiryData, adTargetingData, localSeoData, pricePsychData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, recipeScaleData, wineData, gamificationData, kitchenPrepData, transferData, sentimentTrendData, cleaningData, driverCoachData, expiryData, adTargetingData, localSeoData, pricePsychData, stressTestData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -2406,6 +2408,23 @@ async function fetchPricePsychSummary(db: any): Promise<MetricCard> {
       health: 'good', link: REPORTS_PRICE_PSYCHOLOGY, linkLabel: 'View recs',
     };
   } catch { return neutralCard('Price Psychology', faBrain, 'text-violet-600', REPORTS_PRICE_PSYCHOLOGY); }
+}
+
+async function fetchStressTestSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(severity = 'critical') AS critical, math::count(survival_outcome != 'survives') AS insolvency
+       FROM cash_stress_test WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const s = list[0];
+    if (!s || s.count === 0) return neutralCard('Stress Test', faShieldHalved, 'text-rose-600', REPORTS_CASH_STRESS_TEST);
+    return {
+      title: 'Stress Test', icon: faShieldHalved, color: 'text-rose-600',
+      primary: `${s.critical} critical`, secondary: `${s.total} scenarios · ${s.insolvency} insolvency risks`,
+      health: s.critical > 0 ? 'critical' : 'good', link: REPORTS_CASH_STRESS_TEST, linkLabel: 'View tests',
+    };
+  } catch { return neutralCard('Stress Test', faShieldHalved, 'text-rose-600', REPORTS_CASH_STRESS_TEST); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {

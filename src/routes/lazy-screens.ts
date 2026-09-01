@@ -473,3 +473,7 @@ export const LocalSeoScreen = lazy(() =>
 export const PricePsychologyScreen = lazy(() =>
   import('@/screens/reports/price.psychology.report.tsx').then(m => ({default: m.PricePsychologyScreen}))
 );
+
+export const CashStressTestScreen = lazy(() =>
+  import('@/screens/reports/cash.stress.test.report.tsx').then(m => ({default: m.CashStressTestScreen}))
+);
