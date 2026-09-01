@@ -82,7 +82,7 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
     return () => window.removeEventListener(SESSION_EVENT, sync);
   }, [gatewayMode]);
 
-  const connect = useCallback(async () => {
+  const connect = useCallback(async (options?: { silent?: boolean }) => {
     if (connectInFlight.current) {
       return connectInFlight.current;
     }
@@ -95,10 +95,17 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
       return;
     }
 
+    const initialAttempt = !hasConnectedOnce.current;
+    const silent = options?.silent ?? false;
+
     const pending = (async () => {
-      setIsConnecting(true);
-      setIsError(false);
-      setError(null);
+      if (initialAttempt && !silent) {
+        setIsConnecting(true);
+      }
+      if (initialAttempt) {
+        setIsError(false);
+        setError(null);
+      }
 
       const openSocket = async () => {
         const endpoint = resolveDbWebsocketUrl();
@@ -169,11 +176,15 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
         hasConnectedOnce.current = true;
       } catch (err) {
         setIsConnected(false);
-        setIsError(true);
-        setError(err);
+        if (initialAttempt) {
+          setIsError(true);
+          setError(err);
+        }
         throw err;
       } finally {
-        setIsConnecting(false);
+        if (initialAttempt) {
+          setIsConnecting(false);
+        }
       }
     })();
 
@@ -198,6 +209,7 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
     setIsConnecting(false);
     setIsError(false);
     setError(null);
+    hasConnectedOnce.current = false;
   }, [surrealInstance]);
 
   // Auto-connect when session allows it.
@@ -230,7 +242,7 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
       const live = surrealInstance.isConnected;
       setIsConnected((prev) => (prev === live ? prev : live));
       if (!live && getSessionToken() && !connectInFlight.current) {
-        void connect().catch(() => {});
+        void connect({ silent: true }).catch(() => {});
       }
     }, 2000);
     return () => window.clearInterval(id);
@@ -251,7 +263,7 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
 
   useEffect(() => {
     const onReconnect = () => {
-      void connect().catch(() => {});
+      void connect({ silent: hasConnectedOnce.current }).catch(() => {});
     };
     window.addEventListener('posr-db-reconnect', onReconnect);
     return () => window.removeEventListener('posr-db-reconnect', onReconnect);
@@ -284,7 +296,7 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
     );
   }
 
-  if (isError && !isConnected) {
+  if (!hasConnectedOnce.current && isError && !isConnected) {
     return (
       <DatabaseContext.Provider value={value}>
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -306,7 +318,7 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
     );
   }
 
-  if (isConnecting || (!isConnected && !hasConnectedOnce.current)) {
+  if (!hasConnectedOnce.current && (isConnecting || !isConnected)) {
     console.log(`connecting to ${dbEndpointLabel()}...`);
     return (
       <DatabaseContext.Provider value={value}>

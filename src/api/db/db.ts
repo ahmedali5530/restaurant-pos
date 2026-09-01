@@ -83,7 +83,7 @@ async function waitForClientConnected(
 
 export const useDB = () => {
   const databaseContext = useDatabase();
-  const {client, isConnected, isConnecting} = databaseContext;
+  const {client, isConnected} = databaseContext;
 
   // Gateway pre-login: allow the hook so Login can render; queries still need a live connection.
   const allowDisconnected =
@@ -91,9 +91,11 @@ export const useDB = () => {
 
   // Prefer the live socket flag — React state can briefly lag after StrictMode/drop.
   const liveConnected = client.isConnected || isConnected;
-  const isOfflineCapable = !liveConnected && !isConnecting && !allowDisconnected;
+  // Offline writes are allowed whenever logged in and disconnected — including
+  // during background reconnect attempts (isConnecting must not block queuing).
+  const isOfflineCapable = !liveConnected && !allowDisconnected;
 
-  if (!liveConnected && !isConnecting && !allowDisconnected && !isOfflineCapable) {
+  if (!liveConnected && !allowDisconnected && !isOfflineCapable) {
     throw new Error('Database is not connected. Please ensure DatabaseProvider is wrapping your app and connection is established.');
   }
 
