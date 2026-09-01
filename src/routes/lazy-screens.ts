@@ -501,3 +501,7 @@ export const FeedbackLoopScreen = lazy(() =>
 export const CrossSellScreen = lazy(() =>
   import('@/screens/reports/cross.sell.report.tsx').then(m => ({default: m.CrossSellScreen}))
 );
+
+export const DishPopularityScreen = lazy(() =>
+  import('@/screens/reports/dish.popularity.report.tsx').then(m => ({default: m.DishPopularityScreen}))
+);

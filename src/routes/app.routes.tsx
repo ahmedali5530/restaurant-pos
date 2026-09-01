@@ -108,6 +108,7 @@ import {
   REPORTS_MAINTENANCE_BUDGET,
   REPORTS_FEEDBACK_LOOP,
   REPORTS_CROSS_SELL,
+  REPORTS_DISH_POPULARITY,
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
   REPORTS_CONSUMPTION,
@@ -308,6 +309,7 @@ import {
   MaintenanceBudgetScreen,
   FeedbackLoopScreen,
   CrossSellScreen,
+  DishPopularityScreen,
   TablesideScreen,
 } from "@/routes/lazy-screens.ts";
 
@@ -435,6 +437,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_MAINTENANCE_BUDGET} element={<MaintenanceBudgetScreen/>}/>
         <Route path={REPORTS_FEEDBACK_LOOP} element={<FeedbackLoopScreen/>}/>
         <Route path={REPORTS_CROSS_SELL} element={<CrossSellScreen/>}/>
+        <Route path={REPORTS_DISH_POPULARITY} element={<DishPopularityScreen/>}/>
         <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
         <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
         <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>
