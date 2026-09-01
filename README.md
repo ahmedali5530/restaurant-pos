@@ -1,8 +1,8 @@
 # POSR — AI-Powered Restaurant POS & Management System
 
-**Offline-first, source-available restaurant POS software** for ordering, kitchen display (KDS), inventory, recipes, staff scheduling, payroll, accounting, delivery, fiscalization, and AI-powered restaurant analytics — in one platform.
+**Offline-first, source-available restaurant POS software** for ordering, kitchen display (KDS), inventory, recipes, staff scheduling, payroll, accounting, delivery, fiscalization, and AI-powered restaurant analytics — delivered by **Kashif**, POSR's in-app AI assistant — in one platform.
 
-POSR is a **source-available restaurant POS and restaurant management system** built for modern food businesses. It combines point-of-sale ordering, kitchen display systems (KDS), inventory and recipe management, staff scheduling and payroll, accounting, delivery, fiscalization (FBR / PRA), and AI restaurant analytics in one **offline-first** platform.
+POSR is a **source-available restaurant POS and restaurant management system** built for modern food businesses. It combines point-of-sale ordering, kitchen display systems (KDS), inventory and recipe management, staff scheduling and payroll, accounting, delivery, fiscalization (FBR / PRA), and AI restaurant analytics powered by **Kashif** in one **offline-first** platform.
 
 React · TypeScript · Vite · Bun · SurrealDB · WebSockets · IndexedDB
 
@@ -27,10 +27,51 @@ Traditional restaurant POS software often depends on cloud connectivity and sepa
 
 - **Source-available** — inspect, modify, extend, and self-host under [PSAL](LICENSE)
 - **Offline-first** — keep selling during internet outages; sync when back online
-- **AI-native** — natural-language reporting, inventory/staff forecasts, AI Import
+- **AI-native** — **Kashif** for natural-language reporting, inventory/staff forecasts, and proposed configuration changes; plus AI Import for bulk file uploads
 - **Real-time** — WebSocket sync across POS, KDS, manager, and delivery apps
 - **Restaurant-specific** — tables, seats, modifiers, recipes, kitchen production, buffet, fiscalization
 - **Extensible** — event-driven Integration Manager for fiscal, accounting, logging, and more
+
+---
+
+## Meet Kashif
+
+**Kashif** is POSR's AI assistant for managers and back-office staff. Ask questions in plain language and get answers from **live POS data** — never guessed numbers. The same Kashif persona powers the **floating assistant** on back-office screens and the full-page **AI Report**.
+
+**Where Kashif appears**
+
+- **Floating assistant** — Manage, Inventory, Reports, HR, Accounts, Integrations, Tips, and Clock (hidden on cashier POS, KDS, and delivery screens)
+- **AI Report** — dedicated reporting page with tables, charts, and analysis formats
+
+**Ask Kashif (read-only, live data)**
+
+- **Sales & service** — today's sales, voids, tips, discounts, coupons, menu mix, unsold items, server speed, staff accountability
+- **Orders** — open orders by status, full **order dossier** (items, payments, kitchen, fiscal, prints)
+- **Inventory** — stock on hand, purchases, issues, waste, adjustments, transfers, consumption vs issuance, purchase orders, suppliers, locations, **what to buy** (forecast from history, on-hand, holidays, weather, events)
+- **Operations** — kitchen routing and station delays, cash/close audit, activity and fraud signals
+- **Labor & HR** — labor cost, overtime, attendance, payroll, scheduled vs actual, **staff need forecast**, employee dossier, departments, positions, cost centers, leave
+- **Accounts** — trial balance, balance sheet, P&L, cash flow, general ledger, journals, account statements
+- **Manage config** — floors, tables, menus, discounts, users, roles, kitchens, printers, workflows, and more
+
+**Tell Kashif what to change (proposals — you review and confirm)**
+
+- **Menu & floor setup** — dishes, categories, modifiers, kitchens, workflows, tables, taxes, order/payment types, discounts (including BOGO), coupons, extras, printers
+- **Inventory** — items, locations, suppliers, purchases, issues, waste, adjustments
+- **HR** — employees, departments, positions, cost centers, shifts, leave, attendance corrections
+- **Accounts** — chart of accounts, journal entries
+- **Soft deletes** — dishes and kitchens (proposed, not immediate)
+
+Write proposals use the same review-and-confirm pipeline as **AI Import** — Kashif prepares changes; nothing is saved until you confirm. Tools respect **RBAC** for the signed-in role. Conversations persist per user on this device (IndexedDB). AI usage quotas apply (see AI features below). Rename the assistant via `VITE_AI_ASSISTANT_NAME` (default: `Kashif`).
+
+**Example prompts**
+
+- *Give me a quick business health overview*
+- *Compare net sales this week vs last week*
+- *How much inventory do I need this Friday and what should I buy?*
+- *How many staff do I need this Friday?*
+- *Labor cost as a percentage of net sales this week*
+- *Profit and loss for this month*
+- *Flag order takers with void or discount rates above team average this week*
 
 ---
 
