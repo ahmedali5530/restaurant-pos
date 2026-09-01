@@ -88,7 +88,7 @@ async function getUserRoleModules(userId) {
   if (!userId) return [];
   const db = await getClient();
   const result = await db.query(
-    `SELECT * FROM user WHERE id = $userId AND deleted_at = NONE FETCH user_role LIMIT 1`,
+    `SELECT * FROM user WHERE id = $userId AND deleted_at = NONE LIMIT 1 FETCH user_role`,
     { userId: String(userId) }
   );
   const rows = Array.isArray(result) ? result[0] : result;
