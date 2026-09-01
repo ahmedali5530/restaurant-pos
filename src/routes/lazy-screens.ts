@@ -502,3 +502,7 @@ export const EnergyVampireScreen = lazy(() =>
 export const ReviewResponseScreen = lazy(() =>
   import('@/screens/reports/review.response.report.tsx').then(m => ({default: m.ReviewResponseScreen}))
 );
+
+export const SocialContentScreen = lazy(() =>
+  import('@/screens/reports/social.content.report.tsx').then(m => ({default: m.SocialContentScreen}))
+);

@@ -178,6 +178,7 @@ export const REPORTS_RESERVATION_CASCADE = REPORTS + '/reservation-cascade';
 export const REPORTS_VIBE_OPTIMIZER = REPORTS + '/vibe-optimizer';
 export const REPORTS_ENERGY_VAMPIRE = REPORTS + '/energy-vampire';
 export const REPORTS_REVIEW_RESPONSE = REPORTS + '/review-response';
+export const REPORTS_SOCIAL_CONTENT = REPORTS + '/social-content';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';
