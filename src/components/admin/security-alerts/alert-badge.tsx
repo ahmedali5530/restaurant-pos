@@ -31,7 +31,7 @@ export function SecurityAlertsBadge() {
     <span
       title={tooltip}
       data-testid="security-alerts-badge"
-      className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[10px] font-bold animate-pulse shadow-md shadow-red-600/50 ring-2 ring-white dark:ring-neutral-900"
+      className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-danger-600 text-white text-[10px] font-bold animate-pulse shadow-md shadow-danger-600/50 ring-2 ring-white dark:ring-neutral-900"
     >
       {criticalCount > 99 ? "99+" : criticalCount}
     </span>

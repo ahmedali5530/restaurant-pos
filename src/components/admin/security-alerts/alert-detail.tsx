@@ -112,7 +112,7 @@ export function AlertDetailModal({ alert, onClose }: Props) {
           <div>
             <button
               onClick={() => setShowDetails(!showDetails)}
-              className="text-sm text-blue-600 hover:underline"
+              className="text-sm text-primary-600 hover:underline"
               data-testid="security-alert-toggle-details"
             >
               {showDetails
@@ -142,7 +142,7 @@ export function AlertDetailModal({ alert, onClose }: Props) {
             data-testid="security-alert-resolution-notes"
           />
           {error && (
-            <div className="text-red-600 text-sm mt-2" data-testid="security-alert-ack-error">
+            <div className="text-danger-600 text-sm mt-2" data-testid="security-alert-ack-error">
               {error}
             </div>
           )}

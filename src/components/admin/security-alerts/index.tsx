@@ -58,7 +58,7 @@ export function SecurityAlertsPanel() {
 
   if (error) {
     return (
-      <div className="p-6 text-center text-red-600" data-testid="security-alerts-error">
+      <div className="p-6 text-center text-danger-600" data-testid="security-alerts-error">
         {t("admin:securityAlerts.error", { defaultValue: "Failed to load alerts" })}: {error.message}
         <div className="mt-2">
           <Button variant="primary" onClick={refresh}>
