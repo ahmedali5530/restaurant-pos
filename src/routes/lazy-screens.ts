@@ -461,3 +461,7 @@ export const DriverCoachScreen = lazy(() =>
 export const ExpiryTrackerScreen = lazy(() =>
   import('@/screens/reports/expiry.tracker.report.tsx').then(m => ({default: m.ExpiryTrackerScreen}))
 );
+
+export const AdTargetingScreen = lazy(() =>
+  import('@/screens/reports/ad.targeting.report.tsx').then(m => ({default: m.AdTargetingScreen}))
+);
