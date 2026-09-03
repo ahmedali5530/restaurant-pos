@@ -459,6 +459,10 @@ export const AlcoholComplianceMonitorScreen = lazy(() =>
   import('@/screens/reports/alcohol.compliance.monitor.report.tsx').then(m => ({default: m.AlcoholComplianceMonitorScreen}))
 );
 
+export const RecipeNutritionGeneratorScreen = lazy(() =>
+  import('@/screens/reports/recipe.nutrition.generator.report.tsx').then(m => ({default: m.RecipeNutritionGeneratorScreen}))
+);
+
 export const RecipeScalingScreen = lazy(() =>
   import('@/screens/reports/recipe.scaling.report.tsx').then(m => ({default: m.RecipeScalingScreen}))
 );

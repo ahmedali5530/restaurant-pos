@@ -193,6 +193,7 @@ export const REPORTS_HEALTH_INSPECTION_READINESS = REPORTS + '/health-inspection
 export const REPORTS_SCHEDULE_CONFLICT_RESOLVER = REPORTS + '/schedule-conflict-resolver';
 export const REPORTS_BREAK_EVEN_TRACKER = REPORTS + '/break-even-tracker';
 export const REPORTS_ALCOHOL_COMPLIANCE_MONITOR = REPORTS + '/alcohol-compliance-monitor';
+export const REPORTS_RECIPE_NUTRITION_GENERATOR = REPORTS + '/recipe-nutrition-generator';
 
 // Differentials 17-59 (batch addition)
 export const REPORTS_RECIPE_SCALING = REPORTS + '/recipe-scaling';

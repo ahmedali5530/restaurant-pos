@@ -97,6 +97,7 @@ REPORTS_PACKAGING_OPTIMIZER,
   REPORTS_SCHEDULE_CONFLICT_RESOLVER,
   REPORTS_BREAK_EVEN_TRACKER,
   REPORTS_ALCOHOL_COMPLIANCE_MONITOR,
+  REPORTS_RECIPE_NUTRITION_GENERATOR,
 REPORTS_RECIPE_SCALING,
   REPORTS_WINE_PAIRING,
   REPORTS_STAFF_GAMIFICATION,
@@ -307,6 +308,7 @@ PackagingOptimizerScreen,
   ScheduleConflictResolverScreen,
   BreakEvenTrackerScreen,
   AlcoholComplianceMonitorScreen,
+  RecipeNutritionGeneratorScreen,
 RecipeScalingScreen,
   WinePairingScreen,
   StaffGamificationScreen,
@@ -444,6 +446,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_SCHEDULE_CONFLICT_RESOLVER} element={<ScheduleConflictResolverScreen/>}/>
         <Route path={REPORTS_BREAK_EVEN_TRACKER} element={<BreakEvenTrackerScreen/>}/>
         <Route path={REPORTS_ALCOHOL_COMPLIANCE_MONITOR} element={<AlcoholComplianceMonitorScreen/>}/>
+        <Route path={REPORTS_RECIPE_NUTRITION_GENERATOR} element={<RecipeNutritionGeneratorScreen/>}/>
 <Route path={REPORTS_RECIPE_SCALING} element={<RecipeScalingScreen/>}/>
         <Route path={REPORTS_WINE_PAIRING} element={<WinePairingScreen/>}/>
         <Route path={REPORTS_STAFF_GAMIFICATION} element={<StaffGamificationScreen/>}/>
