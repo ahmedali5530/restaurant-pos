@@ -530,3 +530,7 @@ export const FloorPlanOptimizerScreen = lazy(() =>
 export const OnlineFraudDetectorScreen = lazy(() =>
   import('@/screens/reports/online.fraud.detector.report.tsx').then(m => ({default: m.OnlineFraudDetectorScreen}))
 );
+
+export const PackagingOptimizerScreen = lazy(() =>
+  import('@/screens/reports/packaging.optimizer.report.tsx').then(m => ({default: m.PackagingOptimizerScreen}))
+);
