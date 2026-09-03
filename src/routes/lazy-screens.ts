@@ -463,6 +463,10 @@ export const RecipeNutritionGeneratorScreen = lazy(() =>
   import('@/screens/reports/recipe.nutrition.generator.report.tsx').then(m => ({default: m.RecipeNutritionGeneratorScreen}))
 );
 
+export const OrderCustomizationAnalyzerScreen = lazy(() =>
+  import('@/screens/reports/order.customization.analyzer.report.tsx').then(m => ({default: m.OrderCustomizationAnalyzerScreen}))
+);
+
 export const RecipeScalingScreen = lazy(() =>
   import('@/screens/reports/recipe.scaling.report.tsx').then(m => ({default: m.RecipeScalingScreen}))
 );
