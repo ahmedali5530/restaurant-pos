@@ -475,6 +475,10 @@ export const OpeningClosingAutomatorScreen = lazy(() =>
   import('@/screens/reports/opening.closing.automator.report.tsx').then(m => ({default: m.OpeningClosingAutomatorScreen}))
 );
 
+export const CarbonFootprintTrackerScreen = lazy(() =>
+  import('@/screens/reports/carbon.footprint.tracker.report.tsx').then(m => ({default: m.CarbonFootprintTrackerScreen}))
+);
+
 export const RecipeScalingScreen = lazy(() =>
   import('@/screens/reports/recipe.scaling.report.tsx').then(m => ({default: m.RecipeScalingScreen}))
 );
