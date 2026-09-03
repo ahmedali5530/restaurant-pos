@@ -471,6 +471,10 @@ export const TableTurnoverPredictorScreen = lazy(() =>
   import('@/screens/reports/table.turnover.predictor.report.tsx').then(m => ({default: m.TableTurnoverPredictorScreen}))
 );
 
+export const OpeningClosingAutomatorScreen = lazy(() =>
+  import('@/screens/reports/opening.closing.automator.report.tsx').then(m => ({default: m.OpeningClosingAutomatorScreen}))
+);
+
 export const RecipeScalingScreen = lazy(() =>
   import('@/screens/reports/recipe.scaling.report.tsx').then(m => ({default: m.RecipeScalingScreen}))
 );

@@ -100,6 +100,7 @@ REPORTS_PACKAGING_OPTIMIZER,
   REPORTS_RECIPE_NUTRITION_GENERATOR,
   REPORTS_ORDER_CUSTOMIZATION_ANALYZER,
   REPORTS_TABLE_TURNOVER_PREDICTOR,
+  REPORTS_OPENING_CLOSING_AUTOMATOR,
 REPORTS_RECIPE_SCALING,
   REPORTS_WINE_PAIRING,
   REPORTS_STAFF_GAMIFICATION,
@@ -313,6 +314,7 @@ PackagingOptimizerScreen,
   RecipeNutritionGeneratorScreen,
   OrderCustomizationAnalyzerScreen,
   TableTurnoverPredictorScreen,
+  OpeningClosingAutomatorScreen,
 RecipeScalingScreen,
   WinePairingScreen,
   StaffGamificationScreen,
@@ -453,6 +455,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_RECIPE_NUTRITION_GENERATOR} element={<RecipeNutritionGeneratorScreen/>}/>
         <Route path={REPORTS_ORDER_CUSTOMIZATION_ANALYZER} element={<OrderCustomizationAnalyzerScreen/>}/>
         <Route path={REPORTS_TABLE_TURNOVER_PREDICTOR} element={<TableTurnoverPredictorScreen/>}/>
+        <Route path={REPORTS_OPENING_CLOSING_AUTOMATOR} element={<OpeningClosingAutomatorScreen/>}/>
 <Route path={REPORTS_RECIPE_SCALING} element={<RecipeScalingScreen/>}/>
         <Route path={REPORTS_WINE_PAIRING} element={<WinePairingScreen/>}/>
         <Route path={REPORTS_STAFF_GAMIFICATION} element={<StaffGamificationScreen/>}/>
