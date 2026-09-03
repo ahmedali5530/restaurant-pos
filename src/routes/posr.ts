@@ -187,6 +187,7 @@ export const REPORTS_FLOOR_PLAN_OPTIMIZER = REPORTS + '/floor-plan-optimizer';
 export const REPORTS_ONLINE_FRAUD_DETECTOR = REPORTS + '/online-fraud-detector';
 export const REPORTS_PACKAGING_OPTIMIZER = REPORTS + '/packaging-optimizer';
 export const REPORTS_REORDER_POINT_OPTIMIZER = REPORTS + '/reorder-point-optimizer';
+export const REPORTS_PREP_SHEET_OPTIMIZER = REPORTS + '/prep-sheet-optimizer';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';

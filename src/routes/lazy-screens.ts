@@ -538,3 +538,7 @@ export const PackagingOptimizerScreen = lazy(() =>
 export const ReorderPointOptimizerScreen = lazy(() =>
   import('@/screens/reports/reorder.point.optimizer.report.tsx').then(m => ({default: m.ReorderPointOptimizerScreen}))
 );
+
+export const PrepSheetOptimizerScreen = lazy(() =>
+  import('@/screens/reports/prep.sheet.optimizer.report.tsx').then(m => ({default: m.PrepSheetOptimizerScreen}))
+);
