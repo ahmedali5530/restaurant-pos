@@ -194,6 +194,29 @@ export const REPORTS_SCHEDULE_CONFLICT_RESOLVER = REPORTS + '/schedule-conflict-
 export const REPORTS_BREAK_EVEN_TRACKER = REPORTS + '/break-even-tracker';
 export const REPORTS_ALCOHOL_COMPLIANCE_MONITOR = REPORTS + '/alcohol-compliance-monitor';
 
+// Differentials 17-59 (batch addition)
+export const REPORTS_RECIPE_SCALING = REPORTS + '/recipe-scaling';
+export const REPORTS_WINE_PAIRING = REPORTS + '/wine-pairing';
+export const REPORTS_STAFF_GAMIFICATION = REPORTS + '/staff-gamification';
+export const REPORTS_KITCHEN_PREP_SCHEDULER = REPORTS + '/kitchen-prep-scheduler';
+export const REPORTS_INVENTORY_TRANSFER = REPORTS + '/inventory-transfer';
+export const REPORTS_SENTIMENT_TREND = REPORTS + '/sentiment-trend';
+export const REPORTS_CLEANING_SCHEDULER = REPORTS + '/cleaning-scheduler';
+export const REPORTS_DRIVER_COACH = REPORTS + '/driver-coach';
+export const REPORTS_EXPIRY_TRACKER = REPORTS + '/expiry-tracker';
+export const REPORTS_AD_TARGETING = REPORTS + '/ad-targeting';
+export const REPORTS_LOCAL_SEO = REPORTS + '/local-seo';
+export const REPORTS_PRICE_PSYCHOLOGY = REPORTS + '/price-psychology';
+export const REPORTS_CASH_STRESS_TEST = REPORTS + '/cash-stress-test';
+export const REPORTS_EVENT_MENU = REPORTS + '/event-menu';
+export const REPORTS_RETENTION_PROGRAM = REPORTS + '/retention-program';
+export const REPORTS_SUPPLIER_NEGOTIATION = REPORTS + '/supplier-negotiation';
+export const REPORTS_MAINTENANCE_BUDGET = REPORTS + '/maintenance-budget';
+export const REPORTS_FEEDBACK_LOOP = REPORTS + '/feedback-loop';
+export const REPORTS_CROSS_SELL = REPORTS + '/cross-sell';
+export const REPORTS_DISH_POPULARITY = REPORTS + '/dish-popularity';
+export const REPORTS_WAITLIST_OPTIMIZER = REPORTS + '/waitlist-optimizer';
+
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';
 export const REPORTS_LABOR_WEEKLY_COST = REPORTS + '/labor-weekly-cost';

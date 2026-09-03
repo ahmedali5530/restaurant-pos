@@ -45,7 +45,7 @@ import {
   faArrowTrendUp, faRobot, faRotate, faLightbulb, faTriangleExclamation,
   faUsers, faUserMinus, faPercentage, faStore, faChartBar,
   faDollarSign, faClock, faHandHoldingDollar, faGaugeHigh,
-  faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck, faExchangeAlt, faGraduationCap, faFaceSmile, faCartShopping, faFileShield, faGiftCard, faRotateLeft, faRoute, faUserGear, faCalculator, faCashRegister, faCommentDots, faCloudSun, faCrown, faUserPlus, faTruckFast, faArrowsRotate, faUserGraduate, faHandshake, faCalendarPlus, faWater, faMusic, faPlugCircleXmark, faShareNodes, faWrench, faCakeCandles, faTableColumns, faShieldHalved, faBox, faBoxesStacked, faClipboardCheck, faWineGlass,
+faCalendarAlt, faCalendarXmark, faUserSecret, faShieldVirus, faBolt, faUserClock, faFlask, faFireBurner, faHeartCrack, faCreditCard, faTag, faLink, faHourglassHalf, faBullhorn, faClockRotateLeft, faCalendarCheck, faExchangeAlt, faGraduationCap, faFaceSmile, faCartShopping, faFileShield, faGiftCard, faRotateLeft, faRoute, faUserGear, faCalculator, faCashRegister, faCommentDots, faCloudSun, faCrown, faUserPlus, faTruckFast, faArrowsRotate, faUserGraduate, faHandshake, faCalendarPlus, faWater, faMusic, faPlugCircleXmark, faShareNodes, faWrench, faCakeCandles, faTableColumns, faShieldHalved, faBox, faBoxesStacked, faClipboardCheck, faWineGlass, faScaleBalanced, faTrophy, faBroom, faMagnifyingGlassLocation, faCalendarStar, faHeartCircleCheck, faHandshakeSimple, faComments, faCartPlus, faListCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "@/lib/utils.ts";
 import {
@@ -115,7 +115,7 @@ import {
   REPORTS_SCHEDULE_PREFERENCE,
   REPORTS_FLOOR_PLAN_OPTIMIZER,
   REPORTS_ONLINE_FRAUD_DETECTOR,
-  REPORTS_PACKAGING_OPTIMIZER,
+REPORTS_PACKAGING_OPTIMIZER,
   REPORTS_REORDER_POINT_OPTIMIZER,
   REPORTS_PREP_SHEET_OPTIMIZER,
   REPORTS_PAYMENT_FEE_OPTIMIZER,
@@ -123,6 +123,27 @@ import {
   REPORTS_SCHEDULE_CONFLICT_RESOLVER,
   REPORTS_BREAK_EVEN_TRACKER,
   REPORTS_ALCOHOL_COMPLIANCE_MONITOR,
+REPORTS_RECIPE_SCALING,
+  REPORTS_WINE_PAIRING,
+  REPORTS_STAFF_GAMIFICATION,
+  REPORTS_KITCHEN_PREP_SCHEDULER,
+  REPORTS_INVENTORY_TRANSFER,
+  REPORTS_SENTIMENT_TREND,
+  REPORTS_CLEANING_SCHEDULER,
+  REPORTS_DRIVER_COACH,
+  REPORTS_EXPIRY_TRACKER,
+  REPORTS_AD_TARGETING,
+  REPORTS_LOCAL_SEO,
+  REPORTS_PRICE_PSYCHOLOGY,
+  REPORTS_CASH_STRESS_TEST,
+  REPORTS_EVENT_MENU,
+  REPORTS_RETENTION_PROGRAM,
+  REPORTS_SUPPLIER_NEGOTIATION,
+  REPORTS_MAINTENANCE_BUDGET,
+  REPORTS_FEEDBACK_LOOP,
+  REPORTS_CROSS_SELL,
+  REPORTS_DISH_POPULARITY,
+  REPORTS_WAITLIST_OPTIMIZER,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -169,7 +190,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, packagingData, reorderPointData, prepSheetData, payFeeData, healthData, schedConflictData, breakEvenData, alcoholData,
+seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, packagingData, reorderPointData, prepSheetData, payFeeData, healthData, schedConflictData, breakEvenData, alcoholData, recipeScaleData, wineData, gamificationData, kitchenPrepData, transferData, sentimentTrendData, cleaningData, driverCoachData, expiryData, adTargetingData, localSeoData, pricePsychData, stressTestData, eventMenuData, retentionData, negotiationData, maintBudgetData, feedbackLoopData, crossSellData, dishPopData, waitlistData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -251,7 +272,7 @@ export function AiCommandCenterScreen() {
         fetchSchedPrefSummary(db),
         fetchFloorPlanSummary(db),
         fetchOnlineFraudSummary(db),
-        fetchPackagingSummary(db),
+fetchPackagingSummary(db),
         fetchReorderPointSummary(db),
         fetchPrepSheetSummary(db),
         fetchPayFeeSummary(db),
@@ -259,6 +280,27 @@ export function AiCommandCenterScreen() {
         fetchSchedConflictSummary(db),
         fetchBreakEvenSummary(db),
         fetchAlcoholSummary(db),
+fetchRecipeScaleSummary(db),
+        fetchWineSummary(db),
+        fetchGamificationSummary(db),
+        fetchKitchenPrepSummary(db),
+        fetchTransferSummary(db),
+        fetchSentimentTrendSummary(db),
+        fetchCleaningSummary(db),
+        fetchDriverCoachSummary(db),
+        fetchExpirySummary(db),
+        fetchAdTargetingSummary(db),
+        fetchLocalSeoSummary(db),
+        fetchPricePsychSummary(db),
+        fetchStressTestSummary(db),
+        fetchEventMenuSummary(db),
+        fetchRetentionSummary(db),
+        fetchNegotiationSummary(db),
+        fetchMaintBudgetSummary(db),
+        fetchFeedbackLoopSummary(db),
+        fetchCrossSellSummary(db),
+        fetchDishPopSummary(db),
+        fetchWaitlistSummary(db),
       ]);
 
       setMetrics([
@@ -269,7 +311,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, packagingData, reorderPointData, prepSheetData, payFeeData, healthData, schedConflictData, breakEvenData, alcoholData,
+seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, packagingData, reorderPointData, prepSheetData, payFeeData, healthData, schedConflictData, breakEvenData, alcoholData, recipeScaleData, wineData, gamificationData, kitchenPrepData, transferData, sentimentTrendData, cleaningData, driverCoachData, expiryData, adTargetingData, localSeoData, pricePsychData, stressTestData, eventMenuData, retentionData, negotiationData, maintBudgetData, feedbackLoopData, crossSellData, dishPopData, waitlistData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -2367,6 +2409,364 @@ async function fetchAlcoholSummary(db: any): Promise<MetricCard> {
       health: f.critical > 0 ? 'critical' : 'warning', link: REPORTS_ALCOHOL_COMPLIANCE_MONITOR, linkLabel: 'View alerts',
     };
   } catch { return neutralCard('Alcohol', faWineGlass, 'text-violet-600', REPORTS_ALCOHOL_COMPLIANCE_MONITOR); }
+}
+
+async function fetchRecipeScaleSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::sum(target_servings) AS servings, math::sum(est_savings) AS savings
+       FROM recipe_scaling WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const r = list[0];
+    if (!r || r.count === 0) return neutralCard('Recipe Scaling', faScaleBalanced, 'text-violet-600', REPORTS_RECIPE_SCALING);
+    return {
+      title: 'Recipe Scaling', icon: faScaleBalanced, color: 'text-violet-600',
+      primary: `${r.total} recipes`, secondary: `${r.servings} servings · ${withCurrency(r.savings)} savings`,
+      health: 'good', link: REPORTS_RECIPE_SCALING, linkLabel: 'View scalings',
+    };
+  } catch { return neutralCard('Recipe Scaling', faScaleBalanced, 'text-violet-600', REPORTS_RECIPE_SCALING); }
+}
+
+async function fetchWineSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(rule_id = 'classic_match') AS classic, math::sum(est_revenue_lift) AS lift
+       FROM wine_pairing WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const w = list[0];
+    if (!w || w.count === 0) return neutralCard('Sommelier', faWineGlass, 'text-rose-600', REPORTS_WINE_PAIRING);
+    return {
+      title: 'Sommelier', icon: faWineGlass, color: 'text-rose-600',
+      primary: `${w.classic} classic`, secondary: `${w.total} pairings · ${withCurrency(w.lift)} lift`,
+      health: 'good', link: REPORTS_WINE_PAIRING, linkLabel: 'View pairings',
+    };
+  } catch { return neutralCard('Sommelier', faWineGlass, 'text-rose-600', REPORTS_WINE_PAIRING); }
+}
+
+async function fetchGamificationSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(rule_id = 'achievement_badge') AS badges, math::mean(est_engagement_boost) AS boost
+       FROM staff_gamification WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const g = list[0];
+    if (!g || g.count === 0) return neutralCard('Gamification', faTrophy, 'text-amber-600', REPORTS_STAFF_GAMIFICATION);
+    return {
+      title: 'Gamification', icon: faTrophy, color: 'text-amber-600',
+      primary: `${g.badges} badges`, secondary: `${g.total} entries · +${(g.boost * 100).toFixed(0)}% engagement`,
+      health: 'good', link: REPORTS_STAFF_GAMIFICATION, linkLabel: 'View game',
+    };
+  } catch { return neutralCard('Gamification', faTrophy, 'text-amber-600', REPORTS_STAFF_GAMIFICATION); }
+}
+
+async function fetchKitchenPrepSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(rule_id = 'prep_now') AS prep_now, math::count(rule_id = 'capacity_warning') AS capacity
+       FROM kitchen_prep_schedule WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const k = list[0];
+    if (!k || k.count === 0) return neutralCard('Kitchen Prep', faFireBurner, 'text-rose-600', REPORTS_KITCHEN_PREP_SCHEDULER);
+    return {
+      title: 'Kitchen Prep', icon: faFireBurner, color: 'text-rose-600',
+      primary: `${k.prep_now} prep now`, secondary: `${k.total} dishes · ${k.capacity} capacity warnings`,
+      health: k.capacity > 0 ? 'critical' : k.prep_now > 0 ? 'warning' : 'good', link: REPORTS_KITCHEN_PREP_SCHEDULER, linkLabel: 'View schedule',
+    };
+  } catch { return neutralCard('Kitchen Prep', faFireBurner, 'text-rose-600', REPORTS_KITCHEN_PREP_SCHEDULER); }
+}
+
+async function fetchTransferSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(severity = 'critical') AS critical, math::sum(net_savings) AS savings
+       FROM inventory_transfer WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const t = list[0];
+    if (!t || t.count === 0) return neutralCard('Inventory Transfer', faExchangeAlt, 'text-violet-600', REPORTS_INVENTORY_TRANSFER);
+    return {
+      title: 'Inventory Transfer', icon: faExchangeAlt, color: 'text-violet-600',
+      primary: `${t.total} transfers`, secondary: `${t.critical} critical · ${withCurrency(t.savings)} savings`,
+      health: t.critical > 0 ? 'critical' : 'good', link: REPORTS_INVENTORY_TRANSFER, linkLabel: 'View transfers',
+    };
+  } catch { return neutralCard('Inventory Transfer', faExchangeAlt, 'text-violet-600', REPORTS_INVENTORY_TRANSFER); }
+}
+
+async function fetchSentimentTrendSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(severity = 'critical') AS critical, math::mean(current_score) AS current, math::mean(predicted_score) AS predicted
+       FROM sentiment_trend WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const s = list[0];
+    if (!s || s.count === 0) return neutralCard('Sentiment Trend', faChartLine, 'text-violet-600', REPORTS_SENTIMENT_TREND);
+    const direction = s.predicted > s.current ? 'improving' : 'declining';
+    return {
+      title: 'Sentiment Trend', icon: faChartLine, color: 'text-violet-600',
+      primary: `${s.critical} critical`, secondary: `${s.total} alerts · ${direction} (pred ${s.predicted.toFixed(2)})`,
+      health: s.critical > 0 ? 'critical' : 'good', link: REPORTS_SENTIMENT_TREND, linkLabel: 'View trends',
+    };
+  } catch { return neutralCard('Sentiment Trend', faChartLine, 'text-violet-600', REPORTS_SENTIMENT_TREND); }
+}
+
+async function fetchCleaningSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(rule_id = 'compliance_overdue') AS overdue, math::count(severity = 'critical') AS critical
+       FROM cleaning_schedule WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const c = list[0];
+    if (!c || c.count === 0) return neutralCard('Cleaning', faBroom, 'text-amber-600', REPORTS_CLEANING_SCHEDULER);
+    return {
+      title: 'Cleaning', icon: faBroom, color: 'text-amber-600',
+      primary: `${c.overdue} overdue`, secondary: `${c.total} tasks · ${c.critical} critical`,
+      health: c.overdue > 0 ? 'critical' : c.critical > 0 ? 'warning' : 'good', link: REPORTS_CLEANING_SCHEDULER, linkLabel: 'View tasks',
+    };
+  } catch { return neutralCard('Cleaning', faBroom, 'text-amber-600', REPORTS_CLEANING_SCHEDULER); }
+}
+
+async function fetchDriverCoachSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(severity = 'critical') AS critical, math::mean(overall_score) AS score
+       FROM driver_coach WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const d = list[0];
+    if (!d || d.count === 0) return neutralCard('Driver Coach', faTruckFast, 'text-violet-600', REPORTS_DRIVER_COACH);
+    return {
+      title: 'Driver Coach', icon: faTruckFast, color: 'text-violet-600',
+      primary: `${d.total} drivers`, secondary: `${d.critical} critical · avg ${d.score.toFixed(0)}/100`,
+      health: d.critical > 0 ? 'critical' : 'good', link: REPORTS_DRIVER_COACH, linkLabel: 'View drivers',
+    };
+  } catch { return neutralCard('Driver Coach', faTruckFast, 'text-violet-600', REPORTS_DRIVER_COACH); }
+}
+
+async function fetchExpirySummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(severity = 'critical') AS critical, math::sum(cost_at_risk) AS risk
+       FROM expiry_tracker WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const e = list[0];
+    if (!e || e.count === 0) return neutralCard('Expiry Tracker', faClock, 'text-rose-600', REPORTS_EXPIRY_TRACKER);
+    return {
+      title: 'Expiry Tracker', icon: faClock, color: 'text-rose-600',
+      primary: `${e.critical} critical`, secondary: `${e.total} items · ${withCurrency(e.risk)} at risk`,
+      health: e.critical > 0 ? 'critical' : 'warning', link: REPORTS_EXPIRY_TRACKER, linkLabel: 'View items',
+    };
+  } catch { return neutralCard('Expiry Tracker', faClock, 'text-rose-600', REPORTS_EXPIRY_TRACKER); }
+}
+
+async function fetchAdTargetingSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::sum(suggested_budget) AS budget, math::sum(est_revenue) AS revenue, math::mean(est_roas) AS roas
+       FROM ad_targeting WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const a = list[0];
+    if (!a || a.count === 0) return neutralCard('Ad Targeting', faBullhorn, 'text-blue-600', REPORTS_AD_TARGETING);
+    return {
+      title: 'Ad Targeting', icon: faBullhorn, color: 'text-blue-600',
+      primary: `${a.total} campaigns`, secondary: `${withCurrency(a.budget)}/day · ${a.roas.toFixed(1)}x ROAS`,
+      health: a.roas >= 4 ? 'good' : a.roas >= 2 ? 'warning' : 'critical', link: REPORTS_AD_TARGETING, linkLabel: 'View ads',
+    };
+  } catch { return neutralCard('Ad Targeting', faBullhorn, 'text-blue-600', REPORTS_AD_TARGETING); }
+}
+
+async function fetchLocalSeoSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(severity = 'critical') AS critical, math::mean(seo_score) AS score
+       FROM local_seo WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const s = list[0];
+    if (!s || s.count === 0) return neutralCard('Local SEO', faMagnifyingGlassLocation, 'text-blue-600', REPORTS_LOCAL_SEO);
+    return {
+      title: 'Local SEO', icon: faMagnifyingGlassLocation, color: 'text-blue-600',
+      primary: `${s.total} alerts`, secondary: `${s.critical} critical · score ${s.score.toFixed(0)}/100`,
+      health: s.critical > 0 ? 'critical' : 'warning', link: REPORTS_LOCAL_SEO, linkLabel: 'View SEO',
+    };
+  } catch { return neutralCard('Local SEO', faMagnifyingGlassLocation, 'text-blue-600', REPORTS_LOCAL_SEO); }
+}
+
+async function fetchPricePsychSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::sum(est_revenue_lift) AS lift
+       FROM price_psychology WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const p = list[0];
+    if (!p || p.count === 0) return neutralCard('Price Psychology', faBrain, 'text-violet-600', REPORTS_PRICE_PSYCHOLOGY);
+    return {
+      title: 'Price Psychology', icon: faBrain, color: 'text-violet-600',
+      primary: `${p.total} recs`, secondary: `${withCurrency(p.lift)} est revenue lift`,
+      health: 'good', link: REPORTS_PRICE_PSYCHOLOGY, linkLabel: 'View recs',
+    };
+  } catch { return neutralCard('Price Psychology', faBrain, 'text-violet-600', REPORTS_PRICE_PSYCHOLOGY); }
+}
+
+async function fetchStressTestSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(severity = 'critical') AS critical, math::count(survival_outcome != 'survives') AS insolvency
+       FROM cash_stress_test WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const s = list[0];
+    if (!s || s.count === 0) return neutralCard('Stress Test', faShieldHalved, 'text-rose-600', REPORTS_CASH_STRESS_TEST);
+    return {
+      title: 'Stress Test', icon: faShieldHalved, color: 'text-rose-600',
+      primary: `${s.critical} critical`, secondary: `${s.total} scenarios · ${s.insolvency} insolvency risks`,
+      health: s.critical > 0 ? 'critical' : 'good', link: REPORTS_CASH_STRESS_TEST, linkLabel: 'View tests',
+    };
+  } catch { return neutralCard('Stress Test', faShieldHalved, 'text-rose-600', REPORTS_CASH_STRESS_TEST); }
+}
+
+async function fetchEventMenuSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(severity = 'critical') AS critical, math::sum(net_profit) AS profit
+       FROM event_menu_optimization WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const e = list[0];
+    if (!e || e.count === 0) return neutralCard('Event Menu', faCalendarStar, 'text-rose-600', REPORTS_EVENT_MENU);
+    return {
+      title: 'Event Menu', icon: faCalendarStar, color: 'text-rose-600',
+      primary: `${e.total} events`, secondary: `${e.critical} critical · ${withCurrency(e.profit)} est profit`,
+      health: e.critical > 0 ? 'critical' : 'good', link: REPORTS_EVENT_MENU, linkLabel: 'View events',
+    };
+  } catch { return neutralCard('Event Menu', faCalendarStar, 'text-rose-600', REPORTS_EVENT_MENU); }
+}
+
+async function fetchRetentionSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(severity = 'critical') AS critical, math::sum(est_replacement_cost - est_cost) AS savings
+       FROM retention_program WHERE status IN ('open', 'in_progress') GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const r = list[0];
+    if (!r || r.count === 0) return neutralCard('Retention', faHeartCircleCheck, 'text-rose-600', REPORTS_RETENTION_PROGRAM);
+    return {
+      title: 'Retention', icon: faHeartCircleCheck, color: 'text-rose-600',
+      primary: `${r.total} programs`, secondary: `${r.critical} critical · ${withCurrency(r.savings)} savings`,
+      health: r.critical > 0 ? 'critical' : 'warning', link: REPORTS_RETENTION_PROGRAM, linkLabel: 'View programs',
+    };
+  } catch { return neutralCard('Retention', faHeartCircleCheck, 'text-rose-600', REPORTS_RETENTION_PROGRAM); }
+}
+
+async function fetchNegotiationSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::sum(est_savings_annual) AS savings, math::count(severity = 'high') AS high
+       FROM supplier_negotiation WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const n = list[0];
+    if (!n || n.count === 0) return neutralCard('Negotiation', faHandshakeSimple, 'text-violet-600', REPORTS_SUPPLIER_NEGOTIATION);
+    return {
+      title: 'Negotiation', icon: faHandshakeSimple, color: 'text-violet-600',
+      primary: `${n.total} opportunities`, secondary: `${withCurrency(n.savings)}/yr savings`,
+      health: 'good', link: REPORTS_SUPPLIER_NEGOTIATION, linkLabel: 'View opportunities',
+    };
+  } catch { return neutralCard('Negotiation', faHandshakeSimple, 'text-violet-600', REPORTS_SUPPLIER_NEGOTIATION); }
+}
+
+async function fetchMaintBudgetSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::sum(est_cost) AS cost, math::sum(est_savings) AS savings
+       FROM maintenance_budget WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const m = list[0];
+    if (!m || m.count === 0) return neutralCard('Maint. Budget', faWrench, 'text-amber-600', REPORTS_MAINTENANCE_BUDGET);
+    return {
+      title: 'Maint. Budget', icon: faWrench, color: 'text-amber-600',
+      primary: `${m.total} items`, secondary: `${withCurrency(m.cost)} planned · ${withCurrency(m.savings)} saved`,
+      health: 'good', link: REPORTS_MAINTENANCE_BUDGET, linkLabel: 'View budget',
+    };
+  } catch { return neutralCard('Maint. Budget', faWrench, 'text-amber-600', REPORTS_MAINTENANCE_BUDGET); }
+}
+
+async function fetchFeedbackLoopSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(severity = 'critical') AS critical, math::count(days_open > 7) AS overdue
+       FROM feedback_loop WHERE status != 'closed' AND status != 'expired' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const f = list[0];
+    if (!f || f.count === 0) return neutralCard('Feedback Loop', faComments, 'text-blue-600', REPORTS_FEEDBACK_LOOP);
+    return {
+      title: 'Feedback Loop', icon: faComments, color: 'text-blue-600',
+      primary: `${f.total} open`, secondary: `${f.critical} critical · ${f.overdue} overdue`,
+      health: f.critical > 0 ? 'critical' : f.overdue > 0 ? 'warning' : 'good', link: REPORTS_FEEDBACK_LOOP, linkLabel: 'View feedback',
+    };
+  } catch { return neutralCard('Feedback Loop', faComments, 'text-blue-600', REPORTS_FEEDBACK_LOOP); }
+}
+
+async function fetchCrossSellSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::sum(est_annual_revenue) AS revenue, math::count(status = 'active') AS active
+       FROM cross_sell_suggestion WHERE status IN ('open', 'active') GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const c = list[0];
+    if (!c || c.count === 0) return neutralCard('Cross-Sell', faCartPlus, 'text-emerald-600', REPORTS_CROSS_SELL);
+    return {
+      title: 'Cross-Sell', icon: faCartPlus, color: 'text-emerald-600',
+      primary: `${c.total} suggestions`, secondary: `${withCurrency(c.revenue)}/yr potential · ${c.active} active`,
+      health: 'good', link: REPORTS_CROSS_SELL, linkLabel: 'View suggestions',
+    };
+  } catch { return neutralCard('Cross-Sell', faCartPlus, 'text-emerald-600', REPORTS_CROSS_SELL); }
+}
+
+async function fetchDishPopSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(confidence >= 0.60) AS high, math::sum(predicted_revenue_week) AS revenue
+       FROM dish_popularity_prediction WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const d = list[0];
+    if (!d || d.count === 0) return neutralCard('Dish Popularity', faLightbulb, 'text-amber-600', REPORTS_DISH_POPULARITY);
+    return {
+      title: 'Dish Popularity', icon: faLightbulb, color: 'text-amber-600',
+      primary: `${d.total} dishes`, secondary: `${d.high} high-conf · ${withCurrency(d.revenue)}/wk potential`,
+      health: 'good', link: REPORTS_DISH_POPULARITY, linkLabel: 'View predictions',
+    };
+  } catch { return neutralCard('Dish Popularity', faLightbulb, 'text-amber-600', REPORTS_DISH_POPULARITY); }
+}
+
+async function fetchWaitlistSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(severity = 'critical') AS critical, math::sum(est_walk_away_cost) AS cost
+       FROM waitlist_optimization WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const w = list[0];
+    if (!w || w.count === 0) return neutralCard('Waitlist', faListCheck, 'text-violet-600', REPORTS_WAITLIST_OPTIMIZER);
+    return {
+      title: 'Waitlist', icon: faListCheck, color: 'text-violet-600',
+      primary: `${w.total} alerts`, secondary: `${w.critical} critical · ${withCurrency(w.cost)} at risk`,
+      health: w.critical > 0 ? 'critical' : 'warning', link: REPORTS_WAITLIST_OPTIMIZER, linkLabel: 'View waitlist',
+    };
+  } catch { return neutralCard('Waitlist', faListCheck, 'text-violet-600', REPORTS_WAITLIST_OPTIMIZER); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {
