@@ -542,3 +542,7 @@ export const ReorderPointOptimizerScreen = lazy(() =>
 export const PrepSheetOptimizerScreen = lazy(() =>
   import('@/screens/reports/prep.sheet.optimizer.report.tsx').then(m => ({default: m.PrepSheetOptimizerScreen}))
 );
+
+export const PaymentFeeOptimizerScreen = lazy(() =>
+  import('@/screens/reports/payment.fee.optimizer.report.tsx').then(m => ({default: m.PaymentFeeOptimizerScreen}))
+);
