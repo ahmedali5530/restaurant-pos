@@ -184,8 +184,8 @@ Copied `.env` files include **local-dev** Surreal and JWT values. Change `SURREA
 ## Security Hardening Stack + Feature Enhancements
 
 This fork includes a comprehensive security hardening stack + competitor-driven feature
-enhancements (**150 commits, 107 features, 59 POSR-exclusive differentiators, 62 releases**) that raises the security grade
-from **B− (65%) → A++ (97%)** and adds **107 new features** worth **$3,222+/mo** (Toast equivalent).
+enhancements (**151 commits, 108 features, 60 POSR-exclusive differentiators, 63 releases**) that raises the security grade
+from **B− (65%) → A++ (97%)** and adds **108 new features** worth **$3,262+/mo** (Toast equivalent).
 
 ### Security (47 commits)
 
@@ -199,7 +199,7 @@ from **B− (65%) → A++ (97%)** and adds **107 new features** worth **$3,222+/
 | **Business-logic tests** (4 commits) | Payment drivers (33 tests × 6 gateways), fiscal serialization (66 tests FBR/PRA), sync-manager (49 tests), print helpers (36 tests) — 184 tests total |
 | **Remaining audit fixes** (1 commit) | sync `/stats` auth, tracking `payload.id` validation, printing debug leftover, rate limiting on `/auth/session` + `/auth/db-token` |
 
-### Features (150 commits, 107 features, 59 POSR-exclusive differentiators)
+### Features (151 commits, 108 features, 60 POSR-exclusive differentiators)
 
 | Feature | What it does | Toast equivalent |
 |---|---|---|
@@ -330,9 +330,10 @@ Toast monthly cost:    $69 (POS) + $185 (loyalty+marketing) + $15 (PWA) + $150 (
                        + $40 (floor plan optimizer — POSR exclusive)
                        + $35 (online order fraud detector — POSR exclusive)
                        + $15 (takeout packaging optimizer — POSR exclusive)
-                       = $3,222+/mo
+                       + $40 (inventory reorder point optimizer — POSR exclusive)
+                       = $3,262+/mo
 POSR monthly cost:     $0
-Total savings:         $3,222+/mo → $38,664+/year
+Total savings:         $3,262+/mo → $39,144+/year
 ```
 
 ### Security grade progression
