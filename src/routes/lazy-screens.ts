@@ -550,3 +550,7 @@ export const PaymentFeeOptimizerScreen = lazy(() =>
 export const HealthInspectionReadinessScreen = lazy(() =>
   import('@/screens/reports/health.inspection.readiness.report.tsx').then(m => ({default: m.HealthInspectionReadinessScreen}))
 );
+
+export const ScheduleConflictResolverScreen = lazy(() =>
+  import('@/screens/reports/schedule.conflict.resolver.report.tsx').then(m => ({default: m.ScheduleConflictResolverScreen}))
+);
