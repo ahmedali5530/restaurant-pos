@@ -184,8 +184,8 @@ Copied `.env` files include **local-dev** Surreal and JWT values. Change `SURREA
 ## Security Hardening Stack + Feature Enhancements
 
 This fork includes a comprehensive security hardening stack + competitor-driven feature
-enhancements (**185 commits, 135 features, 87 POSR-exclusive differentiators, 90 releases**) that raises the security grade
-from **B− (65%) → A++ (97%)** and adds **135 new features** worth **$5,301+/mo** (Toast equivalent).
+enhancements (**186 commits, 136 features, 88 POSR-exclusive differentiators, 91 releases**) that raises the security grade
+from **B− (65%) → A++ (97%)** and adds **136 new features** worth **$5,401+/mo** (Toast equivalent).
 
 ### Security (47 commits)
 
@@ -199,7 +199,7 @@ from **B− (65%) → A++ (97%)** and adds **135 new features** worth **$5,301+/
 | **Business-logic tests** (4 commits) | Payment drivers (33 tests × 6 gateways), fiscal serialization (66 tests FBR/PRA), sync-manager (49 tests), print helpers (36 tests) — 184 tests total |
 | **Remaining audit fixes** (1 commit) | sync `/stats` auth, tracking `payload.id` validation, printing debug leftover, rate limiting on `/auth/session` + `/auth/db-token` |
 
-### Features (185 commits, 135 features, 87 POSR-exclusive differentiators)
+### Features (186 commits, 136 features, 88 POSR-exclusive differentiators)
 
 | Feature | What it does | Toast equivalent |
 |---|---|---|
@@ -389,9 +389,10 @@ Toast monthly cost:    $69 (POS) + $185 (loyalty+marketing) + $15 (PWA) + $150 (
                        + $50 (cross-sell engine — POSR exclusive)
                        + $100 (recipe nutrition & dietary label generator — POSR exclusive)
                        + $100 (order customization pattern analyzer — POSR exclusive)
-                       = $5,301+/mo
+                       + $100 (real-time table turnover predictor — POSR exclusive)
+                       = $5,401+/mo
 POSR monthly cost:     $0
-Total savings:         $5,301+/mo → $63,612+/year
+Total savings:         $5,401+/mo → $64,812+/year
 ```
 
 ### Security grade progression
