@@ -121,6 +121,7 @@ import {
   REPORTS_PAYMENT_FEE_OPTIMIZER,
   REPORTS_HEALTH_INSPECTION_READINESS,
   REPORTS_SCHEDULE_CONFLICT_RESOLVER,
+  REPORTS_BREAK_EVEN_TRACKER,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -167,7 +168,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, packagingData, reorderPointData, prepSheetData, payFeeData, healthData, schedConflictData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, packagingData, reorderPointData, prepSheetData, payFeeData, healthData, schedConflictData, breakEvenData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -255,6 +256,7 @@ export function AiCommandCenterScreen() {
         fetchPayFeeSummary(db),
         fetchHealthSummary(db),
         fetchSchedConflictSummary(db),
+        fetchBreakEvenSummary(db),
       ]);
 
       setMetrics([
@@ -265,7 +267,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, packagingData, reorderPointData, prepSheetData, payFeeData, healthData, schedConflictData,
+        seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, packagingData, reorderPointData, prepSheetData, payFeeData, healthData, schedConflictData, breakEvenData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -2318,6 +2320,29 @@ async function fetchSchedConflictSummary(db: any): Promise<MetricCard> {
       health: f.compliance > 0 ? 'critical' : (f.critical > 0 ? 'warning' : 'good'), link: REPORTS_SCHEDULE_CONFLICT_RESOLVER, linkLabel: 'Resolve',
     };
   } catch { return neutralCard('Sched Conflicts', faCalendarXmark, 'text-rose-600', REPORTS_SCHEDULE_CONFLICT_RESOLVER); }
+}
+
+async function fetchBreakEvenSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT
+         count() AS total,
+         math::count(severity = 'critical') AS critical,
+         math::sum(est_loss_today) AS loss,
+         math::sum(est_surplus_today) AS surplus
+       FROM break_even_alert WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const f = list[0];
+    if (!f || f.count === 0) return neutralCard('Break-Even', faChartLine, 'text-emerald-600', REPORTS_BREAK_EVEN_TRACKER);
+    const netImpact = safeNumber(f.surplus, 0) - safeNumber(f.loss, 0);
+    return {
+      title: 'Break-Even', icon: faChartLine, color: netImpact >= 0 ? 'text-emerald-600' : 'text-rose-600',
+      primary: netImpact >= 0 ? `+${withCurrency(f.surplus)}` : `-${withCurrency(f.loss)}`,
+      secondary: `${f.total} alerts · ${f.critical} critical`,
+      health: f.critical > 0 ? 'critical' : (f.total > 0 ? 'warning' : 'good'), link: REPORTS_BREAK_EVEN_TRACKER, linkLabel: 'View pace',
+    };
+  } catch { return neutralCard('Break-Even', faChartLine, 'text-emerald-600', REPORTS_BREAK_EVEN_TRACKER); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {

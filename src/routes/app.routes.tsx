@@ -116,6 +116,7 @@ import {
   REPORTS_PAYMENT_FEE_OPTIMIZER,
   REPORTS_HEALTH_INSPECTION_READINESS,
   REPORTS_SCHEDULE_CONFLICT_RESOLVER,
+  REPORTS_BREAK_EVEN_TRACKER,
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
   REPORTS_CONSUMPTION,
@@ -324,6 +325,7 @@ import {
   PaymentFeeOptimizerScreen,
   HealthInspectionReadinessScreen,
   ScheduleConflictResolverScreen,
+  BreakEvenTrackerScreen,
   TablesideScreen,
 } from "@/routes/lazy-screens.ts";
 
@@ -459,6 +461,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_PAYMENT_FEE_OPTIMIZER} element={<PaymentFeeOptimizerScreen/>}/>
         <Route path={REPORTS_HEALTH_INSPECTION_READINESS} element={<HealthInspectionReadinessScreen/>}/>
         <Route path={REPORTS_SCHEDULE_CONFLICT_RESOLVER} element={<ScheduleConflictResolverScreen/>}/>
+        <Route path={REPORTS_BREAK_EVEN_TRACKER} element={<BreakEvenTrackerScreen/>}/>
         <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
         <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
         <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>

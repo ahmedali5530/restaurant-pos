@@ -191,6 +191,7 @@ export const REPORTS_PREP_SHEET_OPTIMIZER = REPORTS + '/prep-sheet-optimizer';
 export const REPORTS_PAYMENT_FEE_OPTIMIZER = REPORTS + '/payment-fee-optimizer';
 export const REPORTS_HEALTH_INSPECTION_READINESS = REPORTS + '/health-inspection-readiness';
 export const REPORTS_SCHEDULE_CONFLICT_RESOLVER = REPORTS + '/schedule-conflict-resolver';
+export const REPORTS_BREAK_EVEN_TRACKER = REPORTS + '/break-even-tracker';
 
 export const REPORTS_LABOR_DASHBOARD = REPORTS + '/labor-dashboard';
 export const REPORTS_LABOR_DAILY_COST = REPORTS + '/labor-daily-cost';

@@ -554,3 +554,7 @@ export const HealthInspectionReadinessScreen = lazy(() =>
 export const ScheduleConflictResolverScreen = lazy(() =>
   import('@/screens/reports/schedule.conflict.resolver.report.tsx').then(m => ({default: m.ScheduleConflictResolverScreen}))
 );
+
+export const BreakEvenTrackerScreen = lazy(() =>
+  import('@/screens/reports/break.even.tracker.report.tsx').then(m => ({default: m.BreakEvenTrackerScreen}))
+);
