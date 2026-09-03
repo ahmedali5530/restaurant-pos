@@ -558,3 +558,7 @@ export const ScheduleConflictResolverScreen = lazy(() =>
 export const BreakEvenTrackerScreen = lazy(() =>
   import('@/screens/reports/break.even.tracker.report.tsx').then(m => ({default: m.BreakEvenTrackerScreen}))
 );
+
+export const AlcoholComplianceMonitorScreen = lazy(() =>
+  import('@/screens/reports/alcohol.compliance.monitor.report.tsx').then(m => ({default: m.AlcoholComplianceMonitorScreen}))
+);
