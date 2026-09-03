@@ -111,6 +111,7 @@ import {
   REPORTS_FLOOR_PLAN_OPTIMIZER,
   REPORTS_ONLINE_FRAUD_DETECTOR,
   REPORTS_PACKAGING_OPTIMIZER,
+  REPORTS_REORDER_POINT_OPTIMIZER,
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
   REPORTS_CONSUMPTION,
@@ -314,6 +315,7 @@ import {
   FloorPlanOptimizerScreen,
   OnlineFraudDetectorScreen,
   PackagingOptimizerScreen,
+  ReorderPointOptimizerScreen,
   TablesideScreen,
 } from "@/routes/lazy-screens.ts";
 
@@ -444,6 +446,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_FLOOR_PLAN_OPTIMIZER} element={<FloorPlanOptimizerScreen/>}/>
         <Route path={REPORTS_ONLINE_FRAUD_DETECTOR} element={<OnlineFraudDetectorScreen/>}/>
         <Route path={REPORTS_PACKAGING_OPTIMIZER} element={<PackagingOptimizerScreen/>}/>
+        <Route path={REPORTS_REORDER_POINT_OPTIMIZER} element={<ReorderPointOptimizerScreen/>}/>
         <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
         <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
         <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>

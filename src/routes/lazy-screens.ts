@@ -534,3 +534,7 @@ export const OnlineFraudDetectorScreen = lazy(() =>
 export const PackagingOptimizerScreen = lazy(() =>
   import('@/screens/reports/packaging.optimizer.report.tsx').then(m => ({default: m.PackagingOptimizerScreen}))
 );
+
+export const ReorderPointOptimizerScreen = lazy(() =>
+  import('@/screens/reports/reorder.point.optimizer.report.tsx').then(m => ({default: m.ReorderPointOptimizerScreen}))
+);
