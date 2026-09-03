@@ -467,6 +467,10 @@ export const OrderCustomizationAnalyzerScreen = lazy(() =>
   import('@/screens/reports/order.customization.analyzer.report.tsx').then(m => ({default: m.OrderCustomizationAnalyzerScreen}))
 );
 
+export const TableTurnoverPredictorScreen = lazy(() =>
+  import('@/screens/reports/table.turnover.predictor.report.tsx').then(m => ({default: m.TableTurnoverPredictorScreen}))
+);
+
 export const RecipeScalingScreen = lazy(() =>
   import('@/screens/reports/recipe.scaling.report.tsx').then(m => ({default: m.RecipeScalingScreen}))
 );
