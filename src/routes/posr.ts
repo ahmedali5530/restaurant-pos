@@ -269,3 +269,4 @@ export const REPORTS_PAIRING_AFFINITY = REPORTS + '/pairing-affinity';
 export const REPORTS_WAIT_EXPERIENCE = REPORTS + '/wait-experience';
 export const REPORTS_SERVER_TABLE_ASSIGNMENT = REPORTS + '/server-table-assignment';
 export const REPORTS_SEASONAL_DEMAND_SHIFT = REPORTS + '/seasonal-demand-shift';
+export const REPORTS_TABLE_TURNOVER_VELOCITY = REPORTS + '/table-turnover-velocity';
