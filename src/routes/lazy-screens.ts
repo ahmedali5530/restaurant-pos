@@ -682,3 +682,7 @@ export const TableTurnoverVelocityScreen = lazy(() =>
 export const ProfitabilityDecayScreen = lazy(() =>
   import('@/screens/reports/profitability.decay.report.tsx').then(m => ({default: m.ProfitabilityDecayScreen}))
 );
+
+export const OrderFrequencyPredictorScreen = lazy(() =>
+  import('@/screens/reports/order.frequency.predictor.report.tsx').then(m => ({default: m.OrderFrequencyPredictorScreen}))
+);
