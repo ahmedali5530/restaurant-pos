@@ -515,6 +515,10 @@ export const SocialListeningMonitorScreen = lazy(() =>
   import('@/screens/reports/social.listening.monitor.report.tsx').then(m => ({default: m.SocialListeningMonitorScreen}))
 );
 
+export const HiringPredictorScreen = lazy(() =>
+  import('@/screens/reports/hiring.predictor.report.tsx').then(m => ({default: m.HiringPredictorScreen}))
+);
+
 export const RecipeScalingScreen = lazy(() =>
   import('@/screens/reports/recipe.scaling.report.tsx').then(m => ({default: m.RecipeScalingScreen}))
 );

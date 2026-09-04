@@ -207,6 +207,7 @@ export const REPORTS_COMPETITOR_INTELLIGENCE = REPORTS + '/competitor-intelligen
 export const REPORTS_MULTI_LOCATION_BENCHMARK = REPORTS + '/multi-location-benchmark';
 export const REPORTS_WASTE_TO_VALUE = REPORTS + '/waste-to-value';
 export const REPORTS_SOCIAL_LISTENING = REPORTS + '/social-listening';
+export const REPORTS_HIRING_PREDICTOR = REPORTS + '/hiring-predictor';
 
 // Differentials 17-59 (batch addition)
 export const REPORTS_RECIPE_SCALING = REPORTS + '/recipe-scaling';
