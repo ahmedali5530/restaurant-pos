@@ -479,6 +479,10 @@ export const CarbonFootprintTrackerScreen = lazy(() =>
   import('@/screens/reports/carbon.footprint.tracker.report.tsx').then(m => ({default: m.CarbonFootprintTrackerScreen}))
 );
 
+export const AdRoiTrackerScreen = lazy(() =>
+  import('@/screens/reports/ad.roi.tracker.report.tsx').then(m => ({default: m.AdRoiTrackerScreen}))
+);
+
 export const RecipeScalingScreen = lazy(() =>
   import('@/screens/reports/recipe.scaling.report.tsx').then(m => ({default: m.RecipeScalingScreen}))
 );
