@@ -184,8 +184,8 @@ Copied `.env` files include **local-dev** Surreal and JWT values. Change `SURREA
 ## Security Hardening Stack + Feature Enhancements
 
 This fork includes a comprehensive security hardening stack + competitor-driven feature
-enhancements (**198 commits, 148 features, 100 POSR-exclusive differentiators, 103 releases**) that raises the security grade
-from **B− (65%) → A++ (97%)** and adds **148 new features** worth **$6,701+/mo** (Toast equivalent).
+enhancements (**199 commits, 149 features, 101 POSR-exclusive differentiators, 104 releases**) that raises the security grade
+from **B− (65%) → A++ (97%)** and adds **149 new features** worth **$6,801+/mo** (Toast equivalent).
 
 ### Security (47 commits)
 
@@ -199,7 +199,7 @@ from **B− (65%) → A++ (97%)** and adds **148 new features** worth **$6,701+/
 | **Business-logic tests** (4 commits) | Payment drivers (33 tests × 6 gateways), fiscal serialization (66 tests FBR/PRA), sync-manager (49 tests), print helpers (36 tests) — 184 tests total |
 | **Remaining audit fixes** (1 commit) | sync `/stats` auth, tracking `payload.id` validation, printing debug leftover, rate limiting on `/auth/session` + `/auth/db-token` |
 
-### Features (198 commits, 148 features, 100 POSR-exclusive differentiators)
+### Features (199 commits, 149 features, 101 POSR-exclusive differentiators)
 
 | Feature | What it does | Toast equivalent |
 |---|---|---|
@@ -402,9 +402,10 @@ Toast monthly cost:    $69 (POS) + $185 (loyalty+marketing) + $15 (PWA) + $150 (
                        + $100 (waste-to-value converter — POSR exclusive)
                        + $100 (social listening monitor — POSR exclusive)
                        + $100 (staff hiring predictor — POSR exclusive)
-                       = $6,701+/mo
+                       + $100 (vendor invoice audit automator — POSR exclusive)
+                       = $6,801+/mo
 POSR monthly cost:     $0
-Total savings:         $6,701+/mo → $80,412+/year
+Total savings:         $6,801+/mo → $81,612+/year
 ```
 
 ### Security grade progression
