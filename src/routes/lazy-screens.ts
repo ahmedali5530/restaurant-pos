@@ -678,3 +678,7 @@ export const SeasonalDemandShiftScreen = lazy(() =>
 export const TableTurnoverVelocityScreen = lazy(() =>
   import('@/screens/reports/table.turnover.velocity.report.tsx').then(m => ({default: m.TableTurnoverVelocityScreen}))
 );
+
+export const ProfitabilityDecayScreen = lazy(() =>
+  import('@/screens/reports/profitability.decay.report.tsx').then(m => ({default: m.ProfitabilityDecayScreen}))
+);
