@@ -146,6 +146,7 @@ REPORTS_PACKAGING_OPTIMIZER,
   REPORTS_DELIVERY_ZONE_OPTIMIZER,
   REPORTS_PRICE_AB_TESTING,
   REPORTS_MENU_ENGINEERING_MATRIX,
+  REPORTS_PROMO_HALO_EFFECT,
 REPORTS_RECIPE_SCALING,
   REPORTS_WINE_PAIRING,
   REPORTS_STAFF_GAMIFICATION,
@@ -213,7 +214,7 @@ export function AiCommandCenterScreen() {
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, packagingData, reorderPointData, prepSheetData, payFeeData, healthData, schedConflictData, breakEvenData, alcoholData, recipeScaleData, wineData, gamificationData, kitchenPrepData, transferData, sentimentTrendData, cleaningData, driverCoachData, expiryData, adTargetingData, localSeoData, pricePsychData, stressTestData, eventMenuData, retentionData, negotiationData, maintBudgetData, feedbackLoopData, crossSellData, dishPopData, waitlistData, nutritionData, customizationData, tableTurnoverData, procedureData, carbonData, adRoiData, compData, taxData, phoneData, predictData, intelData, benchData, wasteValueData, socialData, hiringData, invoiceData, breakData, utilityData, pacingData, heatmapData, zoneData, priceTestData, menuEngData,
+seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, packagingData, reorderPointData, prepSheetData, payFeeData, healthData, schedConflictData, breakEvenData, alcoholData, recipeScaleData, wineData, gamificationData, kitchenPrepData, transferData, sentimentTrendData, cleaningData, driverCoachData, expiryData, adTargetingData, localSeoData, pricePsychData, stressTestData, eventMenuData, retentionData, negotiationData, maintBudgetData, feedbackLoopData, crossSellData, dishPopData, waitlistData, nutritionData, customizationData, tableTurnoverData, procedureData, carbonData, adRoiData, compData, taxData, phoneData, predictData, intelData, benchData, wasteValueData, socialData, hiringData, invoiceData, breakData, utilityData, pacingData, heatmapData, zoneData, priceTestData, menuEngData, promoHaloData,
       ] = await Promise.all([
         fetchForecastSummary(db),
         fetchMenuSummary(db),
@@ -347,6 +348,7 @@ fetchRecipeScaleSummary(db),
         fetchZoneSummary(db),
         fetchPriceTestSummary(db),
         fetchMenuEngineeringSummary(db),
+        fetchPromoHaloSummary(db),
       ]);
 
       setMetrics([
@@ -357,7 +359,7 @@ fetchRecipeScaleSummary(db),
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, packagingData, reorderPointData, prepSheetData, payFeeData, healthData, schedConflictData, breakEvenData, alcoholData, recipeScaleData, wineData, gamificationData, kitchenPrepData, transferData, sentimentTrendData, cleaningData, driverCoachData, expiryData, adTargetingData, localSeoData, pricePsychData, stressTestData, eventMenuData, retentionData, negotiationData, maintBudgetData, feedbackLoopData, crossSellData, dishPopData, waitlistData, nutritionData, customizationData, tableTurnoverData, procedureData, carbonData, adRoiData, compData, taxData, phoneData, predictData, intelData, benchData, wasteValueData, socialData, hiringData, invoiceData, breakData, utilityData, pacingData, heatmapData, zoneData, priceTestData, menuEngData,
+seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, packagingData, reorderPointData, prepSheetData, payFeeData, healthData, schedConflictData, breakEvenData, alcoholData, recipeScaleData, wineData, gamificationData, kitchenPrepData, transferData, sentimentTrendData, cleaningData, driverCoachData, expiryData, adTargetingData, localSeoData, pricePsychData, stressTestData, eventMenuData, retentionData, negotiationData, maintBudgetData, feedbackLoopData, crossSellData, dishPopData, waitlistData, nutritionData, customizationData, tableTurnoverData, procedureData, carbonData, adRoiData, compData, taxData, phoneData, predictData, intelData, benchData, wasteValueData, socialData, hiringData, invoiceData, breakData, utilityData, pacingData, heatmapData, zoneData, priceTestData, menuEngData, promoHaloData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -3283,6 +3285,28 @@ async function fetchMenuEngineeringSummary(db: any): Promise<MetricCard> {
       health: f.critical > 0 ? 'critical' : (f.dogs > 0 ? 'warning' : 'good'), link: REPORTS_MENU_ENGINEERING_MATRIX, linkLabel: 'View matrix',
     };
   } catch { return neutralCard('Menu Matrix', faChartSimple, 'text-violet-600', REPORTS_MENU_ENGINEERING_MATRIX); }
+}
+
+async function fetchPromoHaloSummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(severity = 'critical') AS critical,
+              math::sum(est_monthly_opportunity WHERE est_monthly_opportunity > 0) AS opportunity,
+              math::sum(halo_revenue) AS halo,
+              math::sum(cannibalization_revenue) AS cannibal
+       FROM promo_halo_alert WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const f = list[0];
+    if (!f || f.count === 0) return neutralCard('Promo Halo', faWandMagicSparkles, 'text-amber-600', REPORTS_PROMO_HALO_EFFECT);
+    const netHalo = (f.halo ?? 0) - (f.cannibal ?? 0);
+    return {
+      title: 'Promo Halo', icon: faWandMagicSparkles, color: 'text-amber-600',
+      primary: `${withCurrency(netHalo)} net`,
+      secondary: `${f.total} effects · ${f.critical} critical`,
+      health: f.critical > 0 ? 'critical' : (f.total > 0 ? 'warning' : 'good'), link: REPORTS_PROMO_HALO_EFFECT, linkLabel: 'View halo',
+    };
+  } catch { return neutralCard('Promo Halo', faWandMagicSparkles, 'text-amber-600', REPORTS_PROMO_HALO_EFFECT); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {

@@ -634,3 +634,7 @@ export const PriceABTestingScreen = lazy(() =>
 export const MenuEngineeringMatrixScreen = lazy(() =>
   import('@/screens/reports/menu.engineering.matrix.report.tsx').then(m => ({default: m.MenuEngineeringMatrixScreen}))
 );
+
+export const PromoHaloEffectScreen = lazy(() =>
+  import('@/screens/reports/promo.halo.effect.report.tsx').then(m => ({default: m.PromoHaloEffectScreen}))
+);
