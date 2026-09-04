@@ -184,8 +184,8 @@ Copied `.env` files include **local-dev** Surreal and JWT values. Change `SURREA
 ## Security Hardening Stack + Feature Enhancements
 
 This fork includes a comprehensive security hardening stack + competitor-driven feature
-enhancements (**190 commits, 140 features, 92 POSR-exclusive differentiators, 95 releases**) that raises the security grade
-from **B− (65%) → A++ (97%)** and adds **140 new features** worth **$5,801+/mo** (Toast equivalent).
+enhancements (**191 commits, 141 features, 93 POSR-exclusive differentiators, 96 releases**) that raises the security grade
+from **B− (65%) → A++ (97%)** and adds **141 new features** worth **$6,001+/mo** (Toast equivalent).
 
 ### Security (47 commits)
 
@@ -199,7 +199,7 @@ from **B− (65%) → A++ (97%)** and adds **140 new features** worth **$5,801+/
 | **Business-logic tests** (4 commits) | Payment drivers (33 tests × 6 gateways), fiscal serialization (66 tests FBR/PRA), sync-manager (49 tests), print helpers (36 tests) — 184 tests total |
 | **Remaining audit fixes** (1 commit) | sync `/stats` auth, tracking `payload.id` validation, printing debug leftover, rate limiting on `/auth/session` + `/auth/db-token` |
 
-### Features (190 commits, 140 features, 92 POSR-exclusive differentiators)
+### Features (191 commits, 141 features, 93 POSR-exclusive differentiators)
 
 | Feature | What it does | Toast equivalent |
 |---|---|---|
@@ -394,9 +394,10 @@ Toast monthly cost:    $69 (POS) + $185 (loyalty+marketing) + $15 (PWA) + $150 (
                        + $100 (carbon footprint tracker — POSR exclusive)
                        + $100 (social media ad ROI tracker — POSR exclusive)
                        + $100 (staff compensation optimizer — POSR exclusive)
-                       = $5,801+/mo
+                       + $200 (tax deduction finder — POSR exclusive)
+                       = $6,001+/mo
 POSR monthly cost:     $0
-Total savings:         $5,801+/mo → $69,612+/year
+Total savings:         $6,001+/mo → $72,012+/year
 ```
 
 ### Security grade progression
