@@ -184,8 +184,8 @@ Copied `.env` files include **local-dev** Surreal and JWT values. Change `SURREA
 ## Security Hardening Stack + Feature Enhancements
 
 This fork includes a comprehensive security hardening stack + competitor-driven feature
-enhancements (**207 commits, 157 features, 109 POSR-exclusive differentiators, 112 releases**) that raises the security grade
-from **B− (65%) → A++ (97%)** and adds **157 new features** worth **$7,601+/mo** (Toast equivalent).
+enhancements (**208 commits, 158 features, 110 POSR-exclusive differentiators, 113 releases**) that raises the security grade
+from **B− (65%) → A++ (97%)** and adds **158 new features** worth **$7,701+/mo** (Toast equivalent).
 
 ### Security (47 commits)
 
@@ -199,7 +199,7 @@ from **B− (65%) → A++ (97%)** and adds **157 new features** worth **$7,601+/
 | **Business-logic tests** (4 commits) | Payment drivers (33 tests × 6 gateways), fiscal serialization (66 tests FBR/PRA), sync-manager (49 tests), print helpers (36 tests) — 184 tests total |
 | **Remaining audit fixes** (1 commit) | sync `/stats` auth, tracking `payload.id` validation, printing debug leftover, rate limiting on `/auth/session` + `/auth/db-token` |
 
-### Features (207 commits, 157 features, 109 POSR-exclusive differentiators)
+### Features (208 commits, 158 features, 110 POSR-exclusive differentiators)
 
 | Feature | What it does | Toast equivalent |
 |---|---|---|
@@ -411,9 +411,10 @@ Toast monthly cost:    $69 (POS) + $185 (loyalty+marketing) + $15 (PWA) + $150 (
                        + $100 (menu price A/B testing optimizer — POSR exclusive)
                        + $100 (menu engineering matrix analyzer — POSR exclusive)
                        + $100 (promotional halo effect analyzer — POSR exclusive)
-                       = $7,601+/mo
+                       + $100 (kitchen demand surge predictor — POSR exclusive)
+                       = $7,701+/mo
 POSR monthly cost:     $0
-Total savings:         $7,601+/mo → $91,212+/year
+Total savings:         $7,701+/mo → $92,412+/year
 ```
 
 ### Security grade progression
