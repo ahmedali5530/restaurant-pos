@@ -686,3 +686,7 @@ export const ProfitabilityDecayScreen = lazy(() =>
 export const OrderFrequencyPredictorScreen = lazy(() =>
   import('@/screens/reports/order.frequency.predictor.report.tsx').then(m => ({default: m.OrderFrequencyPredictorScreen}))
 );
+
+export const OrderPatternAnomalyScreen = lazy(() =>
+  import('@/screens/reports/order.pattern.anomaly.report.tsx').then(m => ({default: m.OrderPatternAnomalyScreen}))
+);

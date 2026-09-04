@@ -272,3 +272,4 @@ export const REPORTS_SEASONAL_DEMAND_SHIFT = REPORTS + '/seasonal-demand-shift';
 export const REPORTS_TABLE_TURNOVER_VELOCITY = REPORTS + '/table-turnover-velocity';
 export const REPORTS_PROFITABILITY_DECAY = REPORTS + '/profitability-decay';
 export const REPORTS_ORDER_FREQUENCY = REPORTS + '/order-frequency';
+export const REPORTS_ORDER_PATTERN_ANOMALY = REPORTS + '/order-pattern-anomaly';
