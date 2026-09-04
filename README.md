@@ -184,8 +184,8 @@ Copied `.env` files include **local-dev** Surreal and JWT values. Change `SURREA
 ## Security Hardening Stack + Feature Enhancements
 
 This fork includes a comprehensive security hardening stack + competitor-driven feature
-enhancements (**201 commits, 151 features, 103 POSR-exclusive differentiators, 106 releases**) that raises the security grade
-from **B− (65%) → A++ (97%)** and adds **151 new features** worth **$7,001+/mo** (Toast equivalent).
+enhancements (**202 commits, 152 features, 104 POSR-exclusive differentiators, 107 releases**) that raises the security grade
+from **B− (65%) → A++ (97%)** and adds **152 new features** worth **$7,101+/mo** (Toast equivalent).
 
 ### Security (47 commits)
 
@@ -199,7 +199,7 @@ from **B− (65%) → A++ (97%)** and adds **151 new features** worth **$7,001+/
 | **Business-logic tests** (4 commits) | Payment drivers (33 tests × 6 gateways), fiscal serialization (66 tests FBR/PRA), sync-manager (49 tests), print helpers (36 tests) — 184 tests total |
 | **Remaining audit fixes** (1 commit) | sync `/stats` auth, tracking `payload.id` validation, printing debug leftover, rate limiting on `/auth/session` + `/auth/db-token` |
 
-### Features (201 commits, 151 features, 103 POSR-exclusive differentiators)
+### Features (202 commits, 152 features, 104 POSR-exclusive differentiators)
 
 | Feature | What it does | Toast equivalent |
 |---|---|---|
@@ -405,9 +405,10 @@ Toast monthly cost:    $69 (POS) + $185 (loyalty+marketing) + $15 (PWA) + $150 (
                        + $100 (vendor invoice audit automator — POSR exclusive)
                        + $100 (break & meal period compliance tracker — POSR exclusive)
                        + $100 (utility bill optimizer — POSR exclusive)
-                       = $7,001+/mo
+                       + $100 (order pacing & batching optimizer — POSR exclusive)
+                       = $7,101+/mo
 POSR monthly cost:     $0
-Total savings:         $7,001+/mo → $84,012+/year
+Total savings:         $7,101+/mo → $85,212+/year
 ```
 
 ### Security grade progression
