@@ -630,3 +630,7 @@ export const DeliveryZoneOptimizerScreen = lazy(() =>
 export const PriceABTestingScreen = lazy(() =>
   import('@/screens/reports/price.ab.testing.report.tsx').then(m => ({default: m.PriceABTestingScreen}))
 );
+
+export const MenuEngineeringMatrixScreen = lazy(() =>
+  import('@/screens/reports/menu.engineering.matrix.report.tsx').then(m => ({default: m.MenuEngineeringMatrixScreen}))
+);
