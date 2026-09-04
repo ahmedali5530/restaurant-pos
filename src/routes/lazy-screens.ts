@@ -602,3 +602,7 @@ export const DishPopularityScreen = lazy(() =>
 export const WaitlistOptimizerScreen = lazy(() =>
   import('@/screens/reports/waitlist.optimizer.report.tsx').then(m => ({default: m.WaitlistOptimizerScreen}))
 );
+
+export const VendorInvoiceAuditScreen = lazy(() =>
+  import('@/screens/reports/vendor.invoice.audit.report.tsx').then(m => ({default: m.VendorInvoiceAuditScreen}))
+);

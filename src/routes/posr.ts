@@ -251,4 +251,4 @@ export const REPORTS_LABOR_MANAGER_APPROVAL = REPORTS + '/labor-manager-approval
 export const REPORTS_LABOR_PAYROLL_SUMMARY = REPORTS + '/labor-payroll-summary';
 export const REPORTS_LABOR_PAYROLL_DETAILS = REPORTS + '/labor-payroll-details';
 export const REPORTS_LABOR_TREND = REPORTS + '/labor-trend';
-export const REPORTS_LABOR_FORECAST = REPORTS + '/labor-forecast';
+export const REPORTS_LABOR_FORECAST = REPORTS + '/labor-forecast';export const REPORTS_VENDOR_INVOICE_AUDIT = REPORTS + '/vendor-invoice-audit';
