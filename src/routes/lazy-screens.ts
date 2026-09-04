@@ -511,6 +511,10 @@ export const WasteToValueConverterScreen = lazy(() =>
   import('@/screens/reports/waste.to.value.converter.report.tsx').then(m => ({default: m.WasteToValueConverterScreen}))
 );
 
+export const SocialListeningMonitorScreen = lazy(() =>
+  import('@/screens/reports/social.listening.monitor.report.tsx').then(m => ({default: m.SocialListeningMonitorScreen}))
+);
+
 export const RecipeScalingScreen = lazy(() =>
   import('@/screens/reports/recipe.scaling.report.tsx').then(m => ({default: m.RecipeScalingScreen}))
 );
