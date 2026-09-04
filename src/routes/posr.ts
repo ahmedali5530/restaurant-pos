@@ -253,3 +253,4 @@ export const REPORTS_LABOR_PAYROLL_DETAILS = REPORTS + '/labor-payroll-details';
 export const REPORTS_LABOR_TREND = REPORTS + '/labor-trend';
 export const REPORTS_LABOR_FORECAST = REPORTS + '/labor-forecast';export const REPORTS_VENDOR_INVOICE_AUDIT = REPORTS + '/vendor-invoice-audit';
 export const REPORTS_BREAK_COMPLIANCE = REPORTS + '/break-compliance';
+export const REPORTS_UTILITY_BILL_OPTIMIZER = REPORTS + '/utility-bill-optimizer';

@@ -610,3 +610,7 @@ export const VendorInvoiceAuditScreen = lazy(() =>
 export const BreakComplianceTrackerScreen = lazy(() =>
   import('@/screens/reports/break.compliance.tracker.report.tsx').then(m => ({default: m.BreakComplianceTrackerScreen}))
 );
+
+export const UtilityBillOptimizerScreen = lazy(() =>
+  import('@/screens/reports/utility.bill.optimizer.report.tsx').then(m => ({default: m.UtilityBillOptimizerScreen}))
+);
