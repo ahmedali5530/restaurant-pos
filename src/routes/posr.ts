@@ -263,3 +263,4 @@ export const REPORTS_PROMO_HALO_EFFECT = REPORTS + '/promo-halo-effect';
 export const REPORTS_KITCHEN_DEMAND_SURGE = REPORTS + '/kitchen-demand-surge';
 export const REPORTS_ORDER_MODIFICATION_PATTERN = REPORTS + '/order-modification-pattern';
 export const REPORTS_CUSTOMER_LTV_MULTIPLIER = REPORTS + '/customer-ltv-multiplier';
+export const REPORTS_TICKET_COMPLEXITY = REPORTS + '/ticket-complexity';

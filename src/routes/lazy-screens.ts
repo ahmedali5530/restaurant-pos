@@ -650,3 +650,7 @@ export const OrderModificationPatternScreen = lazy(() =>
 export const CustomerLTVMultiplierScreen = lazy(() =>
   import('@/screens/reports/customer.ltv.multiplier.report.tsx').then(m => ({default: m.CustomerLTVMultiplierScreen}))
 );
+
+export const TicketComplexityScreen = lazy(() =>
+  import('@/screens/reports/ticket.complexity.report.tsx').then(m => ({default: m.TicketComplexityScreen}))
+);
