@@ -201,6 +201,7 @@ export const REPORTS_CARBON_FOOTPRINT_TRACKER = REPORTS + '/carbon-footprint-tra
 export const REPORTS_AD_ROI_TRACKER = REPORTS + '/ad-roi-tracker';
 export const REPORTS_COMPENSATION_OPTIMIZER = REPORTS + '/compensation-optimizer';
 export const REPORTS_TAX_DEDUCTION_FINDER = REPORTS + '/tax-deduction-finder';
+export const REPORTS_PHONE_ORDER_OPTIMIZER = REPORTS + '/phone-order-optimizer';
 
 // Differentials 17-59 (batch addition)
 export const REPORTS_RECIPE_SCALING = REPORTS + '/recipe-scaling';

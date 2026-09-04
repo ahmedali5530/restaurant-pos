@@ -491,6 +491,10 @@ export const TaxDeductionFinderScreen = lazy(() =>
   import('@/screens/reports/tax.deduction.finder.report.tsx').then(m => ({default: m.TaxDeductionFinderScreen}))
 );
 
+export const PhoneOrderOptimizerScreen = lazy(() =>
+  import('@/screens/reports/phone.order.optimizer.report.tsx').then(m => ({default: m.PhoneOrderOptimizerScreen}))
+);
+
 export const RecipeScalingScreen = lazy(() =>
   import('@/screens/reports/recipe.scaling.report.tsx').then(m => ({default: m.RecipeScalingScreen}))
 );
