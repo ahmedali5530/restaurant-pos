@@ -113,6 +113,7 @@ REPORTS_PACKAGING_OPTIMIZER,
   REPORTS_SOCIAL_LISTENING,
   REPORTS_HIRING_PREDICTOR,
 REPORTS_RECIPE_SCALING,
+  REPORTS_SENTIMENT_HEATMAP,
   REPORTS_ORDER_PACING,
   REPORTS_UTILITY_BILL_OPTIMIZER,
   REPORTS_BREAK_COMPLIANCE,
@@ -342,6 +343,7 @@ PackagingOptimizerScreen,
   SocialListeningMonitorScreen,
   HiringPredictorScreen,
 RecipeScalingScreen,
+  SentimentHeatmapScreen,
   OrderPacingOptimizerScreen,
   UtilityBillOptimizerScreen,
   BreakComplianceTrackerScreen,
@@ -501,6 +503,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_BREAK_COMPLIANCE} element={<BreakComplianceTrackerScreen/>}/>
         <Route path={REPORTS_UTILITY_BILL_OPTIMIZER} element={<UtilityBillOptimizerScreen/>}/>
         <Route path={REPORTS_ORDER_PACING} element={<OrderPacingOptimizerScreen/>}/>
+        <Route path={REPORTS_SENTIMENT_HEATMAP} element={<SentimentHeatmapScreen/>}/>
 <Route path={REPORTS_RECIPE_SCALING} element={<RecipeScalingScreen/>}/>
         <Route path={REPORTS_WINE_PAIRING} element={<WinePairingScreen/>}/>
         <Route path={REPORTS_STAFF_GAMIFICATION} element={<StaffGamificationScreen/>}/>
