@@ -184,8 +184,8 @@ Copied `.env` files include **local-dev** Surreal and JWT values. Change `SURREA
 ## Security Hardening Stack + Feature Enhancements
 
 This fork includes a comprehensive security hardening stack + competitor-driven feature
-enhancements (**205 commits, 155 features, 107 POSR-exclusive differentiators, 110 releases**) that raises the security grade
-from **B− (65%) → A++ (97%)** and adds **155 new features** worth **$7,401+/mo** (Toast equivalent).
+enhancements (**206 commits, 156 features, 108 POSR-exclusive differentiators, 111 releases**) that raises the security grade
+from **B− (65%) → A++ (97%)** and adds **156 new features** worth **$7,501+/mo** (Toast equivalent).
 
 ### Security (47 commits)
 
@@ -199,7 +199,7 @@ from **B− (65%) → A++ (97%)** and adds **155 new features** worth **$7,401+/
 | **Business-logic tests** (4 commits) | Payment drivers (33 tests × 6 gateways), fiscal serialization (66 tests FBR/PRA), sync-manager (49 tests), print helpers (36 tests) — 184 tests total |
 | **Remaining audit fixes** (1 commit) | sync `/stats` auth, tracking `payload.id` validation, printing debug leftover, rate limiting on `/auth/session` + `/auth/db-token` |
 
-### Features (205 commits, 155 features, 107 POSR-exclusive differentiators)
+### Features (206 commits, 156 features, 108 POSR-exclusive differentiators)
 
 | Feature | What it does | Toast equivalent |
 |---|---|---|
@@ -409,9 +409,10 @@ Toast monthly cost:    $69 (POS) + $185 (loyalty+marketing) + $15 (PWA) + $150 (
                        + $100 (customer feedback sentiment heatmap — POSR exclusive)
                        + $100 (delivery zone profitability optimizer — POSR exclusive)
                        + $100 (menu price A/B testing optimizer — POSR exclusive)
-                       = $7,401+/mo
+                       + $100 (menu engineering matrix analyzer — POSR exclusive)
+                       = $7,501+/mo
 POSR monthly cost:     $0
-Total savings:         $7,401+/mo → $88,812+/year
+Total savings:         $7,501+/mo → $90,012+/year
 ```
 
 ### Security grade progression
