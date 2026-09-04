@@ -261,3 +261,4 @@ export const REPORTS_PRICE_AB_TESTING = REPORTS + '/price-ab-testing';
 export const REPORTS_MENU_ENGINEERING_MATRIX = REPORTS + '/menu-engineering-matrix';
 export const REPORTS_PROMO_HALO_EFFECT = REPORTS + '/promo-halo-effect';
 export const REPORTS_KITCHEN_DEMAND_SURGE = REPORTS + '/kitchen-demand-surge';
+export const REPORTS_ORDER_MODIFICATION_PATTERN = REPORTS + '/order-modification-pattern';
