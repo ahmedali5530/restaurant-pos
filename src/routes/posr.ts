@@ -265,3 +265,4 @@ export const REPORTS_ORDER_MODIFICATION_PATTERN = REPORTS + '/order-modification
 export const REPORTS_CUSTOMER_LTV_MULTIPLIER = REPORTS + '/customer-ltv-multiplier';
 export const REPORTS_TICKET_COMPLEXITY = REPORTS + '/ticket-complexity';
 export const REPORTS_KITCHEN_STATION_EFFICIENCY = REPORTS + '/kitchen-station-efficiency';
+export const REPORTS_PAIRING_AFFINITY = REPORTS + '/pairing-affinity';

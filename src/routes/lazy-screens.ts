@@ -658,3 +658,7 @@ export const TicketComplexityScreen = lazy(() =>
 export const KitchenStationEfficiencyScreen = lazy(() =>
   import('@/screens/reports/kitchen.station.efficiency.report.tsx').then(m => ({default: m.KitchenStationEfficiencyScreen}))
 );
+
+export const PairingAffinityAnalyzerScreen = lazy(() =>
+  import('@/screens/reports/pairing.affinity.analyzer.report.tsx').then(m => ({default: m.PairingAffinityAnalyzerScreen}))
+);
