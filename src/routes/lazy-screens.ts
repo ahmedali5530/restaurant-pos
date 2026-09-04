@@ -614,3 +614,7 @@ export const BreakComplianceTrackerScreen = lazy(() =>
 export const UtilityBillOptimizerScreen = lazy(() =>
   import('@/screens/reports/utility.bill.optimizer.report.tsx').then(m => ({default: m.UtilityBillOptimizerScreen}))
 );
+
+export const OrderPacingOptimizerScreen = lazy(() =>
+  import('@/screens/reports/order.pacing.optimizer.report.tsx').then(m => ({default: m.OrderPacingOptimizerScreen}))
+);
