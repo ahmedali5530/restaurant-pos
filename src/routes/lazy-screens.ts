@@ -662,3 +662,7 @@ export const KitchenStationEfficiencyScreen = lazy(() =>
 export const PairingAffinityAnalyzerScreen = lazy(() =>
   import('@/screens/reports/pairing.affinity.analyzer.report.tsx').then(m => ({default: m.PairingAffinityAnalyzerScreen}))
 );
+
+export const WaitExperiencePersonalizerScreen = lazy(() =>
+  import('@/screens/reports/wait.experience.personalizer.report.tsx').then(m => ({default: m.WaitExperiencePersonalizerScreen}))
+);
