@@ -184,8 +184,8 @@ Copied `.env` files include **local-dev** Surreal and JWT values. Change `SURREA
 ## Security Hardening Stack + Feature Enhancements
 
 This fork includes a comprehensive security hardening stack + competitor-driven feature
-enhancements (**194 commits, 144 features, 96 POSR-exclusive differentiators, 99 releases**) that raises the security grade
-from **B− (65%) → A++ (97%)** and adds **144 new features** worth **$6,301+/mo** (Toast equivalent).
+enhancements (**195 commits, 145 features, 97 POSR-exclusive differentiators, 100 releases**) that raises the security grade
+from **B− (65%) → A++ (97%)** and adds **145 new features** worth **$6,401+/mo** (Toast equivalent).
 
 ### Security (47 commits)
 
@@ -199,7 +199,7 @@ from **B− (65%) → A++ (97%)** and adds **144 new features** worth **$6,301+/
 | **Business-logic tests** (4 commits) | Payment drivers (33 tests × 6 gateways), fiscal serialization (66 tests FBR/PRA), sync-manager (49 tests), print helpers (36 tests) — 184 tests total |
 | **Remaining audit fixes** (1 commit) | sync `/stats` auth, tracking `payload.id` validation, printing debug leftover, rate limiting on `/auth/session` + `/auth/db-token` |
 
-### Features (194 commits, 144 features, 96 POSR-exclusive differentiators)
+### Features (195 commits, 145 features, 97 POSR-exclusive differentiators)
 
 | Feature | What it does | Toast equivalent |
 |---|---|---|
@@ -398,9 +398,10 @@ Toast monthly cost:    $69 (POS) + $185 (loyalty+marketing) + $15 (PWA) + $150 (
                        + $100 (phone order optimizer — POSR exclusive)
                        + $100 (predictive ordering for regulars — POSR exclusive)
                        + $100 (competitor intelligence dashboard — POSR exclusive)
-                       = $6,301+/mo
+                       + $100 (multi-location performance benchmarking — POSR exclusive)
+                       = $6,401+/mo
 POSR monthly cost:     $0
-Total savings:         $6,301+/mo → $75,612+/year
+Total savings:         $6,401+/mo → $76,812+/year
 ```
 
 ### Security grade progression
