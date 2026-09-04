@@ -260,3 +260,4 @@ export const REPORTS_DELIVERY_ZONE_OPTIMIZER = REPORTS + '/delivery-zone-optimiz
 export const REPORTS_PRICE_AB_TESTING = REPORTS + '/price-ab-testing';
 export const REPORTS_MENU_ENGINEERING_MATRIX = REPORTS + '/menu-engineering-matrix';
 export const REPORTS_PROMO_HALO_EFFECT = REPORTS + '/promo-halo-effect';
+export const REPORTS_KITCHEN_DEMAND_SURGE = REPORTS + '/kitchen-demand-surge';

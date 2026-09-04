@@ -638,3 +638,7 @@ export const MenuEngineeringMatrixScreen = lazy(() =>
 export const PromoHaloEffectScreen = lazy(() =>
   import('@/screens/reports/promo.halo.effect.report.tsx').then(m => ({default: m.PromoHaloEffectScreen}))
 );
+
+export const KitchenDemandSurgeScreen = lazy(() =>
+  import('@/screens/reports/kitchen.demand.surge.report.tsx').then(m => ({default: m.KitchenDemandSurgeScreen}))
+);
