@@ -108,6 +108,7 @@ REPORTS_PACKAGING_OPTIMIZER,
   REPORTS_PHONE_ORDER_OPTIMIZER,
   REPORTS_PREDICTIVE_ORDERING,
   REPORTS_COMPETITOR_INTELLIGENCE,
+  REPORTS_MULTI_LOCATION_BENCHMARK,
 REPORTS_RECIPE_SCALING,
   REPORTS_WINE_PAIRING,
   REPORTS_STAFF_GAMIFICATION,
@@ -329,6 +330,7 @@ PackagingOptimizerScreen,
   PhoneOrderOptimizerScreen,
   PredictiveOrderingScreen,
   CompetitorIntelligenceScreen,
+  MultiLocationBenchmarkScreen,
 RecipeScalingScreen,
   WinePairingScreen,
   StaffGamificationScreen,
@@ -477,6 +479,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_PHONE_ORDER_OPTIMIZER} element={<PhoneOrderOptimizerScreen/>}/>
         <Route path={REPORTS_PREDICTIVE_ORDERING} element={<PredictiveOrderingScreen/>}/>
         <Route path={REPORTS_COMPETITOR_INTELLIGENCE} element={<CompetitorIntelligenceScreen/>}/>
+        <Route path={REPORTS_MULTI_LOCATION_BENCHMARK} element={<MultiLocationBenchmarkScreen/>}/>
 <Route path={REPORTS_RECIPE_SCALING} element={<RecipeScalingScreen/>}/>
         <Route path={REPORTS_WINE_PAIRING} element={<WinePairingScreen/>}/>
         <Route path={REPORTS_STAFF_GAMIFICATION} element={<StaffGamificationScreen/>}/>
