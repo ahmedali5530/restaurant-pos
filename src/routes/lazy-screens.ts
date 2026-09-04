@@ -507,6 +507,10 @@ export const MultiLocationBenchmarkScreen = lazy(() =>
   import('@/screens/reports/multi.location.benchmark.report.tsx').then(m => ({default: m.MultiLocationBenchmarkScreen}))
 );
 
+export const WasteToValueConverterScreen = lazy(() =>
+  import('@/screens/reports/waste.to.value.converter.report.tsx').then(m => ({default: m.WasteToValueConverterScreen}))
+);
+
 export const RecipeScalingScreen = lazy(() =>
   import('@/screens/reports/recipe.scaling.report.tsx').then(m => ({default: m.RecipeScalingScreen}))
 );
