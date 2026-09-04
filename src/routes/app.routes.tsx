@@ -123,6 +123,7 @@ REPORTS_RECIPE_SCALING,
   REPORTS_KITCHEN_STATION_EFFICIENCY,
   REPORTS_PAIRING_AFFINITY,
   REPORTS_WAIT_EXPERIENCE,
+  REPORTS_SERVER_TABLE_ASSIGNMENT,
   REPORTS_DELIVERY_ZONE_OPTIMIZER,
   REPORTS_SENTIMENT_HEATMAP,
   REPORTS_ORDER_PACING,
@@ -364,6 +365,7 @@ RecipeScalingScreen,
   KitchenStationEfficiencyScreen,
   PairingAffinityAnalyzerScreen,
   WaitExperiencePersonalizerScreen,
+  ServerTableAssignmentScreen,
   DeliveryZoneOptimizerScreen,
   SentimentHeatmapScreen,
   OrderPacingOptimizerScreen,
@@ -537,6 +539,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_KITCHEN_STATION_EFFICIENCY} element={<KitchenStationEfficiencyScreen/>}/>
         <Route path={REPORTS_PAIRING_AFFINITY} element={<PairingAffinityAnalyzerScreen/>}/>
         <Route path={REPORTS_WAIT_EXPERIENCE} element={<WaitExperiencePersonalizerScreen/>}/>
+        <Route path={REPORTS_SERVER_TABLE_ASSIGNMENT} element={<ServerTableAssignmentScreen/>}/>
 <Route path={REPORTS_RECIPE_SCALING} element={<RecipeScalingScreen/>}/>
         <Route path={REPORTS_WINE_PAIRING} element={<WinePairingScreen/>}/>
         <Route path={REPORTS_STAFF_GAMIFICATION} element={<StaffGamificationScreen/>}/>

@@ -666,3 +666,7 @@ export const PairingAffinityAnalyzerScreen = lazy(() =>
 export const WaitExperiencePersonalizerScreen = lazy(() =>
   import('@/screens/reports/wait.experience.personalizer.report.tsx').then(m => ({default: m.WaitExperiencePersonalizerScreen}))
 );
+
+export const ServerTableAssignmentScreen = lazy(() =>
+  import('@/screens/reports/server.table.assignment.report.tsx').then(m => ({default: m.ServerTableAssignmentScreen}))
+);

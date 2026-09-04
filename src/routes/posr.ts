@@ -267,3 +267,4 @@ export const REPORTS_TICKET_COMPLEXITY = REPORTS + '/ticket-complexity';
 export const REPORTS_KITCHEN_STATION_EFFICIENCY = REPORTS + '/kitchen-station-efficiency';
 export const REPORTS_PAIRING_AFFINITY = REPORTS + '/pairing-affinity';
 export const REPORTS_WAIT_EXPERIENCE = REPORTS + '/wait-experience';
+export const REPORTS_SERVER_TABLE_ASSIGNMENT = REPORTS + '/server-table-assignment';
