@@ -622,3 +622,7 @@ export const OrderPacingOptimizerScreen = lazy(() =>
 export const SentimentHeatmapScreen = lazy(() =>
   import('@/screens/reports/sentiment.heatmap.report.tsx').then(m => ({default: m.SentimentHeatmapScreen}))
 );
+
+export const DeliveryZoneOptimizerScreen = lazy(() =>
+  import('@/screens/reports/delivery.zone.optimizer.report.tsx').then(m => ({default: m.DeliveryZoneOptimizerScreen}))
+);

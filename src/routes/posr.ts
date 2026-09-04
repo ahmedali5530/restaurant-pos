@@ -256,3 +256,4 @@ export const REPORTS_BREAK_COMPLIANCE = REPORTS + '/break-compliance';
 export const REPORTS_UTILITY_BILL_OPTIMIZER = REPORTS + '/utility-bill-optimizer';
 export const REPORTS_ORDER_PACING = REPORTS + '/order-pacing';
 export const REPORTS_SENTIMENT_HEATMAP = REPORTS + '/sentiment-heatmap';
+export const REPORTS_DELIVERY_ZONE_OPTIMIZER = REPORTS + '/delivery-zone-optimizer';
