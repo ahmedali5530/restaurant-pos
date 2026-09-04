@@ -203,6 +203,7 @@ export const REPORTS_COMPENSATION_OPTIMIZER = REPORTS + '/compensation-optimizer
 export const REPORTS_TAX_DEDUCTION_FINDER = REPORTS + '/tax-deduction-finder';
 export const REPORTS_PHONE_ORDER_OPTIMIZER = REPORTS + '/phone-order-optimizer';
 export const REPORTS_PREDICTIVE_ORDERING = REPORTS + '/predictive-ordering';
+export const REPORTS_COMPETITOR_INTELLIGENCE = REPORTS + '/competitor-intelligence';
 
 // Differentials 17-59 (batch addition)
 export const REPORTS_RECIPE_SCALING = REPORTS + '/recipe-scaling';

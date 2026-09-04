@@ -499,6 +499,10 @@ export const PredictiveOrderingScreen = lazy(() =>
   import('@/screens/reports/predictive.ordering.report.tsx').then(m => ({default: m.PredictiveOrderingScreen}))
 );
 
+export const CompetitorIntelligenceScreen = lazy(() =>
+  import('@/screens/reports/competitor.intelligence.report.tsx').then(m => ({default: m.CompetitorIntelligenceScreen}))
+);
+
 export const RecipeScalingScreen = lazy(() =>
   import('@/screens/reports/recipe.scaling.report.tsx').then(m => ({default: m.RecipeScalingScreen}))
 );
