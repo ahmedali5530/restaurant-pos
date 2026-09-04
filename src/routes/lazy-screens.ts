@@ -690,3 +690,7 @@ export const OrderFrequencyPredictorScreen = lazy(() =>
 export const OrderPatternAnomalyScreen = lazy(() =>
   import('@/screens/reports/order.pattern.anomaly.report.tsx').then(m => ({default: m.OrderPatternAnomalyScreen}))
 );
+
+export const KitchenSkillGapScreen = lazy(() =>
+  import('@/screens/reports/kitchen.skill.gap.report.tsx').then(m => ({default: m.KitchenSkillGapScreen}))
+);
