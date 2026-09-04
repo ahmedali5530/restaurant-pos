@@ -103,6 +103,7 @@ REPORTS_PACKAGING_OPTIMIZER,
   REPORTS_OPENING_CLOSING_AUTOMATOR,
   REPORTS_CARBON_FOOTPRINT_TRACKER,
   REPORTS_AD_ROI_TRACKER,
+  REPORTS_COMPENSATION_OPTIMIZER,
 REPORTS_RECIPE_SCALING,
   REPORTS_WINE_PAIRING,
   REPORTS_STAFF_GAMIFICATION,
@@ -319,6 +320,7 @@ PackagingOptimizerScreen,
   OpeningClosingAutomatorScreen,
   CarbonFootprintTrackerScreen,
   AdRoiTrackerScreen,
+  CompensationOptimizerScreen,
 RecipeScalingScreen,
   WinePairingScreen,
   StaffGamificationScreen,
@@ -462,6 +464,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_OPENING_CLOSING_AUTOMATOR} element={<OpeningClosingAutomatorScreen/>}/>
         <Route path={REPORTS_CARBON_FOOTPRINT_TRACKER} element={<CarbonFootprintTrackerScreen/>}/>
         <Route path={REPORTS_AD_ROI_TRACKER} element={<AdRoiTrackerScreen/>}/>
+        <Route path={REPORTS_COMPENSATION_OPTIMIZER} element={<CompensationOptimizerScreen/>}/>
 <Route path={REPORTS_RECIPE_SCALING} element={<RecipeScalingScreen/>}/>
         <Route path={REPORTS_WINE_PAIRING} element={<WinePairingScreen/>}/>
         <Route path={REPORTS_STAFF_GAMIFICATION} element={<StaffGamificationScreen/>}/>

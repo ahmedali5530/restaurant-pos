@@ -483,6 +483,10 @@ export const AdRoiTrackerScreen = lazy(() =>
   import('@/screens/reports/ad.roi.tracker.report.tsx').then(m => ({default: m.AdRoiTrackerScreen}))
 );
 
+export const CompensationOptimizerScreen = lazy(() =>
+  import('@/screens/reports/compensation.optimizer.report.tsx').then(m => ({default: m.CompensationOptimizerScreen}))
+);
+
 export const RecipeScalingScreen = lazy(() =>
   import('@/screens/reports/recipe.scaling.report.tsx').then(m => ({default: m.RecipeScalingScreen}))
 );

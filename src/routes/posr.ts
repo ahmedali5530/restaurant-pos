@@ -199,6 +199,7 @@ export const REPORTS_TABLE_TURNOVER_PREDICTOR = REPORTS + '/table-turnover-predi
 export const REPORTS_OPENING_CLOSING_AUTOMATOR = REPORTS + '/opening-closing-automator';
 export const REPORTS_CARBON_FOOTPRINT_TRACKER = REPORTS + '/carbon-footprint-tracker';
 export const REPORTS_AD_ROI_TRACKER = REPORTS + '/ad-roi-tracker';
+export const REPORTS_COMPENSATION_OPTIMIZER = REPORTS + '/compensation-optimizer';
 
 // Differentials 17-59 (batch addition)
 export const REPORTS_RECIPE_SCALING = REPORTS + '/recipe-scaling';
