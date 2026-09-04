@@ -670,3 +670,7 @@ export const WaitExperiencePersonalizerScreen = lazy(() =>
 export const ServerTableAssignmentScreen = lazy(() =>
   import('@/screens/reports/server.table.assignment.report.tsx').then(m => ({default: m.ServerTableAssignmentScreen}))
 );
+
+export const SeasonalDemandShiftScreen = lazy(() =>
+  import('@/screens/reports/seasonal.demand.shift.report.tsx').then(m => ({default: m.SeasonalDemandShiftScreen}))
+);
