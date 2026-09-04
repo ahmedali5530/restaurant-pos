@@ -646,3 +646,7 @@ export const KitchenDemandSurgeScreen = lazy(() =>
 export const OrderModificationPatternScreen = lazy(() =>
   import('@/screens/reports/order.modification.pattern.report.tsx').then(m => ({default: m.OrderModificationPatternScreen}))
 );
+
+export const CustomerLTVMultiplierScreen = lazy(() =>
+  import('@/screens/reports/customer.ltv.multiplier.report.tsx').then(m => ({default: m.CustomerLTVMultiplierScreen}))
+);
