@@ -487,6 +487,10 @@ export const CompensationOptimizerScreen = lazy(() =>
   import('@/screens/reports/compensation.optimizer.report.tsx').then(m => ({default: m.CompensationOptimizerScreen}))
 );
 
+export const TaxDeductionFinderScreen = lazy(() =>
+  import('@/screens/reports/tax.deduction.finder.report.tsx').then(m => ({default: m.TaxDeductionFinderScreen}))
+);
+
 export const RecipeScalingScreen = lazy(() =>
   import('@/screens/reports/recipe.scaling.report.tsx').then(m => ({default: m.RecipeScalingScreen}))
 );
