@@ -130,6 +130,7 @@ REPORTS_RECIPE_SCALING,
   REPORTS_ORDER_FREQUENCY,
   REPORTS_ORDER_PATTERN_ANOMALY,
   REPORTS_KITCHEN_SKILL_GAP,
+  REPORTS_MENU_CANNIBALIZATION,
   REPORTS_DELIVERY_ZONE_OPTIMIZER,
   REPORTS_SENTIMENT_HEATMAP,
   REPORTS_ORDER_PACING,
@@ -378,6 +379,7 @@ RecipeScalingScreen,
   OrderFrequencyPredictorScreen,
   OrderPatternAnomalyScreen,
   KitchenSkillGapScreen,
+  MenuCannibalizationScreen,
   DeliveryZoneOptimizerScreen,
   SentimentHeatmapScreen,
   OrderPacingOptimizerScreen,
@@ -558,6 +560,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_ORDER_FREQUENCY} element={<OrderFrequencyPredictorScreen/>}/>
         <Route path={REPORTS_ORDER_PATTERN_ANOMALY} element={<OrderPatternAnomalyScreen/>}/>
         <Route path={REPORTS_KITCHEN_SKILL_GAP} element={<KitchenSkillGapScreen/>}/>
+        <Route path={REPORTS_MENU_CANNIBALIZATION} element={<MenuCannibalizationScreen/>}/>
 <Route path={REPORTS_RECIPE_SCALING} element={<RecipeScalingScreen/>}/>
         <Route path={REPORTS_WINE_PAIRING} element={<WinePairingScreen/>}/>
         <Route path={REPORTS_STAFF_GAMIFICATION} element={<StaffGamificationScreen/>}/>

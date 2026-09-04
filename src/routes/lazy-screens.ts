@@ -694,3 +694,7 @@ export const OrderPatternAnomalyScreen = lazy(() =>
 export const KitchenSkillGapScreen = lazy(() =>
   import('@/screens/reports/kitchen.skill.gap.report.tsx').then(m => ({default: m.KitchenSkillGapScreen}))
 );
+
+export const MenuCannibalizationScreen = lazy(() =>
+  import('@/screens/reports/menu.cannibalization.report.tsx').then(m => ({default: m.MenuCannibalizationScreen}))
+);
