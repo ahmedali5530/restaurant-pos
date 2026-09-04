@@ -495,6 +495,10 @@ export const PhoneOrderOptimizerScreen = lazy(() =>
   import('@/screens/reports/phone.order.optimizer.report.tsx').then(m => ({default: m.PhoneOrderOptimizerScreen}))
 );
 
+export const PredictiveOrderingScreen = lazy(() =>
+  import('@/screens/reports/predictive.ordering.report.tsx').then(m => ({default: m.PredictiveOrderingScreen}))
+);
+
 export const RecipeScalingScreen = lazy(() =>
   import('@/screens/reports/recipe.scaling.report.tsx').then(m => ({default: m.RecipeScalingScreen}))
 );
