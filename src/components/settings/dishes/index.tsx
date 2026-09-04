@@ -280,7 +280,7 @@ export const AdminDishes = () => {
 
           loadHook.addFilter('string::lowercase(name) contains $name or array::any(categories, |$var|string::lowercase($var.name) contains $name)', 'and');
           loadHook.handleParameterChange({
-            name: value
+            name: value.toLowerCase()
           })
         }}
         enableSelection

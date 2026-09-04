@@ -197,7 +197,7 @@ export const TableComponent: FC<TableComponentProps> = ({
       ]);
       handleParameterChange({
         column: values.column.value,
-        value: values.value.toString()
+        value: values.value.toString().toLowerCase()
       });
     }
 
