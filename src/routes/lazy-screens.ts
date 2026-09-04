@@ -606,3 +606,7 @@ export const WaitlistOptimizerScreen = lazy(() =>
 export const VendorInvoiceAuditScreen = lazy(() =>
   import('@/screens/reports/vendor.invoice.audit.report.tsx').then(m => ({default: m.VendorInvoiceAuditScreen}))
 );
+
+export const BreakComplianceTrackerScreen = lazy(() =>
+  import('@/screens/reports/break.compliance.tracker.report.tsx').then(m => ({default: m.BreakComplianceTrackerScreen}))
+);
