@@ -766,3 +766,7 @@ export const RecipeCostVolatilityScreen = lazy(() =>
 export const PlateWastePredictorScreen = lazy(() =>
   import('@/screens/reports/plate-waste-predictor.report.tsx').then(m => ({default: m.PlateWastePredictorScreen}))
 );
+
+export const LoyaltyTierMigrationScreen = lazy(() =>
+  import('@/screens/reports/loyalty-tier-migration.report.tsx').then(m => ({default: m.LoyaltyTierMigrationScreen}))
+);
