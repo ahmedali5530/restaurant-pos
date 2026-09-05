@@ -133,6 +133,7 @@ REPORTS_RECIPE_SCALING,
   REPORTS_MENU_CANNIBALIZATION,
   REPORTS_JOURNEY_FRICTION,
   REPORTS_SUBSTITUTION_IMPACT,
+  REPORTS_PREFERENCE_DRIFT,
   REPORTS_DELIVERY_ZONE_OPTIMIZER,
   REPORTS_SENTIMENT_HEATMAP,
   REPORTS_ORDER_PACING,
@@ -384,6 +385,7 @@ RecipeScalingScreen,
   MenuCannibalizationScreen,
   JourneyFrictionScreen,
   IngredientSubstitutionImpactScreen,
+  PreferenceDriftScreen,
   DeliveryZoneOptimizerScreen,
   SentimentHeatmapScreen,
   OrderPacingOptimizerScreen,
@@ -567,6 +569,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_MENU_CANNIBALIZATION} element={<MenuCannibalizationScreen/>}/>
         <Route path={REPORTS_JOURNEY_FRICTION} element={<JourneyFrictionScreen/>}/>
         <Route path={REPORTS_SUBSTITUTION_IMPACT} element={<IngredientSubstitutionImpactScreen/>}/>
+        <Route path={REPORTS_PREFERENCE_DRIFT} element={<PreferenceDriftScreen/>}/>
 <Route path={REPORTS_RECIPE_SCALING} element={<RecipeScalingScreen/>}/>
         <Route path={REPORTS_WINE_PAIRING} element={<WinePairingScreen/>}/>
         <Route path={REPORTS_STAFF_GAMIFICATION} element={<StaffGamificationScreen/>}/>

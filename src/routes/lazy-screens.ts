@@ -706,3 +706,7 @@ export const JourneyFrictionScreen = lazy(() =>
 export const IngredientSubstitutionImpactScreen = lazy(() =>
   import('@/screens/reports/ingredient.substitution.impact.report.tsx').then(m => ({default: m.IngredientSubstitutionImpactScreen}))
 );
+
+export const PreferenceDriftScreen = lazy(() =>
+  import('@/screens/reports/preference.drift.report.tsx').then(m => ({default: m.PreferenceDriftScreen}))
+);
