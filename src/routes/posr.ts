@@ -297,3 +297,4 @@ export const REPORTS_FIRST_VISIT_CONVERSION = REPORTS + '/first-visit-conversion
 export const REPORTS_DELIVERY_QUALITY_DECAY = REPORTS + '/delivery-quality-decay';
 export const REPORTS_BAR_POUR_VARIANCE = REPORTS + '/bar-pour-variance';
 export const REPORTS_RESTROOM_CLEANLINESS = REPORTS + '/restroom-cleanliness';
+export const REPORTS_WIFI_EXPERIENCE = REPORTS + '/wifi-experience';

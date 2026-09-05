@@ -786,3 +786,7 @@ export const BarPourVarianceScreen = lazy(() =>
 export const RestroomCleanlinessScreen = lazy(() =>
   import('@/screens/reports/restroom-cleanliness-impact.report.tsx').then(m => ({default: m.RestroomCleanlinessScreen}))
 );
+
+export const WifiExperienceScreen = lazy(() =>
+  import('@/screens/reports/wifi-experience-impact.report.tsx').then(m => ({default: m.WifiExperienceScreen}))
+);
