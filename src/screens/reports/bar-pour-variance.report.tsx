@@ -14,7 +14,7 @@ import { DocumentTitle } from "@/components/common/document-title.tsx";
 import { Layout } from "@/screens/partials/layout.tsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faWineGlass, faRotate, faBottle, faUser, faCocktail, faDroplet,
+  faWineGlass, faRotate, faBottleWater, faUser, faCocktail, faDroplet,
   faGift, faLayerGroup, faClock, faFlask, faCheckCircle,
   faTriangleExclamation, faLightbulb,
 } from "@fortawesome/free-solid-svg-icons";
@@ -25,7 +25,7 @@ import {
 } from "@/lib/bar-pour-variance.service.ts";
 
 const RULE_STYLE: Record<string, { bg: string; text: string; icon: any; label: string }> = {
-  high_variance_bottle:                { bg: 'bg-rose-50',    text: 'text-rose-700',    icon: faBottle,    label: 'BOTTLE' },
+  high_variance_bottle:                { bg: 'bg-rose-50',    text: 'text-rose-700',    icon: faBottleWater, label: 'BOTTLE' },
   bartender_over_pour:                 { bg: 'bg-amber-50',   text: 'text-amber-700',   icon: faUser,      label: 'BARTENDER' },
   cocktail_recipe_drift:               { bg: 'bg-violet-50',  text: 'text-violet-700',  icon: faCocktail,  label: 'RECIPE DRIFT' },
   free_pour_vs_jigger:                 { bg: 'bg-orange-50',  text: 'text-orange-700',  icon: faDroplet,   label: 'FREE-POUR' },
@@ -125,7 +125,7 @@ export function BarPourVarianceScreen() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <SummaryCard icon={faBottle} label="High-variance bottles" value={String(summary.highVarianceBottles)} color="text-rose-600" />
+          <SummaryCard icon={faBottleWater} label="High-variance bottles" value={String(summary.highVarianceBottles)} color="text-rose-600" />
           <SummaryCard icon={faDroplet} label="Avg variance" value={`${summary.avgVariancePct.toFixed(0)}%`} color={summary.avgVariancePct >= 15 ? 'text-rose-600' : 'text-amber-600'} />
           <SummaryCard icon={faTriangleExclamation} label="Critical items" value={String(summary.criticalCount)} color="text-rose-600" />
           <SummaryCard icon={faLightbulb} label="Monthly waste" value={fmt$(summary.totalMonthlyWaste)} color="text-rose-600" />

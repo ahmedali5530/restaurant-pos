@@ -72,6 +72,7 @@ export interface CostVolAlert {
   forecast_margin_pct?: number;
   threshold_breach_days?: number;      // days until margin falls below threshold
   trigger_signal?: string;             // 'seasonal_pattern' | 'commodity_futures' | 'weather_forecast' | 'supply_chain_alert' | 'historical_volatility' | 'supplier_quote'
+  trigger_detail?: string;             // human-readable detail of the trigger signal
   confidence_score?: number;           // 0-100
   est_monthly_opportunity: number;
   description: string;
