@@ -702,3 +702,7 @@ export const MenuCannibalizationScreen = lazy(() =>
 export const JourneyFrictionScreen = lazy(() =>
   import('@/screens/reports/journey.friction.report.tsx').then(m => ({default: m.JourneyFrictionScreen}))
 );
+
+export const IngredientSubstitutionImpactScreen = lazy(() =>
+  import('@/screens/reports/ingredient.substitution.impact.report.tsx').then(m => ({default: m.IngredientSubstitutionImpactScreen}))
+);

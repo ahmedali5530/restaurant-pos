@@ -276,3 +276,4 @@ export const REPORTS_ORDER_PATTERN_ANOMALY = REPORTS + '/order-pattern-anomaly';
 export const REPORTS_KITCHEN_SKILL_GAP = REPORTS + '/kitchen-skill-gap';
 export const REPORTS_MENU_CANNIBALIZATION = REPORTS + '/menu-cannibalization';
 export const REPORTS_JOURNEY_FRICTION = REPORTS + '/journey-friction';
+export const REPORTS_SUBSTITUTION_IMPACT = REPORTS + '/substitution-impact';
