@@ -302,3 +302,4 @@ export const REPORTS_PARKING_LOT_OPTIMIZER = REPORTS + '/parking-lot-optimizer';
 export const REPORTS_NOISE_ACOUSTIC_COMFORT = REPORTS + '/noise-acoustic-comfort';
 export const REPORTS_LIGHTING_MOOD_OPTIMIZER = REPORTS + '/lighting-mood-optimizer';
 export const REPORTS_TEMPERATURE_HVAC_COMFORT = REPORTS + '/temperature-hvac-comfort';
+export const REPORTS_SCENT_MARKETING_OPTIMIZER = REPORTS + '/scent-marketing-optimizer';

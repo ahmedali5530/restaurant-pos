@@ -806,3 +806,7 @@ export const LightingMoodOptimizerScreen = lazy(() =>
 export const TemperatureHvacComfortScreen = lazy(() =>
   import('@/screens/reports/temperature-hvac-comfort.report.tsx').then(m => ({default: m.TemperatureHvacComfortScreen}))
 );
+
+export const ScentMarketingOptimizerScreen = lazy(() =>
+  import('@/screens/reports/scent-marketing-optimizer.report.tsx').then(m => ({default: m.ScentMarketingOptimizerScreen}))
+);
