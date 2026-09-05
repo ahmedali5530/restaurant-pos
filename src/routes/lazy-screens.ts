@@ -778,3 +778,7 @@ export const FirstVisitConversionScreen = lazy(() =>
 export const DeliveryQualityDecayScreen = lazy(() =>
   import('@/screens/reports/delivery-quality-decay.report.tsx').then(m => ({default: m.DeliveryQualityDecayScreen}))
 );
+
+export const BarPourVarianceScreen = lazy(() =>
+  import('@/screens/reports/bar-pour-variance.report.tsx').then(m => ({default: m.BarPourVarianceScreen}))
+);
