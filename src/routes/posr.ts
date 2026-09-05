@@ -288,3 +288,4 @@ export const REPORTS_ELASTICITY_DRIFT = REPORTS + '/elasticity-drift';
 export const REPORTS_OCCASION_PREDICTION = REPORTS + '/occasion-prediction';
 export const REPORTS_MENU_ITEM_RETIREMENT = REPORTS + '/menu-item-retirement';
 export const REPORTS_STAFF_PERFORMANCE_PREDICTION = REPORTS + '/staff-performance-prediction';
+export const REPORTS_ATMOSPHERE_REVENUE = REPORTS + '/atmosphere-revenue';

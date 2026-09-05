@@ -750,3 +750,7 @@ export const MenuItemRetirementScreen = lazy(() =>
 export const StaffPerformancePredictionScreen = lazy(() =>
   import('@/screens/reports/staff.performance.prediction.report.tsx').then(m => ({default: m.StaffPerformancePredictionScreen}))
 );
+
+export const AtmosphereRevenueScreen = lazy(() =>
+  import('@/screens/reports/atmosphere.revenue.report.tsx').then(m => ({default: m.AtmosphereRevenueScreen}))
+);
