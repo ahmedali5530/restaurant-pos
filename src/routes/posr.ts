@@ -300,3 +300,4 @@ export const REPORTS_RESTROOM_CLEANLINESS = REPORTS + '/restroom-cleanliness';
 export const REPORTS_WIFI_EXPERIENCE = REPORTS + '/wifi-experience';
 export const REPORTS_PARKING_LOT_OPTIMIZER = REPORTS + '/parking-lot-optimizer';
 export const REPORTS_NOISE_ACOUSTIC_COMFORT = REPORTS + '/noise-acoustic-comfort';
+export const REPORTS_LIGHTING_MOOD_OPTIMIZER = REPORTS + '/lighting-mood-optimizer';
