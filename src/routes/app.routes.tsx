@@ -143,6 +143,7 @@ REPORTS_RECIPE_SCALING,
   REPORTS_ELASTICITY_DRIFT,
   REPORTS_OCCASION_PREDICTION,
   REPORTS_MENU_ITEM_RETIREMENT,
+  REPORTS_STAFF_PERFORMANCE_PREDICTION,
   REPORTS_DELIVERY_ZONE_OPTIMIZER,
   REPORTS_SENTIMENT_HEATMAP,
   REPORTS_ORDER_PACING,
@@ -404,6 +405,7 @@ RecipeScalingScreen,
   PriceElasticityDriftScreen,
   OccasionPredictionScreen,
   MenuItemRetirementScreen,
+  StaffPerformancePredictionScreen,
   DeliveryZoneOptimizerScreen,
   SentimentHeatmapScreen,
   OrderPacingOptimizerScreen,
@@ -597,6 +599,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_ELASTICITY_DRIFT} element={<PriceElasticityDriftScreen/>}/>
         <Route path={REPORTS_OCCASION_PREDICTION} element={<OccasionPredictionScreen/>}/>
         <Route path={REPORTS_MENU_ITEM_RETIREMENT} element={<MenuItemRetirementScreen/>}/>
+        <Route path={REPORTS_STAFF_PERFORMANCE_PREDICTION} element={<StaffPerformancePredictionScreen/>}/>
 <Route path={REPORTS_RECIPE_SCALING} element={<RecipeScalingScreen/>}/>
         <Route path={REPORTS_WINE_PAIRING} element={<WinePairingScreen/>}/>
         <Route path={REPORTS_STAFF_GAMIFICATION} element={<StaffGamificationScreen/>}/>
