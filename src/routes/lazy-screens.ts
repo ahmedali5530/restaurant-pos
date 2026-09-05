@@ -734,3 +734,7 @@ export const MenuPhotographyImpactScreen = lazy(() =>
 export const TablePreferenceScreen = lazy(() =>
   import('@/screens/reports/table.preference.report.tsx').then(m => ({default: m.TablePreferenceScreen}))
 );
+
+export const PriceElasticityDriftScreen = lazy(() =>
+  import('@/screens/reports/price.elasticity.drift.report.tsx').then(m => ({default: m.PriceElasticityDriftScreen}))
+);

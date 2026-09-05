@@ -284,3 +284,4 @@ export const REPORTS_CROSS_CHANNEL_ATTRIBUTION = REPORTS + '/cross-channel-attri
 export const REPORTS_STAFF_ENERGY = REPORTS + '/staff-energy';
 export const REPORTS_MENU_PHOTOGRAPHY = REPORTS + '/menu-photography';
 export const REPORTS_TABLE_PREFERENCE = REPORTS + '/table-preference';
+export const REPORTS_ELASTICITY_DRIFT = REPORTS + '/elasticity-drift';
