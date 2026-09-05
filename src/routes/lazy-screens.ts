@@ -742,3 +742,7 @@ export const PriceElasticityDriftScreen = lazy(() =>
 export const OccasionPredictionScreen = lazy(() =>
   import('@/screens/reports/occasion.prediction.report.tsx').then(m => ({default: m.OccasionPredictionScreen}))
 );
+
+export const MenuItemRetirementScreen = lazy(() =>
+  import('@/screens/reports/menu.item.retirement.report.tsx').then(m => ({default: m.MenuItemRetirementScreen}))
+);
