@@ -279,3 +279,4 @@ export const REPORTS_JOURNEY_FRICTION = REPORTS + '/journey-friction';
 export const REPORTS_SUBSTITUTION_IMPACT = REPORTS + '/substitution-impact';
 export const REPORTS_PREFERENCE_DRIFT = REPORTS + '/preference-drift';
 export const REPORTS_SHIFT_HANDOVER = REPORTS + '/shift-handover';
+export const REPORTS_MENU_DESCRIPTION = REPORTS + '/menu-description';

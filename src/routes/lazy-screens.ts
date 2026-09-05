@@ -714,3 +714,7 @@ export const PreferenceDriftScreen = lazy(() =>
 export const ShiftHandoverScreen = lazy(() =>
   import('@/screens/reports/shift.handover.report.tsx').then(m => ({default: m.ShiftHandoverScreen}))
 );
+
+export const MenuDescriptionImpactScreen = lazy(() =>
+  import('@/screens/reports/menu.description.impact.report.tsx').then(m => ({default: m.MenuDescriptionImpactScreen}))
+);
