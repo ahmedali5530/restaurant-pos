@@ -147,6 +147,7 @@ REPORTS_RECIPE_SCALING,
   REPORTS_ATMOSPHERE_REVENUE,
   REPORTS_PRE_SHIFT_BRIEFING,
   REPORTS_RECIPE_COST_VOLATILITY,
+  REPORTS_PLATE_WASTE_PREDICTOR,
   REPORTS_DELIVERY_ZONE_OPTIMIZER,
   REPORTS_SENTIMENT_HEATMAP,
   REPORTS_ORDER_PACING,
@@ -412,6 +413,7 @@ RecipeScalingScreen,
   AtmosphereRevenueScreen,
   PreShiftBriefingScreen,
   RecipeCostVolatilityScreen,
+  PlateWastePredictorScreen,
   DeliveryZoneOptimizerScreen,
   SentimentHeatmapScreen,
   OrderPacingOptimizerScreen,
@@ -609,6 +611,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_ATMOSPHERE_REVENUE} element={<AtmosphereRevenueScreen/>}/>
         <Route path={REPORTS_PRE_SHIFT_BRIEFING} element={<PreShiftBriefingScreen/>}/>
         <Route path={REPORTS_RECIPE_COST_VOLATILITY} element={<RecipeCostVolatilityScreen/>}/>
+        <Route path={REPORTS_PLATE_WASTE_PREDICTOR} element={<PlateWastePredictorScreen/>}/>
 <Route path={REPORTS_RECIPE_SCALING} element={<RecipeScalingScreen/>}/>
         <Route path={REPORTS_WINE_PAIRING} element={<WinePairingScreen/>}/>
         <Route path={REPORTS_STAFF_GAMIFICATION} element={<StaffGamificationScreen/>}/>

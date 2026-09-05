@@ -762,3 +762,7 @@ export const PreShiftBriefingScreen = lazy(() =>
 export const RecipeCostVolatilityScreen = lazy(() =>
   import('@/screens/reports/recipe-cost-volatility.report.tsx').then(m => ({default: m.RecipeCostVolatilityScreen}))
 );
+
+export const PlateWastePredictorScreen = lazy(() =>
+  import('@/screens/reports/plate-waste-predictor.report.tsx').then(m => ({default: m.PlateWastePredictorScreen}))
+);
