@@ -294,3 +294,4 @@ export const REPORTS_RECIPE_COST_VOLATILITY = REPORTS + '/recipe-cost-volatility
 export const REPORTS_PLATE_WASTE_PREDICTOR = REPORTS + '/plate-waste-predictor';
 export const REPORTS_LOYALTY_TIER_MIGRATION = REPORTS + '/loyalty-tier-migration';
 export const REPORTS_FIRST_VISIT_CONVERSION = REPORTS + '/first-visit-conversion';
+export const REPORTS_DELIVERY_QUALITY_DECAY = REPORTS + '/delivery-quality-decay';

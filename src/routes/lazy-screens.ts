@@ -774,3 +774,7 @@ export const LoyaltyTierMigrationScreen = lazy(() =>
 export const FirstVisitConversionScreen = lazy(() =>
   import('@/screens/reports/first-visit-conversion.report.tsx').then(m => ({default: m.FirstVisitConversionScreen}))
 );
+
+export const DeliveryQualityDecayScreen = lazy(() =>
+  import('@/screens/reports/delivery-quality-decay.report.tsx').then(m => ({default: m.DeliveryQualityDecayScreen}))
+);
