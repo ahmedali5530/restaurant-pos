@@ -282,3 +282,4 @@ export const REPORTS_SHIFT_HANDOVER = REPORTS + '/shift-handover';
 export const REPORTS_MENU_DESCRIPTION = REPORTS + '/menu-description';
 export const REPORTS_CROSS_CHANNEL_ATTRIBUTION = REPORTS + '/cross-channel-attribution';
 export const REPORTS_STAFF_ENERGY = REPORTS + '/staff-energy';
+export const REPORTS_MENU_PHOTOGRAPHY = REPORTS + '/menu-photography';

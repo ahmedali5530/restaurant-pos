@@ -138,6 +138,7 @@ REPORTS_RECIPE_SCALING,
   REPORTS_MENU_DESCRIPTION,
   REPORTS_CROSS_CHANNEL_ATTRIBUTION,
   REPORTS_STAFF_ENERGY,
+  REPORTS_MENU_PHOTOGRAPHY,
   REPORTS_DELIVERY_ZONE_OPTIMIZER,
   REPORTS_SENTIMENT_HEATMAP,
   REPORTS_ORDER_PACING,
@@ -394,6 +395,7 @@ RecipeScalingScreen,
   MenuDescriptionImpactScreen,
   CrossChannelAttributionScreen,
   StaffEnergyMonitorScreen,
+  MenuPhotographyImpactScreen,
   DeliveryZoneOptimizerScreen,
   SentimentHeatmapScreen,
   OrderPacingOptimizerScreen,
@@ -582,6 +584,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_MENU_DESCRIPTION} element={<MenuDescriptionImpactScreen/>}/>
         <Route path={REPORTS_CROSS_CHANNEL_ATTRIBUTION} element={<CrossChannelAttributionScreen/>}/>
         <Route path={REPORTS_STAFF_ENERGY} element={<StaffEnergyMonitorScreen/>}/>
+        <Route path={REPORTS_MENU_PHOTOGRAPHY} element={<MenuPhotographyImpactScreen/>}/>
 <Route path={REPORTS_RECIPE_SCALING} element={<RecipeScalingScreen/>}/>
         <Route path={REPORTS_WINE_PAIRING} element={<WinePairingScreen/>}/>
         <Route path={REPORTS_STAFF_GAMIFICATION} element={<StaffGamificationScreen/>}/>

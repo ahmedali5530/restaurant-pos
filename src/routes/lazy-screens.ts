@@ -726,3 +726,7 @@ export const CrossChannelAttributionScreen = lazy(() =>
 export const StaffEnergyMonitorScreen = lazy(() =>
   import('@/screens/reports/staff.energy.monitor.report.tsx').then(m => ({default: m.StaffEnergyMonitorScreen}))
 );
+
+export const MenuPhotographyImpactScreen = lazy(() =>
+  import('@/screens/reports/menu.photography.impact.report.tsx').then(m => ({default: m.MenuPhotographyImpactScreen}))
+);
