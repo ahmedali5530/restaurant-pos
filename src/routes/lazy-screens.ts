@@ -738,3 +738,7 @@ export const TablePreferenceScreen = lazy(() =>
 export const PriceElasticityDriftScreen = lazy(() =>
   import('@/screens/reports/price.elasticity.drift.report.tsx').then(m => ({default: m.PriceElasticityDriftScreen}))
 );
+
+export const OccasionPredictionScreen = lazy(() =>
+  import('@/screens/reports/occasion.prediction.report.tsx').then(m => ({default: m.OccasionPredictionScreen}))
+);
