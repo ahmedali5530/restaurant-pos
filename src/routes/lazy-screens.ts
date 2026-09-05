@@ -794,3 +794,7 @@ export const WifiExperienceScreen = lazy(() =>
 export const ParkingLotOptimizerScreen = lazy(() =>
   import('@/screens/reports/parking-lot-optimizer.report.tsx').then(m => ({default: m.ParkingLotOptimizerScreen}))
 );
+
+export const NoiseAcousticComfortScreen = lazy(() =>
+  import('@/screens/reports/noise-acoustic-comfort.report.tsx').then(m => ({default: m.NoiseAcousticComfortScreen}))
+);
