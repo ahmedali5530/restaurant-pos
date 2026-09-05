@@ -718,3 +718,7 @@ export const ShiftHandoverScreen = lazy(() =>
 export const MenuDescriptionImpactScreen = lazy(() =>
   import('@/screens/reports/menu.description.impact.report.tsx').then(m => ({default: m.MenuDescriptionImpactScreen}))
 );
+
+export const CrossChannelAttributionScreen = lazy(() =>
+  import('@/screens/reports/cross.channel.attribution.report.tsx').then(m => ({default: m.CrossChannelAttributionScreen}))
+);
