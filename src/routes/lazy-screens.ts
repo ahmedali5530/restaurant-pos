@@ -790,3 +790,7 @@ export const RestroomCleanlinessScreen = lazy(() =>
 export const WifiExperienceScreen = lazy(() =>
   import('@/screens/reports/wifi-experience-impact.report.tsx').then(m => ({default: m.WifiExperienceScreen}))
 );
+
+export const ParkingLotOptimizerScreen = lazy(() =>
+  import('@/screens/reports/parking-lot-optimizer.report.tsx').then(m => ({default: m.ParkingLotOptimizerScreen}))
+);
