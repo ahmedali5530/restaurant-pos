@@ -157,6 +157,7 @@ REPORTS_RECIPE_SCALING,
   REPORTS_PARKING_LOT_OPTIMIZER,
   REPORTS_NOISE_ACOUSTIC_COMFORT,
   REPORTS_LIGHTING_MOOD_OPTIMIZER,
+  REPORTS_TEMPERATURE_HVAC_COMFORT,
   REPORTS_DELIVERY_ZONE_OPTIMIZER,
   REPORTS_SENTIMENT_HEATMAP,
   REPORTS_ORDER_PACING,
@@ -432,6 +433,7 @@ RecipeScalingScreen,
   ParkingLotOptimizerScreen,
   NoiseAcousticComfortScreen,
   LightingMoodOptimizerScreen,
+  TemperatureHvacComfortScreen,
   DeliveryZoneOptimizerScreen,
   SentimentHeatmapScreen,
   OrderPacingOptimizerScreen,
@@ -639,6 +641,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_PARKING_LOT_OPTIMIZER} element={<ParkingLotOptimizerScreen/>}/>
         <Route path={REPORTS_NOISE_ACOUSTIC_COMFORT} element={<NoiseAcousticComfortScreen/>}/>
         <Route path={REPORTS_LIGHTING_MOOD_OPTIMIZER} element={<LightingMoodOptimizerScreen/>}/>
+        <Route path={REPORTS_TEMPERATURE_HVAC_COMFORT} element={<TemperatureHvacComfortScreen/>}/>
 <Route path={REPORTS_RECIPE_SCALING} element={<RecipeScalingScreen/>}/>
         <Route path={REPORTS_WINE_PAIRING} element={<WinePairingScreen/>}/>
         <Route path={REPORTS_STAFF_GAMIFICATION} element={<StaffGamificationScreen/>}/>

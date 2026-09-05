@@ -802,3 +802,7 @@ export const NoiseAcousticComfortScreen = lazy(() =>
 export const LightingMoodOptimizerScreen = lazy(() =>
   import('@/screens/reports/lighting-mood-optimizer.report.tsx').then(m => ({default: m.LightingMoodOptimizerScreen}))
 );
+
+export const TemperatureHvacComfortScreen = lazy(() =>
+  import('@/screens/reports/temperature-hvac-comfort.report.tsx').then(m => ({default: m.TemperatureHvacComfortScreen}))
+);
