@@ -698,3 +698,7 @@ export const KitchenSkillGapScreen = lazy(() =>
 export const MenuCannibalizationScreen = lazy(() =>
   import('@/screens/reports/menu.cannibalization.report.tsx').then(m => ({default: m.MenuCannibalizationScreen}))
 );
+
+export const JourneyFrictionScreen = lazy(() =>
+  import('@/screens/reports/journey.friction.report.tsx').then(m => ({default: m.JourneyFrictionScreen}))
+);
