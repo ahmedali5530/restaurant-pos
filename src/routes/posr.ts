@@ -293,3 +293,4 @@ export const REPORTS_PRE_SHIFT_BRIEFING = REPORTS + '/pre-shift-briefing';
 export const REPORTS_RECIPE_COST_VOLATILITY = REPORTS + '/recipe-cost-volatility';
 export const REPORTS_PLATE_WASTE_PREDICTOR = REPORTS + '/plate-waste-predictor';
 export const REPORTS_LOYALTY_TIER_MIGRATION = REPORTS + '/loyalty-tier-migration';
+export const REPORTS_FIRST_VISIT_CONVERSION = REPORTS + '/first-visit-conversion';

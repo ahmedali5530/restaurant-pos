@@ -770,3 +770,7 @@ export const PlateWastePredictorScreen = lazy(() =>
 export const LoyaltyTierMigrationScreen = lazy(() =>
   import('@/screens/reports/loyalty-tier-migration.report.tsx').then(m => ({default: m.LoyaltyTierMigrationScreen}))
 );
+
+export const FirstVisitConversionScreen = lazy(() =>
+  import('@/screens/reports/first-visit-conversion.report.tsx').then(m => ({default: m.FirstVisitConversionScreen}))
+);
