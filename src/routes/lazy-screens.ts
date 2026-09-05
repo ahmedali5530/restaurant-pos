@@ -710,3 +710,7 @@ export const IngredientSubstitutionImpactScreen = lazy(() =>
 export const PreferenceDriftScreen = lazy(() =>
   import('@/screens/reports/preference.drift.report.tsx').then(m => ({default: m.PreferenceDriftScreen}))
 );
+
+export const ShiftHandoverScreen = lazy(() =>
+  import('@/screens/reports/shift.handover.report.tsx').then(m => ({default: m.ShiftHandoverScreen}))
+);
