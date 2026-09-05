@@ -730,3 +730,7 @@ export const StaffEnergyMonitorScreen = lazy(() =>
 export const MenuPhotographyImpactScreen = lazy(() =>
   import('@/screens/reports/menu.photography.impact.report.tsx').then(m => ({default: m.MenuPhotographyImpactScreen}))
 );
+
+export const TablePreferenceScreen = lazy(() =>
+  import('@/screens/reports/table.preference.report.tsx').then(m => ({default: m.TablePreferenceScreen}))
+);

@@ -283,3 +283,4 @@ export const REPORTS_MENU_DESCRIPTION = REPORTS + '/menu-description';
 export const REPORTS_CROSS_CHANNEL_ATTRIBUTION = REPORTS + '/cross-channel-attribution';
 export const REPORTS_STAFF_ENERGY = REPORTS + '/staff-energy';
 export const REPORTS_MENU_PHOTOGRAPHY = REPORTS + '/menu-photography';
+export const REPORTS_TABLE_PREFERENCE = REPORTS + '/table-preference';
