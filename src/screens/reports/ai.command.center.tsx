@@ -187,6 +187,7 @@ REPORTS_RECIPE_SCALING,
   REPORTS_STAFF_PERFORMANCE_PREDICTION,
   REPORTS_ATMOSPHERE_REVENUE,
   REPORTS_PRE_SHIFT_BRIEFING,
+  REPORTS_RECIPE_COST_VOLATILITY,
 } from "@/routes/posr.ts";
 
 // ---------------------------------------------------------------------------
@@ -398,6 +399,7 @@ fetchRecipeScaleSummary(db),
         fetchPerfPredictionSummary(db),
         fetchAtmosphereSummary(db),
         fetchBriefingSummary(db),
+        fetchCostVolatilitySummary(db),
       ]);
 
       setMetrics([
@@ -408,7 +410,7 @@ fetchRecipeScaleSummary(db),
         serverData, competitorData, foodCostData,
         recipeData, segmentationData, laborData,
         deliveryData, tipData, revpashData,
-seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, packagingData, reorderPointData, prepSheetData, payFeeData, healthData, schedConflictData, breakEvenData, alcoholData, recipeScaleData, wineData, gamificationData, kitchenPrepData, transferData, sentimentTrendData, cleaningData, driverCoachData, expiryData, adTargetingData, localSeoData, pricePsychData, stressTestData, eventMenuData, retentionData, negotiationData, maintBudgetData, feedbackLoopData, crossSellData, dishPopData, waitlistData, nutritionData, customizationData, tableTurnoverData, procedureData, carbonData, adRoiData, compData, taxData, phoneData, predictData, intelData, benchData, wasteValueData, socialData, hiringData, invoiceData, breakData, utilityData, pacingData, heatmapData, zoneData, priceTestData, menuEngData, promoHaloData, kitchenSurgeData, modPatternData, ltvMultData, ticketCompData, stationEffData, pairAffData, waitExpData, serverTableData, seasonalShiftData, turnoverVelData, profDecayData, orderFreqData, patternAnomData, skillGapData, cannibData, journeyFrictionData, subImpactData, prefDriftData, shiftHandData, menuDescData, attributionData, staffEnergyData, photoImpactData, tablePrefData, elasDriftData, occasionData, retireData, perfPredData, atmosData, briefingData,
+seasonalData, guestPrefData, noShowData, fraudData, foodSafetyData, energyData, staffTurnoverData, yieldData, kitchenData, winBackData, chargebackData, elasticityData, promoAbuseData, pairingData, waitPredData, promoForecastData, clvTrajectoryData, spoilageData, cadenceData, substitutionData, trainingData, seatingData, satisfactionData, abandonedData, branchCompData, complianceData, giftCardFraudData, refundAbuseData, buffetDemandData, deliveryRouteData, serverBalancerData, dishProfitData, cashDrawerData, cashWarningData, complaintPatternData, weatherData, peakPricingData, tableUtilData, overtimeData, loyaltyRoiData, procurementData, menuRotationData, serverCoachData, allergenRiskData, overbookingData, cascadeData, vibeData, vampireData, reviewResponseData, socialContentData, cateringData, equipMaintData, milestoneData, schedPrefData, floorPlanData, onlineFraudData, packagingData, reorderPointData, prepSheetData, payFeeData, healthData, schedConflictData, breakEvenData, alcoholData, recipeScaleData, wineData, gamificationData, kitchenPrepData, transferData, sentimentTrendData, cleaningData, driverCoachData, expiryData, adTargetingData, localSeoData, pricePsychData, stressTestData, eventMenuData, retentionData, negotiationData, maintBudgetData, feedbackLoopData, crossSellData, dishPopData, waitlistData, nutritionData, customizationData, tableTurnoverData, procedureData, carbonData, adRoiData, compData, taxData, phoneData, predictData, intelData, benchData, wasteValueData, socialData, hiringData, invoiceData, breakData, utilityData, pacingData, heatmapData, zoneData, priceTestData, menuEngData, promoHaloData, kitchenSurgeData, modPatternData, ltvMultData, ticketCompData, stationEffData, pairAffData, waitExpData, serverTableData, seasonalShiftData, turnoverVelData, profDecayData, orderFreqData, patternAnomData, skillGapData, cannibData, journeyFrictionData, subImpactData, prefDriftData, shiftHandData, menuDescData, attributionData, staffEnergyData, photoImpactData, tablePrefData, elasDriftData, occasionData, retireData, perfPredData, atmosData, briefingData, costVolData,
       ]);
     } catch (err) {
       console.error('[ai-command] loadAllMetrics failed', err);
@@ -3968,6 +3970,27 @@ async function fetchBriefingSummary(db: any): Promise<MetricCard> {
       health: f.critical > 0 ? 'critical' : (f.peak > 0 ? 'warning' : 'good'), link: REPORTS_PRE_SHIFT_BRIEFING, linkLabel: 'View briefing',
     };
   } catch { return neutralCard('Pre-Shift Briefing', faClipboardList, 'text-amber-600', REPORTS_PRE_SHIFT_BRIEFING); }
+}
+
+async function fetchCostVolatilitySummary(db: any): Promise<MetricCard> {
+  try {
+    const result = await db.query(
+      `SELECT count() AS total, math::count(severity = 'critical') AS critical,
+              math::sum(est_monthly_opportunity WHERE est_monthly_opportunity > 0) AS opportunity,
+              math::count(rule_id = 'margin_threshold_breach_forecast') AS breach,
+              math::mean(confidence_score WHERE confidence_score != NONE) AS avgconf
+       FROM recipe_cost_volatility_alert WHERE status = 'open' GROUP ALL`
+    );
+    const list = Array.isArray(result) ? result.flat() : [];
+    const f = list[0];
+    if (!f || f.count === 0) return neutralCard('Cost Volatility', faChartLine, 'text-violet-600', REPORTS_RECIPE_COST_VOLATILITY);
+    return {
+      title: 'Cost Volatility', icon: faChartLine, color: 'text-violet-600',
+      primary: `${f.breach} margin breaches`,
+      secondary: `${f.total} forecasts · ${f.critical} critical · ${Math.round(f.avgconf || 0)}% conf`,
+      health: f.critical > 0 ? 'critical' : (f.breach > 0 ? 'warning' : 'good'), link: REPORTS_RECIPE_COST_VOLATILITY, linkLabel: 'View forecasts',
+    };
+  } catch { return neutralCard('Cost Volatility', faChartLine, 'text-violet-600', REPORTS_RECIPE_COST_VOLATILITY); }
 }
 
 function neutralCard(title: string, icon: any, color: string, link: string): MetricCard {

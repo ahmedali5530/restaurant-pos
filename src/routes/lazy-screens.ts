@@ -758,3 +758,7 @@ export const AtmosphereRevenueScreen = lazy(() =>
 export const PreShiftBriefingScreen = lazy(() =>
   import('@/screens/reports/pre-shift-briefing.report.tsx').then(m => ({default: m.PreShiftBriefingScreen}))
 );
+
+export const RecipeCostVolatilityScreen = lazy(() =>
+  import('@/screens/reports/recipe-cost-volatility.report.tsx').then(m => ({default: m.RecipeCostVolatilityScreen}))
+);

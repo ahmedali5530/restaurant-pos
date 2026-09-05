@@ -290,3 +290,4 @@ export const REPORTS_MENU_ITEM_RETIREMENT = REPORTS + '/menu-item-retirement';
 export const REPORTS_STAFF_PERFORMANCE_PREDICTION = REPORTS + '/staff-performance-prediction';
 export const REPORTS_ATMOSPHERE_REVENUE = REPORTS + '/atmosphere-revenue';
 export const REPORTS_PRE_SHIFT_BRIEFING = REPORTS + '/pre-shift-briefing';
+export const REPORTS_RECIPE_COST_VOLATILITY = REPORTS + '/recipe-cost-volatility';
