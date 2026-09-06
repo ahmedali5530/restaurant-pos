@@ -474,6 +474,7 @@ RecipeScalingScreen,
   MenuTypographyMaterialScreen,
   MirrorReflectiveSurfaceScreen,
   RoomPartitionDividerScreen,
+  RestroomDesignFixtureScreen,
   DeliveryZoneOptimizerScreen,
   SentimentHeatmapScreen,
   OrderPacingOptimizerScreen,
@@ -702,6 +703,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_MENU_TYPOGRAPHY_MATERIAL} element={<MenuTypographyMaterialScreen/>}/>
         <Route path={REPORTS_MIRROR_REFLECTIVE_SURFACE} element={<MirrorReflectiveSurfaceScreen/>}/>
         <Route path={REPORTS_ROOM_PARTITION_DIVIDER} element={<RoomPartitionDividerScreen/>}/>
+        <Route path={REPORTS_RESTROOM_DESIGN_FIXTURE} element={<RestroomDesignFixtureScreen/>}/>
 <Route path={REPORTS_RECIPE_SCALING} element={<RecipeScalingScreen/>}/>
         <Route path={REPORTS_WINE_PAIRING} element={<WinePairingScreen/>}/>
         <Route path={REPORTS_STAFF_GAMIFICATION} element={<StaffGamificationScreen/>}/>
