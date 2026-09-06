@@ -878,3 +878,7 @@ export const WindowNaturalLightScreen = lazy(() =>
 export const MenuTypographyMaterialScreen = lazy(() =>
   import('@/screens/reports/menu-typography-material.report.tsx').then(m => ({default: m.MenuTypographyMaterialScreen}))
 );
+
+export const MirrorReflectiveSurfaceScreen = lazy(() =>
+  import('@/screens/reports/mirror-reflective-surface.report.tsx').then(m => ({default: m.MirrorReflectiveSurfaceScreen}))
+);
