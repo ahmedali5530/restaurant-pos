@@ -930,3 +930,7 @@ export const SelfServiceKioskTerminalScreen = lazy(() =>
 export const MobileAppOrderingScreen = lazy(() =>
   import('@/screens/reports/mobile-app-ordering.report.tsx').then(m => ({default: m.MobileAppOrderingScreen}))
 );
+
+export const PhoneChargingPowerScreen = lazy(() =>
+  import('@/screens/reports/phone-charging-power.report.tsx').then(m => ({default: m.PhoneChargingPowerScreen}))
+);

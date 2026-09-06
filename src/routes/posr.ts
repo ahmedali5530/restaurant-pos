@@ -333,3 +333,4 @@ export const REPORTS_BRANDED_MERCH_RETAIL = REPORTS + '/branded-merchandise-reta
 export const REPORTS_COMMUNITY_PARTNERSHIP_ENGAGEMENT = REPORTS + '/community-partnership-engagement';
 export const REPORTS_SELF_SERVICE_KIOSK_TERMINAL = REPORTS + '/self-service-kiosk-terminal';
 export const REPORTS_MOBILE_APP_ORDERING = REPORTS + '/mobile-app-ordering';
+export const REPORTS_PHONE_CHARGING_POWER = REPORTS + '/phone-charging-power';
