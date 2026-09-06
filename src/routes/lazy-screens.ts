@@ -882,3 +882,7 @@ export const MenuTypographyMaterialScreen = lazy(() =>
 export const MirrorReflectiveSurfaceScreen = lazy(() =>
   import('@/screens/reports/mirror-reflective-surface.report.tsx').then(m => ({default: m.MirrorReflectiveSurfaceScreen}))
 );
+
+export const RoomPartitionDividerScreen = lazy(() =>
+  import('@/screens/reports/room-partition-divider.report.tsx').then(m => ({default: m.RoomPartitionDividerScreen}))
+);
