@@ -866,3 +866,7 @@ export const FloorCeilingSurfaceScreen = lazy(() =>
 export const InteriorSignageWayfindingScreen = lazy(() =>
   import('@/screens/reports/interior-signage-wayfinding.report.tsx').then(m => ({default: m.InteriorSignageWayfindingScreen}))
 );
+
+export const ColorSchemePaletteScreen = lazy(() =>
+  import('@/screens/reports/color-scheme-palette.report.tsx').then(m => ({default: m.ColorSchemePaletteScreen}))
+);

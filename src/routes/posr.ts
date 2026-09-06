@@ -317,3 +317,4 @@ export const REPORTS_AIR_QUALITY_VENTILATION = REPORTS + '/air-quality-ventilati
 export const REPORTS_CURB_APPEAL_FACADE = REPORTS + '/curb-appeal-facade';
 export const REPORTS_FLOOR_CEILING_SURFACE = REPORTS + '/floor-ceiling-surface';
 export const REPORTS_INTERIOR_SIGNAGE_WAYFINDING = REPORTS + '/interior-signage-wayfinding';
+export const REPORTS_COLOR_SCHEME_PALETTE = REPORTS + '/color-scheme-palette';
