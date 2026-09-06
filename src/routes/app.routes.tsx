@@ -257,6 +257,7 @@ REPORTS_RECIPE_SCALING,
   REPORTS_GREEN_CERTIFICATION_ECO,
   REPORTS_SOUND_SYSTEM_SPEAKER,
   REPORTS_PRIVATE_EVENT_SPACE,
+  REPORTS_FOOD_DISPLAY_PASTRY_CASE,
   SETTINGS,
   INTEGRATIONS,
   SUMMARY,
@@ -485,6 +486,7 @@ RecipeScalingScreen,
   GreenCertificationEcoScreen,
   SoundSystemSpeakerScreen,
   PrivateEventSpaceScreen,
+  FoodDisplayPastryCaseScreen,
   DeliveryZoneOptimizerScreen,
   SentimentHeatmapScreen,
   OrderPacingOptimizerScreen,
@@ -719,6 +721,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_GREEN_CERTIFICATION_ECO} element={<GreenCertificationEcoScreen/>}/>
         <Route path={REPORTS_SOUND_SYSTEM_SPEAKER} element={<SoundSystemSpeakerScreen/>}/>
         <Route path={REPORTS_PRIVATE_EVENT_SPACE} element={<PrivateEventSpaceScreen/>}/>
+        <Route path={REPORTS_FOOD_DISPLAY_PASTRY_CASE} element={<FoodDisplayPastryCaseScreen/>}/>
 <Route path={REPORTS_RECIPE_SCALING} element={<RecipeScalingScreen/>}/>
         <Route path={REPORTS_WINE_PAIRING} element={<WinePairingScreen/>}/>
         <Route path={REPORTS_STAFF_GAMIFICATION} element={<StaffGamificationScreen/>}/>

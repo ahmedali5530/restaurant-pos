@@ -910,3 +910,7 @@ export const SoundSystemSpeakerScreen = lazy(() =>
 export const PrivateEventSpaceScreen = lazy(() =>
   import('@/screens/reports/private-event-space.report.tsx').then(m => ({default: m.PrivateEventSpaceScreen}))
 );
+
+export const FoodDisplayPastryCaseScreen = lazy(() =>
+  import('@/screens/reports/food-display-pastry-case.report.tsx').then(m => ({default: m.FoodDisplayPastryCaseScreen}))
+);
