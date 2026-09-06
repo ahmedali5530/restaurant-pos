@@ -319,3 +319,4 @@ export const REPORTS_FLOOR_CEILING_SURFACE = REPORTS + '/floor-ceiling-surface';
 export const REPORTS_INTERIOR_SIGNAGE_WAYFINDING = REPORTS + '/interior-signage-wayfinding';
 export const REPORTS_COLOR_SCHEME_PALETTE = REPORTS + '/color-scheme-palette';
 export const REPORTS_WINDOW_NATURAL_LIGHT = REPORTS + '/window-natural-light';
+export const REPORTS_MENU_TYPOGRAPHY_MATERIAL = REPORTS + '/menu-typography-material';

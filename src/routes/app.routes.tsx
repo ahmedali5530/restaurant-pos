@@ -175,6 +175,7 @@ REPORTS_RECIPE_SCALING,
   REPORTS_INTERIOR_SIGNAGE_WAYFINDING,
   REPORTS_COLOR_SCHEME_PALETTE,
   REPORTS_WINDOW_NATURAL_LIGHT,
+  REPORTS_MENU_TYPOGRAPHY_MATERIAL,
   REPORTS_DELIVERY_ZONE_OPTIMIZER,
   REPORTS_SENTIMENT_HEATMAP,
   REPORTS_ORDER_PACING,
@@ -468,6 +469,7 @@ RecipeScalingScreen,
   InteriorSignageWayfindingScreen,
   ColorSchemePaletteScreen,
   WindowNaturalLightScreen,
+  MenuTypographyMaterialScreen,
   DeliveryZoneOptimizerScreen,
   SentimentHeatmapScreen,
   OrderPacingOptimizerScreen,
@@ -693,6 +695,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_INTERIOR_SIGNAGE_WAYFINDING} element={<InteriorSignageWayfindingScreen/>}/>
         <Route path={REPORTS_COLOR_SCHEME_PALETTE} element={<ColorSchemePaletteScreen/>}/>
         <Route path={REPORTS_WINDOW_NATURAL_LIGHT} element={<WindowNaturalLightScreen/>}/>
+        <Route path={REPORTS_MENU_TYPOGRAPHY_MATERIAL} element={<MenuTypographyMaterialScreen/>}/>
 <Route path={REPORTS_RECIPE_SCALING} element={<RecipeScalingScreen/>}/>
         <Route path={REPORTS_WINE_PAIRING} element={<WinePairingScreen/>}/>
         <Route path={REPORTS_STAFF_GAMIFICATION} element={<StaffGamificationScreen/>}/>
