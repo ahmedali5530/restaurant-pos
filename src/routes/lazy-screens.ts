@@ -846,3 +846,7 @@ export const BiophilicDesignPlantScreen = lazy(() =>
 export const DigitalMenuQrScreen = lazy(() =>
   import('@/screens/reports/digital-menu-qr.report.tsx').then(m => ({default: m.DigitalMenuQrScreen}))
 );
+
+export const OutdoorPatioSeasonalScreen = lazy(() =>
+  import('@/screens/reports/outdoor-patio-seasonal.report.tsx').then(m => ({default: m.OutdoorPatioSeasonalScreen}))
+);

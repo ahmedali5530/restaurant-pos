@@ -312,3 +312,4 @@ export const REPORTS_SEATING_COMFORT_FURNITURE = REPORTS + '/seating-comfort-fur
 export const REPORTS_WALL_DECOR_ARTWORK = REPORTS + '/wall-decor-artwork';
 export const REPORTS_BIOPHILIC_DESIGN_PLANT = REPORTS + '/biophilic-design-plant';
 export const REPORTS_DIGITAL_MENU_QR = REPORTS + '/digital-menu-qr';
+export const REPORTS_OUTDOOR_PATIO_SEASONAL = REPORTS + '/outdoor-patio-seasonal';
