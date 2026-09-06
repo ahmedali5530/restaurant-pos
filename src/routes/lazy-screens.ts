@@ -830,3 +830,7 @@ export const MusicPlaylistRotationScreen = lazy(() =>
 export const TableSettingTablewareScreen = lazy(() =>
   import('@/screens/reports/table-setting-tableware.report.tsx').then(m => ({default: m.TableSettingTablewareScreen}))
 );
+
+export const SeatingComfortFurnitureScreen = lazy(() =>
+  import('@/screens/reports/seating-comfort-furniture.report.tsx').then(m => ({default: m.SeatingComfortFurnitureScreen}))
+);

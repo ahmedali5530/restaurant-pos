@@ -308,3 +308,4 @@ export const REPORTS_MENU_LAYOUT_PLACEMENT = REPORTS + '/menu-layout-placement';
 export const REPORTS_STAFF_APPEARANCE_UNIFORM = REPORTS + '/staff-appearance-uniform';
 export const REPORTS_MUSIC_PLAYLIST_ROTATION = REPORTS + '/music-playlist-rotation';
 export const REPORTS_TABLE_SETTING_TABLEWARE = REPORTS + '/table-setting-tableware';
+export const REPORTS_SEATING_COMFORT_FURNITURE = REPORTS + '/seating-comfort-furniture';
