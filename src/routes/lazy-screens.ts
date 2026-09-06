@@ -862,3 +862,7 @@ export const CurbAppealFacadeScreen = lazy(() =>
 export const FloorCeilingSurfaceScreen = lazy(() =>
   import('@/screens/reports/floor-ceiling-surface.report.tsx').then(m => ({default: m.FloorCeilingSurfaceScreen}))
 );
+
+export const InteriorSignageWayfindingScreen = lazy(() =>
+  import('@/screens/reports/interior-signage-wayfinding.report.tsx').then(m => ({default: m.InteriorSignageWayfindingScreen}))
+);
