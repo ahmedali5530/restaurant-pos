@@ -163,6 +163,7 @@ REPORTS_RECIPE_SCALING,
   REPORTS_MENU_LAYOUT_PLACEMENT,
   REPORTS_STAFF_APPEARANCE_UNIFORM,
   REPORTS_MUSIC_PLAYLIST_ROTATION,
+  REPORTS_TABLE_SETTING_TABLEWARE,
   REPORTS_DELIVERY_ZONE_OPTIMIZER,
   REPORTS_SENTIMENT_HEATMAP,
   REPORTS_ORDER_PACING,
@@ -444,6 +445,7 @@ RecipeScalingScreen,
   MenuLayoutPlacementScreen,
   StaffAppearanceUniformScreen,
   MusicPlaylistRotationScreen,
+  TableSettingTablewareScreen,
   DeliveryZoneOptimizerScreen,
   SentimentHeatmapScreen,
   OrderPacingOptimizerScreen,
@@ -657,6 +659,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_MENU_LAYOUT_PLACEMENT} element={<MenuLayoutPlacementScreen/>}/>
         <Route path={REPORTS_STAFF_APPEARANCE_UNIFORM} element={<StaffAppearanceUniformScreen/>}/>
         <Route path={REPORTS_MUSIC_PLAYLIST_ROTATION} element={<MusicPlaylistRotationScreen/>}/>
+        <Route path={REPORTS_TABLE_SETTING_TABLEWARE} element={<TableSettingTablewareScreen/>}/>
 <Route path={REPORTS_RECIPE_SCALING} element={<RecipeScalingScreen/>}/>
         <Route path={REPORTS_WINE_PAIRING} element={<WinePairingScreen/>}/>
         <Route path={REPORTS_STAFF_GAMIFICATION} element={<StaffGamificationScreen/>}/>

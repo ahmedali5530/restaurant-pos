@@ -307,3 +307,4 @@ export const REPORTS_ENTRANCE_ARRIVAL_OPTIMIZER = REPORTS + '/entrance-arrival-o
 export const REPORTS_MENU_LAYOUT_PLACEMENT = REPORTS + '/menu-layout-placement';
 export const REPORTS_STAFF_APPEARANCE_UNIFORM = REPORTS + '/staff-appearance-uniform';
 export const REPORTS_MUSIC_PLAYLIST_ROTATION = REPORTS + '/music-playlist-rotation';
+export const REPORTS_TABLE_SETTING_TABLEWARE = REPORTS + '/table-setting-tableware';

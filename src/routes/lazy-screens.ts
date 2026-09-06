@@ -826,3 +826,7 @@ export const StaffAppearanceUniformScreen = lazy(() =>
 export const MusicPlaylistRotationScreen = lazy(() =>
   import('@/screens/reports/music-playlist-rotation.report.tsx').then(m => ({default: m.MusicPlaylistRotationScreen}))
 );
+
+export const TableSettingTablewareScreen = lazy(() =>
+  import('@/screens/reports/table-setting-tableware.report.tsx').then(m => ({default: m.TableSettingTablewareScreen}))
+);
