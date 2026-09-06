@@ -858,3 +858,7 @@ export const AirQualityVentilationScreen = lazy(() =>
 export const CurbAppealFacadeScreen = lazy(() =>
   import('@/screens/reports/curb-appeal-facade.report.tsx').then(m => ({default: m.CurbAppealFacadeScreen}))
 );
+
+export const FloorCeilingSurfaceScreen = lazy(() =>
+  import('@/screens/reports/floor-ceiling-surface.report.tsx').then(m => ({default: m.FloorCeilingSurfaceScreen}))
+);

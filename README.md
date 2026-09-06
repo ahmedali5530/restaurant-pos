@@ -184,8 +184,8 @@ Copied `.env` files include **local-dev** Surreal and JWT values. Change `SURREA
 ## Security Hardening Stack + Feature Enhancements
 
 This fork includes a comprehensive security hardening stack + competitor-driven feature
-enhancements (**262 commits, 212 features, 164 POSR-exclusive differentiators, 167 releases**) that raises the security grade
-from **B− (65%) → A++ (97%)** and adds **212 new features** worth **$13,101+/mo** (Toast equivalent).
+enhancements (**263 commits, 213 features, 165 POSR-exclusive differentiators, 168 releases**) that raises the security grade
+from **B− (65%) → A++ (97%)** and adds **213 new features** worth **$13,201+/mo** (Toast equivalent).
 
 ### Security (47 commits)
 
@@ -199,7 +199,7 @@ from **B− (65%) → A++ (97%)** and adds **212 new features** worth **$13,101+
 | **Business-logic tests** (4 commits) | Payment drivers (33 tests × 6 gateways), fiscal serialization (66 tests FBR/PRA), sync-manager (49 tests), print helpers (36 tests) — 184 tests total |
 | **Remaining audit fixes** (1 commit) | sync `/stats` auth, tracking `payload.id` validation, printing debug leftover, rate limiting on `/auth/session` + `/auth/db-token` |
 
-### Features (262 commits, 212 features, 164 POSR-exclusive differentiators)
+### Features (263 commits, 213 features, 165 POSR-exclusive differentiators)
 
 | Feature | What it does | Toast equivalent |
 |---|---|---|
@@ -466,9 +466,10 @@ Toast monthly cost:    $69 (POS) + $185 (loyalty+marketing) + $15 (PWA) + $150 (
                        + $100 (AI outdoor patio & seasonal space optimizer — POSR exclusive)
                        + $100 (AI air quality & ventilation optimizer — POSR exclusive)
                        + $100 (AI curb appeal & exterior facade optimizer — POSR exclusive)
-                       = $13,101+/mo
+                       + $100 (AI floor & ceiling surface quality optimizer — POSR exclusive)
+                       = $13,201+/mo
 POSR monthly cost:     $0
-Total savings:         $13,101+/mo → $157,212+/year
+Total savings:         $13,201+/mo → $158,412+/year
 ```
 
 ### Security grade progression
