@@ -252,6 +252,9 @@ REPORTS_RECIPE_SCALING,
   REPORTS_TIPS,
   REPORTS_VOIDS,
   REPORTS_WASTE,
+  REPORTS_FIREPLACE_FIRE_FEATURE,
+  REPORTS_CEILING_DESIGN_DECOR,
+  REPORTS_GREEN_CERTIFICATION_ECO,
   SETTINGS,
   INTEGRATIONS,
   SUMMARY,
@@ -477,6 +480,7 @@ RecipeScalingScreen,
   RestroomDesignFixtureScreen,
   FireplaceFireFeatureScreen,
   CeilingDesignDecorScreen,
+  GreenCertificationEcoScreen,
   DeliveryZoneOptimizerScreen,
   SentimentHeatmapScreen,
   OrderPacingOptimizerScreen,
@@ -708,6 +712,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_RESTROOM_DESIGN_FIXTURE} element={<RestroomDesignFixtureScreen/>}/>
         <Route path={REPORTS_FIREPLACE_FIRE_FEATURE} element={<FireplaceFireFeatureScreen/>}/>
         <Route path={REPORTS_CEILING_DESIGN_DECOR} element={<CeilingDesignDecorScreen/>}/>
+        <Route path={REPORTS_GREEN_CERTIFICATION_ECO} element={<GreenCertificationEcoScreen/>}/>
 <Route path={REPORTS_RECIPE_SCALING} element={<RecipeScalingScreen/>}/>
         <Route path={REPORTS_WINE_PAIRING} element={<WinePairingScreen/>}/>
         <Route path={REPORTS_STAFF_GAMIFICATION} element={<StaffGamificationScreen/>}/>

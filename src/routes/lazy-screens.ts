@@ -898,3 +898,7 @@ export const FireplaceFireFeatureScreen = lazy(() =>
 export const CeilingDesignDecorScreen = lazy(() =>
   import('@/screens/reports/ceiling-design-decor.report.tsx').then(m => ({default: m.CeilingDesignDecorScreen}))
 );
+
+export const GreenCertificationEcoScreen = lazy(() =>
+  import('@/screens/reports/green-certification-eco.report.tsx').then(m => ({default: m.GreenCertificationEcoScreen}))
+);
