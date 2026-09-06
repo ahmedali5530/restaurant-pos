@@ -822,3 +822,7 @@ export const MenuLayoutPlacementScreen = lazy(() =>
 export const StaffAppearanceUniformScreen = lazy(() =>
   import('@/screens/reports/staff-appearance-uniform.report.tsx').then(m => ({default: m.StaffAppearanceUniformScreen}))
 );
+
+export const MusicPlaylistRotationScreen = lazy(() =>
+  import('@/screens/reports/music-playlist-rotation.report.tsx').then(m => ({default: m.MusicPlaylistRotationScreen}))
+);
