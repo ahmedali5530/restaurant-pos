@@ -330,3 +330,4 @@ export const REPORTS_SOUND_SYSTEM_SPEAKER = REPORTS + '/sound-system-speaker';
 export const REPORTS_PRIVATE_EVENT_SPACE = REPORTS + '/private-event-space';
 export const REPORTS_FOOD_DISPLAY_PASTRY_CASE = REPORTS + '/food-display-pastry-case';
 export const REPORTS_BRANDED_MERCH_RETAIL = REPORTS + '/branded-merchandise-retail';
+export const REPORTS_COMMUNITY_PARTNERSHIP_ENGAGEMENT = REPORTS + '/community-partnership-engagement';
