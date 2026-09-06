@@ -324,3 +324,4 @@ export const REPORTS_MIRROR_REFLECTIVE_SURFACE = REPORTS + '/mirror-reflective-s
 export const REPORTS_ROOM_PARTITION_DIVIDER = REPORTS + '/room-partition-divider';
 export const REPORTS_RESTROOM_DESIGN_FIXTURE = REPORTS + '/restroom-design-fixture';
 export const REPORTS_FIREPLACE_FIRE_FEATURE = REPORTS + '/fireplace-fire-feature';
+export const REPORTS_CEILING_DESIGN_DECOR = REPORTS + '/ceiling-design-decor';

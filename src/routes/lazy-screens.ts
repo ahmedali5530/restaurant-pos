@@ -894,3 +894,7 @@ export const RestroomDesignFixtureScreen = lazy(() =>
 export const FireplaceFireFeatureScreen = lazy(() =>
   import('@/screens/reports/fireplace-fire-feature.report.tsx').then(m => ({default: m.FireplaceFireFeatureScreen}))
 );
+
+export const CeilingDesignDecorScreen = lazy(() =>
+  import('@/screens/reports/ceiling-design-decor.report.tsx').then(m => ({default: m.CeilingDesignDecorScreen}))
+);
