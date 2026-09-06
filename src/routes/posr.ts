@@ -305,3 +305,4 @@ export const REPORTS_TEMPERATURE_HVAC_COMFORT = REPORTS + '/temperature-hvac-com
 export const REPORTS_SCENT_MARKETING_OPTIMIZER = REPORTS + '/scent-marketing-optimizer';
 export const REPORTS_ENTRANCE_ARRIVAL_OPTIMIZER = REPORTS + '/entrance-arrival-optimizer';
 export const REPORTS_MENU_LAYOUT_PLACEMENT = REPORTS + '/menu-layout-placement';
+export const REPORTS_STAFF_APPEARANCE_UNIFORM = REPORTS + '/staff-appearance-uniform';

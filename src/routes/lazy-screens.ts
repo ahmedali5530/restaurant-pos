@@ -818,3 +818,7 @@ export const EntranceArrivalOptimizerScreen = lazy(() =>
 export const MenuLayoutPlacementScreen = lazy(() =>
   import('@/screens/reports/menu-layout-placement.report.tsx').then(m => ({default: m.MenuLayoutPlacementScreen}))
 );
+
+export const StaffAppearanceUniformScreen = lazy(() =>
+  import('@/screens/reports/staff-appearance-uniform.report.tsx').then(m => ({default: m.StaffAppearanceUniformScreen}))
+);
