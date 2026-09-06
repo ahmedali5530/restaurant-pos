@@ -169,6 +169,7 @@ REPORTS_RECIPE_SCALING,
   REPORTS_BIOPHILIC_DESIGN_PLANT,
   REPORTS_DIGITAL_MENU_QR,
   REPORTS_OUTDOOR_PATIO_SEASONAL,
+  REPORTS_AIR_QUALITY_VENTILATION,
   REPORTS_DELIVERY_ZONE_OPTIMIZER,
   REPORTS_SENTIMENT_HEATMAP,
   REPORTS_ORDER_PACING,
@@ -456,6 +457,7 @@ RecipeScalingScreen,
   BiophilicDesignPlantScreen,
   DigitalMenuQrScreen,
   OutdoorPatioSeasonalScreen,
+  AirQualityVentilationScreen,
   DeliveryZoneOptimizerScreen,
   SentimentHeatmapScreen,
   OrderPacingOptimizerScreen,
@@ -675,6 +677,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_BIOPHILIC_DESIGN_PLANT} element={<BiophilicDesignPlantScreen/>}/>
         <Route path={REPORTS_DIGITAL_MENU_QR} element={<DigitalMenuQrScreen/>}/>
         <Route path={REPORTS_OUTDOOR_PATIO_SEASONAL} element={<OutdoorPatioSeasonalScreen/>}/>
+        <Route path={REPORTS_AIR_QUALITY_VENTILATION} element={<AirQualityVentilationScreen/>}/>
 <Route path={REPORTS_RECIPE_SCALING} element={<RecipeScalingScreen/>}/>
         <Route path={REPORTS_WINE_PAIRING} element={<WinePairingScreen/>}/>
         <Route path={REPORTS_STAFF_GAMIFICATION} element={<StaffGamificationScreen/>}/>
