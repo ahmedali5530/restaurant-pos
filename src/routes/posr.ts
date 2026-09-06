@@ -332,3 +332,4 @@ export const REPORTS_FOOD_DISPLAY_PASTRY_CASE = REPORTS + '/food-display-pastry-
 export const REPORTS_BRANDED_MERCH_RETAIL = REPORTS + '/branded-merchandise-retail';
 export const REPORTS_COMMUNITY_PARTNERSHIP_ENGAGEMENT = REPORTS + '/community-partnership-engagement';
 export const REPORTS_SELF_SERVICE_KIOSK_TERMINAL = REPORTS + '/self-service-kiosk-terminal';
+export const REPORTS_MOBILE_APP_ORDERING = REPORTS + '/mobile-app-ordering';
