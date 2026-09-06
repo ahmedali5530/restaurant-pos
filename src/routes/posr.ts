@@ -311,3 +311,4 @@ export const REPORTS_TABLE_SETTING_TABLEWARE = REPORTS + '/table-setting-tablewa
 export const REPORTS_SEATING_COMFORT_FURNITURE = REPORTS + '/seating-comfort-furniture';
 export const REPORTS_WALL_DECOR_ARTWORK = REPORTS + '/wall-decor-artwork';
 export const REPORTS_BIOPHILIC_DESIGN_PLANT = REPORTS + '/biophilic-design-plant';
+export const REPORTS_DIGITAL_MENU_QR = REPORTS + '/digital-menu-qr';

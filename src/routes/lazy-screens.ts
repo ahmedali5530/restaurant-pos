@@ -842,3 +842,7 @@ export const WallDecorArtworkScreen = lazy(() =>
 export const BiophilicDesignPlantScreen = lazy(() =>
   import('@/screens/reports/biophilic-design-plant.report.tsx').then(m => ({default: m.BiophilicDesignPlantScreen}))
 );
+
+export const DigitalMenuQrScreen = lazy(() =>
+  import('@/screens/reports/digital-menu-qr.report.tsx').then(m => ({default: m.DigitalMenuQrScreen}))
+);
