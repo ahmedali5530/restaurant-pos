@@ -834,3 +834,7 @@ export const TableSettingTablewareScreen = lazy(() =>
 export const SeatingComfortFurnitureScreen = lazy(() =>
   import('@/screens/reports/seating-comfort-furniture.report.tsx').then(m => ({default: m.SeatingComfortFurnitureScreen}))
 );
+
+export const WallDecorArtworkScreen = lazy(() =>
+  import('@/screens/reports/wall-decor-artwork.report.tsx').then(m => ({default: m.WallDecorArtworkScreen}))
+);
