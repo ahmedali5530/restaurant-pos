@@ -914,3 +914,7 @@ export const PrivateEventSpaceScreen = lazy(() =>
 export const FoodDisplayPastryCaseScreen = lazy(() =>
   import('@/screens/reports/food-display-pastry-case.report.tsx').then(m => ({default: m.FoodDisplayPastryCaseScreen}))
 );
+
+export const BrandedMerchandiseRetailScreen = lazy(() =>
+  import('@/screens/reports/branded-merchandise-retail.report.tsx').then(m => ({default: m.BrandedMerchandiseRetailScreen}))
+);
