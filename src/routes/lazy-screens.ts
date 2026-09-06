@@ -870,3 +870,7 @@ export const InteriorSignageWayfindingScreen = lazy(() =>
 export const ColorSchemePaletteScreen = lazy(() =>
   import('@/screens/reports/color-scheme-palette.report.tsx').then(m => ({default: m.ColorSchemePaletteScreen}))
 );
+
+export const WindowNaturalLightScreen = lazy(() =>
+  import('@/screens/reports/window-natural-light.report.tsx').then(m => ({default: m.WindowNaturalLightScreen}))
+);
