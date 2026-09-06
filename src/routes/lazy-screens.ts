@@ -814,3 +814,7 @@ export const ScentMarketingOptimizerScreen = lazy(() =>
 export const EntranceArrivalOptimizerScreen = lazy(() =>
   import('@/screens/reports/entrance-arrival-optimizer.report.tsx').then(m => ({default: m.EntranceArrivalOptimizerScreen}))
 );
+
+export const MenuLayoutPlacementScreen = lazy(() =>
+  import('@/screens/reports/menu-layout-placement.report.tsx').then(m => ({default: m.MenuLayoutPlacementScreen}))
+);
