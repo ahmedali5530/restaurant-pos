@@ -906,3 +906,7 @@ export const GreenCertificationEcoScreen = lazy(() =>
 export const SoundSystemSpeakerScreen = lazy(() =>
   import('@/screens/reports/sound-system-speaker.report.tsx').then(m => ({default: m.SoundSystemSpeakerScreen}))
 );
+
+export const PrivateEventSpaceScreen = lazy(() =>
+  import('@/screens/reports/private-event-space.report.tsx').then(m => ({default: m.PrivateEventSpaceScreen}))
+);
