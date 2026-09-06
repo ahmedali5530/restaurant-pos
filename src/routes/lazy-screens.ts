@@ -890,3 +890,7 @@ export const RoomPartitionDividerScreen = lazy(() =>
 export const RestroomDesignFixtureScreen = lazy(() =>
   import('@/screens/reports/restroom-design-fixture.report.tsx').then(m => ({default: m.RestroomDesignFixtureScreen}))
 );
+
+export const FireplaceFireFeatureScreen = lazy(() =>
+  import('@/screens/reports/fireplace-fire-feature.report.tsx').then(m => ({default: m.FireplaceFireFeatureScreen}))
+);
