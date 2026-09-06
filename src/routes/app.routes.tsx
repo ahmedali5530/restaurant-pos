@@ -260,6 +260,7 @@ REPORTS_RECIPE_SCALING,
   REPORTS_FOOD_DISPLAY_PASTRY_CASE,
   REPORTS_BRANDED_MERCH_RETAIL,
   REPORTS_COMMUNITY_PARTNERSHIP_ENGAGEMENT,
+  REPORTS_SELF_SERVICE_KIOSK_TERMINAL,
   SETTINGS,
   INTEGRATIONS,
   SUMMARY,
@@ -491,6 +492,7 @@ RecipeScalingScreen,
   FoodDisplayPastryCaseScreen,
   BrandedMerchandiseRetailScreen,
   CommunityPartnershipEngagementScreen,
+  SelfServiceKioskTerminalScreen,
   DeliveryZoneOptimizerScreen,
   SentimentHeatmapScreen,
   OrderPacingOptimizerScreen,
@@ -728,6 +730,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_FOOD_DISPLAY_PASTRY_CASE} element={<FoodDisplayPastryCaseScreen/>}/>
         <Route path={REPORTS_BRANDED_MERCH_RETAIL} element={<BrandedMerchandiseRetailScreen/>}/>
         <Route path={REPORTS_COMMUNITY_PARTNERSHIP_ENGAGEMENT} element={<CommunityPartnershipEngagementScreen/>}/>
+        <Route path={REPORTS_SELF_SERVICE_KIOSK_TERMINAL} element={<SelfServiceKioskTerminalScreen/>}/>
 <Route path={REPORTS_RECIPE_SCALING} element={<RecipeScalingScreen/>}/>
         <Route path={REPORTS_WINE_PAIRING} element={<WinePairingScreen/>}/>
         <Route path={REPORTS_STAFF_GAMIFICATION} element={<StaffGamificationScreen/>}/>

@@ -922,3 +922,7 @@ export const BrandedMerchandiseRetailScreen = lazy(() =>
 export const CommunityPartnershipEngagementScreen = lazy(() =>
   import('@/screens/reports/community-partnership-engagement.report.tsx').then(m => ({default: m.CommunityPartnershipEngagementScreen}))
 );
+
+export const SelfServiceKioskTerminalScreen = lazy(() =>
+  import('@/screens/reports/self-service-kiosk-terminal.report.tsx').then(m => ({default: m.SelfServiceKioskTerminalScreen}))
+);
