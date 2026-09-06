@@ -854,3 +854,7 @@ export const OutdoorPatioSeasonalScreen = lazy(() =>
 export const AirQualityVentilationScreen = lazy(() =>
   import('@/screens/reports/air-quality-ventilation.report.tsx').then(m => ({default: m.AirQualityVentilationScreen}))
 );
+
+export const CurbAppealFacadeScreen = lazy(() =>
+  import('@/screens/reports/curb-appeal-facade.report.tsx').then(m => ({default: m.CurbAppealFacadeScreen}))
+);

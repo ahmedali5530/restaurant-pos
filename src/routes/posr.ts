@@ -314,3 +314,4 @@ export const REPORTS_BIOPHILIC_DESIGN_PLANT = REPORTS + '/biophilic-design-plant
 export const REPORTS_DIGITAL_MENU_QR = REPORTS + '/digital-menu-qr';
 export const REPORTS_OUTDOOR_PATIO_SEASONAL = REPORTS + '/outdoor-patio-seasonal';
 export const REPORTS_AIR_QUALITY_VENTILATION = REPORTS + '/air-quality-ventilation';
+export const REPORTS_CURB_APPEAL_FACADE = REPORTS + '/curb-appeal-facade';
