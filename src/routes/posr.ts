@@ -326,3 +326,4 @@ export const REPORTS_RESTROOM_DESIGN_FIXTURE = REPORTS + '/restroom-design-fixtu
 export const REPORTS_FIREPLACE_FIRE_FEATURE = REPORTS + '/fireplace-fire-feature';
 export const REPORTS_CEILING_DESIGN_DECOR = REPORTS + '/ceiling-design-decor';
 export const REPORTS_GREEN_CERTIFICATION_ECO = REPORTS + '/green-certification-eco';
+export const REPORTS_SOUND_SYSTEM_SPEAKER = REPORTS + '/sound-system-speaker';

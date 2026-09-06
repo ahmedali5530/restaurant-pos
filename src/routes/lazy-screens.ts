@@ -902,3 +902,7 @@ export const CeilingDesignDecorScreen = lazy(() =>
 export const GreenCertificationEcoScreen = lazy(() =>
   import('@/screens/reports/green-certification-eco.report.tsx').then(m => ({default: m.GreenCertificationEcoScreen}))
 );
+
+export const SoundSystemSpeakerScreen = lazy(() =>
+  import('@/screens/reports/sound-system-speaker.report.tsx').then(m => ({default: m.SoundSystemSpeakerScreen}))
+);
