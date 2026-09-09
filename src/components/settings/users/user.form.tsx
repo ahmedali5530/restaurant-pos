@@ -76,7 +76,7 @@ export const UserForm = ({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       login_method: {
-        label: "Pin",
+        label: i18n.t('admin:forms.pin'),
         value: "pin",
       },
       create_employee: true,
@@ -93,7 +93,7 @@ export const UserForm = ({
     onClose();
     reset({
       login_method: {
-        label: "Pin",
+        label: i18n.t('admin:forms.pin'),
         value: "pin",
       },
       first_name: null,
@@ -113,7 +113,7 @@ export const UserForm = ({
       reset({
         ...data,
         login_method: {
-          label: ((data.login_method || "pin") === "form" ? "Form" : "Pin"),
+          label: ((data.login_method || "pin") === "form" ? i18n.t('admin:forms.formLogin') : i18n.t('admin:forms.pin')),
           value: (data.login_method || "pin"),
         },
         first_name: data.first_name,
@@ -284,7 +284,7 @@ export const UserForm = ({
               <InputField name="last_name" control={control} label={t('columns.lastName')} error={errors?.last_name?.message}/>
             </div>
             <div className="flex-1">
-              <label htmlFor="login_method">Login method</label>
+              <label htmlFor="login_method">{t('forms.loginMethod')}</label>
               <Controller
                 name="login_method"
                 control={control}
@@ -293,15 +293,15 @@ export const UserForm = ({
                     value={field.value}
                     onChange={field.onChange}
                     options={[
-                      { label: "Pin", value: "pin" },
-                      { label: "Form", value: "form" },
+                      { label: t('forms.pin'), value: "pin" },
+                      { label: t('forms.formLogin'), value: "form" },
                     ]}
                   />
                 )}
               />
             </div>
             <div className="flex-1">
-              <InputField name="login" control={control} label={isPinLogin ? "Pin" : "Username"} error={errors?.login?.message}/>
+              <InputField name="login" control={control} label={isPinLogin ? t('forms.pin') : t('forms.username')} error={errors?.login?.message}/>
             </div>
             {!isPinLogin && (
               <div className="flex-1">
@@ -310,7 +310,7 @@ export const UserForm = ({
             )}
             <div className="flex gap-2 items-end">
               <div className="flex-1">
-                <label htmlFor="user_role">Role</label>
+                <label htmlFor="user_role">{t('columns.role')}</label>
                 <Controller
                   name="user_role"
                   control={control}
@@ -331,7 +331,7 @@ export const UserForm = ({
             </div>
             <div className="flex gap-2 items-end">
               <div className="flex-1">
-                <label htmlFor="user_shift">Shift</label>
+                <label htmlFor="user_shift">{t('columns.shift')}</label>
                 <Controller
                   name="user_shift"
                   control={control}

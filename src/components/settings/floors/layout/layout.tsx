@@ -351,7 +351,7 @@ export const AdminFloorLayout = ({
             <Button variant="primary" disabled={selectedTableIds.length === 0}>Bulk Edit ({selectedTableIds.length})</Button>
             <Popover>
               <div className="w-[280px] p-3 flex flex-col gap-3">
-                <div className="text-sm font-medium">Update selected tables</div>
+                <div className="text-sm font-medium">{t('forms.updateSelectedTables')}</div>
                 <div>
                   <label className="text-sm block mb-1">{t('forms.width')}</label>
                   <Input
@@ -418,7 +418,7 @@ export const AdminFloorLayout = ({
                     </IconTooltipButton>
                   </div>
                 </div>
-                <Button onClick={applyBulkSettings} variant="primary">Apply to Selected</Button>
+                <Button onClick={applyBulkSettings} variant="primary">{t('buttons.applyToSelected')}</Button>
               </div>
             </Popover>
           </DialogTrigger>

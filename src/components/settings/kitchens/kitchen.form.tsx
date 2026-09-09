@@ -177,7 +177,7 @@ export const KitchenForm = ({
             </div>
 
             <div className="flex-1">
-              <label htmlFor="">Dishes</label>
+              <label htmlFor="">{t('tabs.dishes')}</label>
               <div className="mt-2">
                 <Input
                   placeholder={t('forms.searchDishes')}
@@ -328,7 +328,7 @@ export const KitchenForm = ({
 
             <div className="flex gap-2 items-end">
               <div className="flex-1">
-                <label htmlFor="">Printers</label>
+                <label htmlFor="">{t('columns.printers')}</label>
                 <Controller
                   render={({ field }) => (
                     <ReactSelect

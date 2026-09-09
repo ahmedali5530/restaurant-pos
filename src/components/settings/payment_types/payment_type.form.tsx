@@ -318,7 +318,7 @@ export const PaymentTypeForm = ({
 
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <label htmlFor="">Type</label>
+              <label htmlFor="">{t('columns.type')}</label>
               <Controller
                 render={({ field }) => (
                   <ReactSelect
@@ -339,7 +339,7 @@ export const PaymentTypeForm = ({
           {isRemoteType && (
             <div className="flex gap-3 mb-3">
               <div className="flex-1">
-                <label htmlFor="">Gateway Provider</label>
+                <label htmlFor="">{t('forms.gatewayProvider')}</label>
                 <Controller
                   render={({ field }) => (
                     <ReactSelect
@@ -358,7 +358,7 @@ export const PaymentTypeForm = ({
                 />
               </div>
               <div className="flex-1">
-                <label htmlFor="">Gateway Mode</label>
+                <label htmlFor="">{t('forms.gatewayMode')}</label>
                 <Controller
                   render={({ field }) => (
                     <ReactSelect
@@ -382,7 +382,7 @@ export const PaymentTypeForm = ({
 
           {isRemoteType && selectedGatewayDescriptor && (
             <div className="mb-3 border rounded p-3">
-              <h4 className="font-medium mb-3">Gateway Keys</h4>
+              <h4 className="font-medium mb-3">{t('forms.gatewayKeys')}</h4>
               {showEncryptedCredentialsHint && (
                 <div className="mb-3 p-2 bg-warning-50 border border-warning-200 rounded text-sm text-warning-800 dark:bg-warning-950/30 dark:border-warning-800 dark:text-warning-200">
                   <strong>{t('admin:forms.encryptedCredentialsHint')}</strong>{' '}
@@ -411,7 +411,7 @@ export const PaymentTypeForm = ({
 
           <div className="flex gap-3 mb-3 items-end">
             <div className="flex-1">
-              <label htmlFor="">Tax</label>
+              <label htmlFor="">{t('columns.tax')}</label>
               <Controller
                 render={({ field }) => (
                   <ReactSelect

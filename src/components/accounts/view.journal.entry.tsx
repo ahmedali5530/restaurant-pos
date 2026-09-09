@@ -55,7 +55,7 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
 
   return (
     <Modal
-      title={viewEntry ? `${t('forms.journalEntry', 'Journal Entry')} #${viewEntry.entry_number}` : t('forms.journalEntry', 'Journal Entry')}
+      title={viewEntry ? `${t('forms.journalEntry')} #${viewEntry.entry_number}` : t('forms.journalEntry')}
       open={open}
       onClose={onClose}
       size="xl"
@@ -71,7 +71,7 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
           <div className="bg-white rounded-xl shadow border border-neutral-200 p-4 flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <div className="text-lg font-semibold">
-                {t('forms.journalEntry', 'Journal Entry')} #{viewEntry.entry_number}
+                {t('forms.journalEntry')} #{viewEntry.entry_number}
               </div>
               <div className="text-xs text-neutral-500">
                 {viewEntry.date ? toJsDate(viewEntry.date).toLocaleString() : "—"}
@@ -79,11 +79,11 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm text-neutral-700">
               <div>
-                <div className="text-neutral-500 text-xs uppercase">{t('columns.module', 'Module')}</div>
+                <div className="text-neutral-500 text-xs uppercase">{t('columns.module')}</div>
                 <div>{viewEntry.source_module ?? "—"}</div>
               </div>
               <div>
-                <div className="text-neutral-500 text-xs uppercase">{t('columns.sourceId', 'Source ID')}</div>
+                <div className="text-neutral-500 text-xs uppercase">{t('columns.sourceId')}</div>
                 <div>{viewEntry.source_id ?? "—"}</div>
               </div>
               <div>
@@ -103,7 +103,7 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
                 </div>
               </div>
               <div className="md:col-span-4">
-                <div className="text-neutral-500 text-xs uppercase">{t('columns.memo', 'Memo')}</div>
+                <div className="text-neutral-500 text-xs uppercase">{t('columns.memo')}</div>
                 <div>{viewEntry.memo || "—"}</div>
               </div>
             </div>
@@ -111,7 +111,7 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
 
           <div className="bg-white rounded-xl shadow border border-neutral-200">
             <div className="text-sm font-semibold text-neutral-800 p-4 border-b border-neutral-200">
-              {t('tabs.lines', 'Lines')}
+              {t('tabs.lines')}
             </div>
             {viewEntry.lines && viewEntry.lines.length > 0 ? (
               <div className="overflow-x-auto">
@@ -144,7 +144,7 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
                   </tbody>
                   <tfoot className="bg-neutral-50 font-semibold">
                     <tr>
-                      <td colSpan={2} className="px-4 py-3 text-right">{t('reports.total', 'Total')}</td>
+                      <td colSpan={2} className="px-4 py-3 text-right">{t('reports.total')}</td>
                       <td className="px-4 py-3 text-right">{formatMoney(debitTotal)}</td>
                       <td className="px-4 py-3 text-right">{formatMoney(creditTotal)}</td>
                     </tr>
@@ -153,7 +153,7 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
               </div>
             ) : (
               <div className="p-4 text-sm text-neutral-500">
-                No lines found for this journal entry.
+                {t('messages.noJournalLines')}
               </div>
             )}
           </div>
@@ -163,7 +163,7 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
               <div className="flex items-center justify-between mb-3">
                 <div className="text-sm font-semibold text-neutral-800 flex items-center gap-2">
                   <FontAwesomeIcon icon={faFile}/>
-                  <span>{t('upload.documents', 'Documents')}</span>
+                  <span>{t('upload.documents')}</span>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -178,10 +178,10 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
                       </div>
                       <div className="flex flex-col min-w-0">
                         <span className="text-sm font-medium text-neutral-800 truncate">
-                          {doc.name ?? `Document ${index + 1}`}
+                          {doc.name ?? t('upload.documentN', {n: index + 1})}
                         </span>
                         <span className="text-xs text-neutral-500">
-                          {doc.mimeType ?? "File"}
+                          {doc.mimeType ?? t('upload.file')}
                         </span>
                       </div>
                     </div>
@@ -197,7 +197,7 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
                       }
                     >
                       <FontAwesomeIcon icon={faDownload} className="mr-1"/>
-                      Download
+                      {t('actions.download')}
                     </Button>
                   </div>
                 ))}

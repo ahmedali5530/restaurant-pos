@@ -34,7 +34,7 @@ export function createUserImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): I
     {name: "first_name", label: t("admin:columns.firstName"), type: "string", required: true},
     {name: "last_name", label: t("admin:columns.lastName"), type: "string", required: true},
     {name: "login", label: t("admin:columns.login"), type: "string", required: true},
-    {name: "login_method", label: t("admin:columns.loginMethod"), type: "string", defaultValue: "pin"},
+    {name: "login_method", label: t("admin:forms.loginMethod"), type: "string", defaultValue: "pin"},
     {name: "set_password", label: t("admin:forms.password"), type: "string", optional: true, description: "Password or PIN value — stored hashed on commit only"},
     {name: "role_name", label: t("admin:columns.role"), type: "string", required: true},
     {name: "shift_name", label: t("admin:columns.shift"), type: "string", optional: true},

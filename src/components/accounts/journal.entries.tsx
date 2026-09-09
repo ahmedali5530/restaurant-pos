@@ -51,14 +51,14 @@ export const JournalEntries = () => {
   const handlePublish = async (entry: AccountJournalEntry) => {
     try {
       if (entry.status !== 'draft') {
-        toast.error(t('messages.cannotPublish', 'Only draft entries can be published'));
+        toast.error(t('messages.cannotPublish'));
         return;
       }
       await publishJournalEntry(db, String(entry.id));
-      toast.success(t('messages.publishSuccess', 'Journal entry published'));
+      toast.success(t('messages.publishSuccess'));
       await journalHook.fetchData();
     } catch (e: any) {
-      toast.error(e.message || t('messages.publishFailed', 'Failed to publish entry'));
+      toast.error(e.message || t('messages.publishFailed'));
     }
   };
 
@@ -66,11 +66,11 @@ export const JournalEntries = () => {
     try {
       const [fullEntry] = await db.query(`SELECT * FROM ONLY ${entry.id} FETCH lines`);
       if (!fullEntry) {
-        throw new Error('Entry not found');
+        throw new Error(t('messages.entryNotFound'));
       }
 
       if (fullEntry.status !== 'posted') {
-        toast.error(t('messages.cannotReverse', 'Only posted entries can be reversed'));
+        toast.error(t('messages.cannotReverse'));
         return;
       }
 
@@ -83,7 +83,7 @@ export const JournalEntries = () => {
       const [newEntry] = await db.insert(Tables.account_journal_entries, {
         entry_number: nextEntryNumber,
         date: new Date(),
-        memo: `(Reversal) ${fullEntry.memo || ''}`.trim(),
+        memo: `${t('messages.reversalPrefix')} ${fullEntry.memo || ''}`.trim(),
         source_module: fullEntry.source_module || null,
         source_id: fullEntry.source_id || null,
         created_by: user?.id ? new StringRecordId(user.id.toString()) : null,
@@ -112,10 +112,10 @@ export const JournalEntries = () => {
 
       await emitJournalReversed(String(entry.id), String(newEntry.id));
 
-      toast.success(t('messages.reverseSuccess', 'Journal entry reversed successfully'));
+      toast.success(t('messages.reverseSuccess'));
       await journalHook.fetchData();
     } catch (e: any) {
-      toast.error(e.message || 'Failed to reverse entry');
+      toast.error(e.message || t('messages.reverseFailed'));
     }
   };
 
@@ -183,7 +183,7 @@ export const JournalEntries = () => {
     }),
     columnHelper.display({
       id: "actions",
-      header: t('columns.actions', 'Actions'),
+      header: t('columns.actions'),
       cell: (info) => (
         <div className="flex gap-2 justify-end">
           <IconTooltipButton label={t('common:actions.view')}
@@ -197,11 +197,8 @@ export const JournalEntries = () => {
           </IconTooltipButton>
           {info.row.original.status === 'draft' && (
             <DeleteConfirm
-              title={t('confirm.publishTitle', 'Publish journal entry')}
-              message={t(
-                'messages.confirmPublish',
-                'Publish this draft so it appears on the general ledger and reports?'
-              )}
+              title={t('confirm.publishTitle')}
+              message={t('messages.confirmPublish')}
               onConfirm={() => handlePublish(info.row.original)}
             >
               <IconTooltipButton label={t('common:actions.approve')} variant="success">

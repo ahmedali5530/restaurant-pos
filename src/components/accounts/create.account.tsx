@@ -15,7 +15,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {Account} from "@/api/model/account.ts";
 import {LabelValue} from "@/api/model/common.ts";
 import {AccountGroup} from "@/api/model/account.group.ts";
-import {NORMAL_BALANCE_OPTIONS} from "@/components/accounts/account.constants.ts";
+import {getNormalBalanceOptions} from "@/components/accounts/account.constants.ts";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
@@ -51,6 +51,7 @@ export const CreateAccount: FC<CreateAccountProps> = ({
   const [modal, setModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const db = useDB();
+  const normalBalanceOptions = useMemo(() => getNormalBalanceOptions(t), [t]);
 
   const groupsHook = useApi<SettingsData<AccountGroup>>(
     Tables.account_groups,
@@ -82,8 +83,8 @@ export const CreateAccount: FC<CreateAccountProps> = ({
           value: groups[0].id.toString(),
         } : null,
         normal_balance: groups[0]
-          ? NORMAL_BALANCE_OPTIONS.find((item) => item.value === groups[0].normal_balance)
-          : NORMAL_BALANCE_OPTIONS[0],
+          ? normalBalanceOptions.find((item) => item.value === groups[0].normal_balance)
+          : normalBalanceOptions[0],
         parent: null,
       });
       return;
@@ -97,13 +98,13 @@ export const CreateAccount: FC<CreateAccountProps> = ({
         label: `${entity.group.code} - ${entity.group.name} (${entity.group.head_type})`,
         value: entity.group.id.toString(),
       } : null,
-      normal_balance: NORMAL_BALANCE_OPTIONS.find((item) => item.value === entity.normal_balance),
+      normal_balance: normalBalanceOptions.find((item) => item.value === entity.normal_balance),
       parent: entity.parent ? {
         label: `${entity.parent.code} - ${entity.parent.name}`,
         value: entity.parent.id.toString(),
       } : null,
     });
-  }, [entity, reset, groupsHook.data?.data]);
+  }, [entity, reset, groupsHook.data?.data, normalBalanceOptions]);
 
   useEffect(() => {
     if (!watchedGroup?.value) {
@@ -115,10 +116,10 @@ export const CreateAccount: FC<CreateAccountProps> = ({
     if (selected) {
       setValue(
         "normal_balance",
-        NORMAL_BALANCE_OPTIONS.find((item) => item.value === selected.normal_balance)
+        normalBalanceOptions.find((item) => item.value === selected.normal_balance)
       );
     }
-  }, [watchedGroup?.value, groupsHook.data?.data, setValue]);
+  }, [watchedGroup?.value, groupsHook.data?.data, setValue, normalBalanceOptions]);
 
   const groupOptions = useMemo(() => {
     return (groupsHook.data?.data || []).map((item) => ({
@@ -238,7 +239,7 @@ export const CreateAccount: FC<CreateAccountProps> = ({
                 render={({field}) => (
                   <ReactSelect
                     {...field}
-                    options={NORMAL_BALANCE_OPTIONS}
+                    options={normalBalanceOptions}
                     className={errors.normal_balance ? "rs-__error" : ""}
                   />
                 )}

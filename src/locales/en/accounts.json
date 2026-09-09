@@ -41,7 +41,8 @@
     "load": "Load",
     "loading": "Loading...",
     "view": "View",
-    "smartImport": "AI Import"
+    "smartImport": "AI Import",
+    "download": "Download"
   },
   "status": {
     "active": "Active",
@@ -49,6 +50,17 @@
     "posted": "Posted",
     "draft": "Draft",
     "reversed": "Reversed"
+  },
+  "headTypes": {
+    "asset": "Asset",
+    "liability": "Liability",
+    "equity": "Equity",
+    "income": "Income",
+    "expense": "Expense"
+  },
+  "normalBalance": {
+    "debit": "Debit",
+    "credit": "Credit"
   },
   "forms": {
     "createAccountGroup": "Create account group",
@@ -69,8 +81,14 @@
     "createGroupsBeforeAccounts": "Create account groups before adding accounts.",
     "parentAccount": "Parent account",
     "journalEntry": "Journal Entry",
+    "journalLine": "Journal line",
     "smartImportAccountsTitle": "AI Import accounts",
-    "smartImportJournalTitle": "AI Import journal lines"
+    "smartImportJournalTitle": "AI Import journal lines",
+    "placeholders": {
+      "module": "sales, expenses...",
+      "sourceId": "optional external reference",
+      "memo": "entry memo"
+    }
   },
   "confirm": {
     "title": "Confirmation",
@@ -117,6 +135,7 @@
     "operating": "Operating",
     "investing": "Investing",
     "financing": "Financing",
+    "unclassified": "unclassified",
     "netCashMovement": "Net Cash Movement",
     "selectCustomerAccount": "Select customer account",
     "selectSupplierAccount": "Select supplier account",
@@ -147,13 +166,46 @@
     "confirmReverse": "Are you sure you want to reverse this journal entry?",
     "confirmPublish": "Publish this draft so it appears on the general ledger and reports?",
     "reverseSuccess": "Journal entry reversed successfully",
+    "reverseFailed": "Failed to reverse entry",
+    "entryNotFound": "Entry not found",
+    "reversalPrefix": "(Reversal)",
     "publishSuccess": "Journal entry published",
     "publishFailed": "Failed to publish entry",
     "cannotReverse": "Only posted entries can be reversed",
-    "cannotPublish": "Only draft entries can be published"
+    "cannotPublish": "Only draft entries can be published",
+    "noJournalLines": "No lines found for this journal entry."
   },
   "upload": {
     "attachDocuments": "Attach Documents",
-    "documents": "Documents"
+    "documents": "Documents",
+    "file": "File",
+    "documentN": "Document {{n}}"
+  },
+  "import": {
+    "fields": {
+      "code": "Code",
+      "name": "Name",
+      "groupCode": "Group code",
+      "normalBalance": "Normal balance",
+      "parentCode": "Parent code",
+      "isActive": "Active",
+      "notes": "Notes",
+      "account": "Account",
+      "debit": "Debit",
+      "credit": "Credit",
+      "description": "Description"
+    },
+    "accountDescription": "Account code or name",
+    "extractAccounts": "Extract chart of accounts rows with code, name, group_code, normal_balance (debit/credit), optional parent_code, is_active, and notes.",
+    "extractJournalLines": "Extract journal entry lines with account (code or name), debit, credit, and optional description. Prefer account codes when present.",
+    "requiredAccountFields": "code, name, group_code and normal_balance are required values.",
+    "invalidNormalBalance": "Invalid normal_balance. Use: debit or credit.",
+    "groupNotFound": "Account group not found for group_code: {{code}}",
+    "parentNotFound": "Parent account not found for parent_code: {{code}}",
+    "accountRequired": "Account is required",
+    "accountNotFound": "Account not found: {{key}}",
+    "amountsNonNegative": "Debit and credit must be non-negative",
+    "bothDebitCredit": "A line cannot have both debit and credit",
+    "needDebitOrCredit": "A line must have a debit or credit amount"
   }
 }

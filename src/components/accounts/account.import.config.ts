@@ -26,25 +26,24 @@ export function createAccountImportConfig({
   onResult?: (result: "created" | "updated") => void;
 }): ImportConfiguration {
   const fields: ImportField[] = [
-    {name: "code", label: "code", type: "string", required: true, aliases: ["Code"]},
-    {name: "name", label: "name", type: "string", required: true, aliases: ["Name"]},
-    {name: "group_code", label: "group_code", type: "string", required: true, aliases: ["Group code", "Group"]},
-    {name: "normal_balance", label: "normal_balance", type: "string", required: true, aliases: ["Normal balance"]},
-    {name: "parent_code", label: "parent_code", type: "string", optional: true, aliases: ["Parent code", "Parent"]},
-    {name: "is_active", label: "is_active", type: "boolean", defaultValue: true, aliases: ["Active"]},
-    {name: "notes", label: "notes", type: "string", optional: true, aliases: ["Notes"]},
+    {name: "code", label: t("accounts:import.fields.code"), type: "string", required: true, aliases: ["Code"]},
+    {name: "name", label: t("accounts:import.fields.name"), type: "string", required: true, aliases: ["Name"]},
+    {name: "group_code", label: t("accounts:import.fields.groupCode"), type: "string", required: true, aliases: ["Group code", "Group"]},
+    {name: "normal_balance", label: t("accounts:import.fields.normalBalance"), type: "string", required: true, aliases: ["Normal balance"]},
+    {name: "parent_code", label: t("accounts:import.fields.parentCode"), type: "string", optional: true, aliases: ["Parent code", "Parent"]},
+    {name: "is_active", label: t("accounts:import.fields.isActive"), type: "boolean", defaultValue: true, aliases: ["Active"]},
+    {name: "notes", label: t("accounts:import.fields.notes"), type: "string", optional: true, aliases: ["Notes"]},
   ];
 
   return {
     id: "accounts",
-    entityLabel: t("accounts:actions.account", {defaultValue: "Account"}),
+    entityLabel: t("accounts:actions.account"),
     shape: "records",
     fields,
     matchFields: ["code"],
     defaultMode: "create",
     db,
-    extractionInstructions:
-      "Extract chart of accounts rows with code, name, group_code, normal_balance (debit/credit), optional parent_code, is_active, and notes.",
+    extractionInstructions: t("accounts:import.extractAccounts"),
     onImportRow: async (record: ImportRecord, ctx) => {
       const v = record.values;
       const code = String(v.code ?? "").trim();
@@ -56,10 +55,10 @@ export function createAccountImportConfig({
       const isActive = parseImportBool(v.is_active);
 
       if (!code || !name || !groupCode || !normalBalance) {
-        throw new Error("code, name, group_code and normal_balance are required values.");
+        throw new Error(t("accounts:import.requiredAccountFields"));
       }
       if (!NORMAL_BALANCES.includes(normalBalance)) {
-        throw new Error("Invalid normal_balance. Use: debit or credit.");
+        throw new Error(t("accounts:import.invalidNormalBalance"));
       }
 
       const [groupRows] = await db.query(
@@ -67,7 +66,7 @@ export function createAccountImportConfig({
         {code: groupCode}
       );
       if (!groupRows?.length) {
-        throw new Error(`Account group not found for group_code: ${groupCode}`);
+        throw new Error(t("accounts:import.groupNotFound", {code: groupCode}));
       }
 
       let parentId: any = null;
@@ -77,7 +76,7 @@ export function createAccountImportConfig({
           {code: parentCode}
         );
         if (!parentRows?.length) {
-          throw new Error(`Parent account not found for parent_code: ${parentCode}`);
+          throw new Error(t("accounts:import.parentNotFound", {code: parentCode}));
         }
         parentId = toRecordId(parentRows[0].id);
       }

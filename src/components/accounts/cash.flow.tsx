@@ -74,9 +74,9 @@ export const CashFlow = () => {
 
   const buckets = useMemo(() => {
     const grouped = {
-      Operating: 0,
-      Investing: 0,
-      Financing: 0,
+      operating: 0,
+      investing: 0,
+      financing: 0,
     };
 
     rows.forEach((row) => {
@@ -88,7 +88,7 @@ export const CashFlow = () => {
     return grouped;
   }, [rows]);
 
-  const netCashFlow = buckets.Operating + buckets.Investing + buckets.Financing;
+  const netCashFlow = buckets.operating + buckets.investing + buckets.financing;
 
   return (
     <>
@@ -132,8 +132,10 @@ export const CashFlow = () => {
                   const net = Number(row.total_debit || 0) - Number(row.total_credit || 0);
                   return (
                     <tr key={`${row.source_module || "source"}-${index}`}>
-                      <td>{row.source_module || "unclassified"}</td>
-                      <td>{classifyCashFlowBucket(row.source_module)}</td>
+                      <td>{row.source_module === "unclassified" || !row.source_module
+                        ? t('reports.unclassified')
+                        : row.source_module}</td>
+                      <td>{t(`reports.${classifyCashFlowBucket(row.source_module)}`)}</td>
                       <td className="text-right">{formatMoney(net)}</td>
                     </tr>
                   );
@@ -153,15 +155,15 @@ export const CashFlow = () => {
             <div className="p-3 space-y-3">
               <div className="flex justify-between">
                 <span>{t('reports.operating')}</span>
-                <span>{formatMoney(buckets.Operating)}</span>
+                <span>{formatMoney(buckets.operating)}</span>
               </div>
               <div className="flex justify-between">
                 <span>{t('reports.investing')}</span>
-                <span>{formatMoney(buckets.Investing)}</span>
+                <span>{formatMoney(buckets.investing)}</span>
               </div>
               <div className="flex justify-between">
                 <span>{t('reports.financing')}</span>
-                <span>{formatMoney(buckets.Financing)}</span>
+                <span>{formatMoney(buckets.financing)}</span>
               </div>
               <div className="border-t pt-3 font-semibold flex justify-between">
                 <span>{t('reports.netCashMovement')}</span>

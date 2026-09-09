@@ -46,7 +46,7 @@ export function AlertDetailModal({ alert, onClose }: Props) {
       await acknowledge(alert.id, notes.trim() || undefined);
       onClose();
     } catch (err: any) {
-      setError(err?.message || "Failed to acknowledge alert");
+      setError(err?.message || t("securityAlerts.acknowledgeFailed"));
     } finally {
       setSubmitting(false);
     }

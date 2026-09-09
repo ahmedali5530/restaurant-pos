@@ -4,16 +4,17 @@
     "orders": "Siparişler",
     "summary": "Özet",
     "kitchen": "Mutfak",
+    "orderDisplay": "Sipariş ekranı",
     "delivery": "Teslimat",
     "closing": "Kapanış",
     "inventory": "Envanter",
     "manage": "Yönet",
     "reports": "Raporlar",
-    "tipDist": "Bahşiş Dağıt.",
+    "tipDist": "Bahşiş dağıtımı",
+    "accounts": "Muhasebe",
     "settings": "Ayarlar",
-    "clock": "Mesai",
+    "clock": "Saat",
     "hr": "İK",
-    "accounts": "Accounts",
     "integrations": "Entegrasyonlar"
   },
   "modules": {
@@ -23,15 +24,16 @@
     "Reports": "Raporlar",
     "Closing": "Kapanış",
     "Kitchen": "Mutfak",
+    "Order Display": "Sipariş ekranı",
     "Delivery": "Teslimat",
     "Admin": "Yönetim",
     "Riders": "Kuryeler",
-    "Tips": "Bahşiş Dağıtımı",
+    "Tips": "Bahşiş dağıtımı",
     "Inventory": "Envanter",
+    "Accounts": "Muhasebe",
     "Settings": "Ayarlar",
-    "Accounts": "Accounts",
-    "HR": "İnsan Kaynakları",
+    "HR": "İnsan kaynakları",
     "Integrations": "Entegrasyonlar"
   },
-  "authenticateToAccess": "{{module}} modülüne erişmek için kimlik doğrulayın"
+  "authenticateToAccess": "{{module}} erişimi için kimlik doğrulayın"
 }

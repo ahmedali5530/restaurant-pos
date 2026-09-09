@@ -295,20 +295,20 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
           </div>
           <div>
             <InputField name="source_module" control={control} id="entry_source_module" className="w-full"
-                   label={t('columns.module')} placeholder="sales, expenses..."/>
+                   label={t('columns.module')} placeholder={t('forms.placeholders.module')}/>
           </div>
           <div>
             <InputField name="source_id" control={control} id="entry_source_id" className="w-full"
-                   label={t('columns.sourceId')} placeholder="optional external reference"/>
+                   label={t('columns.sourceId')} placeholder={t('forms.placeholders.sourceId')}/>
           </div>
           <div>
-            <InputField name="memo" control={control} id="entry_memo" className="w-full" label={t('columns.memo')} placeholder="entry memo"/>
+            <InputField name="memo" control={control} id="entry_memo" className="w-full" label={t('columns.memo')} placeholder={t('forms.placeholders.memo')}/>
           </div>
         </div>
 
         <div className="grid grid-cols-5 gap-4 mt-4">
           <div className="col-span-2">
-            <label className="block mb-2 text-sm font-medium text-gray-900">{t('upload.attachDocuments', 'Attach Documents')}</label>
+            <label className="block mb-2 text-sm font-medium text-gray-900">{t('upload.attachDocuments')}</label>
             <input
               type="file"
               multiple
@@ -430,7 +430,7 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
               onClick={() => setImportModal(true)}
             >
               <AiSparklesIcon className="mr-2"/>
-              {t('common:actions.smartImport', {defaultValue: 'AI Import'})}
+              {t('common:actions.smartImport')}
             </Button>
           </div>
         </div>
@@ -454,7 +454,7 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
         isOpen
         onClose={() => setImportModal(false)}
         config={journalImportConfig}
-        title={t('forms.smartImportJournalTitle', {defaultValue: 'AI Import journal lines'})}
+        title={t('forms.smartImportJournalTitle')}
         enableImportModes
         defaultMatchFields={['account']}
         onDone={() => setImportModal(false)}

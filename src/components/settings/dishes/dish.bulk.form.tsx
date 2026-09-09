@@ -373,7 +373,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
 
           <div className="flex mb-3">
             <fieldset className="border-2 border-neutral-900 rounded-lg p-3 flex-1">
-              <legend className="px-2">Production workflow</legend>
+              <legend className="px-2">{t('forms.productionWorkflow')}</legend>
               <div className="mb-3">
                 <Controller
                   name="replace_workflow"
@@ -387,7 +387,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
               </div>
               <div className="flex gap-2 items-end">
                 <div className="flex-1">
-                  <label>Workflow (clear the selection to remove the workflow / use legacy routing)</label>
+                  <label>{t('forms.workflowClearHint')}</label>
                   <Controller
                     name="workflow"
                     control={control}
@@ -430,7 +430,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
 
           <div className="flex gap-3 mb-3 items-end">
             <div className="flex-1">
-              <label>Categories</label>
+              <label>{t('columns.categories')}</label>
               <Controller
                 name="categories"
                 render={({field}) => (
@@ -483,7 +483,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
 
           <div className="flex mb-3">
             <fieldset className="border-2 border-neutral-900 rounded-lg p-3 flex-1">
-              <legend className="px-2">Modifier groups</legend>
+              <legend className="px-2">{t('columns.modifierGroups')}</legend>
               <div className="mb-3">
                 <Controller
                   name="replace_modifier_groups"
@@ -511,7 +511,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                   })}
                   disabled={!replaceModifierGroups}
                 >
-                  Modifier group
+                  {t('entities.modifierGroup')}
                 </Button>
 
                 <Button
@@ -522,14 +522,14 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                   onClick={() => setModifierGroupsModal(true)}
                   disabled={!replaceModifierGroups}
                 >
-                  Create modifier group
+                  {t('forms.createModifierGroup')}
                 </Button>
               </div>
 
               {modifierGroupFields.map((item, index) => (
                 <div className="flex gap-3 mb-3" key={item.id}>
                   <div className="flex-1">
-                    <label>Modifier group</label>
+                    <label>{t('entities.modifierGroup')}</label>
                     <Controller
                       name={`modifier_groups.${index}.modifier_group`}
                       control={control}
@@ -623,7 +623,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
 
           <div className="flex mb-3">
             <fieldset className="border-2 border-neutral-900 rounded-lg p-3 flex-1">
-              <legend className="px-2">Recipe</legend>
+              <legend className="px-2">{t('forms.recipe')}</legend>
               <div className="mb-3">
                 <Controller
                   name="replace_recipes"

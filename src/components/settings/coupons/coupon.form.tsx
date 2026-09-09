@@ -234,7 +234,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
               )}
             />
             <div>
-              <label>Coupon type</label>
+              <label>{t('columns.couponType')}</label>
               <Controller
                 name="coupon_type"
                 control={control}
@@ -254,7 +254,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
               <InputError error={errors?.coupon_type?.message as string}/>
             </div>
             <div>
-              <label>Discount type</label>
+              <label>{t('columns.discountType')}</label>
               <Controller
                 name="discount_type"
                 control={control}
@@ -364,7 +364,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
               )}
             />
             <div>
-              <label>Valid days</label>
+              <label>{t('columns.validDays')}</label>
               <Controller
                 name="valid_days"
                 control={control}

@@ -1,4 +1,4 @@
-import {FC, useEffect, useState} from "react";
+import {FC, useEffect, useMemo, useState} from "react";
 import {Controller, useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -16,8 +16,8 @@ import {AccountGroup} from "@/api/model/account.group.ts";
 import {LabelValue} from "@/api/model/common.ts";
 import {
   defaultNormalBalanceForHead,
-  HEAD_TYPE_OPTIONS,
-  NORMAL_BALANCE_OPTIONS,
+  getHeadTypeOptions,
+  getNormalBalanceOptions,
 } from "@/components/accounts/account.constants.ts";
 import type {AccountHeadType} from "@/api/model/account.ts";
 
@@ -46,6 +46,8 @@ export const CreateAccountGroup: FC<CreateAccountGroupProps> = ({
   const [modal, setModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const db = useDB();
+  const headTypeOptions = useMemo(() => getHeadTypeOptions(t), [t]);
+  const normalBalanceOptions = useMemo(() => getNormalBalanceOptions(t), [t]);
 
   const {handleSubmit, control, reset, watch, setValue, formState: {errors}} = useForm({
     resolver: yupResolver(ValidationSchema),
@@ -63,8 +65,8 @@ export const CreateAccountGroup: FC<CreateAccountGroupProps> = ({
         code: "",
         name: "",
         notes: "",
-        head_type: HEAD_TYPE_OPTIONS[0],
-        normal_balance: NORMAL_BALANCE_OPTIONS[0],
+        head_type: headTypeOptions[0],
+        normal_balance: normalBalanceOptions[0],
       });
       return;
     }
@@ -73,10 +75,10 @@ export const CreateAccountGroup: FC<CreateAccountGroupProps> = ({
       code: entity.code,
       name: entity.name,
       notes: entity.notes || "",
-      head_type: HEAD_TYPE_OPTIONS.find((item) => item.value === entity.head_type),
-      normal_balance: NORMAL_BALANCE_OPTIONS.find((item) => item.value === entity.normal_balance),
+      head_type: headTypeOptions.find((item) => item.value === entity.head_type),
+      normal_balance: normalBalanceOptions.find((item) => item.value === entity.normal_balance),
     });
-  }, [entity, reset]);
+  }, [entity, reset, headTypeOptions, normalBalanceOptions]);
 
   useEffect(() => {
     if (!watchedHeadType?.value || operation === "update") {
@@ -85,9 +87,9 @@ export const CreateAccountGroup: FC<CreateAccountGroupProps> = ({
     const defaultBalance = defaultNormalBalanceForHead(watchedHeadType.value as AccountHeadType);
     setValue(
       "normal_balance",
-      NORMAL_BALANCE_OPTIONS.find((item) => item.value === defaultBalance)
+      normalBalanceOptions.find((item) => item.value === defaultBalance)
     );
-  }, [watchedHeadType?.value, operation, setValue]);
+  }, [watchedHeadType?.value, operation, setValue, normalBalanceOptions]);
 
   const onModalClose = () => {
     onClose?.();
@@ -145,7 +147,7 @@ export const CreateAccountGroup: FC<CreateAccountGroupProps> = ({
               render={({field}) => (
                 <ReactSelect
                   {...field}
-                  options={HEAD_TYPE_OPTIONS}
+                  options={headTypeOptions}
                   className={errors.head_type ? "rs-__error" : ""}
                 />
               )}
@@ -162,7 +164,7 @@ export const CreateAccountGroup: FC<CreateAccountGroupProps> = ({
               render={({field}) => (
                 <ReactSelect
                   {...field}
-                  options={NORMAL_BALANCE_OPTIONS}
+                  options={normalBalanceOptions}
                   className={errors.normal_balance ? "rs-__error" : ""}
                 />
               )}

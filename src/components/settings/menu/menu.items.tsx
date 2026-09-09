@@ -584,18 +584,18 @@ export const MenuItems = ({
                   </div>
                   <div className="flex flex-wrap items-end gap-3">
                     <div className="flex-1 min-w-[140px]">
-                      <label className="block mb-1">Tax Mode</label>
+                      <label className="block mb-1">{t('forms.taxMode')}</label>
                       <select
                         className="form-control"
                         value={bulkSettings.tax_mode}
                         onChange={(e) => updateBulkSettings({tax_mode: e.target.value as TaxMode})}
                       >
-                        <option value="exclusive">Exclusive</option>
-                        <option value="inclusive">Inclusive</option>
+                        <option value="exclusive">{t('discountEngine.fields.exclusive')}</option>
+                        <option value="inclusive">{t('forms.inclusive')}</option>
                       </select>
                     </div>
                     <div className="flex-1 min-w-[200px]">
-                      <label className="block mb-1">Taxes</label>
+                      <label className="block mb-1">{t('tabs.taxes')}</label>
                       <ReactSelect
                         value={bulkSettings.taxes}
                         onChange={(value) => updateBulkSettings({
@@ -625,8 +625,8 @@ export const MenuItems = ({
                           priceMode: e.target.value as PriceAdjustmentMode,
                         })}
                       >
-                        <option value="percent">Percent</option>
-                        <option value="fixed">Fixed</option>
+                        <option value="percent">{t('discountEngine.getValueTypes.percent')}</option>
+                        <option value="fixed">{t('forms.fixed')}</option>
                       </select>
                     </div>
                     <div>
@@ -707,7 +707,7 @@ export const MenuItems = ({
 
                               </div>
                               <div className="flex-1">
-                                <label>Tax Mode</label>
+                                <label>{t('forms.taxMode')}</label>
                                 <Controller
                                   name={`items.${index}.tax_mode`}
                                   control={control}
@@ -717,14 +717,14 @@ export const MenuItems = ({
                                       value={field.value || 'exclusive'}
                                       onChange={field.onChange}
                                     >
-                                      <option value="exclusive">Exclusive</option>
-                                      <option value="inclusive">Inclusive</option>
+                                      <option value="exclusive">{t('discountEngine.fields.exclusive')}</option>
+                                      <option value="inclusive">{t('forms.inclusive')}</option>
                                     </select>
                                   )}
                                 />
                               </div>
                               <div className="flex-1">
-                                <label>Taxes</label>
+                                <label>{t('tabs.taxes')}</label>
                                 <Controller
                                   name={`items.${index}.taxes`}
                                   control={control}

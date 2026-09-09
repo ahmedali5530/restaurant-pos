@@ -39,29 +39,29 @@ export function createJournalEntryImportConfig({
   const fields: ImportField[] = [
     {
       name: "account",
-      label: t("accounts:reports.account", {defaultValue: "Account"}),
+      label: t("accounts:import.fields.account"),
       type: "string",
       required: true,
       aliases: ["Account", "Account code", "Code", "Name"],
-      description: "Account code or name",
+      description: t("accounts:import.accountDescription"),
     },
     {
       name: "debit",
-      label: t("accounts:columns.debit", {defaultValue: "Debit"}),
+      label: t("accounts:import.fields.debit"),
       type: "number",
       defaultValue: 0,
       aliases: ["Debit", "Dr"],
     },
     {
       name: "credit",
-      label: t("accounts:columns.credit", {defaultValue: "Credit"}),
+      label: t("accounts:import.fields.credit"),
       type: "number",
       defaultValue: 0,
       aliases: ["Credit", "Cr"],
     },
     {
       name: "description",
-      label: t("accounts:reports.description", {defaultValue: "Description"}),
+      label: t("accounts:import.fields.description"),
       type: "string",
       optional: true,
       aliases: ["Description", "Memo", "Narration"],
@@ -73,18 +73,17 @@ export function createJournalEntryImportConfig({
 
   return {
     id: "journal_lines",
-    entityLabel: t("accounts:forms.journalLine", {defaultValue: "Journal line"}),
+    entityLabel: t("accounts:forms.journalLine"),
     shape: "records",
     fields,
     matchFields: ["account"],
     defaultMode: "create",
     db,
-    extractionInstructions:
-      "Extract journal entry lines with account (code or name), debit, credit, and optional description. Prefer account codes when present.",
+    extractionInstructions: t("accounts:import.extractJournalLines"),
     onImportRow: async (record: ImportRecord, ctx: ImportRowContext) => {
       const v = record.values;
       const key = String(v.account ?? "").trim();
-      if (!key) throw new Error("Account is required");
+      if (!key) throw new Error(t("accounts:import.accountRequired"));
 
       const [byCode] = await db.query(
         `SELECT id, code, name FROM ${Tables.accounts} WHERE code = $key LIMIT 1`,
@@ -98,16 +97,16 @@ export function createJournalEntryImportConfig({
         );
         account = byName?.[0];
       }
-      if (!account) throw new Error(`Account not found: ${key}`);
+      if (!account) throw new Error(t("accounts:import.accountNotFound", {key}));
 
       const debit = Number(v.debit) || 0;
       const credit = Number(v.credit) || 0;
-      if (debit < 0 || credit < 0) throw new Error("Debit and credit must be non-negative");
+      if (debit < 0 || credit < 0) throw new Error(t("accounts:import.amountsNonNegative"));
       if (debit > 0 && credit > 0) {
-        throw new Error("A line cannot have both debit and credit");
+        throw new Error(t("accounts:import.bothDebitCredit"));
       }
       if (debit === 0 && credit === 0) {
-        throw new Error("A line must have a debit or credit amount");
+        throw new Error(t("accounts:import.needDebitOrCredit"));
       }
 
       const payload: JournalLinePayload = {

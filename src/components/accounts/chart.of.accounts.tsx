@@ -166,7 +166,7 @@ export const ChartOfAccounts = () => {
               setCsvUploader(true);
             }}
           >
-            <AiSparklesIcon className="mr-2"/> {t('actions.smartImport', {defaultValue: t('actions.importCsv')})}
+            <AiSparklesIcon className="mr-2"/> {t('actions.smartImport')}
           </Button>,
           <Button
             key="create-account"
@@ -232,7 +232,7 @@ export const ChartOfAccounts = () => {
             await allAccountsHook.fetchData();
           }}
           config={smartImportConfig}
-          title={t('forms.smartImportAccountsTitle', {defaultValue: 'AI Import accounts'})}
+          title={t('forms.smartImportAccountsTitle')}
           enableImportModes
           defaultMatchFields={['code']}
           onExport={async () => {

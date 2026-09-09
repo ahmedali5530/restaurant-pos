@@ -165,15 +165,17 @@ export const isCashGroupAccount = (account?: {
   );
 };
 
-export const classifyCashFlowBucket = (sourceModule?: string) => {
+export type CashFlowBucketId = "operating" | "investing" | "financing";
+
+export const classifyCashFlowBucket = (sourceModule?: string): CashFlowBucketId => {
   const source = String(sourceModule || "").toLowerCase();
   if (["purchase", "purchase_return", "waste"].includes(source)) {
-    return "Investing";
+    return "investing";
   }
 
   if (["capital", "loan", "equity"].includes(source)) {
-    return "Financing";
+    return "financing";
   }
 
-  return "Operating";
+  return "operating";
 };

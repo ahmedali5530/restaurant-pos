@@ -196,7 +196,7 @@ export const WorkflowForm = ({
                     />
                   </div>
                   <div className="flex-1">
-                    <label>Kitchen / Station</label>
+                    <label>{t('forms.kitchenStation')}</label>
                     <Controller
                       name={`stages.${index}.kitchen`}
                       control={control}
