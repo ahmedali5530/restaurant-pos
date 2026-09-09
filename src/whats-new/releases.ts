@@ -7,6 +7,16 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-09-09',
+    title: 'Accounts P&L and Cash Flow fixes',
+    items: [
+      'Cash Flow no longer nets to ~0: only accounts named cash/bank are included (removed the broad 10xx code-prefix heuristic), and the report selects full account records again.',
+      'Cash Flow API/AI summary buckets (operating, investing, financing) now accumulate correctly instead of always showing 0.',
+      'Profit & Loss and Cash Flow UI reports use posted journal entries only, matching the API reports.',
+      'Cash Flow source modules from integrations (pos-core, inventory-core, hr-core) map into the correct operating/investing buckets.',
+    ],
+  },
+  {
     date: '2026-09-07',
     title: 'Every order action works offline',
     items: [

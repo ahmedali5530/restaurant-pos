@@ -17,6 +17,7 @@ interface BalanceSheetRow {
     group?: {head_type?: string; normal_balance?: string};
     normal_balance?: string;
   };
+  group?: {head_type?: string; normal_balance?: string};
   total_debit: number;
   total_credit: number;
 }
@@ -70,7 +71,7 @@ export const BalanceSheet = () => {
     };
 
     rows.forEach((row) => {
-      const head = getAccountHeadType(row.account);
+      const head = getAccountHeadType(row.account, row.group);
       if (!head || !["asset", "liability", "equity"].includes(head)) {
         return;
       }

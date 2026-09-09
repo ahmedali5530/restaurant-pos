@@ -79,9 +79,16 @@ export const toAccountBalance = (
 
 export const getAccountHeadType = (account?: {
   account_type?: string;
-  group?: {head_type?: string};
-}): AccountHeadType | undefined => {
-  const head = account?.group?.head_type || account?.account_type;
+  group?: {head_type?: string} | string;
+  head_type?: string;
+} | null, flattenedGroup?: {head_type?: string} | string | null): AccountHeadType | undefined => {
+  const nestedGroup = typeof account?.group === "object" && account?.group
+    ? account.group.head_type
+    : undefined;
+  const flatGroup = typeof flattenedGroup === "object" && flattenedGroup
+    ? flattenedGroup.head_type
+    : undefined;
+  const head = nestedGroup || flatGroup || account?.head_type || account?.account_type;
   if (!head) {
     return undefined;
   }
@@ -141,7 +148,7 @@ export const isSupplierAccount = (account?: {
 export const isCashGroupAccount = (account?: {
   code?: string;
   name?: string;
-  group?: {code?: string; name?: string};
+  group?: {code?: string; name?: string; head_type?: string};
 }) => {
   if (!account) {
     return false;
@@ -152,6 +159,9 @@ export const isCashGroupAccount = (account?: {
   const code = String(account.code || "").toLowerCase();
   const name = String(account.name || "").toLowerCase();
 
+  // Match explicit cash/bank naming only. Do not use code prefix heuristics
+  // (e.g. startsWith("10")) — many charts number all current accounts under 10xx,
+  // which would treat every GL line as cash and net double-entry journals to ~0.
   return (
     groupCode.includes("cash") ||
     groupCode.includes("bank") ||
@@ -160,8 +170,7 @@ export const isCashGroupAccount = (account?: {
     code.includes("cash") ||
     code.includes("bank") ||
     name.includes("cash") ||
-    name.includes("bank") ||
-    code.startsWith("10")
+    name.includes("bank")
   );
 };
 
@@ -169,7 +178,9 @@ export type CashFlowBucketId = "operating" | "investing" | "financing";
 
 export const classifyCashFlowBucket = (sourceModule?: string): CashFlowBucketId => {
   const source = String(sourceModule || "").toLowerCase();
-  if (["purchase", "purchase_return", "waste"].includes(source)) {
+  if (
+    ["inventory-core", "purchase", "purchase_return", "waste"].includes(source)
+  ) {
     return "investing";
   }
 
@@ -177,5 +188,6 @@ export const classifyCashFlowBucket = (sourceModule?: string): CashFlowBucketId 
     return "financing";
   }
 
+  // pos-core, hr-core, unclassified / empty → operating
   return "operating";
 };

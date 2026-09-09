@@ -74,7 +74,7 @@ export const tryAccountsFastPath = async (
         toolName,
         args: {...dateRange} as Record<string, unknown>,
         data,
-        hint: "Break down buckets Operating, Investing, Financing and netCashMovement.",
+        hint: "Break down buckets operating, investing, financing and netCashMovement.",
       };
     }
     case "get_general_ledger": {

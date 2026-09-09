@@ -778,7 +778,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_cash_flow",
-      description: "Cash flow by source module and Operating/Investing/Financing buckets for cash/bank accounts. Read-only.",
+      description: "Cash flow by source module and operating/investing/financing buckets for cash/bank accounts. Read-only.",
       parameters: {type: "object", properties: dateRangeProps},
     },
   },

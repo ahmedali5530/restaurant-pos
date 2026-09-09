@@ -8,6 +8,7 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {formatMoney} from "@/components/accounts/account.constants.ts";
 import {getAccountHeadType, toQueryDateTime} from "@/components/accounts/reports.utils.ts";
+import {POSTED_ENTRY_FILTER} from "@/api/reports/accounts/shared.ts";
 
 interface ProfitLossRow {
   account: {
@@ -16,6 +17,7 @@ interface ProfitLossRow {
     account_type?: string;
     group?: {head_type?: string};
   };
+  group?: {head_type?: string};
   total_debit: number;
   total_credit: number;
 }
@@ -45,7 +47,8 @@ export const ProfitLoss = () => {
                  math::sum(debit) as total_debit,
                  math::sum(credit) as total_credit
           FROM ${Tables.account_journal_lines}
-          WHERE entry.date >= <datetime>$date_from
+          WHERE ${POSTED_ENTRY_FILTER}
+            AND entry.date >= <datetime>$date_from
             AND entry.date <= <datetime>$date_to
           GROUP BY account.code, account.name, account.group
           ORDER BY account.code ASC
@@ -68,11 +71,11 @@ export const ProfitLoss = () => {
 
   const {incomeRows, expenseRows, totalIncome, totalExpense, netProfit} = useMemo(() => {
     const plRows = rows.filter((item) => {
-      const head = getAccountHeadType(item.account);
+      const head = getAccountHeadType(item.account, item.group);
       return head === "income" || head === "expense";
     });
-    const income = plRows.filter((item) => getAccountHeadType(item.account) === "income");
-    const expense = plRows.filter((item) => getAccountHeadType(item.account) === "expense");
+    const income = plRows.filter((item) => getAccountHeadType(item.account, item.group) === "income");
+    const expense = plRows.filter((item) => getAccountHeadType(item.account, item.group) === "expense");
     const incomeTotal = income.reduce((sum, item) => sum + (Number(item.total_credit || 0) - Number(item.total_debit || 0)), 0);
     const expenseTotal = expense.reduce((sum, item) => sum + (Number(item.total_debit || 0) - Number(item.total_credit || 0)), 0);
 

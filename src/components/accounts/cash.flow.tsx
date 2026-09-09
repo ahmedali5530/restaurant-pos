@@ -8,12 +8,25 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {formatMoney} from "@/components/accounts/account.constants.ts";
 import {classifyCashFlowBucket, isCashGroupAccount, toQueryDateTime} from "@/components/accounts/reports.utils.ts";
+import {POSTED_ENTRY_FILTER} from "@/api/reports/accounts/shared.ts";
 
 interface CashFlowRow {
   source_module?: string;
   total_debit: number;
   total_credit: number;
 }
+
+const resolveCashFlowAccount = (line: any) => {
+  if (line?.account && typeof line.account === "object") {
+    return line.account;
+  }
+
+  if (line?.code || line?.name || line?.group) {
+    return {code: line.code, name: line.name, group: line.group};
+  }
+
+  return undefined;
+};
 
 export const CashFlow = () => {
   const {t} = useTranslation('accounts');
@@ -33,13 +46,13 @@ export const CashFlow = () => {
       const [lineRows] = await db.query(
         `
           SELECT
+            account,
             entry.source_module as source_module,
             debit,
-            credit,
-            account.code, account.name, 
-            account.group
+            credit
           FROM ${Tables.account_journal_lines}
-          WHERE entry.date >= <datetime>$date_from
+          WHERE ${POSTED_ENTRY_FILTER}
+            AND entry.date >= <datetime>$date_from
             AND entry.date <= <datetime>$date_to
           FETCH account, account.group, entry
         `,
@@ -51,7 +64,7 @@ export const CashFlow = () => {
 
       const grouped: Record<string, CashFlowRow> = {};
       (lineRows || []).forEach((line: any) => {
-        if (!isCashGroupAccount(line.account)) {
+        if (!isCashGroupAccount(resolveCashFlowAccount(line))) {
           return;
         }
         const key = line.entry?.source_module || line.source_module || "unclassified";

@@ -51,10 +51,11 @@ export const getProfitLoss = async (
 
   (result || []).forEach((row: {
     account?: {code?: string; name?: string; account_type?: string; group?: {head_type?: string}};
+    group?: {head_type?: string};
     total_debit?: number;
     total_credit?: number;
   }) => {
-    const head = getAccountHeadType(row.account);
+    const head = getAccountHeadType(row.account, row.group);
     if (head !== "income" && head !== "expense") {
       return;
     }

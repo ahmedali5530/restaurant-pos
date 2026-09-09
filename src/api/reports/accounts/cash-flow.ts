@@ -1,11 +1,15 @@
 import {Tables} from "@/api/db/tables.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
-import {classifyCashFlowBucket, isCashGroupAccount} from "@/components/accounts/reports.utils.ts";
+import {
+  classifyCashFlowBucket,
+  isCashGroupAccount,
+  type CashFlowBucketId,
+} from "@/components/accounts/reports.utils.ts";
 import {POSTED_ENTRY_FILTER, resolveDateRangeParams} from "@/api/reports/accounts/shared.ts";
 
 export interface CashFlowSourceRow {
   sourceModule: string;
-  bucket: string;
+  bucket: CashFlowBucketId;
   totalDebit: number;
   totalCredit: number;
   netCash: number;
@@ -13,14 +17,27 @@ export interface CashFlowSourceRow {
 
 export interface CashFlowResult {
   bySourceModule: CashFlowSourceRow[];
-  buckets: {
-    Operating: number;
-    Investing: number;
-    Financing: number;
-  };
+  buckets: Record<CashFlowBucketId, number>;
   netCashMovement: number;
   dateRange: DateRangeFilter;
 }
+
+const resolveCashFlowAccount = (line: {
+  account?: {code?: string; name?: string; group?: {code?: string; name?: string}};
+  code?: string;
+  name?: string;
+  group?: {code?: string; name?: string};
+}) => {
+  if (line.account && typeof line.account === "object") {
+    return line.account;
+  }
+
+  if (line.code || line.name || line.group) {
+    return {code: line.code, name: line.name, group: line.group};
+  }
+
+  return undefined;
+};
 
 export const getCashFlow = async (
   db: DbClient,
@@ -31,12 +48,10 @@ export const getCashFlow = async (
   const [lineRows] = await db.query(
     `
       SELECT
+        account,
         entry.source_module as source_module,
         debit,
-        credit,
-        account.code,
-        account.name,
-        account.group
+        credit
       FROM ${Tables.account_journal_lines}
       WHERE ${POSTED_ENTRY_FILTER}
         AND entry.date >= <datetime>$date_from
@@ -49,12 +64,15 @@ export const getCashFlow = async (
   const grouped: Record<string, CashFlowSourceRow> = {};
   (lineRows || []).forEach((line: {
     account?: {code?: string; name?: string; group?: {code?: string; name?: string}};
+    code?: string;
+    name?: string;
+    group?: {code?: string; name?: string};
     entry?: {source_module?: string};
     source_module?: string;
     debit?: number;
     credit?: number;
   }) => {
-    if (!isCashGroupAccount(line.account)) {
+    if (!isCashGroupAccount(resolveCashFlowAccount(line))) {
       return;
     }
 
@@ -77,23 +95,20 @@ export const getCashFlow = async (
   });
 
   const bySourceModule = Object.values(grouped);
-  const buckets = {
-    Operating: 0,
-    Investing: 0,
-    Financing: 0,
+  const buckets: Record<CashFlowBucketId, number> = {
+    operating: 0,
+    investing: 0,
+    financing: 0,
   };
 
   bySourceModule.forEach((row) => {
-    const bucket = row.bucket as keyof typeof buckets;
-    if (bucket in buckets) {
-      buckets[bucket] += row.netCash;
-    }
+    buckets[row.bucket] += row.netCash;
   });
 
   return {
     bySourceModule,
     buckets,
-    netCashMovement: buckets.Operating + buckets.Investing + buckets.Financing,
+    netCashMovement: buckets.operating + buckets.investing + buckets.financing,
     dateRange,
   };
 };
