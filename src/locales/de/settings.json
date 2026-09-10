@@ -16,7 +16,7 @@
   },
   "cache": {
     "title": "Cache",
-    "description": "Speichert Daten im Browser für schnellere Operationen.",
+    "description": "Lokale POS-Daten auf diesem Terminal. Neu laden löscht sie und lädt eine frische Kopie vom Server. Erfordert eine Online-Verbindung.",
     "reload": "Cache neu laden",
     "orderTypes": "Bestellarten",
     "categories": "Kategorien",
@@ -28,8 +28,12 @@
     "kitchens": "Küchen",
     "paymentTypes": "Zahlungsarten",
     "taxes": "Steuern",
-    "reloaded": "Cache aus Datenbank neu geladen",
-    "reloadFailed": "Cache konnte nicht neu geladen werden"
+    "reloaded": "Cache gelöscht und vom Server neu geladen",
+    "reloadFailed": "Cache konnte nicht neu geladen werden",
+    "confirm": "Lokalen POS-Cache löschen und eine frische Kopie vom Server herunterladen?",
+    "confirmWithPending": "Sie haben {{count}} nicht synchronisierte Änderung(en), die verworfen werden. Lokalen POS-Cache löschen und eine frische Kopie vom Server herunterladen?",
+    "offline": "Cache kann offline nicht neu geladen werden",
+    "offlineHint": "Verfügbar, wenn die Verbindung zum Server besteht"
   },
   "serviceCharges": {
     "title": "Servicegebühren",

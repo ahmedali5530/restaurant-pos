@@ -260,6 +260,28 @@ export const getAutoCloseCycleStateFromDb = async (
   };
 };
 
+export const closingCycleConfigFromSetting = (
+  setting: Setting | null | undefined
+): ClosingCycleConfig => {
+  const values = (setting?.values ?? {}) as ClosingCycleValues;
+  const {hour: startHour, minute: startMinute} = parseHHMM(
+    values.start_time ?? DEFAULT_START_TIME,
+    DEFAULT_START_TIME
+  );
+  const {hour: endHour, minute: endMinute} = parseHHMM(
+    values.end_time ?? DEFAULT_END_TIME,
+    DEFAULT_END_TIME
+  );
+
+  return {
+    enabled: values.enabled ?? DEFAULT_CLOSING_CYCLE_CONFIG.enabled,
+    startHour,
+    startMinute,
+    endHour,
+    endMinute,
+  };
+};
+
 export const loadClosingCycleConfig = async (db: DBLike): Promise<{
   setting: Setting | null;
   config: ClosingCycleConfig;
@@ -270,19 +292,9 @@ export const loadClosingCycleConfig = async (db: DBLike): Promise<{
   ) as [Setting[] | undefined];
 
   const setting = rows?.[0] ?? null;
-  const values = (setting?.values ?? {}) as ClosingCycleValues;
-  const {hour: startHour, minute: startMinute} = parseHHMM(values.start_time ?? DEFAULT_START_TIME, DEFAULT_START_TIME);
-  const {hour: endHour, minute: endMinute} = parseHHMM(values.end_time ?? DEFAULT_END_TIME, DEFAULT_END_TIME);
-
   return {
     setting,
-    config: {
-      enabled: values.enabled ?? DEFAULT_CLOSING_CYCLE_CONFIG.enabled,
-      startHour,
-      startMinute,
-      endHour,
-      endMinute,
-    },
+    config: closingCycleConfigFromSetting(setting),
   };
 };
 

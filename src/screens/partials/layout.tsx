@@ -15,11 +15,11 @@ export const Layout = ({
   return (
     <div className={
       cn(
-        "max-h-[100vh] h-[100vh]",
+        "max-h-[calc(100vh_-_var(--app-toolbar-h))] h-[calc(100vh_-_var(--app-toolbar-h))]",
         props.overflowHidden ? 'overflow-hidden' : 'overflow-auto'
       )
     }>
-      <div className="flex">
+      <div className="flex h-full min-h-0">
         {showSidebar && (
           <div className="flex-grow-0 flex-shrink-0 w-[130px]">
             <Sidebar/>
@@ -28,7 +28,8 @@ export const Layout = ({
 
         <div className={
           cn(
-            "flex-auto overflow-auto max-h-[100vh]", props.containerClassName
+            "flex-auto min-h-0 h-full overflow-auto max-h-[calc(100vh_-_var(--app-toolbar-h))]",
+            props.containerClassName
           )
         }>
           {props.children}

@@ -50,7 +50,7 @@ export const WhatsNewDialog = () => {
         </ul>
 
         {priorReleases.length > 0 && (
-          <div className="pt-3 border-t border-neutral-200 space-y-3 overflow-auto max-h-[calc(100vh_-_350px)]">
+          <div className="pt-3 border-t border-neutral-200 space-y-3 overflow-auto max-h-[calc(100vh_-_350px_-_var(--app-toolbar-h))]">
             <p className="text-sm font-medium text-neutral-600">{t('whatsNew.previousReleases')}</p>
             {priorReleases.map((release, index) => (
               <div key={`${release.date}-${release.title ?? index}`}>

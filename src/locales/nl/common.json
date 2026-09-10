@@ -101,7 +101,18 @@
     "retry": "Opnieuw verbinden",
     "syncing": "{{count}} offline wijzigingen synchroniseren…",
     "pendingSync": "{{count}} wijzigingen wachten op synchronisatie",
-    "syncNow": "Nu synchroniseren"
+    "syncNow": "Nu synchroniseren",
+    "syncAll": "Alles synchroniseren",
+    "ownedElsewhere": "Open op een andere terminal",
+    "conflicts": "{{count}} wijziging(en) door de server afgewezen",
+    "conflictsHint": "Deze wijzigingen zijn geweigerd (vaak nadat een andere terminal eerst heeft bijgewerkt). We proberen automatisch opnieuw na sync; gebruik Alles synchroniseren als ze blijven hangen, of Verwerpen om de serverversie te behouden.",
+    "viewConflicts": "Bekijken",
+    "hideConflicts": "Verbergen",
+    "retryOp": "Opnieuw proberen",
+    "discardOp": "Verwerpen",
+    "conflictOrder": "Bestelling {{id}}",
+    "conflictFailed": "{{count}} wijziging(en) hebben de server na meerdere pogingen niet bereikt",
+    "synced": "Gesynchroniseerd"
   },
   "lock": {
     "lockedBy": "Vergrendeld door {{name}}",

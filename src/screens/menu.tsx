@@ -8,13 +8,15 @@ import {useAtom} from "jotai";
 import {appAlert, appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {MenuPersons} from "@/components/menu/persons.tsx";
 import {useDB} from "@/api/db/db.ts";
-import {toRecordId} from "@/lib/utils.ts";
+import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
+import {terminalSyncService} from "@/infrastructure/sync/sync-service.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {Order, OrderStatus} from "@/api/model/order.ts";
+import {Order} from "@/api/model/order.ts";
 import 'swiper/css';
 import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import {useSearchParams} from "react-router";
+import {useDatabase} from "@/hooks/useDatabase.ts";
 
 export const Menu = () => {
   const {t: tNav} = useTranslation('navigation');
@@ -23,6 +25,7 @@ export const Menu = () => {
   const [enforcement] = useAtom(closingEnforcementAtom);
   const [, setAlert] = useAtom(appAlert);
   const db = useDB();
+  const {isEffectivelyConnected} = useDatabase();
   const [searchParams] = useSearchParams();
   /** Docs capture only — never write this into persisted appState. */
   const docsTableless = searchParams.get('docs_tableless') === '1';
@@ -97,19 +100,11 @@ export const Menu = () => {
     let cancelled = false;
 
     const fetchTablelessOrders = async () => {
-      const [rows] = await db.query<Order[]>(
-        `SELECT * FROM ${Tables.orders}
-         WHERE status = $status AND table = none
-         ORDER BY created_at ASC
-         FETCH customer, items, items.item, order_type, table, user`,
-        {status: OrderStatus["In Progress"]}
-      );
+      const orders = (await posStore.getOpenTablelessOrdersHydrated()) as unknown as Order[];
 
       if (cancelled) {
         return;
       }
-
-      const orders = Array.isArray(rows) ? rows : [];
 
       setState(prev => {
         const prevIds = prev.orders.map(order => order.id?.toString()).join(',');
@@ -125,32 +120,37 @@ export const Menu = () => {
       });
     };
 
-    const setup = async () => {
-      await fetchTablelessOrders();
-      if (cancelled) {
-        return;
-      }
-
-      const subscription = await db.live(Tables.orders, () => {
-        void fetchTablelessOrders();
-      });
-
-      if (cancelled) {
-        await subscription.kill().catch(() => undefined);
-        return;
-      }
-
-      tablelessOrdersLiveRef.current = subscription;
+    const onWrite = () => {
+      void fetchTablelessOrders();
     };
 
-    void setup();
+    void fetchTablelessOrders();
+    window.addEventListener('posr-posstore-write', onWrite);
+    window.addEventListener('posr-operational-orders-updated', onWrite);
+    const pollId = window.setInterval(() => void fetchTablelessOrders(), 5_000);
+
+    // Online-only sync wake — never the data source.
+    if (isEffectivelyConnected) {
+      void db.live(Tables.orders, () => {
+        void terminalSyncService.synchronize().catch(() => undefined).then(fetchTablelessOrders);
+      }).then((subscription) => {
+        if (cancelled) {
+          void subscription.kill().catch(() => undefined);
+          return;
+        }
+        tablelessOrdersLiveRef.current = subscription;
+      }).catch(() => undefined);
+    }
 
     return () => {
       cancelled = true;
+      window.removeEventListener('posr-posstore-write', onWrite);
+      window.removeEventListener('posr-operational-orders-updated', onWrite);
+      window.clearInterval(pollId);
       tablelessOrdersLiveRef.current?.kill().catch(() => undefined);
       tablelessOrdersLiveRef.current = null;
     };
-  }, [db, hideTableSelectionSetting, setState]);
+  }, [db, hideTableSelectionSetting, isEffectivelyConnected, setState]);
 
   useEffect(() => {
     if (!enforcement.orderTakingBlocked || state.showFloor) {
@@ -158,17 +158,9 @@ export const Menu = () => {
     }
 
     const returnToFloor = async () => {
-      if (state.table?.id) {
-        try {
-          await db.merge(toRecordId(state.table.id), {
-            is_locked: false,
-            locked_at: null,
-            locked_by: null,
-          });
-        } catch (error) {
-          console.error("Failed to release table lock:", error);
-        }
-      }
+      const tableId = state.table?.id ? String(state.table.id) : undefined;
+      const orderId =
+        state.order?.id && state.order.id !== 'new' ? String(state.order.id) : undefined;
 
       setState(prev => ({
         ...prev,
@@ -182,6 +174,17 @@ export const Menu = () => {
         table: undefined,
         switchTable: false,
       }));
+
+      if (orderId) {
+        await posStore.releaseOrder(orderId).catch(() => undefined);
+      }
+      if (tableId) {
+        try {
+          await posStore.unlockTable(tableId);
+        } catch (error) {
+          console.error("Failed to release table lock:", error);
+        }
+      }
 
       if (enforcement.message) {
         setAlert(prev => ({
@@ -219,7 +222,7 @@ export const Menu = () => {
     }
 
     return (
-      <div className="grid grid-cols-[minmax(0,1fr)_440px] gap-3 pl-3 h-[100vh] overflow-hidden" data-testid="menu-page">
+      <div className="grid grid-cols-[minmax(0,1fr)_440px] gap-3 p-3 h-full min-h-0 overflow-hidden" data-testid="menu-page">
         <div className="flex min-h-0 flex-col overflow-hidden">
           <div className="mb-3 flex h-[70px] shrink-0 items-center gap-3">
             <MenuHeader/>

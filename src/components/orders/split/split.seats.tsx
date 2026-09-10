@@ -1,4 +1,4 @@
-import {Order as OrderModel, OrderStatus} from "@/api/model/order.ts";
+import {Order as OrderModel} from "@/api/model/order.ts";
 import {OrderItem} from "@/api/model/order_item.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Button} from "@/components/common/input/button.tsx";
@@ -8,18 +8,15 @@ import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import React, {useEffect, useMemo, useState} from "react";
 import {faArrowLeft, faCheck, faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {useDB} from "@/api/db/db.ts";
-import {Tables} from "@/api/db/tables.ts";
 import {toast} from "sonner";
-import {RecordId, StringRecordId} from "surrealdb";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {nanoid} from "nanoid";
 import {getInvoiceNumber, getOrderFilteredItems} from "@/lib/order.ts";
 import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
-import {toRecordId} from "@/lib/utils.ts";
-import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
+import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
 import {useTranslation} from "react-i18next";
 
 interface Props {
@@ -37,7 +34,7 @@ interface Split {
 export const SplitBySeats = ({
   order, onClose
 }: Props) => {
-  const {t} = useTranslation('orders');
+  const {t} = useTranslation(['orders', 'payment']);
   const db = useDB();
   const [page] = useAtom(appPage);
   // Initialize with one split containing all items
@@ -126,72 +123,32 @@ export const SplitBySeats = ({
 
     setIsSaving(true);
     try {
-      await assertOrderMutationsAllowed(db);
-      const createdAt = new Date();
-      const createdOrders = [];
-      const oldOrderId = order.id.toString();
-      const oldItems: Record<string, string[]> = {
-        [oldOrderId]: getOrderFilteredItems(order).map(item => item.id.toString())
-      };
-      const newItems: Record<string, string[]> = {};
-
-      for (let i = 0; i < actualSplits.length; i++) {
-        const split = actualSplits[i];
-        if (split.items.length === 0) continue;
-
-        // Create order items for this split
-        const items = split.items.map(item => item.id);
-
-        const nextInvoiceNumber = await generateNextInvoiceNumber(db);
-        const nextAutoId = await getNextAutoId(db);
-
-        // Create the split order
-        const orderData = {
-          floor: new RecordId('floor', order.floor.id),
-          covers: Math.ceil(order.covers / actualSplits.length) || 1, // Distribute covers
-          // tax: order.tax ? new StringRecordId(order.tax.id.toString()) : null,
-          // tax_amount: 0, // Will be calculated per split
-          tags: [OrderStatus['Spilt']],
-          // discount: order.discount ? new StringRecordId(order.discount.id.toString()) : null,
-          // discount_amount: 0, // Will be calculated per split
-          // customer: order.customer ? new StringRecordId(order.customer.id.toString()) : null,
-          order_type: order.order_type.id,
-          status: OrderStatus["In Progress"],
-          auto_id: nextAutoId,
-          invoice_number: nextInvoiceNumber,
-          items: items,
-          table: order.table.id,
-          user: order.user.id,
-          created_at: createdAt,
-          split: split.number
-        };
-
-        const splitOrder = await db.create(Tables.orders, orderData);
-        createdOrders.push(splitOrder[0]);
-        newItems[splitOrder[0].id.toString()] = items.map(item => item.toString());
-
-        for ( const item of items ) {
-          await db.merge(item, {
-            order: splitOrder[0].id,
-            seat: split.number
-          });
-        }
-      }
-
-      // // Mark original order as cancelled or completed
-      await db.merge(order.id, {
-        status: OrderStatus['Spilt'],
-        items: [], // items moved to new orders
-        tags: [...(order.tags || []), OrderStatus['Spilt']]
+      await assertOrderMutationsAllowed(db).catch((err) => {
+        // Closing guard needs the master DB; offline we let the local-first path proceed.
+        if (err?.message && !/network|fetch|connect|closed/i.test(String(err.message))) throw err;
       });
 
-      await db.create(Tables.order_split, {
-        created_at: new Date(),
-        created_by: toRecordId(page.user.id),
-        old_order: order.id,
-        new_orders: createdOrders.map(item => item.id),
-        old_items: oldItems,
-        new_items: newItems,
+      const groups = [];
+      for (const split of actualSplits) {
+        if (split.items.length === 0) continue;
+        groups.push({
+          itemIds: split.items.map((item) => String(item.id)),
+          seat: String(split.number),
+          invoiceNumber: await posStore.consumeInvoiceNumber(),
+          autoId: await posStore.consumeAutoId(),
+          order: {
+            covers: Math.ceil(order.covers / actualSplits.length) || 1,
+            split: split.number,
+          },
+        });
+      }
+
+      const { children } = await posStore.splitOrder({
+        parentId: String(order.id),
+        mode: 'seats',
+        groups,
+        userId: String(page.user.id),
+        seed: { order, items: order.items },
       });
 
       postOrderTracking({
@@ -199,17 +156,21 @@ export const SplitBySeats = ({
         page: page?.page,
         orderId: order.id,
         payload: {
-          split_count: createdOrders.length,
-          new_orders: createdOrders.map((item) => item.id.toString()),
+          split_count: children.length,
+          new_orders: children.map((item) => item.id),
         },
         user: page?.user,
       });
 
-      toast.success(t('split.toast.success', {count: createdOrders.length}));
+      toast.success(t('split.toast.success', {count: children.length}));
       onClose?.();
     } catch (error) {
       console.error('Error creating split orders:', error);
-      toast.error(t('split.toast.failed'));
+      if ((error as any)?.code === 'NUMBERS_EXHAUSTED') {
+        toast.error(t('payment:errors.numbersExhausted'));
+      } else {
+        toast.error(t('split.toast.failed'));
+      }
     } finally {
       setIsSaving(false);
     }

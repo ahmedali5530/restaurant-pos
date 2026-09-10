@@ -101,7 +101,18 @@
     "retry": "Bağlantıyı yeniden dene",
     "syncing": "{{count}} çevrimdışı değişiklik senkronize ediliyor…",
     "pendingSync": "{{count}} değişiklik senkronizasyon için kuyrukta",
-    "syncNow": "Şimdi senkronize et"
+    "syncNow": "Şimdi senkronize et",
+    "syncAll": "Tümünü senkronize et",
+    "ownedElsewhere": "Başka bir terminalde açık",
+    "conflicts": "{{count}} değişiklik sunucu tarafından reddedildi",
+    "conflictsHint": "Bu değişiklikler reddedildi (genellikle başka bir terminal önce güncelledikten sonra). Senkronizasyondan sonra otomatik yeniden deneriz; takılı kalırlarsa Tümünü senkronize et kullanın veya sunucu sürümünü korumak için Vazgeçin.",
+    "viewConflicts": "Göster",
+    "hideConflicts": "Gizle",
+    "retryOp": "Tekrar dene",
+    "discardOp": "Vazgeç",
+    "conflictOrder": "Sipariş {{id}}",
+    "conflictFailed": "{{count}} değişiklik birkaç denemeden sonra sunucuya ulaşamadı",
+    "synced": "Senkronize"
   },
   "lock": {
     "lockedBy": "{{name}} tarafından kilitlendi",

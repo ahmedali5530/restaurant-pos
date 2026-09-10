@@ -10,7 +10,10 @@
   },
   "errors": {
     "createOrder": "Bestellung konnte nicht erstellt werden.",
-    "openPayment": "Zahlung konnte nicht geöffnet werden."
+    "openPayment": "Zahlung konnte nicht geöffnet werden.",
+    "notOwner": "Diese Bestellung ist auf einem anderen Terminal geöffnet",
+    "numbersExhausted": "Offline sind keine Rechnungsnummern mehr verfügbar — verbinden Sie sich erneut, um weitere Bestellungen anzulegen",
+    "fireFailed": "Zurückgehaltene Artikel konnten nicht gesendet werden"
   },
   "tracking": {
     "createOrder": "Bestellung erstellen",
@@ -86,7 +89,9 @@
     "complete": "Abschließen",
     "cannotAddCard": "Keine weitere Kartenzahlung möglich",
     "exactCardAmount": "Exakter Betrag für Kartenzahlung hinzugefügt",
-    "tempAlreadyPrinted": "Zwischenrechnung bereits gedruckt"
+    "tempAlreadyPrinted": "Zwischenrechnung bereits gedruckt",
+    "alreadyClosed": "Diese Bestellung ist bereits abgeschlossen.",
+    "notOwner": "Diese Bestellung wird von einem anderen Terminal bearbeitet."
   },
   "remote": {
     "remoteLabel": "{{name}} (Remote)",

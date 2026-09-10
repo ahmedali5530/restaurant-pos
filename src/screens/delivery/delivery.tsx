@@ -241,18 +241,18 @@ export const Delivery = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh_-_70px_-_25px)]">
+      <div className="flex items-center justify-center h-full min-h-[20rem]">
         <span className="text-neutral-600 text-lg">{t('map.loading')}</span>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-5 gap-5" data-testid="delivery-map-panel">
-      <div className="col-span-4">
+    <div className="grid grid-cols-5 gap-5 h-full min-h-0" data-testid="delivery-map-panel">
+      <div className="col-span-4 min-h-0 h-full">
         <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
           <Map
-            className="h-[calc(100vh_-_70px_-_25px)]"
+            className="h-full min-h-[20rem]"
             defaultCenter={center}
             center={selectedOrderCenter ?? undefined}
             defaultZoom={11}
@@ -267,8 +267,8 @@ export const Delivery = () => {
           </Map>
         </APIProvider>
       </div>
-      <div className="col-span-1 select-none" data-testid="delivery-orders-list">
-        <ScrollContainer className="h-[calc(100vh_-_70px_-_25px)]">
+      <div className="col-span-1 select-none min-h-0 h-full" data-testid="delivery-orders-list">
+        <ScrollContainer className="h-full">
           <div className="">
             {deliveryOrders.length > 0 ? (
               deliveryOrders.map((order) => (
@@ -279,7 +279,7 @@ export const Delivery = () => {
                 />
               ))
             ) : (
-              <div className="text-center text-3xl flex flex-col justify-center items-center h-[calc(100vh_-_200px)] gap-5">
+              <div className="text-center text-3xl flex flex-col justify-center items-center h-full min-h-[12rem] gap-5">
                 <FontAwesomeIcon icon={faExclamationCircle} size="2x" />
                 No delivery orders...
               </div>

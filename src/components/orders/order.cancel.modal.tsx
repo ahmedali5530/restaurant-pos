@@ -6,7 +6,6 @@ import {Textarea} from "@/components/common/input/textarea.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {StringRecordId} from "surrealdb";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
 import {toast} from "sonner";
@@ -14,14 +13,14 @@ import {getOrderFilteredItems, translateVoidReason} from "@/lib/order.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {Kitchen} from "@/api/model/kitchen.ts";
 import ScrollContainer from "react-indiana-drag-scroll";
-import { nowSurrealDateTime } from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
-import {cancelItemStages} from "@/lib/kitchen/workflow.service.ts";
 import {useTranslation} from "react-i18next";
 import {useIntegrationManager} from "@/providers/integration.provider.tsx";
 import {publishOrderCancelled} from "@/integrations/accounting/events/publish.ts";
 import {nanoid} from "nanoid";
+import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
+import {PosStoreError} from "@/infrastructure/pos-store/types.ts";
 
 interface OrderCancelModalProps {
   order: OrderModel
@@ -140,45 +139,19 @@ export const OrderCancelModal = ({
     try {
       await assertOrderMutationsAllowed(db);
 
-      const userId = new StringRecordId(page.user.id.toString());
-      const orderId = new StringRecordId(order.id.toString());
-      const now = nowSurrealDateTime();
-
-      if (allSelected) {
-        await db.merge(orderId, {
-          status: OrderStatus.Cancelled,
-          tags: Array.from(new Set([...(order.tags || []), OrderStatus.Cancelled])),
-        });
-      }
-
-      for (const item of filteredItems) {
-        const key = item.id.toString();
-        const qty = selectedItems[key];
-        if (!qty) continue;
-
-        const itemId = new StringRecordId(key);
-
-        if (qty >= item.quantity) {
-          await db.merge(itemId, {deleted_at: now});
-          // Cancel any pending/waiting kitchen stages so the item stops
-          // surfacing downstream.
-          await cancelItemStages(db, key);
-        } else {
-          await db.merge(itemId, {quantity: item.quantity - qty});
-        }
-
-        await db.create(Tables.order_voids, {
-          comments: comments || undefined,
-          created_at: now,
-          deleted_by: userId,
-          logged_in_user: userId,
-          order: orderId,
-          // order_item: itemId,
-          quantity: qty,
-          reason: selectedReason,
-          items: [itemId],
-        });
-      }
+      // One PosStore command: item patches, void rows, kitchen cancels, status
+      // and local tax recompute commit to Dexie together; the outbox syncs.
+      const lines = filteredItems
+        .map((item) => ({ itemId: item.id.toString(), quantity: selectedItems[item.id.toString()] ?? 0 }))
+        .filter((line) => line.quantity > 0);
+      const result = await posStore.voidOrderItems({
+        orderId: order.id.toString(),
+        lines,
+        reason: selectedReason,
+        comments: comments || undefined,
+        userId: page.user.id.toString(),
+        seed: { order, items: order.items },
+      });
 
       // Dispatch deletion prints grouped by kitchen
       try {
@@ -225,11 +198,11 @@ export const OrderCancelModal = ({
       }
 
       postOrderTracking({
-        module: allSelected ? "Cancel order" : "Cancel order items",
+        module: result.allVoided ? "Cancel order" : "Cancel order items",
         page: page?.page,
         orderId: order.id,
         payload: {
-          all_selected: allSelected,
+          all_selected: result.allVoided,
           items_count: Object.keys(selectedItems).length,
           reason: selectedReason,
           comments: comments || undefined,
@@ -238,16 +211,23 @@ export const OrderCancelModal = ({
       });
 
       // Only reverse GL when a SaleCompleted path existed (Paid orders).
+      // Accounting is a side effect — never block the void on it.
       if (order.status === OrderStatus.Paid) {
         const voidBatchKey = nanoid(10);
-        await publishOrderCancelled(integrationManager, order, voidBatchKey);
+        void publishOrderCancelled(integrationManager, order, voidBatchKey).catch((error) => {
+          console.warn('Accounting cancel publish failed', error);
+        });
       }
 
-      toast.success(allSelected ? t('cancel.successOrder') : t('cancel.successItems'));
+      toast.success(result.allVoided ? t('cancel.successOrder') : t('cancel.successItems'));
       onClose();
     } catch (error) {
       console.error('Failed to cancel order', error);
-      toast.error(t('cancel.failed'));
+      if (error instanceof PosStoreError && error.code === 'NOT_OWNER') {
+        toast.error(t('common:offline.ownedElsewhere', {defaultValue: 'Open on another terminal'}));
+      } else {
+        toast.error(t('cancel.failed'));
+      }
     } finally {
       setIsSubmitting(false);
     }

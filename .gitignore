@@ -51,6 +51,7 @@ printing/data
 api/data
 backups/surrealdb
 .qwen
+.commandcode
 # Real env files carry secrets (SURREAL_USER/PASS, GATEWAY_JWT_SECRET, API keys).
 # Never commit them. Only the .env.example templates are tracked.
 .env

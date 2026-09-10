@@ -3,6 +3,7 @@ import { appAlert, appState, closingEnforcementAtom } from "@/store/jotai.ts";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils.ts";
 import { useDB } from "@/api/db/db.ts";
+import { posStore } from "@/infrastructure/pos-store/pos-store.ts";
 import {getClosingEnforcementState} from "@/lib/closing.guard.ts";
 import {useTranslation} from "react-i18next";
 import i18n from "@/lib/i18n.ts";
@@ -77,8 +78,25 @@ export const MenuPersons = () => {
         return;
       }
     } catch (error) {
-      console.error("Failed to check closing enforcement:", error);
-      return;
+      console.warn("Closing enforcement live check failed; using cached state", error);
+      if (enforcement.orderTakingBlocked) {
+        setAlert(prev => ({
+          ...prev,
+          message: enforcement.message ?? i18n.t('closing:orderTakingDisabled'),
+          type: "warning",
+          opened: true,
+        }));
+        setState(prev => ({
+          ...prev,
+          showFloor: true,
+          showPersons: false,
+          table: undefined,
+          order: undefined,
+          orders: [],
+          cart: [],
+        }));
+        return;
+      }
     }
 
     setState(prev => ({
@@ -86,11 +104,17 @@ export const MenuPersons = () => {
       showPersons: false,
     }));
 
-    // if we have order set in the order directly
+    // if we have order set in the order directly — Dexie first, outbox syncs.
     if(state.order.id !== 'new'){
-      await db.merge(state.order.id, {
-        covers: parseInt(state?.persons)
-      });
+      try {
+        await posStore.mergeOrder(
+          String(state.order.id),
+          { covers: parseInt(state?.persons) },
+          { seed: { order: state.order.order ?? { id: state.order.id }, items: state.order.order?.items } },
+        );
+      } catch (error) {
+        console.error('Failed to update covers', error);
+      }
     }
   }
 
@@ -103,7 +127,7 @@ export const MenuPersons = () => {
   const btnClasses = 'size-[85px] sm:size-[100px] md:size-[120px] p-0 text-neutral-900 active:scale-[0.95] transition-all duration-75 bg-neutral-100 active:text-neutral-100 active:bg-neutral-900 rounded-full text-3xl';
 
   return (
-    <div className="flex h-screen w-full justify-center items-center flex-col gap-5 bg-white" data-testid="menu-persons-screen">
+    <div className="flex h-full w-full justify-center items-center flex-col gap-5 bg-white" data-testid="menu-persons-screen">
       <h3 className={
         cn("text-4xl", error && 'login-error')
       }>{t('persons.chooseCount')}</h3>

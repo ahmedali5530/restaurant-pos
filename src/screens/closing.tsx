@@ -519,7 +519,7 @@ export const Closing = () => {
     return (
       <Layout overflowHidden>
         <DocumentTitle parts={[tNav('sidebar.closing')]} />
-        <div data-testid="closing-page" className="h-[calc(100vh_-_30px)] flex justify-center items-center text-xl font-semibold">
+        <div data-testid="closing-page" className="h-[calc(100vh_-_30px_-_var(--app-toolbar-h))] flex justify-center items-center text-xl font-semibold">
           {t("closing:loading")}
         </div>
       </Layout>
@@ -529,7 +529,7 @@ export const Closing = () => {
   return (
     <Layout overflowHidden>
       <DocumentTitle parts={[tNav('sidebar.closing')]} />
-      <ScrollContainer className="overflow-y-auto h-[calc(100vh_-_30px)] select-none">
+      <ScrollContainer className="overflow-y-auto h-[calc(100vh_-_30px_-_var(--app-toolbar-h))] select-none">
         <div className="p-6" data-testid="closing-page">
           <h1 className="text-3xl font-bold mb-3 text-center">{t("closing:title", {date: today})}</h1>
           <div className="text-center mb-6 text-sm text-neutral-600">{closingWindowLabel}</div>

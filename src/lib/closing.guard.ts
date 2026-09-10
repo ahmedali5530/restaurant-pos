@@ -3,15 +3,20 @@ import {Closing} from "@/api/model/closing.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {
   ClosingCycleWindow,
+  CLOSING_CYCLE_KEY,
+  closingCycleConfigFromSetting,
   formatClosingCycleTime,
   getLastCycleEndTime,
   isClosingCycleEnabled,
   isWithinActiveClosingCycle,
   loadClosingCycleConfig,
   resolveClosingWindow,
+  type ClosingCycleConfig,
 } from "@/lib/closing-cycle.ts";
 import {toSurrealDateTime} from "@/lib/datetime.ts";
 import {OrderStatus} from "@/api/model/order.ts";
+import {getCatalogTable} from "@/infrastructure/pos-store/catalog.ts";
+import type {Setting} from "@/api/model/setting.ts";
 
 type DBLike = {
   query: (sql: string, params?: Record<string, unknown>) => Promise<unknown[][]>;
@@ -72,12 +77,35 @@ export const isCurrentCycleClosed = async (db: DBLike, now: Date = new Date()): 
   return closing?.status === "completed";
 };
 
-export const getClosingEnforcementState = async (
-  db: DBLike,
-  now: Date = new Date()
-): Promise<ClosingEnforcementState> => {
-  const {config} = await loadClosingCycleConfig(db);
+async function loadClosingCycleConfigLocal(): Promise<{
+  setting: Setting | null;
+  config: ClosingCycleConfig;
+}> {
+  const rows = await getCatalogTable<Setting>(Tables.settings);
+  const setting =
+    rows.find((row) => row?.key === CLOSING_CYCLE_KEY && row?.is_global === true) ?? null;
+  return {
+    setting,
+    config: closingCycleConfigFromSetting(setting),
+  };
+}
 
+async function resolveClosingCycleConfig(db: DBLike): Promise<ClosingCycleConfig> {
+  try {
+    const {config} = await loadClosingCycleConfig(db);
+    return config;
+  } catch (error) {
+    console.warn("Closing cycle: Surreal unavailable, using PosStore settings", error);
+    const {config} = await loadClosingCycleConfigLocal();
+    return config;
+  }
+}
+
+function enforcementFromConfig(
+  config: ClosingCycleConfig,
+  dayClosingCompleted: boolean,
+  now: Date
+): ClosingEnforcementState {
   if (!isClosingCycleEnabled(config)) {
     return {
       orderTakingBlocked: false,
@@ -87,8 +115,6 @@ export const getClosingEnforcementState = async (
       message: null,
     };
   }
-
-  const dayClosingCompleted = await isCurrentCycleClosed(db, now);
 
   if (dayClosingCompleted) {
     const message = getOrderPunchDisabledMessage();
@@ -123,6 +149,24 @@ export const getClosingEnforcementState = async (
     dayClosingCompleted: false,
     message,
   };
+}
+
+export const getClosingEnforcementState = async (
+  db: DBLike,
+  now: Date = new Date()
+): Promise<ClosingEnforcementState> => {
+  const config = await resolveClosingCycleConfig(db);
+
+  let dayClosingCompleted = false;
+  try {
+    dayClosingCompleted = await isCurrentCycleClosed(db, now);
+  } catch (error) {
+    // Offline / Surreal down: keep taking orders based on local cycle window only.
+    console.warn("Closing cycle: could not verify day closing record", error);
+    dayClosingCompleted = false;
+  }
+
+  return enforcementFromConfig(config, dayClosingCompleted, now);
 };
 
 export const assertOrderTakingAllowed = async (db: DBLike) => {

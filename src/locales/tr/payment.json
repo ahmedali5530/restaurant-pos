@@ -10,7 +10,10 @@
   },
   "errors": {
     "createOrder": "Sipariş oluşturulamadı.",
-    "openPayment": "Ödeme açılamadı."
+    "openPayment": "Ödeme açılamadı.",
+    "notOwner": "Bu sipariş başka bir terminalde açık",
+    "numbersExhausted": "Çevrimdışı fatura numarası kalmadı — sipariş oluşturmaya devam etmek için yeniden bağlanın",
+    "fireFailed": "Bekletilen ürünler gönderilemedi"
   },
   "tracking": {
     "createOrder": "Sipariş oluştur",
@@ -86,7 +89,9 @@
     "complete": "Tamamla",
     "cannotAddCard": "Kart için daha fazla ödeme eklenemez",
     "exactCardAmount": "Kart tabanlı ödeme için tam tutar eklendi",
-    "tempAlreadyPrinted": "Geçici fatura zaten yazdırıldı"
+    "tempAlreadyPrinted": "Geçici fatura zaten yazdırıldı",
+    "alreadyClosed": "Bu sipariş zaten kapatıldı.",
+    "notOwner": "Bu sipariş başka bir terminal tarafından işleniyor."
   },
   "remote": {
     "remoteLabel": "{{name}} (Uzaktan)",

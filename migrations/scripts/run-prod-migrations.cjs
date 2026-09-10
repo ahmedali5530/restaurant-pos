@@ -86,6 +86,9 @@ const MIGRATION_PLAN = [
     id: '2026_08_28_security_alerts_access_backfill',
     backfill: 'backfill-security-alerts-access.cjs',
   },
+  { id: '2026_09_04_terminal_sync', file: '2026_09_04_terminal_sync.surql' },
+  { id: '2026_09_06_sync_schemaless_reset', file: '2026_09_06_sync_schemaless_reset.surql' },
+  { id: '2026_09_06_order_sync_ownership_fields', file: '2026_09_06_order_sync_ownership_fields.surql' },
 ];
 
 const rows = (result) => {

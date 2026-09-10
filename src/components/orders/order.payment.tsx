@@ -17,8 +17,8 @@ import {useDiscountCache} from "@/hooks/useDiscountCache.ts";
 import {
   loadActiveOrderDiscounts,
   persistOrderDiscounts,
-  syncOrderDiscountDenorm,
 } from "@/lib/discount-engine/service.ts";
+import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
 import {orderDiscountToAppliedLine} from "@/lib/discount-engine/context.ts";
 import {toTargetId} from "@/lib/discount-engine/target-ids.ts";
 import {OrderPaymentServiceCharges} from "@/components/orders/payment/order.payment.service_charges.tsx";
@@ -32,11 +32,10 @@ import {useDB} from "@/api/db/db.ts";
 import {OrderPaymentNotes} from "@/components/orders/payment/order.payment.notes.tsx";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import {useAtom} from "jotai";
-import {appPage} from "@/store/jotai.ts";
-import {Tables} from "@/api/db/tables.ts";
-import useApi, {SettingsData} from "@/api/db/use.api.ts";
+import {appPage, appSettings} from "@/store/jotai.ts";
 import {Extra} from "@/api/model/extra.ts";
 import {Coupon, WeekDay} from "@/api/model/coupon.ts";
+import {isExtraApplicable as extraMatchesContext} from "@/infrastructure/pos-store/catalog.ts";
 import {OrderPaymentCoupon} from "@/components/orders/payment/order.payment.coupon.tsx";
 import { hasTempPrint, requestBillPrint } from "@/lib/order-print.ts";
 import {toast} from "sonner";
@@ -46,7 +45,6 @@ import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
 import { getFiscalQrcodesForOrderPrint } from "@/integrations/providers/fiscal/settlement.ts";
 import {OrderItemName} from "@/components/common/order/order.item.tsx";
-import {syncOrderPayments} from "@/lib/order-payment-sync.ts";
 
 interface Props {
   order: Order
@@ -72,6 +70,7 @@ export const OrderPayment = ({
   useDiscountCache();
 
   const [page] = useAtom(appPage);
+  const [settings] = useAtom(appSettings);
 
   const itemsTotal = calculateOrderTotal(order);
   const [paymentTypes, setPaymentTypes] = useState<OrderPaymentModal[]>([]);
@@ -113,14 +112,6 @@ export const OrderPayment = ({
     };
   }, [db, order.id]);
 
-  const {
-    data: extrasData,
-  } = useApi<SettingsData<Extra>>(Tables.extras, [], ["name asc"], 0, 99999, [
-    "payment_types",
-    "order_types",
-    "tables",
-  ]);
-
   const selectedPaymentTypeIds = useMemo(() => {
     return new Set((paymentTypes || []).map(item => item.payment_type?.id?.toString()).filter(Boolean));
   }, [paymentTypes]);
@@ -129,59 +120,25 @@ export const OrderPayment = ({
   const orderTypeId = order?.order_type?.id?.toString();
   const tableId = order?.table?.id?.toString();
 
-  const isExtraApplicable = useCallback((extra: Extra) => {
-    if (extra.apply_to_all) {
-      return true;
-    }
-
-    const hasPaymentTypeRule = (extra.payment_types?.length || 0) > 0;
-    const hasOrderTypeRule = (extra.order_types?.length || 0) > 0;
-    const hasTableRule = (extra.tables?.length || 0) > 0;
-    const hasDeliveryRule = !!extra.delivery;
-    const hasAnyRule = hasPaymentTypeRule || hasOrderTypeRule || hasTableRule || hasDeliveryRule;
-
-    if (!hasAnyRule) {
-      return false;
-    }
-    if (hasDeliveryRule && !isDeliveryOrder) {
-      return false;
-    }
-
-    if (hasOrderTypeRule) {
-      const orderTypeIds = new Set(extra.order_types?.map(item => item.id?.toString()));
-      if (!orderTypeId || !orderTypeIds.has(orderTypeId)) {
-        return false;
-      }
-    }
-
-    if (hasTableRule) {
-      const tableIds = new Set(extra.tables?.map(item => item.id?.toString()));
-      if (!tableId || !tableIds.has(tableId)) {
-        return false;
-      }
-    }
-
-    if (hasPaymentTypeRule) {
-      const extraPaymentTypeIds = new Set(extra.payment_types?.map(item => item.id?.toString()));
-      const hasMatchingPaymentType = [...selectedPaymentTypeIds].some(id => extraPaymentTypeIds.has(id));
-      if (!hasMatchingPaymentType) {
-        return false;
-      }
-    }
-
-    return true;
-  }, [isDeliveryOrder, orderTypeId, tableId, selectedPaymentTypeIds]);
-
   const defaultExtras = useMemo<Record<string, number>>(() => {
-    const records = extrasData?.data || [];
+    const records = (settings.extras ?? []) as Extra[];
     const mapped: Record<string, number> = {};
 
-    records.filter(isExtraApplicable).forEach(item => {
-      mapped[item.name] = Number(item.value || 0);
-    });
+    records
+      .filter((extra) =>
+        extraMatchesContext(extra, {
+          paymentTypeIds: selectedPaymentTypeIds,
+          orderTypeId,
+          tableId,
+          isDelivery: isDeliveryOrder,
+        }),
+      )
+      .forEach((item) => {
+        mapped[item.name] = Number(item.value || 0);
+      });
 
     return mapped;
-  }, [extrasData, isExtraApplicable]);
+  }, [settings.extras, selectedPaymentTypeIds, orderTypeId, tableId, isDeliveryOrder]);
 
   useEffect(() => {
     setExtraToggles(prev => {
@@ -263,11 +220,14 @@ export const OrderPayment = ({
       return;
     }
 
-    setPaymentTypes((order?.payments ?? []).filter((payment) => payment != null));
+    // In-progress tenders live locally in `draft_payments`; settled rows in `payments`.
+    const draftPayments = ((order as any)?.draft_payments as OrderPaymentModal[] | undefined) ?? [];
+    const existingPayments = (draftPayments.length > 0 ? draftPayments : (order?.payments ?? []))
+      .filter((payment) => payment != null);
+    setPaymentTypes(existingPayments);
     setTax(order?.tax);
     setTaxAmount(order?.tax_amount ?? 0);
 
-    const existingPayments = (order?.payments ?? []).filter((payment) => payment != null);
     const lastPt = existingPayments[existingPayments.length - 1]?.payment_type?.id;
     if (lastPt) {
       setSelectedPaymentTypeId(toTargetId(lastPt));
@@ -360,17 +320,7 @@ export const OrderPayment = ({
       const now = nowSurrealDateTime();
       const nowJs = now.toDate();
 
-      const [coupons] = await db.query<Coupon[]>(
-        `SELECT *
-         FROM ${Tables.coupons}
-         WHERE code = $code
-           AND is_active = true
-           AND deleted_at = none
-         ORDER BY priority ASC LIMIT 1`,
-        {code}
-      );
-
-      const couponRecord = (coupons || [])[0];
+      const couponRecord = await posStore.findActiveCouponByCode(code);
       if (!couponRecord) {
         toast.error(t('coupon.errors.notFound'));
         return;
@@ -446,13 +396,10 @@ export const OrderPayment = ({
         couponRecord.usage_limit !== undefined &&
         couponRecord.usage_limit !== null
       ) {
-        const [allRedemptions] = await db.query(
-          `SELECT *
-           FROM ${Tables.coupon_redemptions}
-           WHERE coupon = $couponId`,
-          {couponId: couponRecord.id}
-        );
-        if ((allRedemptions || []).length >= Number(couponRecord.usage_limit)) {
+        const { global } = await posStore.countCouponRedemptions({
+          couponId: String(couponRecord.id),
+        });
+        if (global >= Number(couponRecord.usage_limit)) {
           toast.error(t('coupon.errors.usageLimitReached'));
           return;
         }
@@ -463,25 +410,16 @@ export const OrderPayment = ({
         couponRecord.usage_limit_per_user !== null &&
         page?.user?.id
       ) {
-        const [userRedemptions] = await db.query(
-          `SELECT *
-           FROM ${Tables.coupon_redemptions}
-           WHERE coupon = $couponId
-             AND user = $userId`,
-          {
-            couponId: couponRecord.id,
-            userId: page.user.id,
-          }
-        );
-        if (
-          (userRedemptions || []).length >=
-          Number(couponRecord.usage_limit_per_user)
-        ) {
+        const { perUser } = await posStore.countCouponRedemptions({
+          couponId: String(couponRecord.id),
+          userId: String(page.user.id),
+        });
+        if (perUser >= Number(couponRecord.usage_limit_per_user)) {
           toast.error(t('coupon.errors.userLimitReached'));
           return;
         }
 
-        if (couponRecord.first_order_only && (userRedemptions || []).length > 0) {
+        if (couponRecord.first_order_only && perUser > 0) {
           toast.error(t('coupon.errors.firstOrderOnly'));
           return;
         }
@@ -530,10 +468,12 @@ export const OrderPayment = ({
   };
 
   const print = async () => {
-    // fetch latest order from database
-    const [o] = await db.query<[Order]>(`select *
-                                         from only ${order.id} fetch items, items.item, item.item.modifiers, table, user, order_type, customer, discount, tax, payments, payments.payment_type, extras, extras.order_extras`);
-    const qrcodes = await getFiscalQrcodesForOrderPrint(db, order.id);
+    const o = (await posStore.getOrderHydrated(String(order.id))) as Order | null;
+    if (!o) {
+      toast.error(t('payment:errors.createOrder'));
+      return;
+    }
+    const qrcodes = await getFiscalQrcodesForOrderPrint(db, order.id).catch(() => []);
 
     await requestBillPrint({
       db,
@@ -551,8 +491,13 @@ export const OrderPayment = ({
     });
   }
 
-  const onPayment = () => {
-    closeModal();
+  const onPayment = (opts?: { settled?: boolean }) => {
+    // After settle the order is Paid — do not flush draft/tax again (blocks modal close).
+    if (opts?.settled) {
+      onClose();
+    } else {
+      void closeModal();
+    }
 
     setTimeout(() => {
       void print();
@@ -565,93 +510,20 @@ export const OrderPayment = ({
       return;
     }
 
-    const {paymentIds: orderPayments, payments: syncedPayments} = await syncOrderPayments(
-      db,
-      paymentTypes,
-      order?.payments,
-      total,
-    );
-
-    const paymentIdsChanged =
-      syncedPayments.length !== paymentTypes.length ||
-      syncedPayments.some((payment, index) => String(payment.id) !== String(paymentTypes[index]?.id));
-    if (paymentIdsChanged) {
-      setPaymentTypes(syncedPayments);
-    }
-
-    // Clear denorm refs first so concurrent FETCH cannot resolve deleted extras.
-    await db.merge(order.id, { extras: [] });
-
-    const previousExtraIds = (order?.extras ?? [])
-      .filter((ext): ext is NonNullable<typeof ext> => !!ext?.id)
-      .map((ext) => ext.id);
-
-    for (const extraId of previousExtraIds) {
-      try {
-        await db.delete(extraId);
-      } catch {
-        // Orphan / already-deleted id after a prior race — continue.
-      }
-    }
-
-    const extraOptions = [];
-    for (const extra of Object.keys(extras)) {
-      const [record] = await db.create(Tables.order_extras, {
-        name: extra,
-        value: extras[extra]
-      });
-
-      extraOptions.push(record.id);
-    }
-
-    // Handle order-level coupon persistence
-    let orderCouponId: string | null = null;
+    const orderId = String(order.id);
+    const seed = { order, items: order.items };
     const hasCoupon = coupon && couponAmount > 0;
-
-    if (hasCoupon) {
-      if (order?.coupon?.id) {
-        await db.merge(order.coupon.id, {
-          coupon: coupon.id,
-          discount: couponAmount,
-        });
-        orderCouponId = order.coupon.id as any;
-      } else {
-        const [created] = await db.create(Tables.order_coupons, {
-          coupon: coupon.id,
-          discount: couponAmount,
-          created_at: nowSurrealDateTime(),
-        });
-        orderCouponId = (created as any)?.id ?? created.id;
-      }
-    } else if (order?.coupon?.id) {
-      // Clear existing coupon if it was removed
-      await db.delete(order.coupon.id);
-    }
-
     const allLines = cartTotals.discountLines;
-    const resolvedDiscountAmount = allLines.reduce((s, l) => s + l.appliedAmount, 0);
+    const extraRows = Object.keys(extras).map((name) => ({
+      id: `order_extras:${orderId.split(':')[1]}_${name.replace(/[^a-zA-Z0-9_]/g, '_')}`,
+      name,
+      value: extras[name],
+    }));
 
-    let orderDiscountRecordIds: unknown[] | undefined;
-    try {
-      const created = await persistOrderDiscounts(db, order.id, allLines, page?.user, orderDiscountIds);
-      orderDiscountRecordIds = created
-        .map(r => r?.id)
-        .filter(Boolean)
-        .map(id => toRecordId(id as string));
-      const freshRows = await loadActiveOrderDiscounts(db, order.id);
-      setOrderDiscountIds(freshRows.map(r => r.id));
-      await syncOrderDiscountDenorm(db, order.id, allLines);
-    } catch (e) {
-      console.error('Failed to persist order discounts', e);
-    }
-
-    const progressMerge: Record<string, unknown> = {
-      payments: orderPayments,
-      extras: extraOptions,
-      tax: tax ? toRecordId(tax?.id) : null,
-      tax_amount: cartTotals.taxAmount,
-      discount_amount: resolvedDiscountAmount,
-      discount_rate: allLines[0]?.appliedRate ?? 0,
+    // Local-first: Dexie commit + outbox ops; payment lines stay local until settle.
+    await posStore.saveOrderDraft(orderId, {
+      draft_payments: paymentTypes,
+      tax: tax?.id ? String(tax.id) : null,
       tip: tip,
       tip_amount: tipAmount,
       tip_type: tipType,
@@ -659,21 +531,21 @@ export const OrderPayment = ({
       service_charge_amount: serviceChargeAmount,
       service_charge_type: serviceChargeType,
       notes: notes,
-      coupon: orderCouponId,
-    };
+      extras: extraRows,
+      coupon: hasCoupon
+        ? { id: order?.coupon?.id ? String(order.coupon.id) : undefined, couponId: String(coupon.id), discount: couponAmount }
+        : null,
+    }, seed);
 
-    if (orderDiscountRecordIds !== undefined) {
-      // Final write keeps denorm IDs aligned with junction rows after delete/recreate.
-      progressMerge.order_discounts = orderDiscountRecordIds;
+    try {
+      const rows = await persistOrderDiscounts(db, orderId, allLines, page?.user, orderDiscountIds, seed);
+      setOrderDiscountIds(rows.map(r => String(r.id)));
+    } catch (e) {
+      console.error('Failed to persist order discounts', e);
     }
 
-    if (allLines[0]?.discountId) {
-      progressMerge.discount = toRecordId(allLines[0].discountId);
-    } else {
-      progressMerge.discount = null;
-    }
-
-    await db.merge(order.id, progressMerge);
+    // order_tax rows + tax_amount follow the selected order-level tax.
+    await posStore.recomputeOrderTaxes(orderId).catch((e) => console.warn('Tax recompute failed', e));
 
     postOrderTracking({
       module: "orders.update_payment",
@@ -681,7 +553,7 @@ export const OrderPayment = ({
       orderId: order.id,
       payload: {
         payment_count: paymentTypes.length,
-        extras_count: extraOptions.length,
+        extras_count: extraRows.length,
         tax: tax?.id?.toString(),
         discount_count: allLines.length,
         discount: allLines[0]?.discountId,
@@ -789,7 +661,7 @@ export const OrderPayment = ({
       size="full"
     >
       <div className="grid grid-cols-4 gap-5 mb-0 select-none" data-testid="payment-screen">
-        <div className="bg-white rounded-xl flex flex-col overflow-auto h-[calc(100vh_-_120px)]" data-testid="payment-order-summary">
+        <div className="bg-white rounded-xl flex flex-col overflow-auto h-[calc(100vh_-_120px_-_var(--app-toolbar-h))]" data-testid="payment-order-summary">
           <div className="p-3 flex gap-3 flex-col">
             <OrderHeader order={order} tempPrinted={tempPrinted}/>
             <OrderTimes order={order}/>
@@ -984,7 +856,7 @@ export const OrderPayment = ({
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl flex flex-col p-3 h-[calc(100vh_-_120px)]" data-testid="payment-adjust-panel">
+        <div className="bg-white rounded-xl flex flex-col p-3 h-[calc(100vh_-_120px_-_var(--app-toolbar-h))]" data-testid="payment-adjust-panel">
           {mode === PaymentOptions.Tax && (
             <OrderPaymentTax tax={tax} setTax={setTax}/>
           )}

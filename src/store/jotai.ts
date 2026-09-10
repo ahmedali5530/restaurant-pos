@@ -17,6 +17,11 @@ import {PaymentType} from "@/api/model/payment_type.ts";
 import {DishModifierGroup} from "@/api/model/dish_modifier_group.ts";
 import {Menu} from "@/api/model/menu.ts";
 import {Tax} from "@/api/model/tax.ts";
+import {Extra} from "@/api/model/extra.ts";
+import {Discount} from "@/api/model/discount.ts";
+import {DiscountReason} from "@/api/model/discount_reason.ts";
+import {Coupon} from "@/api/model/coupon.ts";
+import {Setting} from "@/api/model/setting.ts";
 import {DEFAULT_LANGUAGE, DEFAULT_TEXT_DIRECTION, type AppTextDirection} from "@/lib/languages.ts";
 
 
@@ -202,6 +207,15 @@ export interface AppSettingsInterface {
   payment_types: PaymentType[]
   menus: Menu[]
   taxes: Tax[]
+  extras: Extra[]
+  discounts: Discount[]
+  discount_reasons: DiscountReason[]
+  coupons: Coupon[]
+  settings: Setting[]
+  /** Terminal-safe user projection (no passwords/PINs). */
+  users: User[]
+  workflows?: any[]
+  workflow_stages?: any[]
 }
 
 const defaultAppSettings: AppSettingsInterface = {
@@ -216,6 +230,14 @@ const defaultAppSettings: AppSettingsInterface = {
   payment_types: [],
   menus: [],
   taxes: [],
+  extras: [],
+  discounts: [],
+  discount_reasons: [],
+  coupons: [],
+  settings: [],
+  users: [],
+  workflows: [],
+  workflow_stages: [],
 }
 
 const normalizeAppSettings = (settings?: Partial<AppSettingsInterface>): AppSettingsInterface => ({

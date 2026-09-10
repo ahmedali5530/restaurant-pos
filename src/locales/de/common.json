@@ -101,7 +101,18 @@
     "retry": "Erneut verbinden",
     "syncing": "{{count}} Offline-Änderungen werden synchronisiert…",
     "pendingSync": "{{count}} Änderungen warten auf Synchronisierung",
-    "syncNow": "Jetzt synchronisieren"
+    "syncNow": "Jetzt synchronisieren",
+    "syncAll": "Alle synchronisieren",
+    "ownedElsewhere": "Auf einem anderen Terminal geöffnet",
+    "conflicts": "{{count}} Änderung(en) vom Server abgelehnt",
+    "conflictsHint": "Diese Änderungen wurden abgelehnt (oft nachdem ein anderes Terminal zuerst aktualisiert hat). Wir versuchen es nach dem Sync automatisch erneut; nutzen Sie Alle synchronisieren, wenn sie hängen bleiben, oder Verwerfen, um die Serverversion zu behalten.",
+    "viewConflicts": "Anzeigen",
+    "hideConflicts": "Ausblenden",
+    "retryOp": "Erneut versuchen",
+    "discardOp": "Verwerfen",
+    "conflictOrder": "Bestellung {{id}}",
+    "conflictFailed": "{{count}} Änderung(en) haben den Server nach mehreren Versuchen nicht erreicht",
+    "synced": "Synchronisiert"
   },
   "lock": {
     "lockedBy": "Gesperrt von {{name}}",

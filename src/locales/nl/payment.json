@@ -10,7 +10,10 @@
   },
   "errors": {
     "createOrder": "Kan bestelling niet aanmaken.",
-    "openPayment": "Kan betaling niet openen."
+    "openPayment": "Kan betaling niet openen.",
+    "notOwner": "Deze bestelling is open op een andere terminal",
+    "numbersExhausted": "Geen factuurnummers meer beschikbaar offline — maak opnieuw verbinding om bestellingen te blijven aanmaken",
+    "fireFailed": "Kon de vastgehouden items niet doorsturen"
   },
   "tracking": {
     "createOrder": "Bestelling aanmaken",
@@ -86,7 +89,9 @@
     "complete": "Voltooien",
     "cannotAddCard": "Kan geen extra betaling toevoegen voor kaart",
     "exactCardAmount": "Exact bedrag toegevoegd voor kaartbetaling",
-    "tempAlreadyPrinted": "Tijdelijke rekening al afgedrukt"
+    "tempAlreadyPrinted": "Tijdelijke rekening al afgedrukt",
+    "alreadyClosed": "Deze bestelling is al gesloten.",
+    "notOwner": "Deze bestelling wordt door een andere terminal afgehandeld."
   },
   "remote": {
     "remoteLabel": "{{name}} (Op afstand)",

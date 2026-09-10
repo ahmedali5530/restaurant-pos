@@ -1054,14 +1054,14 @@ export const DeliveryAreas = () => {
           Draw delivery zones on the map. Choose a tool on the left, then click and drag to draw. Click a shape to select it, drag to move it, or use the handles to resize.
         </p>
         {loading ? (
-          <div className="flex items-center justify-center h-[calc(100vh_-_70px)]">
+          <div className="flex items-center justify-center h-full min-h-[20rem]">
             <div className="text-lg">{t('map.loadingAreas')}</div>
           </div>
         ) : (
-          <div className="relative">
+          <div className="relative h-full min-h-0">
             <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
               <Map
-                className="h-[calc(100vh_-_170px)] w-full rounded-lg border border-neutral-300"
+                className="h-[min(70vh,calc(100%_-_1rem))] min-h-[20rem] w-full rounded-lg border border-neutral-300"
                 defaultCenter={center}
                 defaultZoom={11}
                 gestureHandling="greedy"

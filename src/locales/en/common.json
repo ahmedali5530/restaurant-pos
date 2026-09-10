@@ -101,7 +101,18 @@
     "retry": "Retry connection",
     "syncing": "Syncing {{count}} offline changes…",
     "pendingSync": "{{count}} changes queued for sync",
-    "syncNow": "Sync now"
+    "syncNow": "Sync now",
+    "syncAll": "Sync all",
+    "ownedElsewhere": "Open on another terminal",
+    "conflicts": "{{count}} change(s) rejected by the server",
+    "conflictsHint": "These changes were rejected (often after another terminal updated first). We retry automatically after sync; use Sync all if they stay stuck, or Discard to keep the server version.",
+    "viewConflicts": "View",
+    "hideConflicts": "Hide",
+    "retryOp": "Retry",
+    "discardOp": "Discard",
+    "conflictOrder": "Order {{id}}",
+    "conflictFailed": "{{count}} change(s) could not reach the server after several attempts",
+    "synced": "Synced"
   },
   "lock": {
     "lockedBy": "Locked by {{name}}",

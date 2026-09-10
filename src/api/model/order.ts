@@ -57,6 +57,11 @@ export interface Order extends ID{
 
   coupon?: OrderCoupon
   order_discounts?: OrderDiscount[]
+
+  /** PosStore terminal ownership (see ADR 0001). */
+  owner_terminal_id?: string | null
+  owner_heartbeat_at?: DateTime | string | null
+  server_version?: number | null
 }
 
 export interface OrderExtra extends ID{

@@ -637,7 +637,7 @@ export const MenuItems = ({
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col gap-4 mb-3 max-h-[calc(100vh_-_175px)] overflow-y-auto">
+              <div className="flex flex-col gap-4 mb-3 max-h-[calc(100vh_-_175px_-_var(--app-toolbar-h))] overflow-y-auto">
               {groupedItems.map((group) => {
                 const allActive = isCategoryAllActive(group);
                 const categoryId = String(group.category.id);

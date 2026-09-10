@@ -1,4 +1,4 @@
-import {Order as OrderModel, OrderStatus} from "@/api/model/order.ts";
+import {Order as OrderModel} from "@/api/model/order.ts";
 import {OrderItem} from "@/api/model/order_item.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Button} from "@/components/common/input/button.tsx";
@@ -8,18 +8,14 @@ import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import React, {useMemo, useState} from "react";
 import {faCheck, faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {useDB} from "@/api/db/db.ts";
-import {Tables} from "@/api/db/tables.ts";
 import {toast} from "sonner";
-import {RecordId, StringRecordId} from "surrealdb";
 import {nanoid} from "nanoid";
 import {getOrderFilteredItems} from "@/lib/order.ts";
-import { nowSurrealDateTime } from "@/lib/datetime.ts";
 import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
-import {toRecordId} from "@/lib/utils.ts";
-import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
+import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
 import {useTranslation} from "react-i18next";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
@@ -38,7 +34,7 @@ interface Split {
 export const SplitAmount = ({
   order, onClose
 }: Props) => {
-  const {t} = useTranslation(['orders', 'common']);
+  const {t} = useTranslation(['orders', 'common', 'payment']);
   const db = useDB();
   const [page] = useAtom(appPage);
 
@@ -184,132 +180,107 @@ export const SplitAmount = ({
 
     setIsSaving(true);
     try {
-      await assertOrderMutationsAllowed(db);
-      const createdAt = new Date();
-      const createdOrders = [];
-      const oldOrderId = order.id.toString();
-      const oldItems: Record<string, string[]> = {
-        [oldOrderId]: allItems.map(item => item.id.toString())
-      };
-      const newItems: Record<string, string[]> = {};
+      await assertOrderMutationsAllowed(db).catch((err) => {
+        // Closing guard needs the master DB; offline we let the local-first path proceed.
+        if (err?.message && !/network|fetch|connect|closed/i.test(String(err.message))) throw err;
+      });
 
-      for (let i = 0; i < splits.length; i++) {
-        const split = splits[i];
+      const groups = [];
+      const extrasByGroup: Array<Array<{ id: string; name: string; value: number }>> = [];
+      for (const split of splits) {
         if (split.amount <= 0) continue;
 
-        // Calculate proportional values for tax, discount, etc.
+        // Proportional values for tax, discount, etc.
         const splitRatio = split.amount / orderTotal;
         const splitTaxAmount = order.tax_amount ? Number(order.tax_amount) * splitRatio : 0;
         const splitDiscountAmount = order.discount_amount ? Number(order.discount_amount) * splitRatio : 0;
         const splitServiceChargeAmount = order.service_charge_amount ? Number(order.service_charge_amount) * splitRatio : 0;
         const splitTipAmount = order.tip_amount ? Number(order.tip_amount) * splitRatio : 0;
 
-        // Create new order items with adjusted prices for this split
-        const newItemIds = [];
-
-        for (const originalItem of allItems) {
-          // Get the base price to adjust from (current price)
+        // Clone every line with a pro-rata price into the child order.
+        const newItems = allItems.map((originalItem) => {
           const basePrice = originalItem.price;
-          const newPrice = basePrice * splitRatio;
-
-          // Set original_price: use current price if original_price is empty, otherwise keep existing
-          const originalPrice = originalItem.original_price ?? basePrice;
-
-          // Prepare item data with adjusted price
-          const itemData: any = {
-            item: new StringRecordId(originalItem.item.id.toString()),
-            price: newPrice,
+          return {
+            dishId: String(originalItem.item.id),
+            price: basePrice * splitRatio,
+            originalPrice: originalItem.original_price ?? basePrice,
             quantity: originalItem.quantity,
-            position: originalItem.position,
             comments: originalItem.comments || undefined,
-            service_charges: originalItem.service_charges ? (originalItem.service_charges * splitRatio) : 0,
+            serviceCharges: originalItem.service_charges ? (originalItem.service_charges * splitRatio) : 0,
             discount: originalItem.discount ? (originalItem.discount * splitRatio) : 0,
             modifiers: originalItem.modifiers ? originalItem.modifiers.map((mod: any) => adjustModifierPrice(mod, splitRatio)) : undefined,
             seat: originalItem.seat || undefined,
-            is_suspended: originalItem.is_suspended || false,
+            isHold: originalItem.is_suspended || false,
             level: originalItem.level,
             category: originalItem.category || undefined,
-            is_addition: false,
+            isAddition: false,
             tax: originalItem.tax ? (originalItem.tax * splitRatio) : 0,
-            tax_mode: originalItem.tax_mode || 'exclusive',
-            taxes: originalItem.taxes || undefined,
-            created_at: nowSurrealDateTime(),
-            // Set original_price: use current price if empty, otherwise keep existing original_price
-            original_price: originalPrice
+            taxMode: originalItem.tax_mode || 'exclusive',
+            taxes: (originalItem.taxes || []).map((tax: any) => String(tax?.id ?? tax)),
           };
+        });
 
-          // Create the new order item
-          const [createdItem] = await db.create(Tables.order_items, itemData);
-          newItemIds.push(createdItem.id);
-        }
-
-        const nextInvoiceNumber = await generateNextInvoiceNumber(db);
-        const nextAutoId = await getNextAutoId(db);
-
-        // Create the split order
-        const orderData = {
-          floor: new RecordId('floor', order.floor.id),
-          covers: Math.ceil(order.covers / splits.length) || 1,
-          tags: [OrderStatus['Spilt']],
-          order_type: order.order_type.id,
-          status: OrderStatus["In Progress"],
-          auto_id: nextAutoId,
-          invoice_number: nextInvoiceNumber,
-          items: newItemIds,
-          table: order.table.id,
-          user: order.user.id,
-          created_at: createdAt,
-          split: split.number,
-          tax_amount: splitTaxAmount,
-          discount_amount: splitDiscountAmount,
-          service_charge_amount: splitServiceChargeAmount,
-          tip_amount: splitTipAmount,
-          // Distribute extras proportionally if any
-          extras: order.extras
-            ?.filter((extra): extra is NonNullable<typeof extra> => !!extra)
-            .map(extra => ({
+        groups.push({
+          newItems,
+          invoiceNumber: await posStore.consumeInvoiceNumber(),
+          autoId: await posStore.consumeAutoId(),
+          order: {
+            covers: Math.ceil(order.covers / splits.length) || 1,
+            split: split.number,
+            tax_amount: splitTaxAmount,
+            discount_amount: splitDiscountAmount,
+            service_charge_amount: splitServiceChargeAmount,
+            tip_amount: splitTipAmount,
+          },
+        });
+        extrasByGroup.push(
+          (order.extras ?? [])
+            .filter((extra): extra is NonNullable<typeof extra> => !!extra)
+            .map((extra, idx) => ({
+              id: `order_extras:split_${split.number}_${idx}_${Date.now().toString(36)}`,
               name: extra.name,
-              value: Number(extra.value || 0) * splitRatio
-            }))
-        };
-
-        const splitOrder = await db.create(Tables.orders, orderData);
-        createdOrders.push(splitOrder[0]);
-        newItems[splitOrder[0].id.toString()] = newItemIds.map(item => item.toString());
+              value: Number(extra.value || 0) * splitRatio,
+            })),
+        );
       }
 
-      // Mark original order as split
-      await db.merge(order.id, {
-        status: OrderStatus['Spilt'],
-        items: [], // items moved to new orders
-        tags: [...(order.tags || []), OrderStatus['Spilt']]
+      const { children } = await posStore.splitOrder({
+        parentId: String(order.id),
+        mode: 'amount',
+        groups,
+        userId: String(page.user.id),
+        seed: { order, items: order.items },
       });
 
-      await db.create(Tables.order_split, {
-        created_at: new Date(),
-        created_by: toRecordId(page.user.id),
-        old_order: order.id,
-        new_orders: createdOrders.map(item => item.id),
-        old_items: oldItems,
-        new_items: newItems,
-      });
+      // Distribute extras proportionally onto the children (local-first relation replace).
+      await Promise.all(
+        children.map((child, index) =>
+          extrasByGroup[index]?.length
+            ? posStore.replaceOrderRelation(child.id, 'extras', extrasByGroup[index])
+            : Promise.resolve(child),
+        ),
+      );
 
       postOrderTracking({
         module: "orders.split_by_amount",
         page: page?.page,
         orderId: order.id,
         payload: {
-          split_count: createdOrders.length,
-          new_orders: createdOrders.map((item) => item.id.toString()),
+          split_count: children.length,
+          new_orders: children.map((item) => item.id),
         },
         user: page?.user,
       });
 
-      toast.success(t('split.toast.success', {count: createdOrders.length}));
+      toast.success(t('split.toast.success', {count: children.length}));
       onClose?.();
     } catch (error) {
       console.error('Error creating split orders:', error);
-      toast.error(t('split.toast.failed'));
+      if ((error as any)?.code === 'NUMBERS_EXHAUSTED') {
+        toast.error(t('payment:errors.numbersExhausted'));
+      } else {
+        toast.error(t('split.toast.failed'));
+      }
     } finally {
       setIsSaving(false);
     }

@@ -12,6 +12,7 @@ const http = require('http');
 const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./src/auth.routes');
+const syncRoutes = require('./src/sync.routes');
 const { getUserRoleModules, hasSecurityAlertsAccess } = require('./src/auth.service');
 const { attachRpcRelay } = require('./src/ws-relay');
 const { getClient, initSurrealClient } = require('./src/surreal-client');
@@ -77,6 +78,7 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/auth', authRoutes);
+app.use('/sync', syncRoutes);
 
 /** Shared verify endpoint for other services (optional). */
 app.post('/auth/verify', async (req, res) => {

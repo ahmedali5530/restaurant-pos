@@ -379,7 +379,7 @@ export const Summary = () => {
               </Button>
             </div>
           </div>
-          <ScrollContainer className="max-h-[calc(100vh_-_30px)] overflow-y-auto flex-1 flex-basis-[500px] py-10 select-none" data-testid="summary-report">
+          <ScrollContainer className="max-h-[calc(100vh_-_30px_-_var(--app-toolbar-h))] overflow-y-auto flex-1 flex-basis-[500px] py-10 select-none" data-testid="summary-report">
             {isLoading ? (
               <div className="flex h-screen w-full justify-center items-center flex-1">
                 <FontAwesomeIcon icon={faSpinner} spin size="5x"/>

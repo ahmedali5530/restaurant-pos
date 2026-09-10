@@ -13,7 +13,6 @@ import {
 import {toast} from "sonner";
 import {useDatabase} from "@/hooks/useDatabase.ts";
 import {getSessionToken, isGatewayAuthEnabled} from "@/lib/session.ts";
-import {enqueueWrite} from "@/lib/offline-write-queue.ts";
 
 type QueryBindings = Record<string, unknown>;
 type DbThing = AnyRecordId | RecordIdRange | Table | string;
@@ -90,12 +89,8 @@ export const useDB = () => {
     isGatewayAuthEnabled() && !getSessionToken();
 
   const liveConnected = isEffectivelyConnected;
-  // Offline writes when logged in and browser/socket is down.
-  const isOfflineCapable = !liveConnected && !allowDisconnected;
-
-  if (!liveConnected && !allowDisconnected && !isOfflineCapable) {
-    throw new Error('Database is not connected. Please ensure DatabaseProvider is wrapping your app and connection is established.');
-  }
+  // FOH mutations go through PosStore. useDB must still mount offline for shared hooks;
+  // individual Surreal ops throw DbNotReadyError via runGuarded when unreachable.
 
   const ensureReady = async () => {
     if (isGatewayAuthEnabled() && !getSessionToken()) {
@@ -129,23 +124,6 @@ export const useDB = () => {
       toast.error(getErrorMessage(e));
       throw e;
     }
-  };
-
-  const runGuardedOffline = async <T>(
-    op: () => Promise<T>,
-    label: string,
-    offlineOp?: { operation: 'create' | 'update' | 'merge' | 'delete'; table?: string; recordId?: string; data?: any }
-  ): Promise<T> => {
-    if (isOfflineCapable && offlineOp) {
-      const queueId = await enqueueWrite(offlineOp.operation, {
-        table: offlineOp.table,
-        recordId: offlineOp.recordId,
-        data: offlineOp.data,
-      });
-      window.dispatchEvent(new CustomEvent('posr-offline-enqueued'));
-      return { id: queueId, _offline: true, _queuedAt: Date.now() } as unknown as T;
-    }
-    return runGuarded(op, label);
   };
 
   const query = async <R extends unknown[] = any[]>(sql: string, parameters?: QueryBindings): Promise<R> => {
@@ -190,7 +168,7 @@ export const useDB = () => {
   const del = async <T = any>(
     thing: DbThing
   ): Promise<RecordResult<T> | RecordResult<T>[]> => {
-    return runGuardedOffline(async () => {
+    return runGuarded(async () => {
       if (import.meta.env.DEV) {
         console.group('DB Delete')
         console.info(thing);
@@ -205,11 +183,11 @@ export const useDB = () => {
         return client.delete<T>(normalizedThing);
       }
       return client.delete<T>(normalizedThing as AnyRecordId);
-    }, 'delete', { operation: 'delete', recordId: String(thing) });
+    }, 'delete');
   }
 
   async function insert<T = any>(thing: Table | string, data: Values<T> | Values<T>[]) {
-    return runGuardedOffline(async () => {
+    return runGuarded(async () => {
       if (import.meta.env.DEV) {
         console.group('DB Insert')
         console.info(thing);
@@ -218,7 +196,7 @@ export const useDB = () => {
       }
 
       return client.insert<T>(toTable(thing), data);
-    }, 'insert', { operation: 'create', table: String(thing), data });
+    }, 'insert');
   }
 
 
@@ -226,7 +204,7 @@ export const useDB = () => {
     thing: DbThing,
     data: Values<T>
   ) => {
-    return runGuardedOffline(async () => {
+    return runGuarded(async () => {
       if (import.meta.env.DEV) {
         console.group('DB Update')
         console.info(thing);
@@ -242,7 +220,7 @@ export const useDB = () => {
         return client.update<T>(normalizedThing).merge(data);
       }
       return client.update<T>(normalizedThing as AnyRecordId).merge(data);
-    }, 'updating', { operation: 'update', recordId: String(thing), data });
+    }, 'updating');
   }
 
   const patch = async <T extends Record<string, unknown> = Record<string, unknown>>(
@@ -272,7 +250,7 @@ export const useDB = () => {
     thing: DbThing,
     data: Values<T>
   ) => {
-    return runGuardedOffline(async () => {
+    return runGuarded(async () => {
       if (import.meta.env.DEV) {
         console.group('DB Merge')
         console.info(thing);
@@ -288,7 +266,7 @@ export const useDB = () => {
         return client.update<T>(normalizedThing).merge(data);
       }
       return client.update<T>(normalizedThing as AnyRecordId).merge(data);
-    }, 'merging', { operation: 'merge', recordId: String(thing), data });
+    }, 'merging');
   }
 
   const upsert = async <T extends Record<string, unknown> = Record<string, unknown>>(

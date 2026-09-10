@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
-import { useDB } from "@/api/db/db.ts";
-import { Tables } from "@/api/db/tables.ts";
-import { Order, OrderStatus, ORDER_FETCHES } from "@/api/model/order.ts";
+import { Order, OrderStatus } from "@/api/model/order.ts";
+import { posStore } from "@/infrastructure/pos-store/pos-store.ts";
 
 export interface UseFetchDeliveryOrdersOptions {
   enabled?: boolean;
@@ -9,7 +8,6 @@ export interface UseFetchDeliveryOrdersOptions {
 
 export const useFetchDeliveryOrders = (options: UseFetchDeliveryOrdersOptions = {}) => {
   const { enabled = true } = options;
-  const db = useDB();
 
   const [deliveryOrders, setDeliveryOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(enabled);
@@ -22,28 +20,12 @@ export const useFetchDeliveryOrders = (options: UseFetchDeliveryOrdersOptions = 
       setLoading(true);
       setError(null);
 
-      const fetchClause = `FETCH ${ORDER_FETCHES.join(", ")}`;
+      const orders = (await posStore.getDeliveryOrdersHydrated([
+        OrderStatus["In Progress"],
+        OrderStatus.Pending,
+      ])) as unknown as Order[];
 
-      const [result] = await db.query<any>(
-        `SELECT * FROM ${Tables.orders} 
-         WHERE delivery != NONE and delivery != {} and delivery != []
-           AND status IN $status
-         ORDER BY created_at DESC
-         ${fetchClause}
-         `,
-        {
-          status: [OrderStatus["In Progress"], OrderStatus['Pending']],
-        }
-      );
-
-      const ordersData = result;
-
-      if (ordersData && ordersData.length > 0) {
-        const orders = ordersData.map((r: any) => r as Order);
-        setDeliveryOrders(orders);
-      } else {
-        setDeliveryOrders([]);
-      }
+      setDeliveryOrders(orders);
     } catch (err) {
       console.error("Error fetching delivery orders:", err);
       setError(err instanceof Error ? err : new Error(String(err)));
@@ -61,6 +43,18 @@ export const useFetchDeliveryOrders = (options: UseFetchDeliveryOrdersOptions = 
       return;
     }
     void fetchDeliveryOrders();
+
+    const onWrite = () => {
+      void fetchDeliveryOrders();
+    };
+    window.addEventListener("posr-posstore-write", onWrite);
+    window.addEventListener("posr-operational-orders-updated", onWrite);
+    const pollId = window.setInterval(() => void fetchDeliveryOrders(), 5_000);
+    return () => {
+      window.removeEventListener("posr-posstore-write", onWrite);
+      window.removeEventListener("posr-operational-orders-updated", onWrite);
+      window.clearInterval(pollId);
+    };
   }, [enabled, fetchDeliveryOrders]);
 
   return {

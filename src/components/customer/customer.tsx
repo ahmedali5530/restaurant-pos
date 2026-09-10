@@ -5,11 +5,9 @@ import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button
 import { useAtom } from "jotai";
 import { appState } from "@/store/jotai.ts";
 import {Customer} from "@/api/model/customer.ts";
-import {useDB} from "@/api/db/db.ts";
-import {Tables} from "@/api/db/tables.ts";
-import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {faCheck} from "@fortawesome/free-solid-svg-icons";
 import {useTranslation} from "react-i18next";
+import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
 
 export interface Props {
   onAttach?: () => void;
@@ -18,26 +16,22 @@ export const Customers = ({
   onAttach
 }: Props) => {
   const [state, setState] = useAtom(appState);
-  const db = useDB();
   const {t} = useTranslation(["orders", "common"]);
 
   const [search, setSearch] = useState("");
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const loadCustomers = async (search: string) => {
-    if(search.trim().length === 0){
+  const loadCustomers = async (query: string) => {
+    if(query.trim().length === 0){
       setCustomers([]);
       return;
     }
 
-    const [list] = await db.query(`SELECT * FROM ${Tables.customers} where name contains $name or phone contains $name or email contains $name order by name limit 10`, {
-      name: search
-    });
-
-    setCustomers(list);
+    const list = await posStore.searchCustomers(query, 10);
+    setCustomers(list as Customer[]);
   }
 
   useEffect(() => {
-    loadCustomers(search)
+    void loadCustomers(search)
   }, [search]);
 
   return (
@@ -108,7 +102,7 @@ export const Customers = ({
           </thead>
           <tbody>
           {customers.map(item => (
-            <tr>
+            <tr key={String(item.id ?? `${item.name}-${item.phone}`)}>
               <td>
                 <IconTooltipButton
                   label={t('common:actions.select')}

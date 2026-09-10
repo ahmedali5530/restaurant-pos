@@ -16,7 +16,7 @@
   },
   "cache": {
     "title": "Cache",
-    "description": "Memorizza i dati nel browser per operazioni più rapide.",
+    "description": "Dati POS locali su questo terminale. Ricaricare li cancella e scarica una copia aggiornata dal server. Richiede connessione.",
     "reload": "Ricarica cache",
     "orderTypes": "Tipi ordine",
     "categories": "Categorie",
@@ -28,8 +28,12 @@
     "kitchens": "Cucine",
     "paymentTypes": "Tipi di pagamento",
     "taxes": "Tasse",
-    "reloaded": "Cache ricaricata dal database",
-    "reloadFailed": "Ricarica cache non riuscita"
+    "reloaded": "Cache cancellata e ricaricata dal server",
+    "reloadFailed": "Ricaricamento cache non riuscito",
+    "confirm": "Cancellare la cache POS locale e scaricare una copia aggiornata dal server?",
+    "confirmWithPending": "Hai {{count}} modifica/e non sincronizzata/e che verranno scartate. Cancellare la cache POS locale e scaricare una copia aggiornata dal server?",
+    "offline": "Impossibile ricaricare la cache offline",
+    "offlineHint": "Disponibile quando connesso al server"
   },
   "serviceCharges": {
     "title": "Costo servizio",

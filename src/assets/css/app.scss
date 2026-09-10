@@ -13,6 +13,12 @@ body {
 
 :root {
   scroll-behavior: smooth;
+  /* Bottom app toolbar height; 0 until a session mounts AppToolbar. */
+  --app-toolbar-h: 0px;
+}
+
+html[data-app-toolbar='1'] {
+  --app-toolbar-h: 2.75rem;
 }
 ::selection {
   @apply bg-neutral-500 text-white;
@@ -901,7 +907,16 @@ table th {
   flex: 0 0 auto;
 }
 .modifiers-swiper{
-  height: calc(100vh - 140px);
+  height: 100%;
+  max-height: 100%;
+  /* Keep overflow for indiana/swiper touch drag, but never paint a scrollbar. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
   .swiper-slide{
     height: auto;
     box-sizing: border-box;

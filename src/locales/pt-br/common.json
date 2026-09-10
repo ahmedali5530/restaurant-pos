@@ -101,7 +101,18 @@
     "retry": "Tentar reconectar",
     "syncing": "Sincronizando {{count}} alterações offline…",
     "pendingSync": "{{count}} alterações na fila para sincronizar",
-    "syncNow": "Sincronizar agora"
+    "syncNow": "Sincronizar agora",
+    "syncAll": "Sincronizar tudo",
+    "ownedElsewhere": "Aberto em outro terminal",
+    "conflicts": "{{count}} alteração(ões) rejeitada(s) pelo servidor",
+    "conflictsHint": "Estas alterações foram rejeitadas (muitas vezes depois que outro terminal atualizou primeiro). Tentamos de novo automaticamente após a sincronização; use Sincronizar tudo se ficarem travadas, ou Descartar para manter a versão do servidor.",
+    "viewConflicts": "Ver",
+    "hideConflicts": "Ocultar",
+    "retryOp": "Tentar novamente",
+    "discardOp": "Descartar",
+    "conflictOrder": "Pedido {{id}}",
+    "conflictFailed": "{{count}} alteração(ões) não chegaram ao servidor após várias tentativas",
+    "synced": "Sincronizado"
   },
   "lock": {
     "lockedBy": "Bloqueado por {{name}}",

@@ -1,8 +1,8 @@
-import { Tables } from "@/api/db/tables.ts";
 import { Kitchen } from "@/api/model/kitchen.ts";
 import { Order } from "@/api/model/order.ts";
 import { getOrderFilteredItems } from "@/lib/order.ts";
 import { dispatchPrint } from "@/lib/print.service.ts";
+import { posStore } from "@/infrastructure/pos-store/pos-store.ts";
 
 /**
  * Re-print full-order KOT(s) grouped by kitchen dish routing (same match as
@@ -20,9 +20,7 @@ export async function printDuplicateKotForOrder(opts: {
     return false;
   }
 
-  const [kitchens]: [Kitchen[]] = await db.query(
-    `SELECT * FROM ${Tables.kitchens} WHERE deleted_at = none FETCH printers, items`
-  );
+  const kitchens = (await posStore.getKitchensHydrated()) as Kitchen[];
 
   if (!kitchens?.length) {
     return false;

@@ -16,7 +16,7 @@
   },
   "cache": {
     "title": "Cache",
-    "description": "Stocke les données dans le navigateur pour des opérations plus rapides.",
+    "description": "Données POS locales sur ce terminal. Recharger les efface et télécharge une copie fraîche depuis le serveur. Nécessite une connexion.",
     "reload": "Recharger le cache",
     "orderTypes": "Types de commande",
     "categories": "Catégories",
@@ -28,8 +28,12 @@
     "kitchens": "Cuisines",
     "paymentTypes": "Types de paiement",
     "taxes": "Taxes",
-    "reloaded": "Cache rechargé depuis la base de données",
-    "reloadFailed": "Échec du rechargement du cache"
+    "reloaded": "Cache effacé et rechargé depuis le serveur",
+    "reloadFailed": "Échec du rechargement du cache",
+    "confirm": "Effacer le cache POS local et télécharger une copie fraîche depuis le serveur ?",
+    "confirmWithPending": "Vous avez {{count}} modification(s) non synchronisée(s) qui seront perdues. Effacer le cache POS local et télécharger une copie fraîche depuis le serveur ?",
+    "offline": "Impossible de recharger le cache hors ligne",
+    "offlineHint": "Disponible lorsque la connexion au serveur est établie"
   },
   "serviceCharges": {
     "title": "Frais de service",

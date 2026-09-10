@@ -1,15 +1,12 @@
 import ScrollContainer from "react-indiana-drag-scroll";
 import {Button} from "@/components/common/input/button.tsx";
-import {cn, DENOMINATION_COINS, DENOMINATION_NOTES, toRecordId, withCurrency} from "@/lib/utils.ts";
+import {cn, DENOMINATION_COINS, DENOMINATION_NOTES, withCurrency} from "@/lib/utils.ts";
 import {faClose, faPrint} from "@fortawesome/free-solid-svg-icons";
 import * as React from "react";
 import {useEffect, useMemo, useState} from "react";
-import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {PaymentType} from "@/api/model/payment_type.ts";
-import {Tables} from "@/api/db/tables.ts";
-import {Order, OrderStatus} from "@/api/model/order.ts";
+import {Order} from "@/api/model/order.ts";
 import {useDB} from "@/api/db/db.ts";
-import {Table} from "@/api/model/table.ts";
 import {Tax} from "@/api/model/tax.ts";
 import {DiscountType} from "@/api/model/discount.ts";
 import {Coupon} from "@/api/model/coupon.ts";
@@ -17,13 +14,12 @@ import {OrderPayment} from "@/api/model/order_payment.ts";
 import {nanoid} from "nanoid";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useAtom} from "jotai";
-import {appAlert, appPage} from "@/store/jotai.ts";
+import {appAlert, appPage, appSettings} from "@/store/jotai.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
-import {StringRecordId} from "surrealdb";
 import {calculateChangeDue} from "@/lib/cart.ts";
-import {syncOrderTaxes} from "@/lib/order-tax.service.ts";
-import {syncOrderPayments} from "@/lib/order-payment-sync.ts";
+import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
+import {terminalSyncService} from "@/infrastructure/sync/sync-service.ts";
 import {
   isRemotePaymentType,
   RemotePaymentPendingSlot,
@@ -31,7 +27,6 @@ import {
   useRemotePayment,
 } from "@/components/orders/payment/remote";
 import {useSecurity} from "@/hooks/useSecurity.ts";
-import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
 import {useIntegrationManager} from "@/providers/integration.provider.tsx";
@@ -53,7 +48,7 @@ interface Props {
   order: Order
   total: number
   resolvePayable: (taxOverride?: Tax | null, paymentTypeId?: string) => number
-  onComplete: () => void
+  onComplete: (opts?: { settled?: boolean }) => void
 
   extras: Record<string, number>
 
@@ -155,24 +150,19 @@ const OrderPaymentReceivingContent = ({
   }, [db, order.id]);
 
   const [, setAlert] = useAtom(appAlert);
-
-  const {
-    data: allPaymentTypes
-  } = useApi<SettingsData<PaymentType>>(Tables.payment_types, ['deleted_at = none'], ['priority asc'], 0, 99999, ['tax']);
+  const [settings] = useAtom(appSettings);
 
   const tableId = order?.table?.id?.toString();
 
-  const {
-    data: table
-  } = useApi<SettingsData<Table>>(tableId, ['deleted_at = none'], [], 0, 1, ['payment_types', 'payment_types.tax'], {enabled: !!tableId});
-
   const paymentTypes: PaymentType[] = useMemo(() => {
-    if (table?.data?.[0]?.payment_types && table?.data?.[0]?.payment_types?.length > 0) {
-      return table?.data?.[0]?.payment_types;
+    if (tableId) {
+      const table = settings.tables.find((row) => String(row.id) === tableId);
+      if (table?.payment_types && table.payment_types.length > 0) {
+        return table.payment_types as PaymentType[];
+      }
     }
-
-    return allPaymentTypes?.data;
-  }, [table, allPaymentTypes]);
+    return settings.payment_types ?? [];
+  }, [settings.tables, settings.payment_types, tableId]);
 
   // const [paymentType, setPaymentType] = useState<string>();
   const [mode, setMode] = useState<'quick' | 'button'>('quick');
@@ -199,11 +189,21 @@ const OrderPaymentReceivingContent = ({
     setClosing(true);
 
     try {
-      const blockBeforePaid = await fiscalShouldBlockBeforePaid(integrationManager, db);
+      // Fiscal pre-check is an online integration concern; when the master DB is
+      // unreachable we settle locally and let the post-settle fiscal run catch up.
+      let blockBeforePaid = false;
       let fiscalOrderSnapshot: Order | undefined;
+      try {
+        blockBeforePaid = await fiscalShouldBlockBeforePaid(integrationManager, db);
+        if (blockBeforePaid) {
+          fiscalOrderSnapshot = await loadOrderForFiscal(db, String(order.id));
+        }
+      } catch (fiscalCheckError) {
+        console.warn('Fiscal pre-check skipped (offline?)', fiscalCheckError);
+        blockBeforePaid = false;
+      }
 
       if (blockBeforePaid) {
-        fiscalOrderSnapshot = await loadOrderForFiscal(db, String(order.id));
         if (fiscalOrderSnapshot) {
           const preResult = await runFiscalSettlementForOrder(
             integrationManager,
@@ -232,136 +232,71 @@ const OrderPaymentReceivingContent = ({
         }
       }
 
-      // Sync payments incrementally — reuse existing order_payment rows when present
-      const {paymentIds: orderPayments, payments: syncedPayments} = await syncOrderPayments(
-        db,
-        payments,
-        order?.payments,
-        total,
-      );
-      setPayments(syncedPayments);
-
-      const extraOptions = [];
-      for (const extra of Object.keys(extras)) {
-        const record = await db.create(Tables.order_extras, {
-          name: extra,
-          value: extras[extra]
-        });
-
-        extraOptions.push(record[0].id);
-      }
-
+      const orderId = String(order.id);
+      const hasCoupon = !!(coupon && couponAmount && couponAmount > 0);
       const resolvedDiscountAmount = discountAmount ?? order.discount_amount ?? 0;
-      const resolvedDiscountId = order.discount?.id;
+      const resolvedDiscountId = order.discount?.id ? String(order.discount.id) : undefined;
+      const extraRows = Object.keys(extras).map((name) => ({
+        id: `order_extras:${orderId.split(':')[1]}_${name.replace(/[^a-zA-Z0-9_]/g, '_')}`,
+        name,
+        value: extras[name],
+      }));
 
-      let orderCouponId: string | null = order?.coupon?.id
-        ? String(order.coupon.id)
-        : null;
-      const hasCoupon = coupon && couponAmount && couponAmount > 0;
+      // Local-first settlement: Dexie commit + outbox (CREATE_PAYMENT×n, MERGE order,
+      // REPLACE taxes/extras, coupon + redemption). Works offline; drains when back.
+      const settled = await posStore.settleOrder({
+        orderId,
+        payments: payments
+          .filter((payment) => payment?.payment_type?.id && Number(payment.amount) > 0)
+          .map((payment) => ({
+            id: payment.id ? String(payment.id) : undefined,
+            paymentTypeId: String(payment.payment_type.id),
+            amount: Number(payment.amount),
+            payable: Number(payment.payable ?? total),
+            comments: payment.comments ?? null,
+          })),
+        cashierId: page?.user?.id ? String(page.user.id) : null,
+        taxId: tax?.id ? String(tax.id) : null,
+        tip,
+        tipAmount,
+        tipType,
+        serviceCharge,
+        serviceChargeAmount,
+        serviceChargeType,
+        notes,
+        discountAmount: resolvedDiscountAmount,
+        ...(resolvedDiscountId ? { discountId: resolvedDiscountId } : {}),
+        extras: extraRows,
+        coupon: hasCoupon
+          ? {
+              id: order?.coupon?.id ? String(order.coupon.id) : undefined,
+              couponId: String(coupon!.id),
+              discount: Number(couponAmount),
+            }
+          : null,
+        couponRedemption: hasCoupon
+          ? {
+              userId: page?.user?.id ? String(page.user.id) : null,
+              discountAmount: Number(couponAmount),
+            }
+          : null,
+        // Payment screen auto-saves draft + taxes — skip redundant work on settle.
+        keepTaxes: true,
+        skipDraft: true,
+        seed: { order, items: order.items },
+      });
 
-      if (hasCoupon) {
-        if (order?.coupon?.id) {
-          await db.merge(order.coupon.id, {
-            coupon: coupon.id,
-            discount: couponAmount,
-          });
-          orderCouponId = String(order.coupon.id);
-        } else {
-          const [created] = await db.create(Tables.order_coupons, {
-            coupon: coupon.id,
-            discount: couponAmount,
-            created_at: nowSurrealDateTime(),
-          });
-          orderCouponId = (created as unknown as { id?: string })?.id?.toString?.() ?? String((created as unknown as {
-            id: string
-          }).id);
-        }
-      }
+      const settledPayments = payments.map((payment) => {
+        const row = settled.payments.find(
+          (p) => p.id === payment.id || p.id === `order_payment:${payment.id}`,
+        );
+        return row ? { ...payment, id: row.id as any } : payment;
+      });
+      setPayments(settledPayments);
 
-      const mergePayload: Record<string, unknown> = {
-        status: OrderStatus.Paid,
-        payments: orderPayments,
-        extras: extraOptions,
-        tax: tax?.id ? toRecordId(tax.id) : null,
-        tax_amount: taxAmount,
-        discount_amount: resolvedDiscountAmount,
-        tip: tip,
-        tip_amount: tipAmount,
-        tip_type: tipType,
-        service_charge: serviceCharge,
-        service_charge_amount: serviceChargeAmount,
-        service_charge_type: serviceChargeType,
-        cashier: new StringRecordId(page?.user?.id.toString()),
-        notes: notes,
-        completed_at: nowSurrealDateTime(),
-      };
-
-      if (resolvedDiscountId) {
-        mergePayload.discount = toRecordId(resolvedDiscountId);
-      }
-
-      if (orderCouponId) {
-        mergePayload.coupon = orderCouponId;
-      }
-
-      await db.merge(order.id, mergePayload);
-      await syncOrderTaxes(db, order, tax ?? order.tax ?? null);
-
-      if (hasCoupon) {
-        await db.create(Tables.coupon_redemptions, {
-          coupon: coupon.id,
-          user: page?.user?.id ? new StringRecordId(page.user.id.toString()) : null,
-          order: order.id,
-          discount_amount: couponAmount,
-          redeemed_at: nowSurrealDateTime(),
-        });
-      }
-
-      if (!blockBeforePaid) {
-        const settledOrder = await loadOrderForFiscal(db, String(order.id));
-        if (settledOrder) {
-          const fiscalResult = await runFiscalSettlementForOrder(
-            integrationManager,
-            db,
-            settledOrder
-          );
-          if (Object.values(fiscalResult.resultsByProvider).some((row) => row.status === 'failed')) {
-            toast.warning('Some fiscal providers failed; check Integrations queue');
-          }
-        }
-      }
-
-      const saleOrder = await loadOrderForFiscal(db, String(order.id));
-      if (saleOrder && integrationManager) {
-        try {
-          await publishSaleCompleted(integrationManager, saleOrder);
-          await publishInvoiceCreated(integrationManager, {
-            orderId: String(saleOrder.id),
-            invoiceNumber: saleOrder.invoice_number,
-            total: Number(saleOrder.payments?.reduce((s, p) => s + Number(p?.amount || 0), 0) || total),
-            totalCollected: Number(saleOrder.payments?.reduce((s, p) => s + Number(p?.amount || 0), 0) || total),
-            taxAmount: Number(saleOrder.tax_amount || taxAmount || 0),
-            customerId: saleOrder.customer?.id
-              ? String(saleOrder.customer.id)
-              : undefined,
-            completedAt: new Date().toISOString(),
-          });
-          for (const payment of syncedPayments) {
-            if (!payment?.id) continue;
-            await publishPaymentCompleted(integrationManager, {
-              paymentId: String(payment.id),
-              orderId: String(order.id),
-              amount: Number(payment.amount || 0),
-              paymentTypeId: payment.payment_type?.id
-                ? String(payment.payment_type.id)
-                : undefined,
-              paymentTypeName: payment.payment_type?.name,
-              tipAmount: tipAmount,
-            });
-          }
-        } catch (publishError) {
-          console.warn('Failed publishing settlement integration events', publishError);
-        }
+      // Table is free once the check is settled.
+      if (order?.table?.id) {
+        void posStore.unlockTable(String(order.table.id)).catch(() => undefined);
       }
 
       postOrderTracking({
@@ -376,8 +311,71 @@ const OrderPaymentReceivingContent = ({
         user: page?.user,
       });
 
-      onComplete();
+      // Post-settle side effects (fiscal, accounting, integration events) never
+      // block the cashier; they wait for the outbox to drain so remote reads
+      // see the settled order.
+      void (async () => {
+        try {
+          await terminalSyncService.synchronize().catch(() => undefined);
+
+          if (!blockBeforePaid) {
+            const settledOrder = await loadOrderForFiscal(db, orderId);
+            if (settledOrder) {
+              const fiscalResult = await runFiscalSettlementForOrder(
+                integrationManager,
+                db,
+                settledOrder
+              );
+              if (Object.values(fiscalResult.resultsByProvider).some((row) => row.status === 'failed')) {
+                toast.warning('Some fiscal providers failed; check Integrations queue');
+              }
+            }
+          }
+
+          const saleOrder = await loadOrderForFiscal(db, orderId);
+          if (saleOrder && integrationManager) {
+            await publishSaleCompleted(integrationManager, saleOrder);
+            await publishInvoiceCreated(integrationManager, {
+              orderId: String(saleOrder.id),
+              invoiceNumber: saleOrder.invoice_number,
+              total: Number(saleOrder.payments?.reduce((s, p) => s + Number(p?.amount || 0), 0) || total),
+              totalCollected: Number(saleOrder.payments?.reduce((s, p) => s + Number(p?.amount || 0), 0) || total),
+              taxAmount: Number(saleOrder.tax_amount || taxAmount || 0),
+              customerId: saleOrder.customer?.id
+                ? String(saleOrder.customer.id)
+                : undefined,
+              completedAt: new Date().toISOString(),
+            });
+            for (const payment of settledPayments) {
+              if (!payment?.id) continue;
+              await publishPaymentCompleted(integrationManager, {
+                paymentId: String(payment.id),
+                orderId,
+                amount: Number(payment.amount || 0),
+                paymentTypeId: payment.payment_type?.id
+                  ? String(payment.payment_type.id)
+                  : undefined,
+                paymentTypeName: payment.payment_type?.name,
+                tipAmount: tipAmount,
+              });
+            }
+          }
+        } catch (sideEffectError) {
+          console.warn('Post-settlement side effects failed', sideEffectError);
+        }
+      })();
+
+      onComplete({ settled: true });
     } catch (e) {
+      if ((e as any)?.code === 'ALREADY_CLOSED') {
+        toast.error(t('receiving.alreadyClosed'));
+        onComplete({ settled: true });
+        return;
+      }
+      if ((e as any)?.code === 'NOT_OWNER') {
+        toast.error(t('receiving.notOwner'));
+        return;
+      }
       throw e;
     } finally {
       setClosing(false);
@@ -494,12 +492,10 @@ const OrderPaymentReceivingContent = ({
     return resolvePayable(hasTax ? highestTax : undefined, paymentTypeId);
   }
 
-  const {
-    data: allTaxes
-  } = useApi<SettingsData<Tax>>(Tables.taxes, ['deleted_at = none'])
+  const allTaxes = settings.taxes;
 
   return (
-    <div className="grid grid-cols-2 gap-5 h-[calc(100vh_-_120px)]" data-testid="payment-receiving">
+    <div className="grid grid-cols-2 gap-5 h-[calc(100vh_-_120px_-_var(--app-toolbar-h))]" data-testid="payment-receiving">
       <div className="bg-white rounded-xl h-full" data-testid="payment-tender-panel">
         <div className="mb-3 text-5xl p-5 text-center " data-testid="payment-tendered">
           {withCurrency(tendered)}
@@ -631,7 +627,7 @@ const OrderPaymentReceivingContent = ({
                         }
                         await dispatchPrint(db, PRINT_TYPE.presale_bill, {
                           order: full,
-                          taxes: allTaxes?.data
+                          taxes: allTaxes
                         }, {userId: page?.user?.id});
                       },
                       onPrinted: () => setTempPrinted(true),

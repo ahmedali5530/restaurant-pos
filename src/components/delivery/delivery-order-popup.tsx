@@ -27,6 +27,7 @@ import {Tables} from "@/api/db/tables.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {assertOrderTakingAllowed} from "@/lib/closing.guard.ts";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
 
 interface DeliveryOrderPopupProps {
   order: Order;
@@ -72,6 +73,12 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
 
   const customer = order.customer;
   const delivery = order.delivery as any;
+
+  // Every delivery state change commits to Dexie first; the outbox syncs Surreal.
+  const mergeDeliveryOrder = (patch: Record<string, any>) =>
+    posStore.mergeOrder(String(order.id), patch, {
+      seed: { order, items: order.items as any[] },
+    });
 
   // Fetch riders when order is accepted
   useEffect(() => {
@@ -122,7 +129,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
 
   const sendForDelivery = async () => {
     try {
-      await db.merge(order.id, {
+      await mergeDeliveryOrder({
         delivery: {
           ...order.delivery,
           state: 'on_the_way'
@@ -141,7 +148,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
   const handleAccept = async () => {
     try {
       await assertOrderTakingAllowed(db);
-      await db.merge(order.id, {
+      await mergeDeliveryOrder({
         status: OrderStatus["In Progress"],
         delivery: {
           ...order.delivery,
@@ -165,7 +172,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
     }
 
     try {
-      await db.merge(order.id, {
+      await mergeDeliveryOrder({
         delivery: {
           ...order.delivery,
           rider: selectedRider,
@@ -194,7 +201,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
   const handleReject = async () => {
     try {
       // Update order status to cancelled
-      await db.merge(order.id, {
+      await mergeDeliveryOrder({
         status: OrderStatus.Cancelled,
         tags: Array.from(new Set([...(order.tags || []), OrderStatus.Cancelled])),
       });

@@ -177,7 +177,7 @@ export const DiscountForm = ({
         await db.create(Tables.discounts, vals);
       }
 
-      await refreshDiscountCache(db);
+      await refreshDiscountCache();
       
       await emitEntityCrudSave({
         domain: 'manage',

@@ -18,10 +18,11 @@ export const getInvoiceNumber = (order?: OrderModel | null) => {
 
 export const getOrderFilteredItems = (order: OrderModel) => {
   return (order?.items ?? [])
-    .filter(item => item?.deleted_at === undefined)
-    .filter(item => item?.is_refunded !== true)
-    .filter(item => item?.is_suspended !== true);
-}
+    // Surreal may use `null` for "not deleted"; any truthy value means voided/cancelled.
+    .filter((item) => item != null && !item.deleted_at)
+    .filter((item) => item?.is_refunded !== true)
+    .filter((item) => item?.is_suspended !== true);
+};
 
 /** SurrealDB FETCH can return a single record instead of `[record]` for one-item arrays. */
 const asRecordArray = <T>(value: unknown): T[] => {

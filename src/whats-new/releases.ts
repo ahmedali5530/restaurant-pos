@@ -7,6 +7,31 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-09-07',
+    title: 'Every order action works offline',
+    items: [
+      'Payments, voids, refunds, splits, merges, covers, table moves, table locks, firing to kitchen and KDS stage updates now commit locally first and sync to the master database in the background.',
+      'Taxes, discounts, coupons and extras are computed on the terminal and synced as a single replace operation — no more delete-and-recreate loops.',
+      'Floor, orders list, order card and the payment screen read from the local store, so they stay responsive during network or database outages.',
+      'Invoice and receipt numbers come from reserved ranges; the terminal warns when the offline pool runs out instead of issuing invalid numbers.',
+      'Sync banner shows rejected changes per order with Retry / Discard, and retries unreachable-server pushes with backoff.',
+      'Rejected sync changes auto-retry after each successful pull (with cooldown); Sync all re-queues every stuck conflict in one click.',
+      'Online terminals can edit the same check (ownership lock applies only offline); floor plan reads the local catalog so floors/tables no longer vanish into a Reload cache prompt.',
+      'Create order and settle return to the cashier faster — sync and side effects run in the background; settle skips redundant draft/tax flushes.',
+      'Settings → Reload cache clears the local Dexie store (online only) and rebuilds from the server — the escape hatch for a stale terminal cache.',
+    ],
+  },
+  {
+    date: '2026-09-04',
+    title: 'Local-first PosStore (Dexie) + owner-terminal sync',
+    items: [
+      'FOH order writes always commit to a local Dexie PosStore first (cloud and on-prem share the same path).',
+      'Background gateway sync pushes an outbox and pulls master when the network or Surreal returns — no Surreal WASM in the browser.',
+      'Owner-terminal lock isolates a check while offline; kitchen stage bumps stay available without stealing ownership.',
+      'Sync status banner shows pending/offline state without switching the write path.',
+    ],
+  },
+  {
     date: '2026-09-01',
     title: 'Offline POS write queue',
     items: [

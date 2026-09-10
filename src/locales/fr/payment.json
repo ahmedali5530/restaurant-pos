@@ -10,7 +10,10 @@
   },
   "errors": {
     "createOrder": "Impossible de créer la commande.",
-    "openPayment": "Impossible d'ouvrir le paiement."
+    "openPayment": "Impossible d'ouvrir le paiement.",
+    "notOwner": "Cette commande est ouverte sur un autre terminal",
+    "numbersExhausted": "Plus de numéros de facture disponibles hors ligne — reconnectez-vous pour continuer à créer des commandes",
+    "fireFailed": "Impossible d'envoyer les articles en attente"
   },
   "tracking": {
     "createOrder": "Créer la commande",
@@ -86,7 +89,9 @@
     "complete": "Terminer",
     "cannotAddCard": "Impossible d'ajouter un paiement supplémentaire par carte",
     "exactCardAmount": "Montant exact ajouté pour le paiement par carte",
-    "tempAlreadyPrinted": "Note provisoire déjà imprimée"
+    "tempAlreadyPrinted": "Note provisoire déjà imprimée",
+    "alreadyClosed": "Cette commande est déjà clôturée.",
+    "notOwner": "Cette commande est traitée par un autre terminal."
   },
   "remote": {
     "remoteLabel": "{{name}} (À distance)",

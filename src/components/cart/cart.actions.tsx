@@ -5,14 +5,15 @@ import {faPause, faPlay, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {Dropdown, DropdownItem} from "@/components/common/react-aria/dropdown.tsx";
 import React, {useMemo, useState} from "react";
 import {useAtom} from "jotai";
-import {appPage, appState} from "@/store/jotai.ts";
+import {appPage, appSettings, appState} from "@/store/jotai.ts";
 import {nanoid} from "nanoid";
 import {MenuItemType} from "@/api/model/cart_item.ts";
 import {useTranslation} from "react-i18next";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {toRecordId} from "@/lib/utils.ts";
-import {createStageRows} from "@/lib/kitchen/workflow.service.ts";
+import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
+import {kitchenStagesFromDish} from "@/infrastructure/pos-store/kitchen-from-dish.ts";
+import {toast} from "sonner";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
@@ -20,6 +21,7 @@ export const CartActions = () => {
   const db = useDB();
   const [state, setState] = useAtom(appState);
   const [page] = useAtom(appPage);
+  const [settings] = useAtom(appSettings);
   const { t } = useTranslation(['cart', 'payment', 'common']);
   const [selected, setSelected] = useState(false);
 
@@ -133,36 +135,48 @@ export const CartActions = () => {
 
     const kitchenItems: Record<string, any[]> = {};
     const firedIds = new Set(heldSelected.map((item) => item.id?.toString()));
+    const orderId = state.order?.id && state.order.id !== 'new' ? String(state.order.id) : null;
+    if (!orderId) {
+      return;
+    }
 
-    for (const item of heldSelected) {
-      const itemId = item.id?.toString();
-      if (!itemId?.includes('order_item:')) {
-        continue;
-      }
+    const persisted = heldSelected.filter((item) => item.id?.toString().includes('order_item:'));
+    // Skip lines that already have kitchen rows (re-fire after a partial sync).
+    const existingKitchens = await posStore.getOrderItemKitchens(persisted.map((item) => String(item.id)));
+    const withRows = new Set(existingKitchens.map((row) => String(row.order_item)));
 
-      const orderItemRef = toRecordId(itemId);
-      await db.merge(orderItemRef, { is_suspended: false });
-
-      const [countResult]: any = await db.query(
-        `SELECT count() AS count FROM ${Tables.order_items_kitchen} WHERE order_item = $oi GROUP ALL`,
-        { oi: orderItemRef }
-      );
-      const kitchenRowCount = Number(countResult?.[0]?.count ?? 0);
-
-      if (kitchenRowCount === 0) {
-        await createStageRows(db, {
-          orderItem: {
-            id: orderItemRef,
-            quantity: item.quantity,
-            comments: item.comments,
-            seat: item.seat,
-            price: item.price,
-            modifiers: item.selectedGroups,
-          },
-          dish: item.dish,
-          kitchenItems,
+    const fireLines = persisted.map((item) => {
+      const itemId = String(item.id);
+      const stages = withRows.has(itemId) ? [] : (kitchenStagesFromDish(item.dish, settings.kitchens) ?? []);
+      for (const stage of stages) {
+        if (stage.status !== 'pending') continue;
+        const list = kitchenItems[stage.kitchenId] ?? [];
+        list.push({
+          id: itemId,
+          quantity: item.quantity,
+          comments: item.comments,
+          seat: item.seat,
+          price: item.price,
+          modifiers: item.selectedGroups,
+          item: item.dish,
         });
+        kitchenItems[stage.kitchenId] = list;
       }
+      return { itemId, kitchenStages: stages };
+    });
+
+    // Local-first: is_suspended=false + kitchen rows commit to Dexie, then the
+    // MERGE_RECORD order_item (with `kitchens`) drains via the outbox.
+    try {
+      await posStore.fireOrderItems({
+        orderId,
+        items: fireLines,
+        seed: state.order?.order ? { order: state.order.order, items: state.order.order?.items } : undefined,
+      });
+    } catch (error) {
+      console.error('Failed to fire held items', error);
+      toast.error(t('payment:errors.fireFailed'));
+      return;
     }
 
     const hasKitchenPrintItems = Object.keys(kitchenItems).length > 0;

@@ -16,7 +16,7 @@
   },
   "cache": {
     "title": "Cache",
-    "description": "Stores data into browser for faster operations.",
+    "description": "Local POS data on this terminal. Reload clears it and downloads a fresh copy from the server. Requires an online connection.",
     "reload": "Reload cache",
     "orderTypes": "Order types",
     "categories": "Categories",
@@ -28,8 +28,12 @@
     "kitchens": "Kitchens",
     "paymentTypes": "Payment types",
     "taxes": "Taxes",
-    "reloaded": "Cache reloaded from database",
-    "reloadFailed": "Failed to reload cache"
+    "reloaded": "Cache cleared and reloaded from server",
+    "reloadFailed": "Failed to reload cache",
+    "confirm": "Clear local POS cache and download a fresh copy from the server?",
+    "confirmWithPending": "You have {{count}} unsynced change(s) that will be discarded. Clear local POS cache and download a fresh copy from the server?",
+    "offline": "Cannot reload cache while offline",
+    "offlineHint": "Available when connected to the server"
   },
   "serviceCharges": {
     "title": "Service charges",

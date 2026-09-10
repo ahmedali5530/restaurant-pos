@@ -9,6 +9,7 @@ import { toRecordId } from "@/lib/utils.ts";
 import i18n from "@/lib/i18n.ts";
 import { toast } from "sonner";
 import type { ProtectedActionOptions } from "@/hooks/useSecurity.ts";
+import { posStore } from "@/infrastructure/pos-store/pos-store.ts";
 
 type PrintDB = {
   query: (sql: string, params?: Record<string, unknown>) => Promise<any>;
@@ -54,17 +55,30 @@ export function canPrintWithoutOverride(count: number, limit: number): boolean {
   return limit <= 0 || count < limit;
 }
 
+/**
+ * Print audit lives in the PosStore (`orderPrints`, synced both ways). Surreal is
+ * only consulted for orders the terminal has never held locally (old history).
+ */
 export async function countOrderPrints(
   db: PrintDB,
   orderId: string,
   printType: OrderPrintType
 ): Promise<number> {
-  const result = await db.query(
-    `SELECT count() AS total FROM ${Tables.order_prints} WHERE order = $order AND print_type = $printType GROUP ALL`,
-    { order: toRecordId(orderId), printType }
-  );
-  const rows = firstRows<{ total?: number }>(result);
-  return Number(rows[0]?.total ?? 0);
+  const local = await posStore.getOrderPrints([orderId]).catch(() => []);
+  const localCount = local.filter((row) => row.print_type === printType).length;
+  if (localCount > 0 || (await posStore.getOrder(orderId).catch(() => null))) {
+    return localCount;
+  }
+  try {
+    const result = await db.query(
+      `SELECT count() AS total FROM ${Tables.order_prints} WHERE order = $order AND print_type = $printType GROUP ALL`,
+      { order: toRecordId(orderId), printType }
+    );
+    const rows = firstRows<{ total?: number }>(result);
+    return Number(rows[0]?.total ?? 0);
+  } catch {
+    return 0;
+  }
 }
 
 export async function hasTempPrint(db: PrintDB, orderId: string): Promise<boolean> {
@@ -80,23 +94,32 @@ export async function batchOrdersWithTempPrint(
   const ids = orderIds.filter(Boolean);
   if (ids.length === 0) return new Set();
 
-  const result = await db.query(
-    `SELECT order FROM ${Tables.order_prints} WHERE order IN $orders AND print_type = 'temp'`,
-    { orders: ids.map((id) => toRecordId(id)) }
-  );
-  const rows = firstRows<{ order?: { toString?: () => string } | string }>(result);
   const set = new Set<string>();
-  for (const row of rows) {
-    const id = typeof row?.order === "string"
-      ? row.order
-      : row?.order?.toString?.() ?? String(row?.order ?? "");
-    if (id) set.add(id);
+  const local = await posStore.getOrderPrints(ids).catch(() => []);
+  for (const row of local) {
+    if (row.print_type === 'temp') set.add(String(row.order));
+  }
+
+  try {
+    const result = await db.query(
+      `SELECT order FROM ${Tables.order_prints} WHERE order IN $orders AND print_type = 'temp'`,
+      { orders: ids.map((id) => toRecordId(id)) }
+    );
+    const rows = firstRows<{ order?: { toString?: () => string } | string }>(result);
+    for (const row of rows) {
+      const id = typeof row?.order === "string"
+        ? row.order
+        : row?.order?.toString?.() ?? String(row?.order ?? "");
+      if (id) set.add(id);
+    }
+  } catch {
+    // Offline: local audit is what we have.
   }
   return set;
 }
 
 export async function recordOrderPrint(
-  db: PrintDB,
+  _db: PrintDB,
   opts: {
     orderId: string;
     printType: OrderPrintType;
@@ -106,12 +129,13 @@ export async function recordOrderPrint(
   }
 ): Promise<void> {
   try {
-    await db.create(Tables.order_prints, {
-      order: toRecordId(opts.orderId),
-      print_type: opts.printType,
-      printed_by: opts.userId ? toRecordId(opts.userId) : null,
-      is_override: opts.isOverride === true,
-      is_duplicate: opts.isDuplicate === true,
+    // Local-first: Dexie row + CREATE_RECORD order_print through the outbox.
+    await posStore.recordOrderPrint({
+      orderId: opts.orderId,
+      printType: opts.printType,
+      userId: opts.userId ?? null,
+      isOverride: opts.isOverride === true,
+      isDuplicate: opts.isDuplicate === true,
     });
   } catch (e) {
     console.error("Failed to record order print", e);

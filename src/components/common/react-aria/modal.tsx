@@ -98,10 +98,16 @@ export const Modal: FunctionComponent<ModalProps> = ({
                 !props.backdrop && 'no-backdrop'
               )}
             >
-              <div style={{
-                backgroundColor: props.backgroundColor ?? 'rgb(255, 255, 255)',
-                backdropFilter: 'blur(10px)'
-              }} className="rounded-lg">
+              <div
+                style={{
+                  backgroundColor: props.backgroundColor ?? 'rgb(255, 255, 255)',
+                  backdropFilter: 'blur(10px)'
+                }}
+                className={cn(
+                  "rounded-lg",
+                  size === "full" && "modal-full-shell"
+                )}
+              >
                 {hideCloseButton !== true && (
                   <TooltipTrigger delay={0} closeDelay={0}>
                     <button
@@ -117,12 +123,18 @@ export const Modal: FunctionComponent<ModalProps> = ({
                   </TooltipTrigger>
                 )}
 
-                <div className="p-5 border-b border-neutral-100">
+                <div className={cn(
+                  "p-5 border-b border-neutral-100",
+                  size === "full" && "shrink-0"
+                )}>
                   <Heading slot="title" className="text-2xl">{props?.title}</Heading>
                   {props.header && props.header}
                 </div>
                 <div
-                  className="pb-5 modal-container px-5 py-3 bg-neutral-100 overflow-auto"
+                  className={cn(
+                    "pb-5 modal-container px-5 py-3 bg-neutral-100",
+                    size === "full" ? "overflow-hidden" : "overflow-auto"
+                  )}
                 >
                   {props.children}
                 </div>

@@ -1,13 +1,11 @@
 import {useEffect, useMemo, useState} from "react";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {Order as OrderModel, OrderStatus} from "@/api/model/order.ts";
+import {Order as OrderModel} from "@/api/model/order.ts";
 import {OrderItem} from "@/api/model/order_item.ts";
 import {Textarea} from "@/components/common/input/textarea.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {useDB} from "@/api/db/db.ts";
-import {Tables} from "@/api/db/tables.ts";
-import {StringRecordId} from "surrealdb";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
 import {toast} from "sonner";
@@ -17,12 +15,11 @@ import {withCurrency} from "@/lib/utils.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
-import { nowSurrealDateTime } from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
 import {useIntegrationManager} from "@/providers/integration.provider.tsx";
 import {publishSaleRefunded} from "@/integrations/accounting/events/publish.ts";
-import {nanoid} from "nanoid";
+import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
 
 interface OrderRefundModalProps {
   order: OrderModel
@@ -128,35 +125,22 @@ export const OrderRefundModal = ({
 
     setIsSubmitting(true);
     try {
-      const userId = new StringRecordId(page.user.id.toString());
-      const orderId = new StringRecordId(order.id.toString());
-      const itemIds = selectedItemsList.map(item => new StringRecordId(item.id.toString()));
+      const userId = String(page.user.id);
 
-      const createdRefund = await db.create(Tables.order_refunds, {
-        order: orderId,
-        items: itemIds,
-        created_at: nowSurrealDateTime(),
-        manager: userId,
-        logged_in_user: userId,
-        reason: reason || undefined,
+      // Local-first: refund row + item flags + order tag commit to Dexie, then
+      // drain via outbox (CREATE_RECORD order_refund, MERGE order_item×n, MERGE order).
+      const { refund } = await posStore.refundOrder({
+        orderId: String(order.id),
+        itemIds: selectedItemsList.map((item) => String(item.id)),
+        reason: reason || null,
+        userId,
+        managerId: userId,
+        seed: { order, items: order.items },
       });
-      const refundRecord = Array.isArray(createdRefund) ? createdRefund[0] : createdRefund;
-      const refundId = refundRecord?.id
-        ? String(refundRecord.id)
-        : `refund:${String(order.id)}:${nanoid(8)}`;
+      const refundId = String(refund.id);
 
-      for(const itemId of itemIds) {
-        await db.merge(itemId, {
-          is_refunded: true
-        })
-      }
-
-      // add a tag in original table
-      await db.merge(orderId, {
-        tags: Array.from(new Set([...(order.tags || []), OrderStatus.Refunded])),
-      });
-
-      await publishSaleRefunded(integrationManager, {
+      // Accounting publish is a non-blocking side effect.
+      void publishSaleRefunded(integrationManager, {
         order,
         refundId,
         subtotal: refundCharges.itemsTotal,
@@ -165,7 +149,7 @@ export const OrderRefundModal = ({
         tipAmount: refundCharges.tipAmount,
         total: refundCharges.total,
         itemIds: selectedItemsList.map((item) => String(item.id)),
-      });
+      }).catch((err) => console.warn('Failed publishing SaleRefunded event', err));
 
       postOrderTracking({
         module: "orders.refund",
@@ -220,7 +204,7 @@ export const OrderRefundModal = ({
       title={t('refund.title')}
       size="full"
     >
-      <div className="flex flex-col gap-4" style={{ height: 'calc(100vh - 200px)', minHeight: '500px' }}>
+      <div className="flex flex-col gap-4" style={{ height: 'calc(100vh - 200px - var(--app-toolbar-h))', minHeight: '500px' }}>
         <div className="flex gap-6 flex-1 min-h-0">
           {/* Left side - Order items */}
           <div className="flex-1 flex flex-col min-w-0">

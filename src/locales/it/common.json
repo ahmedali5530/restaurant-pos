@@ -101,7 +101,18 @@
     "retry": "Riprova connessione",
     "syncing": "Sincronizzazione di {{count}} modifiche offline…",
     "pendingSync": "{{count}} modifiche in coda per la sincronizzazione",
-    "syncNow": "Sincronizza ora"
+    "syncNow": "Sincronizza ora",
+    "syncAll": "Sincronizza tutto",
+    "ownedElsewhere": "Aperto su un altro terminale",
+    "conflicts": "{{count}} modifica/e rifiutata/e dal server",
+    "conflictsHint": "Queste modifiche sono state rifiutate (spesso dopo che un altro terminale ha aggiornato per primo). Riproviamo automaticamente dopo la sync; usa Sincronizza tutto se restano bloccate, o Scarta per mantenere la versione del server.",
+    "viewConflicts": "Mostra",
+    "hideConflicts": "Nascondi",
+    "retryOp": "Riprova",
+    "discardOp": "Scarta",
+    "conflictOrder": "Ordine {{id}}",
+    "conflictFailed": "{{count}} modifica/e non hanno raggiunto il server dopo diversi tentativi",
+    "synced": "Sincronizzato"
   },
   "lock": {
     "lockedBy": "Bloccato da {{name}}",

@@ -2,22 +2,20 @@ import {useAtom} from "jotai";
 import {appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {faArrowLeft, faPlus, faTable, faTimes, faUser, faUsers} from "@fortawesome/free-solid-svg-icons";
-import {cn, toRecordId} from "@/lib/utils.ts";
+import {cn} from "@/lib/utils.ts";
 import React, {useEffect, useState} from "react";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {useDB} from "@/api/db/db.ts";
 import {MenuItemType} from "@/api/model/cart_item.ts";
 import {Payment} from "@/components/payment/payment.tsx";
 import {Customers} from "@/components/customer/customer.tsx";
 import {getInvoiceNumber} from "@/lib/order.ts";
 import ScrollContainer from "react-indiana-drag-scroll";
-import { nowSurrealDateTime } from "@/lib/datetime.ts";
+import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
 import {toast} from "sonner";
 import {useTranslation} from "react-i18next";
 import i18n from "@/lib/i18n.ts";
 
 export const MenuHeader = () => {
-  const db = useDB();
   const { t } = useTranslation('menu');
 
   const [state, setState] = useAtom(appState);
@@ -50,9 +48,7 @@ export const MenuHeader = () => {
     }
 
     const heartBeat = async () => {
-      await db.merge(toRecordId(state.table.id), {
-        locked_at: nowSurrealDateTime()
-      })
+      await posStore.heartbeatTableLock(String(state.table.id)).catch(() => undefined);
     }
 
     const timer = setInterval(heartBeat, 10000);
@@ -68,13 +64,10 @@ export const MenuHeader = () => {
       return false;
     }
 
-    if (state.table?.id) {
-      await db.merge(state.table.id, {
-        is_locked: false,
-        locked_at: null,
-        locked_by: null
-      });
-    }
+    // Clear table first so the heartbeat interval tears down before unlock.
+    const tableId = state.table?.id ? String(state.table.id) : undefined;
+    const orderId =
+      state.order?.id && state.order.id !== 'new' ? String(state.order.id) : undefined;
 
     setState(prev => ({
       ...prev,
@@ -87,6 +80,13 @@ export const MenuHeader = () => {
       customer: undefined,
       table: undefined
     }));
+
+    if (orderId) {
+      await posStore.releaseOrder(orderId).catch(() => undefined);
+    }
+    if (tableId) {
+      await posStore.unlockTable(tableId).catch(() => undefined);
+    }
   }
 
   const onOrderClick = (key: string) => {
@@ -154,11 +154,7 @@ export const MenuHeader = () => {
     }));
 
     // release table
-    await db.merge(state.table.id, {
-      is_locked: false,
-      locked_at: null,
-      locked_by: null
-    });
+    await posStore.unlockTable(String(state.table.id)).catch(() => undefined);
   }
 
   const openPersons = async () => {

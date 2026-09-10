@@ -16,9 +16,7 @@ import {
 import { dispatchPrint } from "@/lib/print.service.ts";
 import { PRINT_TYPE } from "@/lib/print.registry.tsx";
 import { requestBillPrint } from "@/lib/order-print.ts";
-import { nowSurrealDateTime, toSurrealDateTime } from "@/lib/datetime.ts";
-import { toRecordId } from "@/lib/utils.ts";
-import { StringRecordId } from "surrealdb";
+import { toSurrealDateTime } from "@/lib/datetime.ts";
 import { IntegrationManager } from "@/integrations/core/integration-manager.ts";
 import {
   fiscalShouldBlockBeforePaid,
@@ -28,6 +26,8 @@ import {
 } from "@/integrations/providers/fiscal/settlement.ts";
 import { publishSaleCompleted } from "@/integrations/accounting/events/publish.ts";
 import { publishInvoiceCreated } from "@/integrations/events/publish/payments.ts";
+import { posStore } from "@/infrastructure/pos-store/pos-store.ts";
+import { terminalSyncService } from "@/infrastructure/sync/sync-service.ts";
 
 type DBLike = {
   query: (sql: string, params?: Record<string, unknown>) => Promise<unknown[][]>;
@@ -184,82 +184,46 @@ async function loadOrderForClose(db: DBLike, orderId: unknown): Promise<Order | 
   return order ?? null;
 }
 
-function getCreatedRecordId(result: unknown): unknown {
-  if (Array.isArray(result)) {
-    return result[0]?.id ?? result[0];
+const recordIdString = (value: unknown): string => {
+  if (value && typeof value === 'object' && 'tb' in (value as object) && 'id' in (value as object)) {
+    const rid = value as { tb: unknown; id: unknown };
+    return `${String(rid.tb)}:${String(rid.id)}`;
   }
+  return String(value);
+};
 
-  if (result && typeof result === 'object' && 'id' in result) {
-    return (result as { id: unknown }).id;
-  }
-
-  return result;
-}
-
+/**
+ * Settle one check through the PosStore (Dexie → outbox → Surreal): one
+ * "Auto close" payment for the grand total, `Paid` status and table release.
+ */
 async function settleOrder(
-  db: DBLike,
   order: Order,
   paymentTypeId: unknown,
   grandTotal: number,
   userId?: string
 ): Promise<void> {
-  for (const payment of order.payments ?? []) {
-    if (!payment?.id) {
-      continue;
-    }
-    try {
-      await db.delete(payment.id);
-    } catch {
-      // Stale or already deleted
-    }
-  }
-
-  const orderPaymentResult = await db.create(Tables.order_payment, {
-    amount: grandTotal,
-    payment_type: toRecordId(paymentTypeId),
-    comments: 'Auto close',
-    payable: grandTotal,
+  const orderId = String(order.id);
+  await posStore.settleOrder({
+    orderId,
+    payments: [
+      {
+        paymentTypeId: recordIdString(paymentTypeId),
+        amount: grandTotal,
+        payable: grandTotal,
+        comments: 'Auto close',
+      },
+    ],
+    cashierId: userId ? recordIdString(userId) : null,
+    notes: order.notes ?? '',
+    seed: { order, items: order.items },
   });
 
-  const paymentId = getCreatedRecordId(orderPaymentResult);
-
-  const extraOptions = (order.extras ?? []).filter(Boolean).map((extra) => extra.id);
-
-  const mergePayload: Record<string, unknown> = {
-    status: OrderStatus.Paid,
-    payments: [paymentId],
-    extras: extraOptions,
-    tax: order.tax?.id ? toRecordId(order.tax.id) : null,
-    tax_amount: order.tax_amount ?? 0,
-    discount_amount: order.discount_amount ?? 0,
-    tip: order.tip ?? 0,
-    tip_amount: order.tip_amount ?? 0,
-    tip_type: order.tip_type ?? null,
-    service_charge: order.service_charge ?? 0,
-    service_charge_amount: order.service_charge_amount ?? 0,
-    service_charge_type: order.service_charge_type ?? null,
-    cashier: userId ? new StringRecordId(userId) : null,
-    notes: order.notes ?? '',
-    completed_at: nowSurrealDateTime(),
-  };
-
-  if (order.discount?.id) {
-    mergePayload.discount = toRecordId(order.discount.id);
-  }
-
-  if (order.coupon?.id) {
-    mergePayload.coupon = order.coupon.id;
-  }
-
-  await db.merge(order.id, mergePayload);
-
   if (order.table?.id) {
-    await db.merge(order.table.id, {
-      is_locked: false,
-      locked_at: null,
-      locked_by: null,
-    });
+    await posStore.unlockTable(String(order.table.id)).catch(() => undefined);
   }
+
+  // Drain the outbox so the fiscal / accounting reads below see the settled order.
+  await terminalSyncService.synchronize().catch(() => undefined);
 }
 
 async function printFinalBill(
@@ -341,7 +305,7 @@ export async function closeOpenChecks(options: {
         }
       }
 
-      await settleOrder(db, fullOrder, paymentTypeId, paymentAmount, userId);
+      await settleOrder(fullOrder, paymentTypeId, paymentAmount, userId);
 
       if (integrationManager) {
         const blockBeforePaid = await fiscalShouldBlockBeforePaid(integrationManager, db);

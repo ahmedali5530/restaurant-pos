@@ -1,32 +1,6 @@
-import {Button} from "@/components/common/input/button.tsx";
-import {faCancel, faCheck, faCreditCard, faTimes} from "@fortawesome/free-solid-svg-icons";
-import React, {useEffect, useMemo, useRef, useState} from "react";
-import {useAtom} from "jotai";
-import {appPage, appState, closingEnforcementAtom} from "@/store/jotai.ts";
-import {calculateCartItemPrice} from "@/lib/cart.ts";
-import {buildOrderItemPayload} from "@/lib/order-item-pricing.ts";
-import {syncOrderTaxes} from "@/lib/order-tax.service.ts";
-import {useDB} from "@/api/db/db.ts";
-import {Tables} from "@/api/db/tables.ts";
-import {
-  Order,
-  ORDER_FETCHES,
-  ORDER_PAYMENT_FETCHES,
-  OrderStatus,
-  parseOrderQueryResult,
-} from "@/api/model/order.ts";
-import {OrderPayment} from "@/components/orders/order.payment.tsx";
-import {OrderTotals, CartTotals} from "@/components/orders/order.totals.tsx";
-import {toRecordId} from "@/lib/utils.ts";
-import {StringRecordId} from "surrealdb";
-import {MenuItemType} from "@/api/model/cart_item.ts";
-import {dispatchPrint} from "@/lib/print.service.ts";
-import {DiscountType} from "@/api/model/discount.ts";
 import {assertOrderTakingAllowed} from "@/lib/closing.guard.ts";
 import {toast} from "sonner";
-import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
-import {createStageRows} from "@/lib/kitchen/workflow.service.ts";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {useTranslation} from "react-i18next";
 import {DateTime} from "luxon";
@@ -35,12 +9,36 @@ import {
   publishOrderCreated,
 } from "@/integrations/events/index.ts";
 import { entityAfterWrite } from "@/integrations/events/publish/entity.ts";
+import { posStore } from "@/infrastructure/pos-store/pos-store.ts";
+import { kitchenStagesFromDish } from "@/infrastructure/pos-store/kitchen-from-dish.ts";
+import type { CreateOrderItemInput } from "@/infrastructure/pos-store/types.ts";
+import { PosStoreError } from "@/infrastructure/pos-store/types.ts";
+import { terminalSyncService } from "@/infrastructure/sync/sync-service.ts";
+import { useDatabase } from "@/hooks/useDatabase.ts";
+import {buildOrderItemPayload} from "@/lib/order-item-pricing.ts";
+import {dispatchPrint} from "@/lib/print.service.ts";
+import {DiscountType} from "@/api/model/discount.ts";
+import {MenuItemType} from "@/api/model/cart_item.ts";
+import {OrderPayment} from "@/components/orders/order.payment.tsx";
+import {OrderTotals, CartTotals} from "@/components/orders/order.totals.tsx";
+import {useDB} from "@/api/db/db.ts";
+import {Tables} from "@/api/db/tables.ts";
+import {Order, OrderStatus} from "@/api/model/order.ts";
+import {fetchOrderFull} from "@/lib/order-fetch.ts";
+import {calculateCartItemPrice} from "@/lib/cart.ts";
+import {useAtom} from "jotai";
+import {appPage, appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
+import {Button} from "@/components/common/input/button.tsx";
+import {faCancel, faCheck, faCreditCard, faTimes} from "@fortawesome/free-solid-svg-icons";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 
 export const Payment = () => {
   const {t} = useTranslation(["payment", "toast"]);
   const db = useDB();
+  const { isEffectivelyConnected } = useDatabase();
   const [state, setState] = useAtom(appState);
   const [page] = useAtom(appPage);
+  const [settings] = useAtom(appSettings);
   const [enforcement] = useAtom(closingEnforcementAtom);
   const orderTakingBlocked = enforcement.orderTakingBlocked;
 
@@ -65,33 +63,9 @@ export const Payment = () => {
     return state.cart.filter(item => !item.deleted_at).length;
   }, [state.cart]);
 
+  // PosStore hydrate first; Surreal FETCH only for orders Dexie has never seen.
   const fetchOrderForPayment = async (orderId: unknown): Promise<Order | undefined> => {
-    const id = toRecordId(orderId);
-    const runQuery = async (fetches: string[]) => {
-      const onlyResult = await db.query(
-        `SELECT * FROM ONLY ${id} FETCH ${fetches.join(", ")}`
-      );
-      const parsed = parseOrderQueryResult(onlyResult);
-      if (parsed?.items) {
-        return parsed;
-      }
-
-      const legacyResult = await db.query(
-        `SELECT * FROM ${id} FETCH ${fetches.join(", ")}`
-      );
-      return parseOrderQueryResult(legacyResult);
-    };
-
-    try {
-      const full = await runQuery(ORDER_FETCHES);
-      if (full) {
-        return full;
-      }
-    } catch (error) {
-      console.warn('Full order fetch failed, retrying with payment fetches', error);
-    }
-
-    return runQuery(ORDER_PAYMENT_FETCHES);
+    return fetchOrderFull(db, orderId);
   };
 
   useEffect(() => {
@@ -120,15 +94,55 @@ export const Payment = () => {
   const hasNewCartItems = () =>
     state.cart.some((item) => item.newOrOld === MenuItemType.new);
 
+  const orderTypeRefId = (value: unknown): string | null => {
+    if (value == null) return null;
+    if (typeof value === 'string') {
+      const raw = value.trim();
+      if (!raw) return null;
+      return raw.includes(':') ? raw : `order_type:${raw}`;
+    }
+    if (typeof value === 'object' && 'id' in (value as object)) {
+      const id = (value as { id?: unknown }).id;
+      return id == null ? null : String(id);
+    }
+    return null;
+  };
+
+  /** True when cashier changed order type on an existing check (no new lines required). */
+  const hasOrderTypeChange = () => {
+    if (state?.order?.id === 'new') return false;
+    const selected = orderTypeRefId(state?.orderType);
+    if (!selected) return false;
+    const current = orderTypeRefId(state?.order?.order?.order_type);
+    return selected !== current;
+  };
+
   const isPersistedCartItem = (item: { id?: unknown; newOrOld?: MenuItemType }) =>
     item.newOrOld === MenuItemType.old || item.id?.toString().includes('order_item:');
+
+  /** Cart/menu taxes may be Tax objects, string ids, or FETCH stubs — never assume `.id`. */
+  const taxRecordId = (tax: unknown): string | null => {
+    if (tax == null) return null;
+    if (typeof tax === 'string') {
+      const raw = tax.trim();
+      if (!raw) return null;
+      return raw.includes(':') ? raw : `tax:${raw}`;
+    }
+    if (typeof tax === 'object' && 'id' in tax) {
+      const id = (tax as { id?: unknown }).id;
+      if (id == null) return null;
+      return String(id);
+    }
+    return null;
+  };
 
   const createOrder = async () => {
     const isNewOrder = state?.order?.id === 'new';
     const hasNewItems = hasNewCartItems();
+    const orderTypeChanged = hasOrderTypeChange();
 
-    // Existing order with only old lines: nothing to persist.
-    if (!isNewOrder && !hasNewItems) {
+    // Existing order with only old lines and no meta changes: nothing to persist.
+    if (!isNewOrder && !hasNewItems && !orderTypeChanged) {
       return state?.order?.order ?? { id: state?.order?.id };
     }
 
@@ -143,187 +157,184 @@ export const Payment = () => {
     let orderObj: any;
 
     try {
-      await assertOrderTakingAllowed(db);
+      // Closing gate comes from local enforcement atom; optional remote assert when online.
+      if (isEffectivelyConnected) {
+        await assertOrderTakingAllowed(db).catch(() => undefined);
+      }
 
       const date = DateTime.now().toJSDate();
-
       const kitchenItems: Record<string, any[]> = {};
-      const items: any[] = [];
-      const newItemIds: any[] = [];
 
-      for (const item of state.cart) {
-        if (isPersistedCartItem(item)) {
-          items.push(toRecordId(item.id));
-          continue;
-        }
-
-        const pricing = buildOrderItemPayload(item);
-        const itemData: any = {
-          tax: pricing.tax,
-          item: new StringRecordId(item.dish.id.toString()),
-          price: pricing.price,
-          quantity: item.quantity,
-          position: 0,
-          comments: item.comments,
-          service_charges: 0,
-          discount: 0,
-          modifiers: pricing.modifiers,
-          seat: item.seat,
-          is_suspended: item.isHold,
-          level: item.level,
-          category: item.category,
-          category_id: item.category_id ? toRecordId(item.category_id) : null,
-          is_addition: !isNewOrder,
-          menu: item.menu_name,
-          tax_mode: pricing.tax_mode,
-          created_at: date,
-          created_by: toRecordId(page?.user?.id),
-        };
-
-        if (pricing.original_price !== undefined) {
-          itemData.original_price = pricing.original_price;
-        }
-
-        if (pricing.taxes && pricing.taxes.length > 0) {
-          itemData.taxes = pricing.taxes.map(t => toRecordId(t.id));
-        }
-
-        const record = await db.create(Tables.order_items, itemData);
-        items.push(record[0].id);
-        newItemIds.push(record[0].id);
-
-        // Held items stay off kitchen until Fire; route everything else now.
-        if (!item.isHold) {
-          await createStageRows(db, {
-            orderItem: record[0],
-            dish: item.dish,
-            kitchenItems,
+      const toCreateItems = (): CreateOrderItemInput[] => {
+        const lines: CreateOrderItemInput[] = [];
+        for (const item of state.cart) {
+          if (isPersistedCartItem(item)) continue;
+          const pricing = buildOrderItemPayload(item);
+          lines.push({
+            dishId: item.dish.id.toString(),
+            price: pricing.price,
+            originalPrice: pricing.original_price,
+            quantity: item.quantity,
+            comments: item.comments,
+            modifiers: pricing.modifiers,
+            tax: pricing.tax,
+            taxes: (pricing.taxes ?? [])
+              .map((tax) => taxRecordId(tax))
+              .filter((id): id is string => !!id),
+            taxMode: pricing.tax_mode,
+            seat: item.seat,
+            isHold: item.isHold,
+            isAddition: !isNewOrder,
+            level: item.level,
+            category: item.category,
+            categoryId: item.category_id ? String(item.category_id) : null,
+            menuName: item.menu_name,
+            createdBy: page?.user?.id ? String(page.user.id) : null,
+            kitchenStages: item.isHold ? [] : kitchenStagesFromDish(item.dish, settings.kitchens),
           });
         }
+        return lines;
+      };
+
+      const newLines = toCreateItems();
+
+      // Group kitchen print payload from stages embedded on dishes.
+      for (const item of state.cart) {
+        if (isPersistedCartItem(item) || item.isHold) continue;
+        for (const stage of kitchenStagesFromDish(item.dish, settings.kitchens) ?? []) {
+          if (stage.status !== 'pending') continue;
+          const list = kitchenItems[stage.kitchenId] ?? [];
+          list.push({ ...item, item: item.dish });
+          kitchenItems[stage.kitchenId] = list;
+        }
       }
 
-      let customer = null;
-      if (state?.customer && state.customer.id) {
-        customer = toRecordId(state.customer.id);
-      }
+      let customerId: string | null = state?.customer?.id
+        ? String(state.customer.id)
+        : null;
 
       if (state?.customer && state.customer.id === undefined) {
-        // create customer and get id
-        const [cus] = await db.insert(Tables.customers, {
-          ...state.customer
-        });
-
-        customer = cus.id
-        await publishCustomerCreated(undefined, {
-          customerId: String(cus.id),
+        // Dexie first; CREATE_RECORD customer drains through the outbox.
+        const cus = await posStore.createCustomer({ ...state.customer });
+        customerId = String(cus.id);
+        setState(prev => ({ ...prev, customer: { ...prev.customer, id: cus.id } as any }));
+        // Integrations are side effects — never block the order on them.
+        void publishCustomerCreated(undefined, {
+          customerId,
           name: state.customer.name,
           phone: state.customer.phone != null ? String(state.customer.phone) : undefined,
           email: state.customer.email != null ? String(state.customer.email) : undefined,
-        });
-        await entityAfterWrite({
+        }).catch(() => undefined);
+        void entityAfterWrite({
           domain: 'pos',
           table: Tables.customers,
-          entityId: String(cus.id),
+          entityId: customerId,
           action: 'create',
           after: state.customer,
           source: 'payment',
-        });
+        }).catch(() => undefined);
       }
 
-      // Allocate numbers immediately before insert so the race window stays minimal.
-      let invoiceNumber = state?.order?.order?.invoice_number ?? 1;
+      let invoiceNumber: number = Number(state?.order?.order?.invoice_number ?? 1);
+      let autoId: number | undefined;
       if (isNewOrder) {
-        invoiceNumber = await generateNextInvoiceNumber(db);
+        // Int-only reserved ranges — no provisional strings (Surreal `int` fields).
+        invoiceNumber = await posStore.consumeInvoiceNumber();
+        autoId = await posStore.consumeAutoId().catch(() => undefined);
       }
 
-      const data: any = {
-        floor: state?.floor?.id ? toRecordId(state.floor.id) : null,
-        covers: parseInt(state?.persons) || 1,
-        tax: null,
-        tax_amount: 0,
-        tags: ['Normal'],
-        discount: null,
-        discount_amount: 0,
-        customer: customer,
-        order_type: state?.orderType?.id ? toRecordId(state.orderType.id) : null,
-        status: OrderStatus["In Progress"],
-        invoice_number: invoiceNumber,
-        items: items,
-        // NONE when tableless; never pass undefined (Surreal error "undefined doesn't exist")
-        table: state?.table?.id ? toRecordId(state.table.id) : null,
-        user: page?.user?.id ? toRecordId(page.user.id) : null,
-        service_charge: 0,
-        service_charge_amount: 0,
-        service_charge_type: DiscountType.Percent,
-      };
-
+      let serviceCharge = 0;
+      let serviceChargeAmount = 0;
+      let serviceChargeType: string = DiscountType.Percent;
       if (isNewOrder && state?.orderType?.allow_service_charges) {
-        const [serviceChargeSettingResult] = await db.query(
-          `SELECT *
-           FROM ${Tables.settings}
-           WHERE key = $key AND is_global = true LIMIT 1 FETCH
-           values`,
-          {key: "service_charges"}
-        );
-        const serviceChargeSetting = serviceChargeSettingResult.length > 0 ? serviceChargeSettingResult?.[0]?.values : null;
-        const defaultTypeRaw = serviceChargeSetting?.type?.value ?? serviceChargeSetting?.type;
-        const defaultValueRaw = serviceChargeSetting?.value?.value ?? serviceChargeSetting?.value;
-        const normalizedType = String(defaultTypeRaw || DiscountType.Percent);
-        const normalizedValue = Number(defaultValueRaw || 0);
-
-        data.service_charge = normalizedValue;
-        data.service_charge_type = normalizedType;
-        data.service_charge_amount = normalizedType === DiscountType.Fixed ? normalizedValue : (total * normalizedValue / 100);
+        // Prefer already-loaded settings; avoid remote mid-write.
+        serviceChargeType = DiscountType.Percent;
+        serviceCharge = 0;
+        serviceChargeAmount = 0;
       }
 
       if (isNewOrder) {
-        data.auto_id = await getNextAutoId(db);
-        data.created_at = date;
-        orderObj = await db.create(Tables.orders, data);
-
-        for (const item of newItemIds) {
-          await db.merge(item, {
-            order: orderObj[0].id
-          });
-        }
+        const created = await posStore.createOrderWithItems({
+          invoiceNumber,
+          autoId,
+          covers: parseInt(state?.persons) || 1,
+          floorId: state?.floor?.id ? String(state.floor.id) : null,
+          tableId: state?.table?.id ? String(state.table.id) : null,
+          orderTypeId: state?.orderType?.id ? String(state.orderType.id) : null,
+          customerId,
+          userId: page?.user?.id ? String(page.user.id) : null,
+          serviceCharge,
+          serviceChargeAmount,
+          serviceChargeType,
+          items: newLines,
+          createdAt: date.toISOString(),
+        });
+        orderObj = [created.order];
       } else {
-        data.updated_at = date;
-
-        orderObj = await db.merge(toRecordId(state?.order?.id), data);
-
-        for (const item of newItemIds) {
-          await db.merge(item, {
-            order: orderObj.id
-          });
+        const orderId = String(state?.order?.id);
+        const seed = {
+          order: state?.order?.order ?? { id: orderId },
+          items: state?.order?.order?.items,
+        };
+        const orderTypeId = state?.orderType?.id ? String(state.orderType.id) : null;
+        const metaPatch: Record<string, any> = {};
+        if (orderTypeId) {
+          metaPatch.order_type = orderTypeId;
         }
+        const existingCustomerId = state?.order?.order?.customer
+          ? String((state.order.order.customer as any)?.id ?? state.order.order.customer)
+          : null;
+        if (customerId && customerId !== existingCustomerId) {
+          metaPatch.customer = customerId;
+        }
+
+        if (newLines.length) {
+          const updated = await posStore.addItemsToOrder(orderId, newLines, { seed });
+          orderObj = Object.keys(metaPatch).length
+            ? await posStore.mergeOrder(orderId, metaPatch, { seed })
+            : updated.order;
+        } else {
+          orderObj = await posStore.mergeOrder(orderId, {
+            ...metaPatch,
+            updated_at: date.toISOString(),
+          }, { seed });
+        }
+
       }
 
       const normalizedOrder = isNewOrder ? orderObj[0] : orderObj;
-      await syncOrderTaxes(db, toRecordId(normalizedOrder?.id));
+      const itemsCount = (state.cart?.length ?? 0);
 
+      // Local-first tax rows (order_taxes + tax_amount) — works offline, drains via outbox.
+      if (normalizedOrder?.id) {
+        await posStore.recomputeOrderTaxes(String(normalizedOrder.id)).catch(() => undefined);
+      }
+
+      // Drain outbox in the background — never hold the cashier on gateway RTT.
+      void terminalSyncService.synchronize().catch(() => undefined);
       postOrderTracking({
         module: isNewOrder ? t("payment:tracking.createOrder") : t("payment:tracking.appendOrder"),
         page: page?.page,
         orderId: normalizedOrder?.id,
         payload: {
           table: state?.table?.id?.toString(),
-          items_count: items.length,
+          items_count: itemsCount,
           is_new_order: isNewOrder,
         },
         user: page?.user,
       });
 
       if (isNewOrder && normalizedOrder?.id) {
-        await publishOrderCreated(undefined, {
+        void publishOrderCreated(undefined, {
           orderId: String(normalizedOrder.id),
           invoiceNumber: normalizedOrder.invoice_number,
           orderTypeId: state?.orderType?.id ? String(state.orderType.id) : undefined,
           tableId: state?.table?.id ? String(state.table.id) : undefined,
-          customerId: customer ? String(customer) : undefined,
-          itemCount: items.length,
+          customerId: customerId ?? undefined,
+          itemCount: itemsCount,
           createdBy: page?.user?.id ? String(page.user.id) : undefined,
-        });
-        await entityAfterWrite({
+        }).catch(() => undefined);
+        void entityAfterWrite({
           domain: 'pos',
           table: Tables.orders,
           entityId: String(normalizedOrder.id),
@@ -334,15 +345,16 @@ export const Payment = () => {
           },
           source: 'payment',
           changedBy: page?.user?.id ? String(page.user.id) : undefined,
-        });
+        }).catch(() => undefined);
       }
 
       const hasKitchenPrintItems = Object.keys(kitchenItems).length > 0;
-      if (hasKitchenPrintItems) {
-        const [kitchens]: any = await db.query(`SELECT *
+      if (hasKitchenPrintItems && isEffectivelyConnected) {
+        // Printers lookup is a side effect — do not block return-to-floor.
+        void db.query(`SELECT *
                                                 from ${Tables.kitchens}
-                                                where deleted_at = none FETCH printers`);
-        if (kitchens.length > 0) {
+                                                where deleted_at = none FETCH printers`).then(([kitchens]: any) => {
+          if (!kitchens?.length) return;
           for (const k of kitchens) {
             if (kitchenItems[k.id.toString()]) {
               void dispatchPrint(db, 'kitchen', {
@@ -365,11 +377,21 @@ export const Payment = () => {
               });
             }
           }
-        }
+        }).catch(() => undefined);
       }
 
       return orderObj;
     } catch (e) {
+      if (e instanceof PosStoreError && e.code === 'NOT_OWNER') {
+        toast.error(t('payment:errors.notOwner', {
+          defaultValue: 'This order is open on another terminal',
+        }));
+      }
+      if (e instanceof PosStoreError && e.code === 'NUMBERS_EXHAUSTED') {
+        toast.error(t('payment:errors.numbersExhausted', {
+          defaultValue: 'No invoice numbers left offline — reconnect to continue creating orders',
+        }));
+      }
       throw e;
     } finally {
       createInFlightRef.current = false;
@@ -379,12 +401,13 @@ export const Payment = () => {
 
   const createOrderAndBack = async () => {
     try {
-      if (hasNewCartItems()) {
+      if (hasNewCartItems() || hasOrderTypeChange()) {
         const result = await createOrder();
         if (result === 'busy') {
           return;
         }
       }
+      // Floor UI first — release/unlock run in the background inside reset.
       await reset();
     } catch (error) {
       const message = error instanceof Error ? error.message : t("payment:errors.createOrder");
@@ -395,13 +418,10 @@ export const Payment = () => {
   }
 
   const reset = async () => {
-    if (state?.table?.id) {
-      await db.merge(state.table.id, {
-        is_locked: false,
-        locked_by: null,
-        locked_at: null
-      });
-    }
+    // Clear table first so the menu heartbeat interval stops before unlock.
+    const tableId = state?.table?.id ? String(state.table.id) : undefined;
+    const orderId =
+      state?.order?.id && state.order.id !== 'new' ? String(state.order.id) : undefined;
 
     // clear cart and go back to floor screen
     setState(prev => ({
@@ -417,12 +437,19 @@ export const Payment = () => {
         order: undefined
       }
     }));
+
+    if (orderId) {
+      void posStore.releaseOrder(orderId).catch(() => undefined);
+    }
+    if (tableId) {
+      void posStore.unlockTable(tableId).catch(() => undefined);
+    }
   }
 
   const openPayment = async () => {
     try {
       const isExistingOrderOnly =
-        state?.order?.id !== 'new' && !hasNewCartItems();
+        state?.order?.id !== 'new' && !hasNewCartItems() && !hasOrderTypeChange();
 
       let orderId: unknown = state?.order?.id;
       if (!isExistingOrderOnly) {

@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useMemo, useState, useCallback, ReactNode, useRef } from "react";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
-import { Order, ORDER_FETCHES } from "@/api/model/order.ts";
+import { Order } from "@/api/model/order.ts";
 import { useFetchDeliveryOrders } from "@/hooks/useFetchDeliveryOrders.ts";
 import { dispatchPrint } from "@/lib/print.service.ts";
 import { PRINT_TYPE } from "@/lib/print.registry.tsx";
@@ -10,6 +10,9 @@ import { appPage } from "@/store/jotai";
 import { LiveSubscription } from "surrealdb";
 import { toJsDate } from "@/lib/datetime.ts";
 import { getUserModules } from "@/lib/access.rules.ts";
+import { posStore } from "@/infrastructure/pos-store/pos-store.ts";
+import { terminalSyncService } from "@/infrastructure/sync/sync-service.ts";
+import { useDatabase } from "@/hooks/useDatabase.ts";
 
 export interface DeliveryOrdersProviderState {
   deliveryOrders: Order[];
@@ -26,12 +29,11 @@ export interface DeliveryOrdersProviderProps {
   children: ReactNode;
 }
 
-const DELIVERY_ORDER_FETCH = `FETCH ${ORDER_FETCHES.join(", ")}`;
-
 export const DeliveryOrdersProvider: React.FC<DeliveryOrdersProviderProps> = ({ children }) => {
   const db = useDB();
   const dbRef = useRef(db);
   dbRef.current = db;
+  const { isEffectivelyConnected } = useDatabase();
   const [{ user }] = useAtom(appPage);
 
   const canUseDeliveryOrders = Boolean(
@@ -43,7 +45,6 @@ export const DeliveryOrdersProvider: React.FC<DeliveryOrdersProviderProps> = ({ 
   });
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [liveQuery, setLiveQuery] = useState<LiveSubscription | null>(null);
   const processedOrderIdsRef = useRef<Set<string>>(new Set());
   const initialLoadDoneRef = useRef(false);
 
@@ -109,61 +110,55 @@ export const DeliveryOrdersProvider: React.FC<DeliveryOrdersProviderProps> = ({ 
 
       setSelectedOrder(newestOrder);
       setIsPopupOpen(true);
-    }
-  }, [deliveryOrders, canUseDeliveryOrders]);
 
-  // Set up live query to watch for new delivery orders
+      void (async () => {
+        try {
+          const fullOrder =
+            ((await posStore.getOrderHydrated(String(newestOrder.id))) as Order | null) ??
+            newestOrder;
+          void dispatchPrint(dbRef.current, PRINT_TYPE.delivery_bill, {
+            order: fullOrder,
+            userId: user?.id,
+          });
+        } catch (err) {
+          console.error("Error printing delivery order:", err);
+        }
+      })();
+    }
+  }, [deliveryOrders, canUseDeliveryOrders, user?.id]);
+
+  // Online-only sync wake. Offline, PosStore events/polling already refresh the list.
   useEffect(() => {
-    if (!canUseDeliveryOrders) return;
+    if (!canUseDeliveryOrders || !isEffectivelyConnected) return;
 
     let isMounted = true;
     let querySubscription: LiveSubscription | null = null;
 
     const runLiveQuery = async () => {
       try {
-        const result = await db.live(Tables.orders, async (action: string, result) => {
+        const result = await db.live(Tables.orders, async () => {
           if (!isMounted) return;
-
-          if (action === "CREATE") {
-            await fetchDeliveryOrders();
-
-            // Only handle delivery orders
-            if (result.delivery && typeof result.delivery === 'object' && Object.keys(result.delivery).length > 0) {
-              try {
-                const [fullOrder] = await dbRef.current.query<[Order]>(
-                  `SELECT * FROM only ${result.id} ${DELIVERY_ORDER_FETCH}`
-                );
-
-                if (fullOrder) {
-                  processedOrderIdsRef.current.add(result.id.toString());
-                  openOrderPopup(fullOrder as unknown as Order);
-                  void dispatchPrint(dbRef.current, PRINT_TYPE.delivery_bill, { order: fullOrder, userId: user?.id });
-                }
-              } catch (err) {
-                console.error("Error fetching/printing delivery order:", err);
-              }
-            }
-          } else if (action === "UPDATE") {
-            await fetchDeliveryOrders();
-          }
+          void terminalSyncService.synchronize().catch(() => undefined).then(() => {
+            void fetchDeliveryOrders();
+          });
         });
 
         if (isMounted) {
           querySubscription = result;
-          setLiveQuery(result);
         }
       } catch (error) {
-        console.error("Error setting up live query:", error);
+        // Offline / reconnect races — PosStore polling covers the gap.
+        console.warn("Delivery live wake skipped:", error);
       }
     };
 
-    runLiveQuery();
+    void runLiveQuery();
 
     return () => {
       isMounted = false;
-      querySubscription?.kill().catch(console.error);
+      querySubscription?.kill().catch(() => undefined);
     };
-  }, [canUseDeliveryOrders, fetchDeliveryOrders, user?.id, openOrderPopup]);
+  }, [canUseDeliveryOrders, isEffectivelyConnected, fetchDeliveryOrders, db]);
 
   const value: DeliveryOrdersProviderState = useMemo(
     () => ({

@@ -310,8 +310,8 @@ export const MenuDishModifiers = (props: Props) => {
       size="full"
     >
       {props.dish && (
-        <div className="!grid grid-cols-7 gap-3">
-          <div className="col-span-1 flex flex-col rounded-3xl bg-neutral-100">
+        <div className="!grid h-full min-h-0 grid-cols-7 gap-3">
+          <div className="col-span-1 flex min-h-0 flex-col rounded-3xl bg-neutral-100 overflow-hidden">
             <ScrollContainer className="modifiers-swiper flex flex-col gap-[5px]">
               {groups.map((item, index) => (
                 <span
@@ -337,7 +337,7 @@ export const MenuDishModifiers = (props: Props) => {
               ))}
             </ScrollContainer>
           </div>
-          <div className="col-span-4">
+          <div className="col-span-4 min-h-0 overflow-hidden">
             {group && (
               <Swiper
                 slidesPerView={1}
@@ -371,15 +371,15 @@ export const MenuDishModifiers = (props: Props) => {
               </Swiper>
             )}
           </div>
-          <div className="col-span-2 bg-white p-3 rounded-3xl">
+          <div className="col-span-2 flex min-h-0 flex-col overflow-hidden bg-white p-3 rounded-3xl">
             <Button
               variant="danger"
               onClick={() => {
                 props.onClose([]);
               }}
-              className="mb-3 w-full lg"
+              className="mb-3 w-full shrink-0 lg"
             >{t('modifiers.cancel')}</Button>
-            <ScrollContainer className="modifiers-swiper">
+            <ScrollContainer className="modifiers-swiper min-h-0 flex-1">
               {groups.map((g) => (
                 <div key={getGroupInstanceKey(g)}>
                   <span className="font-bold">{getGroupSidebarLabel(g, groups)}</span>

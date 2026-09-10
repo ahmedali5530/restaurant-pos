@@ -18,14 +18,12 @@ import {faBars, faChair, faMoneyBillWave, faTableColumns} from "@fortawesome/fre
 import {OrderRow} from "@/components/orders/order.row.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Dropdown, DropdownItem} from "@/components/common/react-aria/dropdown.tsx";
-import {LiveSubscription, RecordId, StringRecordId} from "surrealdb";
+import {LiveSubscription} from "surrealdb";
 import {toast} from "sonner";
 import {useQueryBuilder} from "@/api/db/query-builder.ts";
 import {LabelValue} from "@/api/model/common.ts";
 import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
-import {OrderMerge, OrderMergeCreatePayload} from "@/api/model/order_merge.ts";
-import {toRecordId} from "@/lib/utils.ts";
-import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
+import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
 import {translateOrderStatus} from "@/lib/order.ts";
@@ -35,12 +33,64 @@ import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import { batchOrdersWithTempPrint } from "@/lib/order-print.ts";
 import {calendarDateToAppDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
+import {mergeRemoteRelations} from "@/lib/pos-order-merge.ts";
+import {terminalSyncService} from "@/infrastructure/sync/sync-service.ts";
 
 const ORDERS_LIST_LIMIT = 500;
 const ORDERS_LIVE_DEBOUNCE_MS = 1000;
 
+const orderRefId = (value: unknown): string => {
+  if (value == null) return '';
+  if (typeof value === 'object' && value !== null && 'id' in value) {
+    return String((value as { id: unknown }).id ?? '');
+  }
+  return String(value);
+};
+
+/** Client-side filter for PosStore-only rows (not yet on Surreal / not in remote page). */
+const matchesOrdersListFilters = (
+  order: OrderModel,
+  filters: {
+    users: LabelValue[];
+    floors: LabelValue[];
+    statuses: LabelValue[];
+    orderTypes: LabelValue[];
+  },
+): boolean => {
+  if (filters.statuses.length > 0) {
+    if (!filters.statuses.some((status) => status.value === order.status)) {
+      return false;
+    }
+  } else if (order.status !== OrderStatus['In Progress']) {
+    return false;
+  }
+
+  if (filters.floors.length > 0) {
+    const floorId = orderRefId(order.floor);
+    if (!filters.floors.some((floor) => String(floor.value) === floorId)) {
+      return false;
+    }
+  }
+
+  if (filters.users.length > 0) {
+    const userId = orderRefId(order.user);
+    if (!filters.users.some((user) => String(user.value) === userId)) {
+      return false;
+    }
+  }
+
+  if (filters.orderTypes.length > 0) {
+    const typeId = orderRefId(order.order_type);
+    if (!filters.orderTypes.some((type) => String(type.value) === typeId)) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 export const Orders = () => {
-  const {t} = useTranslation('orders');
+  const {t} = useTranslation(['orders', 'payment']);
   const {t: tNav} = useTranslation('navigation');
   const db = useDB();
   const {protectAction} = useSecurity();
@@ -66,8 +116,49 @@ export const Orders = () => {
   const [, setAlert] = useAtom(appAlert);
   const [app,] = useAtom(appPage);
 
+  // Surreal history (older / other-terminal closed checks) — optional enrichment.
   const [orders, setOrders] = useState<OrderModel[]>([]);
   const [tempPrintedOrderIds, setTempPrintedOrderIds] = useState<Set<string>>(new Set());
+  // PosStore (Dexie) is the list: open checks + closed checks for the selected day.
+  const [localOrders, setLocalOrders] = useState<OrderModel[]>([]);
+
+  const dayWindow = useMemo(() => {
+    if (!date) return null;
+    const dayStart = calendarDateToAppDateTime({ year: date.year, month: date.month, day: date.day });
+    return { sinceIso: dayStart.toISO() ?? new Date().toISOString(), untilIso: dayStart.plus({ days: 1 }).toISO() ?? undefined };
+  }, [date]);
+
+  const refreshLocalOrders = useCallback(async () => {
+    if (!dayWindow) return;
+    const list = await posStore.getRecentOrdersHydrated(dayWindow).catch(() => []);
+    setLocalOrders(list as unknown as OrderModel[]);
+  }, [dayWindow]);
+
+  useEffect(() => {
+    void refreshLocalOrders();
+    const onWrite = () => void refreshLocalOrders();
+    window.addEventListener('posr-posstore-write', onWrite);
+    window.addEventListener('posr-operational-orders-updated', onWrite);
+    return () => {
+      window.removeEventListener('posr-posstore-write', onWrite);
+      window.removeEventListener('posr-operational-orders-updated', onWrite);
+    };
+  }, [refreshLocalOrders]);
+
+  const displayOrders = useMemo(() => {
+    // Local rows are authoritative; Surreal only adds orders Dexie does not hold
+    // and fills relation stubs on the ones it does.
+    const byId = new Map<string, OrderModel>();
+    for (const order of orders) byId.set(String(order.id), order);
+    for (const local of localOrders) {
+      const key = String(local.id);
+      const remote = byId.get(key);
+      byId.set(key, remote ? (mergeRemoteRelations(local, remote) as OrderModel) : local);
+    }
+    return [...byId.values()]
+      .filter((order) => matchesOrdersListFilters(order, selectedOrderFilters))
+      .sort((a, b) => String(b.created_at ?? '').localeCompare(String(a.created_at ?? '')));
+  }, [orders, localOrders, selectedOrderFilters]);
 
   const updateOrderFilter = useCallback((key: keyof AppStateInterface['ordersFilters'], value: LabelValue[]) => {
     setState(prev => ({
@@ -151,12 +242,17 @@ export const Orders = () => {
   }, [orderFilters, orderFilterParams]);
 
   const fetchOrders = useCallback(async () => {
-    const [listQuery] = await db.query(ordersQb.queryString, ordersQb.parameters);
-    const list = listQuery as OrderModel[];
-    setOrders(list);
-    const ids = list.map((o) => o.id.toString());
-    const printed = await batchOrdersWithTempPrint(db, ids);
-    setTempPrintedOrderIds(printed);
+    try {
+      const [listQuery] = await db.query(ordersQb.queryString, ordersQb.parameters);
+      const list = listQuery as OrderModel[];
+      setOrders(list);
+      const ids = list.map((o) => o.id.toString());
+      const printed = await batchOrdersWithTempPrint(db, ids);
+      setTempPrintedOrderIds(printed);
+    } catch (error) {
+      // Master DB unreachable: the PosStore list keeps the screen usable.
+      console.warn('Orders history fetch skipped', error);
+    }
   }, [ordersQb.queryString, ordersQb.parameters]);
 
   fetchOrdersRef.current = fetchOrders;
@@ -183,8 +279,10 @@ export const Orders = () => {
     let cancelled = false;
 
     const setup = async () => {
+      // Surreal live = sync wake-up; Dexie refresh follows through the write event.
       const result = await db.live(Tables.orders, (action) => {
         if (action === 'CREATE' || action === 'UPDATE' || action === 'DELETE') {
+          void terminalSyncService.synchronize().catch(() => undefined);
           scheduleFetchOrders();
         }
       });
@@ -228,79 +326,33 @@ export const Orders = () => {
     }
 
     try {
-      await assertOrderMutationsAllowed(db);
+      await assertOrderMutationsAllowed(db).catch((err) => {
+        // Closing guard needs the master DB; offline we let the local-first path proceed.
+        if (err?.message && !/network|fetch|connect|closed/i.test(String(err.message))) throw err;
+      });
       setIsSaving(true);
-      let items: string[] = [];
-      const oldItems: OrderMerge['old_items'] = {};
 
-      for (const order of mergingOrders) {
-        const orderItems = order.items.map(item => toRecordId(item.id.toString()));
-        oldItems[order.id.toString()] = orderItems;
-
-        // Collect item ids from all selected orders
-        items = [
-          ...items,
-          ...orderItems
-        ];
-
-        // Mark orders as merged
-        await db.merge(order.id, {
-          status: OrderStatus['Merged'],
-          items: [], // remove items from main order
-          tags: [...(order.tags || []), OrderStatus['Merged']]
-        });
-      }
-
-      const nextInvoiceNumber = await generateNextInvoiceNumber(db);
-      const nextAutoId = await getNextAutoId(db);
-
-      const orderData = {
-        floor: new RecordId('floor', selectedTable.floor.id),
-        covers: mergingOrders.reduce((prev, item) => prev + item.covers, 0) || 1, // Distribute covers
-        // tax: order.tax ? new StringRecordId(order.tax.id.toString()) : null,
-        // tax_amount: 0, // Will be calculated per split
-        tags: [OrderStatus['Merged']],
-        // discount: order.discount ? new StringRecordId(order.discount.id.toString()) : null,
-        // discount_amount: 0, // Will be calculated per split
-        // customer: order.customer ? new StringRecordId(order.customer.id.toString()) : null,
-        order_type: mergingOrders[0].order_type.id,
-        status: OrderStatus["In Progress"],
-        auto_id: nextAutoId,
-        invoice_number: nextInvoiceNumber,
-        items: items,
-        table: new StringRecordId(mergingTable),
-        user: mergingOrders[0].user.id,
-        created_at: new Date(),
-      };
-
-      const mergedOrder = await db.create(Tables.orders, orderData);
-      const mergedOrderId = mergedOrder[0].id.toString();
-      const newItems: OrderMerge['new_items'] = {
-        [mergedOrderId]: [...items]
-      };
-
-      for (const item of items) {
-        await db.merge(item, {
-          order: mergedOrder[0].id
-        });
-      }
-
-      // create merge entry
-      const mergePayload = {
-        created_at: new Date(),
-        created_by: toRecordId(app.user.id),
-        new_order: mergedOrder[0].id,
-        old_orders: mergingOrders.map(item => item.id),
-        old_items: oldItems,
-        new_items: newItems,
-      };
-
-      await db.create(Tables.order_merge, mergePayload)
+      // Local-first: merged order + item moves + source close + audit commit to
+      // Dexie, then drain via outbox.
+      const { merged } = await posStore.mergeOrders({
+        sourceIds: mergingOrders.map((order) => String(order.id)),
+        invoiceNumber: await posStore.consumeInvoiceNumber(),
+        autoId: await posStore.consumeAutoId(),
+        userId: String(app.user.id),
+        target: {
+          floor: selectedTable?.floor?.id ? String(selectedTable.floor.id) : null,
+          table: String(mergingTable),
+          covers: mergingOrders.reduce((prev, item) => prev + item.covers, 0) || 1,
+          order_type: mergingOrders[0].order_type?.id ? String(mergingOrders[0].order_type.id) : null,
+          user: mergingOrders[0].user?.id ? String(mergingOrders[0].user.id) : null,
+        },
+        seeds: mergingOrders.map((order) => ({ order, items: order.items })),
+      });
 
       postOrderTracking({
         module: "orders.merge",
         page: app?.page,
-        orderId: mergedOrder[0].id,
+        orderId: merged.id,
         payload: {
           source_orders: mergingOrders.map((item) => item.id.toString()),
           table: mergingTable,
@@ -308,7 +360,7 @@ export const Orders = () => {
         user: app?.user,
       });
 
-      toast.success(t('merge.success', {invoiceNumber: mergedOrder[0].invoice_number}));
+      toast.success(t('merge.success', {invoiceNumber: merged.invoice_number}));
 
       // reset to default
       setMerging(false);
@@ -317,7 +369,11 @@ export const Orders = () => {
 
     } catch (error) {
       console.error('Error creating merging orders:', error);
-      toast.error(t('merge.failed'));
+      if ((error as any)?.code === 'NUMBERS_EXHAUSTED') {
+        toast.error(t('payment:errors.numbersExhausted'));
+      } else {
+        toast.error(t('merge.failed'));
+      }
     } finally {
       setIsSaving(false);
     }
@@ -326,8 +382,8 @@ export const Orders = () => {
   return (
     <Layout containerClassName="overflow-hidden">
       <DocumentTitle parts={[tNav('sidebar.orders')]} />
-      <div className="flex gap-5 p-3 flex-col" data-testid="orders-page">
-        <div className="h-[60px] flex-0 rounded-xl bg-white flex items-center px-3 gap-3" data-testid="orders-filters">
+      <div className="flex h-full min-h-0 gap-5 p-3 flex-col" data-testid="orders-page">
+        <div className="h-[60px] shrink-0 rounded-xl bg-white flex items-center px-3 gap-3" data-testid="orders-filters">
           <div className="min-w-[200px]">
             <ReactSelect
               options={[OrderStatus["In Progress"], OrderStatus.Paid, OrderStatus.Cancelled, OrderStatus.Spilt, OrderStatus.Merged].map(item => ({
@@ -416,10 +472,10 @@ export const Orders = () => {
           </div>
         </div>
         {view === 'column' && (
-          <div data-testid="orders-list-blocks">
-            <ScrollContainer className="h-[calc(100vh_-_190px)]">
+          <div className="flex-1 min-h-0" data-testid="orders-list-blocks">
+            <ScrollContainer className="h-full">
               <div className="flex-1 rounded-xl flex gap-3 flex-row">
-                {orders.map(item => (
+                {displayOrders.map(item => (
                   <div className="w-[400px] flex-shrink-0" key={item.id}>
                     <OrderBox
                       order={item}
@@ -449,10 +505,10 @@ export const Orders = () => {
         )}
 
         {view === 'row' && (
-          <div data-testid="orders-list-table">
-            <ScrollContainer className="max-h-[calc(100vh_-_190px)]">
+          <div className="flex-1 min-h-0 overflow-hidden" data-testid="orders-list-table">
+            <ScrollContainer className="h-full">
               <div className="flex-1 rounded-xl flex flex-col">
-                {orders.map(item => (
+                {displayOrders.map(item => (
                   <OrderRow order={item} key={item.id}/>
                 ))}
               </div>
@@ -460,7 +516,7 @@ export const Orders = () => {
           </div>
         )}
 
-        <div className="h-[60px] flex-0 rounded-xl bg-white flex items-center px-3 gap-3" data-testid="orders-merge-bar">
+        <div className="h-[60px] shrink-0 rounded-xl bg-white flex items-center px-3 gap-3" data-testid="orders-merge-bar">
           {merging && (
             <div className="flex gap-5">
               <Dropdown

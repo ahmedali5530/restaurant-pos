@@ -1,17 +1,15 @@
 import { Layout } from '@/screens/partials/layout.tsx';
-import useApi, { SettingsData } from '@/api/db/use.api.ts';
-import { Order as OrderModel, ORDER_FETCHES, OrderStatus } from '@/api/model/order.ts';
+import { Order as OrderModel, OrderStatus } from '@/api/model/order.ts';
 import { OrderItemKitchen } from '@/api/model/order_item_kitchen.ts';
 import { Tables } from '@/api/db/tables.ts';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDB } from '@/api/db/db.ts';
-import { OrderType } from '@/api/model/order_type.ts';
 import { ReactSelect } from '@/components/common/input/custom.react.select.tsx';
 import { useAtom } from 'jotai';
-import { appState, AppStateInterface } from '@/store/jotai.ts';
+import { appSettings, appState, AppStateInterface } from '@/store/jotai.ts';
 import { LabelValue } from '@/api/model/common.ts';
 import { Button } from '@/components/common/input/button.tsx';
-import { toSurrealDateTime, getAppStartOfDaySurreal } from '@/lib/datetime.ts';
+import { getAppStartOfDaySurreal, toJsDate } from '@/lib/datetime.ts';
 import { useTranslation } from 'react-i18next';
 import { translateOrderStatus } from '@/lib/order.ts';
 import {
@@ -24,12 +22,17 @@ import { OrderReadyCelebration } from '@/components/order-display/order-ready-ce
 import { useOrderReadyAnnouncements } from '@/hooks/useOrderReadyAnnouncements.ts';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { DocumentTitle } from '@/components/common/document-title.tsx';
+import { posStore } from '@/infrastructure/pos-store/pos-store.ts';
+import { terminalSyncService } from '@/infrastructure/sync/sync-service.ts';
+import { useDatabase } from '@/hooks/useDatabase.ts';
 
 export const OrderDisplayScreen = () => {
   const { t } = useTranslation(['order-display', 'orders']);
   const { t: tNav } = useTranslation('navigation');
   const db = useDB();
+  const { isEffectivelyConnected } = useDatabase();
   const [state, setState] = useAtom(appState);
+  const [settings] = useAtom(appSettings);
   const [orders, setOrders] = useState<OrderModel[]>([]);
   const [kitchenRowsByOrderItemId, setKitchenRowsByOrderItemId] = useState(
     buildKitchenRowsMap()
@@ -68,71 +71,61 @@ export const OrderDisplayScreen = () => {
     [setState]
   );
 
-  const { data: orderTypes } = useApi<SettingsData<OrderType>>(
-    Tables.order_types,
-    ['deleted_at = none'],
-    [],
-    0,
-    99999
-  );
-
-  const whereClauses = useMemo(() => {
-    const clauses: string[] = [];
-
-    const statusFilters = selectedFilters.statuses.map(
-      (status) => `status = "${status.value}"`
-    );
-    if (statusFilters.length > 0) {
-      clauses.push(`(${statusFilters.join(' or ')})`);
-    }
-
-    const orderTypeFilters = selectedFilters.orderTypes.map(
-      (orderType) => `order_type = ${orderType.value}`
-    );
-    if (orderTypeFilters.length > 0) {
-      clauses.push(`(${orderTypeFilters.join(' or ')})`);
-    }
-
-    return clauses;
-  }, [selectedFilters]);
+  const orderTypes = settings.order_types ?? [];
 
   const fetchOrders = useCallback(async () => {
-    const startDate = getAppStartOfDaySurreal();
-    const filterSql = whereClauses.length > 0 ? `and ${whereClauses.join(' and ')}` : '';
-    const fetchList = ORDER_FETCHES.join(', ');
+    const sinceIso = toJsDate(getAppStartOfDaySurreal()).toISOString();
+    const statusSet = new Set(selectedFilters.statuses.map((row) => String(row.value)));
+    const orderTypeSet = new Set(selectedFilters.orderTypes.map((row) => String(row.value)));
 
-    const [rows, kitchenRows] = await db.query(
-      `SELECT * FROM ${Tables.orders}
-       WHERE created_at >= $startDate ${filterSql}
-       ORDER BY created_at DESC
-       FETCH ${fetchList};
-       SELECT * FROM ${Tables.order_items_kitchen}
-       WHERE created_at >= $startDate
-         AND order_item.is_suspended != true
-       FETCH order_item`,
-      { startDate }
-    );
+    const [recent, kitchenRows] = await Promise.all([
+      posStore.getRecentOrdersHydrated({ sinceIso }),
+      posStore.getKitchenRowsSince(sinceIso),
+    ]);
 
-    setOrders(Array.isArray(rows) ? (rows as OrderModel[]) : []);
+    const filtered = recent.filter((order) => {
+      if (statusSet.size > 0 && !statusSet.has(String(order.status))) return false;
+      if (orderTypeSet.size > 0) {
+        const typeId = String(
+          (order.order_type as any)?.id ?? order.order_type ?? '',
+        );
+        if (!orderTypeSet.has(typeId)) return false;
+      }
+      return true;
+    });
+
+    setOrders(filtered as unknown as OrderModel[]);
     setKitchenRowsByOrderItemId(
-      buildKitchenRowsMap(Array.isArray(kitchenRows) ? (kitchenRows as OrderItemKitchen[]) : [])
+      buildKitchenRowsMap(kitchenRows as OrderItemKitchen[]),
     );
-  }, [whereClauses]);
+  }, [selectedFilters]);
 
   useEffect(() => {
     void fetchOrders();
+    const onWrite = () => void fetchOrders();
+    window.addEventListener('posr-posstore-write', onWrite);
+    window.addEventListener('posr-operational-orders-updated', onWrite);
+    const pollId = window.setInterval(() => void fetchOrders(), 5_000);
+    return () => {
+      window.removeEventListener('posr-posstore-write', onWrite);
+      window.removeEventListener('posr-operational-orders-updated', onWrite);
+      window.clearInterval(pollId);
+    };
   }, [fetchOrders]);
 
   useEffect(() => {
+    if (!isEffectivelyConnected) return;
+
     let cancelled = false;
 
     const setup = async () => {
-      const ordersSubscription = await db.live(Tables.orders, () => {
-        void fetchOrders();
-      });
-      const kitchenSubscription = await db.live(Tables.order_items_kitchen, () => {
-        void fetchOrders();
-      });
+      const wake = () => {
+        void terminalSyncService.synchronize().catch(() => undefined).then(() => {
+          void fetchOrders();
+        });
+      };
+      const ordersSubscription = await db.live(Tables.orders, wake);
+      const kitchenSubscription = await db.live(Tables.order_items_kitchen, wake);
 
       if (cancelled) {
         await ordersSubscription.kill().catch(() => undefined);
@@ -144,7 +137,7 @@ export const OrderDisplayScreen = () => {
       liveKitchenRef.current = kitchenSubscription;
     };
 
-    void setup();
+    void setup().catch(() => undefined);
 
     return () => {
       cancelled = true;
@@ -153,7 +146,7 @@ export const OrderDisplayScreen = () => {
       liveOrdersRef.current = null;
       liveKitchenRef.current = null;
     };
-  }, [fetchOrders]);
+  }, [fetchOrders, db, isEffectivelyConnected]);
 
   const { preparing, ready } = useMemo(
     () => partitionDisplayOrders(orders, kitchenRowsByOrderItemId, ORDER_DISPLAY_MAX_VISIBLE),
@@ -195,7 +188,7 @@ export const OrderDisplayScreen = () => {
           </div>
           <div className="min-w-[200px]">
             <ReactSelect
-              options={orderTypes?.data.map((item) => ({
+              options={orderTypes.map((item) => ({
                 label: item.name,
                 value: item.id,
               }))}

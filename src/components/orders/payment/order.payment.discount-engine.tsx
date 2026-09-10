@@ -1,5 +1,3 @@
-import useApi, { SettingsData } from '@/api/db/use.api.ts'
-import { Tables } from '@/api/db/tables.ts'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/common/input/button.tsx'
 import {
@@ -20,6 +18,8 @@ import { getOrderFilteredItems } from '@/lib/order.ts'
 import { ReactSelect } from '@/components/common/input/custom.react.select.tsx'
 import { matchesApplicationMode } from '@/lib/discount-engine/eligibility.ts'
 import {Input} from "@/components/common/input/input.tsx";
+import { useAtom } from 'jotai'
+import { appSettings } from '@/store/jotai.ts'
 
 interface Props {
   order: Order
@@ -35,25 +35,15 @@ export const OrderPaymentDiscountEngine = ({
   onApply,
 }: Props) => {
   const { t } = useTranslation(['payment', 'common'])
+  const [settings] = useAtom(appSettings)
 
-  const { data: discounts } = useApi<SettingsData<Discount>>(
-    Tables.discounts,
-    ['deleted_at = none and is_active != false'],
-    ['priority asc'],
-    0,
-    99999
-  )
-
-  const { data: reasons } = useApi<SettingsData<DiscountReason>>(
-    Tables.discount_reasons,
-    ['deleted_at = none and is_active = true'],
-    ['name asc'],
-    0,
-    99999
+  const discounts = settings.discounts ?? []
+  const reasons = (settings.discount_reasons ?? []).filter(
+    (reason) => (reason as DiscountReason & { is_active?: boolean }).is_active !== false,
   )
 
   const manualDiscounts = useMemo(
-    () => (discounts?.data || []).filter(d => matchesApplicationMode(d, 'manual')),
+    () => discounts.filter(d => matchesApplicationMode(d, 'manual')),
     [discounts]
   )
 
@@ -139,7 +129,7 @@ export const OrderPaymentDiscountEngine = ({
     return { amount: computed.appliedAmount, rate: computed.appliedRate ?? 0 }
   }, [draftDiscount, evalItems, percentInput, draftRate, draftAmount, selectedItemIds])
 
-  const reasonOptions = (reasons?.data || []).map(r => ({
+  const reasonOptions = reasons.map(r => ({
     label: r.name,
     value: r.id,
   }))

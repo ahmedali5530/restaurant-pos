@@ -16,7 +16,7 @@
   },
   "cache": {
     "title": "Cache",
-    "description": "Slaat gegevens op in de browser voor snellere werking.",
+    "description": "Lokale POS-gegevens op deze terminal. Herladen wist ze en downloadt een verse kopie van de server. Vereist een online verbinding.",
     "reload": "Cache herladen",
     "orderTypes": "Bestellingstypes",
     "categories": "Categorieën",
@@ -28,8 +28,12 @@
     "kitchens": "Keukens",
     "paymentTypes": "Betaaltypes",
     "taxes": "Belastingen",
-    "reloaded": "Cache herladen vanuit database",
-    "reloadFailed": "Cache herladen mislukt"
+    "reloaded": "Cache gewist en opnieuw geladen vanaf de server",
+    "reloadFailed": "Cache herladen mislukt",
+    "confirm": "Lokale POS-cache wissen en een verse kopie van de server downloaden?",
+    "confirmWithPending": "U heeft {{count}} niet-gesynchroniseerde wijziging(en) die worden verworpen. Lokale POS-cache wissen en een verse kopie van de server downloaden?",
+    "offline": "Kan cache niet offline herladen",
+    "offlineHint": "Beschikbaar wanneer verbonden met de server"
   },
   "serviceCharges": {
     "title": "Servicekosten",

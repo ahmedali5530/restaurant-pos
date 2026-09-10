@@ -1,166 +1,68 @@
-import {useMemo, useState} from "react";
-import {useAtom} from "jotai";
+import {useState} from "react";
+import {useSetAtom} from "jotai";
 import {toast} from "sonner";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {appSettings} from "@/store/jotai.ts";
 import {Button} from "@/components/common/input/button.tsx";
-import {Table, TABLE_FETCHES} from "@/api/model/table.ts";
-import {Dish, DISH_FETCHES} from "@/api/model/dish.ts";
-import {Kitchen, KITCHEN_FETCHES} from "@/api/model/kitchen.ts";
-import {PAYMENT_TYPE_FETCHES, PaymentType} from "@/api/model/payment_type.ts";
-import {OrderType} from "@/api/model/order_type.ts";
-import {Category} from "@/api/model/category.ts";
-import {ModifierGroup} from "@/api/model/modifier_group.ts";
-import {DishModifierGroup} from "@/api/model/dish_modifier_group.ts";
-import {Floor} from "@/api/model/floor.ts";
-import {Menu} from "@/api/model/menu.ts";
-import {Tax} from "@/api/model/tax.ts";
-import {toRecordId} from "@/lib/utils.ts";
-import {RecordId} from "surrealdb";
 import {useTranslation} from 'react-i18next';
-import {del, set, createStore} from 'idb-keyval'
-
-const toRows = <T, >(result: unknown): T[] => {
-  return Array.isArray(result) ? result as T[] : [];
-};
+import {del, set} from 'idb-keyval';
+import {useDatabase} from "@/hooks/useDatabase.ts";
+import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
+import {terminalSyncService} from "@/infrastructure/sync/sync-service.ts";
+import {refreshCatalogIntoSettings} from "@/providers/pos-store.provider.tsx";
 
 export const CacheSettings = () => {
   const db = useDB();
-  const [settings, setSettings] = useAtom(appSettings);
+  const setSettings = useSetAtom(appSettings);
   const [isReloading, setIsReloading] = useState(false);
   const { t } = useTranslation('settings');
+  const { isEffectivelyConnected } = useDatabase();
 
-  const cacheStats = useMemo(() => ([
-    {label: t('cache.orderTypes'), count: settings.order_types.length},
-    {label: t('cache.categories'), count: settings.categories.length},
-    {label: t('cache.dishes'), count: settings.dishes.length},
-    {label: t('cache.modifierGroups'), count: settings.modifier_groups.length},
-    {label: t('cache.groupDishes'), count: settings.groups_dishes.length},
-    {label: t('cache.floors'), count: settings.floors.length},
-    {label: t('cache.tables'), count: settings.tables.length},
-    {label: t('cache.kitchens'), count: settings.kitchens.length},
-    {label: t('cache.paymentTypes'), count: settings.payment_types.length},
-    {label: t('cache.taxes'), count: settings.taxes.length},
-  ]), [settings, t]);
+  const canReload = isEffectivelyConnected && !isReloading;
 
   const reloadCache = async () => {
+    if (!isEffectivelyConnected) {
+      toast.error(t('cache.offline'));
+      return;
+    }
+
     try {
+      const pending = await posStore.getPendingOutbox();
+      const pendingCount = pending.length;
+      const confirmed = window.confirm(
+        pendingCount > 0
+          ? t('cache.confirmWithPending', { count: pendingCount })
+          : t('cache.confirm'),
+      );
+      if (!confirmed) return;
+
       setIsReloading(true);
+      await terminalSyncService.rehydrateFromServer();
+      await refreshCatalogIntoSettings(setSettings);
 
-      const [
-        orderTypesResult,
-        categoriesResult,
-        dishesResult,
-        modifierGroupsResult,
-        groupsDishesResult,
-        floorsResult,
-        tablesResult,
-        kitchensResult,
-        paymentTypesResult,
-        taxesResult,
-        menuSettingsResult,
-        documentsResult
-      ] = await Promise.all([
-        db.query(`SELECT *
-                  FROM ${Tables.order_types}
-                  WHERE deleted_at = none
-                  ORDER BY priority ASC`),
-        db.query(`SELECT *
-                  FROM ${Tables.categories}
-                  WHERE deleted_at = none
-                  ORDER BY priority ASC`),
-        db.query(`SELECT *
-                  FROM ${Tables.dishes}
-                  WHERE deleted_at = none
-                  ORDER BY priority ASC FETCH ${DISH_FETCHES.join(', ')}`),
-        db.query(`SELECT *
-                  FROM ${Tables.modifier_groups}
-                  WHERE deleted_at = none
-                  ORDER BY priority ASC FETCH modifiers, modifiers.modifier, modifiers.allowed_next_groups, modifiers.next_group_overrides`),
-        db.query(`SELECT *
-                  FROM ${Tables.dish_modifier_groups}
-                  ORDER BY priority ASC FETCH in, out, out.modifiers, out.modifiers.modifier, out.modifiers.allowed_next_groups, out.modifiers.next_group_overrides`),
-        db.query(`SELECT *
-                  FROM ${Tables.floors}
-                  WHERE deleted_at = none
-                  ORDER BY priority ASC`),
-        db.query(`SELECT *
-                  FROM ${Tables.tables}
-                  WHERE deleted_at = none
-                  ORDER BY priority ASC FETCH ${TABLE_FETCHES.join(', ')}`),
-        db.query(`SELECT *
-                  FROM ${Tables.kitchens}
-                  WHERE deleted_at = none
-                  ORDER BY priority ASC FETCH ${KITCHEN_FETCHES.join(', ')}`),
-        db.query(`SELECT *
-                  FROM ${Tables.payment_types}
-                  WHERE deleted_at = none
-                  ORDER BY priority ASC FETCH ${PAYMENT_TYPE_FETCHES.join(', ')}`),
-        db.query(`SELECT *
-                  FROM ${Tables.taxes}
-                  WHERE deleted_at = none
-                  ORDER BY priority ASC`),
-        db.query(`SELECT values
-                  FROM ${Tables.settings}
-                  WHERE key = 'menus' AND is_global = true
-                  FETCH values`),
-        db.query(`SELECT id, content from ${Tables.documents}`)
-      ]);
-
-      const selectedMenuIds = Array.isArray(menuSettingsResult?.[0]?.[0]?.values)
-        ? (menuSettingsResult[0][0].values as Array<{ id?: string } | string>).map((value) => {
-          if (typeof value === "string") {
-            return toRecordId(value) as RecordId;
-          }
-
-          return toRecordId(value?.id) as RecordId;
-        }).filter(Boolean)
-        : [];
-
-      const menusResult = selectedMenuIds.length > 0
-        ? await db.query(`SELECT * FROM ${Tables.menus}
-                          WHERE id INSIDE $ids
-                          FETCH items, items.menu_item, items.menu_item.categories, items.tax, items.taxes, items.tax_mode`, {
-          ids: selectedMenuIds
-        })
-        : [[]];
-
-      setSettings(prev => ({
-        ...prev,
-        order_types: toRows<OrderType>(orderTypesResult?.[0]),
-        categories: toRows<Category>(categoriesResult?.[0]),
-        dishes: toRows<Dish>(dishesResult?.[0]),
-        modifier_groups: toRows<ModifierGroup>(modifierGroupsResult?.[0]),
-        groups_dishes: toRows<DishModifierGroup>(groupsDishesResult?.[0]),
-        floors: toRows<Floor>(floorsResult?.[0]),
-        tables: toRows<Table>(tablesResult?.[0]),
-        kitchens: toRows<Kitchen>(kitchensResult?.[0]),
-        payment_types: toRows<PaymentType>(paymentTypesResult?.[0]),
-        taxes: toRows<Tax>(taxesResult?.[0]),
-        menus: toRows<Menu>(menusResult?.[0]),
-      }));
-
-      // remove documents first
-      await del(Tables.documents);
-      // set documents in the indexdb database
-      await set(Tables.documents, (documentsResult?.[0] ?? []).map(item => ({
-        ...item,
-        id: item.id.toString(),
-      })));
+      // Documents live outside PosStore (idb-keyval); best-effort refresh.
+      try {
+        const documentsResult = await db.query(`SELECT id, content from ${Tables.documents}`);
+        await del(Tables.documents);
+        await set(Tables.documents, (documentsResult?.[0] ?? []).map((item: { id: { toString: () => string } }) => ({
+          ...item,
+          id: item.id.toString(),
+        })));
+      } catch (docError) {
+        console.warn('Documents cache refresh skipped', docError);
+      }
 
       toast.success(t('cache.reloaded'));
     } catch (error) {
       console.error("Failed to reload cache:", error);
-      toast.error(t('cache.reloadFailed'));
+      const code = (error as Error & { code?: string })?.code
+        ?? ((error as Error)?.message === 'OFFLINE' ? 'OFFLINE' : undefined);
+      toast.error(code === 'OFFLINE' ? t('cache.offline') : t('cache.reloadFailed'));
     } finally {
       setIsReloading(false);
     }
   };
-
-  const cacheSize = useMemo(() => {
-    return cacheStats.reduce((prev, item) => prev + item.count, 0);
-  }, [cacheStats]);
 
   return (
     <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-cache">
@@ -168,17 +70,23 @@ export const CacheSettings = () => {
         <div>
           <h2 className="text-xl font-semibold mb-1">{t('cache.title')}</h2>
           <p className="text-sm text-neutral-500">{t('cache.description')}</p>
+          {!isEffectivelyConnected && (
+            <p className="text-sm text-warning-700 mt-2" data-testid="cache-offline-hint">
+              {t('cache.offlineHint')}
+            </p>
+          )}
         </div>
-        <Button variant="danger" size="lg" filled onClick={reloadCache} isLoading={isReloading}>
+        <Button
+          variant="danger"
+          size="lg"
+          filled
+          onClick={reloadCache}
+          isLoading={isReloading}
+          disabled={!canReload}
+        >
           {t('cache.reload')}
         </Button>
       </div>
-
-      {/*<div className="mt-4 grid grid-cols-1">*/}
-      {/*  <div className="rounded border border-neutral-200 p-3 flex justify-between items-center">*/}
-      {/*    <p className="text-xl font-semibold">{cacheSize}</p>*/}
-      {/*  </div>*/}
-      {/*</div>*/}
     </div>
   );
 };

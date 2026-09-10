@@ -1,41 +1,34 @@
 import { useEffect } from 'react'
-import { useDB } from '@/api/db/db.ts'
 import { buildDiscountCache } from '@/lib/discount-engine/cache.ts'
 import { loadActiveDiscountRules } from '@/lib/discount-engine/service.ts'
-import type { LiveSubscription } from 'surrealdb'
 
 let initPromise: Promise<void> | null = null
 
-export const refreshDiscountCache = async (db: ReturnType<typeof useDB>): Promise<void> => {
-  const rules = await loadActiveDiscountRules(db)
+export const refreshDiscountCache = async (): Promise<void> => {
+  const rules = await loadActiveDiscountRules()
   buildDiscountCache(rules)
 }
 
+/**
+ * Keep the in-memory discount cache in sync with the local PosStore catalog.
+ * Never depends on Surreal `db.live('discount')` — offline/online identical.
+ */
 export const useDiscountCache = () => {
-  const db = useDB()
-
   useEffect(() => {
     if (!initPromise) {
-      initPromise = refreshDiscountCache(db).catch(() => {
+      initPromise = refreshDiscountCache().catch(() => {
         initPromise = null
       })
     }
 
-    let liveSub: LiveSubscription | undefined
-    const setup = async () => {
-      await refreshDiscountCache(db)
-      try {
-        liveSub = await db.live('discount', () => {
-          void refreshDiscountCache(db)
-        })
-      } catch {
-        // live may not be available in all environments
-      }
+    const onLocalWrite = () => {
+      void refreshDiscountCache()
     }
-    void setup()
+    window.addEventListener('posr-posstore-write', onLocalWrite)
+    void refreshDiscountCache()
 
     return () => {
-      liveSub?.kill().catch(() => {})
+      window.removeEventListener('posr-posstore-write', onLocalWrite)
     }
-  }, [db])
+  }, [])
 }

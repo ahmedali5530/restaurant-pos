@@ -19,6 +19,7 @@ import {
 } from "@/lib/session.ts";
 import { PageLoader } from "@/components/common/loader/page-loader.tsx";
 import { useTranslation } from "react-i18next";
+import { setPosStoreEffectivelyConnected } from "@/infrastructure/pos-store/connectivity.ts";
 
 const SESSION_EVENT = "posr-session";
 const CONNECTED_ONCE_KEY = "posr-db-connected-once";
@@ -308,6 +309,10 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
 
   const hasSession = gatewayMode ? sessionReady && Boolean(getSessionToken()) : true;
   const isEffectivelyConnected = isConnected && isBrowserOnline;
+
+  useEffect(() => {
+    setPosStoreEffectivelyConnected(isEffectivelyConnected);
+  }, [isEffectivelyConnected]);
 
   const value: DatabaseProviderState = useMemo(
     () => ({

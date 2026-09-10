@@ -1,9 +1,9 @@
-import useApi, {SettingsData} from "@/api/db/use.api.ts";
-import {Tables} from "@/api/db/tables.ts";
 import React, {useEffect, useState} from "react";
 import {Tax} from "@/api/model/tax.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {useTranslation} from "react-i18next";
+import {useAtom} from "jotai";
+import {appSettings} from "@/store/jotai.ts";
 
 interface Props {
   tax?: Tax
@@ -13,12 +13,10 @@ interface Props {
 export const OrderPaymentTax = ({
   tax, setTax
 }: Props) => {
-  const {t} = useTranslation('payment');
+  const {t} = useTranslation(['payment', 'common']);
   const [draftTax, setDraftTax] = useState<Tax | undefined>(tax);
-
-  const {
-    data: taxes
-  } = useApi<SettingsData<Tax>>(Tables.taxes, ['deleted_at = none'], ['priority asc'], 0, 99999);
+  const [settings] = useAtom(appSettings);
+  const taxes = settings.taxes ?? [];
 
   useEffect(() => {
     setDraftTax(tax);
@@ -37,30 +35,27 @@ export const OrderPaymentTax = ({
           {t('tax.noTax')}
         </Button>
         <div className="flex gap-5 flex-wrap">
-          {taxes?.data?.map(item => (
+          {taxes.map(item => (
             <Button
               className="min-w-[150px]"
               variant="primary"
-              active={item.id.toString() === draftTax?.id.toString()}
-              key={item.id.toString()}
+              active={draftTax?.id === item.id}
               onClick={() => setDraftTax(item)}
+              key={item.id?.toString()}
               size="lg"
             >
-              {item.name} {item.rate}%
+              {item.name} ({item.rate}%)
             </Button>
           ))}
         </div>
       </div>
-      <Button
-        variant="success"
-        size="lg"
-        className="w-full"
-        filled
-        data-testid="payment-ok"
-        onClick={() => setTax(draftTax)}
-      >
-        {t('common:actions.ok')}
-      </Button>
+      <div>
+        <Button variant="primary" filled size="lg" onClick={() => {
+          setTax(draftTax)
+        }} className="w-full" data-testid="payment-tax-apply">
+          {t('common:actions.apply')}
+        </Button>
+      </div>
     </div>
   );
-}
+};

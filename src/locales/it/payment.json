@@ -10,7 +10,10 @@
   },
   "errors": {
     "createOrder": "Impossibile creare l'ordine.",
-    "openPayment": "Impossibile aprire il pagamento."
+    "openPayment": "Impossibile aprire il pagamento.",
+    "notOwner": "Questo ordine è aperto su un altro terminale",
+    "numbersExhausted": "Nessun numero di fattura disponibile offline — riconnettiti per continuare a creare ordini",
+    "fireFailed": "Impossibile inviare gli articoli in attesa"
   },
   "tracking": {
     "createOrder": "Crea ordine",
@@ -86,7 +89,9 @@
     "complete": "Completa",
     "cannotAddCard": "Impossibile aggiungere altro pagamento con carta",
     "exactCardAmount": "Aggiunto importo esatto per pagamento con carta",
-    "tempAlreadyPrinted": "Preconto già stampato"
+    "tempAlreadyPrinted": "Preconto già stampato",
+    "alreadyClosed": "Questo ordine è già chiuso.",
+    "notOwner": "Questo ordine è gestito da un altro terminale."
   },
   "remote": {
     "remoteLabel": "{{name}} (Remoto)",

@@ -13,7 +13,6 @@ import {SecurityProvider} from "@/providers/security.provider.tsx";
 import {SecurityModal} from "@/components/security/security-modal.tsx";
 import {useDeliveryOrders} from "@/hooks/useDeliveryOrders.ts";
 import {DeliveryOrderPopup} from "@/components/delivery/delivery-order-popup.tsx";
-import {initializePrintTemplates} from "@/lib/print.registry.tsx";
 import {BrowserRouter} from "react-router";
 import {TableLockProvider} from "@/providers/table.lock.provider.tsx";
 import {AutoCheckCloseProvider} from "@/providers/auto-check-close.provider.tsx";
@@ -24,10 +23,10 @@ import {I18nProvider} from "@/providers/i18n.provider.tsx";
 import {AppRoutes} from "@/routes/app.routes.tsx";
 import {IntegrationProvider} from "@/providers/integration.provider.tsx";
 import {AiAssistantWidget} from "@/components/ai-assistant/assistant-widget.tsx";
-import {OfflineModeBanner} from "@/components/common/offline-banner.tsx";
+import {AppToolbar} from "./components/common/app-toolbar.tsx";
+import {PosStoreProvider} from "@/providers/pos-store.provider.tsx";
+import {TerminalSyncProvider} from "@/providers/terminal-sync.provider.tsx";
 
-
-// react query client wrapper
 const queryClient = new QueryClient();
 
 /** Renders the delivery order popup when a new order is detected or opened from context (works on any page). */
@@ -48,10 +47,7 @@ function GlobalDeliveryOrderPopup() {
   );
 }
 
-
-// Wrapper for app
 function App() {
-  // initialize print templates once
   useEffect(() => {
     // initializePrintTemplates();
   }, []);
@@ -60,33 +56,37 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ConfigProvider theme={appAntdTheme}>
         <DatabaseProvider>
-          <OfflineModeBanner />
-          <IntegrationProvider>
-            <AutoCheckCloseProvider>
-              <ClosingCycleEnforcementProvider>
-                <DeliveryOrdersProvider>
-                  <PrintProvider>
-                    <TableLockProvider>
-                      <SecurityProvider>
-                        <BrowserRouter>
-                          <I18nProvider>
-                            <SessionIdleProvider>
-                              <AutoClockOutProvider>
-                                <GlobalDeliveryOrderPopup/>
-                                <AiAssistantWidget/>
-                                <AppRoutes/>
-                              </AutoClockOutProvider>
-                            </SessionIdleProvider>
-                          </I18nProvider>
-                        </BrowserRouter>
-                        <SecurityModal/>
-                      </SecurityProvider>
-                    </TableLockProvider>
-                  </PrintProvider>
-                </DeliveryOrdersProvider>
-              </ClosingCycleEnforcementProvider>
-            </AutoCheckCloseProvider>
-          </IntegrationProvider>
+          <PosStoreProvider>
+            <TerminalSyncProvider>
+              <IntegrationProvider>
+                <AutoCheckCloseProvider>
+                  <ClosingCycleEnforcementProvider>
+                    <DeliveryOrdersProvider>
+                      <PrintProvider>
+                        <TableLockProvider>
+                          <SecurityProvider>
+                            <BrowserRouter>
+                              <AppToolbar />
+                              <I18nProvider>
+                                <SessionIdleProvider>
+                                  <AutoClockOutProvider>
+                                    <GlobalDeliveryOrderPopup/>
+                                    <AiAssistantWidget/>
+                                    <AppRoutes/>
+                                  </AutoClockOutProvider>
+                                </SessionIdleProvider>
+                              </I18nProvider>
+                            </BrowserRouter>
+                            <SecurityModal/>
+                          </SecurityProvider>
+                        </TableLockProvider>
+                      </PrintProvider>
+                    </DeliveryOrdersProvider>
+                  </ClosingCycleEnforcementProvider>
+                </AutoCheckCloseProvider>
+              </IntegrationProvider>
+            </TerminalSyncProvider>
+          </PosStoreProvider>
 
           <Alert/>
           <Toaster richColors position="top-right" closeButton={true} duration={2000}/>

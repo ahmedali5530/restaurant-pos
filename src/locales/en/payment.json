@@ -10,7 +10,10 @@
   },
   "errors": {
     "createOrder": "Unable to create order.",
-    "openPayment": "Unable to open payment."
+    "openPayment": "Unable to open payment.",
+    "notOwner": "This order is open on another terminal",
+    "numbersExhausted": "No invoice numbers left offline — reconnect to continue creating orders",
+    "fireFailed": "Could not fire the held items"
   },
   "tracking": {
     "createOrder": "Create order",
@@ -86,7 +89,9 @@
     "tempAlreadyPrinted": "Temp bill already printed",
     "complete": "Complete",
     "cannotAddCard": "Cannot add more payment for card",
-    "exactCardAmount": "Added exact amount for card based payment"
+    "exactCardAmount": "Added exact amount for card based payment",
+    "alreadyClosed": "This order is already closed.",
+    "notOwner": "This order is being handled by another terminal."
   },
   "remote": {
     "remoteLabel": "{{name}} (Remote)",

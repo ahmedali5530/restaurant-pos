@@ -10,7 +10,10 @@
   },
   "errors": {
     "createOrder": "Não foi possível criar o pedido.",
-    "openPayment": "Não foi possível abrir o pagamento."
+    "openPayment": "Não foi possível abrir o pagamento.",
+    "notOwner": "Este pedido está aberto em outro terminal",
+    "numbersExhausted": "Sem números de fatura disponíveis offline — reconecte-se para continuar criando pedidos",
+    "fireFailed": "Não foi possível enviar os itens em espera"
   },
   "tracking": {
     "createOrder": "Criar pedido",
@@ -86,7 +89,9 @@
     "complete": "Concluir",
     "cannotAddCard": "Não é possível adicionar mais pagamento para cartão",
     "exactCardAmount": "Valor exato adicionado para pagamento com cartão",
-    "tempAlreadyPrinted": "Conta provisória já impressa"
+    "tempAlreadyPrinted": "Conta provisória já impressa",
+    "alreadyClosed": "Este pedido já está fechado.",
+    "notOwner": "Este pedido está sendo tratado por outro terminal."
   },
   "remote": {
     "remoteLabel": "{{name}} (Remoto)",

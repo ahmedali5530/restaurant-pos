@@ -12,9 +12,8 @@ import {withCurrency, cn} from "@/lib/utils.ts";
 import {DiscountType} from "@/api/model/discount.ts";
 import {getActiveOrderDiscounts, getOrderFilteredItems} from "@/lib/order.ts";
 import {useTranslation} from "react-i18next";
-import useApi, {SettingsData} from "@/api/db/use.api.ts";
-import {Tables} from "@/api/db/tables.ts";
-import {Tax} from "@/api/model/tax.ts";
+import {useAtom} from "jotai";
+import {appSettings} from "@/store/jotai.ts";
 
 const separatorStyle = {'--size': '10px', '--space': '5px'} as CSSProperties;
 
@@ -26,18 +25,13 @@ interface CartTotalsProps {
 
 export const CartTotals = ({cart, itemCount, className}: CartTotalsProps) => {
   const {t} = useTranslation('orders');
-  const {data: taxesData} = useApi<SettingsData<Tax>>(
-    Tables.taxes,
-    ['deleted_at = none'],
-    ['priority asc'],
-    0,
-    99999,
-  );
+  const [settings] = useAtom(appSettings);
+  const taxes = settings.taxes ?? [];
 
   const itemsBase = useMemo(() => calculateCartItemsBaseTotal(cart), [cart]);
   const taxPreviewTotals = useMemo(
-    () => calculateCartTotalsWithTaxes(cart, taxesData?.data ?? []),
-    [cart, taxesData?.data],
+    () => calculateCartTotalsWithTaxes(cart, taxes),
+    [cart, taxes],
   );
 
   return (

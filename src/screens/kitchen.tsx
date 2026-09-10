@@ -3,7 +3,6 @@ import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faClose} from "@fortawesome/free-solid-svg-icons";
 import ScrollContainer from "react-indiana-drag-scroll";
-import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {
   Kitchen,
   KitchenOrder as KitchenOrderModel,
@@ -16,16 +15,19 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDB} from "@/api/db/db.ts";
 import {OrderItemKitchen} from "@/api/model/order_item_kitchen.ts";
 import {KitchenBoardTicket, KitchenOrder} from "@/components/kitchen/kitchen.order.tsx";
-import {cn, toRecordId} from "@/lib/utils.ts";
+import {cn} from "@/lib/utils.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {LiveSubscription} from "surrealdb";
-import {toLuxonDateTime, getAppStartOfDaySurreal} from "@/lib/datetime.ts";
+import {toLuxonDateTime, getAppStartOfDay} from "@/lib/datetime.ts";
 import {getInvoiceNumber} from "@/lib/order.ts";
 import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
 import {toast} from "sonner";
 import {useAtom} from "jotai";
 import {appPage, closingEnforcementAtom} from "@/store/jotai.ts";
 import {completeStages, recallStage} from "@/lib/kitchen/workflow.service.ts";
+import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
+import {terminalSyncService} from "@/infrastructure/sync/sync-service.ts";
+import {useDatabase} from "@/hooks/useDatabase.ts";
 import {useTranslation} from "react-i18next";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
@@ -166,16 +168,31 @@ export const KitchenScreen = () => {
   const {t} = useTranslation(["kitchen", "toast"]);
   const {t: tNav} = useTranslation('navigation');
   const db = useDB();
+  const {isEffectivelyConnected} = useDatabase();
   const [enforcement] = useAtom(closingEnforcementAtom);
   const [page] = useAtom(appPage);
   const mutationsBlocked = enforcement.orderMutationsBlocked;
 
   const [kitchen, setKitchen] = useState<Kitchen>();
-  const {
-    data: kitchens
-  } = useApi<SettingsData<Kitchen>>(Tables.kitchens, ['deleted_at = none'], ['priority asc'], 0, 10, ['items', 'printers']);
+  const [kitchens, setKitchens] = useState<Kitchen[]>([]);
   const [allOrders, setOrders] = useState<KitchenOrderModel[]>([]);
   const [ordersHydrated, setOrdersHydrated] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      const list = (await posStore.getKitchensHydrated()) as Kitchen[];
+      if (!cancelled) setKitchens(list);
+    };
+    void load();
+    const onWrite = () => void load();
+    window.addEventListener('posr-posstore-write', onWrite);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('posr-posstore-write', onWrite);
+    };
+  }, []);
+
   const orders = useMemo(() => {
     // Drop groups that have no remaining non-deleted items (voided lines stay visible
     // inside a batch if other items remain).
@@ -314,55 +331,45 @@ export const KitchenScreen = () => {
     return nestBatchesByOrder(groupIntoBatches(records));
   }, [groupIntoBatches, nestBatchesByOrder]);
 
-  const loadOrders = useCallback(async (kitchenId: string) => {
-    const currentUser = page?.user?.id;
-    const userClause = currentUser ? `and completed_by CONTAINSNOT $currentUser` : '';
-
-    const [kitchenOrderItemsRecord]: any = await db.query(`
-        select *,
-               time ::format(created_at, '%F %T') as batch_created_at
-        from ${Tables.order_items_kitchen}
-        where kitchen = $kitchen
-          and activated_at != None
-        and status in ['pending', 'in_progress', 'completed'] ${userClause}
-          and created_at >= $startDate
-          and order_item.is_suspended != true
-        order by created_at desc
-            fetch order_item, order_item.item, order_item.order, order_item.order.table, order_item.order.user, order_item.order.order_type
-    `, {
-      kitchen: toRecordId(kitchenId),
-      currentUser: toRecordId(currentUser),
-      startDate: getAppStartOfDaySurreal()
+  // KDS reads Dexie (`orderItemKitchens` joined with items / orders); Surreal
+  // live subscriptions below only wake the sync so other terminals' rows land.
+  const loadKitchenRows = useCallback(async (kitchenId: string) => {
+    const rows = await posStore.getKitchenRowsHydrated(kitchenId, {
+      sinceIso: getAppStartOfDay().toISO() ?? undefined,
     });
+    return rows
+      .filter((row) => row.order_item?.is_suspended !== true)
+      .map((row) => ({
+        ...row,
+        batch_created_at: toLuxonDateTime(row.created_at).toUTC().toFormat('yyyy-LL-dd HH:mm:ss'),
+      })) as OrderItemKitchen[];
+  }, []);
 
-    setOrders(groupKitchenOrderItems(kitchenOrderItemsRecord ?? []));
+  const loadOrders = useCallback(async (kitchenId: string) => {
+    const currentUser = page?.user?.id ? String(page.user.id) : null;
+    const rows = (await loadKitchenRows(kitchenId))
+      .filter((row) => row.activated_at != null)
+      .filter((row) => ['pending', 'in_progress', 'completed'].includes(String(row.status)))
+      .filter((row) => !currentUser || !((row as any).completed_by ?? []).map(String).includes(currentUser))
+      .sort((a, b) => toLuxonDateTime(b.created_at).toMillis() - toLuxonDateTime(a.created_at).toMillis());
+
+    setOrders(groupKitchenOrderItems(rows));
     setOrdersHydrated(true);
 
     await calculateAverageTime(kitchenId);
-  }, [groupKitchenOrderItems, page?.user?.id]);
+  }, [groupKitchenOrderItems, loadKitchenRows, page?.user?.id]);
 
   const loadCompletedOrders = useCallback(async (kitchenId: string) => {
     setLoadingCompletedOrders(true);
 
     try {
-      const [kitchenOrderItemsRecord]: any = await db.query(`
-          select *,
-                 time ::format(created_at, '%F %T') as batch_created_at
-          from ${Tables.order_items_kitchen}
-          where kitchen = $kitchen
-            and completed_by CONTAINS $currentUser
-            and created_at >= $startDate
-            and order_item.is_suspended != true
-          order by completed_at desc
-              fetch order_item, order_item.item, order_item.order, order_item.order.table, order_item.order.user, order_item.order.order_type
-      `, {
-        kitchen: toRecordId(kitchenId),
-        currentUser: toRecordId(page?.user?.id),
-        startDate: getAppStartOfDaySurreal()
-      });
+      const currentUser = page?.user?.id ? String(page.user.id) : null;
+      const rows = (await loadKitchenRows(kitchenId))
+        .filter((row) => !!currentUser && ((row as any).completed_by ?? []).map(String).includes(currentUser))
+        .sort((a, b) => toLuxonDateTime(b.completed_at ?? b.created_at).toMillis() - toLuxonDateTime(a.completed_at ?? a.created_at).toMillis());
 
       // Keep recall list at batch level (not nested by order).
-      const tickets = groupIntoBatches(kitchenOrderItemsRecord ?? []);
+      const tickets = groupIntoBatches(rows);
       tickets.sort((a, b) => {
         const aDone = a.items[0]?.completed_at ?? a.items[0]?.created_at;
         const bDone = b.items[0]?.completed_at ?? b.items[0]?.created_at;
@@ -372,7 +379,7 @@ export const KitchenScreen = () => {
     } finally {
       setLoadingCompletedOrders(false);
     }
-  }, [groupIntoBatches, page?.user?.id]);
+  }, [groupIntoBatches, loadKitchenRows, page?.user?.id]);
 
   const openCompletedOrdersModal = async () => {
     if (!kitchen?.id) {
@@ -396,7 +403,10 @@ export const KitchenScreen = () => {
     setRecallingOrderKey(ticket.batchKey);
 
     try {
-      await assertOrderMutationsAllowed(db);
+      await assertOrderMutationsAllowed(db).catch((err) => {
+        // Closing guard needs the master DB; offline we let the local-first path proceed.
+        if (err?.message && !/network|fetch|connect|closed/i.test(String(err.message))) throw err;
+      });
 
       await Promise.all(recallableItems.map((item) => {
         return recallStage(db, item.id.toString(), page?.user?.id);
@@ -413,8 +423,8 @@ export const KitchenScreen = () => {
   }
 
   useEffect(() => {
-    if (!kitchen && kitchens?.total > 0) {
-      setKitchen(kitchens?.data?.[0]);
+    if (!kitchen && kitchens.length > 0) {
+      setKitchen(kitchens[0]);
     }
   }, [kitchens, kitchen]);
 
@@ -433,44 +443,50 @@ export const KitchenScreen = () => {
   const [orderItemsLiveQuery, setOrderItemsLiveQuery] = useState<LiveSubscription | null>(null);
 
   const runLiveQuery = async () => {
-    if (!kitchen?.id) {
+    if (!kitchen?.id || !isEffectivelyConnected) {
       return;
     }
 
     const kitchenId = kitchen.id.toString();
     const refresh = () => scheduleLoadOrders(kitchenId);
 
-    const result = await db.live(Tables.orders, (action) => {
+    // Surreal live = sync wake-up only; the refresh itself reads Dexie after pull.
+    const wake = (action: string) => {
       if (action === 'CREATE' || action === 'UPDATE') {
-        refresh();
+        void terminalSyncService.synchronize().catch(() => undefined).finally(refresh);
       }
-    });
+    };
+    try {
+      const result = await db.live(Tables.orders, wake);
+      const kitchenItems = await db.live(Tables.order_items_kitchen, wake);
+      const orderItems = await db.live(Tables.order_items, wake);
 
-    const kitchenItems = await db.live(Tables.order_items_kitchen, (action) => {
-      if (action === 'CREATE' || action === 'UPDATE') {
-        refresh();
-      }
-    });
-
-    const orderItems = await db.live(Tables.order_items, (action) => {
-      if (action === 'CREATE' || action === 'UPDATE') {
-        refresh();
-      }
-    });
-
-    setOrdersLiveQuery(result);
-    setKitchenItemsLiveQuery(kitchenItems);
-    setOrderItemsLiveQuery(orderItems);
+      setOrdersLiveQuery(result);
+      setKitchenItemsLiveQuery(kitchenItems);
+      setOrderItemsLiveQuery(orderItems);
+    } catch (error) {
+      console.warn("Kitchen live wake skipped:", error);
+    }
   }
 
   useEffect(() => {
     if (kitchen) {
       setOrdersHydrated(false);
       loadOrders(kitchen.id);
-      runLiveQuery();
+      void runLiveQuery();
     }
 
+    // Local writes (own completes) and pulled rows both land in Dexie.
+    const kitchenId = kitchen?.id ? String(kitchen.id) : null;
+    const onLocalWrite = () => {
+      if (kitchenId) scheduleLoadOrders(kitchenId);
+    };
+    window.addEventListener('posr-posstore-write', onLocalWrite);
+    window.addEventListener('posr-operational-orders-updated', onLocalWrite);
+
     return () => {
+      window.removeEventListener('posr-posstore-write', onLocalWrite);
+      window.removeEventListener('posr-operational-orders-updated', onLocalWrite);
       if (loadOrdersTimerRef.current) {
         clearTimeout(loadOrdersTimerRef.current);
       }
@@ -478,23 +494,14 @@ export const KitchenScreen = () => {
       kitchenItemsLiveQuery?.kill().catch(() => undefined);
       orderItemsLiveQuery?.kill().catch(() => undefined);
     }
-  }, [kitchen]);
+  }, [kitchen, isEffectivelyConnected]);
 
   const calculateAverageTime = useCallback(async (kitchenId: string) => {
-    const startDate = getAppStartOfDaySurreal();
     const maxPrepMinutes = 240;
 
-    const [rows]: any = await db.query(
-      `SELECT completed_at, activated_at, created_at
-       FROM ${Tables.order_items_kitchen}
-       WHERE kitchen = $kitchen
-         AND completed_at != None
-         AND created_at >= $startDate`,
-      {
-        kitchen: toRecordId(kitchenId),
-        startDate,
-      }
-    );
+    const rows = (await posStore.getKitchenRowsHydrated(kitchenId, {
+      sinceIso: getAppStartOfDay().toISO() ?? undefined,
+    })).filter((row) => row.completed_at != null);
 
     const durations: number[] = [];
 
@@ -575,14 +582,14 @@ export const KitchenScreen = () => {
     <Layout containerClassName="overflow-hidden">
       <DocumentTitle parts={[tNav('sidebar.kitchen')]} />
       <div
-        className="flex gap-5 p-3 flex-col"
+        className="flex gap-3 p-3 flex-col"
         data-testid="kitchen-page"
         onPointerDown={unlockKitchenSpeech}
         onClick={unlockKitchenSpeech}
       >
         <div className="h-[60px] flex-0 flex items-center gap-3 justify-between" data-testid="kitchen-toolbar">
           <div className="input-group flex-1">
-            {kitchens?.data?.map(item => (
+            {kitchens.map(item => (
               <Button
                 size="lg"
                 variant="primary"
@@ -615,10 +622,10 @@ export const KitchenScreen = () => {
               className="rounded-xl bg-neutral-900 text-warning-500 text-2xl h-full flex items-center px-3">{t("kitchen:labels.avgTime", {time: avgTime})}</span>
           </div>
         </div>
-        <div className="grid grid-cols-5 gap-5">
+        <div className="grid grid-cols-5 gap-5 h-[calc(100vh_-_100px_-_var(--app-toolbar-h))]">
           <ScrollContainer
             className={cn(
-              'h-[calc(100vh_-_110px)] select-none overflow-y-hidden',
+              'flex-1 min-h-0 select-none overflow-y-hidden',
               dishesModal ? 'col-span-4' : 'col-span-5'
             )}
           >
@@ -650,7 +657,7 @@ export const KitchenScreen = () => {
                 <FontAwesomeIcon icon={faClose}/>
               </button>
               <ScrollContainer className={cn(
-                'h-[calc(100vh_-_200px)] select-none',
+                'flex-1 min-h-0 select-none',
               )}>
                 {allDishes.map((item, index) => (
                   <div className="flex justify-between text-2xl odd:bg-gray-200 p-3" key={index}>

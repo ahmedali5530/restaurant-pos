@@ -1,10 +1,8 @@
 import React, {ReactNode, useEffect, useRef} from "react";
 import {useAtomValue} from "jotai";
-import {useDB} from "@/api/db/db.ts";
-import {Tables} from "@/api/db/tables.ts";
-import {Table} from "@/api/model/table.ts";
 import {toJsDate} from "@/lib/datetime.ts";
 import {appPage} from "@/store/jotai.ts";
+import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
 
 interface TableLockProviderProps {
   children: ReactNode;
@@ -13,13 +11,15 @@ interface TableLockProviderProps {
 const STALE_LOCK_THRESHOLD_MS = 15_000;
 const CHECK_INTERVAL_MS = 30_000;
 
+/**
+ * Releases table locks whose heartbeat went stale. Reads and writes the local
+ * `tableLocks` store only — the outbox pushes the release to SurrealDB and pull
+ * keeps every other terminal's view fresh (ADR 0001).
+ */
 export const TableLockProvider: React.FC<TableLockProviderProps> = ({children}) => {
-  const db = useDB();
   const page = useAtomValue(appPage);
-  const dbRef = useRef(db);
   const pageRef = useRef(page);
   const inFlightRef = useRef(false);
-  dbRef.current = db;
   pageRef.current = page;
 
   const userId = page?.user?.id != null ? String(page.user.id) : null;
@@ -44,41 +44,18 @@ export const TableLockProvider: React.FC<TableLockProviderProps> = ({children}) 
 
       inFlightRef.current = true;
       try {
-        const [lockedTables] = await dbRef.current.query<[Table[]]>(
-          `SELECT id, locked_at
-           FROM ${Tables.tables}
-           WHERE is_locked = true
-             AND locked_at != NONE
-             AND deleted_at = none`
-        );
-
-        if (!Array.isArray(lockedTables) || lockedTables.length === 0) {
-          return;
-        }
-
+        const locks = await posStore.getTableLocks();
         const staleThreshold = Date.now() - STALE_LOCK_THRESHOLD_MS;
-        const staleTables = lockedTables.filter((table) => {
-          if (!table.locked_at) {
-            return true;
-          }
-
-          const lockedAt = toJsDate(table.locked_at).getTime();
+        const stale = locks.filter((lock) => {
+          if (!lock.is_locked) return false;
+          if (!lock.locked_at) return true;
+          const lockedAt = toJsDate(lock.locked_at as any).getTime();
           return !Number.isFinite(lockedAt) || lockedAt < staleThreshold;
         });
 
-        if (staleTables.length === 0) {
-          return;
+        for (const lock of stale) {
+          await posStore.unlockTable(lock.id);
         }
-
-        await Promise.all(
-          staleTables.map((table) =>
-            dbRef.current.merge(table.id, {
-              is_locked: false,
-              locked_at: null,
-              locked_by: null,
-            })
-          )
-        );
       } catch (error) {
         console.error("Error releasing stale table locks:", error);
       } finally {
