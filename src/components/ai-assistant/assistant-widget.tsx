@@ -15,6 +15,7 @@ import {useDB} from "@/api/db/db.ts";
 import {appPage} from "@/store/jotai.ts";
 import {useAllowedModules} from "@/hooks/useAllowedModules.ts";
 import {Button} from "@/components/common/input/button.tsx";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {Textarea} from "@/components/common/input/textarea.tsx";
 import {AiMarkdown} from "@/components/reports/ai/ai.markdown.tsx";
 import type {OpenAIChatMessage} from "@/lib/openai.service.ts";
@@ -208,14 +209,13 @@ export function AiAssistantWidget() {
   const handleClearConversation = useCallback(() => {
     if (!userId || loading) return;
     if (!entries.length && !history.length) return;
-    if (!window.confirm(t("common:aiAssistant.clearConfirm"))) return;
 
     setEntries([]);
     setHistory([]);
     setPending(null);
     setError(null);
     void clearAssistantConversation(userId);
-  }, [entries.length, history.length, loading, t, userId]);
+  }, [entries.length, history.length, loading, userId]);
 
   const applyResult = useCallback((result: AssistantAgentResult) => {
     if (result.type === "answer") {
@@ -382,16 +382,21 @@ export function AiAssistantWidget() {
           >
             <FontAwesomeIcon icon={faCircleQuestion} />
           </button>
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={handleClearConversation}
-            disabled={loading || !hydrated || (!entries.length && !history.length)}
-            className="!min-w-0"
-            flat
+          <DeleteConfirm
+            title={t("common:aiAssistant.clear")}
+            message={t("common:aiAssistant.clearConfirm")}
+            onConfirm={handleClearConversation}
           >
-            {t("common:aiAssistant.clear")}
-          </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              disabled={loading || !hydrated || (!entries.length && !history.length)}
+              className="!min-w-0"
+              flat
+            >
+              {t("common:aiAssistant.clear")}
+            </Button>
+          </DeleteConfirm>
           <button
             type="button"
             onClick={toggleExpanded}
